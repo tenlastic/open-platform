@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+# Initiaize istio-system namespace.
+kubectl create namespace istio-system
+
 # Initialize Kiali secret for login.
 kubectl apply -f ./kubernetes/kiali/secret.yml
 
