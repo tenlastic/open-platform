@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: istio
+  name: helloworld-ingress
+spec:
+  rules:
+    - host: 'hello.staging.tenlastic.com'
+      http:
+        paths:
+          - path: /hello
+            backend:
+              serviceName: helloworld
+              servicePort: 5000

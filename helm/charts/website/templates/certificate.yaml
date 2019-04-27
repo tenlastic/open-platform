@@ -1,0 +1,23 @@
+{{- $fullName := include "website.fullname" . -}}
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: {{ $fullName }}
+  labels:
+    app.kubernetes.io/name: {{ include "website.name" . }}
+    helm.sh/chart: {{ include "website.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  secretName: {{ $fullName }}
+  issuerRef:
+    name: {{ .Values.certmanager.issuer }}
+  commonName: {{ .Values.ingress.host | quote }}
+  dnsNames:
+  - {{ .Values.ingress.host | quote }}
+  acme:
+    config:
+    - http01:
+        ingress: {{ $fullName }}
+      domains:
+      - {{ .Values.ingress.host | quote }}
