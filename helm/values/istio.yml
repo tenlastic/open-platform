@@ -4,7 +4,7 @@ gateways:
       enabled: true
 global:
   defaultNodeSelector:
-    cloud.google.com/gke-nodepool : default-pool
+    cloud.google.com/gke-nodepool: default-pool
   k8sIngress:
     enabled: true
     enableHttps: true

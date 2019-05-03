@@ -1,15 +1,3 @@
-affinity:
-  podAntiAffinity:
-    preferredDuringSchedulingIgnoredDuringExecution:
-    - weight: 100
-      podAffinityTerm:
-        labelSelector:
-          matchExpressions:
-          - key: app
-            operator: In
-            values:
-            - mongodb-replicaset
-        topologyKey: kubernetes.io/hostname
 image:
   tag: 4.0
 metrics:

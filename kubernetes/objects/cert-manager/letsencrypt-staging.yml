@@ -15,5 +15,5 @@ spec:
         clouddns:
           serviceAccountSecretRef:
             name: cert-manager-credentials
-            key: gcp-dns-admin.json
+            key: dns-admin.json
           project: staging-238505

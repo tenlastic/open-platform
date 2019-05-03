@@ -2,7 +2,7 @@
 set -e
 
 # Create Service Account for Tiller.
-kubectl apply -f ./kubernetes/tiller/
+kubectl apply -f ./kubernetes/objects/tiller/
 
 # Install Tiller on Kubernetes cluster.
 helm init \

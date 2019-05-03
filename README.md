@@ -17,59 +17,76 @@
 
 #### Deploy Infrastructure
 
-- Log in to GCloud CLI:
-  - ```bash
-    gcloud auth login
-    gcloud config set project [PROJECT]
-    ```
+```bash
+# Log in to GCloud CLI.
+gcloud auth login
+gcloud config set project [PROJECT]
 
-- Enable required services:
-  - ```bash
-    gcloud services enable cloudbilling.googleapis.com
-    gcloud services enable cloudresourcemanager.googleapis.com
-    gcloud services enable compute.googleapis.com
-    gcloud services enable container.googleapis.com
-    gcloud services enable deploymentmanager.googleapis.com
-    gcloud services enable iam.googleapis.com
-    ```
+# Enable required services.
+gcloud services enable cloudbilling.googleapis.com
+gcloud services enable cloudresourcemanager.googleapis.com
+gcloud services enable compute.googleapis.com
+gcloud services enable container.googleapis.com
+gcloud services enable deploymentmanager.googleapis.com
+gcloud services enable iam.googleapis.com
 
-- Grant the Google APIs service account with the Owner role:
-  - ```bash
-    ./gcloud/scripts/google-apis-service-account.sh
-    ```
+# Grant the Google APIs service account with the Owner role.
+./gcloud/scripts/google-apis-service-account.sh
 
-- Deploy service account and storage bucket for Terraform:
-  - ```bash
-    gcloud deployment-manager deployments create "terraform-resources" \
-      --template "./deployment-manager/terraform-resources.jinja"
-    ```
+# Deploy service account and storage bucket for Terraform.
+gcloud deployment-manager deployments create "terraform-resources" \
+  --template "./deployment-manager/terraform-resources.jinja"
 
-- Create service account for Terraform:
-  - ```bash
-    ./gcloud/scripts/get-service-account-key.sh terraform
-    ```
+# Create service account for Terraform.
+./gcloud/scripts/get-service-account-key.sh terraform
 
-- Deploy Kubernetes cluster:
-  - ```bash
-    terraform init ./gcloud/terraform/production/
-    terraform apply ./gcloud/terraform/production/
-    ```
+# Deploy Kubernetes cluster.
+terraform init ./gcloud/terraform/production/
+terraform apply ./gcloud/terraform/production/
+
+# Connect to cluster.
+gcloud container clusters get-credentials primary \
+  --zone "us-central1-a"
+```
 
 
-- Install Tiller: `./scripts/kubernetes/tiller.sh`.
-- Install CertManager: `./scripts/kubernetes/cert-manager.sh`.
-- Install Istio: `./scripts/kubernetes/istio.sh`.
-- Create Wildcard Certificate: `kubectl apply -f ./kubernetes/istio/certificate.yml`.
-- Launch the DNS Managed Zone: `./scripts/infrastructure/managed-zone.sh`.
-- Install Book Info: `./scripts/kubernetes/bookinfo.sh`.
-- Install MongoDB: `./scripts/kubernetes/mongodb.sh`.
+#### Setup Istio with Automatic SSL Provisioning
+
+```bash
+# Install Tiller.
+./kubernetes/scripts/tiller.sh
+
+# Install CertManager.
+./kubernetes/scripts/cert-manager.sh
+
+# Install Istio.
+./kubernetes/scripts/istio.sh
+
+# Create Wildcard Certificate.
+kubectl apply -f ./kubernetes/istio/certificate.yml
+
+# Restart Istio Ingressgateway to reload certificate.
+export TIMESTAMP=$(date +%s)
+kubectl patch -n istio-system deployment/istio-ingressgateway \
+  -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"date\":\"${TIMESTAMP}\"}}}}}"
+```
+
+
+#### Setup Infrastructure
+
+```bash
+# Add extra storage classes.
+kubectl apply -f ./kubernetes/objects/storage-classes/
+
+# Install MongoDB.
+./kubernetes/scripts/mongodb.sh
+```
 
 
 ### Notes
 
-- Restart Ingress to reload certificate:
+- Enable Istio Sidecar injection for namespace.
 ```bash
-TIMESTAMP=$(date +%s)
-kubectl patch -n istio-system deployment/istio-ingressgateway \
-  -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"date\":\"${TIMESTAMP}\"}}}}}"
+kubectl label namespace default istio-injection=enabled \
+  --overwrite
 ```
