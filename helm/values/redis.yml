@@ -1,0 +1,9 @@
+exporter:
+  enabled: true
+  tag: v0.34.0
+master:
+  persistence:
+    storageClass: default-expandable
+nodeSelector:
+  cloud.google.com/gke-nodepool: default-pool
+tag: 5.0

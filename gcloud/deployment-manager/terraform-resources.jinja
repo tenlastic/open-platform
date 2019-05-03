@@ -1,0 +1,37 @@
+{% set deployment = env['deployment'] %}
+{% set project = env['project'] %}
+
+resources:
+- name: primary-terraform-state
+  type: storage.v1.bucket
+  properties:
+    location: us-central1
+    kind: storage#bucket
+    storageClass: REGIONAL
+    versioning:
+      enabled: true
+
+- name: terraform
+  type: iam.v1.serviceAccount
+  properties:
+    accountId: terraform
+    displayName: Terraform Service Agent
+
+- name: get-iam-policy
+  action: gcp-types/cloudresourcemanager-v1:cloudresourcemanager.projects.getIamPolicy
+  properties:
+    resource: {{ project }}
+  metadata:
+    runtimePolicy:
+    - 'UPDATE_ALWAYS'
+
+- name: patch-iam-policy
+  action: gcp-types/cloudresourcemanager-v1:cloudresourcemanager.projects.setIamPolicy
+  properties:
+    resource: {{ project }}
+    policy: $(ref.get-iam-policy)
+    gcpIamPolicyPatch:
+      add:
+      - role: roles/owner
+        members:
+        - serviceAccount:$(ref.terraform.email)

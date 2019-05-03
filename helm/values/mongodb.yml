@@ -1,0 +1,20 @@
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - mongodb-replicaset
+        topologyKey: kubernetes.io/hostname
+image:
+  tag: 4.0
+metrics:
+  enabled: true
+nodeSelector:
+  cloud.google.com/gke-nodepool: default-pool
+persistentVolume:
+  storageClass: standard-expandable

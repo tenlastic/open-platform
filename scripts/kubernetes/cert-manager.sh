@@ -12,7 +12,9 @@ helm repo add jetstack https://charts.jetstack.io
 helm repo update
 
 # Install the cert-manager helm chart
-helm install --name cert-manager --namespace cert-manager jetstack/cert-manager
+helm install jetstack/cert-manager \
+  --name "cert-manager" \
+  --namespace "cert-manager"
 
 # Wait for install to finish.
 echo "Waiting for install to finish..."
@@ -20,8 +22,8 @@ sleep 30
 
 # Create GCP DNS Admin Secret.
 kubectl create secret generic cert-manager-credentials \
- --from-file=gcp-dns-admin.json \
- --namespace cert-manager
+ --from-file "gcp-dns-admin.json" \
+ --namespace "cert-manager"
 
 # Create Staging and Production Issuers.
 kubectl apply -f ./kubernetes/cert-manager/

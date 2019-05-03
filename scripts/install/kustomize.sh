@@ -11,6 +11,3 @@ curl -s https://api.github.com/repos/kubernetes-sigs/kustomize/releases/latest |
 # Move the installation to a more permanent location.
 sudo mv kustomize_*_linux_amd64 /opt/kustomize
 sudo chmod u+x /opt/kustomize
-
-# Add to your PATH.
-export PATH=$PATH:/opt
