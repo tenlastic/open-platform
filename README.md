@@ -10,9 +10,6 @@
 # Install Helm.
 ./scripts/install/helm.sh
 
-# Download Istio.
-./scripts/install/istio.sh
-
 # Install Kustomize.
 ./scripts/install/kustomize.sh
 ```
@@ -54,13 +51,11 @@
 
 - Deploy Kubernetes cluster:
   - ```bash
-
+    terraform init ./gcloud/terraform/production/
+    terraform apply ./gcloud/terraform/production/
     ```
 
 
-
-
-- Create a Cloud DNS Admin IAM Profile: `kubectl apply -f ./scripts/infrastructure/cloud-dns-admin.sh`.
 - Install Tiller: `./scripts/kubernetes/tiller.sh`.
 - Install CertManager: `./scripts/kubernetes/cert-manager.sh`.
 - Install Istio: `./scripts/kubernetes/istio.sh`.

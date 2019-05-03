@@ -1,8 +1,14 @@
-variable "location" {
-  default = "us-central1-a"
+variable "project" {
+  default = "staging-238505"
   type    = "string"
 }
 
-variable "project" {
+variable "region" {
+  default = "us-central1"
+  type    = "string"
+}
+
+variable "zone" {
+  default = "us-central1-a"
   type    = "string"
 }
