@@ -41,8 +41,11 @@ gcloud deployment-manager deployments create "terraform-resources" \
 ./gcloud/scripts/get-service-account-key.sh terraform
 
 # Deploy Kubernetes cluster.
-terraform init ./gcloud/terraform/production/
-terraform apply ./gcloud/terraform/production/
+export GOOGLE_CREDENTIALS=$(cat ./gcloud/service-accounts/terraform.json)
+cd ./gcloud/terraform/production
+terraform init -backend-config="./backend.example.tfvars"
+terraform apply
+cd ../../../
 
 # Connect to cluster.
 gcloud container clusters get-credentials primary \
@@ -63,11 +66,11 @@ gcloud container clusters get-credentials primary \
 ./kubernetes/scripts/istio.sh
 
 # Create Wildcard Certificate.
-kubectl apply -f ./kubernetes/istio/certificate.yml
+kubectl apply -f ./kubernetes/objects/istio/certificate.yml
 
 # Restart Istio Ingressgateway to reload certificate.
 export TIMESTAMP=$(date +%s)
-kubectl patch -n istio-system deployment/istio-ingressgateway \
+kubectl patch deployment -n istio-system  istio-ingressgateway \
   -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"date\":\"${TIMESTAMP}\"}}}}}"
 ```
 
@@ -80,6 +83,12 @@ kubectl apply -f ./kubernetes/objects/storage-classes/
 
 # Install MongoDB.
 ./kubernetes/scripts/mongodb.sh
+
+# Install Redis.
+./kubernetes/scripts/redis.sh
+
+# Install Kafka.
+./kubernetes/scripts/kafka.sh
 ```
 
 

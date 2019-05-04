@@ -1,13 +1,19 @@
-image:
-  tag: 4.0
-metrics:
-  enabled: true
 nodeSelector:
   cloud.google.com/gke-nodepool: default-pool
-persistentVolume:
+persistence:
   storageClass: standard-expandable
+prometheus:
+  kafka:
+    enabled: true
+  jmx:
+    enabled: true
 replicas: 3
 resources:
   requests:
     memory: 128M
     cpu: 100m
+zookeeper:
+  resources:
+    requests:
+      memory: 128M
+      cpu: 100m
