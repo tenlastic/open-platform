@@ -21,6 +21,9 @@ gcloud container clusters get-credentials primary \
 # Install Istio.
 ./kubernetes/scripts/istio.sh
 
+# Upload Grafana dashboards.
+./kubernetes/scripts/grafana-dashboards.sh
+
 # Create Wildcard Certificate.
 kubectl apply -f ./kubernetes/objects/istio/certificate.yml
 
@@ -44,3 +47,6 @@ kubectl apply -f ./kubernetes/objects/storage-classes/
 
 # Install Kafka.
 ./kubernetes/scripts/kafka.sh
+
+# Install MinIO.
+./kubernetes/scripts/minio.sh

@@ -6,6 +6,14 @@ affinity:
         - key: cloud.google.com/gke-preemptible
           operator: DoesNotExist
       weight: 100
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - podAffinityTerm:
+        labelSelector:
+          matchLabels:
+            app: kafka
+        topologyKey: kubernetes.io/hostname
+      weight: 100
 persistence:
   storageClass: standard-expandable
 prometheus:
@@ -26,6 +34,14 @@ zookeeper:
           matchExpressions:
           - key: cloud.google.com/gke-preemptible
             operator: DoesNotExist
+        weight: 100
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: zookeeper
+          topologyKey: kubernetes.io/hostname
         weight: 100
   resources:
     requests:

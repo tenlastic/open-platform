@@ -1,15 +1,9 @@
-affinity:
-  nodeAffinity:
-    preferredDuringSchedulingIgnoredDuringExecution:
-    - preference:
-        matchExpressions:
-        - key: cloud.google.com/gke-preemptible
-          operator: DoesNotExist
-      weight: 100
 exporter:
   enabled: true
   tag: v0.34.0
-replicas: 1
+nodeSelector:
+  cloud.google.com/gke-nodepool: default-pool
+replicas: 3
 tag: 5.0
 redis:
   resources:
