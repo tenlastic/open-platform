@@ -25,8 +25,8 @@ module "preemptible_pool" {
 
   cluster_name   = "${google_container_cluster.primary.name}"
   machine_type   = "g1-small"
-  max_node_count = 5
-  min_node_count = 3
+  max_node_count = 2
+  min_node_count = 1
   name           = "preemptible-pool"
   preemptible    = true
 }

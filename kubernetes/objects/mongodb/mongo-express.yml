@@ -37,6 +37,14 @@ spec:
           value: admin
         - name: ME_CONFIG_MONGODB_SERVER
           value: mongodb-mongodb-replicaset-0.mongodb-mongodb-replicaset.mongodb.svc.cluster.local,mongodb-mongodb-replicaset-1.mongodb-mongodb-replicaset.mongodb.svc.cluster.local,mongodb-mongodb-replicaset-2.mongodb-mongodb-replicaset.mongodb.svc.cluster.local
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: cloud.google.com/gke-preemptible
+                operator: Exists
+            weight: 100
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService

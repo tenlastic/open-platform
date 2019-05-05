@@ -37,6 +37,14 @@ spec:
           value: admin
         - name: REDIS_HOST
           value: redis-redis-ha.redis.svc.cluster.local
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: cloud.google.com/gke-preemptible
+                operator: Exists
+            weight: 100
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService

@@ -33,6 +33,14 @@ spec:
         env:
         - name: ZK_HOSTS
           value: kafka-zookeeper.kafka.svc.cluster.local
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: cloud.google.com/gke-preemptible
+                operator: Exists
+            weight: 100
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService

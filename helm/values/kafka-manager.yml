@@ -1,2 +1,0 @@
-zkHosts:
-  kafka-zookeeper.kafka.svc.cluster.local:2181

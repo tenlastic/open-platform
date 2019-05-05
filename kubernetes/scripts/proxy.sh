@@ -26,6 +26,10 @@ elif [ "${SERVICE_NAME}" == "kafka-manager" ]; then
 elif [ "${SERVICE_NAME}" == "kiali" ]; then
   kubectl port-forward -n istio-system $(kubectl -n istio-system get pod -l app=kiali -o jsonpath='{.items[0].metadata.name}') 8082:20001
 
+# MinIO
+elif [ "${SERVICE_NAME}" == "minio" ]; then
+  kubectl port-forward -n minio minio 9000:9000
+
 # MongoDB
 elif [ "${SERVICE_NAME}" == "mongodb" ]; then
   MASTER=$($DIRNAME/mongodb-primary.sh)

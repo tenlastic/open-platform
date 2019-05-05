@@ -1,5 +1,11 @@
-nodeSelector:
-  cloud.google.com/gke-nodepool: default-pool
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - preference:
+        matchExpressions:
+        - key: cloud.google.com/gke-preemptible
+          operator: DoesNotExist
+      weight: 100
 persistence:
   storageClass: standard-expandable
 prometheus:
@@ -13,6 +19,14 @@ resources:
     memory: 128M
     cpu: 100m
 zookeeper:
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - preference:
+          matchExpressions:
+          - key: cloud.google.com/gke-preemptible
+            operator: DoesNotExist
+        weight: 100
   resources:
     requests:
       memory: 128M

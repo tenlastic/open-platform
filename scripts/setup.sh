@@ -5,7 +5,7 @@ set -e
 export GOOGLE_CREDENTIALS=$(cat ./gcloud/service-accounts/terraform.json)
 cd ./gcloud/terraform/production
 terraform init -backend-config="./backend.example.tfvars"
-terraform apply
+terraform apply -auto-approve
 cd ../../../
 
 # Connect to cluster.

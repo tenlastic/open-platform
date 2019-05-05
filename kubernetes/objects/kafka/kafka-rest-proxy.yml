@@ -45,6 +45,14 @@ spec:
           value: 'GET,POST,PUT,DELETE,OPTIONS'
         - name: KAFKA_REST_ACCESS_CONTROL_ALLOW_ORIGIN
           value: '*'
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: cloud.google.com/gke-preemptible
+                operator: Exists
+            weight: 100
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService

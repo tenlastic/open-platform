@@ -1,10 +1,8 @@
 #/usr/bin/env bash
 set -e
 
-# Set up Istio sidecars.
-kubectl create namespace redis
-kubectl label namespace redis istio-injection=enabled \
-  --overwrite
+# Create the Redis namespace.
+kubectl apply -f ./kubernetes/objects/redis/namespace.yml
 
 # Install Redis Helm chart.
 helm repo add stable https://kubernetes-charts.storage.googleapis.com/

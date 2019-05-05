@@ -1,10 +1,8 @@
 #/usr/bin/env bash
 set -e
 
-# Set up Istio sidecars.
-kubectl create namespace mongodb
-kubectl label namespace mongodb istio-injection=enabled \
-  --overwrite
+# Create the MongoDB namespace.
+kubectl apply -f ./kubernetes/objects/mongodb/namespace.yml
 
 # Install MongoDB Helm chart.
 helm repo add stable https://kubernetes-charts.storage.googleapis.com/

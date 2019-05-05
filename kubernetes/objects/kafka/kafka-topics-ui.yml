@@ -35,6 +35,14 @@ spec:
           value: basicauth / admin admin
         - name: KAFKA_REST_PROXY_URL
           value: https://kafka-proxy.tenlastic.com
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: cloud.google.com/gke-preemptible
+                operator: Exists
+            weight: 100
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
