@@ -15,7 +15,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 15,
   "links": [],
   "panels": [
     {
@@ -224,6 +223,5 @@
   },
   "timezone": "",
   "title": "Redis",
-  "uid": "6CK514iZz",
   "version": 2
 }

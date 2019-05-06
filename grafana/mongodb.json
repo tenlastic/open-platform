@@ -15,7 +15,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 14,
   "links": [],
   "panels": [
     {
@@ -280,8 +279,8 @@
     "list": []
   },
   "time": {
-    "from": "2019-05-05T01:11:06.059Z",
-    "to": "2019-05-05T13:11:06.059Z"
+    "from": "now-6h",
+    "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -310,6 +309,5 @@
   },
   "timezone": "",
   "title": "MongoDB",
-  "uid": "-9FYAVmZk",
-  "version": 1
+  "version": 2
 }

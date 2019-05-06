@@ -10,6 +10,8 @@ global:
     enableHttps: true
 grafana:
   enabled: true
+  security:
+    enabled: true
 kiali:
   dashboard:
     grafanaURL: http://grafana:3000

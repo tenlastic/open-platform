@@ -1,4 +1,11 @@
 affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - preference:
+        matchExpressions:
+        - key: cloud.google.com/gke-preemptible
+          operator: DoesNotExist
+      weight: 100
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
     - podAffinityTerm:
@@ -11,8 +18,6 @@ image:
   tag: 4.0
 metrics:
   enabled: true
-nodeSelector:
-  cloud.google.com/gke-nodepool: default-pool
 persistentVolume:
   storageClass: standard-expandable
 replicas: 3

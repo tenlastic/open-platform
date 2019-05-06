@@ -1,6 +1,6 @@
 resource "google_storage_bucket" "velero" {
   location = "${var.region}"
-  name     = "velero"
+  name     = "primary-velero-backup"
 }
 
 resource "google_project_iam_custom_role" "velero" {
@@ -16,7 +16,10 @@ resource "google_project_iam_custom_role" "velero" {
     "compute.snapshots.delete",
     "compute.snapshots.get",
     "compute.snapshots.useReadOnly",
-    "compute.zones.get"
+    "compute.zones.get",
+    "storage.objects.create",
+    "storage.objects.get",
+    "storage.objects.list"
   ]
 }
 
@@ -26,5 +29,5 @@ module "velero" {
   display_name = "Velero Service Account"
   name         = "velero"
   project      = "${var.project}"
-  role         = "roles/velero.server"
+  role         = "projects/${var.project}/roles/velero.server"
 }

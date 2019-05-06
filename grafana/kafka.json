@@ -15,7 +15,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 16,
   "links": [],
   "panels": [
     {
@@ -135,6 +134,5 @@
   },
   "timezone": "",
   "title": "Kafka",
-  "uid": "AMaU1VmWk",
   "version": 1
 }

@@ -98,6 +98,9 @@ kubectl apply -f ./kubernetes/objects/storage-classes/
 
 # Install Minio.
 ./kubernetes/scripts/minio.sh
+
+# Install Velero.
+./kubernetes/scripts/minio.sh
 ```
 
 

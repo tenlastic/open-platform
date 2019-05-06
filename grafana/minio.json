@@ -15,7 +15,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 10,
   "links": [],
   "panels": [
     {
@@ -143,6 +142,5 @@
   },
   "timezone": "",
   "title": "Minio",
-  "uid": "zGOgZViZk",
   "version": 3
 }

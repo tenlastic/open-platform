@@ -6,6 +6,14 @@ affinity:
         - key: cloud.google.com/gke-preemptible
           operator: DoesNotExist
       weight: 100
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - podAffinityTerm:
+        labelSelector:
+          matchLabels:
+            app: minio
+        topologyKey: kubernetes.io/hostname
+      weight: 100
 mode: distributed
 persistence:
   storageClass: standard-expandable
