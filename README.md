@@ -87,11 +87,11 @@ kubectl patch deployment -n istio-system  istio-ingressgateway \
 # Add extra storage classes.
 kubectl apply -f ./kubernetes/objects/storage-classes/
 
-# Install MongoDB.
-./kubernetes/scripts/mongodb.sh
-
 # Install Redis.
 ./kubernetes/scripts/redis.sh
+
+# Install MongoDB.
+./kubernetes/scripts/mongodb.sh
 
 # Install Kafka.
 ./kubernetes/scripts/kafka.sh
