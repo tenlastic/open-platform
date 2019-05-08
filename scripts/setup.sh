@@ -52,4 +52,4 @@ kubectl apply -f ./kubernetes/objects/storage-classes/
 ./kubernetes/scripts/minio.sh
 
 # Install Velero.
-./kubernetes/scripts/minio.sh
+./kubernetes/scripts/velero.sh
