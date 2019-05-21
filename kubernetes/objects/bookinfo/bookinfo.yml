@@ -52,12 +52,11 @@ spec:
         - containerPort: 9080
       affinity:
         nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - preference:
-              matchExpressions:
-              - key: cloud.google.com/gke-preemptible
-                operator: Exists
-            weight: 100
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
 ---
 ##################################################################################################
 # Ratings service
@@ -99,12 +98,11 @@ spec:
         - containerPort: 9080
       affinity:
         nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - preference:
-              matchExpressions:
-              - key: cloud.google.com/gke-preemptible
-                operator: Exists
-            weight: 100
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
 ---
 ##################################################################################################
 # Reviews service
@@ -146,12 +144,11 @@ spec:
         - containerPort: 9080
       affinity:
         nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - preference:
-              matchExpressions:
-              - key: cloud.google.com/gke-preemptible
-                operator: Exists
-            weight: 100
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -198,12 +195,11 @@ spec:
         - containerPort: 9080
       affinity:
         nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - preference:
-              matchExpressions:
-              - key: cloud.google.com/gke-preemptible
-                operator: Exists
-            weight: 100
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
 ---
 ##################################################################################################
 # Productpage services
@@ -245,10 +241,9 @@ spec:
         - containerPort: 9080
       affinity:
         nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - preference:
-              matchExpressions:
-              - key: cloud.google.com/gke-preemptible
-                operator: Exists
-            weight: 100
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
 ---

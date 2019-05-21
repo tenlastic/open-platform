@@ -23,3 +23,12 @@ resource "google_dns_record_set" "staging" {
   ttl          = 300
   type         = "A"
 }
+
+module "dns_admin" {
+  source = "../modules/service-account"
+
+  display_name = "DNS Service Account"
+  name = "dns-admin"
+  project = "${var.project}"
+  role = "roles/dns.admin"
+}

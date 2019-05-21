@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
 set -e
 
-# Deploy Kubernetes cluster.
+# Setup Google Credentials for Terraform.
 export GOOGLE_CREDENTIALS=$(cat ./gcloud/service-accounts/terraform.json)
-cd ./gcloud/terraform/production
+
+# Deploy IAM profiles.
+# cd ./gcloud/terraform/custom-roles/
+# terraform init -backend-config="./backend.example.tfvars"
+# terraform apply -auto-approve
+# cd ../../../
+
+# Deploy Kubernetes cluster.
+cd ./gcloud/terraform/cluster/
 terraform init -backend-config="./backend.example.tfvars"
 terraform apply -auto-approve
 cd ../../../
@@ -42,14 +50,20 @@ kubectl apply -f ./kubernetes/objects/storage-classes/
 # Install MongoDB.
 ./kubernetes/scripts/mongodb.sh
 
-# Install Redis.
-./kubernetes/scripts/redis.sh
-
-# Install Kafka.
-./kubernetes/scripts/kafka.sh
+# # Install Kafka.
+# ./kubernetes/scripts/kafka.sh
 
 # Install MinIO.
 ./kubernetes/scripts/minio.sh
 
+# # Install PostgreSQL.
+# ./kubernetes/scripts/postgresql.sh
+
+# Install Redis.
+./kubernetes/scripts/redis.sh
+
 # Install Velero.
 ./kubernetes/scripts/velero.sh
+
+# Install Argo.
+./kubernetes/scripts/argo.sh

@@ -39,12 +39,11 @@ spec:
           value: redis-redis-ha.redis.svc.cluster.local
       affinity:
         nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - preference:
-              matchExpressions:
-              - key: cloud.google.com/gke-preemptible
-                operator: Exists
-            weight: 100
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService

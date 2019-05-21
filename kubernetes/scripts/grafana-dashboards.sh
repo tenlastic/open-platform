@@ -16,7 +16,7 @@ for filename in ./grafana/*.json; do
   curl --header "Content-Type: application/json" \
     --request "POST" \
     --data '{"dashboard":'"${JSON}"',"overwrite":true}' \
-    "http://localhost:3000/api/dashboards/db"
+    "http://admin:admin@localhost:3000/api/dashboards/db"
 done
 
 # Close the Grafana connection.

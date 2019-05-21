@@ -4,6 +4,9 @@
 #### Install CLI Tools
 
 ```bash
+# Install Argo CLI.
+./scripts/install/argo.sh
+
 # Install Google Cloud CLI.
 ./scripts/install/gcloud.sh
 
@@ -15,6 +18,9 @@
 
 # Install Velero.
 ./scripts/install/velero.sh
+
+# Install Argo.
+./kubernetes/scripts/argo.sh
 ```
 
 
@@ -42,12 +48,18 @@ gcloud deployment-manager deployments create "terraform-resources" \
 
 # Create service account for Terraform.
 ./gcloud/scripts/get-service-account-key.sh terraform
+export GOOGLE_CREDENTIALS=$(cat ./gcloud/service-accounts/terraform.json)
+
+# Deploy IAM profiles.
+cd ./gcloud/terraform/custom-roles/
+terraform init -backend-config="./backend.example.tfvars"
+terraform apply -auto-approve
+cd ../../../
 
 # Deploy Kubernetes cluster.
-export GOOGLE_CREDENTIALS=$(cat ./gcloud/service-accounts/terraform.json)
-cd ./gcloud/terraform/production
+cd ./gcloud/terraform/cluster/
 terraform init -backend-config="./backend.example.tfvars"
-terraform apply
+terraform apply -auto-approve
 cd ../../../
 
 # Connect to cluster.
@@ -87,17 +99,20 @@ kubectl patch deployment -n istio-system  istio-ingressgateway \
 # Add extra storage classes.
 kubectl apply -f ./kubernetes/objects/storage-classes/
 
-# Install Redis.
-./kubernetes/scripts/redis.sh
+# Install Kafka.
+./kubernetes/scripts/kafka.sh
 
 # Install MongoDB.
 ./kubernetes/scripts/mongodb.sh
 
-# Install Kafka.
-./kubernetes/scripts/kafka.sh
-
 # Install Minio.
 ./kubernetes/scripts/minio.sh
+
+# Install PostgreSQL.
+./kubernetes/scripts/postgresql.sh
+
+# Install Redis.
+./kubernetes/scripts/redis.sh
 
 # Install Velero.
 ./kubernetes/scripts/velero.sh

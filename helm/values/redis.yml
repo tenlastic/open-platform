@@ -2,16 +2,16 @@ exporter:
   enabled: true
   tag: v0.34.0
 nodeSelector:
-  cloud.google.com/gke-nodepool: default-pool
+  cloud.google.com/gke-preemptible: 'true'
 replicas: 3
 tag: 5.0
 redis:
   resources:
     requests:
-      memory: 128M
-      cpu: 100m
+      memory: 64M
+      cpu: 50m
 sentinel:
   resources:
     requests:
-      memory: 128M
-      cpu: 100m
+      memory: 64M
+      cpu: 50m

@@ -14,12 +14,16 @@ helm upgrade kafka incubator/kafka \
 # Install Kafka Dashboards.
 kubectl apply -f ./kubernetes/objects/kafka/
 
+# Wait for services to be created.
+echo "Waiting for pods to become active..."
+sleep 15
+
 # Open a connection to Kafka Manager locally.
 kubectl port-forward -n kafka svc/kafka-manager 9000:9000 &
 
 # Wait for port forward to activate.
 echo "Waiting for port forward to activate..."
-sleep 5
+sleep 15
 
 curl 'http://localhost:9000/clusters' \
   -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3' \

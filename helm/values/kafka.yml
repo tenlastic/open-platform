@@ -1,19 +1,19 @@
 affinity:
   nodeAffinity:
-    preferredDuringSchedulingIgnoredDuringExecution:
-    - preference:
-        matchExpressions:
-        - key: cloud.google.com/gke-preemptible
-          operator: DoesNotExist
-      weight: 100
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: cloud.google.com/gke-preemptible
+              operator: Exists
   podAntiAffinity:
-    preferredDuringSchedulingIgnoredDuringExecution:
-    - podAffinityTerm:
-        labelSelector:
-          matchLabels:
-            app: kafka
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app
+              operator: In
+              values:
+                - kafka
         topologyKey: kubernetes.io/hostname
-      weight: 100
 persistence:
   storageClass: standard-expandable
 prometheus:

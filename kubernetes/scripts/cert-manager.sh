@@ -11,7 +11,8 @@ kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release
 helm repo add jetstack https://charts.jetstack.io
 helm upgrade cert-manager jetstack/cert-manager \
   --install \
-  --namespace "cert-manager"
+  --namespace "cert-manager" \
+  --values "./helm/values/cert-manager.yml"
 
 # Wait for install to finish.
 echo "Waiting for install to finish..."

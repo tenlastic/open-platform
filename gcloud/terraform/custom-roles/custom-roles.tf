@@ -1,13 +1,7 @@
-resource "google_storage_bucket" "velero" {
-  force_destroy = true
-  location      = "${var.region}"
-  name          = "primary-velero-backup"
-}
-
 resource "google_project_iam_custom_role" "velero" {
   description = "Grants Velero Server the permissions required to create backups."
-  role_id     = "velero.server"
-  title       = "Velero Server"
+  role_id     = "velero"
+  title       = "Velero Service Account"
 
   permissions = [
     "compute.disks.create",
@@ -22,13 +16,4 @@ resource "google_project_iam_custom_role" "velero" {
     "storage.objects.get",
     "storage.objects.list",
   ]
-}
-
-module "velero" {
-  source = "../modules/service-account"
-
-  display_name = "Velero Service Account"
-  name         = "velero"
-  project      = "${var.project}"
-  role         = "projects/${var.project}/roles/velero.server"
 }

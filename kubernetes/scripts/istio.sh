@@ -20,7 +20,7 @@ echo "Waiting for install to finish..."
 sleep 30
 
 # Get static IP address from Terraform.
-cd ./gcloud/terraform/production/
+cd ./gcloud/terraform/cluster/
 ISTIO_IP_ADDRESS=$(terraform output istio_ip_address)
 cd ../../../
 

@@ -1,19 +1,19 @@
 affinity:
   nodeAffinity:
-    preferredDuringSchedulingIgnoredDuringExecution:
-    - preference:
-        matchExpressions:
-        - key: cloud.google.com/gke-preemptible
-          operator: DoesNotExist
-      weight: 100
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: cloud.google.com/gke-preemptible
+              operator: Exists
   podAntiAffinity:
-    preferredDuringSchedulingIgnoredDuringExecution:
-    - podAffinityTerm:
-        labelSelector:
-          matchLabels:
-            app: minio
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app
+              operator: In
+              values:
+                - minio
         topologyKey: kubernetes.io/hostname
-      weight: 100
 mode: distributed
 persistence:
   storageClass: standard-expandable
@@ -21,7 +21,8 @@ podAnnotations:
   prometheus.io/path: /minio/prometheus/metrics
   prometheus.io/port: '9000'
   prometheus.io/scrape: 'true'
+replicas: 4
 resources:
   requests:
     memory: 128M
-    cpu: 100m
+    cpu: 50m
