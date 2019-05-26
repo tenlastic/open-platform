@@ -1,0 +1,25 @@
+admin:
+  existingSecret: "admin-credentials"
+  passwordKey: password
+  userKey: username
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: cloud.google.com/gke-preemptible
+              operator: Exists
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app
+              operator: In
+              values:
+                - grafana
+        topologyKey: kubernetes.io/hostname
+replicas: 3
+resources:
+  requests:
+    memory: 128Mi
+    cpu: 50m

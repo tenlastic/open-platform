@@ -10,17 +10,14 @@
 # Install Google Cloud CLI.
 ./scripts/install/gcloud.sh
 
-# Install Helm.
+# Install Helm CLI.
 ./scripts/install/helm.sh
 
-# Install Kustomize.
+# Install Kustomize CLI.
 ./scripts/install/kustomize.sh
 
-# Install Velero.
+# Install Velero CLI.
 ./scripts/install/velero.sh
-
-# Install Argo.
-./kubernetes/scripts/argo.sh
 ```
 
 
@@ -68,54 +65,41 @@ gcloud container clusters get-credentials primary \
 ```
 
 
-#### Setup Istio with Automatic SSL Provisioning
-
-```bash
-# Install Tiller.
-./kubernetes/scripts/tiller.sh
-
-# Install CertManager.
-./kubernetes/scripts/cert-manager.sh
-
-# Install Istio.
-./kubernetes/scripts/istio.sh
-
-# Upload Grafana dashboards.
-./kubernetes/scripts/grafana-dashboards.sh
-
-# Create Wildcard Certificate.
-kubectl apply -f ./kubernetes/objects/istio/certificate.yml
-
-# Restart Istio Ingressgateway to reload certificate.
-export TIMESTAMP=$(date +%s)
-kubectl patch deployment -n istio-system  istio-ingressgateway \
-  -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"date\":\"${TIMESTAMP}\"}}}}}"
-```
-
-
 #### Setup Infrastructure
 
 ```bash
 # Add extra storage classes.
-kubectl apply -f ./kubernetes/objects/storage-classes/
+kubectl apply -f ./kubernetes/storage-classes/
+
+# Install Tiller.
+./kubernetes/tiller/install.sh
+
+# Install Argo.
+# ./kubernetes/argo/install.sh
+
+# Install Grafana.
+./kubernetes/grafana/install.sh
+
+# Install Istio.
+./kubernetes/istio/install.sh
 
 # Install Kafka.
-./kubernetes/scripts/kafka.sh
+# ./kubernetes/kafka/install.sh
 
 # Install MongoDB.
-./kubernetes/scripts/mongodb.sh
+./kubernetes/mongodb/install.sh
 
-# Install Minio.
-./kubernetes/scripts/minio.sh
+# Install MinIO.
+./kubernetes/minio/install.sh
 
 # Install PostgreSQL.
-./kubernetes/scripts/postgresql.sh
+./kubernetes/postgresql/install.sh
 
 # Install Redis.
-./kubernetes/scripts/redis.sh
+./kubernetes/redis/install.sh
 
 # Install Velero.
-./kubernetes/scripts/velero.sh
+./kubernetes/velero/install.sh
 ```
 
 
