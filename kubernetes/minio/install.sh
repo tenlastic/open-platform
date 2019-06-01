@@ -1,7 +1,7 @@
 #/usr/bin/env bash
 set -e
 
-DIR=$(dirname $0)
+DIRNAME=$(dirname $0)
 
 # Create the MinIO namespace.
 kubectl apply -f "${DIRNAME}/manifests/namespace.yml"

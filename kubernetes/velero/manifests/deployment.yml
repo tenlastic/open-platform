@@ -19,7 +19,7 @@ metadata:
   namespace: velero
   name: velero
 spec:
-  replicas: 1
+  replicas: 3
   template:
     metadata:
       labels:
@@ -53,6 +53,10 @@ spec:
               value: /credentials/velero.json
             - name: VELERO_SCRATCH_DIR
               value: /scratch
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128M
       volumes:
         - name: cloud-credentials
           secret:
@@ -67,4 +71,13 @@ spec:
             nodeSelectorTerms:
               - matchExpressions:
                   - key: cloud.google.com/gke-preemptible
-                    operator: DoesNotExist
+                    operator: Exists
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - velero
+              topologyKey: kubernetes.io/hostname

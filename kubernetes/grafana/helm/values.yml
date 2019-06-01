@@ -21,5 +21,7 @@ affinity:
 replicas: 3
 resources:
   requests:
-    memory: 128Mi
+    memory: 64Mi
     cpu: 50m
+service:
+  port: 3000

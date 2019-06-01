@@ -4,7 +4,7 @@ set -e
 DIRNAME=$(dirname $0)
 
 # Open a connection to Grafana locally.
-kubectl port-forward -n istio-system svc/grafana 3000:3000 &
+kubectl port-forward -n grafana svc/grafana 3000:3000 &
 
 # Wait for port forward to activate.
 echo "Waiting for port forward to activate..."

@@ -8,15 +8,15 @@ gateways:
       enabled: true
 global:
   defaultNodeSelector:
-    cloud.google.com/gke-preemptible: 'true'
+    cloud.google.com/gke-nodepool: preemptible-pool
   k8sIngress:
     enabled: true
     enableHttps: true
 kiali:
   dashboard:
-    grafanaURL: http://grafana:3000
-    jaegerURL: http://jaeger-query:16686
+    grafanaURL: https://grafana.tenlastic.com
   enabled: true
+  replicaCount: 3
 mixer:
   policy:
     autoscaleMax: 5
@@ -37,5 +37,9 @@ pilot:
     requests:
       cpu: 200m
       memory: 256M
-tracing:
-  enabled: true
+prometheus:
+  replicaCount: 3
+security:
+  replicaCount: 3
+sidecarInjectorWebhook:
+  replicaCount: 3

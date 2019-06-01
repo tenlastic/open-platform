@@ -4,4 +4,18 @@ affinity:
       nodeSelectorTerms:
         - matchExpressions:
             - key: cloud.google.com/gke-preemptible
-              operator: DoesNotExist
+              operator: Exists
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app
+              operator: In
+              values:
+                - cert-manager
+        topologyKey: kubernetes.io/hostname
+replicaCount: 3
+resources:
+  requests:
+    cpu: 25m
+    memory: 64M

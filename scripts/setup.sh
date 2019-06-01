@@ -26,14 +26,17 @@ kubectl apply -f ./kubernetes/storage-classes/
 # Install Tiller.
 ./kubernetes/tiller/install.sh
 
-# Install Argo.
-# ./kubernetes/argo/install.sh
+# Install Istio.
+./kubernetes/istio/install.sh
+
+# Install Prometheus.
+./kubernetes/prometheus/install.sh
 
 # Install Grafana.
 ./kubernetes/grafana/install.sh
 
-# Install Istio.
-./kubernetes/istio/install.sh
+# Install Argo.
+# ./kubernetes/argo/install.sh
 
 # Install Kafka.
 # ./kubernetes/kafka/install.sh
