@@ -1,0 +1,13 @@
+version: '3'
+services:
+  localstack:
+    image: 'localstack/localstack'
+    ports:
+      - '4567-4593:4567-4593'
+    environment:
+      - 'SERVICES=dynamodb,dynamodbstreams,s3,ses,sns,sts'
+      - 'START_WEB=0'
+  mongo:
+    image: 'mongo:latest'
+    ports:
+      - '27017:27017'

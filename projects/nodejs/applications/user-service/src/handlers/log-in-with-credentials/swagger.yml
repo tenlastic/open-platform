@@ -1,0 +1,35 @@
+paths:
+  /users/login:
+    post:
+      summary: Log In with Credentials
+      tags: [User Service]
+      description: Uses an email address and password to log in.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+                  user:
+                    $ref: "#/components/schemas/User"

@@ -1,0 +1,22 @@
+{
+  "exclude": [
+    "src/**/*.spec.ts"
+  ],
+  "extension": [
+    ".ts"
+  ],
+  "include": [
+    "src/**/*.ts"
+  ],
+  "instrument": true,
+  "reporter": [
+    "cobertura",
+    "html",
+    "json"
+  ],
+  "report-dir": "./test-results/coverage",
+  "require": [
+    "ts-node/register"
+  ],
+  "sourceMap": true
+}

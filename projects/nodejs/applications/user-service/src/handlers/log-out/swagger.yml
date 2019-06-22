@@ -1,0 +1,11 @@
+paths:
+  /users/login:
+    delete:
+      summary: Log Out
+      tags: [User Service]
+      description: Ends the token's session.
+      security:
+        - AccessToken: []
+      responses:
+        204:
+          description: No Content

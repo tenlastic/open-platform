@@ -1,0 +1,150 @@
+service: user-service
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+custom:
+  domain: tenlastic.com
+  domains:
+    production: api.${self:custom.domain}
+    staging: api.staging.${self:custom.domain}
+  serverless-offline:
+    port: 3001
+  webpack:
+    packager: yarn
+    webpackConfig: ../../webpack.config.js
+
+# Out of Memory Issue: https://github.com/serverless-heaven/serverless-webpack/issues/299
+# package:
+#   individually: true
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: ${opt:stage, 'test'}
+  memorySize: 1024
+  timeout: 5
+  stackName: ${self:service}
+  environment:
+    JWT_SECRET: ${env:JWT_SECRET}
+    MONGO_CONNECTION_STRING: ${env:MONGO_CONNECTION_STRING}
+    STAGE: ${self:provider.stage}
+
+resources:
+  Resources:
+    ApiGatewayDeployment:
+      Type: AWS::ApiGateway::Deployment
+      DependsOn: ApiGatewayMethodCountGet
+      Properties:
+        Description: ${self:provider.stage} Environment
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        StageName: ${self:provider.stage}
+    BasePathMapping:
+      Type: AWS::ApiGateway::BasePathMapping
+      DependsOn: ApiGatewayDeployment
+      Properties:
+        BasePath: users
+        DomainName: ${self:custom.domains.${self:provider.stage}}
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        Stage: ${self:provider.stage}
+
+functions:
+  count:
+    name: ${self:provider.stackName}-count
+    handler: src/handlers/count/index.handler
+    events:
+      - http:
+          path: /count
+          method: get
+  create:
+    name: ${self:provider.stackName}-create
+    handler: src/handlers/create/index.handler
+    events:
+      - http:
+          path: /
+          method: post
+  delete:
+    name: ${self:provider.stackName}-delete
+    handler: src/handlers/delete/index.handler
+    events:
+      - http:
+          path: /{id}
+          method: delete
+          request:
+            parameters:
+              paths:
+                id: true
+  find:
+    name: ${self:provider.stackName}-find
+    handler: src/handlers/find/index.handler
+    events:
+      - http:
+          path: /
+          method: get
+  find-one:
+    name: ${self:provider.stackName}-find-one
+    handler: src/handlers/find-one/index.handler
+    events:
+      - http:
+          path: /{id}
+          method: get
+          request:
+            parameters:
+              paths:
+                id: true
+  log-in-with-credentials:
+    name: ${self:provider.stackName}-log-in-with-credentials
+    handler: src/handlers/log-in-with-credentials/index.handler
+    events:
+      - http:
+          path: /login
+          method: post
+  log-in-with-token:
+    name: ${self:provider.stackName}-log-in-with-token
+    handler: src/handlers/log-in-with-token/index.handler
+    events:
+      - http:
+          path: /login/token
+          method: post
+  log-out:
+    name: ${self:provider.stackName}-log-out
+    handler: src/handlers/log-out/index.handler
+    events:
+      - http:
+          path: /login
+          method: delete
+  reset-password:
+    name: ${self:provider.stackName}-reset-password
+    handler: src/handlers/reset-password/index.handler
+    events:
+      - http:
+          path: /password-reset
+          method: post
+  reset-password-with-current-password:
+    name: ${self:provider.stackName}-reset-password-with-password
+    handler: src/handlers/reset-password-with-password/index.handler
+    events:
+      - http:
+          path: /password-reset/password
+          method: put
+  reset-password-with-reset-hash:
+    name: ${self:provider.stackName}-reset-password-with-reset-hash
+    handler: src/handlers/reset-password-with-reset-hash/index.handler
+    events:
+      - http:
+          path: /password-reset/reset-hash
+          method: put
+  update:
+    name: ${self:provider.stackName}-update
+    handler: src/handlers/update/index.handler
+    events:
+      - http:
+          path: /{id}
+          method: put
+          request:
+            parameters:
+              paths:
+                id: true

@@ -1,0 +1,20 @@
+{
+  "license": "ISC",
+  "main": "./dist/index.js",
+  "name": "@tenlastic/validations-module",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "build:watch": "watch ../../scripts/build.sh ./src",
+    "lint": "../../scripts/lint.sh",
+    "test": "../../scripts/test.sh"
+  },
+  "devDependencies": {
+    "mocha": "^4.0.1",
+    "nyc": "^12.0.2",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.8.0",
+    "typescript": "^3.3.4000",
+    "watch": "^1.0.2"
+  }
+}

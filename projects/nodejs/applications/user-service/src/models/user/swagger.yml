@@ -1,0 +1,30 @@
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        activatedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        email:
+          type: string
+          format: email
+        isActive:
+          type: boolean
+        lastLoginAt:
+          type: string
+          format: date-time
+        level:
+          type: integer
+        password:
+          type: string
+        resetHash:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        username:
+          type: string

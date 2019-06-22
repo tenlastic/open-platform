@@ -1,0 +1,24 @@
+{
+  "name": "@tenlastic/json-schema-module",
+  "description": "Provides decorators to convert Typescript classes to JSON schemas.",
+  "main": "dist/index.js",
+  "engine": "node 8.1.2",
+  "license": "Apache-2.0",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "build:watch": "watch ../../scripts/build.sh ./src",
+    "lint": "../../scripts/lint.sh"
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.1.10"
+  },
+  "devDependencies": {
+    "mocha": "^4.0.1",
+    "nyc": "^13.1.0",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.8.0",
+    "typescript": "^3.3.4000",
+    "watch": "^1.0.2"
+  }
+}

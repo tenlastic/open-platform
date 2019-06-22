@@ -1,0 +1,13 @@
+.nyc_output
+package.json.lerna_backup
+settings.sh
+settings.test.sh
+tscommand*.tmp.txt
+yarn-error.log
+
+**/src/**/*.d.ts
+
+.tscache/
+dist/
+node_modules/
+test-results/

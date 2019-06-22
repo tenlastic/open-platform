@@ -1,0 +1,20 @@
+paths:
+  /users/password-reset:
+    post:
+      summary: Reset Password
+      tags: [User Service]
+      description: Starts the password reset process.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        204:
+          description: No Content

@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./packages",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": ["dom", "es2015", "es2016", "es2017"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "paths": {
+      "@tenlastic/aws-module": ["./aws-module/src"],
+      "@tenlastic/aws-module/*": ["./aws-module/src/*"],
+      "@tenlastic/api-module": ["./api-module/src"],
+      "@tenlastic/api-module/*": ["./api-module/src/*"],
+      "@tenlastic/validations-module": ["./validations-module/src"],
+      "@tenlastic/validations-module/*": ["./validations-module/src/*"]
+    },
+    "sourceMap": true,
+    "target": "es2015"
+  },
+  "exclude": ["./node_modules/*"]
+}
