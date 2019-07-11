@@ -6,6 +6,7 @@
   "scripts": {
     "build": "../../scripts/build.sh",
     "build:watch": "watch ../../scripts/build.sh ./src",
+    "docker-compose": "docker-compose run --rm application",
     "lint": "../../scripts/lint.sh",
     "test": "../../scripts/test.sh"
   },

@@ -7,8 +7,6 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "paths": {
-      "@tenlastic/aws-module": ["./aws-module/src"],
-      "@tenlastic/aws-module/*": ["./aws-module/src/*"],
       "@tenlastic/api-module": ["./api-module/src"],
       "@tenlastic/api-module/*": ["./api-module/src/*"],
       "@tenlastic/validations-module": ["./validations-module/src"],

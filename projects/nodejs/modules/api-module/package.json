@@ -1,13 +1,14 @@
 {
   "name": "@tenlastic/api-module",
-  "description": "Koa-like Lambda Application",
+  "description": "API Module",
   "main": "dist/index.js",
-  "engine": "node 8.1.2",
+  "engine": "node 10.16.0",
   "license": "Apache-2.0",
   "version": "0.0.0",
   "scripts": {
     "build": "../../scripts/build.sh",
     "build:watch": "watch ../../scripts/build.sh ./src",
+    "docker-compose": "docker-compose run --rm application",
     "lint": "../../scripts/lint.sh",
     "test": "../../scripts/test.sh"
   },

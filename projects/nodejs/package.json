@@ -6,9 +6,6 @@
     "applications/*",
     "modules/*"
   ],
-  "scripts": {
-    "bootstrap": "./scripts/bootstrap.sh"
-  },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.23",
     "@types/chai": "^4.1.7",

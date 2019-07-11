@@ -21,6 +21,9 @@ export class ContextMock {
         params: {},
         query: {},
       },
+      response: {
+        body: {},
+      },
       state: {},
     };
 

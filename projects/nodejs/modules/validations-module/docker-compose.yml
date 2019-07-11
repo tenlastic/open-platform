@@ -1,0 +1,12 @@
+version: '3'
+services:
+  application:
+    image: node:10
+    volumes:
+      - ../../:/usr/src/app/
+      - yarncache:/usr/local/share/.cache/yarn/v4
+    working_dir: /usr/src/app/modules/validations-module/
+
+volumes:
+  yarncache:
+    external: false

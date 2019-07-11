@@ -1,3 +1,4 @@
+*.tsbuildinfo
 .nyc_output
 package.json.lerna_backup
 settings.sh
