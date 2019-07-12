@@ -6,6 +6,10 @@
     "applications/*",
     "modules/*"
   ],
+  "scripts": {
+    "docker-compose": "docker-compose run --rm application",
+    "lerna": "docker-compose run --rm application ./node_modules/.bin/lerna run"
+  },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.23",
     "@types/chai": "^4.1.7",
@@ -38,7 +42,7 @@
     "sinon": "^7.1.1",
     "sinon-chai": "^3.3.0",
     "ts-loader": "^5.2.2",
-    "tslint": "^5.11.0",
+    "tslint": "^5.8.0",
     "tslint-microsoft-contrib": "^6.2.0",
     "typescript": "^3.1.6",
     "watch": "^1.0.2",

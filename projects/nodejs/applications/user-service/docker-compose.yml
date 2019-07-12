@@ -1,10 +1,11 @@
 version: '3'
 services:
-  mongo:
-    image: mongo:latest
-  node:
-    build: .
+  application:
+    environment:
+      - JWT_SECRET
+      - MONGO_CONNECTION_STRING
     links:
       - mongo
-    ports:
-      - 3000:3000
+    working_dir: /usr/src/app/applications/user-service/
+  mongo:
+    image: mongo:4

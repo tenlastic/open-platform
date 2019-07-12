@@ -4,18 +4,8 @@ services:
     environment:
       - JWT_SECRET
       - MONGO_CONNECTION_STRING
-    image: node:10
     links:
       - mongo
-    volumes:
-      - ../../:/usr/src/app/
-      - yarncache:/usr/local/share/.cache/yarn/v4
     working_dir: /usr/src/app/modules/api-module/
   mongo:
-    image: mongo:latest
-    ports:
-      - 27017:27017
-
-volumes:
-  yarncache:
-    external: false
+    image: mongo:4

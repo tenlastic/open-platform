@@ -7,10 +7,12 @@
   "version": "0.0.0",
   "scripts": {
     "build": "../../scripts/build.sh",
+    "build:docker": "../../scripts/docker-compose.sh yarn build",
     "build:watch": "watch ../../scripts/build.sh ./src",
-    "docker-compose": "docker-compose run --rm application",
     "lint": "../../scripts/lint.sh",
-    "test": "../../scripts/test.sh"
+    "lint:docker": "../../scripts/docker-compose.sh yarn lint",
+    "test": "../../scripts/test.sh",
+    "test:docker": "../../scripts/docker-compose.sh yarn test"
   },
   "dependencies": {
     "@tenlastic/json-schema-module": "0.0.0",

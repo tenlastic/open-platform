@@ -14,6 +14,6 @@ export const arrayValidator = (validator: Validator) => {
       }
 
       return true;
-    }
+    },
   };
 };
