@@ -6,13 +6,7 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "exclude": [
-    "./src/**/*.spec.ts"
-  ],
-  "include": [
-    "./src"
-  ],
-  "references": [
-    { "path": "../json-schema-module/tsconfig.app.json" }
-  ]
+  "exclude": ["./src/**/*.spec.ts"],
+  "include": ["./src"],
+  "references": [{ "path": "../json-schema-module/tsconfig.app.json" }]
 }

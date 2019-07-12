@@ -1,17 +1,15 @@
-import { SNS } from '@tenlastic/aws-module';
 import {
   alphanumericValidator,
   emailValidator,
   stringLengthValidator,
 } from '@tenlastic/validations-module';
-import * as bcrypt from 'bcrypt-nodejs';
+import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Typegoose, index, instanceMethod, pre, post, prop } from 'typegoose';
+import { InstanceType, ModelType, Typegoose, index, instanceMethod, pre, prop } from 'typegoose';
 
 // Indexes
 @index({ email: 1 }, { unique: true })
 @index({ username: 1 }, { unique: true })
-
 // Hooks
 @pre<UserSchema>('save', async function(this: InstanceType<UserSchema>) {
   if (this.isActive && !this.activatedAt) {
@@ -26,19 +24,7 @@ import { InstanceType, ModelType, Typegoose, index, instanceMethod, pre, post, p
 
   (this as any).modified = this.modifiedPaths();
 })
-@post<UserSchema>('save', async function(doc: InstanceType<UserSchema>) {
-  const sns = new SNS('users');
-  await sns.publishModelChange({
-    attributes: {
-      action: 'update',
-      modified: (doc as any).modified,
-    },
-    message: doc.toObject(),
-  });
-})
-
 export class UserSchema extends Typegoose {
-
   public _id: mongoose.Types.ObjectId;
 
   @prop()

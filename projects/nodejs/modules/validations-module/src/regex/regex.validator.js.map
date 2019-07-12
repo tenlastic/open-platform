@@ -1,0 +1,1 @@
+{"version":3,"file":"regex.validator.js","sourceRoot":"","sources":["regex.validator.ts"],"names":[],"mappings":";;AAAa,QAAA,cAAc,GAAG,CAAC,KAAa,EAAE,EAAE,CAAC,CAAC;IAChD,GAAG,EAAE,0CAA0C,KAAK,CAAC,QAAQ,EAAE,GAAG;IAClE,SAAS,EAAE,CAAC,KAAa,EAAE,EAAE,CAAC,KAAK,CAAC,IAAI,CAAC,KAAK,CAAC;CAChD,CAAC,CAAC"}
