@@ -30,7 +30,7 @@
     "@types/uuid": "3.4.4",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
-    "chai-http": "4.2.0",
+    "chai-http": "4.3.0",
     "chance": "1.0.16",
     "lerna": "3.4.0",
     "mocha": "6.1.4",
