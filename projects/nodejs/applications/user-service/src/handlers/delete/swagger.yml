@@ -21,4 +21,4 @@ paths:
                 type: object
                 properties:
                   record:
-                    $ref: "#/components/schemas/User"
+                    $ref: '#/components/schemas/User'

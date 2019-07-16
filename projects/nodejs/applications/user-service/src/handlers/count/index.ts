@@ -1,19 +1,17 @@
-import { RestController } from '@tenlastic/api-module';
-import { Context } from 'koa';
+import { Context, RestController } from '@tenlastic/api-module';
 
 import { User, UserDocument, UserModel, UserPermissions } from '../../models';
-import { app } from '../../';
+import { router } from '../';
 
-export async function controller(ctx: Context) {
-  const restController = new RestController<UserDocument, UserModel, UserPermissions>(
-    User,
-    new UserPermissions(),
-  );
+const restController = new RestController<UserDocument, UserModel, UserPermissions>(
+  User,
+  new UserPermissions(),
+);
+
+export async function handler(ctx: Context) {
   const result = await restController.count(ctx.query.where, ctx.state.user);
 
-  ctx.body = { count: result };
+  ctx.response.body = { count: result };
 }
 
-app.use(controller);
-
-export const handler = app.listen();
+router.get('/count', handler);

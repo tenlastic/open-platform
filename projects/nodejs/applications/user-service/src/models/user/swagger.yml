@@ -12,17 +12,8 @@ components:
         email:
           type: string
           format: email
-        isActive:
-          type: boolean
-        lastLoginAt:
-          type: string
-          format: date-time
         level:
           type: integer
-        password:
-          type: string
-        resetHash:
-          type: string
         updatedAt:
           type: string
           format: date-time

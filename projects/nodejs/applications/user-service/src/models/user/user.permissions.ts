@@ -8,7 +8,6 @@ enum AccessLevel {
 }
 
 export class UserPermissions extends RestPermissions<UserDocument, UserModel> {
-
   constructor() {
     super();
 
@@ -17,18 +16,11 @@ export class UserPermissions extends RestPermissions<UserDocument, UserModel> {
 
   public async createPermissions(user: any): Promise<string[]> {
     const accessLevel = this.getAccessLevel(null, user);
-    const attributes: string[] = [
-      'email',
-      'password',
-      'username',
-    ];
+    const attributes: string[] = ['email', 'username'];
 
     switch (accessLevel) {
       case AccessLevel.Admin:
-        return attributes.concat(
-          'isActive',
-          'level',
-        );
+        return attributes.concat('activatedAt', 'level');
 
       default:
         return attributes;
@@ -45,34 +37,21 @@ export class UserPermissions extends RestPermissions<UserDocument, UserModel> {
 
       default:
         return Object.assign(query, {
-          isActive: true,
+          activatedAt: { $ne: null },
         });
     }
   }
 
   public async readPermissions(record: UserDocument, user: any): Promise<string[]> {
     const accessLevel = this.getAccessLevel(record, user);
-    const attributes: string[] = [
-      '_id',
-      'createdAt',
-      'level',
-      'username',
-      'updatedAt',
-    ];
+    const attributes: string[] = ['_id', 'createdAt', 'level', 'username', 'updatedAt'];
 
     switch (accessLevel) {
       case AccessLevel.Admin:
-        return attributes.concat(
-          'email',
-          'isActive',
-          'lastLoginAt',
-        );
+        return attributes.concat('activatedAt', 'email');
 
       case AccessLevel.Self:
-        return attributes.concat(
-          'email',
-          'lastLoginAt',
-        );
+        return attributes.concat('email');
 
       default:
         return attributes;
@@ -98,20 +77,10 @@ export class UserPermissions extends RestPermissions<UserDocument, UserModel> {
 
     switch (accessLevel) {
       case AccessLevel.Admin:
-        return attributes.concat(
-          'email',
-          'isActive',
-          'password',
-          'level',
-          'username',
-        );
+        return attributes.concat('activatedAt', 'email', 'level', 'username');
 
       case AccessLevel.Self:
-        return attributes.concat(
-          'email',
-          'password',
-          'username',
-        );
+        return attributes.concat('email', 'username');
 
       default:
         return attributes;
@@ -129,5 +98,4 @@ export class UserPermissions extends RestPermissions<UserDocument, UserModel> {
 
     return AccessLevel.Other;
   }
-
 }

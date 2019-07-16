@@ -1,10 +1,10 @@
-import { HttpContextMock, HttpEventMock, HttpResultMock } from "@tenlastic/api-module";
-import { expect } from "chai";
+import { ContextMock } from '@tenlastic/api-module';
+import { expect } from 'chai';
 
-import { UserMock, UserDocument } from "../../models";
-import { controller } from ".";
+import { UserMock, UserDocument } from '../../models';
+import { handler } from '.';
 
-describe("find", function() {
+describe('find', function() {
   let record: UserDocument;
   let user: any;
 
@@ -13,17 +13,14 @@ describe("find", function() {
     user = { level: 1 };
   });
 
-  it("returns the matching records", async function() {
-    const ctx = new HttpContextMock();
-    const evt = new HttpEventMock({
-      queryStringParameters: {},
-      user
+  it('returns the matching records', async function() {
+    const ctx = new ContextMock({
+      state: { user },
     });
-    const res = new HttpResultMock();
 
-    await controller(evt, ctx, res);
+    await handler(ctx as any);
 
-    expect(res.body.records).to.exist;
-    expect(res.body.records.length).to.eql(1);
+    expect(ctx.response.body.records).to.exist;
+    expect(ctx.response.body.records.length).to.eql(1);
   });
 });

@@ -17,4 +17,4 @@ paths:
                   records:
                     type: array
                     items:
-                      $ref: "#/components/schemas/User"
+                      $ref: '#/components/schemas/User'

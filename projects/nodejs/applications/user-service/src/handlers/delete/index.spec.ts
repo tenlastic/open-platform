@@ -1,10 +1,10 @@
-import { HttpContextMock, HttpEventMock, HttpResultMock } from "@tenlastic/api-module";
-import { expect } from "chai";
+import { ContextMock } from '@tenlastic/api-module';
+import { expect } from 'chai';
 
-import { UserMock, UserDocument } from "../../models";
-import { controller } from ".";
+import { UserMock, UserDocument } from '../../models';
+import { handler } from '.';
 
-describe("delete", function() {
+describe('delete', function() {
   let record: UserDocument;
   let user: any;
 
@@ -13,16 +13,18 @@ describe("delete", function() {
     user = { level: 1 };
   });
 
-  it("returns the deleted record", async function() {
-    const ctx = new HttpContextMock();
-    const evt = new HttpEventMock({
-      pathParameters: { id: record.id },
-      user
+  it('returns the deleted record', async function() {
+    const ctx = new ContextMock({
+      params: {
+        id: record._id,
+      },
+      state: {
+        user,
+      },
     });
-    const res = new HttpResultMock();
 
-    await controller(evt, ctx, res);
+    await handler(ctx as any);
 
-    expect(res.body.record).to.exist;
+    expect(ctx.response.body.record).to.exist;
   });
 });

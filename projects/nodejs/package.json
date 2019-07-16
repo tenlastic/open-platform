@@ -18,6 +18,8 @@
     "@types/chance": "1.0.1",
     "@types/jsonwebtoken": "8.3.0",
     "@types/koa": "2.0.48",
+    "@types/koa-bodyparser": "^4.3.0",
+    "@types/koa-router": "^7.0.42",
     "@types/mocha": "5.2.5",
     "@types/mongodb": "3.1.22",
     "@types/mongoose": "5.3.1",

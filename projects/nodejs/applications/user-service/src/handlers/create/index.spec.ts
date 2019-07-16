@@ -1,13 +1,13 @@
-import { HttpContextMock, HttpEventMock, HttpResultMock } from "@tenlastic/api-module";
-import { expect } from "chai";
-import * as Chance from "chance";
+import { ContextMock } from '@tenlastic/api-module';
+import { expect } from 'chai';
+import * as Chance from 'chance';
 
-import { UserMock, UserDocument } from "../../models";
-import { controller } from ".";
+import { UserMock, UserDocument } from '../../models';
+import { handler } from '.';
 
 const chance = new Chance();
 
-describe("create", function() {
+describe('create', function() {
   let record: UserDocument;
   let user: any;
 
@@ -16,20 +16,22 @@ describe("create", function() {
     user = { level: 1 };
   });
 
-  it("creates a new record", async function() {
-    const ctx = new HttpContextMock();
-    const evt = new HttpEventMock({
-      body: {
-        email: chance.email(),
-        password: chance.hash(),
-        username: chance.hash({ length: 20 })
+  it('creates a new record', async function() {
+    const ctx = new ContextMock({
+      request: {
+        body: {
+          email: chance.email(),
+          password: chance.hash(),
+          username: chance.hash({ length: 20 }),
+        },
       },
-      user
+      state: {
+        user,
+      },
     });
-    const res = new HttpResultMock();
 
-    await controller(evt, ctx, res);
+    await handler(ctx as any);
 
-    expect(res.body.record).to.exist;
+    expect(ctx.response.body.record).to.exist;
   });
 });

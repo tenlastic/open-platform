@@ -1,15 +1,17 @@
-import { HttpContext, HttpEvent, HttpResult, RestController } from "@tenlastic/api-module";
+import { Context, RestController } from '@tenlastic/api-module';
 
-import { User, UserDocument, UserModel, UserPermissions } from "../../models";
-import { app } from "../../";
+import { User, UserDocument, UserModel, UserPermissions } from '../../models';
+import { router } from '../';
 
-export async function controller(evt: HttpEvent, ctx: HttpContext, res: HttpResult) {
-  const restController = new RestController<UserDocument, UserModel, UserPermissions>(User, new UserPermissions());
-  const result = await restController.findOne(evt.pathParameters.id, evt.user);
+const restController = new RestController<UserDocument, UserModel, UserPermissions>(
+  User,
+  new UserPermissions(),
+);
 
-  res.body = { record: result };
+export async function handler(ctx: Context) {
+  const result = await restController.findOne(ctx.params.id, ctx.state.user);
+
+  ctx.response.body = { record: result };
 }
 
-app.use(controller);
-
-export const handler = app.listen();
+router.get('/:id', handler);

@@ -8,12 +8,12 @@
   "version": "0.0.0",
   "scripts": {
     "build": "../../scripts/build.sh",
-    "build:docker": "../../scripts/docker-compose.sh yarn build",
+    "build:docker": "../../scripts/docker-compose.sh npm run build",
     "build:watch": "watch ../../scripts/build.sh ./src",
     "lint": "../../scripts/lint.sh",
-    "lint:docker": "../../scripts/docker-compose.sh yarn lint",
+    "lint:docker": "../../scripts/docker-compose.sh npm run lint",
     "test": "../../scripts/test.sh",
-    "test:docker": "../../scripts/docker-compose.sh yarn test"
+    "test:docker": "../../scripts/docker-compose.sh npm run test"
   },
   "dependencies": {
     "@tenlastic/json-schema-module": "0.0.0",

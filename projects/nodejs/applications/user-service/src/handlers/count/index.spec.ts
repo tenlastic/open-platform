@@ -1,8 +1,8 @@
-import { HttpContextMock, HttpEventMock, HttpResultMock } from '@tenlastic/api-module';
+import { ContextMock } from '@tenlastic/api-module';
 import { expect } from 'chai';
 
 import { UserMock, UserDocument } from '../../models';
-import { controller } from '.';
+import { handler } from '.';
 
 describe('count', function() {
   let record: UserDocument;
@@ -14,15 +14,12 @@ describe('count', function() {
   });
 
   it('returns the number of matching records', async function() {
-    const ctx = new HttpContextMock();
-    const evt = new HttpEventMock({
-      queryStringParameters: {},
-      user,
+    const ctx = new ContextMock({
+      state: { user },
     });
-    const res = new HttpResultMock();
 
-    await controller(evt, ctx, res);
+    await handler(ctx as any);
 
-    expect(res.body.count).to.eql(1);
+    expect(ctx.response.body.count).to.eql(1);
   });
 });
