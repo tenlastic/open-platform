@@ -2,7 +2,6 @@ version: '3'
 services:
   application:
     environment:
-      - JWT_SECRET
       - MONGO_CONNECTION_STRING
     links:
       - mongo

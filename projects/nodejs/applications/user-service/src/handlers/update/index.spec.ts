@@ -7,7 +7,7 @@ import { handler } from '.';
 
 const chance = new Chance();
 
-describe('update', function() {
+describe('handlers/update', function() {
   let record: UserDocument;
   let user: any;
 
@@ -18,14 +18,14 @@ describe('update', function() {
 
   it('updates an existing record', async function() {
     const ctx = new ContextMock({
+      params: {
+        id: record._id,
+      },
       request: {
         body: {
           email: chance.email(),
           level: user.level + 1,
         },
-      },
-      params: {
-        id: record._id,
       },
       state: {
         user,

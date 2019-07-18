@@ -10,9 +10,7 @@ if [ -f ../../settings.test.sh ]; then
 fi
 
 # Run migrations if script is present.
-if [[ $(yarn run --non-interactive | grep "^  migrations" | wc -l) > 0 ]]; then
-  yarn migrations
-fi
+npm run migrations --if-present
 
 # Publish coverage report if flag is present.
 COVERAGE_ARGUMENTS=""

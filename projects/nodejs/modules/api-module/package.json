@@ -10,15 +10,21 @@
     "build": "../../scripts/build.sh",
     "build:docker": "../../scripts/docker-compose.sh npm run build",
     "build:watch": "watch ../../scripts/build.sh ./src",
+    "docker": "../../scripts/docker-compose.sh npm run",
     "lint": "../../scripts/lint.sh",
     "lint:docker": "../../scripts/docker-compose.sh npm run lint",
     "test": "../../scripts/test.sh",
     "test:docker": "../../scripts/docker-compose.sh npm run test"
   },
   "dependencies": {
+    "@koa/cors": "3.0.0",
     "@tenlastic/json-schema-module": "0.0.0",
     "jsonwebtoken": "8.5.1",
+    "koa": "2.7.0",
+    "koa-bodyparser": "4.2.1",
+    "koa-static": "5.0.0",
     "mongoose": "5.4.15",
+    "typegoose": "5.6.0",
     "uuid": "3.3.2"
   },
   "devDependencies": {

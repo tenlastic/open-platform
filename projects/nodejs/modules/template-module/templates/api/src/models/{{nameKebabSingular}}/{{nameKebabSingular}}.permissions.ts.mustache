@@ -1,0 +1,67 @@
+import { RestPermissions } from '@tenlastic/api-module';
+import { {{namePascalSingular}}, {{namePascalSingular}}Document, {{namePascalSingular}}Model } from './{{nameCamelSingular}}.model';
+
+enum AccessLevel {
+  Other,
+}
+
+export class {{namePascalSingular}}Permissions extends RestPermissions<{{namePascalSingular}}Document, {{namePascalSingular}}Model> {
+  constructor() {
+    super();
+
+    this.Model = {{namePascalSingular}};
+  }
+
+  public async createPermissions({{nameCamelSingular}}: any): Promise<string[]> {
+    const accessLevel = this.getAccessLevel(null, {{nameCamelSingular}});
+    const attributes: string[] = [];
+
+    switch (accessLevel) {
+      default:
+        return attributes;
+    }
+  }
+
+  public async findPermissions({{nameCamelSingular}}: any): Promise<any> {
+    const accessLevel = this.getAccessLevel(null, {{nameCamelSingular}});
+    const query = {};
+
+    switch (accessLevel) {
+      default:
+        return query;
+    }
+  }
+
+  public async readPermissions(record: {{namePascalSingular}}Document, {{nameCamelSingular}}: any): Promise<string[]> {
+    const accessLevel = this.getAccessLevel(record, {{nameCamelSingular}});
+    const attributes: string[] = ['_id', 'createdAt', 'updatedAt'];
+
+    switch (accessLevel) {
+      default:
+        return attributes;
+    }
+  }
+
+  public async removePermissions(record: {{namePascalSingular}}Document, {{nameCamelSingular}}: any): Promise<boolean> {
+    const accessLevel = this.getAccessLevel(record, {{nameCamelSingular}});
+
+    switch (accessLevel) {
+      default:
+        return false;
+    }
+  }
+
+  public async updatePermissions(record: {{namePascalSingular}}Document, {{nameCamelSingular}}: any): Promise<string[]> {
+    const accessLevel = this.getAccessLevel(record, {{nameCamelSingular}});
+    const attributes: string[] = [];
+
+    switch (accessLevel) {
+      default:
+        return attributes;
+    }
+  }
+
+  private getAccessLevel(record: {{namePascalSingular}}Document, {{nameCamelSingular}}: any) {
+    return AccessLevel.Other;
+  }
+}

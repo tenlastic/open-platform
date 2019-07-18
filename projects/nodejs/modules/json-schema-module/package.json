@@ -11,6 +11,7 @@
     "build": "../../scripts/build.sh",
     "build:docker": "../../scripts/docker-compose.sh yarn build",
     "build:watch": "watch ../../scripts/build.sh ./src",
+    "docker": "../../scripts/docker-compose.sh npm run",
     "lint": "../../scripts/lint.sh",
     "lint:docker": "../../scripts/docker-compose.sh yarn lint"
   },

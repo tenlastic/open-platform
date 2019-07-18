@@ -1,0 +1,33 @@
+import { ContextMock } from '@tenlastic/api-module';
+import { expect, use } from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+
+import { {{namePascalSingular}}Mock, {{namePascalSingular}}Document } from '../../models';
+import { handler } from '.';
+
+use(chaiAsPromised);
+
+describe('handlers/delete', function() {
+  let record: {{namePascalSingular}}Document;
+  let user: any;
+
+  beforeEach(async function() {
+    record = await {{namePascalSingular}}Mock.create();
+    user = { level: 1 };
+  });
+
+  it('returns the deleted record', async function() {
+    const ctx = new ContextMock({
+      params: {
+        id: record._id,
+      },
+      state: { user },
+    });
+
+    const promise = handler(ctx as any);
+
+    return expect(promise).to.be.rejectedWith(
+      'User does not have permission to perform this action.',
+    );
+  });
+});

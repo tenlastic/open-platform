@@ -1,0 +1,18 @@
+components:
+  schemas:
+    Password:
+      type: object
+      properties:
+        _id:
+          type: string
+          pattern: '^[a-f0-9]{24}$'
+        createdAt:
+          type: string
+          format: date-time
+        hash:
+          type: string
+        plaintext:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time

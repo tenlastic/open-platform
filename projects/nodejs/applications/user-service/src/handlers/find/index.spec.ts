@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { UserMock, UserDocument } from '../../models';
 import { handler } from '.';
 
-describe('find', function() {
+describe('handlers/find', function() {
   let record: UserDocument;
   let user: any;
 

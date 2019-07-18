@@ -6,7 +6,6 @@ import {
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Typegoose, index, prop } from 'typegoose';
 
-// Indexes
 @index({ email: 1 }, { unique: true })
 @index({ username: 1 }, { unique: true })
 export class UserSchema extends Typegoose {
@@ -41,7 +40,6 @@ export class UserSchema extends Typegoose {
 
 export type UserDocument = InstanceType<UserSchema>;
 export type UserModel = ModelType<UserSchema>;
-
 export const User = new UserSchema().getModelForClass(UserSchema, {
   schemaOptions: {
     autoIndex: false,

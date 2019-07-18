@@ -1,0 +1,20 @@
+paths:
+  /{{nameCamelPlural}}:
+    get:
+      summary: Find
+      tags: [{{namePascalSingular}} Service]
+      description: Finds records matching the search criteria.
+      security:
+        - AccessToken: []
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/{{namePascalSingular}}'

@@ -1,0 +1,17 @@
+import { Context, RestController } from '@tenlastic/api-module';
+
+import { {{namePascalSingular}}, {{namePascalSingular}}Document, {{namePascalSingular}}Model, {{namePascalSingular}}Permissions } from '../../models';
+import { router } from '../';
+
+const restController = new RestController<{{namePascalSingular}}Document, {{namePascalSingular}}Model, {{namePascalSingular}}Permissions>(
+  {{namePascalSingular}},
+  new {{namePascalSingular}}Permissions(),
+);
+
+export async function handler(ctx: Context) {
+  const result = await restController.create(ctx.request.body, {}, ctx.state.user);
+
+  ctx.response.body = { record: result };
+}
+
+router.post('/', handler);
