@@ -1,13 +1,10 @@
 import { ContextMock } from '@tenlastic/api-module';
 import { expect } from 'chai';
-import * as Chance from 'chance';
 
-import { UserMock, UserDocument } from '../../models';
+import { UserMock, UserDocument } from '../../../models';
 import { handler } from '.';
 
-const chance = new Chance();
-
-describe('handlers/update', function() {
+describe('handlers/delete', function() {
   let record: UserDocument;
   let user: any;
 
@@ -16,16 +13,10 @@ describe('handlers/update', function() {
     user = { level: 1 };
   });
 
-  it('updates an existing record', async function() {
+  it('returns the deleted record', async function() {
     const ctx = new ContextMock({
       params: {
         id: record._id,
-      },
-      request: {
-        body: {
-          email: chance.email(),
-          level: user.level + 1,
-        },
       },
       state: {
         user,

@@ -1,0 +1,23 @@
+paths:
+  /password-resets/{hash}:
+    delete:
+      summary: Delete
+      tags: [Password Reset Service]
+      description: Deletes an existing record.
+      parameters:
+        - in: path
+          name: hash
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+      responses:
+        200:
+          description: OK

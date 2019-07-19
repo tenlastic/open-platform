@@ -1,7 +1,6 @@
 import { Context, RestController } from '@tenlastic/api-module';
 
-import { User, UserDocument, UserModel, UserPermissions } from '../../models';
-import { router } from '../';
+import { User, UserDocument, UserModel, UserPermissions } from '../../../models';
 
 const restController = new RestController<UserDocument, UserModel, UserPermissions>(
   User,
@@ -9,9 +8,7 @@ const restController = new RestController<UserDocument, UserModel, UserPermissio
 );
 
 export async function handler(ctx: Context) {
-  const result = await restController.remove(ctx.params.id, ctx.state.user);
+  const result = await restController.update(ctx.params.id, ctx.request.body, {}, ctx.state.user);
 
   ctx.response.body = { record: result };
 }
-
-router.delete('/:id', handler);

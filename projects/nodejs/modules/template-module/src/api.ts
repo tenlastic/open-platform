@@ -19,6 +19,8 @@ const namePascalSingular = nameCamelSingular.charAt(0).toUpperCase() + nameCamel
 const namePascalPlural = nameCamelPlural.charAt(0).toUpperCase() + nameCamelPlural.slice(1);
 const nameKebabSingular = nameCamelSingular.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
 const nameKebabPlural = nameCamelPlural.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+const nameLowercaseSingular = nameCamelSingular.toLowerCase();
+const nameLowercasePlural = nameCamelPlural.toLowerCase();
 
 // Parse the given target directory parameter.
 const destinationRoot = path.resolve(__dirname, '../', process.argv[3]);
@@ -33,6 +35,8 @@ for (const filePath of filePaths) {
     nameCamelSingular,
     nameKebabPlural,
     nameKebabSingular,
+    nameLowercasePlural,
+    nameLowercaseSingular,
     namePascalPlural,
     namePascalSingular,
   };

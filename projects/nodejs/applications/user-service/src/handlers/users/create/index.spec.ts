@@ -2,7 +2,7 @@ import { ContextMock } from '@tenlastic/api-module';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 
-import { UserMock, UserDocument } from '../../models';
+import { UserMock, UserDocument } from '../../../models';
 import { handler } from '.';
 
 const chance = new Chance();

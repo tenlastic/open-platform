@@ -1,0 +1,18 @@
+paths:
+  /password-resets:
+    post:
+      summary: Create
+      tags: [Password Reset Service]
+      description: Creates a new record.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        200:
+          description: OK

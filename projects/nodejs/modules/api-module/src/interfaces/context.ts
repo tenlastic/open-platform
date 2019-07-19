@@ -5,10 +5,11 @@ export interface Request extends koa.Request {
 }
 
 export interface State {
-  user: any;
+  user?: any;
 }
 
 export interface Context extends koa.Context {
+  params?: any;
   request: Request;
   state: State;
 }

@@ -1,7 +1,6 @@
 import { Context, RestController } from '@tenlastic/api-module';
 
-import { User, UserDocument, UserModel, UserPermissions } from '../../models';
-import { router } from '../';
+import { User, UserDocument, UserModel, UserPermissions } from '../../../models';
 
 const restController = new RestController<UserDocument, UserModel, UserPermissions>(
   User,
@@ -13,5 +12,3 @@ export async function handler(ctx: Context) {
 
   ctx.response.body = { records: result };
 }
-
-router.get('/', handler);

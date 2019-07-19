@@ -1,7 +1,6 @@
 import { Context, RestController } from '@tenlastic/api-module';
 
 import { {{namePascalSingular}}, {{namePascalSingular}}Document, {{namePascalSingular}}Model, {{namePascalSingular}}Permissions } from '../../models';
-import { router } from '../';
 
 const restController = new RestController<{{namePascalSingular}}Document, {{namePascalSingular}}Model, {{namePascalSingular}}Permissions>(
   {{namePascalSingular}},
@@ -13,5 +12,3 @@ export async function handler(ctx: Context) {
 
   ctx.response.body = { record: result };
 }
-
-router.delete('/:id', handler);

@@ -1,6 +1,6 @@
 module.exports = {
   async up(db) {
-    await db.createCollection('{{nameCamelPlural}}', {
+    await db.createCollection('{{nameLowercasePlural}}', {
       collation: {
         locale: 'en_US',
         strength: 1,
@@ -9,6 +9,6 @@ module.exports = {
   },
 
   async down(db) {
-    await db.collection('{{nameCamelPlural}}').drop();
+    await db.collection('{{nameLowercasePlural}}').drop();
   }
 };
