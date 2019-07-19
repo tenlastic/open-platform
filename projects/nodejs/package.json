@@ -7,7 +7,9 @@
     "modules/*"
   ],
   "scripts": {
-    "docker": "docker-compose run --rm application"
+    "docker": "docker-compose run --rm application npm run",
+    "docker:install": "docker-compose run --rm application npm install",
+    "lerna": "lerna"
   },
   "devDependencies": {
     "@types/aws-lambda": "8.10.23",
@@ -41,7 +43,7 @@
     "chai-as-promised": "7.1.1",
     "chai-http": "4.3.0",
     "chance": "1.0.16",
-    "lerna": "3.4.0",
+    "lerna": "^3.16.0",
     "mocha": "6.1.4",
     "mocha-junit-reporter": "1.18.0",
     "mocha-multi-reporters": "1.1.7",
