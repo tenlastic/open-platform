@@ -7,8 +7,6 @@ if [ -f ../../settings.sh ]; then
 fi
 
 # Run migrations if script is present.
-if [[ $(yarn run --non-interactive | grep "^  migrations" | wc -l) > 0 ]]; then
-  yarn migrations
-fi
+npm run --if-present migrations up
 
-sls offline start
+npm run start

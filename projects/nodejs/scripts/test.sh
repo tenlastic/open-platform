@@ -10,7 +10,7 @@ if [ -f ../../settings.test.sh ]; then
 fi
 
 # Run migrations if script is present.
-npm run migrations --if-present
+npm run --if-present migrations up
 
 # Publish coverage report if flag is present.
 COVERAGE_ARGUMENTS=""

@@ -1,14 +1,14 @@
 {
   "engines": {
-    "node": "10.16.0"
+    "node": "^10"
   },
   "license": "Apache-2.0",
   "name": "@tenlastic/email-service",
   "version": "0.0.0",
   "scripts": {
-    "lint": "../../scripts/lint.sh",
-    "start": "../../scripts/start.sh",
-    "test": "../../scripts/test.sh"
+    "lint": "sh ../../scripts/lint.sh",
+    "start": "sh ../../scripts/start.sh",
+    "test": "sh ../../scripts/test.sh"
   },
   "dependencies": {
     "@tenlastic/api-module": "0.0.0",

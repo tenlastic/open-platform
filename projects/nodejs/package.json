@@ -43,7 +43,7 @@
     "chai-as-promised": "7.1.1",
     "chai-http": "4.3.0",
     "chance": "1.0.16",
-    "lerna": "^3.16.0",
+    "lerna": "^3.16.1",
     "mocha": "6.1.4",
     "mocha-junit-reporter": "1.18.0",
     "mocha-multi-reporters": "1.1.7",
@@ -59,5 +59,8 @@
     "typescript": "3.5.3",
     "watch": "1.0.2",
     "webpack": "4.21.0"
+  },
+  "dependencies": {
+    "node-pre-gyp": "^0.13.0"
   }
 }

@@ -1,20 +1,17 @@
 {
   "engines": {
-    "node": "10.16.0"
+    "node": "^10"
   },
   "license": "ISC",
   "main": "./dist/index.js",
   "name": "@tenlastic/validations-module",
   "version": "0.0.0",
   "scripts": {
-    "build": "../../scripts/build.sh",
-    "build:docker": "../../scripts/docker-compose.sh yarn build",
+    "build": "sh ../../scripts/build.sh",
     "build:watch": "watch ../../scripts/build.sh ./src",
-    "docker": "../../scripts/docker-compose.sh npm run",
-    "lint": "../../scripts/lint.sh",
-    "lint:docker": "../../scripts/docker-compose.sh yarn lint",
-    "test": "../../scripts/test.sh",
-    "test:docker": "../../scripts/docker-compose.sh yarn test"
+    "docker": "sh ../../scripts/docker.sh npm run --if-present",
+    "lint": "sh ../../scripts/lint.sh",
+    "test": "sh ../../scripts/test.sh"
   },
   "devDependencies": {
     "mocha": "6.1.4",

@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": "10.16.0"
+    "node": "^10"
   },
   "license": "Apache-2.0",
   "main": "dist/index.js",
@@ -8,8 +8,7 @@
   "version": "0.0.0",
   "scripts": {
     "create:api": "ts-node ./src/api.ts",
-    "docker": "../../scripts/docker-compose.sh npm run",
-    "docker:install": "../../scripts/docker-compose.sh ../../scripts/install.sh"
+    "docker": "sh ../../scripts/docker.sh npm run --if-present"
   },
   "dependencies": {
     "glob": "7.1.4",

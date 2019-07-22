@@ -1,21 +1,18 @@
 {
   "engines": {
-    "node": "10.16.0"
+    "node": "^10"
   },
   "license": "Apache-2.0",
   "name": "@tenlastic/user-service",
   "version": "0.0.0",
   "scripts": {
-    "build": "../../scripts/build.sh",
-    "docker": "../../scripts/docker-compose.sh npm run",
-    "lint": "../../scripts/lint.sh",
-    "migrations": "migrate-mongo up -f ../../migrate-mongo-config.js",
-    "migrations:create": "migrate-mongo create -f ../../migrate-mongo-config.js",
-    "migrations:down": "migrate-mongo down -f ../../migrate-mongo-config.js",
-    "migrations:status": "migrate-mongo status -f ../../migrate-mongo-config.js",
-    "start": "../../scripts/start.sh",
-    "swagger": "../../scripts/swagger.sh",
-    "test": "../../scripts/test.sh"
+    "build": "sh ../../scripts/build.sh",
+    "docker": "sh ../../scripts/docker.sh npm run --if-present",
+    "lint": "sh ../../scripts/lint.sh",
+    "migrations": "migrate-mongo -f ../../migrate-mongo-config.js",
+    "start": "sh ../../scripts/start.sh",
+    "swagger": "sh ../../scripts/swagger.sh",
+    "test": "sh ../../scripts/test.sh"
   },
   "dependencies": {
     "@tenlastic/api-module": "0.0.0",
