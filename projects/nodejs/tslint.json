@@ -1,17 +1,12 @@
 {
-  "extends": [
-    "tslint:recommended"
-  ],
+  "extends": ["tslint:recommended"],
   "jsRules": {},
   "rules": {
     "arrow-parens": false,
     "curly": true,
     "interface-name": false,
     "max-classes-per-file": false,
-    "max-line-length": [
-      true,
-      100
-    ],
+    "max-line-length": [true, 100],
     "member-ordering": false,
     "mocha-avoid-only": true,
     "no-angle-bracket-type-assertion": false,
@@ -24,10 +19,8 @@
     "no-var-requires": false,
     "only-arrow-functions": false,
     "ordered-imports": false,
-    "quotemark": [
-      true,
-      "single"
-    ],
+    "quotemark": [true, "single"],
+    "semicolon": [true, "always", "ignore-bound-class-methods"],
     "trailing-comma": [
       true,
       {
@@ -37,7 +30,5 @@
     ],
     "variable-name": false
   },
-  "rulesDirectory": [
-    "./node_modules/tslint-microsoft-contrib"
-  ]
+  "rulesDirectory": ["./node_modules/tslint-microsoft-contrib"]
 }
