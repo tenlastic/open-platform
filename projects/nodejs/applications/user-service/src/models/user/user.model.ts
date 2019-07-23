@@ -1,4 +1,9 @@
 import {
+  DatabasePayload,
+  EventEmitter,
+  changeDataCapturePlugin,
+} from '@tenlastic/change-data-capture-module';
+import {
   alphanumericValidator,
   emailValidator,
   stringLengthValidator,
@@ -11,13 +16,23 @@ import {
   Typegoose,
   index,
   instanceMethod,
+  plugin,
   pre,
   prop,
   staticMethod,
 } from 'typegoose';
 
+export const UserCreated = new EventEmitter<DatabasePayload<UserDocument>>();
+export const UserDeleted = new EventEmitter<DatabasePayload<UserDocument>>();
+export const UserUpdated = new EventEmitter<DatabasePayload<UserDocument>>();
+
 @index({ email: 1 }, { unique: true })
 @index({ username: 1 }, { unique: true })
+@plugin(changeDataCapturePlugin, {
+  OnCreate: UserCreated,
+  OnDelete: UserDeleted,
+  OnUpdate: UserUpdated,
+})
 @pre<UserSchema>('save', async function(this: UserDocument) {
   if (this.isModified('password')) {
     this.password = await User.hashPassword(this.password);

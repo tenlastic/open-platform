@@ -1,0 +1,4 @@
+version: '3'
+services:
+  application:
+    working_dir: /usr/src/app/modules/mailgun-module/

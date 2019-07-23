@@ -1,9 +1,0 @@
-{
-  "extends": "../../tsconfig.json",
-  "exclude": [
-    "./src/**/*.spec.ts"
-  ],
-  "references": [
-    { "path": "../api-module/tsconfig.app.json" }
-  ]
-}

@@ -8,10 +8,10 @@
   "name": "@tenlastic/json-schema-module",
   "version": "0.0.0",
   "scripts": {
-    "build": "sh ../../scripts/build.sh",
+    "build": "../../scripts/build.sh",
     "build:watch": "watch ../../scripts/build.sh ./src",
     "docker": "sh ../../scripts/docker.sh npm run --if-present",
-    "lint": "sh ../../scripts/lint.sh"
+    "lint": "../../scripts/lint.sh"
   },
   "dependencies": {
     "reflect-metadata": "0.1.13"

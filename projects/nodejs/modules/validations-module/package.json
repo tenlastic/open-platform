@@ -7,11 +7,11 @@
   "name": "@tenlastic/validations-module",
   "version": "0.0.0",
   "scripts": {
-    "build": "sh ../../scripts/build.sh",
+    "build": "../../scripts/build.sh",
     "build:watch": "watch ../../scripts/build.sh ./src",
     "docker": "sh ../../scripts/docker.sh npm run --if-present",
-    "lint": "sh ../../scripts/lint.sh",
-    "test": "sh ../../scripts/test.sh"
+    "lint": "../../scripts/lint.sh",
+    "test": "../../scripts/test.sh"
   },
   "devDependencies": {
     "mocha": "6.1.4",

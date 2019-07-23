@@ -1,5 +1,6 @@
 *.tsbuildinfo
 .nyc_output
+lerna-debug.log
 package.json.lerna_backup
 settings.sh
 settings.test.sh

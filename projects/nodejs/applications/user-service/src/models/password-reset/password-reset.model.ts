@@ -1,15 +1,23 @@
-import { DatabasePayload, EventEmitter, databaseEventsPlugin } from '@tenlastic/api-module';
+import {
+  DatabasePayload,
+  EventEmitter,
+  changeDataCapturePlugin,
+} from '@tenlastic/change-data-capture-module';
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Typegoose, index, plugin, prop } from 'typegoose';
 
+export const PasswordResetCreated = new EventEmitter<DatabasePayload<PasswordResetDocument>>();
+export const PasswordResetDeleted = new EventEmitter<DatabasePayload<PasswordResetDocument>>();
+export const PasswordResetUpdated = new EventEmitter<DatabasePayload<PasswordResetDocument>>();
+
 @index({ createdAt: 1 }, { expireAfterSeconds: 24 * 60 * 60 })
 @index({ hash: 1 })
-@plugin(databaseEventsPlugin)
+@plugin(changeDataCapturePlugin, {
+  OnCreate: PasswordResetCreated,
+  OnDelete: PasswordResetDeleted,
+  OnUpdate: PasswordResetUpdated,
+})
 export class PasswordResetSchema extends Typegoose {
-  public static OnCreate = new EventEmitter<DatabasePayload<PasswordResetDocument>>();
-  public static OnDelete = new EventEmitter<DatabasePayload<PasswordResetDocument>>();
-  public static OnUpdate = new EventEmitter<DatabasePayload<PasswordResetDocument>>();
-
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
