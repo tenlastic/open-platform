@@ -1,4 +1,4 @@
-version: '3'
+version: '2.1'
 services:
   application:
     working_dir: /usr/src/app/modules/validations-module/

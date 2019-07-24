@@ -1,11 +1,7 @@
-version: '3'
+version: '2.1'
 services:
   application:
     environment:
       - JWT_SECRET
       - MONGO_CONNECTION_STRING
-    links:
-      - mongo
     working_dir: /usr/src/app/modules/api-module/
-  mongo:
-    image: mongo:4

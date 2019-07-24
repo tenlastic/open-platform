@@ -1,7 +1,21 @@
-version: '3'
+version: '2.1'
 services:
   application:
+    depends_on:
+      - mongo_healthcheck
     image: node:10
+    links:
+      - mongo
     volumes:
       - ./:/usr/src/app/
     working_dir: /usr/src/app/
+  mongo:
+    build:
+      context: ./dockerfiles/mongo-replica-set
+    environment:
+      - REPLICA_SET_HOSTNAME=mongo
+  mongo_healthcheck:
+    image: busybox
+    depends_on:
+      mongo:
+        condition: service_healthy

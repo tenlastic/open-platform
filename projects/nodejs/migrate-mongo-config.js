@@ -1,18 +1,16 @@
 'use strict';
 
-const url = require("url");
-
 const connectionString = process.env.MONGO_CONNECTION_STRING;
-const databaseName = url.parse(connectionString).pathname.substring(1);
+const databaseName = connectionString.match(/\/([a-z]+)\?/)[1];
 
 module.exports = {
-  changelogCollectionName: "schemaMigrations",
-  migrationsDir: "migrations",
+  changelogCollectionName: 'schemaMigrations',
+  migrationsDir: 'migrations',
   mongodb: {
     databaseName,
     options: {
-      useNewUrlParser: true
+      useNewUrlParser: true,
     },
     url: connectionString,
-  }
+  },
 };
