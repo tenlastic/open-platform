@@ -11,6 +11,7 @@ export async function jwtMiddleware(ctx: Context, next: MiddlewareCallback) {
     const token = authorization.replace('Bearer ', '');
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET);
 
+    ctx.state.jwt = decoded;
     ctx.state.user = decoded.user;
   } catch {}
 

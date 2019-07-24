@@ -10,7 +10,7 @@ export async function handler(ctx: Context) {
     throw new Error('Missing required parameters: password.');
   }
 
-  const passwordReset = await PasswordReset.findOne({ hash });
+  const passwordReset = await PasswordReset.findOneAndDelete({ hash });
   if (!passwordReset) {
     throw new Error('Invalid hash.');
   }

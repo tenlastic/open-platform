@@ -19,6 +19,8 @@
     "jsonwebtoken": "8.5.1",
     "koa": "2.7.0",
     "koa-bodyparser": "4.2.1",
+    "koa-mount": "4.0.0",
+    "koa-router": "7.4.0",
     "koa-static": "5.0.0",
     "mongoose": "5.4.15",
     "typegoose": "5.6.0",

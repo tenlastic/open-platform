@@ -9,6 +9,21 @@ import {
 } from './change-data-capture.model';
 
 describe('data-change-plugin', function() {
+  describe(`post('findOneAndDelete')`, function() {
+    it('emits an OnDelete event', async function() {
+      const changeDataCapture = await ChangeDataCapture.create({});
+
+      const spy = sinon.spy();
+      ChangeDataCaptureDeleted.once(spy);
+
+      await ChangeDataCapture.findOneAndDelete({ _id: changeDataCapture._id });
+
+      expect(spy.calledOnce).to.eql(true);
+      expect(spy.getCall(0).args[0].after).to.eql(null);
+      expect(spy.getCall(0).args[0].before._id.toString()).to.eql(changeDataCapture._id.toString());
+    });
+  });
+
   describe(`post('init')`, function() {
     beforeEach(async function() {
       await ChangeDataCapture.create({});

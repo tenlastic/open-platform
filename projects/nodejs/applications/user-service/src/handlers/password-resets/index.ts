@@ -6,4 +6,4 @@ import { handler as deleteHandler } from './delete';
 export const router = new Router({ prefix: '/password-resets' });
 
 router.delete('/:hash', deleteHandler);
-router.get('/', createHandler);
+router.post('/', createHandler);

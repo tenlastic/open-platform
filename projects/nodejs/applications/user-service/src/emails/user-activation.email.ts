@@ -1,9 +1,8 @@
-import { DatabasePayload } from '@tenlastic/change-data-detection-module';
 import * as mailgun from '@tenlastic/mailgun-module';
 
-import { UserCreated, UserDocument, UserUpdated } from '../models';
+import { UserUpdated } from '../models';
 
-function send(payload: DatabasePayload<UserDocument>) {
+UserUpdated.on(payload => {
   if (payload.before.activatedAt || !payload.after.activatedAt) {
     return;
   }
@@ -23,7 +22,4 @@ function send(payload: DatabasePayload<UserDocument>) {
     subject: 'Account Activated',
     to: payload.after.email,
   });
-}
-
-UserCreated.on(send);
-UserUpdated.on(send);
+});

@@ -7,13 +7,11 @@ import { handler } from '.';
 
 const chance = new Chance();
 
-describe('handlers/create', function() {
-  let record: UserDocument;
-  let user: any;
+describe('handlers/users/create', function() {
+  let user: UserDocument;
 
   beforeEach(async function() {
-    record = await UserMock.create();
-    user = { level: 1 };
+    user = await UserMock.create({ level: 1 });
   });
 
   it('creates a new record', async function() {

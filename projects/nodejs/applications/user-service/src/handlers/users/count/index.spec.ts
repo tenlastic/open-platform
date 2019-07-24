@@ -4,13 +4,11 @@ import { expect } from 'chai';
 import { UserMock, UserDocument } from '../../../models';
 import { handler } from '.';
 
-describe('handlers/count', function() {
-  let record: UserDocument;
-  let user: any;
+describe('handlers/users/count', function() {
+  let user: UserDocument;
 
   beforeEach(async function() {
-    record = await UserMock.create();
-    user = { level: 1 };
+    user = await UserMock.create({ level: 1 });
   });
 
   it('returns the number of matching records', async function() {

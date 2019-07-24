@@ -10,8 +10,8 @@ export const PasswordResetCreated = new EventEmitter<DatabasePayload<PasswordRes
 export const PasswordResetDeleted = new EventEmitter<DatabasePayload<PasswordResetDocument>>();
 export const PasswordResetUpdated = new EventEmitter<DatabasePayload<PasswordResetDocument>>();
 
-@index({ createdAt: 1 }, { expireAfterSeconds: 24 * 60 * 60 })
-@index({ hash: 1 })
+@index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+@index({ hash: 1 }, { unique: true })
 @plugin(changeDataCapturePlugin, {
   OnCreate: PasswordResetCreated,
   OnDelete: PasswordResetDeleted,
@@ -21,16 +21,15 @@ export class PasswordResetSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({
-    required: true,
-  })
+  @prop({ required: true })
+  public expiresAt: Date;
+
+  @prop({ required: true })
   public hash: string;
 
   public updatedAt: Date;
 
-  @prop({
-    required: true,
-  })
+  @prop({ required: true })
   public userId: mongoose.Types.ObjectId;
 }
 
@@ -39,10 +38,6 @@ export type PasswordResetModel = ModelType<PasswordResetSchema>;
 export const PasswordReset = new PasswordResetSchema().getModelForClass(PasswordResetSchema, {
   schemaOptions: {
     autoIndex: false,
-    collation: {
-      locale: 'en_US',
-      strength: 1,
-    },
     collection: 'passwordresets',
     timestamps: true,
   },

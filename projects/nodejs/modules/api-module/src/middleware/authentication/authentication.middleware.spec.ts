@@ -13,7 +13,7 @@ use(chaiAsPromised);
 describe('middleware/authentication', function() {
   context('when the user is set', function() {
     it('calls through', async function() {
-      const user = { _id: chance.hash(), isActive: true };
+      const user = { _id: chance.hash(), activatedAt: new Date() };
       const ctx = new ContextMock({ state: { user } });
 
       await authenticationMiddleware(ctx as any, noop);
@@ -22,7 +22,7 @@ describe('middleware/authentication', function() {
 
   context('when the user is not active', function() {
     it('throws an error', function() {
-      const user = { _id: chance.hash(), isActive: false };
+      const user = { _id: chance.hash() };
       const ctx = new ContextMock({ state: { user } });
 
       const promise = authenticationMiddleware(ctx as any, noop);

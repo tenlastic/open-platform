@@ -8,13 +8,9 @@
     "moduleResolution": "node",
     "paths": {
       "@tenlastic/api-module": ["./modules/api-module/src"],
-      "@tenlastic/api-module/*": ["./modules/api-module/src/*"],
-      "@tenlastic/change-data-detection-module": ["./modules/change-data-detection-module/src"],
-      "@tenlastic/change-data-detection-module/*": ["./modules/change-data-detection-module/src/*"],
+      "@tenlastic/change-data-capture-module": ["./modules/change-data-capture-module/src"],
       "@tenlastic/mailgun-module": ["./modules/mailgun-module/src"],
-      "@tenlastic/mailgun-module/*": ["./modules/mailgun-module/src/*"],
-      "@tenlastic/validations-module": ["./modules/validations-module/src"],
-      "@tenlastic/validations-module/*": ["./modules/validations-module/src/*"]
+      "@tenlastic/validations-module": ["./modules/validations-module/src"]
     },
     "sourceMap": true,
     "target": "es2015"

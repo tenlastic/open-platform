@@ -1,0 +1,30 @@
+paths:
+  /logins:
+    post:
+      summary: Log In with Email Address and Password
+      tags: [Login Service]
+      description: Returns access and refresh tokens.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string

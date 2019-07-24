@@ -12,6 +12,7 @@ export class PasswordResetMock {
    */
   public static async create(params: Partial<PasswordResetSchema> = {}) {
     const defaults = {
+      expiresAt: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
       hash: chance.hash({ length: 128 }),
       userId: new mongoose.Types.ObjectId(),
     };

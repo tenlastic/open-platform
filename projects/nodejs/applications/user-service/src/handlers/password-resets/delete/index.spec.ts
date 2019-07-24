@@ -16,7 +16,7 @@ import { Context } from 'koa';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/delete', function() {
+describe('handlers/password-resets/delete', function() {
   let record: PasswordResetDocument;
   let user: UserDocument;
 

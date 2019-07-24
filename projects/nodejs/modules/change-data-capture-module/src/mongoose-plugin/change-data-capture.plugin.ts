@@ -20,23 +20,27 @@ export interface IOriginalDocument {
 /**
  * Mongoose plugin to emit events after database changes.
  */
-export function changeDataCapturePlugin<T>(
+export function changeDataCapturePlugin<T extends mongoose.Document>(
   schema: mongoose.Schema,
   options: IChangeDataCapture<T>,
 ) {
-  schema.pre('save', function(this: mongoose.Document & IOriginalDocument) {
+  schema.pre('save', function(this: T & IOriginalDocument) {
     this.wasNew = this.isNew;
   });
 
-  schema.post('init', function(this: mongoose.Document & IOriginalDocument) {
+  schema.post('findOneAndDelete', function(document: T & IOriginalDocument) {
+    options.OnDelete.emit({ after: null, before: document });
+  });
+
+  schema.post('init', function(this: T & IOriginalDocument) {
     this._original = this.toObject();
   });
 
-  schema.post('remove', function(this: mongoose.Document & IOriginalDocument) {
+  schema.post('remove', function(this: T & IOriginalDocument) {
     options.OnDelete.emit({ after: null, before: this._original });
   });
 
-  schema.post('save', function(this: mongoose.Document & IOriginalDocument) {
+  schema.post('save', function(this: T & IOriginalDocument) {
     if (this.wasNew) {
       options.OnCreate.emit({ after: this.toObject(), before: null });
     } else {

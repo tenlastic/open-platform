@@ -61,6 +61,7 @@
     "webpack": "4.21.0"
   },
   "dependencies": {
+    "@types/koa-mount": "4.0.0",
     "node-pre-gyp": "^0.13.0"
   }
 }

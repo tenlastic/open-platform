@@ -5,4 +5,4 @@ set -e
 mkdir -p ./dist/public/
 
 # Merge swagger files.
-merge-yaml -i swagger.yml src/**/swagger.yml -o ./dist/public/swagger.yml
+merge-yaml -i swagger.yml src/**/swagger.yml -o ./public/swagger.yml

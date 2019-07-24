@@ -2,6 +2,8 @@ import * as cors from '@koa/cors';
 import { Server } from 'http';
 import * as koa from 'koa';
 import * as bodyParser from 'koa-bodyparser';
+import * as mount from 'koa-mount';
+import * as Router from 'koa-router';
 import * as serve from 'koa-static';
 
 import {
@@ -18,6 +20,9 @@ export class WebServer {
   constructor() {
     this.app = new koa();
 
+    // Allow X-Forwarder-For headers.
+    this.app.proxy = true;
+
     // Allow CORS requests.
     this.app.use(cors());
 
@@ -31,8 +36,14 @@ export class WebServer {
     this.app.use(jwtMiddleware);
   }
 
-  public serve(directory = 'public') {
-    this.app.use(serve(directory));
+  public serve(directory = 'public', path = '/', root = 'index.html') {
+    // Redirect naked root URL to root document.
+    const router = new Router();
+    router.get(path, ctx => ctx.redirect(`${path}/${root}`));
+    this.app.use(router.routes());
+
+    // Serve static files from specified directory.
+    this.app.use(mount(path, serve(directory)));
   }
 
   public start(port = 3000) {

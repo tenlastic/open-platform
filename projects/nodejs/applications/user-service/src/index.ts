@@ -3,6 +3,7 @@ import 'source-map-support/register';
 import { WebServer } from '@tenlastic/api-module';
 import * as mailgun from '@tenlastic/mailgun-module';
 import * as mongoose from 'mongoose';
+import * as path from 'path';
 
 import './emails';
 import { router as passwordResetsRouter } from './handlers/password-resets';
@@ -16,7 +17,7 @@ mongoose.connect(url, { useFindAndModify: false, useNewUrlParser: true });
 const webServer = new WebServer();
 webServer.use(passwordResetsRouter.routes());
 webServer.use(usersRouter.routes());
-webServer.serve();
+webServer.serve(path.resolve(__dirname, '../public'), '/documentation');
 webServer.start();
 
 export { webServer };

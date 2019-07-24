@@ -9,4 +9,4 @@ fi
 # Run migrations if script is present.
 npm run --if-present migrations up
 
-npm run start
+ts-node ./src/index.ts

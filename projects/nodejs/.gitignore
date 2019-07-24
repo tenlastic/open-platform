@@ -8,6 +8,9 @@ tscommand*.tmp.txt
 yarn-error.log
 
 **/src/**/*.d.ts
+**/public/swagger.json
+**/public/swagger.yaml
+**/public/swagger.yml
 
 .tscache/
 dist/

@@ -10,7 +10,7 @@ import { handler } from '.';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/create', function() {
+describe('handlers/password-resets/create', function() {
   let user: UserDocument;
 
   beforeEach(async function() {
