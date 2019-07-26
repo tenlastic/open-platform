@@ -11,5 +11,5 @@ module.exports = {
 
     await collection.dropIndex('email_1');
     await collection.dropIndex('username_1');
-  }
+  },
 };

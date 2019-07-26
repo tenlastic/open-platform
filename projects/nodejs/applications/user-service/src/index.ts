@@ -11,8 +11,13 @@ import { router as usersRouter } from './handlers/users';
 
 mailgun.setCredentials(process.env.MAILGUN_DOMAIN, process.env.MAILGUN_KEY);
 
-const url = process.env.MONGO_CONNECTION_STRING;
-mongoose.connect(url, { useFindAndModify: false, useNewUrlParser: true });
+const connectionString = process.env.MONGO_CONNECTION_STRING;
+const databaseName = process.env.MONGO_DATABASE_NAME;
+mongoose.connect(connectionString, {
+  dbName: databaseName,
+  useFindAndModify: false,
+  useNewUrlParser: true,
+});
 
 const webServer = new WebServer();
 webServer.use(passwordResetsRouter.routes());

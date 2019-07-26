@@ -1,53 +1,52 @@
-import { ContextMock } from '@tenlastic/api-module';
+import { Context, ContextMock } from '@tenlastic/api-module';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
-import { UserDocument, UserMock } from '../../../models';
+import {
+  RefreshToken,
+  RefreshTokenDocument,
+  RefreshTokenMock,
+  UserDocument,
+  UserMock,
+} from '../../../models';
 import { handler } from '.';
 
 use(chaiAsPromised);
 
 describe('handlers/logins/delete', function() {
+  let ctx: Context;
+  let refreshToken: RefreshTokenDocument;
   let user: UserDocument;
 
   beforeEach(async function() {
+    refreshToken = await RefreshTokenMock.create();
     user = await UserMock.create({ activatedAt: new Date(), password: 'password' });
+
+    ctx = new ContextMock({
+      request: {
+        body: {
+          email: user.email,
+          password: 'password',
+        },
+        headers: {},
+      },
+      state: {
+        jwt: {
+          jti: refreshToken.jti,
+        },
+      },
+    }) as any;
+
+    await handler(ctx);
   });
 
-  context('when credentials are correct', function() {
-    it('returns the access and refresh tokens', async function() {
-      const ctx: any = new ContextMock({
-        request: {
-          body: {
-            email: user.email,
-            password: 'password',
-          },
-          headers: {},
-        },
-      });
-
-      await handler(ctx);
-
-      expect(ctx.response.body.accessToken).to.exist;
-      expect(ctx.response.body.refreshToken).to.exist;
-    });
+  it('returns a 200 status code', async function() {
+    expect(ctx.response.status).to.eql(200);
   });
 
-  context('when credentials are incorrect', function() {
-    it('returns an error message', function() {
-      const ctx: any = new ContextMock({
-        request: {
-          body: {
-            email: user.email,
-            password: 'wrong',
-          },
-          headers: {},
-        },
-      });
+  it('deletes the associated RefreshToken', async function() {
+    const result = await RefreshToken.findOne({ jti: refreshToken.jti });
 
-      const promise = handler(ctx);
-
-      return expect(promise).to.be.rejectedWith('Invalid email address or password.');
-    });
+    expect(result).to.eql(null);
   });
 });

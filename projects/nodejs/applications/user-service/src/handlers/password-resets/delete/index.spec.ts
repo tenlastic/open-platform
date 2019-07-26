@@ -41,7 +41,7 @@ describe('handlers/password-resets/delete', function() {
 
   context('when password is provided', function() {
     context('when hash is invalid', function() {
-      it('throws an error', async function() {
+      it('returns a 200 status code', async function() {
         const ctx = new ContextMock({
           params: {
             hash: chance.hash({ length: 128 }),
@@ -53,9 +53,9 @@ describe('handlers/password-resets/delete', function() {
           },
         });
 
-        const promise = handler(ctx as any);
+        await handler(ctx as any);
 
-        return expect(promise).to.be.rejectedWith('Invalid hash.');
+        expect(ctx.response.status).to.eql(200);
       });
     });
 

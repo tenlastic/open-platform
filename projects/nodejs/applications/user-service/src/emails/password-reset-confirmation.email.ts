@@ -1,8 +1,12 @@
 import * as mailgun from '@tenlastic/mailgun-module';
 
-import { PasswordResetDeleted, User } from '../models';
+import { UserUpdated } from '../models';
 
-PasswordResetDeleted.on(async payload => {
+UserUpdated.on(async payload => {
+  if (payload.before.password === payload.after.password) {
+    return;
+  }
+
   const html = `
     Your password was reset successfully.
     <br>
@@ -18,12 +22,10 @@ PasswordResetDeleted.on(async payload => {
     Tenlastic Support Team
   `;
 
-  const user = await User.findOne({ _id: payload.after.userId });
-
   return mailgun.send({
     from: 'no-reply@tenlastic.com',
     html,
     subject: 'Password Reset Successful',
-    to: user.email,
+    to: payload.after.email,
   });
 });

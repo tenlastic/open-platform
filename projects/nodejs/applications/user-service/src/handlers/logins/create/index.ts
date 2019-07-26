@@ -2,7 +2,7 @@ import { Context } from '@tenlastic/api-module';
 import * as jwt from 'jsonwebtoken';
 import * as uuid from 'uuid/v4';
 
-import { Login, RefreshToken, User, UserPermissions } from '../../../models';
+import { RefreshToken, User, UserPermissions } from '../../../models';
 
 export async function handler(ctx: Context) {
   const { email, password } = ctx.request.body;
@@ -21,11 +21,6 @@ export async function handler(ctx: Context) {
   if (!isValidPassword) {
     throw new Error('Invalid email address or password.');
   }
-
-  // Save the Login history for future reference.
-  const ip = ctx.ip;
-  const userAgent = ctx.request.headers['user-agent'];
-  await Login.create({ ip, userAgent, userId: user._id });
 
   // Save the RefreshToken for renewal and revocation.
   const jti = uuid();

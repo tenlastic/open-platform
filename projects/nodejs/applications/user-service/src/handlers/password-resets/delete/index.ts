@@ -11,12 +11,11 @@ export async function handler(ctx: Context) {
   }
 
   const passwordReset = await PasswordReset.findOneAndDelete({ hash });
-  if (!passwordReset) {
-    throw new Error('Invalid hash.');
-  }
 
-  const passwordHash = await User.hashPassword(password);
-  await User.updateOne({ _id: passwordReset.userId }, { password: passwordHash });
+  if (passwordReset) {
+    const passwordHash = await User.hashPassword(password);
+    await User.updateOne({ _id: passwordReset.userId }, { password: passwordHash });
+  }
 
   ctx.response.status = 200;
 }
