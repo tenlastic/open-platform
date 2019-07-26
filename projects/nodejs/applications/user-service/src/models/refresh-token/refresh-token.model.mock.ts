@@ -1,4 +1,5 @@
 import * as Chance from 'chance';
+import * as mongoose from 'mongoose';
 
 import { RefreshToken, RefreshTokenSchema } from './refresh-token.model';
 
@@ -13,6 +14,7 @@ export class RefreshTokenMock {
     const defaults = {
       expiresAt: new Date(),
       jti: chance.hash(),
+      userId: new mongoose.Types.ObjectId(),
     };
 
     return RefreshToken.create({ ...defaults, ...params });

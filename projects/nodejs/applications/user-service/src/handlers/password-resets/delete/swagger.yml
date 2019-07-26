@@ -1,9 +1,9 @@
 paths:
   /password-resets/{hash}:
     delete:
-      summary: Delete
-      tags: [Password Reset Service]
-      description: Deletes an existing record.
+      summary: Reset User's Password
+      tags: [Password Resets]
+      description: Deletes a Password Request, resets the User's password, and removes all User's refresh tokens.
       parameters:
         - in: path
           name: hash

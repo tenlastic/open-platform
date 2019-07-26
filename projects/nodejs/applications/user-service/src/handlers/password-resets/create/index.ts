@@ -1,7 +1,9 @@
 import { Context } from '@tenlastic/api-module';
-import * as uuid from 'uuid/v4';
+import * as Chance from 'chance';
 
 import { PasswordReset, User } from '../../../models';
+
+const chance = new Chance();
 
 export async function handler(ctx: Context) {
   const { email } = ctx.request.body;
@@ -13,7 +15,7 @@ export async function handler(ctx: Context) {
 
   if (user) {
     const expiresAt = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
-    const hash = uuid();
+    const hash = chance.hash({ length: 128 });
     await PasswordReset.create({ expiresAt, hash, userId: user._id });
   }
 

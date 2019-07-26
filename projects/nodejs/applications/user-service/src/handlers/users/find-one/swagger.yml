@@ -2,7 +2,7 @@ paths:
   /users/{id}:
     get:
       summary: Find One
-      tags: [User Service]
+      tags: [Users]
       description: Finds a record by ID.
       security:
         - AccessToken: []

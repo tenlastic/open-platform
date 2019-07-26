@@ -6,6 +6,8 @@ import * as Chance from 'chance';
 import {
   PasswordResetDocument,
   PasswordResetMock,
+  RefreshToken,
+  RefreshTokenMock,
   UserDocument,
   UserMock,
   User,
@@ -53,9 +55,9 @@ describe('handlers/password-resets/delete', function() {
           },
         });
 
-        await handler(ctx as any);
+        const promise = handler(ctx as any);
 
-        expect(ctx.response.status).to.eql(200);
+        return expect(promise).to.be.rejectedWith('Something went wrong. Please try again.');
       });
     });
 
@@ -79,6 +81,8 @@ describe('handlers/password-resets/delete', function() {
         }) as any;
         previousPassword = user.password;
 
+        await RefreshTokenMock.create({ userId: user._id });
+
         await handler(ctx);
       });
 
@@ -89,6 +93,11 @@ describe('handlers/password-resets/delete', function() {
       it(`updates the User's password`, async function() {
         const updatedUser = await User.findById(user._id);
         expect(updatedUser.password).to.not.eql(previousPassword);
+      });
+
+      it(`removes all the User's RefreshTokens`, async function() {
+        const count = await RefreshToken.countDocuments({ userId: user._id });
+        expect(count).to.eql(0);
       });
     });
   });

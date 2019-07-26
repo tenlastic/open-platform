@@ -1,9 +1,9 @@
 paths:
   /password-resets:
     post:
-      summary: Create
-      tags: [Password Reset Service]
-      description: Creates a new record.
+      summary: Request Password Reset
+      tags: [Password Resets]
+      description: Registers a new Password Reset and emails the User with further instructions.
       requestBody:
         content:
           application/json:

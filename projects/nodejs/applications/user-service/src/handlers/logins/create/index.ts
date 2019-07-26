@@ -25,7 +25,7 @@ export async function handler(ctx: Context) {
   // Save the RefreshToken for renewal and revocation.
   const jti = uuid();
   const expiresAt = new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000);
-  await RefreshToken.create({ expiresAt, jti });
+  await RefreshToken.create({ expiresAt, jti, userId: user._id });
 
   // Remove unauthorized fields from the User.
   const userPermissions = new UserPermissions();

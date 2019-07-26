@@ -2,7 +2,7 @@ paths:
   /users/{id}:
     put:
       summary: Update
-      tags: [User Service]
+      tags: [Users]
       description: Updates an existing record.
       security:
         - AccessToken: []

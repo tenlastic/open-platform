@@ -2,8 +2,8 @@ paths:
   /logins:
     post:
       summary: Log In with Email Address and Password
-      tags: [Login Service]
-      description: Returns access and refresh tokens.
+      tags: [Logins]
+      description: Returns an access and refresh token.
       requestBody:
         content:
           application/json:

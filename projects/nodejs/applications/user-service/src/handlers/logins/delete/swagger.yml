@@ -2,8 +2,10 @@ paths:
   /logins:
     delete:
       summary: Log Out
-      tags: [Login Service]
+      tags: [Logins]
       description: Invalidates the access token and any refresh tokens associated with it.
+      security:
+        - AccessToken: []
       responses:
         200:
           description: OK

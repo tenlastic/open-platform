@@ -12,6 +12,7 @@ export const RefreshTokenUpdated = new EventEmitter<DatabasePayload<RefreshToken
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ jti: 1 }, { unique: true })
+@index({ userId: 1 })
 @plugin(changeDataCapturePlugin, {
   OnCreate: RefreshTokenCreated,
   OnDelete: RefreshTokenDeleted,
@@ -28,6 +29,9 @@ export class RefreshTokenSchema extends Typegoose {
   public jti: string;
 
   public updatedAt: Date;
+
+  @prop({ required: true })
+  public userId: mongoose.Types.ObjectId;
 }
 
 export type RefreshTokenDocument = InstanceType<RefreshTokenSchema>;

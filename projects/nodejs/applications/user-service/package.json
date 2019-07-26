@@ -21,6 +21,7 @@
     "@tenlastic/mailgun-module": "0.0.0",
     "@tenlastic/validations-module": "0.0.0",
     "bcrypt": "3.0.6",
+    "chance": "1.0.16",
     "jsonwebtoken": "8.5.1",
     "koa-router": "7.4.0",
     "mongoose": "5.4.15",
