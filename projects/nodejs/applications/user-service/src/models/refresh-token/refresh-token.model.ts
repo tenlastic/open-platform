@@ -4,7 +4,9 @@ import {
   changeDataCapturePlugin,
 } from '@tenlastic/change-data-capture-module';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Typegoose, index, plugin, prop } from 'typegoose';
+import { InstanceType, ModelType, Ref, Typegoose, index, plugin, prop } from 'typegoose';
+
+import { UserSchema } from '../user/user.model';
 
 export const RefreshTokenCreated = new EventEmitter<DatabasePayload<RefreshTokenDocument>>();
 export const RefreshTokenDeleted = new EventEmitter<DatabasePayload<RefreshTokenDocument>>();
@@ -30,8 +32,8 @@ export class RefreshTokenSchema extends Typegoose {
 
   public updatedAt: Date;
 
-  @prop({ required: true })
-  public userId: mongoose.Types.ObjectId;
+  @prop({ ref: 'User', required: true })
+  public userId: Ref<UserSchema>;
 }
 
 export type RefreshTokenDocument = InstanceType<RefreshTokenSchema>;

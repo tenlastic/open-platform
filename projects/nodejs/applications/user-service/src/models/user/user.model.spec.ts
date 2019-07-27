@@ -1,8 +1,10 @@
 import { expect } from 'chai';
 import * as Chance from 'chance';
+import * as jwt from 'jsonwebtoken';
 
+import { RefreshToken } from '../refresh-token/refresh-token.model';
 import { UserMock } from './user.model.mock';
-import { User } from './user.model';
+import { User, UserDocument } from './user.model';
 
 const chance = new Chance();
 
@@ -24,6 +26,30 @@ describe('models/user.model', function() {
       const isValidPassword = await user.isValidPassword(password);
 
       expect(isValidPassword).to.eql(true);
+    });
+  });
+
+  describe('logIn()', function() {
+    let user: UserDocument;
+
+    beforeEach(async function() {
+      user = await UserMock.create();
+    });
+
+    it('returns an accessToken and refreshToken', async function() {
+      const { accessToken, refreshToken } = await user.logIn();
+
+      expect(accessToken).to.exist;
+      expect(refreshToken).to.exist;
+    });
+
+    it('creates and returns a refreshToken', async function() {
+      const { refreshToken } = await user.logIn();
+
+      const { jti } = jwt.decode(refreshToken) as any;
+      const count = await RefreshToken.countDocuments({ jti, userId: user._id });
+
+      expect(count).to.eql(1);
     });
   });
 });

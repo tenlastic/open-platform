@@ -9,6 +9,7 @@ import {
   stringLengthValidator,
 } from '@tenlastic/validations-module';
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 import {
   InstanceType,
@@ -21,6 +22,10 @@ import {
   prop,
   staticMethod,
 } from 'typegoose';
+import * as uuid from 'uuid/v4';
+
+import { RefreshToken } from '../refresh-token/refresh-token.model';
+import { UserPermissions } from './user.permissions';
 
 export const UserCreated = new EventEmitter<DatabasePayload<UserDocument>>();
 export const UserDeleted = new EventEmitter<DatabasePayload<UserDocument>>();
@@ -83,6 +88,32 @@ export class UserSchema extends Typegoose {
   @instanceMethod
   public isValidPassword(this: UserDocument, plaintext: string) {
     return bcrypt.compare(plaintext, this.password);
+  }
+
+  /**
+   * Creates an access and refresh token.
+   */
+  @instanceMethod
+  public async logIn(this: UserDocument) {
+    // Save the RefreshToken for renewal and revocation.
+    const jti = uuid();
+    const expiresAt = new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000);
+    await RefreshToken.create({ expiresAt, jti, userId: this._id });
+
+    // Remove unauthorized fields from the User.
+    const userPermissions = new UserPermissions();
+    const filteredUser = await userPermissions.read(this, this);
+
+    const accessToken = jwt.sign({ user: filteredUser }, process.env.JWT_SECRET, {
+      expiresIn: '30m',
+      jwtid: jti,
+    });
+    const refreshToken = jwt.sign({ user: filteredUser }, process.env.JWT_SECRET, {
+      expiresIn: '14d',
+      jwtid: jti,
+    });
+
+    return { accessToken, refreshToken };
   }
 }
 

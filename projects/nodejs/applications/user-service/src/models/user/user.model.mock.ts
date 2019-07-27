@@ -11,7 +11,6 @@ export class UserMock {
     const chance = new Chance();
 
     const defaults = {
-      activatedAt: new Date(),
       email: chance.email(),
       password: chance.hash(),
       username: chance.hash({ length: 20 }),
