@@ -1,9 +1,9 @@
 import * as mailgun from '@tenlastic/mailgun-module';
 
-import { PasswordResetCreated, User } from '../models';
+import { PasswordResetDocument, User } from '../models';
 
-PasswordResetCreated.on(async payload => {
-  const resetUrl = `${process.env.PASSWORD_RESET_URL}/${payload.after.hash}`;
+export async function send(passwordReset: PasswordResetDocument) {
+  const resetUrl = `${process.env.PASSWORD_RESET_URL}/${passwordReset.hash}`;
   const html = `
     You have requested to reset your password.
     Please click the link below within 24 hours to create a new password:
@@ -24,7 +24,7 @@ PasswordResetCreated.on(async payload => {
     Tenlastic Support Team
   `;
 
-  const user = await User.findOne({ _id: payload.after.userId });
+  const user = await User.findOne({ _id: passwordReset.userId });
 
   return mailgun.send({
     from: 'no-reply@tenlastic.com',
@@ -32,4 +32,4 @@ PasswordResetCreated.on(async payload => {
     subject: 'Password Reset Requested',
     to: user.email,
   });
-});
+}

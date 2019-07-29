@@ -1,17 +1,13 @@
 import * as mailgun from '@tenlastic/mailgun-module';
 
-import { UserUpdated } from '../models';
+import { UserDocument } from '../models';
 
-UserUpdated.on(async payload => {
-  if (payload.before.password === payload.after.password) {
-    return;
-  }
-
+export async function send(user: UserDocument) {
   const html = `
-    Your password was reset successfully.
+    Your password has been changed successfully.
     <br>
     <br>
-    If you did not recently reset your password, someone may be trying to gain access to your account.
+    If this is unexpected, someone may have gained access to your account.
     <br>
     Please email us at <a href="mailto:support@tenlastic.com">support@tenlastic.com</a>
     if you believe this to be fraudulent.
@@ -26,6 +22,6 @@ UserUpdated.on(async payload => {
     from: 'no-reply@tenlastic.com',
     html,
     subject: 'Password Reset Successful',
-    to: payload.after.email,
+    to: user.email,
   });
-});
+}

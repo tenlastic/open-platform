@@ -1,7 +1,9 @@
 import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as jwt from 'jsonwebtoken';
+import * as sinon from 'sinon';
 
+import * as emails from '../../emails';
 import { RefreshToken } from '../refresh-token/refresh-token.model';
 import { UserMock } from './user.model.mock';
 import { User, UserDocument } from './user.model';
@@ -9,6 +11,52 @@ import { User, UserDocument } from './user.model';
 const chance = new Chance();
 
 describe('models/user.model', function() {
+  let sandbox: sinon.SinonSandbox;
+
+  beforeEach(function() {
+    sandbox = sinon.createSandbox();
+  });
+
+  afterEach(function() {
+    sandbox.restore();
+  });
+
+  describe(`pre('save')`, function() {
+    context('when document.isNew() is false', function() {
+      it('calls sendPasswordResetConfirmation()', async function() {
+        const user = await UserMock.create({ password: chance.hash() });
+
+        const spy = sandbox.stub(emails, 'sendPasswordResetConfirmation');
+
+        user.password = chance.hash();
+        await user.save();
+
+        expect(spy.calledOnce).to.eql(true);
+      });
+
+      it('calls sendUserActivation()', async function() {
+        const user = await UserMock.create();
+
+        const spy = sandbox.stub(emails, 'sendUserActivation');
+
+        user.activatedAt = new Date();
+        await user.save();
+
+        expect(spy.calledOnce).to.eql(true);
+      });
+    });
+
+    context('when document.isNew() is true', function() {
+      it('does not call sendPasswordResetConfirmation()', async function() {
+        const spy = sandbox.stub(emails, 'sendPasswordResetConfirmation');
+
+        await UserMock.create();
+
+        expect(spy.calledOnce).to.eql(false);
+      });
+    });
+  });
+
   describe('hashPassword()', function() {
     it('creates a hash from the given plaintext value', async function() {
       const password = chance.hash();

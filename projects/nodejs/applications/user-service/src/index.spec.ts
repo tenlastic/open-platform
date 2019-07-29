@@ -1,4 +1,6 @@
+import * as mailgun from '@tenlastic/mailgun-module';
 import * as mongoose from 'mongoose';
+import * as sinon from 'sinon';
 
 import { PasswordReset, User } from './models';
 
@@ -10,7 +12,16 @@ mongoose.connect(connectionString, {
   useNewUrlParser: true,
 });
 
+let sandbox: sinon.SinonSandbox;
+
 beforeEach(async function() {
+  sandbox = sinon.createSandbox();
+  sandbox.stub(mailgun, 'send').resolves();
+
   await PasswordReset.deleteMany({});
   await User.deleteMany({});
+});
+
+afterEach(function() {
+  sandbox.restore();
 });

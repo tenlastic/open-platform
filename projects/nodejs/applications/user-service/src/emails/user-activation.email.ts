@@ -1,12 +1,8 @@
 import * as mailgun from '@tenlastic/mailgun-module';
 
-import { UserUpdated } from '../models';
+import { UserDocument } from '../models';
 
-UserUpdated.on(payload => {
-  if (payload.before.activatedAt || !payload.after.activatedAt) {
-    return;
-  }
-
+export async function send(user: UserDocument) {
   const html = `
     Congratulations! Your account has been activated. You may now log in at any time.
     <br>
@@ -20,6 +16,6 @@ UserUpdated.on(payload => {
     from: 'no-reply@tenlastic.com',
     html,
     subject: 'Account Activated',
-    to: payload.after.email,
+    to: user.email,
   });
-});
+}

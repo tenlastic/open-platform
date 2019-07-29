@@ -1,25 +1,13 @@
-import {
-  DatabasePayload,
-  EventEmitter,
-  changeDataCapturePlugin,
-} from '@tenlastic/change-data-capture-module';
+import { changeDataCapturePlugin } from '@tenlastic/change-data-capture-module';
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Ref, Typegoose, index, plugin, prop } from 'typegoose';
 
 import { UserSchema } from '../user/user.model';
 
-export const RefreshTokenCreated = new EventEmitter<DatabasePayload<RefreshTokenDocument>>();
-export const RefreshTokenDeleted = new EventEmitter<DatabasePayload<RefreshTokenDocument>>();
-export const RefreshTokenUpdated = new EventEmitter<DatabasePayload<RefreshTokenDocument>>();
-
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ jti: 1 }, { unique: true })
 @index({ userId: 1 })
-@plugin(changeDataCapturePlugin, {
-  OnCreate: RefreshTokenCreated,
-  OnDelete: RefreshTokenDeleted,
-  OnUpdate: RefreshTokenUpdated,
-})
+@plugin(changeDataCapturePlugin)
 export class RefreshTokenSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

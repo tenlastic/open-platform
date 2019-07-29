@@ -1,23 +1,17 @@
-import {
-  DatabasePayload,
-  EventEmitter,
-  changeDataCapturePlugin,
-} from '@tenlastic/change-data-capture-module';
+import { changeDataCapturePlugin } from '@tenlastic/change-data-capture-module';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Ref, Typegoose, index, plugin, prop } from 'typegoose';
+import { InstanceType, ModelType, Ref, Typegoose, index, plugin, pre, prop } from 'typegoose';
 
+import * as emails from '../../emails';
 import { UserSchema } from '../user/user.model';
-
-export const PasswordResetCreated = new EventEmitter<DatabasePayload<PasswordResetDocument>>();
-export const PasswordResetDeleted = new EventEmitter<DatabasePayload<PasswordResetDocument>>();
-export const PasswordResetUpdated = new EventEmitter<DatabasePayload<PasswordResetDocument>>();
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ hash: 1 }, { unique: true })
-@plugin(changeDataCapturePlugin, {
-  OnCreate: PasswordResetCreated,
-  OnDelete: PasswordResetDeleted,
-  OnUpdate: PasswordResetUpdated,
+@plugin(changeDataCapturePlugin)
+@pre('save', async function(this: PasswordResetDocument) {
+  if (this.isNew) {
+    await emails.sendPasswordResetRequest(this);
+  }
 })
 export class PasswordResetSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
@@ -33,6 +27,8 @@ export class PasswordResetSchema extends Typegoose {
 
   @prop({ ref: 'UserSchema', required: true })
   public userId: Ref<UserSchema>;
+
+  private _original: Partial<PasswordResetDocument>;
 }
 
 export type PasswordResetDocument = InstanceType<PasswordResetSchema>;

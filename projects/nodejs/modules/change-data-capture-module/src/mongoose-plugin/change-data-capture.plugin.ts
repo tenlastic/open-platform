@@ -7,9 +7,9 @@ export interface DatabasePayload<T> {
 }
 
 export interface IChangeDataCapture<T> {
-  OnCreate: EventEmitter<DatabasePayload<T>>;
-  OnDelete: EventEmitter<DatabasePayload<T>>;
-  OnUpdate: EventEmitter<DatabasePayload<T>>;
+  OnCreate?: EventEmitter<DatabasePayload<T>>;
+  OnDelete?: EventEmitter<DatabasePayload<T>>;
+  OnUpdate?: EventEmitter<DatabasePayload<T>>;
 }
 
 export interface IOriginalDocument {
@@ -22,31 +22,33 @@ export interface IOriginalDocument {
  */
 export function changeDataCapturePlugin<T extends mongoose.Document>(
   schema: mongoose.Schema,
-  options: IChangeDataCapture<T>,
+  options: IChangeDataCapture<T> = {},
 ) {
   schema.pre('save', function(this: T & IOriginalDocument) {
     this.wasNew = this.isNew;
-  });
-
-  schema.post('findOneAndDelete', function(document: T & IOriginalDocument) {
-    options.OnDelete.emit({ after: null, before: document });
   });
 
   schema.post('init', function(this: T & IOriginalDocument) {
     this._original = this.toObject();
   });
 
-  schema.post('remove', function(this: T & IOriginalDocument) {
-    options.OnDelete.emit({ after: null, before: this._original });
-  });
-
   schema.post('save', function(this: T & IOriginalDocument) {
-    if (this.wasNew) {
+    if (this.wasNew && options.OnCreate) {
       options.OnCreate.emit({ after: this.toObject(), before: null });
-    } else {
+    } else if (options.OnUpdate) {
       options.OnUpdate.emit({ after: this.toObject(), before: this._original });
     }
 
     this._original = this.toObject();
   });
+
+  if (options.OnDelete) {
+    schema.post('findOneAndDelete', function(document: T & IOriginalDocument) {
+      options.OnDelete.emit({ after: null, before: document });
+    });
+
+    schema.post('remove', function(this: T & IOriginalDocument) {
+      options.OnDelete.emit({ after: null, before: this._original });
+    });
+  }
 }

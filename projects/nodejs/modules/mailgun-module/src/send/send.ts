@@ -9,10 +9,11 @@ export interface SendOptions {
   to: string;
 }
 
-export function send(options: SendOptions) {
+export async function send(options: SendOptions) {
   const credentials = getCredentials();
+
   if (!credentials.domain || !credentials.key) {
-    return;
+    throw new Error('Mailgun credentials not found.');
   }
 
   const url = `https://api:${credentials.key}@api.mailgun.net/v3/${credentials.domain}/messages`;

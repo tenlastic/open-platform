@@ -1,6 +1,9 @@
 module.exports = {
   async up(db) {
-    await db.createCollection('passwordresets');
+    const collection = await db.createCollection('passwordresets');
+
+    await collection.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+    await collection.createIndex({ hash: 1 }, { unique: true });
   },
 
   async down(db) {

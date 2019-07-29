@@ -1,8 +1,4 @@
-import {
-  DatabasePayload,
-  EventEmitter,
-  changeDataCapturePlugin,
-} from '@tenlastic/change-data-capture-module';
+import { changeDataCapturePlugin } from '@tenlastic/change-data-capture-module';
 import {
   alphanumericValidator,
   emailValidator,
@@ -25,21 +21,22 @@ import {
 } from 'typegoose';
 import * as uuid from 'uuid/v4';
 
+import * as emails from '../../emails';
 import { RefreshToken } from '../refresh-token/refresh-token.model';
 import { UserPermissions } from './user.permissions';
 
-export const UserCreated = new EventEmitter<DatabasePayload<UserDocument>>();
-export const UserDeleted = new EventEmitter<DatabasePayload<UserDocument>>();
-export const UserUpdated = new EventEmitter<DatabasePayload<UserDocument>>();
-
 @index({ email: 1 }, { unique: true })
 @index({ username: 1 }, { unique: true })
-@plugin(changeDataCapturePlugin, {
-  OnCreate: UserCreated,
-  OnDelete: UserDeleted,
-  OnUpdate: UserUpdated,
-})
+@plugin(changeDataCapturePlugin)
 @pre<UserSchema>('save', async function(this: UserDocument) {
+  if (!this.isNew && !this._original.activatedAt && this.activatedAt) {
+    await emails.sendUserActivation(this);
+  }
+
+  if (!this.isNew && this._original.password !== this.password) {
+    await emails.sendPasswordResetConfirmation(this);
+  }
+
   if (this.isModified('password')) {
     this.password = await User.hashPassword(this.password);
   }
@@ -73,6 +70,8 @@ export class UserSchema extends Typegoose {
     validate: [alphanumericValidator, stringLengthValidator(0, 20)],
   })
   public username: string;
+
+  private _original: Partial<UserDocument>;
 
   /**
    * Hashes a plaintext password.

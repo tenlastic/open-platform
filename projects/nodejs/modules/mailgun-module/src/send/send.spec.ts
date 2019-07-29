@@ -1,9 +1,12 @@
-import { expect } from 'chai';
+import { expect, use } from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
 import * as request from 'request-promise-native';
 import * as sinon from 'sinon';
 
 import { setCredentials } from '../';
 import { send } from './send';
+
+use(chaiAsPromised);
 
 describe('mailgun', function() {
   let sandbox: sinon.SinonSandbox;
@@ -18,17 +21,15 @@ describe('mailgun', function() {
 
   describe('send()', function() {
     context('when domain and key are not set', function() {
-      it('does not send a request to Mailgun', async function() {
-        const spy = sandbox.spy(request, 'post');
-
-        await send({
+      it('does not send a request to Mailgun', function() {
+        const promise = send({
           from: 'from@example.com',
           html: '<p>Hello</p>',
           subject: 'Subject',
           to: 'to@example.com',
         });
 
-        expect(spy.called).to.eql(false);
+        return expect(promise).to.be.rejectedWith('Mailgun credentials not found.');
       });
     });
 
