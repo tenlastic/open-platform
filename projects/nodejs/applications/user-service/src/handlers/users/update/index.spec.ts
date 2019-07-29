@@ -13,7 +13,7 @@ describe('handlers/users/update', function() {
 
   beforeEach(async function() {
     record = await UserMock.create();
-    user = { level: 1 };
+    user = { roles: ['Admin'] };
   });
 
   it('updates an existing record', async function() {
@@ -24,7 +24,6 @@ describe('handlers/users/update', function() {
       request: {
         body: {
           email: chance.email(),
-          level: user.level + 1,
         },
       },
       state: {

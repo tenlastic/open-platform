@@ -1,6 +1,6 @@
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Typegoose, prop, staticMethod } from 'typegoose';
+import { InstanceType, ModelType, Ref, Typegoose, prop, staticMethod } from 'typegoose';
 
 export class RestSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
@@ -8,6 +8,20 @@ export class RestSchema extends Typegoose {
 
   @prop()
   public name: string;
+
+  @prop({ ref: 'RestSchema' })
+  public parentId: Ref<RestSchema>;
+
+  @prop({
+    foreignField: '_id',
+    justOne: true,
+    localField: 'parentId',
+    ref: 'RestSchema',
+    overwrite: true,
+  })
+  public get parent(): RestDocument {
+    return this.parent;
+  }
 
   public updatedAt: Date;
 

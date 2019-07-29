@@ -16,7 +16,7 @@ describe('rest/controller', function() {
 
   beforeEach(async function() {
     target = await Rest.mock();
-    user = { level: 1 };
+    user = { roles: ['Admin'] };
   });
 
   describe('count()', function() {

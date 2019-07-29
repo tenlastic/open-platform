@@ -10,7 +10,7 @@ describe('handlers/users/find-one', function() {
 
   beforeEach(async function() {
     record = await UserMock.create();
-    user = { level: 1 };
+    user = { roles: ['Admin'] };
   });
 
   it('returns the matching record', async function() {

@@ -15,6 +15,7 @@ import {
   InstanceType,
   ModelType,
   Typegoose,
+  arrayProp,
   index,
   instanceMethod,
   plugin,
@@ -58,11 +59,11 @@ export class UserSchema extends Typegoose {
   })
   public email: string;
 
-  @prop({ default: 0 })
-  public level: number;
-
   @prop({ required: true })
   public password: string;
+
+  @arrayProp({ default: [], items: String })
+  public roles: string[];
 
   public updatedAt: Date;
 

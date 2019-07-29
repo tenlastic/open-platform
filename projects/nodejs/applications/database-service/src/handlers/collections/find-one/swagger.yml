@@ -1,0 +1,24 @@
+paths:
+  /collections/{id}:
+    get:
+      summary: Find One
+      tags: [Collections]
+      description: Finds a record by ID.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Collection'

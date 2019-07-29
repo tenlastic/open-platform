@@ -22,8 +22,8 @@ describe('rest/permissions', function() {
   beforeEach(async function() {
     sandbox = sinon.createSandbox();
 
-    admin = { level: 1 };
-    user = { level: 0 };
+    admin = { roles: ['Admin'] };
+    user = { roles: [] };
   });
 
   afterEach(function() {
@@ -103,6 +103,18 @@ describe('rest/permissions', function() {
 
         expect(results.length).to.eql(1);
       });
+    });
+  });
+
+  describe('populate()', function() {
+    it('populates the field', async function() {
+      const parent = await Rest.mock();
+      const child = await Rest.mock({ parentId: parent._id });
+
+      await permissions['populate'](child, 'parentId', 'parent');
+
+      expect(child.parent).to.exist;
+      expect(child.populated('parent')).to.exist;
     });
   });
 

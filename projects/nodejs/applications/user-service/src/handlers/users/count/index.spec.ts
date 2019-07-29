@@ -8,7 +8,7 @@ describe('handlers/users/count', function() {
   let user: UserDocument;
 
   beforeEach(async function() {
-    user = await UserMock.create({ level: 1 });
+    user = await UserMock.create({ roles: ['Admin'] });
   });
 
   it('returns the number of matching records', async function() {

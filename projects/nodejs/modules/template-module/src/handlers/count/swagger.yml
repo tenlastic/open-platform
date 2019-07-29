@@ -1,0 +1,20 @@
+paths:
+  /examples/count:
+    get:
+      summary: Count
+      tags: [Examples]
+      description: Returns the number of matching records for the query.
+      security:
+        - AccessToken: []
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Example'

@@ -6,6 +6,7 @@ import * as mongoose from 'mongoose';
 import * as path from 'path';
 
 import './emails';
+import { router as loginsRouter } from './handlers/logins';
 import { router as passwordResetsRouter } from './handlers/password-resets';
 import { router as usersRouter } from './handlers/users';
 
@@ -20,6 +21,7 @@ mongoose.connect(connectionString, {
 });
 
 const webServer = new WebServer();
+webServer.use(loginsRouter.routes());
 webServer.use(passwordResetsRouter.routes());
 webServer.use(usersRouter.routes());
 webServer.serve(path.resolve(__dirname, '../public'), '/documentation');

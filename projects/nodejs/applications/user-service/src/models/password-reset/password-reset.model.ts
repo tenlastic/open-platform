@@ -31,7 +31,7 @@ export class PasswordResetSchema extends Typegoose {
 
   public updatedAt: Date;
 
-  @prop({ ref: 'User', required: true })
+  @prop({ ref: 'UserSchema', required: true })
   public userId: Ref<UserSchema>;
 }
 

@@ -20,7 +20,7 @@ export class UserPermissions extends RestPermissions<UserDocument, UserModel> {
 
     switch (accessLevel) {
       case AccessLevel.Admin:
-        return attributes.concat('activatedAt', 'level');
+        return attributes.concat('activatedAt', 'roles');
 
       default:
         return attributes;
@@ -44,14 +44,14 @@ export class UserPermissions extends RestPermissions<UserDocument, UserModel> {
 
   public async readPermissions(record: UserDocument, user: any): Promise<string[]> {
     const accessLevel = this.getAccessLevel(record, user);
-    const attributes: string[] = ['_id', 'createdAt', 'level', 'username', 'updatedAt'];
+    const attributes: string[] = ['_id', 'createdAt', 'username', 'updatedAt'];
 
     switch (accessLevel) {
       case AccessLevel.Admin:
-        return attributes.concat('activatedAt', 'email');
+        return attributes.concat('activatedAt', 'email', 'roles');
 
       case AccessLevel.Self:
-        return attributes.concat('email');
+        return attributes.concat('email', 'roles');
 
       default:
         return attributes;
@@ -77,7 +77,7 @@ export class UserPermissions extends RestPermissions<UserDocument, UserModel> {
 
     switch (accessLevel) {
       case AccessLevel.Admin:
-        return attributes.concat('activatedAt', 'email', 'level', 'password', 'username');
+        return attributes.concat('activatedAt', 'email', 'roles', 'password', 'username');
 
       case AccessLevel.Self:
         return attributes.concat('email', 'password', 'username');
@@ -88,7 +88,7 @@ export class UserPermissions extends RestPermissions<UserDocument, UserModel> {
   }
 
   private getAccessLevel(record: UserDocument, user: any) {
-    if (user && user.level === 1) {
+    if (user && user.roles.includes('Admin')) {
       return AccessLevel.Admin;
     }
 

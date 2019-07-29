@@ -1,0 +1,29 @@
+paths:
+  /databases/{id}:
+    put:
+      summary: Update
+      tags: [Databases]
+      description: Updates an existing record.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Database'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Database'

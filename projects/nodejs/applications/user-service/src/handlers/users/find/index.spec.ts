@@ -8,7 +8,7 @@ describe('handlers/users/find', function() {
   let user: UserDocument;
 
   beforeEach(async function() {
-    user = await UserMock.create({ level: 1 });
+    user = await UserMock.create({ roles: ['Admin'] });
   });
 
   it('returns the matching records', async function() {

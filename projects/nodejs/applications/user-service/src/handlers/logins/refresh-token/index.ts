@@ -1,6 +1,5 @@
 import { Context } from '@tenlastic/api-module';
 import * as jwt from 'jsonwebtoken';
-import * as mongoose from 'mongoose';
 
 import { RefreshToken, User } from '../../../models';
 

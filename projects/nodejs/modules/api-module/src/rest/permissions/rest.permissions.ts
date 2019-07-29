@@ -176,6 +176,14 @@ export abstract class RestPermissions<
     return query;
   }
 
+  protected async populate(object: TDocument, idField: string, field: string) {
+    if (object[idField] && !object.populated(field)) {
+      await object.populate(field).execPopulate();
+    }
+
+    return object[field];
+  }
+
   /**
    * Removes any unauthorized attributes from an object.
    * @param object The object to remove unauthorized attributes from.
