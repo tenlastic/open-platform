@@ -21,7 +21,7 @@ export async function handler(ctx: Context) {
     throw new Error('Invalid refresh token.');
   }
 
-  const refreshTokenDocument = await RefreshToken.findOne({
+  const refreshTokenDocument = await RefreshToken.findOneAndDelete({
     jti: decodedToken.jti,
     userId: decodedToken.user._id,
   });
