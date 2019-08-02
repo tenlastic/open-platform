@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import * as sinon from 'sinon';
 
 import * as emails from '../../emails';
-import { UserMock } from '../user/user.model.mock';
-import { PasswordResetMock } from './password-reset.model.mock';
+import { UserMock } from '../user/model.mock';
+import { PasswordResetMock } from './model.mock';
 
 describe('models/password-reset/model', function() {
   let sandbox: sinon.SinonSandbox;

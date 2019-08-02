@@ -1,6 +1,6 @@
 import * as Chance from 'chance';
 
-import { User, UserSchema } from './user.model';
+import { User, UserSchema } from './model';
 
 export class UserMock {
   /**

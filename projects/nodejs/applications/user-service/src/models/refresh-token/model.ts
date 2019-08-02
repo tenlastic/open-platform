@@ -2,7 +2,7 @@ import { changeDataCapturePlugin } from '@tenlastic/change-data-capture-module';
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Ref, Typegoose, index, plugin, prop } from 'typegoose';
 
-import { UserSchema } from '../user/user.model';
+import { UserSchema } from '../user/model';
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ jti: 1 }, { unique: true })

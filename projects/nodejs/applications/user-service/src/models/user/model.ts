@@ -19,8 +19,8 @@ import {
 import * as uuid from 'uuid/v4';
 
 import * as emails from '../../emails';
-import { RefreshToken } from '../refresh-token/refresh-token.model';
-import { UserPermissions } from './user.permissions';
+import { RefreshToken } from '../refresh-token/model';
+import { UserPermissions } from './permissions';
 
 @index({ email: 1 }, { unique: true })
 @index({ username: 1 }, { unique: true })

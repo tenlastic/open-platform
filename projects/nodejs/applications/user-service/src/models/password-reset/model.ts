@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Ref, Typegoose, index, plugin, pre, prop } from 'typegoose';
 
 import * as emails from '../../emails';
-import { UserSchema } from '../user/user.model';
+import { UserSchema } from '../user/model';
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ hash: 1 }, { unique: true })

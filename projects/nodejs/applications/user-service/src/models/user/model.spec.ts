@@ -4,9 +4,9 @@ import * as jwt from 'jsonwebtoken';
 import * as sinon from 'sinon';
 
 import * as emails from '../../emails';
-import { RefreshToken } from '../refresh-token/refresh-token.model';
-import { UserMock } from './user.model.mock';
-import { User, UserDocument } from './user.model';
+import { RefreshToken } from '../refresh-token/model';
+import { UserMock } from './model.mock';
+import { User, UserDocument } from './model';
 
 const chance = new Chance();
 
@@ -51,6 +51,30 @@ describe('models/user.model', function() {
         const spy = sandbox.stub(emails, 'sendPasswordResetConfirmation');
 
         await UserMock.create();
+
+        expect(spy.calledOnce).to.eql(false);
+      });
+    });
+  });
+
+  describe(`post('findOneAndUpdate')`, function() {
+    context('when password is updated', function() {
+      it('calls sendPasswordResetConfirmation()', async function() {
+        const user = await UserMock.create({ password: chance.hash() });
+        const spy = sandbox.stub(emails, 'sendPasswordResetConfirmation');
+
+        await User.findOneAndUpdate({ _id: user._id }, { password: chance.hash() });
+
+        expect(spy.calledOnce).to.eql(true);
+      });
+    });
+
+    context('when password is not updated', function() {
+      it('does not call sendPasswordResetConfirmation()', async function() {
+        const user = await UserMock.create({ password: chance.hash() });
+        const spy = sandbox.stub(emails, 'sendPasswordResetConfirmation');
+
+        await User.findOneAndUpdate({ _id: user._id }, { email: chance.email() });
 
         expect(spy.calledOnce).to.eql(false);
       });
