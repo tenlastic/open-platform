@@ -16,14 +16,14 @@ export async function handler(ctx: Context) {
 
   try {
     // Delete the PasswordReset.
-    const passwordReset = await PasswordReset.findOneAndDelete({ hash });
+    const passwordReset = await PasswordReset.findOneAndDelete({ hash }).session(session);
 
     // Update the User's password.
     const passwordHash = await User.hashPassword(password);
-    await User.updateOne({ _id: passwordReset.userId }, { password: passwordHash });
+    await User.findOneAndUpdate({ _id: passwordReset.userId }, { password: passwordHash }).session(session);
 
     // Remove all User's RefreshTokens to prevent malicious logins.
-    await RefreshToken.deleteMany({ userId: passwordReset.userId });
+    await RefreshToken.deleteMany({ userId: passwordReset.userId }).session(session);
 
     await session.commitTransaction();
   } catch (e) {

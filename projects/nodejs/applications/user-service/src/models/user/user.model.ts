@@ -1,9 +1,5 @@
 import { changeDataCapturePlugin } from '@tenlastic/change-data-capture-module';
-import {
-  alphanumericValidator,
-  emailValidator,
-  stringLengthValidator,
-} from '@tenlastic/validations-module';
+import { alphanumericValidator, emailValidator, stringLengthValidator } from '@tenlastic/validations-module';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
@@ -15,6 +11,7 @@ import {
   index,
   instanceMethod,
   plugin,
+  post,
   pre,
   prop,
   staticMethod,
@@ -28,7 +25,7 @@ import { UserPermissions } from './user.permissions';
 @index({ email: 1 }, { unique: true })
 @index({ username: 1 }, { unique: true })
 @plugin(changeDataCapturePlugin)
-@pre<UserSchema>('save', async function(this: UserDocument) {
+@pre('save', async function(this: UserDocument) {
   if (!this.isNew && !this._original.activatedAt && this.activatedAt) {
     await emails.sendUserActivation(this);
   }
@@ -39,6 +36,16 @@ import { UserPermissions } from './user.permissions';
 
   if (this.isModified('password')) {
     this.password = await User.hashPassword(this.password);
+  }
+})
+@post('findOneAndUpdate', async function(
+  this: mongoose.DocumentQuery<UserDocument, UserDocument, {}>,
+  result: UserDocument,
+) {
+  const update = this.getUpdate();
+
+  if (update.password) {
+    await emails.sendPasswordResetConfirmation(result);
   }
 })
 export class UserSchema extends Typegoose {

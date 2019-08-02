@@ -1,4 +1,5 @@
 import * as Chance from 'chance';
+import * as mongoose from 'mongoose';
 
 import { Record, RecordSchema } from './record.model';
 
@@ -10,7 +11,11 @@ export class RecordMock {
   public static async create(params: Partial<RecordSchema> = {}) {
     const chance = new Chance();
 
-    const defaults = {};
+    const defaults = {
+      collectionId: new mongoose.Types.ObjectId(),
+      databaseId: new mongoose.Types.ObjectId(),
+      properties: {},
+    };
 
     return Record.create({ ...defaults, ...params });
   }

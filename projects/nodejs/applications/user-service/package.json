@@ -9,7 +9,6 @@
     "build": "../../scripts/build.sh",
     "docker": "sh ../../scripts/docker.sh npm run --if-present",
     "docker:down": "sh ../../scripts/docker-down.sh",
-    "install": "../../scripts/install.sh",
     "lint": "../../scripts/lint.sh",
     "migrations": "../../scripts/migrations.sh",
     "start": "../../scripts/start.sh",
@@ -25,7 +24,7 @@
     "chance": "1.0.16",
     "jsonwebtoken": "8.5.1",
     "koa-router": "7.4.0",
-    "mongoose": "5.4.15",
+    "mongoose": "5.6.7",
     "source-map-support": "0.5.12",
     "typegoose": "5.8.1",
     "uuid": "3.3.2"
