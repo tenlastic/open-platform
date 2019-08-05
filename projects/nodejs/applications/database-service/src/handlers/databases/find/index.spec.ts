@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { DatabaseMock } from '../../../models';
 import { handler } from '../find';
 
-describe('handlers/collections/find', function() {
+describe('handlers/databases/find', function() {
   let user: any;
 
   beforeEach(async function() {

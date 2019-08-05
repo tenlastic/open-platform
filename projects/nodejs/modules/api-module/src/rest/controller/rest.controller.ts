@@ -27,8 +27,8 @@ export class RestController<
     return this.permissions.find(query, {}, user);
   }
 
-  public async findOne(id: string, user: any) {
-    const where = await this.permissions.where({ _id: id }, user);
+  public async findOne(query: FindQuery, user: any) {
+    const where = await this.permissions.where(query.where, user);
     const record = (await this.Model.findOne(where)) as TDocument;
 
     if (!record) {

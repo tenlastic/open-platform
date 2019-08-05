@@ -14,7 +14,14 @@ const restController = new RestController<
 >(Collection, new CollectionPermissions());
 
 export async function handler(ctx: Context) {
-  const result = await restController.findOne(ctx.params.id, ctx.state.user);
+  const query = {
+    where: {
+      _id: ctx.params.id,
+      databaseId: ctx.params.databaseId,
+    },
+  };
+
+  const result = await restController.findOne(query, ctx.state.user);
 
   ctx.response.body = { record: result };
 }

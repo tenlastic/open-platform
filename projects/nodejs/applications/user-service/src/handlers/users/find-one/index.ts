@@ -8,7 +8,11 @@ const restController = new RestController<UserDocument, UserModel, UserPermissio
 );
 
 export async function handler(ctx: Context) {
-  const result = await restController.findOne(ctx.params.id, ctx.state.user);
+  const query = {
+    where: { _id: ctx.params.id },
+  };
+
+  const result = await restController.findOne(query, ctx.state.user);
 
   ctx.response.body = { record: result };
 }

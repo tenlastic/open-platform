@@ -6,7 +6,7 @@ import { handler } from '../create';
 
 const chance = new Chance();
 
-describe('handlers/collections/create', function() {
+describe('handlers/databases/create', function() {
   let user: any;
 
   beforeEach(async function() {

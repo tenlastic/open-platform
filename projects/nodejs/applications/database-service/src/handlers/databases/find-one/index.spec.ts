@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { DatabaseMock, DatabaseDocument } from '../../../models';
 import { handler } from '../find-one';
 
-describe('handlers/collections/find-one', function() {
+describe('handlers/databases/find-one', function() {
   let record: DatabaseDocument;
   let user: any;
 

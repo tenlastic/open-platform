@@ -7,7 +7,7 @@ import { handler } from '.';
 
 const chance = new Chance();
 
-describe('handlers/collections/update', function() {
+describe('handlers/databases/update', function() {
   let record: DatabaseDocument;
   let user: any;
 

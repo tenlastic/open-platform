@@ -16,6 +16,7 @@ describe('handlers/collections/find-one', function() {
   it('returns the matching record', async function() {
     const ctx = new ContextMock({
       params: {
+        databaseId: record.databaseId,
         id: record._id,
       },
       state: { user },
