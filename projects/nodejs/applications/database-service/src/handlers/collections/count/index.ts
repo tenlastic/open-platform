@@ -14,7 +14,10 @@ const restController = new RestController<
 >(Collection, new CollectionPermissions());
 
 export async function handler(ctx: Context) {
-  const result = await restController.count(ctx.query.where, ctx.state.user);
+  ctx.request.query.where = ctx.request.query.where || {};
+  ctx.request.query.where.databaseId = ctx.params.databaseId;
+
+  const result = await restController.count(ctx.request.query.where, ctx.state.user);
 
   ctx.response.body = { count: result };
 }

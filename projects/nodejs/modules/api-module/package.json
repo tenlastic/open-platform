@@ -11,11 +11,11 @@
     "build:watch": "watch ../../scripts/build.sh ./src",
     "docker": "sh ../../scripts/docker.sh npm run --if-present",
     "lint": "../../scripts/lint.sh",
-    "test": "../../scripts/test.sh"
+    "test": "../../scripts/test.sh",
+    "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
     "@koa/cors": "3.0.0",
-    "@tenlastic/json-schema-module": "0.0.0",
     "jsonwebtoken": "8.5.1",
     "koa": "2.7.0",
     "koa-bodyparser": "4.2.1",

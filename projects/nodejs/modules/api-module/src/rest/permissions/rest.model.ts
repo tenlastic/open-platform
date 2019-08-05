@@ -12,13 +12,7 @@ export class RestSchema extends Typegoose {
   @prop({ ref: 'RestSchema' })
   public parentId: Ref<RestSchema>;
 
-  @prop({
-    foreignField: '_id',
-    justOne: true,
-    localField: 'parentId',
-    ref: 'RestSchema',
-    overwrite: true,
-  })
+  @prop({ foreignField: '_id', justOne: true, localField: 'parentId', ref: 'RestSchema', overwrite: true })
   public get parent(): RestDocument {
     return this.parent;
   }

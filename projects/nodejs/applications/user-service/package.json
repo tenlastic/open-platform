@@ -13,7 +13,8 @@
     "migrations": "../../scripts/migrations.sh",
     "start": "../../scripts/start.sh",
     "swagger": "../../scripts/swagger.sh",
-    "test": "../../scripts/test.sh"
+    "test": "../../scripts/test.sh",
+    "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
     "@tenlastic/api-module": "0.0.0",

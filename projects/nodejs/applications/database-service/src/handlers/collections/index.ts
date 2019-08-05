@@ -6,7 +6,7 @@ import { handler as deleteHandler } from './delete';
 import { handler as findHandler } from './find';
 import { handler as findOneHandler } from './find-one';
 
-export const router = new Router({ prefix: '/collections' });
+export const router = new Router({ prefix: '/databases/:databaseId/collections' });
 
 router.delete('/:id', deleteHandler);
 router.get('/', findHandler);

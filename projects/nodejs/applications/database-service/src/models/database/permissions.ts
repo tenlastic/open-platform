@@ -1,5 +1,5 @@
 import { RestPermissions } from '@tenlastic/api-module';
-import { Database, DatabaseDocument, DatabaseModel } from './database.model';
+import { Database, DatabaseDocument, DatabaseModel } from './model';
 
 enum AccessLevel {
   Admin,

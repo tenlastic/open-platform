@@ -1,6 +1,6 @@
 import * as Chance from 'chance';
 
-import { Database, DatabaseSchema } from './database.model';
+import { Database, DatabaseSchema } from './model';
 
 export class DatabaseMock {
   /**

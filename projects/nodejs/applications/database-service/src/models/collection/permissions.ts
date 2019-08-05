@@ -1,7 +1,7 @@
 import { RestPermissions } from '@tenlastic/api-module';
 
-import { Database } from '../database/database.model';
-import { Collection, CollectionDocument, CollectionModel } from './collection.model';
+import { Database } from '../database/model';
+import { Collection, CollectionDocument, CollectionModel } from './model';
 
 enum AccessLevel {
   Admin,
@@ -50,14 +50,7 @@ export class CollectionPermissions extends RestPermissions<CollectionDocument, C
 
   public async readPermissions(record: CollectionDocument, user: any): Promise<string[]> {
     const accessLevel = await this.getAccessLevel(record, user);
-    const attributes: string[] = [
-      '_id',
-      'createdAt',
-      'databaseId',
-      'jsonSchema',
-      'name',
-      'updatedAt',
-    ];
+    const attributes: string[] = ['_id', 'createdAt', 'databaseId', 'jsonSchema', 'name', 'updatedAt'];
 
     switch (accessLevel) {
       default:

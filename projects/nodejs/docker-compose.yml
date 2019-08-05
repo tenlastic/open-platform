@@ -3,6 +3,7 @@ services:
   application:
     depends_on:
       - mongo_healthcheck
+      - rabbitmq
     image: node:10
     links:
       - mongo
@@ -14,8 +15,16 @@ services:
       context: ./dockerfiles/mongo-replica-set
     environment:
       - REPLICA_SET_HOSTNAME=mongo
+    ports:
+      - 27017:27017
+      - 27018:27018
+      - 27019:27019
   mongo_healthcheck:
-    image: busybox
+    image: busybox:latest
     depends_on:
       mongo:
         condition: service_healthy
+  rabbitmq:
+    image: rabbitmq:latest
+    ports:
+      - 5672:5672

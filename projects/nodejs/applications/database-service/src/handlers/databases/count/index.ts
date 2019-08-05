@@ -8,7 +8,7 @@ const restController = new RestController<DatabaseDocument, DatabaseModel, Datab
 );
 
 export async function handler(ctx: Context) {
-  const result = await restController.count(ctx.query.where, ctx.state.user);
+  const result = await restController.count(ctx.request.query.where, ctx.state.user);
 
   ctx.response.body = { count: result };
 }

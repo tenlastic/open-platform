@@ -1,8 +1,8 @@
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Ref, Typegoose, prop } from 'typegoose';
 
-import { DatabaseDocument, DatabaseSchema } from '../database/database.model';
-import { CollectionDocument, CollectionSchema } from '../collection/collection.model';
+import { DatabaseDocument, DatabaseSchema } from '../database/model';
+import { CollectionDocument, CollectionSchema } from '../collection/model';
 
 export class RecordSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
@@ -12,31 +12,34 @@ export class RecordSchema extends Typegoose {
 
   public createdAt: Date;
 
+  @prop({ default: {}, required: true })
+  public customProperties: any;
+
   @prop({ ref: 'DatabaseSchema', required: true })
   public databaseId: Ref<DatabaseSchema>;
-
-  @prop({ required: true })
-  public properties: any;
 
   public updatedAt: Date;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', overwrite: true, ref: 'CollectionSchema' })
-  public get collection(): CollectionDocument {
-    return this.collection;
+  public get collectionDocument(): CollectionDocument {
+    return this.collectionDocument;
   }
 
   @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', overwrite: true, ref: 'DatabaseSchema' })
-  public get database(): DatabaseDocument {
-    return this.database;
+  public get databaseDocument(): DatabaseDocument {
+    return this.databaseDocument;
+  }
+
+  public static getModelForClass(collection: string) {
+    return new RecordSchema().getModelForClass(RecordSchema, {
+      schemaOptions: {
+        autoIndex: false,
+        collection,
+        timestamps: true,
+      },
+    });
   }
 }
 
 export type RecordDocument = InstanceType<RecordSchema>;
 export type RecordModel = ModelType<RecordSchema>;
-export const Record = new RecordSchema().getModelForClass(RecordSchema, {
-  schemaOptions: {
-    autoIndex: false,
-    collection: 'records',
-    timestamps: true,
-  },
-});

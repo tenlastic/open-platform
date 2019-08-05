@@ -19,6 +19,7 @@ describe('handlers/collections/update', function() {
   it('updates an existing record', async function() {
     const ctx = new ContextMock({
       params: {
+        databaseId: record.databaseId,
         id: record._id,
       },
       request: {

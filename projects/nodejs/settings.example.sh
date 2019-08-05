@@ -1,9 +1,6 @@
 #!/bin/bash
 set -a
 
-# Contact Us
-CONTACT_US_TO="test@example.com"
-
 # JWT
 JWT_SECRET="secret"
 
@@ -13,3 +10,6 @@ MONGO_DATABASE_NAME="example"
 
 # Password Reset
 PASSWORD_RESET_URL="http://localhost:4200/reset-password"
+
+# RabbitMQ
+RABBITMQ_CONNECTION_STRING="amqp://rabbitmq:5672"

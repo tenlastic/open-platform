@@ -6,7 +6,7 @@ import { Context, MiddlewareCallback } from '../..';
  * Logs information about the request and response.
  */
 export async function loggingMiddleware(ctx: Context, next: MiddlewareCallback) {
-  if (process.env.STAGE === 'test') {
+  if (process.env.NODE_ENV === 'test') {
     await next();
     return;
   }

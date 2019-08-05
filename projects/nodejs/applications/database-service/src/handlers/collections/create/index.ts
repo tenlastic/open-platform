@@ -14,7 +14,11 @@ const restController = new RestController<
 >(Collection, new CollectionPermissions());
 
 export async function handler(ctx: Context) {
-  const result = await restController.create(ctx.request.body, {}, ctx.state.user);
+  const result = await restController.create(
+    ctx.request.body,
+    { databaseId: ctx.params.databaseId },
+    ctx.state.user,
+  );
 
   ctx.response.body = { record: result };
 }

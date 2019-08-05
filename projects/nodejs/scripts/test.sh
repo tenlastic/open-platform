@@ -5,9 +5,6 @@ set -e
 if [ -f ../../settings.sh ]; then
   source ../../settings.sh
 fi
-if [ -f ../../settings.test.sh ]; then
-  source ../../settings.test.sh
-fi
 
 # Run migrations if script is present.
 npm run --if-present migrations up
@@ -24,7 +21,7 @@ if [[ $* =~ "--watch" ]]; then
   WATCH_ARGUMENTS="--watch --watch-extensions ts"
 fi
 
-export STAGE="test"
+export NODE_ENV="test"
 export TS_NODE_PROJECT="./tsconfig.spec.json"
 
 $COVERAGE_ARGUMENTS \

@@ -3,7 +3,6 @@
 lerna-debug.log
 package.json.lerna_backup
 settings.sh
-settings.test.sh
 tscommand*.tmp.txt
 yarn-error.log
 
