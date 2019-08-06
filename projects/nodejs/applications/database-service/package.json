@@ -19,8 +19,8 @@
   "dependencies": {
     "@tenlastic/api-module": "0.0.0",
     "@tenlastic/change-data-capture-module": "0.0.0",
+    "@tenlastic/rabbitmq-module": "0.0.0",
     "@tenlastic/validations-module": "0.0.0",
-    "amqplib": "0.5.5",
     "koa-router": "7.4.0",
     "mongoose": "5.6.7",
     "source-map-support": "0.5.12",

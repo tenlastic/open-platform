@@ -7,6 +7,7 @@ services:
     image: node:10
     links:
       - mongo
+      - rabbitmq
     volumes:
       - ./:/usr/src/app/
     working_dir: /usr/src/app/
@@ -25,6 +26,7 @@ services:
       mongo:
         condition: service_healthy
   rabbitmq:
-    image: rabbitmq:latest
+    image: rabbitmq:management
     ports:
       - 5672:5672
+      - 15672:15672
