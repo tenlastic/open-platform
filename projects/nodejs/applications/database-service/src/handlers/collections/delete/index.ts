@@ -1,17 +1,8 @@
 import { Context, RestController } from '@tenlastic/api-module';
 
-import {
-  Collection,
-  CollectionDocument,
-  CollectionModel,
-  CollectionPermissions,
-} from '../../../models';
+import { Collection, CollectionPermissions } from '../../../models';
 
-const restController = new RestController<
-  CollectionDocument,
-  CollectionModel,
-  CollectionPermissions
->(Collection, new CollectionPermissions());
+const restController = new RestController(Collection, new CollectionPermissions());
 
 export async function handler(ctx: Context) {
   const result = await restController.remove(ctx.params.id, ctx.state.user);

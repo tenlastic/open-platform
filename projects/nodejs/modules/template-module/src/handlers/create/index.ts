@@ -1,11 +1,8 @@
 import { Context, RestController } from '@tenlastic/api-module';
 
-import { Example, ExampleDocument, ExampleModel, ExamplePermissions } from '../../../models';
+import { Example, ExamplePermissions } from '../../../models';
 
-const restController = new RestController<ExampleDocument, ExampleModel, ExamplePermissions>(
-  Example,
-  new ExamplePermissions(),
-);
+const restController = new RestController(Example, new ExamplePermissions());
 
 export async function handler(ctx: Context) {
   const result = await restController.create(ctx.request.body, {}, ctx.state.user);

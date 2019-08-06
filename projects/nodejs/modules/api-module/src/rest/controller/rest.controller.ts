@@ -4,13 +4,15 @@ import { FindQuery, RestPermissions } from '../permissions/rest.permissions';
 
 export class RestController<
   TDocument extends mongoose.Document,
-  TModel extends mongoose.Model<TDocument>,
-  TPermissions extends RestPermissions<TDocument, TModel>
+  TModel extends mongoose.Model<TDocument>
 > {
   public Model: mongoose.Model<mongoose.Document>;
-  public permissions: TPermissions;
+  public permissions: RestPermissions<TDocument, TModel>;
 
-  constructor(Model: mongoose.Model<mongoose.Document>, permissions: TPermissions) {
+  constructor(
+    Model: mongoose.Model<mongoose.Document>,
+    permissions: RestPermissions<TDocument, TModel>,
+  ) {
     this.Model = Model;
     this.permissions = permissions;
   }

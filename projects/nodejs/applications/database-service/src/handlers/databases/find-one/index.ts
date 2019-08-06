@@ -1,11 +1,8 @@
 import { Context, RestController } from '@tenlastic/api-module';
 
-import { Database, DatabaseDocument, DatabaseModel, DatabasePermissions } from '../../../models';
+import { Database, DatabasePermissions } from '../../../models';
 
-const restController = new RestController<DatabaseDocument, DatabaseModel, DatabasePermissions>(
-  Database,
-  new DatabasePermissions(),
-);
+const restController = new RestController(Database, new DatabasePermissions());
 
 export async function handler(ctx: Context) {
   const query = {
