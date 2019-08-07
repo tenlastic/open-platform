@@ -40,15 +40,21 @@ export class RestController<
   }
 
   public async remove(id: string, user: any) {
-    const query = { where: { _id: id } };
-    const record = await this.findOne(query, user);
+    const record = (await this.Model.findOne({ _id: id })) as TDocument;
+
+    if (!record) {
+      throw new Error('Record not found.');
+    }
 
     return this.permissions.remove(record, user);
   }
 
   public async update(id: string, params: any, override: any, user: any) {
-    const query = { where: { _id: id } };
-    const record = await this.findOne(query, user);
+    const record = (await this.Model.findOne({ _id: id })) as TDocument;
+
+    if (!record) {
+      throw new Error('Record not found');
+    }
 
     return this.permissions.update(record, params, override, user);
   }

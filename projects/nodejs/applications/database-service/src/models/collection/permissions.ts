@@ -99,8 +99,12 @@ export class CollectionPermissions extends RestPermissions<CollectionDocument, C
       return AccessLevel.Admin;
     }
 
-    if (record && record.databaseDocument && record.databaseDocument.userId === user._id) {
-      return AccessLevel.Owner;
+    if (record) {
+      const databaseDocument = await this.populate(record, 'databaseId', 'databaseDocument');
+
+      if (databaseDocument && databaseDocument.userId.toString() === user._id) {
+        return AccessLevel.Owner;
+      }
     }
 
     return AccessLevel.Other;
