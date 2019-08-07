@@ -13,14 +13,26 @@ import {
 
 import { DatabaseDocument, DatabaseSchema } from '../database/model';
 
+export interface IndexKey {
+  [s: string]: number;
+}
+
+export interface IndexOptions {
+  background?: boolean;
+  expireAfterSeconds?: number;
+  name?: string;
+  partialFilterExpression?: any;
+  unique?: boolean;
+}
+
 class Index {
   public _id?: mongoose.Types.ObjectId;
 
   @prop({ required: true })
-  public key: any;
+  public key: IndexKey;
 
   @prop({ default: {} })
-  public options?: any;
+  public options?: IndexOptions;
 }
 
 @index({ databaseId: 1, name: 1 }, { unique: true })

@@ -2,6 +2,7 @@ import { Context } from '@tenlastic/api-module';
 import * as rabbitmq from '@tenlastic/rabbitmq-module';
 
 import { CollectionPermissions, CollectionSchema } from '../../../models';
+import { DeleteCollectionIndexMessage } from '../../../workers';
 
 const permissions = new CollectionPermissions();
 
@@ -24,11 +25,12 @@ export async function handler(ctx: Context) {
     throw new Error('User does not have permission to perform this action.');
   }
 
-  await rabbitmq.publish(CollectionSchema.DELETE_INDEX_QUEUE, {
-    collectionId: collection._id,
-    databaseId: collection.databaseId,
-    id: ctx.params.id,
-  });
+  const msg: DeleteCollectionIndexMessage = {
+    collectionId: collection._id.toString(),
+    databaseId: collection.databaseId.toString(),
+    indexId: ctx.params.id,
+  };
+  await rabbitmq.publish(CollectionSchema.DELETE_INDEX_QUEUE, msg);
 
   ctx.response.status = 200;
 }

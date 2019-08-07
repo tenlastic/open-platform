@@ -90,7 +90,7 @@ describe('handlers/indexes/delete', function() {
       it('adds the request to RabbitMQ', async function() {
         return new Promise(resolve => {
           rabbitmq.consume(CollectionSchema.DELETE_INDEX_QUEUE, (channel, content, msg) => {
-            expect(content.id).to.eql(ctx.params.id.toString());
+            expect(content.indexId).to.eql(ctx.params.id.toString());
 
             resolve();
           });

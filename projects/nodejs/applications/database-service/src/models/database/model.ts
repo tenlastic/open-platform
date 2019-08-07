@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Typegoose, index, prop } from 'typegoose';
 
-@index({ name: 1, userId: 1 }, { unique: true })
+@index({ name: 1 }, { unique: true })
 export class DatabaseSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
