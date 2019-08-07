@@ -1,12 +1,17 @@
 paths:
-  /databases/{databaseId}/collections/{id}:
+  /databases/{databaseId}/collections/{collectionId}/indexes/{id}:
     delete:
       summary: Delete
-      tags: [Collections]
-      description: Deletes an existing record.
+      tags: [Indexes]
+      description: Deletes an existing index.
       security:
         - AccessToken: []
       parameters:
+        - in: path
+          name: collectionId
+          schema:
+            type: string
+          required: true
         - in: path
           name: databaseId
           schema:
@@ -20,10 +25,3 @@ paths:
       responses:
         200:
           description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  record:
-                    $ref: '#/components/schemas/Collection'

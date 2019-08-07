@@ -13,6 +13,7 @@ export abstract class RestPermissions<
   TModel extends mongoose.Model<TDocument>
 > {
   public Model: TModel;
+  public populatedFields: string[] = [];
 
   public abstract createPermissions(user: any): Promise<string[]>;
   public abstract findPermissions(user: any): Promise<any>;
@@ -64,11 +65,15 @@ export abstract class RestPermissions<
   public async find(params: FindQuery, override: FindQuery, user: any) {
     const where = await this.where(params.where, user);
 
-    const query = this.Model.find({ ...where, ...override.where })
+    let query = this.Model.find({ ...where, ...override.where })
       .sort(override.sort || params.sort)
       .skip(override.skip || params.skip)
       .limit(override.limit || params.limit || 100)
       .select(override.select || params.select);
+
+    this.populatedFields.forEach(populatedField => {
+      query = query.populate(populatedField);
+    });
 
     const records = (await query.exec()) as TDocument[];
     const promises = records.map(record => this.read(record, user));

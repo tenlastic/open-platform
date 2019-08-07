@@ -14,6 +14,7 @@ export class CollectionPermissions extends RestPermissions<CollectionDocument, C
     super();
 
     this.Model = Collection;
+    this.populatedFields = ['databaseDocument'];
   }
 
   public async createPermissions(user: any): Promise<string[]> {
@@ -43,14 +44,22 @@ export class CollectionPermissions extends RestPermissions<CollectionDocument, C
           .lean();
 
         return Object.assign(query, {
-          databaseId: { $in: databases._id },
+          databaseId: { $in: databases.map(d => d._id) },
         });
     }
   }
 
   public async readPermissions(record: CollectionDocument, user: any): Promise<string[]> {
     const accessLevel = await this.getAccessLevel(record, user);
-    const attributes: string[] = ['_id', 'createdAt', 'databaseId', 'jsonSchema', 'name', 'updatedAt'];
+    const attributes: string[] = [
+      '_id',
+      'createdAt',
+      'databaseId',
+      'indexes',
+      'jsonSchema',
+      'name',
+      'updatedAt',
+    ];
 
     switch (accessLevel) {
       default:
@@ -78,7 +87,7 @@ export class CollectionPermissions extends RestPermissions<CollectionDocument, C
     switch (accessLevel) {
       case AccessLevel.Admin:
       case AccessLevel.Owner:
-        return attributes.concat('databaseId', 'jsonSchema', 'name');
+        return attributes.concat('databaseId', 'indexes', 'jsonSchema', 'name');
 
       default:
         return attributes;
@@ -90,8 +99,7 @@ export class CollectionPermissions extends RestPermissions<CollectionDocument, C
       return AccessLevel.Admin;
     }
 
-    const database = await this.populate(record, 'databaseId', 'database');
-    if (database && database.userId === user._id) {
+    if (record && record.databaseDocument && record.databaseDocument.userId === user._id) {
       return AccessLevel.Owner;
     }
 

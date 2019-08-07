@@ -30,32 +30,25 @@ export class RestController<
   }
 
   public async findOne(query: FindQuery, user: any) {
-    const where = await this.permissions.where(query.where, user);
-    const record = (await this.Model.findOne(where)) as TDocument;
+    const records = await this.permissions.find(query, {}, user);
 
-    if (!record) {
+    if (records.length === 0) {
       throw new Error('Record not found.');
     }
 
-    return this.permissions.read(record, user);
+    return records[0];
   }
 
   public async remove(id: string, user: any) {
-    const record = (await this.Model.findOne({ _id: id })) as TDocument;
-
-    if (!record) {
-      throw new Error('Record not found.');
-    }
+    const query = { where: { _id: id } };
+    const record = await this.findOne(query, user);
 
     return this.permissions.remove(record, user);
   }
 
   public async update(id: string, params: any, override: any, user: any) {
-    const record = (await this.Model.findOne({ _id: id })) as TDocument;
-
-    if (!record) {
-      throw new Error('Record not found');
-    }
+    const query = { where: { _id: id } };
+    const record = await this.findOne(query, user);
 
     return this.permissions.update(record, params, override, user);
   }

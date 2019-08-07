@@ -1,18 +1,44 @@
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Ref, Typegoose, index, instanceMethod, pre, prop } from 'typegoose';
+import {
+  InstanceType,
+  ModelType,
+  Ref,
+  Typegoose,
+  arrayProp,
+  index,
+  instanceMethod,
+  pre,
+  prop,
+} from 'typegoose';
 
 import { DatabaseDocument, DatabaseSchema } from '../database/model';
+
+class Index {
+  public _id?: mongoose.Types.ObjectId;
+
+  @prop({ required: true })
+  public key: any;
+
+  @prop({ default: {} })
+  public options?: any;
+}
 
 @index({ databaseId: 1, name: 1 }, { unique: true })
 @pre('save', async function(this: CollectionDocument) {
   await this.createCollection();
 })
 export class CollectionSchema extends Typegoose {
+  public static readonly CREATE_INDEX_QUEUE = 'create-collection-index';
+  public static readonly DELETE_INDEX_QUEUE = 'delete-collection-index';
+
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
   @prop({ ref: 'DatabaseSchema', required: true })
   public databaseId: Ref<DatabaseSchema>;
+
+  @arrayProp({ items: Index })
+  public indexes: Index[];
 
   @prop({ _id: false, default: { type: 'object' }, required: true })
   public jsonSchema: any;
@@ -22,7 +48,13 @@ export class CollectionSchema extends Typegoose {
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', overwrite: true, ref: 'DatabaseSchema' })
+  @prop({
+    foreignField: '_id',
+    justOne: true,
+    localField: 'databaseId',
+    overwrite: true,
+    ref: 'DatabaseSchema',
+  })
   public get databaseDocument(): DatabaseDocument {
     return this.databaseDocument;
   }
@@ -70,7 +102,15 @@ export class CollectionSchema extends Typegoose {
               bsonType: 'date',
             },
           },
-          required: ['_id', '__v', 'collectionId', 'createdAt', 'customProperties', 'databaseId', 'updatedAt'],
+          required: [
+            '_id',
+            '__v',
+            'collectionId',
+            'createdAt',
+            'customProperties',
+            'databaseId',
+            'updatedAt',
+          ],
         },
       },
       validationLevel: 'strict',

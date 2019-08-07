@@ -1,13 +1,15 @@
+import * as rabbitmq from '@tenlastic/rabbitmq-module';
 import * as mongoose from 'mongoose';
 
 import { Collection, Database } from './models';
 
-const connectionString = process.env.MONGO_CONNECTION_STRING;
-const databaseName = process.env.MONGO_DATABASE_NAME;
-mongoose.connect(connectionString, {
-  dbName: databaseName,
-  useFindAndModify: false,
-  useNewUrlParser: true,
+before(async function() {
+  await mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
+    dbName: process.env.MONGO_DATABASE_NAME,
+    useFindAndModify: false,
+    useNewUrlParser: true,
+  });
+  await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 });
 
 beforeEach(async function() {
