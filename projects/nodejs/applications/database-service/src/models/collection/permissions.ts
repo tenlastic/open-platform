@@ -95,7 +95,7 @@ export class CollectionPermissions extends RestPermissions<CollectionDocument, C
   }
 
   private async getAccessLevel(record: CollectionDocument, user: any) {
-    if (user.roles.includes('Admin')) {
+    if (user && user.roles.includes('Admin')) {
       return AccessLevel.Admin;
     }
 

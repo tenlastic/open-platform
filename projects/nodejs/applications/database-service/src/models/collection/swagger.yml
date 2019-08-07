@@ -13,15 +13,15 @@ components:
           type: string
         indexes:
           type: array
-            items:
-              type: object
-              properties:
-                key:
-                  type: object
-                options:
-                  type: object
+          items:
+            type: object
+            properties:
+              key:
+                type: object
+              options:
+                type: object
         jsonSchema:
-          type: string
+          type: object
         name:
           type: string
         updatedAt:

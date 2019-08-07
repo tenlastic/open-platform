@@ -77,7 +77,7 @@ export class DatabasePermissions extends RestPermissions<DatabaseDocument, Datab
   }
 
   private getAccessLevel(record: DatabaseDocument, user: any) {
-    if (user.roles.includes('Admin')) {
+    if (user && user.roles.includes('Admin')) {
       return AccessLevel.Admin;
     }
 

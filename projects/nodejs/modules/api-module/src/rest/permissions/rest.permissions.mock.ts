@@ -80,7 +80,7 @@ export class RestPermissionsMock extends RestPermissions<RestDocument, RestModel
   }
 
   private getAccessLevel(record: RestDocument, user: any) {
-    if (user.roles.includes('Admin')) {
+    if (user && user.roles.includes('Admin')) {
       return AccessLevel.Admin;
     }
 

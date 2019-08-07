@@ -64,7 +64,7 @@ produces:
 components:
   securitySchemes:
     AccessToken:
-      type: https
+      type: http
       scheme: bearer
       bearerFormat: JWT
 paths: {}
