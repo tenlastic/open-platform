@@ -1,5 +1,5 @@
 import { RestPermissions } from '@tenlastic/api-module';
-import { Example, ExampleDocument, ExampleModel } from './example.model';
+import { Example, ExampleDocument, ExampleModel } from './model';
 
 enum AccessLevel {
   Other,

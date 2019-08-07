@@ -1,6 +1,6 @@
 import * as Chance from 'chance';
 
-import { Example, ExampleSchema } from './example.model';
+import { Example, ExampleSchema } from './model';
 
 export class ExampleMock {
   /**

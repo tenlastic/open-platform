@@ -1,28 +1,24 @@
 import { ContextMock } from '@tenlastic/api-module';
 import { expect } from 'chai';
-import * as Chance from 'chance';
 
-import { handler } from './';
+import { ExampleMock } from '../../../models';
+import { handler } from '.';
 
-const chance = new Chance();
-
-describe('handlers/users/create', function() {
+describe('handlers/examples/count', function() {
   let user: any;
 
   beforeEach(async function() {
+    await ExampleMock.create();
     user = { roles: ['Admin'] };
   });
 
-  it('creates a new record', async function() {
+  it('returns the number of matching records', async function() {
     const ctx = new ContextMock({
-      request: {
-        body: {},
-      },
       state: { user },
     });
 
     await handler(ctx as any);
 
-    expect(ctx.response.body.record).to.exist;
+    expect(ctx.response.body.count).to.eql(1);
   });
 });
