@@ -2,7 +2,7 @@ import { ContextMock } from '@tenlastic/api-module';
 import { expect } from 'chai';
 
 import { CollectionDocument, CollectionMock } from '../../../models';
-import { handler } from '../find';
+import { handler } from './';
 
 describe('handlers/collections/find', function() {
   let record: CollectionDocument;

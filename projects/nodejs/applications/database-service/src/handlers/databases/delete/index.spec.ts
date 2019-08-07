@@ -2,7 +2,7 @@ import { ContextMock } from '@tenlastic/api-module';
 import { expect } from 'chai';
 
 import { DatabaseMock, DatabaseDocument } from '../../../models';
-import { handler } from '../delete';
+import { handler } from './';
 
 describe('handlers/databases/delete', function() {
   let record: DatabaseDocument;

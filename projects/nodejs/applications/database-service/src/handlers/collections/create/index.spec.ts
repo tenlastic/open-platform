@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
-import { handler } from '../create';
+import { handler } from './';
 
 const chance = new Chance();
 

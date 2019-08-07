@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import * as Chance from 'chance';
 
 import { CollectionMock, CollectionDocument } from '../../../models';
-import { handler } from '../update';
+import { handler } from './';
 
 const chance = new Chance();
 
