@@ -18,9 +18,11 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
   useNewUrlParser: true,
 });
 
-rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
-rabbitmq.consume(CollectionSchema.CREATE_INDEX_QUEUE, createCollectionIndexWorker);
-rabbitmq.consume(CollectionSchema.DELETE_INDEX_QUEUE, deleteCollectionIndexWorker);
+(async () => {
+  await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
+  rabbitmq.consume(CollectionSchema.CREATE_INDEX_QUEUE, createCollectionIndexWorker);
+  rabbitmq.consume(CollectionSchema.DELETE_INDEX_QUEUE, deleteCollectionIndexWorker);
+})();
 
 const webServer = new WebServer();
 webServer.use(collectionsRouter.routes());

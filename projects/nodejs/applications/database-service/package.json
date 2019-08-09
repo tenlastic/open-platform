@@ -9,6 +9,8 @@
     "build": "../../scripts/build.sh",
     "docker": "sh ../../scripts/docker.sh npm run --if-present",
     "docker:down": "sh ../../scripts/docker-down.sh",
+    "e2e": "../../scripts/e2e.sh",
+    "e2e:watch": "../../scripts/e2e.sh --watch",
     "lint": "../../scripts/lint.sh",
     "migrations": "../../scripts/migrations.sh",
     "start": "../../scripts/start.sh",
