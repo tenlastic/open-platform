@@ -12,32 +12,11 @@ import {
 } from 'typegoose';
 
 import { DatabaseDocument, DatabaseSchema } from '../database/model';
-
-export interface IndexKey {
-  [s: string]: number;
-}
-
-export interface IndexOptions {
-  background?: boolean;
-  expireAfterSeconds?: number;
-  name?: string;
-  partialFilterExpression?: any;
-  unique?: boolean;
-}
-
-class Index {
-  public _id?: mongoose.Types.ObjectId;
-
-  @prop({ required: true })
-  public key: IndexKey;
-
-  @prop({ default: {} })
-  public options?: IndexOptions;
-}
+import { IndexSchema } from '../index/model';
 
 @index({ databaseId: 1, name: 1 }, { unique: true })
 @pre('save', async function(this: CollectionDocument) {
-  await this.createCollection();
+  await this.setValidator();
 })
 export class CollectionSchema extends Typegoose {
   public static readonly CREATE_INDEX_QUEUE = 'create-collection-index';
@@ -49,8 +28,8 @@ export class CollectionSchema extends Typegoose {
   @prop({ ref: 'DatabaseSchema', required: true })
   public databaseId: Ref<DatabaseSchema>;
 
-  @arrayProp({ items: Index })
-  public indexes: Index[];
+  @arrayProp({ items: IndexSchema })
+  public indexes: IndexSchema[];
 
   @prop({ _id: false, default: { type: 'object' }, required: true })
   public jsonSchema: any;
@@ -71,62 +50,66 @@ export class CollectionSchema extends Typegoose {
     return this.databaseDocument;
   }
 
+  @prop()
+  public get validator() {
+    return {
+      $jsonSchema: {
+        additionalProperties: false,
+        bsonType: 'object',
+        properties: {
+          _id: {
+            bsonType: 'objectId',
+          },
+          __v: {
+            bsonType: 'number',
+          },
+          collectionId: {
+            bsonType: 'objectId',
+          },
+          createdAt: {
+            bsonType: 'date',
+          },
+          customProperties: this.jsonSchema,
+          databaseId: {
+            bsonType: 'objectId',
+          },
+          updatedAt: {
+            bsonType: 'date',
+          },
+        },
+        required: [
+          '_id',
+          '__v',
+          'collectionId',
+          'createdAt',
+          'customProperties',
+          'databaseId',
+          'updatedAt',
+        ],
+      },
+    };
+  }
+
   /**
    * Creates the collection if it does not already exist.
    */
   @instanceMethod
-  public async createCollection(this: CollectionDocument) {
-    const collections = await mongoose.connection.db.listCollections().toArray();
-    if (!collections.map(c => c.name).includes(this.id)) {
-      await mongoose.connection.createCollection(this.id, { strict: true });
-    }
-  }
-
-  /**
-   * Sets the validator within MongoDB to a proper JSON Schema object.
-   */
-  @instanceMethod
   public async setValidator(this: CollectionDocument) {
-    return mongoose.connection.db.command({
-      collMod: this.id,
-      validator: {
-        $jsonSchema: {
-          additionalProperties: false,
-          bsonType: 'object',
-          properties: {
-            _id: {
-              bsonType: 'objectId',
-            },
-            __v: {
-              bsonType: 'number',
-            },
-            collectionId: {
-              bsonType: 'objectId',
-            },
-            createdAt: {
-              bsonType: 'date',
-            },
-            customProperties: this.jsonSchema,
-            databaseId: {
-              bsonType: 'objectId',
-            },
-            updatedAt: {
-              bsonType: 'date',
-            },
-          },
-          required: [
-            '_id',
-            '__v',
-            'collectionId',
-            'createdAt',
-            'customProperties',
-            'databaseId',
-            'updatedAt',
-          ],
-        },
-      },
-      validationLevel: 'strict',
-    });
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    const collectionExists = collections.map(c => c.name).includes(this.id);
+
+    if (collectionExists) {
+      await mongoose.connection.db.command({
+        collMod: this.id,
+        validator: this.validator,
+      });
+    } else {
+      await mongoose.connection.createCollection(this.id, {
+        strict: true,
+        validator: this.validator,
+        validationLevel: 'strict',
+      });
+    }
   }
 }
 

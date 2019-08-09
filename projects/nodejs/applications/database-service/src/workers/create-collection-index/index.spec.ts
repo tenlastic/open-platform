@@ -43,10 +43,7 @@ describe('workers/create-collection-index', function() {
       expect(updatedCollection.indexes[0]).to.exist;
       expect(updatedCollection.indexes[0]._id).to.eql(indexId);
       expect(updatedCollection.indexes[0].key).to.eql({ properties: 1 });
-      expect(updatedCollection.indexes[0].options).to.eql({
-        name: indexId.toHexString(),
-        unique: true,
-      });
+      expect(updatedCollection.indexes[0].options).to.eql({ unique: true });
     });
 
     it('acks the message', async function() {

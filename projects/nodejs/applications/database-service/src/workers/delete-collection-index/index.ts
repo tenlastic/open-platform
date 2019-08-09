@@ -21,11 +21,9 @@ export async function deleteCollectionIndexWorker(
     const collection = collectionId.toString();
     await mongoose.connection.db.collection(collection).dropIndex(indexId);
 
-    // Save the index information to the Collection document.
+    // Remove the index information from the Collection document.
     await Collection.findOneAndUpdate(
-      {
-        _id: collectionId,
-      },
+      { _id: collectionId },
       {
         $pull: {
           indexes: { _id: indexId },

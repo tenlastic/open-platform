@@ -21,8 +21,11 @@ export async function createCollectionIndexWorker(
 
     // Create the index within MongoDB.
     const collection = collectionId.toString();
-    options.name = indexId;
-    await mongoose.connection.db.collection(collection).createIndex(key, options);
+    await mongoose.connection.db.collection(collection).createIndex(key, {
+      ...options,
+      background: true,
+      name: indexId,
+    });
 
     // Save the index information to the Collection document.
     await Collection.findOneAndUpdate(
