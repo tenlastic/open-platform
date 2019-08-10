@@ -33,7 +33,7 @@ export class WebServer {
     this.app.use(loggingMiddleware);
 
     // Do not catch exceptions while testing for stacktrace exposure.
-    if (process.env.NODE_ENV !== 'test') {
+    if (process.env.E2E_DISABLE_ERROR_MIDDLEWARE !== 'true') {
       this.app.use(errorMiddleware);
     }
 

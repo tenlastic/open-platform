@@ -1,6 +1,9 @@
 #!/bin/bash
 set -a
 
+# End-to-End Testing
+E2E_DISABLE_ERROR_MIDDLEWARE="false"
+
 # JWT
 JWT_SECRET="secret"
 
