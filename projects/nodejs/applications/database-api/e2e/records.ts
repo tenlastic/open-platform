@@ -9,7 +9,7 @@ import { StubCleaner } from './stub-cleaner';
 const chance = new Chance();
 const stubCleaner = new StubCleaner();
 
-describe('records', function() {
+describe.only('records', function() {
   let collection: Partial<CollectionDocument>;
   let database: Partial<DatabaseDocument>;
 
@@ -28,10 +28,19 @@ describe('records', function() {
   it('creates and deletes a record', async function() {
     const user = { activatedAt: new Date(), roles: ['Admin'] };
 
-    // Create a new Record.
+    // Create an invalid Record.
+    const invalidPost = await request(
+      'post',
+      `/databases/${database._id}/collections/${collection._id}`,
+      { customProperties: { age: chance.integer() } },
+      user,
+    );
+    expect(invalidPost.statusCode).to.eql(400);
+
+    // Create a valid Record.
     const initialEmail = chance.email();
     const initialName = chance.name();
-    const post = await request(
+    const validPost = await request(
       'post',
       `/databases/${database._id}/collections/${collection._id}`,
       {
@@ -43,29 +52,29 @@ describe('records', function() {
       user,
     );
     stubCleaner.add(
-      `/databases/${database._id}/collections/${collection._id}/${post.body.record._id}/`,
+      `/databases/${database._id}/collections/${collection._id}/${validPost.body.record._id}/`,
     );
-    expect(post.statusCode).to.eql(200);
-    expect(post.body.record.customProperties.email).to.eql(initialEmail);
-    expect(post.body.record.customProperties.name).to.eql(initialName);
+    expect(validPost.statusCode).to.eql(200);
+    expect(validPost.body.record.customProperties.email).to.eql(initialEmail);
+    expect(validPost.body.record.customProperties.name).to.eql(initialName);
 
     // Find the Record.
     const get = await request(
       'get',
-      `/databases/${database._id}/collections/${collection._id}/${post.body.record._id}`,
+      `/databases/${database._id}/collections/${collection._id}/${validPost.body.record._id}`,
       null,
       user,
     );
     expect(get.statusCode).to.eql(200);
-    expect(post.body.record.customProperties.email).to.eql(initialEmail);
-    expect(post.body.record.customProperties.name).to.eql(initialName);
+    expect(validPost.body.record.customProperties.email).to.eql(initialEmail);
+    expect(validPost.body.record.customProperties.name).to.eql(initialName);
 
     // Update the Record.
     const newEmail = chance.email();
     const newName = chance.name();
     const update = await request(
       'put',
-      `/databases/${database._id}/collections/${collection._id}/${post.body.record._id}`,
+      `/databases/${database._id}/collections/${collection._id}/${validPost.body.record._id}`,
       {
         customProperties: {
           email: newEmail,
@@ -81,7 +90,7 @@ describe('records', function() {
     // Delete the Record.
     const del = await request(
       'delete',
-      `/databases/${database._id}/collections/${collection._id}/${post.body.record._id}`,
+      `/databases/${database._id}/collections/${collection._id}/${validPost.body.record._id}`,
       null,
       user,
     );
@@ -96,6 +105,7 @@ async function createCollection(databaseId: string) {
   const params = {
     jsonSchema: {
       type: 'object',
+      additionalProperties: false,
       properties: {
         email: { type: 'string' },
         name: { type: 'string' },
