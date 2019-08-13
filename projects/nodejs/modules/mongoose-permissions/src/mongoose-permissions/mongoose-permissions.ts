@@ -93,6 +93,10 @@ export class MongoosePermissions<TDocument extends Document> {
   }
 
   public async createPermissions(user: any) {
+    if (!this.options.create) {
+      return [];
+    }
+
     const attributes = this.options.create.base || [];
 
     const role = this.getRole(null, user);
@@ -122,6 +126,10 @@ export class MongoosePermissions<TDocument extends Document> {
   }
 
   public async deletePermissions(record: TDocument, user: any) {
+    if (!this.options.delete) {
+      return false;
+    }
+
     const role = this.getRole(record, user);
     const roles = this.options.delete.roles || {};
 
@@ -172,6 +180,10 @@ export class MongoosePermissions<TDocument extends Document> {
   }
 
   public async findPermissions(user: any) {
+    if (!this.options.find) {
+      return {};
+    }
+
     const query = this.options.find.base || {};
 
     const role = this.getRole(null, user);
@@ -197,6 +209,10 @@ export class MongoosePermissions<TDocument extends Document> {
   }
 
   public async readPermissions(record: TDocument, user: any) {
+    if (!this.options.read) {
+      return [];
+    }
+
     const attributes = this.options.read.base || [];
 
     const role = this.getRole(record, user);
@@ -236,6 +252,10 @@ export class MongoosePermissions<TDocument extends Document> {
   }
 
   public async updatePermissions(record: TDocument, user: any) {
+    if (!this.options.update) {
+      return [];
+    }
+
     const attributes = this.options.update.base || [];
 
     const role = this.getRole(record, user);

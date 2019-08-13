@@ -1,13 +1,14 @@
 import 'source-map-support/register';
 
-import { WebServer } from '@tenlastic/web-server';
 import * as rabbitmq from '@tenlastic/rabbitmq';
+import { WebServer } from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 
 import { router as collectionsRouter } from './handlers/collections';
 import { router as databasesRouter } from './handlers/databases';
 import { router as indexesRouter } from './handlers/indexes';
+import { router as recordsRouter } from './handlers/records';
 import { CollectionSchema } from './models';
 import { createCollectionIndexWorker, deleteCollectionIndexWorker } from './workers';
 
@@ -25,9 +26,10 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
 })();
 
 const webServer = new WebServer();
-webServer.use(collectionsRouter.routes());
 webServer.use(databasesRouter.routes());
+webServer.use(collectionsRouter.routes());
 webServer.use(indexesRouter.routes());
+webServer.use(recordsRouter.routes());
 webServer.serve(path.resolve(__dirname, '../public'), '/documentation');
 webServer.start();
 

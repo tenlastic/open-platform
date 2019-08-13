@@ -1,3 +1,4 @@
+import { IOptions } from '@tenlastic/mongoose-permissions';
 import * as mongoose from 'mongoose';
 import {
   InstanceType,
@@ -31,11 +32,14 @@ export class CollectionSchema extends Typegoose {
   @arrayProp({ items: IndexSchema })
   public indexes: IndexSchema[];
 
-  @prop({ _id: false, default: { type: 'object' }, required: true })
+  @prop({ _id: false, default: { type: 'object' } })
   public jsonSchema: any;
 
   @prop({ required: 'true' })
   public name: string;
+
+  @prop({ _id: false, default: {} })
+  public permissions: IOptions;
 
   public updatedAt: Date;
 
@@ -77,15 +81,7 @@ export class CollectionSchema extends Typegoose {
             bsonType: 'date',
           },
         },
-        required: [
-          '_id',
-          '__v',
-          'collectionId',
-          'createdAt',
-          'customProperties',
-          'databaseId',
-          'updatedAt',
-        ],
+        required: ['_id', '__v', 'collectionId', 'createdAt', 'databaseId', 'updatedAt'],
       },
     };
   }
