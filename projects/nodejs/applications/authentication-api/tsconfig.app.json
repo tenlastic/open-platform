@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "exclude": ["./src/**/*.spec.ts"],
+  "include": ["./src"],
+  "references": [
+    { "path": "../../modules/web-server/tsconfig.app.json" },
+    { "path": "../../modules/change-data-capture/tsconfig.app.json" },
+    { "path": "../../modules/mailgun/tsconfig.app.json" },
+    { "path": "../../modules/mongoose-permissions/tsconfig.app.json" },
+    { "path": "../../modules/validations/tsconfig.app.json" }
+  ]
+}

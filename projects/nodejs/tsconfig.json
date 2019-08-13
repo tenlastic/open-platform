@@ -7,12 +7,12 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "paths": {
-      "@tenlastic/api-module": ["./modules/api-module/src"],
-      "@tenlastic/change-data-capture-module": ["./modules/change-data-capture-module/src"],
-      "@tenlastic/mailgun-module": ["./modules/mailgun-module/src"],
+      "@tenlastic/change-data-capture": ["./modules/change-data-capture/src"],
+      "@tenlastic/mailgun": ["./modules/mailgun/src"],
       "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],
-      "@tenlastic/rabbitmq-module": ["./modules/rabbitmq-module/src"],
-      "@tenlastic/validations-module": ["./modules/validations-module/src"]
+      "@tenlastic/rabbitmq": ["./modules/rabbitmq/src"],
+      "@tenlastic/validations": ["./modules/validations/src"],
+      "@tenlastic/web-server": ["./modules/web-server/src"]
     },
     "sourceMap": true,
     "target": "es2015"

@@ -1,6 +1,0 @@
-version: '2.1'
-services:
-  application:
-    environment:
-      - RABBITMQ_CONNECTION_STRING
-    working_dir: /usr/src/app/modules/rabbitmq-module/

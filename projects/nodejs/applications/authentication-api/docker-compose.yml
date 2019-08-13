@@ -1,0 +1,9 @@
+version: '2.1'
+services:
+  application:
+    environment:
+      - JWT_SECRET
+      - MONGO_CONNECTION_STRING
+    ports:
+      - 3000:3000
+    working_dir: /usr/src/app/applications/authentication-api/
