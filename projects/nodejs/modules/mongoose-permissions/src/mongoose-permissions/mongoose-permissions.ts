@@ -1,6 +1,8 @@
-import * as mongoose from 'mongoose';
+import { Document, Model } from 'mongoose';
 
-export interface FindQuery {
+import { isJsonValid } from '../is-json-valid/is-json-valid';
+
+export interface IFindQuery {
   limit?: number;
   select?: string;
   skip?: number;
@@ -8,18 +10,53 @@ export interface FindQuery {
   where?: any;
 }
 
-export abstract class RestPermissions<
-  TDocument extends mongoose.Document,
-  TModel extends mongoose.Model<TDocument>
-> {
-  public Model: TModel;
-  public populatedFields: string[] = [];
+export interface IOptions {
+  create: {
+    base?: string[];
+    roles?: { [key: string]: string[] };
+  };
+  delete: {
+    base?: boolean;
+    roles?: { [key: string]: boolean };
+  };
+  find: {
+    base?: any;
+    roles?: { [key: string]: any };
+  };
+  populate?: IPopulate;
+  read: {
+    base?: string[];
+    roles?: { [key: string]: string[] };
+  };
+  roles: IRole[];
+  update: {
+    base?: string[];
+    roles?: { [key: string]: string[] };
+  };
+}
 
-  public abstract createPermissions(user: any): Promise<string[]>;
-  public abstract findPermissions(user: any): Promise<any>;
-  public abstract readPermissions(record: TDocument, user: any): Promise<string[]>;
-  public abstract removePermissions(record: TDocument, user: any): Promise<boolean>;
-  public abstract updatePermissions(record: TDocument, user: any): Promise<string[]>;
+export interface IPopulate {
+  path: string;
+  populate?: IPopulate;
+}
+
+export interface IRole {
+  name: string;
+  query: any;
+}
+
+export class MongoosePermissions<TDocument extends Document> {
+  public populateOptions: IPopulate;
+
+  private Model: Model<TDocument>;
+  private options: IOptions;
+
+  constructor(Model: Model<TDocument>, options: IOptions) {
+    this.populateOptions = options.populate;
+
+    this.Model = Model;
+    this.options = options;
+  }
 
   /**
    * Allows a user to retrive the count of a query.
@@ -55,6 +92,46 @@ export abstract class RestPermissions<
     return this.filterRecord(record, readPermissions);
   }
 
+  public async createPermissions(user: any) {
+    const attributes = this.options.create.base || [];
+
+    const role = this.getRole(null, user);
+    const roles = this.options.create.roles;
+    const roleAttributes = roles && roles[role] ? roles[role] : [];
+
+    return attributes.concat(roleAttributes);
+  }
+
+  /**
+   * Removes a record if the user is authorized to do so.
+   * @param record The record to remove.
+   * @param user The user removing the record.
+   */
+  public async delete(record: TDocument, user: any) {
+    const removePermissions = await this.deletePermissions(record, user);
+
+    if (!removePermissions) {
+      throw new Error('User does not have permission to perform this action.');
+    }
+
+    record = await record.remove();
+
+    // Filter unauthorized attributes
+    const readPermissions = await this.readPermissions(record, user);
+    return this.filterRecord(record, readPermissions);
+  }
+
+  public async deletePermissions(record: TDocument, user: any) {
+    const role = this.getRole(record, user);
+    const roles = this.options.delete.roles || {};
+
+    if (role in roles) {
+      return roles[role];
+    }
+
+    return this.options.delete.base || false;
+  }
+
   /**
    * Allows a user to retrieve records they are allowed to access.
    * Performs query population to provide any related documents for access-level calculations.
@@ -62,7 +139,7 @@ export abstract class RestPermissions<
    * @param override The system's params.
    * @param user The user performing the params.
    */
-  public async find(params: FindQuery, override: FindQuery, user: any) {
+  public async find(params: IFindQuery, override: IFindQuery, user: any) {
     const where = await this.where(params.where, user);
 
     let query = this.Model.find({ ...where, ...override.where })
@@ -71,14 +148,37 @@ export abstract class RestPermissions<
       .limit(override.limit || params.limit || 100)
       .select(override.select || params.select);
 
-    this.populatedFields.forEach(populatedField => {
-      query = query.populate(populatedField);
-    });
+    if (this.options.populate) {
+      query = query.populate(this.options.populate);
+    }
 
     const records = (await query.exec()) as TDocument[];
     const promises = records.map(record => this.read(record, user));
 
     return Promise.all(promises);
+  }
+
+  /**
+   * Allows a user to retrieve records they are allowed to access.
+   * Performs query population to provide any related documents for access-level calculations.
+   * @param params The user's params.
+   * @param override The system's params.
+   * @param user The user performing the params.
+   */
+  public async findOne(params: IFindQuery, override: IFindQuery, user: any) {
+    const results = await this.find(params, override, user);
+
+    return results[0];
+  }
+
+  public async findPermissions(user: any) {
+    const query = this.options.find.base || {};
+
+    const role = this.getRole(null, user);
+    const roles = this.options.find.roles;
+    const roleAttributes = roles && roles[role] ? roles[role] : {};
+
+    return Object.assign(query, roleAttributes);
   }
 
   /**
@@ -96,23 +196,14 @@ export abstract class RestPermissions<
     return this.filterRecord(record, readPermissions);
   }
 
-  /**
-   * Removes a record if the user is authorized to do so.
-   * @param record The record to remove.
-   * @param user The user removing the record.
-   */
-  public async remove(record: TDocument, user: any) {
-    const removePermissions = await this.removePermissions(record, user);
+  public async readPermissions(record: TDocument, user: any) {
+    const attributes = this.options.read.base || [];
 
-    if (!removePermissions) {
-      throw new Error('User does not have permission to perform this action.');
-    }
+    const role = this.getRole(record, user);
+    const roles = this.options.read.roles;
+    const roleAttributes = roles && roles[role] ? roles[role] : [];
 
-    record = await record.remove();
-
-    // Filter unauthorized attributes
-    const readPermissions = await this.readPermissions(record, user);
-    return this.filterRecord(record, readPermissions);
+    return attributes.concat(roleAttributes);
   }
 
   /**
@@ -142,6 +233,16 @@ export abstract class RestPermissions<
     // Remove unauthorized fields
     const readPermissions = await this.readPermissions(record, user);
     return this.filterRecord(record, readPermissions);
+  }
+
+  public async updatePermissions(record: TDocument, user: any) {
+    const attributes = this.options.update.base || [];
+
+    const role = this.getRole(record, user);
+    const roles = this.options.update.roles;
+    const roleAttributes = roles && roles[role] ? roles[role] : [];
+
+    return attributes.concat(roleAttributes);
   }
 
   /**
@@ -181,14 +282,6 @@ export abstract class RestPermissions<
     return query;
   }
 
-  protected async populate(object: TDocument, idField: string, field: string) {
-    if (object[idField] && !object.populated(field)) {
-      await object.populate(field).execPopulate();
-    }
-
-    return object[field];
-  }
-
   /**
    * Removes any unauthorized attributes from an object.
    * @param object The object to remove unauthorized attributes from.
@@ -221,5 +314,22 @@ export abstract class RestPermissions<
     }
 
     return record;
+  }
+
+  private getRole(record: TDocument, user: any) {
+    const json = {
+      record: record ? record.toObject() : null,
+      user: user && user.toObject ? user.toObject() : user,
+    };
+
+    try {
+      for (let i = 0; i < this.options.roles.length; i++) {
+        if (isJsonValid(json, this.options.roles[i].query)) {
+          return this.options.roles[i].name;
+        }
+      }
+    } catch {}
+
+    return 'default';
   }
 }

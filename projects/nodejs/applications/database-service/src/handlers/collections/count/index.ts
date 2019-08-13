@@ -1,14 +1,14 @@
-import { Context, RestController } from '@tenlastic/api-module';
+import { Context } from '@tenlastic/api-module';
 
-import { Collection, CollectionPermissions } from '../../../models';
-
-const restController = new RestController(Collection, new CollectionPermissions());
+import { CollectionPermissions } from '../../../models';
 
 export async function handler(ctx: Context) {
-  ctx.request.query.where = ctx.request.query.where || {};
-  ctx.request.query.where.databaseId = ctx.params.databaseId;
-
-  const result = await restController.count(ctx.request.query.where, ctx.state.user);
+  const override = { databaseId: ctx.params.databaseId };
+  const result = await CollectionPermissions.count(
+    ctx.request.query.where,
+    override,
+    ctx.state.user,
+  );
 
   ctx.response.body = { count: result };
 }

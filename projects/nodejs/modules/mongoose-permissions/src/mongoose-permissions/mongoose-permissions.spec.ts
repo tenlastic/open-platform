@@ -4,17 +4,15 @@ import { Chance } from 'chance';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 
-import { Rest, RestDocument } from './rest.model';
-import { RestPermissionsMock } from './rest.permissions.mock';
+import { Example, ExampleDocument, ExamplePermissions } from '../example-model';
 
 const chance = new Chance();
 const expect = chai.expect;
-const permissions = new RestPermissionsMock();
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-describe('rest/permissions', function() {
+describe('permissions', function() {
   let admin: any;
   let sandbox: sinon.SinonSandbox;
   let user: any;
@@ -32,13 +30,13 @@ describe('rest/permissions', function() {
 
   describe('count()', function() {
     beforeEach(async function() {
-      await Rest.mock({ name: chance.hash() });
-      await Rest.mock({ name: null });
+      await Example.mock({ name: chance.hash() });
+      await Example.mock({ name: null });
     });
 
     context('when user is an admin', function() {
       it('returns all the records', async function() {
-        const results = await permissions.count({}, {}, admin);
+        const results = await ExamplePermissions.count({}, {}, admin);
 
         expect(results).to.eql(2);
       });
@@ -46,7 +44,7 @@ describe('rest/permissions', function() {
 
     context('when user is not an admin', function() {
       it('returns accessible records', async function() {
-        const results = await permissions.count({}, {}, user);
+        const results = await ExamplePermissions.count({}, {}, user);
 
         expect(results).to.eql(1);
       });
@@ -60,7 +58,7 @@ describe('rest/permissions', function() {
           name: chance.hash(),
         };
 
-        const record = await permissions.create(params, {}, admin);
+        const record = await ExamplePermissions.create(params, {}, admin);
 
         expect(record._id).to.exist;
         expect(record.createdAt).to.exist;
@@ -75,7 +73,33 @@ describe('rest/permissions', function() {
           name: chance.hash(),
         };
 
-        const promise = permissions.create(params, {}, user);
+        const promise = ExamplePermissions.create(params, {}, user);
+
+        return expect(promise).to.be.rejectedWith(
+          'User does not have permission to perform this action.',
+        );
+      });
+    });
+  });
+
+  describe('delete()', function() {
+    let record: ExampleDocument;
+
+    beforeEach(async function() {
+      record = await Example.mock();
+    });
+
+    context('when the user is an admin', function() {
+      it('returns the user', async function() {
+        const results = await ExamplePermissions.delete(record, admin);
+
+        expect(results).to.eql(record);
+      });
+    });
+
+    context('when the user is not an admin', function() {
+      it('returns an error', async function() {
+        const promise = ExamplePermissions.delete(record, user);
 
         return expect(promise).to.be.rejectedWith(
           'User does not have permission to perform this action.',
@@ -86,12 +110,12 @@ describe('rest/permissions', function() {
 
   describe('find()', function() {
     beforeEach(async function() {
-      await Rest.mock({ name: chance.hash() });
+      await Example.mock({ name: chance.hash() });
     });
 
     context('when user is an admin', function() {
       it('returns all the records', async function() {
-        const results = await permissions.find({}, {}, admin);
+        const results = await ExamplePermissions.find({}, {}, admin);
 
         expect(results.length).to.eql(1);
       });
@@ -99,35 +123,23 @@ describe('rest/permissions', function() {
 
     context('when user is not an admin', function() {
       it('returns accessible records', async function() {
-        const results = await permissions.find({}, {}, user);
+        const results = await ExamplePermissions.find({}, {}, user);
 
         expect(results.length).to.eql(1);
       });
     });
   });
 
-  describe('populate()', function() {
-    it('populates the field', async function() {
-      const parent = await Rest.mock();
-      const child = await Rest.mock({ parentId: parent._id });
-
-      await permissions['populate'](child, 'parentId', 'parent');
-
-      expect(child.parent).to.exist;
-      expect(child.populated('parent')).to.exist;
-    });
-  });
-
   describe('read()', function() {
-    let record: RestDocument;
+    let record: ExampleDocument;
 
     beforeEach(async function() {
-      record = await Rest.mock();
+      record = await Example.mock();
     });
 
     context('when user is an admin', function() {
       it('returns the record', async function() {
-        record = await permissions.read(record, admin);
+        record = await ExamplePermissions.read(record, admin);
 
         expect(record._id).to.exist;
         expect(record.createdAt).to.exist;
@@ -138,7 +150,7 @@ describe('rest/permissions', function() {
 
     context('when user is not an admin', function() {
       it('returns the record', async function() {
-        record = await permissions.read(record, user);
+        record = await ExamplePermissions.read(record, user);
 
         expect(record._id).to.exist;
         expect(record.createdAt).to.exist;
@@ -148,37 +160,11 @@ describe('rest/permissions', function() {
     });
   });
 
-  describe('remove()', function() {
-    let record: RestDocument;
-
-    beforeEach(async function() {
-      record = await Rest.mock();
-    });
-
-    context('when the user is an admin', function() {
-      it('returns the user', async function() {
-        const results = await permissions.remove(record, admin);
-
-        expect(results).to.eql(record);
-      });
-    });
-
-    context('when the user is not an admin', function() {
-      it('returns an error', async function() {
-        const promise = permissions.remove(record, user);
-
-        return expect(promise).to.be.rejectedWith(
-          'User does not have permission to perform this action.',
-        );
-      });
-    });
-  });
-
   describe('update()', function() {
-    let record: RestDocument;
+    let record: ExampleDocument;
 
     beforeEach(async function() {
-      record = await Rest.mock();
+      record = await Example.mock();
     });
 
     context('when the user is an admin', function() {
@@ -187,7 +173,7 @@ describe('rest/permissions', function() {
           name: chance.hash(),
         };
 
-        record = await permissions.update(record, params, {}, admin);
+        record = await ExamplePermissions.update(record, params, {}, admin);
 
         expect(record._id).to.exist;
         expect(record.createdAt).to.exist;
@@ -202,7 +188,7 @@ describe('rest/permissions', function() {
           name: chance.hash(),
         };
 
-        const promise = permissions.update(record, params, {}, user);
+        const promise = ExamplePermissions.update(record, params, {}, user);
 
         return expect(promise).to.be.rejectedWith(
           'User does not have permission to perform this action.',
@@ -214,7 +200,7 @@ describe('rest/permissions', function() {
   describe('where()', function() {
     context('when the user is an admin', function() {
       it('returns a valid where query', async function() {
-        const query = await permissions.where({}, admin);
+        const query = await ExamplePermissions.where({}, admin);
 
         expect(query).to.be.empty;
       });
@@ -222,7 +208,7 @@ describe('rest/permissions', function() {
 
     context('when the user is not an admin', function() {
       it('returns a valid where query', async function() {
-        const query = await permissions.where({}, user);
+        const query = await ExamplePermissions.where({}, user);
 
         expect(query.name).to.eql({ $ne: null });
       });

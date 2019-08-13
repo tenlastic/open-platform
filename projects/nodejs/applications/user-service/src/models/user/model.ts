@@ -1,5 +1,9 @@
 import { changeDataCapturePlugin } from '@tenlastic/change-data-capture-module';
-import { alphanumericValidator, emailValidator, stringLengthValidator } from '@tenlastic/validations-module';
+import {
+  alphanumericValidator,
+  emailValidator,
+  stringLengthValidator,
+} from '@tenlastic/validations-module';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
@@ -20,7 +24,7 @@ import * as uuid from 'uuid/v4';
 
 import * as emails from '../../emails';
 import { RefreshToken } from '../refresh-token/model';
-import { UserPermissions } from './permissions';
+import { UserPermissions } from './';
 
 @index({ email: 1 }, { unique: true })
 @index({ username: 1 }, { unique: true })
@@ -108,8 +112,7 @@ export class UserSchema extends Typegoose {
     await RefreshToken.create({ expiresAt, jti, userId: this._id });
 
     // Remove unauthorized fields from the User.
-    const userPermissions = new UserPermissions();
-    const filteredUser = await userPermissions.read(this, this);
+    const filteredUser = await UserPermissions.read(this, this);
 
     const accessToken = jwt.sign({ user: filteredUser }, process.env.JWT_SECRET, {
       expiresIn: '30m',

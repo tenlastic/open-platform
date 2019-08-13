@@ -20,6 +20,7 @@
     "@tenlastic/api-module": "0.0.0",
     "@tenlastic/change-data-capture-module": "0.0.0",
     "@tenlastic/mailgun-module": "0.0.0",
+    "@tenlastic/mongoose-permissions": "0.0.0",
     "@tenlastic/validations-module": "0.0.0",
     "bcrypt": "3.0.6",
     "chance": "1.0.16",

@@ -1,12 +1,9 @@
-import { Context, RestController } from '@tenlastic/api-module';
+import { Context } from '@tenlastic/api-module';
 
-import { Database, DatabasePermissions } from '../../../models';
-
-const restController = new RestController(Database, new DatabasePermissions());
+import { DatabasePermissions } from '../../../models';
 
 export async function handler(ctx: Context) {
-  console.log(ctx.state);
-  const result = await restController.find(ctx.request.query, ctx.state.user);
+  const result = await DatabasePermissions.find(ctx.request.query, {}, ctx.state.user);
 
   ctx.response.body = { records: result };
 }

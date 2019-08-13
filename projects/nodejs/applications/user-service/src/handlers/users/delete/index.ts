@@ -1,11 +1,17 @@
-import { Context, RestController } from '@tenlastic/api-module';
+import { Context, RecordNotFoundError } from '@tenlastic/api-module';
 
 import { User, UserPermissions } from '../../../models';
 
-const restController = new RestController(User, new UserPermissions());
-
 export async function handler(ctx: Context) {
-  const result = await restController.remove(ctx.params.id, ctx.state.user);
+  const record = await User.findOne({ _id: ctx.params.id }).populate(
+    UserPermissions.populateOptions,
+  );
+
+  if (!record) {
+    throw new RecordNotFoundError();
+  }
+
+  const result = await UserPermissions.delete(record, ctx.state.user);
 
   ctx.response.body = { record: result };
 }

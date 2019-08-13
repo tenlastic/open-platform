@@ -2,18 +2,24 @@ import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Ref, Typegoose, prop, staticMethod } from 'typegoose';
 
-export class RestSchema extends Typegoose {
+export class ExampleSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
   @prop()
   public name: string;
 
-  @prop({ ref: 'RestSchema' })
-  public parentId: Ref<RestSchema>;
+  @prop({ ref: 'ExampleSchema' })
+  public parentId: Ref<ExampleSchema>;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'parentId', ref: 'RestSchema', overwrite: true })
-  public get parent(): RestDocument {
+  @prop({
+    foreignField: '_id',
+    justOne: true,
+    localField: 'parentId',
+    ref: 'ExampleSchema',
+    overwrite: true,
+  })
+  public get parent(): ExampleDocument {
     return this.parent;
   }
 
@@ -24,7 +30,7 @@ export class RestSchema extends Typegoose {
    * @param {Object} params The parameters to initialize the record with.
    */
   @staticMethod
-  public static async mock(this: ModelType<RestSchema>, params: Partial<RestSchema> = {}) {
+  public static async mock(this: ModelType<ExampleSchema>, params: Partial<ExampleSchema> = {}) {
     const chance = new Chance();
 
     const defaults = {
@@ -35,14 +41,10 @@ export class RestSchema extends Typegoose {
   }
 }
 
-export type RestDocument = InstanceType<RestSchema>;
-export type RestModel = ModelType<RestSchema>;
-export const Rest = new RestSchema().getModelForClass(RestSchema, {
+export type ExampleDocument = InstanceType<ExampleSchema>;
+export type ExampleModel = ModelType<ExampleSchema>;
+export const Example = new ExampleSchema().getModelForClass(ExampleSchema, {
   schemaOptions: {
-    collation: {
-      locale: 'en_US',
-      strength: 1,
-    },
     collection: 'rests',
     timestamps: true,
   },

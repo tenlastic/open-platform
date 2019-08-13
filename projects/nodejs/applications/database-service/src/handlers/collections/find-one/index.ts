@@ -1,18 +1,14 @@
-import { Context, RestController } from '@tenlastic/api-module';
+import { Context, RecordNotFoundError } from '@tenlastic/api-module';
 
-import { Collection, CollectionPermissions } from '../../../models';
-
-const restController = new RestController(Collection, new CollectionPermissions());
+import { CollectionPermissions } from '../../../models';
 
 export async function handler(ctx: Context) {
-  const query = {
-    where: {
-      _id: ctx.params.id,
-      databaseId: ctx.params.databaseId,
-    },
-  };
+  const override = { where: { _id: ctx.params.id, databaseId: ctx.params.databaseId } };
+  const result = await CollectionPermissions.findOne({}, override, ctx.state.user);
 
-  const result = await restController.findOne(query, ctx.state.user);
+  if (!result) {
+    throw new RecordNotFoundError();
+  }
 
   ctx.response.body = { record: result };
 }

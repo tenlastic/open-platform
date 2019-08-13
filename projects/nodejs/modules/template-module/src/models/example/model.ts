@@ -12,10 +12,6 @@ export type ExampleModel = ModelType<ExampleSchema>;
 export const Example = new ExampleSchema().getModelForClass(ExampleSchema, {
   schemaOptions: {
     autoIndex: false,
-    collation: {
-      locale: 'en_US',
-      strength: 1,
-    },
     collection: 'examples',
     timestamps: true,
   },

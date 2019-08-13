@@ -1,0 +1,29 @@
+{
+  "engines": {
+    "node": "^10"
+  },
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "name": "@tenlastic/mongoose-permissions",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "build:watch": "watch ../../scripts/build.sh ./src",
+    "docker": "sh ../../scripts/docker.sh npm run --if-present",
+    "lint": "../../scripts/lint.sh",
+    "test": "../../scripts/test.sh",
+    "test:watch": "../../scripts/test.sh --watch"
+  },
+  "dependencies": {
+    "mongoose": "5.6.7",
+    "typegoose": "5.8.1"
+  },
+  "devDependencies": {
+    "mocha": "6.1.4",
+    "nyc": "14.1.1",
+    "ts-node": "8.3.0",
+    "tslint": "5.18.0",
+    "typescript": "3.5.3",
+    "watch": "1.0.2"
+  }
+}

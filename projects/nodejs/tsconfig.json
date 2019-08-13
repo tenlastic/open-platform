@@ -10,6 +10,7 @@
       "@tenlastic/api-module": ["./modules/api-module/src"],
       "@tenlastic/change-data-capture-module": ["./modules/change-data-capture-module/src"],
       "@tenlastic/mailgun-module": ["./modules/mailgun-module/src"],
+      "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],
       "@tenlastic/rabbitmq-module": ["./modules/rabbitmq-module/src"],
       "@tenlastic/validations-module": ["./modules/validations-module/src"]
     },

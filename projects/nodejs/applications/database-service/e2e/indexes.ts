@@ -61,7 +61,7 @@ describe('indexes', function() {
       null,
       user,
     );
-    expect(post.statusCode).to.eql(200);
+    expect(del.statusCode).to.eql(200);
 
     // Wait for the Index to be deleted.
     await new Promise(resolve => setTimeout(resolve, 200));

@@ -12,6 +12,7 @@
     { "path": "../../modules/api-module/tsconfig.app.json" },
     { "path": "../../modules/change-data-capture-module/tsconfig.app.json" },
     { "path": "../../modules/mailgun-module/tsconfig.app.json" },
+    { "path": "../../modules/mongoose-permissions/tsconfig.app.json" },
     { "path": "../../modules/validations-module/tsconfig.app.json" }
   ]
 }

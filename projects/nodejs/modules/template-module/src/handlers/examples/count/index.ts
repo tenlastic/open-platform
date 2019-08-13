@@ -1,11 +1,9 @@
-import { Context, RestController } from '@tenlastic/api-module';
+import { Context } from '@tenlastic/api-module';
 
-import { Example, ExamplePermissions } from '../../../models';
-
-const restController = new RestController(Example, new ExamplePermissions());
+import { ExamplePermissions } from '../../../models';
 
 export async function handler(ctx: Context) {
-  const result = await restController.count(ctx.request.query.where, ctx.state.user);
+  const result = await ExamplePermissions.count(ctx.request.query.where, {}, ctx.state.user);
 
   ctx.response.body = { count: result };
 }

@@ -21,6 +21,7 @@
   "dependencies": {
     "@tenlastic/api-module": "0.0.0",
     "@tenlastic/change-data-capture-module": "0.0.0",
+    "@tenlastic/mongoose-permissions": "0.0.0",
     "@tenlastic/rabbitmq-module": "0.0.0",
     "@tenlastic/validations-module": "0.0.0",
     "koa-router": "7.4.0",
