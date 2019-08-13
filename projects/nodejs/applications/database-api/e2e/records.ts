@@ -9,7 +9,7 @@ import { StubCleaner } from './stub-cleaner';
 const chance = new Chance();
 const stubCleaner = new StubCleaner();
 
-describe.only('records', function() {
+describe('records', function() {
   let collection: Partial<CollectionDocument>;
   let database: Partial<DatabaseDocument>;
 
