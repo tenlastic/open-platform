@@ -1,6 +1,4 @@
 .terraform/
-bin/
-node_modules/
 service-accounts/
 
 *.tfvars

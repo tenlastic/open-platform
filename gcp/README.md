@@ -1,15 +1,11 @@
 ## Getting Started
 
-#### Install CLI Tools
-
-```bash
-# Install Google Cloud CLI.
-./scripts/install/gcloud.sh
-```
-
 #### Deploy Infrastructure
 
 ```bash
+# Start a Gcloud Docker container.
+docker-compose run gcloud
+
 # Log in to GCloud CLI.
 gcloud auth login
 gcloud config set project [PROJECT]
@@ -31,6 +27,13 @@ gcloud deployment-manager deployments create "terraform-resources" \
 
 # Create service account for Terraform.
 ./scripts/get-service-account-key.sh terraform
+```
+
+```bash
+# Start a Terraform Docker container.
+docker-compose run terraform
+
+# Load Google credentials for Terraform.
 export GOOGLE_CREDENTIALS=$(cat ./service-accounts/terraform.json)
 
 # Deploy IAM profiles.
@@ -44,7 +47,9 @@ cd ./terraform/cluster/
 terraform init -backend-config="./backend.example.tfvars"
 terraform apply -auto-approve
 cd ../../../
+```
 
+```bash
 # Connect to cluster.
 gcloud container clusters get-credentials primary \
   --zone "us-central1-a"
