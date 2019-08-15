@@ -30,7 +30,7 @@ $COVERAGE_ARGUMENTS \
   --recursive \
   --require ts-node/register \
   --reporter mocha-multi-reporters \
-  --reporter-options configFile="../../mocha-multi-reporters.json" \
+  --reporter-options configFile="../../mocha-multi-reporters.e2e.json" \
   --timeout 30000 \
   $WATCH_ARGUMENTS \
   "e2e/**/*.ts"
