@@ -1,28 +1,27 @@
 import { expect } from 'chai';
 import * as Chance from 'chance';
-import * as mongoose from 'mongoose';
 
 import { DatabaseDocument, CollectionDocument } from '../src/models';
+import { CollectionModel, DatabaseModel } from './models';
 import { request } from './request';
-import { StubCleaner } from './stub-cleaner';
 
 const chance = new Chance();
-const stubCleaner = new StubCleaner();
 
 describe('indexes', function() {
   let collection: Partial<CollectionDocument>;
   let database: Partial<DatabaseDocument>;
 
   before(async function() {
-    const createdDatabase = await createDatabase();
+    const createdDatabase = await DatabaseModel.create();
     database = createdDatabase.body.record;
 
-    const createdCollection = await createCollection(database._id);
+    const createdCollection = await CollectionModel.create({ databaseId: database._id });
     collection = createdCollection.body.record;
   });
 
   after(async function() {
-    await stubCleaner.clean();
+    await CollectionModel.deleteAll();
+    await DatabaseModel.deleteAll();
   });
 
   it('creates and deletes an index', async function() {
@@ -42,12 +41,10 @@ describe('indexes', function() {
     await new Promise(resolve => setTimeout(resolve, 200));
 
     // Find the Collection.
-    const getCollectionWithIndex = await request(
-      'get',
-      `/databases/${database._id}/collections/${collection._id}`,
-      null,
-      user,
-    );
+    const getCollectionWithIndex = await CollectionModel.findOne({
+      _id: collection._id,
+      databaseId: database._id,
+    });
     expect(getCollectionWithIndex.statusCode).to.eql(200);
 
     const index = getCollectionWithIndex.body.record.indexes[0];
@@ -67,39 +64,11 @@ describe('indexes', function() {
     await new Promise(resolve => setTimeout(resolve, 200));
 
     // Find the Collection again.
-    const getCollectionWithoutIndex = await request(
-      'get',
-      `/databases/${database._id}/collections/${collection._id}`,
-      null,
-      user,
-    );
+    const getCollectionWithoutIndex = await CollectionModel.findOne({
+      _id: collection._id,
+      databaseId: database._id,
+    });
     expect(getCollectionWithoutIndex.statusCode).to.eql(200);
     expect(getCollectionWithoutIndex.body.record.indexes.length).to.eql(0);
   });
 });
-
-/**
- * Create a stub Collection.
- */
-async function createCollection(databaseId: string) {
-  const params = { name: chance.hash() };
-  const user = { activatedAt: new Date(), roles: ['Admin'] };
-
-  const response = await request('post', `/databases/${databaseId}/collections`, params, user);
-  stubCleaner.add(`/databases/${databaseId}/collections/${response.body.record._id}`);
-
-  return response;
-}
-
-/**
- * Create a stub Database.
- */
-async function createDatabase() {
-  const params = { name: chance.hash(), userId: mongoose.Types.ObjectId() };
-  const user = { activatedAt: new Date(), roles: ['Admin'] };
-
-  const response = await request('post', '/databases', params, user);
-  stubCleaner.add(`/databases/${response.body.record._id}`);
-
-  return response;
-}

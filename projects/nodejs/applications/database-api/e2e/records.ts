@@ -1,141 +1,132 @@
 import { expect } from 'chai';
 import * as Chance from 'chance';
-import * as mongoose from 'mongoose';
 
-import { DatabaseDocument, CollectionDocument } from '../src/models';
-import { request } from './request';
-import { StubCleaner } from './stub-cleaner';
+import { DatabaseDocument, CollectionDocument, RecordDocument } from '../src/models';
+import { CollectionModel, DatabaseModel, RecordModel } from './models';
 
 const chance = new Chance();
-const stubCleaner = new StubCleaner();
 
 describe('records', function() {
   let collection: Partial<CollectionDocument>;
   let database: Partial<DatabaseDocument>;
 
   before(async function() {
-    const createdDatabase = await createDatabase();
+    const createdDatabase = await DatabaseModel.create();
     database = createdDatabase.body.record;
 
-    const createdCollection = await createCollection(database._id);
+    const createdCollection = await CollectionModel.create({
+      databaseId: database._id,
+      jsonSchema: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          email: { type: 'string' },
+          name: { type: 'string' },
+        },
+      },
+      name: chance.hash(),
+      permissions: {
+        create: { base: ['customProperties'] },
+        delete: { base: true },
+        find: {},
+        read: {
+          base: ['_id', 'collectionId', 'createdAt', 'customProperties', 'databaseId', 'updatedAt'],
+        },
+        roles: [],
+        update: { base: ['customProperties'] },
+      },
+    });
     collection = createdCollection.body.record;
   });
 
   after(async function() {
-    await stubCleaner.clean();
+    await CollectionModel.deleteAll();
+    await DatabaseModel.deleteAll();
+    await RecordModel.deleteAll();
   });
 
-  it('creates and deletes a record', async function() {
-    const user = { activatedAt: new Date(), roles: ['Admin'] };
+  it('does not create an invalid record', async function() {
+    const res = await RecordModel.create({
+      customProperties: { age: chance.integer() },
+      collectionId: collection._id,
+      databaseId: database._id,
+    });
 
-    // Create an invalid Record.
-    const invalidPost = await request(
-      'post',
-      `/databases/${database._id}/collections/${collection._id}`,
-      { customProperties: { age: chance.integer() } },
-      user,
-    );
-    expect(invalidPost.statusCode).to.eql(400);
+    expect(res.statusCode).to.eql(400);
+  });
 
-    // Create a valid Record.
+  it('creates create a valid record', async function() {
     const initialEmail = chance.email();
     const initialName = chance.name();
-    const validPost = await request(
-      'post',
-      `/databases/${database._id}/collections/${collection._id}`,
-      {
-        customProperties: {
-          email: initialEmail,
-          name: initialName,
-        },
+    const res = await RecordModel.create({
+      customProperties: {
+        email: initialEmail,
+        name: initialName,
       },
-      user,
-    );
-    stubCleaner.add(
-      `/databases/${database._id}/collections/${collection._id}/${validPost.body.record._id}/`,
-    );
-    expect(validPost.statusCode).to.eql(200);
-    expect(validPost.body.record.customProperties.email).to.eql(initialEmail);
-    expect(validPost.body.record.customProperties.name).to.eql(initialName);
+      collectionId: collection._id,
+      databaseId: database._id,
+    });
 
-    // Find the Record.
-    const get = await request(
-      'get',
-      `/databases/${database._id}/collections/${collection._id}/${validPost.body.record._id}`,
-      null,
-      user,
-    );
-    expect(get.statusCode).to.eql(200);
-    expect(validPost.body.record.customProperties.email).to.eql(initialEmail);
-    expect(validPost.body.record.customProperties.name).to.eql(initialName);
+    expect(res.statusCode).to.eql(200);
+    expect(res.body.record.customProperties.email).to.eql(initialEmail);
+    expect(res.body.record.customProperties.name).to.eql(initialName);
+  });
 
-    // Update the Record.
-    const newEmail = chance.email();
-    const newName = chance.name();
-    const update = await request(
-      'put',
-      `/databases/${database._id}/collections/${collection._id}/${validPost.body.record._id}`,
-      {
+  describe('working with an existing record', function() {
+    let record: RecordDocument;
+
+    beforeEach(async function() {
+      const res = await RecordModel.create({
+        customProperties: {
+          email: chance.email(),
+          name: chance.name(),
+        },
+        collectionId: collection._id,
+        databaseId: database._id,
+      });
+
+      record = res.body.record;
+    });
+
+    it('finds the record', async function() {
+      const res = await RecordModel.findOne({
+        _id: record._id,
+        collectionId: collection._id,
+        databaseId: database._id,
+      });
+
+      expect(res.statusCode).to.eql(200);
+      expect(res.body.record.customProperties.email).to.eql(record.customProperties.email);
+      expect(res.body.record.customProperties.name).to.eql(record.customProperties.name);
+    });
+
+    it('updates the record', async function() {
+      const newEmail = chance.email();
+      const newName = chance.name();
+
+      const res = await RecordModel.update({
+        _id: record._id,
         customProperties: {
           email: newEmail,
           name: newName,
         },
-      },
-      user,
-    );
-    expect(update.statusCode).to.eql(200);
-    expect(update.body.record.customProperties.email).to.eql(newEmail);
-    expect(update.body.record.customProperties.name).to.eql(newName);
+        collectionId: collection._id,
+        databaseId: database._id,
+      });
 
-    // Delete the Record.
-    const del = await request(
-      'delete',
-      `/databases/${database._id}/collections/${collection._id}/${validPost.body.record._id}`,
-      null,
-      user,
-    );
-    expect(del.statusCode).to.eql(200);
+      expect(res.statusCode).to.eql(200);
+      expect(res.body.record.customProperties.email).to.eql(newEmail);
+      expect(res.body.record.customProperties.name).to.eql(newName);
+    });
+
+    it('deletes the record', async function() {
+      const res = await RecordModel.delete({
+        _id: record._id,
+        collectionId: collection._id,
+        databaseId: database._id,
+      });
+
+      expect(res.statusCode).to.eql(200);
+    });
   });
 });
-
-/**
- * Create a stub Collection.
- */
-async function createCollection(databaseId: string) {
-  const params = {
-    jsonSchema: {
-      type: 'object',
-      additionalProperties: false,
-      properties: {
-        email: { type: 'string' },
-        name: { type: 'string' },
-      },
-    },
-    name: chance.hash(),
-    permissions: {
-      create: { base: ['customProperties'] },
-      delete: { base: true },
-      read: { base: ['_id', 'createdAt', 'customProperties', 'updatedAt'] },
-      update: { base: ['customProperties'] },
-    },
-  };
-  const user = { activatedAt: new Date(), roles: ['Admin'] };
-
-  const response = await request('post', `/databases/${databaseId}/collections`, params, user);
-  stubCleaner.add(`/databases/${databaseId}/collections/${response.body.record._id}`);
-
-  return response;
-}
-
-/**
- * Create a stub Database.
- */
-async function createDatabase() {
-  const params = { name: chance.hash(), userId: mongoose.Types.ObjectId() };
-  const user = { activatedAt: new Date(), roles: ['Admin'] };
-
-  const response = await request('post', '/databases', params, user);
-  stubCleaner.add(`/databases/${response.body.record._id}`);
-
-  return response;
-}

@@ -1,44 +1,52 @@
 import { expect } from 'chai';
 import * as Chance from 'chance';
-import * as mongoose from 'mongoose';
 
-import { request } from './request';
+import { DatabaseModel } from './models';
 
 const chance = new Chance();
 
 describe('databases', function() {
-  it('creates, finds, updates, and deletes a database', async function() {
-    const user = { activatedAt: new Date(), roles: ['Admin'] };
+  afterEach(async function() {
+    await DatabaseModel.deleteAll();
+  });
 
-    // Create a new Database.
+  it('creates a database', async function() {
     const initialName = chance.hash();
-    const post = await request(
-      'post',
-      '/databases',
-      { name: initialName, userId: mongoose.Types.ObjectId() },
-      user,
-    );
-    expect(post.statusCode).to.eql(200);
-    expect(post.body.record.name).to.eql(initialName);
 
-    // Find the Database.
-    const get = await request('get', `/databases/${post.body.record._id}`, null, user);
-    expect(get.statusCode).to.eql(200);
-    expect(get.body.record.name).to.eql(initialName);
+    const res = await DatabaseModel.create({ name: initialName });
 
-    // Update the Database.
-    const newName = chance.hash();
-    const update = await request(
-      'put',
-      `/databases/${post.body.record._id}`,
-      { name: newName },
-      user,
-    );
-    expect(update.statusCode).to.eql(200);
-    expect(update.body.record.name).to.eql(newName);
+    expect(res.statusCode).to.eql(200);
+    expect(res.body.record.name).to.eql(initialName);
+  });
 
-    // Delete the Database.
-    const del = await request('delete', `/databases/${post.body.record._id}`, null, user);
-    expect(del.statusCode).to.eql(200);
+  describe('working with an existing database', function() {
+    let record: any;
+
+    beforeEach(async function() {
+      const res = await DatabaseModel.create();
+      record = res.body.record;
+    });
+
+    it('finds the database', async function() {
+      const res = await DatabaseModel.findOne({ _id: record._id });
+
+      expect(res.statusCode).to.eql(200);
+      expect(res.body.record.name).to.eql(record.name);
+    });
+
+    it('updates the database', async function() {
+      const updatedName = chance.hash();
+
+      const res = await DatabaseModel.update({ _id: record._id, name: updatedName });
+
+      expect(res.statusCode).to.eql(200);
+      expect(res.body.record.name).to.eql(updatedName);
+    });
+
+    it('deletes the database', async function() {
+      const del = await DatabaseModel.delete({ _id: record._id });
+
+      expect(del.statusCode).to.eql(200);
+    });
   });
 });

@@ -1,82 +1,67 @@
 import { expect } from 'chai';
 import * as Chance from 'chance';
-import * as mongoose from 'mongoose';
 
 import { DatabaseDocument } from '../src/models';
-import { request } from './request';
-import { StubCleaner } from './stub-cleaner';
+import { CollectionModel, DatabaseModel } from './models';
 
 const chance = new Chance();
-const stubCleaner = new StubCleaner();
 
 describe('collections', function() {
   let database: Partial<DatabaseDocument>;
 
-  before(async function() {
-    const res = await createDatabase();
+  beforeEach(async function() {
+    const res = await DatabaseModel.create();
     database = res.body.record;
   });
 
-  after(async function() {
-    await stubCleaner.clean();
+  afterEach(async function() {
+    await CollectionModel.deleteAll();
+    await DatabaseModel.deleteAll();
   });
 
-  it('creates, finds, updates, and deletes a collection', async function() {
-    const user = { activatedAt: new Date(), roles: ['Admin'] };
+  it('creates a collection', async function() {
+    const initialName = chance.name();
+    const res = await CollectionModel.create({
+      databaseId: database._id,
+      name: initialName,
+    });
 
-    // Create a new Collection.
-    const initialName = chance.hash();
-    const post = await request(
-      'post',
-      `/databases/${database._id}/collections`,
-      { name: initialName },
-      user,
-    );
-    stubCleaner.add(`/databases/${database._id}/collections/${post.body.record._id}`);
-    expect(post.statusCode).to.eql(200);
-    expect(post.body.record.name).to.eql(initialName);
+    expect(res.statusCode).to.eql(200);
+    expect(res.body.record.name).to.eql(initialName);
+  });
 
-    // Find the Collection.
-    const get = await request(
-      'get',
-      `/databases/${database._id}/collections/${post.body.record._id}`,
-      null,
-      user,
-    );
-    expect(get.statusCode).to.eql(200);
-    expect(get.body.record.name).to.eql(initialName);
+  describe('working with an existing collection', function() {
+    let record: any;
 
-    // Update the Collection.
-    const newName = chance.hash();
-    const update = await request(
-      'put',
-      `/databases/${database._id}/collections/${post.body.record._id}`,
-      { name: newName },
-      user,
-    );
-    expect(update.statusCode).to.eql(200);
-    expect(update.body.record.name).to.eql(newName);
+    beforeEach(async function() {
+      const res = await CollectionModel.create({ databaseId: database._id });
+      record = res.body.record;
+    });
 
-    // Delete the Collection.
-    const del = await request(
-      'delete',
-      `/databases/${database._id}/collections/${post.body.record._id}`,
-      null,
-      user,
-    );
-    expect(del.statusCode).to.eql(200);
+    it('finds the collection', async function() {
+      const res = await CollectionModel.findOne({ _id: record._id, databaseId: database._id });
+
+      expect(res.statusCode).to.eql(200);
+      expect(res.body.record.name).to.eql(record.name);
+    });
+
+    it('updates the collection', async function() {
+      const updatedName = chance.name();
+
+      const res = await CollectionModel.update({
+        _id: record._id,
+        databaseId: database._id,
+        name: updatedName,
+      });
+
+      expect(res.statusCode).to.eql(200);
+      expect(res.body.record.name).to.eql(updatedName);
+    });
+
+    it('deletes the collection', async function() {
+      const del = await CollectionModel.delete({ _id: record._id, databaseId: database._id });
+
+      expect(del.statusCode).to.eql(200);
+    });
   });
 });
-
-/**
- * Create a stub Database.
- */
-async function createDatabase() {
-  const params = { name: chance.hash(), userId: mongoose.Types.ObjectId() };
-  const user = { activatedAt: new Date(), roles: ['Admin'] };
-
-  const response = await request('post', '/databases', params, user);
-  stubCleaner.add(`/databases/${response.body.record._id}`);
-
-  return response;
-}
