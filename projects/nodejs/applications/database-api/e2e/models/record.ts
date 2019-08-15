@@ -1,10 +1,5 @@
-import * as Chance from 'chance';
-import * as mongoose from 'mongoose';
-
 import { RecordDocument } from '../../src/models';
 import { request } from '../request';
-
-const chance = new Chance();
 
 export class RecordModel {
   private static records: any[] = [];
@@ -15,7 +10,7 @@ export class RecordModel {
     }
 
     const defaults = {};
-    const path = `/databases/${params.databaseId}/collections/${params.collectionId}`;
+    const path = `/databases/${params.databaseId}/collections/${params.collectionId}/records`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
     const response = await request('post', path, { ...defaults, ...params }, user);
@@ -32,7 +27,9 @@ export class RecordModel {
       throw new Error('Missing required parameters: _id, collectionId, and databaseId.');
     }
 
-    const path = `/databases/${params.databaseId}/collections/${params.collectionId}/${params._id}`;
+    const path = `/databases/${params.databaseId}/collections/${params.collectionId}/records/${
+      params._id
+    }`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
     return request('delete', path, params, user);
@@ -47,7 +44,9 @@ export class RecordModel {
       throw new Error('Missing required parameters: _id, collectionId, and databaseId.');
     }
 
-    const path = `/databases/${params.databaseId}/collections/${params.collectionId}/${params._id}`;
+    const path = `/databases/${params.databaseId}/collections/${params.collectionId}/records/${
+      params._id
+    }`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
     return request('get', path, params, user);
@@ -58,7 +57,9 @@ export class RecordModel {
       throw new Error('Missing required parameters: _id, collectionId, and databaseId.');
     }
 
-    const path = `/databases/${params.databaseId}/collections/${params.collectionId}/${params._id}`;
+    const path = `/databases/${params.databaseId}/collections/${params.collectionId}/records/${
+      params._id
+    }`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
     return request('put', path, params, user);
