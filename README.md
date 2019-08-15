@@ -2,7 +2,7 @@
 
 ## Deploy resources to Google Cloud Platform.
 
-- Follow `README.md` inside the ./gcloud/ directory.
+- Follow `README.md` inside the ./gcp/ directory.
 
 ## Deploy Kubernetes configurations.
 
