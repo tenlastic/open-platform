@@ -8,8 +8,11 @@
   ],
   "scripts": {
     "docker": "docker-compose run --rm application npm run",
-    "docker:install": "docker-compose run --rm application npm install --save-exact",
+    "docker:install": "docker-compose run --rm application npm install",
     "lerna": "lerna"
+  },
+  "dependencies": {
+    "node-pre-gyp": "^0.13.0"
   },
   "devDependencies": {
     "@types/amqplib": "0.5.13",
@@ -66,8 +69,5 @@
     "typescript": "3.5.3",
     "watch": "1.0.2",
     "webpack": "4.21.0"
-  },
-  "dependencies": {
-    "node-pre-gyp": "^0.13.0"
   }
 }

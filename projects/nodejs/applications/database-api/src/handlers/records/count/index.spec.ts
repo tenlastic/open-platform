@@ -10,6 +10,9 @@ describe('handlers/records/count', function() {
 
   beforeEach(async function() {
     collection = await CollectionMock.create({
+      jsonSchema: {
+        bsonType: 'object',
+      },
       permissions: {
         create: {
           base: ['customProperties'],
@@ -27,7 +30,7 @@ describe('handlers/records/count', function() {
   });
 
   it('returns the number of matching records', async function() {
-    const Model = RecordSchema.getModelForClass(collection.id);
+    const Model = RecordSchema.getModelForClass(collection);
     await Model.create({ collectionId: collection.id, databaseId: collection.databaseId });
 
     const ctx = new ContextMock({

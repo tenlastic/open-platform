@@ -26,7 +26,7 @@ describe('handlers/records/delete', function() {
     });
     user = { roles: ['Admin'] };
 
-    const Model = RecordSchema.getModelForClass(collection.id);
+    const Model = RecordSchema.getModelForClass(collection);
     record = await Model.create({
       collectionId: collection.id,
       databaseId: collection.databaseId,

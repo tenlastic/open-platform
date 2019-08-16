@@ -13,6 +13,13 @@ describe('handlers/records/create', function() {
 
   beforeEach(async function() {
     collection = await CollectionMock.create({
+      jsonSchema: {
+        bsonType: 'object',
+        properties: {
+          email: { bsonType: 'string' },
+          name: { bsonType: 'string' },
+        },
+      },
       permissions: {
         create: {
           base: ['customProperties'],
@@ -45,6 +52,7 @@ describe('handlers/records/create', function() {
     await handler(ctx as any);
 
     expect(ctx.response.body.record).to.exist;
-    expect(ctx.response.body.record.customProperties).to.eql(customProperties);
+    expect(ctx.response.body.record.customProperties.email).to.eql(customProperties.email);
+    expect(ctx.response.body.record.customProperties.name).to.eql(customProperties.name);
   });
 });

@@ -11,7 +11,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError();
   }
 
-  const Model = RecordSchema.getModelForClass(collectionId.toString());
+  const Model = RecordSchema.getModelForClass(collection);
   const Permissions = new MongoosePermissions<RecordDocument>(Model, collection.permissions);
 
   const override = { collectionId, databaseId };

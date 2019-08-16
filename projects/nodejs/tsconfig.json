@@ -8,6 +8,7 @@
     "moduleResolution": "node",
     "paths": {
       "@tenlastic/change-data-capture": ["./modules/change-data-capture/src"],
+      "@tenlastic/json-schema-to-mongoose": ["./modules/json-schema-to-mongoose/src"],
       "@tenlastic/mailgun": ["./modules/mailgun/src"],
       "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],
       "@tenlastic/rabbitmq": ["./modules/rabbitmq/src"],

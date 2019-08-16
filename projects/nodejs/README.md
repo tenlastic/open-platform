@@ -3,7 +3,7 @@
 ### Getting Started
 
 - Install Docker and Docker Compose.
-- Install Lerna: `npm run docker:install lerna`.
+- Install Root Node Modules: `npm run docker:install`.
 - Bootstrap Node Modules with Lerna: `npm run docker lerna bootstrap`.
 - Run NPM scripts within Docker: `npm run docker [CMD]`.
 

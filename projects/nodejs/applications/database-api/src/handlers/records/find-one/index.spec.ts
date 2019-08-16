@@ -27,7 +27,7 @@ describe('handlers/records/find-one', function() {
   });
 
   it('returns the matching record', async function() {
-    const Model = RecordSchema.getModelForClass(collection.id);
+    const Model = RecordSchema.getModelForClass(collection);
     const record = await Model.create({
       collectionId: collection.id,
       databaseId: collection.databaseId,

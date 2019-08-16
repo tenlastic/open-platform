@@ -32,7 +32,7 @@ export class CollectionSchema extends Typegoose {
   @arrayProp({ items: IndexSchema })
   public indexes: IndexSchema[];
 
-  @prop({ _id: false, default: { type: 'object' } })
+  @prop({ _id: false, default: { bsonType: 'object' } })
   public jsonSchema: any;
 
   @prop({ required: 'true' })
