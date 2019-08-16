@@ -1,4 +1,4 @@
-import * as jsonSchemaToMongoose from '@tenlastic/json-schema-to-mongoose';
+import * as jsonSchema from '@tenlastic/json-schema';
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Ref, Typegoose, prop } from 'typegoose';
 
@@ -44,7 +44,7 @@ export class RecordSchema extends Typegoose {
   public static getModelForClass(collection: CollectionDocument) {
     const Model = new RecordSchema().getModelForClass(RecordSchema);
 
-    const customProperties = jsonSchemaToMongoose.convert(collection.jsonSchema);
+    const customProperties = jsonSchema.toMongoose(collection.jsonSchema);
     const Schema = new mongoose.Schema(
       { customProperties },
       {

@@ -1,16 +1,7 @@
 import * as mongoose from 'mongoose';
 
-const bsonTypeToMongoose = {
-  bool: Boolean,
-  date: Date,
-  decimal: mongoose.Schema.Types.Decimal128,
-  double: Number,
-  objectId: mongoose.Schema.Types.ObjectId,
-  string: String,
-};
-
 const schemaParamsToMongoose = {
-  bsonType: (value: string) => ({ type: bsonTypeToMongoose[value] }),
+  type: (value: string) => ({ type: typeToMongoose[value] }),
   default: (value: string) => ({ default: value }),
   enum: (value: any[]) => ({ enum: value }),
   maximum: (value: number) => ({ max: value }),
@@ -20,39 +11,39 @@ const schemaParamsToMongoose = {
   pattern: (value: string) => ({ match: RegExp(value) }),
 };
 
-function toMongooseParams(acc: any, [key, value]) {
-  const constructor = schemaParamsToMongoose[key];
+const typeToMongoose = {
+  boolean: Boolean,
+  date: Date,
+  number: Number,
+  string: String,
+};
 
-  if (constructor) {
-    return Object.assign(acc, constructor(value));
-  }
-
-  return acc;
-}
-
-export function convert(jsonSchema: any) {
+export function toMongoose(jsonSchema: any) {
   if (jsonSchema.constructor !== Object) {
-    throw new Error(`Unsupported JSON schema bsonType: ${jsonSchema.bsonType}.`);
+    throw new Error(`Unsupported JSON schema type: ${jsonSchema.type}.`);
   }
 
-  let typeIsDefined = 'bsonType' in jsonSchema;
+  let typeIsDate = jsonSchema.type === 'string' && jsonSchema.format === 'date-time';
+  let typeIsDefined = 'type' in jsonSchema;
 
-  if (jsonSchema.bsonType in bsonTypeToMongoose) {
+  if (typeIsDate) {
+    return Date;
+  } else if (jsonSchema.type in typeToMongoose) {
     return Object.entries(jsonSchema).reduce(toMongooseParams, {});
-  } else if (jsonSchema.bsonType === 'object') {
+  } else if (jsonSchema.type === 'object') {
     return getObjectType(jsonSchema);
-  } else if (jsonSchema.bsonType === 'array') {
+  } else if (jsonSchema.type === 'array') {
     return getArrayType(jsonSchema);
   } else if (!typeIsDefined) {
     return mongoose.Schema.Types.Mixed;
   }
 
-  throw new Error(`Unsupported JSON schema bsonType: ${jsonSchema.bsonType}.`);
+  throw new Error(`Unsupported JSON schema type: ${jsonSchema.type}.`);
 }
 
 function getArrayType(jsonSchema: any) {
   if (jsonSchema.items && Object.keys(jsonSchema.items).length > 0) {
-    return [convert(jsonSchema.items)];
+    return [toMongoose(jsonSchema.items)];
   }
 
   return [];
@@ -64,7 +55,7 @@ function getObjectType(jsonSchema: any) {
   }
 
   const converted = Object.entries(jsonSchema.properties).reduce((previousValue, [key, value]) => {
-    previousValue[key] = convert(value);
+    previousValue[key] = toMongoose(value);
     return previousValue;
   }, {});
 
@@ -90,4 +81,14 @@ function subSchemaType(parentSchema: any, subschema: any, key: any) {
   }
 
   return subschema;
+}
+
+function toMongooseParams(acc: any, [key, value]) {
+  const constructor = schemaParamsToMongoose[key];
+
+  if (constructor) {
+    return Object.assign(acc, constructor(value));
+  }
+
+  return acc;
 }

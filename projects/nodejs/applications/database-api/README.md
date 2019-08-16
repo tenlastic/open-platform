@@ -19,11 +19,12 @@
 
 The following types can be used within a Collection's JSON Schema:
 
-- **Boolean**: `{ type: 'boolean' }`
-- **Date**: `{ type: 'string', format: 'date-time }`
-- **Integer**: `{ type: 'integer' }`
-- **Number**: `{ type: 'number' }`
-- **String**: `{ type: 'string' }`
+- **Array**: `{ "type": "array", "items": { "type": "string" } }`
+- **Boolean**: `{ "type": "boolean" }`
+- **Date**: `{ "type": "string", "format": "date-time }`
+- **Number**: `{ "type": "number" }`
+- **Object**: `{ "type": "object", "properties": { "name": "string" } }`
+- **String**: `{ "type": "string" }`
 
 ### Supported Property Validation
 

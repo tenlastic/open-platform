@@ -11,9 +11,9 @@ describe('handlers/records/find', function() {
   beforeEach(async function() {
     collection = await CollectionMock.create({
       jsonSchema: {
-        bsonType: 'object',
+        type: 'object',
         properties: {
-          insertedAt: { bsonType: 'date' },
+          insertedAt: { type: 'string', format: 'date-time' },
         },
       },
       permissions: {

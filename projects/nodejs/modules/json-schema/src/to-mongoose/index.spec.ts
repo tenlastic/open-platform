@@ -1,30 +1,30 @@
 import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 
-import { convert } from './';
+import { toMongoose } from '../to-mongoose';
 
-describe('convert()', function() {
+describe('toMongoose()', function() {
   context('when the schema is invalid', function() {
     it('throws an error', function() {
-      const input = { bsonType: 'objectttt' };
-      const func = () => convert(input);
+      const input = { type: 'objectttt' };
+      const func = () => toMongoose(input);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
 
     it('throws an error', function() {
-      const input = { bsonType: 'object', properties: 'not an object' };
-      const func = () => convert(input);
+      const input = { type: 'object', properties: 'not an object' };
+      const func = () => toMongoose(input);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
 
     it('throws an error', function() {
       const input = {
-        bsonType: 'object',
-        properties: { email: { bsonType: 'not a bsonType' } },
+        type: 'object',
+        properties: { email: { type: 'not a type' } },
       };
-      const func = () => convert(input);
+      const func = () => toMongoose(input);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
@@ -33,34 +33,34 @@ describe('convert()', function() {
   context('when the schema is valid', function() {
     it('converts the schema to mongoose', function() {
       const json = {
-        bsonType: 'object',
+        type: 'object',
         properties: {
           address: {
-            bsonType: 'object',
+            type: 'object',
             properties: {
-              builtAt: { bsonType: 'date' },
-              street: { bsonType: 'double', default: 44, minimum: 0, maximum: 50 },
+              builtAt: { type: 'string', format: 'date-time' },
+              street: { type: 'number', default: 44, minimum: 0, maximum: 50 },
             },
           },
           anyValue: { a: 'b' },
           arr: {
-            bsonType: 'array',
+            type: 'array',
             items: {
-              bsonType: 'object',
-              properties: { num: { bsonType: 'double' }, str: { bsonType: 'string' } },
+              type: 'object',
+              properties: { num: { type: 'number' }, str: { type: 'string' } },
             },
           },
-          id: { bsonType: 'string', pattern: '^\\d{3}$' },
-          name: { bsonType: 'object' },
+          id: { type: 'string', pattern: '^\\d{3}$' },
+          name: { type: 'object' },
         },
       };
 
-      const result = convert(json);
+      const result = toMongoose(json);
 
       expect(result).to.eql({
         address: {
           street: { type: Number, default: 44, min: 0, max: 50 },
-          builtAt: { type: Date },
+          builtAt: Date,
         },
         anyValue: mongoose.Schema.Types.Mixed,
         arr: [

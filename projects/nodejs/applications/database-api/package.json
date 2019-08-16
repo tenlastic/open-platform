@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@tenlastic/change-data-capture": "0.0.0",
-    "@tenlastic/json-schema-to-mongoose": "0.0.0",
+    "@tenlastic/json-schema": "0.0.0",
     "@tenlastic/mongoose-permissions": "0.0.0",
     "@tenlastic/rabbitmq": "0.0.0",
     "@tenlastic/validations": "0.0.0",

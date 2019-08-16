@@ -3,4 +3,4 @@ services:
   application:
     environment:
       - MONGO_CONNECTION_STRING
-    working_dir: /usr/src/app/modules/json-schema-to-mongoose/
+    working_dir: /usr/src/app/modules/json-schema/

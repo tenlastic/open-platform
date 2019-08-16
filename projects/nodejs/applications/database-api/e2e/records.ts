@@ -20,6 +20,7 @@ describe('records', function() {
         type: 'object',
         additionalProperties: false,
         properties: {
+          age: { type: 'number' },
           email: { type: 'string' },
           name: { type: 'string' },
         },
@@ -47,7 +48,7 @@ describe('records', function() {
 
   it('does not create an invalid record', async function() {
     const res = await RecordModel.create({
-      customProperties: { age: chance.integer() },
+      customProperties: { age: chance.hash() },
       collectionId: collection._id,
       databaseId: database._id,
     });

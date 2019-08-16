@@ -11,7 +11,7 @@
   "references": [
     { "path": "../../modules/web-server/tsconfig.app.json" },
     { "path": "../../modules/change-data-capture/tsconfig.app.json" },
-    { "path": "../../modules/json-schema-to-mongoose/tsconfig.app.json" },
+    { "path": "../../modules/json-schema/tsconfig.app.json" },
     { "path": "../../modules/mongoose-permissions/tsconfig.app.json" },
     { "path": "../../modules/rabbitmq/tsconfig.app.json" },
     { "path": "../../modules/validations/tsconfig.app.json" }

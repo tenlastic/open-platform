@@ -14,10 +14,10 @@ describe('handlers/records/create', function() {
   beforeEach(async function() {
     collection = await CollectionMock.create({
       jsonSchema: {
-        bsonType: 'object',
+        type: 'object',
         properties: {
-          email: { bsonType: 'string' },
-          name: { bsonType: 'string' },
+          email: { type: 'string' },
+          name: { type: 'string' },
         },
       },
       permissions: {

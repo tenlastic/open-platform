@@ -11,7 +11,7 @@ describe('handlers/records/count', function() {
   beforeEach(async function() {
     collection = await CollectionMock.create({
       jsonSchema: {
-        bsonType: 'object',
+        type: 'object',
       },
       permissions: {
         create: {

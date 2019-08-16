@@ -1,3 +1,4 @@
+import * as jsonSchema from '@tenlastic/json-schema';
 import { IOptions } from '@tenlastic/mongoose-permissions';
 import * as mongoose from 'mongoose';
 import {
@@ -32,7 +33,7 @@ export class CollectionSchema extends Typegoose {
   @arrayProp({ items: IndexSchema })
   public indexes: IndexSchema[];
 
-  @prop({ _id: false, default: { bsonType: 'object' } })
+  @prop({ _id: false, default: { type: 'object' } })
   public jsonSchema: any;
 
   @prop({ required: 'true' })
@@ -73,7 +74,7 @@ export class CollectionSchema extends Typegoose {
           createdAt: {
             bsonType: 'date',
           },
-          customProperties: this.jsonSchema,
+          customProperties: jsonSchema.toMongo(this.jsonSchema),
           databaseId: {
             bsonType: 'objectId',
           },
