@@ -1,3 +1,5 @@
+import * as mongoose from 'mongoose';
+
 import { Context, MiddlewareCallback } from '../../';
 
 /**
@@ -8,6 +10,18 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
     await next();
   } catch (e) {
     let status = e.status || 400;
+
+    if (e.name === 'ValidationError') {
+      const errors = Object.keys(e.errors).map(key => {
+        const { kind, message, name, path, value } = e.errors[key];
+        return { kind, message, name, path, value };
+      });
+
+      ctx.response.status = status;
+      ctx.response.body = { errors };
+
+      return;
+    }
 
     if (e.message === 'User does not have permission to perform this action.') {
       status = 401;

@@ -1,9 +1,14 @@
 version: '2.1'
 services:
   application:
+    depends_on:
+      - mongo_healthcheck
     environment:
       - JWT_SECRET
       - MONGO_CONNECTION_STRING
+      - MONGO_DATABASE_NAME
+    links:
+      - mongo
     ports:
       - 3000:3000
     working_dir: /usr/src/app/applications/authentication-api/

@@ -54,9 +54,7 @@ describe('permissions', function() {
   describe('create()', function() {
     context('when user is an admin', function() {
       it('creates a new record', async function() {
-        const params = {
-          name: chance.hash(),
-        };
+        const params = { name: chance.hash() };
 
         const record = await ExamplePermissions.create(params, {}, admin);
 
@@ -68,10 +66,8 @@ describe('permissions', function() {
     });
 
     context('when user is not an admin', function() {
-      it('returns an error', async function() {
-        const params = {
-          name: chance.hash(),
-        };
+      it('throws an error', async function() {
+        const params = { name: chance.hash() };
 
         const promise = ExamplePermissions.create(params, {}, user);
 
@@ -98,7 +94,7 @@ describe('permissions', function() {
     });
 
     context('when the user is not an admin', function() {
-      it('returns an error', async function() {
+      it('throws an error', async function() {
         const promise = ExamplePermissions.delete(record, user);
 
         return expect(promise).to.be.rejectedWith(
@@ -169,9 +165,7 @@ describe('permissions', function() {
 
     context('when the user is an admin', function() {
       it('updates and returns the record', async function() {
-        const params = {
-          name: chance.hash(),
-        };
+        const params = { name: chance.hash() };
 
         record = await ExamplePermissions.update(record, params, {}, admin);
 
@@ -183,10 +177,8 @@ describe('permissions', function() {
     });
 
     context('when the user is not an admin', function() {
-      it('returns an error', async function() {
-        const params = {
-          name: chance.hash(),
-        };
+      it('throws an error', async function() {
+        const params = { name: chance.hash() };
 
         const promise = ExamplePermissions.update(record, params, {}, user);
 

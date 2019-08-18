@@ -24,6 +24,7 @@ describe('records', function() {
           email: { type: 'string' },
           name: { type: 'string' },
         },
+        required: ['email', 'name'],
       },
       name: chance.hash(),
       permissions: {
@@ -54,6 +55,11 @@ describe('records', function() {
     });
 
     expect(res.statusCode).to.eql(400);
+    expect(res.body.errors[0].name).to.eql('CastError');
+    expect(res.body.errors[1].name).to.eql('ValidatorError');
+    expect(res.body.errors[1].path).to.eql('customProperties.name');
+    expect(res.body.errors[2].name).to.eql('ValidatorError');
+    expect(res.body.errors[2].path).to.eql('customProperties.email');
   });
 
   it('creates create a valid record', async function() {
@@ -99,6 +105,22 @@ describe('records', function() {
       expect(res.statusCode).to.eql(200);
       expect(res.body.record.customProperties.email).to.eql(record.customProperties.email);
       expect(res.body.record.customProperties.name).to.eql(record.customProperties.name);
+    });
+
+    it('does not update a record with invalid values', async function() {
+      const res = await RecordModel.update({
+        _id: record._id,
+        customProperties: { age: chance.hash() },
+        collectionId: collection._id,
+        databaseId: database._id,
+      });
+
+      expect(res.statusCode).to.eql(400);
+      expect(res.body.errors[0].name).to.eql('CastError');
+      expect(res.body.errors[1].name).to.eql('ValidatorError');
+      expect(res.body.errors[1].path).to.eql('customProperties.email');
+      expect(res.body.errors[2].name).to.eql('ValidatorError');
+      expect(res.body.errors[2].path).to.eql('customProperties.name');
     });
 
     it('updates the record', async function() {

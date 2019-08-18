@@ -1,13 +1,7 @@
 version: '2.1'
 services:
   application:
-    depends_on:
-      - mongo_healthcheck
-      - rabbitmq
     image: node:10
-    links:
-      - mongo
-      - rabbitmq
     volumes:
       - ./:/usr/src/app/
     working_dir: /usr/src/app/

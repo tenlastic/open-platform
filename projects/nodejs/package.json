@@ -15,6 +15,7 @@
     "node-pre-gyp": "^0.13.0"
   },
   "devDependencies": {
+    "@types/ajv": "1.0.0",
     "@types/amqplib": "0.5.13",
     "@types/aws-lambda": "8.10.23",
     "@types/bcrypt": "3.0.0",

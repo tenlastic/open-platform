@@ -45,7 +45,7 @@ export type ExampleDocument = InstanceType<ExampleSchema>;
 export type ExampleModel = ModelType<ExampleSchema>;
 export const Example = new ExampleSchema().getModelForClass(ExampleSchema, {
   schemaOptions: {
-    collection: 'rests',
+    collection: 'examples',
     timestamps: true,
   },
 });

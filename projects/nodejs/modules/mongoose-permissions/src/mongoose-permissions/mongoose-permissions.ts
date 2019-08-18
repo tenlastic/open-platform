@@ -85,7 +85,7 @@ export class MongoosePermissions<TDocument extends Document> {
 
     // Create record with authorized attributes
     const filteredParams = this.filterObject(params, createPermissions);
-    const record = await this.Model.create({ ...filteredParams, ...(override as any) });
+    const record = await this.Model.create({ ...filteredParams, ...override });
 
     // Filter unauthorized attributes
     const readPermissions = await this.readPermissions(record, user);
