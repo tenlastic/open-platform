@@ -181,16 +181,20 @@ export class MongoosePermissions<TDocument extends Document> {
 
   public async findPermissions(user: any) {
     if (!this.options.find) {
-      return {};
+      return null;
     }
 
-    const query = this.options.find.base || {};
+    const query = this.options.find.base;
 
     const role = this.getRole(null, user);
     const roles = this.options.find.roles;
-    const roleAttributes = roles && roles[role] ? roles[role] : {};
+    const roleAttributes = roles ? roles[role] : undefined;
 
-    return Object.assign(query, roleAttributes);
+    if (roleAttributes === null || (roleAttributes === undefined && !query)) {
+      return null;
+    }
+
+    return Object.assign(query || {}, roleAttributes || {});
   }
 
   /**
@@ -272,6 +276,10 @@ export class MongoosePermissions<TDocument extends Document> {
    */
   public async where(where: any, user: any) {
     const query = await this.findPermissions(user);
+
+    if (query === null) {
+      throw new Error('User does not have permission to perform this action.');
+    }
 
     if (!where) {
       return query;

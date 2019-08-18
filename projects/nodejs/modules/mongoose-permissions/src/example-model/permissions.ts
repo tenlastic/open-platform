@@ -14,9 +14,7 @@ export const ExamplePermissions = new MongoosePermissions<ExampleDocument>(Examp
   },
   find: {
     roles: {
-      default: {
-        name: { $ne: null },
-      },
+      admin: {},
     },
   },
   populate: { path: 'parent' },

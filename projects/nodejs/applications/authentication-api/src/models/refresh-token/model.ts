@@ -30,6 +30,7 @@ export const RefreshToken = new RefreshTokenSchema().getModelForClass(RefreshTok
   schemaOptions: {
     autoIndex: false,
     collection: 'refreshtokens',
+    minimize: false,
     timestamps: true,
   },
 });

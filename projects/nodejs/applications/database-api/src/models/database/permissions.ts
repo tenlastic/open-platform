@@ -14,6 +14,7 @@ export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Dat
     },
   },
   find: {
+    base: {},
     roles: {
       default: {
         userId: { $ref: 'user._id' },

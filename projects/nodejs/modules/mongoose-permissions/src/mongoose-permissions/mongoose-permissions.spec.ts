@@ -43,10 +43,12 @@ describe('permissions', function() {
     });
 
     context('when user is not an admin', function() {
-      it('returns accessible records', async function() {
-        const results = await ExamplePermissions.count({}, {}, user);
+      it('throws an error', async function() {
+        const promise = ExamplePermissions.count({}, {}, user);
 
-        expect(results).to.eql(1);
+        return expect(promise).to.be.rejectedWith(
+          'User does not have permission to perform this action.',
+        );
       });
     });
   });
@@ -118,10 +120,12 @@ describe('permissions', function() {
     });
 
     context('when user is not an admin', function() {
-      it('returns accessible records', async function() {
-        const results = await ExamplePermissions.find({}, {}, user);
+      it('throws an error', async function() {
+        const promise = ExamplePermissions.find({}, {}, user);
 
-        expect(results.length).to.eql(1);
+        return expect(promise).to.be.rejectedWith(
+          'User does not have permission to perform this action.',
+        );
       });
     });
   });
@@ -199,10 +203,12 @@ describe('permissions', function() {
     });
 
     context('when the user is not an admin', function() {
-      it('returns a valid where query', async function() {
-        const query = await ExamplePermissions.where({}, user);
+      it('throws an error', async function() {
+        const promise = ExamplePermissions.where({}, user);
 
-        expect(query.name).to.eql({ $ne: null });
+        return expect(promise).to.be.rejectedWith(
+          'User does not have permission to perform this action.',
+        );
       });
     });
   });

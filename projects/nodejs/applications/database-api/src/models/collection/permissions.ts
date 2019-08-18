@@ -13,7 +13,9 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
       admin: true,
     },
   },
-  find: {},
+  find: {
+    base: {},
+  },
   populate: { path: 'databaseDocument' },
   read: {
     base: [

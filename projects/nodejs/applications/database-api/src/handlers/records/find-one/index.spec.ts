@@ -15,7 +15,9 @@ describe('handlers/records/find-one', function() {
           base: ['customProperties'],
         },
         delete: {},
-        find: {},
+        find: {
+          base: {},
+        },
         read: {
           base: ['_id', 'createdAt', 'customProperties', 'updatedAt'],
         },

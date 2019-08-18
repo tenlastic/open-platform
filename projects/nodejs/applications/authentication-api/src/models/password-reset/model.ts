@@ -37,6 +37,7 @@ export const PasswordReset = new PasswordResetSchema().getModelForClass(Password
   schemaOptions: {
     autoIndex: false,
     collection: 'passwordresets',
+    minimize: false,
     timestamps: true,
   },
 });

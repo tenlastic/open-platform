@@ -50,6 +50,7 @@ export class RecordSchema extends Typegoose {
       {
         autoIndex: false,
         collection: collection._id.toString(),
+        minimize: false,
         timestamps: true,
       },
     );

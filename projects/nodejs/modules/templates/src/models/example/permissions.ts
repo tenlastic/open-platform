@@ -1,11 +1,13 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { Example, ExampleDocument, ExampleModel } from './model';
+import { Example, ExampleDocument } from './model';
 
 export const ExamplePermissions = new MongoosePermissions<ExampleDocument>(Example, {
   create: {},
   delete: {},
-  find: {},
+  find: {
+    base: {},
+  },
   read: {
     base: ['_id', 'createdAt', 'updatedAt'],
   },

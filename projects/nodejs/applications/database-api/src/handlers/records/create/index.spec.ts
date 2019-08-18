@@ -25,7 +25,9 @@ describe('handlers/records/create', function() {
           base: ['customProperties'],
         },
         delete: {},
-        find: {},
+        find: {
+          base: {},
+        },
         read: {
           base: ['_id', 'createdAt', 'customProperties', 'updatedAt'],
         },

@@ -30,7 +30,9 @@ describe('records', function() {
       permissions: {
         create: { base: ['customProperties'] },
         delete: { base: true },
-        find: {},
+        find: {
+          base: {},
+        },
         read: {
           base: ['_id', 'collectionId', 'createdAt', 'customProperties', 'databaseId', 'updatedAt'],
         },

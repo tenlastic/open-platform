@@ -138,6 +138,7 @@ export const User = new UserSchema().getModelForClass(UserSchema, {
       strength: 1,
     },
     collection: 'users',
+    minimize: false,
     timestamps: true,
   },
 });

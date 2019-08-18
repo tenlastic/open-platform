@@ -17,7 +17,9 @@ describe('handlers/records/update', function() {
       permissions: {
         create: {},
         delete: {},
-        find: {},
+        find: {
+          base: {},
+        },
         read: {
           base: ['_id', 'createdAt', 'customProperties', 'updatedAt'],
         },

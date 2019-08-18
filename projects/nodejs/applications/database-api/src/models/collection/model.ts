@@ -116,6 +116,7 @@ export const Collection = new CollectionSchema().getModelForClass(CollectionSche
   schemaOptions: {
     autoIndex: false,
     collection: 'collections',
+    minimize: false,
     timestamps: true,
   },
 });

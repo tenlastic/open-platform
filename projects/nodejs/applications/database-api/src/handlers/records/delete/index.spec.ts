@@ -16,7 +16,9 @@ describe('handlers/records/delete', function() {
         delete: {
           base: true,
         },
-        find: {},
+        find: {
+          base: {},
+        },
         read: {
           base: ['_id', 'createdAt', 'customProperties', 'updatedAt'],
         },

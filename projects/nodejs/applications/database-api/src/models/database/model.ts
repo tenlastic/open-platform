@@ -20,6 +20,7 @@ export const Database = new DatabaseSchema().getModelForClass(DatabaseSchema, {
   schemaOptions: {
     autoIndex: false,
     collection: 'databases',
+    minimize: false,
     timestamps: true,
   },
 });
