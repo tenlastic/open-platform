@@ -1,5 +1,3 @@
-import * as mongoose from 'mongoose';
-
 import { Context, MiddlewareCallback } from '../../';
 
 /**
