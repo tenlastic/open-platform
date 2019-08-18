@@ -61,6 +61,7 @@ export class UserSchema extends Typegoose {
   public createdAt: Date;
 
   @prop({
+    lowercase: true,
     required: true,
     trim: true,
     validate: [emailValidator],

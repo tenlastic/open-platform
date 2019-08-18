@@ -11,7 +11,7 @@ export async function handler(ctx: Context) {
     throw new Error('Missing required parameters: email.');
   }
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email: email.toLowerCase() });
 
   if (user) {
     const expiresAt = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
