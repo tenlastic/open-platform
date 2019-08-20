@@ -1,5 +1,6 @@
-import { Context, ContextMock } from '@tenlastic/web-server';
+import { PermissionError } from '@tenlastic/mongoose-permissions';
 import * as rabbitmq from '@tenlastic/rabbitmq';
+import { Context, ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as mongoose from 'mongoose';
@@ -29,7 +30,7 @@ describe('handlers/indexes/delete', function() {
 
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejectedWith('Collection not found.');
+      return expect(promise).to.be.rejectedWith(RecordNotFoundError, 'Collection not found.');
     });
   });
 
@@ -48,9 +49,7 @@ describe('handlers/indexes/delete', function() {
 
         const promise = handler(ctx as any);
 
-        return expect(promise).to.be.rejectedWith(
-          'User does not have permission to perform this action.',
-        );
+        return expect(promise).to.be.rejectedWith(PermissionError);
       });
     });
 
@@ -76,7 +75,7 @@ describe('handlers/indexes/delete', function() {
 
           const promise = handler(ctx as any);
 
-          return expect(promise).to.be.rejectedWith('Index not found.');
+          return expect(promise).to.be.rejectedWith(RecordNotFoundError, 'Index not found.');
         });
       });
 

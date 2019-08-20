@@ -9,23 +9,26 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
   } catch (e) {
     let status = e.status || 400;
 
-    if (e.name === 'ValidationError') {
-      const errors = Object.keys(e.errors).map(key => {
-        const { kind, message, name, path, value } = e.errors[key];
-        return { kind, message, name, path, value };
-      });
+    switch (e.name) {
+      case 'PermissionError':
+        ctx.response.status = 401;
+        ctx.response.body = { error: e.message };
+        break;
 
-      ctx.response.status = status;
-      ctx.response.body = { errors };
+      case 'ValidationError':
+        const errors = Object.keys(e.errors).map(key => {
+          const { kind, message, name, path, value } = e.errors[key];
+          return { kind, message, name, path, value };
+        });
 
-      return;
+        ctx.response.status = status;
+        ctx.response.body = { errors };
+        break;
+
+      default:
+        ctx.response.status = status;
+        ctx.response.body = { error: e.message };
+        break;
     }
-
-    if (e.message === 'User does not have permission to perform this action.') {
-      status = 401;
-    }
-
-    ctx.response.status = status;
-    ctx.response.body = { error: e.message };
   }
 }

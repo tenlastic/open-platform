@@ -10,7 +10,7 @@ export async function handler(ctx: Context) {
   const result = await UserPermissions.findOne({}, query, ctx.state.user);
 
   if (!result) {
-    throw new RecordNotFoundError();
+    throw new RecordNotFoundError('User');
   }
 
   ctx.response.body = { record: result };

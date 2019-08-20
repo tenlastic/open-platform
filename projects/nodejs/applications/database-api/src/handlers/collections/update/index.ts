@@ -8,7 +8,7 @@ export async function handler(ctx: Context) {
   );
 
   if (!record) {
-    throw new RecordNotFoundError();
+    throw new RecordNotFoundError('Collection');
   }
 
   const override = { databaseId: ctx.params.databaseId };

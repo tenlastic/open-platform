@@ -8,7 +8,7 @@ export async function handler(ctx: Context) {
 
   const collection = await Collection.findOne({ _id: collectionId });
   if (!collection) {
-    throw new RecordNotFoundError();
+    throw new RecordNotFoundError('Collection');
   }
 
   const Model = RecordSchema.getModelForClass(collection);
@@ -18,7 +18,7 @@ export async function handler(ctx: Context) {
   const record = await Model.findOne(query).populate(Permissions.populateOptions);
 
   if (!record) {
-    throw new RecordNotFoundError();
+    throw new RecordNotFoundError('Record');
   }
 
   const result = await Permissions.update(record, ctx.request.body, {}, ctx.state.user);

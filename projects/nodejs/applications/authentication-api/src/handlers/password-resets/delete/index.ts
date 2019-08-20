@@ -1,4 +1,4 @@
-import { Context } from '@tenlastic/web-server';
+import { Context, RequiredFieldError } from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
 
 import { PasswordReset, RefreshToken, User } from '../../../models';
@@ -8,7 +8,7 @@ export async function handler(ctx: Context) {
 
   const { password } = ctx.request.body;
   if (!password) {
-    throw new Error('Missing required parameters: password.');
+    throw new RequiredFieldError(['password']);
   }
 
   const session = await mongoose.startSession();
@@ -20,7 +20,9 @@ export async function handler(ctx: Context) {
 
     // Update the User's password.
     const passwordHash = await User.hashPassword(password);
-    await User.findOneAndUpdate({ _id: passwordReset.userId }, { password: passwordHash }).session(session);
+    await User.findOneAndUpdate({ _id: passwordReset.userId }, { password: passwordHash }).session(
+      session,
+    );
 
     // Remove all User's RefreshTokens to prevent malicious logins.
     await RefreshToken.deleteMany({ userId: passwordReset.userId }).session(session);

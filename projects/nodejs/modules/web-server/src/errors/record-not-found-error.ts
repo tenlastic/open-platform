@@ -1,5 +1,7 @@
 export class RecordNotFoundError extends Error {
-  constructor() {
-    super('Record not found.');
+  constructor(name?: string) {
+    super(`${name ? name : 'Record'} not found.`);
+
+    this.name = 'RecordNotFoundError';
   }
 }

@@ -1,4 +1,4 @@
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, RequiredFieldError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
@@ -23,7 +23,10 @@ describe('handlers/logins/refresh-token', function() {
 
       const promise = handler(ctx);
 
-      return expect(promise).to.be.rejectedWith('Missing required parameters: token.');
+      return expect(promise).to.be.rejectedWith(
+        RequiredFieldError,
+        'Missing required field: token.',
+      );
     });
   });
 

@@ -7,7 +7,7 @@ export async function handler(ctx: Context) {
   const result = await CollectionPermissions.findOne({}, override, ctx.state.user);
 
   if (!result) {
-    throw new RecordNotFoundError();
+    throw new RecordNotFoundError('Collection');
   }
 
   ctx.response.body = { record: result };

@@ -8,7 +8,7 @@ export async function handler(ctx: Context) {
 
   const collection = await Collection.findOne({ _id: collectionId });
   if (!collection) {
-    throw new RecordNotFoundError();
+    throw new RecordNotFoundError('Collection');
   }
 
   const Model = RecordSchema.getModelForClass(collection);
@@ -18,7 +18,7 @@ export async function handler(ctx: Context) {
   const result = await Permissions.findOne({}, override, ctx.state.user);
 
   if (!result) {
-    throw new RecordNotFoundError();
+    throw new RecordNotFoundError('Record');
   }
 
   ctx.response.body = { record: result };

@@ -45,6 +45,14 @@ export interface IRole {
   query: any;
 }
 
+export class PermissionError extends Error {
+  constructor() {
+    super('User does not have permission to perform this action.');
+
+    this.name = 'PermissionError';
+  }
+}
+
 export class MongoosePermissions<TDocument extends Document> {
   public populateOptions: IPopulate;
 
@@ -80,7 +88,7 @@ export class MongoosePermissions<TDocument extends Document> {
     const createPermissions = await this.createPermissions(user);
 
     if (createPermissions.length === 0) {
-      throw new Error('User does not have permission to perform this action.');
+      throw new PermissionError();
     }
 
     // Create record with authorized attributes
@@ -115,7 +123,7 @@ export class MongoosePermissions<TDocument extends Document> {
     const removePermissions = await this.deletePermissions(record, user);
 
     if (!removePermissions) {
-      throw new Error('User does not have permission to perform this action.');
+      throw new PermissionError();
     }
 
     record = await record.remove();
@@ -206,7 +214,7 @@ export class MongoosePermissions<TDocument extends Document> {
     const readPermissions = await this.readPermissions(record, user);
 
     if (readPermissions.length === 0) {
-      throw new Error('User does not have permission to perform this action.');
+      throw new PermissionError();
     }
 
     return this.filterRecord(record, readPermissions);
@@ -242,7 +250,7 @@ export class MongoosePermissions<TDocument extends Document> {
     const updatePermissions = await this.updatePermissions(record, user);
 
     if (updatePermissions.length === 0) {
-      throw new Error('User does not have permission to perform this action.');
+      throw new PermissionError();
     }
 
     // Update record with authorized fields
@@ -278,7 +286,7 @@ export class MongoosePermissions<TDocument extends Document> {
     const query = await this.findPermissions(user);
 
     if (query === null) {
-      throw new Error('User does not have permission to perform this action.');
+      throw new PermissionError();
     }
 
     if (!where) {

@@ -8,7 +8,7 @@ export async function handler(ctx: Context) {
 
   const collection = await Collection.findOne({ _id: collectionId });
   if (!collection) {
-    throw new RecordNotFoundError();
+    throw new RecordNotFoundError('Collection');
   }
 
   const Model = RecordSchema.getModelForClass(collection);

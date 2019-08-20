@@ -8,7 +8,7 @@ export async function handler(ctx: Context) {
   );
 
   if (!record) {
-    throw new RecordNotFoundError();
+    throw new RecordNotFoundError('User');
   }
 
   const result = await UserPermissions.update(record, ctx.request.body, {}, ctx.state.user);

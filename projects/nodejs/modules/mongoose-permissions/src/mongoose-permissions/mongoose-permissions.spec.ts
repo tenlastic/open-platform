@@ -5,6 +5,7 @@ import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 
 import { Example, ExampleDocument, ExamplePermissions } from '../example-model';
+import { PermissionError } from './mongoose-permissions';
 
 const chance = new Chance();
 const expect = chai.expect;
@@ -46,9 +47,7 @@ describe('permissions', function() {
       it('throws an error', async function() {
         const promise = ExamplePermissions.count({}, {}, user);
 
-        return expect(promise).to.be.rejectedWith(
-          'User does not have permission to perform this action.',
-        );
+        return expect(promise).to.be.rejectedWith(PermissionError);
       });
     });
   });
@@ -73,9 +72,7 @@ describe('permissions', function() {
 
         const promise = ExamplePermissions.create(params, {}, user);
 
-        return expect(promise).to.be.rejectedWith(
-          'User does not have permission to perform this action.',
-        );
+        return expect(promise).to.be.rejectedWith(PermissionError);
       });
     });
   });
@@ -99,9 +96,7 @@ describe('permissions', function() {
       it('throws an error', async function() {
         const promise = ExamplePermissions.delete(record, user);
 
-        return expect(promise).to.be.rejectedWith(
-          'User does not have permission to perform this action.',
-        );
+        return expect(promise).to.be.rejectedWith(PermissionError);
       });
     });
   });
@@ -123,9 +118,7 @@ describe('permissions', function() {
       it('throws an error', async function() {
         const promise = ExamplePermissions.find({}, {}, user);
 
-        return expect(promise).to.be.rejectedWith(
-          'User does not have permission to perform this action.',
-        );
+        return expect(promise).to.be.rejectedWith(PermissionError);
       });
     });
   });
@@ -186,9 +179,7 @@ describe('permissions', function() {
 
         const promise = ExamplePermissions.update(record, params, {}, user);
 
-        return expect(promise).to.be.rejectedWith(
-          'User does not have permission to perform this action.',
-        );
+        return expect(promise).to.be.rejectedWith(PermissionError);
       });
     });
   });
@@ -206,9 +197,7 @@ describe('permissions', function() {
       it('throws an error', async function() {
         const promise = ExamplePermissions.where({}, user);
 
-        return expect(promise).to.be.rejectedWith(
-          'User does not have permission to perform this action.',
-        );
+        return expect(promise).to.be.rejectedWith(PermissionError);
       });
     });
   });

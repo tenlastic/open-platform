@@ -1,4 +1,4 @@
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, RequiredFieldError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
@@ -37,7 +37,10 @@ describe('handlers/password-resets/delete', function() {
 
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejectedWith('Missing required parameters: password.');
+      return expect(promise).to.be.rejectedWith(
+        RequiredFieldError,
+        'Missing required field: password.',
+      );
     });
   });
 

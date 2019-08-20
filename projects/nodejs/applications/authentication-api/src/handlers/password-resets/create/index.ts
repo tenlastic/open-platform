@@ -1,4 +1,4 @@
-import { Context } from '@tenlastic/web-server';
+import { Context, RequiredFieldError } from '@tenlastic/web-server';
 import * as Chance from 'chance';
 
 import { PasswordReset, User } from '../../../models';
@@ -8,7 +8,7 @@ const chance = new Chance();
 export async function handler(ctx: Context) {
   const { email } = ctx.request.body;
   if (!email) {
-    throw new Error('Missing required parameters: email.');
+    throw new RequiredFieldError(['email']);
   }
 
   const user = await User.findOne({ email: email.toLowerCase() });

@@ -8,7 +8,7 @@ export async function handler(ctx: Context) {
   );
 
   if (!record) {
-    throw new RecordNotFoundError();
+    throw new RecordNotFoundError('Example');
   }
 
   const result = await ExamplePermissions.delete(record, ctx.state.user);

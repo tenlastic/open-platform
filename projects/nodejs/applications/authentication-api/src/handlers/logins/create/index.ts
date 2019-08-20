@@ -1,4 +1,4 @@
-import { Context } from '@tenlastic/web-server';
+import { Context, RequiredFieldError } from '@tenlastic/web-server';
 
 import { User } from '../../../models';
 
@@ -6,7 +6,7 @@ export async function handler(ctx: Context) {
   const { email, password } = ctx.request.body;
 
   if (!email || !password) {
-    throw new Error('Missing required parameters: email and password.');
+    throw new RequiredFieldError(['email', 'password']);
   }
 
   const user = await User.findOne({ email: email.toLowerCase() });

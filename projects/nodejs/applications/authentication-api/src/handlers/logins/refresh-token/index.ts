@@ -1,4 +1,4 @@
-import { Context } from '@tenlastic/web-server';
+import { Context, RequiredFieldError } from '@tenlastic/web-server';
 import * as jwt from 'jsonwebtoken';
 
 import { RefreshToken, User } from '../../../models';
@@ -7,7 +7,7 @@ export async function handler(ctx: Context) {
   const { token } = ctx.request.body;
 
   if (!token) {
-    throw new Error('Missing required parameters: token.');
+    throw new RequiredFieldError(['token']);
   }
 
   let decodedToken: any;

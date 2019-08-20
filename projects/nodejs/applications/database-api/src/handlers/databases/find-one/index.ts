@@ -7,7 +7,7 @@ export async function handler(ctx: Context) {
   const result = await DatabasePermissions.findOne({}, override, ctx.state.user);
 
   if (!result) {
-    throw new RecordNotFoundError();
+    throw new RecordNotFoundError('Database');
   }
 
   ctx.response.body = { record: result };

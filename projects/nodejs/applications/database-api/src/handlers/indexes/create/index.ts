@@ -1,5 +1,6 @@
-import { Context } from '@tenlastic/web-server';
+import { PermissionError } from '@tenlastic/mongoose-permissions';
 import * as rabbitmq from '@tenlastic/rabbitmq';
+import { Context, RecordNotFoundError, RequiredFieldError } from '@tenlastic/web-server';
 
 import { CollectionPermissions, Index } from '../../../models';
 import { CREATE_COLLECTION_INDEX_QUEUE } from '../../../workers';
@@ -14,7 +15,7 @@ export async function handler(ctx: Context) {
 
   const collections = await CollectionPermissions.find({}, override, ctx.state.user);
   if (collections.length === 0) {
-    throw new Error('Collection not found.');
+    throw new RecordNotFoundError('Collection');
   }
 
   const collection = collections[0];
@@ -23,12 +24,12 @@ export async function handler(ctx: Context) {
     ctx.state.user,
   );
   if (!updatePermissions.includes('indexes')) {
-    throw new Error('User does not have permission to perform this action.');
+    throw new PermissionError();
   }
 
   const { key, options } = ctx.request.body;
   if (!key) {
-    throw new Error('Missing required fields: key.');
+    throw new RequiredFieldError(['key']);
   }
 
   const msg = new Index({
