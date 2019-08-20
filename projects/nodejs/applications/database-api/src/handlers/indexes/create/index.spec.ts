@@ -5,6 +5,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as mongoose from 'mongoose';
 
 import { CollectionMock, CollectionSchema, DatabaseMock } from '../../../models';
+import { CREATE_COLLECTION_INDEX_QUEUE } from '../../../workers';
 import { handler } from './';
 
 use(chaiAsPromised);
@@ -95,7 +96,7 @@ describe('handlers/indexes/create', function() {
         });
 
         afterEach(async function() {
-          await rabbitmq.purge(CollectionSchema.CREATE_INDEX_QUEUE);
+          await rabbitmq.purge(CREATE_COLLECTION_INDEX_QUEUE);
         });
 
         it('returns a 200 status code', async function() {
@@ -104,7 +105,7 @@ describe('handlers/indexes/create', function() {
 
         it('adds the request to RabbitMQ', async function() {
           return new Promise(resolve => {
-            rabbitmq.consume(CollectionSchema.CREATE_INDEX_QUEUE, (channel, content, msg) => {
+            rabbitmq.consume(CREATE_COLLECTION_INDEX_QUEUE, (channel, content, msg) => {
               expect(content.key).to.eql({ properties: 1 });
 
               resolve();

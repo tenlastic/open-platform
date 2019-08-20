@@ -1,47 +1,41 @@
+import * as rabbitmq from '@tenlastic/rabbitmq';
 import { Channel, ConsumeMessage } from 'amqplib';
 import * as mongoose from 'mongoose';
 
-import { Collection, IndexKey, IndexOptions } from '../../models';
+import { Collection, Index, IndexDocument } from '../../models';
 
-export interface CreateCollectionIndexMessage {
-  collectionId: string;
-  databaseId: string;
-  indexId: string;
-  key: IndexKey;
-  options: IndexOptions;
-}
+export const CREATE_COLLECTION_INDEX_QUEUE = 'create-collection-index';
 
 export async function createCollectionIndexWorker(
   channel: Channel,
-  content: CreateCollectionIndexMessage,
+  content: Partial<IndexDocument>,
   msg: ConsumeMessage,
 ) {
   try {
-    const { collectionId, indexId, key, options } = content;
+    const index = new Index(content);
 
     // Create the index within MongoDB.
-    const collection = collectionId.toString();
-    await mongoose.connection.db.collection(collection).createIndex(key, {
-      ...options,
+    await mongoose.connection.db.collection(index.collectionId.toString()).createIndex(index.key, {
+      ...index.options,
       background: true,
-      name: indexId,
+      name: index.id,
     });
 
     // Save the index information to the Collection document.
     await Collection.findOneAndUpdate(
       {
-        _id: collectionId,
-        'indexes._id': { $ne: indexId },
+        _id: index.collectionId,
+        'indexes._id': { $ne: index.id },
       },
       {
         $push: {
-          indexes: { _id: indexId, key, options },
+          indexes: index,
         },
       },
     );
 
     channel.ack(msg);
   } catch (e) {
-    channel.nack(msg);
+    rabbitmq.requeue(channel, msg, { delay: 30 * 1000 });
   }
 }

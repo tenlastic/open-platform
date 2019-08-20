@@ -1,38 +1,34 @@
+import * as rabbitmq from '@tenlastic/rabbitmq';
 import { Channel, ConsumeMessage } from 'amqplib';
 import * as mongoose from 'mongoose';
 
-import { Collection } from '../../models';
+import { Collection, Index, IndexDocument } from '../../models';
 
-export interface DeleteCollectionIndexMessage {
-  collectionId: string;
-  databaseId: string;
-  indexId: string;
-}
+export const DELETE_COLLECTION_INDEX_QUEUE = 'delete-collection-index';
 
 export async function deleteCollectionIndexWorker(
   channel: Channel,
-  content: DeleteCollectionIndexMessage,
+  content: Partial<IndexDocument>,
   msg: ConsumeMessage,
 ) {
   try {
-    const { collectionId, indexId } = content;
+    const index = new Index(content);
 
     // Drop the index within MongoDB.
-    const collection = collectionId.toString();
-    await mongoose.connection.db.collection(collection).dropIndex(indexId);
+    await mongoose.connection.db.collection(index.collectionId.toString()).dropIndex(index.id);
 
     // Remove the index information from the Collection document.
     await Collection.findOneAndUpdate(
-      { _id: collectionId },
+      { _id: index.collectionId },
       {
         $pull: {
-          indexes: { _id: indexId },
+          indexes: { _id: index._id },
         },
       },
     );
 
     channel.ack(msg);
   } catch (e) {
-    channel.nack(msg);
+    rabbitmq.requeue(channel, msg, { delay: 30 * 1000 });
   }
 }

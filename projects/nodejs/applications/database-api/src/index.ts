@@ -10,7 +10,12 @@ import { router as databasesRouter } from './handlers/databases';
 import { router as indexesRouter } from './handlers/indexes';
 import { router as recordsRouter } from './handlers/records';
 import { CollectionSchema } from './models';
-import { createCollectionIndexWorker, deleteCollectionIndexWorker } from './workers';
+import {
+  CREATE_COLLECTION_INDEX_QUEUE,
+  DELETE_COLLECTION_INDEX_QUEUE,
+  createCollectionIndexWorker,
+  deleteCollectionIndexWorker,
+} from './workers';
 
 mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
   dbName: process.env.MONGO_DATABASE_NAME,
@@ -21,8 +26,8 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
 
 (async () => {
   await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
-  rabbitmq.consume(CollectionSchema.CREATE_INDEX_QUEUE, createCollectionIndexWorker);
-  rabbitmq.consume(CollectionSchema.DELETE_INDEX_QUEUE, deleteCollectionIndexWorker);
+  rabbitmq.consume(CREATE_COLLECTION_INDEX_QUEUE, createCollectionIndexWorker);
+  rabbitmq.consume(DELETE_COLLECTION_INDEX_QUEUE, deleteCollectionIndexWorker);
 })();
 
 const webServer = new WebServer();

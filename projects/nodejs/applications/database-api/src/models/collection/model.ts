@@ -21,9 +21,6 @@ import { IndexSchema } from '../index/model';
   await this.setValidator();
 })
 export class CollectionSchema extends Typegoose {
-  public static readonly CREATE_INDEX_QUEUE = 'create-collection-index';
-  public static readonly DELETE_INDEX_QUEUE = 'delete-collection-index';
-
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 

@@ -16,6 +16,7 @@ describe('publish', function() {
     return new Promise(resolve => {
       consume(queue, (channel, content, msg) => {
         expect(content.key).to.eql('value');
+        expect(msg.properties.headers['x-original-queue']).to.eql(queue);
 
         resolve();
       });

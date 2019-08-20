@@ -4,7 +4,8 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as mongoose from 'mongoose';
 
-import { CollectionMock, CollectionSchema, DatabaseMock } from '../../../models';
+import { CollectionMock, DatabaseMock, Index } from '../../../models';
+import { DELETE_COLLECTION_INDEX_QUEUE } from '../../../workers';
 import { handler } from './';
 
 use(chaiAsPromised);
@@ -54,45 +55,73 @@ describe('handlers/indexes/delete', function() {
     });
 
     context('when the user has permission', function() {
-      let ctx: Context;
-
-      beforeEach(async function() {
-        const database = await DatabaseMock.create({ userId: user._id });
-        const collection = await CollectionMock.create({
-          databaseId: database._id,
-          indexes: [{ key: { properties: 1 } }],
-        });
-        ctx = new ContextMock({
-          params: {
-            collectionId: collection._id,
-            databaseId: collection.databaseId,
-            id: collection.indexes[0]._id,
-          },
-          request: {
-            body: {
-              key: { properties: 1 },
+      context('when the collection does not contain the specified index', function() {
+        it('throws an error', async function() {
+          const database = await DatabaseMock.create({ userId: user._id });
+          const index = new Index({ key: { properties: 1 } });
+          const collection = await CollectionMock.create({ databaseId: database._id });
+          const ctx = new ContextMock({
+            params: {
+              collectionId: collection._id,
+              databaseId: collection.databaseId,
+              id: index._id,
             },
-          },
-          state: { user },
-        }) as Context;
+            request: {
+              body: {
+                key: { properties: 1 },
+              },
+            },
+            state: { user },
+          }) as Context;
 
-        await handler(ctx as any);
+          const promise = handler(ctx as any);
+
+          return expect(promise).to.be.rejectedWith('Index not found.');
+        });
       });
 
-      afterEach(async function() {
-        await rabbitmq.purge(CollectionSchema.DELETE_INDEX_QUEUE);
-      });
+      context('when the collection contains the specified index', function() {
+        let ctx: Context;
 
-      it('returns a 200 status code', async function() {
-        expect(ctx.response.status).to.eql(200);
-      });
+        beforeEach(async function() {
+          const database = await DatabaseMock.create({ userId: user._id });
+          const index = new Index({ key: { properties: 1 } });
+          const collection = await CollectionMock.create({
+            databaseId: database._id,
+            indexes: [index],
+          });
+          ctx = new ContextMock({
+            params: {
+              collectionId: collection._id,
+              databaseId: collection.databaseId,
+              id: index._id,
+            },
+            request: {
+              body: {
+                key: { properties: 1 },
+              },
+            },
+            state: { user },
+          }) as Context;
 
-      it('adds the request to RabbitMQ', async function() {
-        return new Promise(resolve => {
-          rabbitmq.consume(CollectionSchema.DELETE_INDEX_QUEUE, (channel, content, msg) => {
-            expect(content.indexId).to.eql(ctx.params.id.toString());
+          await handler(ctx as any);
+        });
 
-            resolve();
+        afterEach(async function() {
+          await rabbitmq.purge(DELETE_COLLECTION_INDEX_QUEUE);
+        });
+
+        it('returns a 200 status code', async function() {
+          expect(ctx.response.status).to.eql(200);
+        });
+
+        it('adds the request to RabbitMQ', async function() {
+          return new Promise(resolve => {
+            rabbitmq.consume(DELETE_COLLECTION_INDEX_QUEUE, (channel, content, msg) => {
+              expect(content._id).to.eql(ctx.params.id.toString());
+
+              resolve();
+            });
           });
         });
       });

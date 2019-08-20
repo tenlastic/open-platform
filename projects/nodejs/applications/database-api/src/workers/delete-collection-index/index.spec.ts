@@ -1,31 +1,34 @@
+import * as rabbitmq from '@tenlastic/rabbitmq';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
-import { Collection, CollectionDocument, CollectionMock } from '../../models';
-import { DeleteCollectionIndexMessage, deleteCollectionIndexWorker } from './';
+import { Collection, CollectionDocument, CollectionMock, Index, IndexDocument } from '../../models';
+import { deleteCollectionIndexWorker } from './';
 
 const chance = new Chance();
 
 describe('workers/delete-collection-index', function() {
+  let sandbox: sinon.SinonSandbox;
+
+  beforeEach(function() {
+    sandbox = sinon.createSandbox();
+  });
+
+  afterEach(function() {
+    sandbox.restore();
+  });
+
   context('when successful', function() {
     let channel: { ack: sinon.SinonSpy };
     let collection: CollectionDocument;
 
     beforeEach(async function() {
-      const indexId = mongoose.Types.ObjectId();
-
       channel = { ack: sinon.spy() };
-      collection = await CollectionMock.create({
-        indexes: [
-          {
-            _id: indexId,
-            key: { properties: 1 },
-            options: { unique: true },
-          },
-        ],
-      });
+
+      const index = new Index({ key: { properties: 1 }, options: { unique: true } });
+      collection = await CollectionMock.create({ indexes: [index] });
 
       const collectionId = collection._id.toString();
       await mongoose.connection.db.collection(collectionId).createIndex(
@@ -33,15 +36,15 @@ describe('workers/delete-collection-index', function() {
           properties: 1,
         },
         {
-          name: indexId.toHexString(),
+          name: index._id.toString(),
           unique: true,
         },
       );
 
-      const content: DeleteCollectionIndexMessage = {
+      const content: Partial<IndexDocument> = {
+        _id: index._id,
         collectionId,
-        databaseId: collection.databaseId.toString(),
-        indexId: indexId.toHexString(),
+        databaseId: collection.databaseId,
       };
       await deleteCollectionIndexWorker(channel as any, content, null);
     });
@@ -66,17 +69,17 @@ describe('workers/delete-collection-index', function() {
 
   context('when unsuccessful', function() {
     it('nacks the message', async function() {
-      const channel = { nack: sinon.spy() };
       const collection = await CollectionMock.create();
+      const requeueStub = sandbox.stub(rabbitmq, 'requeue').resolves();
 
-      const content: DeleteCollectionIndexMessage = {
-        collectionId: chance.hash(),
-        databaseId: collection.databaseId.toString(),
-        indexId: mongoose.Types.ObjectId().toHexString(),
+      const content: Partial<IndexDocument> = {
+        _id: mongoose.Types.ObjectId(),
+        collectionId: chance.hash() as any,
+        databaseId: collection.databaseId,
       };
-      await deleteCollectionIndexWorker(channel as any, content, null);
+      await deleteCollectionIndexWorker({} as any, content as any, null);
 
-      expect(channel.nack.calledOnce).to.eql(true);
+      expect(requeueStub.calledOnce).to.eql(true);
     });
   });
 });

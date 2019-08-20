@@ -1,9 +1,8 @@
 import { Context } from '@tenlastic/web-server';
 import * as rabbitmq from '@tenlastic/rabbitmq';
-import * as mongoose from 'mongoose';
 
-import { CollectionPermissions, CollectionSchema } from '../../../models';
-import { CreateCollectionIndexMessage } from '../../../workers/create-collection-index';
+import { CollectionPermissions, Index } from '../../../models';
+import { CREATE_COLLECTION_INDEX_QUEUE } from '../../../workers';
 
 export async function handler(ctx: Context) {
   const override = {
@@ -32,14 +31,13 @@ export async function handler(ctx: Context) {
     throw new Error('Missing required fields: key.');
   }
 
-  const msg: CreateCollectionIndexMessage = {
-    collectionId: collection._id.toString(),
-    databaseId: collection.databaseId.toString(),
-    indexId: mongoose.Types.ObjectId().toHexString(),
+  const msg = new Index({
+    collectionId: collection._id,
+    databaseId: collection.databaseId,
     key,
     options,
-  };
-  await rabbitmq.publish(CollectionSchema.CREATE_INDEX_QUEUE, msg);
+  });
+  await rabbitmq.publish(CREATE_COLLECTION_INDEX_QUEUE, msg);
 
   ctx.response.status = 200;
 }

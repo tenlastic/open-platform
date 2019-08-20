@@ -1,9 +1,10 @@
 import { expect } from 'chai';
 import * as Chance from 'chance';
 
-import { DatabaseDocument, CollectionDocument } from '../src/models';
+import { DatabaseDocument, CollectionDocument, IndexDocument } from '../src/models';
 import { CollectionModel, DatabaseModel } from './models';
 import { request } from './request';
+import { wait } from './wait';
 
 const chance = new Chance();
 
@@ -24,51 +25,93 @@ describe('indexes', function() {
     await DatabaseModel.deleteAll();
   });
 
-  it('creates and deletes an index', async function() {
+  it('creates an index', async function() {
     const user = { activatedAt: new Date(), roles: ['Admin'] };
 
     // Create a new Index.
     const key = chance.hash();
-    const post = await request(
+    const createIndexResponse = await request(
       'post',
       `/databases/${database._id}/collections/${collection._id}/indexes`,
       { key: { [key]: 1 }, options: { unique: 1 } },
       user,
     );
-    expect(post.statusCode).to.eql(200);
+    expect(createIndexResponse.statusCode).to.eql(200);
 
     // Wait for the Index to be created.
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await wait(2 * 1000, 30 * 1000, async () => {
+      const getCollectionResponse = await CollectionModel.findOne({
+        _id: collection._id,
+        databaseId: collection.databaseId,
+      });
 
-    // Find the Collection.
-    const getCollectionWithIndex = await CollectionModel.findOne({
-      _id: collection._id,
-      databaseId: database._id,
+      return getCollectionResponse.body.record.indexes.length > 0;
     });
-    expect(getCollectionWithIndex.statusCode).to.eql(200);
 
-    const index = getCollectionWithIndex.body.record.indexes[0];
+    const getCollectionResponse = await CollectionModel.findOne({
+      _id: collection._id,
+      databaseId: collection.databaseId,
+    });
+    expect(getCollectionResponse.statusCode).to.eql(200);
+
+    const index = getCollectionResponse.body.record.indexes[0];
     expect(index.key).to.eql({ [key]: 1 });
     expect(index.options).to.eql({ unique: 1 });
+  });
 
-    // Delete the Index.
-    const del = await request(
-      'delete',
-      `/databases/${database._id}/collections/${collection._id}/indexes/${index._id}`,
-      null,
-      user,
-    );
-    expect(del.statusCode).to.eql(200);
+  describe('working with an existing collection', function() {
+    let index: IndexDocument;
 
-    // Wait for the Index to be deleted.
-    await new Promise(resolve => setTimeout(resolve, 200));
+    beforeEach(async function() {
+      const user = { activatedAt: new Date(), roles: ['Admin'] };
 
-    // Find the Collection again.
-    const getCollectionWithoutIndex = await CollectionModel.findOne({
-      _id: collection._id,
-      databaseId: database._id,
+      // Create a new Index.
+      const key = chance.hash();
+      await request(
+        'post',
+        `/databases/${database._id}/collections/${collection._id}/indexes`,
+        { key: { [key]: 1 }, options: { unique: 1 } },
+        user,
+      );
+
+      // Wait for the Index to be created.
+      await wait(2 * 1000, 30 * 1000, async () => {
+        const getCollectionResponse = await CollectionModel.findOne({
+          _id: collection._id,
+          databaseId: collection.databaseId,
+        });
+
+        return getCollectionResponse.body.record.indexes.length > 0;
+      });
+
+      const getCollectionResponse = await CollectionModel.findOne({
+        _id: collection._id,
+        databaseId: collection.databaseId,
+      });
+      index = getCollectionResponse.body.record.indexes[0];
     });
-    expect(getCollectionWithoutIndex.statusCode).to.eql(200);
-    expect(getCollectionWithoutIndex.body.record.indexes.length).to.eql(0);
+
+    it('deletes the index', async function() {
+      const user = { activatedAt: new Date(), roles: ['Admin'] };
+
+      // Delete the Index.
+      const deleteIndexResponse = await request(
+        'delete',
+        `/databases/${database._id}/collections/${collection._id}/indexes/${index._id}`,
+        null,
+        user,
+      );
+      expect(deleteIndexResponse.statusCode).to.eql(200);
+
+      // Wait for the Index to be deleted.
+      await wait(2 * 1000, 30 * 1000, async () => {
+        const getCollectionResponse = await CollectionModel.findOne({
+          _id: collection._id,
+          databaseId: collection.databaseId,
+        });
+
+        return getCollectionResponse.body.record.indexes.length === 0;
+      });
+    });
   });
 });
