@@ -2,10 +2,6 @@
   "name": "backend",
   "private": true,
   "version": "1.0.0",
-  "workspaces": [
-    "applications/*",
-    "modules/*"
-  ],
   "scripts": {
     "docker": "docker-compose run --rm application npm run",
     "docker:install": "docker-compose run --rm application npm install",
@@ -15,6 +11,7 @@
     "node-pre-gyp": "^0.13.0"
   },
   "devDependencies": {
+    "@tenlastic/e2e": "0.0.0",
     "@types/ajv": "1.0.0",
     "@types/amqplib": "0.5.13",
     "@types/aws-lambda": "8.10.23",

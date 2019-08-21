@@ -1,10 +1,9 @@
+import * as e2e from '@tenlastic/e2e';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 
 import { DatabaseDocument, CollectionDocument, IndexDocument } from '../src/models';
 import { CollectionModel, DatabaseModel } from './models';
-import { request } from './request';
-import { wait } from './wait';
 
 const chance = new Chance();
 
@@ -12,7 +11,7 @@ describe('indexes', function() {
   let collection: Partial<CollectionDocument>;
   let database: Partial<DatabaseDocument>;
 
-  before(async function() {
+  beforeEach(async function() {
     const createdDatabase = await DatabaseModel.create();
     database = createdDatabase.body.record;
 
@@ -20,7 +19,7 @@ describe('indexes', function() {
     collection = createdCollection.body.record;
   });
 
-  after(async function() {
+  afterEach(async function() {
     await CollectionModel.deleteAll();
     await DatabaseModel.deleteAll();
   });
@@ -30,7 +29,7 @@ describe('indexes', function() {
 
     // Create a new Index.
     const key = chance.hash();
-    const createIndexResponse = await request(
+    const createIndexResponse = await e2e.request(
       'post',
       `/databases/${database._id}/collections/${collection._id}/indexes`,
       { key: { [key]: 1 }, options: { unique: 1 } },
@@ -39,7 +38,7 @@ describe('indexes', function() {
     expect(createIndexResponse.statusCode).to.eql(200);
 
     // Wait for the Index to be created.
-    await wait(2 * 1000, 30 * 1000, async () => {
+    await e2e.wait(2 * 1000, 30 * 1000, async () => {
       const getCollectionResponse = await CollectionModel.findOne({
         _id: collection._id,
         databaseId: collection.databaseId,
@@ -67,7 +66,7 @@ describe('indexes', function() {
 
       // Create a new Index.
       const key = chance.hash();
-      await request(
+      await e2e.request(
         'post',
         `/databases/${database._id}/collections/${collection._id}/indexes`,
         { key: { [key]: 1 }, options: { unique: 1 } },
@@ -75,7 +74,7 @@ describe('indexes', function() {
       );
 
       // Wait for the Index to be created.
-      await wait(2 * 1000, 30 * 1000, async () => {
+      await e2e.wait(1 * 1000, 15 * 1000, async () => {
         const getCollectionResponse = await CollectionModel.findOne({
           _id: collection._id,
           databaseId: collection.databaseId,
@@ -95,7 +94,7 @@ describe('indexes', function() {
       const user = { activatedAt: new Date(), roles: ['Admin'] };
 
       // Delete the Index.
-      const deleteIndexResponse = await request(
+      const deleteIndexResponse = await e2e.request(
         'delete',
         `/databases/${database._id}/collections/${collection._id}/indexes/${index._id}`,
         null,
@@ -104,7 +103,7 @@ describe('indexes', function() {
       expect(deleteIndexResponse.statusCode).to.eql(200);
 
       // Wait for the Index to be deleted.
-      await wait(2 * 1000, 30 * 1000, async () => {
+      await e2e.wait(1 * 1000, 15 * 1000, async () => {
         const getCollectionResponse = await CollectionModel.findOne({
           _id: collection._id,
           databaseId: collection.databaseId,

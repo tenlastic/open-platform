@@ -1,8 +1,8 @@
+import * as e2e from '@tenlastic/e2e';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
 import { DatabaseDocument } from '../../src/models';
-import { request } from '../request';
 
 const chance = new Chance();
 
@@ -17,7 +17,7 @@ export class DatabaseModel {
     const path = `/databases`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
-    const response = await request('post', path, { ...defaults, ...params }, user);
+    const response = await e2e.request('post', path, { ...defaults, ...params }, user);
 
     if (response.statusCode === 200) {
       this.records.push(response.body.record);
@@ -34,7 +34,7 @@ export class DatabaseModel {
     const path = `/databases/${params._id}`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
-    return request('delete', path, params, user);
+    return e2e.request('delete', path, params, user);
   }
 
   public static async deleteAll() {
@@ -49,7 +49,7 @@ export class DatabaseModel {
     const path = `/databases/${params._id}`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
-    return request('get', path, params, user);
+    return e2e.request('get', path, params, user);
   }
 
   public static async update(params: any = {}, user: any = {}) {
@@ -60,6 +60,6 @@ export class DatabaseModel {
     const path = `/databases/${params._id}`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
-    return request('put', path, params, user);
+    return e2e.request('put', path, params, user);
   }
 }

@@ -1,5 +1,5 @@
-import { sign } from 'jsonwebtoken';
-import { del, get, post, put } from 'request-promise-native';
+import * as jsonwebtoken from 'jsonwebtoken';
+import * as requestPromiseNative from 'request-promise-native';
 
 const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:3000';
 
@@ -15,7 +15,7 @@ export function request(method: RequestMethod, path: string, params?: any, user?
 
   let headers: any = {};
   if (user) {
-    const jwt = sign({ user }, process.env.JWT_SECRET);
+    const jwt = jsonwebtoken.sign({ user }, process.env.JWT_SECRET);
     headers.authorization = `Bearer ${jwt}`;
   }
 
@@ -23,12 +23,12 @@ export function request(method: RequestMethod, path: string, params?: any, user?
 
   switch (method) {
     case 'delete':
-      return del(defaults);
+      return requestPromiseNative.del(defaults);
     case 'get':
-      return get(defaults);
+      return requestPromiseNative.get(defaults);
     case 'post':
-      return post({ ...defaults, body: params });
+      return requestPromiseNative.post({ ...defaults, body: params });
     case 'put':
-      return put({ ...defaults, body: params });
+      return requestPromiseNative.put({ ...defaults, body: params });
   }
 }

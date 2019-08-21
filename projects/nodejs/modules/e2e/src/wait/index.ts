@@ -2,7 +2,8 @@ import { performance } from 'perf_hooks';
 
 /**
  * Wait for the given criteria to return true.
- * @param timeout How long to wait in milliseconds.
+ * @param interval How long to wait in milliseconds between checks.
+ * @param timeout How long to wait in milliseconds in total.
  */
 export async function wait(interval: number, timeout: number, criteria: () => Promise<boolean>) {
   const start = performance.now();
@@ -17,5 +18,7 @@ export async function wait(interval: number, timeout: number, criteria: () => Pr
     throw new Error('Criteria did not resolve within given timeout.');
   }
 
-  setTimeout(() => wait(interval, timeout - duration, criteria), interval);
+  await new Promise(resolve => setTimeout(resolve, interval));
+
+  return wait(interval, timeout - duration, criteria);
 }

@@ -25,7 +25,7 @@ export async function createCollectionIndexWorker(
     await Collection.findOneAndUpdate(
       {
         _id: index.collectionId,
-        'indexes._id': { $ne: index.id },
+        'indexes._id': { $ne: index._id },
       },
       {
         $push: {
@@ -36,6 +36,6 @@ export async function createCollectionIndexWorker(
 
     channel.ack(msg);
   } catch (e) {
-    rabbitmq.requeue(channel, msg, { delay: 30 * 1000 });
+    rabbitmq.requeue(channel, msg, { delay: 30 * 1000, retries: 3 });
   }
 }

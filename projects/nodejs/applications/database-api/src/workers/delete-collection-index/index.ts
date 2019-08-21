@@ -29,6 +29,6 @@ export async function deleteCollectionIndexWorker(
 
     channel.ack(msg);
   } catch (e) {
-    rabbitmq.requeue(channel, msg, { delay: 30 * 1000 });
+    rabbitmq.requeue(channel, msg, { delay: 30 * 1000, retries: 3 });
   }
 }
