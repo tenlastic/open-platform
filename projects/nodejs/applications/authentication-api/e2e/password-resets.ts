@@ -22,7 +22,7 @@ describe('logins', function() {
 
   beforeEach(async function() {
     email = process.env.E2E_USER_EMAIL;
-    password = chance.hash();
+    password = process.env.E2E_USER_PASSWORD;
 
     await UserModel.create({ email, password });
 
