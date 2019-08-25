@@ -52,7 +52,7 @@ describe('handlers/password-resets/delete', function() {
             hash: chance.hash({ length: 128 }),
           },
           request: {
-            body: {
+            query: {
               password: chance.hash(),
             },
           },

@@ -5,7 +5,17 @@ const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:3000';
 
 export type RequestMethod = 'delete' | 'get' | 'post' | 'put';
 
-export function request(method: RequestMethod, path: string, params?: any, user?: any) {
+export interface RequestOptions {
+  jwt?: string;
+  user?: any;
+}
+
+export function request(
+  method: RequestMethod,
+  path: string,
+  params?: any,
+  options?: RequestOptions,
+) {
   let url = BASE_URL + path;
 
   if (params && (method === 'delete' || method === 'get')) {
@@ -14,8 +24,14 @@ export function request(method: RequestMethod, path: string, params?: any, user?
   }
 
   let headers: any = {};
-  if (user) {
-    const jwt = jsonwebtoken.sign({ user }, process.env.JWT_SECRET);
+
+  if (options) {
+    let jwt = options.jwt;
+
+    if (options.user) {
+      jwt = jsonwebtoken.sign({ user: options.user }, process.env.JWT_SECRET);
+    }
+
     headers.authorization = `Bearer ${jwt}`;
   }
 

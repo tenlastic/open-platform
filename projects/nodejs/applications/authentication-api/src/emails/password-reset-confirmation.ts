@@ -19,7 +19,7 @@ export async function send(user: UserDocument) {
   `;
 
   return mailgun.send({
-    from: 'no-reply@tenlastic.com',
+    from: 'Tenlastic Support <no-reply@tenlastic.com>',
     html,
     subject: 'Password Reset Successful',
     to: user.email,

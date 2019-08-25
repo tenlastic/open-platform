@@ -5,8 +5,11 @@ services:
       - mongo_healthcheck
     environment:
       - JWT_SECRET
+      - MAILGUN_DOMAIN
+      - MAILGUN_SECRET
       - MONGO_CONNECTION_STRING
       - MONGO_DATABASE_NAME
+      - PASSWORD_RESET_URL
     links:
       - mongo
     ports:

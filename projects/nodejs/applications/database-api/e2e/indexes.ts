@@ -33,27 +33,20 @@ describe('indexes', function() {
       'post',
       `/databases/${database._id}/collections/${collection._id}/indexes`,
       { key: { [key]: 1 }, options: { unique: 1 } },
-      user,
+      { user },
     );
     expect(createIndexResponse.statusCode).to.eql(200);
 
     // Wait for the Index to be created.
-    await e2e.wait(2 * 1000, 30 * 1000, async () => {
+    const index = await e2e.wait(2 * 1000, 30 * 1000, async () => {
       const getCollectionResponse = await CollectionModel.findOne({
         _id: collection._id,
         databaseId: collection.databaseId,
       });
 
-      return getCollectionResponse.body.record.indexes.length > 0;
+      return getCollectionResponse.body.record.indexes[0];
     });
 
-    const getCollectionResponse = await CollectionModel.findOne({
-      _id: collection._id,
-      databaseId: collection.databaseId,
-    });
-    expect(getCollectionResponse.statusCode).to.eql(200);
-
-    const index = getCollectionResponse.body.record.indexes[0];
     expect(index.key).to.eql({ [key]: 1 });
     expect(index.options).to.eql({ unique: 1 });
   });
@@ -70,24 +63,18 @@ describe('indexes', function() {
         'post',
         `/databases/${database._id}/collections/${collection._id}/indexes`,
         { key: { [key]: 1 }, options: { unique: 1 } },
-        user,
+        { user },
       );
 
       // Wait for the Index to be created.
-      await e2e.wait(1 * 1000, 15 * 1000, async () => {
+      index = await e2e.wait(1 * 1000, 15 * 1000, async () => {
         const getCollectionResponse = await CollectionModel.findOne({
           _id: collection._id,
           databaseId: collection.databaseId,
         });
 
-        return getCollectionResponse.body.record.indexes.length > 0;
+        return getCollectionResponse.body.record.indexes[0];
       });
-
-      const getCollectionResponse = await CollectionModel.findOne({
-        _id: collection._id,
-        databaseId: collection.databaseId,
-      });
-      index = getCollectionResponse.body.record.indexes[0];
     });
 
     it('deletes the index', async function() {
@@ -98,7 +85,7 @@ describe('indexes', function() {
         'delete',
         `/databases/${database._id}/collections/${collection._id}/indexes/${index._id}`,
         null,
-        user,
+        { user },
       );
       expect(deleteIndexResponse.statusCode).to.eql(200);
 

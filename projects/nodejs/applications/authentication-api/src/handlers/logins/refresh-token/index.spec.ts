@@ -3,6 +3,7 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import * as jwt from 'jsonwebtoken';
+import * as mongoose from 'mongoose';
 
 import { RefreshTokenMock, UserDocument, UserMock } from '../../../models';
 import { handler } from '.';
@@ -14,7 +15,7 @@ describe('handlers/logins/refresh-token', function() {
   let user: UserDocument;
 
   beforeEach(async function() {
-    user = await UserMock.create({ activatedAt: new Date(), password: 'password' });
+    user = await UserMock.create({ password: 'password' });
   });
 
   context('when a token is not provided', function() {
@@ -80,10 +81,12 @@ describe('handlers/logins/refresh-token', function() {
         });
 
         context('when the RefreshToken is in the database', function() {
-          context('when the user is not found or activated', function() {
+          context('when the user does not exist', function() {
             it('throws an error', async function() {
               const user = await UserMock.create();
-              const refreshToken = await RefreshTokenMock.create({ userId: user._id });
+              const refreshToken = await RefreshTokenMock.create({
+                userId: mongoose.Types.ObjectId() as any,
+              });
               const token = jwt.sign({ user }, process.env.JWT_SECRET, { jwtid: refreshToken.jti });
               const ctx: any = new ContextMock({
                 request: {
@@ -97,9 +100,9 @@ describe('handlers/logins/refresh-token', function() {
             });
           });
 
-          context('when the user is found and active', function() {
+          context('when the user is exists', function() {
             it('returns an accessToken and refreshToken', async function() {
-              const user = await UserMock.create({ activatedAt: new Date() });
+              const user = await UserMock.create();
               const refreshToken = await RefreshTokenMock.create({ userId: user._id });
               const token = jwt.sign({ user }, process.env.JWT_SECRET, { jwtid: refreshToken.jti });
               const ctx: any = new ContextMock({

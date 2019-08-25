@@ -30,10 +30,6 @@ import { UserPermissions } from './';
 @index({ username: 1 }, { unique: true })
 @plugin(changeDataCapturePlugin)
 @pre('save', async function(this: UserDocument) {
-  if (!this.isNew && !this._original.activatedAt && this.activatedAt) {
-    await emails.sendUserActivation(this);
-  }
-
   if (!this.isNew && this._original.password !== this.password) {
     await emails.sendPasswordResetConfirmation(this);
   }
@@ -42,21 +38,8 @@ import { UserPermissions } from './';
     this.password = await User.hashPassword(this.password);
   }
 })
-@post('findOneAndUpdate', async function(
-  this: mongoose.DocumentQuery<UserDocument, UserDocument, {}>,
-  result: UserDocument,
-) {
-  const update = this.getUpdate();
-
-  if (update.password) {
-    await emails.sendPasswordResetConfirmation(result);
-  }
-})
 export class UserSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
-
-  @prop()
-  public activatedAt: Date;
 
   public createdAt: Date;
 

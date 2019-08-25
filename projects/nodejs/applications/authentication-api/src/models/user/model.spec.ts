@@ -22,6 +22,16 @@ describe('models/user.model', function() {
   });
 
   describe(`pre('save')`, function() {
+    context('when document.isNew() is true', function() {
+      it('does not call sendPasswordResetConfirmation()', async function() {
+        const spy = sandbox.stub(emails, 'sendPasswordResetConfirmation');
+
+        await UserMock.create();
+
+        expect(spy.calledOnce).to.eql(false);
+      });
+    });
+
     context('when document.isNew() is false', function() {
       it('calls sendPasswordResetConfirmation()', async function() {
         const user = await UserMock.create({ password: chance.hash() });
@@ -32,51 +42,6 @@ describe('models/user.model', function() {
         await user.save();
 
         expect(spy.calledOnce).to.eql(true);
-      });
-
-      it('calls sendUserActivation()', async function() {
-        const user = await UserMock.create();
-
-        const spy = sandbox.stub(emails, 'sendUserActivation');
-
-        user.activatedAt = new Date();
-        await user.save();
-
-        expect(spy.calledOnce).to.eql(true);
-      });
-    });
-
-    context('when document.isNew() is true', function() {
-      it('does not call sendPasswordResetConfirmation()', async function() {
-        const spy = sandbox.stub(emails, 'sendPasswordResetConfirmation');
-
-        await UserMock.create();
-
-        expect(spy.calledOnce).to.eql(false);
-      });
-    });
-  });
-
-  describe(`post('findOneAndUpdate')`, function() {
-    context('when password is updated', function() {
-      it('calls sendPasswordResetConfirmation()', async function() {
-        const user = await UserMock.create({ password: chance.hash() });
-        const spy = sandbox.stub(emails, 'sendPasswordResetConfirmation');
-
-        await User.findOneAndUpdate({ _id: user._id }, { password: chance.hash() });
-
-        expect(spy.calledOnce).to.eql(true);
-      });
-    });
-
-    context('when password is not updated', function() {
-      it('does not call sendPasswordResetConfirmation()', async function() {
-        const user = await UserMock.create({ password: chance.hash() });
-        const spy = sandbox.stub(emails, 'sendPasswordResetConfirmation');
-
-        await User.findOneAndUpdate({ _id: user._id }, { email: chance.email() });
-
-        expect(spy.calledOnce).to.eql(false);
       });
     });
   });
@@ -90,7 +55,7 @@ describe('models/user.model', function() {
     });
   });
 
-  describe('isValid()', function() {
+  describe('isValidPassword()', function() {
     it(`validates the given plaintext password against the User's password`, async function() {
       const password = chance.hash();
       const user = await UserMock.create({ password });

@@ -4,14 +4,12 @@ import { User } from '../../../models';
 
 export async function handler(ctx: Context) {
   const { email, password } = ctx.request.body;
-
   if (!email || !password) {
     throw new RequiredFieldError(['email', 'password']);
   }
 
   const user = await User.findOne({ email: email.toLowerCase() });
-
-  if (!user || !user.activatedAt) {
+  if (!user) {
     throw new Error('Invalid email address or password.');
   }
 

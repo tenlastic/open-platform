@@ -1,20 +1,20 @@
 import * as e2e from '@tenlastic/e2e';
 import * as Chance from 'chance';
-import * as mongoose from 'mongoose';
 
-import { DatabaseDocument } from '../../src/models';
+import { UserDocument } from '../../src/models';
 
 const chance = new Chance();
 
-export class DatabaseModel {
+export class UserModel {
   private static records: any[] = [];
 
-  public static async create(params: Partial<DatabaseDocument> = {}, user: any = {}) {
+  public static async create(params: Partial<UserDocument> = {}, user: any = {}) {
     const defaults = {
-      name: chance.name(),
-      userId: mongoose.Types.ObjectId().toHexString(),
+      email: chance.email(),
+      password: chance.hash(),
+      username: chance.hash({ length: 20 }),
     };
-    const path = `/databases`;
+    const path = `/users`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
     const response = await e2e.request('post', path, { ...defaults, ...params }, { user });
@@ -26,12 +26,12 @@ export class DatabaseModel {
     return response;
   }
 
-  public static async delete(params: Partial<DatabaseDocument>, user: any = {}) {
+  public static async delete(params: Partial<UserDocument>, user: any = {}) {
     if (!params._id) {
       throw new Error('Missing required parameters: _id.');
     }
 
-    const path = `/databases/${params._id}`;
+    const path = `/users/${params._id}`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
     return e2e.request('delete', path, params, { user });
@@ -46,7 +46,7 @@ export class DatabaseModel {
       throw new Error('Missing required parameters: _id.');
     }
 
-    const path = `/databases/${params._id}`;
+    const path = `/users/${params._id}`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
     return e2e.request('get', path, params, { user });
@@ -57,7 +57,7 @@ export class DatabaseModel {
       throw new Error('Missing required parameters: _id.');
     }
 
-    const path = `/databases/${params._id}`;
+    const path = `/users/${params._id}`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
     return e2e.request('put', path, params, { user });

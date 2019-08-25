@@ -5,12 +5,12 @@ import { performance } from 'perf_hooks';
  * @param interval How long to wait in milliseconds between checks.
  * @param timeout How long to wait in milliseconds in total.
  */
-export async function wait(interval: number, timeout: number, criteria: () => Promise<boolean>) {
+export async function wait(interval: number, timeout: number, criteria: () => Promise<any>) {
   const start = performance.now();
 
   const result = await criteria();
   if (result) {
-    return;
+    return result;
   }
 
   const duration = performance.now() - start;

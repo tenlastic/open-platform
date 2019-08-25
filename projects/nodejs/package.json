@@ -5,10 +5,12 @@
   "scripts": {
     "docker": "docker-compose run --rm application npm run",
     "docker:install": "docker-compose run --rm application npm install",
+    "google:tokens": "ts-node ./scripts/get-google-tokens.ts",
     "lerna": "lerna"
   },
   "dependencies": {
-    "node-pre-gyp": "^0.13.0"
+    "googleapis": "42.0.0",
+    "node-pre-gyp": "0.13.0"
   },
   "devDependencies": {
     "@tenlastic/e2e": "0.0.0",

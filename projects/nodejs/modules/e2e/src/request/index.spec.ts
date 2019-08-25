@@ -44,7 +44,7 @@ describe('request()', function() {
       it('includes the user JWT in the authorization header', async function() {
         const stub = sandbox.stub(requestPromiseNative, 'post').resolves();
 
-        await request('post', '/', { key: 'value' }, { key: 'value' });
+        await request('post', '/', { key: 'value' }, { user: { key: 'value' } });
 
         const args = stub.getCall(0).args[0];
         expect(args.body).to.eql({ key: 'value' });

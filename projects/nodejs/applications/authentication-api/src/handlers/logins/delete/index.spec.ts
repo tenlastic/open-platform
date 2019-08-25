@@ -20,7 +20,7 @@ describe('handlers/logins/delete', function() {
 
   beforeEach(async function() {
     refreshToken = await RefreshTokenMock.create();
-    user = await UserMock.create({ activatedAt: new Date(), password: 'password' });
+    user = await UserMock.create({ password: 'password' });
 
     ctx = new ContextMock({
       request: {

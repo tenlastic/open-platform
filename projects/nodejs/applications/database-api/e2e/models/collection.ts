@@ -17,7 +17,7 @@ export class CollectionModel {
     const path = `/databases/${params.databaseId}/collections`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
-    const response = await e2e.request('post', path, { ...defaults, ...params }, user);
+    const response = await e2e.request('post', path, { ...defaults, ...params }, { user });
 
     if (response.statusCode === 200) {
       this.records.push(response.body.record);
@@ -34,7 +34,7 @@ export class CollectionModel {
     const path = `/databases/${params.databaseId}/collections/${params._id}`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
-    return e2e.request('delete', path, params, user);
+    return e2e.request('delete', path, params, { user });
   }
 
   public static async deleteAll() {
@@ -49,7 +49,7 @@ export class CollectionModel {
     const path = `/databases/${params.databaseId}/collections/${params._id}`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
-    return e2e.request('get', path, params, user);
+    return e2e.request('get', path, params, { user });
   }
 
   public static async update(params: any = {}, user?: any) {
@@ -60,6 +60,6 @@ export class CollectionModel {
     const path = `/databases/${params.databaseId}/collections/${params._id}`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
 
-    return e2e.request('put', path, params, user);
+    return e2e.request('put', path, params, { user });
   }
 }

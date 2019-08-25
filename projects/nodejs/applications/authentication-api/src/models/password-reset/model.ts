@@ -27,8 +27,6 @@ export class PasswordResetSchema extends Typegoose {
 
   @prop({ ref: 'UserSchema', required: true })
   public userId: Ref<UserSchema>;
-
-  private _original: Partial<PasswordResetDocument>;
 }
 
 export type PasswordResetDocument = InstanceType<PasswordResetSchema>;

@@ -11,7 +11,7 @@ describe('handlers/logins/create', function() {
   let user: UserDocument;
 
   beforeEach(async function() {
-    user = await UserMock.create({ activatedAt: new Date(), password: 'password' });
+    user = await UserMock.create({ password: 'password' });
   });
 
   context('when credentials are correct', function() {

@@ -5,7 +5,6 @@ import { RefreshToken, User } from '../../../models';
 
 export async function handler(ctx: Context) {
   const { token } = ctx.request.body;
-
   if (!token) {
     throw new RequiredFieldError(['token']);
   }
@@ -31,8 +30,7 @@ export async function handler(ctx: Context) {
   }
 
   const user = await User.findOne({ _id: refreshTokenDocument.userId });
-
-  if (!user || !user.activatedAt) {
+  if (!user) {
     throw new Error('Invalid refresh token.');
   }
 

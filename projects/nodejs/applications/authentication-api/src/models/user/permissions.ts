@@ -1,12 +1,12 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { User } from './model';
+import { User, UserDocument } from './model';
 
-export const UserPermissions = new MongoosePermissions(User, {
+export const UserPermissions = new MongoosePermissions<UserDocument>(User, {
   create: {
     base: ['email', 'password', 'username'],
     roles: {
-      admin: ['activatedAt', 'roles'],
+      admin: ['roles'],
     },
   },
   delete: {
@@ -18,14 +18,11 @@ export const UserPermissions = new MongoosePermissions(User, {
   },
   find: {
     base: {},
-    roles: {
-      default: { activatedAt: { $ne: null } },
-    },
   },
   read: {
     base: ['_id', 'createdAt', 'username', 'updatedAt'],
     roles: {
-      admin: ['activatedAt', 'email', 'roles'],
+      admin: ['email', 'roles'],
       self: ['email', 'roles'],
     },
   },
@@ -36,7 +33,7 @@ export const UserPermissions = new MongoosePermissions(User, {
   update: {
     base: [],
     roles: {
-      admin: ['activatedAt', 'email', 'roles', 'password', 'username'],
+      admin: ['email', 'roles', 'password', 'username'],
       self: ['email', 'password', 'username'],
     },
   },

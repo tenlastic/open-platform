@@ -13,21 +13,10 @@ use(chaiAsPromised);
 describe('middleware/authentication', function() {
   context('when the user is set', function() {
     it('calls through', async function() {
-      const user = { _id: chance.hash(), activatedAt: new Date() };
-      const ctx = new ContextMock({ state: { user } });
-
-      await authenticationMiddleware(ctx as any, noop);
-    });
-  });
-
-  context('when the user is not active', function() {
-    it('throws an error', function() {
       const user = { _id: chance.hash() };
       const ctx = new ContextMock({ state: { user } });
 
-      const promise = authenticationMiddleware(ctx as any, noop);
-
-      return expect(promise).to.be.rejectedWith('Invalid access token.');
+      await authenticationMiddleware(ctx as any, noop);
     });
   });
 });

@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import * as mongoose from 'mongoose';
 
 import { isJsonValid } from './is-json-valid';
 
@@ -37,7 +38,39 @@ describe('is-json-valid', function() {
         });
       });
 
-      context('when the reference is not an array', function() {
+      context('when the reference is an ObjectId', function() {
+        it('returns true', function() {
+          const json = {
+            user: {
+              _id: mongoose.Types.ObjectId(),
+            },
+          };
+          const query = {
+            'user._id': { $eq: json.user._id.toHexString() },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function() {
+          const json = {
+            user: {
+              _id: mongoose.Types.ObjectId(),
+            },
+          };
+          const query = {
+            'user._id': { $eq: mongoose.Types.ObjectId() },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+      });
+
+      context('when the reference is anything else', function() {
         it('returns true', function() {
           const json = {
             user: {
@@ -103,7 +136,39 @@ describe('is-json-valid', function() {
         });
       });
 
-      context('when the reference is not an array', function() {
+      context('when the reference is an ObjectId', function() {
+        it('returns true', function() {
+          const json = {
+            user: {
+              _id: mongoose.Types.ObjectId(),
+            },
+          };
+          const query = {
+            'user._id': { $in: [json.user._id.toHexString()] },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function() {
+          const json = {
+            user: {
+              _id: mongoose.Types.ObjectId(),
+            },
+          };
+          const query = {
+            'user._id': { $in: [mongoose.Types.ObjectId()] },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+      });
+
+      context('when the reference is anything else', function() {
         it('returns true', function() {
           const json = {
             user: {

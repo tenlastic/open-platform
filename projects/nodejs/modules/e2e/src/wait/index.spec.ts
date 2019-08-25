@@ -24,22 +24,23 @@ describe('wait()', function() {
     });
 
     context('when the duration is not longer than the timeout', function() {
-      it('waits for the criteria to return true', async function() {
+      it('waits for the criteria to be truthy', async function() {
         let calls = 0;
 
         const criteria = async () => {
           if (calls > 1) {
-            return true;
+            return 1;
           }
 
           await new Promise(resolve => setTimeout(resolve, 10));
           calls++;
 
-          return false;
+          return 0;
         };
 
-        await index.wait(0, 250, criteria);
+        const result = await index.wait(0, 250, criteria);
 
+        expect(result).to.eql(1);
         expect(calls).to.eql(2);
       });
     });

@@ -6,7 +6,7 @@ import { PasswordReset, RefreshToken, User } from '../../../models';
 export async function handler(ctx: Context) {
   const { hash } = ctx.params;
 
-  const { password } = ctx.request.body;
+  const { password } = ctx.request.query;
   if (!password) {
     throw new RequiredFieldError(['password']);
   }
@@ -19,10 +19,9 @@ export async function handler(ctx: Context) {
     const passwordReset = await PasswordReset.findOneAndDelete({ hash }).session(session);
 
     // Update the User's password.
-    const passwordHash = await User.hashPassword(password);
-    await User.findOneAndUpdate({ _id: passwordReset.userId }, { password: passwordHash }).session(
-      session,
-    );
+    const user = await User.findOne({ _id: passwordReset.userId }).session(session);
+    user.password = password;
+    await user.save({ session });
 
     // Remove all User's RefreshTokens to prevent malicious logins.
     await RefreshToken.deleteMany({ userId: passwordReset.userId }).session(session);

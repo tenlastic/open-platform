@@ -1,3 +1,5 @@
+import * as mongoose from 'mongoose';
+
 /**
  * Determines if the query matches the JSON object.
  */
@@ -32,6 +34,8 @@ function $eq(json: any, key: string, value: any) {
 
   if (reference.constructor === Array && value.constructor !== Array) {
     return reference.includes(value);
+  } else if (reference instanceof mongoose.Types.ObjectId) {
+    return reference.equals(value);
   } else {
     return reference === value;
   }
@@ -40,11 +44,13 @@ function $eq(json: any, key: string, value: any) {
 /**
  * Determines if the referenced value is included within the given array.
  */
-function $in(json: any, key: string, value: any) {
+function $in(json: any, key: string, value: any[]) {
   const reference = key.split('.').reduce(index, json);
 
   if (reference.constructor === Array) {
     return reference.includes(...value);
+  } else if (reference instanceof mongoose.Types.ObjectId) {
+    return Boolean(value.find(v => reference.equals(v)));
   } else {
     return value.includes(reference);
   }
