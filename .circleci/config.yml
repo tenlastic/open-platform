@@ -11,7 +11,7 @@ jobs:
       - image: mongo:latest
       - image: rabbitmq:latest
       - image: wurstmeister/zookeeper:latest
-    working_directory: ~/project/projects/nodejs
+    working_directory: ~/projects/nodejs
     steps:
       - checkout
       - run:
