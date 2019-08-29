@@ -1,8 +1,8 @@
 import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
 import { expect } from 'chai';
 import * as Chance from 'chance';
-import { ConsumerGroup } from 'kafka-node';
 
+import { connection } from '../connect';
 import { publish } from './';
 
 const chance = new Chance();
@@ -20,30 +20,25 @@ describe('publish()', function() {
 
     await publish(payload);
 
-    return new Promise(resolve => {
+    return new Promise(async resolve => {
       const { coll, db } = payload.ns;
       const topic = `${db}.${coll}`;
 
-      const consumerGroup = new ConsumerGroup(
-        {
-          kafkaHost: process.env.KAFKA_CONNECTION_STRING,
-          groupId: 'ExampleTestGroup',
-          protocol: ['roundrobin'],
-          fromOffset: 'earliest',
+      const consumer = connection.consumer({ groupId: 'example' });
+      await consumer.connect();
+      await consumer.subscribe({ fromBeginning: true, topic });
+
+      await consumer.run({
+        eachMessage: async ({ topic, partition, message }) => {
+          const value = JSON.parse(message.value.toString());
+
+          expect(value.documentKey).to.eql(payload.documentKey);
+          expect(value.fullDocument).to.exist;
+          expect(value.ns).to.eql(payload.ns);
+          expect(value.operationType).to.eql(payload.operationType);
+
+          return resolve();
         },
-        topic,
-      );
-
-      consumerGroup.on('error', console.error);
-      consumerGroup.on('message', msg => {
-        const value = JSON.parse(msg.value as string);
-
-        expect(value.documentKey).to.eql(payload.documentKey);
-        expect(value.fullDocument).to.exist;
-        expect(value.ns).to.eql(payload.ns);
-        expect(value.operationType).to.eql(payload.operationType);
-
-        return resolve();
       });
     });
   });

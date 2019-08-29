@@ -23,7 +23,7 @@
     "@types/chance": "1.0.1",
     "@types/glob": "7.1.1",
     "@types/jsonwebtoken": "8.3.0",
-    "@types/kafka-node": "2.0.8",
+    "@types/kafkajs": "1.8.2",
     "@types/knex": "0.16.1",
     "@types/koa": "2.0.48",
     "@types/koa-bodyparser": "4.3.0",

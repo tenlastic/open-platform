@@ -2,7 +2,6 @@ import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
-import * as sinon from 'sinon';
 
 import { publish } from '../publish';
 import { subscribe } from './';
@@ -32,10 +31,10 @@ describe('subscribe()', function() {
       const { coll, db } = payload.ns;
       const topic = `${db}.${coll}`;
 
-      subscribe(Model, chance.hash(), topic);
+      subscribe(Model, { group: chance.hash(), topic });
 
       await publish(payload);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       const result = await Model.findOne({ _id: record._id });
       expect(result).to.eql(null);
@@ -59,7 +58,7 @@ describe('subscribe()', function() {
       const { coll, db } = payload.ns;
       const topic = `${db}.${coll}`;
 
-      subscribe(Model as any, chance.hash(), topic);
+      subscribe(Model as any, { group: chance.hash(), topic });
 
       await publish(payload);
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -94,12 +93,12 @@ describe('subscribe()', function() {
         const { coll, db } = payload.ns;
         const topic = `${db}.${coll}`;
 
-        subscribe(Model as any, chance.hash(), topic, { useUpdateDescription: true });
+        subscribe(Model as any, { group: chance.hash(), topic, useUpdateDescription: true });
 
         await publish(payload);
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        const result = (await Model.findOne({ _id: record._id })) as any;
+        const result: any = await Model.findOne({ _id: record._id });
         expect(result.createdAt).to.not.exist;
         expect(result.updatedAt).to.eql(payload.updateDescription.updatedFields.updatedAt);
       });
@@ -127,12 +126,12 @@ describe('subscribe()', function() {
         const { coll, db } = payload.ns;
         const topic = `${db}.${coll}`;
 
-        subscribe(Model as any, chance.hash(), topic);
+        subscribe(Model as any, { group: chance.hash(), topic });
 
         await publish(payload);
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        const result = (await Model.findOne({ _id: record._id })) as any;
+        const result: any = await Model.findOne({ _id: record._id });
         expect(result._id.toString()).to.eql(payload.fullDocument._id.toString());
         expect(result.createdAt).to.eql(payload.fullDocument.createdAt);
         expect(result.name).to.eql(payload.fullDocument.name);

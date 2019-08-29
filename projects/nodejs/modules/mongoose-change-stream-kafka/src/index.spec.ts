@@ -11,5 +11,5 @@ mongoose.connect(connectionString, {
 });
 
 before(async function() {
-  await connect(process.env.KAFKA_CONNECTION_STRING);
+  await connect(process.env.KAFKA_CONNECTION_STRING.split(','));
 });

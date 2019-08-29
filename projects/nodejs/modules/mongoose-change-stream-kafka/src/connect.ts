@@ -1,12 +1,15 @@
-import { KafkaClient } from 'kafka-node';
+import { Admin, Kafka, Producer, logLevel } from 'kafkajs';
 
-export let client: KafkaClient;
+export let admin: Admin;
+export let connection: Kafka;
+export let producer: Producer;
 
-export async function connect(url: string) {
-  if (client) {
-    return client;
-  }
+export async function connect(brokers: string[]) {
+  connection = new Kafka({ brokers, logLevel: logLevel.NOTHING });
 
-  client = new KafkaClient({ kafkaHost: url });
-  return client;
+  admin = connection.admin();
+  await admin.connect();
+
+  producer = connection.producer();
+  await producer.connect();
 }
