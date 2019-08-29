@@ -11,7 +11,6 @@ jobs:
       - image: mongo:latest
       - image: rabbitmq:latest
       - image: wurstmeister/zookeeper:latest
-    working_directory: ~/projects/nodejs
     steps:
       - checkout
       - run:
@@ -22,6 +21,7 @@ jobs:
       - run:
           name: Install Node Modules
           command: npm install
+          working_directory: ./projects/nodejs/
       - run:
           name: Lerna Bootstrap
           command: npm run lerna bootstrap
