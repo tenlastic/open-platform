@@ -11,11 +11,12 @@ jobs:
       - image: mongo:latest
       - image: rabbitmq:latest
       - image: wurstmeister/zookeeper:latest
+    working_directory: ~/project/projects/nodejs
     steps:
       - checkout
       - run:
           name: Update NPM
-          command: 'sudo npm install -g npm@latest'
+          command: sudo npm install -g npm@latest
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
       - run:
