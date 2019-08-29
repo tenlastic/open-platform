@@ -1,0 +1,46 @@
+version: 2.1
+
+jobs:
+  backend:
+    docker:
+      - image: circleci/node:10-browsers
+      - image: wurstmeister/kafka:latest
+        environment:
+          KAFKA_ADVERTISED_HOST_NAME: kafka
+          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      - image: mongo:latest
+      - image: rabbitmq:latest
+      - image: wurstmeister/zookeeper:latest
+    steps:
+      - checkout
+      - run:
+          name: Update NPM
+          command: 'sudo npm install -g npm@latest'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: Install Node Modules
+          command: npm install
+      - run:
+          name: Lerna Bootstrap
+          command: npm run lerna bootstrap
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: Lint
+          command: npm run lerna run lint
+      - run:
+          name: Build
+          command: npm run lerna run build
+      - run:
+          name: Test
+          command: npm run lerna run -- --concurrency 1 test
+
+workflows:
+  version: 2.1
+  build-deploy:
+    jobs:
+      - backend:
+          context: open-platform-review

@@ -51,6 +51,6 @@ services:
       - 5672:5672
       - 15672:15672
   zookeeper:
-    image: wurstmeister/zookeeper
+    image: wurstmeister/zookeeper:latest
     ports:
       - 2181:2181
