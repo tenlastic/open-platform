@@ -34,6 +34,7 @@
     "uuid": "3.3.2"
   },
   "devDependencies": {
+    "@tenlastic/e2e": "0.0.0",
     "merge-yaml-cli": "1.1.2",
     "migrate-mongo": "6.0.0",
     "mocha": "6.1.4",

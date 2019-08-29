@@ -16,8 +16,8 @@ export class ExampleSchema extends Typegoose {
     foreignField: '_id',
     justOne: true,
     localField: 'parentId',
-    ref: 'ExampleSchema',
     overwrite: true,
+    ref: 'ExampleSchema',
   })
   public get parent(): ExampleDocument {
     return this.parent;

@@ -33,8 +33,7 @@ export function changeStreamPlugin<T extends mongoose.Document>(
   schema.pre('findOneAndUpdate', async function(
     this: mongoose.DocumentQuery<mongoose.Document, mongoose.Document, {}>,
   ) {
-    const options = this.getOptions();
-    this.setOptions({ ...options, new: true });
+    this.setOptions({ ...this.getOptions(), new: true });
   });
 
   schema.pre('save', function(this: T & IOriginalDocument) {

@@ -1,5 +1,5 @@
 import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
-import { Document, Model } from 'mongoose';
+import * as mongoose from 'mongoose';
 
 import { connection } from '../connect';
 import { createTopic } from '../create-topic';
@@ -13,7 +13,10 @@ export interface SubscribeOptions {
 /**
  * Applies all change events from the topic to the target collection.
  */
-export async function subscribe(Model: Model<Document>, options: SubscribeOptions) {
+export async function subscribe(
+  Model: mongoose.Model<mongoose.Document>,
+  options: SubscribeOptions,
+) {
   await createTopic(options.topic);
 
   const consumer = connection.consumer({ groupId: options.group });
@@ -23,7 +26,7 @@ export async function subscribe(Model: Model<Document>, options: SubscribeOption
   await consumer.run({
     eachMessage: async data => {
       const value = data.message.value.toString();
-      const json = JSON.parse(value) as IDatabasePayload<Model<Document>>;
+      const json = JSON.parse(value) as IDatabasePayload<mongoose.Model<mongoose.Document>>;
 
       switch (json.operationType) {
         case 'delete':

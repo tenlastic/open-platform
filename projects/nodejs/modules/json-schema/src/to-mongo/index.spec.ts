@@ -20,8 +20,8 @@ describe('toMongo()', function() {
 
     it('throws an error', function() {
       const input = {
-        type: 'object',
         properties: { email: { type: 'not a type' } },
+        type: 'object',
       };
       const func = () => toMongo(input);
 
@@ -32,27 +32,27 @@ describe('toMongo()', function() {
   context('when the schema is valid', function() {
     it('converts the schema to mongoose', function() {
       const json = {
-        type: 'object',
         properties: {
           address: {
-            type: 'object',
             properties: {
               builtAt: { type: 'string', format: 'date-time' },
               street: { type: 'number', default: 44, minimum: 0, maximum: 50 },
             },
             required: ['builtAt'],
+            type: 'object',
           },
           anyValue: { a: 'b' },
           arr: {
-            type: 'array',
             items: {
-              type: 'object',
               properties: { num: { type: 'number' }, str: { type: 'string' } },
+              type: 'object',
             },
+            type: 'array',
           },
           id: { type: 'string', pattern: '^\\d{3}$' },
           name: { type: 'object' },
         },
+        type: 'object',
       };
 
       const result = toMongo(json);
@@ -63,8 +63,8 @@ describe('toMongo()', function() {
           address: {
             bsonType: 'object',
             properties: {
-              street: { bsonType: 'double', default: 44, minimum: 0, maximum: 50 },
               builtAt: { bsonType: 'date' },
+              street: { bsonType: 'double', default: 44, minimum: 0, maximum: 50 },
             },
             required: ['builtAt'],
           },

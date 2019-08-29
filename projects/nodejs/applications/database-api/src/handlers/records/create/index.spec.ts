@@ -14,11 +14,11 @@ describe('handlers/records/create', function() {
   beforeEach(async function() {
     collection = await CollectionMock.create({
       jsonSchema: {
-        type: 'object',
         properties: {
           email: { type: 'string' },
           name: { type: 'string' },
         },
+        type: 'object',
       },
       permissions: {
         create: {
@@ -41,12 +41,12 @@ describe('handlers/records/create', function() {
   it('creates a new record', async function() {
     const customProperties = { email: chance.email(), name: chance.name() };
     const ctx = new ContextMock({
-      request: {
-        body: { customProperties },
-      },
       params: {
         collectionId: collection._id.toString(),
         databaseId: collection.databaseId.toString(),
+      },
+      request: {
+        body: { customProperties },
       },
       state: { user },
     });

@@ -5,9 +5,6 @@ export async function createTopic(topic: string) {
   await admin.createTopics({
     topics: [
       {
-        numPartitions: 3,
-        replicationFactor: replicationFactor ? Number(replicationFactor) : 1,
-        topic,
         configEntries: [
           {
             name: 'cleanup.policy',
@@ -18,6 +15,9 @@ export async function createTopic(topic: string) {
             value: 'gzip',
           },
         ],
+        numPartitions: 3,
+        replicationFactor: replicationFactor ? Number(replicationFactor) : 1,
+        topic,
       },
     ],
   });

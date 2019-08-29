@@ -4,19 +4,19 @@ import { validate } from './';
 
 describe('validate', function() {
   const jsonSchema = {
-    type: 'object',
     properties: {
       email: { type: 'string' },
       name: {
-        type: 'object',
         properties: {
           first: { type: 'string' },
           last: { type: 'string' },
         },
         required: ['last'],
+        type: 'object',
       },
     },
     required: ['email'],
+    type: 'object',
   };
 
   context('when the object is invalid', function() {
@@ -26,25 +26,25 @@ describe('validate', function() {
 
       expect(results).to.eql([
         {
-          keyword: 'required',
           dataPath: '',
-          schemaPath: '#/required',
-          params: { missingProperty: 'email' },
-          message: "should have required property 'email'",
-        },
-        {
-          keyword: 'type',
-          dataPath: '.name.first',
-          schemaPath: '#/properties/name/properties/first/type',
-          params: { type: 'string' },
-          message: 'should be string',
-        },
-        {
           keyword: 'required',
+          message: `should have required property 'email'`,
+          params: { missingProperty: 'email' },
+          schemaPath: '#/required',
+        },
+        {
+          dataPath: '.name.first',
+          keyword: 'type',
+          message: 'should be string',
+          params: { type: 'string' },
+          schemaPath: '#/properties/name/properties/first/type',
+        },
+        {
           dataPath: '.name',
-          schemaPath: '#/properties/name/required',
+          keyword: 'required',
+          message: `should have required property 'last'`,
           params: { missingProperty: 'last' },
-          message: "should have required property 'last'",
+          schemaPath: '#/properties/name/required',
         },
       ]);
     });

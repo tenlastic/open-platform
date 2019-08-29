@@ -16,13 +16,13 @@ describe('handlers/collections/create', function() {
 
   it('creates a new record', async function() {
     const ctx = new ContextMock({
+      params: { databaseId: new mongoose.Types.ObjectId() },
       request: {
         body: {
           name: chance.email(),
           userId: chance.hash(),
         },
       },
-      params: { databaseId: new mongoose.Types.ObjectId() },
       state: { user },
     });
 

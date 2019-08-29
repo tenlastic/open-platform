@@ -23,7 +23,7 @@ export function request(
     url += `?query=${queryString}`;
   }
 
-  let headers: any = {};
+  const headers: any = {};
 
   if (options) {
     let jwt = options.jwt;

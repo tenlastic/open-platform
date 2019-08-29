@@ -21,8 +21,8 @@ describe('toMongoose()', function() {
 
     it('throws an error', function() {
       const input = {
-        type: 'object',
         properties: { email: { type: 'not a type' } },
+        type: 'object',
       };
       const func = () => toMongoose(input);
 
@@ -33,34 +33,34 @@ describe('toMongoose()', function() {
   context('when the schema is valid', function() {
     it('converts the schema to mongoose', function() {
       const json = {
-        type: 'object',
         properties: {
           address: {
-            type: 'object',
             properties: {
               builtAt: { type: 'string', format: 'date-time' },
               street: { type: 'number', default: 44, minimum: 0, maximum: 50 },
             },
+            type: 'object',
           },
           anyValue: { a: 'b' },
           arr: {
-            type: 'array',
             items: {
-              type: 'object',
               properties: { num: { type: 'number' }, str: { type: 'string' } },
+              type: 'object',
             },
+            type: 'array',
           },
           id: { type: 'string', pattern: '^\\d{3}$' },
           name: { type: 'object' },
         },
+        type: 'object',
       };
 
       const result = toMongoose(json);
 
       expect(result).to.eql({
         address: {
-          street: { type: Number, default: 44, min: 0, max: 50 },
           builtAt: Date,
+          street: { type: Number, default: 44, min: 0, max: 50 },
         },
         anyValue: mongoose.Schema.Types.Mixed,
         arr: [

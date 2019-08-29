@@ -27,12 +27,12 @@ describe('requeue', function() {
       await publish(queue, msg);
 
       return new Promise((resolve, reject) => {
-        consume(queue, async (channel, content, msg) => {
+        consume(queue, async (channel, content, message) => {
           try {
             const ackStub = sandbox.stub(channel, 'ack');
             const sendToQueueStub = sandbox.stub(channel, 'sendToQueue');
 
-            await requeue(channel, msg, { retries: 0 });
+            await requeue(channel, message, { retries: 0 });
 
             expect(ackStub.calledOnce).to.eql(true);
             expect(sendToQueueStub.calledOnce).to.eql(false);
@@ -55,13 +55,13 @@ describe('requeue', function() {
         await publish(queue, msg);
 
         return new Promise((resolve, reject) => {
-          consume(queue, async (channel, content, msg) => {
+          consume(queue, async (channel, content, message) => {
             try {
               const ackStub = sandbox.stub(channel, 'ack');
               const assertQueueStub = sandbox.stub(channel, 'assertQueue').resolves();
               const sendToQueueStub = sandbox.stub(channel, 'sendToQueue');
 
-              await requeue(channel, msg, { delay: 60 });
+              await requeue(channel, message, { delay: 60 });
 
               expect(ackStub.calledOnce).to.eql(true);
               expect(assertQueueStub.getCall(0).args[0]).to.eql(`${queue}-ttl`);
@@ -84,13 +84,13 @@ describe('requeue', function() {
         await publish(queue, msg);
 
         return new Promise((resolve, reject) => {
-          consume(queue, async (channel, content, msg) => {
+          consume(queue, async (channel, content, message) => {
             try {
               const ackStub = sandbox.stub(channel, 'ack');
               const assertQueueStub = sandbox.stub(channel, 'assertQueue');
               const publishStub = sandbox.stub(channel, 'publish');
 
-              await requeue(channel, msg, { delay: 0 });
+              await requeue(channel, message, { delay: 0 });
 
               expect(ackStub.calledOnce).to.eql(true);
               expect(assertQueueStub.getCall(0).args[0]).to.eql(queue);

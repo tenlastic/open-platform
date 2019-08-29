@@ -15,28 +15,29 @@ jobs:
       - checkout
       - run:
           name: Update NPM
-          command: 'sudo npm install -g npm@latest'
+          command: sudo npm install -g npm@latest
       - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: dependency-cache-{{ checksum "./projects/nodejs/package.json" }}
       - run:
           name: Install Node Modules
           command: npm install
+          working_directory: ./projects/nodejs/
       - run:
           name: Lerna Bootstrap
           command: npm run lerna bootstrap
+          working_directory: ./projects/nodejs/
       - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: dependency-cache-{{ checksum "./projects/nodejs/package.json" }}
           paths:
-            - ./node_modules
+            - ./projects/nodejs/node_modules/
       - run:
           name: Lint
           command: npm run lerna run lint
+          working_directory: ./projects/nodejs/
       - run:
           name: Build
           command: npm run lerna run build
-      - run:
-          name: Test
-          command: npm run lerna run -- --concurrency 1 test
+          working_directory: ./projects/nodejs/
 
 workflows:
   version: 2.1

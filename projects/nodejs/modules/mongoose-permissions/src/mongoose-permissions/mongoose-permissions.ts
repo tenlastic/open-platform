@@ -1,4 +1,4 @@
-import { Document, Model } from 'mongoose';
+import * as mongoose from 'mongoose';
 
 import { isJsonValid } from '../is-json-valid/is-json-valid';
 
@@ -53,13 +53,13 @@ export class PermissionError extends Error {
   }
 }
 
-export class MongoosePermissions<TDocument extends Document> {
+export class MongoosePermissions<TDocument extends mongoose.Document> {
   public populateOptions: IPopulate;
 
-  private Model: Model<TDocument>;
+  private Model: mongoose.Model<TDocument>;
   private options: IOptions;
 
-  constructor(Model: Model<TDocument>, options: IOptions) {
+  constructor(Model: mongoose.Model<TDocument>, options: IOptions) {
     this.populateOptions = options.populate;
 
     this.Model = Model;
@@ -363,9 +363,9 @@ export class MongoosePermissions<TDocument extends Document> {
     };
 
     try {
-      for (let i = 0; i < this.options.roles.length; i++) {
-        if (isJsonValid(json, this.options.roles[i].query)) {
-          return this.options.roles[i].name;
+      for (const role of this.options.roles) {
+        if (isJsonValid(json, role.query)) {
+          return role.name;
         }
       }
     } catch {}
