@@ -16,6 +16,10 @@ E2E_USER_PASSWORD="password"
 # JWT
 JWT_SECRET="secret"
 
+# Kafka
+KAFKA_CONNECTION_STRING="kafka:9092"
+KAFKA_REPLICATION_FACTOR="1"
+
 # Mailgun
 MAILGUN_DOMAIN="support.example.com"
 MAILGUN_KEY="a1234a123abc12ab12a1abc123456a12-1ab1a1a1-abc1234a"

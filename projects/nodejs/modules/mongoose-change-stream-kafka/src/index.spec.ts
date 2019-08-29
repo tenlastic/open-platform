@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 
-import { ChangeDataCapture } from './mongoose-plugin/change-data-capture.model';
+import { connect } from './connect';
 
 const connectionString = process.env.MONGO_CONNECTION_STRING;
 const databaseName = process.env.MONGO_DATABASE_NAME;
@@ -10,6 +10,6 @@ mongoose.connect(connectionString, {
   useNewUrlParser: true,
 });
 
-beforeEach(function() {
-  return ChangeDataCapture.deleteMany({});
+before(async function() {
+  await connect(process.env.KAFKA_CONNECTION_STRING);
 });

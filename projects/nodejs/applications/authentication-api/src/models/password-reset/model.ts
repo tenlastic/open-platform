@@ -1,13 +1,19 @@
-import { changeDataCapturePlugin } from '@tenlastic/change-data-capture';
+import { EventEmitter, changeStreamPlugin } from '@tenlastic/mongoose-change-stream';
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Ref, Typegoose, index, plugin, pre, prop } from 'typegoose';
 
 import * as emails from '../../emails';
 import { UserSchema } from '../user/model';
 
+export const PasswordResetEvent = new EventEmitter<PasswordResetDocument>();
+
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ hash: 1 }, { unique: true })
-@plugin(changeDataCapturePlugin)
+@plugin(changeStreamPlugin, {
+  documentKey: ['_id'],
+  eventEmitter: PasswordResetEvent,
+  fullDocumentOnSave: true,
+})
 @pre('save', async function(this: PasswordResetDocument) {
   if (this.isNew) {
     await emails.sendPasswordResetRequest(this);

@@ -1,4 +1,4 @@
-import { changeDataCapturePlugin } from '@tenlastic/change-data-capture';
+import { EventEmitter, changeStreamPlugin } from '@tenlastic/mongoose-change-stream';
 import {
   alphanumericValidator,
   emailValidator,
@@ -15,7 +15,6 @@ import {
   index,
   instanceMethod,
   plugin,
-  post,
   pre,
   prop,
   staticMethod,
@@ -26,9 +25,15 @@ import * as emails from '../../emails';
 import { RefreshToken } from '../refresh-token/model';
 import { UserPermissions } from './';
 
+const UserEvent = new EventEmitter<UserDocument>();
+
 @index({ email: 1 }, { unique: true })
 @index({ username: 1 }, { unique: true })
-@plugin(changeDataCapturePlugin)
+@plugin(changeStreamPlugin, {
+  documentKey: ['_id'],
+  eventEmitter: UserEvent,
+  fullDocumentOnSave: true,
+})
 @pre('save', async function(this: UserDocument) {
   if (!this.isNew && this._original.password !== this.password) {
     await emails.sendPasswordResetConfirmation(this);

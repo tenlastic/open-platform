@@ -7,10 +7,11 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "paths": {
-      "@tenlastic/change-data-capture": ["./modules/change-data-capture/src"],
       "@tenlastic/e2e": ["./modules/e2e/src"],
       "@tenlastic/json-schema": ["./modules/json-schema/src"],
       "@tenlastic/mailgun": ["./modules/mailgun/src"],
+      "@tenlastic/mongoose-change-stream": ["./modules/mongoose-change-stream/src"],
+      "@tenlastic/mongoose-change-stream-kafka": ["./modules/mongoose-change-stream-kafka/src"],
       "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],
       "@tenlastic/rabbitmq": ["./modules/rabbitmq/src"],
       "@tenlastic/validations": ["./modules/validations/src"],

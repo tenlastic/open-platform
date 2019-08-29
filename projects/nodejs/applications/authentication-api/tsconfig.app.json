@@ -10,8 +10,8 @@
   "include": ["./src"],
   "references": [
     { "path": "../../modules/web-server/tsconfig.app.json" },
-    { "path": "../../modules/change-data-capture/tsconfig.app.json" },
     { "path": "../../modules/mailgun/tsconfig.app.json" },
+    { "path": "../../modules/mongoose-change-stream/tsconfig.app.json" },
     { "path": "../../modules/mongoose-permissions/tsconfig.app.json" },
     { "path": "../../modules/validations/tsconfig.app.json" }
   ]

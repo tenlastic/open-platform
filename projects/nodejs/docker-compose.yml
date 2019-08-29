@@ -13,6 +13,24 @@ services:
     volumes:
       - ./:/usr/src/app/
     working_dir: /usr/src/app/
+  kafka:
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    image: wurstmeister/kafka:latest
+    links:
+      - zookeeper
+    ports:
+      - 8081:8081
+      - 9092:9092
+  kafka_trifecta:
+    environment:
+      ZOOKEEPERS: zookeeper:2181
+    image: chatu/trifecta
+    ports:
+      - 8888:8888
   mongo:
     build:
       context: ./dockerfiles/mongo-replica-set
@@ -32,3 +50,7 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - 2181:2181
