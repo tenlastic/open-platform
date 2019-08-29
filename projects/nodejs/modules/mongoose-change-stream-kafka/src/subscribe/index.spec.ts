@@ -72,35 +72,72 @@ describe('subscribe()', function() {
   });
 
   context('when the operationType is update', function() {
-    it('updates the document within MongoDB', async function() {
-      const record = await Model.create({ _id: mongoose.Types.ObjectId() });
-      const payload: IDatabasePayload<any> = {
-        documentKey: { _id: record._id },
-        fullDocument: {
-          _id: record._id,
-          createdAt: new Date(),
-          name: chance.hash(),
-          updatedAt: new Date(),
-        },
-        ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
-        operationType: 'update',
-        updateDescription: {
-          removedFields: ['createdAt'],
-          updatedFields: { updatedAt: new Date() },
-        },
-      };
+    context('when useUpdateDescription is true', function() {
+      it('updates the document within MongoDB', async function() {
+        const record = await Model.create({ _id: mongoose.Types.ObjectId() });
+        const payload: IDatabasePayload<any> = {
+          documentKey: { _id: record._id },
+          fullDocument: {
+            _id: record._id,
+            createdAt: new Date(),
+            name: chance.hash(),
+            updatedAt: new Date(),
+          },
+          ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
+          operationType: 'update',
+          updateDescription: {
+            removedFields: ['createdAt'],
+            updatedFields: { updatedAt: new Date() },
+          },
+        };
 
-      const { coll, db } = payload.ns;
-      const topic = `${db}.${coll}`;
+        const { coll, db } = payload.ns;
+        const topic = `${db}.${coll}`;
 
-      subscribe(Model as any, chance.hash(), topic);
+        subscribe(Model as any, chance.hash(), topic, { useUpdateDescription: true });
 
-      await publish(payload);
-      await new Promise(resolve => setTimeout(resolve, 500));
+        await publish(payload);
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-      const result = (await Model.findOne({ _id: record._id })) as any;
-      expect(result.createdAt).to.not.exist;
-      expect(result.updatedAt).to.eql(payload.updateDescription.updatedFields.updatedAt);
+        const result = (await Model.findOne({ _id: record._id })) as any;
+        expect(result.createdAt).to.not.exist;
+        expect(result.updatedAt).to.eql(payload.updateDescription.updatedFields.updatedAt);
+      });
+    });
+
+    context('when useUpdateDescription is false', function() {
+      it('updates the document within MongoDB', async function() {
+        const record = await Model.create({ _id: mongoose.Types.ObjectId() });
+        const payload: IDatabasePayload<any> = {
+          documentKey: { _id: record._id },
+          fullDocument: {
+            _id: record._id,
+            createdAt: new Date(),
+            name: chance.hash(),
+            updatedAt: new Date(),
+          },
+          ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
+          operationType: 'update',
+          updateDescription: {
+            removedFields: ['createdAt'],
+            updatedFields: { updatedAt: new Date() },
+          },
+        };
+
+        const { coll, db } = payload.ns;
+        const topic = `${db}.${coll}`;
+
+        subscribe(Model as any, chance.hash(), topic);
+
+        await publish(payload);
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const result = (await Model.findOne({ _id: record._id })) as any;
+        expect(result._id.toString()).to.eql(payload.fullDocument._id.toString());
+        expect(result.createdAt).to.eql(payload.fullDocument.createdAt);
+        expect(result.name).to.eql(payload.fullDocument.name);
+        expect(result.updatedAt).to.eql(payload.fullDocument.updatedAt);
+      });
     });
   });
 });

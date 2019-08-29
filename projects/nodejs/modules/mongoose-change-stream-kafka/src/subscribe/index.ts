@@ -4,10 +4,19 @@ import { Document, Model } from 'mongoose';
 
 import { createTopic } from '../create-topic';
 
+export interface SubscribeOptions {
+  useUpdateDescription?: boolean;
+}
+
 /**
  * Applies all change events from the topic to the target collection.
  */
-export async function subscribe(Model: Model<Document>, group: string, topic: string) {
+export async function subscribe(
+  Model: Model<Document>,
+  group: string,
+  topic: string,
+  options: SubscribeOptions = {},
+) {
   await createTopic(topic);
 
   const consumerGroup = new ConsumerGroup(
@@ -35,22 +44,29 @@ export async function subscribe(Model: Model<Document>, group: string, topic: st
         break;
 
       case 'update':
-        const { removedFields, updatedFields } = json.updateDescription;
-        const update: any = {};
+        if (options.useUpdateDescription) {
+          const { removedFields, updatedFields } = json.updateDescription;
+          const update: any = {};
 
-        if (removedFields && removedFields.length > 0) {
-          update.$unset = json.updateDescription.removedFields.reduce((agg: any, field: string) => {
-            agg[field] = '';
-            return agg;
-          }, {});
-        }
+          if (removedFields && removedFields.length > 0) {
+            update.$unset = json.updateDescription.removedFields.reduce(
+              (agg: any, field: string) => {
+                agg[field] = '';
+                return agg;
+              },
+              {},
+            );
+          }
 
-        if (updatedFields && Object.keys(updatedFields).length > 0) {
-          update.$set = json.updateDescription.updatedFields;
-        }
+          if (updatedFields && Object.keys(updatedFields).length > 0) {
+            update.$set = json.updateDescription.updatedFields;
+          }
 
-        if (update.$set || update.$unset) {
-          await Model.findOneAndUpdate(json.documentKey, update);
+          if (update.$set || update.$unset) {
+            await Model.findOneAndUpdate(json.documentKey, update);
+          }
+        } else {
+          await Model.findOneAndUpdate(json.documentKey, json.fullDocument);
         }
 
         break;
