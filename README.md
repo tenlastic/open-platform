@@ -4,7 +4,7 @@
 
 - Follow `README.md` inside the ./gcp/directory.
 
-## Deploy resources to Google Cloud Platform with Deployment Manage and Terraform.
+## Deploy resources to Google Cloud Platform with Deployment Manager and Terraform.
 
 - Follow `README.md` inside the ./gcp/ directory.
 
