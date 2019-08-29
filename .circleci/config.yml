@@ -25,19 +25,19 @@ jobs:
       - run:
           name: Lerna Bootstrap
           command: npm run lerna bootstrap
+          working_directory: ./projects/nodejs/
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
-            - ./node_modules
+            - ./projects/nodejs/node_modules/
       - run:
           name: Lint
           command: npm run lerna run lint
+          working_directory: ./projects/nodejs/
       - run:
           name: Build
           command: npm run lerna run build
-      - run:
-          name: Test
-          command: npm run lerna run -- --concurrency 1 test
+          working_directory: ./projects/nodejs/
 
 workflows:
   version: 2.1
