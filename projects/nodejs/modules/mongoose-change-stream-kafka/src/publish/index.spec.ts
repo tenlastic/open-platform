@@ -29,7 +29,7 @@ describe('publish()', function() {
       await consumer.subscribe({ fromBeginning: true, topic });
 
       await consumer.run({
-        eachMessage: async ({ topic, partition, message }) => {
+        eachMessage: async ({ message }) => {
           const value = JSON.parse(message.value.toString());
 
           expect(value.documentKey).to.eql(payload.documentKey);

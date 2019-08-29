@@ -11,10 +11,10 @@ describe('handlers/records/find', function() {
   beforeEach(async function() {
     collection = await CollectionMock.create({
       jsonSchema: {
-        type: 'object',
         properties: {
           insertedAt: { type: 'string', format: 'date-time' },
         },
+        type: 'object',
       },
       permissions: {
         create: {
@@ -64,6 +64,10 @@ describe('handlers/records/find', function() {
 
     const ONE_HOUR = 60 * 60 * 1000;
     const ctx = new ContextMock({
+      params: {
+        collectionId: collection._id.toString(),
+        databaseId: collection.databaseId.toString(),
+      },
       request: {
         query: {
           where: {
@@ -72,10 +76,6 @@ describe('handlers/records/find', function() {
             },
           },
         },
-      },
-      params: {
-        collectionId: collection._id.toString(),
-        databaseId: collection.databaseId.toString(),
       },
       state: { user },
     });

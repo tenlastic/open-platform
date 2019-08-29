@@ -41,13 +41,13 @@ describe('handlers/records/update', function() {
   it('returns the matching record', async function() {
     const customProperties = { email: chance.email(), name: chance.name() };
     const ctx = new ContextMock({
-      request: {
-        body: { customProperties },
-      },
       params: {
         collectionId: collection._id.toString(),
         databaseId: collection.databaseId.toString(),
         id: record._id.toString(),
+      },
+      request: {
+        body: { customProperties },
       },
       state: { user },
     });

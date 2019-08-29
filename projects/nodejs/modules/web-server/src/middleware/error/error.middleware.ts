@@ -7,7 +7,7 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
   try {
     await next();
   } catch (e) {
-    let status = e.status || 400;
+    const status = e.status || 400;
 
     switch (e.name) {
       case 'PermissionError':

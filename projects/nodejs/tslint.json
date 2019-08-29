@@ -17,6 +17,7 @@
     "no-unused-expression": false,
     "no-var-keyword": true,
     "no-var-requires": false,
+    "object-literal-key-quotes": false,
     "only-arrow-functions": false,
     "ordered-imports": false,
     "quotemark": [true, "single"],

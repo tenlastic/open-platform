@@ -1,14 +1,14 @@
 import * as mongoose from 'mongoose';
 
 const schemaParamsToMongoose = {
-  type: (value: string) => ({ type: typeToMongoose[value] }),
   default: (value: string) => ({ default: value }),
   enum: (value: any[]) => ({ enum: value }),
-  maximum: (value: number) => ({ max: value }),
   maxLength: (value: number) => ({ maxlength: value }),
-  minimum: (value: number) => ({ min: value }),
+  maximum: (value: number) => ({ max: value }),
   minLength: (value: number) => ({ minlength: value }),
+  minimum: (value: number) => ({ min: value }),
   pattern: (value: string) => ({ match: RegExp(value) }),
+  type: (value: string) => ({ type: typeToMongoose[value] }),
 };
 
 const typeToMongoose = {
@@ -23,8 +23,8 @@ export function toMongoose(jsonSchema: any) {
     throw new Error(`Unsupported JSON schema type: ${jsonSchema.type}.`);
   }
 
-  let typeIsDate = jsonSchema.type === 'string' && jsonSchema.format === 'date-time';
-  let typeIsDefined = 'type' in jsonSchema;
+  const typeIsDate = jsonSchema.type === 'string' && jsonSchema.format === 'date-time';
+  const typeIsDefined = 'type' in jsonSchema;
 
   if (typeIsDate) {
     return Date;

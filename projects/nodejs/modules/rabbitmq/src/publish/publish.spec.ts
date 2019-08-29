@@ -14,9 +14,9 @@ describe('publish', function() {
     await publish(queue, msg);
 
     return new Promise(resolve => {
-      consume(queue, (channel, content, msg) => {
+      consume(queue, (channel, content, message) => {
         expect(content.key).to.eql('value');
-        expect(msg.properties.headers['x-original-queue']).to.eql(queue);
+        expect(message.properties.headers['x-original-queue']).to.eql(queue);
 
         resolve();
       });

@@ -1,12 +1,12 @@
 const schemaParamsToMongo = {
-  type: (value: string) => ({ bsonType: typeToMongoose[value] }),
   default: (value: string) => ({ default: value }),
   enum: (value: any[]) => ({ enum: value }),
-  maximum: (value: number) => ({ maximum: value }),
   maxLength: (value: number) => ({ maxlength: value }),
-  minimum: (value: number) => ({ minimum: value }),
+  maximum: (value: number) => ({ maximum: value }),
   minLength: (value: number) => ({ minlength: value }),
+  minimum: (value: number) => ({ minimum: value }),
   pattern: (value: string) => ({ pattern: RegExp(value) }),
+  type: (value: string) => ({ bsonType: typeToMongoose[value] }),
 };
 
 const typeToMongoose = {
@@ -20,8 +20,8 @@ export function toMongo(jsonSchema: any) {
     throw new Error(`Unsupported JSON schema type: ${jsonSchema.type}.`);
   }
 
-  let typeIsDate = jsonSchema.type === 'string' && jsonSchema.format === 'date-time';
-  let typeIsDefined = 'type' in jsonSchema;
+  const typeIsDate = jsonSchema.type === 'string' && jsonSchema.format === 'date-time';
+  const typeIsDefined = 'type' in jsonSchema;
 
   if (typeIsDate) {
     return { bsonType: 'date' };

@@ -59,11 +59,11 @@ export class CollectionSchema extends Typegoose {
         additionalProperties: false,
         bsonType: 'object',
         properties: {
-          _id: {
-            bsonType: 'objectId',
-          },
           __v: {
             bsonType: 'number',
+          },
+          _id: {
+            bsonType: 'objectId',
           },
           collectionId: {
             bsonType: 'objectId',
@@ -100,8 +100,8 @@ export class CollectionSchema extends Typegoose {
     } else {
       await mongoose.connection.createCollection(this.id, {
         strict: true,
-        validator: this.validator,
         validationLevel: 'strict',
+        validator: this.validator,
       });
     }
   }

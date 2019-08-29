@@ -14,7 +14,7 @@ describe('consume', function() {
     await publish(queue, msg);
 
     return new Promise(resolve => {
-      consume(queue, (channel, content, msg) => {
+      consume(queue, (channel, content) => {
         expect(content.key).to.eql('value');
 
         resolve();

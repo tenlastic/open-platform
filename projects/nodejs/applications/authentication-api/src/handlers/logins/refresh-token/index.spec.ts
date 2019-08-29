@@ -12,10 +12,8 @@ const chance = new Chance();
 use(chaiAsPromised);
 
 describe('handlers/logins/refresh-token', function() {
-  let user: UserDocument;
-
   beforeEach(async function() {
-    user = await UserMock.create({ password: 'password' });
+    await UserMock.create({ password: 'password' });
   });
 
   context('when a token is not provided', function() {

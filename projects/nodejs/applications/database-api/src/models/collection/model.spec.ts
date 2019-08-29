@@ -20,11 +20,11 @@ describe('models/collection/model', function() {
       const collection = await CollectionMock.create({
         jsonSchema: {
           additionalProperties: false,
-          type: 'object',
           properties: {
             name: { type: 'string' },
           },
           required: ['name'],
+          type: 'object',
         },
       });
 
