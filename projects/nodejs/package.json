@@ -7,6 +7,7 @@
     "docker:install": "docker-compose run --rm application npm install",
     "google:tokens": "ts-node ./scripts/get-google-tokens.ts",
     "lerna": "lerna",
+    "merge:coverage": "./scripts/merge-coverage.sh",
     "merge:junit": "./scripts/merge-junit.sh"
   },
   "dependencies": {
@@ -51,6 +52,7 @@
     "chai-http": "4.3.0",
     "chance": "1.0.16",
     "googleapis": "42.0.0",
+    "istanbul-merge": "1.1.1",
     "jsonwebtoken": "8.5.1",
     "junit-merge": "2.0.0",
     "lerna": "3.16.4",
