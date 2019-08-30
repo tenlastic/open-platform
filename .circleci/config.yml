@@ -38,6 +38,10 @@ jobs:
           name: Build
           command: npm run lerna run build
           working_directory: ./projects/nodejs/
+      - run:
+          name: Test
+          command: npm run lerna run -- --concurrency 1 test
+          working_directory: ./projects/nodejs/
 
 workflows:
   version: 2.1
