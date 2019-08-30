@@ -52,7 +52,7 @@
     "chai-http": "4.3.0",
     "chance": "1.0.16",
     "googleapis": "42.0.0",
-    "istanbul-merge": "1.1.1",
+    "istanbul-combine": "0.3.0",
     "jsonwebtoken": "8.5.1",
     "junit-merge": "2.0.0",
     "lerna": "3.16.4",

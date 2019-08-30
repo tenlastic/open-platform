@@ -5,6 +5,10 @@ set -e
 rm -rf ./test-results/coverage/
 
 # Merge regular tests.
-istanbul-merge \
-  --out "./test-results/coverage/cobertura.json" \
-  $(find . -type f -name "coverage-final.json")
+istanbul-combine \
+  -d "./test-results/coverage" \
+  -r "html" \
+  -r "json" \
+  ./applications/*/test-results/coverage/coverage-final.json \
+  ./modules/*/test-results/coverage/coverage-final.json
+
