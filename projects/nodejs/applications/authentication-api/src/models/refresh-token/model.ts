@@ -1,19 +1,11 @@
-import { EventEmitter, changeStreamPlugin } from '@tenlastic/mongoose-change-stream';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Ref, Typegoose, index, plugin, prop } from 'typegoose';
+import { InstanceType, ModelType, Ref, Typegoose, index, prop } from 'typegoose';
 
 import { UserSchema } from '../user/model';
-
-const RefreshTokenEvent = new EventEmitter<RefreshTokenDocument>();
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ jti: 1 }, { unique: true })
 @index({ userId: 1 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: RefreshTokenEvent,
-  fullDocumentOnSave: true,
-})
 export class RefreshTokenSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

@@ -58,9 +58,9 @@ describe('handlers/password-resets/delete', function() {
           },
         });
 
-        const promise = handler(ctx as any);
+        await handler(ctx as any);
 
-        return expect(promise).to.be.rejectedWith('Something went wrong. Please try again.');
+        expect(ctx.response.status).eql(200);
       });
     });
 
