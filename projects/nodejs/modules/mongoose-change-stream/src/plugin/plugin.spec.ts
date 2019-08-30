@@ -7,7 +7,7 @@ import { IDatabasePayload } from './plugin';
 
 const chance = new Chance();
 
-describe('mongoose-plugin', function() {
+describe('plugin', function() {
   describe(`post('findOneAndDelete')`, function() {
     it('emits an event', async function() {
       const record = await ChangeDataCapture.create({ name: chance.hash() });
