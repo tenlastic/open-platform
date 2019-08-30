@@ -1,13 +1,13 @@
 version: 2.1
 
 jobs:
-  backend:
+  nodejs:
     docker:
       - image: circleci/node:10-browsers
       - image: wurstmeister/kafka:latest
         environment:
-          KAFKA_ADVERTISED_HOST_NAME: kafka
-          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+          KAFKA_ADVERTISED_HOST_NAME: localhost
+          KAFKA_ZOOKEEPER_CONNECT: localhost:2181
       - image: mongo:latest
       - image: rabbitmq:latest
       - image: wurstmeister/zookeeper:latest
