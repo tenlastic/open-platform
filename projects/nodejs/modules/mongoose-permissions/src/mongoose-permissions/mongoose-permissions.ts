@@ -256,11 +256,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     // Update record with authorized fields
     const filteredParams = this.filterObject(params, updatePermissions);
     Object.assign(record, filteredParams, override);
-    record = await this.Model.findOneAndUpdate(
-      { _id: record._id },
-      { ...filteredParams, ...override },
-      { new: true },
-    );
+    record = await record.save();
 
     // Remove unauthorized fields
     const readPermissions = await this.readPermissions(record, user);

@@ -12,7 +12,6 @@ export const PasswordResetEvent = new EventEmitter<PasswordResetDocument>();
 @plugin(changeStreamPlugin, {
   documentKeys: ['_id'],
   eventEmitter: PasswordResetEvent,
-  fullDocumentOnSave: true,
 })
 @pre('save', async function(this: PasswordResetDocument) {
   if (this.isNew) {

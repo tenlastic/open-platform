@@ -14,7 +14,7 @@ export interface IDatabasePayload<T> {
 export interface IOptions<T extends mongoose.Document> {
   documentKeys?: string[];
   eventEmitter: EventEmitter<IDatabasePayload<T>>;
-  fullDocumentOnSave?: boolean;
+  fetchFullDocumentOnSave?: boolean;
 }
 
 export interface IOriginalDocument {
@@ -119,21 +119,10 @@ export function changeStreamPlugin<T extends mongoose.Document>(
     const operationType = this.wasNew ? 'insert' : 'update';
     const payload = {
       documentKey,
+      fullDocument: this,
       ns: { coll: this.collection.name, db: this.db.db.databaseName },
       operationType,
     } as IDatabasePayload<T>;
-
-    // Append the fullDocument field to the payload.
-    if (options.fullDocumentOnSave) {
-      let fullDocument: T = this;
-
-      if (operationType === 'update') {
-        const Model = this.constructor as mongoose.Model<T>;
-        fullDocument = await Model.findOne(documentKey);
-      }
-
-      payload.fullDocument = fullDocument;
-    }
 
     // Append the updateDescription field to the payload.
     if (operationType === 'update') {
@@ -143,6 +132,11 @@ export function changeStreamPlugin<T extends mongoose.Document>(
       }, {});
 
       payload.updateDescription = { removedFields: [], updatedFields };
+
+      if (options.fetchFullDocumentOnSave) {
+        const Model = this.constructor as mongoose.Model<T>;
+        payload.fullDocument = await Model.findOne(documentKey);
+      }
     }
 
     options.eventEmitter.emit(payload);

@@ -11,7 +11,6 @@ export const ChangeDataCaptureEvent = new EventEmitter<
 @plugin(changeStreamPlugin, {
   documentKeys: ['_id'],
   eventEmitter: ChangeDataCaptureEvent,
-  fullDocumentOnSave: true,
 })
 export class ChangeDataCaptureSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
