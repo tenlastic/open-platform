@@ -43,5 +43,5 @@ workflows:
   version: 2.1
   build-deploy:
     jobs:
-      - backend:
+      - nodejs:
           context: open-platform-review
