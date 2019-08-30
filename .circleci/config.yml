@@ -8,7 +8,7 @@ jobs:
         environment:
           KAFKA_ADVERTISED_HOST_NAME: localhost
           KAFKA_ZOOKEEPER_CONNECT: localhost:2181
-      - image: mongo:latest
+      - image: mongo:4
       - image: rabbitmq:latest
       - image: wurstmeister/zookeeper:latest
     steps:

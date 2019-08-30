@@ -118,6 +118,7 @@ describe('records', function() {
       });
 
       expect(res.statusCode).to.eql(400);
+      console.log(res.body);
       expect(res.body.errors[0].name).to.eql('CastError');
       expect(res.body.errors[1].name).to.eql('ValidatorError');
       expect(res.body.errors[1].path).to.eql('customProperties.email');
