@@ -74,7 +74,7 @@ describe('handlers/password-resets/delete', function() {
             hash: record.hash,
           },
           request: {
-            body: {
+            query: {
               password: chance.hash(),
             },
           },
@@ -94,7 +94,7 @@ describe('handlers/password-resets/delete', function() {
       });
 
       it(`updates the User's password`, async function() {
-        const updatedUser = await User.findById(user._id);
+        const updatedUser = await User.findOne({ _id: user._id });
         expect(updatedUser.password).to.not.eql(previousPassword);
       });
 

@@ -45,6 +45,10 @@ export function changeStreamPlugin<T extends mongoose.Document>(
     this: mongoose.DocumentQuery<mongoose.Document, mongoose.Document, {}>,
     document: T,
   ) {
+    if (!document) {
+      return;
+    }
+
     const query = this.getQuery();
     const documentKey = options.documentKeys.reduce((agg: any, key: string) => {
       agg[key] = query[key];
@@ -63,6 +67,10 @@ export function changeStreamPlugin<T extends mongoose.Document>(
     this: mongoose.DocumentQuery<mongoose.Document, mongoose.Document, {}>,
     document: T,
   ) {
+    if (!document) {
+      return;
+    }
+
     const query = this.getQuery();
     const documentKey = options.documentKeys.reduce((agg: any, key: string) => {
       agg[key] = query[key];

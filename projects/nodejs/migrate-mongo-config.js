@@ -1,7 +1,7 @@
 'use strict';
 
 const connectionString = process.env.MONGO_CONNECTION_STRING;
-const databaseName = connectionString.match(/\/([a-z]+)\?/)[1];
+const databaseName = process.env.MONGO_DATABASE_NAME;
 
 module.exports = {
   changelogCollectionName: 'schemaMigrations',
