@@ -16,7 +16,8 @@ export async function handler(ctx: Context) {
     const passwordReset = await PasswordReset.findOneAndDelete({ hash });
 
     // Update the User's password.
-    await User.findOneAndUpdate({ _id: passwordReset.userId }, { password });
+    const passwordHash = await User.hashPassword(password);
+    await User.findOneAndUpdate({ _id: passwordReset.userId }, { password: passwordHash });
 
     // Remove all User's RefreshTokens to prevent malicious logins.
     await RefreshToken.deleteMany({ userId: passwordReset.userId });

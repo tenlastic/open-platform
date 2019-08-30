@@ -36,7 +36,7 @@ describe('logins', function() {
     });
 
     context('when password is invalid', function() {
-      it('returns an access and refresh token', async function() {
+      it('does not return an access and refresh token', async function() {
         const response = await e2e.request('post', '/logins', { email, password: chance.hash() });
 
         expect(response.statusCode).to.eql(400);
