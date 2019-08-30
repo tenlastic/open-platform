@@ -10,7 +10,7 @@ const RefreshTokenEvent = new EventEmitter<RefreshTokenDocument>();
 @index({ jti: 1 }, { unique: true })
 @index({ userId: 1 })
 @plugin(changeStreamPlugin, {
-  documentKey: ['_id'],
+  documentKeys: ['_id'],
   eventEmitter: RefreshTokenEvent,
   fullDocumentOnSave: true,
 })

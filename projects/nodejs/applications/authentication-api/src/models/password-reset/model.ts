@@ -10,7 +10,7 @@ export const PasswordResetEvent = new EventEmitter<PasswordResetDocument>();
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ hash: 1 }, { unique: true })
 @plugin(changeStreamPlugin, {
-  documentKey: ['_id'],
+  documentKeys: ['_id'],
   eventEmitter: PasswordResetEvent,
   fullDocumentOnSave: true,
 })
