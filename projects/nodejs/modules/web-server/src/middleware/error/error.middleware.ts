@@ -9,7 +9,7 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
   } catch (e) {
     const status = e.status || 400;
 
-    console.error(e);
+    console.error(e.name, e);
     switch (e.name) {
       case 'PermissionError':
         ctx.response.status = 401;
