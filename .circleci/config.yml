@@ -57,6 +57,7 @@ jobs:
           path: ./projects/nodejs/test-results/
       - store_artifacts:
           path: ./projects/nodejs/test-results/
+          destination: test-results
 
 workflows:
   version: 2.1
