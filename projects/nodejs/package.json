@@ -6,7 +6,8 @@
     "docker": "docker-compose run --rm application npm run",
     "docker:install": "docker-compose run --rm application npm install",
     "google:tokens": "ts-node ./scripts/get-google-tokens.ts",
-    "lerna": "lerna"
+    "lerna": "lerna",
+    "merge:junit": "./scripts/merge-junit.sh"
   },
   "dependencies": {
     "node-pre-gyp": "0.13.0"
@@ -51,6 +52,7 @@
     "chance": "1.0.16",
     "googleapis": "42.0.0",
     "jsonwebtoken": "8.5.1",
+    "junit-merge": "2.0.0",
     "lerna": "3.16.4",
     "mocha": "6.1.4",
     "mocha-junit-reporter": "1.18.0",
