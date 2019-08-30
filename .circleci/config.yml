@@ -42,6 +42,10 @@ jobs:
           name: Test
           command: npm run lerna run -- --concurrency 1 test
           working_directory: ./projects/nodejs/
+      - run:
+          name: Test (E2E)
+          command: npm run lerna run -- --concurrency 1 e2e
+          working_directory: ./projects/nodejs/
 
 workflows:
   version: 2.1
