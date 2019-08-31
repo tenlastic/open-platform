@@ -4,16 +4,14 @@ import { InstanceType, ModelType, Typegoose, plugin, prop } from 'typegoose';
 import { EventEmitter } from '..';
 import { IDatabasePayload, changeStreamPlugin } from './plugin';
 
-export const ChangeDataCaptureEvent = new EventEmitter<
-  IDatabasePayload<ChangeDataCaptureDocument>
->();
+export const ExampleEvent = new EventEmitter<IDatabasePayload<ExampleDocument>>();
 
 @plugin(changeStreamPlugin, {
   documentKeys: ['_id'],
-  eventEmitter: ChangeDataCaptureEvent,
+  eventEmitter: ExampleEvent,
   fetchFullDocumentOnSave: true,
 })
-export class ChangeDataCaptureSchema extends Typegoose {
+export class ExampleSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
 
   @prop()
@@ -27,14 +25,11 @@ export class ChangeDataCaptureSchema extends Typegoose {
   public updatedAt: Date;
 }
 
-export type ChangeDataCaptureDocument = InstanceType<ChangeDataCaptureSchema>;
-export type ChangeDataCaptureModel = ModelType<ChangeDataCaptureSchema>;
-export const ChangeDataCapture = new ChangeDataCaptureSchema().getModelForClass(
-  ChangeDataCaptureSchema,
-  {
-    schemaOptions: {
-      collection: 'changedatacaptures',
-      timestamps: true,
-    },
+export type ExampleDocument = InstanceType<ExampleSchema>;
+export type ExampleModel = ModelType<ExampleSchema>;
+export const Example = new ExampleSchema().getModelForClass(ExampleSchema, {
+  schemaOptions: {
+    collection: 'examples',
+    timestamps: true,
   },
-);
+});

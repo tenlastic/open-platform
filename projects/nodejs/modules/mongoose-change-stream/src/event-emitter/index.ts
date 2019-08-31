@@ -3,7 +3,7 @@
  * Source: https://basarat.gitbooks.io/typescript/docs/tips/typed-event.html
  */
 
-type Listener<T> = (event: T) => any;
+type Listener<T> = (event: T) => Promise<any>;
 
 export interface Disposable {
   dispose(): any;
@@ -13,22 +13,32 @@ export class EventEmitter<T> {
   private listeners: Array<Listener<T>> = [];
   private listenersOnce: Array<Listener<T>> = [];
 
-  public emit = (event: T) => {
+  public emit = async (event?: T) => {
     /** Update any general listeners */
-    this.listeners.forEach(listener => listener(event));
+    for (const listener of this.listeners) {
+      await listener(event);
+    }
 
     /** Clear the `once` queue */
-    if (this.listenersOnce.length > 0) {
-      this.listenersOnce.forEach(listener => listener(event));
-      this.listenersOnce = [];
+    for (const listener of this.listenersOnce) {
+      const index = this.listeners.findIndex(l => l === listener);
+
+      if (index >= 0) {
+        this.listeners.splice(index, 1);
+      }
     }
   };
 
   public off = (listener: Listener<T>) => {
-    const callbackIndex = this.listeners.indexOf(listener);
+    const listenersIndex = this.listeners.indexOf(listener);
+    const listenersOnceIndex = this.listenersOnce.indexOf(listener);
 
-    if (callbackIndex > -1) {
-      this.listeners.splice(callbackIndex, 1);
+    if (listenersIndex >= 0) {
+      this.listeners.splice(listenersIndex, 1);
+    }
+
+    if (listenersOnceIndex >= 0) {
+      this.listenersOnce.splice(listenersOnceIndex, 1);
     }
   };
 
@@ -41,6 +51,7 @@ export class EventEmitter<T> {
   };
 
   public once = (listener: Listener<T>): void => {
+    this.listeners.push(listener);
     this.listenersOnce.push(listener);
   };
 

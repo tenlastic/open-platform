@@ -60,7 +60,7 @@ export function changeStreamPlugin<T extends mongoose.Document>(
       ns: { coll: document.collection.name, db: document.db.db.databaseName },
       operationType: 'delete',
     } as IDatabasePayload<T>;
-    options.eventEmitter.emit(payload);
+    return options.eventEmitter.emit(payload);
   });
 
   schema.post('findOneAndUpdate', async function(
@@ -89,7 +89,7 @@ export function changeStreamPlugin<T extends mongoose.Document>(
       updateDescription: { removedFields, updatedFields },
     } as IDatabasePayload<T>;
 
-    options.eventEmitter.emit(payload);
+    return options.eventEmitter.emit(payload);
   });
 
   schema.post('init', function(this: T & IOriginalDocument) {
@@ -107,7 +107,7 @@ export function changeStreamPlugin<T extends mongoose.Document>(
       ns: { coll: this.collection.name, db: this.db.db.databaseName },
       operationType: 'delete',
     } as IDatabasePayload<T>;
-    options.eventEmitter.emit(payload);
+    return options.eventEmitter.emit(payload);
   });
 
   schema.post('save', async function(this: T & IOriginalDocument) {
@@ -139,7 +139,7 @@ export function changeStreamPlugin<T extends mongoose.Document>(
       }
     }
 
-    options.eventEmitter.emit(payload);
+    await options.eventEmitter.emit(payload);
 
     this._original = this.toObject();
   });

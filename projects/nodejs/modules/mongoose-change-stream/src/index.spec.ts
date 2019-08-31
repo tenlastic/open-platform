@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 
-import { ChangeDataCapture } from './plugin/model';
+import { Example } from './plugin/model';
 
 const connectionString = process.env.MONGO_CONNECTION_STRING;
 const databaseName = process.env.MONGO_DATABASE_NAME;
@@ -11,5 +11,5 @@ mongoose.connect(connectionString, {
 });
 
 beforeEach(async function() {
-  await ChangeDataCapture.deleteMany({});
+  await Example.deleteMany({});
 });

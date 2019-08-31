@@ -4,7 +4,7 @@ import { merge } from './';
 
 describe('merge', function() {
   it('merges JSON files', function() {
-    const report = merge('./src/mochawesome-report/*.json');
+    const report = merge('./mochawesome-report/*.json');
     const suites = report.results;
 
     expect(report.stats.end).to.be.a('string');
