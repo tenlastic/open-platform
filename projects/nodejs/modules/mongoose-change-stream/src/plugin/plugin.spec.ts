@@ -13,7 +13,11 @@ describe('plugin', function() {
       const record = await Example.create({ name: chance.hash() });
 
       const spy = sinon.spy();
-      ExampleEvent.once(spy);
+      const stub = async (value: any) => {
+        await new Promise(resolve => setTimeout(resolve, 0));
+        return spy(value);
+      };
+      ExampleEvent.once(stub);
 
       await Example.findOneAndDelete({ _id: record._id });
 
@@ -29,7 +33,11 @@ describe('plugin', function() {
       const initialRecord = await Example.create({ age: chance.integer() });
 
       const spy = sinon.spy();
-      ExampleEvent.once(spy);
+      const stub = async (value: any) => {
+        await new Promise(resolve => setTimeout(resolve, 0));
+        return spy(value);
+      };
+      ExampleEvent.once(stub);
 
       // Find the record without including the age to make sure age is included in payload.
       const name = chance.hash();
@@ -69,7 +77,11 @@ describe('plugin', function() {
       const record = await Example.create({ name: chance.hash() });
 
       const spy = sinon.spy();
-      ExampleEvent.once(spy);
+      const stub = async (value: any) => {
+        await new Promise(resolve => setTimeout(resolve, 0));
+        return spy(value);
+      };
+      ExampleEvent.once(stub);
 
       await record.remove();
 
@@ -101,7 +113,11 @@ describe('plugin', function() {
         const initialRecord = await Example.create({ age: chance.integer() });
 
         const spy = sinon.spy();
-        ExampleEvent.once(spy);
+        const stub = async (value: any) => {
+          await new Promise(resolve => setTimeout(resolve, 0));
+          return spy(value);
+        };
+        ExampleEvent.once(stub);
 
         // Find the record without including the age to make sure age is included in payload.
         const record = await Example.findOne({ _id: initialRecord._id }).select([
