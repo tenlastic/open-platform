@@ -53,6 +53,11 @@ jobs:
           command: npm run merge:coverage
           working_directory: ./projects/nodejs/
           when: always
+      - run:
+          name: Merge Mochawesome
+          command: npm run merge:mochawesome
+          working_directory: ./projects/nodejs/
+          when: always
       - store_test_results:
           path: ./projects/nodejs/test-results/
       - store_artifacts:
