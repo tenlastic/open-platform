@@ -30,9 +30,8 @@ const UserEvent = new EventEmitter<UserDocument>();
 @index({ email: 1 }, { unique: true })
 @index({ username: 1 }, { unique: true })
 @plugin(changeStreamPlugin, {
-  documentKey: ['_id'],
+  documentKeys: ['_id'],
   eventEmitter: UserEvent,
-  fullDocumentOnSave: true,
 })
 @pre('save', async function(this: UserDocument) {
   if (!this.isNew && this._original.password !== this.password) {

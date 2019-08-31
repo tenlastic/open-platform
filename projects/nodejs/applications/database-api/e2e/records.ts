@@ -17,7 +17,6 @@ describe('records', function() {
     const createdCollection = await CollectionModel.create({
       databaseId: database._id,
       jsonSchema: {
-        type: 'object',
         additionalProperties: false,
         properties: {
           age: { type: 'number' },
@@ -25,6 +24,7 @@ describe('records', function() {
           name: { type: 'string' },
         },
         required: ['email', 'name'],
+        type: 'object',
       },
       name: chance.hash(),
       permissions: {
@@ -51,8 +51,8 @@ describe('records', function() {
 
   it('does not create an invalid record', async function() {
     const res = await RecordModel.create({
-      customProperties: { age: chance.hash() },
       collectionId: collection._id,
+      customProperties: { age: chance.hash() },
       databaseId: database._id,
     });
 
@@ -68,11 +68,11 @@ describe('records', function() {
     const initialEmail = chance.email();
     const initialName = chance.name();
     const res = await RecordModel.create({
+      collectionId: collection._id,
       customProperties: {
         email: initialEmail,
         name: initialName,
       },
-      collectionId: collection._id,
       databaseId: database._id,
     });
 
@@ -86,11 +86,11 @@ describe('records', function() {
 
     beforeEach(async function() {
       const res = await RecordModel.create({
+        collectionId: collection._id,
         customProperties: {
           email: chance.email(),
           name: chance.name(),
         },
-        collectionId: collection._id,
         databaseId: database._id,
       });
 
@@ -112,8 +112,8 @@ describe('records', function() {
     it('does not update a record with invalid values', async function() {
       const res = await RecordModel.update({
         _id: record._id,
-        customProperties: { age: chance.hash() },
         collectionId: collection._id,
+        customProperties: { age: chance.hash() },
         databaseId: database._id,
       });
 
@@ -131,11 +131,11 @@ describe('records', function() {
 
       const res = await RecordModel.update({
         _id: record._id,
+        collectionId: collection._id,
         customProperties: {
           email: newEmail,
           name: newName,
         },
-        collectionId: collection._id,
         databaseId: database._id,
       });
 

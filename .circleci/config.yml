@@ -1,21 +1,18 @@
 version: 2.1
 
 jobs:
-  backend:
+  nodejs:
     docker:
-      - image: circleci/node:10-browsers
+      - image: node:10
       - image: wurstmeister/kafka:latest
         environment:
-          KAFKA_ADVERTISED_HOST_NAME: kafka
-          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      - image: mongo:latest
+          KAFKA_ADVERTISED_HOST_NAME: localhost
+          KAFKA_ZOOKEEPER_CONNECT: localhost:2181
+      - image: mongo:4
       - image: rabbitmq:latest
       - image: wurstmeister/zookeeper:latest
     steps:
       - checkout
-      - run:
-          name: Update NPM
-          command: sudo npm install -g npm@latest
       - restore_cache:
           key: dependency-cache-{{ checksum "./projects/nodejs/package.json" }}
       - run:
@@ -38,10 +35,38 @@ jobs:
           name: Build
           command: npm run lerna run build
           working_directory: ./projects/nodejs/
+      - run:
+          name: Test
+          command: npm run lerna run -- --concurrency 1 test -- -- --coverage
+          working_directory: ./projects/nodejs/
+      - run:
+          name: Test (E2E)
+          command: npm run lerna run -- --concurrency 1 e2e
+          working_directory: ./projects/nodejs/
+      - run:
+          name: Merge Test Results
+          command: npm run merge:junit
+          working_directory: ./projects/nodejs/
+          when: always
+      - run:
+          name: Merge Code Coverage
+          command: npm run merge:coverage
+          working_directory: ./projects/nodejs/
+          when: always
+      - run:
+          name: Merge Mochawesome
+          command: npm run merge:mochawesome
+          working_directory: ./projects/nodejs/
+          when: always
+      - store_test_results:
+          path: ./projects/nodejs/test-results/
+      - store_artifacts:
+          path: ./projects/nodejs/test-results/
+          destination: test-results
 
 workflows:
   version: 2.1
   build-deploy:
     jobs:
-      - backend:
+      - nodejs:
           context: open-platform-review

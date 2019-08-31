@@ -38,7 +38,12 @@ export class UserModel {
   }
 
   public static async deleteAll() {
-    return Promise.all(this.records.map(r => this.delete({ _id: r._id })));
+    return Promise.all(
+      this.records.map((r, i) => {
+        this.records.splice(i, 1);
+        return this.delete({ _id: r._id });
+      }),
+    );
   }
 
   public static async findOne(params: any = {}, user: any = {}) {
