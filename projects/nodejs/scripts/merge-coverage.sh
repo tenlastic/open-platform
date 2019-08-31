@@ -4,7 +4,7 @@ set -e
 # Remove the previous test results.
 rm -rf ./test-results/coverage/
 
-# Merge regular tests.
+# Merge code coverage reports.
 istanbul-combine \
   -d "./test-results/coverage" \
   -r "html" \
