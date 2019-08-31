@@ -15,7 +15,7 @@ export async function handler(ctx: Context) {
   const Permissions = new MongoosePermissions<RecordDocument>(Model, collection.permissions);
 
   const query = { _id: id, collectionId, databaseId };
-  const where = Permissions.where(query, ctx.state.user);
+  const where = await Permissions.where(query, ctx.state.user);
   const record = await Model.findOne(where).populate(Permissions.populateOptions);
 
   if (!record) {
