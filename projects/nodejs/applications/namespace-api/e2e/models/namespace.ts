@@ -11,8 +11,7 @@ export class NamespaceModel {
 
   public static async create(params: Partial<NamespaceDocument> = {}, user: any = {}) {
     const defaults = {
-      name: chance.name(),
-      userId: mongoose.Types.ObjectId().toHexString(),
+      name: chance.hash(),
     };
     const path = `/namespaces`;
     user = { activatedAt: new Date(), roles: ['Admin'], ...user };
