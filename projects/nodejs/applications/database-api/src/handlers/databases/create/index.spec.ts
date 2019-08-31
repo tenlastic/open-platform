@@ -17,7 +17,7 @@ describe('handlers/databases/create', function() {
     const ctx = new ContextMock({
       request: {
         body: {
-          name: chance.email(),
+          name: chance.hash(),
           userId: chance.hash(),
         },
       },

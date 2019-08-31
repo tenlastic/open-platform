@@ -194,10 +194,10 @@ describe('permissions', function() {
     });
 
     context('when the user is not an admin', function() {
-      it('throws an error', async function() {
-        const promise = ExamplePermissions.where({}, user);
+      it('returns null', async function() {
+        const result = await ExamplePermissions.where({}, user);
 
-        return expect(promise).to.be.rejectedWith(PermissionError);
+        expect(result).to.eql(null);
       });
     });
   });

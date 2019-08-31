@@ -1,11 +1,17 @@
-import { EventEmitter, changeStreamPlugin } from '@tenlastic/mongoose-change-stream';
+import {
+  EventEmitter,
+  IDatabasePayload,
+  changeStreamPlugin,
+} from '@tenlastic/mongoose-change-stream';
+import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Ref, Typegoose, index, plugin, pre, prop } from 'typegoose';
 
 import * as emails from '../../emails';
 import { UserSchema } from '../user/model';
 
-export const PasswordResetEvent = new EventEmitter<PasswordResetDocument>();
+export const PasswordResetEvent = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
+PasswordResetEvent.on(kafka.publish);
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ hash: 1 }, { unique: true })

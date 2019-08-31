@@ -1,0 +1,17 @@
+components:
+  schemas:
+    Namespace:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[a-f0-9]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+          format: ^[0-9a-z\-]{6,40}$
+        updatedAt:
+          type: string
+          format: date-time

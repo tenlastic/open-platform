@@ -75,6 +75,10 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
   public async count(where: any, override: any = {}, user: any) {
     const filteredWhere = await this.where(where, user);
 
+    if (filteredWhere === null) {
+      throw new PermissionError();
+    }
+
     return this.Model.countDocuments({ ...filteredWhere, ...override }).exec();
   }
 
@@ -158,6 +162,10 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
   public async find(params: IFindQuery, override: IFindQuery, user: any) {
     const where = await this.where(params.where, user);
 
+    if (where === null) {
+      throw new PermissionError();
+    }
+
     let query = this.Model.find({ ...where, ...override.where })
       .sort(override.sort || params.sort)
       .skip(override.skip || params.skip)
@@ -202,7 +210,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       return null;
     }
 
-    return Object.assign(query || {}, roleAttributes || {});
+    return Object.assign({}, query || {}, roleAttributes || {});
   }
 
   /**
@@ -286,7 +294,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     const query = await this.findPermissions(user);
 
     if (query === null) {
-      throw new PermissionError();
+      return null;
     }
 
     if (!where) {

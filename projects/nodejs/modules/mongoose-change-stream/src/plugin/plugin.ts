@@ -49,8 +49,9 @@ export function changeStreamPlugin<T extends mongoose.Document>(
       return;
     }
 
+    const documentKeys = options.documentKeys || ['_id'];
     const query = this.getQuery();
-    const documentKey = options.documentKeys.reduce((agg: any, key: string) => {
+    const documentKey = documentKeys.reduce((agg: any, key: string) => {
       agg[key] = query[key];
       return agg;
     }, {});
@@ -71,8 +72,9 @@ export function changeStreamPlugin<T extends mongoose.Document>(
       return;
     }
 
+    const documentKeys = options.documentKeys || ['_id'];
     const query = this.getQuery();
-    const documentKey = options.documentKeys.reduce((agg: any, key: string) => {
+    const documentKey = documentKeys.reduce((agg: any, key: string) => {
       agg[key] = query[key];
       return agg;
     }, {});
@@ -97,7 +99,8 @@ export function changeStreamPlugin<T extends mongoose.Document>(
   });
 
   schema.post('remove', async function(this: T & IOriginalDocument) {
-    const documentKey = options.documentKeys.reduce((agg: any, key: string) => {
+    const documentKeys = options.documentKeys || ['_id'];
+    const documentKey = documentKeys.reduce((agg: any, key: string) => {
       agg[key] = this[key];
       return agg;
     }, {});
@@ -111,7 +114,8 @@ export function changeStreamPlugin<T extends mongoose.Document>(
   });
 
   schema.post('save', async function(this: T & IOriginalDocument) {
-    const documentKey = options.documentKeys.reduce((agg: any, key: string) => {
+    const documentKeys = options.documentKeys || ['_id'];
+    const documentKey = documentKeys.reduce((agg: any, key: string) => {
       agg[key] = this[key];
       return agg;
     }, {});

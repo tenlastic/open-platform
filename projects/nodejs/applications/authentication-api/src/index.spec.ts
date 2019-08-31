@@ -1,15 +1,17 @@
+import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mailgun from '@tenlastic/mailgun';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
 import { PasswordReset, User } from './models';
 
-const connectionString = process.env.MONGO_CONNECTION_STRING;
-const databaseName = process.env.MONGO_DATABASE_NAME;
-mongoose.connect(connectionString, {
-  dbName: databaseName,
-  useFindAndModify: false,
-  useNewUrlParser: true,
+before(async function() {
+  await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
+  await mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
+    dbName: process.env.MONGO_DATABASE_NAME,
+    useFindAndModify: false,
+    useNewUrlParser: true,
+  });
 });
 
 let sandbox: sinon.SinonSandbox;

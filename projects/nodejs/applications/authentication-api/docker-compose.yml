@@ -5,12 +5,14 @@ services:
       - mongo_healthcheck
     environment:
       - JWT_SECRET
+      - KAFKA_CONNECTION_STRING
       - MAILGUN_DOMAIN
       - MAILGUN_SECRET
       - MONGO_CONNECTION_STRING
       - MONGO_DATABASE_NAME
       - PASSWORD_RESET_URL
     links:
+      - kafka
       - mongo
     ports:
       - 3000:3000

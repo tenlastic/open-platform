@@ -1,0 +1,41 @@
+{
+  "engines": {
+    "node": "^10"
+  },
+  "license": "Apache-2.0",
+  "name": "@tenlastic/namespace-api",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "docker": "sh ../../scripts/docker.sh npm run --if-present",
+    "docker:down": "sh ../../scripts/docker-down.sh",
+    "e2e": "../../scripts/e2e.sh",
+    "e2e:watch": "../../scripts/e2e.sh --watch",
+    "lint": "../../scripts/lint.sh",
+    "migrations": "../../scripts/migrations.sh",
+    "start": "../../scripts/start.sh",
+    "swagger": "../../scripts/swagger.sh",
+    "test": "../../scripts/test.sh",
+    "test:watch": "../../scripts/test.sh --watch"
+  },
+  "dependencies": {
+    "@tenlastic/mongoose-change-stream": "0.0.0",
+    "@tenlastic/mongoose-change-stream-kafka": "0.0.0",
+    "@tenlastic/mongoose-permissions": "0.0.0",
+    "@tenlastic/web-server": "0.0.0",
+    "koa-router": "7.4.0",
+    "mongoose": "5.6.7",
+    "source-map-support": "0.5.12",
+    "typegoose": "5.8.1"
+  },
+  "devDependencies": {
+    "@tenlastic/e2e": "0.0.0",
+    "merge-yaml-cli": "1.1.2",
+    "migrate-mongo": "6.0.0",
+    "mocha": "6.1.4",
+    "nyc": "14.1.1",
+    "ts-node": "8.3.0",
+    "tslint": "5.18.0",
+    "typescript": "3.5.3"
+  }
+}
