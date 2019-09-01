@@ -166,7 +166,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    * @param override The system's params.
    * @param user The user performing the params.
    */
-  public async find(params: IFindQuery, override: IFindQuery, user: any) {
+  public async find(params: IFindQuery, override: IFindQuery, user: any): Promise<TDocument[]> {
     const where = await this.where(params.where, user);
 
     if (where === null) {
@@ -354,6 +354,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       const isValidPath = this.isValidPath(permissions, path, key);
 
       if (value && value.constructor === Object) {
+        const initialKeys = Object.keys(value).length;
         const result = this.filterObject(value, permissions, path.concat(key));
 
         // Do not include empty objects.
@@ -375,19 +376,20 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    */
   private filterRecord(record: TDocument, permissions: string[], path: string[] = []) {
     const { _doc } = record as any;
+    const doc = _doc ? _doc : record;
 
-    Object.entries(_doc).forEach(([key, value]) => {
+    Object.entries(doc).forEach(([key, value]) => {
       const isValidPath = this.isValidPath(permissions, path, key);
 
       if (value && value.constructor === Object) {
-        const result = this.filterRecord({ _doc: value } as any, permissions, path.concat(key));
+        const result = this.filterRecord(value as any, permissions, path.concat(key));
 
         // Remove empty objects.
-        if (Object.keys(result).length === 0 && !isValidPath) {
-          delete _doc[key];
+        if (!isValidPath && Object.keys(result).length === 0) {
+          delete doc[key];
         }
       } else if (!isValidPath) {
-        delete _doc[key];
+        delete doc[key];
       }
     });
 
