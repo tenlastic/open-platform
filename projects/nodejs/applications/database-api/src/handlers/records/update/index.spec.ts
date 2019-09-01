@@ -21,11 +21,17 @@ describe('handlers/records/update', function() {
           base: {},
         },
         read: {
-          base: ['_id', 'createdAt', 'customProperties', 'updatedAt'],
+          base: [
+            '_id',
+            'createdAt',
+            'customProperties.email',
+            'customProperties.name',
+            'updatedAt',
+          ],
         },
         roles: [],
         update: {
-          base: ['customProperties'],
+          base: ['customProperties.email', 'customProperties.name'],
         },
       },
     });
