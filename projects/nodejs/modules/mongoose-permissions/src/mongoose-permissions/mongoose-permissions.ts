@@ -99,7 +99,11 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     // Create record with authorized attributes
     const filteredParams = this.filterObject(params, createPermissions);
     const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
-    const mergedParams = deepmerge(filteredParams, override, { arrayMerge: overwriteMerge });
+    const mergedParams = deepmerge(
+      this.toPlainObject(filteredParams),
+      this.toPlainObject(override),
+      { arrayMerge: overwriteMerge },
+    );
     const record = await this.Model.create(mergedParams);
 
     // Filter unauthorized attributes
@@ -267,10 +271,14 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     // Update record with authorized fields
     const filteredParams = this.filterObject(params, updatePermissions);
     const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
-    const json = JSON.parse(JSON.stringify(record));
-    const mergedParams = deepmerge.all([json, filteredParams, override], {
-      arrayMerge: overwriteMerge,
-    });
+    const mergedParams = deepmerge.all(
+      [
+        this.toPlainObject(record),
+        this.toPlainObject(filteredParams),
+        this.toPlainObject(override),
+      ],
+      { arrayMerge: overwriteMerge },
+    );
 
     Object.keys(mergedParams).forEach(key => (record[key] = mergedParams[key]));
     record = await record.save();
@@ -405,5 +413,9 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     } catch {}
 
     return 'default';
+  }
+
+  private toPlainObject(obj: any) {
+    return obj ? JSON.parse(JSON.stringify(obj)) : obj;
   }
 }
