@@ -351,9 +351,9 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    */
   private filterObject(object: any, permissions: string[], path: string[] = []) {
     return Object.entries(object).reduce((agg, [key, value]) => {
-      const isArray = value instanceof Array;
-      const isObject = value instanceof Object;
-      const isObjectId = value instanceof mongoose.Types.ObjectId;
+      const isArray = value.constructor === Array;
+      const isObject = value.constructor === Object;
+      const isObjectId = value.constructor === mongoose.Types.ObjectId;
 
       if (isObject && !isArray && !isObjectId) {
         const result = this.filterObject(value, permissions, path.concat(key));
@@ -379,9 +379,9 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     const { _doc } = record as any;
 
     Object.entries(_doc).forEach(([key, value]) => {
-      const isArray = value instanceof Array;
-      const isObject = value instanceof Object;
-      const isObjectId = value instanceof mongoose.Types.ObjectId;
+      const isArray = value.constructor === Array;
+      const isObject = value.constructor === Object;
+      const isObjectId = value.constructor === mongoose.Types.ObjectId;
 
       if (isObject && !isArray && !isObjectId) {
         const result = this.filterRecord({ _doc: value } as any, permissions, path.concat(key));
