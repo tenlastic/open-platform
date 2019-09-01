@@ -5,7 +5,7 @@ import { Collection, CollectionDocument } from './model';
 export const CollectionPermissions = new MongoosePermissions<CollectionDocument>(Collection, {
   create: {
     roles: {
-      admin: ['databaseId', 'jsonSchema', 'name', 'permissions'],
+      admin: ['databaseId', 'jsonSchema.*', 'name', 'permissions.*'],
     },
   },
   delete: {
@@ -23,9 +23,9 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
       'createdAt',
       'databaseId',
       'indexes',
-      'jsonSchema',
+      'jsonSchema.*',
       'name',
-      'permissions',
+      'permissions.*',
       'updatedAt',
     ],
   },
@@ -37,7 +37,7 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
   ],
   update: {
     roles: {
-      admin: ['databaseId', 'indexes', 'jsonSchema', 'name', 'permissions'],
+      admin: ['databaseId', 'indexes', 'jsonSchema.*', 'name', 'permissions.*'],
     },
   },
 });

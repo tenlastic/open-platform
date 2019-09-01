@@ -351,14 +351,16 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    */
   private filterObject(object: any, permissions: string[], path: string[] = []) {
     return Object.entries(object).reduce((agg, [key, value]) => {
-      if (value.constructor === Object) {
+      const isValidPath = this.isValidPath(permissions, path, key);
+
+      if (value && value.constructor === Object) {
         const result = this.filterObject(value, permissions, path.concat(key));
 
         // Do not include empty objects.
-        if (Object.keys(result).length > 0) {
+        if (Object.keys(result).length > 0 || isValidPath) {
           agg[key] = result;
         }
-      } else if (permissions.indexOf(path.concat(key).join('.')) >= 0) {
+      } else if (isValidPath) {
         agg[key] = value;
       }
 
@@ -375,14 +377,16 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     const { _doc } = record as any;
 
     Object.entries(_doc).forEach(([key, value]) => {
-      if (value.constructor === Object) {
+      const isValidPath = this.isValidPath(permissions, path, key);
+
+      if (value && value.constructor === Object) {
         const result = this.filterRecord({ _doc: value } as any, permissions, path.concat(key));
 
         // Remove empty objects.
-        if (Object.keys(result).length === 0) {
+        if (Object.keys(result).length === 0 && !isValidPath) {
           delete _doc[key];
         }
-      } else if (permissions.indexOf(path.concat(key).join('.')) < 0) {
+      } else if (!isValidPath) {
         delete _doc[key];
       }
     });
@@ -405,6 +409,26 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     } catch {}
 
     return 'default';
+  }
+
+  private isValidPath(permissions, path, key) {
+    const absolutePath = path.concat(key).join('.');
+    if (permissions.indexOf(absolutePath) >= 0) {
+      return true;
+    }
+
+    let isFound = false;
+    for (let i = 0; i < path.length + 1; i++) {
+      const pathSlice = path.slice(0, i);
+      const wildcardPath = pathSlice.concat('*').join('.');
+
+      if (permissions.indexOf(wildcardPath) >= 0) {
+        isFound = true;
+        break;
+      }
+    }
+
+    return isFound;
   }
 
   private toPlainObject(obj: any) {

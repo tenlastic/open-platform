@@ -29,7 +29,7 @@ describe('records', function() {
       name: chance.hash(),
       permissions: {
         create: {
-          base: ['customProperties.age', 'customProperties.email', 'customProperties.name'],
+          base: ['customProperties.*'],
         },
         delete: { base: true },
         find: {
@@ -40,16 +40,14 @@ describe('records', function() {
             '_id',
             'collectionId',
             'createdAt',
-            'customProperties.age',
-            'customProperties.email',
-            'customProperties.name',
+            'customProperties.*',
             'databaseId',
             'updatedAt',
           ],
         },
         roles: [],
         update: {
-          base: ['customProperties.age', 'customProperties.email', 'customProperties.name'],
+          base: ['customProperties.*'],
         },
       },
     });
@@ -126,7 +124,7 @@ describe('records', function() {
       const res = await RecordModel.update({
         _id: record._id,
         collectionId: collection._id,
-        customProperties: { age: chance.hash() },
+        customProperties: { age: chance.hash(), email: null, name: null },
         databaseId: database._id,
       });
 
