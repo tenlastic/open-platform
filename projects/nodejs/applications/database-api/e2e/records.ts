@@ -28,16 +28,29 @@ describe('records', function() {
       },
       name: chance.hash(),
       permissions: {
-        create: { base: ['customProperties'] },
+        create: {
+          base: ['customProperties.age', 'customProperties.email', 'customProperties.name'],
+        },
         delete: { base: true },
         find: {
           base: {},
         },
         read: {
-          base: ['_id', 'collectionId', 'createdAt', 'customProperties', 'databaseId', 'updatedAt'],
+          base: [
+            '_id',
+            'collectionId',
+            'createdAt',
+            'customProperties.age',
+            'customProperties.email',
+            'customProperties.name',
+            'databaseId',
+            'updatedAt',
+          ],
         },
         roles: [],
-        update: { base: ['customProperties'] },
+        update: {
+          base: ['customProperties.age', 'customProperties.email', 'customProperties.name'],
+        },
       },
     });
     collection = createdCollection.body.record;
