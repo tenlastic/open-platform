@@ -1,10 +1,14 @@
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Ref, Typegoose, prop, staticMethod } from 'typegoose';
+import { InstanceType, ModelType, Ref, Typegoose, arrayProp, prop, staticMethod } from 'typegoose';
 
 export class ExampleSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
+
   public createdAt: Date;
+
+  @prop()
+  public customProperties: any;
 
   @prop()
   public name: string;

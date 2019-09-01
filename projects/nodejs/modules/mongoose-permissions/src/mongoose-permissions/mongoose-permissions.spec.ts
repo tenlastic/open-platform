@@ -55,12 +55,20 @@ describe('permissions', function() {
   describe('create()', function() {
     context('when user is an admin', function() {
       it('creates a new record', async function() {
-        const params = { name: chance.hash() };
+        const params = {
+          customProperties: {
+            age: chance.integer(),
+            name: chance.hash(),
+          },
+          name: chance.hash(),
+        };
 
         const record = await ExamplePermissions.create(params, {}, admin);
 
         expect(record._id).to.exist;
         expect(record.createdAt).to.exist;
+        expect(record.customProperties.age).to.eql(params.customProperties.age);
+        expect(record.customProperties.name).to.not.exist;
         expect(record.name).to.eql(params.name);
         expect(record.updatedAt).to.exist;
       });
@@ -127,7 +135,12 @@ describe('permissions', function() {
     let record: ExampleDocument;
 
     beforeEach(async function() {
-      record = await Example.mock();
+      record = await Example.mock({
+        customProperties: {
+          age: chance.integer(),
+          name: chance.hash(),
+        },
+      });
     });
 
     context('when user is an admin', function() {
@@ -136,6 +149,8 @@ describe('permissions', function() {
 
         expect(record._id).to.exist;
         expect(record.createdAt).to.exist;
+        expect(record.customProperties.age).to.exist;
+        expect(record.customProperties.name).to.not.exist;
         expect(record.name).to.exist;
         expect(record.updatedAt).to.exist;
       });
@@ -162,12 +177,20 @@ describe('permissions', function() {
 
     context('when the user is an admin', function() {
       it('updates and returns the record', async function() {
-        const params = { name: chance.hash() };
+        const params = {
+          customProperties: {
+            age: chance.integer(),
+            name: chance.hash(),
+          },
+          name: chance.hash(),
+        };
 
         record = await ExamplePermissions.update(record, params, {}, admin);
 
-        expect(record._id).to.exist;
+        expect(record._id.toString()).to.eql(record._id.toString());
         expect(record.createdAt).to.exist;
+        expect(record.customProperties.age).to.eql(params.customProperties.age);
+        expect(record.customProperties.name).to.not.exist;
         expect(record.name).to.eql(params.name);
         expect(record.updatedAt).to.exist;
       });

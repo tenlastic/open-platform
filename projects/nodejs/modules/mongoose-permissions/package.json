@@ -15,6 +15,7 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
+    "deepmerge": "4.0.0",
     "mongoose": "5.6.7",
     "typegoose": "5.8.1"
   },

@@ -4,7 +4,7 @@ import { MongoosePermissions } from '../mongoose-permissions/mongoose-permission
 export const ExamplePermissions = new MongoosePermissions<ExampleDocument>(Example, {
   create: {
     roles: {
-      admin: ['name'],
+      admin: ['customProperties.age', 'name'],
     },
   },
   delete: {
@@ -21,7 +21,7 @@ export const ExamplePermissions = new MongoosePermissions<ExampleDocument>(Examp
   read: {
     base: ['_id', 'createdAt', 'updatedAt'],
     roles: {
-      admin: ['name'],
+      admin: ['customProperties.age', 'name'],
     },
   },
   roles: [
@@ -32,7 +32,7 @@ export const ExamplePermissions = new MongoosePermissions<ExampleDocument>(Examp
   ],
   update: {
     roles: {
-      admin: ['name'],
+      admin: ['customProperties.age', 'name'],
     },
   },
 });

@@ -1,3 +1,4 @@
+import * as deepmerge from 'deepmerge';
 import * as mongoose from 'mongoose';
 
 import { isJsonValid } from '../is-json-valid/is-json-valid';
@@ -97,7 +98,9 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
 
     // Create record with authorized attributes
     const filteredParams = this.filterObject(params, createPermissions);
-    const record = await this.Model.create({ ...filteredParams, ...override });
+    const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
+    const mergedParams = deepmerge(filteredParams, override, { arrayMerge: overwriteMerge });
+    const record = await this.Model.create(mergedParams);
 
     // Filter unauthorized attributes
     const readPermissions = await this.readPermissions(record, user);
@@ -263,7 +266,13 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
 
     // Update record with authorized fields
     const filteredParams = this.filterObject(params, updatePermissions);
-    Object.assign(record, filteredParams, override);
+    const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
+    const json = JSON.parse(JSON.stringify(record));
+    const mergedParams = deepmerge.all([json, filteredParams, override], {
+      arrayMerge: overwriteMerge,
+    });
+
+    Object.keys(mergedParams).forEach(key => (record[key] = mergedParams[key]));
     record = await record.save();
 
     // Remove unauthorized fields
@@ -330,17 +339,27 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    * Removes any unauthorized attributes from an object.
    * @param object The object to remove unauthorized attributes from.
    * @param permissions An array of authorized key names.
+   * @param path An array of keys that lead to the current object.
    */
-  private filterObject(object: any, permissions: string[]) {
-    const copy: any = {};
+  private filterObject(object: any, permissions: string[], path: string[] = []) {
+    return Object.entries(object).reduce((agg, [key, value]) => {
+      const isArray = value instanceof Array;
+      const isObject = value instanceof Object;
+      const isObjectId = value instanceof mongoose.Types.ObjectId;
 
-    for (const key in object) {
-      if (permissions.indexOf(key) >= 0) {
-        copy[key] = object[key];
+      if (isObject && !isArray && !isObjectId) {
+        const result = this.filterObject(value, permissions, path.concat(key));
+
+        // Do not include empty objects.
+        if (Object.keys(result).length > 0) {
+          agg[key] = result;
+        }
+      } else if (permissions.indexOf(path.concat(key).join('.')) >= 0) {
+        agg[key] = value;
       }
-    }
 
-    return copy;
+      return agg;
+    }, {});
   }
 
   /**
@@ -348,14 +367,25 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    * @param record The record to remove unauthorized attributes from.
    * @param permissions An array of authorized key names.
    */
-  private filterRecord(record: TDocument, permissions: string[]) {
+  private filterRecord(record: TDocument, permissions: string[], path: string[] = []) {
     const { _doc } = record as any;
 
-    for (const key in _doc) {
-      if (permissions.indexOf(key) < 0) {
+    Object.entries(_doc).forEach(([key, value]) => {
+      const isArray = value instanceof Array;
+      const isObject = value instanceof Object;
+      const isObjectId = value instanceof mongoose.Types.ObjectId;
+
+      if (isObject && !isArray && !isObjectId) {
+        const result = this.filterRecord({ _doc: value } as any, permissions, path.concat(key));
+
+        // Remove empty objects.
+        if (Object.keys(result).length === 0) {
+          delete _doc[key];
+        }
+      } else if (permissions.indexOf(path.concat(key).join('.')) < 0) {
         delete _doc[key];
       }
-    }
+    });
 
     return record;
   }
