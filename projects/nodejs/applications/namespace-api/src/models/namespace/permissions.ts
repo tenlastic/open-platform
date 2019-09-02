@@ -5,7 +5,7 @@ import { Namespace, NamespaceDocument } from './model';
 export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(Namespace, {
   create: {
     roles: {
-      admin: ['name'],
+      admin: ['accessControlList', 'name'],
     },
   },
   delete: {
@@ -17,12 +17,12 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     base: {},
   },
   read: {
-    base: ['_id', 'createdAt', 'name', 'updatedAt'],
+    base: ['_id', 'createdAt', 'accessControlList', 'name', 'updatedAt'],
   },
   roles: [{ name: 'admin', query: { 'user.roles': { $eq: 'Admin' } } }],
   update: {
     roles: {
-      admin: ['name'],
+      admin: ['accessControlList', 'name'],
     },
   },
 });

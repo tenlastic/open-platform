@@ -1,6 +1,6 @@
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Ref, Typegoose, arrayProp, prop, staticMethod } from 'typegoose';
+import { InstanceType, ModelType, Ref, Typegoose, prop, staticMethod } from 'typegoose';
 
 export class ExampleSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
@@ -16,6 +16,11 @@ export class ExampleSchema extends Typegoose {
   @prop({ ref: 'ExampleSchema' })
   public parentId: Ref<ExampleSchema>;
 
+  public updatedAt: Date;
+
+  @prop({ ref: 'ExampleSchema' })
+  public userId: Ref<ExampleSchema>;
+
   @prop({
     foreignField: '_id',
     justOne: true,
@@ -26,8 +31,6 @@ export class ExampleSchema extends Typegoose {
   public get parent(): ExampleDocument {
     return this.parent;
   }
-
-  public updatedAt: Date;
 
   /**
    * Creates a record with randomized required parameters if not specified.

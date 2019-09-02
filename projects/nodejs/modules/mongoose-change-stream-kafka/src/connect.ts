@@ -8,8 +8,8 @@ export async function connect(brokers: string[]) {
   connection = new Kafka({ brokers, logLevel: logLevel.NOTHING });
 
   admin = connection.admin();
-  await admin.connect();
-
   producer = connection.producer();
+
+  await admin.connect();
   await producer.connect();
 }

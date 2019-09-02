@@ -6,14 +6,19 @@ import * as mongoose from 'mongoose';
 import * as path from 'path';
 
 import { router as namespacesRouter } from './handlers/namespaces';
+import { ReadonlyUser } from './models';
 
-kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
 mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
   dbName: process.env.MONGO_DATABASE_NAME,
   poolSize: 10,
   useFindAndModify: false,
   useNewUrlParser: true,
 });
+
+(async () => {
+  await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
+  kafka.subscribe(ReadonlyUser, { group: 'namespace-api', topic: 'authentication-api.users' });
+})();
 
 const webServer = new WebServer();
 webServer.use(namespacesRouter.routes());

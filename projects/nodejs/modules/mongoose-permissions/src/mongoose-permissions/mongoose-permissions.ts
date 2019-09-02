@@ -398,17 +398,17 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
 
   private getRole(record: TDocument, user: any) {
     const json = {
-      record: record ? record.toObject() : null,
-      user: user && user.toObject ? user.toObject() : user,
+      record: record ? JSON.parse(JSON.stringify(record)) : null,
+      user: user ? JSON.parse(JSON.stringify(user)) : null,
     };
 
-    try {
-      for (const role of this.options.roles) {
+    for (const role of this.options.roles) {
+      try {
         if (isJsonValid(json, role.query)) {
           return role.name;
         }
-      }
-    } catch {}
+      } catch {}
+    }
 
     return 'default';
   }

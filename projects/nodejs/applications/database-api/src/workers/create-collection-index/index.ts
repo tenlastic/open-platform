@@ -28,7 +28,7 @@ export async function createCollectionIndexWorker(
         'indexes._id': { $ne: index._id },
       },
       {
-        $push: {
+        $addToSet: {
           indexes: index,
         },
       },

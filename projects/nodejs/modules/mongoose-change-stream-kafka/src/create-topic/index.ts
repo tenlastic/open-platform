@@ -2,7 +2,8 @@ import { admin } from '../connect';
 
 export async function createTopic(topic: string) {
   const replicationFactor = process.env.KAFKA_REPLICATION_FACTOR;
-  await admin.createTopics({
+
+  return admin.createTopics({
     topics: [
       {
         configEntries: [

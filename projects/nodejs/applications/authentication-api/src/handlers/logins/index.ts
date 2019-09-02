@@ -1,4 +1,3 @@
-import { authenticationMiddleware } from '@tenlastic/web-server';
 import * as Router from 'koa-router';
 
 import { handler as createHandler } from './create';
