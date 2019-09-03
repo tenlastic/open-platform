@@ -14,7 +14,7 @@ export class NamespaceModel {
       name: chance.hash(),
     };
     const path = `/namespaces`;
-    user = { activatedAt: new Date(), roles: ['Admin'], ...user };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'], ...user };
 
     const response = await e2e.request('post', path, { ...defaults, ...params }, { user });
 
@@ -31,7 +31,7 @@ export class NamespaceModel {
     }
 
     const path = `/namespaces/${params._id}`;
-    user = { activatedAt: new Date(), roles: ['Admin'], ...user };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'], ...user };
 
     return e2e.request('delete', path, params, { user });
   }
@@ -51,7 +51,7 @@ export class NamespaceModel {
     }
 
     const path = `/namespaces/${params._id}`;
-    user = { activatedAt: new Date(), roles: ['Admin'], ...user };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'], ...user };
 
     return e2e.request('get', path, params, { user });
   }
@@ -62,7 +62,7 @@ export class NamespaceModel {
     }
 
     const path = `/namespaces/${params._id}`;
-    user = { activatedAt: new Date(), roles: ['Admin'], ...user };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'], ...user };
 
     return e2e.request('put', path, params, { user });
   }

@@ -12,6 +12,7 @@
     { "path": "../../modules/web-server/tsconfig.app.json" },
     { "path": "../../modules/json-schema/tsconfig.app.json" },
     { "path": "../../modules/mongoose-change-stream/tsconfig.app.json" },
+    { "path": "../../modules/mongoose-change-stream-kafka/tsconfig.app.json" },
     { "path": "../../modules/mongoose-permissions/tsconfig.app.json" },
     { "path": "../../modules/rabbitmq/tsconfig.app.json" },
     { "path": "../../modules/validations/tsconfig.app.json" }

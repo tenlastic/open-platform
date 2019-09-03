@@ -1,5 +1,6 @@
 import * as e2e from '@tenlastic/e2e';
 import * as Chance from 'chance';
+import * as mongoose from 'mongoose';
 
 import { UserDocument } from '../../src/models';
 
@@ -15,7 +16,7 @@ export class UserModel {
       username: chance.hash({ length: 20 }),
     };
     const path = `/users`;
-    user = { activatedAt: new Date(), roles: ['Admin'], ...user };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'], ...user };
 
     const response = await e2e.request('post', path, { ...defaults, ...params }, { user });
 
@@ -32,7 +33,7 @@ export class UserModel {
     }
 
     const path = `/users/${params._id}`;
-    user = { activatedAt: new Date(), roles: ['Admin'], ...user };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'], ...user };
 
     return e2e.request('delete', path, params, { user });
   }
@@ -52,7 +53,7 @@ export class UserModel {
     }
 
     const path = `/users/${params._id}`;
-    user = { activatedAt: new Date(), roles: ['Admin'], ...user };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'], ...user };
 
     return e2e.request('get', path, params, { user });
   }
@@ -63,7 +64,7 @@ export class UserModel {
     }
 
     const path = `/users/${params._id}`;
-    user = { activatedAt: new Date(), roles: ['Admin'], ...user };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'], ...user };
 
     return e2e.request('put', path, params, { user });
   }

@@ -1,20 +1,28 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
-import { NamespaceMock } from '../../../models';
+import {
+  NamespaceMock,
+  ReadonlyUserDocument,
+  ReadonlyUserMock,
+  UserRolesMock,
+} from '../../../models';
 import { handler } from '.';
 
 describe('handlers/namespaces/count', function() {
-  let user: any;
+  let user: ReadonlyUserDocument;
 
   beforeEach(async function() {
+    user = await ReadonlyUserMock.create();
     await NamespaceMock.create();
-    user = { roles: ['Admin'] };
+
+    const userRole = await UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
+    await NamespaceMock.create({ accessControlList: [userRole] });
   });
 
   it('returns the number of matching records', async function() {
     const ctx = new ContextMock({
-      state: { user },
+      state: { user: user.toObject() },
     });
 
     await handler(ctx as any);

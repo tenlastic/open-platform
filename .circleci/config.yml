@@ -40,10 +40,6 @@ jobs:
           command: npm run lerna run -- --concurrency 1 test -- -- --coverage
           working_directory: ./projects/nodejs/
       - run:
-          name: Test (E2E)
-          command: npm run lerna run -- --concurrency 1 e2e
-          working_directory: ./projects/nodejs/
-      - run:
           name: Merge Test Results
           command: npm run merge:junit
           working_directory: ./projects/nodejs/

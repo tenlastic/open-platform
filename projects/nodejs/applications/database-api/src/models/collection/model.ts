@@ -13,8 +13,8 @@ import {
   prop,
 } from 'typegoose';
 
-import { DatabaseDocument, DatabaseSchema } from '../database/model';
-import { IndexSchema } from '../index/model';
+import { Database, DatabaseDocument, DatabaseSchema } from '../database/model';
+import { IndexSchema } from './index/model';
 
 @index({ databaseId: 1, name: 1 }, { unique: true })
 @pre('save', async function(this: CollectionDocument) {
@@ -24,7 +24,7 @@ export class CollectionSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ ref: 'DatabaseSchema', required: true })
+  @prop({ ref: Database, required: true })
   public databaseId: Ref<DatabaseSchema>;
 
   @arrayProp({ items: IndexSchema })
@@ -33,7 +33,7 @@ export class CollectionSchema extends Typegoose {
   @prop({ _id: false, default: { type: 'object' } })
   public jsonSchema: any;
 
-  @prop({ required: 'true' })
+  @prop({ match: /^[0-9a-z\-]{6,40}$/, required: 'true' })
   public name: string;
 
   @prop({ _id: false, default: {} })
@@ -115,5 +115,7 @@ export const Collection = new CollectionSchema().getModelForClass(CollectionSche
     collection: 'collections',
     minimize: false,
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 });

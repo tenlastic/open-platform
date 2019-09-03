@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 
-import { isJsonValid } from './is-json-valid';
+import { isJsonValid } from './';
 
 describe('is-json-valid', function() {
   describe('isJsonValid()', function() {

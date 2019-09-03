@@ -7,7 +7,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Typegoose, arrayProp, index, plugin, prop } from 'typegoose';
 
-import { UserRolesDocument, UserRolesSchema } from '../user-roles';
+import { UserRolesDocument, UserRoles } from './user-roles';
 
 export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocument>>();
 NamespaceEvent.on(kafka.publish);
@@ -20,7 +20,7 @@ NamespaceEvent.on(kafka.publish);
 export class NamespaceSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
 
-  @arrayProp({ default: [], items: UserRolesSchema })
+  @arrayProp({ default: [], items: UserRoles })
   public accessControlList: UserRolesDocument[];
 
   public createdAt: Date;

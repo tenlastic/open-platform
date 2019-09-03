@@ -1,6 +1,6 @@
 import * as Chance from 'chance';
 
-import { IndexSchema } from './model';
+import { Index, IndexSchema } from './model';
 
 export class IndexMock {
   /**
@@ -14,6 +14,6 @@ export class IndexMock {
       key: { [chance.hash()]: chance.integer({ max: 1, min: 0 }) },
     };
 
-    return { ...defaults, ...params };
+    return new Index({ ...defaults, ...params });
   }
 }

@@ -4,30 +4,31 @@ import { Database, DatabaseDocument } from './model';
 
 export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Database, {
   create: {
-    roles: {
-      admin: ['name', 'userId'],
-    },
+    base: ['name', 'namespaceId'],
   },
   delete: {
     roles: {
-      admin: true,
+      administrator: true,
     },
   },
   find: {
     base: {},
-    roles: {
-      default: {
-        userId: { $ref: 'user._id' },
+  },
+  populate: [{ path: 'namespaceDocument' }],
+  read: {
+    base: ['_id', 'createdAt', 'name', 'namespaceId', 'updatedAt'],
+  },
+  roles: [
+    {
+      name: 'administrator',
+      query: {
+        'record.namespaceDocument.accessControlList.userId': { $eq: { $ref: 'user._id' } },
       },
     },
-  },
-  read: {
-    base: ['_id', 'createdAt', 'name', 'updatedAt', 'userId'],
-  },
-  roles: [{ name: 'admin', query: { 'user.roles': { $eq: 'Admin' } } }],
+  ],
   update: {
     roles: {
-      admin: ['name', 'userId'],
+      administrator: ['name', 'namespace'],
     },
   },
 });

@@ -1,7 +1,8 @@
 import * as deepmerge from 'deepmerge';
 import * as mongoose from 'mongoose';
 
-import { isJsonValid } from '../is-json-valid/is-json-valid';
+import { isJsonValid } from '../is-json-valid';
+import { substituteReferenceValues } from '../substitute-reference-values';
 
 export interface IFindQuery {
   limit?: number;
@@ -24,7 +25,7 @@ export interface IOptions {
     base?: any;
     roles?: { [key: string]: any };
   };
-  populate?: IPopulate;
+  populate?: IPopulate[];
   read: {
     base?: string[];
     roles?: { [key: string]: string[] };
@@ -55,7 +56,7 @@ export class PermissionError extends Error {
 }
 
 export class MongoosePermissions<TDocument extends mongoose.Document> {
-  public populateOptions: IPopulate;
+  public populateOptions: IPopulate[];
 
   private Model: mongoose.Model<TDocument>;
   private options: IOptions;
@@ -164,7 +165,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    * Performs query population to provide any related documents for access-level calculations.
    * @param params The user's params.
    * @param override The system's params.
-   * @param user The user performing the params.
+   * @param user The user performing the query.
    */
   public async find(params: IFindQuery, override: IFindQuery, user: any): Promise<TDocument[]> {
     const where = await this.where(params.where, user);
@@ -194,7 +195,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    * Performs query population to provide any related documents for access-level calculations.
    * @param params The user's params.
    * @param override The system's params.
-   * @param user The user performing the params.
+   * @param user The user performing the query.
    */
   public async findOne(params: IFindQuery, override: IFindQuery, user: any) {
     const results = await this.find(params, override, user);
@@ -315,7 +316,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     }
 
     if (!where) {
-      return query;
+      return substituteReferenceValues(query, { user });
     }
 
     // Combines the two queries
@@ -340,7 +341,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       }
     });
 
-    return query;
+    return substituteReferenceValues(query, { user });
   }
 
   /**

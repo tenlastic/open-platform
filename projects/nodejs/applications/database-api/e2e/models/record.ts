@@ -1,4 +1,5 @@
 import * as e2e from '@tenlastic/e2e';
+import * as mongoose from 'mongoose';
 
 import { RecordDocument } from '../../src/models';
 
@@ -12,7 +13,7 @@ export class RecordModel {
 
     const defaults = {};
     const path = `/databases/${params.databaseId}/collections/${params.collectionId}/records`;
-    user = { activatedAt: new Date(), roles: ['Admin'], ...user };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'], ...user };
 
     const response = await e2e.request('post', path, { ...defaults, ...params }, { user });
 
@@ -28,10 +29,9 @@ export class RecordModel {
       throw new Error('Missing required parameters: _id, collectionId, and databaseId.');
     }
 
-    const path = `/databases/${params.databaseId}/collections/${params.collectionId}/records/${
-      params._id
-    }`;
-    user = { activatedAt: new Date(), roles: ['Admin'], ...user };
+    const { _id, collectionId, databaseId } = params;
+    const path = `/databases/${databaseId}/collections/${collectionId}/records/${_id}`;
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'], ...user };
 
     return e2e.request('delete', path, params, { user });
   }
@@ -50,10 +50,9 @@ export class RecordModel {
       throw new Error('Missing required parameters: _id, collectionId, and databaseId.');
     }
 
-    const path = `/databases/${params.databaseId}/collections/${params.collectionId}/records/${
-      params._id
-    }`;
-    user = { activatedAt: new Date(), roles: ['Admin'], ...user };
+    const { _id, collectionId, databaseId } = params;
+    const path = `/databases/${databaseId}/collections/${collectionId}/records/${_id}`;
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'], ...user };
 
     return e2e.request('get', path, params, { user });
   }
@@ -63,10 +62,9 @@ export class RecordModel {
       throw new Error('Missing required parameters: _id, collectionId, and databaseId.');
     }
 
-    const path = `/databases/${params.databaseId}/collections/${params.collectionId}/records/${
-      params._id
-    }`;
-    user = { activatedAt: new Date(), roles: ['Admin'], ...user };
+    const { _id, collectionId, databaseId } = params;
+    const path = `/databases/${databaseId}/collections/${collectionId}/records/${_id}`;
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'], ...user };
 
     return e2e.request('put', path, params, { user });
   }

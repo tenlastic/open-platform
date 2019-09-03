@@ -1,23 +1,21 @@
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
-import { ReadonlyUser, ReadonlyUserSchema } from './model';
+import { ReadonlyNamespace, ReadonlyNamespaceSchema } from './model';
 
-export class ReadonlyUserMock {
+export class ReadonlyNamespaceMock {
   /**
    * Creates a record with randomized required parameters if not specified.
    * @param {Object} params The parameters to initialize the record with.
    */
-  public static async create(params: Partial<ReadonlyUserSchema> = {}) {
+  public static async create(params: Partial<ReadonlyNamespaceSchema> = {}) {
     const chance = new Chance();
 
     const defaults = {
       _id: mongoose.Types.ObjectId(),
-      email: chance.email(),
-      password: chance.hash(),
-      username: chance.hash({ length: 20 }),
+      name: chance.hash(),
     };
 
-    return ReadonlyUser.create({ ...defaults, ...params });
+    return ReadonlyNamespace.create({ ...defaults, ...params });
   }
 }

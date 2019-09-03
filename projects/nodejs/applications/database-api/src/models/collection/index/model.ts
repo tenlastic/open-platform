@@ -1,8 +1,8 @@
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Ref, Typegoose, prop } from 'typegoose';
 
-import { CollectionSchema } from '../collection';
-import { DatabaseSchema } from '../database';
+import { CollectionSchema } from '..';
+import { DatabaseSchema } from '../../database';
 
 export interface IndexKey {
   [s: string]: number;
@@ -34,8 +34,6 @@ export type IndexDocument = InstanceType<IndexSchema>;
 export type IndexModel = ModelType<IndexSchema>;
 export const Index = new IndexSchema().getModelForClass(IndexSchema, {
   schemaOptions: {
-    autoIndex: false,
     minimize: false,
-    timestamps: true,
   },
 });

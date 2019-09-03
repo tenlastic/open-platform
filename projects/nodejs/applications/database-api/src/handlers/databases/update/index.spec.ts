@@ -1,37 +1,80 @@
 import { ContextMock } from '@tenlastic/web-server';
-import { expect } from 'chai';
+import { expect, use } from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 
-import { DatabaseMock, DatabaseDocument } from '../../../models';
-import { handler } from '.';
+import {
+  DatabaseDocument,
+  DatabaseMock,
+  ReadonlyNamespaceMock,
+  ReadonlyUserDocument,
+  ReadonlyUserMock,
+  UserRolesMock,
+} from '../../../models';
+import { handler } from './';
 
 const chance = new Chance();
+use(chaiAsPromised);
 
 describe('handlers/databases/update', function() {
-  let record: DatabaseDocument;
-  let user: any;
+  let user: ReadonlyUserDocument;
 
   beforeEach(async function() {
-    record = await DatabaseMock.create();
-    user = { roles: ['Admin'] };
+    user = await ReadonlyUserMock.create();
   });
 
-  it('updates an existing record', async function() {
-    const ctx = new ContextMock({
-      params: {
-        id: record._id,
-      },
-      request: {
-        body: {
-          name: chance.hash(),
-          userId: chance.hash(),
-        },
-      },
-      state: { user },
+  context('when permission is granted', function() {
+    let record: DatabaseDocument;
+
+    beforeEach(async function() {
+      const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
+      const namespace = await ReadonlyNamespaceMock.create({ accessControlList: [userRoles] });
+      record = await DatabaseMock.create({ namespaceId: namespace._id });
     });
 
-    await handler(ctx as any);
+    it('returns the record', async function() {
+      const ctx = new ContextMock({
+        params: {
+          id: record._id,
+        },
+        request: {
+          body: {
+            name: chance.hash(),
+          },
+        },
+        state: { user: user.toObject() },
+      });
 
-    expect(ctx.response.body.record).to.exist;
+      await handler(ctx as any);
+
+      expect(ctx.response.body.record).to.exist;
+      expect(ctx.response.body.record.name).to.eql(ctx.request.body.name);
+    });
+  });
+
+  context('when permission is denied', function() {
+    let record: DatabaseDocument;
+
+    beforeEach(async function() {
+      record = await DatabaseMock.create();
+    });
+
+    it('throws an error', async function() {
+      const ctx = new ContextMock({
+        params: {
+          id: record._id,
+        },
+        request: {
+          body: {
+            name: chance.hash(),
+          },
+        },
+        state: { user: user.toObject() },
+      });
+
+      const promise = handler(ctx as any);
+
+      return expect(promise).to.be.rejected;
+    });
   });
 });

@@ -25,7 +25,7 @@ describe('indexes', function() {
   });
 
   it('creates an index', async function() {
-    const user = { activatedAt: new Date(), roles: ['Admin'] };
+    const user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
 
     // Create a new Index.
     const key = chance.hash();
@@ -55,7 +55,7 @@ describe('indexes', function() {
     let index: IndexDocument;
 
     beforeEach(async function() {
-      const user = { activatedAt: new Date(), roles: ['Admin'] };
+      const user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
 
       // Create a new Index.
       const key = chance.hash();
@@ -78,7 +78,7 @@ describe('indexes', function() {
     });
 
     it('deletes the index', async function() {
-      const user = { activatedAt: new Date(), roles: ['Admin'] };
+      const user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
 
       // Delete the Index.
       const deleteIndexResponse = await e2e.request(

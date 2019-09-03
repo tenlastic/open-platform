@@ -17,7 +17,7 @@ export const ExamplePermissions = new MongoosePermissions<ExampleDocument>(Examp
       admin: {},
     },
   },
-  populate: { path: 'parent' },
+  populate: [{ path: 'parent' }],
   read: {
     base: ['_id', 'createdAt', 'updatedAt'],
     roles: {

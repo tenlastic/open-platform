@@ -1,5 +1,6 @@
 import 'source-map-support/register';
 
+import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { WebServer } from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
@@ -9,7 +10,7 @@ import { router as collectionsRouter } from './handlers/collections';
 import { router as databasesRouter } from './handlers/databases';
 import { router as indexesRouter } from './handlers/indexes';
 import { router as recordsRouter } from './handlers/records';
-import { CollectionSchema } from './models';
+import { ReadonlyNamespace, ReadonlyUser } from './models';
 import {
   CREATE_COLLECTION_INDEX_QUEUE,
   DELETE_COLLECTION_INDEX_QUEUE,
@@ -23,6 +24,12 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
   useFindAndModify: false,
   useNewUrlParser: true,
 });
+
+(async () => {
+  await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
+  kafka.subscribe(ReadonlyNamespace, { group: 'database-api', topic: 'namespace-api.namespaces' });
+  kafka.subscribe(ReadonlyUser, { group: 'database-api', topic: 'authentication-api.users' });
+})();
 
 (async () => {
   await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
