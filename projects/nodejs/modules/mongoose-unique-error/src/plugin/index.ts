@@ -1,19 +1,7 @@
 import { MongoError } from 'mongodb';
 import { Schema } from 'mongoose';
 
-export class ValidationError extends Error {
-  public errors: { [key: string]: ValidatorError };
-
-  constructor(errors: { [key: string]: ValidatorError }) {
-    super('Validation failed');
-
-    this.errors = errors;
-    this.name = 'ValidationError';
-  }
-}
-
-export class ValidatorError extends Error {
-  public kind: string;
+export class UniquenessError extends Error {
   public paths: string[];
   public values: any[];
 
@@ -25,8 +13,7 @@ export class ValidatorError extends Error {
     const pathString = paths.join(',');
     super(`Record must have unique values for the following ${keyString}: ${pathString}.`);
 
-    this.kind = 'unique';
-    this.name = 'ValidatorError';
+    this.name = 'UniquenessError';
     this.paths = paths;
     this.values = values;
   }
@@ -91,11 +78,5 @@ function getValidationError(err: MongoError, schema: Schema, doc: any) {
     return agg;
   }, {});
 
-  const validatorErrors = Object.keys(values).reduce((agg, key) => {
-    agg[key] = new ValidatorError(values);
-    return agg;
-  }, {});
-  const validationError = new ValidationError(validatorErrors);
-
-  return validationError;
+  return new UniquenessError(values);
 }

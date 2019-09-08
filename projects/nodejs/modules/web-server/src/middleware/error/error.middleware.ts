@@ -15,14 +15,14 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
         ctx.response.body = { error: e.message };
         break;
 
-      case 'ValidationError':
-        const errors = Object.keys(e.errors).map(key => {
-          const { kind, message, name, path, value } = e.errors[key];
-          return { kind, message, name, path, value };
-        });
-
+      case 'UniquenessError':
         ctx.response.status = status;
-        ctx.response.body = { errors };
+        ctx.response.body = getUniquenessError(e);
+        break;
+
+      case 'ValidationError':
+        ctx.response.status = status;
+        ctx.response.body = getValidationError(e);
         break;
 
       default:
@@ -31,4 +31,18 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
         break;
     }
   }
+}
+
+function getUniquenessError(err: any) {
+  const { message, name, paths, values } = err;
+  return { error: { message, name, paths, values } };
+}
+
+function getValidationError(err: any) {
+  const errors = Object.keys(err.errors).map(key => {
+    const { kind, message, name, path, value } = err.errors[key];
+    return { kind, message, name, path, value };
+  });
+
+  return { errors };
 }

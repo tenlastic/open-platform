@@ -20,14 +20,10 @@ describe('plugin', function() {
           { context: 'query', runValidators: true },
         );
       } catch (e) {
-        expect(e.errors).to.exist;
-
-        const error = e.errors.name;
-        expect(error.kind).to.eql('unique');
-        expect(error.message).to.eql('Record must have unique values for the following key: name.');
-        expect(error.name).to.eql('ValidatorError');
-        expect(error.paths).to.eql(['name']);
-        expect(error.values).to.eql([name]);
+        expect(e.message).to.eql('Record must have unique values for the following key: name.');
+        expect(e.name).to.eql('UniquenessError');
+        expect(e.paths).to.eql(['name']);
+        expect(e.values).to.eql([name]);
 
         return;
       }
@@ -58,7 +54,7 @@ describe('plugin', function() {
       throw new Error('Expected error to be thrown.');
     });
 
-    it('does not interrupt a successful save', async function() {
+    it('does not interrupt a successful update', async function() {
       const record = await Unique.create({ name: chance.hash() });
       await Unique.findOneAndUpdate(
         { _id: record._id },
@@ -76,14 +72,10 @@ describe('plugin', function() {
       try {
         await Unique.create({ name });
       } catch (e) {
-        expect(e.errors).to.exist;
-
-        const error = e.errors.name;
-        expect(error.kind).to.eql('unique');
-        expect(error.message).to.eql('Record must have unique values for the following key: name.');
-        expect(error.name).to.eql('ValidatorError');
-        expect(error.paths).to.eql(['name']);
-        expect(error.values).to.eql([name]);
+        expect(e.message).to.eql('Record must have unique values for the following key: name.');
+        expect(e.name).to.eql('UniquenessError');
+        expect(e.paths).to.eql(['name']);
+        expect(e.values).to.eql([name]);
 
         return;
       }
