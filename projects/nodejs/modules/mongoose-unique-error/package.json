@@ -11,6 +11,7 @@
     "build:watch": "watch ../../scripts/build.sh ./src",
     "docker": "sh ../../scripts/docker.sh npm run --if-present",
     "lint": "../../scripts/lint.sh",
+    "migrations": "../../scripts/migrations.sh",
     "test": "../../scripts/test.sh",
     "test:watch": "../../scripts/test.sh --watch"
   },
@@ -19,6 +20,7 @@
     "typegoose": "5.8.1"
   },
   "devDependencies": {
+    "migrate-mongo": "6.0.0",
     "mocha": "6.1.4",
     "nyc": "14.1.1",
     "ts-node": "8.3.0",

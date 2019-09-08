@@ -3,8 +3,8 @@ import { InstanceType, ModelType, Typegoose, index, plugin, prop } from 'typegoo
 
 import { plugin as uniqueErrorPlugin } from '../plugin';
 
-@index({ name: 1 }, { unique: true })
 @index({ createdAt: 1 })
+@index({ name: 1 }, { unique: true })
 @index({ updatedAt: 1 })
 @plugin(uniqueErrorPlugin)
 export class UniqueSchema extends Typegoose {
