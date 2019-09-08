@@ -46,7 +46,7 @@ export class RecordSchema extends Typegoose {
     const Model = new RecordSchema().getModelForClass(RecordSchema);
 
     const customProperties = jsonSchema.toMongoose(collection.jsonSchema);
-    const Schema = new mongoose.Schema(
+    const schema = new mongoose.Schema(
       { customProperties },
       {
         autoIndex: false,
@@ -55,11 +55,13 @@ export class RecordSchema extends Typegoose {
         timestamps: true,
       },
     );
-    Schema.add(Model.schema);
-    Schema.plugin(uniqueErrorPlugin);
+    schema.add(Model.schema);
+
+    collection.indexes.forEach(i => schema.index(i.key, i.options));
+    schema.plugin(uniqueErrorPlugin);
 
     const name = collection._id + new Date().getTime() + Math.floor(Math.random() * 1000000000);
-    return mongoose.model(name, Schema) as mongoose.Model<RecordDocument, {}> &
+    return mongoose.model(name, schema) as mongoose.Model<RecordDocument, {}> &
       RecordSchema &
       typeof RecordSchema;
   }
