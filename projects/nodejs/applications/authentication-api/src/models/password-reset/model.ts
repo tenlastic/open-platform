@@ -4,6 +4,7 @@ import {
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Ref, Typegoose, index, plugin, pre, prop } from 'typegoose';
 
@@ -19,6 +20,7 @@ PasswordResetEvent.on(kafka.publish);
   documentKeys: ['_id'],
   eventEmitter: PasswordResetEvent,
 })
+@plugin(uniqueErrorPlugin)
 @pre('save', async function(this: PasswordResetDocument) {
   if (this.isNew) {
     await emails.sendPasswordResetRequest(this);

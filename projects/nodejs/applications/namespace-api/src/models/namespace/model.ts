@@ -4,6 +4,7 @@ import {
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Typegoose, arrayProp, index, plugin, prop } from 'typegoose';
 
@@ -17,6 +18,7 @@ NamespaceEvent.on(kafka.publish);
   documentKeys: ['_id'],
   eventEmitter: NamespaceEvent,
 })
+@plugin(uniqueErrorPlugin)
 export class NamespaceSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
 

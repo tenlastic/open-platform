@@ -1,5 +1,6 @@
 import * as jsonSchema from '@tenlastic/json-schema';
 import { IOptions } from '@tenlastic/mongoose-permissions';
+import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 import {
   InstanceType,
@@ -9,6 +10,7 @@ import {
   arrayProp,
   index,
   instanceMethod,
+  plugin,
   pre,
   prop,
 } from 'typegoose';
@@ -17,6 +19,7 @@ import { Database, DatabaseDocument, DatabaseSchema } from '../database/model';
 import { IndexSchema } from './index/model';
 
 @index({ databaseId: 1, name: 1 }, { unique: true })
+@plugin(uniqueErrorPlugin)
 @pre('save', async function(this: CollectionDocument) {
   await this.setValidator();
 })

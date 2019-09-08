@@ -1,9 +1,11 @@
+import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Ref, Typegoose, index, prop } from 'typegoose';
+import { InstanceType, ModelType, Ref, Typegoose, index, plugin, prop } from 'typegoose';
 
 import { ReadonlyNamespace, ReadonlyNamespaceDocument } from '../readonly-namespace';
 
 @index({ name: 1 }, { unique: true })
+@plugin(uniqueErrorPlugin)
 export class DatabaseSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

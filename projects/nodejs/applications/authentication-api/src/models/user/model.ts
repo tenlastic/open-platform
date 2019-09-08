@@ -4,6 +4,7 @@ import {
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import {
   alphanumericValidator,
   emailValidator,
@@ -39,6 +40,7 @@ UserEvent.on(kafka.publish);
   documentKeys: ['_id'],
   eventEmitter: UserEvent,
 })
+@plugin(uniqueErrorPlugin)
 @pre('save', async function(this: UserDocument) {
   if (!this.isNew && this._original.password !== this.password) {
     await emails.sendPasswordResetConfirmation(this);

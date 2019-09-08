@@ -14,6 +14,7 @@
     { "path": "../../modules/mongoose-change-stream/tsconfig.app.json" },
     { "path": "../../modules/mongoose-change-stream-kafka/tsconfig.app.json" },
     { "path": "../../modules/mongoose-permissions/tsconfig.app.json" },
+    { "path": "../../modules/mongoose-unique-error/tsconfig.app.json" },
     { "path": "../../modules/rabbitmq/tsconfig.app.json" },
     { "path": "../../modules/validations/tsconfig.app.json" }
   ]

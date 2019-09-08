@@ -12,8 +12,6 @@ components:
         email:
           type: string
           format: email
-        level:
-          type: integer
         password:
           type: string
         updatedAt:

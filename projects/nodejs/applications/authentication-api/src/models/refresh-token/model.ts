@@ -1,11 +1,13 @@
+import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Ref, Typegoose, index, prop } from 'typegoose';
+import { InstanceType, ModelType, Ref, Typegoose, index, plugin, prop } from 'typegoose';
 
 import { UserSchema } from '../user/model';
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ jti: 1 }, { unique: true })
 @index({ userId: 1 })
+@plugin(uniqueErrorPlugin)
 export class RefreshTokenSchema extends Typegoose {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

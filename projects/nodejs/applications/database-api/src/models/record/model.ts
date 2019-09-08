@@ -1,4 +1,5 @@
 import * as jsonSchema from '@tenlastic/json-schema';
+import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 import { InstanceType, ModelType, Ref, Typegoose, prop } from 'typegoose';
 
@@ -55,6 +56,7 @@ export class RecordSchema extends Typegoose {
       },
     );
     Schema.add(Model.schema);
+    Schema.plugin(uniqueErrorPlugin);
 
     const name = collection._id + new Date().getTime() + Math.floor(Math.random() * 1000000000);
     return mongoose.model(name, Schema) as mongoose.Model<RecordDocument, {}> &
