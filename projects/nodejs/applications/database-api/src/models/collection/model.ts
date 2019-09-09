@@ -64,12 +64,7 @@ export class CollectionSchema {
 
   public updatedAt: Date;
 
-  @prop({
-    foreignField: '_id',
-    justOne: true,
-    localField: 'databaseId',
-    ref: 'DatabaseSchema',
-  })
+  @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', ref: 'DatabaseSchema' })
   public databaseDocument: DatabaseDocument;
 
   public getValidator(this: CollectionDocument) {

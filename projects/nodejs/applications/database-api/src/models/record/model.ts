@@ -27,20 +27,10 @@ export class RecordSchema {
 
   public updatedAt: Date;
 
-  @prop({
-    foreignField: '_id',
-    justOne: true,
-    localField: 'collectionId',
-    ref: 'CollectionSchema',
-  })
+  @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', ref: 'CollectionSchema' })
   public collectionDocument: CollectionDocument;
 
-  @prop({
-    foreignField: '_id',
-    justOne: true,
-    localField: 'databaseId',
-    ref: 'DatabaseSchema',
-  })
+  @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', ref: 'DatabaseSchema' })
   public databaseDocument: DatabaseDocument;
 
   public static getModelForClass(collection: CollectionDocument) {

@@ -37,12 +37,7 @@ export class DatabaseSchema {
 
   public updatedAt: Date;
 
-  @prop({
-    foreignField: '_id',
-    justOne: true,
-    localField: 'namespaceId',
-    ref: ReadonlyNamespace,
-  })
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: ReadonlyNamespace })
   public namespaceDocument: ReadonlyNamespaceDocument;
 }
 
