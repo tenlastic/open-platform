@@ -1,4 +1,11 @@
-import { DocumentType, Ref, ReturnModelType, getModelForClass, prop } from '@hasezoey/typegoose';
+import {
+  DocumentType,
+  Ref,
+  ReturnModelType,
+  buildSchema,
+  getModelForClass,
+  prop,
+} from '@hasezoey/typegoose';
 import * as jsonSchema from '@tenlastic/json-schema';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
@@ -37,7 +44,7 @@ export class RecordSchema {
   public databaseDocument: DatabaseDocument;
 
   public static getModelForClass(collection: CollectionDocument) {
-    const Model = getModelForClass(RecordSchema);
+    const Schema = buildSchema(RecordSchema);
 
     const customProperties = jsonSchema.toMongoose(collection.jsonSchema);
     const schema = new mongoose.Schema(
@@ -49,7 +56,7 @@ export class RecordSchema {
         timestamps: true,
       },
     );
-    schema.add(Model.schema);
+    schema.add(Schema);
 
     collection.indexes.forEach(i => schema.index(i.key, i.options));
     schema.plugin(uniqueErrorPlugin);

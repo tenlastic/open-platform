@@ -12,7 +12,7 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
     switch (e.name) {
       case 'PermissionError':
         ctx.response.status = 401;
-        ctx.response.body = { error: e.message };
+        ctx.response.body = getError(e);
         break;
 
       case 'UniquenessError':
@@ -27,10 +27,15 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
 
       default:
         ctx.response.status = status;
-        ctx.response.body = { error: e.message };
+        ctx.response.body = getError(e);
         break;
     }
   }
+}
+
+function getError(err: any) {
+  const { message, name } = err;
+  return { error: { message, name } };
 }
 
 function getUniquenessError(err: any) {

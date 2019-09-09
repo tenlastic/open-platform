@@ -72,7 +72,7 @@ export class CollectionSchema {
   })
   public databaseDocument: DatabaseDocument;
 
-  public get validator() {
+  public getValidator(this: CollectionDocument) {
     return {
       $jsonSchema: {
         additionalProperties: false,
@@ -113,13 +113,13 @@ export class CollectionSchema {
     if (collectionExists) {
       await mongoose.connection.db.command({
         collMod: this.id,
-        validator: this.validator,
+        validator: this.getValidator(),
       });
     } else {
       await mongoose.connection.createCollection(this.id, {
         strict: true,
         validationLevel: 'strict',
-        validator: this.validator,
+        validator: this.getValidator(),
       });
     }
   }

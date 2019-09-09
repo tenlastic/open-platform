@@ -10,7 +10,7 @@ export class UniquenessError extends Error {
     const values = Object.values(value);
 
     const keyString = paths.length > 1 ? 'keys' : 'key';
-    const pathString = paths.join(',');
+    const pathString = paths.join(', ');
     super(`Record must have unique values for the following ${keyString}: ${pathString}.`);
 
     this.name = 'UniquenessError';
