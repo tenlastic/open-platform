@@ -130,7 +130,10 @@ export class AccessControl {
   }
 
   private toPlainObject(obj: any, options: { virtuals?: boolean } = {}) {
-    const json = obj && obj.toJSON ? obj.toJSON(options) : obj;
-    return json ? JSON.parse(JSON.stringify(json)) : json;
+    if (obj && obj.toJSON) {
+      return obj.toJSON(options):
+    }
+
+    return JSON.parse(JSON.stringify(obj));
   }
 }
