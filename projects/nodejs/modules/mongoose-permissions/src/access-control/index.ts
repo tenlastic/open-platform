@@ -131,7 +131,7 @@ export class AccessControl {
 
   private toPlainObject(obj: any, options: { virtuals?: boolean } = {}) {
     if (obj && obj.toJSON) {
-      return obj.toJSON(options):
+      return obj.toJSON(options);
     }
 
     return JSON.parse(JSON.stringify(obj));
