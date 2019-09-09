@@ -12,8 +12,12 @@ export function isJsonValid(json: any, query: any) {
   const results = Object.entries(substitutedQuery).map(([key, operations]) => {
     return Object.entries(operations).map(([operator, value]) => {
       switch (operator) {
+        case '$elemMatch':
+          return $elemMatch(json, key, value);
         case '$eq':
           return $eq(json, key, value);
+        case '$exists':
+          return $exists(json, key, value);
         case '$in':
           return $in(json, key, value);
         default:
@@ -23,6 +27,27 @@ export function isJsonValid(json: any, query: any) {
   });
 
   return flatten(results).every(f => f);
+}
+
+/**
+ * Determines if the referenced array contains an element matching all criteria.
+ */
+function $elemMatch(json: any, key: string, value: any) {
+  const reference = getPropertyByDotNotation(json, key);
+
+  if (!reference || reference.constructor !== Array) {
+    return false;
+  }
+
+  for (const r of reference) {
+    const result = isJsonValid(r, value);
+
+    if (result) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**
@@ -38,6 +63,15 @@ function $eq(json: any, key: string, value: any) {
   } else {
     return reference === value;
   }
+}
+
+/**
+ * Determines if the referenced value is defined.
+ */
+function $exists(json: any, key: string, value: any) {
+  const reference = getPropertyByDotNotation(json, key);
+
+  return (reference !== undefined) === Boolean(value);
 }
 
 /**

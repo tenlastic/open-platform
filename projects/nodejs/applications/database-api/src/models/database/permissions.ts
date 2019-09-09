@@ -24,7 +24,12 @@ export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Dat
     {
       name: 'administrator',
       query: {
-        'record.namespaceDocument.accessControlList.userId': { $eq: { $ref: 'user._id' } },
+        'record.namespaceDocument.accessControlList': {
+          $elemMatch: {
+            roles: { $eq: 'Administrator' },
+            userId: { $eq: { $ref: 'user._id' } },
+          },
+        },
       },
     },
   ],

@@ -5,6 +5,48 @@ import { isJsonValid } from './';
 
 describe('is-json-valid', function() {
   describe('isJsonValid()', function() {
+    describe('$elemMatch', function() {
+      it('returns true', function() {
+        const json = {
+          user: {
+            names: [{ first: 'first', last: 'first' }, { first: 'second', last: 'second' }],
+          },
+        };
+        const query = {
+          'user.names': {
+            $elemMatch: {
+              first: { $eq: 'first' },
+              last: { $eq: 'first' },
+            },
+          },
+        };
+
+        const result = isJsonValid(json, query);
+
+        expect(result).to.eql(true);
+      });
+
+      it('returns false', function() {
+        const json = {
+          user: {
+            names: [{ first: 'first', last: 'first' }, { first: 'second', last: 'second' }],
+          },
+        };
+        const query = {
+          'user.names': {
+            $elemMatch: {
+              first: { $eq: 'first' },
+              last: { $eq: 'second' },
+            },
+          },
+        };
+
+        const result = isJsonValid(json, query);
+
+        expect(result).to.eql(false);
+      });
+    });
+
     describe('$eq', function() {
       context('when the reference is an array', function() {
         it('returns true', function() {
@@ -94,6 +136,68 @@ describe('is-json-valid', function() {
           };
           const query = {
             'user._id': { $eq: '1' },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+      });
+    });
+
+    describe('$exists', function() {
+      context('when value is true', function() {
+        it('returns true', function() {
+          const json = {
+            user: {
+              roles: ['Admin'],
+            },
+          };
+          const query = {
+            'user.roles': { $exists: true },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function() {
+          const json = {
+            user: {},
+          };
+          const query = {
+            'user.roles': { $exists: true },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+      });
+
+      context('when value is false', function() {
+        it('returns true', function() {
+          const json = {
+            user: {},
+          };
+          const query = {
+            'user.roles': { $exists: false },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function() {
+          const json = {
+            user: {
+              roles: ['Admin'],
+            },
+          };
+          const query = {
+            'user.roles': { $exists: false },
           };
 
           const result = isJsonValid(json, query);

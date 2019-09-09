@@ -33,8 +33,11 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
     {
       name: 'administrator',
       query: {
-        'record.databaseDocument.namespaceDocument.accessControlList.userId': {
-          $eq: { $ref: 'user._id' },
+        'record.databaseDocument.namespaceDocument.accessControlList': {
+          $elemMatch: {
+            roles: { $eq: 'Administrator' },
+            userId: { $eq: { $ref: 'user._id' } },
+          },
         },
       },
     },
