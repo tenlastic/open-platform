@@ -4,7 +4,9 @@ import { Collection, CollectionDocument } from './model';
 
 export const CollectionPermissions = new MongoosePermissions<CollectionDocument>(Collection, {
   create: {
-    base: ['databaseId', 'jsonSchema.*', 'name', 'permissions.*'],
+    roles: {
+      administrator: ['databaseId', 'jsonSchema.*', 'name', 'permissions.*'],
+    },
   },
   delete: {
     roles: {

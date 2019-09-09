@@ -55,8 +55,12 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    * @param user The user creating the record.
    */
   public async create(params: Partial<TDocument>, override: Partial<TDocument>, user: any) {
-    const createPermissions = this.accessControl.getFieldPermissions('create', null, user);
+    let stubRecord = new this.Model({ ...params, ...override } as any);
+    if (this.accessControl.options.populate) {
+      stubRecord = await stubRecord.populate(this.accessControl.options.populate).execPopulate();
+    }
 
+    const createPermissions = this.accessControl.getFieldPermissions('create', stubRecord, user);
     if (createPermissions.length === 0) {
       throw new PermissionError();
     }

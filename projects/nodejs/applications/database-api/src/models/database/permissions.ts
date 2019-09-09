@@ -4,7 +4,9 @@ import { Database, DatabaseDocument } from './model';
 
 export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Database, {
   create: {
-    base: ['name', 'namespaceId'],
+    roles: {
+      administrator: ['name', 'namespaceId'],
+    },
   },
   delete: {
     roles: {
