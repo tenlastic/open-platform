@@ -1,1 +1,1 @@
-export * from './mongoose-permissions/mongoose-permissions';
+export * from './mongoose-permissions/';
