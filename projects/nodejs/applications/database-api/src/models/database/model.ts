@@ -20,8 +20,6 @@ import { ReadonlyNamespace, ReadonlyNamespaceDocument } from '../readonly-namesp
     collection: 'databases',
     minimize: false,
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
   },
 })
 @plugin(uniqueErrorPlugin)

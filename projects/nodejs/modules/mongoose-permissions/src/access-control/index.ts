@@ -114,8 +114,8 @@ export class AccessControl {
     }
 
     const json = {
-      record: record ? this.toPlainObject(record) : null,
-      user: user ? this.toPlainObject(user) : null,
+      record: record ? this.toPlainObject(record, { virtuals: true }) : null,
+      user: user ? this.toPlainObject(user, { virtuals: true }) : null,
     };
 
     for (const role of this.options.roles) {
@@ -129,7 +129,8 @@ export class AccessControl {
     return 'default';
   }
 
-  private toPlainObject(obj: any) {
-    return obj ? JSON.parse(JSON.stringify(obj)) : obj;
+  private toPlainObject(obj: any, options: { virtuals?: boolean } = {}) {
+    const json = obj && obj.toJSON ? obj.toJSON(options) : obj;
+    return json ? JSON.parse(JSON.stringify(json)) : json;
   }
 }

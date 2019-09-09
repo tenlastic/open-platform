@@ -25,8 +25,8 @@ import { IndexSchema } from './index/model';
     collection: 'collections',
     minimize: false,
     timestamps: true,
-    toJSON: { getters: true, virtuals: true },
-    toObject: { getters: true, virtuals: true },
+    toJSON: { getters: true },
+    toObject: { getters: true },
   },
 })
 @plugin(uniqueErrorPlugin)
