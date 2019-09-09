@@ -19,7 +19,8 @@ export async function handler(ctx: Context) {
   }
 
   const collection = collections[0];
-  const updatePermissions = await CollectionPermissions.updatePermissions(
+  const updatePermissions = await CollectionPermissions.accessControl.getFieldPermissions(
+    'update',
     collection,
     ctx.state.user,
   );

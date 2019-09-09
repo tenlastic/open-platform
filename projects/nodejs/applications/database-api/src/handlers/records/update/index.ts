@@ -16,7 +16,7 @@ export async function handler(ctx: Context) {
 
   const query = { _id: id, collectionId, databaseId };
   const where = await Permissions.where(query, ctx.state.user);
-  const record = await Model.findOne(where).populate(Permissions.populateOptions);
+  const record = await Model.findOne(where).populate(Permissions.accessControl.options.populate);
 
   if (!record) {
     throw new RecordNotFoundError('Record');

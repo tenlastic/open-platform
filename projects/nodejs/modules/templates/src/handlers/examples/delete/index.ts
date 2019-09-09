@@ -4,7 +4,9 @@ import { Example, ExamplePermissions } from '../../../models';
 
 export async function handler(ctx: Context) {
   const where = await ExamplePermissions.where({ _id: ctx.params.id }, ctx.state.user);
-  const record = await Example.findOne(where).populate(ExamplePermissions.populateOptions);
+  const record = await Example.findOne(where).populate(
+    ExamplePermissions.accessControl.options.populate,
+  );
 
   if (!record) {
     throw new RecordNotFoundError('Example');

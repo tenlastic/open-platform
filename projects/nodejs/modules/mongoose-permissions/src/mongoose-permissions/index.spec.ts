@@ -1,7 +1,6 @@
-import * as chai from 'chai';
+import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { Chance } from 'chance';
-import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 
@@ -9,10 +8,8 @@ import { Example, ExampleDocument, ExamplePermissions } from '../example-model';
 import { PermissionError } from './';
 
 const chance = new Chance();
-const expect = chai.expect;
-
-chai.use(chaiAsPromised);
-chai.use(sinonChai);
+use(chaiAsPromised);
+use(sinonChai);
 
 describe('permissions', function() {
   let admin: any;
@@ -226,30 +223,6 @@ describe('permissions', function() {
 
         expect(result).to.eql(null);
       });
-    });
-  });
-
-  describe(`['getRole']()`, function() {
-    it('returns the first role', function() {
-      const result = ExamplePermissions['getRole']({} as any, { roles: ['Admin'] });
-
-      expect(result).to.eql('admin');
-    });
-
-    it('returns the second role', function() {
-      const _id = mongoose.Types.ObjectId();
-      const result = ExamplePermissions['getRole']({ userId: _id } as any, { _id });
-
-      expect(result).to.eql('owner');
-    });
-
-    it('returns default', function() {
-      const _id = mongoose.Types.ObjectId();
-      const result = ExamplePermissions['getRole']({ userId: mongoose.Types.ObjectId() } as any, {
-        _id,
-      });
-
-      expect(result).to.eql('default');
     });
   });
 });

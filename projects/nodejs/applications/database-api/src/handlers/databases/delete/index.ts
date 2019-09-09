@@ -4,7 +4,9 @@ import { Database, DatabasePermissions } from '../../../models';
 
 export async function handler(ctx: Context) {
   const where = await DatabasePermissions.where({ _id: ctx.params.id }, ctx.state.user);
-  const record = await Database.findOne(where).populate(DatabasePermissions.populateOptions);
+  const record = await Database.findOne(where).populate(
+    DatabasePermissions.accessControl.options.populate,
+  );
 
   if (!record) {
     throw new RecordNotFoundError('Database');

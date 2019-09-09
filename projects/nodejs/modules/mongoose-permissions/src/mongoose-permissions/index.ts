@@ -1,9 +1,9 @@
 import * as deepmerge from 'deepmerge';
 import * as mongoose from 'mongoose';
 
+import { AccessControl, IOptions } from '../access-control';
 import { filterObject } from '../filter-object';
 import { filterRecord } from '../filter-record';
-import { isJsonValid } from '../is-json-valid';
 import { substituteReferenceValues } from '../substitute-reference-values';
 
 export interface IFindQuery {
@@ -12,41 +12,6 @@ export interface IFindQuery {
   skip?: number;
   sort?: string;
   where?: any;
-}
-
-export interface IOptions {
-  create: {
-    base?: string[];
-    roles?: { [key: string]: string[] };
-  };
-  delete: {
-    base?: boolean;
-    roles?: { [key: string]: boolean };
-  };
-  find: {
-    base?: any;
-    roles?: { [key: string]: any };
-  };
-  populate?: IPopulate[];
-  read: {
-    base?: string[];
-    roles?: { [key: string]: string[] };
-  };
-  roles: IRole[];
-  update: {
-    base?: string[];
-    roles?: { [key: string]: string[] };
-  };
-}
-
-export interface IPopulate {
-  path: string;
-  populate?: IPopulate;
-}
-
-export interface IRole {
-  name: string;
-  query: any;
 }
 
 export class PermissionError extends Error {
@@ -58,16 +23,13 @@ export class PermissionError extends Error {
 }
 
 export class MongoosePermissions<TDocument extends mongoose.Document> {
-  public populateOptions: IPopulate[];
+  public accessControl: AccessControl;
 
   private Model: mongoose.Model<TDocument>;
-  private options: IOptions;
 
   constructor(Model: mongoose.Model<TDocument>, options: IOptions) {
-    this.populateOptions = options.populate;
-
+    this.accessControl = new AccessControl(options);
     this.Model = Model;
-    this.options = options;
   }
 
   /**
@@ -93,7 +55,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    * @param user The user creating the record.
    */
   public async create(params: Partial<TDocument>, override: Partial<TDocument>, user: any) {
-    const createPermissions = await this.createPermissions(user);
+    const createPermissions = this.accessControl.getFieldPermissions('create', null, user);
 
     if (createPermissions.length === 0) {
       throw new PermissionError();
@@ -110,22 +72,8 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     const record = await this.Model.create(mergedParams);
 
     // Filter unauthorized attributes
-    const readPermissions = await this.readPermissions(record, user);
+    const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
     return filterRecord(record, readPermissions);
-  }
-
-  public async createPermissions(user: any) {
-    if (!this.options.create) {
-      return [];
-    }
-
-    const attributes = this.options.create.base || [];
-
-    const role = this.getRole(null, user);
-    const roles = this.options.create.roles;
-    const roleAttributes = roles && roles[role] ? roles[role] : [];
-
-    return attributes.concat(roleAttributes);
   }
 
   /**
@@ -134,7 +82,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    * @param user The user removing the record.
    */
   public async delete(record: TDocument, user: any) {
-    const removePermissions = await this.deletePermissions(record, user);
+    const removePermissions = await this.accessControl.delete(record, user);
 
     if (!removePermissions) {
       throw new PermissionError();
@@ -143,23 +91,8 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     record = await record.remove();
 
     // Filter unauthorized attributes
-    const readPermissions = await this.readPermissions(record, user);
+    const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
     return filterRecord(record, readPermissions);
-  }
-
-  public async deletePermissions(record: TDocument, user: any) {
-    if (!this.options.delete) {
-      return false;
-    }
-
-    const role = this.getRole(record, user);
-    const roles = this.options.delete.roles || {};
-
-    if (role in roles) {
-      return roles[role];
-    }
-
-    return this.options.delete.base || false;
   }
 
   /**
@@ -182,8 +115,8 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       .limit(override.limit || params.limit || 100)
       .select(override.select || params.select);
 
-    if (this.options.populate) {
-      query = query.populate(this.options.populate);
+    if (this.accessControl.options.populate) {
+      query = query.populate(this.accessControl.options.populate);
     }
 
     const records = (await query.exec()) as TDocument[];
@@ -205,51 +138,19 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     return results[0];
   }
 
-  public async findPermissions(user: any) {
-    if (!this.options.find) {
-      return null;
-    }
-
-    const query = this.options.find.base;
-
-    const role = this.getRole(null, user);
-    const roles = this.options.find.roles;
-    const roleAttributes = roles ? roles[role] : undefined;
-
-    if (roleAttributes === null || (roleAttributes === undefined && !query)) {
-      return null;
-    }
-
-    return Object.assign({}, query || {}, roleAttributes || {});
-  }
-
   /**
    * Removes any unauthorized fields from a record.
    * @param record The record to filter attributes from.
    * @param user The user accessing the record.
    */
   public async read(record: TDocument, user: any) {
-    const readPermissions = await this.readPermissions(record, user);
+    const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
 
     if (readPermissions.length === 0) {
       throw new PermissionError();
     }
 
     return filterRecord(record, readPermissions);
-  }
-
-  public async readPermissions(record: TDocument, user: any) {
-    if (!this.options.read) {
-      return [];
-    }
-
-    const attributes = this.options.read.base || [];
-
-    const role = this.getRole(record, user);
-    const roles = this.options.read.roles;
-    const roleAttributes = roles && roles[role] ? roles[role] : [];
-
-    return attributes.concat(roleAttributes);
   }
 
   /**
@@ -265,7 +166,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     override: Partial<TDocument>,
     user: any,
   ) {
-    const updatePermissions = await this.updatePermissions(record, user);
+    const updatePermissions = this.accessControl.getFieldPermissions('update', record, user);
 
     if (updatePermissions.length === 0) {
       throw new PermissionError();
@@ -287,22 +188,8 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     record = await record.save();
 
     // Remove unauthorized fields
-    const readPermissions = await this.readPermissions(record, user);
+    const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
     return filterRecord(record, readPermissions);
-  }
-
-  public async updatePermissions(record: TDocument, user: any) {
-    if (!this.options.update) {
-      return [];
-    }
-
-    const attributes = this.options.update.base || [];
-
-    const role = this.getRole(record, user);
-    const roles = this.options.update.roles;
-    const roleAttributes = roles && roles[role] ? roles[role] : [];
-
-    return attributes.concat(roleAttributes);
   }
 
   /**
@@ -311,7 +198,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    * @param user The user performing the query.
    */
   public async where(where: any, user: any) {
-    const query = await this.findPermissions(user);
+    const query = await this.accessControl.find(user);
 
     if (query === null) {
       return null;
@@ -344,23 +231,6 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     });
 
     return substituteReferenceValues(query, { user });
-  }
-
-  private getRole(record: TDocument, user: any) {
-    const json = {
-      record: record ? JSON.parse(JSON.stringify(record)) : null,
-      user: user ? JSON.parse(JSON.stringify(user)) : null,
-    };
-
-    for (const role of this.options.roles) {
-      try {
-        if (isJsonValid(json, role.query)) {
-          return role.name;
-        }
-      } catch {}
-    }
-
-    return 'default';
   }
 
   private toPlainObject(obj: any) {
