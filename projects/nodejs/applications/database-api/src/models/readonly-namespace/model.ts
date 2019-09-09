@@ -1,9 +1,22 @@
+import {
+  DocumentType,
+  ReturnModelType,
+  arrayProp,
+  getModelForClass,
+  modelOptions,
+  prop,
+} from '@hasezoey/typegoose';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Typegoose, arrayProp, prop } from 'typegoose';
 
 import { UserRoles, UserRolesDocument } from './user-roles';
 
-export class ReadonlyNamespaceSchema extends Typegoose {
+@modelOptions({
+  schemaOptions: {
+    collection: 'readonly.namespaces',
+    minimize: false,
+  },
+})
+export class ReadonlyNamespaceSchema {
   @prop()
   public _id: mongoose.Types.ObjectId;
 
@@ -20,14 +33,6 @@ export class ReadonlyNamespaceSchema extends Typegoose {
   public username: string;
 }
 
-export type ReadonlyNamespaceDocument = InstanceType<ReadonlyNamespaceSchema>;
-export type ReadonlyNamespaceModel = ModelType<ReadonlyNamespaceSchema>;
-export const ReadonlyNamespace = new ReadonlyNamespaceSchema().getModelForClass(
-  ReadonlyNamespaceSchema,
-  {
-    schemaOptions: {
-      collection: 'readonly.namespaces',
-      minimize: false,
-    },
-  },
-);
+export type ReadonlyNamespaceDocument = DocumentType<ReadonlyNamespaceSchema>;
+export type ReadonlyNamespaceModel = ReturnModelType<typeof ReadonlyNamespaceSchema>;
+export const ReadonlyNamespace = getModelForClass(ReadonlyNamespaceSchema);

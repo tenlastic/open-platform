@@ -1,4 +1,5 @@
 import * as Chance from 'chance';
+import * as mongoose from 'mongoose';
 
 import { Database, DatabaseSchema } from './model';
 
@@ -12,7 +13,7 @@ export class DatabaseMock {
 
     const defaults = {
       name: chance.hash(),
-      userId: chance.hash(),
+      namespaceId: mongoose.Types.ObjectId(),
     };
 
     return Database.create({ ...defaults, ...params });

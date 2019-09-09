@@ -1,5 +1,12 @@
+import {
+  DocumentType,
+  Ref,
+  ReturnModelType,
+  getModelForClass,
+  modelOptions,
+  prop,
+} from '@hasezoey/typegoose';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Ref, Typegoose, prop } from 'typegoose';
 
 import { CollectionSchema } from '..';
 import { DatabaseSchema } from '../../database';
@@ -14,13 +21,18 @@ export interface IndexOptions {
   unique?: boolean;
 }
 
-export class IndexSchema extends Typegoose {
+@modelOptions({
+  schemaOptions: {
+    minimize: false,
+  },
+})
+export class IndexSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ ref: 'CollectionSchema', required: true })
+  @prop({ ref: 'CollectionSchema' })
   public collectionId: Ref<CollectionSchema>;
 
-  @prop({ ref: 'DatabaseSchema', required: true })
+  @prop({ ref: 'DatabaseSchema' })
   public databaseId: Ref<DatabaseSchema>;
 
   @prop({ required: true })
@@ -30,10 +42,6 @@ export class IndexSchema extends Typegoose {
   public options?: IndexOptions;
 }
 
-export type IndexDocument = InstanceType<IndexSchema>;
-export type IndexModel = ModelType<IndexSchema>;
-export const Index = new IndexSchema().getModelForClass(IndexSchema, {
-  schemaOptions: {
-    minimize: false,
-  },
-});
+export type IndexDocument = DocumentType<IndexSchema>;
+export type IndexModel = ReturnModelType<typeof IndexSchema>;
+export const Index = getModelForClass(IndexSchema);

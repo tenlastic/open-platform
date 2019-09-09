@@ -1,7 +1,24 @@
+import {
+  DocumentType,
+  ReturnModelType,
+  arrayProp,
+  getModelForClass,
+  modelOptions,
+  prop,
+} from '@hasezoey/typegoose';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Typegoose, arrayProp, prop } from 'typegoose';
 
-export class ReadonlyUserSchema extends Typegoose {
+@modelOptions({
+  schemaOptions: {
+    collation: {
+      locale: 'en_US',
+      strength: 1,
+    },
+    collection: 'readonly.users',
+    minimize: false,
+  },
+})
+export class ReadonlyUserSchema {
   @prop()
   public _id: mongoose.Types.ObjectId;
 
@@ -24,15 +41,6 @@ export class ReadonlyUserSchema extends Typegoose {
   public username: string;
 }
 
-export type ReadonlyUserDocument = InstanceType<ReadonlyUserSchema>;
-export type ReadonlyUserModel = ModelType<ReadonlyUserSchema>;
-export const ReadonlyUser = new ReadonlyUserSchema().getModelForClass(ReadonlyUserSchema, {
-  schemaOptions: {
-    collation: {
-      locale: 'en_US',
-      strength: 1,
-    },
-    collection: 'readonly.users',
-    minimize: false,
-  },
-});
+export type ReadonlyUserDocument = DocumentType<ReadonlyUserSchema>;
+export type ReadonlyUserModel = ReturnModelType<typeof ReadonlyUserSchema>;
+export const ReadonlyUser = getModelForClass(ReadonlyUserSchema);

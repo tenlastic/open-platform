@@ -1,4 +1,14 @@
 import {
+  DocumentType,
+  ReturnModelType,
+  arrayProp,
+  getModelForClass,
+  index,
+  modelOptions,
+  plugin,
+  prop,
+} from '@hasezoey/typegoose';
+import {
   EventEmitter,
   IDatabasePayload,
   changeStreamPlugin,
@@ -6,7 +16,6 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Typegoose, arrayProp, index, plugin, prop } from 'typegoose';
 
 import { UserRolesDocument, UserRoles } from './user-roles';
 
@@ -14,12 +23,20 @@ export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocumen
 NamespaceEvent.on(kafka.publish);
 
 @index({ name: 1 }, { unique: true })
+@modelOptions({
+  schemaOptions: {
+    autoIndex: false,
+    collection: 'namespaces',
+    minimize: false,
+    timestamps: true,
+  },
+})
 @plugin(changeStreamPlugin, {
   documentKeys: ['_id'],
   eventEmitter: NamespaceEvent,
 })
 @plugin(uniqueErrorPlugin)
-export class NamespaceSchema extends Typegoose {
+export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
 
   @arrayProp({ default: [], items: UserRoles })
@@ -33,13 +50,6 @@ export class NamespaceSchema extends Typegoose {
   public updatedAt: Date;
 }
 
-export type NamespaceDocument = InstanceType<NamespaceSchema>;
-export type NamespaceModel = ModelType<NamespaceSchema>;
-export const Namespace = new NamespaceSchema().getModelForClass(NamespaceSchema, {
-  schemaOptions: {
-    autoIndex: false,
-    collection: 'namespaces',
-    minimize: false,
-    timestamps: true,
-  },
-});
+export type NamespaceDocument = DocumentType<NamespaceSchema>;
+export type NamespaceModel = ReturnModelType<typeof NamespaceSchema>;
+export const Namespace = getModelForClass(NamespaceSchema);

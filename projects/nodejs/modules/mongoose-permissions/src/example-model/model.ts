@@ -1,8 +1,21 @@
+import {
+  DocumentType,
+  Ref,
+  getModelForClass,
+  modelOptions,
+  prop,
+  ReturnModelType,
+} from '@hasezoey/typegoose';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Ref, Typegoose, prop, staticMethod } from 'typegoose';
 
-export class ExampleSchema extends Typegoose {
+@modelOptions({
+  schemaOptions: {
+    collection: 'examples',
+    timestamps: true,
+  },
+})
+export class ExampleSchema {
   public _id: mongoose.Types.ObjectId;
 
   public createdAt: Date;
@@ -21,23 +34,14 @@ export class ExampleSchema extends Typegoose {
   @prop({ ref: 'ExampleSchema' })
   public userId: Ref<ExampleSchema>;
 
-  @prop({
-    foreignField: '_id',
-    justOne: true,
-    localField: 'parentId',
-    overwrite: true,
-    ref: 'ExampleSchema',
-  })
-  public get parent(): ExampleDocument {
-    return this.parent;
-  }
+  @prop({ foreignField: '_id', justOne: true, localField: 'parentId', ref: 'ExampleSchema' })
+  public parent: ExampleDocument;
 
   /**
    * Creates a record with randomized required parameters if not specified.
    * @param {Object} params The parameters to initialize the record with.
    */
-  @staticMethod
-  public static async mock(this: ModelType<ExampleSchema>, params: Partial<ExampleSchema> = {}) {
+  public static async mock(this: ExampleModel, params: Partial<ExampleSchema> = {}) {
     const chance = new Chance();
 
     const defaults = {
@@ -48,11 +52,6 @@ export class ExampleSchema extends Typegoose {
   }
 }
 
-export type ExampleDocument = InstanceType<ExampleSchema>;
-export type ExampleModel = ModelType<ExampleSchema>;
-export const Example = new ExampleSchema().getModelForClass(ExampleSchema, {
-  schemaOptions: {
-    collection: 'examples',
-    timestamps: true,
-  },
-});
+export type ExampleDocument = DocumentType<ExampleSchema>;
+export type ExampleModel = ReturnModelType<typeof ExampleSchema>;
+export const Example = getModelForClass(ExampleSchema);

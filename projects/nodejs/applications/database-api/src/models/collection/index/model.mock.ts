@@ -1,4 +1,5 @@
 import * as Chance from 'chance';
+import * as mongoose from 'mongoose';
 
 import { Index, IndexSchema } from './model';
 
@@ -11,6 +12,7 @@ export class IndexMock {
     const chance = new Chance();
 
     const defaults = {
+      databaseId: mongoose.Types.ObjectId(),
       key: { [chance.hash()]: chance.integer({ max: 1, min: 0 }) },
     };
 

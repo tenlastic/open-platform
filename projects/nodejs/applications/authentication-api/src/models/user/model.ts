@@ -1,4 +1,15 @@
 import {
+  DocumentType,
+  ReturnModelType,
+  arrayProp,
+  getModelForClass,
+  index,
+  modelOptions,
+  plugin,
+  pre,
+  prop,
+} from '@hasezoey/typegoose';
+import {
   EventEmitter,
   IDatabasePayload,
   changeStreamPlugin,
@@ -13,18 +24,6 @@ import {
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
-import {
-  InstanceType,
-  ModelType,
-  Typegoose,
-  arrayProp,
-  index,
-  instanceMethod,
-  plugin,
-  pre,
-  prop,
-  staticMethod,
-} from 'typegoose';
 import * as uuid from 'uuid/v4';
 
 import * as emails from '../../emails';
@@ -36,6 +35,18 @@ UserEvent.on(kafka.publish);
 
 @index({ email: 1 }, { unique: true })
 @index({ username: 1 }, { unique: true })
+@modelOptions({
+  schemaOptions: {
+    autoIndex: false,
+    collation: {
+      locale: 'en_US',
+      strength: 1,
+    },
+    collection: 'users',
+    minimize: false,
+    timestamps: true,
+  },
+})
 @plugin(changeStreamPlugin, {
   documentKeys: ['_id'],
   eventEmitter: UserEvent,
@@ -50,7 +61,7 @@ UserEvent.on(kafka.publish);
     this.password = await User.hashPassword(this.password);
   }
 })
-export class UserSchema extends Typegoose {
+export class UserSchema {
   public _id: mongoose.Types.ObjectId;
 
   public createdAt: Date;
@@ -83,7 +94,6 @@ export class UserSchema extends Typegoose {
   /**
    * Hashes a plaintext password.
    */
-  @staticMethod
   public static async hashPassword(this: UserModel, plaintext: string) {
     const salt = await bcrypt.genSalt(8);
     return bcrypt.hash(plaintext, salt);
@@ -92,7 +102,6 @@ export class UserSchema extends Typegoose {
   /**
    * Checks if a plaintext password is valid.
    */
-  @instanceMethod
   public isValidPassword(this: UserDocument, plaintext: string) {
     return bcrypt.compare(plaintext, this.password);
   }
@@ -100,7 +109,6 @@ export class UserSchema extends Typegoose {
   /**
    * Creates an access and refresh token.
    */
-  @instanceMethod
   public async logIn(this: UserDocument) {
     // Save the RefreshToken for renewal and revocation.
     const jti = uuid();
@@ -123,17 +131,6 @@ export class UserSchema extends Typegoose {
   }
 }
 
-export type UserDocument = InstanceType<UserSchema>;
-export type UserModel = ModelType<UserSchema>;
-export const User = new UserSchema().getModelForClass(UserSchema, {
-  schemaOptions: {
-    autoIndex: false,
-    collation: {
-      locale: 'en_US',
-      strength: 1,
-    },
-    collection: 'users',
-    minimize: false,
-    timestamps: true,
-  },
-});
+export type UserDocument = DocumentType<UserSchema>;
+export type UserModel = ReturnModelType<typeof UserSchema>;
+export const User = getModelForClass(UserSchema);

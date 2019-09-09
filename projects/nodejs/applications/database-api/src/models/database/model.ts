@@ -1,12 +1,31 @@
+import {
+  DocumentType,
+  Ref,
+  ReturnModelType,
+  getModelForClass,
+  index,
+  modelOptions,
+  plugin,
+  prop,
+} from '@hasezoey/typegoose';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Ref, Typegoose, index, plugin, prop } from 'typegoose';
 
 import { ReadonlyNamespace, ReadonlyNamespaceDocument } from '../readonly-namespace';
 
 @index({ name: 1 }, { unique: true })
+@modelOptions({
+  schemaOptions: {
+    autoIndex: false,
+    collection: 'databases',
+    minimize: false,
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
+})
 @plugin(uniqueErrorPlugin)
-export class DatabaseSchema extends Typegoose {
+export class DatabaseSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
@@ -22,23 +41,11 @@ export class DatabaseSchema extends Typegoose {
     foreignField: '_id',
     justOne: true,
     localField: 'namespaceId',
-    overwrite: true,
     ref: ReadonlyNamespace,
   })
-  public get namespaceDocument(): ReadonlyNamespaceDocument {
-    return this.namespaceDocument;
-  }
+  public namespaceDocument: ReadonlyNamespaceDocument;
 }
 
-export type DatabaseDocument = InstanceType<DatabaseSchema>;
-export type DatabaseModel = ModelType<DatabaseSchema>;
-export const Database = new DatabaseSchema().getModelForClass(DatabaseSchema, {
-  schemaOptions: {
-    autoIndex: false,
-    collection: 'databases',
-    minimize: false,
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  },
-});
+export type DatabaseDocument = DocumentType<DatabaseSchema>;
+export type DatabaseModel = ReturnModelType<typeof DatabaseSchema>;
+export const Database = getModelForClass(DatabaseSchema);

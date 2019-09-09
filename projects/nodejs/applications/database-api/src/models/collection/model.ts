@@ -1,29 +1,39 @@
+import {
+  DocumentType,
+  Ref,
+  ReturnModelType,
+  arrayProp,
+  getModelForClass,
+  index,
+  modelOptions,
+  plugin,
+  pre,
+  prop,
+} from '@hasezoey/typegoose';
 import * as jsonSchema from '@tenlastic/json-schema';
 import { IOptions } from '@tenlastic/mongoose-permissions';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
-import {
-  InstanceType,
-  ModelType,
-  Ref,
-  Typegoose,
-  arrayProp,
-  index,
-  instanceMethod,
-  plugin,
-  pre,
-  prop,
-} from 'typegoose';
 
 import { Database, DatabaseDocument, DatabaseSchema } from '../database/model';
 import { IndexSchema } from './index/model';
 
 @index({ databaseId: 1, name: 1 }, { unique: true })
+@modelOptions({
+  schemaOptions: {
+    autoIndex: false,
+    collection: 'collections',
+    minimize: false,
+    timestamps: true,
+    toJSON: { getters: true, virtuals: true },
+    toObject: { getters: true, virtuals: true },
+  },
+})
 @plugin(uniqueErrorPlugin)
 @pre('save', async function(this: CollectionDocument) {
   await this.setValidator();
 })
-export class CollectionSchema extends Typegoose {
+export class CollectionSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
@@ -33,13 +43,23 @@ export class CollectionSchema extends Typegoose {
   @arrayProp({ items: IndexSchema })
   public indexes: IndexSchema[];
 
-  @prop({ _id: false, default: { type: 'object' } })
+  @prop({
+    _id: false,
+    default: JSON.stringify({ type: 'object' }),
+    get: value => (typeof value === 'string' ? JSON.parse(value) : value),
+    set: value => (typeof value === 'string' ? value : JSON.stringify(value)),
+  })
   public jsonSchema: any;
 
   @prop({ match: /^[0-9a-z\-]{6,40}$/, required: 'true' })
   public name: string;
 
-  @prop({ _id: false, default: {} })
+  @prop({
+    _id: false,
+    default: JSON.stringify({}),
+    get: value => (typeof value === 'string' ? JSON.parse(value) : value),
+    set: value => (typeof value === 'string' ? value : JSON.stringify(value)),
+  })
   public permissions: IOptions;
 
   public updatedAt: Date;
@@ -48,14 +68,10 @@ export class CollectionSchema extends Typegoose {
     foreignField: '_id',
     justOne: true,
     localField: 'databaseId',
-    overwrite: true,
     ref: 'DatabaseSchema',
   })
-  public get databaseDocument(): DatabaseDocument {
-    return this.databaseDocument;
-  }
+  public databaseDocument: DatabaseDocument;
 
-  @prop()
   public get validator() {
     return {
       $jsonSchema: {
@@ -90,7 +106,6 @@ export class CollectionSchema extends Typegoose {
   /**
    * Creates the collection if it does not already exist.
    */
-  @instanceMethod
   public async setValidator(this: CollectionDocument) {
     const collections = await mongoose.connection.db.listCollections().toArray();
     const collectionExists = collections.map(c => c.name).includes(this.id);
@@ -110,15 +125,6 @@ export class CollectionSchema extends Typegoose {
   }
 }
 
-export type CollectionDocument = InstanceType<CollectionSchema>;
-export type CollectionModel = ModelType<CollectionSchema>;
-export const Collection = new CollectionSchema().getModelForClass(CollectionSchema, {
-  schemaOptions: {
-    autoIndex: false,
-    collection: 'collections',
-    minimize: false,
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  },
-});
+export type CollectionDocument = DocumentType<CollectionSchema>;
+export type CollectionModel = ReturnModelType<typeof CollectionSchema>;
+export const Collection = getModelForClass(CollectionSchema);
