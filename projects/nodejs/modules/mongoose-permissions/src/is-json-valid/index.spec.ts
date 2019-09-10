@@ -5,6 +5,46 @@ import { isJsonValid } from './';
 
 describe('is-json-valid', function() {
   describe('isJsonValid()', function() {
+    describe('$and', function() {
+      it('returns true', function() {
+        const json = {
+          user: {
+            age: 5,
+            name: 'Test User',
+          },
+        };
+        const query = {
+          $and: {
+            'user.age': { $eq: 5 },
+            'user.name': { $eq: 'Test User' },
+          },
+        };
+
+        const result = isJsonValid(json, query);
+
+        expect(result).to.eql(true);
+      });
+
+      it('returns false', function() {
+        const json = {
+          user: {
+            age: 5,
+            name: 'Test User',
+          },
+        };
+        const query = {
+          $and: {
+            'user.age': { $eq: 1 },
+            'user.name': { $eq: 'Test User' },
+          },
+        };
+
+        const result = isJsonValid(json, query);
+
+        expect(result).to.eql(false);
+      });
+    });
+
     describe('$elemMatch', function() {
       it('returns true', function() {
         const json = {
@@ -302,6 +342,46 @@ describe('is-json-valid', function() {
 
           expect(result).to.eql(false);
         });
+      });
+    });
+
+    describe('$or', function() {
+      it('returns true', function() {
+        const json = {
+          user: {
+            age: 5,
+            name: 'Test User',
+          },
+        };
+        const query = {
+          $or: {
+            'user.age': { $eq: 1 },
+            'user.name': { $eq: 'Test User' },
+          },
+        };
+
+        const result = isJsonValid(json, query);
+
+        expect(result).to.eql(true);
+      });
+
+      it('returns false', function() {
+        const json = {
+          user: {
+            age: 5,
+            name: 'Test User',
+          },
+        };
+        const query = {
+          $or: {
+            'user.age': { $eq: 1 },
+            'user.name': { $eq: 'Another User' },
+          },
+        };
+
+        const result = isJsonValid(json, query);
+
+        expect(result).to.eql(false);
       });
     });
 

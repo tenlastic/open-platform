@@ -6,10 +6,16 @@ import { substituteReferenceValues } from '../substitute-reference-values';
 /**
  * Determines if the query matches the JSON object.
  */
-export function isJsonValid(json: any, query: any) {
+export function isJsonValid(json: any, query: any, and = true) {
   const substitutedQuery = substituteReferenceValues(query, json);
 
   const results = Object.entries(substitutedQuery).map(([key, operations]) => {
+    if (key === '$and') {
+      return isJsonValid(json, operations);
+    } else if (key === '$or') {
+      return isJsonValid(json, operations, false);
+    }
+
     return Object.entries(operations).map(([operator, value]) => {
       switch (operator) {
         case '$elemMatch':
@@ -26,7 +32,7 @@ export function isJsonValid(json: any, query: any) {
     });
   });
 
-  return flatten(results).every(f => f);
+  return and ? flatten(results).every(f => f) : flatten(results).includes(true);
 }
 
 /**
@@ -71,7 +77,7 @@ function $eq(json: any, key: string, value: any) {
 function $exists(json: any, key: string, value: any) {
   const reference = getPropertyByDotNotation(json, key);
 
-  return (reference !== undefined) === Boolean(value);
+  return Boolean(reference !== undefined) === Boolean(value);
 }
 
 /**

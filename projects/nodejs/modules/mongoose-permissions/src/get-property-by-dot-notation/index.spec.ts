@@ -42,13 +42,13 @@ describe('get-property-by-dot-notation', function() {
       expect(result).to.eql([json.accessControlList[0].userId, json.accessControlList[1].userId]);
     });
 
-    it('returns null when the matching property is not found', function() {
+    it('returns undefined when the matching property is not found', function() {
       const json = { key: 'key' };
       const path = 'value';
 
       const result = getPropertyByDotNotation(json, path);
 
-      expect(result).to.eql(null);
+      expect(result).to.eql(undefined);
     });
   });
 
@@ -59,7 +59,7 @@ describe('get-property-by-dot-notation', function() {
 
       const result = getPropertyByDotNotation(json, path);
 
-      expect(result).to.eql(null);
+      expect(result).to.eql(undefined);
     });
   });
 });
