@@ -7,7 +7,6 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "paths": {
-      "@tenlastic/e2e": ["./modules/e2e/src"],
       "@tenlastic/json-schema": ["./modules/json-schema/src"],
       "@tenlastic/mailgun": ["./modules/mailgun/src"],
       "@tenlastic/mongoose-change-stream": ["./modules/mongoose-change-stream/src"],
