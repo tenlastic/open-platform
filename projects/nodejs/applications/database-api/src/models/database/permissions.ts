@@ -14,7 +14,19 @@ export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Dat
     },
   },
   find: {
-    base: {},
+    base: {
+      namespaceId: {
+        $in: {
+          $query: {
+            model: 'ReadonlyNamespaceSchema',
+            select: '_id',
+            where: {
+              'accessControlList.userId': { $ref: 'user._id' },
+            },
+          },
+        },
+      },
+    },
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {

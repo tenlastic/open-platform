@@ -14,7 +14,31 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
     },
   },
   find: {
-    base: {},
+    base: {
+      databaseId: {
+        $in: {
+          // Find all Collections within the returned Databases.
+          $query: {
+            model: 'DatabaseSchema',
+            select: '_id',
+            where: {
+              namespaceId: {
+                $in: {
+                  // Find all Databases that the user is a member of.
+                  $query: {
+                    model: 'ReadonlyNamespaceSchema',
+                    select: '_id',
+                    where: {
+                      'accessControlList.userId': { $ref: 'user._id' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   },
   populate: [{ path: 'databaseDocument', populate: { path: 'namespaceDocument' } }],
   read: {

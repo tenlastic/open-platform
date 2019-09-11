@@ -5,6 +5,7 @@ import { AccessControl, IOptions } from '../access-control';
 import { filterObject } from '../filter-object';
 import { filterRecord } from '../filter-record';
 import { substituteReferenceValues } from '../substitute-reference-values';
+import { substituteSubqueryValues } from '../substitute-subquery-values';
 
 export interface IFindQuery {
   limit?: number;
@@ -107,13 +108,13 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    * @param user The user performing the query.
    */
   public async find(params: IFindQuery, override: IFindQuery, user: any): Promise<TDocument[]> {
-    const where = await this.where(params.where, user);
+    const where = await this.where({ ...params.where, ...override.where }, user);
 
     if (where === null) {
       throw new PermissionError();
     }
 
-    let query = this.Model.find({ ...where, ...override.where })
+    let query = this.Model.find(where)
       .sort(override.sort || params.sort)
       .skip(override.skip || params.skip)
       .limit(override.limit || params.limit || 100)
@@ -208,33 +209,35 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       return null;
     }
 
-    if (!where) {
-      return substituteReferenceValues(query, { user });
+    // Substitute calculated values into default find query.
+    const results = substituteReferenceValues(query, { user });
+    const substitutedQuery = await substituteSubqueryValues(this.Model.db, results);
+
+    // Combines the two queries if a user-defined where clause is specified.
+    if (where) {
+      Object.keys(where).forEach(key => {
+        if (key === '$and' && '$and' in substitutedQuery) {
+          substitutedQuery.$and = substitutedQuery.$and.concat(where.$and);
+        } else if (key === '$or' && '$or' in substitutedQuery) {
+          substitutedQuery.$or = substitutedQuery.$or.concat(where.$or);
+        } else if (key === '$nor' && '$nor' in substitutedQuery) {
+          substitutedQuery.$nor = substitutedQuery.$nor.concat(where.$nor);
+        } else if (key in substitutedQuery) {
+          if (!substitutedQuery.$and) {
+            substitutedQuery.$and = [];
+          }
+
+          substitutedQuery.$and.push({ [key]: substitutedQuery[key] });
+          substitutedQuery.$and.push({ [key]: where[key] });
+
+          delete substitutedQuery[key];
+        } else {
+          substitutedQuery[key] = where[key];
+        }
+      });
     }
 
-    // Combines the two queries
-    Object.keys(where).forEach(key => {
-      if (key === '$and' && '$and' in query) {
-        query.$and = query.$and.concat(where.$and);
-      } else if (key === '$or' && '$or' in query) {
-        query.$or = query.$or.concat(where.$or);
-      } else if (key === '$nor' && '$nor' in query) {
-        query.$nor = query.$nor.concat(where.$nor);
-      } else if (key in query) {
-        if (!query.$and) {
-          query.$and = [];
-        }
-
-        query.$and.push({ [key]: query[key] });
-        query.$and.push({ [key]: where[key] });
-
-        delete query[key];
-      } else {
-        query[key] = where[key];
-      }
-    });
-
-    return substituteReferenceValues(query, { user });
+    return query;
   }
 
   private toPlainObject(obj: any) {

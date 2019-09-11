@@ -30,6 +30,6 @@ describe('handlers/databases/count', function() {
 
     await handler(ctx as any);
 
-    expect(ctx.response.body.count).to.eql(2);
+    expect(ctx.response.body.count).to.eql(1);
   });
 });

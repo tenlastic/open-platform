@@ -54,7 +54,7 @@ describe('handlers/collections/find-one', function() {
       record = await CollectionMock.create();
     });
 
-    it.skip('throws an error', async function() {
+    it('throws an error', async function() {
       const ctx = new ContextMock({
         params: {
           databaseId: record.databaseId,

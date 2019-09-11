@@ -51,7 +51,7 @@ describe('handlers/databases/find-one', function() {
       record = await DatabaseMock.create();
     });
 
-    it.skip('throws an error', async function() {
+    it('throws an error', async function() {
       const ctx = new ContextMock({
         params: {
           id: record._id,

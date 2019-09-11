@@ -2,6 +2,7 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
 import {
+  DatabaseDocument,
   DatabaseMock,
   ReadonlyNamespaceMock,
   ReadonlyUserDocument,
@@ -11,6 +12,7 @@ import {
 import { handler } from './';
 
 describe('handlers/databases/find', function() {
+  let record: DatabaseDocument;
   let user: ReadonlyUserDocument;
 
   beforeEach(async function() {
@@ -18,7 +20,7 @@ describe('handlers/databases/find', function() {
 
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await ReadonlyNamespaceMock.create({ accessControlList: [userRoles] });
-    await DatabaseMock.create({ namespaceId: namespace._id });
+    record = await DatabaseMock.create({ namespaceId: namespace._id });
 
     await DatabaseMock.create();
   });
@@ -30,6 +32,7 @@ describe('handlers/databases/find', function() {
 
     await handler(ctx as any);
 
-    expect(ctx.response.body.records.length).to.eql(2);
+    expect(ctx.response.body.records.length).to.eql(1);
+    expect(ctx.response.body.records[0]._id.toString()).to.eql(record._id.toString());
   });
 });
