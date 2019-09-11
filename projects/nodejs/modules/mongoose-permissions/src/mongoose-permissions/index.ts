@@ -237,7 +237,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       });
     }
 
-    return query;
+    return substitutedQuery;
   }
 
   private toPlainObject(obj: any) {
