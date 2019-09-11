@@ -40,34 +40,14 @@ describe('request()', function() {
   });
 
   context('when issuing a POST or PUT request', function() {
-    context('when a user object is supplied', function() {
-      it('includes the user JWT in the authorization header', async function() {
-        const stub = sandbox.stub(requestPromiseNative, 'post').resolves();
+    it('includes the user JWT in the authorization header', async function() {
+      const stub = sandbox.stub(requestPromiseNative, 'post').resolves();
 
-        await request(
-          'http://localhost',
-          'post',
-          '/',
-          { key: 'value' },
-          { user: { key: 'value' } },
-        );
+      await request('http://localhost', 'post', '/', { key: 'value' }, { user: { key: 'value' } });
 
-        const args = stub.getCall(0).args[0];
-        expect(args.body).to.eql({ key: 'value' });
-        expect(args.headers.authorization).to.exist;
-      });
-    });
-
-    context('when a user object is not supplied', function() {
-      it('does not include the user JWT in the authorization header', async function() {
-        const stub = sandbox.stub(requestPromiseNative, 'put').resolves();
-
-        await request('http://localhost', 'put', '/');
-
-        const args = stub.getCall(0).args[0];
-        expect(args.body).to.not.exist;
-        expect(args.headers.authorization).to.not.exist;
-      });
+      const args = stub.getCall(0).args[0];
+      expect(args.body).to.eql({ key: 'value' });
+      expect(args.headers.authorization).to.exist;
     });
   });
 });
