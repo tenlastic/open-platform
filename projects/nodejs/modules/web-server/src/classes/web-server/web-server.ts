@@ -31,12 +31,7 @@ export class WebServer {
 
     // Setup middleware.
     this.app.use(loggingMiddleware);
-
-    // Do not catch exceptions while testing for stacktrace exposure.
-    if (process.env.E2E_DISABLE_ERROR_MIDDLEWARE !== 'true') {
-      this.app.use(errorMiddleware);
-    }
-
+    this.app.use(errorMiddleware);
     this.app.use(queryMiddleware);
     this.app.use(jwtMiddleware);
   }

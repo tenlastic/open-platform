@@ -13,5 +13,5 @@ services:
       - mongo
       - rabbitmq
     ports:
-      - 3000:3000
+      - 3002:3000
     working_dir: /usr/src/app/applications/database-api/

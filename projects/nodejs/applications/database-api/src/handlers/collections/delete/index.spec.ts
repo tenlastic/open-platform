@@ -1,28 +1,71 @@
 import { ContextMock } from '@tenlastic/web-server';
-import { expect } from 'chai';
+import { expect, use } from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
 
-import { CollectionMock, CollectionDocument } from '../../../models';
+import {
+  CollectionDocument,
+  CollectionMock,
+  DatabaseMock,
+  ReadonlyNamespaceMock,
+  ReadonlyUserDocument,
+  ReadonlyUserMock,
+  UserRolesMock,
+} from '../../../models';
 import { handler } from './';
 
+use(chaiAsPromised);
+
 describe('handlers/collections/delete', function() {
-  let record: CollectionDocument;
-  let user: any;
+  let user: ReadonlyUserDocument;
 
   beforeEach(async function() {
-    record = await CollectionMock.create();
-    user = { roles: ['Admin'] };
+    user = await ReadonlyUserMock.create();
   });
 
-  it('returns the deleted record', async function() {
-    const ctx = new ContextMock({
-      params: {
-        id: record._id,
-      },
-      state: { user },
+  context('when permission is granted', function() {
+    let record: CollectionDocument;
+
+    beforeEach(async function() {
+      const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
+      const namespace = await ReadonlyNamespaceMock.create({ accessControlList: [userRoles] });
+      const database = await DatabaseMock.create({ namespaceId: namespace._id });
+      record = await CollectionMock.create({ databaseId: database._id });
     });
 
-    await handler(ctx as any);
+    it('returns the deleted record', async function() {
+      const ctx = new ContextMock({
+        params: {
+          databaseId: record.databaseId,
+          id: record._id,
+        },
+        state: { user: user.toObject() },
+      });
 
-    expect(ctx.response.body.record).to.exist;
+      await handler(ctx as any);
+
+      expect(ctx.response.body.record).to.exist;
+    });
+  });
+
+  context('when permission is denied', function() {
+    let record: CollectionDocument;
+
+    beforeEach(async function() {
+      record = await CollectionMock.create();
+    });
+
+    it('throws an error', async function() {
+      const ctx = new ContextMock({
+        params: {
+          databaseId: record.databaseId,
+          id: record._id,
+        },
+        state: { user: user.toObject() },
+      });
+
+      const promise = handler(ctx as any);
+
+      return expect(promise).to.be.rejected;
+    });
   });
 });

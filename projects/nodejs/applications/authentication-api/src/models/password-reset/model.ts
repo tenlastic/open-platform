@@ -1,24 +1,50 @@
-import { EventEmitter, changeStreamPlugin } from '@tenlastic/mongoose-change-stream';
+import {
+  DocumentType,
+  Ref,
+  ReturnModelType,
+  getModelForClass,
+  index,
+  plugin,
+  pre,
+  prop,
+  modelOptions,
+} from '@hasezoey/typegoose';
+import {
+  EventEmitter,
+  IDatabasePayload,
+  changeStreamPlugin,
+} from '@tenlastic/mongoose-change-stream';
+import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Ref, Typegoose, index, plugin, pre, prop } from 'typegoose';
 
 import * as emails from '../../emails';
 import { UserSchema } from '../user/model';
 
-export const PasswordResetEvent = new EventEmitter<PasswordResetDocument>();
+export const PasswordResetEvent = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
+PasswordResetEvent.on(kafka.publish);
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ hash: 1 }, { unique: true })
+@modelOptions({
+  schemaOptions: {
+    autoIndex: false,
+    collection: 'passwordresets',
+    minimize: false,
+    timestamps: true,
+  },
+})
 @plugin(changeStreamPlugin, {
   documentKeys: ['_id'],
   eventEmitter: PasswordResetEvent,
 })
+@plugin(uniqueErrorPlugin)
 @pre('save', async function(this: PasswordResetDocument) {
   if (this.isNew) {
     await emails.sendPasswordResetRequest(this);
   }
 })
-export class PasswordResetSchema extends Typegoose {
+export class PasswordResetSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
@@ -34,13 +60,6 @@ export class PasswordResetSchema extends Typegoose {
   public userId: Ref<UserSchema>;
 }
 
-export type PasswordResetDocument = InstanceType<PasswordResetSchema>;
-export type PasswordResetModel = ModelType<PasswordResetSchema>;
-export const PasswordReset = new PasswordResetSchema().getModelForClass(PasswordResetSchema, {
-  schemaOptions: {
-    autoIndex: false,
-    collection: 'passwordresets',
-    minimize: false,
-    timestamps: true,
-  },
-});
+export type PasswordResetDocument = DocumentType<PasswordResetSchema>;
+export type PasswordResetModel = ReturnModelType<typeof PasswordResetSchema>;
+export const PasswordReset = getModelForClass(PasswordResetSchema);

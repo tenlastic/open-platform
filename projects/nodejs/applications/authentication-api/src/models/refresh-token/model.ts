@@ -1,12 +1,31 @@
+import {
+  DocumentType,
+  Ref,
+  ReturnModelType,
+  getModelForClass,
+  index,
+  modelOptions,
+  plugin,
+  prop,
+} from '@hasezoey/typegoose';
+import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Ref, Typegoose, index, prop } from 'typegoose';
 
 import { UserSchema } from '../user/model';
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ jti: 1 }, { unique: true })
 @index({ userId: 1 })
-export class RefreshTokenSchema extends Typegoose {
+@modelOptions({
+  schemaOptions: {
+    autoIndex: false,
+    collection: 'refreshtokens',
+    minimize: false,
+    timestamps: true,
+  },
+})
+@plugin(uniqueErrorPlugin)
+export class RefreshTokenSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
@@ -22,13 +41,6 @@ export class RefreshTokenSchema extends Typegoose {
   public userId: Ref<UserSchema>;
 }
 
-export type RefreshTokenDocument = InstanceType<RefreshTokenSchema>;
-export type RefreshTokenModel = ModelType<RefreshTokenSchema>;
-export const RefreshToken = new RefreshTokenSchema().getModelForClass(RefreshTokenSchema, {
-  schemaOptions: {
-    autoIndex: false,
-    collection: 'refreshtokens',
-    minimize: false,
-    timestamps: true,
-  },
-});
+export type RefreshTokenDocument = DocumentType<RefreshTokenSchema>;
+export type RefreshTokenModel = ReturnModelType<typeof RefreshTokenSchema>;
+export const RefreshToken = getModelForClass(RefreshTokenSchema);

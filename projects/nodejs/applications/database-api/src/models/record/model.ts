@@ -1,11 +1,19 @@
+import {
+  DocumentType,
+  Ref,
+  ReturnModelType,
+  buildSchema,
+  getModelForClass,
+  prop,
+} from '@hasezoey/typegoose';
 import * as jsonSchema from '@tenlastic/json-schema';
+import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
-import { InstanceType, ModelType, Ref, Typegoose, prop } from 'typegoose';
 
 import { DatabaseDocument, DatabaseSchema } from '../database/model';
 import { CollectionDocument, CollectionSchema } from '../collection/model';
 
-export class RecordSchema extends Typegoose {
+export class RecordSchema {
   public _id: mongoose.Types.ObjectId;
 
   @prop({ ref: 'CollectionSchema', required: true })
@@ -19,33 +27,17 @@ export class RecordSchema extends Typegoose {
 
   public updatedAt: Date;
 
-  @prop({
-    foreignField: '_id',
-    justOne: true,
-    localField: 'collectionId',
-    overwrite: true,
-    ref: 'CollectionSchema',
-  })
-  public get collectionDocument(): CollectionDocument {
-    return this.collectionDocument;
-  }
+  @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', ref: 'CollectionSchema' })
+  public collectionDocument: CollectionDocument;
 
-  @prop({
-    foreignField: '_id',
-    justOne: true,
-    localField: 'databaseId',
-    overwrite: true,
-    ref: 'DatabaseSchema',
-  })
-  public get databaseDocument(): DatabaseDocument {
-    return this.databaseDocument;
-  }
+  @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', ref: 'DatabaseSchema' })
+  public databaseDocument: DatabaseDocument;
 
   public static getModelForClass(collection: CollectionDocument) {
-    const Model = new RecordSchema().getModelForClass(RecordSchema);
+    const Schema = buildSchema(RecordSchema);
 
     const customProperties = jsonSchema.toMongoose(collection.jsonSchema);
-    const Schema = new mongoose.Schema(
+    const schema = new mongoose.Schema(
       { customProperties },
       {
         autoIndex: false,
@@ -54,14 +46,17 @@ export class RecordSchema extends Typegoose {
         timestamps: true,
       },
     );
-    Schema.add(Model.schema);
+    schema.add(Schema);
+
+    collection.indexes.forEach(i => schema.index(i.key, i.options));
+    schema.plugin(uniqueErrorPlugin);
 
     const name = collection._id + new Date().getTime() + Math.floor(Math.random() * 1000000000);
-    return mongoose.model(name, Schema) as mongoose.Model<RecordDocument, {}> &
+    return mongoose.model(name, schema) as mongoose.Model<RecordDocument, {}> &
       RecordSchema &
       typeof RecordSchema;
   }
 }
 
-export type RecordDocument = InstanceType<RecordSchema>;
-export type RecordModel = ModelType<RecordSchema>;
+export type RecordDocument = DocumentType<RecordSchema>;
+export type RecordModel = ReturnModelType<typeof RecordSchema>;

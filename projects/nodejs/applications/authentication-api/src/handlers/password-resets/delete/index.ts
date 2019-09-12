@@ -1,5 +1,4 @@
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
-import * as mongoose from 'mongoose';
 
 import { PasswordReset, RefreshToken, User } from '../../../models';
 

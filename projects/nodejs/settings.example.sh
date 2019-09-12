@@ -5,11 +5,13 @@ set -a
 PASSWORD_RESET_URL="http://localhost:4200/password-reset"
 
 # End-to-End Testing
-E2E_DISABLE_ERROR_MIDDLEWARE="false"
 E2E_GMAIL_CLIENT_ID="012345678901-abcd12a1abcdef123abcde12abcd1a1a.apps.googleusercontent.com"
 E2E_GMAIL_CLIENT_SECRET="abc12ab1a1ab_abc12a1ab1a"
 E2E_GMAIL_REDIRECT_URI="abc:abcd:ab:oauth:2.0:abc"
 E2E_GMAIL_REFRESH_TOKEN="1/abcd1ab12a1abcde12ab-abcde1a12abcde1abc12ab"
+E2E_HOST_AUTHENTICATION_API="http://localhost:3000"
+E2E_HOST_DATABASE_API="http://localhost:3002"
+E2E_HOST_NAMESPACE_API="http://localhost:3001"
 E2E_USER_EMAIL="test@example.com"
 E2E_USER_PASSWORD="password"
 

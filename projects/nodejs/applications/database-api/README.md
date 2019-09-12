@@ -76,7 +76,10 @@ by the record's relationship to the current user.
       "updatedAt"
     ]
   },
-  "roles": [{ "name": "admin", "query": { "user.roles": { "$eq": "Admin" } } }],
+  "roles": [
+    { "name": "admin", "query": { "user.roles": { "$eq": "Admin" } } },
+    { "name": "owner", "query": { "record.userId": { "$eq": { "$ref": "user._id" } } } }
+  ],
   "update": { "base": ["customProperties"] }
 }
 ```

@@ -1,0 +1,15 @@
+version: '2.1'
+services:
+  application:
+    depends_on:
+      - mongo_healthcheck
+    environment:
+      - KAFKA_CONNECTION_STRING
+      - MONGO_CONNECTION_STRING
+      - MONGO_DATABASE_NAME
+    links:
+      - kafka
+      - mongo
+    ports:
+      - 3001:3000
+    working_dir: /usr/src/app/applications/namespace-api/

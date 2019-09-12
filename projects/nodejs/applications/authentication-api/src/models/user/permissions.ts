@@ -28,7 +28,7 @@ export const UserPermissions = new MongoosePermissions<UserDocument>(User, {
   },
   roles: [
     { name: 'admin', query: { 'user.roles': { $eq: 'Admin' } } },
-    { name: 'self', query: { 'record._id': { $eq: 'user._id' } } },
+    { name: 'self', query: { 'record._id': { $eq: { $ref: 'user._id' } } } },
   ],
   update: {
     base: [],

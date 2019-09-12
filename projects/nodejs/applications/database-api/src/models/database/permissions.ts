@@ -5,29 +5,49 @@ import { Database, DatabaseDocument } from './model';
 export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Database, {
   create: {
     roles: {
-      admin: ['name', 'userId'],
+      administrator: ['name', 'namespaceId'],
     },
   },
   delete: {
     roles: {
-      admin: true,
+      administrator: true,
     },
   },
   find: {
-    base: {},
-    roles: {
-      default: {
-        userId: { $ref: 'user._id' },
+    base: {
+      namespaceId: {
+        $in: {
+          $query: {
+            model: 'ReadonlyNamespaceSchema',
+            select: '_id',
+            where: {
+              'accessControlList.userId': { $ref: 'user._id' },
+            },
+          },
+        },
       },
     },
   },
+  populate: [{ path: 'namespaceDocument' }],
   read: {
-    base: ['_id', 'createdAt', 'name', 'updatedAt', 'userId'],
+    base: ['_id', 'createdAt', 'name', 'namespaceId', 'updatedAt'],
   },
-  roles: [{ name: 'admin', query: { 'user.roles': { $eq: 'Admin' } } }],
+  roles: [
+    {
+      name: 'administrator',
+      query: {
+        'record.namespaceDocument.accessControlList': {
+          $elemMatch: {
+            roles: { $eq: 'Administrator' },
+            userId: { $eq: { $ref: 'user._id' } },
+          },
+        },
+      },
+    },
+  ],
   update: {
     roles: {
-      admin: ['name', 'userId'],
+      administrator: ['name', 'namespace'],
     },
   },
 });

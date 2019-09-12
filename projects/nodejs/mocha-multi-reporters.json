@@ -1,6 +1,7 @@
 {
   "reporterEnabled": "mochawesome,mocha-junit-reporter",
   "reporterOptions": {
+    "quiet": true,
     "reportDir": "./test-results/mochawesome/"
   },
   "mochaJunitReporterReporterOptions": {

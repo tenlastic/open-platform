@@ -1,12 +1,12 @@
 import { Context } from '@tenlastic/web-server';
-import * as Chance from 'chance';
 
 import { UserPermissions } from '../../../models';
 
-const chance = new Chance();
-
 export async function handler(ctx: Context) {
-  const result = await UserPermissions.create(ctx.request.body, {}, ctx.state.user);
+  const user = await UserPermissions.create(ctx.request.body, {}, ctx.state.user);
+
+  // Refresh the User's accessible fields.
+  const result = await UserPermissions.findOne({}, { where: { _id: user._id } }, user);
 
   ctx.response.body = { record: result };
 }

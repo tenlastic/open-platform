@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
 import * as emails from '../../emails';
@@ -35,7 +36,7 @@ describe('models/password-reset/model', function() {
 
         const spy = sandbox.stub(emails, 'sendPasswordResetRequest');
 
-        passwordReset.userId = null;
+        passwordReset.userId = mongoose.Types.ObjectId();
         await passwordReset.save();
 
         expect(spy.calledOnce).to.eql(false);

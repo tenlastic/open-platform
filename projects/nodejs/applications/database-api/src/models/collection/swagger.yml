@@ -24,6 +24,60 @@ components:
           type: object
         name:
           type: string
+        permissions:
+          type: object
+          properties:
+            create:
+              $ref: '#/components/schemas/AttributeRoles'
+            delete:
+              type: object
+              properties:
+                base:
+                  type: boolean
+                roles:
+                  type: object
+                  properties:
+                    default:
+                      type: boolean
+            find:
+              type: object
+              properties:
+                base:
+                  type: object
+                roles:
+                  type: object
+                  properties:
+                    default:
+                      type: object
+            populate:
+              type: array
+              items:
+                $ref: '#/components/schemas/PopulateOptions'
+            read:
+              $ref: '#/components/schemas/AttributeRoles'
+            update:
+              $ref: '#/components/schemas/AttributeRoles'
         updatedAt:
           type: string
           format: date-time
+    AttributeRoles:
+      type: object
+      properties:
+        base:
+          type: array
+          items: string
+        roles:
+          type: object
+          properties:
+            default:
+              type: array
+              items: string
+    PopulateOptions:
+      type: object
+      properties:
+        model:
+          type: string
+        path:
+          type: string
+        populate:
+          $ref: '#/components/schemas/PopulateOptions'
