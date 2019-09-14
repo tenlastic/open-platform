@@ -3,7 +3,7 @@
     "node": "^10"
   },
   "license": "Apache-2.0",
-  "name": "e2e",
+  "name": "@tenlastic/e2e",
   "version": "0.0.0",
   "scripts": {
     "build": "../../scripts/build.sh",
