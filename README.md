@@ -1,17 +1,8 @@
 # The Tenlastic Open Platform
 
-## Set up Continuous Integration with CircleCI
+## Getting Started
 
-- Follow `README.md` inside the `./.circleci/` directory.
-
-## Deploy resources to Google Cloud Platform with Deployment Manager and Terraform.
-
-- Follow `README.md` inside the `./gcp/` directory.
-
-## Deploy dependencies to Kubernetes.
-
-- Follow `README.md` inside the `./kubernetes/` directory.
-
-## Start dockerized NodeJS applications locally.
-
-- Follow `README.md` inside the `./projects/nodejs/` directory.
+- [Set up Continuous Integration with CircleCI.](./.circleci/README.md)
+- [Deploy resources to Google Cloud Platform with Deployment Manager and Terraform.](./gcp/README.md)
+- [Deploy dependencies to Kubernetes.](./kubernetes/README.md)
+- [Start Dockerized NodeJS applications locally.](./projects/nodejs/README.md)
