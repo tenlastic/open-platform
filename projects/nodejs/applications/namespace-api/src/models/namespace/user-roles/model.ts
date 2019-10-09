@@ -7,7 +7,6 @@ import {
   modelOptions,
   prop,
 } from '@hasezoey/typegoose';
-import * as mongoose from 'mongoose';
 
 import { ReadonlyUserDocument, ReadonlyUserSchema } from '../../readonly-user';
 
@@ -24,16 +23,11 @@ export enum UserRole {
   },
 })
 export class UserRolesSchema {
-  public _id: mongoose.Types.ObjectId;
-  public createdAt: Date;
-
   @arrayProp({ default: [], enum: Object.values(UserRole), items: String })
   public roles: string[];
 
   @prop({ ref: ReadonlyUserSchema, required: true })
   public userId: Ref<ReadonlyUserDocument>;
-
-  public updatedAt: Date;
 }
 
 export type UserRolesDocument = DocumentType<UserRolesSchema>;

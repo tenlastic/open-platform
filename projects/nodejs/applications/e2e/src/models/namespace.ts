@@ -1,5 +1,4 @@
 import * as Chance from 'chance';
-import * as mongoose from 'mongoose';
 
 import { request } from '../request';
 

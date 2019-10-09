@@ -10,6 +10,7 @@ services:
       - MONGO_DATABASE_NAME
       - RABBITMQ_CONNECTION_STRING
     links:
+      - kafka
       - mongo
       - rabbitmq
     ports:
