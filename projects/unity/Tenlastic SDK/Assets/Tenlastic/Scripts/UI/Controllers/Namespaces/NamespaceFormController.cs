@@ -14,8 +14,21 @@ namespace Tenlastic {
         public TextMeshProUGUI titleText;
         public UserService userService;
 
-        protected override void Awake() {
-            base.Awake();
+        private void Awake() {
+            if (record == null || string.IsNullOrEmpty(record._id)) {
+                DestroyAclItems();
+                AddAccessControlListEntry();
+            } else {
+                DestroyAclItems();
+
+                foreach (NamespaceModel.AccessControlListItem aclItem in record.accessControlList) {
+                    AddAccessControlListEntry(aclItem);
+                }
+            }
+        }
+
+        protected override void OnEnable() {
+            base.OnEnable();
 
             accessControlListItemController.gameObject.SetActive(false);
         }
@@ -45,34 +58,31 @@ namespace Tenlastic {
             aclItemController.usernameInput.text = userModel.username;
         }
 
-        public override void SetRecord() {
-            DestroyAclItems();
+        public override void SetRecord(NamespaceModel record) {
+            this.record = record;
 
-            titleText.text = "Update Namespace";
+            gameObject.name = titleText.text = "Update Namespace";
             nameInputField.text = record.name;
-
-            foreach (NamespaceModel.AccessControlListItem aclItem in record.accessControlList) {
-                AddAccessControlListEntry(aclItem);
-            }
         }
 
         public override void UnsetRecord() {
-            DestroyAclItems();
+            record = null;
 
-            titleText.text = "Create Namespace";
+            gameObject.name = titleText.text = "Create Namespace";
             nameInputField.text = "";
-
-            AddAccessControlListEntry();
         }
 
         protected override async Task CreateRecord() {
             AccessControlListItemController[] aclItemControllers = GetComponentsInChildren<AccessControlListItemController>();
-            NamespaceService.RolesUsername[] input = aclItemControllers.Select(a => {
-                return new NamespaceService.RolesUsername {
-                    roles = a.rolesInput.text.Split(','),
-                    username = a.usernameInput.text
-                };
-            }).ToArray();
+            NamespaceService.RolesUsername[] input = aclItemControllers
+                .Select(a => {
+                    return new NamespaceService.RolesUsername {
+                        roles = a.rolesInput.text.Split(','),
+                        username = a.usernameInput.text
+                    };
+                })
+                .Where(a => !string.IsNullOrEmpty(a.username))
+                .ToArray();
 
             NamespaceModel.AccessControlListItem[] acl = await namespaceService.GetAcl(input);
 
@@ -86,12 +96,15 @@ namespace Tenlastic {
 
         protected override async Task UpdateRecord() {
             AccessControlListItemController[] aclItemControllers = GetComponentsInChildren<AccessControlListItemController>();
-            NamespaceService.RolesUsername[] input = aclItemControllers.Select(a => {
-                return new NamespaceService.RolesUsername {
-                    roles = a.rolesInput.text.Split(','),
-                    username = a.usernameInput.text
-                };
-            }).ToArray();
+            NamespaceService.RolesUsername[] input = aclItemControllers
+                .Select(a => {
+                    return new NamespaceService.RolesUsername {
+                        roles = a.rolesInput.text.Split(','),
+                        username = a.usernameInput.text
+                    };
+                })
+                .Where(a => !string.IsNullOrEmpty(a.username))
+                .ToArray();
 
             NamespaceModel.AccessControlListItem[] acl = await namespaceService.GetAcl(input);
             JObject[] jObjects = acl.Select(a => JObject.FromObject(a)).ToArray();

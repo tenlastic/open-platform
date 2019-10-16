@@ -1,5 +1,4 @@
 const schemaParamsToMongo = {
-  default: (value: string) => ({ default: value }),
   enum: (value: any[]) => ({ enum: value }),
   maxLength: (value: number) => ({ maxlength: value }),
   maximum: (value: number) => ({ maximum: value }),

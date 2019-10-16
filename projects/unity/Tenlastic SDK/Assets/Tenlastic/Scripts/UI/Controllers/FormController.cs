@@ -9,34 +9,20 @@ namespace Tenlastic {
 
         public TextMeshProUGUI errorText;
         public TextMeshProUGUI messageText;
-        public TModel record {
-            get {
-                return _record;
-            }
-            set {
-                _record = value;
-
-                if (value == null) {
-                    UnsetRecord();
-                } else {
-                    SetRecord();
-                }
-            }
-        }
         public Button submitButton;        
 
         public UnityEventString OnError;
         public UnityEvent OnSuccess;
 
-        private TModel _record;
+        public TModel record;
 
-        protected virtual void Awake() {
+        protected virtual void OnEnable() {
             errorText.gameObject.SetActive(false);
             messageText.gameObject.SetActive(false);
             submitButton.enabled = true;
         }
 
-        public abstract void SetRecord();
+        public abstract void SetRecord(TModel record);
 
         public async void Submit() {
             errorText.gameObject.SetActive(false);
@@ -44,7 +30,7 @@ namespace Tenlastic {
             submitButton.enabled = false;
 
             try {
-                if (_record == null) {
+                if (record == null) {
                     await CreateRecord();
                 } else {
                     await UpdateRecord();

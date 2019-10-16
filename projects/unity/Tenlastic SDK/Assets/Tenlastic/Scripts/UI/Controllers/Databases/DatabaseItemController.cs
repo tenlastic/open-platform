@@ -5,6 +5,12 @@ namespace Tenlastic {
 
         public TextMeshProUGUI nameText;
 
+        public UnityEventDatabaseModel OnCollections;
+
+        public void Collections() {
+            OnCollections.Invoke(record);
+        }
+
         protected override void SetRecord(DatabaseModel record) {
             nameText.text = record.name;
         }

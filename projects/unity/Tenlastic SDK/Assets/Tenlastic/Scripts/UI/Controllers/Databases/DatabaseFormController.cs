@@ -10,15 +10,17 @@ namespace Tenlastic {
         public TMP_InputField nameInput;
         public TextMeshProUGUI titleText;
 
-        public override void SetRecord() {
-            titleText.text = "Update Database";
+        public override void SetRecord(DatabaseModel record) {
+            this.record = record;
 
+            gameObject.name = titleText.text = "Update Database";
             nameInput.text = record.name;
         }
 
         public override void UnsetRecord() {
-            titleText.text = "Create Database";
+            record = null;
 
+            gameObject.name = titleText.text = "Create Database";
             nameInput.text = "";
         }
 

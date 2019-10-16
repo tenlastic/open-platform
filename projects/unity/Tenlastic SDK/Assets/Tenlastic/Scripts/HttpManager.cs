@@ -102,7 +102,7 @@ namespace Tenlastic {
 
         public async Task<T> Request<T>(HttpMethod method, string url, JObject parameters, bool skipRefreshToken = false) {
             string body = await Request(method, url, parameters, skipRefreshToken);
-            return JsonUtility.FromJson<T>(body);
+            return JsonConvert.DeserializeObject<T>(body);
         }
 
         private async Task RefreshAccessToken() {

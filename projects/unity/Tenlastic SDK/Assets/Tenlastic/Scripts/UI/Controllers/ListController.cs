@@ -2,16 +2,20 @@
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Tenlastic {
     public abstract class ListController<TModel> : MonoBehaviour {
 
+        public GameObject backgroundImagePrefab;
         public TextMeshProUGUI errorText;
         public GameObject itemTemplate;
 
         private List<GameObject> items = new List<GameObject>();
 
-        private void OnEnable() {
+        private void Awake() {
+            itemTemplate.SetActive(false);
+
             GetRecords();
         }
 
@@ -31,10 +35,20 @@ namespace Tenlastic {
                 return;
             }
 
-            foreach (TModel record in records) {
+            for (int i = 0; i < records.Length; i++) {
+                TModel record = records[i];
+
                 GameObject item = Instantiate(itemTemplate, itemTemplate.transform.parent);
 
                 SetRecord(item, record);
+
+                GameObject backgroundImageGo = Instantiate(backgroundImagePrefab, item.transform);
+                backgroundImageGo.transform.SetAsFirstSibling();
+
+                Image backgroundImage = backgroundImageGo.GetComponent<Image>();
+                Color color = backgroundImage.color;
+                color.a = i % 2 == 0 ? 0.1f : 0f;
+                backgroundImage.color = color;
 
                 item.SetActive(true);
                 items.Add(item);

@@ -29,7 +29,7 @@ namespace Tenlastic {
 
             string regex = @"^[0-9a-z\-]{6,40}$";
             if (!Regex.IsMatch(name, regex)) {
-                throw new ValidationException("name", "Name must be alphanumeric between 6 and 40 characters.");
+                throw new ValidationException("name", "Name must be alphanumeric with hyphens between 6 and 40 characters.");
             }
 
             if (string.IsNullOrEmpty(namespaceId)) {

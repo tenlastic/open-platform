@@ -6,6 +6,13 @@ using UnityEngine;
 namespace Tenlastic {
     public abstract class Service<TModel> : MonoBehaviour {
 
+        [Serializable]
+        public struct FindRequest {
+            public int limit;
+            public int skip;
+            public dynamic where;
+        }
+
         #pragma warning disable 0649
         [Serializable]
         private struct RecordResponse {

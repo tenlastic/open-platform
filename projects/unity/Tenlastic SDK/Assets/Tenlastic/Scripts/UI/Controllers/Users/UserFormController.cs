@@ -11,8 +11,10 @@ namespace Tenlastic {
         public UserService userService;
         public TMP_InputField usernameInput;
 
-        public override void SetRecord() {
-            titleText.text = "Update User";
+        public override void SetRecord(UserModel record) {
+            this.record = record;
+
+            gameObject.name = titleText.text = "Update User";
 
             emailInput.text = record.email;
             rolesInput.text = string.Join(",", record.roles);
@@ -20,7 +22,9 @@ namespace Tenlastic {
         }
 
         public override void UnsetRecord() {
-            titleText.text = "Create User";
+            record = null;
+
+            gameObject.name = titleText.text = "Create User";
 
             emailInput.text = "";
             rolesInput.text = "";
