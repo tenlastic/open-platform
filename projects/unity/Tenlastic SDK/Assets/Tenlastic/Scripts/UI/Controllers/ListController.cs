@@ -10,11 +10,14 @@ namespace Tenlastic {
         public GameObject backgroundImagePrefab;
         public TextMeshProUGUI errorText;
         public GameObject itemTemplate;
+        public GameObject loadingContainer;
 
         private List<GameObject> items = new List<GameObject>();
 
         private void Awake() {
+            errorText.transform.parent.gameObject.SetActive(false);
             itemTemplate.SetActive(false);
+            loadingContainer.SetActive(false);
 
             GetRecords();
         }
@@ -30,7 +33,7 @@ namespace Tenlastic {
                 string error = "No records found.";
 
                 errorText.text = error;
-                errorText.gameObject.SetActive(true);
+                errorText.transform.parent.gameObject.SetActive(true);
 
                 return;
             }
@@ -39,7 +42,6 @@ namespace Tenlastic {
                 TModel record = records[i];
 
                 GameObject item = Instantiate(itemTemplate, itemTemplate.transform.parent);
-
                 SetRecord(item, record);
 
                 GameObject backgroundImageGo = Instantiate(backgroundImagePrefab, item.transform);
@@ -53,8 +55,6 @@ namespace Tenlastic {
                 item.SetActive(true);
                 items.Add(item);
             }
-
-            errorText.gameObject.SetActive(false);
         }
 
         protected abstract Task<TModel[]> FindRecords();
