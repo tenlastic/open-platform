@@ -1,0 +1,30 @@
+<div class="page">
+  <h2>{{ data && data._id ? 'Edit' : 'Create' }} Record</h2>
+
+  <form *ngIf="form" [formGroup]="form" autocomplete="off">
+    <div *ngFor="let key of form.controls | keys; let i = index" class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>{{ key }}</mat-label>
+
+        <ng-container [ngSwitch]="collection.jsonSchema.properties[key].type">
+          <mat-select *ngSwitchCase="'boolean'" [formControlName]="key">
+            <mat-option [value]="true">True</mat-option>
+            <mat-option [value]="false">False</mat-option>
+          </mat-select>
+
+          <input *ngSwitchCase="'number'" matInput type="number" [formControlName]="key" />
+
+          <input *ngSwitchCase="'string'" matInput [formControlName]="key" />
+        </ng-container>
+
+        <mat-error>Enter a valid name.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="error" class="form-error">
+      {{ error }}
+    </div>
+
+    <button mat-button background="accent" (click)="save()">Save</button>
+  </form>
+</div>

@@ -1,0 +1,25 @@
+<form [formGroup]="form"
+      autocomplete="off">
+  <div mat-dialog-content>
+    <mat-form-field floatLabel="always">
+      <mat-label>{{ data.label }}</mat-label>
+      <input matInput
+             [type]="data.type ? data.type : 'text'"
+             formControlName="input">
+      <mat-error>{{ data.error }}</mat-error>
+    </mat-form-field>
+  </div>
+
+  <div mat-dialog-actions>
+    <button mat-button
+            color="primary"
+            centered
+            type="button"
+            (click)="dialogRef.close()">Cancel</button>
+    <button mat-button
+            background="primary"
+            centered
+            type="submit"
+            (click)="submit()">Submit</button>
+  </div>
+</form>

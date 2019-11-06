@@ -2,7 +2,7 @@
 set -a
 
 # Emails
-PASSWORD_RESET_URL="http://localhost:4200/password-reset"
+PASSWORD_RESET_URL="http://localhost:4201/password-reset"
 
 # End-to-End Testing
 E2E_GMAIL_CLIENT_ID="012345678901-abcd12a1abcdef123abcde12abcd1a1a.apps.googleusercontent.com"

@@ -1,0 +1,34 @@
+<mat-form-field floatLabel="always">
+  <mat-label>Username</mat-label>
+  <input
+    matInput
+    [matAutocomplete]="auto"
+    (keyup)="onUsernameChanged($event.target.value)"
+    [formControl]="form.controls.user"
+  />
+  <mat-error>Enter a valid name.</mat-error>
+
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayWith.bind(this)">
+    <mat-option *ngIf="isLoading" class="is-loading" disabled>
+      <mat-spinner diameter="25"></mat-spinner>
+    </mat-option>
+
+    <ng-container *ngIf="!isLoading">
+      <mat-option *ngFor="let user of users" [value]="user">
+        <span>{{ user.username }}</span>
+      </mat-option>
+    </ng-container>
+  </mat-autocomplete>
+</mat-form-field>
+
+<mat-form-field floatLabel="always">
+  <mat-label>Roles</mat-label>
+  <mat-select placeholder="None" multiple [formControl]="form.controls.roles">
+    <mat-option value="Administrator">Administrator</mat-option>
+  </mat-select>
+</mat-form-field>
+
+<button mat-button color="white" (click)="remove.emit()">
+  <mat-icon>close</mat-icon>
+  Remove
+</button>

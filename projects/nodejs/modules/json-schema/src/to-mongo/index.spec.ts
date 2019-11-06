@@ -64,7 +64,7 @@ describe('toMongo()', function() {
             bsonType: 'object',
             properties: {
               builtAt: { bsonType: 'date' },
-              street: { bsonType: 'double', default: 44, minimum: 0, maximum: 50 },
+              street: { bsonType: 'double', minimum: 0, maximum: 50 },
             },
             required: ['builtAt'],
           },

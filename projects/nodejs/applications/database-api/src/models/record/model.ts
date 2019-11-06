@@ -1,11 +1,4 @@
-import {
-  DocumentType,
-  Ref,
-  ReturnModelType,
-  buildSchema,
-  getModelForClass,
-  prop,
-} from '@hasezoey/typegoose';
+import { DocumentType, Ref, ReturnModelType, buildSchema, prop } from '@hasezoey/typegoose';
 import * as jsonSchema from '@tenlastic/json-schema';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';

@@ -1,0 +1,10 @@
+<div mat-dialog-content>
+  <p>{{data.message}}</p>
+</div>
+<div mat-dialog-actions>
+  <button *ngFor="let button of data.buttons"
+          mat-button
+          [attr.background]="button.background"
+          [attr.color]="button.color"
+          (click)="dialogRef.close(button.label)">{{button.label}}</button>
+</div>

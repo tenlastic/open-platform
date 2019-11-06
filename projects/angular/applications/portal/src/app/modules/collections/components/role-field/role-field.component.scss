@@ -1,0 +1,27 @@
+app-toggle-section .row {
+  margin-left: 0px;
+  margin-top: 0px;
+}
+
+mat-form-field.mat-form-field {
+  display: inline-block;
+  margin-right: 16px;
+  width: 150px;
+}
+
+.remove-button {
+  margin: 8px 0px 24px;
+}
+
+.row {
+  margin-left: 166px;
+  margin-right: 0px;
+
+  &:first-of-type {
+    margin-top: -74px;
+  }
+
+  &.border-bottom {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  }
+}

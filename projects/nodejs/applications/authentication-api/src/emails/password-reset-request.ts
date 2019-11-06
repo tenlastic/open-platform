@@ -3,7 +3,7 @@ import * as mailgun from '@tenlastic/mailgun';
 import { PasswordResetDocument, User } from '../models';
 
 export async function send(passwordReset: PasswordResetDocument) {
-  const resetUrl = `${process.env.PASSWORD_RESET_URL}?hash=${passwordReset.hash}`;
+  const resetUrl = `${process.env.PASSWORD_RESET_URL}/${passwordReset.hash}`;
   const html = `
     You have requested to reset your password.
     Please click the link below within 24 hours to create a new password:
