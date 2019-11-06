@@ -35,12 +35,12 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
 
 function getError(err: any) {
   const { message, name } = err;
-  return { error: { message, name } };
+  return { errors: [{ message, name }] };
 }
 
 function getUniquenessError(err: any) {
   const { message, name, paths, values } = err;
-  return { error: { message, name, paths, values } };
+  return { errors: [{ message, name, paths, values }] };
 }
 
 function getValidationError(err: any) {

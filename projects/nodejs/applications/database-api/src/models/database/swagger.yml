@@ -12,8 +12,8 @@ components:
         name:
           type: string
           format: ^[0-9a-z\-]{6,40}$
+        namespaceId:
+          type: string
         updatedAt:
           type: string
           format: date-time
-        userId:
-          type: string

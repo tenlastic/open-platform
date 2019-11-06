@@ -33,7 +33,7 @@ describe('middleware/error', function() {
     it('sets the response body to the error message', async function() {
       await errorMiddleware(ctx as any, stub);
 
-      expect(ctx.response.body).to.eql({ error: { message, name: 'Error' } });
+      expect(ctx.response.body).to.eql({ errors: [{ message, name: 'Error' }] });
     });
   });
 

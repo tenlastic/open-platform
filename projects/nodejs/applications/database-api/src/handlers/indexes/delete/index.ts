@@ -36,4 +36,5 @@ export async function handler(ctx: Context) {
   await rabbitmq.publish(DELETE_COLLECTION_INDEX_QUEUE, index);
 
   ctx.response.status = 200;
+  ctx.response.body = {};
 }

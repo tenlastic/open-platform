@@ -34,8 +34,8 @@ describe('models/collection/model', function() {
         .listCollections({ name: collection.id })
         .toArray();
       const { $jsonSchema } = collections[0].options.validator;
-      const { customProperties } = $jsonSchema.properties;
-      expect(customProperties.properties.name.bsonType).to.eql('string');
+      const { properties } = $jsonSchema.properties;
+      expect(properties.properties.name.bsonType).to.eql('string');
     });
   });
 });

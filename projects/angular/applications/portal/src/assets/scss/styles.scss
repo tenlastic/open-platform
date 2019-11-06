@@ -1,0 +1,88 @@
+@import '~bootstrap/scss/bootstrap-grid.scss';
+@import '~assets/scss/material.scss';
+@import '~assets/scss/theme.scss';
+
+*:not(mat-icon) {
+  font-family: 'Oswald', sans-serif !important;
+  text-shadow: 2px 3px 4px #000000;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+a:not([href]):not([tabindex]) {
+  color: $accent;
+  cursor: pointer;
+
+  &:hover {
+    color: $accent-highlight;
+  }
+}
+app-toggle-section {
+  width: 100%;
+}
+
+body {
+  background: url('/assets/images/background.jpg');
+  background-attachment: fixed;
+  background-size: cover;
+  font-family: 'Roboto', sans-serif;
+  height: 100%;
+  margin: 0px;
+  overflow: hidden;
+}
+
+h2 {
+  color: white;
+}
+
+h3 {
+  color: white;
+  margin: 8px 0px 16px;
+}
+
+html {
+  height: 100%;
+  overflow: auto !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: white !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.center {
+  justify-content: center;
+  text-align: center;
+}
+
+.page {
+  padding: 24px;
+}
+
+.form-error {
+  color: mat-color(mat-palette($mat-red));
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+[margin-top] {
+  margin-top: 8px;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+::-webkit-scrollbar-thumb {
+  background: white;
+}

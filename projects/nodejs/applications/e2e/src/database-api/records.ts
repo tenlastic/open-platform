@@ -37,25 +37,18 @@ describe('records', function() {
       name: chance.hash(),
       permissions: {
         create: {
-          base: ['customProperties.*'],
+          base: ['properties.*'],
         },
         delete: { base: true },
         find: {
           base: {},
         },
         read: {
-          base: [
-            '_id',
-            'collectionId',
-            'createdAt',
-            'customProperties.*',
-            'databaseId',
-            'updatedAt',
-          ],
+          base: ['_id', 'collectionId', 'createdAt', 'properties.*', 'databaseId', 'updatedAt'],
         },
         roles: [],
         update: {
-          base: ['customProperties.*'],
+          base: ['properties.*'],
         },
       },
     });
@@ -75,16 +68,16 @@ describe('records', function() {
   it('does not create an invalid record', async function() {
     const res = await RecordModel.create({
       collectionId: collection._id,
-      customProperties: { age: chance.hash() },
       databaseId: database._id,
+      properties: { age: chance.hash() },
     });
 
     expect(res.statusCode).to.eql(400);
     expect(res.body.errors[0].name).to.eql('CastError');
     expect(res.body.errors[1].name).to.eql('ValidatorError');
-    expect(res.body.errors[1].path).to.eql('customProperties.name');
+    expect(res.body.errors[1].path).to.eql('properties.name');
     expect(res.body.errors[2].name).to.eql('ValidatorError');
-    expect(res.body.errors[2].path).to.eql('customProperties.email');
+    expect(res.body.errors[2].path).to.eql('properties.email');
   });
 
   it('creates create a valid record', async function() {
@@ -92,16 +85,16 @@ describe('records', function() {
     const initialName = chance.name();
     const res = await RecordModel.create({
       collectionId: collection._id,
-      customProperties: {
+      databaseId: database._id,
+      properties: {
         email: initialEmail,
         name: initialName,
       },
-      databaseId: database._id,
     });
 
     expect(res.statusCode).to.eql(200);
-    expect(res.body.record.customProperties.email).to.eql(initialEmail);
-    expect(res.body.record.customProperties.name).to.eql(initialName);
+    expect(res.body.record.properties.email).to.eql(initialEmail);
+    expect(res.body.record.properties.name).to.eql(initialName);
   });
 
   describe('working with an existing record', function() {
@@ -110,11 +103,11 @@ describe('records', function() {
     beforeEach(async function() {
       const res = await RecordModel.create({
         collectionId: collection._id,
-        customProperties: {
+        databaseId: database._id,
+        properties: {
           email: chance.email(),
           name: chance.name(),
         },
-        databaseId: database._id,
       });
 
       record = res.body.record;
@@ -128,24 +121,24 @@ describe('records', function() {
       });
 
       expect(res.statusCode).to.eql(200);
-      expect(res.body.record.customProperties.email).to.eql(record.customProperties.email);
-      expect(res.body.record.customProperties.name).to.eql(record.customProperties.name);
+      expect(res.body.record.properties.email).to.eql(record.properties.email);
+      expect(res.body.record.properties.name).to.eql(record.properties.name);
     });
 
     it('does not update a record with invalid values', async function() {
       const res = await RecordModel.update({
         _id: record._id,
         collectionId: collection._id,
-        customProperties: { age: chance.hash(), email: null, name: null },
         databaseId: database._id,
+        properties: { age: chance.hash(), email: null, name: null },
       });
 
       expect(res.statusCode).to.eql(400);
       expect(res.body.errors[0].name).to.eql('CastError');
       expect(res.body.errors[1].name).to.eql('ValidatorError');
-      expect(res.body.errors[1].path).to.eql('customProperties.email');
+      expect(res.body.errors[1].path).to.eql('properties.email');
       expect(res.body.errors[2].name).to.eql('ValidatorError');
-      expect(res.body.errors[2].path).to.eql('customProperties.name');
+      expect(res.body.errors[2].path).to.eql('properties.name');
     });
 
     it('updates the record', async function() {
@@ -155,16 +148,16 @@ describe('records', function() {
       const res = await RecordModel.update({
         _id: record._id,
         collectionId: collection._id,
-        customProperties: {
+        databaseId: database._id,
+        properties: {
           email: newEmail,
           name: newName,
         },
-        databaseId: database._id,
       });
 
       expect(res.statusCode).to.eql(200);
-      expect(res.body.record.customProperties.email).to.eql(newEmail);
-      expect(res.body.record.customProperties.name).to.eql(newName);
+      expect(res.body.record.properties.email).to.eql(newEmail);
+      expect(res.body.record.properties.name).to.eql(newName);
     });
 
     it('deletes the record', async function() {

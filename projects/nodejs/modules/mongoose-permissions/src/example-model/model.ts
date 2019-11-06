@@ -21,7 +21,7 @@ export class ExampleSchema {
   public createdAt: Date;
 
   @prop()
-  public customProperties: any;
+  public properties: any;
 
   @prop()
   public name: string;

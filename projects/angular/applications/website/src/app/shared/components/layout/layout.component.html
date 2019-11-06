@@ -1,0 +1,71 @@
+<mat-toolbar class="system-toolbar">
+  <div class="container">
+    <span class="fill-remaining-space"></span>
+
+    <button mat-button
+            color="white"
+            [matMenuTriggerFor]="view">
+      <mat-icon>person</mat-icon>
+      appellod@gmail.com
+    </button>
+    <mat-menu #view="matMenu"
+              xPosition="before"
+              [overlapTrigger]="false">
+      <button mat-menu-item
+              color="white">Log out</button>
+    </mat-menu>
+
+    <button mat-button
+            color="white"
+            (click)="minimizeWindow()">
+      <mat-icon>remove</mat-icon>
+    </button>
+
+    <button mat-button
+            color="white"
+            (click)="closeWindow()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>
+
+<mat-toolbar class="main-toolbar">
+  <div class="container">
+    <div class="logo-container">
+      <img routerLink="/"
+           src="/assets/images/logo.png">
+    </div>
+    <button mat-button
+            color="white"
+            routerLink="/patch-notes"
+            [ngClass]="{ active: router.url === '/patch-notes' }">
+      Store
+    </button>
+    <button mat-button
+            color="white"
+            routerLink="/patch-notes"
+            [ngClass]="{ active: router.url === '/patch-notes' }">
+      Games
+    </button>
+    <button mat-button
+            color="white"
+            routerLink="/patch-notes"
+            [ngClass]="{ active: router.url === '/patch-notes' }">
+      Friends
+    </button>
+    <span class="fill-remaining-space"></span>
+    <button mat-button
+            color="white"
+            routerLink="/contact-us"
+            [ngClass]="{ active: router.url === '/contact-us' }">
+      Support
+    </button>
+    <app-play-now-button></app-play-now-button>
+  </div>
+</mat-toolbar>
+
+<div class="container container-small content">
+  <router-outlet></router-outlet>
+</div>
+
+<app-patch-status [hidden]="!isPatchStatusVisible"></app-patch-status>

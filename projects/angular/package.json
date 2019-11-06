@@ -1,0 +1,13 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "docker": "docker-compose run --rm application npm run",
+    "docker:install": "docker-compose run --rm application npm install",
+    "lerna": "lerna"
+  },
+  "devDependencies": {
+    "lerna": "3.16.4"
+  }
+}

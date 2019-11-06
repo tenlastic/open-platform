@@ -1,0 +1,9 @@
+mat-form-field.mat-form-field {
+  display: inline-block;
+  margin-right: 16px;
+}
+
+.is-loading ::ng-deep .mat-option-text {
+  display: flex;
+  justify-content: center;
+}

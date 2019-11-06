@@ -85,15 +85,17 @@ export class CollectionSchema {
           createdAt: {
             bsonType: 'date',
           },
-          customProperties: jsonSchema.toMongo(this.jsonSchema),
           databaseId: {
             bsonType: 'objectId',
           },
+          properties: jsonSchema.toMongo(this.jsonSchema),
           updatedAt: {
             bsonType: 'date',
           },
+          userId: {
+            bsonType: 'objectId',
+          },
         },
-        required: ['_id', '__v', 'collectionId', 'createdAt', 'databaseId', 'updatedAt'],
       },
     };
   }

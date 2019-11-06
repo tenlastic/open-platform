@@ -1,5 +1,5 @@
 paths:
-  /logins:
+  /logins/refresh-token:
     post:
       summary: Log In with Refresh Token
       tags: [Logins]

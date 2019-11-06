@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AwaitExtensions</name>
+    </assembly>
+    <members>
+        <member name="T:Numba.Awaiting.Engine.ContextHelper">
+            <summary>
+            This class capture UnitySynchronizationContext and main thread ID before scene loads and allows you access to it.
+            </summary>
+        </member>
+        <member name="P:Numba.Awaiting.Engine.ContextHelper.MainThreadID">
+            <summary>
+            Main thread ID.
+            </summary>
+        </member>
+        <member name="P:Numba.Awaiting.Engine.ContextHelper.UnitySynchronizationContext">
+            <summary>
+            Synchronization context which created by Unity for main thread.
+            </summary>
+        </member>
+        <member name="P:Numba.Awaiting.Engine.ContextHelper.IsMainThread">
+            <summary>
+            Do we on main thread?
+            </summary>
+        </member>
+        <member name="T:Numba.Awaiting.Engine.ExtensionsHelper">
+            <summary>
+            Helps create awaiters for awaitable objects.
+            </summary>
+        </member>
+        <member name="M:Numba.Awaiting.Engine.ExtensionsHelper.GetAwaiterForInstuction(System.Object)">
+            <summary>
+            Create awaiter for any instruction.
+            </summary>
+            <param name="instruction">Instruction for yielding.</param>
+            <returns>Awaiter which awaiting passed instruction.</returns>
+        </member>
+        <member name="M:Numba.Awaiting.Engine.ExtensionsHelper.GetAwaiterForEnumerator(System.Collections.IEnumerator)">
+            <summary>
+            Create awaiter for enumerable object.
+            </summary>
+            <param name="enumerator">Object which can enumerate.</param>
+            <returns>Awaiter which awaiting passed enumerator.</returns>
+        </member>
+        <member name="M:Numba.Awaiting.Engine.ExtensionsHelper.GetAwaiterWithResultForInstuction``1(``0)">
+            <summary>
+            Create awaiter with result value for any instruction.
+            </summary>
+            <param name="instruction">Instruction for yielding.</param>
+            <returns>Awaiter which awaiting passed instruction.</returns>
+        </member>
+        <member name="T:Numba.Awaiting.Engine.ManualAwaiter">
+            <summary>
+            This class can be awaited.
+            Also can control calling of continuation when you want.
+            Not return result after awaiting.
+            </summary>
+        </member>
+        <member name="F:Numba.Awaiting.Engine.ManualAwaiter._continuation">
+            <summary>
+            Represent continuation which you can call later.
+            </summary>
+        </member>
+        <member name="P:Numba.Awaiting.Engine.ManualAwaiter.IsCompleted">
+            <summary>
+            Represent completion state. Always return false value, this means that
+            await will not execute continuation immediatly (in the same thread).
+            </summary>
+        </member>
+        <member name="M:Numba.Awaiting.Engine.ManualAwaiter.OnCompleted(System.Action)">
+            <summary>
+            This method invoked when you await ManualAwaiter object.
+            Continuation will be stored and will be used later (when you give command).
+            </summary>
+            <param name="continuation">Continuation method which will be stored.</param>
+        </member>
+        <member name="M:Numba.Awaiting.Engine.ManualAwaiter.GetResult">
+            <summary>
+            Indicates whether await can expect the result (ManualAwaiter not support result after awaiting).
+            </summary>
+        </member>
+        <member name="M:Numba.Awaiting.Engine.ManualAwaiter.RunContinuation">
+            <summary>
+            Run your continuation in the calling thread.
+            </summary>
+        </member>
+        <member name="T:Numba.Awaiting.Engine.ManualAwaiter`1">
+            <summary>
+            This class can be awaited.
+            Also can control calling of continuation when you want.
+            Return result after awaiting.
+            </summary>
+            <typeparam name="T">Result type.</typeparam>
+        </member>
+        <member name="M:Numba.Awaiting.Engine.ManualAwaiter`1.GetResult">
+            <summary>
+            Get calculated result.
+            Used by await instruction.
+            </summary>
+            <returns>Calculated result.</returns>
+        </member>
+        <member name="M:Numba.Awaiting.Engine.ManualAwaiter`1.SetResultGetter(System.Func{`0})">
+            <summary>
+            Save result getter method.
+            The getter method will be used later when GetResult method will be called.
+            </summary>
+            <param name="resultGetter">Method which return result.</param>
+        </member>
+        <member name="T:Numba.Awaiting.Engine.RoutineHelper">
+            <summary>
+            Help run coroutines. 
+            Auto created, not destroyable and not visible in hierarchy.
+            </summary>
+        </member>
+        <member name="P:Numba.Awaiting.Engine.RoutineHelper.Instance">
+            <summary>
+            Return instance of this class (singleton pattern).
+            Returned object will not be visualized in hierarchy and
+            not be destroyed between scenes loading.
+            </summary>
+        </member>
+        <member name="M:Numba.Awaiting.Engine.RoutineHelper.CreateInstance">
+            <summary>
+            Create and save one instance of this class (singleton pattern).
+            Created object will not be visible in hierarchy and do not destroyed between scenes.
+            </summary>
+        </member>
+        <member name="T:Extensions">
+            <summary>
+            This class contains 'GetAwaiter' extensions methods for many classes.
+            </summary>
+        </member>
+        <member name="M:Extensions.CatchErrors(System.Threading.Tasks.Task)">
+            <summary>
+            Just await current task and rethrow error if it happens.
+            </summary>
+            <param name="task">Current task.</param>
+        </member>
+        <member name="T:WaitForBackgroundThread">
+            <summary>
+            This class can be awaited.
+            Run code after awaiting in background thread.
+            </summary>
+        </member>
+        <member name="T:WaitForUpdate">
+            <summary>
+            This class can be awaited.
+            Run code after awaiting in update cycle from main thread.
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,17 @@
+@import '~assets/scss/page.scss';
+
+form {
+  display: block;
+  margin: 0px auto;
+  max-width: 500px;
+}
+
+mat-form-field {
+  font-size: 1.1rem;
+  margin-top: 0px;
+}
+
+p {
+  margin-bottom: 24px;
+  text-align: center;
+}

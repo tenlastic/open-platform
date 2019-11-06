@@ -1,5 +1,6 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
+import * as mongoose from 'mongoose';
 
 import { CollectionDocument, CollectionMock, RecordSchema } from '../../../models';
 import { handler } from './';
@@ -12,20 +13,20 @@ describe('handlers/records/find-one', function() {
     collection = await CollectionMock.create({
       permissions: {
         create: {
-          base: ['customProperties'],
+          base: ['properties'],
         },
         delete: {},
         find: {
           base: {},
         },
         read: {
-          base: ['_id', 'createdAt', 'customProperties', 'updatedAt'],
+          base: ['_id', 'createdAt', 'properties', 'updatedAt'],
         },
         roles: [],
         update: {},
       },
     });
-    user = { roles: ['Admin'] };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
   });
 
   it('returns the matching record', async function() {
@@ -33,6 +34,7 @@ describe('handlers/records/find-one', function() {
     const record = await Model.create({
       collectionId: collection.id,
       databaseId: collection.databaseId,
+      userId: user._id,
     });
 
     const ctx = new ContextMock({

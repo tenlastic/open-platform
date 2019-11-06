@@ -1,0 +1,38 @@
+<div class="page">
+  <h2>{{ (!loadingMessage && !form) || (data && data._id) ? 'Edit' : 'Create' }} User</h2>
+
+  <app-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</app-loading-message>
+
+  <form *ngIf="form" [formGroup]="form" autocomplete="off">
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Email Address</mat-label>
+        <input matInput type="email" formControlName="email" />
+        <mat-error>Enter a valid email address.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field *ngIf="identityService.user.roles.includes('Admin')" floatLabel="always">
+        <mat-label>Roles</mat-label>
+        <mat-select placeholder="None" formControlName="roles" multiple>
+          <mat-option value="Admin">Admin</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" />
+        <mat-error>Enter a valid username.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="error" class="form-error">
+      {{ error }}
+    </div>
+
+    <button mat-button background="accent" (click)="save()">Save</button>
+  </form>
+</div>

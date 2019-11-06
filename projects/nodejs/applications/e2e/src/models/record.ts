@@ -6,7 +6,7 @@ import { request } from '../request';
 export class RecordModel {
   public _id: string;
   public collectionId: string;
-  public customProperties: any;
+  public properties: any;
   public databaseId: string;
   public createdAt: Date;
   public name: string;

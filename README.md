@@ -1,5 +1,9 @@
 # The Tenlastic Open Platform
 
+## Prerequisites
+
+- **Windows Only**: [Install Windows Subsystem for Linux.](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+
 ## Getting Started
 
 - [Set up Continuous Integration with CircleCI.](./.circleci/README.md)

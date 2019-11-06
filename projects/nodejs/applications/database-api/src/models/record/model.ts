@@ -1,17 +1,11 @@
-import {
-  DocumentType,
-  Ref,
-  ReturnModelType,
-  buildSchema,
-  getModelForClass,
-  prop,
-} from '@hasezoey/typegoose';
+import { DocumentType, Ref, ReturnModelType, buildSchema, prop } from '@hasezoey/typegoose';
 import * as jsonSchema from '@tenlastic/json-schema';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
 import { DatabaseDocument, DatabaseSchema } from '../database/model';
 import { CollectionDocument, CollectionSchema } from '../collection/model';
+import { ReadonlyUserDocument, ReadonlyUserSchema } from '../readonly-user/model';
 
 export class RecordSchema {
   public _id: mongoose.Types.ObjectId;
@@ -20,12 +14,15 @@ export class RecordSchema {
   public collectionId: Ref<CollectionSchema>;
 
   public createdAt: Date;
-  public customProperties: any;
+  public properties: any;
 
   @prop({ ref: 'DatabaseSchema', required: true })
   public databaseId: Ref<DatabaseSchema>;
 
   public updatedAt: Date;
+
+  @prop({ ref: 'ReadonlyUserSchema', required: true })
+  public userId: Ref<ReadonlyUserSchema>;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', ref: 'CollectionSchema' })
   public collectionDocument: CollectionDocument;
@@ -33,12 +30,15 @@ export class RecordSchema {
   @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', ref: 'DatabaseSchema' })
   public databaseDocument: DatabaseDocument;
 
+  @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'ReadonlyUserSchema' })
+  public userDocument: ReadonlyUserDocument;
+
   public static getModelForClass(collection: CollectionDocument) {
     const Schema = buildSchema(RecordSchema);
 
-    const customProperties = jsonSchema.toMongoose(collection.jsonSchema);
+    const properties = jsonSchema.toMongoose(collection.jsonSchema);
     const schema = new mongoose.Schema(
-      { customProperties },
+      { properties },
       {
         autoIndex: false,
         collection: collection._id.toString(),

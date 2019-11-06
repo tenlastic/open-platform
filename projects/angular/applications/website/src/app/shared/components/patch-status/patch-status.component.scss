@@ -1,0 +1,66 @@
+@import '~assets/scss/theme.scss';
+
+mat-progress-bar.mat-progress-bar {
+  &.blue .mat-progress-bar-fill::after {
+    background-color: #3f51b5;
+  }
+
+  &.red .mat-progress-bar-fill::after {
+    background-color: $accent;
+  }
+
+  &.thick {
+    height: 16px;
+  }
+
+  &.thin {
+    height: 8px;
+  }
+
+  .mat-progress-bar-background {
+    display: none;
+  }
+
+  .mat-progress-bar-buffer {
+    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 3px 4px 5px black, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
+  }
+
+  .mat-progress-bar-fill::after {
+    box-shadow: 2px 3px 4px black, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
+  }
+}
+
+.file-count {
+  font-size: 0.75rem;
+  left: 0px;
+  line-height: 0.85rem;
+  position: absolute;
+  text-align: center;
+  text-shadow: 2px 3px 4px black;
+  top: 0px;
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-gap: 4px;
+}
+
+.patch-status {
+  background: rgba(0, 0, 0, 0.5);
+  bottom: 0px;
+  box-shadow: 3px 4px 5px rgba(0, 0, 0, 0.6);
+  color: white;
+  left: 0px;
+  padding: 6px 8px 8px;
+  position: fixed;
+  z-index: 1;
+  width: 100%;
+}
+
+.status-text {
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

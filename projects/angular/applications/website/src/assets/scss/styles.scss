@@ -1,0 +1,137 @@
+@import '~bootstrap/scss/bootstrap-grid.scss';
+@import '~assets/scss/material.scss';
+@import '~assets/scss/theme.scss';
+
+*:not(mat-icon) {
+  font-family: 'Oswald', sans-serif !important;
+}
+
+a:not([href]):not([tabindex]) {
+  color: $accent;
+  cursor: pointer;
+
+  &:hover {
+    color: $accent-highlight;
+  }
+}
+
+body {
+  background: url('/assets/images/background.jpg');
+  background-attachment: fixed;
+  background-size: cover;
+  font-family: 'Roboto', sans-serif;
+  height: 100%;
+  margin: 0px;
+}
+
+h2 {
+  color: white;
+}
+
+html {
+  height: 100%;
+  overflow: auto !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active  {
+  -webkit-text-fill-color: white !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.center {
+  justify-content: center;
+  text-align: center;
+}
+
+.content {
+  color: white;
+  padding: 96px 24px 24px;
+  text-shadow: $shadow;
+
+  h1, h2, h3, h4 {
+    color: #f0f070;
+    margin: 0px 0px 4px;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  p {
+    margin: 0px 0px 16px;
+  }
+
+  ul {
+    margin-top: 0px;
+  }
+
+  h1 {
+    overflow: hidden;
+    text-align: center;
+   }
+   h1:before,
+   h1:after {
+    background-color: white;
+    box-shadow: 3px 4px 5px black;
+    content: "";
+    display: inline-block;
+    height: 2px;
+    position: relative;
+    vertical-align: middle;
+    width: 50%;
+   }
+   h1:before {
+    right: 0.5em;
+    margin-left: -50%;
+   }
+   h1:after {
+    left: 0.5em;
+    margin-right: -50%;
+   }
+}
+
+.page {
+  padding: 24px;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.form-error {
+  color: mat-color(mat-palette($mat-red));
+  font-size: .9rem;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+[margin-top] {
+  margin-top: 8px;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #505050;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: white;
+}
+
+@media (max-width: 992px) {
+  .container {
+    max-width: 100%;
+  }
+}

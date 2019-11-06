@@ -1,0 +1,21 @@
+
+@import '~assets/scss/theme.scss';
+
+h2 {
+  margin-bottom: 16px;
+}
+
+.col-sm-3 {
+  text-align: right;
+
+  mat-icon.mat-icon {
+    color: lighten(mat-color($foreground, secondary-text), 50%);
+    cursor: pointer;
+    height: 18px;
+    vertical-align: middle;
+
+    &:hover {
+      color: mat-color($foreground, secondary-text);
+    }
+  }
+}

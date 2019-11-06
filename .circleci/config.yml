@@ -1,6 +1,37 @@
 version: 2.1
 
 jobs:
+  angular:
+    docker:
+      - image: circleci/node:10-browsers
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "./projects/angular/package.json" }}
+      - run:
+          name: Install Node Modules
+          command: npm install
+          working_directory: ./projects/angular/
+      - run:
+          name: Lerna Bootstrap
+          command: npm run lerna bootstrap
+          working_directory: ./projects/angular/
+      - save_cache:
+          key: dependency-cache-{{ checksum "./projects/angular/package.json" }}
+          paths:
+            - ./projects/angular/node_modules/
+      - run:
+          name: Lint
+          command: npm run lerna run lint
+          working_directory: ./projects/angular/
+      - run:
+          name: Build
+          command: npm run lerna run build
+          working_directory: ./projects/angular/
+      - run:
+          name: Test
+          command: npm run lerna run -- --concurrency 1 test:ci -- -- --code-coverage
+          working_directory: ./projects/angular/
   nodejs:
     docker:
       - image: node:10
@@ -64,5 +95,6 @@ workflows:
   version: 2.1
   build-deploy:
     jobs:
+      - angular
       - nodejs:
           context: open-platform-review

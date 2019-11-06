@@ -1,6 +1,7 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 import * as Chance from 'chance';
+import * as mongoose from 'mongoose';
 
 import { CollectionDocument, CollectionMock } from '../../../models';
 import { handler } from './';
@@ -22,37 +23,31 @@ describe('handlers/records/create', function() {
       },
       permissions: {
         create: {
-          base: ['customProperties.email', 'customProperties.name'],
+          base: ['properties.email', 'properties.name'],
         },
         delete: {},
         find: {
           base: {},
         },
         read: {
-          base: [
-            '_id',
-            'createdAt',
-            'customProperties.email',
-            'customProperties.name',
-            'updatedAt',
-          ],
+          base: ['_id', 'createdAt', 'properties.email', 'properties.name', 'updatedAt'],
         },
         roles: [],
         update: {},
       },
     });
-    user = { roles: ['Admin'] };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
   });
 
   it('creates a new record', async function() {
-    const customProperties = { email: chance.email(), name: chance.name() };
+    const properties = { email: chance.email(), name: chance.name() };
     const ctx = new ContextMock({
       params: {
         collectionId: collection._id.toString(),
         databaseId: collection.databaseId.toString(),
       },
       request: {
-        body: { customProperties },
+        body: { properties },
       },
       state: { user },
     });
@@ -60,7 +55,7 @@ describe('handlers/records/create', function() {
     await handler(ctx as any);
 
     expect(ctx.response.body.record).to.exist;
-    expect(ctx.response.body.record.customProperties.email).to.eql(customProperties.email);
-    expect(ctx.response.body.record.customProperties.name).to.eql(customProperties.name);
+    expect(ctx.response.body.record.properties.email).to.eql(properties.email);
+    expect(ctx.response.body.record.properties.name).to.eql(properties.name);
   });
 });

@@ -42,4 +42,5 @@ export async function handler(ctx: Context) {
   await rabbitmq.publish(CREATE_COLLECTION_INDEX_QUEUE, msg);
 
   ctx.response.status = 200;
+  ctx.response.body = {};
 }

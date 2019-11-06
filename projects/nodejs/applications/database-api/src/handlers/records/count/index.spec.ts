@@ -1,5 +1,6 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
+import * as mongoose from 'mongoose';
 
 import { CollectionDocument, CollectionMock, RecordSchema } from '../../../models';
 import { handler } from './';
@@ -15,25 +16,29 @@ describe('handlers/records/count', function() {
       },
       permissions: {
         create: {
-          base: ['customProperties'],
+          base: ['properties'],
         },
         delete: {},
         find: {
           base: {},
         },
         read: {
-          base: ['_id', 'createdAt', 'customProperties', 'updatedAt'],
+          base: ['_id', 'createdAt', 'properties', 'updatedAt'],
         },
         roles: [],
         update: {},
       },
     });
-    user = { roles: ['Admin'] };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
   });
 
   it('returns the number of matching records', async function() {
     const Model = RecordSchema.getModelForClass(collection);
-    await Model.create({ collectionId: collection.id, databaseId: collection.databaseId });
+    await Model.create({
+      collectionId: collection.id,
+      databaseId: collection.databaseId,
+      userId: user._id,
+    });
 
     const ctx = new ContextMock({
       params: {
