@@ -3,5 +3,5 @@ services:
   application:
     ports:
       - 4201:4200
-      - 49153:49153
+      - 49154:49154
     working_dir: /usr/src/app/applications/portal/

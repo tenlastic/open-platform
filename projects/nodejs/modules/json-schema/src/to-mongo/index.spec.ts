@@ -64,7 +64,7 @@ describe('toMongo()', function() {
             bsonType: 'object',
             properties: {
               builtAt: { bsonType: 'date' },
-              street: { bsonType: 'double', minimum: 0, maximum: 50 },
+              street: { bsonType: ['double', 'int'], minimum: 0, maximum: 50 },
             },
             required: ['builtAt'],
           },
@@ -74,7 +74,7 @@ describe('toMongo()', function() {
             items: {
               bsonType: 'object',
               properties: {
-                num: { bsonType: 'double' },
+                num: { bsonType: ['double', 'int'] },
                 str: { bsonType: 'string' },
               },
             },

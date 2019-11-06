@@ -48,8 +48,8 @@
           placeholder="None"
           [formControl]="form.controls.permissions.controls.create"
         >
-          <mat-option *ngFor="let field of validProperties" [value]="field.key">
-            {{ field.key }}
+          <mat-option *ngFor="let field of propertyFields" [value]="field">
+            {{ field }}
           </mat-option>
         </mat-select>
       </mat-form-field>
@@ -61,8 +61,8 @@
           placeholder="None"
           [formControl]="form.controls.permissions.controls.read"
         >
-          <mat-option *ngFor="let field of validProperties" [value]="field.key">
-            {{ field.key }}
+          <mat-option *ngFor="let field of recordFields.concat(propertyFields)" [value]="field">
+            {{ field }}
           </mat-option>
         </mat-select>
       </mat-form-field>
@@ -74,8 +74,8 @@
           placeholder="None"
           [formControl]="form.controls.permissions.controls.update"
         >
-          <mat-option *ngFor="let field of validProperties" [value]="field.key">
-            {{ field.key }}
+          <mat-option *ngFor="let field of propertyFields" [value]="field">
+            {{ field }}
           </mat-option>
         </mat-select>
       </mat-form-field>

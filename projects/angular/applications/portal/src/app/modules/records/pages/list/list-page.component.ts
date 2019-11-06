@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 import { RecordService } from '@app/core/http';
-import { IdentityService, SelectedNamespaceService } from '@app/core/services';
+import { IdentityService } from '@app/core/services';
 import { PromptComponent } from '@app/shared/components';
 import { TITLE } from '@app/shared/constants';
 import { Record } from '@app/shared/models';
@@ -21,7 +21,7 @@ export class RecordsListPageComponent implements OnInit {
   @ViewChild(MatTable) table: MatTable<Record>;
 
   public dataSource: MatTableDataSource<Record>;
-  public displayedColumns: string[] = ['name', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns: string[] = ['_id', 'createdAt', 'updatedAt', 'actions'];
   public search = '';
 
   private collectionId: string;
@@ -33,7 +33,6 @@ export class RecordsListPageComponent implements OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private recordService: RecordService,
-    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
@@ -68,7 +67,7 @@ export class RecordsListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.recordService.delete(record.databaseId, record.collectionId, record._id);
+        await this.recordService.delete(this.databaseId, this.collectionId, record._id);
         this.deleteRecord(record);
       }
     });
@@ -80,8 +79,7 @@ export class RecordsListPageComponent implements OnInit {
 
   private async fetchRecords() {
     const records = await this.recordService.find(this.databaseId, this.collectionId, {
-      sort: 'name',
-      where: { namespaceId: this.selectedNamespaceService.namespaceId },
+      sort: '_id',
     });
 
     this.dataSource = new MatTableDataSource<Record>(records);

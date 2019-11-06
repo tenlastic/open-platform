@@ -56,10 +56,10 @@ describe('handlers/records/find', function() {
     const Model = RecordSchema.getModelForClass(collection);
     const record = await Model.create({
       collectionId: collection.id,
+      databaseId: collection.databaseId,
       properties: {
         insertedAt: new Date().toISOString(),
       },
-      databaseId: collection.databaseId,
     });
 
     const ONE_HOUR = 60 * 60 * 1000;

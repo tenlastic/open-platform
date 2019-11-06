@@ -68,8 +68,8 @@ describe('records', function() {
   it('does not create an invalid record', async function() {
     const res = await RecordModel.create({
       collectionId: collection._id,
-      properties: { age: chance.hash() },
       databaseId: database._id,
+      properties: { age: chance.hash() },
     });
 
     expect(res.statusCode).to.eql(400);
@@ -85,11 +85,11 @@ describe('records', function() {
     const initialName = chance.name();
     const res = await RecordModel.create({
       collectionId: collection._id,
+      databaseId: database._id,
       properties: {
         email: initialEmail,
         name: initialName,
       },
-      databaseId: database._id,
     });
 
     expect(res.statusCode).to.eql(200);
@@ -103,11 +103,11 @@ describe('records', function() {
     beforeEach(async function() {
       const res = await RecordModel.create({
         collectionId: collection._id,
+        databaseId: database._id,
         properties: {
           email: chance.email(),
           name: chance.name(),
         },
-        databaseId: database._id,
       });
 
       record = res.body.record;
@@ -129,8 +129,8 @@ describe('records', function() {
       const res = await RecordModel.update({
         _id: record._id,
         collectionId: collection._id,
-        properties: { age: chance.hash(), email: null, name: null },
         databaseId: database._id,
+        properties: { age: chance.hash(), email: null, name: null },
       });
 
       expect(res.statusCode).to.eql(400);
@@ -148,11 +148,11 @@ describe('records', function() {
       const res = await RecordModel.update({
         _id: record._id,
         collectionId: collection._id,
+        databaseId: database._id,
         properties: {
           email: newEmail,
           name: newName,
         },
-        databaseId: database._id,
       });
 
       expect(res.statusCode).to.eql(200);

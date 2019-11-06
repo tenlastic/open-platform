@@ -92,6 +92,9 @@ export class CollectionSchema {
           updatedAt: {
             bsonType: 'date',
           },
+          userId: {
+            bsonType: 'objectId',
+          },
         },
       },
     };

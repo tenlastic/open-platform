@@ -10,7 +10,7 @@ const schemaParamsToMongo = {
 
 const typeToMongoose = {
   boolean: 'bool',
-  number: 'double',
+  number: ['double', 'int'],
   string: 'string',
 };
 

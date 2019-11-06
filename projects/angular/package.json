@@ -3,13 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "build:staging": "lerna run build:staging",
-    "build:production": "lerna run build:production",
     "docker": "docker-compose run --rm application npm run",
     "docker:install": "docker-compose run --rm application npm install",
-    "lerna": "lerna",
-    "lint": "lerna run lint",
-    "test:ci": "lerna run test:ci --concurrency 1"
+    "lerna": "lerna"
   },
   "devDependencies": {
     "lerna": "3.16.4"

@@ -118,7 +118,7 @@ export class RecordsFormPageComponent implements OnInit {
         }
 
         options[key] = this.formBuilder.control(value);
-      });
+      }, this);
     }
 
     this.form = this.formBuilder.group(options);

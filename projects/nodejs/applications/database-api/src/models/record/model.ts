@@ -5,6 +5,7 @@ import * as mongoose from 'mongoose';
 
 import { DatabaseDocument, DatabaseSchema } from '../database/model';
 import { CollectionDocument, CollectionSchema } from '../collection/model';
+import { ReadonlyUserDocument, ReadonlyUserSchema } from '../readonly-user/model';
 
 export class RecordSchema {
   public _id: mongoose.Types.ObjectId;
@@ -20,11 +21,17 @@ export class RecordSchema {
 
   public updatedAt: Date;
 
+  @prop({ ref: 'ReadonlyUserSchema', required: true })
+  public userId: Ref<ReadonlyUserSchema>;
+
   @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', ref: 'CollectionSchema' })
   public collectionDocument: CollectionDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', ref: 'DatabaseSchema' })
   public databaseDocument: DatabaseDocument;
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'ReadonlyUserSchema' })
+  public userDocument: ReadonlyUserDocument;
 
   public static getModelForClass(collection: CollectionDocument) {
     const Schema = buildSchema(RecordSchema);

@@ -28,6 +28,7 @@ export class RoleFieldComponent {
   public get propertyFields() {
     return this.validProperties.map(v => `properties.${v.key}`);
   }
+  public recordFields = ['_id', 'createdAt', 'updatedAt', 'userId'];
   public userFields = ['user._id', 'user.email', 'user.roles', 'user.username'];
   public get validProperties() {
     return this.properties.value.filter(v => v.key);

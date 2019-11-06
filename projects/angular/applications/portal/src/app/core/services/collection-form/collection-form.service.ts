@@ -109,7 +109,12 @@ export class CollectionFormService {
     const { name } = role;
 
     const findCriteria = [];
-    if (permissions.find && permissions.find.roles && permissions.find.roles[name]) {
+    if (
+      permissions.find &&
+      permissions.find.roles &&
+      permissions.find.roles[name] &&
+      Object.keys(permissions.find.roles[name]).length > 0
+    ) {
       const operator = '$and' in permissions.find.roles[name] ? '$and' : '$or';
 
       permissions.find.roles[name][operator].forEach(criterion => {
@@ -233,7 +238,7 @@ export class CollectionFormService {
             return this.getJsonFromCriterion(criterion, properties);
           });
 
-          accumulator.find.roles[role.key] = { $and: criteria };
+          accumulator.find.roles[role.key] = criteria.length > 0 ? { $and: criteria } : {};
         }
 
         return accumulator;
