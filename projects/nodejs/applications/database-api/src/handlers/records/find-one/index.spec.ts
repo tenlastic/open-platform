@@ -1,5 +1,6 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
+import * as mongoose from 'mongoose';
 
 import { CollectionDocument, CollectionMock, RecordSchema } from '../../../models';
 import { handler } from './';
@@ -25,7 +26,7 @@ describe('handlers/records/find-one', function() {
         update: {},
       },
     });
-    user = { roles: ['Admin'] };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
   });
 
   it('returns the matching record', async function() {

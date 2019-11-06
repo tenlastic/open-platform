@@ -1,5 +1,6 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
+import * as mongoose from 'mongoose';
 
 import { CollectionDocument, CollectionMock, RecordDocument, RecordSchema } from '../../../models';
 import { handler } from './';
@@ -26,7 +27,7 @@ describe('handlers/records/delete', function() {
         update: {},
       },
     });
-    user = { roles: ['Admin'] };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
 
     const Model = RecordSchema.getModelForClass(collection);
     record = await Model.create({

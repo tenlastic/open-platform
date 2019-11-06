@@ -1,6 +1,7 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 import * as Chance from 'chance';
+import * as mongoose from 'mongoose';
 
 import { CollectionDocument, CollectionMock } from '../../../models';
 import { handler } from './';
@@ -35,7 +36,7 @@ describe('handlers/records/create', function() {
         update: {},
       },
     });
-    user = { roles: ['Admin'] };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
   });
 
   it('creates a new record', async function() {
