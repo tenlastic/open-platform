@@ -15,14 +15,14 @@ describe('handlers/records/count', function() {
       },
       permissions: {
         create: {
-          base: ['customProperties'],
+          base: ['properties'],
         },
         delete: {},
         find: {
           base: {},
         },
         read: {
-          base: ['_id', 'createdAt', 'customProperties', 'updatedAt'],
+          base: ['_id', 'createdAt', 'properties', 'updatedAt'],
         },
         roles: [],
         update: {},

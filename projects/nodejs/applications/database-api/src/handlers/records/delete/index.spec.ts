@@ -20,7 +20,7 @@ describe('handlers/records/delete', function() {
           base: {},
         },
         read: {
-          base: ['_id', 'createdAt', 'customProperties', 'updatedAt'],
+          base: ['_id', 'createdAt', 'properties', 'updatedAt'],
         },
         roles: [],
         update: {},

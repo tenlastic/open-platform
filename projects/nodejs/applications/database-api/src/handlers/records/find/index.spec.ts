@@ -18,14 +18,14 @@ describe('handlers/records/find', function() {
       },
       permissions: {
         create: {
-          base: ['customProperties'],
+          base: ['properties'],
         },
         delete: {},
         find: {
           base: {},
         },
         read: {
-          base: ['_id', 'createdAt', 'customProperties', 'updatedAt'],
+          base: ['_id', 'createdAt', 'properties', 'updatedAt'],
         },
         roles: [],
         update: {},
@@ -56,7 +56,7 @@ describe('handlers/records/find', function() {
     const Model = RecordSchema.getModelForClass(collection);
     const record = await Model.create({
       collectionId: collection.id,
-      customProperties: {
+      properties: {
         insertedAt: new Date().toISOString(),
       },
       databaseId: collection.databaseId,
@@ -71,7 +71,7 @@ describe('handlers/records/find', function() {
       request: {
         query: {
           where: {
-            'customProperties.insertedAt': {
+            'properties.insertedAt': {
               $gt: new Date(new Date().getTime() - ONE_HOUR),
             },
           },

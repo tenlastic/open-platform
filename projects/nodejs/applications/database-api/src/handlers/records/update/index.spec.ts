@@ -21,17 +21,11 @@ describe('handlers/records/update', function() {
           base: {},
         },
         read: {
-          base: [
-            '_id',
-            'createdAt',
-            'customProperties.email',
-            'customProperties.name',
-            'updatedAt',
-          ],
+          base: ['_id', 'createdAt', 'properties.email', 'properties.name', 'updatedAt'],
         },
         roles: [],
         update: {
-          base: ['customProperties.email', 'customProperties.name'],
+          base: ['properties.email', 'properties.name'],
         },
       },
     });
@@ -45,7 +39,7 @@ describe('handlers/records/update', function() {
   });
 
   it('returns the matching record', async function() {
-    const customProperties = { email: chance.email(), name: chance.name() };
+    const properties = { email: chance.email(), name: chance.name() };
     const ctx = new ContextMock({
       params: {
         collectionId: collection._id.toString(),
@@ -53,7 +47,7 @@ describe('handlers/records/update', function() {
         id: record._id.toString(),
       },
       request: {
-        body: { customProperties },
+        body: { properties },
       },
       state: { user },
     });
@@ -61,6 +55,6 @@ describe('handlers/records/update', function() {
     await handler(ctx as any);
 
     expect(ctx.response.body.record).to.exist;
-    expect(ctx.response.body.record.customProperties).to.eql(customProperties);
+    expect(ctx.response.body.record.properties).to.eql(properties);
   });
 });

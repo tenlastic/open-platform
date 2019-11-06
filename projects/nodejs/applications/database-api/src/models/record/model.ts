@@ -13,7 +13,7 @@ export class RecordSchema {
   public collectionId: Ref<CollectionSchema>;
 
   public createdAt: Date;
-  public customProperties: any;
+  public properties: any;
 
   @prop({ ref: 'DatabaseSchema', required: true })
   public databaseId: Ref<DatabaseSchema>;
@@ -29,9 +29,9 @@ export class RecordSchema {
   public static getModelForClass(collection: CollectionDocument) {
     const Schema = buildSchema(RecordSchema);
 
-    const customProperties = jsonSchema.toMongoose(collection.jsonSchema);
+    const properties = jsonSchema.toMongoose(collection.jsonSchema);
     const schema = new mongoose.Schema(
-      { customProperties },
+      { properties },
       {
         autoIndex: false,
         collection: collection._id.toString(),

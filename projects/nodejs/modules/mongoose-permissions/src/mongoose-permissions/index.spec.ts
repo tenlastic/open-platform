@@ -54,7 +54,7 @@ describe('permissions', function() {
     context('when user is an admin', function() {
       it('creates a new record', async function() {
         const params = {
-          customProperties: {
+          properties: {
             age: chance.integer(),
             name: chance.hash(),
           },
@@ -65,8 +65,8 @@ describe('permissions', function() {
 
         expect(record._id).to.exist;
         expect(record.createdAt).to.exist;
-        expect(record.customProperties.age).to.eql(params.customProperties.age);
-        expect(record.customProperties.name).to.not.exist;
+        expect(record.properties.age).to.eql(params.properties.age);
+        expect(record.properties.name).to.not.exist;
         expect(record.name).to.eql(params.name);
         expect(record.updatedAt).to.exist;
       });
@@ -137,7 +137,7 @@ describe('permissions', function() {
 
     beforeEach(async function() {
       record = await Example.mock({
-        customProperties: {
+        properties: {
           age: chance.integer(),
           name: chance.hash(),
         },
@@ -150,8 +150,8 @@ describe('permissions', function() {
 
         expect(record._id).to.exist;
         expect(record.createdAt).to.exist;
-        expect(record.customProperties.age).to.exist;
-        expect(record.customProperties.name).to.not.exist;
+        expect(record.properties.age).to.exist;
+        expect(record.properties.name).to.not.exist;
         expect(record.name).to.exist;
         expect(record.updatedAt).to.exist;
       });
@@ -179,7 +179,7 @@ describe('permissions', function() {
     context('when the user is an admin', function() {
       it('updates and returns the record', async function() {
         const params = {
-          customProperties: {
+          properties: {
             age: chance.integer(),
             name: chance.hash(),
           },
@@ -190,8 +190,8 @@ describe('permissions', function() {
 
         expect(record._id.toString()).to.eql(record._id.toString());
         expect(record.createdAt).to.exist;
-        expect(record.customProperties.age).to.eql(params.customProperties.age);
-        expect(record.customProperties.name).to.not.exist;
+        expect(record.properties.age).to.eql(params.properties.age);
+        expect(record.properties.name).to.not.exist;
         expect(record.name).to.eql(params.name);
         expect(record.updatedAt).to.exist;
       });

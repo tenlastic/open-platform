@@ -75,7 +75,7 @@ export class RecordsFormPageComponent implements OnInit {
     const values = {
       collectionId: this.collection._id,
       databaseId: this.collection.databaseId,
-      customProperties: properties,
+      properties,
     };
 
     if (this.data._id) {
