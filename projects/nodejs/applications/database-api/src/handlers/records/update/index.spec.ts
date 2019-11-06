@@ -36,6 +36,7 @@ describe('handlers/records/update', function() {
     record = await Model.create({
       collectionId: collection.id,
       databaseId: collection.databaseId,
+      userId: user._id,
     });
   });
 

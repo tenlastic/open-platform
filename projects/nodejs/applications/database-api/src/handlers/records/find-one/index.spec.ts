@@ -34,6 +34,7 @@ describe('handlers/records/find-one', function() {
     const record = await Model.create({
       collectionId: collection.id,
       databaseId: collection.databaseId,
+      userId: user._id,
     });
 
     const ctx = new ContextMock({

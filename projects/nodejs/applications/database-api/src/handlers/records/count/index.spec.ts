@@ -34,7 +34,11 @@ describe('handlers/records/count', function() {
 
   it('returns the number of matching records', async function() {
     const Model = RecordSchema.getModelForClass(collection);
-    await Model.create({ collectionId: collection.id, databaseId: collection.databaseId });
+    await Model.create({
+      collectionId: collection.id,
+      databaseId: collection.databaseId,
+      userId: user._id,
+    });
 
     const ctx = new ContextMock({
       params: {
