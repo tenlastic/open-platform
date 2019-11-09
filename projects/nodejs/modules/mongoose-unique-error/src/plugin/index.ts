@@ -72,9 +72,14 @@ function getValidationError(err: MongoError, schema: Schema, doc: any) {
     return err;
   }
 
+  let value = doc.toObject ? doc.toObject() : doc;
+  if (value.$set || value.$setOnInsert) {
+    value = { ...doc.$set, ...doc.$setOnInsert };
+  }
+
   // Map the document's values to the index's keys.
   const values = Object.keys(uniqueIndex[0]).reduce((agg, key) => {
-    agg[key] = doc[key];
+    agg[key] = value[key];
     return agg;
   }, {});
 

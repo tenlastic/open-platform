@@ -9,6 +9,7 @@ before(async function() {
     dbName: process.env.MONGO_DATABASE_NAME,
     useFindAndModify: false,
     useNewUrlParser: true,
+    useUnifiedTopology: true,
   });
 });
 
