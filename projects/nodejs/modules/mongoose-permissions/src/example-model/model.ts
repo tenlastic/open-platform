@@ -21,6 +21,9 @@ export class ExampleSchema {
   public createdAt: Date;
 
   @prop()
+  public jsonSchema: any;
+
+  @prop()
   public properties: any;
 
   @prop()
