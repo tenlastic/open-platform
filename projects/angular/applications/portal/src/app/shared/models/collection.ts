@@ -28,6 +28,7 @@ export namespace Collection {
     format?: string;
     items?: JsonSchemaProperty;
     properties?: JsonSchemaProperty;
+    required?: string[];
     type?: string;
   }
 
@@ -60,7 +61,7 @@ export namespace Collection {
 export class Collection extends Model {
   public databaseId: string;
   public indexes: Collection.Index;
-  public jsonSchema: any;
+  public jsonSchema: Collection.JsonSchemaProperty;
   public name: string;
   public permissions: Collection.Permissions;
 

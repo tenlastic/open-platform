@@ -41,6 +41,14 @@
   <input matInput [formControl]="form.controls.default" />
 </mat-form-field>
 
+<mat-form-field *ngIf="form.controls.type.value !== 'array'" floatLabel="always">
+  <mat-label>Required</mat-label>
+  <mat-select [formControl]="form.controls.required">
+    <mat-option [value]="true">True</mat-option>
+    <mat-option [value]="false">False</mat-option>
+  </mat-select>
+</mat-form-field>
+
 <button mat-button color="white" (click)="remove.emit()">
   <mat-icon>close</mat-icon>
   Remove

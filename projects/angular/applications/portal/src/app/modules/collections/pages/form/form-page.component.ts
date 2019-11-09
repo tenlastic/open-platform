@@ -104,13 +104,18 @@ export class CollectionsFormPageComponent implements OnInit {
       return accumulator;
     }, {});
 
+    const required = this.form
+      .get('properties')
+      .value.filter(p => p.required)
+      .map(p => p.key);
+
     const roles = this.form.getRawValue().roles.map(role => {
       return this.collectionFormService.getJsonFromRole(role, this.form.get('properties').value);
     });
 
     const values: Partial<Collection> = {
       databaseId: this.databaseId,
-      jsonSchema: { type: 'object', properties },
+      jsonSchema: { properties, required, type: 'object' },
       name: this.form.get('name').value,
       permissions: { ...permissions, roles },
     };
@@ -136,7 +141,14 @@ export class CollectionsFormPageComponent implements OnInit {
     const properties = [];
     if (this.data.jsonSchema && this.data.jsonSchema.properties) {
       Object.entries(this.data.jsonSchema.properties).forEach(([key, property]) => {
-        const formGroup = this.collectionFormService.getFormGroupFromProperty(key, property);
+        const required =
+          this.data.jsonSchema.required && this.data.jsonSchema.required.includes(key);
+
+        const formGroup = this.collectionFormService.getFormGroupFromProperty(
+          key,
+          property,
+          required,
+        );
         properties.push(formGroup);
       });
     }

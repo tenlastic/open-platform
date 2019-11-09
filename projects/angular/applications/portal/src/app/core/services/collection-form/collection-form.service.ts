@@ -28,6 +28,7 @@ export interface PropertyFormGroup {
   arrayType?: string;
   default?: any;
   key?: string;
+  required?: boolean;
   type?: string;
 }
 
@@ -63,6 +64,7 @@ export class CollectionFormService {
       arrayType: 'boolean',
       default: false,
       key: ['', Validators.required],
+      required: false,
       type: 'boolean',
     });
   }
@@ -139,7 +141,11 @@ export class CollectionFormService {
     });
   }
 
-  public getFormGroupFromProperty(key: string, property: Collection.JsonSchemaProperty) {
+  public getFormGroupFromProperty(
+    key: string,
+    property: Collection.JsonSchemaProperty,
+    required = false,
+  ) {
     const type = property.type;
 
     let arrayType = 'boolean';
@@ -151,6 +157,7 @@ export class CollectionFormService {
       arrayType: this.formBuilder.control(arrayType),
       default: this.formBuilder.control(property.default),
       key: this.formBuilder.control(key),
+      required: this.formBuilder.control(required),
       type: this.formBuilder.control(type),
     };
 
