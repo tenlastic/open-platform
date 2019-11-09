@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "ajv": "6.10.2",
-    "mongoose": "5.7.5"
+    "mongoose": "5.7.9"
   },
   "devDependencies": {
     "mocha": "6.1.4",
