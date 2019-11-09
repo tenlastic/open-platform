@@ -13,6 +13,7 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
   poolSize: 10,
   useFindAndModify: false,
   useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
 (async () => {

@@ -16,7 +16,7 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "mongoose": "5.6.7",
+    "mongoose": "5.7.5",
     "@hasezoey/typegoose": "6.0.0-27"
   },
   "devDependencies": {

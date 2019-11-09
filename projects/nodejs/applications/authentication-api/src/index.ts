@@ -19,6 +19,7 @@ mongoose.connect(connectionString, {
   dbName: databaseName,
   useFindAndModify: false,
   useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
 const webServer = new WebServer();

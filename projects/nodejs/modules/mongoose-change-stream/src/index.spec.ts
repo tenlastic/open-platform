@@ -8,6 +8,7 @@ mongoose.connect(connectionString, {
   dbName: databaseName,
   useFindAndModify: false,
   useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
 beforeEach(async function() {

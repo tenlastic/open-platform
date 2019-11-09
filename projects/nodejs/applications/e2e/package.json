@@ -18,7 +18,7 @@
     "chai": "4.2.0",
     "chance": "1.0.16",
     "jsonwebtoken": "8.5.1",
-    "mongoose": "5.6.7",
+    "mongoose": "5.7.5",
     "request": "2.88.0",
     "request-promise-native": "1.0.7"
   },
