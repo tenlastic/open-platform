@@ -185,7 +185,7 @@ describe('CollectionFormService', () => {
         expect(formGroup.get('arrayType').value).toEqual('number');
         expect(formGroup.get('default').value).toBeFalsy();
         expect(formGroup.get('key').value).toEqual('key');
-        expect(formGroup.get('required').value).toEqual('false');
+        expect(formGroup.get('required').value).toEqual(false);
         expect(formGroup.get('type').value).toEqual('array');
       });
     });
@@ -197,7 +197,7 @@ describe('CollectionFormService', () => {
 
         expect(formGroup.get('default').value).toEqual('default');
         expect(formGroup.get('key').value).toEqual('key');
-        expect(formGroup.get('required').value).toEqual('true');
+        expect(formGroup.get('required').value).toEqual(true);
         expect(formGroup.get('type').value).toEqual('string');
       });
     });

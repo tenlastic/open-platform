@@ -1,7 +1,13 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
 
-import { CollectionService, DatabaseService, NamespaceService, UserService } from '@app/core/http';
+import {
+  CollectionService,
+  DatabaseService,
+  NamespaceService,
+  RecordService,
+  UserService,
+} from '@app/core/http';
 import { SNACKBAR_DURATION } from '@app/shared/constants';
 
 @Injectable()
@@ -10,6 +16,7 @@ export class CrudSnackbarService {
     private collectionService: CollectionService,
     private databaseService: DatabaseService,
     private namespaceService: NamespaceService,
+    private recordService: RecordService,
     private snackBar: MatSnackBar,
     private userService: UserService,
   ) {
@@ -24,6 +31,10 @@ export class CrudSnackbarService {
     this.namespaceService.onCreate.subscribe(() => this.createMessage('Namespace'));
     this.namespaceService.onDelete.subscribe(() => this.deleteMessage('Namespace'));
     this.namespaceService.onUpdate.subscribe(() => this.updateMessage('Namespace'));
+
+    this.recordService.onCreate.subscribe(() => this.createMessage('Record'));
+    this.recordService.onDelete.subscribe(() => this.deleteMessage('Record'));
+    this.recordService.onUpdate.subscribe(() => this.updateMessage('Record'));
 
     this.userService.onCreate.subscribe(() => this.createMessage('User'));
     this.userService.onDelete.subscribe(() => this.deleteMessage('User'));
