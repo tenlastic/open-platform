@@ -94,11 +94,6 @@ export class CollectionsFormPageComponent implements OnInit {
       return;
     }
 
-    const permissions = this.collectionFormService.getPermissionsJsonFromRoles(
-      this.form.get('properties').value,
-      this.form.getRawValue().roles,
-    );
-
     const properties = this.form.get('properties').value.reduce((accumulator, property) => {
       accumulator[property.key] = this.collectionFormService.getJsonFromProperty(property);
       return accumulator;
@@ -109,13 +104,23 @@ export class CollectionsFormPageComponent implements OnInit {
       .value.filter(p => p.required)
       .map(p => p.key);
 
+    const jsonSchema = { properties, type: 'object' } as any;
+    if (required.length > 0) {
+      jsonSchema.required = required;
+    }
+
+    const permissions = this.collectionFormService.getPermissionsJsonFromRoles(
+      this.form.get('properties').value,
+      this.form.getRawValue().roles,
+    );
+
     const roles = this.form.getRawValue().roles.map(role => {
       return this.collectionFormService.getJsonFromRole(role, this.form.get('properties').value);
     });
 
     const values: Partial<Collection> = {
       databaseId: this.databaseId,
-      jsonSchema: { properties, required, type: 'object' },
+      jsonSchema,
       name: this.form.get('name').value,
       permissions: { ...permissions, roles },
     };

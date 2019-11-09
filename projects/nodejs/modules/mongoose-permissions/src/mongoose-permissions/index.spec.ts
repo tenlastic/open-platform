@@ -151,7 +151,7 @@ describe('permissions', function() {
         expect(record._id).to.exist;
         expect(record.createdAt).to.exist;
         expect(record.properties.age).to.exist;
-        expect(record.properties.name).to.not.exist;
+        expect(record.properties.name).to.exist;
         expect(record.name).to.exist;
         expect(record.updatedAt).to.exist;
       });
@@ -173,12 +173,32 @@ describe('permissions', function() {
     let record: ExampleDocument;
 
     beforeEach(async function() {
-      record = await Example.mock();
+      record = await Example.mock({
+        jsonSchema: {
+          properties: {
+            name: {
+              type: 'string',
+            },
+          },
+          type: 'object',
+        },
+        properties: {
+          name: chance.hash(),
+        },
+      });
     });
 
     context('when the user is an admin', function() {
       it('updates and returns the record', async function() {
         const params = {
+          jsonSchema: {
+            properties: {
+              age: {
+                type: 'number',
+              },
+            },
+            type: 'object',
+          },
           name: chance.hash(),
           properties: {
             age: chance.integer(),
@@ -186,12 +206,14 @@ describe('permissions', function() {
           },
         };
 
-        record = await ExamplePermissions.update(record, params, {}, admin);
+        record = await ExamplePermissions.update(record, params, {}, admin, ['properties']);
 
         expect(record._id.toString()).to.eql(record._id.toString());
         expect(record.createdAt).to.exist;
+        expect(record.jsonSchema.properties.age).to.eql(params.jsonSchema.properties.age);
+        expect(record.jsonSchema.properties.name).to.not.exist;
         expect(record.properties.age).to.eql(params.properties.age);
-        expect(record.properties.name).to.not.exist;
+        expect(record.properties.name).to.exist;
         expect(record.name).to.eql(params.name);
         expect(record.updatedAt).to.exist;
       });

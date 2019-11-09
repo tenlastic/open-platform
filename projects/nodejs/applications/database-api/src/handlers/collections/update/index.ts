@@ -18,6 +18,7 @@ export async function handler(ctx: Context) {
     ctx.request.body,
     override,
     ctx.state.user,
+    ['properties'],
   );
 
   ctx.response.body = { record: result };

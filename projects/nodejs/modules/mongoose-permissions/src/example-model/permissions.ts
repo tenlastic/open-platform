@@ -21,7 +21,7 @@ export const ExamplePermissions = new MongoosePermissions<ExampleDocument>(Examp
   read: {
     base: ['_id', 'createdAt', 'updatedAt'],
     roles: {
-      admin: ['properties.age', 'name'],
+      admin: ['jsonSchema.*', 'properties.age', 'properties.name', 'name'],
     },
   },
   roles: [
@@ -36,7 +36,7 @@ export const ExamplePermissions = new MongoosePermissions<ExampleDocument>(Examp
   ],
   update: {
     roles: {
-      admin: ['properties.age', 'name'],
+      admin: ['jsonSchema.*', 'properties.age', 'name'],
     },
   },
 });

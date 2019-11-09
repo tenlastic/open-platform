@@ -19,7 +19,7 @@
 
       <div class="row" *ngFor="let criterion of form.controls.criteria.controls; let i = index">
         <app-criterion-field
-          [fields]="propertyFields.concat(userFields)"
+          [fields]="recordFields.concat(propertyFields, userFields)"
           [form]="criterion"
           [operators]="criteriaOperators"
           [properties]="properties"

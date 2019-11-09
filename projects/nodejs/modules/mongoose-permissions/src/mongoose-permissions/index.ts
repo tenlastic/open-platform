@@ -170,6 +170,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     params: Partial<TDocument>,
     override: Partial<TDocument>,
     user: any,
+    merge: string[] = [],
   ) {
     const updatePermissions = this.accessControl.getFieldPermissions('update', record, user);
 
@@ -179,14 +180,15 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
 
     // Update record with authorized fields
     const filteredParams = filterObject(params, updatePermissions);
-    const overwriteMerge = (destinationArray, sourceArray) => sourceArray;
+    const arrayMerge = (destinationArray, sourceArray) => sourceArray;
+    const customMerge = key => (merge.includes(key) ? deepmerge : Object.assign);
     const mergedParams = deepmerge.all(
       [
         this.toPlainObject(record),
         this.toPlainObject(filteredParams),
         this.toPlainObject(override),
       ],
-      { arrayMerge: overwriteMerge },
+      { arrayMerge, customMerge },
     );
 
     Object.keys(mergedParams).forEach(key => (record[key] = mergedParams[key]));
