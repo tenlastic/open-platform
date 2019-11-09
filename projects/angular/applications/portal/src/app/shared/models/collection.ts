@@ -26,6 +26,7 @@ export namespace Collection {
     additionalProperties?: boolean;
     default?: any;
     format?: string;
+    items?: JsonSchemaProperty;
     properties?: JsonSchemaProperty;
     type?: string;
   }
