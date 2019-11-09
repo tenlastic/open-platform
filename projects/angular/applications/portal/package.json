@@ -10,7 +10,7 @@
     "e2e": "ng e2e",
     "lint": "ng lint",
     "ng": "ng",
-    "start": "ng serve --host 0.0.0.0 --live-reload-port 49154 --poll 500",
+    "start": "ng serve --host 0.0.0.0 --poll 500 --port 4201",
     "test": "ng test --poll 500",
     "test:ci": "ng test --watch=false"
   },

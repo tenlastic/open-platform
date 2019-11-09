@@ -41,6 +41,7 @@ describe('CollectionFormService', () => {
     it('returns an initialized FormGroup', () => {
       const formGroup = service.getDefaultPropertyFormGroup();
 
+      expect(formGroup.get('arrayType')).toBeTruthy();
       expect(formGroup.get('default')).toBeTruthy();
       expect(formGroup.get('key')).toBeTruthy();
       expect(formGroup.get('type')).toBeTruthy();
@@ -175,13 +176,27 @@ describe('CollectionFormService', () => {
   });
 
   describe('getFormGroupFromProperty()', () => {
-    it('returns an initialized FormGroup', () => {
-      const property = { default: 'default', type: 'string' };
-      const formGroup = service.getFormGroupFromProperty('key', property);
+    context('when the type is an array', () => {
+      it('returns an initialized FormGroup', () => {
+        const property = { items: { type: 'number' }, type: 'array' };
+        const formGroup = service.getFormGroupFromProperty('key', property);
 
-      expect(formGroup.get('default').value).toEqual('default');
-      expect(formGroup.get('key').value).toEqual('key');
-      expect(formGroup.get('type').value).toEqual('string');
+        expect(formGroup.get('arrayType').value).toEqual('number');
+        expect(formGroup.get('default').value).toBeFalsy();
+        expect(formGroup.get('key').value).toEqual('key');
+        expect(formGroup.get('type').value).toEqual('array');
+      });
+    });
+
+    context('when the type is not an array', () => {
+      it('returns an initialized FormGroup', () => {
+        const property = { default: 'default', type: 'string' };
+        const formGroup = service.getFormGroupFromProperty('key', property);
+
+        expect(formGroup.get('default').value).toEqual('default');
+        expect(formGroup.get('key').value).toEqual('key');
+        expect(formGroup.get('type').value).toEqual('string');
+      });
     });
   });
 
@@ -306,6 +321,31 @@ describe('CollectionFormService', () => {
   });
 
   describe('getJsonFromProperty()', () => {
+    context('when the type is an array', () => {
+      it('returns valid JSON', () => {
+        const property = service.getDefaultPropertyFormGroup();
+        property.patchValue({ arrayType: 'boolean', default: true, key: 'age', type: 'array' });
+
+        const json = service.getJsonFromProperty(property.value);
+
+        expect(json.default).toBeFalsy();
+        expect(json.items.type).toEqual('boolean');
+        expect(json.type).toEqual('array');
+      });
+    });
+
+    context('when the type is a boolean', () => {
+      it('returns valid JSON', () => {
+        const property = service.getDefaultPropertyFormGroup();
+        property.patchValue({ default: true, key: 'age', type: 'boolean' });
+
+        const json = service.getJsonFromProperty(property.value);
+
+        expect(json.default).toEqual(true);
+        expect(json.type).toEqual('boolean');
+      });
+    });
+
     context('when the type is a number', () => {
       it('returns valid JSON', () => {
         const property = service.getDefaultPropertyFormGroup();
@@ -318,7 +358,7 @@ describe('CollectionFormService', () => {
       });
     });
 
-    context('when the type is not a number', () => {
+    context('when the type is a string', () => {
       it('returns valid JSON', () => {
         const property = service.getDefaultPropertyFormGroup();
         property.patchValue({ default: 'test', key: 'name', type: 'string' });

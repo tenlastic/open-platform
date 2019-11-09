@@ -25,6 +25,7 @@ export interface PermissionsFormGroup {
 }
 
 export interface PropertyFormGroup {
+  arrayType?: string;
   default?: any;
   key?: string;
   type?: string;
@@ -59,6 +60,7 @@ export class CollectionFormService {
 
   public getDefaultPropertyFormGroup() {
     return this.formBuilder.group({
+      arrayType: 'boolean',
       default: false,
       key: ['', Validators.required],
       type: 'boolean',
@@ -138,10 +140,18 @@ export class CollectionFormService {
   }
 
   public getFormGroupFromProperty(key: string, property: Collection.JsonSchemaProperty) {
+    const type = property.type;
+
+    let arrayType = 'boolean';
+    if (type === 'array') {
+      arrayType = property.items.type;
+    }
+
     const options = {
+      arrayType: this.formBuilder.control(arrayType),
       default: this.formBuilder.control(property.default),
       key: this.formBuilder.control(key),
-      type: this.formBuilder.control(property.type),
+      type: this.formBuilder.control(type),
     };
 
     return this.formBuilder.group(options);
@@ -195,10 +205,11 @@ export class CollectionFormService {
   }
 
   public getJsonFromProperty(property: PropertyFormGroup): Collection.JsonSchemaProperty {
-    const o = {
-      default: property.default,
-      type: property.type,
-    };
+    const o = { type: property.type } as any;
+
+    if (o.type === 'array') {
+      o.items = { type: property.arrayType };
+    }
 
     switch (property.type) {
       case 'boolean':
