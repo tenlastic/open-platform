@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
 import { CollectionService, RecordService } from '@app/core/http';
@@ -39,6 +39,29 @@ export class RecordsFormPageComponent implements OnInit {
     });
   }
 
+  public addArrayItem(key: string) {
+    const formArray = this.form.controls[key] as FormArray;
+
+    switch (this.collection.jsonSchema.properties[key].items.type) {
+      case 'boolean':
+        formArray.push(this.formBuilder.control(false));
+        break;
+
+      case 'number':
+        formArray.push(this.formBuilder.control(0));
+        break;
+
+      case 'string':
+        formArray.push(this.formBuilder.control(''));
+        break;
+    }
+  }
+
+  public removeArrayItem(key: string, index: number) {
+    const formArray = this.form.controls[key] as FormArray;
+    formArray.removeAt(index);
+  }
+
   public async save() {
     if (this.form.invalid) {
       this.form.get('name').markAsTouched();
@@ -49,28 +72,12 @@ export class RecordsFormPageComponent implements OnInit {
     const properties = Object.entries(this.collection.jsonSchema.properties).reduce(
       (accumulator, [key, options]) => {
         const { type } = options as any;
-
-        let value = this.form.get(key).value;
-        switch (type) {
-          case 'boolean':
-            value = value ? value : false;
-            break;
-
-          case 'number':
-            value = value ? parseFloat(value) : 0;
-            break;
-
-          case 'string':
-            value = value ? value : '';
-            break;
-        }
-
-        accumulator[key] = value;
+        accumulator[key] = this.getValue(type, this.form.get(key).value);
 
         return accumulator;
       },
       {},
-    ) as any;
+    );
 
     const values = {
       collectionId: this.collection._id,
@@ -93,34 +100,52 @@ export class RecordsFormPageComponent implements OnInit {
     }
   }
 
+  private getValue(type: string, value: any) {
+    switch (type) {
+      case 'array':
+        return value ? value : [];
+
+      case 'boolean':
+        return value ? value : false;
+
+      case 'number':
+        return value ? value : 0;
+
+      case 'string':
+        return value ? value : '';
+    }
+  }
+
   private setupForm(): void {
     this.data = this.data || new Record();
 
+    const arrays = {};
     const options = {};
+
     if (this.collection.jsonSchema && this.collection.jsonSchema.properties) {
       Object.entries(this.collection.jsonSchema.properties).forEach(([key, property]) => {
+        const { required } = this.collection.jsonSchema;
         const { properties } = this.data;
         const { type } = property as any;
 
-        let value = null;
-        switch (type) {
-          case 'boolean':
-            value = properties && properties[key] ? properties[key] : false;
-            break;
+        const value = this.getValue(type, properties && properties[key] ? properties[key] : null);
 
-          case 'number':
-            value = properties && properties[key] ? properties[key].toString() : '0';
-            break;
-
-          case 'string':
-            value = properties && properties[key] ? properties[key] : '';
-            break;
+        const validators = [];
+        if (required && required.includes(key)) {
+          validators.push(Validators.required);
         }
 
-        options[key] = this.formBuilder.control(value);
+        if (property.type === 'array') {
+          arrays[key] = this.formBuilder.array(
+            properties && properties[key] ? properties[key] : [],
+          );
+        } else {
+          options[key] = this.formBuilder.control(value, validators);
+        }
       }, this);
     }
 
+    Object.keys(arrays).forEach(key => (options[key] = arrays[key]));
     this.form = this.formBuilder.group(options);
 
     this.form.valueChanges.subscribe(() => (this.error = null));

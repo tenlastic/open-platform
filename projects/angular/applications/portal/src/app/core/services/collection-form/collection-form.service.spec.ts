@@ -44,6 +44,7 @@ describe('CollectionFormService', () => {
       expect(formGroup.get('arrayType')).toBeTruthy();
       expect(formGroup.get('default')).toBeTruthy();
       expect(formGroup.get('key')).toBeTruthy();
+      expect(formGroup.get('required')).toBeTruthy();
       expect(formGroup.get('type')).toBeTruthy();
     });
   });
@@ -179,11 +180,12 @@ describe('CollectionFormService', () => {
     context('when the type is an array', () => {
       it('returns an initialized FormGroup', () => {
         const property = { items: { type: 'number' }, type: 'array' };
-        const formGroup = service.getFormGroupFromProperty('key', property);
+        const formGroup = service.getFormGroupFromProperty('key', property, false);
 
         expect(formGroup.get('arrayType').value).toEqual('number');
         expect(formGroup.get('default').value).toBeFalsy();
         expect(formGroup.get('key').value).toEqual('key');
+        expect(formGroup.get('required').value).toEqual(false);
         expect(formGroup.get('type').value).toEqual('array');
       });
     });
@@ -191,10 +193,11 @@ describe('CollectionFormService', () => {
     context('when the type is not an array', () => {
       it('returns an initialized FormGroup', () => {
         const property = { default: 'default', type: 'string' };
-        const formGroup = service.getFormGroupFromProperty('key', property);
+        const formGroup = service.getFormGroupFromProperty('key', property, true);
 
         expect(formGroup.get('default').value).toEqual('default');
         expect(formGroup.get('key').value).toEqual('key');
+        expect(formGroup.get('required').value).toEqual(true);
         expect(formGroup.get('type').value).toEqual('string');
       });
     });
