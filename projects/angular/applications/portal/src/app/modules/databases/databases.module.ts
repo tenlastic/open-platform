@@ -9,10 +9,10 @@ import { DatabasesListPageComponent } from './pages/list/list-page.component';
 export const ROUTES: Routes = [
   { path: '', component: DatabasesListPageComponent },
   {
-    path: ':databaseId/collections',
+    path: ':databaseName/collections',
     loadChildren: '../collections/collections.module#CollectionModule',
   },
-  { path: ':_id', component: DatabasesFormPageComponent },
+  { path: ':name', component: DatabasesFormPageComponent },
 ];
 
 @NgModule({

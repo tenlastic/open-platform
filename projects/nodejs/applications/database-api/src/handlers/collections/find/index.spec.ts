@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import {
   CollectionDocument,
   CollectionMock,
+  DatabaseDocument,
   DatabaseMock,
   ReadonlyNamespaceMock,
   ReadonlyUserDocument,
@@ -13,6 +14,7 @@ import {
 import { handler } from './';
 
 describe('handlers/collections/find', function() {
+  let database: DatabaseDocument;
   let record: CollectionDocument;
   let user: ReadonlyUserDocument;
 
@@ -21,13 +23,13 @@ describe('handlers/collections/find', function() {
 
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await ReadonlyNamespaceMock.create({ accessControlList: [userRoles] });
-    const database = await DatabaseMock.create({ namespaceId: namespace._id });
+    database = await DatabaseMock.create({ namespaceId: namespace._id });
     record = await CollectionMock.create({ databaseId: database._id });
   });
 
   it('returns the number of matching records', async function() {
     const ctx = new ContextMock({
-      params: { databaseId: record.databaseId },
+      params: { databaseName: database.name },
       state: { user: user.toObject() },
     });
 

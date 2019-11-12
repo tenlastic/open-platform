@@ -9,14 +9,18 @@ import { substituteReferenceValues } from '../substitute-reference-values';
 export function isJsonValid(json: any, query: any, and = true) {
   const substitutedQuery = substituteReferenceValues(query, json);
 
-  const results = Object.entries(substitutedQuery).map(([key, operations]) => {
+  const results = Object.keys(substitutedQuery).map(key => {
+    const operations = substitutedQuery[key];
+
     if (key === '$and') {
-      return isJsonValid(json, operations);
+      return operations.map(o => isJsonValid(json, o));
     } else if (key === '$or') {
-      return isJsonValid(json, operations, false);
+      return operations.map(o => isJsonValid(json, o, false));
     }
 
-    return Object.entries(operations).map(([operator, value]) => {
+    return Object.keys(operations).map(operator => {
+      const value = operations[operator];
+
       switch (operator) {
         case '$elemMatch':
           return $elemMatch(json, key, value);

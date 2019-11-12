@@ -176,6 +176,7 @@ describe('permissions', function() {
       record = await Example.mock({
         jsonSchema: {
           properties: {
+            fruits: ['apple', 'banana'],
             name: {
               type: 'string',
             },
@@ -196,6 +197,7 @@ describe('permissions', function() {
               age: {
                 type: 'number',
               },
+              fruits: ['cranberry'],
             },
             type: 'object',
           },
@@ -211,6 +213,7 @@ describe('permissions', function() {
         expect(record._id.toString()).to.eql(record._id.toString());
         expect(record.createdAt).to.exist;
         expect(record.jsonSchema.properties.age).to.eql(params.jsonSchema.properties.age);
+        expect(record.jsonSchema.properties.fruits).to.to.eql(params.jsonSchema.properties.fruits);
         expect(record.jsonSchema.properties.name).to.not.exist;
         expect(record.properties.age).to.eql(params.properties.age);
         expect(record.properties.name).to.exist;

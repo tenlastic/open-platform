@@ -35,7 +35,7 @@ describe('handlers/databases/update', function() {
     it('returns the record', async function() {
       const ctx = new ContextMock({
         params: {
-          id: record._id,
+          name: record.name,
         },
         request: {
           body: {
@@ -62,7 +62,7 @@ describe('handlers/databases/update', function() {
     it('throws an error', async function() {
       const ctx = new ContextMock({
         params: {
-          id: record._id,
+          name: record.name,
         },
         request: {
           body: {

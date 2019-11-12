@@ -33,7 +33,7 @@ describe('handlers/databases/find-one', function() {
     it('returns the record', async function() {
       const ctx = new ContextMock({
         params: {
-          id: record._id,
+          name: record.name,
         },
         state: { user: user.toObject() },
       });
@@ -54,7 +54,7 @@ describe('handlers/databases/find-one', function() {
     it('throws an error', async function() {
       const ctx = new ContextMock({
         params: {
-          id: record._id,
+          name: record.name,
         },
         state: { user: user.toObject() },
       });

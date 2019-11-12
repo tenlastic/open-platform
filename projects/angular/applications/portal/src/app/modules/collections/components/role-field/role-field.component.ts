@@ -16,6 +16,12 @@ export class RoleFieldComponent {
   @Output() public moveUp = new EventEmitter();
   @Output() public remove = new EventEmitter();
 
+  public get criteriaFields() {
+    const propertyFields = this.propertyFields.map(f => `record.${f}`);
+    const recordFields = this.recordFields.map(f => `record.${f}`);
+
+    return propertyFields.concat(recordFields, this.userFields).sort();
+  }
   public criteriaOperators = [{ label: 'Equals', value: '$eq' }];
   public findOperators = [
     { label: 'Equal', value: '$eq' },
@@ -28,7 +34,7 @@ export class RoleFieldComponent {
   public get propertyFields() {
     return this.validProperties.map(v => `properties.${v.key}`);
   }
-  public recordFields = ['_id', 'createdAt', 'updatedAt', 'userId'];
+  public recordFields = ['_id', 'userId'];
   public userFields = ['user._id', 'user.email', 'user.roles', 'user.username'];
   public get validProperties() {
     return this.properties.value.filter(v => v.key);

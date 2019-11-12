@@ -14,10 +14,10 @@ export class CollectionService {
 
   constructor(private apiService: ApiService) {}
 
-  public async create(parameters: Partial<Collection>): Promise<Collection> {
+  public async create(databaseName: string, parameters: Partial<Collection>): Promise<Collection> {
     const response = await this.apiService.request(
       'post',
-      `${this.basePath}/${parameters.databaseId}/collections`,
+      `${this.basePath}/${databaseName}/collections`,
       parameters,
     );
 
@@ -27,10 +27,10 @@ export class CollectionService {
     return record;
   }
 
-  public async delete(databaseId: string, _id: string): Promise<Collection> {
+  public async delete(databaseName: string, name: string): Promise<Collection> {
     const response = await this.apiService.request(
       'delete',
-      `${this.basePath}/${databaseId}/collections/${_id}`,
+      `${this.basePath}/${databaseName}/collections/${name}`,
     );
 
     const record = new Collection(response.record);
@@ -39,29 +39,29 @@ export class CollectionService {
     return record;
   }
 
-  public async find(databaseId: string, parameters: RestParameters): Promise<Collection[]> {
+  public async find(databaseName: string, parameters: RestParameters): Promise<Collection[]> {
     const response = await this.apiService.request(
       'get',
-      `${this.basePath}/${databaseId}/collections`,
+      `${this.basePath}/${databaseName}/collections`,
       parameters,
     );
 
     return response.records.map(record => new Collection(record));
   }
 
-  public async findOne(databaseId: string, _id: string): Promise<Collection> {
+  public async findOne(databaseName: string, name: string): Promise<Collection> {
     const response = await this.apiService.request(
       'get',
-      `${this.basePath}/${databaseId}/collections/${_id}`,
+      `${this.basePath}/${databaseName}/collections/${name}`,
     );
 
     return new Collection(response.record);
   }
 
-  public async update(parameters: Partial<Collection>): Promise<Collection> {
+  public async update(databaseName: string, parameters: Partial<Collection>): Promise<Collection> {
     const response = await this.apiService.request(
       'put',
-      `${this.basePath}/${parameters.databaseId}/collections/${parameters._id}`,
+      `${this.basePath}/${databaseName}/collections/${parameters.name}`,
       parameters,
     );
 

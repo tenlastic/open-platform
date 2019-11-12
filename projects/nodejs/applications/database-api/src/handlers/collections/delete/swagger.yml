@@ -1,5 +1,5 @@
 paths:
-  /databases/{databaseId}/collections/{id}:
+  /databases/{databaseName}/collections/{name}:
     delete:
       summary: Delete
       tags: [Collections]
@@ -8,12 +8,12 @@ paths:
         - AccessToken: []
       parameters:
         - in: path
-          name: databaseId
+          name: databaseName
           schema:
             type: string
           required: true
         - in: path
-          name: id
+          name: name
           schema:
             type: string
           required: true

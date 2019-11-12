@@ -5,11 +5,11 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { RecordService } from '@app/core/http';
+import { CollectionService, DatabaseService, RecordService } from '@app/core/http';
 import { IdentityService } from '@app/core/services';
 import { PromptComponent } from '@app/shared/components';
 import { TITLE } from '@app/shared/constants';
-import { Record } from '@app/shared/models';
+import { Collection, Database, Record } from '@app/shared/models';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -21,15 +21,17 @@ export class RecordsListPageComponent implements OnInit {
   @ViewChild(MatTable) table: MatTable<Record>;
 
   public dataSource: MatTableDataSource<Record>;
-  public displayedColumns: string[] = ['_id', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns: string[] = ['_id', 'actions'];
   public search = '';
 
-  private collectionId: string;
-  private databaseId: string;
+  private collection: Collection;
+  private database: Database;
   private subject: Subject<string> = new Subject();
 
   constructor(
     public activatedRoute: ActivatedRoute,
+    public collectionService: CollectionService,
+    public databaseService: DatabaseService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private recordService: RecordService,
@@ -38,8 +40,11 @@ export class RecordsListPageComponent implements OnInit {
 
   ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
-      this.collectionId = params.get('collectionId');
-      this.databaseId = params.get('databaseId');
+      const databaseName = params.get('databaseName');
+      this.database = await this.databaseService.findOne(databaseName);
+
+      const collectionName = params.get('collectionName');
+      this.collection = await this.collectionService.findOne(this.database.name, collectionName);
 
       this.titleService.setTitle(`${TITLE} | Records`);
       this.fetchRecords();
@@ -67,7 +72,7 @@ export class RecordsListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.recordService.delete(this.databaseId, this.collectionId, record._id);
+        await this.recordService.delete(this.database.name, this.collection.name, record._id);
         this.deleteRecord(record);
       }
     });
@@ -78,7 +83,7 @@ export class RecordsListPageComponent implements OnInit {
   }
 
   private async fetchRecords() {
-    const records = await this.recordService.find(this.databaseId, this.collectionId, {
+    const records = await this.recordService.find(this.database.name, this.collection.name, {
       sort: '_id',
     });
 

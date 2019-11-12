@@ -2,15 +2,24 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 
-import { CollectionDocument, CollectionMock, RecordSchema } from '../../../models';
+import {
+  CollectionDocument,
+  CollectionMock,
+  DatabaseDocument,
+  DatabaseMock,
+  RecordSchema,
+} from '../../../models';
 import { handler } from './';
 
 describe('handlers/records/count', function() {
   let collection: CollectionDocument;
+  let database: DatabaseDocument;
   let user: any;
 
   beforeEach(async function() {
+    database = await DatabaseMock.create();
     collection = await CollectionMock.create({
+      databaseId: database._id,
       jsonSchema: {
         type: 'object',
       },
@@ -42,8 +51,8 @@ describe('handlers/records/count', function() {
 
     const ctx = new ContextMock({
       params: {
-        collectionId: collection._id.toString(),
-        databaseId: collection.databaseId.toString(),
+        collectionName: collection.name,
+        databaseName: database.name,
       },
       state: { user },
     });

@@ -12,9 +12,9 @@ export const router = new Router({ prefix: '/databases' });
 
 router.use(authenticationMiddleware);
 
-router.delete('/:id', deleteHandler);
+router.delete('/:name', deleteHandler);
 router.get('/', findHandler);
 router.get('/count', countHandler);
-router.get('/:id', findOneHandler);
+router.get('/:name', findOneHandler);
 router.post('/', createHandler);
-router.put('/:id', updateHandler);
+router.put('/:name', updateHandler);

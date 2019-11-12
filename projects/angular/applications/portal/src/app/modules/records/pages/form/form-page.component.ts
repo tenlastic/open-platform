@@ -1,9 +1,9 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
-import { CollectionService, RecordService } from '@app/core/http';
-import { Collection, Record } from '@app/shared/models';
+import { CollectionService, DatabaseService, RecordService } from '@app/core/http';
+import { Collection, Database, Record } from '@app/shared/models';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -15,24 +15,32 @@ export class RecordsFormPageComponent implements OnInit {
   public form: FormGroup;
 
   private data: Record;
+  private database: Database;
 
   constructor(
     private activatedRouter: ActivatedRoute,
     private collectionService: CollectionService,
+    private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
     private recordService: RecordService,
   ) {}
 
   public ngOnInit() {
     this.activatedRouter.paramMap.subscribe(async params => {
-      const _id = params.get('_id');
-      const collectionId = params.get('collectionId');
-      const databaseId = params.get('databaseId');
+      const name = params.get('name');
 
-      this.collection = await this.collectionService.findOne(databaseId, collectionId);
+      const databaseName = params.get('databaseName');
+      this.database = await this.databaseService.findOne(databaseName);
 
-      if (_id !== 'new') {
-        this.data = await this.recordService.findOne(databaseId, collectionId, _id);
+      const collectionName = params.get('collectionName');
+      this.collection = await this.collectionService.findOne(this.database.name, collectionName);
+
+      if (name !== 'new') {
+        this.data = await this.recordService.findOne(
+          this.database.name,
+          this.collection.name,
+          name,
+        );
       }
 
       this.setupForm();
@@ -94,7 +102,7 @@ export class RecordsFormPageComponent implements OnInit {
 
   private async create(data: Partial<Record>) {
     try {
-      await this.recordService.create(data);
+      await this.recordService.create(this.database.name, this.collection.name, data);
     } catch (e) {
       this.error = 'That name is already taken.';
     }
@@ -155,7 +163,7 @@ export class RecordsFormPageComponent implements OnInit {
     data._id = this.data._id;
 
     try {
-      await this.recordService.update(data);
+      await this.recordService.update(this.database.name, this.collection.name, data);
     } catch (e) {
       this.error = 'That name is already taken.';
     }

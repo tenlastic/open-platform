@@ -2,16 +2,26 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 
-import { CollectionDocument, CollectionMock, RecordDocument, RecordSchema } from '../../../models';
+import {
+  CollectionDocument,
+  CollectionMock,
+  DatabaseDocument,
+  DatabaseMock,
+  RecordDocument,
+  RecordSchema,
+} from '../../../models';
 import { handler } from './';
 
 describe('handlers/records/delete', function() {
   let collection: CollectionDocument;
+  let database: DatabaseDocument;
   let record: RecordDocument;
   let user: any;
 
   beforeEach(async function() {
+    database = await DatabaseMock.create();
     collection = await CollectionMock.create({
+      databaseId: database._id,
       permissions: {
         create: {},
         delete: {
@@ -40,9 +50,9 @@ describe('handlers/records/delete', function() {
   it('returns the matching record', async function() {
     const ctx = new ContextMock({
       params: {
-        collectionId: collection._id.toString(),
-        databaseId: collection.databaseId.toString(),
-        id: record._id.toString(),
+        _id: record._id.toString(),
+        collectionName: collection.name,
+        databaseName: database.name,
       },
       state: { user },
     });

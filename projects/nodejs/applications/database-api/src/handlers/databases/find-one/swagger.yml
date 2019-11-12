@@ -1,5 +1,5 @@
 paths:
-  /databases/{id}:
+  /databases/{name}:
     get:
       summary: Find One
       tags: [Databases]
@@ -8,7 +8,7 @@ paths:
         - AccessToken: []
       parameters:
         - in: path
-          name: id
+          name: name
           schema:
             type: string
           required: true

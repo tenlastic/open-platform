@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
-import { CollectionService } from '@app/core/http';
+import { CollectionService, DatabaseService } from '@app/core/http';
 import { CollectionFormService, IdentityService } from '@app/core/services';
-import { Collection } from '@app/shared/models';
+import { Collection, Database } from '@app/shared/models';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -15,23 +15,26 @@ export class CollectionsFormPageComponent implements OnInit {
   public error: string;
   public form: FormGroup;
 
-  private databaseId: string;
+  private database: Database;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private collectionService: CollectionService,
     private collectionFormService: CollectionFormService,
+    private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
-      const _id = params.get('_id');
-      this.databaseId = params.get('databaseId');
+      const name = params.get('name');
 
-      if (_id !== 'new') {
-        this.data = await this.collectionService.findOne(this.databaseId, _id);
+      const databaseName = params.get('databaseName');
+      this.database = await this.databaseService.findOne(databaseName);
+
+      if (name !== 'new') {
+        this.data = await this.collectionService.findOne(this.database.name, name);
       }
 
       this.setupForm();
@@ -119,7 +122,7 @@ export class CollectionsFormPageComponent implements OnInit {
     });
 
     const values: Partial<Collection> = {
-      databaseId: this.databaseId,
+      databaseId: this.database._id,
       jsonSchema,
       name: this.form.get('name').value,
       permissions: { ...permissions, roles },
@@ -134,7 +137,7 @@ export class CollectionsFormPageComponent implements OnInit {
 
   private async create(data: Partial<Collection>) {
     try {
-      await this.collectionService.create(data);
+      await this.collectionService.create(this.database.name, data);
     } catch (e) {
       this.error = 'That name is already taken.';
     }
@@ -201,7 +204,7 @@ export class CollectionsFormPageComponent implements OnInit {
     data._id = this.data._id;
 
     try {
-      await this.collectionService.update(data);
+      await this.collectionService.update(this.database.name, data);
     } catch (e) {
       this.error = 'That name is already taken.';
     }

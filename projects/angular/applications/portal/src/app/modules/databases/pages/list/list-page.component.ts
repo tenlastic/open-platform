@@ -59,7 +59,7 @@ export class DatabasesListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.databaseService.delete(record._id);
+        await this.databaseService.delete(record.name);
         this.deleteDatabase(record);
       }
     });
