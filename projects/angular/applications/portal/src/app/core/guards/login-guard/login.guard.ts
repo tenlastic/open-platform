@@ -20,9 +20,13 @@ export class LoginGuard implements CanActivate {
         await this.loginService.createWithRefreshToken(this.identityService.refreshToken);
 
         if (this.selectedNamespaceService.namespaceId) {
-          this.selectedNamespaceService.namespace = await this.namespaceService.findOne(
-            this.selectedNamespaceService.namespaceId,
-          );
+          try {
+            this.selectedNamespaceService.namespace = await this.namespaceService.findOne(
+              this.selectedNamespaceService.namespaceId,
+            );
+          } catch {
+            this.selectedNamespaceService.namespace = null;
+          }
         }
       } catch {
         this.router.navigateByUrl('/login');

@@ -2,15 +2,24 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 
-import { CollectionDocument, CollectionMock, RecordSchema } from '../../../models';
+import {
+  CollectionDocument,
+  CollectionMock,
+  DatabaseDocument,
+  DatabaseMock,
+  RecordSchema,
+} from '../../../models';
 import { handler } from './';
 
 describe('handlers/records/find', function() {
   let collection: CollectionDocument;
+  let database: DatabaseDocument;
   let user: any;
 
   beforeEach(async function() {
+    database = await DatabaseMock.create();
     collection = await CollectionMock.create({
+      databaseId: database._id,
       jsonSchema: {
         properties: {
           insertedAt: { type: 'string', format: 'date-time' },
@@ -45,8 +54,8 @@ describe('handlers/records/find', function() {
 
     const ctx = new ContextMock({
       params: {
-        collectionId: collection._id.toString(),
-        databaseId: collection.databaseId.toString(),
+        collectionName: collection.name,
+        databaseName: database.name,
       },
       state: { user },
     });
@@ -59,7 +68,7 @@ describe('handlers/records/find', function() {
 
   it('properly handles Dates', async function() {
     const Model = RecordSchema.getModelForClass(collection);
-    const record = await Model.create({
+    await Model.create({
       collectionId: collection.id,
       databaseId: collection.databaseId,
       properties: {
@@ -71,8 +80,8 @@ describe('handlers/records/find', function() {
     const ONE_HOUR = 60 * 60 * 1000;
     const ctx = new ContextMock({
       params: {
-        collectionId: collection._id.toString(),
-        databaseId: collection.databaseId.toString(),
+        collectionName: collection.name,
+        databaseName: database.name,
       },
       request: {
         query: {

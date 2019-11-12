@@ -182,6 +182,13 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     const filteredParams = filterObject(params, updatePermissions);
     const arrayMerge = (destinationArray, sourceArray) => sourceArray;
     const customMerge = key => (merge.includes(key) ? deepmerge : Object.assign);
+    // const customMerge = key => {
+    //   if (merge.includes(key)) {
+    //     return (a, b) => deepmerge(a, b, { arrayMerge });
+    //   } else {
+    //     return Object.assign;
+    //   }
+    // };
     const mergedParams = deepmerge.all(
       [
         this.toPlainObject(record),

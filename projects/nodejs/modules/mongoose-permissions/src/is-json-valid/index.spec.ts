@@ -14,10 +14,7 @@ describe('is-json-valid', function() {
           },
         };
         const query = {
-          $and: {
-            'user.age': { $eq: 5 },
-            'user.name': { $eq: 'Test User' },
-          },
+          $and: [{ 'user.age': { $eq: 5 } }, { 'user.name': { $eq: 'Test User' } }],
         };
 
         const result = isJsonValid(json, query);
@@ -33,10 +30,7 @@ describe('is-json-valid', function() {
           },
         };
         const query = {
-          $and: {
-            'user.age': { $eq: 1 },
-            'user.name': { $eq: 'Test User' },
-          },
+          $and: [{ 'user.age': { $eq: 1 } }, { 'user.name': { $eq: 'Test User' } }],
         };
 
         const result = isJsonValid(json, query);
@@ -354,13 +348,10 @@ describe('is-json-valid', function() {
           },
         };
         const query = {
-          $or: {
-            'user.age': { $eq: 1 },
-            'user.name': { $eq: 'Test User' },
-          },
+          $or: [{ 'user.age': { $eq: 1 } }, { 'user.name': { $eq: 'Test User' } }],
         };
 
-        const result = isJsonValid(json, query);
+        const result = isJsonValid(json, query, false);
 
         expect(result).to.eql(true);
       });
@@ -373,13 +364,10 @@ describe('is-json-valid', function() {
           },
         };
         const query = {
-          $or: {
-            'user.age': { $eq: 1 },
-            'user.name': { $eq: 'Another User' },
-          },
+          $or: [{ 'user.age': { $eq: 1 } }, { 'user.name': { $eq: 'Another User' } }],
         };
 
-        const result = isJsonValid(json, query);
+        const result = isJsonValid(json, query, false);
 
         expect(result).to.eql(false);
       });

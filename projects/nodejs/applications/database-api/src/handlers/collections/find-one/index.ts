@@ -1,11 +1,15 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { CollectionPermissions } from '../../../models';
+import { CollectionPermissions, Database } from '../../../models';
 
 export async function handler(ctx: Context) {
-  const override = { where: { _id: ctx.params.id, databaseId: ctx.params.databaseId } };
-  const result = await CollectionPermissions.findOne({}, override, ctx.state.user);
+  const database = await Database.findOne({ name: ctx.params.databaseName });
+  if (!database) {
+    throw new RecordNotFoundError('Database');
+  }
 
+  const override = { where: { databaseId: database._id, name: ctx.params.name } };
+  const result = await CollectionPermissions.findOne({}, override, ctx.state.user);
   if (!result) {
     throw new RecordNotFoundError('Collection');
   }

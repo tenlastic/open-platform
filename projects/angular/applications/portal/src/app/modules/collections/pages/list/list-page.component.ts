@@ -5,11 +5,11 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { CollectionService } from '@app/core/http';
+import { CollectionService, DatabaseService } from '@app/core/http';
 import { IdentityService } from '@app/core/services';
 import { PromptComponent } from '@app/shared/components';
 import { TITLE } from '@app/shared/constants';
-import { Collection } from '@app/shared/models';
+import { Collection, Database } from '@app/shared/models';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -24,12 +24,13 @@ export class CollectionsListPageComponent implements OnInit {
   public displayedColumns: string[] = ['name', 'createdAt', 'updatedAt', 'actions'];
   public search = '';
 
-  private databaseId: string;
+  private database: Database;
   private subject: Subject<string> = new Subject();
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private collectionService: CollectionService,
+    private databaseService: DatabaseService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private titleService: Title,
@@ -37,7 +38,8 @@ export class CollectionsListPageComponent implements OnInit {
 
   ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
-      this.databaseId = params.get('databaseId');
+      const databaseName = params.get('databaseName');
+      this.database = await this.databaseService.findOne(databaseName);
 
       this.titleService.setTitle(`${TITLE} | Collections`);
       this.fetchCollections();
@@ -65,7 +67,7 @@ export class CollectionsListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.collectionService.delete(this.databaseId, record._id);
+        await this.collectionService.delete(this.database.name, record.name);
         this.deleteCollection(record);
       }
     });
@@ -76,7 +78,7 @@ export class CollectionsListPageComponent implements OnInit {
   }
 
   private async fetchCollections() {
-    const records = await this.collectionService.find(this.databaseId, { sort: 'name' });
+    const records = await this.collectionService.find(this.database.name, { sort: 'name' });
 
     this.dataSource = new MatTableDataSource<Collection>(records);
     this.dataSource.paginator = this.paginator;

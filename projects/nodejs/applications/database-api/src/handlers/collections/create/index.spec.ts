@@ -30,7 +30,7 @@ describe('handlers/collections/create', function() {
 
       const ctx = new ContextMock({
         params: {
-          databaseId: database._id,
+          databaseName: database.name,
         },
         request: {
           body: {
@@ -53,7 +53,7 @@ describe('handlers/collections/create', function() {
 
       const ctx = new ContextMock({
         params: {
-          databaseId: database._id,
+          databaseName: database.name,
         },
         request: {
           body: {

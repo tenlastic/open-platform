@@ -6,6 +6,7 @@ import * as Chance from 'chance';
 import {
   CollectionDocument,
   CollectionMock,
+  DatabaseDocument,
   DatabaseMock,
   ReadonlyNamespaceMock,
   ReadonlyUserDocument,
@@ -25,20 +26,21 @@ describe('handlers/collections/update', function() {
   });
 
   context('when permission is granted', function() {
+    let database: DatabaseDocument;
     let record: CollectionDocument;
 
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await ReadonlyNamespaceMock.create({ accessControlList: [userRoles] });
-      const database = await DatabaseMock.create({ namespaceId: namespace._id });
+      database = await DatabaseMock.create({ namespaceId: namespace._id });
       record = await CollectionMock.create({ databaseId: database._id });
     });
 
     it('returns the record', async function() {
       const ctx = new ContextMock({
         params: {
-          databaseId: record.databaseId,
-          id: record._id,
+          databaseName: database.name,
+          name: record.name,
         },
         request: {
           body: {
@@ -55,17 +57,19 @@ describe('handlers/collections/update', function() {
   });
 
   context('when permission is denied', function() {
+    let database: DatabaseDocument;
     let record: CollectionDocument;
 
     beforeEach(async function() {
-      record = await CollectionMock.create();
+      database = await DatabaseMock.create();
+      record = await CollectionMock.create({ databaseId: database._id });
     });
 
     it('throws an error', async function() {
       const ctx = new ContextMock({
         params: {
-          databaseId: record.databaseId,
-          id: record._id,
+          databaseName: database.name,
+          name: record.name,
         },
         request: {
           body: {

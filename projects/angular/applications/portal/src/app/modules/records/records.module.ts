@@ -8,7 +8,7 @@ import { RecordsListPageComponent } from './pages/list/list-page.component';
 
 export const ROUTES: Routes = [
   { path: '', component: RecordsListPageComponent },
-  { path: ':_id', component: RecordsFormPageComponent },
+  { path: ':name', component: RecordsFormPageComponent },
 ];
 
 @NgModule({

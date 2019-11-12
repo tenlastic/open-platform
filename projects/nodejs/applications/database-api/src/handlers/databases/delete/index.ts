@@ -3,7 +3,7 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import { Database, DatabasePermissions } from '../../../models';
 
 export async function handler(ctx: Context) {
-  const where = await DatabasePermissions.where({ _id: ctx.params.id }, ctx.state.user);
+  const where = await DatabasePermissions.where({ name: ctx.params.name }, ctx.state.user);
   const record = await Database.findOne(where).populate(
     DatabasePermissions.accessControl.options.populate,
   );

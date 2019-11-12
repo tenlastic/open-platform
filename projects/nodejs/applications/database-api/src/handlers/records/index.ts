@@ -9,14 +9,14 @@ import { handler as findOneHandler } from './find-one';
 import { handler as updateHandler } from './update';
 
 export const router = new Router({
-  prefix: '/databases/:databaseId/collections/:collectionId/records',
+  prefix: '/databases/:databaseName/collections/:collectionName/records',
 });
 
 router.use(authenticationMiddleware);
 
-router.delete('/:id', deleteHandler);
+router.delete('/:_id', deleteHandler);
 router.get('/', findHandler);
 router.get('/count', countHandler);
-router.get('/:id', findOneHandler);
+router.get('/:_id', findOneHandler);
 router.post('/', createHandler);
-router.put('/:id', updateHandler);
+router.put('/:_id', updateHandler);

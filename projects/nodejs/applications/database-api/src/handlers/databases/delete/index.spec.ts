@@ -33,7 +33,7 @@ describe('handlers/databases/delete', function() {
     it('returns the deleted record', async function() {
       const ctx = new ContextMock({
         params: {
-          id: record._id,
+          name: record.name,
         },
         state: { user: user.toObject() },
       });
@@ -54,7 +54,7 @@ describe('handlers/databases/delete', function() {
     it('throws an error', async function() {
       const ctx = new ContextMock({
         params: {
-          id: record._id,
+          name: record.name,
         },
         state: { user: user.toObject() },
       });

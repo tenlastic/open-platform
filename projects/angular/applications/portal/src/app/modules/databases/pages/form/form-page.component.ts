@@ -25,10 +25,10 @@ export class DatabasesFormPageComponent implements OnInit {
 
   public ngOnInit() {
     this.activatedRouter.paramMap.subscribe(async params => {
-      const _id = params.get('_id');
+      const name = params.get('name');
 
-      if (_id !== 'new') {
-        this.data = await this.databaseService.findOne(_id);
+      if (name !== 'new') {
+        this.data = await this.databaseService.findOne(name);
       }
 
       this.setupForm();

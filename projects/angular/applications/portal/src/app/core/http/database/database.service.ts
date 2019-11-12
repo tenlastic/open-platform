@@ -38,8 +38,8 @@ export class DatabaseService {
     return response.records.map(record => new Database(record));
   }
 
-  public async findOne(_id: string): Promise<Database> {
-    const response = await this.apiService.request('get', `${this.basePath}/${_id}`, null);
+  public async findOne(name: string): Promise<Database> {
+    const response = await this.apiService.request('get', `${this.basePath}/${name}`, null);
 
     return new Database(response.record);
   }
