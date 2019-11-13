@@ -44,7 +44,7 @@ export class NamespaceSchema {
 
   public createdAt: Date;
 
-  @prop({ match: /^[0-9a-z\-]{6,40}$/, required: true })
+  @prop({ match: /^[0-9a-z\-]{2,40}$/, required: true })
   public name: string;
 
   public updatedAt: Date;

@@ -51,7 +51,7 @@ export class CollectionSchema {
   })
   public jsonSchema: any;
 
-  @prop({ match: /^[0-9a-z\-]{6,40}$/, required: 'true' })
+  @prop({ match: /^[0-9a-z\-]{2,40}$/, required: 'true' })
   public name: string;
 
   @prop({
