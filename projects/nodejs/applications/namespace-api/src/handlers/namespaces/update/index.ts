@@ -12,7 +12,19 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Namespace');
   }
 
-  const result = await NamespacePermissions.update(record, ctx.request.body, {}, ctx.state.user);
+  const { accessControlList } = record ? record : ctx.request.body;
+  const { user } = ctx.state;
+
+  const override = {
+    accessControlList: Namespace.getDefaultAccessControlList(accessControlList, user) as any,
+  };
+
+  const result = await NamespacePermissions.update(
+    record,
+    ctx.request.body,
+    override,
+    ctx.state.user,
+  );
 
   ctx.response.body = { record: result };
 }

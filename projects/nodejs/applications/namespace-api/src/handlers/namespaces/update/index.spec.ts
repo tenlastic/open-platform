@@ -31,13 +31,14 @@ describe('handlers/namespaces/update', function() {
       record = await NamespaceMock.create({ accessControlList: [userRole] });
     });
 
-    it('returns the deleted record', async function() {
+    it('returns the updated record', async function() {
       const ctx = new ContextMock({
         params: {
           id: record._id,
         },
         request: {
           body: {
+            accessControlList: [],
             name: chance.hash(),
           },
         },
@@ -47,6 +48,10 @@ describe('handlers/namespaces/update', function() {
       await handler(ctx as any);
 
       expect(ctx.response.body.record).to.exist;
+
+      const accessControlList = ctx.response.body.record.accessControlList[0];
+      expect(accessControlList.roles).to.eql(['Administrator']);
+      expect(accessControlList.userId.toString()).to.eql(user._id.toString());
     });
   });
 
