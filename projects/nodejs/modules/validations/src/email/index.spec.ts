@@ -1,17 +1,17 @@
 import { expect } from 'chai';
 
-import { alphanumericValidator } from './alphanumeric.validator';
+import { emailValidator } from './';
 
-describe('validators/alphanumeric', function() {
+describe('validators/email', function() {
   describe('validator', function() {
     it('returns true', function() {
-      const result = alphanumericValidator.validator('Aa1');
+      const result = emailValidator.validator('test@example.com');
 
       expect(result).to.eql(true);
     });
 
     it('returns false', function() {
-      const result = alphanumericValidator.validator('Aa1!@#');
+      const result = emailValidator.validator('a@b.c');
 
       expect(result).to.eql(false);
     });

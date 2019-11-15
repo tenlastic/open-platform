@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { stringLengthValidator } from './string-length.validator';
+import { stringLengthValidator } from './';
 
 describe('validators/string-length', function() {
   describe('msg', function() {

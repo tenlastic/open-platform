@@ -66,5 +66,6 @@ export async function subscribe(
           break;
       }
     },
+    partitionsConsumedConcurrently: 3,
   });
 }

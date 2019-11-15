@@ -12,6 +12,7 @@ import {
 } from '@hasezoey/typegoose';
 import * as jsonSchema from '@tenlastic/json-schema';
 import { IOptions } from '@tenlastic/mongoose-permissions';
+import { jsonSchemaPropertiesValidator } from '@tenlastic/validations';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
@@ -48,6 +49,7 @@ export class CollectionSchema {
     default: JSON.stringify({ type: 'object' }),
     get: value => (typeof value === 'string' ? JSON.parse(value) : value),
     set: value => (typeof value === 'string' ? value : JSON.stringify(value)),
+    validate: jsonSchemaPropertiesValidator,
   })
   public jsonSchema: any;
 

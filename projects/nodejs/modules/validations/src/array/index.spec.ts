@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import { stringLengthValidator } from '../';
-import { arrayValidator } from './array.validator';
+import { arrayValidator } from './';
 
 describe('validators/array', function() {
   describe('validator', function() {
