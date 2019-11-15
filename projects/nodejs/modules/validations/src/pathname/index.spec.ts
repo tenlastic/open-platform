@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { pathnameValidator } from './pathname.validator';
+import { pathnameValidator } from './';
 
 describe('validators/pathname', function() {
   describe('validator', function() {

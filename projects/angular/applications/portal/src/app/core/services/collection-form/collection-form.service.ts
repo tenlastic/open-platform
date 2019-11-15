@@ -63,7 +63,7 @@ export class CollectionFormService {
     return this.formBuilder.group({
       arrayType: 'boolean',
       default: false,
-      key: ['', Validators.required],
+      key: ['', [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
       required: false,
       type: 'boolean',
     });

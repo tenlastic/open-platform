@@ -1,8 +1,11 @@
-import { expect } from 'chai';
+import { expect, use } from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
 import { CollectionMock } from './model.mock';
+
+use(chaiAsPromised);
 
 describe('models/collection/model', function() {
   let sandbox: sinon.SinonSandbox;
@@ -13,6 +16,31 @@ describe('models/collection/model', function() {
 
   afterEach(function() {
     sandbox.restore();
+  });
+
+  describe('jsonSchema', function() {
+    it('does not return an error', async function() {
+      const record = await CollectionMock.create({
+        jsonSchema: {
+          additionalProperties: false,
+          properties: {
+            name: { type: 'string' },
+          },
+          required: ['name'],
+          type: 'object',
+        },
+      });
+
+      expect(record).to.exist;
+    });
+
+    it('returns an error', function() {
+      const promise = CollectionMock.create({
+        jsonSchema: '{a:123}',
+      });
+
+      expect(promise).to.be.rejected;
+    });
   });
 
   describe('setValidator()', function() {

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { arrayLengthValidator } from './array-length.validator';
+import { arrayLengthValidator } from './';
 
 describe('validators/array-length', function() {
   describe('validator', function() {

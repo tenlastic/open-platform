@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { urlValidator } from './url.validator';
+import { urlValidator } from './';
 
 describe('validators/url', function() {
   describe('validator', function() {

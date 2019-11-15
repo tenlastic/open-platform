@@ -19,7 +19,7 @@ export async function subscribe(
 ) {
   await createTopic(options.topic);
 
-  const consumer = connection.consumer({ groupId: options.group });
+  const consumer = connection.consumer({ groupId: `${options.group}-${options.topic}` });
   await consumer.connect();
 
   await consumer.subscribe({ fromBeginning: true, topic: options.topic });
@@ -28,42 +28,46 @@ export async function subscribe(
       const value = data.message.value.toString();
       const json = JSON.parse(value) as IDatabasePayload<mongoose.Model<mongoose.Document>>;
 
-      switch (json.operationType) {
-        case 'delete':
-          await Model.findOneAndDelete(json.documentKey);
-          break;
+      try {
+        switch (json.operationType) {
+          case 'delete':
+            await Model.findOneAndDelete(json.documentKey);
+            break;
 
-        case 'insert':
-          await Model.create(json.fullDocument);
-          break;
+          case 'insert':
+            await Model.create(json.fullDocument);
+            break;
 
-        case 'update':
-          if (options.useUpdateDescription) {
-            const { removedFields, updatedFields } = json.updateDescription;
-            const update: any = {};
+          case 'update':
+            if (options.useUpdateDescription) {
+              const { removedFields, updatedFields } = json.updateDescription;
+              const update: any = {};
 
-            if (removedFields && removedFields.length > 0) {
-              update.$unset = json.updateDescription.removedFields.reduce(
-                (agg: any, field: string) => {
-                  agg[field] = '';
-                  return agg;
-                },
-                {},
-              );
+              if (removedFields && removedFields.length > 0) {
+                update.$unset = json.updateDescription.removedFields.reduce(
+                  (agg: any, field: string) => {
+                    agg[field] = '';
+                    return agg;
+                  },
+                  {},
+                );
+              }
+
+              if (updatedFields && Object.keys(updatedFields).length > 0) {
+                update.$set = json.updateDescription.updatedFields;
+              }
+
+              if (update.$set || update.$unset) {
+                await Model.findOneAndUpdate(json.documentKey, update, { upsert: true });
+              }
+            } else {
+              await Model.findOneAndUpdate(json.documentKey, json.fullDocument, { upsert: true });
             }
 
-            if (updatedFields && Object.keys(updatedFields).length > 0) {
-              update.$set = json.updateDescription.updatedFields;
-            }
-
-            if (update.$set || update.$unset) {
-              await Model.findOneAndUpdate(json.documentKey, update);
-            }
-          } else {
-            await Model.findOneAndUpdate(json.documentKey, json.fullDocument);
-          }
-
-          break;
+            break;
+        }
+      } catch (e) {
+        console.error(e);
       }
     },
   });

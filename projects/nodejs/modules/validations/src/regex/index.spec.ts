@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { regexValidator } from './regex.validator';
+import { regexValidator } from './';
 
 describe('validators/regex', function() {
   describe('validator', function() {
