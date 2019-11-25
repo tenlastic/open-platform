@@ -5,7 +5,7 @@
   "license": "ISC",
   "main": "./dist/index.js",
   "name": "@tenlastic/mongoose-change-stream",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
     "build": "../../scripts/build.sh",
     "build:watch": "watch ../../scripts/build.sh ./src",
@@ -15,8 +15,8 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "mongoose": "5.7.5",
-    "@hasezoey/typegoose": "6.0.0-27"
+    "@hasezoey/typegoose": "6.0.0-27",
+    "mongoose": "5.7.5"
   },
   "devDependencies": {
     "mocha": "6.1.4",

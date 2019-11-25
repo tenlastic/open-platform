@@ -4,7 +4,7 @@
   },
   "license": "Apache-2.0",
   "name": "@tenlastic/namespace-api",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
     "build": "../../scripts/build.sh",
     "docker": "sh ../../scripts/docker.sh npm run --if-present",
@@ -17,15 +17,15 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/mongoose-change-stream": "0.0.0",
-    "@tenlastic/mongoose-change-stream-kafka": "0.0.0",
-    "@tenlastic/mongoose-permissions": "0.0.0",
-    "@tenlastic/mongoose-unique-error": "0.0.0",
-    "@tenlastic/web-server": "0.0.0",
+    "@hasezoey/typegoose": "6.0.0-27",
+    "@tenlastic/mongoose-change-stream": "0.0.1",
+    "@tenlastic/mongoose-change-stream-kafka": "0.0.1",
+    "@tenlastic/mongoose-permissions": "0.0.1",
+    "@tenlastic/mongoose-unique-error": "0.0.1",
+    "@tenlastic/web-server": "0.0.1",
     "koa-router": "7.4.0",
     "mongoose": "5.7.5",
-    "source-map-support": "0.5.12",
-    "@hasezoey/typegoose": "6.0.0-27"
+    "source-map-support": "0.5.12"
   },
   "devDependencies": {
     "merge-yaml-cli": "1.1.2",
