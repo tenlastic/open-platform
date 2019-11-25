@@ -31,7 +31,7 @@ describe('toMongoose()', function() {
   });
 
   context('when the schema is valid', function() {
-    it('converts the schema to mongoose', function() {
+    it('converts the schema to a valid mongoose schema', function() {
       const json = {
         properties: {
           address: {
