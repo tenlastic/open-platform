@@ -90,13 +90,32 @@ jobs:
       - store_artifacts:
           path: ./projects/nodejs/test-results/
           destination: test-results
+  publish_nodejs_npm_modules:
+    docker:
+      - image: node:10
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "./projects/nodejs/package.json" }}
+      - run:
+          name: Install Node Modules
+          command: npm install
+          working_directory: ./projects/nodejs/
+      - run:
+          name: Lerna Bootstrap
+          command: npm run lerna bootstrap
+          working_directory: ./projects/nodejs/
+      - save_cache:
+          key: dependency-cache-{{ checksum "./projects/nodejs/package.json" }}
+          paths:
+            - ./projects/nodejs/node_modules/
+      - run:
+          name: Build
+          command: npm run lerna run build
+          working_directory: ./projects/nodejs/
       - run:
           name: Publish NPM Modules
-          command: |
-            BRANCH=$(git rev-parse --abbrev-ref HEAD)
-            if [[ "$BRANCH" != "master" ]]; then
-              npm run lerna -- publish --exact --tag-version-prefix nodejs-v --yes patch
-            fi
+          command: npm run lerna -- publish --exact --tag-version-prefix nodejs-v --yes patch
           working_directory: ./projects/nodejs/
 
 workflows:
@@ -106,3 +125,10 @@ workflows:
       - angular
       - nodejs:
           context: open-platform-review
+      - publish_nodejs_npm_modules:
+          filters:
+            branches:
+              only: master
+          requires:
+            - angular
+            - nodejs
