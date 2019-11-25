@@ -91,25 +91,13 @@ jobs:
           path: ./projects/nodejs/test-results/
           destination: test-results
       - run:
-          name: Persist Directory
+          name: Publish NPM Modules
           command: |
-            set -exu
-            mkdir -p /tmp/workspace/nodejs/
-            mv ./projects/nodejs/* /tmp/workspace/nodejs/
-      - persist_to_workspace:
-          root: /tmp/workspace
-          paths:
-            - nodejs
-  publish_nodejs:
-    docker:
-      - image: node:10
-    steps:
-      - attach_workspace:
-          at: /tmp/workspace
-      - run:
-          name: Publish NodeJS Modules
-          command: npm run lerna -- publish --exact --tag-version-prefix nodejs-v --yes patch
-          working_directory: /tmp/workspace/nodejs/
+            BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            if [[ "$BRANCH" != "master" ]]; then
+              npm run lerna -- publish --exact --tag-version-prefix nodejs-v --yes patch
+            fi
+          working_directory: ./projects/nodejs/
 
 workflows:
   version: 2.1
@@ -118,10 +106,3 @@ workflows:
       - angular
       - nodejs:
           context: open-platform-review
-      - publish_nodejs:
-          filters:
-            branches:
-              only: master
-          requires:
-            - angular
-            - nodejs
