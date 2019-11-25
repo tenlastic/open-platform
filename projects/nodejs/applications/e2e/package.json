@@ -4,7 +4,7 @@
   },
   "license": "Apache-2.0",
   "name": "@tenlastic/e2e",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "build": "../../scripts/build.sh",
     "docker": "sh ../../scripts/docker.sh npm run --if-present",

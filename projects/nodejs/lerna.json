@@ -5,6 +5,9 @@
     }
   },
   "npmClient": "npm",
-  "packages": ["applications/*", "modules/*"],
-  "version": "0.0.1"
+  "packages": [
+    "applications/*",
+    "modules/*"
+  ],
+  "version": "0.0.2"
 }

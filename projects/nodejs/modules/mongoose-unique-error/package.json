@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "name": "@tenlastic/mongoose-unique-error",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "build": "../../scripts/build.sh",
     "build:watch": "watch ../../scripts/build.sh ./src",
