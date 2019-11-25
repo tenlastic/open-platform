@@ -95,6 +95,12 @@ workflows:
   version: 2.1
   build-deploy:
     jobs:
-      - angular
+      - angular:
+          filters:
+            tags:
+              only: /^(?!(v[0-9]+.[0-9]+.[0-9]+)).*$/
       - nodejs:
           context: open-platform-review
+          filters:
+            tags:
+              only: /^(?!(v[0-9]+.[0-9]+.[0-9]+)).*$/
