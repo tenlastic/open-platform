@@ -4,6 +4,7 @@
   },
   "license": "Apache-2.0",
   "name": "@tenlastic/namespace-api",
+  "private": true,
   "version": "0.0.2",
   "scripts": {
     "build": "../../scripts/build.sh",

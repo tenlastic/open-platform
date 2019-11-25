@@ -5,6 +5,10 @@
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "name": "@tenlastic/mongoose-unique-error",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com/tenlastic/open-platform.git"
+  },
   "version": "0.0.2",
   "scripts": {
     "build": "../../scripts/build.sh",
