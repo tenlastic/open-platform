@@ -90,17 +90,36 @@ jobs:
       - store_artifacts:
           path: ./projects/nodejs/test-results/
           destination: test-results
+      - persist_directory:
+          label: Persist Assets
+          from: ./projects/nodejs/*
+          to: /tmp/workspace/nodejs/
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - nodejs
+  publish_nodejs:
+    docker:
+      - image: node:10
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Publish NodeJS Modules
+          command: npm run lerna -- publish --exact --tag-version-prefix nodejs-v --yes patch
+          working_directory: /tmp/workspace/nodejs/
 
 workflows:
   version: 2.1
   build-deploy:
     jobs:
-      - angular:
-          filters:
-            tags:
-              only: /^(?!(v[0-9]+.[0-9]+.[0-9]+)).*$/
+      - angular
       - nodejs:
           context: open-platform-review
+      - publish_nodejs:
           filters:
-            tags:
-              only: /^(?!(v[0-9]+.[0-9]+.[0-9]+)).*$/
+            branches:
+              only: master
+          requires:
+            - angular
+            - nodejs
