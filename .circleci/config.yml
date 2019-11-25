@@ -115,7 +115,10 @@ jobs:
           working_directory: ./projects/nodejs/
       - run:
           name: Publish NPM Modules
-          command: npm run lerna -- publish --exact --tag-version-prefix nodejs-v --yes patch
+          command: |
+            git config user.email $GITHUB_USER_EMAIL
+            git config user.name $GITHUB_USER_NAME
+            npm run lerna -- publish --exact --tag-version-prefix nodejs-v --yes patch
           working_directory: ./projects/nodejs/
 
 workflows:
