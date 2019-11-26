@@ -1,6 +1,22 @@
 version: 2.1
 
 commands:
+  copy_directory:
+    parameters:
+      from:
+        type: string
+      label:
+        type: string
+      to:
+        type: string
+    steps:
+      - run:
+          name: << parameters.label >>
+          command: |
+            set -exu
+            mkdir -p << parameters.to >>
+            mv << parameters.from >> << parameters.to >>
+
   install_node_modules:
     parameters:
       directory:
@@ -44,6 +60,7 @@ jobs:
           name: Test
           command: npm run lerna run -- --concurrency 1 test:ci -- -- --code-coverage
           working_directory: ./projects/angular/
+
   nodejs:
     docker:
       - image: node:10
@@ -95,30 +112,38 @@ jobs:
     docker:
       - image: node:10
     steps:
-      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
       - setup_remote_docker
       - install_node_modules:
-          directory: ./projects/nodejs/
+          directory: /tmp/workspaces/projects/nodejs/
       - run:
           name: Build
           command: npm run lerna run build
-          working_directory: ./projects/nodejs/
+          working_directory: /tmp/workspaces/projects/nodejs/
       - run:
           name: Install Docker client
           command: |
-            set -x
-            VER="docker-18.06.3-ce"
-            curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
-            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
-            mv /tmp/docker/* /usr/bin
+            sudo apt-get update
+            sudo apt-get install -y \
+              apt-transport-https \
+              ca-certificates \
+              curl \
+              gnupg2 \
+              software-properties-common
+            curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+            add-apt-repository \
+              "deb [arch=amd64] https://download.docker.com/linux/debian \
+              $(lsb_release -cs) \
+              stable"
       - run:
           name: Build Docker Images
           command: npm run lerna run docker:build
-          working_directory: ./projects/nodejs/
+          working_directory: /tmp/workspaces/projects/nodejs/
       - run:
           name: Push Docker Images
           command: npm run lerna run docker:push
-          working_directory: ./projects/nodejs/
+          working_directory: /tmp/workspaces/projects/nodejs/
 
   publish_nodejs_npm_modules:
     docker:
@@ -146,6 +171,14 @@ jobs:
               --yes \
               patch
           working_directory: ./projects/nodejs/
+      - copy_directory:
+          label: Persist NodeJS Directory
+          from: ./projects/nodejs/*
+          to: /tmp/workspace/projects/nodejs/
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - projects/nodejs/
 
 workflows:
   version: 2.1
