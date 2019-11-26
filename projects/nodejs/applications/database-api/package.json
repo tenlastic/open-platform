@@ -11,7 +11,7 @@
     "docker": "sh ../../scripts/docker.sh npm run --if-present",
     "docker:build": "sh ../../scripts/docker-build.sh authentication-api",
     "docker:down": "sh ../../scripts/docker-down.sh",
-    "docker:push": "sh ../../scripts/docker-push.sh authentication-api",
+    "docker:push": "sh ../../scripts/docker-push.sh database-api",
     "lint": "../../scripts/lint.sh",
     "migrations": "../../scripts/migrations.sh",
     "start": "../../scripts/start.sh",
