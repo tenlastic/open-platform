@@ -1,25 +1,37 @@
 version: 2.1
 
+commands:
+  install_node_modules:
+    parameters:
+      directory:
+        type: string
+      label:
+        type: string
+        default: Install Node Modules
+    steps:
+      - restore_cache:
+          key: dependency-cache-{{ checksum "<< parameters.directory >>/package.json" }}
+      - run:
+          name: Install Node Modules
+          command: npm install
+          working_directory: << parameters.directory >>/
+      - run:
+          name: Lerna Bootstrap
+          command: npm run lerna bootstrap
+          working_directory: << parameters.directory >>/
+      - save_cache:
+          key: dependency-cache-{{ checksum "<< parameters.directory >>/package.json" }}
+          paths:
+            - << parameters.directory >>/node_modules/
+
 jobs:
   angular:
     docker:
       - image: circleci/node:10-browsers
     steps:
       - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "./projects/angular/package.json" }}
-      - run:
-          name: Install Node Modules
-          command: npm install
-          working_directory: ./projects/angular/
-      - run:
-          name: Lerna Bootstrap
-          command: npm run lerna bootstrap
-          working_directory: ./projects/angular/
-      - save_cache:
-          key: dependency-cache-{{ checksum "./projects/angular/package.json" }}
-          paths:
-            - ./projects/angular/node_modules/
+      - install_node_modules:
+          directory: ./projects/angular/
       - run:
           name: Lint
           command: npm run lerna run lint
@@ -44,20 +56,8 @@ jobs:
       - image: wurstmeister/zookeeper:latest
     steps:
       - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "./projects/nodejs/package.json" }}
-      - run:
-          name: Install Node Modules
-          command: npm install
-          working_directory: ./projects/nodejs/
-      - run:
-          name: Lerna Bootstrap
-          command: npm run lerna bootstrap
-          working_directory: ./projects/nodejs/
-      - save_cache:
-          key: dependency-cache-{{ checksum "./projects/nodejs/package.json" }}
-          paths:
-            - ./projects/nodejs/node_modules/
+      - install_node_modules:
+          directory: ./projects/nodejs/
       - run:
           name: Lint
           command: npm run lerna run lint
@@ -90,25 +90,34 @@ jobs:
       - store_artifacts:
           path: ./projects/nodejs/test-results/
           destination: test-results
+  publish_nodejs_docker_images:
+    docker:
+      - image: node:10
+    steps:
+      - checkout
+      - install_node_modules:
+          directory: ./projects/nodejs/
+      - run:
+          name: Build
+          command: npm run lerna run build
+          working_directory: ./projects/nodejs/
+      - setup_remote_docker
+      - run:
+          name: Build Docker Images
+          command: npm run lerna run docker:build
+          working_directory: ./projects/nodejs/
+      - run:
+          name: Push Docker Images
+          command: npm run lerna run docker:push
+          working_directory: ./projects/nodejs/
+
   publish_nodejs_npm_modules:
     docker:
       - image: node:10
     steps:
       - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "./projects/nodejs/package.json" }}
-      - run:
-          name: Install Node Modules
-          command: npm install
-          working_directory: ./projects/nodejs/
-      - run:
-          name: Lerna Bootstrap
-          command: npm run lerna bootstrap
-          working_directory: ./projects/nodejs/
-      - save_cache:
-          key: dependency-cache-{{ checksum "./projects/nodejs/package.json" }}
-          paths:
-            - ./projects/nodejs/node_modules/
+      - install_node_modules:
+          directory: ./projects/nodejs/
       - run:
           name: Build
           command: npm run lerna run build
@@ -143,3 +152,6 @@ workflows:
           requires:
             - angular
             - nodejs
+      - publish_nodejs_docker_images:
+          requires:
+            - publish_nodejs_npm_modules
