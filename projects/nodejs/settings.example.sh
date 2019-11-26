@@ -15,6 +15,9 @@ E2E_HOST_NAMESPACE_API="http://localhost:3001"
 E2E_USER_EMAIL="test@example.com"
 E2E_USER_PASSWORD="password"
 
+# Github
+GITHUB_USER_EMAIL="test@example.com"
+
 # JWT
 JWT_SECRET="secret"
 
