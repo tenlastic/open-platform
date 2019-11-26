@@ -116,11 +116,11 @@ jobs:
           at: /tmp/workspace
       - setup_remote_docker
       - install_node_modules:
-          directory: /tmp/workspaces/projects/nodejs/
+          directory: /tmp/workspace/projects/nodejs/
       - run:
           name: Build
           command: npm run lerna run build
-          working_directory: /tmp/workspaces/projects/nodejs/
+          working_directory: /tmp/workspace/projects/nodejs/
       - run:
           name: Install Docker client
           command: |
@@ -139,11 +139,11 @@ jobs:
       - run:
           name: Build Docker Images
           command: npm run lerna run docker:build
-          working_directory: /tmp/workspaces/projects/nodejs/
+          working_directory: /tmp/workspace/projects/nodejs/
       - run:
           name: Push Docker Images
           command: npm run lerna run docker:push
-          working_directory: /tmp/workspaces/projects/nodejs/
+          working_directory: /tmp/workspace/projects/nodejs/
 
   publish_nodejs_npm_modules:
     docker:
@@ -161,6 +161,11 @@ jobs:
           command: |
             git config user.email $GITHUB_USER_EMAIL
             git config user.name $GITHUB_USER_NAME
+      - run:
+          name: Create NPMRC File
+          command: |
+            echo "@tenlastic:registry=https://npm.pkg.github.com" > ~/.npmrc
+            echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
       - run:
           name: Publish NPM Modules
           command: |
