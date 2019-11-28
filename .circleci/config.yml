@@ -177,6 +177,23 @@ jobs:
           root: /tmp/workspace
           paths:
             - projects/nodejs/
+  terraform:
+    docker:
+      - image: hashicorp/terraform:0.11.13
+    steps:
+      - checkout
+      - run:
+          name: Apply Custom Roles
+          command: |
+            terraform init -backend-config="./backend.example.tfvars"
+            terraform apply -auto-approve
+          working_directory: ./gcp/terraform/custom-roles/
+      - run:
+          name: Apply Cluster
+          command: |
+            terraform init -backend-config="./backend.example.tfvars"
+            terraform apply -auto-approve
+          working_directory: ./gcp/terraform/cluster/
 
 workflows:
   version: 2.1
@@ -195,3 +212,10 @@ workflows:
       - publish_nodejs_docker_images:
           requires:
             - publish_nodejs_npm_modules
+      - terraform:
+          filters:
+            branches:
+              only: master
+          requires:
+            - angular
+            - nodejs

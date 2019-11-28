@@ -1,9 +1,9 @@
 resource "google_container_cluster" "primary" {
   initial_node_count       = 1
   location                 = "${var.zone}"
-  min_master_version       = "1.12.7-gke.10"
+  min_master_version       = "1.14.8-gke.17"
   name                     = "primary"
-  node_version             = "1.12.7-gke.10"
+  node_version             = "1.14.8-gke.17"
   remove_default_node_pool = true
 
   ip_allocation_policy {

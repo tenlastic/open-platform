@@ -1,0 +1,8 @@
+version: "3.7"
+services:
+  devtools:
+    build:
+      context: ./
+    volumes:
+      - ~/.kube/config:/.kube/config
+      - ./:/home/

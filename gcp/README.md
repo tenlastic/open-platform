@@ -19,14 +19,14 @@ gcloud services enable deploymentmanager.googleapis.com
 gcloud services enable iam.googleapis.com
 
 # Grant the Google APIs service account with the Owner role.
-./scripts/google-apis-service-account.sh
+./gcp/scripts/google-apis-service-account.sh
 
 # Deploy service account and storage bucket for Terraform.
 gcloud deployment-manager deployments create "terraform-resources" \
   --template "./deployment-manager/terraform-resources.jinja"
 
 # Create service account for Terraform.
-./scripts/get-service-account-key.sh terraform
+./gcp/scripts/get-service-account-key.sh terraform
 ```
 
 ```bash
@@ -34,16 +34,16 @@ gcloud deployment-manager deployments create "terraform-resources" \
 docker-compose run terraform
 
 # Load Google credentials for Terraform.
-export GOOGLE_CREDENTIALS=$(cat ./service-accounts/terraform.json)
+export GOOGLE_CREDENTIALS=$(cat ./gcp/service-accounts/terraform.json)
 
 # Deploy IAM profiles.
-cd ./terraform/custom-roles/
+cd ./gcp/terraform/custom-roles/
 terraform init -backend-config="./backend.example.tfvars"
 terraform apply -auto-approve
 cd ../../../
 
 # Deploy Kubernetes cluster.
-cd ./terraform/cluster/
+cd ./gcp/terraform/cluster/
 terraform init -backend-config="./backend.example.tfvars"
 terraform apply -auto-approve
 cd ../../../
