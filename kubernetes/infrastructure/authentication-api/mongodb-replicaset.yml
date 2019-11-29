@@ -9,7 +9,7 @@ spec:
   releaseName: authentication-api-mongodb-replicaset
   chart:
     repository: https://kubernetes-charts.storage.googleapis.com/
-    name: stable/mongodb-replicaset
+    name: mongodb-replicaset
     version: 3.10.3
   values:
     affinity:

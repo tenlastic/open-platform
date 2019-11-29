@@ -9,7 +9,8 @@ spec:
   releaseName: shared-kafka
   chart:
     repository: http://storage.googleapis.com/kubernetes-charts-incubator/
-    path: incubator/kafka
+    name: kafka
+    version: 0.20.5
   values:
     affinity:
       nodeAffinity:
