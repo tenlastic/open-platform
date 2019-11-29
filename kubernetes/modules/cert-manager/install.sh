@@ -19,9 +19,9 @@ echo "Waiting for install to finish..."
 sleep 30
 
 # Create GCP DNS Admin Secret.
-"${DIRNAME}/../../gcloud/scripts/get-service-account-key.sh" dns-admin
+"${DIRNAME}/../../gcp/scripts/get-service-account-key.sh" dns-admin
 kubectl create secret generic cert-manager-credentials \
- --from-file "${DIRNAME}/../../gcloud/service-accounts/dns-admin.json" \
+ --from-file "${DIRNAME}/../../gcp/service-accounts/dns-admin.json" \
  --namespace "cert-manager"
 
 # Create Cert Manager manifests.

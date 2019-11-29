@@ -10,4 +10,5 @@ kubectl apply -f "${DIRNAME}/manifests/"
 helm init \
   --history-max "200" \
   --service-account "tiller" \
+  --upgrade \
   --wait

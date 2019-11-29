@@ -1,0 +1,62 @@
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: shared-kafka
+  namespace: default
+  annotations:
+    flux.weave.works/automated: "true"
+spec:
+  releaseName: shared-kafka
+  chart:
+    repository: http://storage.googleapis.com/kubernetes-charts-incubator/
+    path: incubator/kafka
+  values:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: cloud.google.com/gke-preemptible
+                  operator: Exists
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - kafka
+            topologyKey: kubernetes.io/hostname
+    persistence:
+      storageClass: standard-expandable
+    prometheus:
+      kafka:
+        enabled: true
+      jmx:
+        enabled: true
+    replicas: 3
+    resources:
+      requests:
+        memory: 128M
+        cpu: 100m
+    zookeeper:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - preference:
+                matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: DoesNotExist
+              weight: 100
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: zookeeper
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+      resources:
+        requests:
+          memory: 128M
+          cpu: 100m

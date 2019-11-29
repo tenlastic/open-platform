@@ -1,5 +1,6 @@
 FROM ubuntu:18.04
 
+ENV FLUX_VERSION 1.16.0
 ENV HELM_VERSION v2.9.0
 ENV KUBECONFIG /.kube/config
 ENV KUBESEAL_VERSION v0.9.5
@@ -47,6 +48,10 @@ RUN curl -o helm-$HELM_VERSION-linux-amd64.tgz https://storage.googleapis.com/ku
 # Install jq to parse JSON within bash scripts.
 RUN curl -o /usr/local/bin/jq http://stedolan.github.io/jq/download/linux64/jq && \
   chmod +x /usr/local/bin/jq
+
+# Install fluxctl.
+RUN wget -O fluxctl https://github.com/fluxcd/flux/releases/download/$FLUX_VERSION/fluxctl_linux_amd64 && \
+  install -m 755 fluxctl /usr/local/bin/fluxctl
 
 # Install kubeseal.
 RUN wget https://github.com/bitnami-labs/sealed-secrets/releases/download/$KUBESEAL_VERSION/kubeseal-linux-amd64 -O kubeseal && \

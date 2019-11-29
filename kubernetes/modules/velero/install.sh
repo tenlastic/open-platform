@@ -7,11 +7,11 @@ DIRNAME=$(dirname $0)
 kubectl apply -f "${DIRNAME}/manifests/namespace.yml"
 
 # Create GCP Velero Secret.
-"${DIRNAME}/../../gcloud/scripts/get-service-account-key.sh" velero
+"${DIRNAME}/../../gcp/scripts/get-service-account-key.sh" velero
 kubectl delete secret cloud-credentials \
   --namespace "velero"
 kubectl create secret generic cloud-credentials \
- --from-file "${DIRNAME}/../../gcloud/service-accounts/velero.json" \
+ --from-file "${DIRNAME}/../../gcp/service-accounts/velero.json" \
  --namespace "velero"
 
 # Install Velero.

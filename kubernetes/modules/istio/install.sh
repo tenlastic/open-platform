@@ -22,7 +22,7 @@ DIRNAME=$(dirname $0)
 # sleep 30
 
 # Get static IP address from Terraform.
-cd "${DIRNAME}/../../gcloud/terraform/cluster/"
+cd "${DIRNAME}/../../gcp/terraform/cluster/"
 export ISTIO_IP_ADDRESS=$(terraform output istio_ip_address)
 cd "../../../"
 

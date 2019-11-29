@@ -20,37 +20,37 @@
 
 ```bash
 # Add extra storage classes.
-kubectl apply -f ./storage-classes/
+kubectl apply -f ./modules/storage-classes/
 
 # Install Tiller.
-./tiller/install.sh
+./modules/tiller/install.sh
 
 # Install Argo.
-# ./argo/install.sh
+./modules/argo/install.sh
 
 # Install Grafana.
-./grafana/install.sh
+./modules/grafana/install.sh
 
 # Install Istio.
-./istio/install.sh
+./modules/istio/install.sh
 
 # Install Kafka.
-# ./kafka/install.sh
+./modules/kafka/install.sh
 
 # Install MongoDB.
-./mongodb/install.sh
+./modules/mongodb/install.sh
 
 # Install MinIO.
-./minio/install.sh
+./modules/minio/install.sh
 
 # Install PostgreSQL.
-./postgresql/install.sh
+./modules/postgresql/install.sh
 
 # Install Redis.
-./redis/install.sh
+./modules/redis/install.sh
 
 # Install Velero.
-./velero/install.sh
+./modules/velero/install.sh
 ```
 
 ### Notes

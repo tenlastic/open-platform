@@ -2,16 +2,16 @@
 set -e
 
 # Setup Google Credentials for Terraform.
-export GOOGLE_CREDENTIALS=$(cat ./gcloud/service-accounts/terraform.json)
+export GOOGLE_CREDENTIALS=$(cat ./gcp/service-accounts/terraform.json)
 
 # Deploy IAM profiles.
-# cd ./gcloud/terraform/custom-roles/
+# cd ./gcp/terraform/custom-roles/
 # terraform init -backend-config="./backend.example.tfvars"
 # terraform apply -auto-approve
 # cd ../../../
 
 # Deploy Kubernetes cluster.
-cd ./gcloud/terraform/cluster/
+cd ./gcp/terraform/cluster/
 terraform init -backend-config="./backend.example.tfvars"
 terraform apply -auto-approve
 cd ../../../
