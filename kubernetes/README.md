@@ -19,11 +19,11 @@
 #### Setup Infrastructure
 
 ```bash
-# Add extra storage classes.
-kubectl apply -f ./modules/storage-classes/
-
 # Install Tiller.
 ./modules/tiller/install.sh
+
+# Install Flux.
+./modules/flux/install.sh
 
 # Install Argo.
 ./modules/argo/install.sh

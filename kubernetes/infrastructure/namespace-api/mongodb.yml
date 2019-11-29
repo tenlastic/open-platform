@@ -6,7 +6,7 @@ metadata:
   annotations:
     flux.weave.works/automated: "true"
 spec:
-  releaseName: authentication-api-mongodb
+  releaseName: namespace-api-mongodb
   chart:
     repository: https://kubernetes-charts.storage.googleapis.com/
     name: mongodb

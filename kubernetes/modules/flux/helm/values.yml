@@ -1,0 +1,7 @@
+helmOperator:
+  create: true
+  createCRD: true
+git:
+  path: kubernetes/infrastructure
+  readonly: true
+  url: https://github.com/tenlastic/open-platform
