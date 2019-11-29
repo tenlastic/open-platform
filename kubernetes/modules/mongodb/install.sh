@@ -8,7 +8,7 @@ kubectl apply -f "${DIRNAME}/manifests/namespace.yml"
 
 # Install MongoDB Helm chart.
 helm repo add stable https://kubernetes-charts.storage.googleapis.com/
-helm upgrade mongodb stable/mongodb-replicaset \
+helm upgrade mongodb stable/mongodb \
   --install \
   --namespace "mongodb" \
   --values "${DIRNAME}/helm/values.yml"
