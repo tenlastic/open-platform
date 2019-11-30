@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "name": "@tenlastic/mongoose-permissions",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "publishConfig": {
     "access": "public"
   },
