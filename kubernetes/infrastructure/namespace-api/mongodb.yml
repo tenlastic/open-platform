@@ -89,6 +89,11 @@ spec:
         - ReadWriteOnce
       size: 8Gi
 
+    configmap:
+      net:
+        bindIpAll: true
+        bindIp: 0.0.0.0
+
     ## Prometheus Exporter / Metrics
     ##
     metrics:
