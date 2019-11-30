@@ -173,7 +173,7 @@ jobs:
           command: |
             npm run lerna -- publish \
               --yes \
-              from-git
+              from-package
           working_directory: ./projects/nodejs/
       - run:
           name: Create NPMRC File for Github
@@ -185,7 +185,7 @@ jobs:
           command: |
             npm run lerna -- publish \
               --yes \
-              from-git
+              from-package
           working_directory: ./projects/nodejs/
       - copy_directory:
           label: Persist NodeJS Directory

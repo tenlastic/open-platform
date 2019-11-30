@@ -2,7 +2,6 @@
 FROM node:10 AS install
 WORKDIR /usr/src/app/
 
-COPY ./.npmrc ./
 COPY ./package*.json ./
 RUN npm install --production --silent
 
