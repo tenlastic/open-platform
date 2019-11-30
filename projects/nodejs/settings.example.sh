@@ -16,6 +16,7 @@ E2E_USER_EMAIL="test@example.com"
 E2E_USER_PASSWORD="password"
 
 # Github
+GITHUB_TOKEN="1a123456ab1234567a1234ab12ab12a1234a123a"
 GITHUB_USER_EMAIL="test@example.com"
 
 # JWT
@@ -34,7 +35,7 @@ MONGO_CONNECTION_STRING="mongodb://mongo:27017,mongo:27018,mongo:27019/admin?rep
 MONGO_DATABASE_NAME="example"
 
 # NPM
-NPM_TOKEN="1a123456ab1234567a1234ab12ab12a1234a123a"
+NPM_TOKEN="1a1234a1-1abc-12a1-a123-a123abc1a1a1"
 
 # RabbitMQ
 RABBITMQ_CONNECTION_STRING="amqp://rabbitmq:5672"

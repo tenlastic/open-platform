@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: database-api
-          image: docker.pkg.github.com/tenlastic/open-platform/database-api:latest
+          image: tenlastic/database-api:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000

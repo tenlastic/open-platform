@@ -155,19 +155,37 @@ jobs:
             git config user.email $GITHUB_USER_EMAIL
             git config user.name $GITHUB_USER_NAME
       - run:
-          name: Create NPMRC File
+          name: Version NPM Modules
           command: |
-            echo "@tenlastic:registry=https://npm.pkg.github.com" > ~/.npmrc
-            echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
-      - run:
-          name: Publish NPM Modules
-          command: |
-            npm run lerna -- publish \
+            npm run lerna -- version \
               --exact \
               --message "nodejs-v%v [ci skip]" \
               --tag-version-prefix nodejs-v \
               --yes \
               patch
+          working_directory: ./projects/nodejs/
+      - run:
+          name: Create NPMRC File for NPM
+          command: |
+            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+      - run:
+          name: Publish Node Modules to NPM
+          command: |
+            npm run lerna -- publish \
+              --yes \
+              from-git
+          working_directory: ./projects/nodejs/
+      - run:
+          name: Create NPMRC File for Github
+          command: |
+            echo "@tenlastic:registry=https://npm.pkg.github.com" > ~/.npmrc
+            echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> ~/.npmrc
+      - run:
+          name: Publish Node Modules to Github
+          command: |
+            npm run lerna -- publish \
+              --yes \
+              from-git
           working_directory: ./projects/nodejs/
       - copy_directory:
           label: Persist NodeJS Directory

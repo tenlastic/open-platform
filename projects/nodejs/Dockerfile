@@ -2,9 +2,6 @@
 FROM node:10 AS install
 WORKDIR /usr/src/app/
 
-ARG NPM_TOKEN
-ENV NPM_TOKEN=$NPM_TOKEN
-
 COPY ./.npmrc ./
 COPY ./package*.json ./
 RUN npm install --production --silent
@@ -12,9 +9,6 @@ RUN npm install --production --silent
 # Stage 2
 FROM node:10-alpine
 WORKDIR /usr/src/app/
-
-ARG NPM_TOKEN
-ENV NPM_TOKEN=$NPM_TOKEN
 
 COPY --from=install /usr/src/app/node_modules ./node_modules
 RUN npm rebuild -q
