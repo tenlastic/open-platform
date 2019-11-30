@@ -5,6 +5,10 @@
   "license": "ISC",
   "main": "./dist/index.js",
   "name": "@tenlastic/mochawesome-merge-json",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com/tenlastic/open-platform.git"
+  },
   "version": "0.0.9",
   "publishConfig": {
     "access": "public"
