@@ -184,6 +184,7 @@ jobs:
           name: Publish Node Modules to Github
           command: |
             npm run lerna -- publish \
+              --registry https://npm.pkg.github.com \
               --yes \
               from-package
           working_directory: ./projects/nodejs/

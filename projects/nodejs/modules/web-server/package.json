@@ -5,10 +5,6 @@
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "name": "@tenlastic/web-server",
-  "repository": {
-    "type": "git",
-    "url": "ssh://git@github.com/tenlastic/open-platform.git"
-  },
   "version": "0.0.8",
   "publishConfig": {
     "access": "public"

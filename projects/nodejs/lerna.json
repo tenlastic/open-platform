@@ -1,13 +1,5 @@
 {
-  "command": {
-    "publish": {
-      "registry": "https://npm.pkg.github.com"
-    }
-  },
   "npmClient": "npm",
-  "packages": [
-    "applications/*",
-    "modules/*"
-  ],
+  "packages": ["applications/*", "modules/*"],
   "version": "0.0.8"
 }
