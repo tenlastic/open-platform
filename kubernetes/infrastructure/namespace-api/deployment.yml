@@ -17,6 +17,9 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: namespace-api-environment-variables
       imagePullSecrets:
         - name: githubimagepullsecret
       affinity:
