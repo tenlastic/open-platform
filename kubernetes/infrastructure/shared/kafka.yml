@@ -33,8 +33,6 @@ spec:
     prometheus:
       kafka:
         enabled: true
-      jmx:
-        enabled: true
     replicas: 3
     resources:
       requests:
