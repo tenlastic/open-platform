@@ -13,9 +13,5 @@ docker login docker.pkg.github.com \
   -p "${NPM_TOKEN}"
 
 # Tag and push version to Github Package Registry.
-docker tag "${IMAGE_ID}" "${URL}:${TAG}"
-docker push "${URL}:${TAG}"
-
-# Tag and push latest version to Github Package Registry.
-docker tag "${IMAGE_ID}" "${URL}:latest"
-docker push "${URL}:latest"
+docker tag "${IMAGE_ID}" "${URL}:docker-base-image"
+docker push "${URL}:docker-base-image"
