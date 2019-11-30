@@ -17,6 +17,8 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
+      imagePullSecrets:
+        - name: githubimagepullsecret
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
