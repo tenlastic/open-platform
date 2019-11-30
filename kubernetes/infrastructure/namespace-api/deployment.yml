@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: namespace-api
+  labels:
+    app: namespace-api
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: namespace-api
+    spec:
+      containers:
+        - name: namespace-api
+          image: docker.pkg.github.com/tenlastic/open-platform/namespace-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
