@@ -26,6 +26,7 @@
     "@tenlastic/mongoose-permissions": "0.0.11",
     "@tenlastic/mongoose-unique-error": "0.0.11",
     "@tenlastic/web-server": "0.0.11",
+    "chance": "1.0.16",
     "koa-router": "7.4.0",
     "mongoose": "5.7.5",
     "source-map-support": "0.5.12"
