@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: database-api
+  labels:
+    app: database-api
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: database-api
+    spec:
+      containers:
+        - name: database-api
+          image: tenlastic/database-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+          envFrom:
+            - secretRef:
+                name: database-api-environment-variables
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists

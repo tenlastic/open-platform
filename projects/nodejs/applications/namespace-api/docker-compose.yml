@@ -4,6 +4,7 @@ services:
     depends_on:
       - mongo_healthcheck
     environment:
+      - JWT_SECRET
       - KAFKA_CONNECTION_STRING
       - MONGO_CONNECTION_STRING
       - MONGO_DATABASE_NAME
