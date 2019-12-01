@@ -14,7 +14,6 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import {
   alphanumericValidator,
@@ -29,9 +28,6 @@ import * as uuid from 'uuid/v4';
 import * as emails from '../../emails';
 import { RefreshToken } from '../refresh-token/model';
 import { UserPermissions } from './';
-
-const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
-UserEvent.on(kafka.publish);
 
 @index({ email: 1 }, { unique: true })
 @index({ username: 1 }, { unique: true })
