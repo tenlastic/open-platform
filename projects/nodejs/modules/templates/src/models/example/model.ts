@@ -11,7 +11,7 @@ export type ExampleDocument = InstanceType<ExampleSchema>;
 export type ExampleModel = ModelType<ExampleSchema>;
 export const Example = new ExampleSchema().getModelForClass(ExampleSchema, {
   schemaOptions: {
-    autoIndex: false,
+    autoIndex: true,
     collection: 'examples',
     timestamps: true,
   },

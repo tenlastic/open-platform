@@ -17,7 +17,7 @@ export enum UserRole {
 @modelOptions({
   schemaOptions: {
     _id: false,
-    autoIndex: false,
+    autoIndex: true,
     minimize: false,
     timestamps: true,
   },

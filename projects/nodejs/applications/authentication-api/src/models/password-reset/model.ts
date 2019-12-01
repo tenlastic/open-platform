@@ -28,7 +28,7 @@ PasswordResetEvent.on(kafka.publish);
 @index({ hash: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: false,
+    autoIndex: true,
     collection: 'passwordresets',
     minimize: false,
     timestamps: true,

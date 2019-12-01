@@ -26,7 +26,7 @@ NamespaceEvent.on(kafka.publish);
 @index({ name: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: false,
+    autoIndex: true,
     collection: 'namespaces',
     minimize: false,
     timestamps: true,

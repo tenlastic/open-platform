@@ -34,10 +34,19 @@ const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
 UserEvent.on(kafka.publish);
 
 @index({ email: 1 }, { unique: true })
-@index({ username: 1 }, { unique: true })
+@index(
+  { username: 1 },
+  {
+    collation: {
+      locale: 'en_US',
+      strength: 1,
+    },
+    unique: true,
+  },
+)
 @modelOptions({
   schemaOptions: {
-    autoIndex: false,
+    autoIndex: true,
     collation: {
       locale: 'en_US',
       strength: 1,

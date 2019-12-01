@@ -22,7 +22,7 @@ import { IndexSchema } from './index/model';
 @index({ databaseId: 1, name: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: false,
+    autoIndex: true,
     collection: 'collections',
     minimize: false,
     timestamps: true,

@@ -40,7 +40,7 @@ export class RecordSchema {
     const schema = new mongoose.Schema(
       { properties },
       {
-        autoIndex: false,
+        autoIndex: true,
         collection: collection._id.toString(),
         minimize: false,
         timestamps: true,

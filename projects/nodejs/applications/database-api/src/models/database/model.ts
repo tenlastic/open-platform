@@ -16,7 +16,7 @@ import { ReadonlyNamespace, ReadonlyNamespaceDocument } from '../readonly-namesp
 @index({ name: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: false,
+    autoIndex: true,
     collection: 'databases',
     minimize: false,
     timestamps: true,
