@@ -155,16 +155,6 @@ jobs:
             git config user.email $GITHUB_USER_EMAIL
             git config user.name $GITHUB_USER_NAME
       - run:
-          name: Version NPM Modules
-          command: |
-            npm run lerna -- version \
-              --exact \
-              --message "nodejs-v%v [ci skip]" \
-              --tag-version-prefix nodejs-v \
-              --yes \
-              patch
-          working_directory: ./projects/nodejs/
-      - run:
           name: Create NPMRC File for NPM
           command: |
             echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
@@ -172,8 +162,11 @@ jobs:
           name: Publish Node Modules to NPM
           command: |
             npm run lerna -- publish \
+              --exact \
+              --message "nodejs-v%v [ci skip]" \
+              --tag-version-prefix nodejs-v \
               --yes \
-              from-package
+              patch
           working_directory: ./projects/nodejs/
       - run:
           name: Create NPMRC File for Github
