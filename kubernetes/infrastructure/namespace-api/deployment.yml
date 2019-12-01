@@ -14,7 +14,7 @@ spec:
       containers:
         - name: namespace-api
           image: tenlastic/namespace-api:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
           resources:

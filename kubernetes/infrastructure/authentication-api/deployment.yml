@@ -14,7 +14,7 @@ spec:
       containers:
         - name: authentication-api
           image: tenlastic/authentication-api:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
           resources:
