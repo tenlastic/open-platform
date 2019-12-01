@@ -78,12 +78,17 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       { arrayMerge: overwriteMerge },
     );
     console.log('Merged Params:', mergedParams);
-    const record = await this.Model.create(mergedParams);
-    console.log('Record:', record);
+    try {
+      const record = await this.Model.create(mergedParams);
 
-    // Filter unauthorized attributes
-    const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
-    return filterRecord(record, readPermissions);
+      console.log('Record:', record);
+
+      // Filter unauthorized attributes
+      const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
+      return filterRecord(record, readPermissions);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   /**
