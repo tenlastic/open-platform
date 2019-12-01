@@ -18,7 +18,7 @@
     "@types/ajv": "1.0.0",
     "@types/amqplib": "0.5.13",
     "@types/aws-lambda": "8.10.23",
-    "@types/bcrypt": "3.0.0",
+    "@types/bcryptjs": "2.4.2",
     "@types/chai": "4.1.7",
     "@types/chai-as-promised": "7.1.0",
     "@types/chai-http": "3.0.5",

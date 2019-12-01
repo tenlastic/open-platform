@@ -28,7 +28,7 @@
     "@tenlastic/mongoose-unique-error": "0.0.19",
     "@tenlastic/validations": "0.0.19",
     "@tenlastic/web-server": "0.0.19",
-    "bcrypt": "3.0.6",
+    "bcryptjs": "2.4.3",
     "chance": "1.0.16",
     "jsonwebtoken": "8.5.1",
     "koa-router": "7.4.0",
