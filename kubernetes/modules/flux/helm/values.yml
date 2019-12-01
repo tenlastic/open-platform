@@ -9,12 +9,28 @@ affinity:
     requiredDuringSchedulingIgnoredDuringExecution:
       - labelSelector:
           matchExpressions:
-            - key: release
+            - key: app
               operator: In
               values:
                 - flux
         topologyKey: kubernetes.io/hostname
 helmOperator:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: cloud.google.com/gke-preemptible
+                operator: Exists
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - flux-helm-operator
+          topologyKey: kubernetes.io/hostname
   create: true
   createCRD: true
   replicaCount: 3
