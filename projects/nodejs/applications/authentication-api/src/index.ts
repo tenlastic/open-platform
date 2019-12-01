@@ -15,12 +15,22 @@ mailgun.setCredentials(process.env.MAILGUN_DOMAIN, process.env.MAILGUN_KEY);
 
 const connectionString = process.env.MONGO_CONNECTION_STRING;
 const databaseName = process.env.MONGO_DATABASE_NAME;
-mongoose.connect(connectionString, {
-  dbName: databaseName,
-  useFindAndModify: false,
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(
+  connectionString,
+  {
+    dbName: databaseName,
+    useFindAndModify: false,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  },
+  err => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log('Connected to MongoDB:', connectionString);
+    }
+  },
+);
 
 const webServer = new WebServer();
 webServer.use(loginsRouter.routes());

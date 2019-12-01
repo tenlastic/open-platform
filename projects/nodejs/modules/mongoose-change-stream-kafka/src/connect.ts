@@ -12,6 +12,4 @@ export async function connect(brokers: string[]) {
 
   await admin.connect();
   await producer.connect();
-
-  console.log('Connected to Kafka:', brokers.join(','));
 }
