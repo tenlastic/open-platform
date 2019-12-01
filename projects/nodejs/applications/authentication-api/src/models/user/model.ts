@@ -9,11 +9,6 @@ import {
   pre,
   prop,
 } from '@hasezoey/typegoose';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import {
   alphanumericValidator,
@@ -42,10 +37,6 @@ import { UserPermissions } from './';
     minimize: false,
     timestamps: true,
   },
-})
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: UserEvent,
 })
 @plugin(uniqueErrorPlugin)
 @pre('save', async function(this: UserDocument) {
