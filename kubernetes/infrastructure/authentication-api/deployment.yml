@@ -17,6 +17,9 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
           envFrom:
             - secretRef:
                 name: authentication-api-environment-variables
