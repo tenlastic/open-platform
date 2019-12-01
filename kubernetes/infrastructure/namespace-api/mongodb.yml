@@ -23,10 +23,10 @@ spec:
         requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
-                - key: app
+                - key: release
                   operator: In
                   values:
-                    - mongodb-replicaset
+                    - namespace-api-mongodb
             topologyKey: kubernetes.io/hostname
     image:
       tag: 4.0
