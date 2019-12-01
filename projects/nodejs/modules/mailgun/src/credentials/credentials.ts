@@ -1,7 +1,4 @@
-const credentials = {
-  domain: null,
-  key: null,
-};
+const credentials = { domain: null, key: null };
 
 export function getCredentials() {
   return credentials;
