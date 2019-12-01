@@ -32,6 +32,8 @@ spec:
       tag: 4.0
     metrics:
       enabled: true
+      resources:
+        cpu: 50m
     persistentVolume:
       storageClass: standard-expandable
     replicas: 3
