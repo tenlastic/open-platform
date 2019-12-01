@@ -61,7 +61,10 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       stubRecord = await stubRecord.populate(this.accessControl.options.populate).execPopulate();
     }
 
+    console.log('StubRecord:', stubRecord);
+
     const createPermissions = this.accessControl.getFieldPermissions('create', stubRecord, user);
+    console.log('CreatePermissions:', createPermissions);
     if (createPermissions.length === 0) {
       throw new PermissionError();
     }
@@ -74,7 +77,9 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       this.toPlainObject(override),
       { arrayMerge: overwriteMerge },
     );
+    console.log('Merged Params:', mergedParams);
     const record = await this.Model.create(mergedParams);
+    console.log('Record:', record);
 
     // Filter unauthorized attributes
     const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
