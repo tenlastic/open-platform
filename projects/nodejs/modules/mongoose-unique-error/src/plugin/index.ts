@@ -32,6 +32,7 @@ export function plugin(schema: Schema) {
   });
 
   schema.post('save', function(err, doc, next) {
+    console.log(`unique-plugin: post('save')`);
     if (err.name === 'MongoError' && err.code === 11000) {
       const validationError = getValidationError(err, schema, doc);
       return next(validationError);

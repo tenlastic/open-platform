@@ -53,12 +53,16 @@ UserEvent.on(kafka.publish);
 })
 @plugin(uniqueErrorPlugin)
 @pre('save', async function(this: UserDocument) {
+  console.log(`pre('save')`);
   if (!this.isNew && this._original.password !== this.password) {
+    console.log('Sending password reset confirmation...');
     await emails.sendPasswordResetConfirmation(this);
   }
 
   if (this.isModified('password')) {
+    console.log('Hashing password:', this.password);
     this.password = await User.hashPassword(this.password);
+    console.log('Hashed password:', this.password);
   }
 })
 export class UserSchema {

@@ -37,6 +37,7 @@ export function changeStreamPlugin<T extends mongoose.Document>(
   });
 
   schema.pre('save', function(this: T & IOriginalDocument) {
+    console.log(`change-stream-plugin: pre('save')`);
     this.wasModified = this.modifiedPaths();
     this.wasNew = this.isNew;
   });
