@@ -1,7 +1,25 @@
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: cloud.google.com/gke-preemptible
+              operator: Exists
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: release
+              operator: In
+              values:
+                - flux
+        topologyKey: kubernetes.io/hostname
 helmOperator:
   create: true
   createCRD: true
+  replicaCount: 3
 git:
   path: kubernetes/infrastructure
   readonly: true
   url: https://github.com/tenlastic/open-platform
+replicaCount: 3
