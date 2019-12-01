@@ -9,7 +9,7 @@ spec:
   releaseName: database-api-rabbitmq
   chart:
     repository: https://kubernetes-charts.storage.googleapis.com/
-    name: rabbitmq-master
+    name: rabbitmq-ha
     version: 1.36.4
   values:
     nodeSelector:
@@ -17,6 +17,7 @@ spec:
     persistentVolume:
       enabled: true
       storageClass: standard-expandable
+    podAntiAffinity: hard
     podAntiAffinityTopologyKey: kubernetes.io/hostname
     prometheus:
       exporter:
