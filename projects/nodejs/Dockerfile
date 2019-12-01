@@ -3,7 +3,7 @@ FROM node:10 AS install
 WORKDIR /usr/src/app/
 
 COPY ./package*.json ./
-RUN npm install --production --silent
+RUN npm install --production
 
 # Stage 2
 FROM node:10-alpine
