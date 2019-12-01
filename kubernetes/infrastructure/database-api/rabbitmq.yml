@@ -22,6 +22,8 @@ spec:
     prometheus:
       exporter:
         enabled: true
+      operator:
+        enabled: false
     replicaCount: 3
     resources:
       requests:
