@@ -5,13 +5,6 @@ WORKDIR /usr/src/app/
 COPY ./package*.json ./
 RUN npm install --production
 
-# Stage 2
-FROM node:10-alpine
-WORKDIR /usr/src/app/
-
-COPY --from=install /usr/src/app/node_modules ./node_modules
-RUN npm rebuild -q
-
 COPY ./dist/ ./dist/
 
 EXPOSE 3000
