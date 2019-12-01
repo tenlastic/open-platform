@@ -23,8 +23,6 @@ spec:
           envFrom:
             - secretRef:
                 name: namespace-api-environment-variables
-      imagePullSecrets:
-        - name: githubimagepullsecret
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
