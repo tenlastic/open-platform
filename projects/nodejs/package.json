@@ -55,7 +55,7 @@
     "istanbul-combine": "0.3.0",
     "jsonwebtoken": "8.5.1",
     "junit-merge": "2.0.0",
-    "lerna": "3.16.4",
+    "lerna": "3.19.0",
     "mocha": "6.1.4",
     "mocha-junit-reporter": "1.18.0",
     "mocha-multi-reporters": "1.1.7",
