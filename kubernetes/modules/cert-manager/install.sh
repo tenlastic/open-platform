@@ -8,17 +8,14 @@ kubectl apply -f "${DIRNAME}/manifests/namespace.yml"
 
 # Install the cert-manager CRDs. We must do this before installing the Helm
 # chart in the next step for `release-0.7` of cert-manager:
-kubectl apply \
-  --validate=false \
-  -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.12/deploy/manifests/00-crds.yaml
+kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.7/deploy/manifests/00-crds.yaml
 
 # Install CertManager from the Jetstack Helm repository.
 helm repo add jetstack https://charts.jetstack.io
 helm upgrade cert-manager jetstack/cert-manager \
   --install \
   --namespace "cert-manager" \
-  --values "${DIRNAME}/helm/values.yml" \
-  --version v0.12.0-beta.1
+  --values "${DIRNAME}/helm/values.yml"
 
 # Wait for install to finish.
 echo "Waiting for install to finish..."

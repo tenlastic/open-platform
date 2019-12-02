@@ -22,11 +22,11 @@
 # Install Tiller.
 ./modules/tiller/install.sh
 
+# Install CertManager.
+./modules/cert-manager/install.sh
+
 # Install Flux.
 ./modules/flux/install.sh
-
-# Install Argo.
-./modules/argo/install.sh
 
 # Install Grafana.
 ./modules/grafana/install.sh
@@ -34,11 +34,8 @@
 # Install Istio.
 ./modules/istio/install.sh
 
-# Install Kafka.
-./modules/kafka/install.sh
-
-# Install MongoDB.
-./modules/mongodb/install.sh
+# Install Argo.
+./modules/argo/install.sh
 
 # Install MinIO.
 ./modules/minio/install.sh

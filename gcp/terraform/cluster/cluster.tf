@@ -16,7 +16,7 @@ module "default_pool" {
 
   cluster_name   = "${google_container_cluster.primary.name}"
   machine_type   = "n1-standard-1"
-  max_node_count = 2
+  max_node_count = 3
   min_node_count = 1
 }
 
@@ -24,8 +24,8 @@ module "preemptible_pool" {
   source = "../modules/node-pool"
 
   cluster_name   = "${google_container_cluster.primary.name}"
-  machine_type   = "n1-standard-1"
-  max_node_count = 10
+  machine_type   = "n1-standard-2"
+  max_node_count = 5
   min_node_count = 1
   name           = "preemptible-pool"
   preemptible    = true
