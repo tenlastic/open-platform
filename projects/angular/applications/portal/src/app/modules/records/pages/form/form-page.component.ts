@@ -14,7 +14,7 @@ export class RecordsFormPageComponent implements OnInit {
   public error: string;
   public form: FormGroup;
 
-  private data: Record;
+  public data: Record;
   private database: Database;
 
   constructor(

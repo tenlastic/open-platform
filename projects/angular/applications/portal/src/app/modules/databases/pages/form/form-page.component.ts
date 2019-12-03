@@ -11,7 +11,7 @@ import { Database } from '@app/shared/models';
   styleUrls: ['./form-page.component.scss'],
 })
 export class DatabasesFormPageComponent implements OnInit {
-  private data: Database;
+  public data: Database;
   public error: string;
   public form: FormGroup;
 

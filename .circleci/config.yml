@@ -17,6 +17,17 @@ commands:
             mkdir -p << parameters.to >>
             mv << parameters.from >> << parameters.to >>
 
+  install_docker_client:
+    steps:
+      - run:
+          name: Install Docker client
+          command: |
+            set -x
+            VER="18.06.3-ce"
+            curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
+            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
+            mv /tmp/docker/* /usr/bin
+
   install_node_modules:
     parameters:
       directory:
@@ -54,7 +65,7 @@ jobs:
           working_directory: ./projects/angular/
       - run:
           name: Build
-          command: npm run lerna run build
+          command: npm run lerna run build -- -- --preserve-symlinks --prod
           working_directory: ./projects/angular/
       - run:
           name: Test
@@ -108,6 +119,43 @@ jobs:
           path: ./projects/nodejs/test-results/
           destination: test-results
 
+  publish_angular_docker_images:
+    docker:
+      - image: node:10
+    steps:
+      - setup_remote_docker
+      - checkout
+      - install_node_modules:
+          directory: ./projects/angular/
+      - run:
+          name: Build
+          command: npm run lerna run build
+          working_directory: ./projects/angular/
+      - run:
+          name: Update Git Credentials
+          command: |
+            git config user.email $GITHUB_USER_EMAIL
+            git config user.name $GITHUB_USER_NAME
+      - run:
+          name: Update Version
+          command: |
+            npm run lerna -- version \
+              --exact \
+              --message "angular-v%v [ci skip]" \
+              --tag-version-prefix angular-v \
+              --yes \
+              patch
+          working_directory: ./projects/angular/
+      - install_docker_client
+      - run:
+          name: Build Docker Images
+          command: npm run lerna run docker:build
+          working_directory: ./projects/angular/
+      - run:
+          name: Push Docker Images
+          command: npm run lerna run docker:push
+          working_directory: ./projects/angular/
+
   publish_nodejs_docker_images:
     docker:
       - image: node:10
@@ -121,14 +169,7 @@ jobs:
           name: Build
           command: npm run lerna run build
           working_directory: /tmp/workspace/projects/nodejs/
-      - run:
-          name: Install Docker client
-          command: |
-            set -x
-            VER="18.06.3-ce"
-            curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
-            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
-            mv /tmp/docker/* /usr/bin
+      - install_docker_client
       - run:
           name: Build Docker Images
           command: npm run lerna run docker:build
@@ -212,6 +253,13 @@ workflows:
   build-deploy:
     jobs:
       - angular
+      - publish_angular_docker_images:
+          filters:
+            branches:
+              only: master
+          requires:
+            - angular
+
       - nodejs:
           context: open-platform-review
       - publish_nodejs_npm_modules:
@@ -219,11 +267,11 @@ workflows:
             branches:
               only: master
           requires:
-            - angular
             - nodejs
       - publish_nodejs_docker_images:
           requires:
             - publish_nodejs_npm_modules
+
       - terraform:
           filters:
             branches:

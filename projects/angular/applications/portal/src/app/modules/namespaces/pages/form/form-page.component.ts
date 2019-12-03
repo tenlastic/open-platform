@@ -20,7 +20,7 @@ export class NamespacesFormPageComponent implements OnInit {
   public error: string;
   public form: FormGroup;
 
-  private data: Namespace;
+  public data: Namespace;
 
   constructor(
     private activatedRouter: ActivatedRoute,

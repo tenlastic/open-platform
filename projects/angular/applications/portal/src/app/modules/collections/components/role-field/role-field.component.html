@@ -46,7 +46,7 @@
         <mat-select
           multiple
           placeholder="None"
-          [formControl]="form.controls.permissions.controls.create"
+          [formControl]="form['controls'].permissions['controls'].create"
         >
           <mat-option *ngFor="let field of propertyFields" [value]="field">
             {{ field }}
@@ -59,7 +59,7 @@
         <mat-select
           multiple
           placeholder="None"
-          [formControl]="form.controls.permissions.controls.read"
+          [formControl]="form['controls'].permissions['controls'].read"
         >
           <mat-option *ngFor="let field of recordFields.concat(propertyFields)" [value]="field">
             {{ field }}
@@ -72,7 +72,7 @@
         <mat-select
           multiple
           placeholder="None"
-          [formControl]="form.controls.permissions.controls.update"
+          [formControl]="form['controls'].permissions['controls'].update"
         >
           <mat-option *ngFor="let field of propertyFields" [value]="field">
             {{ field }}
@@ -82,7 +82,7 @@
 
       <mat-form-field floatLabel="always">
         <mat-label>Delete</mat-label>
-        <mat-select [formControl]="form.controls.permissions.controls.delete">
+        <mat-select [formControl]="form['controls'].permissions['controls'].delete">
           <mat-option [value]="true">True</mat-option>
           <mat-option [value]="false">False</mat-option>
         </mat-select>
@@ -93,7 +93,13 @@
 
 <div class="row border-bottom">
   <app-toggle-section title="Filter Query" [isVisible]="false">
-    <div class="row" *ngFor="let criterion of form.get('permissions.find').controls; let i = index">
+    <div
+      class="row"
+      *ngFor="
+        let criterion of form['controls'].permissions['controls'].find.controls;
+        let i = index
+      "
+    >
       <app-criterion-field
         [fields]="propertyFields"
         [form]="criterion"
