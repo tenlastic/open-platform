@@ -3,6 +3,7 @@
   "version": "0.0.4",
   "scripts": {
     "build": "ng build",
+    "build:production": "ng build --preserve-symlinks --prod",
     "docker": "sh ../../scripts/docker.sh npm run --if-present",
     "docker:build": "sh ../../scripts/docker-build.sh portal-ui",
     "docker:down": "sh ../../scripts/docker-down.sh",
