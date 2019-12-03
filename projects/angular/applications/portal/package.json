@@ -3,14 +3,14 @@
   "version": "0.0.0",
   "scripts": {
     "build": "ng build",
-    "build:staging": "../../scripts/build-production.sh staging",
-    "build:production": "../../scripts/build-production.sh production",
     "docker": "sh ../../scripts/docker.sh npm run --if-present",
+    "docker:build": "sh ../../scripts/docker-build.sh portal-ui",
     "docker:down": "sh ../../scripts/docker-down.sh",
+    "docker:push": "sh ../../scripts/docker-push.sh portal-ui",
     "e2e": "ng e2e",
     "lint": "ng lint",
     "ng": "ng",
-    "start": "ng serve --host 0.0.0.0 --poll 500 --port 4201",
+    "start": "ng serve --host 0.0.0.0 --poll 500",
     "test": "ng test --poll 500",
     "test:ci": "ng test --watch=false"
   },

@@ -11,7 +11,7 @@ import { User } from '@app/shared/models';
   styleUrls: ['./form-page.component.scss'],
 })
 export class UsersFormPageComponent implements OnInit {
-  private data: User;
+  public data: User;
   public error: string;
   public form: FormGroup;
   public loadingMessage: string;

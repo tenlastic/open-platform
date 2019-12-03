@@ -2,5 +2,5 @@ version: '2.1'
 services:
   application:
     ports:
-      - 4201:4201
+      - 8081:4200
     working_dir: /usr/src/app/applications/portal/

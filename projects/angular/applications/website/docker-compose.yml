@@ -2,5 +2,5 @@ version: '2.1'
 services:
   application:
     ports:
-      - 4200:4200
+      - 8080:4200
     working_dir: /usr/src/app/applications/website/
