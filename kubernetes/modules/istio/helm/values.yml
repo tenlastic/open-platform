@@ -13,7 +13,7 @@ global:
     enabled: true
     enableHttps: true
   proxy:
-    autoInject: false
+    autoInject: disabled
 kiali:
   dashboard:
     grafanaURL: https://grafana.tenlastic.com
