@@ -129,7 +129,7 @@ jobs:
           directory: ./projects/angular/
       - run:
           name: Build
-          command: npm run lerna run build
+          command: npm run lerna run build -- -- --preserve-symlinks --prod
           working_directory: ./projects/angular/
       - run:
           name: Update Git Credentials
