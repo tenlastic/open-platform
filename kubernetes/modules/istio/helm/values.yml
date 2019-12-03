@@ -12,6 +12,8 @@ global:
   k8sIngress:
     enabled: true
     enableHttps: true
+  proxy:
+    autoInject: false
 kiali:
   dashboard:
     grafanaURL: https://grafana.tenlastic.com
