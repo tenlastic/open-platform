@@ -12,3 +12,4 @@ helm upgrade flux fluxcd/flux \
 	--install \
 	--namespace "flux" \
   --values "${DIRNAME}/helm/values.yml"
+	

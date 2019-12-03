@@ -14,7 +14,10 @@ affinity:
               values:
                 - cert-manager
         topologyKey: kubernetes.io/hostname
-replicaCount: 3
+ingressShim:
+  defaultIssuerName: letsencrypt-production
+  defaultIssuerKind: ClusterIssuer
+replicaCount: 1
 resources:
   requests:
     cpu: 25m

@@ -1,24 +1,15 @@
-apiVersion: certmanager.k8s.io/v1alpha1
+apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
   name: ingress-cert
   namespace: istio-system
 spec:
-  secretName: istio-ingressgateway-certs
-  issuerRef:
-    name: letsencrypt-staging
-    kind: ClusterIssuer
   dnsNames:
-    - 'tenlastic.com'
-    - '*.tenlastic.com'
-    - '*.staging.tenlastic.com'
-    - '*.test.tenlastic.com'
-  acme:
-    config:
-    - dns01:
-        provider: cloud-dns
-      domains:
-      - 'tenlastic.com'
-      - '*.tenlastic.com'
-      - '*.staging.tenlastic.com'
-      - '*.test.tenlastic.com'
+    - "tenlastic.com"
+    - "*.tenlastic.com"
+    - "*.staging.tenlastic.com"
+    - "*.test.tenlastic.com"
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  secretName: istio-ingressgateway-certs

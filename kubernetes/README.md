@@ -25,14 +25,17 @@
 # Install CertManager.
 ./modules/cert-manager/install.sh
 
-# Install Flux.
-./modules/flux/install.sh
+# Install Sealed Secrets
+./modules/sealed-secrets/install.sh
+
+# Install Istio.
+./modules/istio/install.sh
 
 # Install Grafana.
 ./modules/grafana/install.sh
 
-# Install Istio.
-./modules/istio/install.sh
+# Install Flux.
+./modules/flux/install.sh
 
 # Install Argo.
 ./modules/argo/install.sh
@@ -55,6 +58,5 @@
 - Enable Istio Sidecar injection for namespace.
 
 ```bash
-kubectl label namespace default istio-injection=enabled \
-  --overwrite
+kubectl label namespace default istio-injection=enabled --overwrite
 ```
