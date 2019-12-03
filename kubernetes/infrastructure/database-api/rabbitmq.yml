@@ -25,6 +25,7 @@ spec:
         enabled: true
       operator:
         enabled: false
+    rabbitmqUsername: admin
     replicaCount: 3
     resources:
       requests:
