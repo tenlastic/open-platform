@@ -43,7 +43,6 @@ mat-toolbar.system-toolbar {
   background: rgba(0, 0, 0, 0.75);
   height: 24px;
   overflow: initial;
-  padding-left: 120px;
   position: fixed;
   top: 0px;
   z-index: 1;
@@ -69,7 +68,6 @@ mat-toolbar.system-toolbar {
     align-items: center;
     display: flex;
     height: 100%;
-    padding: 0px;
   }
 }
 
@@ -79,10 +77,10 @@ mat-toolbar.system-toolbar {
 
 .logo-container {
   display: inline-block;
-  width: 170px
+  width: 170px;
 }
 
-@media(max-width: 768px) {
+@media (max-width: 768px) {
   mat-toolbar.main-toolbar,
   mat-toolbar.system-toolbar {
     img {

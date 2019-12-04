@@ -1,32 +1,35 @@
 @import '~bootstrap/scss/bootstrap-grid.scss';
 @import '~assets/scss/theme.scss';
 
-button.mat-button, button.mat-menu-item {
+button.mat-button,
+button.mat-menu-item {
   border-radius: 0px;
-  text-shadow: 1px 2px 3px #000000;
+  text-shadow: 3px 3px 1px #000000;
   text-transform: uppercase;
 
-  &:hover, &.active {
+  &:hover,
+  &.active {
     box-shadow: $shadow, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
   }
 
-  &[color=accent]:hover {
+  &[color='accent']:hover {
     color: $accent-highlight;
   }
 
-  &[color=primary]:hover {
+  &[color='primary']:hover {
     color: $primary-highlight;
   }
 
-  &[color=white] {
+  &[color='white'] {
     color: white;
 
-    &:hover, &.active {
+    &:hover,
+    &.active {
       background: rgba(255, 255, 255, 0.2);
     }
   }
 
-  &[background=accent] {
+  &[background='accent'] {
     background: $accent;
     box-shadow: $shadow, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
     color: white;
@@ -42,7 +45,7 @@ button.mat-button, button.mat-menu-item {
     }
   }
 
-  &[background=primary] {
+  &[background='primary'] {
     background: $primary;
     box-shadow: $shadow, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
     color: white;
@@ -166,7 +169,8 @@ mat-nav-list.mat-nav-list {
     background: rgba(0, 0, 0, 0.5);
     color: rgba(255, 255, 255, 0.5);
 
-    &.active, &:hover {
+    &.active,
+    &:hover {
       background: transparent;
     }
 

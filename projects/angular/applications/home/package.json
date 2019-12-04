@@ -1,5 +1,5 @@
 {
-  "name": "website",
+  "name": "home",
   "version": "0.0.5",
   "scripts": {
     "build": "ng build",
@@ -11,8 +11,8 @@
     "e2e": "ng e2e",
     "lint": "ng lint",
     "ng": "ng",
-    "start": "ng serve --host 0.0.0.0",
-    "test": "ng test",
+    "start": "ng serve --host 0.0.0.0 --poll 500",
+    "test": "ng test --poll 500",
     "test:ci": "ng test --watch=false"
   },
   "private": true,

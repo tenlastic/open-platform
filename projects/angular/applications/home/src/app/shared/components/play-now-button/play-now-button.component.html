@@ -1,0 +1,5 @@
+<a [href]="environment.launcherUrl">
+  <button mat-button background="accent" [disabled]="!isReady" (click)="click()">
+    {{ isReady ? 'Play Now' : 'Updating...' }}
+  </button>
+</a>
