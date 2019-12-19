@@ -21,6 +21,7 @@ import {
 mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
   dbName: process.env.MONGO_DATABASE_NAME,
   poolSize: 10,
+  useCreateIndex: true,
   useFindAndModify: false,
   useNewUrlParser: true,
   useUnifiedTopology: true,

@@ -9,6 +9,7 @@ kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
 before(async function() {
   await mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
     dbName: process.env.MONGO_DATABASE_NAME,
+    useCreateIndex: true,
     useFindAndModify: false,
     useNewUrlParser: true,
     useUnifiedTopology: true,
