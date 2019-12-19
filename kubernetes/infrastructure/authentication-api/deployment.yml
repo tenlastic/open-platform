@@ -13,18 +13,6 @@ spec:
       labels:
         app: authentication-api
     spec:
-      containers:
-        - name: authentication-api
-          image: tenlastic/authentication-api:latest
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 3000
-          resources:
-            requests:
-              cpu: 50m
-          envFrom:
-            - secretRef:
-                name: authentication-api-environment-variables
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -32,6 +20,24 @@ spec:
               - matchExpressions:
                   - key: cloud.google.com/gke-preemptible
                     operator: Exists
+      containers:
+        - name: authentication-api
+          image: tenlastic/authentication-api:latest
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: authentication-api-environment-variables
+          livenessProbe:
+            httpGet:
+              path: /users
+              port: 3000
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
 ---
 apiVersion: v1
 kind: Service

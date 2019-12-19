@@ -1,12 +1,12 @@
 apiVersion: flux.weave.works/v1beta1
 kind: HelmRelease
 metadata:
-  name: shared-kafka
+  name: kafka
   namespace: default
   annotations:
     flux.weave.works/automated: "true"
 spec:
-  releaseName: shared-kafka
+  releaseName: kafka
   chart:
     repository: http://storage.googleapis.com/kubernetes-charts-incubator/
     name: kafka

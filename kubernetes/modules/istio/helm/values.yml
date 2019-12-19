@@ -14,6 +14,9 @@ global:
     enableHttps: true
   proxy:
     autoInject: disabled
+    resources:
+      requests:
+        cpu: 50m
 kiali:
   dashboard:
     grafanaURL: https://grafana.tenlastic.com

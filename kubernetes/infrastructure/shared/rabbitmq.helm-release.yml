@@ -1,18 +1,18 @@
 apiVersion: flux.weave.works/v1beta1
 kind: HelmRelease
 metadata:
-  name: database-api-rabbitmq
+  name: rabbitmq
   namespace: default
   annotations:
     flux.weave.works/automated: "true"
 spec:
-  releaseName: database-api-rabbitmq
+  releaseName: rabbitmq
   chart:
     repository: https://kubernetes-charts.storage.googleapis.com/
     name: rabbitmq-ha
     version: 1.36.4
   values:
-    existingSecret: database-api-rabbitmq
+    existingSecret: rabbitmq
     nodeSelector:
       cloud.google.com/gke-preemptible: "true"
     persistentVolume:
@@ -29,4 +29,4 @@ spec:
     resources:
       requests:
         memory: 128M
-        cpu: 50m
+        cpu: 100m

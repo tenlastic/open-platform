@@ -1,12 +1,12 @@
 apiVersion: flux.weave.works/v1beta1
 kind: HelmRelease
 metadata:
-  name: authentication-api-mongodb
+  name: mongodb
   namespace: default
   annotations:
     flux.weave.works/automated: "true"
 spec:
-  releaseName: authentication-api-mongodb
+  releaseName: mongodb
   chart:
     repository: https://kubernetes-charts.storage.googleapis.com/
     name: mongodb-replicaset
@@ -26,7 +26,7 @@ spec:
                 - key: release
                   operator: In
                   values:
-                    - authentication-api-mongodb
+                    - mongodb
             topologyKey: kubernetes.io/hostname
     image:
       tag: 4.0
@@ -40,4 +40,4 @@ spec:
     resources:
       requests:
         memory: 128M
-        cpu: 50m
+        cpu: 100m
