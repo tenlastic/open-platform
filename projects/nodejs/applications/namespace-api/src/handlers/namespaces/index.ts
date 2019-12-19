@@ -10,11 +10,9 @@ import { handler as updateHandler } from './update';
 
 export const router = new Router({ prefix: '/namespaces' });
 
-router.use(authenticationMiddleware);
-
 router.delete('/:id', deleteHandler);
 router.get('/', findHandler);
 router.get('/count', countHandler);
 router.get('/:id', findOneHandler);
-router.post('/', createHandler);
+router.post('/', authenticationMiddleware, createHandler);
 router.put('/:id', updateHandler);
