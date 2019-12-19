@@ -73,7 +73,6 @@
     "tslint": "5.18.0",
     "tslint-microsoft-contrib": "6.2.0",
     "typescript": "3.5.3",
-    "watch": "1.0.2",
-    "webpack": "4.21.0"
+    "watch": "1.0.2"
   }
 }
