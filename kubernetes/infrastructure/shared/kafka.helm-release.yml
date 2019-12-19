@@ -29,6 +29,7 @@ spec:
                     - kafka
             topologyKey: kubernetes.io/hostname
     persistence:
+      size: 8Gi
       storageClass: standard-expandable
     prometheus:
       kafka:

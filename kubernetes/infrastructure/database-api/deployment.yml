@@ -31,8 +31,8 @@ spec:
             httpGet:
               path: /databases
               port: 3000
-            initialDelaySeconds: 3
-            periodSeconds: 3
+            initialDelaySeconds: 15
+            periodSeconds: 15
           ports:
             - containerPort: 3000
           resources:

@@ -11,5 +11,6 @@ helm repo add fluxcd https://fluxcd.github.io/flux
 helm upgrade flux fluxcd/flux \
 	--install \
 	--namespace "flux" \
-  --values "${DIRNAME}/helm/values.yml"
+  --values "${DIRNAME}/helm/values.yml" \
+	--version "0.16.0"
 	
