@@ -1,0 +1,6 @@
+version: '2.1'
+services:
+  application:
+    ports:
+      - 8082:4200
+    working_dir: /usr/src/app/modules/http-services/
