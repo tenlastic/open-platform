@@ -4,7 +4,7 @@ import { Namespace } from '../../models/namespace';
 import { ApiService, RestParameters } from '../api/api.service';
 import { EnvironmentService } from '../environment/environment.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class NamespaceService {
   public basePath: string;
 

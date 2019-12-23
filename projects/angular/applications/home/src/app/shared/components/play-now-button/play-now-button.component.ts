@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { PatchService, UnityService } from '@app/core/services';
-import { environment } from '@env/environment';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-play-now-button',

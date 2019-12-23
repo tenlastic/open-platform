@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class EnvironmentServiceMock {
   public databaseApiBaseUrl = 'http://localhost:3002/databases';
   public loginApiBaseUrl = 'http://localhost:3000/logins';

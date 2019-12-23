@@ -8,7 +8,7 @@ export interface IOnLogin {
   refreshToken: string;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LoginService {
   public basePath: string;
 

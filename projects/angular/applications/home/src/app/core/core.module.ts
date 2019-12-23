@@ -7,42 +7,25 @@ import { RouterModule } from '@angular/router';
 
 import { MaterialModule } from '@app/material.module';
 
-import {
-  ApiService,
-  MiscellaneousService
-} from './http';
+import { PatchService, UnityService } from './services';
 
-import {
-  PatchService,
-  UnityService
-} from './services';
-
-const providers = [
-  ApiService,
-  MiscellaneousService,
-  PatchService,
-  UnityService
-];
+const providers = [PatchService, UnityService];
 
 @NgModule({
-  exports: [
-    MaterialModule
-  ],
+  exports: [MaterialModule],
   imports: [
     BrowserAnimationsModule,
     BrowserModule,
     CommonModule,
     HttpClientModule,
     MaterialModule,
-    RouterModule
+    RouterModule,
   ],
-  providers: [...providers]
+  providers: [...providers],
 })
 export class CoreModule {
   /* make sure CoreModule is imported only by one NgModule the AppModule */
-  constructor (
-    @Optional() @SkipSelf() parentModule: CoreModule
-  ) {
+  constructor(@Optional() @SkipSelf() parentModule: CoreModule) {
     if (parentModule) {
       throw new Error('CoreModule is already loaded. Import only in AppModule.');
     }

@@ -21,11 +21,12 @@
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": [
               {
-                "input": "node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
+                "input": "../../node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
               },
               "src/assets/scss/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "preserveSymlinks": true
           },
           "configurations": {
             "production": {
@@ -90,7 +91,7 @@
             "karmaConfig": "src/karma.conf.js",
             "styles": [
               {
-                "input": "node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
+                "input": "../../node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
               },
               "src/assets/scss/styles.scss"
             ],

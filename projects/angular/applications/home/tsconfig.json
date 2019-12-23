@@ -9,20 +9,12 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "es5",
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "types": [
-      "jasmine",
-      "node"
-    ],
-    "lib": [
-      "es2017",
-      "dom"
-    ],
+    "typeRoots": ["node_modules/@types"],
+    "types": ["jasmine", "node"],
+    "lib": ["es2017", "dom"],
     "paths": {
       "@app/*": ["app/*"],
-      "@env/*": ["environments/*"],
+      "@env": ["environments/environment.ts"]
     }
   }
 }

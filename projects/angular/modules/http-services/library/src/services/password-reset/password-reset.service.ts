@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from '../api/api.service';
 import { EnvironmentService } from '../environment/environment.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class PasswordResetService {
   public basePath: string;
 

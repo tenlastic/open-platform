@@ -4,7 +4,7 @@ import { Record } from '../../models/record';
 import { ApiService, RestParameters } from '../api/api.service';
 import { EnvironmentService } from '../environment/environment.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class RecordService {
   public basePath: string;
 

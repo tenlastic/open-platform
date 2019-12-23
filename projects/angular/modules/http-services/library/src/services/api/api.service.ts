@@ -11,7 +11,7 @@ export interface RestParameters {
   where?: any;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ApiService {
   constructor(private http: HttpClient) {}
 

@@ -5,9 +5,7 @@ import { User } from '../../models/user';
 import { IOnLogin, LoginService } from '../login/login.service';
 import { UserService } from '../user/user.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class IdentityService {
   public get accessToken() {
     if (this._accessToken) {

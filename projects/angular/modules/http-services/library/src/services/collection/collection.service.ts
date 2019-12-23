@@ -4,7 +4,7 @@ import { Collection } from '../../models/collection';
 import { ApiService, RestParameters } from '../api/api.service';
 import { EnvironmentService } from '../environment/environment.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class CollectionService {
   public basePath: string;
 

@@ -4,7 +4,7 @@ import { User } from '../../models/user';
 import { ApiService, RestParameters } from '../api/api.service';
 import { EnvironmentService } from '../environment/environment.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class UserService {
   public basePath: string;
 

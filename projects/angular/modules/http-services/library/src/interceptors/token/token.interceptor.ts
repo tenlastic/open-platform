@@ -16,7 +16,7 @@ import { IdentityService } from '../../services/identity/identity.service';
 export class TokenInterceptor implements HttpInterceptor {
   constructor(private identityService: IdentityService, private router: Router) {}
 
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  public intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     request = request.clone({
       setHeaders: {
         Authorization: `Bearer ${this.identityService.accessToken}`,

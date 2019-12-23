@@ -3,9 +3,12 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  api: 'http://localhost:3000',
-  launcherUrl: 'https://s3.amazonaws.com/nova-staging-launcher/Nova.zip',
-  production: false
+  databaseApiBaseUrl: 'http://localhost:3002/databases',
+  loginApiBaseUrl: 'http://localhost:3000/logins',
+  namespaceApiBaseUrl: 'http://localhost:3001/namespaces',
+  passwordResetApiBaseUrl: 'http://localhost:3000/password-resets',
+  production: false,
+  userApiBaseUrl: 'http://localhost:3000/users',
 };
 
 /*

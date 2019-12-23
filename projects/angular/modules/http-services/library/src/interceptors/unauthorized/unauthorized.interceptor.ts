@@ -16,7 +16,7 @@ import { IdentityService } from '../../services/identity/identity.service';
 export class UnauthorizedInterceptor implements HttpInterceptor {
   constructor(private identityService: IdentityService, private router: Router) {}
 
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  public intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next
       .handle(request)
       .pipe(tap(null, this.redirectToLoginOnUnauthorizedResponse.bind(this)));
