@@ -1,0 +1,17 @@
+{
+  "name": "home",
+  "version": "0.0.8",
+  "scripts": {
+    "build": "ng build home",
+    "build:production": "ng build --preserve-symlinks --prod home",
+    "e2e": "ng e2e home",
+    "lint": "ng lint home",
+    "start": "ng serve --host 0.0.0.0 --poll 500 home",
+    "test": "ng test --poll 500 home",
+    "test:ci": "ng test --watch false home"
+  },
+  "private": true,
+  "devDependencies": {
+    "@angular/cli": "~8.3.21"
+  }
+}

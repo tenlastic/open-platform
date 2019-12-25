@@ -1,0 +1,22 @@
+{
+  "main": "../../dist/authentication/bundles/tenlastic-ng-authentication.umd.js",
+  "name": "@tenlastic/ng-authentication",
+  "typings": "../../dist/authentication/module.d.ts",
+  "version": "0.0.8",
+  "scripts": {
+    "build": "ng build authentication",
+    "lint": "ng lint authentication",
+    "test": "ng test authentication",
+    "test:ci": "ng test --watch false authentication"
+  },
+  "peerDependencies": {
+    "@angular/common": "^8.2.14",
+    "@angular/core": "^8.2.14",
+    "@tenlastic/ng-http": "^0.0.8",
+    "jwt-decode": "^2.2.0"
+  },
+  "devDependencies": {
+    "@angular/cli": "~8.3.21",
+    "@tenlastic/ng-http": "^0.0.8"
+  }
+}
