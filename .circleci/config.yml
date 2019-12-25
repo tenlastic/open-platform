@@ -65,11 +65,11 @@ jobs:
           working_directory: ./projects/angular/
       - run:
           name: Build
-          command: npm run lerna run build
+          command: npm run lerna run -- --concurrency 1 build
           working_directory: ./projects/angular/
       - run:
           name: Build Production
-          command: npm run lerna run build:production
+          command: npm run lerna run -- --concurrency 1 build:production
           working_directory: ./projects/angular/
       - run:
           name: Test
@@ -133,11 +133,11 @@ jobs:
           directory: ./projects/angular/
       - run:
           name: Build
-          command: npm run lerna run build
+          command: npm run lerna run -- --concurrency 1 build
           working_directory: ./projects/angular/
       - run:
           name: Build Production
-          command: npm run lerna run build:production
+          command: npm run lerna run -- --concurrency 1 build:production
           working_directory: ./projects/angular/
       - run:
           name: Update Git Credentials
