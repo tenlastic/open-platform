@@ -36,7 +36,7 @@
         <app-role-field
           [form]="role"
           [isDefault]="i === form['controls'].roles['controls'].length - 1"
-          [properties]="form.controls.properties"
+          [properties]="form['controls'].properties | asAny"
           (moveDown)="moveRoleDown(i)"
           (moveUp)="moveRoleUp(i)"
           (remove)="removeRole(i)"

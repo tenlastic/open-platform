@@ -42,7 +42,7 @@
         {{ identityService.user.email }}
         <mat-icon>keyboard_arrow_down</mat-icon>
       </button>
-      <mat-menu #menu="matMenu" xPosition="before" [overlapTrigger]="false">
+      <mat-menu #menu="matMenu" xPosition="before">
         <button
           *ngIf="identityService && identityService.user"
           mat-menu-item

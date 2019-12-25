@@ -65,7 +65,7 @@ jobs:
           working_directory: ./projects/angular/
       - run:
           name: Build
-          command: npm run lerna run -- --concurrency 1 build
+          command: npm run lerna run -- --concurrency 1 --no-private build
           working_directory: ./projects/angular/
       - run:
           name: Build Production

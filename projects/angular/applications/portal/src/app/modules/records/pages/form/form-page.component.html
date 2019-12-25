@@ -16,14 +16,19 @@
             <mat-label>Element #{{ i + 1 }}</mat-label>
 
             <ng-container [ngSwitch]="collection.jsonSchema.properties[key].items.type">
-              <mat-select *ngSwitchCase="'boolean'" [formControlName]="i">
+              <mat-select *ngSwitchCase="'boolean'" [formControlName]="i | asAny">
                 <mat-option [value]="true">True</mat-option>
                 <mat-option [value]="false">False</mat-option>
               </mat-select>
 
-              <input *ngSwitchCase="'number'" matInput type="number" [formControlName]="i" />
+              <input
+                *ngSwitchCase="'number'"
+                matInput
+                type="number"
+                [formControlName]="i | asAny"
+              />
 
-              <input *ngSwitchCase="'string'" matInput [formControlName]="i" />
+              <input *ngSwitchCase="'string'" matInput [formControlName]="i | asAny" />
             </ng-container>
 
             <mat-error>Enter a valid {{ key }}.</mat-error>

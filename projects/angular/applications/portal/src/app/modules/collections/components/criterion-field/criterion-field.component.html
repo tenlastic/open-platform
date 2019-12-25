@@ -1,6 +1,6 @@
 <mat-form-field floatLabel="always">
   <mat-label>Field</mat-label>
-  <mat-select placeholder="None" [formControl]="form.controls.field">
+  <mat-select placeholder="None" [formControl]="form.controls.field | asAny">
     <mat-option *ngFor="let field of fields" [value]="field">{{ field }}</mat-option>
   </mat-select>
   <mat-error>Enter a valid value.</mat-error>
@@ -8,7 +8,7 @@
 
 <mat-form-field floatLabel="always">
   <mat-label>Operator</mat-label>
-  <mat-select [formControl]="form.controls.operator">
+  <mat-select [formControl]="form.controls.operator | asAny">
     <mat-option *ngFor="let operator of operators" [value]="operator.value">
       {{ operator.label }}
     </mat-option>
@@ -17,7 +17,7 @@
 
 <mat-form-field floatLabel="always">
   <mat-label>Type</mat-label>
-  <mat-select [formControl]="form.controls.type">
+  <mat-select [formControl]="form.controls.type | asAny">
     <mat-option value="reference">Reference</mat-option>
     <mat-option value="value">Value</mat-option>
   </mat-select>
@@ -25,7 +25,7 @@
 
 <mat-form-field *ngIf="form.controls.type.value === 'reference'" floatLabel="always">
   <mat-label>Reference</mat-label>
-  <mat-select placeholder="None" [formControl]="form.controls.reference">
+  <mat-select placeholder="None" [formControl]="form.controls.reference | asAny">
     <mat-option *ngFor="let field of referenceFields" [value]="field">{{ field }}</mat-option>
   </mat-select>
   <mat-error>Enter a valid value.</mat-error>
@@ -36,7 +36,7 @@
   floatLabel="always"
 >
   <mat-label>Type</mat-label>
-  <mat-select [formControl]="form.get('value.boolean')">
+  <mat-select [formControl]="form['controls'].value['controls'].boolean | asAny">
     <mat-option [value]="true">True</mat-option>
     <mat-option [value]="false">False</mat-option>
   </mat-select>
@@ -47,7 +47,7 @@
   floatLabel="always"
 >
   <mat-label>Value</mat-label>
-  <input matInput type="number" [formControl]="form.get('value.number')" />
+  <input matInput type="number" [formControl]="form['controls'].value['controls'].number | asAny" />
   <mat-error>Enter a valid value.</mat-error>
 </mat-form-field>
 
@@ -56,7 +56,7 @@
   floatLabel="always"
 >
   <mat-label>Value</mat-label>
-  <input matInput [formControl]="form.get('value.string')" />
+  <input matInput [formControl]="form['controls'].value['controls'].string | asAny" />
   <mat-error>Enter a valid value.</mat-error>
 </mat-form-field>
 

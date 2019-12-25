@@ -10,7 +10,7 @@ import {
   PromptComponent,
   ToggleSectionComponent,
 } from './components';
-import { CamelCaseToTitleCasePipe, KeysPipe } from './pipes';
+import { AsAnyPipe, CamelCaseToTitleCasePipe, KeysPipe } from './pipes';
 
 @NgModule({
   declarations: [
@@ -19,6 +19,7 @@ import { CamelCaseToTitleCasePipe, KeysPipe } from './pipes';
     PromptComponent,
     ToggleSectionComponent,
 
+    AsAnyPipe,
     CamelCaseToTitleCasePipe,
     KeysPipe,
   ],
@@ -38,6 +39,7 @@ import { CamelCaseToTitleCasePipe, KeysPipe } from './pipes';
     ToggleSectionComponent,
 
     /* Pipes */
+    AsAnyPipe,
     CamelCaseToTitleCasePipe,
     KeysPipe,
   ],

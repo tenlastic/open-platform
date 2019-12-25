@@ -4,7 +4,7 @@
     matInput
     [matAutocomplete]="auto"
     (keyup)="onUsernameChanged($event.target.value)"
-    [formControl]="form.controls.user"
+    [formControl]="form.controls.user | asAny"
   />
   <mat-error>Enter a valid name.</mat-error>
 
@@ -23,7 +23,7 @@
 
 <mat-form-field floatLabel="always">
   <mat-label>Roles</mat-label>
-  <mat-select placeholder="None" multiple [formControl]="form.controls.roles">
+  <mat-select placeholder="None" multiple [formControl]="form.controls.roles | asAny">
     <mat-option value="Administrator">Administrator</mat-option>
   </mat-select>
 </mat-form-field>
