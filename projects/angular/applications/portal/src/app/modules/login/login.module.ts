@@ -1,19 +1,17 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { SharedModule } from '@app/shared/shared.module';
+import { SharedModule } from '../../shared/shared.module';
 
 import {
   LoginFormComponent,
   PasswordResetFormComponent,
   PasswordResetRequestFormComponent,
-  RegistrationFormComponent
+  RegistrationFormComponent,
 } from './components';
 import { LoginPageComponent } from './pages/login-page.component';
 
-export const ROUTES: Routes = [
-  { path: '', component: LoginPageComponent }
-];
+export const ROUTES: Routes = [{ path: '', component: LoginPageComponent }];
 
 @NgModule({
   declarations: [
@@ -22,12 +20,8 @@ export const ROUTES: Routes = [
     PasswordResetRequestFormComponent,
     RegistrationFormComponent,
 
-    LoginPageComponent
+    LoginPageComponent,
   ],
-  imports: [
-    SharedModule,
-
-    RouterModule.forChild(ROUTES)
-  ]
+  imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })
-export class LoginModule { }
+export class LoginModule {}

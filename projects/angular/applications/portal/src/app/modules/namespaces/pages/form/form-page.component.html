@@ -15,7 +15,7 @@
         class="row"
         formArrayName="accessControlList"
         *ngFor="
-          let accessControlListItem of form.controls.accessControlList.controls;
+          let accessControlListItem of form['controls'].accessControlList['controls'];
           let i = index
         "
       >

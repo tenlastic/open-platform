@@ -1,9 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-
-import { CollectionService, DatabaseService, RecordService } from '@app/core/http';
-import { Collection, Database, Record } from '@app/shared/models';
+import {
+  Collection,
+  CollectionService,
+  Database,
+  DatabaseService,
+  Record,
+  RecordService,
+} from '@tenlastic/ng-http';
 
 @Component({
   templateUrl: 'form-page.component.html',

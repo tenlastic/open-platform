@@ -5,23 +5,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
-import { MaterialModule } from '@app/material.module';
-
-import { PatchService, UnityService } from './services';
-
-const providers = [PatchService, UnityService];
-
 @NgModule({
-  exports: [MaterialModule],
-  imports: [
-    BrowserAnimationsModule,
-    BrowserModule,
-    CommonModule,
-    HttpClientModule,
-    MaterialModule,
-    RouterModule,
-  ],
-  providers: [...providers],
+  exports: [],
+  imports: [BrowserAnimationsModule, BrowserModule, CommonModule, HttpClientModule, RouterModule],
 })
 export class CoreModule {
   /* make sure CoreModule is imported only by one NgModule the AppModule */

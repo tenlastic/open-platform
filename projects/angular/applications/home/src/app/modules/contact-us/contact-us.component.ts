@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 
-import { TITLE } from '@app/shared/constants';
+import { TITLE } from '../../shared/constants';
 
 @Component({
   styleUrls: ['./contact-us.component.scss'],

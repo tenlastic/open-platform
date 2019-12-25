@@ -14,7 +14,7 @@
       <div
         class="row"
         formArrayName="properties"
-        *ngFor="let property of form.controls.properties.controls; let i = index"
+        *ngFor="let property of form['controls'].properties['controls']; let i = index"
       >
         <app-property-field [form]="property" (remove)="removeProperty(i)"></app-property-field>
       </div>
@@ -31,11 +31,11 @@
       <div
         class="row"
         formArrayName="roles"
-        *ngFor="let role of form.controls.roles.controls; let i = index"
+        *ngFor="let role of form['controls'].roles['controls']; let i = index"
       >
         <app-role-field
           [form]="role"
-          [isDefault]="i === form.controls.roles.controls.length - 1"
+          [isDefault]="i === form['controls'].roles['controls'].length - 1"
           [properties]="form.controls.properties"
           (moveDown)="moveRoleDown(i)"
           (moveUp)="moveRoleUp(i)"

@@ -69,7 +69,7 @@ jobs:
           working_directory: ./projects/angular/
       - run:
           name: Test
-          command: npm run lerna run -- --concurrency 1 test:ci -- -- --code-coverage
+          command: npm run lerna run test:ci
           working_directory: ./projects/angular/
 
   nodejs:

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { environment } from '@env';
+import { environment } from '../../../environments/environment';
 
 @Component({
   templateUrl: 'play-now.component.html',
