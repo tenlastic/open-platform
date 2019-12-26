@@ -4,6 +4,7 @@
   "scripts": {
     "build": "ng build portal",
     "build:production": "ng build --preserve-symlinks --prod portal",
+    "bump:deployment": "../../scripts/bump-deployment.sh portal-ui",
     "docker:build": "sh ../../scripts/docker-build.sh portal portal-ui",
     "docker:push": "sh ../../scripts/docker-push.sh portal portal-ui",
     "e2e": "ng e2e portal",

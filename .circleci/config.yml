@@ -50,6 +50,34 @@ commands:
           key: dependency-cache-{{ checksum "<< parameters.directory >>/package.json" }}
           paths:
             - << parameters.directory >>/node_modules/
+  bump_version:
+    parameters:
+      directory:
+        type: string
+      project:
+        type: string
+    steps:
+      - run:
+        name: Update Version
+        command: |
+          // Bump versions.
+          npm run lerna -- version \
+            --exact \
+            --no-git-tag-version \
+            --no-push \
+            --yes \
+            patch
+          npm run lerna -- bump:deployment
+
+          // Get the bumped version.
+          VERSION=$(node -p "require('./lerna.json').version")
+
+          // Tag and commit changes to Git.
+          git add .
+          git commit -m "<< parameters.project >>-v${VERSION} [ci skip]"
+          git tag -a -m "<< parameters.project >>-v${VERSION}" "<< parameters.project >>-v${VERSION}"
+          git push --tags origin master
+        working_directory: << parameters.directory >>
 
 jobs:
   angular:
@@ -144,16 +172,9 @@ jobs:
           command: |
             git config user.email $GITHUB_USER_EMAIL
             git config user.name $GITHUB_USER_NAME
-      - run:
-          name: Update Version
-          command: |
-            npm run lerna -- version \
-              --exact \
-              --message "angular-v%v [ci skip]" \
-              --tag-version-prefix angular-v \
-              --yes \
-              patch
-          working_directory: ./projects/angular/
+      - bump_version:
+          directory: ./projects/angular/
+          project: angular
       - install_docker_client
       - run:
           name: Build Docker Images
@@ -207,15 +228,15 @@ jobs:
           name: Create NPMRC File for NPM
           command: |
             echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+      - bump_version:
+          directory: ./projects/nodejs/
+          project: nodejs
       - run:
           name: Publish Node Modules to NPM
           command: |
             npm run lerna -- publish \
-              --exact \
-              --message "nodejs-v%v [ci skip]" \
-              --tag-version-prefix nodejs-v \
               --yes \
-              patch
+              from-package
           working_directory: ./projects/nodejs/
       - run:
           name: Create NPMRC File for Github

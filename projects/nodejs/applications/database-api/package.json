@@ -8,6 +8,7 @@
   "version": "0.0.23",
   "scripts": {
     "build": "../../scripts/build.sh",
+    "bump:deployment": "../../scripts/bump-deployment.sh database-api",
     "docker": "sh ../../scripts/docker.sh npm run --if-present",
     "docker:build": "sh ../../scripts/docker-build.sh database-api",
     "docker:down": "sh ../../scripts/docker-down.sh",

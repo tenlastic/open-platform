@@ -4,6 +4,7 @@
   "scripts": {
     "build": "ng build home",
     "build:production": "ng build --preserve-symlinks --prod home",
+    "bump:deployment": "../../scripts/bump-deployment.sh home-ui",
     "docker:build": "sh ../../scripts/docker-build.sh home home-ui",
     "docker:push": "sh ../../scripts/docker-push.sh home home-ui",
     "e2e": "ng e2e home",
