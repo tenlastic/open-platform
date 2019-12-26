@@ -8,7 +8,6 @@
   "version": "0.0.25",
   "scripts": {
     "build": "../../scripts/build.sh",
-    "bump:deployment": "../../scripts/bump-deployment.sh database-api",
     "docker": "sh ../../scripts/docker.sh npm run --if-present",
     "docker:build": "sh ../../scripts/docker-build.sh database-api",
     "docker:down": "sh ../../scripts/docker-down.sh",
@@ -18,7 +17,8 @@
     "start": "../../scripts/start.sh",
     "swagger": "../../scripts/swagger.sh",
     "test": "../../scripts/test.sh",
-    "test:watch": "../../scripts/test.sh --watch"
+    "test:watch": "../../scripts/test.sh --watch",
+    "version": "../../scripts/version.sh database-api"
   },
   "dependencies": {
     "@hasezoey/typegoose": "6.0.0-27",

@@ -4,14 +4,14 @@
   "scripts": {
     "build": "ng build home",
     "build:production": "ng build --preserve-symlinks --prod home",
-    "bump:deployment": "../../scripts/bump-deployment.sh home-ui",
     "docker:build": "sh ../../scripts/docker-build.sh home home-ui",
     "docker:push": "sh ../../scripts/docker-push.sh home home-ui",
     "e2e": "ng e2e home",
     "lint": "ng lint home",
     "start": "ng serve --port 8080 home",
     "test": "ng test home",
-    "test:ci": "ng test --code-coverage --watch false home"
+    "test:ci": "ng test --code-coverage --watch false home",
+    "version": "../../scripts/version.sh home-ui"
   },
   "private": true,
   "devDependencies": {
