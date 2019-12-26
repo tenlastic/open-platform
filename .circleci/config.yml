@@ -94,11 +94,15 @@ jobs:
           working_directory: ./projects/angular/
       - run:
           name: Build
-          command: npm run lerna run build:production
+          command: npm run lerna run -- --concurrency 1 --no-private build
+          working_directory: ./projects/angular/
+      - run:
+          name: Build Production
+          command: npm run lerna run -- --concurrency 1 build:production
           working_directory: ./projects/angular/
       - run:
           name: Test
-          command: npm run lerna run -- --concurrency 1 test:ci -- -- --code-coverage
+          command: npm run lerna run test:ci
           working_directory: ./projects/angular/
 
   nodejs:
@@ -169,16 +173,9 @@ jobs:
           command: |
             git config user.email $GITHUB_USER_EMAIL
             git config user.name $GITHUB_USER_NAME
-      - run:
-          name: Update Version
-          command: |
-            npm run lerna -- version \
-              --exact \
-              --message "angular-v%v [ci skip]" \
-              --tag-version-prefix angular-v \
-              --yes \
-              patch
-          working_directory: ./projects/angular/
+      - bump_version:
+          directory: ./projects/angular/
+          project: angular
       - install_docker_client
       - run:
           name: Build Docker Images
@@ -232,15 +229,15 @@ jobs:
           name: Create NPMRC File for NPM
           command: |
             echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+      - bump_version:
+          directory: ./projects/nodejs/
+          project: nodejs
       - run:
           name: Publish Node Modules to NPM
           command: |
             npm run lerna -- publish \
-              --exact \
-              --message "nodejs-v%v [ci skip]" \
-              --tag-version-prefix nodejs-v \
               --yes \
-              patch
+              from-package
           working_directory: ./projects/nodejs/
       - run:
           name: Create NPMRC File for Github

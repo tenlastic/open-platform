@@ -1,10 +1,11 @@
 import { Title } from '@angular/platform-browser';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { IdentityService } from '@tenlastic/ng-authentication';
+import { LoginService } from '@tenlastic/ng-http';
 
-import { LoginService } from '@app/core/http';
-import { CrudSnackbarService, IdentityService } from '@app/core/services';
-import { TITLE } from '@app/shared/constants';
+import { CrudSnackbarService } from './core/services';
+import { TITLE } from './shared/constants';
 
 @Component({
   selector: 'app-root',

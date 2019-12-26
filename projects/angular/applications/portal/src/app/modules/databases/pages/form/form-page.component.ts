@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { IdentityService } from '@tenlastic/ng-authentication';
+import { Database, DatabaseService } from '@tenlastic/ng-http';
 
-import { DatabaseService } from '@app/core/http';
-import { IdentityService, SelectedNamespaceService } from '@app/core/services';
-import { Database } from '@app/shared/models';
+import { SelectedNamespaceService } from '../../../../core/services';
 
 @Component({
   templateUrl: 'form-page.component.html',

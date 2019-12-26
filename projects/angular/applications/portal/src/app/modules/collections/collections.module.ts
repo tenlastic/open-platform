@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { SharedModule } from '@app/shared/shared.module';
+import { SharedModule } from '../../shared/shared.module';
 
 import { CriterionFieldComponent, PropertyFieldComponent, RoleFieldComponent } from './components';
 import { CollectionsFormPageComponent, CollectionsListPageComponent } from './pages';
@@ -10,7 +10,7 @@ export const ROUTES: Routes = [
   { path: '', component: CollectionsListPageComponent },
   {
     path: ':collectionName/records',
-    loadChildren: '../records/records.module#RecordModule',
+    loadChildren: () => import('../records/records.module').then(m => m.RecordModule),
   },
   { path: ':name', component: CollectionsFormPageComponent },
 ];

@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
-
 import {
   CollectionService,
   DatabaseService,
   NamespaceService,
   RecordService,
   UserService,
-} from '@app/core/http';
-import { SNACKBAR_DURATION } from '@app/shared/constants';
+} from '@tenlastic/ng-http';
+
+import { SNACKBAR_DURATION } from '../../../shared/constants';
 
 @Injectable()
 export class CrudSnackbarService {

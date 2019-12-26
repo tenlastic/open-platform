@@ -1,6 +1,6 @@
 @import '~bootstrap/scss/bootstrap-grid.scss';
-@import '~assets/scss/material.scss';
-@import '~assets/scss/theme.scss';
+@import '../scss/material.scss';
+@import '../scss/theme.scss';
 
 *:not(mat-icon) {
   font-family: 'Oswald', sans-serif !important;
@@ -36,7 +36,7 @@ html {
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
-input:-webkit-autofill:active  {
+input:-webkit-autofill:active {
   -webkit-text-fill-color: white !important;
   transition: background-color 5000s ease-in-out 0s;
 }
@@ -51,7 +51,10 @@ input:-webkit-autofill:active  {
   padding: 96px 24px 24px;
   text-shadow: $shadow;
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     color: #f0f070;
     margin: 0px 0px 4px;
   }
@@ -77,26 +80,26 @@ input:-webkit-autofill:active  {
   h1 {
     overflow: hidden;
     text-align: center;
-   }
-   h1:before,
-   h1:after {
+  }
+  h1:before,
+  h1:after {
     background-color: white;
     box-shadow: 3px 4px 5px black;
-    content: "";
+    content: '';
     display: inline-block;
     height: 2px;
     position: relative;
     vertical-align: middle;
     width: 50%;
-   }
-   h1:before {
+  }
+  h1:before {
     right: 0.5em;
     margin-left: -50%;
-   }
-   h1:after {
+  }
+  h1:after {
     left: 0.5em;
     margin-right: -50%;
-   }
+  }
 }
 
 .page {
@@ -109,7 +112,7 @@ input:-webkit-autofill:active  {
 
 .form-error {
   color: mat-color(mat-palette($mat-red));
-  font-size: .9rem;
+  font-size: 0.9rem;
   margin-bottom: 16px;
   text-align: center;
 }

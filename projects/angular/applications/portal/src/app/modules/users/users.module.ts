@@ -1,8 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { SharedModule } from '@app/shared/shared.module';
-
+import { SharedModule } from '../../shared/shared.module';
 import { UsersFormPageComponent } from './pages/form/form-page.component';
 import { UsersListPageComponent } from './pages/list/list-page.component';
 
