@@ -1,23 +1,22 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
 import { Title } from '@angular/platform-browser';
+import { IdentityService } from '@tenlastic/ng-authentication';
+import { User, UserService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { UserService } from '@app/core/http';
-import { IdentityService } from '@app/core/services';
-import { PromptComponent } from '@app/shared/components';
-import { TITLE } from '@app/shared/constants';
-import { User } from '@app/shared/models';
+import { PromptComponent } from '../../../../shared/components';
+import { TITLE } from '../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
 export class UsersListPageComponent implements OnInit {
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatTable) table: MatTable<User>;
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
+  @ViewChild(MatTable, { static: true }) table: MatTable<User>;
 
   public dataSource: MatTableDataSource<User>;
   public displayedColumns: string[] = ['username', 'createdAt', 'updatedAt'];
@@ -56,7 +55,10 @@ export class UsersListPageComponent implements OnInit {
   public showDeletePrompt(user: User) {
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
-        buttons: [{ background: 'accent', label: 'No' }, { color: 'white', label: 'Yes' }],
+        buttons: [
+          { background: 'accent', label: 'No' },
+          { color: 'white', label: 'Yes' },
+        ],
         message: `Are you sure you want to delete this User?`,
       },
     });

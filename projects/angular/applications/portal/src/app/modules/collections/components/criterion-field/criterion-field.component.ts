@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup, FormArray } from '@angular/forms';
 
-import { CollectionFormService } from '@app/core/services';
+import { CollectionFormService } from '../../../../core/services';
 
 export interface CriterionFieldComponentOperator {
   label: string;

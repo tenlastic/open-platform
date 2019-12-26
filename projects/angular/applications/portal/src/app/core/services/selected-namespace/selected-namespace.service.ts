@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-
-import { NamespaceService } from '@app/core/http';
-import { Namespace } from '@app/shared/models';
+import { Namespace, NamespaceService } from '@tenlastic/ng-http';
 
 @Injectable({
   providedIn: 'root',

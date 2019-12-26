@@ -4,19 +4,10 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
-import {
-  LayoutComponent,
-  PatchStatusComponent,
-  PlayNowButtonComponent
-} from './components';
+import { MaterialModule } from '../material.module';
+import { LayoutComponent, PlayNowButtonComponent } from './components';
 
-import { MaterialModule } from '@app/material.module';
-
-const components = [
-  LayoutComponent,
-  PatchStatusComponent,
-  PlayNowButtonComponent
-];
+const components = [LayoutComponent, PlayNowButtonComponent];
 
 const modules = [
   CommonModule,
@@ -24,12 +15,12 @@ const modules = [
   LayoutModule,
   MaterialModule,
   ReactiveFormsModule,
-  RouterModule
+  RouterModule,
 ];
 
 @NgModule({
   declarations: [...components],
   exports: [...modules, ...components],
-  imports: [...modules]
+  imports: [...modules],
 })
 export class SharedModule {}

@@ -6,7 +6,7 @@
       <mat-icon>person</mat-icon>
       appellod@gmail.com
     </button>
-    <mat-menu #view="matMenu" xPosition="before" [overlapTrigger]="false">
+    <mat-menu #view="matMenu" xPosition="before">
       <button mat-menu-item color="white">Log out</button>
     </mat-menu>
   </div>
@@ -42,5 +42,3 @@
 <div class="container container-small content">
   <router-outlet></router-outlet>
 </div>
-
-<app-patch-status [hidden]="!isPatchStatusVisible"></app-patch-status>

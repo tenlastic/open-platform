@@ -2,23 +2,29 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
+import { IdentityService } from '@tenlastic/ng-authentication';
+import {
+  Collection,
+  CollectionService,
+  Database,
+  DatabaseService,
+  Record,
+  RecordService,
+} from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { CollectionService, DatabaseService, RecordService } from '@app/core/http';
-import { IdentityService } from '@app/core/services';
-import { PromptComponent } from '@app/shared/components';
-import { TITLE } from '@app/shared/constants';
-import { Collection, Database, Record } from '@app/shared/models';
+import { PromptComponent } from '../../../../shared/components';
+import { TITLE } from '../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
 export class RecordsListPageComponent implements OnInit {
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatTable) table: MatTable<Record>;
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
+  @ViewChild(MatTable, { static: true }) table: MatTable<Record>;
 
   public dataSource: MatTableDataSource<Record>;
   public displayedColumns: string[] = ['_id', 'actions'];
@@ -65,7 +71,10 @@ export class RecordsListPageComponent implements OnInit {
   public showDeletePrompt(record: Record) {
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
-        buttons: [{ background: 'accent', label: 'No' }, { color: 'white', label: 'Yes' }],
+        buttons: [
+          { background: 'accent', label: 'No' },
+          { color: 'white', label: 'Yes' },
+        ],
         message: `Are you sure you want to delete this Record?`,
       },
     });

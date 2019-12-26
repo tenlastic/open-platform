@@ -1,10 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { LoginService, PasswordResetService, UserService } from '@tenlastic/ng-http';
 
-import { LoginService, PasswordResetService, UserService } from '@app/core/http';
-import { TITLE } from '@app/shared/constants';
-
+import { TITLE } from '../../../shared/constants';
 import {
   ILogIn,
   IOnRegister,
@@ -28,11 +27,14 @@ enum Action {
   styleUrls: ['./login-page.component.scss'],
 })
 export class LoginPageComponent implements OnInit {
-  @ViewChild(LoginFormComponent) public loginForm: LoginFormComponent;
-  @ViewChild(RegistrationFormComponent) public registrationForm: RegistrationFormComponent;
-  @ViewChild(PasswordResetRequestFormComponent)
+  @ViewChild(LoginFormComponent, { static: true })
+  public loginForm: LoginFormComponent;
+  @ViewChild(RegistrationFormComponent, { static: true })
+  public registrationForm: RegistrationFormComponent;
+  @ViewChild(PasswordResetRequestFormComponent, { static: true })
   public passwordResetRequestForm: PasswordResetRequestFormComponent;
-  @ViewChild(PasswordResetFormComponent) public passwordResetForm: PasswordResetFormComponent;
+  @ViewChild(PasswordResetFormComponent, { static: true })
+  public passwordResetForm: PasswordResetFormComponent;
 
   public Action = Action;
   public action = Action.LogIn;

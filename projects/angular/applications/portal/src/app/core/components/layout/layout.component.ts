@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { IdentityService } from '@tenlastic/ng-authentication';
+import { LoginService } from '@tenlastic/ng-http';
 
-import { LoginService } from '@app/core/http';
-import { IdentityService, SelectedNamespaceService } from '@app/core/services';
+import { SelectedNamespaceService } from '../../../core/services';
 
 @Component({
   selector: 'app-layout',

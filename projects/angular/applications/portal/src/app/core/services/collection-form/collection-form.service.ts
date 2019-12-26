@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Collection } from '@app/shared/models';
+import { ICollection } from '@tenlastic/ng-http';
 
 export interface CriterionFormGroup {
   field?: string;
@@ -107,8 +107,8 @@ export class CollectionFormService {
   }
 
   public getFormGroupFromPermissions(
-    permissions: Collection.Permissions,
-    role: Collection.RolePermissions,
+    permissions: ICollection.Permissions,
+    role: ICollection.RolePermissions,
   ) {
     const { name } = role;
 
@@ -143,7 +143,7 @@ export class CollectionFormService {
 
   public getFormGroupFromProperty(
     key: string,
-    property: Collection.JsonSchemaProperty,
+    property: ICollection.JsonSchemaProperty,
     required = false,
   ) {
     const type = property.type;
@@ -165,8 +165,8 @@ export class CollectionFormService {
   }
 
   public getFormGroupFromRole(
-    permissions: Collection.Permissions,
-    role: Collection.RolePermissions,
+    permissions: ICollection.Permissions,
+    role: ICollection.RolePermissions,
   ) {
     const options = { key: this.formBuilder.control(role.name) } as any;
 
@@ -211,7 +211,7 @@ export class CollectionFormService {
     return { [criterion.field]: { [criterion.operator]: value } };
   }
 
-  public getJsonFromProperty(property: PropertyFormGroup): Collection.JsonSchemaProperty {
+  public getJsonFromProperty(property: PropertyFormGroup): ICollection.JsonSchemaProperty {
     const o = { type: property.type } as any;
 
     if (o.type === 'array') {
@@ -238,7 +238,7 @@ export class CollectionFormService {
   public getJsonFromRole(
     role: RoleFormGroup,
     properties: PropertyFormGroup[],
-  ): Collection.RolePermissions {
+  ): ICollection.RolePermissions {
     const criteria = role.criteria.map(c => this.getJsonFromCriterion(c, properties));
     return { name: role.key, query: { [role.operator]: criteria } };
   }

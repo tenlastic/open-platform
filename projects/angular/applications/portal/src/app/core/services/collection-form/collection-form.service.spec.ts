@@ -1,8 +1,7 @@
 import { TestBed, getTestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import * as Chance from 'chance';
-
-import { ApiService } from '@app/core/http';
+import { ApiService } from '@tenlastic/ng-http';
+import { Chance } from 'chance';
 
 import { CollectionFormService } from './collection-form.service';
 

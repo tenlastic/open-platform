@@ -4,28 +4,11 @@ import { NgModule, Optional, SkipSelf } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import { TokenInterceptor } from '@tenlastic/ng-authentication';
 
-import { MaterialModule } from '@app/material.module';
-
+import { MaterialModule } from '../material.module';
 import { LayoutComponent } from './components';
-import { LoginGuard } from './guards';
-import {
-  ApiService,
-  CollectionService,
-  DatabaseService,
-  LoginService,
-  NamespaceService,
-  PasswordResetService,
-  RecordService,
-  UserService,
-} from './http';
-import { TokenInterceptor, UnauthorizedInterceptor } from './interceptors';
-import {
-  CollectionFormService,
-  CrudSnackbarService,
-  IdentityService,
-  SelectedNamespaceService,
-} from './services';
+import { CollectionFormService, CrudSnackbarService, SelectedNamespaceService } from './services';
 
 @NgModule({
   declarations: [LayoutComponent],
@@ -41,22 +24,7 @@ import {
   providers: [
     CollectionFormService,
     CrudSnackbarService,
-    IdentityService,
     SelectedNamespaceService,
-
-    LoginGuard,
-
-    ApiService,
-    CollectionService,
-    DatabaseService,
-    LoginService,
-    NamespaceService,
-    PasswordResetService,
-    RecordService,
-    UserService,
-
-    TokenInterceptor,
-    UnauthorizedInterceptor,
 
     {
       provide: HTTP_INTERCEPTORS,

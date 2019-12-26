@@ -1,5 +1,5 @@
 <div class="center-of-screen">
-  <div [hidden]="loadingMessage">
+  <div [hidden]="!!loadingMessage">
     <div *ngIf="action === Action.LogIn">
       <h2>
         <mat-icon>lock</mat-icon>

@@ -1,10 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { User, UserService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-
-import { UserService } from '@app/core/http';
-import { User } from '@app/shared/models';
 
 @Component({
   selector: 'app-access-control-list-field',

@@ -5,6 +5,7 @@ package.json.lerna_backup
 tscommand*.tmp.txt
 
 .tscache/
+coverage/
 dist/
 node_modules/
 test-results/

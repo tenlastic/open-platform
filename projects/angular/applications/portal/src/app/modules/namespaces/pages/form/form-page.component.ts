@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-
-import { NamespaceService, UserService } from '@app/core/http';
-import { IdentityService } from '@app/core/services';
-import { Namespace } from '@app/shared/models';
+import { IdentityService } from '@tenlastic/ng-authentication';
+import { Namespace, NamespaceService, UserService } from '@tenlastic/ng-http';
 
 export interface AccessControlListItem {
   roles: string[];
@@ -95,9 +93,7 @@ export class NamespacesFormPageComponent implements OnInit {
 
     const accessControlListItems = [];
     if (this.data.accessControlList && this.data.accessControlList.length > 0) {
-      for (let index = 0; index < this.data.accessControlList.length; index++) {
-        const element = this.data.accessControlList[index];
-
+      for (const element of this.data.accessControlList) {
         const user = await this.userService.findOne(element.userId);
 
         accessControlListItems.push(

@@ -3,16 +3,14 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { MaterialModule } from '@app/material.module';
-
+import { MaterialModule } from '../material.module';
 import {
   InputPromptComponent,
   LoadingMessageComponent,
   PromptComponent,
   ToggleSectionComponent,
 } from './components';
-
-import { CamelCaseToTitleCasePipe, KeysPipe } from './pipes';
+import { AsAnyPipe, CamelCaseToTitleCasePipe, KeysPipe } from './pipes';
 
 @NgModule({
   declarations: [
@@ -21,6 +19,7 @@ import { CamelCaseToTitleCasePipe, KeysPipe } from './pipes';
     PromptComponent,
     ToggleSectionComponent,
 
+    AsAnyPipe,
     CamelCaseToTitleCasePipe,
     KeysPipe,
   ],
@@ -40,6 +39,7 @@ import { CamelCaseToTitleCasePipe, KeysPipe } from './pipes';
     ToggleSectionComponent,
 
     /* Pipes */
+    AsAnyPipe,
     CamelCaseToTitleCasePipe,
     KeysPipe,
   ],
