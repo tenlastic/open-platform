@@ -18,7 +18,7 @@ commands:
               --no-push \
               --yes \
               patch
-            npm run lerna -- bump:deployment
+            npm run lerna run bump:deployment
 
             # Get the bumped version.
             VERSION=$(node -p "require('./lerna.json').version")
