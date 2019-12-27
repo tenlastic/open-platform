@@ -24,7 +24,6 @@ spec:
       containers:
         - name: namespace-api
           image: tenlastic/namespace-api:latest
-          imagePullPolicy: Always
           envFrom:
             - secretRef:
                 name: namespace-api-environment-variables

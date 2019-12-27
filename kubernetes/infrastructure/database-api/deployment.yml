@@ -24,7 +24,6 @@ spec:
       containers:
         - name: database-api
           image: tenlastic/database-api:latest
-          imagePullPolicy: Always
           envFrom:
             - secretRef:
                 name: database-api-environment-variables

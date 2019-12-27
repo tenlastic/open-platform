@@ -24,7 +24,6 @@ spec:
       containers:
         - name: authentication-api
           image: tenlastic/authentication-api:latest
-          imagePullPolicy: Always
           envFrom:
             - secretRef:
                 name: authentication-api-environment-variables

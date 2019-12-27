@@ -5,7 +5,7 @@
     "build": "ng build home",
     "build:production": "ng build --preserve-symlinks --prod home",
     "docker:build": "sh ../../scripts/docker-build.sh home home-ui",
-    "docker:push": "sh ../../scripts/docker-push.sh home home-ui",
+    "docker:push": "sh ../../scripts/docker-push.sh home-ui",
     "e2e": "ng e2e home",
     "lint": "ng lint home",
     "start": "ng serve --port 8080 home",

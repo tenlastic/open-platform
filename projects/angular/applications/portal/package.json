@@ -5,7 +5,7 @@
     "build": "ng build portal",
     "build:production": "ng build --preserve-symlinks --prod portal",
     "docker:build": "sh ../../scripts/docker-build.sh portal portal-ui",
-    "docker:push": "sh ../../scripts/docker-push.sh portal portal-ui",
+    "docker:push": "sh ../../scripts/docker-push.sh portal-ui",
     "e2e": "ng e2e portal",
     "lint": "ng lint portal",
     "start": "ng serve --port 8081 portal",
