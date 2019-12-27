@@ -6,7 +6,7 @@ REPOSITORY="${2}"
 TAG=$(node -p "require('./package.json').version")
 
 docker build \
-  -f "../../Dockerfile" \
   -t "${REPOSITORY}:${TAG}" \
   --build-arg "DIRECTORY=${DIRECTORY}" \
-  ./
+  ../../
+  
