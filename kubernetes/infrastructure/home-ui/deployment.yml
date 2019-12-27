@@ -12,6 +12,7 @@ spec:
         sidecar.istio.io/inject: "true"
       labels:
         app: home-ui
+        version: latest
     spec:
       containers:
         - name: home-ui

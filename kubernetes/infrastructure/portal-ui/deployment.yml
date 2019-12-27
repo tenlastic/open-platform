@@ -12,6 +12,7 @@ spec:
         sidecar.istio.io/inject: "true"
       labels:
         app: portal-ui
+        version: latest
     spec:
       containers:
         - name: portal-ui

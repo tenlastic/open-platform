@@ -147,6 +147,7 @@ jobs:
       - run:
           name: Update Version
           command: |
+            npm config set unsafe-perm true
             npm run lerna -- version \
               --exact \
               --message "angular-v%v [ci skip]" \
@@ -210,6 +211,7 @@ jobs:
       - run:
           name: Publish Node Modules to NPM
           command: |
+            npm config set unsafe-perm true
             npm run lerna -- publish \
               --exact \
               --message "nodejs-v%v [ci skip]" \
