@@ -12,11 +12,11 @@ spec:
         sidecar.istio.io/inject: "true"
       labels:
         app: portal-ui
-        version: latest
+        version: 0.0.9
     spec:
       containers:
         - name: portal-ui
-          image: tenlastic/portal-ui:latest
+          image: tenlastic/portal-ui:0.0.9
           imagePullPolicy: Always
           ports:
             - containerPort: 80
