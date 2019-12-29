@@ -1,0 +1,22 @@
+{
+  "name": "sso",
+  "version": "0.0.9",
+  "scripts": {
+    "build": "ng build sso",
+    "build:production": "ng build --preserve-symlinks --prod sso",
+    "docker:build": "sh ../../scripts/docker-build.sh sso sso-ui",
+    "docker:push": "sh ../../scripts/docker-push.sh sso-ui",
+    "e2e": "ng e2e sso",
+    "lint": "ng lint sso",
+    "start": "ng serve --port 8082 sso",
+    "test": "ng test sso",
+    "test:ci": "ng test --code-coverage --watch false sso",
+    "version": "../../scripts/version.sh sso-ui"
+  },
+  "private": true,
+  "devDependencies": {
+    "@angular/cli": "~8.3.21",
+    "@tenlastic/ng-authentication": "0.0.9",
+    "@tenlastic/ng-http": "0.0.9"
+  }
+}

@@ -98,9 +98,18 @@ div.mat-menu-content {
 div.mat-menu-panel {
   background: rgba(0, 0, 0, 1);
   border-radius: 0px;
+  min-height: initial;
+  text-transform: none;
 
   div.mat-menu-content:not(:empty) {
     padding: 0px;
+  }
+
+  mat-icon.mat-icon {
+    color: #ffff00;
+    margin-right: 0px;
+    font-size: 18px;
+    line-height: 20px;
   }
 }
 

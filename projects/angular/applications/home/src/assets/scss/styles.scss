@@ -1,6 +1,7 @@
 @import '~bootstrap/scss/bootstrap-grid.scss';
-@import '../scss/material.scss';
-@import '../scss/theme.scss';
+@import './fonts.scss';
+@import './material.scss';
+@import './theme.scss';
 
 *:not(mat-icon) {
   font-family: 'Oswald', sans-serif !important;

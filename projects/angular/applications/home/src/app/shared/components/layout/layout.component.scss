@@ -48,7 +48,6 @@ mat-toolbar.system-toolbar {
   z-index: 1;
 
   button.mat-button {
-    font-size: 12px;
     height: 24px;
     line-height: 24px;
     min-width: 0px;
@@ -60,7 +59,26 @@ mat-toolbar.system-toolbar {
     }
 
     mat-icon.material-icons {
-      font-size: 20px;
+      color: #ffff00 !important;
+      font-size: 18px;
+      line-height: 20px;
+
+      &:nth-of-type(1) {
+        margin-right: 2px;
+      }
+
+      &:nth-of-type(2) {
+        margin-left: 2px;
+      }
+    }
+
+    &.login {
+      padding-right: 16px;
+
+      mat-icon.material-icons {
+        font-size: 14px;
+        margin-right: 0px;
+      }
     }
   }
 

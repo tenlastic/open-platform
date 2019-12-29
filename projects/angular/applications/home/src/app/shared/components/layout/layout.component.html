@@ -2,13 +2,22 @@
   <div class="container">
     <span class="fill-remaining-space"></span>
 
-    <button mat-button color="white" [matMenuTriggerFor]="view">
+    <button *ngIf="identityService.user" mat-button color="white" [matMenuTriggerFor]="view">
       <mat-icon>person</mat-icon>
-      appellod@gmail.com
+      {{ identityService.user.username }}
+      <mat-icon>keyboard_arrow_down</mat-icon>
     </button>
     <mat-menu #view="matMenu" xPosition="before">
-      <button mat-menu-item color="white">Log out</button>
+      <button mat-menu-item color="white" (click)="logOut()">
+        <mat-icon>exit_to_app</mat-icon>
+        Log out
+      </button>
     </mat-menu>
+
+    <button *ngIf="!identityService.user" mat-button color="white" class="login" (click)="logIn()">
+      <mat-icon>lock</mat-icon>
+      Log In
+    </button>
   </div>
 </mat-toolbar>
 

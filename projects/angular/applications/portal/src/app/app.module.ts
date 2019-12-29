@@ -30,6 +30,10 @@ export const ROUTES: Routes = [
     canActivate: [LoginGuard],
   },
   {
+    path: 'oauth',
+    loadChildren: () => import('./modules/o-auth/o-auth.module').then(m => m.OAuthModule),
+  },
+  {
     path: 'reset-password/:hash',
     loadChildren: () => import('./modules/login/login.module').then(m => m.LoginModule),
   },
@@ -45,7 +49,7 @@ export const ROUTES: Routes = [
   declarations: [AppComponent],
   entryComponents: [AppComponent],
   imports: [
-    AuthenticationModule,
+    AuthenticationModule.forRoot(environment),
     CoreModule,
     HttpModule.forRoot(environment),
     SharedModule,

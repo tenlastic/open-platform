@@ -1,5 +1,9 @@
-import { Component } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, Inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { IdentityService } from '@tenlastic/ng-authentication';
+
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-layout',
@@ -7,5 +11,17 @@ import { Router } from '@angular/router';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent {
-  constructor(public router: Router) {}
+  constructor(
+    @Inject(DOCUMENT) private document: Document,
+    public identityService: IdentityService,
+    public router: Router,
+  ) {}
+
+  public logIn() {
+    this.document.location.href = environment.loginUrl;
+  }
+
+  public logOut() {
+    this.document.location.href = environment.logoutUrl;
+  }
 }

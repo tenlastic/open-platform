@@ -16,7 +16,6 @@ services:
     links:
       - zookeeper
     ports:
-      - 8081:8081
       - 9092:9092
   kafka_trifecta:
     environment:

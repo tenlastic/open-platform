@@ -24,6 +24,10 @@ export const ROUTES: Routes = [
       import('./modules/contact-us/contact-us.module').then(m => m.ContactUsModule),
   },
   {
+    path: 'oauth',
+    loadChildren: () => import('./modules/o-auth/o-auth.module').then(m => m.OAuthModule),
+  },
+  {
     path: 'patch-notes',
     component: LayoutComponent,
     loadChildren: () =>
