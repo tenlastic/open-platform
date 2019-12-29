@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Inject, Injectable } from '@angular/core';
 import {
   HttpRequest,
   HttpHandler,
@@ -6,15 +7,20 @@ import {
   HttpEvent,
   HttpInterceptor,
 } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
+import { EnvironmentService } from '../../services/environment/environment.service';
 import { IdentityService } from '../../services/identity/identity.service';
 
+/** @dynamic */
 @Injectable()
 export class UnauthorizedInterceptor implements HttpInterceptor {
-  constructor(private identityService: IdentityService, private router: Router) {}
+  constructor(
+    @Inject(DOCUMENT) private document: Document,
+    private environmentService: EnvironmentService,
+    private identityService: IdentityService,
+  ) {}
 
   public intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next
@@ -26,7 +32,7 @@ export class UnauthorizedInterceptor implements HttpInterceptor {
     if (err instanceof HttpErrorResponse) {
       if (err.status === 401) {
         this.identityService.clear();
-        this.router.navigateByUrl('/login');
+        this.document.location.href = this.environmentService.loginUrl;
       }
     }
   }

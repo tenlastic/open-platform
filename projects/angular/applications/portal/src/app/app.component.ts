@@ -25,6 +25,6 @@ export class AppComponent {
   }
 
   private logOut() {
-    this.router.navigateByUrl('/login');
+    this.router.navigateByUrl('/');
   }
 }

@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, Inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
-import { LoginService } from '@tenlastic/ng-http';
 
+import { environment } from '../../../../environments/environment';
 import { SelectedNamespaceService } from '../../../core/services';
 
 @Component({
@@ -32,13 +33,13 @@ export class LayoutComponent {
   ];
 
   constructor(
-    private loginService: LoginService,
+    @Inject(DOCUMENT) private document: Document,
     public identityService: IdentityService,
     public router: Router,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public logout() {
-    this.loginService.delete();
+    this.document.location.href = environment.logoutUrl;
   }
 }

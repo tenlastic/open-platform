@@ -181,6 +181,121 @@
         }
       }
     },
+    "sso": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "applications/sso",
+      "sourceRoot": "applications/sso/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/applications/sso",
+            "index": "applications/sso/src/index.html",
+            "main": "applications/sso/src/main.ts",
+            "polyfills": "applications/sso/src/polyfills.ts",
+            "tsConfig": "applications/sso/tsconfig.app.json",
+            "aot": true,
+            "assets": ["applications/sso/src/favicon.ico", "applications/sso/src/assets"],
+            "styles": [
+              {
+                "input": "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
+              },
+              "applications/sso/src/assets/scss/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "applications/sso/src/environments/environment.ts",
+                  "with": "applications/sso/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "sso:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "sso:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "sso:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "applications/sso/src/test.ts",
+            "polyfills": "applications/sso/src/polyfills.ts",
+            "tsConfig": "applications/sso/tsconfig.spec.json",
+            "karmaConfig": "applications/sso/karma.conf.js",
+            "assets": ["applications/sso/src/favicon.ico", "applications/sso/src/assets"],
+            "styles": ["applications/sso/src/styles.scss"],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "applications/sso/tsconfig.app.json",
+              "applications/sso/tsconfig.spec.json",
+              "applications/sso/e2e/tsconfig.json"
+            ],
+            "exclude": ["**/node_modules/**"]
+          }
+        },
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "applications/sso/e2e/protractor.conf.js",
+            "devServerTarget": "sso:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "sso:serve:production"
+            }
+          }
+        }
+      }
+    },
     "portal": {
       "projectType": "application",
       "schematics": {
@@ -206,7 +321,7 @@
               {
                 "input": "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
               },
-              "applications/home/src/assets/scss/styles.scss"
+              "applications/portal/src/assets/scss/styles.scss"
             ],
             "scripts": []
           },

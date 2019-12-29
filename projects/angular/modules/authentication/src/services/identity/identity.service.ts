@@ -17,9 +17,6 @@ export class IdentityService {
   public set accessToken(value: string) {
     if (value) {
       localStorage.setItem('accessToken', value);
-
-      const jwt = jwtDecode(value) as any;
-      this.user = jwt.user;
     } else {
       localStorage.removeItem('accessToken');
     }
@@ -45,17 +42,25 @@ export class IdentityService {
 
     this._refreshToken = value;
   }
-  public user: User;
+  public get user() {
+    if (this.accessToken && !this._user) {
+      const jwt = jwtDecode(this.accessToken) as any;
+      this._user = jwt.user;
+    } else if (!this.accessToken && this._user) {
+      this._user = null;
+    }
+
+    return this._user;
+  }
 
   private _accessToken: string;
   private _refreshToken: string;
+  private _user: User;
 
   constructor(private loginService: LoginService, private userService: UserService) {
     this.loginService.onLogin.subscribe(this.login.bind(this));
     this.loginService.onLogout.subscribe(this.clear.bind(this));
     this.userService.onUpdate.subscribe(this.updateUser.bind(this));
-
-    this.accessToken = localStorage.getItem('token');
   }
 
   public clear() {
@@ -70,7 +75,7 @@ export class IdentityService {
 
   private updateUser(user: User) {
     if (user._id === this.user._id) {
-      this.user = user;
+      this._user = user;
     }
   }
 }

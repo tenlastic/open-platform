@@ -39,7 +39,7 @@
       <span class="fill-remaining-space"></span>
       <button *ngIf="identityService.user" mat-button color="white" [matMenuTriggerFor]="menu">
         <mat-icon>person</mat-icon>
-        {{ identityService.user.email }}
+        {{ identityService.user.username }}
         <mat-icon>keyboard_arrow_down</mat-icon>
       </button>
       <mat-menu #menu="matMenu" xPosition="before">
