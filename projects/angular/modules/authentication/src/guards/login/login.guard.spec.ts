@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -6,35 +7,43 @@ import { Chance } from 'chance';
 import * as jsonwebtoken from 'jsonwebtoken';
 
 import { IdentityService } from '../../services/identity/identity.service';
+import { AuthenticationModule } from '../../module';
 import { LoginGuard } from './login.guard';
 
 describe('LoginGuard', () => {
   const chance = new Chance();
 
+  const loginUrl = chance.url();
+  const logoutUrl = chance.url();
+
+  let document: Document;
   let identityService: IdentityService;
   let loginService: LoginService;
-  let router: Router;
   let service: LoginGuard;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, HttpModule],
+      imports: [
+        AuthenticationModule.forRoot({ loginUrl, logoutUrl }),
+        HttpClientTestingModule,
+        HttpModule,
+      ],
       providers: [
         IdentityService,
+        {
+          provide: DOCUMENT,
+          useValue: { location: { href: 'http://localhost' } },
+        },
         {
           provide: EnvironmentService,
           useValue: { loginApiBaseUrl: 'http://localhost:3000/logins' },
         },
-        {
-          provide: Router,
-          useValue: { navigateByUrl: jasmine.createSpy('navigateByUrl') },
-        },
       ],
     });
 
+    document = TestBed.get(DOCUMENT);
     identityService = TestBed.get(IdentityService);
     loginService = TestBed.get(LoginService);
-    router = TestBed.get(Router);
     service = TestBed.get(LoginGuard);
   });
 
@@ -63,7 +72,7 @@ describe('LoginGuard', () => {
       it('it navigates to the login page', async () => {
         await service.canActivate();
 
-        expect(router.navigateByUrl).toHaveBeenCalledWith('/login');
+        expect(document.location.href).toBe(loginUrl);
       });
 
       it('returns false', async () => {

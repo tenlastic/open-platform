@@ -5,7 +5,6 @@ export interface Environment {
   loginApiBaseUrl: string;
   namespaceApiBaseUrl: string;
   passwordResetApiBaseUrl: string;
-  production: boolean;
   userApiBaseUrl: string;
 }
 
@@ -17,7 +16,6 @@ export class EnvironmentService implements Environment {
   public loginApiBaseUrl: string;
   public namespaceApiBaseUrl: string;
   public passwordResetApiBaseUrl: string;
-  public production: boolean;
   public userApiBaseUrl: string;
 
   constructor(@Inject(EnvironmentServiceConfig) environment: Environment) {
