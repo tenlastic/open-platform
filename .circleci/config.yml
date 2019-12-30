@@ -43,8 +43,12 @@ commands:
           command: npm ci
           working_directory: << parameters.directory >>/
       - run:
+          name: Install Lerna
+          command: npm i -g lerna
+          working_directory: << parameters.directory >>/
+      - run:
           name: Lerna Bootstrap
-          command: npm run lerna bootstrap
+          command: lerna bootstrap
           working_directory: << parameters.directory >>/
       - save_cache:
           key: dependency-cache-{{ checksum "<< parameters.directory >>/package.json" }}
@@ -61,19 +65,17 @@ jobs:
           directory: ./projects/angular/
       - run:
           name: Lint
-          command: npm run lerna run lint
+          command: lerna run lint
           working_directory: ./projects/angular/
       - run:
           name: Build
-          command: npm run lerna run -- --concurrency 1 --no-private build
-          working_directory: ./projects/angular/
-      - run:
-          name: Build Production
-          command: npm run lerna run -- --concurrency 1 build:production
+          command: |
+            lerna run --concurrency 1 --no-private build
+            lerna run --concurrency 1 build:production
           working_directory: ./projects/angular/
       - run:
           name: Test
-          command: npm run lerna run test:ci
+          command: lerna run test:ci
           working_directory: ./projects/angular/
 
   nodejs:
@@ -92,15 +94,15 @@ jobs:
           directory: ./projects/nodejs/
       - run:
           name: Lint
-          command: npm run lerna run lint
+          command: run lint
           working_directory: ./projects/nodejs/
       - run:
           name: Build
-          command: npm run lerna run build
+          command: run build
           working_directory: ./projects/nodejs/
       - run:
           name: Test
-          command: npm run lerna run -- --concurrency 1 test -- -- --coverage
+          command: lerna run --concurrency 1 test -- --coverage
           working_directory: ./projects/nodejs/
       - run:
           name: Merge Test Results
@@ -123,113 +125,103 @@ jobs:
           path: ./projects/nodejs/test-results/
           destination: test-results
 
-  publish_angular_docker_images:
+  publish_docker_images:
     docker:
       - image: node:10
     steps:
       - setup_remote_docker
+      - install_docker_client
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Install Lerna
+          command: npm i -g lerna
+      - run:
+          name: Build Docker Images (Angular)
+          command: lerna run docker:build
+          working_directory: /tmp/workspace/projects/angular/
+      - run:
+          name: Push Docker Images (Angular)
+          command: lerna run docker:push
+          working_directory: /tmp/workspace/projects/angular/
+      - run:
+          name: Build Docker Images (NodeJS)
+          command: lerna run docker:build
+          working_directory: /tmp/workspace/projects/nodejs/
+      - run:
+          name: Push Docker Images (NodeJS)
+          command: lerna run docker:push
+          working_directory: /tmp/workspace/projects/nodejs/
+
+  publish_npm_modules:
+    docker:
+      - image: node:10
+    steps:
       - checkout
-      - install_node_modules:
-          directory: ./projects/angular/
-      - run:
-          name: Build
-          command: npm run lerna run -- --concurrency 1 --no-private build
-          working_directory: ./projects/angular/
-      - run:
-          name: Build Production
-          command: npm run lerna run -- --concurrency 1 build:production
-          working_directory: ./projects/angular/
       - run:
           name: Update Git Credentials
           command: |
             git config user.email $GITHUB_USER_EMAIL
             git config user.name $GITHUB_USER_NAME
+      - install_node_modules:
+          directory: ./projects/angular/
       - run:
-          name: Update Version
+          name: Build (Angular)
           command: |
-            npm run lerna -- version \
+            lerna run --concurrency 1 --no-private build
+            lerna run --concurrency 1 build:production
+          working_directory: ./projects/angular/
+      - run:
+          name: Update Version (Angular)
+          command: |
+            npm config set unsafe-perm true
+            lerna version \
               --exact \
               --message "angular-v%v [ci skip]" \
               --tag-version-prefix angular-v \
               --yes \
               patch
+            npm config set unsafe-perm false
           working_directory: ./projects/angular/
-      - install_docker_client
-      - run:
-          name: Build Docker Images
-          command: npm run lerna run docker:build
-          working_directory: ./projects/angular/
-      - run:
-          name: Push Docker Images
-          command: npm run lerna run docker:push
-          working_directory: ./projects/angular/
-
-  publish_nodejs_docker_images:
-    docker:
-      - image: node:10
-    steps:
-      - attach_workspace:
-          at: /tmp/workspace
-      - setup_remote_docker
-      - install_node_modules:
-          directory: /tmp/workspace/projects/nodejs/
-      - run:
-          name: Build
-          command: npm run lerna run build
-          working_directory: /tmp/workspace/projects/nodejs/
-      - install_docker_client
-      - run:
-          name: Build Docker Images
-          command: npm run lerna run docker:build
-          working_directory: /tmp/workspace/projects/nodejs/
-      - run:
-          name: Push Docker Images
-          command: npm run lerna run docker:push
-          working_directory: /tmp/workspace/projects/nodejs/
-
-  publish_nodejs_npm_modules:
-    docker:
-      - image: node:10
-    steps:
-      - checkout
       - install_node_modules:
           directory: ./projects/nodejs/
       - run:
-          name: Build
-          command: npm run lerna run build
+          name: Build (NodeJS)
+          command: lerna run build
           working_directory: ./projects/nodejs/
       - run:
-          name: Update Git Credentials
-          command: |
-            git config user.email $GITHUB_USER_EMAIL
-            git config user.name $GITHUB_USER_NAME
-      - run:
-          name: Create NPMRC File for NPM
+          name: Publish Node Modules to NPM (NodeJS)
           command: |
             echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-      - run:
-          name: Publish Node Modules to NPM
-          command: |
-            npm run lerna -- publish \
+
+            npm config set unsafe-perm true
+            lerna publish \
               --exact \
               --message "nodejs-v%v [ci skip]" \
               --tag-version-prefix nodejs-v \
               --yes \
               patch
+            npm config set unsafe-perm true
           working_directory: ./projects/nodejs/
       - run:
-          name: Create NPMRC File for Github
+          name: Publish Node Modules to Github (NodeJS)
           command: |
             echo "@tenlastic:registry=https://npm.pkg.github.com" > ~/.npmrc
             echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> ~/.npmrc
-      - run:
-          name: Publish Node Modules to Github
-          command: |
-            npm run lerna -- publish \
+
+            lerna publish \
               --registry https://npm.pkg.github.com \
               --yes \
               from-package
           working_directory: ./projects/nodejs/
+      - copy_directory:
+          label: Persist Angular Directory
+          from: ./projects/angular/*
+          to: /tmp/workspace/projects/angular/
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - projects/angular/
       - copy_directory:
           label: Persist NodeJS Directory
           from: ./projects/nodejs/*
@@ -238,6 +230,7 @@ jobs:
           root: /tmp/workspace
           paths:
             - projects/nodejs/
+
   terraform:
     docker:
       - image: hashicorp/terraform:0.11.13
@@ -261,24 +254,19 @@ workflows:
   build-deploy:
     jobs:
       - angular
-      - publish_angular_docker_images:
+      - nodejs:
+          context: open-platform-review
+
+      - publish_npm_modules:
           filters:
             branches:
               only: master
           requires:
             - angular
-
-      - nodejs:
-          context: open-platform-review
-      - publish_nodejs_npm_modules:
-          filters:
-            branches:
-              only: master
-          requires:
             - nodejs
-      - publish_nodejs_docker_images:
+      - publish_docker_images:
           requires:
-            - publish_nodejs_npm_modules
+            - publish_npm_modules
 
       - terraform:
           filters:
