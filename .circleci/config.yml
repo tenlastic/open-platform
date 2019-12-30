@@ -145,7 +145,7 @@ jobs:
           at: /tmp/workspace
       - run:
           name: Install Lerna
-          command: sudo npm i -g lerna
+          command: npm i -g lerna
       - run:
           name: Build Docker Images (Angular)
           command: lerna run docker:build
