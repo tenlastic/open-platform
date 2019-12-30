@@ -12,7 +12,7 @@ spec:
         sidecar.istio.io/inject: "true"
       labels:
         app: database-api
-        version: latest
+        version: 0.0.28
     spec:
       affinity:
         nodeAffinity:
@@ -23,7 +23,7 @@ spec:
                     operator: Exists
       containers:
         - name: database-api
-          image: tenlastic/database-api:latest
+          image: tenlastic/database-api:0.0.28
           envFrom:
             - secretRef:
                 name: database-api-environment-variables

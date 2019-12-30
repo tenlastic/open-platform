@@ -12,7 +12,7 @@ spec:
         sidecar.istio.io/inject: "true"
       labels:
         app: authentication-api
-        version: latest
+        version: 0.0.28
     spec:
       affinity:
         nodeAffinity:
@@ -23,7 +23,7 @@ spec:
                     operator: Exists
       containers:
         - name: authentication-api
-          image: tenlastic/authentication-api:latest
+          image: tenlastic/authentication-api:0.0.28
           envFrom:
             - secretRef:
                 name: authentication-api-environment-variables
