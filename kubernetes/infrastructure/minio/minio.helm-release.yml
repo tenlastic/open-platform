@@ -30,7 +30,7 @@ spec:
             topologyKey: kubernetes.io/hostname
     existingSecret: minio
     extraArgs:
-      - --address:0.0.0.0:9000
+      - --address 0.0.0.0:9000
     mode: distributed
     persistence:
       size: 25Gi
