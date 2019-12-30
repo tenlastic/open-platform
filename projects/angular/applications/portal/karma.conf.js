@@ -18,7 +18,7 @@ module.exports = function(config) {
     customLaunchers: {
       ChromeHeadless: {
         base: 'Chrome',
-        flags: ['--headless', '--disable-gpu', '--remote-debugging-port=9222'],
+        flags: ['--disable-gpu', '--headless', '--no-sandbox', '--remote-debugging-port=9222'],
       },
     },
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
