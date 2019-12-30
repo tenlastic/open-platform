@@ -30,7 +30,7 @@ commands:
 
   install_google_chrome:
     steps:
-      -run:
+      - run:
         name: Install Google Chrome
         command: |
           sudo wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
