@@ -12,7 +12,7 @@ spec:
         sidecar.istio.io/inject: "true"
       labels:
         app: namespace-api
-        version: 0.0.28
+        version: 0.0.29
     spec:
       affinity:
         nodeAffinity:
@@ -23,7 +23,7 @@ spec:
                     operator: Exists
       containers:
         - name: namespace-api
-          image: tenlastic/namespace-api:0.0.28
+          image: tenlastic/namespace-api:0.0.29
           envFrom:
             - secretRef:
                 name: namespace-api-environment-variables
