@@ -10,7 +10,7 @@ spec:
   chart:
     repository: https://kubernetes-charts.storage.googleapis.com/
     name: minio
-    version: 3.10.3
+    version: 4.0.3
   values:
     affinity:
       nodeAffinity:
