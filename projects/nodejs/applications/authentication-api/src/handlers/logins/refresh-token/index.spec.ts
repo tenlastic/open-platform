@@ -99,7 +99,7 @@ describe('handlers/logins/refresh-token', function() {
           });
 
           context('when the user is exists', function() {
-            it('returns an accessToken and refreshToken', async function() {
+            it('returns accessToken and refreshToken', async function() {
               const user = await UserMock.create();
               const refreshToken = await RefreshTokenMock.create({ userId: user._id });
               const token = jwt.sign({ user }, process.env.JWT_SECRET, { jwtid: refreshToken.jti });
