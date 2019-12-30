@@ -44,7 +44,7 @@ commands:
           working_directory: << parameters.directory >>/
       - run:
           name: Install Lerna
-          command: npm i -g lerna
+          command: sudo npm i -g lerna
           working_directory: << parameters.directory >>/
       - run:
           name: Lerna Bootstrap
@@ -94,11 +94,11 @@ jobs:
           directory: ./projects/nodejs/
       - run:
           name: Lint
-          command: run lint
+          command: lerna run lint
           working_directory: ./projects/nodejs/
       - run:
           name: Build
-          command: run build
+          command: lerna run build
           working_directory: ./projects/nodejs/
       - run:
           name: Test
@@ -135,7 +135,7 @@ jobs:
           at: /tmp/workspace
       - run:
           name: Install Lerna
-          command: npm i -g lerna
+          command: sudo npm i -g lerna
       - run:
           name: Build Docker Images (Angular)
           command: lerna run docker:build
