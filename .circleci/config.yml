@@ -28,6 +28,15 @@ commands:
             tar -xz -C /tmp -f /tmp/docker-$VER.tgz
             mv /tmp/docker/* /usr/bin
 
+  install_google_chrome:
+    steps:
+      -run:
+        name: Install Google Chrome
+        command: |
+          sudo wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
+          sudo apt-get update && apt-get install -yq google-chrome-stable
+
   install_node_modules:
     parameters:
       directory:
@@ -58,8 +67,9 @@ commands:
 jobs:
   angular:
     docker:
-      - image: circleci/node:10-browsers
+      - image: node:10
     steps:
+      - install_google_chrome
       - checkout
       - install_node_modules:
           directory: ./projects/angular/
@@ -165,6 +175,7 @@ jobs:
             git config user.name $GITHUB_USER_NAME
       - install_node_modules:
           directory: ./projects/angular/
+          label: Install Node Modules (Angular)
       - run:
           name: Build (Angular)
           command: |
@@ -185,6 +196,7 @@ jobs:
           working_directory: ./projects/angular/
       - install_node_modules:
           directory: ./projects/nodejs/
+          label: Install Node Modules (NodeJS)
       - run:
           name: Build (NodeJS)
           command: lerna run build
