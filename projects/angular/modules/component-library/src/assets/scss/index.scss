@@ -1,0 +1,37 @@
+@import './fonts.scss';
+@import './material.scss';
+@import './scrollbar.scss';
+
+* {
+  font-family: 'Oswald', sans-serif;
+  text-shadow: 2px 3px 3px #000000;
+}
+
+body {
+  background: url('/assets/images/background.jpg');
+  background-attachment: fixed;
+  background-size: cover;
+  color: white;
+  height: 100vh;
+  margin: 0px;
+  overflow: hidden;
+  padding: 0px;
+}
+
+[centered] {
+  display: block;
+  margin: 8px auto;
+  width: max-content;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+[text='center'] {
+  text-align: center;
+}
+
+[text='left'] {
+  text-align: left;
+}

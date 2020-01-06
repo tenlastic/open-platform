@@ -1,6 +1,7 @@
 import { APP_BASE_HREF } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { AuthenticationModule, OAuthComponent } from '@tenlastic/ng-authentication';
 import { HttpModule } from '@tenlastic/ng-http';
 
 import { CoreModule } from './core/core.module';
@@ -25,18 +26,7 @@ export const ROUTES: Routes = [
   },
   {
     path: 'oauth',
-    loadChildren: () => import('./modules/o-auth/o-auth.module').then(m => m.OAuthModule),
-  },
-  {
-    path: 'patch-notes',
-    component: LayoutComponent,
-    loadChildren: () =>
-      import('./modules/patch-notes/patch-notes.module').then(m => m.PatchNotesModule),
-  },
-  {
-    path: 'play-now',
-    component: LayoutComponent,
-    loadChildren: () => import('./modules/play-now/play-now.module').then(m => m.PlayNowModule),
+    component: OAuthComponent,
   },
 ];
 
@@ -44,6 +34,7 @@ export const ROUTES: Routes = [
   declarations: [AppComponent],
   entryComponents: [AppComponent],
   imports: [
+    AuthenticationModule.forRoot(environment),
     CoreModule,
     HttpModule.forRoot(environment),
     MaterialModule,

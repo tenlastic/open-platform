@@ -1,0 +1,20 @@
+<ten-sidenav>
+  <div class="nav">
+    <ten-button
+      *ngFor="let game of games"
+      color="accent"
+      layout="vertical"
+      [routerLink]="game._id"
+      routerLinkActive="active"
+      text="left"
+      width="full"
+    >
+      <img [src]="game.icon" />
+      <span>{{ game.title }}</span>
+    </ten-button>
+  </div>
+
+  <div class="content">
+    <router-outlet></router-outlet>
+  </div>
+</ten-sidenav>

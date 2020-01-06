@@ -7,12 +7,10 @@ import { RouterModule } from '@angular/router';
 import { TokenInterceptor } from '@tenlastic/ng-authentication';
 
 import { MaterialModule } from '../material.module';
-import { LayoutComponent } from './components';
 import { CollectionFormService, CrudSnackbarService, SelectedNamespaceService } from './services';
 
 @NgModule({
-  declarations: [LayoutComponent],
-  exports: [LayoutComponent, MaterialModule],
+  exports: [MaterialModule],
   imports: [
     BrowserAnimationsModule,
     BrowserModule,

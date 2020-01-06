@@ -1,12 +1,12 @@
 import { APP_BASE_HREF } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { LoginGuard, AuthenticationModule } from '@tenlastic/ng-authentication';
+import { AuthenticationModule, LoginGuard, OAuthComponent } from '@tenlastic/ng-authentication';
 import { HttpModule } from '@tenlastic/ng-http';
 
 import { environment } from '../environments/environment';
 import { CoreModule } from './core/core.module';
-import { LayoutComponent } from './core/components';
+import { LayoutComponent } from './shared/components';
 import { SharedModule } from './shared/shared.module';
 import { AppComponent } from './app.component';
 
@@ -31,7 +31,7 @@ export const ROUTES: Routes = [
   },
   {
     path: 'oauth',
-    loadChildren: () => import('./modules/o-auth/o-auth.module').then(m => m.OAuthModule),
+    component: OAuthComponent,
   },
   {
     path: 'reset-password/:hash',

@@ -1,52 +1,60 @@
-<mat-toolbar class="system-toolbar">
+<ten-header-toolbar>
   <div class="container">
-    <span class="fill-remaining-space"></span>
+    <img src="/assets/images/logo.png" />
 
-    <button *ngIf="identityService.user" mat-button color="white" [matMenuTriggerFor]="view">
-      <mat-icon>person</mat-icon>
-      {{ identityService.user.username }}
+    <ten-button
+      color="accent"
+      routerLink="/"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      <span>Home</span>
+    </ten-button>
+
+    <ten-button color="accent" [matMenuTriggerFor]="for_developers">
+      <span>For Developers</span>
       <mat-icon>keyboard_arrow_down</mat-icon>
-    </button>
-    <mat-menu #view="matMenu" xPosition="before">
-      <button mat-menu-item color="white" (click)="logOut()">
-        <mat-icon>exit_to_app</mat-icon>
-        Log out
-      </button>
+    </ten-button>
+    <mat-menu #for_developers="matMenu" xPosition="before">
+      <ten-button
+        color="accent"
+        href="https://github.com/tenlastic/open-platform"
+        layout="vertical"
+        target="_blank"
+        width="full"
+      >
+        <span>Github Repository</span>
+      </ten-button>
     </mat-menu>
 
-    <button *ngIf="!identityService.user" mat-button color="white" class="login" (click)="logIn()">
-      <mat-icon>lock</mat-icon>
-      Log In
-    </button>
-  </div>
-</mat-toolbar>
+    <ten-button color="accent" routerLink="/contact-us" routerLinkActive="active">
+      <span>Contact Us</span>
+    </ten-button>
 
-<mat-toolbar class="main-toolbar">
-  <div class="container">
-    <div class="logo-container">
-      <img routerLink="/" src="/assets/images/logo.png" />
-    </div>
-    <button mat-button color="white">
-      Store
-    </button>
-    <button mat-button color="white">
-      Games
-    </button>
-    <button mat-button color="white">
-      Friends
-    </button>
-    <span class="fill-remaining-space"></span>
-    <button
-      mat-button
-      color="white"
-      routerLink="/contact-us"
-      [ngClass]="{ active: router.url === '/contact-us' }"
-    >
-      Contact Us
-    </button>
-    <app-play-now-button></app-play-now-button>
+    <span class="space"></span>
+
+    <ten-button *ngIf="identityService.user" color="accent" [matMenuTriggerFor]="account">
+      <mat-icon>person</mat-icon>
+      <span>{{ identityService.user.username }}</span>
+      <mat-icon>keyboard_arrow_down</mat-icon>
+    </ten-button>
+    <mat-menu #account="matMenu" xPosition="before">
+      <ten-button color="accent" layout="vertical" width="full" [href]="logoutUrl">
+        <mat-icon>exit_to_app</mat-icon>
+        <span>Log out</span>
+      </ten-button>
+    </mat-menu>
+
+    <ten-button *ngIf="!identityService.user" color="accent" [href]="loginUrl">
+      <mat-icon>lock</mat-icon>
+      <span>Log In</span>
+    </ten-button>
+
+    <ten-button color="primary" [href]="launcherUrl">
+      <span>Play Now</span>
+    </ten-button>
   </div>
-</mat-toolbar>
+</ten-header-toolbar>
 
 <div class="container container-small content">
   <router-outlet></router-outlet>

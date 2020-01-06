@@ -1,3 +1,5 @@
+export * from './components/o-auth/o-auth.component';
+
 export * from './guards/login/login.guard';
 
 export * from './interceptors/token/token.interceptor';

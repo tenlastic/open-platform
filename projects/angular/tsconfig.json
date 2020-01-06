@@ -16,6 +16,8 @@
     "paths": {
       "@tenlastic/ng-authentication": ["dist/modules/authentication"],
       "@tenlastic/ng-authentication/*": ["dist/modules/authentication/*"],
+      "@tenlastic/ng-component-library": ["dist/modules/component-library"],
+      "@tenlastic/ng-component-library/*": ["dist/modules/component-library/*"],
       "@tenlastic/ng-http": ["dist/modules/http"],
       "@tenlastic/ng-http/*": ["dist/modules/http/*"]
     },

@@ -1,30 +1,3 @@
-@import '../../../../assets/scss/theme.scss';
-
-a {
-  display: block;
-  font-size: 0.9rem;
-  margin-top: 12px;
-  text-align: center;
-  white-space: nowrap;
-}
-
-button.mat-button {
-  display: block;
-  margin: 0px auto;
-}
-
-h2 {
-  color: white;
-  font-size: 32px;
-  margin: 0px 0px 32px;
-  text-align: center;
-
-  mat-icon.mat-icon {
-    color: #ffff00;
-    margin-right: 4px;
-  }
-}
-
 div.center-of-screen {
   left: 50%;
   position: absolute;
@@ -33,8 +6,30 @@ div.center-of-screen {
   width: 325px;
 }
 
+h2 {
+  color: white;
+  font-size: 32px;
+  margin: 0px 0px 16px;
+  text-align: center;
+
+  mat-icon.mat-icon {
+    color: #ffff55;
+    margin-right: 4px;
+  }
+}
+
+img {
+  margin: 0px 0px 20px;
+  width: 100%;
+}
+
+ten-button {
+  display: block;
+  margin: 0px auto;
+}
+
 .row {
-  margin: 32px 0px 0px;
+  margin: 36px 0px 0px;
 
   .col-sm-6 {
     padding: 0px;

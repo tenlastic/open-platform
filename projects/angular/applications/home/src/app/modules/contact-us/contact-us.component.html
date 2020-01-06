@@ -1,53 +1,35 @@
 <h1>Contact Us</h1>
 
-<p>
-  Want to ask a question, report a bug, or leave feedback regarding Nova? We'd love to hear from you.
-  <br>
+<p text="center">
+  Want to ask a question, report a bug, or leave feedback regarding Nova? We'd love to hear from
+  you.
+  <br />
   Send us a message and we'll respond as soon as possible.
 </p>
 
-<form *ngIf="!isSubmitted"
-      [formGroup]="form">
+<form *ngIf="!isSubmitted" centered [formGroup]="form">
   <div class="row">
-    <mat-form-field class="col-sm-6"
-                    floatLabel="always">
+    <mat-form-field class="col-sm-6" floatLabel="always">
       <mat-label>Name</mat-label>
-      <input matInput
-             required
-             type="text"
-             formControlName="name">
+      <input matInput required type="text" formControlName="name" />
       <mat-error>Enter your name.</mat-error>
     </mat-form-field>
 
-    <mat-form-field class="col-sm-6"
-                    floatLabel="always">
+    <mat-form-field class="col-sm-6" floatLabel="always">
       <mat-label>Email address</mat-label>
-      <input matInput
-             required
-             type="email"
-             formControlName="email">
+      <input matInput required type="email" formControlName="email" />
       <mat-error>Enter a valid email address.</mat-error>
     </mat-form-field>
   </div>
 
-
-
-
   <mat-form-field floatLabel="always">
     <mat-label>Message</mat-label>
-    <textarea matInput
-              cdkTextareaAutosize
-              type="text"
-              formControlName="message"></textarea>
+    <textarea matInput cdkTextareaAutosize type="text" formControlName="message"></textarea>
   </mat-form-field>
 
-  <button mat-button
-          background="accent"
-          centered
-          (click)="submit()">Submit</button>
+  <ten-button color="primary" layout="vertical" (click)="submit()">Submit</ten-button>
 </form>
 
-<div *ngIf="isSubmitted"
-     class="center">
+<div *ngIf="isSubmitted" class="center">
   Thank you for your submission.
 </div>

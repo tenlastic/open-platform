@@ -1,5 +1,7 @@
 <div class="center-of-screen">
   <div [hidden]="!!loadingMessage">
+    <img src="/assets/images/logo.png" />
+
     <div *ngIf="action === Action.LogIn">
       <h2>
         <mat-icon>lock</mat-icon>
@@ -36,17 +38,17 @@
 
     <div class="row">
       <div class="col-sm-6" *ngIf="action !== Action.LogIn" col-6>
-        <button mat-button color="white" (click)="setAction(Action.LogIn)">
+        <ten-button color="accent" layout="vertical" (OnClick)="setAction(Action.LogIn)">
           <mat-icon>lock</mat-icon>
-          Log In
-        </button>
+          <span>Log In</span>
+        </ten-button>
       </div>
 
       <div class="col-sm-6" *ngIf="action !== Action.Register" col-6>
-        <button mat-button color="white" (click)="setAction(Action.Register)">
+        <ten-button color="accent" layout="vertical" (OnClick)="setAction(Action.Register)">
           <mat-icon>person_add</mat-icon>
-          Create Account
-        </button>
+          <span>Create Account</span>
+        </ten-button>
       </div>
 
       <div
@@ -54,13 +56,17 @@
         *ngIf="action !== Action.RequestPasswordReset && action !== Action.ResetPassword"
         col-6
       >
-        <button mat-button color="white" (click)="setAction(Action.RequestPasswordReset)">
+        <ten-button
+          color="accent"
+          layout="vertical"
+          (OnClick)="setAction(Action.RequestPasswordReset)"
+        >
           <mat-icon>refresh</mat-icon>
-          Reset Password
-        </button>
+          <span>Reset Password</span>
+        </ten-button>
       </div>
     </div>
   </div>
 
-  <app-loading-message [hidden]="!loadingMessage">{{ loadingMessage }}</app-loading-message>
+  <ten-loading-message [hidden]="!loadingMessage">{{ loadingMessage }}</ten-loading-message>
 </div>
