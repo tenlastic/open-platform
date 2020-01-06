@@ -2,7 +2,7 @@
   "main": "../../dist/modules/component-library/bundles/tenlastic-ng-component-library.umd.js",
   "name": "@tenlastic/ng-component-library",
   "typings": "../../dist/modules/component-library/module.d.ts",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "scripts": {
     "build": "ng build component-library",
     "lint": "ng lint component-library",
