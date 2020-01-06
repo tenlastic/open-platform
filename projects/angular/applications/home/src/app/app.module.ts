@@ -1,7 +1,7 @@
 import { APP_BASE_HREF } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { OAuthComponent } from '@tenlastic/ng-authentication';
+import { AuthenticationModule, OAuthComponent } from '@tenlastic/ng-authentication';
 import { HttpModule } from '@tenlastic/ng-http';
 
 import { CoreModule } from './core/core.module';
@@ -34,6 +34,7 @@ export const ROUTES: Routes = [
   declarations: [AppComponent],
   entryComponents: [AppComponent],
   imports: [
+    AuthenticationModule.forRoot(environment),
     CoreModule,
     HttpModule.forRoot(environment),
     MaterialModule,

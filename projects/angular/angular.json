@@ -162,7 +162,15 @@
             "polyfills": "applications/home/src/polyfills.ts",
             "tsConfig": "applications/home/tsconfig.spec.json",
             "karmaConfig": "applications/home/karma.conf.js",
-            "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets"],
+            "assets": [
+              "applications/home/src/favicon.ico",
+              "applications/home/src/assets",
+              {
+                "glob": "**/*",
+                "input": "applications/home/node_modules/@tenlastic/ng-component-library/src/assets/",
+                "output": "./assets/"
+              }
+            ],
             "styles": ["applications/home/src/assets/scss/index.scss"],
             "scripts": []
           }
@@ -318,7 +326,15 @@
             "polyfills": "applications/launcher/src/polyfills.ts",
             "tsConfig": "applications/launcher/tsconfig.spec.json",
             "karmaConfig": "applications/launcher/karma.conf.js",
-            "assets": ["applications/launcher/src/favicon.ico", "applications/launcher/src/assets"],
+            "assets": [
+              "applications/launcher/src/favicon.ico",
+              "applications/launcher/src/assets",
+              {
+                "glob": "**/*",
+                "input": "applications/launcher/node_modules/@tenlastic/ng-component-library/src/assets/",
+                "output": "./assets/"
+              }
+            ],
             "styles": ["applications/launcher/src/assets/scss/index.scss"],
             "scripts": []
           }
@@ -441,7 +457,15 @@
             "polyfills": "applications/portal/src/polyfills.ts",
             "tsConfig": "applications/portal/tsconfig.spec.json",
             "karmaConfig": "applications/portal/karma.conf.js",
-            "assets": ["applications/portal/src/favicon.ico", "applications/portal/src/assets"],
+            "assets": [
+              "applications/portal/src/favicon.ico",
+              "applications/portal/src/assets",
+              {
+                "glob": "**/*",
+                "input": "applications/portal/node_modules/@tenlastic/ng-component-library/src/assets/",
+                "output": "./assets/"
+              }
+            ],
             "styles": ["applications/portal/src/assets/scss/index.scss"],
             "scripts": []
           }
@@ -564,7 +588,15 @@
             "polyfills": "applications/sso/src/polyfills.ts",
             "tsConfig": "applications/sso/tsconfig.spec.json",
             "karmaConfig": "applications/sso/karma.conf.js",
-            "assets": ["applications/sso/src/favicon.ico", "applications/sso/src/assets"],
+            "assets": [
+              "applications/sso/src/favicon.ico",
+              "applications/sso/src/assets",
+              {
+                "glob": "**/*",
+                "input": "applications/sso/node_modules/@tenlastic/ng-component-library/src/assets/",
+                "output": "./assets/"
+              }
+            ],
             "styles": ["applications/sso/src/assets/scss/index.scss"],
             "scripts": []
           }
