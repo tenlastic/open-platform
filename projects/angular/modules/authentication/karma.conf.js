@@ -21,6 +21,7 @@ module.exports = function(config) {
         flags: ['--disable-gpu', '--headless', '--no-sandbox', '--remote-debugging-port=9222'],
       },
     },
+    failOnEmptyTestSuite: false,
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
     logLevel: config.LOG_INFO,
     plugins: [
