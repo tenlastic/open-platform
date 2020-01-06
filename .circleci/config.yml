@@ -85,7 +85,7 @@ jobs:
           working_directory: ./projects/angular/
       - run:
           name: Test
-          command: lerna run test:ci
+          command: lerna run --concurrency 1 test:ci
           working_directory: ./projects/angular/
 
   nodejs:
