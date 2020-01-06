@@ -6,7 +6,7 @@
   "scripts": {
     "build": "ng build component-library",
     "lint": "ng lint component-library",
-    "postbuild": "cpx ./src/assets/**/* ../../dist/modules/component-library/assets/",
+    "postbuild": "cpx './src/assets/**/*' '../../dist/modules/component-library/assets/'",
     "storybook:start": "start-storybook -s ./src/",
     "test": "ng test component-library",
     "test:ci": "ng test --code-coverage --watch false component-library"
