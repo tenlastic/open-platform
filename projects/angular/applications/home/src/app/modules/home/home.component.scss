@@ -8,24 +8,14 @@
   transform: translate(-50%, -50%);
   width: 100%;
 
-  &.unity {
-    top: calc(50% + -12px);
-  }
-
   ::ng-deep {
-    button {
+    a.mat-button {
       font-size: 1.5rem;
       padding: 12px 32px;
     }
   }
 
-  h1 {
-    color: white;
-    font-size: 3rem;
-
-    &::before,
-    &::after {
-      content: none;
-    }
+  ten-button {
+    margin-top: 16px;
   }
 }

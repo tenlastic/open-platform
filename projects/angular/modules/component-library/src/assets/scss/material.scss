@@ -1,0 +1,258 @@
+a.mat-list-item {
+  mat-icon.mat-icon {
+    color: #ffff00 !important;
+    font-size: 20px;
+    height: 20px;
+    line-height: 21px;
+    margin: 0px 8px 0px 0px;
+    width: 20px;
+  }
+}
+
+div.mat-autocomplete-panel {
+  background: black;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+
+  mat-option.mat-option {
+    color: white;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+}
+
+div.mat-card-header-text {
+  margin: 0px;
+}
+
+div.mat-dialog-actions {
+  justify-content: center;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
+}
+
+div.mat-dialog-content {
+  p {
+    margin: 8px 0px;
+  }
+}
+
+div.mat-menu-content {
+  padding: 0px;
+}
+
+div.mat-menu-panel {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 0px;
+  min-height: auto;
+  min-width: auto;
+
+  div.mat-menu-content:not(:empty) {
+    padding: 0px;
+  }
+}
+
+div.mat-select-arrow {
+  color: white;
+}
+
+div.mat-select-panel {
+  background: black;
+}
+
+div.mat-select-value {
+  color: white;
+}
+
+div.mat-sort-header-sorted {
+  color: black;
+}
+
+mat-dialog-container.mat-dialog-container {
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 0px;
+  box-shadow: 3px 4px 5px #000000;
+  color: white;
+  padding: 16px 24px;
+}
+
+mat-form-field.mat-form-field {
+  display: block;
+
+  &.mat-form-field-appearance-legacy {
+    div.mat-form-field-underline {
+      background-color: white;
+    }
+
+    input {
+      caret-color: white;
+      color: white;
+      line-height: 24px;
+    }
+
+    label.mat-form-field-label {
+      color: white;
+    }
+  }
+
+  &.mat-form-field-invalid {
+    padding-bottom: 16px;
+  }
+
+  mat-error.mat-error {
+    line-height: 14px;
+  }
+
+  textarea {
+    line-height: 1.6rem;
+
+    &.cdk-textarea-autosize {
+      overflow: hidden;
+    }
+  }
+}
+
+mat-nav-list.mat-nav-list {
+  padding-top: 0px;
+
+  a.mat-list-item {
+    background: rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.5);
+
+    &.active,
+    &:hover {
+      background: transparent;
+    }
+
+    div.mat-list-item-content {
+      color: white;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+}
+
+mat-option.mat-option {
+  color: rgba(255, 255, 255, 0.5);
+
+  &.mat-option.mat-active:not(.mat-selected) {
+    color: rgba(255, 255, 255, 0.5);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  &.mat-option.mat-selected:not(.mat-option-disabled) {
+    color: white;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  &:hover,
+  &:hover:not(.mat-option-disabled) {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+mat-paginator.mat-paginator {
+  background: transparent;
+  color: white;
+
+  .mat-paginator-container {
+    padding: 0px;
+  }
+}
+
+mat-pseudo-checkbox.mat-pseudo-checkbox {
+  color: rgba(255, 255, 255, 0.5);
+
+  &::after {
+    top: 4px;
+    left: 2px;
+  }
+}
+
+mat-select .mat-select-placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+mat-sidenav.mat-sidenav {
+  border-right: none;
+
+  .mat-drawer-inner-container {
+    display: flex;
+    flex-flow: column;
+  }
+}
+
+mat-sidenav-container.mat-drawer-container {
+  background: transparent;
+}
+
+mat-spinner.mat-spinner {
+  display: inline-block;
+  margin-right: 8px;
+  margin-top: 2px;
+  vertical-align: middle;
+
+  circle {
+    stroke: white;
+  }
+}
+
+mat-toolbar.mat-toolbar-single-row {
+  height: 36px;
+  padding: 0px;
+  overflow-y: hidden;
+}
+
+snack-bar-container.mat-snack-bar-container {
+  color: white;
+  padding-left: 20px;
+
+  div.mat-simple-snackbar-action {
+    color: white;
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.125);
+    }
+  }
+}
+
+table.mat-table {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+
+  button.mat-sort-header-button {
+    color: white;
+  }
+
+  div.mat-sort-header-stem {
+    color: white;
+  }
+
+  div.mat-sort-header-indicator {
+    color: white;
+  }
+
+  td.mat-cell {
+    color: white;
+  }
+
+  .mat-header-row {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .mat-row:nth-child(odd) {
+    background: rgba(0, 0, 0, 0.125);
+  }
+
+  .mat-row:nth-child(even) {
+    background: rgba(0, 0, 0, 0.25);
+  }
+}

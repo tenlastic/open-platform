@@ -1,0 +1,12 @@
+@import '../../assets/scss/theme.scss';
+
+:host {
+  color: white;
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+
+  &[level='error'] {
+    color: mat-color(mat-palette($mat-red));
+  }
+}

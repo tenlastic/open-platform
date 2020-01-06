@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { ComponentLibraryModule } from '@tenlastic/ng-component-library';
 
 import { SharedModule } from '../../shared/shared.module';
 
@@ -22,6 +23,6 @@ export const ROUTES: Routes = [{ path: '', component: LoginPageComponent }];
 
     LoginPageComponent,
   ],
-  imports: [SharedModule, RouterModule.forChild(ROUTES)],
+  imports: [ComponentLibraryModule, SharedModule, RouterModule.forChild(ROUTES)],
 })
 export class LoginModule {}

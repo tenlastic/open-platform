@@ -1,1 +1,1 @@
-export const TITLE = 'Nova';
+export const TITLE = 'Tenlastic';

@@ -1,0 +1,38 @@
+{
+  "name": "launcher",
+  "version": "0.0.11",
+  "scripts": {
+    "build": "ng build launcher",
+    "build:production": "ng build --preserve-symlinks --prod launcher",
+    "docker:build": "sh ../../scripts/docker-build.sh launcher launcher-ui",
+    "docker:push": "sh ../../scripts/docker-push.sh launcher-ui",
+    "e2e": "ng e2e launcher",
+    "electron:build": "npm run electron:serve-tsc && npm run build:production",
+    "electron:install": "electron-builder install-app-deps",
+    "electron:linux": "npm run electron:build && electron-builder build --linux",
+    "electron:local": "npm run electron:build && electron ./dist/main.js",
+    "electron:mac": "npm run electron:build && electron-builder build --mac",
+    "electron:serve": "wait-on http-get://localhost:8083/ && npm run electron:serve-tsc && electron ./dist/main.js --serve",
+    "electron:serve-tsc": "tsc -p tsconfig.electron.json",
+    "electron:start": "npm-run-all -p start electron:serve",
+    "electron:windows": "npm run electron:build && electron-builder build --windows",
+    "lint": "ng lint launcher",
+    "start": "ng serve --port 8083 launcher",
+    "test": "ng test launcher",
+    "test:ci": "ng test --code-coverage --watch false launcher",
+    "version": "../../scripts/version.sh launcher-ui"
+  },
+  "private": true,
+  "devDependencies": {
+    "@angular/cli": "~8.3.21",
+    "@tenlastic/ng-authentication": "0.0.11",
+    "@tenlastic/ng-component-library": "0.0.11",
+    "@tenlastic/ng-http": "0.0.11",
+    "electron": "~7.1.7",
+    "electron-builder": "~21.2.0",
+    "electron-reload": "~1.5.0",
+    "npm-run-all": "~4.1.5",
+    "typescript": "~3.5.3",
+    "wait-on": "~3.3.0"
+  }
+}

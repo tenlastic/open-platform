@@ -25,9 +25,9 @@
     <mat-error>Enter a valid username.</mat-error>
   </mat-form-field>
 
-  <div *ngIf="error" class="form-error">
-    {{ error }}
-  </div>
+  <ten-form-message *ngIf="error" level="error" text="center">{{ error }}</ten-form-message>
 
-  <button mat-button background="accent" centered (click)="submit()">Submit</button>
+  <ten-button centered color="primary" layout="vertical" (OnClick)="submit()">
+    <span>Submit</span>
+  </ten-button>
 </form>

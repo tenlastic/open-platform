@@ -1,0 +1,29 @@
+mat-toolbar {
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 3px 4px 5px rgba(0, 0, 0, 0.6);
+  height: 56px;
+  overflow: initial;
+
+  &::ng-deep {
+    img {
+      margin-right: 16px;
+      max-height: 38px;
+    }
+
+    span.space {
+      flex: 1 1 auto;
+    }
+
+    ten-button {
+      margin-right: 8px;
+
+      &:last-of-type {
+        margin-right: 0px;
+      }
+    }
+
+    div.container {
+      display: flex;
+    }
+  }
+}
