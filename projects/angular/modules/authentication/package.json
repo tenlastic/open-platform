@@ -1,7 +1,7 @@
 {
-  "main": "../../dist/modules/authentication/bundles/tenlastic-ng-authentication.umd.js",
+  "main": "./dist/angular/bundles/tenlastic-ng-authentication.umd.js",
   "name": "@tenlastic/ng-authentication",
-  "typings": "../../dist/modules/authentication/module.d.ts",
+  "typings": "./dist/angular/module.d.ts",
   "version": "0.0.12",
   "scripts": {
     "build": "ng build authentication",
@@ -12,11 +12,13 @@
   "peerDependencies": {
     "@angular/common": "^8.2.14",
     "@angular/core": "^8.2.14",
+    "@tenlastic/ng-electron": "^0.0.8",
     "@tenlastic/ng-http": "^0.0.8",
     "jwt-decode": "^2.2.0"
   },
   "devDependencies": {
     "@angular/cli": "~8.3.21",
+    "@tenlastic/ng-electron": "0.0.12",
     "@tenlastic/ng-http": "0.0.12"
   }
 }

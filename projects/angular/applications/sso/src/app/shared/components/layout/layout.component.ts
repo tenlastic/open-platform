@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { EnvironmentService, IdentityService } from '@tenlastic/ng-authentication';
 import { ElectronService } from '@tenlastic/ng-electron';
 
 @Component({
@@ -9,12 +7,7 @@ import { ElectronService } from '@tenlastic/ng-electron';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent {
-  constructor(
-    public electronService: ElectronService,
-    public environmentService: EnvironmentService,
-    public identityService: IdentityService,
-    public router: Router,
-  ) {}
+  constructor(public electronService: ElectronService) {}
 
   public close() {
     const window = this.electronService.remote.getCurrentWindow();

@@ -18,6 +18,7 @@
     "@angular/cli": "~8.3.21",
     "@tenlastic/ng-authentication": "0.0.12",
     "@tenlastic/ng-component-library": "0.0.12",
+    "@tenlastic/ng-electron": "0.0.12",
     "@tenlastic/ng-http": "0.0.12"
   }
 }

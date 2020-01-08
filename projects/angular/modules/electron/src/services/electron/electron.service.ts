@@ -3,8 +3,6 @@ import * as childProcess from 'child_process';
 import { ipcRenderer, webFrame, remote } from 'electron';
 import * as fs from 'fs';
 
-import { environment } from '../../../../environments/environment';
-
 @Injectable({ providedIn: 'root' })
 export class ElectronService {
   public childProcess: typeof childProcess;

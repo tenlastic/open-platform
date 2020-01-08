@@ -1,12 +1,12 @@
 {
-  "main": "../../dist/modules/component-library/bundles/tenlastic-ng-component-library.umd.js",
+  "main": "./dist/angular/bundles/tenlastic-ng-component-library.umd.js",
   "name": "@tenlastic/ng-component-library",
-  "typings": "../../dist/modules/component-library/module.d.ts",
+  "typings": "./dist/angular/module.d.ts",
   "version": "0.0.12",
   "scripts": {
     "build": "ng build component-library",
     "lint": "ng lint component-library",
-    "postbuild": "cpx './src/assets/**/*' '../../dist/modules/component-library/assets/'",
+    "postbuild": "cpx './src/assets/**/*' './dist/angular/assets/'",
     "storybook:start": "start-storybook -s ./src/",
     "test": "ng test component-library",
     "test:ci": "ng test --code-coverage --watch false component-library"

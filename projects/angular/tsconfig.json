@@ -14,12 +14,14 @@
     "typeRoots": ["node_modules/@types"],
     "lib": ["es2018", "dom"],
     "paths": {
-      "@tenlastic/ng-authentication": ["dist/modules/authentication"],
-      "@tenlastic/ng-authentication/*": ["dist/modules/authentication/*"],
-      "@tenlastic/ng-component-library": ["dist/modules/component-library"],
-      "@tenlastic/ng-component-library/*": ["dist/modules/component-library/*"],
-      "@tenlastic/ng-http": ["dist/modules/http"],
-      "@tenlastic/ng-http/*": ["dist/modules/http/*"]
+      "@tenlastic/ng-authentication": ["modules/authentication/dist/angular"],
+      "@tenlastic/ng-authentication/*": ["modules/authentication/dist/angular/*"],
+      "@tenlastic/ng-component-library": ["modules/component-library/dist/angular"],
+      "@tenlastic/ng-component-library/*": ["modules/component-library/dist/angular/*"],
+      "@tenlastic/ng-electron": ["modules/electron/dist/angular"],
+      "@tenlastic/ng-electron/*": ["modules/electron/dist/angular/*"],
+      "@tenlastic/ng-http": ["modules/http/dist/angular"],
+      "@tenlastic/ng-http/*": ["modules/http/dist/angular/*"]
     },
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true

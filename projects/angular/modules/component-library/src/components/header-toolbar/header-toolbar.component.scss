@@ -6,8 +6,10 @@ mat-toolbar {
 
   &::ng-deep {
     img {
+      filter: drop-shadow(2px 3px black);
+      height: 32px;
       margin-right: 16px;
-      max-height: 38px;
+      margin-top: 3px;
     }
 
     span.space {

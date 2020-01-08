@@ -9,4 +9,4 @@ RUN sed -i \
   /etc/nginx/conf.d/default.conf
 
 # Copy files into Nginx static directory.
-COPY ./dist/applications/${DIRECTORY}/ /usr/share/nginx/html/
+COPY ./applications/${DIRECTORY}/dist/angular/ /usr/share/nginx/html/

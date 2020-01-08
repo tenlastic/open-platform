@@ -1,0 +1,34 @@
+{
+  "directories": {
+    "output": "release/"
+  },
+  "files": [
+    "**/*",
+    "!**/*.ts",
+    "!*.code-workspace",
+    "!LICENSE.md",
+    "!package.json",
+    "!package-lock.json",
+    "!src/",
+    "!e2e/",
+    "!hooks/",
+    "!angular.json",
+    "!_config.yml",
+    "!karma.conf.js",
+    "!tsconfig.json",
+    "!tslint.json"
+  ],
+  "linux": {
+    "icon": "./dist/angular/assets/images/favicon-256x256.png",
+    "target": ["AppImage"]
+  },
+  "mac": {
+    "icon": "./dist/angular/assets/images/favicon-256x256.png",
+    "target": ["dmg", "zip"]
+  },
+  "productName": "Tenlastic Launcher",
+  "win": {
+    "icon": "./dist/angular/assets/images/favicon-256x256.png",
+    "target": ["nsis"]
+  }
+}

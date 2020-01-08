@@ -1,12 +1,30 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, protocol, session } from 'electron';
 import * as path from 'path';
-import * as url from 'url';
+import { format } from 'url';
 
 let win: BrowserWindow = null;
 const args = process.argv.slice(1);
 const serve = args.some(val => val === '--serve');
 
 function createWindow(): BrowserWindow {
+  const WEB_FOLDER = '../angular';
+  const PROTOCOL = 'file';
+
+  protocol.interceptFileProtocol(PROTOCOL, (request, callback) => {
+    if (!request.url.includes('/assets/')) {
+      return callback(request as any);
+    }
+
+    // // Strip protocol
+    let url = request.url.substr(PROTOCOL.length + 1);
+
+    // Build complete path for node require function
+    url = path.join(__dirname, WEB_FOLDER, url.replace('C:/', ''));
+    url = path.normalize(url);
+
+    return callback({ path: url } as any);
+  });
+
   // Create the browser window.
   win = new BrowserWindow({
     frame: false,
@@ -14,6 +32,7 @@ function createWindow(): BrowserWindow {
     webPreferences: {
       allowRunningInsecureContent: serve ? true : false,
       nodeIntegration: true,
+      webSecurity: false,
     },
     width: 960,
     x: 0,
@@ -22,21 +41,19 @@ function createWindow(): BrowserWindow {
 
   if (serve) {
     require('electron-reload')(__dirname, {
-      electron: require(`${__dirname}/../node_modules/electron`),
+      electron: require(`${__dirname}/../../node_modules/electron`),
     });
     win.loadURL('http://localhost:8083');
+
+    win.webContents.openDevTools();
   } else {
     win.loadURL(
-      url.format({
-        pathname: path.join(__dirname, '../../../dist/applications/launcher/index.html'),
+      format({
+        pathname: path.join(__dirname, '../angular/index.html'),
         protocol: 'file:',
         slashes: true,
       }),
     );
-  }
-
-  if (serve) {
-    win.webContents.openDevTools();
   }
 
   // Emitted when the window is closed.
