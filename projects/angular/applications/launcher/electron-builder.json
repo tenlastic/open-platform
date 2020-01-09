@@ -31,7 +31,7 @@
   "productName": "Tenlastic Launcher",
   "publish": {
     "bucket": "launcher",
-    "endpoint": "http://127.0.0.1:9000",
+    "endpoint": "https://minio.tenlastic.com",
     "provider": "s3"
   },
   "win": {

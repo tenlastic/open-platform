@@ -163,6 +163,24 @@ jobs:
           command: lerna run docker:push
           working_directory: /tmp/workspace/projects/nodejs/
 
+  publish_electron_applications:
+    docker:
+      - image: node:10
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Install Lerna
+          command: npm i -g lerna
+      - run:
+          name: Install Electron Builder Dependencies
+          command: lerna run electron:install
+          working_directory: /tmp/workspace/projects/angular/
+      - run:
+          name: Build and Publish Electron Applications
+          command: lerna run electron:windows
+          working_directory: /tmp/workspace/projects/angular/
+
   publish_npm_modules:
     docker:
       - image: node:10
@@ -277,6 +295,9 @@ workflows:
             - angular
             - nodejs
       - publish_docker_images:
+          requires:
+            - publish_npm_modules
+      - publish_electron_applications:
           requires:
             - publish_npm_modules
 
