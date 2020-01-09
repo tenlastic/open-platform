@@ -67,6 +67,10 @@
     <mat-icon>lock</mat-icon>
     <span>Log In</span>
   </ten-button>
+
+  <ten-button *ngIf="!electronService.isElectron" color="primary">
+    <span>Download Launcher</span>
+  </ten-button>
 </ten-header-toolbar>
 
 <div class="content">
