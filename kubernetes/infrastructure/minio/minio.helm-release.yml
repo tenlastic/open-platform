@@ -28,8 +28,9 @@ spec:
                   values:
                     - minio
             topologyKey: kubernetes.io/hostname
-    bucketRoot: --address 0.0.0.0:9000 http://minio-{0...3}.minio-svc.default.svc.cluster.local/export
     existingSecret: minio
+    extraArgs:
+      - --address 0.0.0.0:9000
     mode: distributed
     persistence:
       size: 25Gi
