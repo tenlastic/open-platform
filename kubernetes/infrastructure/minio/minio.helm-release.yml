@@ -31,7 +31,6 @@ spec:
     existingSecret: minio
     extraArgs:
       - --address 0.0.0.0:9000
-    mode: distributed
     persistence:
       size: 25Gi
       storageClass: standard-expandable
@@ -39,7 +38,6 @@ spec:
       prometheus.io/path: /minio/prometheus/metrics
       prometheus.io/port: "9000"
       prometheus.io/scrape: "true"
-    replicas: 4
     resources:
       requests:
         memory: 64M
