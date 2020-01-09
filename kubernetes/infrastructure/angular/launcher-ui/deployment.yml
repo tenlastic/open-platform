@@ -12,11 +12,11 @@ spec:
         sidecar.istio.io/inject: "true"
       labels:
         app: launcher-ui
-        version: 0.0.14
+        version: 0.0.15
     spec:
       containers:
         - name: launcher-ui
-          image: tenlastic/launcher-ui:0.0.14
+          image: tenlastic/launcher-ui:0.0.15
           ports:
             - containerPort: 80
           resources:
