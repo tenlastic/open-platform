@@ -167,6 +167,11 @@ jobs:
     docker:
       - image: node:10
     steps:
+      - run:
+          name: Install Wine
+          command: |
+            apt-get update
+            apt-get install -y wine64
       - attach_workspace:
           at: /tmp/workspace
       - run:
