@@ -165,13 +165,8 @@ jobs:
 
   publish_electron_applications:
     docker:
-      - image: node:10
+      - image: electronuserland/builder:wine
     steps:
-      - run:
-          name: Install Wine
-          command: |
-            apt-get update
-            apt-get install -y wine64
       - attach_workspace:
           at: /tmp/workspace
       - run:
