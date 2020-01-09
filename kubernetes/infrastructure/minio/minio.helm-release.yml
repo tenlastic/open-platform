@@ -28,7 +28,7 @@ spec:
                   values:
                     - minio
             topologyKey: kubernetes.io/hostname
-    bucketRoute: --address 0.0.0.0:9000 http://minio-{0...3}.minio-svc.default.svc.cluster.local/export
+    bucketRoot: --address 0.0.0.0:9000 http://minio-{0...3}.minio-svc.default.svc.cluster.local/export
     existingSecret: minio
     mode: distributed
     persistence:
