@@ -2,7 +2,7 @@
   "main": "./dist/angular/bundles/tenlastic-ng-electron.umd.js",
   "name": "@tenlastic/ng-electron",
   "typings": "./dist/angular/module.d.ts",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "scripts": {
     "build": "ng build electron",
     "lint": "ng lint electron",

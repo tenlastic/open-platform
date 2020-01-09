@@ -12,11 +12,11 @@ spec:
         sidecar.istio.io/inject: "true"
       labels:
         app: home-ui
-        version: 0.0.12
+        version: 0.0.13
     spec:
       containers:
         - name: home-ui
-          image: tenlastic/home-ui:0.0.12
+          image: tenlastic/home-ui:0.0.13
           ports:
             - containerPort: 80
           resources:
