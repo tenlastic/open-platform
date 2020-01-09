@@ -38,6 +38,7 @@ spec:
       prometheus.io/path: /minio/prometheus/metrics
       prometheus.io/port: "9000"
       prometheus.io/scrape: "true"
+      sidecar.istio.io/inject: "true"
     resources:
       requests:
         memory: 64M
