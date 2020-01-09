@@ -1,5 +1,6 @@
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { ElectronModule } from '@tenlastic/ng-electron';
 import { HttpModule } from '@tenlastic/ng-http';
 
 import { OAuthComponent } from './components/o-auth/o-auth.component';
@@ -9,7 +10,7 @@ import {
 } from './services/environment/environment.service';
 
 const components = [OAuthComponent];
-const modules = [HttpModule, RouterModule];
+const modules = [ElectronModule, HttpModule, RouterModule];
 
 @NgModule({
   declarations: [...components],

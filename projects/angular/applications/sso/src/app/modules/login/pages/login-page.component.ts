@@ -45,7 +45,7 @@ export class LoginPageComponent implements OnInit {
   public isLoggingIn = false;
   public loadingMessage: string;
 
-  private redirectUrl: URL;
+  private redirectUrl: string;
   private resetHash = '';
 
   constructor(
@@ -65,9 +65,7 @@ export class LoginPageComponent implements OnInit {
 
     const accessToken = snapshot.queryParamMap.get('accessToken');
     const refreshToken = snapshot.queryParamMap.get('refreshToken');
-    this.redirectUrl = new URL(
-      snapshot.queryParamMap.get('redirectUrl') || this.document.location.href,
-    );
+    this.redirectUrl = snapshot.queryParamMap.get('redirectUrl') || this.document.location.href;
     this.resetHash = snapshot.params.hash;
 
     if (accessToken && refreshToken) {
@@ -144,12 +142,13 @@ export class LoginPageComponent implements OnInit {
   private logIn() {
     const { accessToken, refreshToken } = this.identityService;
 
-    this.redirectUrl.searchParams.delete('accessToken');
-    this.redirectUrl.searchParams.append('accessToken', accessToken);
-    this.redirectUrl.searchParams.delete('refreshToken');
-    this.redirectUrl.searchParams.append('refreshToken', refreshToken);
+    const url = new URL(this.redirectUrl);
+    url.searchParams.delete('accessToken');
+    url.searchParams.append('accessToken', accessToken);
+    url.searchParams.delete('refreshToken');
+    url.searchParams.append('refreshToken', refreshToken);
 
-    this.document.location.href = this.redirectUrl.href;
+    this.document.location.href = this.redirectUrl.split('?')[0] + url.search;
   }
 
   private async refreshToken() {

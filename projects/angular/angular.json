@@ -7,7 +7,7 @@
       "projectType": "library",
       "root": "modules/authentication",
       "sourceRoot": "modules/authentication/src",
-      "prefix": "lib",
+      "prefix": "ten",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
@@ -69,6 +69,39 @@
         }
       }
     },
+    "electron": {
+      "projectType": "library",
+      "root": "modules/electron",
+      "sourceRoot": "modules/electron/src",
+      "prefix": "ten",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "modules/electron/tsconfig.lib.json",
+            "project": "modules/electron/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "modules/electron/src/test.ts",
+            "tsConfig": "modules/electron/tsconfig.spec.json",
+            "karmaConfig": "modules/electron/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "modules/electron/tsconfig.lib.json",
+              "modules/electron/tsconfig.spec.json"
+            ],
+            "exclude": ["**/node_modules/**"]
+          }
+        }
+      }
+    },
     "home": {
       "projectType": "application",
       "schematics": {
@@ -83,7 +116,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/applications/home",
+            "outputPath": "applications/home/dist/angular/",
             "index": "applications/home/src/index.html",
             "main": "applications/home/src/main.ts",
             "polyfills": "applications/home/src/polyfills.ts",
@@ -204,7 +237,7 @@
       "projectType": "library",
       "root": "modules/http",
       "sourceRoot": "modules/http/src",
-      "prefix": "lib",
+      "prefix": "ten",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
@@ -244,7 +277,7 @@
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "outputPath": "dist/applications/launcher",
+            "outputPath": "applications/launcher/dist/angular/",
             "index": "applications/launcher/src/index.html",
             "main": "applications/launcher/src/main.ts",
             "polyfills": "applications/launcher/src/polyfills.ts",
@@ -378,7 +411,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/applications/portal",
+            "outputPath": "applications/portal/dist/angular/",
             "index": "applications/portal/src/index.html",
             "main": "applications/portal/src/main.ts",
             "polyfills": "applications/portal/src/polyfills.ts",
@@ -509,7 +542,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/applications/sso",
+            "outputPath": "applications/sso/dist/angular/",
             "index": "applications/sso/src/index.html",
             "main": "applications/sso/src/main.ts",
             "polyfills": "applications/sso/src/polyfills.ts",

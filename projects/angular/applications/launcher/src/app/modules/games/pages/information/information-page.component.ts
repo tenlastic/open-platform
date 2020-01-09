@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { User, UserService } from '@tenlastic/ng-http';
 import { IdentityService } from '@tenlastic/ng-authentication';
+import { ElectronService } from '@tenlastic/ng-electron';
+import { User, UserService } from '@tenlastic/ng-http';
 
 @Component({ templateUrl: 'information-page.component.html' })
 export class InformationPageComponent implements OnInit {
@@ -13,6 +14,7 @@ export class InformationPageComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    public electronService: ElectronService,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
     private userService: UserService,

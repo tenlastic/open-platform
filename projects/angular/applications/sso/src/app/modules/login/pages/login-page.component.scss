@@ -19,6 +19,7 @@ h2 {
 }
 
 img {
+  filter: drop-shadow(3px 5px black);
   margin: 0px 0px 20px;
   width: 100%;
 }
@@ -29,7 +30,7 @@ ten-button {
 }
 
 .row {
-  margin: 36px 0px 0px;
+  margin: 32px 0px 0px;
 
   .col-sm-6 {
     padding: 0px;

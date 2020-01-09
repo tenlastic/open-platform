@@ -3,7 +3,9 @@
   (OnClose)="close()"
   (OnMaximize)="maximize()"
   (OnMinimize)="minimize()"
-></ten-system-toolbar>
+>
+  {{ message }}
+</ten-system-toolbar>
 
 <ten-header-toolbar>
   <img src="/assets/images/logo.png" />
@@ -49,13 +51,19 @@
       <span>Manage Account</span>
     </ten-button>
 
-    <ten-button color="accent" [href]="logoutUrl" layout="vertical" text="left" width="full">
+    <ten-button
+      color="accent"
+      [href]="environmentService.logoutUrl"
+      layout="vertical"
+      text="left"
+      width="full"
+    >
       <mat-icon>exit_to_app</mat-icon>
       <span>Log out</span>
     </ten-button>
   </mat-menu>
 
-  <ten-button *ngIf="!identityService.user" color="accent" [href]="loginUrl">
+  <ten-button *ngIf="!identityService.user" color="accent" [href]="environmentService.loginUrl">
     <mat-icon>lock</mat-icon>
     <span>Log In</span>
   </ten-button>
