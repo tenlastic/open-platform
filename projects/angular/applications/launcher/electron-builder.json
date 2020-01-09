@@ -1,4 +1,6 @@
 {
+  "appId": "tenlastic-launcher",
+  "artifactName": "TenlasticLauncherSetup.${ext}",
   "directories": {
     "output": "release/"
   },
@@ -27,6 +29,11 @@
     "target": ["dmg", "zip"]
   },
   "productName": "Tenlastic Launcher",
+  "publish": {
+    "bucket": "launcher",
+    "endpoint": "http://127.0.0.1:9000",
+    "provider": "s3"
+  },
   "win": {
     "icon": "./dist/angular/assets/images/favicon-256x256.png",
     "target": ["nsis"]

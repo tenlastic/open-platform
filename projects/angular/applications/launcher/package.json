@@ -1,7 +1,7 @@
 {
   "main": "./dist/electron/main.js",
   "name": "launcher",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "scripts": {
     "build": "ng build launcher",
     "build:production": "ng build --preserve-symlinks --prod launcher",
@@ -16,7 +16,7 @@
     "electron:serve": "wait-on http-get://localhost:8083/ && npm run electron:serve-tsc && electron ./dist/electron/main.js --serve",
     "electron:serve-tsc": "tsc -p tsconfig.electron.json",
     "electron:start": "npm-run-all -p start electron:serve",
-    "electron:windows": "npm run electron:build && electron-builder build --windows",
+    "electron:windows": "npm run electron:build && electron-builder build --publish always --win",
     "lint": "ng lint launcher",
     "start": "ng serve --port 8083 launcher",
     "test": "ng test launcher",
@@ -24,6 +24,10 @@
     "version": "../../scripts/version.sh launcher-ui"
   },
   "private": true,
+  "dependencies": {
+    "electron-log": "~4.0.2",
+    "electron-updater": "~4.2.0"
+  },
   "devDependencies": {
     "@angular/cli": "~8.3.21",
     "@tenlastic/ng-authentication": "0.0.12",

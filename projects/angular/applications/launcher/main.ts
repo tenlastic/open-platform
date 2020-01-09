@@ -1,31 +1,86 @@
-import { app, BrowserWindow, protocol, session } from 'electron';
+import { app, BrowserWindow, globalShortcut, protocol } from 'electron';
+import log from 'electron-log';
+import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import { format } from 'url';
 
-let win: BrowserWindow = null;
 const args = process.argv.slice(1);
 const serve = args.some(val => val === '--serve');
+let win: BrowserWindow = null;
 
-function createWindow(): BrowserWindow {
-  const WEB_FOLDER = '../angular';
-  const PROTOCOL = 'file';
+// ==================
+// AUTOMATIC UPDATES
+// ==================
+autoUpdater.logger = log;
+function sendStatusToWindow(text) {
+  log.info(text);
 
-  protocol.interceptFileProtocol(PROTOCOL, (request, callback) => {
+  try {
+    win.webContents.send('message', text);
+  } catch (e) {
+    log.error(e);
+  }
+}
+autoUpdater.on('checking-for-update', () => {
+  sendStatusToWindow('Checking for update...');
+});
+autoUpdater.on('update-available', info => {
+  sendStatusToWindow('Update available.');
+});
+autoUpdater.on('update-not-available', info => {
+  sendStatusToWindow('Update not available.');
+});
+autoUpdater.on('error', err => {
+  sendStatusToWindow('Error in auto-updater. ' + err);
+});
+autoUpdater.on('download-progress', progressObj => {
+  let log_message = 'Download speed: ' + progressObj.bytesPerSecond;
+  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+  log_message = log_message + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
+  sendStatusToWindow(log_message);
+});
+autoUpdater.on('update-downloaded', info => {
+  sendStatusToWindow('Update downloaded');
+});
+app.on('ready', () => autoUpdater.checkForUpdatesAndNotify());
+
+// ==================
+// GLOBAL SHORTCUTS
+// ==================
+app.on('ready', () => {
+  globalShortcut.register('CmdOrCtrl+R', () => {});
+});
+
+// ==================
+// LOGGING
+// ==================
+log.transports.file.level = 'info';
+
+// ==================
+// PROTOCOL
+// ==================
+app.on('ready', () => {
+  protocol.interceptFileProtocol('file', (request, callback) => {
     if (!request.url.includes('/assets/')) {
       return callback(request as any);
     }
 
-    // // Strip protocol
-    let url = request.url.substr(PROTOCOL.length + 1);
-
-    // Build complete path for node require function
-    url = path.join(__dirname, WEB_FOLDER, url.replace('C:/', ''));
+    let url = request.url.substr('file'.length + 1);
+    url = path.join(__dirname, '../angular', url.replace('C:/', ''));
     url = path.normalize(url);
 
     return callback({ path: url } as any);
   });
+});
 
-  // Create the browser window.
+// ==================
+// WINDOW
+// ==================
+function createWindow() {
+  if (win) {
+    return win;
+  }
+
   win = new BrowserWindow({
     frame: false,
     height: 640,
@@ -57,39 +112,16 @@ function createWindow(): BrowserWindow {
   }
 
   // Emitted when the window is closed.
-  win.on('closed', () => {
-    // Dereference the window object, usually you would store window
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    win = null;
-  });
+  win.on('closed', () => (win = null));
 
   return win;
 }
-
-try {
-  // This method will be called when Electron has finished
-  // initialization and is ready to create browser windows.
-  // Some APIs can only be used after this event occurs.
-  app.on('ready', createWindow);
-
-  // Quit when all windows are closed.
-  app.on('window-all-closed', () => {
-    // On OS X it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
-  });
-
-  app.on('activate', () => {
-    // On OS X it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (win === null) {
-      createWindow();
-    }
-  });
-} catch (e) {
-  // Catch Error
-  // throw e;
-}
+app.on('activate', () => createWindow());
+app.on('ready', () => createWindow());
+app.on('window-all-closed', () => {
+  // On OS X it is common for applications and their menu bar
+  // to stay active until the user quits explicitly with Cmd + Q
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
