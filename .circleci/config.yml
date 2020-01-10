@@ -24,7 +24,7 @@ commands:
           command: |
             BRANCH=$(git rev-parse --abbrev-ref HEAD)
             if [[ "$BRANCH" != "master" ]]; then
-              git fetch --force origin "master:remotes/origin/master"
+              git pull --force origin "master:remotes/origin/master"
             fi
 
   install_docker_client:
