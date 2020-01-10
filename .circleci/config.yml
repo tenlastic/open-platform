@@ -75,17 +75,17 @@ jobs:
           directory: ./projects/angular/
       - run:
           name: Lint
-          command: lerna run lint
+          command: lerna run --since master lint
           working_directory: ./projects/angular/
       - run:
           name: Build
           command: |
-            lerna run --concurrency 1 --no-private build
-            lerna run --concurrency 1 build:production
+            lerna run --concurrency 1 --no-private --since master build
+            lerna run --concurrency 1 --since master build:production
           working_directory: ./projects/angular/
       - run:
           name: Test
-          command: lerna run --concurrency 1 test:ci
+          command: lerna run --concurrency 1 --since master test:ci
           working_directory: ./projects/angular/
 
   nodejs:
@@ -104,15 +104,15 @@ jobs:
           directory: ./projects/nodejs/
       - run:
           name: Lint
-          command: lerna run lint
+          command: lerna run --since master lint
           working_directory: ./projects/nodejs/
       - run:
           name: Build
-          command: lerna run build
+          command: lerna run --since master build
           working_directory: ./projects/nodejs/
       - run:
           name: Test
-          command: lerna run --concurrency 1 test -- --coverage
+          command: lerna run --concurrency 1 --since master test -- --coverage
           working_directory: ./projects/nodejs/
       - run:
           name: Merge Test Results
@@ -169,9 +169,8 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
-      - run:
-          name: Install Lerna
-          command: npm i -g lerna
+      - install_node_modules:
+          directory: /tmp/workspace/projects/angular/
       - run:
           name: Install Electron Builder Dependencies
           command: lerna run electron:install
@@ -244,6 +243,10 @@ jobs:
               --yes \
               from-package
           working_directory: ./projects/nodejs/
+      - run:
+          name: Delete Node Modules (Angular)
+          command: find . -name "node_modules" -exec rm -rf '{}' +
+          working_directory: ./projects/angular/
       - copy_directory:
           label: Persist Angular Directory
           from: ./projects/angular/*
@@ -252,6 +255,10 @@ jobs:
           root: /tmp/workspace
           paths:
             - projects/angular/
+      - run:
+          name: Delete Node Modules (NodeJS)
+          command: find . -name "node_modules" -exec rm -rf '{}' +
+          working_directory: ./projects/nodejs/
       - copy_directory:
           label: Persist NodeJS Directory
           from: ./projects/nodejs/*
