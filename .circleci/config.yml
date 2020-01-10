@@ -22,7 +22,13 @@ commands:
       - run:
           name: Fetch Master Branch
           command: |
-            git show-branch
+            BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            echo $BRANCH
+            if [[ "$BRANCH" != "master" ]]; then
+              git fetch --force origin "master:remotes/origin/master"
+              git pull --force origin "master:remotes/origin/master"
+              git show-branch
+            fi
 
   install_docker_client:
     steps:
@@ -302,6 +308,9 @@ workflows:
       - angular
       - nodejs:
           context: open-platform-review
+          filters:
+            branches:
+              only: master
 
       - publish_npm_modules:
           filters:
