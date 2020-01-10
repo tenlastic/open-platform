@@ -17,6 +17,18 @@ commands:
             mkdir -p << parameters.to >>
             mv << parameters.from >> << parameters.to >>
 
+  fetch_master_branch:
+    steps:
+      - run:
+          name: Fetch Master Branch
+          command: |
+            BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            if [[ "$BRANCH" != "master" ]]; then
+              git fetch --force origin "master:master"
+              git pull --force origin "master:master"
+              git show-branch
+            fi
+
   install_docker_client:
     steps:
       - run:
@@ -71,6 +83,7 @@ jobs:
     steps:
       - install_google_chrome
       - checkout
+      - fetch_master_branch
       - install_node_modules:
           directory: ./projects/angular/
       - run:
@@ -80,7 +93,7 @@ jobs:
       - run:
           name: Build
           command: |
-            lerna run --concurrency 1 --no-private --since master build
+            lerna run --no-private build
             lerna run --concurrency 1 --since master build:production
           working_directory: ./projects/angular/
       - run:
@@ -100,6 +113,7 @@ jobs:
       - image: wurstmeister/zookeeper:latest
     steps:
       - checkout
+      - fetch_master_branch
       - install_node_modules:
           directory: ./projects/nodejs/
       - run:
@@ -108,7 +122,9 @@ jobs:
           working_directory: ./projects/nodejs/
       - run:
           name: Build
-          command: lerna run --since master build
+          command: |
+            lerna run --no-private build
+            lerna run --since master build
           working_directory: ./projects/nodejs/
       - run:
           name: Test
