@@ -1,5 +1,5 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 export interface ILogIn {
   email: string;
@@ -7,16 +7,14 @@ export interface ILogIn {
 }
 
 @Component({
+  selector: 'ten-login-form',
   templateUrl: 'login-form.component.html',
-  selector: 'app-login-form'
 })
 export class LoginFormComponent implements OnInit {
   @Output() public logIn = new EventEmitter<ILogIn>();
 
   public error: string;
   public form: FormGroup;
-
-  constructor(private formBuilder: FormBuilder) { }
 
   public ngOnInit() {
     this.setupForm();
@@ -32,18 +30,18 @@ export class LoginFormComponent implements OnInit {
 
     const values = {
       email: this.form.get('email').value,
-      password: this.form.get('password').value
+      password: this.form.get('password').value,
     };
     this.logIn.emit(values);
   }
 
   private setupForm(): void {
-    this.form = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+    this.form = new FormGroup({
+      email: new FormControl('', [Validators.required, Validators.email]),
+      password: new FormControl('', Validators.required),
     });
 
-    this.form.valueChanges.subscribe((data) => {
+    this.form.valueChanges.subscribe(data => {
       this.error = null;
     });
   }

@@ -1,13 +1,12 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import {
   ILogIn,
   IOnRegister,
   IPasswordResetRequested,
-  IPasswordReset,
   LoginFormComponent,
   RegistrationFormComponent,
   PasswordResetRequestFormComponent,
@@ -15,13 +14,12 @@ import {
 } from '@tenlastic/ng-component-library';
 import { LoginService, PasswordResetService, UserService } from '@tenlastic/ng-http';
 
-import { TITLE } from '../../../shared/constants';
+import { TITLE } from '../../../../shared/constants';
 
 enum Action {
   LogIn,
   Register,
   RequestPasswordReset,
-  ResetPassword,
 }
 
 @Component({
@@ -45,15 +43,12 @@ export class LoginPageComponent implements OnInit {
   public isLoggingIn = false;
   public loadingMessage: string;
 
-  private redirectUrl: string;
-  private resetHash = '';
-
   constructor(
     @Inject(DOCUMENT) private document: Document,
-    private activatedRoute: ActivatedRoute,
     private identityService: IdentityService,
     private loginService: LoginService,
     private passwordResetService: PasswordResetService,
+    private router: Router,
     private titleService: Title,
     private userService: UserService,
   ) {
@@ -61,18 +56,7 @@ export class LoginPageComponent implements OnInit {
   }
 
   public ngOnInit() {
-    const { snapshot } = this.activatedRoute;
-
-    const accessToken = snapshot.queryParamMap.get('accessToken');
-    const refreshToken = snapshot.queryParamMap.get('refreshToken');
-    this.redirectUrl = snapshot.queryParamMap.get('redirectUrl') || this.document.location.href;
-    this.resetHash = snapshot.params.hash;
-
-    if (accessToken && refreshToken) {
-      this.loadingMessage = 'Waiting for external process...';
-    } else if (this.resetHash) {
-      this.action = Action.ResetPassword;
-    } else if (this.identityService.refreshToken) {
+    if (this.identityService.refreshToken) {
       this.refreshToken();
     }
   }
@@ -108,15 +92,6 @@ export class LoginPageComponent implements OnInit {
     }
   }
 
-  public async onPasswordReset(data: IPasswordReset) {
-    try {
-      await this.passwordResetService.delete(this.resetHash, data.password);
-      this.passwordResetForm.message = `Password reset successfully. Please login with your new password.`;
-    } catch (e) {
-      this.passwordResetForm.error = 'An error occurred resetting your password.';
-    }
-  }
-
   public setAction(action: Action) {
     this.action = action;
 
@@ -132,23 +107,11 @@ export class LoginPageComponent implements OnInit {
       case Action.RequestPasswordReset:
         this.titleService.setTitle(`${TITLE} | Reset Password`);
         break;
-
-      case Action.ResetPassword:
-        this.titleService.setTitle(`${TITLE} | Reset Password`);
-        break;
     }
   }
 
   private logIn() {
-    const { accessToken, refreshToken } = this.identityService;
-
-    const url = new URL(this.redirectUrl);
-    url.searchParams.delete('accessToken');
-    url.searchParams.append('accessToken', accessToken);
-    url.searchParams.delete('refreshToken');
-    url.searchParams.append('refreshToken', refreshToken);
-
-    this.document.location.href = this.redirectUrl.split('?')[0] + url.search;
+    this.router.navigateByUrl('/games');
   }
 
   private async refreshToken() {

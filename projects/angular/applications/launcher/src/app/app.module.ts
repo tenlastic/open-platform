@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { AuthenticationModule, LoginGuard, OAuthComponent } from '@tenlastic/ng-authentication';
+import { AuthenticationModule, OAuthComponent } from '@tenlastic/ng-authentication';
 import { ComponentLibraryModule } from '@tenlastic/ng-component-library';
 import { ElectronModule } from '@tenlastic/ng-electron';
 import { HttpModule } from '@tenlastic/ng-http';
@@ -14,10 +14,15 @@ import { AppComponent } from './app.component';
 export const ROUTES: Routes = [
   { path: '', pathMatch: 'full', redirectTo: '/games' },
   {
-    canActivate: [LoginGuard],
     component: LayoutComponent,
     loadChildren: () => import('./modules/account/account.module').then(m => m.AccountModule),
     path: 'account',
+  },
+  {
+    component: LayoutComponent,
+    loadChildren: () =>
+      import('./modules/authentication/authentication.module').then(m => m.AuthenticationModule),
+    path: 'authentication',
   },
   {
     component: LayoutComponent,

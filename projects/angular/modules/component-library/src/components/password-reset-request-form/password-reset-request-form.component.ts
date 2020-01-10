@@ -1,14 +1,14 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 export interface IPasswordResetRequested {
   email: string;
 }
 
 @Component({
+  selector: 'ten-password-reset-request-form',
+  styleUrls: ['password-reset-request-form.component.scss'],
   templateUrl: 'password-reset-request-form.component.html',
-  selector: 'app-password-reset-request-form',
-  styleUrls: ['password-reset-request-form.component.scss']
 })
 export class PasswordResetRequestFormComponent implements OnInit {
   @Output() public passwordResetRequested = new EventEmitter<IPasswordResetRequested>();
@@ -16,8 +16,6 @@ export class PasswordResetRequestFormComponent implements OnInit {
   public error: string;
   public form: FormGroup;
   public message: string;
-
-  constructor(private formBuilder: FormBuilder) { }
 
   public ngOnInit() {
     this.setupForm();
@@ -31,14 +29,14 @@ export class PasswordResetRequestFormComponent implements OnInit {
     }
 
     const values = {
-      email: this.form.get('email').value
+      email: this.form.get('email').value,
     };
     this.passwordResetRequested.emit(values);
   }
 
   private setupForm(): void {
-    this.form = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]]
+    this.form = new FormGroup({
+      email: new FormControl('', [Validators.required, Validators.email]),
     });
   }
 }

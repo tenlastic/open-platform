@@ -53,17 +53,17 @@
 
     <ten-button
       color="accent"
-      [href]="environmentService.logoutUrl"
       layout="vertical"
       text="left"
       width="full"
+      (OnClick)="navigateToLogout()"
     >
       <mat-icon>exit_to_app</mat-icon>
       <span>Log out</span>
     </ten-button>
   </mat-menu>
 
-  <ten-button *ngIf="!identityService.user" color="accent" [href]="environmentService.loginUrl">
+  <ten-button *ngIf="!identityService.user" color="accent" (OnClick)="navigateToLogin()">
     <mat-icon>lock</mat-icon>
     <span>Log In</span>
   </ten-button>

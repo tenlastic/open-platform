@@ -1,5 +1,5 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 export interface IOnRegister {
   email: string;
@@ -8,16 +8,14 @@ export interface IOnRegister {
 }
 
 @Component({
+  selector: 'ten-registration-form',
   templateUrl: 'registration-form.component.html',
-  selector: 'app-registration-form',
 })
 export class RegistrationFormComponent implements OnInit {
   @Output() public register = new EventEmitter<IOnRegister>();
 
   public error: string;
   public form: FormGroup;
-
-  constructor(private formBuilder: FormBuilder) {}
 
   public ngOnInit() {
     this.setupForm();
@@ -48,24 +46,24 @@ export class RegistrationFormComponent implements OnInit {
   }
 
   private confirmPassword(form: FormGroup) {
-    if (form.get('password').value === form.get('confirmPassword').value) {
-      return;
+    if (form.get('password').value !== form.get('confirmPassword').value) {
+      form.get('confirmPassword').setErrors({ required: true });
     }
 
-    return form.get('confirmPassword').setErrors({ required: true });
+    return form.get('confirmPassword').errors;
   }
 
   private setupForm(): void {
-    this.form = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      passwords: this.formBuilder.group(
+    this.form = new FormGroup({
+      email: new FormControl('', [Validators.required, Validators.email]),
+      passwords: new FormGroup(
         {
-          password: ['', Validators.required],
-          confirmPassword: ['', Validators.required],
+          confirmPassword: new FormControl('', Validators.required),
+          password: new FormControl('', [Validators.required]),
         },
-        { validator: this.confirmPassword },
+        this.confirmPassword,
       ),
-      username: ['', [Validators.required]],
+      username: new FormControl('', [Validators.required]),
     });
 
     this.form.valueChanges.subscribe(data => {
