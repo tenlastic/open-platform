@@ -212,7 +212,7 @@ jobs:
       - run:
           name: Build (Angular)
           command: |
-            lerna run --concurrency 1 --no-private build
+            lerna run --no-private build
             lerna run --concurrency 1 build:production
           working_directory: ./projects/angular/
       - run:
@@ -221,7 +221,7 @@ jobs:
             npm config set unsafe-perm true
             lerna version \
               --exact \
-              --message "angular-v%v [ci skip]" \
+              --message "angular-v%v [skip ci]" \
               --tag-version-prefix angular-v \
               --yes \
               patch
@@ -242,7 +242,7 @@ jobs:
             npm config set unsafe-perm true
             lerna publish \
               --exact \
-              --message "nodejs-v%v [ci skip]" \
+              --message "nodejs-v%v [skip ci]" \
               --tag-version-prefix nodejs-v \
               --yes \
               patch

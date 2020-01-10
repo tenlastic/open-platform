@@ -9,11 +9,6 @@ const serve = args.some(val => val === '--serve');
 let win: BrowserWindow = null;
 
 // ==================
-// APPLICATION
-// ==================
-app.commandLine.appendSwitch('disable-http-cache');
-
-// ==================
 // AUTOMATIC UPDATES
 // ==================
 autoUpdater.logger = log;

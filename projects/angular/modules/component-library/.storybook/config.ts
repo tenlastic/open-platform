@@ -1,6 +1,7 @@
 import { addParameters, configure } from '@storybook/angular';
 import { themes } from '@storybook/theming';
 
+import '!style-loader!css-loader!sass-loader!../../../node_modules/@angular/material/prebuilt-themes/indigo-pink.css';
 import '!style-loader!css-loader!sass-loader!../src/assets/scss/index.scss';
 
 // Option defaults.

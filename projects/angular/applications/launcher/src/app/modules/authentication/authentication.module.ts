@@ -3,12 +3,15 @@ import { Routes, RouterModule } from '@angular/router';
 import { ComponentLibraryModule } from '@tenlastic/ng-component-library';
 
 import { SharedModule } from '../../shared/shared.module';
-import { LoginPageComponent } from './pages/login-page.component';
+import { LoginPageComponent, LogoutPageComponent } from './pages';
 
-export const ROUTES: Routes = [{ path: '', component: LoginPageComponent }];
+export const ROUTES: Routes = [
+  { path: 'login', component: LoginPageComponent },
+  { path: 'logout', component: LogoutPageComponent },
+];
 
 @NgModule({
-  declarations: [LoginPageComponent],
+  declarations: [LoginPageComponent, LogoutPageComponent],
   imports: [ComponentLibraryModule, SharedModule, RouterModule.forChild(ROUTES)],
 })
-export class LoginModule {}
+export class AuthenticationModule {}

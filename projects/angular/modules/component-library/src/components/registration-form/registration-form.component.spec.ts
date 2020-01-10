@@ -1,12 +1,10 @@
-import { FormBuilder } from '@angular/forms';
-
 import { RegistrationFormComponent } from './registration-form.component';
 
 describe('RegistrationFormComponent', () => {
   let component: RegistrationFormComponent;
 
   beforeEach(() => {
-    component = new RegistrationFormComponent(new FormBuilder());
+    component = new RegistrationFormComponent();
   });
 
   describe('ngOnInit()', () => {

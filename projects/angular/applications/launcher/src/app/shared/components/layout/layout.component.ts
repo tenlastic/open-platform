@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { EnvironmentService, IdentityService } from '@tenlastic/ng-authentication';
 import { ElectronService } from '@tenlastic/ng-electron';
@@ -15,6 +16,7 @@ export class LayoutComponent implements OnInit {
   public message: string;
 
   constructor(
+    @Inject(DOCUMENT) private document: Document,
     private changeDetectorRef: ChangeDetectorRef,
     public electronService: ElectronService,
     public environmentService: EnvironmentService,
@@ -54,5 +56,21 @@ export class LayoutComponent implements OnInit {
   public minimize() {
     const window = this.electronService.remote.getCurrentWindow();
     window.minimize();
+  }
+
+  public navigateToLogin() {
+    if (this.electronService.isElectron) {
+      this.router.navigateByUrl('/authentication/login');
+    } else {
+      this.document.location.href = environment.loginUrl;
+    }
+  }
+
+  public navigateToLogout() {
+    if (this.electronService.isElectron) {
+      this.router.navigateByUrl('/authentication/logout');
+    } else {
+      this.document.location.href = environment.logoutUrl;
+    }
   }
 }
