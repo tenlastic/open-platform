@@ -28,35 +28,12 @@
 # Install Sealed Secrets
 ./modules/sealed-secrets/install.sh
 
-# Install Istio.
-./modules/istio/install.sh
+# Install Flux.
+./modules/flux/install.sh
 
 # Install Grafana.
 ./modules/grafana/install.sh
 
-# Install Flux.
-./modules/flux/install.sh
-
-# Install Argo.
-./modules/argo/install.sh
-
-# Install MinIO.
-./modules/minio/install.sh
-
-# Install PostgreSQL.
-./modules/postgresql/install.sh
-
-# Install Redis.
-./modules/redis/install.sh
-
 # Install Velero.
 ./modules/velero/install.sh
-```
-
-### Notes
-
-- Enable Istio Sidecar injection for namespace.
-
-```bash
-kubectl label namespace default istio-injection=enabled --overwrite
 ```

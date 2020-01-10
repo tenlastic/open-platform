@@ -3,12 +3,15 @@ import { Router } from '@angular/router';
 import { EnvironmentService, IdentityService } from '@tenlastic/ng-authentication';
 import { ElectronService } from '@tenlastic/ng-electron';
 
+import { environment } from '../../../../environments/environment';
+
 @Component({
   selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
+  public launcherUrl = environment.launcherUrl;
   public message: string;
 
   constructor(

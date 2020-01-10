@@ -8,8 +8,6 @@ spec:
   replicas: 3
   template:
     metadata:
-      annotations:
-        sidecar.istio.io/inject: "true"
       labels:
         app: sso-ui
         version: 0.0.15

@@ -40,7 +40,7 @@ export const ROUTES: Routes = [
     ElectronModule,
     HttpModule.forRoot(environment),
     SharedModule,
-    RouterModule.forRoot(ROUTES, { useHash: environment.production }),
+    RouterModule.forRoot(ROUTES, { useHash: environment.useHash }),
   ],
   bootstrap: [AppComponent],
 })

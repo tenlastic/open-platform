@@ -8,7 +8,7 @@
     "docker:build": "sh ../../scripts/docker-build.sh launcher launcher-ui",
     "docker:push": "sh ../../scripts/docker-push.sh launcher-ui",
     "e2e": "ng e2e launcher",
-    "electron:build": "npm run electron:serve-tsc && npm run build:production",
+    "electron:build": "npm run electron:serve-tsc && ng build --configuration electron --preserve-symlinks launcher",
     "electron:install": "electron-builder install-app-deps",
     "electron:linux": "npm run electron:build && electron-builder build --linux",
     "electron:local": "npm run electron:build && electron ./dist/electron/main.js",

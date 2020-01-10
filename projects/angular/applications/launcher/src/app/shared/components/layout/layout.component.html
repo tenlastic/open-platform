@@ -68,7 +68,7 @@
     <span>Log In</span>
   </ten-button>
 
-  <ten-button *ngIf="!electronService.isElectron" color="primary">
+  <ten-button *ngIf="!electronService.isElectron" color="primary" [href]="launcherUrl">
     <span>Download Launcher</span>
   </ten-button>
 </ten-header-toolbar>
