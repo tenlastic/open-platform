@@ -4,6 +4,7 @@ metadata:
   name: database-api
   labels:
     app: database-api
+    version: 0.0.29
 spec:
   replicas: 3
   template:

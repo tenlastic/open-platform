@@ -4,6 +4,7 @@ metadata:
   name: sso-ui
   labels:
     app: sso-ui
+    version: 0.0.16
 spec:
   replicas: 3
   template:
