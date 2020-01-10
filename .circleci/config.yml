@@ -93,7 +93,7 @@ jobs:
       - run:
           name: Build
           command: |
-            lerna run --concurrency 1 --no-private --since master build
+            lerna run --concurrency 1 --no-private build
             lerna run --concurrency 1 --since master build:production
           working_directory: ./projects/angular/
       - run:
@@ -122,7 +122,9 @@ jobs:
           working_directory: ./projects/nodejs/
       - run:
           name: Build
-          command: lerna run --since master build
+          command: |
+            lerna run --no-private build
+            lerna run --since master build
           working_directory: ./projects/nodejs/
       - run:
           name: Test
