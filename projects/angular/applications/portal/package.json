@@ -1,6 +1,6 @@
 {
   "name": "portal",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "scripts": {
     "build": "ng build portal",
     "build:production": "ng build --preserve-symlinks --prod portal",
@@ -16,8 +16,8 @@
   "private": true,
   "devDependencies": {
     "@angular/cli": "~8.3.21",
-    "@tenlastic/ng-authentication": "0.0.15",
-    "@tenlastic/ng-component-library": "0.0.15",
-    "@tenlastic/ng-http": "0.0.15"
+    "@tenlastic/ng-authentication": "0.0.16",
+    "@tenlastic/ng-component-library": "0.0.16",
+    "@tenlastic/ng-http": "0.0.16"
   }
 }
