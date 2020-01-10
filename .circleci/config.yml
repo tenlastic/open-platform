@@ -93,7 +93,7 @@ jobs:
       - run:
           name: Build
           command: |
-            lerna run --concurrency 1 --no-private build
+            lerna run --no-private build
             lerna run --concurrency 1 --since master build:production
           working_directory: ./projects/angular/
       - run:
@@ -309,9 +309,6 @@ workflows:
       - angular
       - nodejs:
           context: open-platform-review
-          filters:
-            branches:
-              only: master
 
       - publish_npm_modules:
           filters:
