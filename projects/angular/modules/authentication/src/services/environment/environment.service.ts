@@ -23,10 +23,8 @@ export class EnvironmentService implements Environment {
       return;
     }
 
-    let path = this.electronService.remote.app.getAppPath().replace(/\\/g, '/');
-    path = path.substring(0, path.lastIndexOf('/'));
-
-    const redirectUrl = `file:///${path}/angular/index.html#oauth`;
+    const path = this.electronService.remote.app.getAppPath().replace(/\\/g, '/');
+    const redirectUrl = `file:///${path}/dist/angular/index.html#oauth`;
     this.loginUrl += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
     this.logoutUrl += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
   }
