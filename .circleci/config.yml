@@ -22,10 +22,7 @@ commands:
       - run:
           name: Fetch Master Branch
           command: |
-            BRANCH=$(git rev-parse --abbrev-ref HEAD)
-            if [[ "$BRANCH" != "master" ]]; then
-              git pull --force origin "master:remotes/origin/master"
-            fi
+            git show-branch
 
   install_docker_client:
     steps:
