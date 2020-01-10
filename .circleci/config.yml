@@ -17,6 +17,16 @@ commands:
             mkdir -p << parameters.to >>
             mv << parameters.from >> << parameters.to >>
 
+  fetch_master_branch:
+    steps:
+      - run:
+          name: Fetch Master Branch
+          command: |
+            BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            if [[ "$BRANCH" != "master" ]]; then
+              git fetch origin master:master
+            fi
+
   install_docker_client:
     steps:
       - run:
@@ -71,6 +81,7 @@ jobs:
     steps:
       - install_google_chrome
       - checkout
+      - fetch_master_branch
       - install_node_modules:
           directory: ./projects/angular/
       - run:
@@ -100,6 +111,7 @@ jobs:
       - image: wurstmeister/zookeeper:latest
     steps:
       - checkout
+      - fetch_master_branch
       - install_node_modules:
           directory: ./projects/nodejs/
       - run:
