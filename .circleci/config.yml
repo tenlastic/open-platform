@@ -23,7 +23,6 @@ commands:
           name: Fetch Master Branch
           command: |
             BRANCH=$(git rev-parse --abbrev-ref HEAD)
-            echo $BRANCH
             if [[ "$BRANCH" != "master" ]]; then
               git fetch --force origin "master:master"
               git pull --force origin "master:master"
@@ -85,22 +84,22 @@ jobs:
       - install_google_chrome
       - checkout
       - fetch_master_branch
-      # - install_node_modules:
-      #     directory: ./projects/angular/
-      # - run:
-      #     name: Lint
-      #     command: lerna run --since master lint
-      #     working_directory: ./projects/angular/
-      # - run:
-      #     name: Build
-      #     command: |
-      #       lerna run --concurrency 1 --no-private --since master build
-      #       lerna run --concurrency 1 --since master build:production
-      #     working_directory: ./projects/angular/
-      # - run:
-      #     name: Test
-      #     command: lerna run --concurrency 1 --since master test:ci
-      #     working_directory: ./projects/angular/
+      - install_node_modules:
+          directory: ./projects/angular/
+      - run:
+          name: Lint
+          command: lerna run --since master lint
+          working_directory: ./projects/angular/
+      - run:
+          name: Build
+          command: |
+            lerna run --concurrency 1 --no-private --since master build
+            lerna run --concurrency 1 --since master build:production
+          working_directory: ./projects/angular/
+      - run:
+          name: Test
+          command: lerna run --concurrency 1 --since master test:ci
+          working_directory: ./projects/angular/
 
   nodejs:
     docker:
