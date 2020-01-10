@@ -35,7 +35,7 @@ spec:
               topologyKey: kubernetes.io/hostname
       replicaCount: 3
       service:
-        loadBalancerIp: 35.224.200.212
+        loadBalancerIP: 35.224.200.212
     defaultBackend:
       affinity:
         nodeAffinity:
