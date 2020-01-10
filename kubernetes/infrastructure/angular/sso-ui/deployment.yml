@@ -4,14 +4,12 @@ metadata:
   name: sso-ui
   labels:
     app: sso-ui
-    version: 0.0.18
 spec:
   replicas: 3
   template:
     metadata:
       labels:
         app: sso-ui
-        version: 0.0.18
     spec:
       containers:
         - name: sso-ui

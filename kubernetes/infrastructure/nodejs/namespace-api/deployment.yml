@@ -4,14 +4,12 @@ metadata:
   name: namespace-api
   labels:
     app: namespace-api
-    version: 0.0.29
 spec:
   replicas: 3
   template:
     metadata:
       labels:
         app: namespace-api
-        version: 0.0.29
     spec:
       affinity:
         nodeAffinity:
