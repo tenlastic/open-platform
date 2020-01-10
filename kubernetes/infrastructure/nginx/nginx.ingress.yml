@@ -1,0 +1,77 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  annotations:
+    certmanager.k8s.io/cluster-issuer: letsencrypt-production
+    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/tls-acme: "true"
+    kubernetes.io/ingress.allow-http: "false"
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "1M"
+spec:
+  tls:
+    - hosts:
+        - "*.tenlastic.com"
+      secretName: letsencrypt-production
+  rules:
+    - host: api.tenlastic.com
+      http:
+        paths:
+          - path: /databases
+            backend:
+              serviceName: database-api
+              servicePort: 3000
+          - path: /logins
+            backend:
+              serviceName: authentication-api
+              servicePort: 3000
+          - path: /namespaces
+            backend:
+              serviceName: namespace-api
+              servicePort: 3000
+          - path: /password-resets
+            backend:
+              serviceName: authentication-api
+              servicePort: 3000
+          - path: /users
+            backend:
+              serviceName: authentication-api
+              servicePort: 3000
+    - host: launcher.tenlastic.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: launcher-ui
+              servicePort: 80
+    - host: minio.tenlastic.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: minio
+              servicePort: 9000
+    - host: portal.tenlastic.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: portal-ui
+              servicePort: 80
+    - host: sso.tenlastic.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: sso-ui
+              servicePort: 80
+    - host: www.tenlastic.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: home-ui
+              servicePort: 80

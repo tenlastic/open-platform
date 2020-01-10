@@ -1,0 +1,63 @@
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: nginx-ingress
+  namespace: default
+  annotations:
+    flux.weave.works/automated: "true"
+spec:
+  releaseName: nginx-ingress
+  chart:
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    name: nginx-ingress
+    version: 1.28.2
+  values:
+    controller:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - nginx-ingress
+                  - key: component
+                    operator: In
+                    values:
+                      - controller
+              topologyKey: kubernetes.io/hostname
+      replicaCount: 3
+      service:
+        loadBalancerIp: 35.224.200.212
+    defaultBackend:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - nginx-ingress
+                  - key: component
+                    operator: In
+                    values:
+                      - default-backend
+              topologyKey: kubernetes.io/hostname
+      replicaCount: 3
+      resources:
+        requests:
+          cpu: 50m
