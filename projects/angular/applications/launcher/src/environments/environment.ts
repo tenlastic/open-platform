@@ -1,5 +1,6 @@
 export const environment = {
   databaseApiBaseUrl: 'https://api.tenlastic.com/databases',
+  gameApiBaseUrl: 'https://api.tenlastic.com/games',
   launcherUrl: 'https://minio.tenlastic.com/launcher/TenlasticLauncherSetup.exe',
   loginApiBaseUrl: 'https://api.tenlastic.com/logins',
   loginUrl: 'https://sso.tenlastic.com/login?redirectUrl=https://launcher.tenlastic.com/oauth',
@@ -7,6 +8,6 @@ export const environment = {
   namespaceApiBaseUrl: 'https://api.tenlastic.com/namespaces',
   passwordResetApiBaseUrl: 'https://api.tenlastic.com/password-resets',
   production: true,
-  useHash: false,
+  useHash: true,
   userApiBaseUrl: 'https://api.tenlastic.com/users',
 };

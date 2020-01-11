@@ -3,6 +3,7 @@ import { MatSnackBar } from '@angular/material';
 import {
   CollectionService,
   DatabaseService,
+  GameService,
   NamespaceService,
   RecordService,
   UserService,
@@ -15,6 +16,7 @@ export class CrudSnackbarService {
   constructor(
     private collectionService: CollectionService,
     private databaseService: DatabaseService,
+    private gameService: GameService,
     private namespaceService: NamespaceService,
     private recordService: RecordService,
     private snackBar: MatSnackBar,
@@ -27,6 +29,10 @@ export class CrudSnackbarService {
     this.databaseService.onCreate.subscribe(() => this.createMessage('Database'));
     this.databaseService.onDelete.subscribe(() => this.deleteMessage('Database'));
     this.databaseService.onUpdate.subscribe(() => this.updateMessage('Database'));
+
+    this.gameService.onCreate.subscribe(() => this.createMessage('Game'));
+    this.gameService.onDelete.subscribe(() => this.deleteMessage('Game'));
+    this.gameService.onUpdate.subscribe(() => this.updateMessage('Game'));
 
     this.namespaceService.onCreate.subscribe(() => this.createMessage('Namespace'));
     this.namespaceService.onDelete.subscribe(() => this.deleteMessage('Namespace'));

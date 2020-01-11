@@ -52,7 +52,7 @@ export class LoginPageComponent implements OnInit {
     private titleService: Title,
     private userService: UserService,
   ) {
-    this.titleService.setTitle(`${TITLE} | Login`);
+    this.titleService.setTitle(`${TITLE} | Log In`);
   }
 
   public ngOnInit() {

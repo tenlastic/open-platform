@@ -19,6 +19,12 @@ export const ROUTES: Routes = [
     canActivate: [LoginGuard],
   },
   {
+    path: 'games',
+    component: LayoutComponent,
+    loadChildren: () => import('./modules/games/games.module').then(m => m.GameModule),
+    canActivate: [LoginGuard],
+  },
+  {
     path: 'login',
     loadChildren: () => import('./modules/login/login.module').then(m => m.LoginModule),
   },

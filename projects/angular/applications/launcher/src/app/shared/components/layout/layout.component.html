@@ -63,7 +63,12 @@
     </ten-button>
   </mat-menu>
 
-  <ten-button *ngIf="!identityService.user" color="accent" (OnClick)="navigateToLogin()">
+  <ten-button
+    *ngIf="!identityService.user"
+    color="accent"
+    [ngClass]="{ active: router.url.includes('/authentication') }"
+    (OnClick)="navigateToLogin()"
+  >
     <mat-icon>lock</mat-icon>
     <span>Log In</span>
   </ten-button>

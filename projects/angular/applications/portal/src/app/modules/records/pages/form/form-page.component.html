@@ -1,5 +1,5 @@
 <div class="page">
-  <h2>{{ data && data._id ? 'Edit' : 'Create' }} Record</h2>
+  <ten-title>{{ data && data._id ? 'Edit' : 'Create' }} Record</ten-title>
 
   <form *ngIf="form" [formGroup]="form" autocomplete="off">
     <div *ngFor="let key of form.controls | keys; let i = index">

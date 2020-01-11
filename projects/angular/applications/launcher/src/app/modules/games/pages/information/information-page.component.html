@@ -1,5 +1,7 @@
-<div class="page">
-  <ten-title>Patch Notes</ten-title>
+<div *ngIf="!loadingMessage" class="page">
+  <ten-title>{{ data.title }}</ten-title>
 
-  <p>Made the game even more AWESOME!</p>
+  <p>{{ data.description }}</p>
 </div>
+
+<ten-loading-message *ngIf="!!loadingMessage">{{ loadingMessage }}</ten-loading-message>
