@@ -1,0 +1,25 @@
+components:
+  schemas:
+    Game:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[a-f0-9]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        description:
+          type: string
+        slug:
+          type: string
+          format: ^[0-9a-z\-]{2,40}$
+        subtitle:
+          type: string
+          format: ^.{2,40}$
+        title:
+          type: string
+          format: ^.{2,40}$
+        updatedAt:
+          type: string
+          format: date-time

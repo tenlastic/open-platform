@@ -24,6 +24,14 @@ spec:
             backend:
               serviceName: database-api
               servicePort: 3000
+          - path: /documentation
+            backend:
+              serviceName: documentation-ui
+              servicePort: 80
+          - path: /games
+            backend:
+              serviceName: game-api
+              servicePort: 3000
           - path: /logins
             backend:
               serviceName: authentication-api

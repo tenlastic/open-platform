@@ -24,7 +24,6 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
 
 const webServer = new WebServer();
 webServer.use(namespacesRouter.routes());
-webServer.serve(path.resolve(__dirname, '../public'), '/documentation');
 webServer.start();
 
 export { webServer };

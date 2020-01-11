@@ -27,7 +27,6 @@ const webServer = new WebServer();
 webServer.use(loginsRouter.routes());
 webServer.use(passwordResetsRouter.routes());
 webServer.use(usersRouter.routes());
-webServer.serve(path.resolve(__dirname, '../public'), '/documentation');
 webServer.start();
 
 export { webServer };

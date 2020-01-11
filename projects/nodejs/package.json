@@ -51,6 +51,7 @@
     "chai-as-promised": "7.1.1",
     "chai-http": "4.3.0",
     "chance": "1.0.16",
+    "cpx": "1.5.0",
     "googleapis": "42.0.0",
     "istanbul-combine": "0.3.0",
     "jsonwebtoken": "8.5.1",
