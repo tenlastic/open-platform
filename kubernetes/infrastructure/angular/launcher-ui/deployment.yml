@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: launcher-ui
-          image: tenlastic/launcher-ui:0.0.20
+          image: tenlastic/launcher-ui:0.0.21
           ports:
             - containerPort: 80
           resources:
