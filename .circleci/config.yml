@@ -20,10 +20,10 @@ commands:
   fetch_master_branch:
     steps:
       - run:
-        name: Update Git Credentials
-        command: |
-          git config user.email $GITHUB_USER_EMAIL
-          git config user.name $GITHUB_USER_NAME
+          name: Update Git Credentials
+          command: |
+            git config user.email $GITHUB_USER_EMAIL
+            git config user.name $GITHUB_USER_NAME
       - run:
           name: Fetch Master Branch
           command: |
