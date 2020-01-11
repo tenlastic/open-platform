@@ -4,12 +4,12 @@
       *ngFor="let game of games"
       color="accent"
       layout="vertical"
-      [routerLink]="game._id"
+      [routerLink]="game.slug"
       routerLinkActive="active"
       text="left"
       width="full"
     >
-      <img [src]="game.icon" />
+      <img *ngIf="game.icon" [src]="game.icon" />
       <span>{{ game.title }}</span>
     </ten-button>
   </div>

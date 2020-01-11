@@ -3,15 +3,48 @@ import { Routes, RouterModule } from '@angular/router';
 import { ComponentLibraryModule } from '@tenlastic/ng-component-library';
 
 import { SharedModule } from '../../shared/shared.module';
-import { LoginPageComponent, LogoutPageComponent } from './pages';
+import { LayoutComponent } from './components';
+import {
+  CreateAccountPageComponent,
+  LoginPageComponent,
+  LogoutPageComponent,
+  ResetPasswordPageComponent,
+} from './pages';
 
 export const ROUTES: Routes = [
-  { path: 'login', component: LoginPageComponent },
-  { path: 'logout', component: LogoutPageComponent },
+  { path: '', pathMatch: 'full', redirectTo: 'log-in' },
+  {
+    children: [
+      {
+        path: 'create-account',
+        component: CreateAccountPageComponent,
+      },
+      {
+        path: 'log-in',
+        component: LoginPageComponent,
+      },
+      {
+        path: 'log-out',
+        component: LogoutPageComponent,
+      },
+      {
+        path: 'reset-password',
+        component: ResetPasswordPageComponent,
+      },
+    ],
+    component: LayoutComponent,
+    path: '',
+  },
 ];
 
 @NgModule({
-  declarations: [LoginPageComponent, LogoutPageComponent],
+  declarations: [
+    CreateAccountPageComponent,
+    LayoutComponent,
+    LoginPageComponent,
+    LogoutPageComponent,
+    ResetPasswordPageComponent,
+  ],
   imports: [ComponentLibraryModule, SharedModule, RouterModule.forChild(ROUTES)],
 })
 export class AuthenticationModule {}

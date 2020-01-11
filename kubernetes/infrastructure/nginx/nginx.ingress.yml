@@ -20,14 +20,14 @@ spec:
     - host: api.tenlastic.com
       http:
         paths:
+          - path: /
+            backend:
+              serviceName: documentation-ui
+              servicePort: 80
           - path: /databases
             backend:
               serviceName: database-api
               servicePort: 3000
-          - path: /documentation
-            backend:
-              serviceName: documentation-ui
-              servicePort: 80
           - path: /games
             backend:
               serviceName: game-api

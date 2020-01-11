@@ -19,6 +19,12 @@ export class LayoutComponent {
       label: 'Databases',
       path: '/databases',
     },
+    {
+      condition: () => this.selectedNamespaceService && this.selectedNamespaceService.namespaceId,
+      icon: 'games',
+      label: 'Games',
+      path: '/games',
+    },
     { icon: 'layers', label: 'Namespaces', path: '/namespaces' },
     {
       condition: () =>

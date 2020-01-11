@@ -1,49 +1,20 @@
-<div class="center-of-screen">
-  <div [hidden]="!!loadingMessage">
-    <div *ngIf="action === Action.LogIn">
-      <h2>Log In</h2>
-      <ten-login-form (logIn)="onLogIn($event)"></ten-login-form>
-    </div>
-
-    <div *ngIf="action === Action.Register">
-      <h2>Create Account</h2>
-      <ten-registration-form (register)="onRegister($event)"></ten-registration-form>
-    </div>
-
-    <div *ngIf="action === Action.RequestPasswordReset">
-      <h2>Reset Password</h2>
-      <ten-password-reset-request-form
-        (passwordResetRequested)="onPasswordResetRequested($event)"
-      ></ten-password-reset-request-form>
-    </div>
-
-    <div class="row">
-      <div class="col-sm-6" *ngIf="action !== Action.LogIn" col-6>
-        <ten-button color="accent" layout="vertical" (OnClick)="setAction(Action.LogIn)">
-          <mat-icon>lock</mat-icon>
-          <span>Log In</span>
-        </ten-button>
-      </div>
-
-      <div class="col-sm-6" *ngIf="action !== Action.Register" col-6>
-        <ten-button color="accent" layout="vertical" (OnClick)="setAction(Action.Register)">
-          <mat-icon>person_add</mat-icon>
-          <span>Create Account</span>
-        </ten-button>
-      </div>
-
-      <div class="col-sm-6" *ngIf="action !== Action.RequestPasswordReset" col-6>
-        <ten-button
-          color="accent"
-          layout="vertical"
-          (OnClick)="setAction(Action.RequestPasswordReset)"
-        >
-          <mat-icon>refresh</mat-icon>
-          <span>Reset Password</span>
-        </ten-button>
-      </div>
-    </div>
+<div [hidden]="!!loadingMessage">
+  <div *ngIf="action === Action.LogIn">
+    <ten-title>Log In</ten-title>
+    <ten-login-form (logIn)="onLogIn($event)"></ten-login-form>
   </div>
 
-  <ten-loading-message [hidden]="!loadingMessage">{{ loadingMessage }}</ten-loading-message>
+  <div *ngIf="action === Action.Register">
+    <ten-title>Create Account</ten-title>
+    <ten-registration-form (register)="onRegister($event)"></ten-registration-form>
+  </div>
+
+  <div *ngIf="action === Action.RequestPasswordReset">
+    <ten-title>Reset Password</ten-title>
+    <ten-password-reset-request-form
+      (passwordResetRequested)="onPasswordResetRequested($event)"
+    ></ten-password-reset-request-form>
+  </div>
 </div>
+
+<ten-loading-message [hidden]="!loadingMessage">{{ loadingMessage }}</ten-loading-message>

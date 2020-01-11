@@ -1,5 +1,7 @@
 <div class="page">
-  <h2>{{ (!loadingMessage && !form) || (data && data._id) ? 'Edit' : 'Create' }} User</h2>
+  <ten-title
+    >{{ (!loadingMessage && !form) || (data && data._id) ? 'Edit' : 'Create' }} User</ten-title
+  >
 
   <app-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</app-loading-message>
 

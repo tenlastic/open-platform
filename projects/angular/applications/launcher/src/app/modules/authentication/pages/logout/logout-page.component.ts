@@ -42,6 +42,6 @@ export class LogoutPageComponent implements OnInit {
       await this.loginService.delete();
     }
 
-    this.router.navigateByUrl('/authentication/login');
+    this.router.navigateByUrl('/authentication/log-in');
   }
 }

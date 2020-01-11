@@ -18,6 +18,13 @@ body {
   padding: 0px;
 }
 
+form {
+  div.row {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+}
+
 [centered] {
   display: block;
   margin: 8px auto;

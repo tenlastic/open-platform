@@ -1,0 +1,41 @@
+<ten-sidenav>
+  <div class="nav">
+    <ten-button
+      color="accent"
+      layout="vertical"
+      routerLink="log-in"
+      routerLinkActive="active"
+      text="left"
+      width="full"
+    >
+      <mat-icon>lock</mat-icon>
+      <span>Log In</span>
+    </ten-button>
+    <ten-button
+      color="accent"
+      layout="vertical"
+      routerLink="create-account"
+      routerLinkActive="active"
+      text="left"
+      width="full"
+    >
+      <mat-icon>person_add</mat-icon>
+      <span>Create Account</span>
+    </ten-button>
+    <ten-button
+      color="accent"
+      layout="vertical"
+      routerLink="reset-password"
+      routerLinkActive="active"
+      text="left"
+      width="full"
+    >
+      <mat-icon>refresh</mat-icon>
+      <span>Reset Password</span>
+    </ten-button>
+  </div>
+
+  <div class="content">
+    <router-outlet></router-outlet>
+  </div>
+</ten-sidenav>

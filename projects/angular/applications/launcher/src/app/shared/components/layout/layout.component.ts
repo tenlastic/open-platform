@@ -60,7 +60,7 @@ export class LayoutComponent implements OnInit {
 
   public navigateToLogin() {
     if (this.electronService.isElectron) {
-      this.router.navigateByUrl('/authentication/login');
+      this.router.navigateByUrl('/authentication/log-in');
     } else {
       this.document.location.href = environment.loginUrl;
     }
@@ -68,7 +68,7 @@ export class LayoutComponent implements OnInit {
 
   public navigateToLogout() {
     if (this.electronService.isElectron) {
-      this.router.navigateByUrl('/authentication/logout');
+      this.router.navigateByUrl('/authentication/log-out');
     } else {
       this.document.location.href = environment.logoutUrl;
     }

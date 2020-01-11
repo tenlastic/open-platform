@@ -8,10 +8,19 @@ import { InformationPageComponent } from './pages';
 
 export const ROUTES: Routes = [
   {
-    children: [{ component: InformationPageComponent, path: '', pathMatch: 'full' }],
+    children: [
+      {
+        component: InformationPageComponent,
+        path: '',
+        pathMatch: 'full',
+      },
+      {
+        component: InformationPageComponent,
+        path: ':slug',
+      },
+    ],
     component: LayoutComponent,
     path: '',
-    pathMatch: 'full',
   },
 ];
 
