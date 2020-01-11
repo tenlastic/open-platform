@@ -2,7 +2,7 @@
   "main": "./dist/angular/bundles/tenlastic-ng-authentication.umd.js",
   "name": "@tenlastic/ng-authentication",
   "typings": "./dist/angular/module.d.ts",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "scripts": {
     "build": "ng build authentication",
     "lint": "ng lint authentication",
@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@angular/cli": "~8.3.21",
-    "@tenlastic/ng-electron": "0.0.19",
-    "@tenlastic/ng-http": "0.0.19"
+    "@tenlastic/ng-electron": "0.0.20",
+    "@tenlastic/ng-http": "0.0.20"
   }
 }
