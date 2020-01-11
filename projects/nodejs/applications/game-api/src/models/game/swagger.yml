@@ -11,12 +11,15 @@ components:
           format: date-time
         description:
           type: string
-        name:
-          type: string
-          format: ^.{2,40}$
-        name:
+        slug:
           type: string
           format: ^[0-9a-z\-]{2,40}$
+        subtitle:
+          type: string
+          format: ^.{2,40}$
+        title:
+          type: string
+          format: ^.{2,40}$
         updatedAt:
           type: string
           format: date-time

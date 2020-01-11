@@ -1,4 +1,5 @@
 import * as Chance from 'chance';
+import * as mongoose from 'mongoose';
 
 import { Game, GameSchema } from './model';
 
@@ -11,7 +12,9 @@ export class GameMock {
     const chance = new Chance();
 
     const defaults = {
-      name: chance.hash(),
+      namespaceId: mongoose.Types.ObjectId(),
+      slug: chance.hash(),
+      title: chance.hash(),
     };
 
     return Game.create({ ...defaults, ...params });

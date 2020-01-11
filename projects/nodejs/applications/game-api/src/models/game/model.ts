@@ -22,8 +22,8 @@ import { ReadonlyNamespace, ReadonlyNamespaceDocument } from '../readonly-namesp
 export const GameEvent = new EventEmitter<IDatabasePayload<GameDocument>>();
 GameEvent.on(kafka.publish);
 
-@index({ name: 1 }, { unique: true })
 @index({ slug: 1 }, { unique: true })
+@index({ title: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
@@ -45,14 +45,17 @@ export class GameSchema {
   @prop()
   public description: string;
 
-  @prop({ match: /^.{2,40}$/, required: true })
-  public name: string;
-
   @prop({ ref: ReadonlyNamespace, required: true })
   public namespaceId: Ref<ReadonlyNamespaceDocument>;
 
-  @prop({ match: /^[0-9a-z\-]{2,40}$/ })
+  @prop({ match: /^[0-9a-z\-]{2,40}$/, required: true })
   public slug: string;
+
+  @prop({ match: /^.{2,40}$/ })
+  public subtitle: string;
+
+  @prop({ match: /^.{2,40}$/, required: true })
+  public title: string;
 
   public updatedAt: Date;
 

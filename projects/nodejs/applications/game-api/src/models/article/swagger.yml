@@ -1,0 +1,30 @@
+components:
+  schemas:
+    Article:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[a-f0-9]{24}$
+        body:
+          type: string
+        caption:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        gameId:
+          type: string
+          format: ^[a-f0-9]{24}$
+        publishedAt:
+          type: string
+          format: date-time
+        title:
+          type: string
+          format: ^.{2,40}$
+        type:
+          type: string
+          enum: [News, Patch Notes]
+        updatedAt:
+          type: string
+          format: date-time

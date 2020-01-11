@@ -5,6 +5,7 @@ import { WebServer } from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 
+import { router as articlesRouter } from './handlers/articles';
 import { router as gamesRouter } from './handlers/games';
 import { ReadonlyNamespace } from './models';
 
@@ -22,8 +23,8 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
 })();
 
 const webServer = new WebServer();
+webServer.use(articlesRouter.routes());
 webServer.use(gamesRouter.routes());
-webServer.serve(path.resolve(__dirname, '../public'), '/documentation');
 webServer.start();
 
 export { webServer };

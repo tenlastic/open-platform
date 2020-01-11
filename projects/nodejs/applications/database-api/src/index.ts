@@ -44,7 +44,6 @@ webServer.use(databasesRouter.routes());
 webServer.use(collectionsRouter.routes());
 webServer.use(indexesRouter.routes());
 webServer.use(recordsRouter.routes());
-webServer.serve(path.resolve(__dirname, '../public'), '/documentation');
 webServer.start();
 
 export { webServer };

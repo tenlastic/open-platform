@@ -1,5 +1,5 @@
 paths:
-  /games/{name}:
+  /games/{_id}:
     get:
       summary: Find One
       tags: [Games]
@@ -8,7 +8,7 @@ paths:
         - AccessToken: []
       parameters:
         - in: path
-          name: name
+          name: _id
           schema:
             type: string
           required: true

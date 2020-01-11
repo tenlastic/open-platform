@@ -9,9 +9,9 @@ import { handler as updateHandler } from './update';
 
 export const router = new Router({ prefix: '/games' });
 
-router.delete('/:name', deleteHandler);
+router.delete('/:slug', deleteHandler);
 router.get('/', findHandler);
 router.get('/count', countHandler);
-router.get('/:name', findOneHandler);
+router.get('/:slug', findOneHandler);
 router.post('/', createHandler);
-router.put('/:name', updateHandler);
+router.put('/:slug', updateHandler);

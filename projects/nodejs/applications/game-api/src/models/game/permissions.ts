@@ -4,29 +4,47 @@ import { Game, GameDocument } from './model';
 
 export const GamePermissions = new MongoosePermissions<GameDocument>(Game, {
   create: {
-    base: ['accessControlList', 'name'],
+    roles: {
+      administrator: ['description', 'namespaceId', 'slug', 'subtitle', 'title'],
+    },
   },
   delete: {
-    base: false,
     roles: {
       administrator: true,
     },
   },
   find: {
-    base: { 'accessControlList.userId': { $ref: 'user._id' } },
+    base: {},
   },
+  populate: [{ path: 'namespaceDocument' }],
   read: {
-    base: ['_id', 'createdAt', 'accessControlList', 'name', 'updatedAt'],
+    base: [
+      '_id',
+      'createdAt',
+      'description',
+      'namespaceId',
+      'slug',
+      'subtitle',
+      'title',
+      'updatedAt',
+    ],
   },
   roles: [
     {
       name: 'administrator',
-      query: { 'record.accessControlList.userId': { $eq: { $ref: 'user._id' } } },
+      query: {
+        'record.namespaceDocument.accessControlList': {
+          $elemMatch: {
+            roles: { $eq: 'Administrator' },
+            userId: { $eq: { $ref: 'user._id' } },
+          },
+        },
+      },
     },
   ],
   update: {
     roles: {
-      administrator: ['accessControlList', 'name'],
+      administrator: ['description', 'namespaceId', 'slug', 'subtitle', 'title'],
     },
   },
 });

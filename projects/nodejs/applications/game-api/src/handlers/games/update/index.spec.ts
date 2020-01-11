@@ -16,7 +16,7 @@ import { handler } from './';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/databases/update', function() {
+describe('handlers/games/update', function() {
   let user: ReadonlyUserDocument;
 
   beforeEach(async function() {
@@ -35,11 +35,11 @@ describe('handlers/databases/update', function() {
     it('returns the record', async function() {
       const ctx = new ContextMock({
         params: {
-          name: record.name,
+          slug: record.slug,
         },
         request: {
           body: {
-            name: chance.hash(),
+            title: chance.hash(),
           },
         },
         state: { user: user.toObject() },
@@ -62,11 +62,11 @@ describe('handlers/databases/update', function() {
     it('throws an error', async function() {
       const ctx = new ContextMock({
         params: {
-          name: record.name,
+          slug: record.slug,
         },
         request: {
           body: {
-            name: chance.hash(),
+            title: chance.hash(),
           },
         },
         state: { user: user.toObject() },

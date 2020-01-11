@@ -30,6 +30,6 @@ describe('handlers/games/count', function() {
 
     await handler(ctx as any);
 
-    expect(ctx.response.body.count).to.eql(1);
+    expect(ctx.response.body.count).to.eql(2);
   });
 });

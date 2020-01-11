@@ -29,8 +29,9 @@ describe('handlers/games/create', function() {
       const ctx = new ContextMock({
         request: {
           body: {
-            name: chance.hash(),
             namespaceId: namespace._id,
+            slug: chance.hash(),
+            title: chance.hash(),
           },
         },
         state: { user },
@@ -49,8 +50,9 @@ describe('handlers/games/create', function() {
       const ctx = new ContextMock({
         request: {
           body: {
-            name: chance.hash(),
             namespaceId: namespace._id,
+            slug: chance.hash(),
+            title: chance.hash(),
           },
         },
         state: { user },

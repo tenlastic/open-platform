@@ -3,7 +3,7 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import { GamePermissions } from '../../../models';
 
 export async function handler(ctx: Context) {
-  const override = { where: { name: ctx.params.name } };
+  const override = { where: { slug: ctx.params.slug } };
   const result = await GamePermissions.findOne({}, override, ctx.state.user);
 
   if (!result) {

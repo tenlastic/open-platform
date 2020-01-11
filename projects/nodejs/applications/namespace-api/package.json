@@ -15,7 +15,6 @@
     "lint": "../../scripts/lint.sh",
     "migrations": "../../scripts/migrations.sh",
     "start": "../../scripts/start.sh",
-    "swagger": "../../scripts/swagger.sh",
     "test": "../../scripts/test.sh",
     "test:watch": "../../scripts/test.sh --watch",
     "version": "../../scripts/version.sh namespace-api"
