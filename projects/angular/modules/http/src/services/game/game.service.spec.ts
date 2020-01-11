@@ -113,16 +113,18 @@ describe('GameService', () => {
     it('updates and returns a Game', () => {
       const params = {
         _id: chance.hash(),
+        slug: chance.hash(),
         title: chance.hash(),
       };
 
       service.update(params).then(res => {
         expect(res).toEqual(jasmine.any(Game));
         expect(res._id).toEqual(params._id);
+        expect(res.slug).toEqual(params.slug);
         expect(res.title).toEqual(params.title);
       });
 
-      const req = httpMock.expectOne(`${service.basePath}/${params._id}`);
+      const req = httpMock.expectOne(`${service.basePath}/${params.slug}`);
       expect(req.request.method).toBe('PUT');
       req.flush({ record: params });
     });
