@@ -2,6 +2,22 @@ import { Injectable } from '@angular/core';
 import { IOnLogin, LoginService, User, UserService } from '@tenlastic/ng-http';
 import jwtDecode from 'jwt-decode';
 
+export class Jwt {
+  public exp: Date;
+  public user: User;
+
+  constructor(value: string) {
+    const decodedValue = jwtDecode(value) as any;
+
+    this.exp = new Date(decodedValue.exp * 1000);
+    this.user = decodedValue.user;
+  }
+
+  public get isExpired() {
+    return new Date() > this.exp;
+  }
+}
+
 @Injectable({ providedIn: 'root' })
 export class IdentityService {
   public get accessToken() {
@@ -23,6 +39,9 @@ export class IdentityService {
 
     this._accessToken = value;
   }
+  public get accessTokenJwt() {
+    return this.accessToken ? new Jwt(this.accessToken) : null;
+  }
   public get refreshToken() {
     if (this._refreshToken) {
       return this._refreshToken;
@@ -41,6 +60,9 @@ export class IdentityService {
     }
 
     this._refreshToken = value;
+  }
+  public get refreshTokenJwt() {
+    return this.refreshToken ? new Jwt(this.refreshToken) : null;
   }
   public get user() {
     if (this.accessToken && !this._user) {

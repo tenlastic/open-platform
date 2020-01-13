@@ -1,7 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
 import { CanActivate } from '@angular/router';
-import { LoginService } from '@tenlastic/ng-http';
 
 import { EnvironmentService } from '../../services/environment/environment.service';
 import { IdentityService } from '../../services/identity/identity.service';
@@ -13,18 +12,10 @@ export class LoginGuard implements CanActivate {
     @Inject(DOCUMENT) private document: Document,
     private environmentService: EnvironmentService,
     private identityService: IdentityService,
-    private loginService: LoginService,
   ) {}
 
   public async canActivate() {
-    if (this.identityService.refreshToken) {
-      try {
-        await this.loginService.createWithRefreshToken(this.identityService.refreshToken);
-      } catch {
-        this.document.location.href = this.environmentService.loginUrl;
-        return false;
-      }
-    } else {
+    if (!this.identityService.refreshToken || this.identityService.refreshTokenJwt.isExpired) {
       this.document.location.href = this.environmentService.loginUrl;
       return false;
     }

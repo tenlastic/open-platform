@@ -51,10 +51,15 @@ describe('LoginGuard', () => {
     describe('when user is authenticated', () => {
       beforeEach(() => {
         const secret = chance.hash();
-        identityService.accessToken = jsonwebtoken.sign({}, secret);
-        identityService.refreshToken = jsonwebtoken.sign({}, secret);
+        const accessToken = jsonwebtoken.sign({}, secret);
+        const refreshToken = jsonwebtoken.sign({}, secret);
 
-        spyOn(loginService, 'createWithRefreshToken').and.returnValue(Promise.resolve());
+        identityService.accessToken = accessToken;
+        identityService.refreshToken = refreshToken;
+
+        spyOn(loginService, 'createWithRefreshToken').and.returnValue(
+          Promise.resolve({ accessToken, refreshToken }),
+        );
       });
 
       it('it returns true', async () => {
