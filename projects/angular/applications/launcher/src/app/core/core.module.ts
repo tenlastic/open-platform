@@ -4,7 +4,11 @@ import { NgModule, Optional, SkipSelf } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { TokenInterceptor } from '@tenlastic/ng-authentication';
+import {
+  RefreshTokenInterceptor,
+  TokenInterceptor,
+  UnauthorizedInterceptor,
+} from '@tenlastic/ng-authentication';
 
 import { MaterialModule } from '../material.module';
 import { CrudSnackbarService } from './services';
@@ -24,7 +28,17 @@ import { CrudSnackbarService } from './services';
 
     {
       provide: HTTP_INTERCEPTORS,
+      useClass: RefreshTokenInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: UnauthorizedInterceptor,
       multi: true,
     },
   ],
