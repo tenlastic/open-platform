@@ -12,11 +12,11 @@ docker login \
   -u "${DOCKER_HUB_USERNAME}" \
   -p "${DOCKER_HUB_PASSWORD}"
 
-# Tag and push version to Github Package Registry.
+# Tag and push version to Docker Hub.
 docker tag "${IMAGE_ID}" "${URL}:${TAG}"
 docker push "${URL}:${TAG}"
 
-# Tag and push latest version to Github Package Registry.
+# Tag and push latest version to Docker Hub.
 docker tag "${IMAGE_ID}" "${URL}:latest"
 docker push "${URL}:latest"
 

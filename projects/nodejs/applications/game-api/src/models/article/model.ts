@@ -46,7 +46,7 @@ export class ArticleSchema {
   @prop({ ref: Game, required: true })
   public gameId: Ref<GameDocument>;
 
-  @prop({ default: Date.now() })
+  @prop({ default: Date.now })
   public publishedAt: Date;
 
   @prop({ match: /^.{2,100}$/, required: true })

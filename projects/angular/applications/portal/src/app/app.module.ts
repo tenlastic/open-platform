@@ -5,6 +5,7 @@ import { AuthenticationModule, LoginGuard, OAuthComponent } from '@tenlastic/ng-
 import { HttpModule } from '@tenlastic/ng-http';
 
 import { environment } from '../environments/environment';
+import { NamespaceGuard } from './core/guards';
 import { CoreModule } from './core/core.module';
 import { LayoutComponent } from './shared/components';
 import { SharedModule } from './shared/shared.module';
@@ -16,13 +17,13 @@ export const ROUTES: Routes = [
     path: 'databases',
     component: LayoutComponent,
     loadChildren: () => import('./modules/databases/databases.module').then(m => m.DatabaseModule),
-    canActivate: [LoginGuard],
+    canActivate: [LoginGuard, NamespaceGuard],
   },
   {
     path: 'games',
     component: LayoutComponent,
     loadChildren: () => import('./modules/games/games.module').then(m => m.GameModule),
-    canActivate: [LoginGuard],
+    canActivate: [LoginGuard, NamespaceGuard],
   },
   {
     path: 'login',
@@ -33,7 +34,7 @@ export const ROUTES: Routes = [
     component: LayoutComponent,
     loadChildren: () =>
       import('./modules/namespaces/namespaces.module').then(m => m.NamespaceModule),
-    canActivate: [LoginGuard],
+    canActivate: [LoginGuard, NamespaceGuard],
   },
   {
     path: 'oauth',

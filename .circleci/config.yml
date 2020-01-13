@@ -1,6 +1,53 @@
 version: 2.1
 
 commands:
+  build_and_push_docker_image:
+    parameters:
+      directory:
+        type: string
+      label:
+        type: string
+      repository:
+        type: string
+    steps:
+      - run:
+          name: Build Docker Image (<< parameters.label >>)
+          command: docker build -t << parameters.repository >>:latest ./
+          working_directory: << parameters.directory >>
+      - run:
+          name: Push Docker Image (<< parameters.label >>)
+          command: |
+            IMAGE_ID=$(docker images << parameters.repository >>:latest --format "{{.ID}}")
+            URL="tenlastic/<< parameters.repository >>"
+
+            # Authenticate to Github Package Registry.
+            docker login \
+              -u "${DOCKER_HUB_USERNAME}" \
+              -p "${DOCKER_HUB_PASSWORD}"
+
+            # Tag and push version to Docker Hub.
+            docker tag "${IMAGE_ID}" "${URL}:latest"
+            docker push "${URL}:latest"
+
+            # Tag and push latest version to Docker Hub.
+            docker tag "${IMAGE_ID}" "${URL}:latest"
+            docker push "${URL}:latest"
+
+            URL="docker.pkg.github.com/tenlastic/open-platform/<< parameters.repository >>"
+
+            # Authenticate to Github Package Registry.
+            docker login docker.pkg.github.com \
+              -u "${GITHUB_USER_EMAIL}" \
+              -p "${GITHUB_TOKEN}"
+
+            # Tag and push version to Github Package Registry.
+            docker tag "${IMAGE_ID}" "${URL}:latest"
+            docker push "${URL}:latest"
+
+            # Tag and push latest version to Github Package Registry.
+            docker tag "${IMAGE_ID}" "${URL}:latest"
+            docker push "${URL}:latest"
+
   copy_directory:
     parameters:
       from:
@@ -201,6 +248,22 @@ jobs:
           command: lerna run electron:windows
           working_directory: /tmp/workspace/projects/angular/
 
+  publish_miscellaneous_docker_images:
+    docker:
+      - image: node:10
+    steps:
+      - setup_remote_docker
+      - install_docker_client
+      - checkout
+      - build_and_push_docker_image:
+          directory: ./
+          label: Infrastructure Utilities
+          repository: infrastructure-utilities
+      - build_and_push_docker_image:
+          directory: ./projects/nodejs/dockerfiles/mongo-replica-set/
+          label: MongoDB Replica Set
+          repository: mongo-replica-set
+
   publish_npm_modules:
     docker:
       - image: node:10
@@ -314,6 +377,14 @@ workflows:
       - angular
       - nodejs:
           context: open-platform-review
+
+      - publish_miscellaneous_docker_images:
+          filters:
+            branches:
+              only: master
+          requires:
+            - angular
+            - nodejs
 
       - publish_npm_modules:
           filters:

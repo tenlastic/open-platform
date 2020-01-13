@@ -23,7 +23,10 @@ export class LoginService {
     const parameters = { email, password };
     const response = await this.apiService.request('post', this.basePath, parameters);
 
-    this.onLogin.emit({ accessToken: response.accessToken, refreshToken: response.refreshToken });
+    const { accessToken, refreshToken } = response;
+    this.onLogin.emit({ accessToken, refreshToken });
+
+    return { accessToken, refreshToken };
   }
 
   public async createWithRefreshToken(token: string) {
@@ -34,7 +37,10 @@ export class LoginService {
       parameters,
     );
 
-    this.onLogin.emit({ accessToken: response.accessToken, refreshToken: response.refreshToken });
+    const { accessToken, refreshToken } = response;
+    this.onLogin.emit({ accessToken, refreshToken });
+
+    return { accessToken, refreshToken };
   }
 
   public async delete() {

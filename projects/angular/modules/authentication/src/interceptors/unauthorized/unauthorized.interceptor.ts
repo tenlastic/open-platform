@@ -23,9 +23,12 @@ export class UnauthorizedInterceptor implements HttpInterceptor {
   ) {}
 
   public intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return next
-      .handle(request)
-      .pipe(tap(() => {}, this.redirectToLoginOnUnauthorizedResponse.bind(this)));
+    return next.handle(request).pipe(
+      tap(
+        () => {},
+        err => this.redirectToLoginOnUnauthorizedResponse(err),
+      ),
+    );
   }
 
   private redirectToLoginOnUnauthorizedResponse(err: any) {
