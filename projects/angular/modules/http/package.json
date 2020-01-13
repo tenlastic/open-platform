@@ -2,7 +2,7 @@
   "main": "./dist/angular/bundles/tenlastic-ng-http.umd.js",
   "name": "@tenlastic/ng-http",
   "typings": "./dist/angular/module.d.ts",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "scripts": {
     "build": "ng build http",
     "lint": "ng lint http",

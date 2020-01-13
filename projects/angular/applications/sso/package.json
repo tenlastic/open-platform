@@ -1,6 +1,6 @@
 {
   "name": "sso",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "scripts": {
     "build": "ng build sso",
     "build:production": "ng build --preserve-symlinks --prod sso",
@@ -16,9 +16,9 @@
   "private": true,
   "devDependencies": {
     "@angular/cli": "~8.3.21",
-    "@tenlastic/ng-authentication": "0.0.22",
-    "@tenlastic/ng-component-library": "0.0.22",
-    "@tenlastic/ng-electron": "0.0.22",
-    "@tenlastic/ng-http": "0.0.22"
+    "@tenlastic/ng-authentication": "0.0.23",
+    "@tenlastic/ng-component-library": "0.0.23",
+    "@tenlastic/ng-electron": "0.0.23",
+    "@tenlastic/ng-http": "0.0.23"
   }
 }
