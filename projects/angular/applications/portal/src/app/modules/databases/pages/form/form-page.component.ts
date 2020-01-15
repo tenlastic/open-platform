@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import { Database, DatabaseService } from '@tenlastic/ng-http';
 
@@ -16,15 +16,16 @@ export class DatabasesFormPageComponent implements OnInit {
   public form: FormGroup;
 
   constructor(
-    private activatedRouter: ActivatedRoute,
+    private activatedRoute: ActivatedRoute,
     private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
+    private router: Router,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRouter.paramMap.subscribe(async params => {
+    this.activatedRoute.paramMap.subscribe(async params => {
       const name = params.get('name');
 
       if (name !== 'new') {
@@ -57,6 +58,7 @@ export class DatabasesFormPageComponent implements OnInit {
   private async create(data: Partial<Database>) {
     try {
       await this.databaseService.create(data);
+      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That name is already taken.';
     }
@@ -77,6 +79,7 @@ export class DatabasesFormPageComponent implements OnInit {
 
     try {
       await this.databaseService.update(data);
+      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That name is already taken.';
     }

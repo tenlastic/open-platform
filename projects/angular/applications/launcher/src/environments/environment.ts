@@ -7,7 +7,7 @@ export const environment = {
   logoutUrl: 'https://sso.tenlastic.com/logout?redirectUrl=https://launcher.tenlastic.com/oauth',
   namespaceApiBaseUrl: 'https://api.tenlastic.com/namespaces',
   passwordResetApiBaseUrl: 'https://api.tenlastic.com/password-resets',
-  production: true,
-  useHash: true,
+  production: false,
+  useHash: false,
   userApiBaseUrl: 'https://api.tenlastic.com/users',
 };

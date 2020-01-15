@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
 import {
+  ArticleService,
   CollectionService,
   DatabaseService,
   GameService,
@@ -14,6 +15,7 @@ import { SNACKBAR_DURATION } from '../../../shared/constants';
 @Injectable()
 export class CrudSnackbarService {
   constructor(
+    private articleService: ArticleService,
     private collectionService: CollectionService,
     private databaseService: DatabaseService,
     private gameService: GameService,
@@ -22,6 +24,10 @@ export class CrudSnackbarService {
     private snackBar: MatSnackBar,
     private userService: UserService,
   ) {
+    this.articleService.onCreate.subscribe(() => this.createMessage('Article'));
+    this.articleService.onDelete.subscribe(() => this.deleteMessage('Article'));
+    this.articleService.onUpdate.subscribe(() => this.updateMessage('Article'));
+
     this.collectionService.onCreate.subscribe(() => this.createMessage('Collection'));
     this.collectionService.onDelete.subscribe(() => this.deleteMessage('Collection'));
     this.collectionService.onUpdate.subscribe(() => this.updateMessage('Collection'));

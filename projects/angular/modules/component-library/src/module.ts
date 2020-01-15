@@ -21,6 +21,9 @@ import { SidenavComponent } from './components/sidenav/sidenav.component';
 import { SystemToolbarComponent } from './components/system-toolbar/system-toolbar.component';
 import { TitleComponent } from './components/title/title.component';
 
+import { MarkdownPipe } from './pipes/markdown/markdown.pipe';
+import { TruncatePipe } from './pipes/truncate/truncate.pipe';
+
 const components = [
   ButtonComponent,
   FormMessageComponent,
@@ -44,10 +47,11 @@ const modules = [
   MatToolbarModule,
   ReactiveFormsModule,
 ];
+const pipes = [MarkdownPipe, TruncatePipe];
 
 @NgModule({
-  declarations: [...components],
-  exports: [...components, ...modules],
+  declarations: [...components, ...pipes],
+  exports: [...components, ...modules, ...pipes],
   imports: [...modules],
 })
 export class ComponentLibraryModule {}

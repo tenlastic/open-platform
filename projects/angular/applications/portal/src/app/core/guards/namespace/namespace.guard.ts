@@ -12,7 +12,7 @@ export class NamespaceGuard implements CanActivate {
   ) {}
 
   public async canActivate() {
-    if (this.selectedNamespaceService.namespaceId) {
+    if (this.selectedNamespaceService.namespaceId && !this.selectedNamespaceService.namespace) {
       try {
         this.selectedNamespaceService.namespace = await this.namespaceService.findOne(
           this.selectedNamespaceService.namespaceId,

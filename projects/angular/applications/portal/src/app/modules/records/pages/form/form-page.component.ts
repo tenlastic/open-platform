@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   Collection,
   CollectionService,
@@ -23,15 +23,16 @@ export class RecordsFormPageComponent implements OnInit {
   private database: Database;
 
   constructor(
-    private activatedRouter: ActivatedRoute,
+    private activatedRoute: ActivatedRoute,
     private collectionService: CollectionService,
     private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
     private recordService: RecordService,
+    private router: Router,
   ) {}
 
   public ngOnInit() {
-    this.activatedRouter.paramMap.subscribe(async params => {
+    this.activatedRoute.paramMap.subscribe(async params => {
       const name = params.get('name');
 
       const databaseName = params.get('databaseName');
@@ -108,6 +109,7 @@ export class RecordsFormPageComponent implements OnInit {
   private async create(data: Partial<Record>) {
     try {
       await this.recordService.create(this.database.name, this.collection.name, data);
+      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That name is already taken.';
     }
@@ -169,6 +171,7 @@ export class RecordsFormPageComponent implements OnInit {
 
     try {
       await this.recordService.update(this.database.name, this.collection.name, data);
+      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That name is already taken.';
     }

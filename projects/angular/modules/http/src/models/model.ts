@@ -10,7 +10,7 @@ export abstract class Model {
       this[key] = params[key];
     });
 
-    this.createdAt = new Date(params.createdAt);
-    this.updatedAt = new Date(params.updatedAt);
+    this.createdAt = params.createdAt ? new Date(params.createdAt) : null;
+    this.updatedAt = params.updatedAt ? new Date(params.updatedAt) : null;
   }
 }

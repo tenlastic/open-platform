@@ -70,8 +70,57 @@ div.mat-sort-header-sorted {
   color: black;
 }
 
+mat-datepicker-content.mat-datepicker-content {
+  background: black;
+  color: white;
+
+  button.mat-calendar-period-button {
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  button.mat-icon-button {
+    border-radius: 0px;
+    color: white;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  div.mat-calendar-arrow {
+    border-top-color: #ffff77;
+  }
+
+  div.mat-calendar-body-cell-content {
+    border-radius: 0px;
+    color: white;
+  }
+
+  div.mat-calendar-body-selected {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  div.mat-calendar-body-today:not(.mat-calendar-body-selected) {
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  td.mat-calendar-body-cell:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  td.mat-calendar-body-label {
+    color: white;
+  }
+
+  thead.mat-calendar-table-header {
+    color: white;
+  }
+}
+
 mat-dialog-container.mat-dialog-container {
-  background: rgba(0, 0, 0, 0.9);
+  background: black;
   border-radius: 0px;
   box-shadow: 3px 4px 5px #000000;
   color: white;
@@ -106,11 +155,18 @@ mat-form-field.mat-form-field {
   }
 
   textarea {
+    color: white;
     line-height: 1.6rem;
 
     &.cdk-textarea-autosize {
       overflow: hidden;
     }
+  }
+}
+
+mat-form-field.mat-form-field-appearance-legacy {
+  div.mat-form-field-suffix .mat-icon-button {
+    color: white;
   }
 }
 

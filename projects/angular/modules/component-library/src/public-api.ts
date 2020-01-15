@@ -10,4 +10,7 @@ export * from './components/sidenav/sidenav.component';
 export * from './components/system-toolbar/system-toolbar.component';
 export * from './components/title/title.component';
 
+export * from './pipes/markdown/markdown.pipe';
+export * from './pipes/truncate/truncate.pipe';
+
 export * from './module';

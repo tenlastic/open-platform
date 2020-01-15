@@ -1,4 +1,26 @@
-mat-dialog-container.mat-dialog-container {
+@import '../../../../../assets/scss/page.scss';
+
+div.col-sm-6 {
+  padding: 0px;
+
+  &:first-of-type {
+    padding-right: 8px;
+  }
+
+  &:last-of-type {
+    padding-left: 8px;
+  }
+
+  mat-form-field.mat-form-field {
+    display: block;
+  }
+
+  & > mat-label {
+    font-size: 12px;
+  }
+}
+
+div.markdown-container ::ng-deep {
   a {
     color: #ffff55;
     outline: none;
@@ -36,18 +58,18 @@ mat-dialog-container.mat-dialog-container {
   }
 }
 
-.col-sm-3 {
-  text-align: right;
+form {
+  ten-button {
+    margin-right: 8px;
+  }
+}
 
-  mat-icon.mat-icon {
-    color: rgba(255, 255, 255, 0.5);
-    cursor: pointer;
-    height: 18px;
-    margin-top: 4px;
-    vertical-align: top;
+mat-form-field {
+  &[width='300'] {
+    width: 300px;
+  }
 
-    &:hover {
-      color: white;
-    }
+  &[width='600'] {
+    width: 600px;
   }
 }

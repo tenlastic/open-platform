@@ -1,0 +1,31 @@
+::ng-deep {
+  div.article-dialog-component {
+    div.mat-dialog-content {
+      margin: 8px 0px 0px;
+      padding: 0px 8px 0px 0px;
+    }
+
+    div.mat-dialog-title {
+      border-bottom: 1px solid white;
+      display: flex;
+      flex-direction: column;
+      margin: 0px;
+
+      h1 {
+        font-size: 1.75em;
+        line-height: 1em;
+        margin: 4px 0px 12px;
+      }
+    }
+
+    mat-dialog-container.mat-dialog-container {
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    span.type-date {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 12px;
+      line-height: 12px;
+    }
+  }
+}

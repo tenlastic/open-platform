@@ -147,7 +147,7 @@ div.mat-sort-header-sorted {
 }
 
 mat-dialog-container.mat-dialog-container {
-  background: rgba(0, 0, 0, 0.9);
+  background: black;
   border-radius: 0px;
   box-shadow: 3px 4px 5px #000000;
   color: white;
@@ -301,11 +301,11 @@ table.mat-table {
   }
 
   div.mat-sort-header-stem {
-    color: white;
+    color: #ffff77;
   }
 
   div.mat-sort-header-indicator {
-    color: white;
+    color: #ffff77;
   }
 
   td.mat-cell {

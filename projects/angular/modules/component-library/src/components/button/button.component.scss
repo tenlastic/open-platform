@@ -12,6 +12,11 @@
     display: block;
   }
 
+  &[mat-icon-button] {
+    min-width: 0px;
+    padding: 2px 8px;
+  }
+
   &[text='left'] a.mat-button {
     text-align: left;
 
@@ -85,6 +90,7 @@
         margin: 0px 4px;
         outline: none;
         vertical-align: baseline;
+        white-space: nowrap;
       }
     }
   }

@@ -1,0 +1,7 @@
+<div mat-dialog-title>
+  <span class="type-date">
+    {{ data.article.type }} | Posted {{ data.article.publishedAt | date: 'MMMM d, y, h:mm:ss a' }}
+  </span>
+  <h1>{{ data.article.title }}</h1>
+</div>
+<div mat-dialog-content [innerHTML]="data.article.body | markdown"></div>
