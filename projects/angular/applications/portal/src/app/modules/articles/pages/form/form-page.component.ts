@@ -36,7 +36,7 @@ export class ArticlesFormPageComponent implements OnInit {
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
       const { namespaceId } = this.selectedNamespaceService;
-      this.games = await this.gameService.find({ select: '_id', where: { namespaceId } });
+      this.games = await this.gameService.find({ where: { namespaceId } });
       this.gameSlug = params.get('gameSlug');
 
       const _id = params.get('_id');
