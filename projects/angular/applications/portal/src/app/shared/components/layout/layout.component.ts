@@ -15,6 +15,12 @@ export class LayoutComponent {
   public links = [
     {
       condition: () => this.selectedNamespaceService && this.selectedNamespaceService.namespaceId,
+      icon: 'description',
+      label: 'Articles',
+      path: '/articles',
+    },
+    {
+      condition: () => this.selectedNamespaceService && this.selectedNamespaceService.namespaceId,
       icon: 'storage',
       label: 'Databases',
       path: '/databases',
@@ -31,7 +37,7 @@ export class LayoutComponent {
         this.identityService &&
         this.identityService.user &&
         this.identityService.user.roles &&
-        this.identityService.user.roles.includes('Admin'),
+        this.identityService.user.roles.includes('Administrator'),
       icon: 'person',
       label: 'Users',
       path: '/users',

@@ -7,6 +7,7 @@ import { Article, ArticleService, Game, GameService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
+import { SelectedNamespaceService } from '../../../../core/services';
 import { PromptComponent } from '../../../../shared/components';
 import { TITLE } from '../../../../shared/constants';
 
@@ -29,9 +30,10 @@ export class ArticlesListPageComponent implements OnInit {
     'updatedAt',
     'actions',
   ];
+  public game: Game;
+  public gameIds: string[] = [];
   public search = '';
 
-  private game: Game;
   private subject: Subject<string> = new Subject();
 
   constructor(
@@ -40,13 +42,21 @@ export class ArticlesListPageComponent implements OnInit {
     private gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
   ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
       const gameSlug = params.get('gameSlug');
-      this.game = await this.gameService.findOne(gameSlug);
+      if (gameSlug) {
+        this.game = await this.gameService.findOne(gameSlug);
+      } else {
+        const { namespaceId } = this.selectedNamespaceService;
+        const games = await this.gameService.find({ select: '_id', where: { namespaceId } });
+
+        this.gameIds = games.map(g => g._id);
+      }
 
       this.titleService.setTitle(`${TITLE} | Articles`);
       this.fetchArticles();
@@ -65,7 +75,7 @@ export class ArticlesListPageComponent implements OnInit {
   }
 
   public async publish(article: Article) {
-    const result = await this.articleService.update(this.game.slug, {
+    const result = await this.articleService.update({
       ...article,
       publishedAt: new Date(),
     });
@@ -85,14 +95,14 @@ export class ArticlesListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.articleService.delete(this.game.slug, record._id);
+        await this.articleService.delete(record._id);
         this.deleteArticle(record);
       }
     });
   }
 
   public async unpublish(article: Article) {
-    const result = await this.articleService.update(this.game.slug, {
+    const result = await this.articleService.update({
       ...article,
       publishedAt: null,
     });
@@ -104,7 +114,8 @@ export class ArticlesListPageComponent implements OnInit {
   }
 
   private async fetchArticles() {
-    const records = await this.articleService.find(this.game.slug, { sort: 'name' });
+    const where = this.game ? { gameId: this.game._id } : { gameId: { $in: this.gameIds } };
+    const records = await this.articleService.find({ sort: 'name', where });
 
     this.dataSource = new MatTableDataSource<Article>(records);
     this.dataSource.paginator = this.paginator;

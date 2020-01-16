@@ -1,7 +1,7 @@
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { Game, ReadonlyNamespace } from './models';
+import { Game, ReadonlyNamespace, ReadonlyUser } from './models';
 
 before(async function() {
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
@@ -17,4 +17,5 @@ before(async function() {
 beforeEach(async function() {
   await Game.deleteMany({});
   await ReadonlyNamespace.deleteMany({});
+  await ReadonlyUser.deleteMany({});
 });

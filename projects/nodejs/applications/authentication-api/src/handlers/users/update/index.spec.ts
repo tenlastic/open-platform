@@ -13,7 +13,7 @@ describe('handlers/users/update', function() {
 
   beforeEach(async function() {
     record = await UserMock.create();
-    user = { roles: ['Admin'] };
+    user = { roles: ['Administrator'] };
   });
 
   it('updates an existing record', async function() {

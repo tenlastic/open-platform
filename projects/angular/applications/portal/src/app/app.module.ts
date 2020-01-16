@@ -14,6 +14,12 @@ import { AppComponent } from './app.component';
 export const ROUTES: Routes = [
   { path: '', pathMatch: 'full', redirectTo: '/namespaces' },
   {
+    path: 'articles',
+    component: LayoutComponent,
+    loadChildren: () => import('./modules/articles/articles.module').then(m => m.ArticleModule),
+    canActivate: [LoginGuard, NamespaceGuard],
+  },
+  {
     path: 'databases',
     component: LayoutComponent,
     loadChildren: () => import('./modules/databases/databases.module').then(m => m.DatabaseModule),

@@ -34,7 +34,7 @@ export class UsersListPageComponent implements OnInit {
   ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Users`);
 
-    if (this.identityService.user.roles.includes('Admin')) {
+    if (this.identityService.user.roles.includes('Administrator')) {
       this.displayedColumns.push('actions');
     }
 

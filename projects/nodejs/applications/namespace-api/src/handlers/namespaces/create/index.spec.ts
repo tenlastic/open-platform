@@ -11,7 +11,7 @@ describe('handlers/namespaces/create', function() {
   let user: any;
 
   beforeEach(async function() {
-    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] };
   });
 
   it('creates a new record', async function() {

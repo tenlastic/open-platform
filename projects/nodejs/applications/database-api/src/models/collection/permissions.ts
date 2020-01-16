@@ -17,14 +17,14 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
     base: {
       databaseId: {
         $in: {
-          // Find all Collections within the returned Databases.
+          // Find all Databases within the returned Namespaces.
           $query: {
             model: 'DatabaseSchema',
             select: '_id',
             where: {
               namespaceId: {
                 $in: {
-                  // Find all Databases that the user is a member of.
+                  // Find all Namespaces that the user is a member of.
                   $query: {
                     model: 'ReadonlyNamespaceSchema',
                     select: '_id',

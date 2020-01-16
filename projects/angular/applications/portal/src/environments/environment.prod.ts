@@ -1,4 +1,5 @@
 export const environment = {
+  articleApiBaseUrl: 'https://api.tenlastic.com/articles',
   databaseApiBaseUrl: 'https://api.tenlastic.com/databases',
   gameApiBaseUrl: 'https://api.tenlastic.com/games',
   loginApiBaseUrl: 'https://api.tenlastic.com/logins',

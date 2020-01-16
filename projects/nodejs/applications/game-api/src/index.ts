@@ -3,11 +3,9 @@ import 'source-map-support/register';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { WebServer } from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
-import * as path from 'path';
 
-import { router as articlesRouter } from './handlers/articles';
 import { router as gamesRouter } from './handlers/games';
-import { ReadonlyNamespace } from './models';
+import { ReadonlyNamespace, ReadonlyUser } from './models';
 
 mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
   dbName: process.env.MONGO_DATABASE_NAME,
@@ -20,10 +18,10 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
 (async () => {
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
   kafka.subscribe(ReadonlyNamespace, { group: 'game-api', topic: 'namespace-api.namespaces' });
+  kafka.subscribe(ReadonlyUser, { group: 'game-api', topic: 'user-api.users' });
 })();
 
 const webServer = new WebServer();
-webServer.use(articlesRouter.routes());
 webServer.use(gamesRouter.routes());
 webServer.start();
 

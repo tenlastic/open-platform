@@ -16,12 +16,8 @@ export class ArticleService {
     this.basePath = this.environmentService.gameApiBaseUrl;
   }
 
-  public async create(gameSlug: string, parameters: Partial<Article>): Promise<Article> {
-    const response = await this.apiService.request(
-      'post',
-      `${this.basePath}/${gameSlug}/articles`,
-      parameters,
-    );
+  public async create(parameters: Partial<Article>): Promise<Article> {
+    const response = await this.apiService.request('post', `${this.basePath}`, parameters);
 
     const record = new Article(response.record);
     this.onCreate.emit(record);
@@ -29,12 +25,8 @@ export class ArticleService {
     return record;
   }
 
-  public async delete(gameSlug: string, _id: string): Promise<Article> {
-    const response = await this.apiService.request(
-      'delete',
-      `${this.basePath}/${gameSlug}/articles/${_id}`,
-      null,
-    );
+  public async delete(_id: string): Promise<Article> {
+    const response = await this.apiService.request('delete', `${this.basePath}/${_id}`, null);
 
     const record = new Article(response.record);
     this.onDelete.emit(record);
@@ -42,30 +34,22 @@ export class ArticleService {
     return record;
   }
 
-  public async find(gameSlug: string, parameters: RestParameters): Promise<Article[]> {
-    const response = await this.apiService.request(
-      'get',
-      `${this.basePath}/${gameSlug}/articles`,
-      parameters,
-    );
+  public async find(parameters: RestParameters): Promise<Article[]> {
+    const response = await this.apiService.request('get', `${this.basePath}`, parameters);
 
     return response.records.map(record => new Article(record));
   }
 
-  public async findOne(gameSlug: string, _id: string): Promise<Article> {
-    const response = await this.apiService.request(
-      'get',
-      `${this.basePath}/${gameSlug}/articles/${_id}`,
-      null,
-    );
+  public async findOne(_id: string): Promise<Article> {
+    const response = await this.apiService.request('get', `${this.basePath}/${_id}`, null);
 
     return new Article(response.record);
   }
 
-  public async update(gameSlug: string, parameters: Partial<Article>): Promise<Article> {
+  public async update(parameters: Partial<Article>): Promise<Article> {
     const response = await this.apiService.request(
       'put',
-      `${this.basePath}/${gameSlug}/articles/${parameters._id}`,
+      `${this.basePath}/${parameters._id}`,
       parameters,
     );
 

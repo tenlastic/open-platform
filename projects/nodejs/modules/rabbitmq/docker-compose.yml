@@ -1,8 +1,6 @@
 version: '2.1'
 services:
   application:
-    depends_on:
-      - rabbitmq
     environment:
       - RABBITMQ_CONNECTION_STRING
     links:
