@@ -9,6 +9,10 @@ a.mat-list-item {
   }
 }
 
+div.cdk-overlay-dark-backdrop {
+  background: rgba(0, 0, 0, 0.75);
+}
+
 div.mat-autocomplete-panel {
   background: black;
   border-top-left-radius: 4px;
@@ -120,7 +124,9 @@ mat-datepicker-content.mat-datepicker-content {
 }
 
 mat-dialog-container.mat-dialog-container {
-  background: black;
+  background: url('/assets/images/background.jpg');
+  background-attachment: fixed;
+  background-size: cover;
   border-radius: 0px;
   box-shadow: 3px 4px 5px #000000;
   color: white;

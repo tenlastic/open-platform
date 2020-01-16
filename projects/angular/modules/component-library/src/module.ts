@@ -14,6 +14,7 @@ import { FormMessageComponent } from './components/form-message/form-message.com
 import { HeaderToolbarComponent } from './components/header-toolbar/header-toolbar.component';
 import { LoadingMessageComponent } from './components/loading-message/loading-message.component';
 import { LoginFormComponent } from './components/login-form/login-form.component';
+import { MarkdownComponent } from './components/markdown/markdown.component';
 import { PasswordResetFormComponent } from './components/password-reset-form/password-reset-form.component';
 import { PasswordResetRequestFormComponent } from './components/password-reset-request-form/password-reset-request-form.component';
 import { RegistrationFormComponent } from './components/registration-form/registration-form.component';
@@ -30,6 +31,7 @@ const components = [
   HeaderToolbarComponent,
   LoadingMessageComponent,
   LoginFormComponent,
+  MarkdownComponent,
   PasswordResetFormComponent,
   PasswordResetRequestFormComponent,
   RegistrationFormComponent,

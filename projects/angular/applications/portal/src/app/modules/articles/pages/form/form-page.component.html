@@ -46,7 +46,7 @@
       </div>
       <div *ngIf="form.get('body').value" class="col-sm-6">
         <mat-label>Body (Preview)</mat-label>
-        <div class="markdown-container" [innerHTML]="form.get('body').value | markdown"></div>
+        <ten-markdown [markdown]="form.get('body').value"></ten-markdown>
       </div>
     </div>
 
