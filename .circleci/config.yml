@@ -331,7 +331,8 @@ jobs:
           command: |
             git add .
             git commit -m "Lerna Package Updates"
-            git push origin master
+            git tag -a ${CIRCLE_SHA1}
+            git push --tags origin master
       - run:
           name: Delete Node Modules (Angular)
           command: find . -name "node_modules" -exec rm -rf '{}' +
