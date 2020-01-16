@@ -56,17 +56,10 @@ export class InformationPageComponent implements OnInit {
 
   private groupByDate(articles: Article[]) {
     const map = new Map<any, any>(
-      Array.from(articles, obj => [this.toDateString(obj.publishedAt), []]),
+      Array.from(articles, obj => [obj.publishedAt.toLocaleDateString(), []]),
     );
-    articles.forEach(obj => map.get(this.toDateString(obj.publishedAt)).push(obj));
+    articles.forEach(obj => map.get(obj.publishedAt.toLocaleDateString()).push(obj));
 
     return Array.from(map.values());
-  }
-
-  private toDateString(date: Date) {
-    return date
-      .toISOString()
-      .slice(0, 10)
-      .replace(/-/g, '');
   }
 }
