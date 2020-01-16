@@ -11,7 +11,7 @@ describe('handlers/users/create', function() {
   let user: UserDocument;
 
   beforeEach(async function() {
-    user = await UserMock.create({ roles: ['Admin'] });
+    user = await UserMock.create({ roles: ['Administrator'] });
   });
 
   it('creates a new record', async function() {

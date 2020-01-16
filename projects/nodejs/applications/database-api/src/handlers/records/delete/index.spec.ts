@@ -37,7 +37,7 @@ describe('handlers/records/delete', function() {
         update: {},
       },
     });
-    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] };
 
     const Model = RecordSchema.getModelForClass(collection);
     record = await Model.create({

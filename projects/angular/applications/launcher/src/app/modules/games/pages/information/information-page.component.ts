@@ -35,9 +35,12 @@ export class InformationPageComponent implements OnInit {
       if (slug) {
         this.data = await this.gameService.findOne(slug);
 
-        this.articles = await this.articleService.find(slug, {
+        this.articles = await this.articleService.find({
           sort: '-publishedAt',
-          where: { $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }] },
+          where: {
+            $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
+            gameId: this.data._id,
+          },
         });
         this.articlesByDate = this.groupByDate(this.articles);
 

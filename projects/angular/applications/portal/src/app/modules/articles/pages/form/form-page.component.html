@@ -4,6 +4,18 @@
   <form *ngIf="form" [formGroup]="form" autocomplete="off">
     <div class="row">
       <mat-form-field floatLabel="always" width="300">
+        <mat-label>Game</mat-label>
+        <mat-select [formControl]="form.controls.gameId | asAny">
+          <mat-option *ngFor="let game of gs" [value]="game._id">
+            {{ game.title }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Choose a game.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always" width="300">
         <mat-label>Title</mat-label>
         <input matInput required formControlName="title" />
         <mat-error>Enter a valid title.</mat-error>
@@ -26,6 +38,7 @@
             {{ type.label }}
           </mat-option>
         </mat-select>
+        <mat-error>Choose a type.</mat-error>
       </mat-form-field>
     </div>
 

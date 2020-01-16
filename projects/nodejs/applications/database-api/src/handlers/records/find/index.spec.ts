@@ -41,7 +41,7 @@ describe('handlers/records/find', function() {
         update: {},
       },
     });
-    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] };
   });
 
   it('returns the matching records', async function() {

@@ -20,7 +20,7 @@
 //   let user: any;
 
 //   beforeEach(async function() {
-//     user = { _id: new mongoose.Types.ObjectId(), roles: ['Admin'] };
+//     user = { _id: new mongoose.Types.ObjectId(), roles: ['Administrator'] };
 //   });
 
 //   context('when the collection is not found', function() {

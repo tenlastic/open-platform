@@ -44,7 +44,7 @@ describe('handlers/records/create', function() {
         update: {},
       },
     });
-    user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] };
   });
 
   it('creates a new record', async function() {

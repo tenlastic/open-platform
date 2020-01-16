@@ -1,5 +1,23 @@
 # NodeJS Projects
 
+### Local Development Ports
+
+- 2181: Zookeeper
+- 3000: Authentication API
+- 3001: Namespace API
+- 3002: Database API
+- 3003: Game API
+- 3004: Article API
+- 3005: Release API
+- 5672: RabbitMQ
+- 9000: Minio
+- 9092: Kafka
+- 15672: RabbitMQ Management Dashboard
+- 19092: Kafka Management Dashboard
+- 27017: MongoDB
+- 27018: MongoDB
+- 27019: MongoDB
+
 ### Getting Started
 
 - Install Docker and Docker Compose.

@@ -10,7 +10,7 @@ describe('handlers/users/delete', function() {
 
   beforeEach(async function() {
     record = await UserMock.create();
-    user = { roles: ['Admin'] };
+    user = { roles: ['Administrator'] };
   });
 
   it('returns the deleted record', async function() {

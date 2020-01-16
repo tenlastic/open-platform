@@ -1,0 +1,17 @@
+version: '2.1'
+services:
+  application:
+    depends_on:
+      - mongo_healthcheck
+    environment:
+      - JWT_SECRET
+      - KAFKA_CONNECTION_STRING
+      - MONGO_CONNECTION_STRING
+      - MONGO_DATABASE_NAME
+    links:
+      - kafka
+      - minio
+      - mongo
+    ports:
+      - 3005:3000
+    working_dir: /usr/src/app/applications/release-api/

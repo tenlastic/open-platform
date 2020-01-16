@@ -27,7 +27,7 @@ describe('indexes', function() {
   });
 
   it('creates an index', async function() {
-    const user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
+    const user = { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] };
 
     // Create a new Index.
     const key = chance.hash();
@@ -58,7 +58,7 @@ describe('indexes', function() {
     let index: any;
 
     beforeEach(async function() {
-      const user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
+      const user = { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] };
 
       // Create a new Index.
       const key = chance.hash();
@@ -82,7 +82,7 @@ describe('indexes', function() {
     });
 
     it('deletes the index', async function() {
-      const user = { _id: mongoose.Types.ObjectId(), roles: ['Admin'] };
+      const user = { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] };
 
       // Delete the Index.
       const deleteIndexResponse = await request(
