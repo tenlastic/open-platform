@@ -308,10 +308,8 @@ jobs:
 
             npm config set unsafe-perm true
             lerna publish \
-              --amend \
               --exact \
-              --message "nodejs-v%v [skip ci]" \
-              --tag-version-prefix nodejs-v \
+              --no-git-tag-version \
               --yes \
               patch
             npm config set unsafe-perm true
@@ -323,10 +321,17 @@ jobs:
             echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> ~/.npmrc
 
             lerna publish \
+              --no-git-tag-version \
               --registry https://npm.pkg.github.com \
               --yes \
               from-package
           working_directory: ./projects/nodejs/
+      - run:
+          name: Commit Changes to Git
+          command: |
+            git add .
+            git commit -m "Lerna Package Updates"
+            git push origin master
       - run:
           name: Delete Node Modules (Angular)
           command: find . -name "node_modules" -exec rm -rf '{}' +
