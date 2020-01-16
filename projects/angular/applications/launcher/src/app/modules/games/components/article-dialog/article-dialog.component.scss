@@ -1,0 +1,28 @@
+::ng-deep {
+  div.article-dialog-component {
+    ten-markdown.mat-dialog-content {
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      margin: 0px;
+      padding: 0px 8px;
+    }
+
+    div.mat-dialog-title {
+      display: flex;
+      flex-direction: column;
+      margin: 0px;
+
+      h1 {
+        font-size: 1.3em;
+        line-height: 1em;
+        margin: 4px 0px 12px;
+      }
+    }
+
+    span.type-date {
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 12px;
+      font-weight: normal;
+      line-height: 12px;
+    }
+  }
+}

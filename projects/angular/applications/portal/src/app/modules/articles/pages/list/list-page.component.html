@@ -1,0 +1,99 @@
+<div class="page">
+  <ten-title>Articles</ten-title>
+
+  <div class="row">
+    <div class="col-sm-3">
+      <mat-form-field floatLabel="always">
+        <mat-label>Filter Articles</mat-label>
+        <input
+          matInput
+          type="text"
+          autocomplete="off"
+          [(ngModel)]="search"
+          (keyup)="onKeyUp($event.target.value)"
+        />
+        <ten-button
+          *ngIf="search"
+          color="accent"
+          matSuffix
+          mat-icon-button
+          aria-label="Clear"
+          (click)="clearSearch()"
+        >
+          <mat-icon>close</mat-icon>
+        </ten-button>
+      </mat-form-field>
+    </div>
+    <div class="offset-sm-6 col-sm-3">
+      <ten-button color="accent" [routerLink]="['new']">
+        <mat-icon>add</mat-icon>
+        <span>New Article</span>
+      </ten-button>
+    </div>
+  </div>
+
+  <table
+    mat-table
+    [dataSource]="dataSource"
+    matSort
+    matSortActive="publishedAt"
+    matSortDirection="desc"
+  >
+    <ng-container matColumnDef="publishedAt">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Published On</th>
+      <td mat-cell *matCellDef="let element">{{ element.publishedAt | date: 'mediumDate' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+      <td mat-cell *matCellDef="let element">{{ element.type }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="title">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Title</th>
+      <td mat-cell *matCellDef="let element">{{ element.title | truncate: 50:true }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="caption">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Caption</th>
+      <td mat-cell *matCellDef="let element">{{ element.caption | truncate: 50:true }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Created At</th>
+      <td mat-cell *matCellDef="let element">{{ element.createdAt | date }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="updatedAt">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Last Updated At</th>
+      <td mat-cell *matCellDef="let element">{{ element.updatedAt | date }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let element">
+        <ten-button *ngIf="element.publishedAt" color="accent" (OnClick)="unpublish(element)">
+          <mat-icon>visibility_off</mat-icon>
+          <span>Unpublish</span>
+        </ten-button>
+        <ten-button *ngIf="!element.publishedAt" color="accent" (OnClick)="publish(element)">
+          <mat-icon>visibility</mat-icon>
+          <span>Publish</span>
+        </ten-button>
+        <ten-button color="accent" [routerLink]="[element._id]">
+          <mat-icon>create</mat-icon>
+          <span>Edit</span>
+        </ten-button>
+        <ten-button color="accent" (OnClick)="showDeletePrompt(element)">
+          <mat-icon>delete</mat-icon>
+          <span>Delete</span>
+        </ten-button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[10, 25, 100]" showFirstLastButtons></mat-paginator>
+</div>

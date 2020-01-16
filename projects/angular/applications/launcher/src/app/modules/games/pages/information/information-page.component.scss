@@ -1,0 +1,43 @@
+div.col-sm-1 {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+  mat-icon.mat-icon {
+    color: #ffff55;
+  }
+}
+
+div.col-sm-11 {
+  align-content: center;
+  display: flex;
+  flex-direction: column;
+}
+
+div.col-sm-1,
+div.col-sm-11 {
+  padding: 0px;
+}
+
+div.row {
+  margin: 0px 0px 4px;
+  padding: 8px 0px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+  }
+}
+
+h2 {
+  margin: 8px 0px;
+}
+
+h3 {
+  margin: 0px;
+}
+
+span.type-date {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 12px;
+}

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, protocol } from 'electron';
+import { app, BrowserWindow, globalShortcut, protocol, shell } from 'electron';
 import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
@@ -110,6 +110,17 @@ function createWindow() {
       }),
     );
   }
+
+  // Open links in browser.
+  const handleRedirect = (e, url) => {
+    if (url !== win.webContents.getURL()) {
+      e.preventDefault();
+      shell.openExternal(url);
+    }
+  };
+
+  win.webContents.on('will-navigate', handleRedirect);
+  win.webContents.on('new-window', handleRedirect);
 
   // Emitted when the window is closed.
   win.on('closed', () => (win = null));

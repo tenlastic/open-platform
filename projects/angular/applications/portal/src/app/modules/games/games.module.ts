@@ -9,8 +9,8 @@ import { GamesListPageComponent } from './pages/list/list-page.component';
 export const ROUTES: Routes = [
   { path: '', component: GamesListPageComponent },
   {
-    path: ':slug/collections',
-    loadChildren: () => import('../collections/collections.module').then(m => m.CollectionModule),
+    path: ':gameSlug/articles',
+    loadChildren: () => import('../articles/articles.module').then(m => m.ArticleModule),
   },
   { path: ':slug', component: GamesFormPageComponent },
 ];

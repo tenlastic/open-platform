@@ -5,7 +5,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 
 import { Game } from '../../models/game';
 import { ApiService } from '../api/api.service';
-import { EnvironmentService, EnvironmentServiceConfig } from '../environment/environment.service';
+import { EnvironmentService } from '../environment/environment.service';
 import { EnvironmentServiceMock } from '../environment/environment.service.mock';
 import { GameService } from './game.service';
 
@@ -60,13 +60,13 @@ describe('GameService', () => {
 
   describe('delete()', () => {
     it('deletes the user and returns true', () => {
-      const _id = chance.hash();
+      const slug = chance.hash();
 
-      service.delete(_id).then(res => {
+      service.delete(slug).then(res => {
         expect(res).toBeTruthy();
       });
 
-      const req = httpMock.expectOne(`${service.basePath}/${_id}`);
+      const req = httpMock.expectOne(`${service.basePath}/${slug}`);
       expect(req.request.method).toBe('DELETE');
     });
   });
@@ -95,13 +95,14 @@ describe('GameService', () => {
   describe('findOne()', () => {
     it('returns a Game', () => {
       const _id = chance.hash();
+      const slug = chance.hash();
 
-      service.findOne(_id).then(res => {
+      service.findOne(slug).then(res => {
         expect(res).toEqual(jasmine.any(Game));
         expect(res._id).toBe(_id);
       });
 
-      const req = httpMock.expectOne(`${service.basePath}/${_id}`);
+      const req = httpMock.expectOne(`${service.basePath}/${slug}`);
       expect(req.request.method).toBe('GET');
       req.flush({
         record: { _id },

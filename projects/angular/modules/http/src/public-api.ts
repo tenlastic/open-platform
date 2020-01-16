@@ -1,3 +1,4 @@
+export * from './models/article';
 export * from './models/collection';
 export * from './models/database';
 export * from './models/game';
@@ -7,6 +8,7 @@ export * from './models/record';
 export * from './models/user';
 
 export * from './services/api/api.service';
+export * from './services/article/article.service';
 export * from './services/collection/collection.service';
 export * from './services/database/database.service';
 export * from './services/environment/environment.service';

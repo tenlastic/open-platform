@@ -67,6 +67,7 @@ export class UsersFormPageComponent implements OnInit {
   private async create(data: Partial<User>) {
     try {
       await this.userService.create(data);
+      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That email is already taken.';
     }
@@ -89,6 +90,7 @@ export class UsersFormPageComponent implements OnInit {
 
     try {
       await this.userService.update(data);
+      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That email is already taken.';
     }

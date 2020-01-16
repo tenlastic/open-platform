@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import { Game, GameService } from '@tenlastic/ng-http';
 
@@ -16,15 +16,16 @@ export class GamesFormPageComponent implements OnInit {
   public form: FormGroup;
 
   constructor(
-    private activatedRouter: ActivatedRoute,
+    private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private gameService: GameService,
     public identityService: IdentityService,
+    private router: Router,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRouter.paramMap.subscribe(async params => {
+    this.activatedRoute.paramMap.subscribe(async params => {
       const slug = params.get('slug');
 
       if (slug !== 'new') {
@@ -63,6 +64,7 @@ export class GamesFormPageComponent implements OnInit {
   private async create(data: Partial<Game>) {
     try {
       await this.gameService.create(data);
+      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That slug is already taken.';
     }
@@ -86,6 +88,7 @@ export class GamesFormPageComponent implements OnInit {
 
     try {
       await this.gameService.update(data);
+      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That slug is already taken.';
     }
