@@ -6,7 +6,7 @@
       <mat-form-field floatLabel="always" width="300">
         <mat-label>Game</mat-label>
         <mat-select [formControl]="form.controls.gameId | asAny">
-          <mat-option *ngFor="let game of gs" [value]="game._id">
+          <mat-option *ngFor="let game of games" [value]="game._id">
             {{ game.title }}
           </mat-option>
         </mat-select>

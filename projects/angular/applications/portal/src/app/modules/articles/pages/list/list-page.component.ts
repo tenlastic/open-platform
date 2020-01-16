@@ -30,10 +30,10 @@ export class ArticlesListPageComponent implements OnInit {
     'updatedAt',
     'actions',
   ];
+  public game: Game;
+  public gameIds: string[] = [];
   public search = '';
 
-  private game: Game;
-  private gameIds: string[] = [];
   private subject: Subject<string> = new Subject();
 
   constructor(

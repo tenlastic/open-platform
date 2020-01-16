@@ -6,13 +6,13 @@ export const UserPermissions = new MongoosePermissions<UserDocument>(User, {
   create: {
     base: ['email', 'password', 'username'],
     roles: {
-      admin: ['roles'],
+      administrator: ['roles'],
     },
   },
   delete: {
     base: false,
     roles: {
-      admin: true,
+      administrator: true,
       self: true,
     },
   },
@@ -22,18 +22,18 @@ export const UserPermissions = new MongoosePermissions<UserDocument>(User, {
   read: {
     base: ['_id', 'createdAt', 'username', 'updatedAt'],
     roles: {
-      admin: ['email', 'roles'],
+      administrator: ['email', 'roles'],
       self: ['email', 'roles'],
     },
   },
   roles: [
-    { name: 'Administrator', query: { 'user.roles': { $eq: 'Administrator' } } },
+    { name: 'administrator', query: { 'user.roles': { $eq: 'Administrator' } } },
     { name: 'self', query: { 'record._id': { $eq: { $ref: 'user._id' } } } },
   ],
   update: {
     base: [],
     roles: {
-      admin: ['email', 'roles', 'password', 'username'],
+      administrator: ['email', 'roles', 'password', 'username'],
       self: ['email', 'password', 'username'],
     },
   },
