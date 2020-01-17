@@ -20,7 +20,7 @@ spec:
                     operator: Exists
       containers:
         - name: namespace-api
-          image: tenlastic/namespace-api:0.0.30
+          image: tenlastic/namespace-api:0.0.31
           envFrom:
             - secretRef:
                 name: namespace-api-environment-variables
