@@ -243,6 +243,8 @@ jobs:
             npm config set unsafe-perm true
             lerna publish \
               --exact \
+              --message "javascript-v%v [skip ci]" \
+              --tag-version-prefix javascript-v \
               --yes \
               patch
             npm config set unsafe-perm true
