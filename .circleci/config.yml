@@ -126,15 +126,15 @@ jobs:
           working_directory: ./projects/javascript/
       - run:
           name: Lint
-          command: lerna run lint
+          command: lerna run --concurrency 1 lint
           working_directory: ./projects/javascript/
       - run:
           name: Build
-          command: lerna run build
+          command: lerna run --concurrency 1 build
           working_directory: ./projects/javascript/
       - run:
           name: Test
-          command: lerna run test
+          command: lerna run --concurrency 1 test
           working_directory: ./projects/javascript/
       - run:
           name: Merge Test Results
@@ -163,11 +163,11 @@ jobs:
           command: npm i -g lerna
       - run:
           name: Build Docker Images
-          command: lerna run docker:build
+          command: lerna run --concurrency 1 docker:build
           working_directory: /tmp/workspace/projects/javascript/
       - run:
           name: Push Docker Images
-          command: lerna run docker:push
+          command: lerna run --concurrency 1 docker:push
           working_directory: /tmp/workspace/projects/javascript/
 
   publish_electron_applications:
@@ -186,11 +186,11 @@ jobs:
           working_directory: /tmp/workspace/projects/javascript/
       - run:
           name: Install Electron Builder Dependencies
-          command: lerna run electron:install
+          command: lerna run --concurrency 1 electron:install
           working_directory: /tmp/workspace/projects/javascript/
       - run:
           name: Build and Publish Electron Applications
-          command: lerna run electron:windows
+          command: lerna run --concurrency 1 electron:windows
           working_directory: /tmp/workspace/projects/javascript/
 
   publish_miscellaneous_docker_images:
@@ -229,7 +229,7 @@ jobs:
           working_directory: ./projects/javascript/
       - run:
           name: Build
-          command: lerna run build
+          command: lerna run --concurrency 1 build
           working_directory: ./projects/javascript/
       - run:
           name: Publish Node Modules to NPM
