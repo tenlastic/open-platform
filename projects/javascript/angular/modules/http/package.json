@@ -1,0 +1,19 @@
+{
+  "main": "./dist/angular/bundles/tenlastic-ng-http.umd.js",
+  "name": "@tenlastic/ng-http",
+  "typings": "./dist/angular/module.d.ts",
+  "version": "0.0.29",
+  "scripts": {
+    "build": "ng build http",
+    "lint": "ng lint http",
+    "test": "ng test --code-coverage --watch false http",
+    "test:watch": "ng test http"
+  },
+  "peerDependencies": {
+    "@angular/common": "^8.2.14",
+    "@angular/core": "^8.2.14"
+  },
+  "devDependencies": {
+    "@angular/cli": "~8.3.21"
+  }
+}

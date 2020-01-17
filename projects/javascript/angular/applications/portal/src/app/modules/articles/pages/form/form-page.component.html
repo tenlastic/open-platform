@@ -1,0 +1,73 @@
+<div class="page">
+  <ten-title>{{ data && data._id ? 'Edit' : 'Create' }} Article</ten-title>
+
+  <form *ngIf="form" [formGroup]="form" autocomplete="off">
+    <div class="row">
+      <mat-form-field floatLabel="always" width="300">
+        <mat-label>Game</mat-label>
+        <mat-select [formControl]="form.controls.gameId | asAny">
+          <mat-option *ngFor="let game of games" [value]="game._id">
+            {{ game.title }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Choose a game.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always" width="300">
+        <mat-label>Title</mat-label>
+        <input matInput required formControlName="title" />
+        <mat-error>Enter a valid title.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always" width="300">
+        <mat-label>Caption</mat-label>
+        <input matInput formControlName="caption" />
+        <mat-error>Enter a valid caption.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always" width="300">
+        <mat-label>Type</mat-label>
+        <mat-select [formControl]="form.controls.type | asAny">
+          <mat-option *ngFor="let type of types" [value]="type.value">
+            {{ type.label }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Choose a type.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-6">
+        <mat-form-field floatLabel="always">
+          <mat-label>Body (Markdown)</mat-label>
+          <textarea
+            matInput
+            cdkTextareaAutosize
+            required
+            formControlName="body"
+            cdkAutosizeMinRows="3"
+            type="text"
+          ></textarea>
+          <mat-error>Enter a valid body.</mat-error>
+        </mat-form-field>
+      </div>
+      <div *ngIf="form.get('body').value" class="col-sm-6">
+        <mat-label>Body (Preview)</mat-label>
+        <ten-markdown [markdown]="form.get('body').value"></ten-markdown>
+      </div>
+    </div>
+
+    <div *ngIf="error" class="form-error">
+      {{ error }}
+    </div>
+
+    <ten-button color="primary" (OnClick)="save()">Save</ten-button>
+    <ten-button color="accent" routerLink="../">Cancel</ten-button>
+  </form>
+</div>

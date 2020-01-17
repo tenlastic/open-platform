@@ -1,0 +1,25 @@
+<div *ngIf="!loadingMessage" class="page">
+  <ten-title>{{ data.title }}</ten-title>
+
+  <p>{{ data.description }}</p>
+
+  <ng-container *ngFor="let group of articlesByDate">
+    <hr />
+    <h2>{{ group[0].publishedAt | date: 'longDate' }}</h2>
+
+    <div *ngFor="let article of group" class="row" (click)="showArticle(article)">
+      <div class="col-sm-1">
+        <mat-icon>{{ article.type === 'News' ? 'new_releases' : 'build' }}</mat-icon>
+      </div>
+      <div class="col-sm-11">
+        <span class="type-date">
+          {{ article.type }} | {{ article.publishedAt | date: 'shortTime' }}
+        </span>
+        <h3>{{ article.title }}</h3>
+        <span>{{ article.caption }}</span>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<ten-loading-message *ngIf="!!loadingMessage">{{ loadingMessage }}</ten-loading-message>

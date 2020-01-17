@@ -1,0 +1,77 @@
+<div class="page">
+  <ten-title>{{ data && data._id ? 'Edit' : 'Create' }} Record</ten-title>
+
+  <form *ngIf="form" [formGroup]="form" autocomplete="off">
+    <div *ngFor="let key of form.controls | keys; let i = index">
+      <app-toggle-section
+        *ngIf="collection.jsonSchema.properties[key].type === 'array'"
+        [title]="key | camelCaseToTitleCase"
+      >
+        <div
+          class="row"
+          [formArrayName]="key"
+          *ngFor="let item of form['controls'].key['controls']; let i = index"
+        >
+          <mat-form-field floatLabel="always">
+            <mat-label>Element #{{ i + 1 }}</mat-label>
+
+            <ng-container [ngSwitch]="collection.jsonSchema.properties[key].items.type">
+              <mat-select *ngSwitchCase="'boolean'" [formControlName]="i | asAny">
+                <mat-option [value]="true">True</mat-option>
+                <mat-option [value]="false">False</mat-option>
+              </mat-select>
+
+              <input
+                *ngSwitchCase="'number'"
+                matInput
+                type="number"
+                [formControlName]="i | asAny"
+              />
+
+              <input *ngSwitchCase="'string'" matInput [formControlName]="i | asAny" />
+            </ng-container>
+
+            <mat-error>Enter a valid {{ key }}.</mat-error>
+          </mat-form-field>
+
+          <button mat-button color="white" type="button" (click)="removeArrayItem(key, i)">
+            <mat-icon>remove</mat-icon>
+            Remove Item
+          </button>
+        </div>
+
+        <div class="row">
+          <button mat-button color="white" type="button" (click)="addArrayItem(key)">
+            <mat-icon>add</mat-icon>
+            Add Item
+          </button>
+        </div>
+      </app-toggle-section>
+
+      <div *ngIf="collection.jsonSchema.properties[key].type !== 'array'" class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>{{ key | camelCaseToTitleCase }}</mat-label>
+
+          <ng-container [ngSwitch]="collection.jsonSchema.properties[key].type">
+            <mat-select *ngSwitchCase="'boolean'" [formControlName]="key">
+              <mat-option [value]="true">True</mat-option>
+              <mat-option [value]="false">False</mat-option>
+            </mat-select>
+
+            <input *ngSwitchCase="'number'" matInput type="number" [formControlName]="key" />
+
+            <input *ngSwitchCase="'string'" matInput [formControlName]="key" />
+          </ng-container>
+
+          <mat-error>Enter a valid {{ key }}.</mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div *ngIf="error" class="form-error">
+      {{ error }}
+    </div>
+
+    <button mat-button background="accent" (click)="save()">Save</button>
+  </form>
+</div>

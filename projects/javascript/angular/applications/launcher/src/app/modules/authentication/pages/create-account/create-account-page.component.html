@@ -1,0 +1,6 @@
+<div [hidden]="!!loadingMessage">
+  <ten-title>Create Account</ten-title>
+  <ten-registration-form (register)="onRegister($event)"></ten-registration-form>
+</div>
+
+<ten-loading-message [hidden]="!loadingMessage">{{ loadingMessage }}</ten-loading-message>

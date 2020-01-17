@@ -1,0 +1,12 @@
+{
+  "npmClient": "npm",
+  "packages": [
+    "angular/",
+    "angular/applications/*",
+    "angular/modules/*",
+    "nodejs/",
+    "nodejs/applications/*",
+    "nodejs/modules/*"
+  ],
+  "version": "0.0.29"
+}

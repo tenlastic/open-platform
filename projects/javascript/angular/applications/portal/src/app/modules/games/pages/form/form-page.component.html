@@ -1,0 +1,43 @@
+<div class="page">
+  <ten-title>{{ data && data._id ? 'Edit' : 'Create' }} Game</ten-title>
+
+  <form *ngIf="form" [formGroup]="form" autocomplete="off">
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title" />
+        <mat-error>Enter a valid title.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Subtitle</mat-label>
+        <input matInput formControlName="subtitle" />
+        <mat-error>Enter a valid subtitle.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Slug</mat-label>
+        <input matInput formControlName="slug" />
+        <mat-error>Enter a valid slug.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Description</mat-label>
+        <input matInput formControlName="description" />
+        <mat-error>Enter a valid description.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="error" class="form-error">
+      {{ error }}
+    </div>
+
+    <button mat-button background="accent" (click)="save()">Save</button>
+  </form>
+</div>

@@ -1,0 +1,17 @@
+ten-login-form::ng-deep {
+  ten-button {
+    margin: 0px;
+  }
+
+  form {
+    max-width: 300px;
+  }
+}
+
+.row {
+  margin: 32px 0px 0px;
+
+  .col-sm-6 {
+    padding: 0px;
+  }
+}
