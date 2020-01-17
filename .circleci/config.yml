@@ -289,7 +289,7 @@ workflows:
   version: 2.1
   build-deploy:
     jobs:
-      - continuous_integration
+      - continuous_integration:
           context: open-platform-review
 
       - publish_miscellaneous_docker_images:
