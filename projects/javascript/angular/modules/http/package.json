@@ -1,6 +1,7 @@
 {
   "main": "./dist/angular/bundles/tenlastic-ng-http.umd.js",
   "name": "@tenlastic/ng-http",
+  "private": true,
   "typings": "./dist/angular/module.d.ts",
   "version": "0.0.30",
   "scripts": {

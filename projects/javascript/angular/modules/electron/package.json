@@ -1,6 +1,7 @@
 {
   "main": "./dist/angular/bundles/tenlastic-ng-electron.umd.js",
   "name": "@tenlastic/ng-electron",
+  "private": true,
   "typings": "./dist/angular/module.d.ts",
   "version": "0.0.30",
   "scripts": {
