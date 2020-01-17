@@ -9,5 +9,5 @@ tscommand*.tmp.txt
 coverage/
 dist/
 node_modules/
-release/
 test-results/
+*/*/*/release/
