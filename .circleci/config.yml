@@ -79,6 +79,7 @@ commands:
               git fetch --force origin "master:master"
               git pull --force origin "master:master"
               git show-branch
+              git tag
             fi
 
   install_docker_client:
@@ -122,19 +123,19 @@ jobs:
           working_directory: ./projects/javascript/
       - run:
           name: Lerna Bootstrap
-          command: lerna bootstrap
+          command: lerna bootstrap --concurrency 1 --include-dependencies --since
           working_directory: ./projects/javascript/
       - run:
           name: Lint
-          command: lerna run --concurrency 1 lint
+          command: lerna run lint --concurrency 1 --include-dependencies --since
           working_directory: ./projects/javascript/
       - run:
           name: Build
-          command: lerna run --concurrency 1 build
+          command: lerna run build --concurrency 1 --include-dependencies --since
           working_directory: ./projects/javascript/
       - run:
           name: Test
-          command: lerna run --concurrency 1 test
+          command: lerna run test --concurrency 1 --include-dependencies --since
           working_directory: ./projects/javascript/
       - run:
           name: Merge Test Results
@@ -182,7 +183,7 @@ jobs:
           working_directory: /tmp/workspace/projects/javascript/
       - run:
           name: Lerna Bootstrap
-          command: lerna bootstrap
+          command: lerna bootstrap --concurrency 1
           working_directory: /tmp/workspace/projects/javascript/
       - run:
           name: Install Electron Builder Dependencies
@@ -225,7 +226,7 @@ jobs:
           working_directory: ./projects/javascript/
       - run:
           name: Lerna Bootstrap
-          command: lerna bootstrap
+          command: lerna bootstrap --concurrency 1
           working_directory: ./projects/javascript/
       - run:
           name: Build
