@@ -140,8 +140,11 @@ jobs:
       - run:
           name: Merge Test Results
           command: |
+            npm ci
             npm run merge:junit
             npm run merge:coverage
+
+            npm ci --prefix ./modules/mochawesome-merge-json/
             npm run merge:mochawesome
           working_directory: ./projects/javascript/nodejs/
           when: always
