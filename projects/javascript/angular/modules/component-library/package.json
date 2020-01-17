@@ -2,7 +2,7 @@
   "main": "./dist/angular/bundles/tenlastic-ng-component-library.umd.js",
   "name": "@tenlastic/ng-component-library",
   "typings": "./dist/angular/module.d.ts",
-  "version": "0.0.29",
+  "version": "0.0.30",
   "scripts": {
     "build": "ng build component-library",
     "lint": "ng lint component-library",
