@@ -101,106 +101,53 @@ commands:
             sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
             apt-get update && apt-get install -yq google-chrome-stable
 
-  install_node_modules:
-    parameters:
-      directory:
-        type: string
-      label:
-        type: string
-        default: Install Node Modules
-    steps:
-      - restore_cache:
-          key: dependency-cache-{{ checksum "<< parameters.directory >>/package.json" }}
-      - run:
-          name: Install Node Modules
-          command: npm ci
-          working_directory: << parameters.directory >>/
-      - run:
-          name: Install Lerna
-          command: npm i -g lerna
-          working_directory: << parameters.directory >>/
-      - run:
-          name: Lerna Bootstrap
-          command: lerna bootstrap
-          working_directory: << parameters.directory >>/
-      - save_cache:
-          key: dependency-cache-{{ checksum "<< parameters.directory >>/package.json" }}
-          paths:
-            - << parameters.directory >>/node_modules/
-
 jobs:
-  angular:
+  continuous_integration:
     docker:
       - image: node:10
-    steps:
-      - install_google_chrome
-      - checkout
-      - fetch_master_branch
-      - install_node_modules:
-          directory: ./projects/angular/
-      - run:
-          name: Lint
-          command: lerna run --since master lint
-          working_directory: ./projects/angular/
-      - run:
-          name: Build
-          command: |
-            lerna run --no-private build
-            lerna run --concurrency 1 --since master build:production
-          working_directory: ./projects/angular/
-      - run:
-          name: Test
-          command: lerna run --concurrency 1 --since master test:ci
-          working_directory: ./projects/angular/
-
-  nodejs:
-    docker:
-      - image: node:10
+      - image: mongo:4
+      - image: rabbitmq:latest
       - image: wurstmeister/kafka:latest
         environment:
           KAFKA_ADVERTISED_HOST_NAME: localhost
           KAFKA_ZOOKEEPER_CONNECT: localhost:2181
-      - image: mongo:4
-      - image: rabbitmq:latest
       - image: wurstmeister/zookeeper:latest
     steps:
+      - install_google_chrome
       - checkout
       - fetch_master_branch
-      - install_node_modules:
-          directory: ./projects/nodejs/
+      - run:
+          name: Install Lerna
+          command: npm i -g lerna
+          working_directory: ./projects/javascript/
+      - run:
+          name: Lerna Bootstrap
+          command: lerna bootstrap
+          working_directory: ./projects/javascript/
       - run:
           name: Lint
-          command: lerna run --since master lint
-          working_directory: ./projects/nodejs/
+          command: lerna run --concurrency 1 lint
+          working_directory: ./projects/javascript/
       - run:
           name: Build
-          command: |
-            lerna run --no-private build
-            lerna run --since master build
-          working_directory: ./projects/nodejs/
+          command: lerna run --concurrency 1 build
+          working_directory: ./projects/javascript/
       - run:
           name: Test
-          command: lerna run --concurrency 1 --since master test -- --coverage
-          working_directory: ./projects/nodejs/
+          command: lerna run --concurrency 1 test
+          working_directory: ./projects/javascript/
       - run:
           name: Merge Test Results
-          command: npm run merge:junit
-          working_directory: ./projects/nodejs/
-          when: always
-      - run:
-          name: Merge Code Coverage
-          command: npm run merge:coverage
-          working_directory: ./projects/nodejs/
-          when: always
-      - run:
-          name: Merge Mochawesome
-          command: npm run merge:mochawesome
-          working_directory: ./projects/nodejs/
+          command: |
+            npm run merge:junit
+            npm run merge:coverage
+            npm run merge:mochawesome
+          working_directory: ./projects/javascript/nodejs/
           when: always
       - store_test_results:
-          path: ./projects/nodejs/test-results/
+          path: ./projects/javascript/nodejs/test-results/
       - store_artifacts:
-          path: ./projects/nodejs/test-results/
+          path: ./projects/javascript/nodejs/test-results/
           destination: test-results
 
   publish_docker_images:
@@ -215,21 +162,13 @@ jobs:
           name: Install Lerna
           command: npm i -g lerna
       - run:
-          name: Build Docker Images (Angular)
-          command: lerna run docker:build
-          working_directory: /tmp/workspace/projects/angular/
+          name: Build Docker Images
+          command: lerna run --concurrency 1 docker:build
+          working_directory: /tmp/workspace/projects/javascript/
       - run:
-          name: Push Docker Images (Angular)
-          command: lerna run docker:push
-          working_directory: /tmp/workspace/projects/angular/
-      - run:
-          name: Build Docker Images (NodeJS)
-          command: lerna run docker:build
-          working_directory: /tmp/workspace/projects/nodejs/
-      - run:
-          name: Push Docker Images (NodeJS)
-          command: lerna run docker:push
-          working_directory: /tmp/workspace/projects/nodejs/
+          name: Push Docker Images
+          command: lerna run --concurrency 1 docker:push
+          working_directory: /tmp/workspace/projects/javascript/
 
   publish_electron_applications:
     docker:
@@ -237,16 +176,22 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
-      - install_node_modules:
-          directory: /tmp/workspace/projects/angular/
+      - run:
+          name: Install Lerna
+          command: npm i -g lerna
+          working_directory: /tmp/workspace/projects/javascript/
+      - run:
+          name: Lerna Bootstrap
+          command: lerna bootstrap
+          working_directory: /tmp/workspace/projects/javascript/
       - run:
           name: Install Electron Builder Dependencies
-          command: lerna run electron:install
-          working_directory: /tmp/workspace/projects/angular/
+          command: lerna run --concurrency 1 electron:install
+          working_directory: /tmp/workspace/projects/javascript/
       - run:
           name: Build and Publish Electron Applications
-          command: lerna run electron:windows
-          working_directory: /tmp/workspace/projects/angular/
+          command: lerna run --concurrency 1 electron:windows
+          working_directory: /tmp/workspace/projects/javascript/
 
   publish_miscellaneous_docker_images:
     docker:
@@ -260,7 +205,7 @@ jobs:
           label: Infrastructure Utilities
           repository: infrastructure-utilities
       - build_and_push_docker_image:
-          directory: ./projects/nodejs/dockerfiles/mongo-replica-set/
+          directory: ./projects/javascript/nodejs/dockerfiles/mongo-replica-set/
           label: MongoDB Replica Set
           repository: mongo-replica-set
 
@@ -274,89 +219,53 @@ jobs:
           command: |
             git config user.email $GITHUB_USER_EMAIL
             git config user.name $GITHUB_USER_NAME
-      - install_node_modules:
-          directory: ./projects/angular/
-          label: Install Node Modules (Angular)
       - run:
-          name: Build (Angular)
-          command: |
-            lerna run --no-private build
-            lerna run --concurrency 1 build:production
-          working_directory: ./projects/angular/
+          name: Install Lerna
+          command: npm i -g lerna
+          working_directory: ./projects/javascript/
       - run:
-          name: Update Version (Angular)
-          command: |
-            npm config set unsafe-perm true
-            lerna version \
-              --exact \
-              --no-git-tag-version \
-              --yes \
-              patch
-            npm config set unsafe-perm false
-          working_directory: ./projects/angular/
-      - install_node_modules:
-          directory: ./projects/nodejs/
-          label: Install Node Modules (NodeJS)
+          name: Lerna Bootstrap
+          command: lerna bootstrap
+          working_directory: ./projects/javascript/
       - run:
-          name: Build (NodeJS)
-          command: lerna run build
-          working_directory: ./projects/nodejs/
+          name: Build
+          command: lerna run --concurrency 1 build
+          working_directory: ./projects/javascript/
       - run:
-          name: Publish Node Modules to NPM (NodeJS)
+          name: Publish Node Modules to NPM
           command: |
             echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
 
             npm config set unsafe-perm true
             lerna publish \
               --exact \
-              --no-git-tag-version \
               --yes \
               patch
             npm config set unsafe-perm true
-          working_directory: ./projects/nodejs/
+          working_directory: ./projects/javascript/
       - run:
-          name: Publish Node Modules to Github (NodeJS)
+          name: Publish Node Modules to Github
           command: |
             echo "@tenlastic:registry=https://npm.pkg.github.com" > ~/.npmrc
             echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> ~/.npmrc
 
             lerna publish \
-              --no-git-tag-version \
               --registry https://npm.pkg.github.com \
               --yes \
               from-package
-          working_directory: ./projects/nodejs/
+          working_directory: ./projects/javascript/
       - run:
-          name: Commit Changes to Git
-          command: |
-            git add .
-            git commit -m "Lerna Package Updates"
-            git tag -a ${CIRCLE_SHA1}
-            git push --tags origin master
-      - run:
-          name: Delete Node Modules (Angular)
+          name: Delete Node Modules
           command: find . -name "node_modules" -exec rm -rf '{}' +
-          working_directory: ./projects/angular/
+          working_directory: ./projects/javascript/
       - copy_directory:
-          label: Persist Angular Directory
-          from: ./projects/angular/*
-          to: /tmp/workspace/projects/angular/
+          label: Persist Javascript Directory
+          from: ./projects/javascript/*
+          to: /tmp/workspace/projects/javascript/
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
-            - projects/angular/
-      - run:
-          name: Delete Node Modules (NodeJS)
-          command: find . -name "node_modules" -exec rm -rf '{}' +
-          working_directory: ./projects/nodejs/
-      - copy_directory:
-          label: Persist NodeJS Directory
-          from: ./projects/nodejs/*
-          to: /tmp/workspace/projects/nodejs/
-      - persist_to_workspace:
-          root: /tmp/workspace
-          paths:
-            - projects/nodejs/
+            - projects/javascript/
 
   terraform:
     docker:
@@ -380,8 +289,7 @@ workflows:
   version: 2.1
   build-deploy:
     jobs:
-      - angular
-      - nodejs:
+      - continuous_integration:
           context: open-platform-review
 
       - publish_miscellaneous_docker_images:
@@ -389,16 +297,14 @@ workflows:
             branches:
               only: master
           requires:
-            - angular
-            - nodejs
+            - continuous_integration
 
       - publish_npm_modules:
           filters:
             branches:
               only: master
           requires:
-            - angular
-            - nodejs
+            - continuous_integration
       - publish_docker_images:
           requires:
             - publish_npm_modules
@@ -411,5 +317,4 @@ workflows:
             branches:
               only: master
           requires:
-            - angular
-            - nodejs
+            - continuous_integration

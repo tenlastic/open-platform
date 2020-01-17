@@ -1,0 +1,42 @@
+{
+  "engines": {
+    "node": "^10"
+  },
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "name": "@tenlastic/web-server",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com/tenlastic/open-platform.git"
+  },
+  "version": "0.0.29",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "build:watch": "watch ../../scripts/build.sh ./src",
+    "docker": "sh ../../scripts/docker.sh npm run --if-present",
+    "lint": "../../scripts/lint.sh",
+    "test": "../../scripts/test.sh --code-coverage",
+    "test:watch": "../../scripts/test.sh --watch"
+  },
+  "dependencies": {
+    "@koa/cors": "3.0.0",
+    "jsonwebtoken": "8.5.1",
+    "koa": "2.7.0",
+    "koa-bodyparser": "4.2.1",
+    "koa-mount": "4.0.0",
+    "koa-router": "7.4.0",
+    "koa-static": "5.0.0",
+    "uuid": "3.3.2"
+  },
+  "devDependencies": {
+    "mocha": "6.1.4",
+    "nyc": "15.0.0",
+    "ts-node": "8.3.0",
+    "tslint": "5.18.0",
+    "typescript": "3.5.3",
+    "watch": "1.0.2"
+  }
+}

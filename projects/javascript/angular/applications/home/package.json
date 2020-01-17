@@ -1,0 +1,22 @@
+{
+  "name": "@tenlastic/home-ui",
+  "version": "0.0.29",
+  "scripts": {
+    "build": "ng build --preserve-symlinks --prod home",
+    "docker:build": "sh ../../scripts/docker-build.sh home home-ui",
+    "docker:push": "sh ../../scripts/docker-push.sh home-ui",
+    "e2e": "ng e2e home",
+    "lint": "ng lint home",
+    "start": "ng serve --port 8080 home",
+    "test": "ng test --code-coverage --watch false home",
+    "test:watch": "ng test home",
+    "version": "../../scripts/version.sh home-ui"
+  },
+  "private": true,
+  "devDependencies": {
+    "@angular/cli": "~8.3.21",
+    "@tenlastic/ng-authentication": "0.0.29",
+    "@tenlastic/ng-component-library": "0.0.29",
+    "@tenlastic/ng-http": "0.0.29"
+  }
+}

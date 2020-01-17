@@ -1,0 +1,13 @@
+*.tsbuildinfo
+.nyc_output
+lerna-debug.log
+package.json.lerna_backup
+settings.sh
+tscommand*.tmp.txt
+
+.tscache/
+coverage/
+dist/
+node_modules/
+test-results/
+*/*/*/release/
