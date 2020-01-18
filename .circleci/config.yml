@@ -106,7 +106,8 @@ jobs:
   continuous_integration:
     docker:
       - image: node:10
-      - image: minio:latest
+      - image: minio/minio:latest
+        command: minio server /data
       - image: mongo:4
       - image: rabbitmq:latest
       - image: wurstmeister/kafka:latest
