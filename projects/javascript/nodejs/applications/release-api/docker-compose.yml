@@ -6,6 +6,7 @@ services:
     environment:
       - JWT_SECRET
       - KAFKA_CONNECTION_STRING
+      - MINIO_CONNECTION_STRING
       - MONGO_CONNECTION_STRING
       - MONGO_DATABASE_NAME
     links:

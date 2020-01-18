@@ -1,0 +1,103 @@
+@import '../../../../../assets/scss/page.scss';
+
+form > ten-button {
+  margin-bottom: 8px;
+}
+
+mat-hint.mat-hint {
+  margin-bottom: 24px;
+}
+
+mat-list.mat-list {
+  background: rgba(255, 255, 255, 0.125);
+  margin-bottom: 4px;
+  max-height: 250px;
+  padding-top: 0px;
+  overflow-y: auto;
+
+  mat-list-item.mat-list-item {
+    color: white;
+    font-size: 0.9rem;
+    height: auto;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.125);
+    }
+
+    ::ng-deep {
+      div.mat-list-item-content {
+        justify-content: space-between;
+        padding: 4px 8px;
+
+        span {
+          white-space: nowrap;
+
+          &:first-of-type {
+            margin-right: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+    }
+  }
+}
+
+button.mat-button[centered] {
+  margin-bottom: 0px;
+}
+
+div.row {
+  margin: 8px 0px 0px;
+}
+
+form {
+  button {
+    display: block;
+    margin-top: 16px;
+  }
+
+  mat-form-field.mat-form-field {
+    display: inline-block;
+    width: 250px;
+  }
+
+  mat-select {
+    margin-top: -1px;
+  }
+
+  div.display-block {
+    display: block;
+  }
+
+  .form-field {
+    display: inline-block;
+    max-width: 640px;
+    vertical-align: top;
+
+    mat-label,
+    mat-hint {
+      color: white;
+      display: flex;
+      font-size: 0.75rem;
+      justify-content: space-between;
+    }
+
+    mat-label {
+      margin-bottom: 4px;
+      margin-top: -2px;
+    }
+  }
+
+  .margin-right {
+    margin-right: 16px;
+  }
+
+  .margin-top {
+    margin-top: 16px;
+  }
+}
+
+hr {
+  margin: 16px 0px !important;
+}

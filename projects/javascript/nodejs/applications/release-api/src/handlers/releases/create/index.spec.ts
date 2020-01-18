@@ -32,10 +32,8 @@ describe('handlers/releases/create', function() {
       const ctx = new ContextMock({
         request: {
           body: {
-            executableRelativePath: chance.hash(),
+            entrypoint: chance.hash(),
             gameId: game._id,
-            platform: ReleaseMock.getPlatform(),
-            serverRootUrl: chance.hash(),
             version: chance.hash(),
           },
         },
@@ -56,10 +54,8 @@ describe('handlers/releases/create', function() {
       const ctx = new ContextMock({
         request: {
           body: {
-            executableRelativePath: chance.hash(),
+            entrypoint: chance.hash(),
             gameId: game._id,
-            platform: ReleaseMock.getPlatform(),
-            serverRootUrl: chance.hash(),
             version: chance.hash(),
           },
         },

@@ -31,7 +31,7 @@ MAILGUN_DOMAIN="support.example.com"
 MAILGUN_KEY="a1234a123abc12ab12a1abc123456a12-1ab1a1a1-abc1234a"
 
 # Minio
-MINIO_CONNECTION_STRING="http://minioadmin:minioadmin@localhost:9000"
+MINIO_CONNECTION_STRING="http://minioadmin:minioadmin@minio:9000"
 
 # Mongo
 MONGO_CONNECTION_STRING="mongodb://mongo:27017,mongo:27018,mongo:27019/admin?replicaSet=rs0"

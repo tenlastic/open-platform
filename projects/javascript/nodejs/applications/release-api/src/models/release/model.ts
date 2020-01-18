@@ -3,6 +3,7 @@ import {
   Ref,
   ReturnModelType,
   getModelForClass,
+  index,
   modelOptions,
   plugin,
   prop,
@@ -20,15 +21,7 @@ import { ReadonlyGame, ReadonlyGameDocument } from '../readonly-game';
 export const ReleaseEvent = new EventEmitter<IDatabasePayload<ReleaseDocument>>();
 ReleaseEvent.on(kafka.publish);
 
-export enum ReleasePlatform {
-  Windows64 = 'windows64',
-  Windows32 = 'windows32',
-  Mac64 = 'mac64',
-  Mac32 = 'mac32',
-  Linux64 = 'linux64',
-  Linux32 = 'linux32',
-}
-
+@index({ version: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
@@ -46,19 +39,13 @@ export class ReleaseSchema {
   public createdAt: Date;
 
   @prop({ required: true })
-  public executableRelativePath: string;
+  public entrypoint: string;
 
   @prop({ ref: ReadonlyGame, required: true })
   public gameId: Ref<ReadonlyGameDocument>;
 
-  @prop({ enum: ReleasePlatform, required: true })
-  public platform: ReleasePlatform;
-
   @prop()
   public publishedAt: Date;
-
-  @prop({ required: true })
-  public serverRootUrl: string;
 
   @prop({ required: true })
   public version: string;

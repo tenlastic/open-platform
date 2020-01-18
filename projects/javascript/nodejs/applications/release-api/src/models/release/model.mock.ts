@@ -1,7 +1,7 @@
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
-import { Release, ReleasePlatform, ReleaseSchema } from './model';
+import { Release, ReleaseSchema } from './model';
 
 export class ReleaseMock {
   /**
@@ -12,20 +12,11 @@ export class ReleaseMock {
     const chance = new Chance();
 
     const defaults = {
-      executableRelativePath: './',
+      entrypoint: './',
       gameId: mongoose.Types.ObjectId(),
-      platform: this.getPlatform(),
-      serverRootUrl: chance.url(),
       version: chance.hash(),
     };
 
     return Release.create({ ...defaults, ...params });
-  }
-
-  public static getPlatform() {
-    const values = Object.values(ReleasePlatform);
-    const index = Math.floor(Math.random() * values.length);
-
-    return values[index];
   }
 }

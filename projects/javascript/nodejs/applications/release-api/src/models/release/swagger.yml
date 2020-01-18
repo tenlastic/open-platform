@@ -9,19 +9,14 @@ components:
         createdAt:
           type: string
           format: date-time
-        executableRelativePath:
+        entrypoint:
           type: string
         gameId:
           type: string
           format: ^[a-f0-9]{24}$
-        platform:
-          type: string
-          enum: windows64, windows32, mac64, mac32, linux64, linux32
         publishedAt:
           type: string
           format: date-time
-        serverRootUrl:
-          type: string
         version:
           type: string
         updatedAt:

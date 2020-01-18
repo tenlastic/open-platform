@@ -1,11 +1,25 @@
 import 'source-map-support/register';
 
+import * as minio from '@tenlastic/minio';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { WebServer } from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
 
 import { router as releasesRouter } from './handlers/releases';
 import { ReadonlyGame, ReadonlyNamespace, ReadonlyUser } from './models';
+
+const minioConnectionUrl = new URL(process.env.MINIO_CONNECTION_STRING);
+minio.connect({
+  accessKey: minioConnectionUrl.username,
+  endPoint: minioConnectionUrl.hostname,
+  port: Number(minioConnectionUrl.port || '443'),
+  secretKey: minioConnectionUrl.password,
+  useSSL: minioConnectionUrl.protocol === 'https',
+});
+
+async () => {
+  await minio.getClient().makeBucket('releases', 'us-east-1');
+};
 
 mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
   dbName: process.env.MONGO_DATABASE_NAME,
