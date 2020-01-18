@@ -1,0 +1,31 @@
+paths:
+  /releases/{releaseId}/files:
+    post:
+      summary: Create
+      tags: [Files]
+      description: Creates a new record.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: releaseId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/File'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  presignedUrl:
+                    type: string
+                  record:
+                    $ref: '#/components/schemas/File'

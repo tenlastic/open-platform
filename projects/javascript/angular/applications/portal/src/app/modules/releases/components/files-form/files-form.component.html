@@ -1,0 +1,49 @@
+<form [formGroup]="form" autocomplete="off">
+  <input
+    #selectFilesInput
+    directory
+    hidden
+    webkitdirectory
+    type="file"
+    (change)="onFilesChanged($event)"
+  />
+  <ten-button *ngIf="!updatedFiles.length" color="primary" (OnClick)="selectFilesInput.click()">
+    <span>Browse</span>
+  </ten-button>
+
+  <div *ngIf="updatedFiles.length" class="row">
+    <mat-form-field class="inline-block" floatLabel="always">
+      <mat-label>Entrypoint</mat-label>
+      <mat-select required>
+        <mat-option *ngFor="let executable of executables" [value]="executable">
+          {{ executable }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div *ngIf="updatedFiles.length" class="display-block form-field">
+    <mat-label>
+      <span>Files</span>
+    </mat-label>
+
+    <mat-list class="updated-files">
+      <mat-list-item *ngFor="let updatedFile of updatedFiles">
+        <span>{{ updatedFile.relativePath }}</span>
+        <span>{{ updatedFile.size | filesize }}</span>
+      </mat-list-item>
+    </mat-list>
+
+    <mat-hint>
+      <span>Count: {{ updatedFiles.length }}</span>
+      <span>Size: {{ updatedFiles | sum: 'size' | filesize }}</span>
+    </mat-hint>
+  </div>
+
+  <div *ngIf="error" class="form-error">
+    {{ error }}
+  </div>
+
+  <ten-button *ngIf="updatedFiles.length" color="primary">Upload</ten-button>
+  <ten-button *ngIf="updatedFiles.length" color="accent">Cancel</ten-button>
+</form>

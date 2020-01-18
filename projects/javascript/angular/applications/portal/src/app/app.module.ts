@@ -47,6 +47,12 @@ export const ROUTES: Routes = [
     component: OAuthComponent,
   },
   {
+    path: 'releases',
+    component: LayoutComponent,
+    loadChildren: () => import('./modules/releases/releases.module').then(m => m.ReleaseModule),
+    canActivate: [LoginGuard, NamespaceGuard],
+  },
+  {
     path: 'reset-password/:hash',
     loadChildren: () => import('./modules/login/login.module').then(m => m.LoginModule),
   },

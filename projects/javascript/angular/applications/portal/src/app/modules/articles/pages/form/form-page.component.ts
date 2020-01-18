@@ -21,7 +21,6 @@ export class ArticlesFormPageComponent implements OnInit {
   ];
 
   private game: Game;
-  private gameSlug: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -37,11 +36,17 @@ export class ArticlesFormPageComponent implements OnInit {
     this.activatedRoute.paramMap.subscribe(async params => {
       const { namespaceId } = this.selectedNamespaceService;
       this.games = await this.gameService.find({ where: { namespaceId } });
-      this.gameSlug = params.get('gameSlug');
 
       const _id = params.get('_id');
       if (_id !== 'new') {
         this.data = await this.articleService.findOne(_id);
+      }
+
+      const gameSlug = params.get('gameSlug');
+      if (gameSlug) {
+        this.game = this.games.find(g => g.slug === gameSlug);
+      } else if (this.data) {
+        this.game = this.games.find(g => g._id === this.data.gameId);
       }
 
       this.setupForm();
@@ -89,7 +94,7 @@ export class ArticlesFormPageComponent implements OnInit {
     this.form = this.formBuilder.group({
       body: [this.data.body, Validators.required],
       caption: [this.data.caption],
-      gameId: [this.gameSlug, Validators.required],
+      gameId: [this.game ? this.game._id : null, Validators.required],
       title: [this.data.title, Validators.required],
       type: [this.data.type || this.types[0].value, Validators.required],
     });

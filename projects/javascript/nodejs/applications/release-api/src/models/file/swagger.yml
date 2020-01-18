@@ -1,0 +1,26 @@
+components:
+  schemas:
+    File:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[a-f0-9]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        md5:
+          type: string
+        path:
+          type: string
+        platform:
+          type: string
+          enum: windows64, windows32, mac64, mac32, linux64, linux32
+        releaseId:
+          type: string
+          format: ^[a-f0-9]{24}$
+        url:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time

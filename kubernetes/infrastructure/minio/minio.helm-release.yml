@@ -28,6 +28,9 @@ spec:
                   values:
                     - minio
             topologyKey: kubernetes.io/hostname
+    buckets:
+      - launcher
+      - releases
     existingSecret: minio
     mode: distributed
     persistence:

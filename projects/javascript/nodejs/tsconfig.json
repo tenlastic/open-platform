@@ -9,6 +9,7 @@
     "paths": {
       "@tenlastic/json-schema": ["./modules/json-schema/src"],
       "@tenlastic/mailgun": ["./modules/mailgun/src"],
+      "@tenlastic/minio": ["./modules/minio/src"],
       "@tenlastic/mongoose-change-stream": ["./modules/mongoose-change-stream/src"],
       "@tenlastic/mongoose-change-stream-kafka": ["./modules/mongoose-change-stream-kafka/src"],
       "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],

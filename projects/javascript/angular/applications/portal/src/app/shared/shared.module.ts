@@ -13,7 +13,7 @@ import {
   PromptComponent,
   ToggleSectionComponent,
 } from './components';
-import { AsAnyPipe, CamelCaseToTitleCasePipe, KeysPipe } from './pipes';
+import { AsAnyPipe, CamelCaseToTitleCasePipe, FilesizePipe, KeysPipe, SumPipe } from './pipes';
 
 const components = [
   InputPromptComponent,
@@ -31,7 +31,7 @@ const modules = [
   ReactiveFormsModule,
   RouterModule,
 ];
-const pipes = [AsAnyPipe, CamelCaseToTitleCasePipe, KeysPipe];
+const pipes = [AsAnyPipe, CamelCaseToTitleCasePipe, FilesizePipe, KeysPipe, SumPipe];
 
 @NgModule({
   declarations: [...components, ...pipes],

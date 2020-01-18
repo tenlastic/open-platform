@@ -5,22 +5,8 @@ import { Release, ReleaseDocument } from './model';
 export const ReleasePermissions = new MongoosePermissions<ReleaseDocument>(Release, {
   create: {
     roles: {
-      'namespace-administrator': [
-        'executableRelativePath',
-        'gameId',
-        'platform',
-        'publishedAt',
-        'serverRootUrl',
-        'version',
-      ],
-      'system-administrator': [
-        'executableRelativePath',
-        'gameId',
-        'platform',
-        'publishedAt',
-        'serverRootUrl',
-        'version',
-      ],
+      'namespace-administrator': ['entrypoint', 'gameId', 'publishedAt', 'version'],
+      'system-administrator': ['entrypoint', 'gameId', 'publishedAt', 'version'],
     },
   },
   delete: {
@@ -66,17 +52,7 @@ export const ReleasePermissions = new MongoosePermissions<ReleaseDocument>(Relea
   },
   populate: [{ path: 'gameDocument', populate: { path: 'namespaceDocument' } }],
   read: {
-    base: [
-      '_id',
-      'createdAt',
-      'executableRelativePath',
-      'gameId',
-      'platform',
-      'publishedAt',
-      'serverRootUrl',
-      'version',
-      'updatedAt',
-    ],
+    base: ['_id', 'createdAt', 'entrypoint', 'gameId', 'publishedAt', 'version', 'updatedAt'],
   },
   roles: [
     {
@@ -99,22 +75,8 @@ export const ReleasePermissions = new MongoosePermissions<ReleaseDocument>(Relea
   ],
   update: {
     roles: {
-      'namespace-administrator': [
-        'executableRelativePath',
-        'gameId',
-        'platform',
-        'publishedAt',
-        'serverRootUrl',
-        'version',
-      ],
-      'system-administrator': [
-        'executableRelativePath',
-        'gameId',
-        'platform',
-        'publishedAt',
-        'serverRootUrl',
-        'version',
-      ],
+      'namespace-administrator': ['entrypoint', 'gameId', 'publishedAt', 'version'],
+      'system-administrator': ['entrypoint', 'gameId', 'publishedAt', 'version'],
     },
   },
 });

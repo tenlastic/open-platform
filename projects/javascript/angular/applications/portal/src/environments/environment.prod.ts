@@ -8,5 +8,6 @@ export const environment = {
   namespaceApiBaseUrl: 'https://api.tenlastic.com/namespaces',
   passwordResetApiBaseUrl: 'https://api.tenlastic.com/password-resets',
   production: true,
+  releaseApiBaseUrl: 'https://api.tenlastic.com/releases',
   userApiBaseUrl: 'https://api.tenlastic.com/users',
 };

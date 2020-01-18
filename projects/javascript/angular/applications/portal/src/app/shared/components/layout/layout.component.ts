@@ -33,6 +33,12 @@ export class LayoutComponent {
     },
     { icon: 'layers', label: 'Namespaces', path: '/namespaces' },
     {
+      condition: () => this.selectedNamespaceService && this.selectedNamespaceService.namespaceId,
+      icon: 'unarchive',
+      label: 'Releases',
+      path: '/releases',
+    },
+    {
       condition: () =>
         this.identityService &&
         this.identityService.user &&

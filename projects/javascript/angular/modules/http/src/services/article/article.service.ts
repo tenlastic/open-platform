@@ -13,7 +13,7 @@ export class ArticleService {
   public onUpdate = new EventEmitter<Article>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
-    this.basePath = this.environmentService.gameApiBaseUrl;
+    this.basePath = this.environmentService.articleApiBaseUrl;
   }
 
   public async create(parameters: Partial<Article>): Promise<Article> {
