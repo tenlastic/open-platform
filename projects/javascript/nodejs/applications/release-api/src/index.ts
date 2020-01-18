@@ -17,6 +17,10 @@ minio.connect({
   useSSL: minioConnectionUrl.protocol === 'https',
 });
 
+async () => {
+  await minio.getClient().makeBucket('releases', 'us-east-1');
+};
+
 mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
   dbName: process.env.MONGO_DATABASE_NAME,
   useCreateIndex: true,

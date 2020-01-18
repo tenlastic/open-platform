@@ -39,7 +39,6 @@ describe('handlers/files/find', function() {
 
     await handler(ctx as any);
 
-    console.log(ctx.response.body.presignedUrls);
     expect(ctx.response.body.presignedUrls.length).to.eql(1);
     expect(ctx.response.body.records.length).to.eql(1);
     expect(ctx.response.body.records[0]._id.toString()).to.eql(record._id.toString());

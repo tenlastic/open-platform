@@ -12,7 +12,7 @@ export class FileMock {
     const chance = new Chance();
 
     const defaults = {
-      path: this.getPlatform(),
+      path: chance.hash(),
       platform: this.getPlatform(),
       releaseId: mongoose.Types.ObjectId(),
       url: chance.hash(),

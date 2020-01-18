@@ -1,6 +1,6 @@
 import { SumPipe } from './sum.pipe';
 
-fdescribe('SumPipe', () => {
+describe('SumPipe', () => {
   let pipe: SumPipe;
 
   beforeEach(() => {
