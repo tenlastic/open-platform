@@ -1,6 +1,6 @@
 {
   "name": "@tenlastic/portal-ui",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "scripts": {
     "build": "ng build --preserve-symlinks --prod portal",
     "docker:build": "sh ../../scripts/docker-build.sh portal portal-ui",
@@ -15,8 +15,8 @@
   "private": true,
   "devDependencies": {
     "@angular/cli": "~8.3.21",
-    "@tenlastic/ng-authentication": "0.0.32",
-    "@tenlastic/ng-component-library": "0.0.32",
-    "@tenlastic/ng-http": "0.0.32"
+    "@tenlastic/ng-authentication": "0.0.33",
+    "@tenlastic/ng-component-library": "0.0.33",
+    "@tenlastic/ng-http": "0.0.33"
   }
 }
