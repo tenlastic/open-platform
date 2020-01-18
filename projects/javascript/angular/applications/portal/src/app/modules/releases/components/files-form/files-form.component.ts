@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import { IRelease, Release } from '@tenlastic/ng-http';
-import * as JSZip from 'jszip';
 
 import { FileReaderService } from '../../../../core/services';
 
@@ -12,7 +11,6 @@ export interface FileFormComponentData {
 
 export interface UpdatedFile {
   arrayBuffer: ArrayBuffer;
-  md5: string;
   relativePath: string;
   size: number;
 }
@@ -53,15 +51,6 @@ export class FilesFormComponent implements OnInit {
       return;
     }
 
-    const zip = new JSZip();
-    this.updatedFiles.forEach(updatedFile => {
-      const blob = this.fileReaderService.arrayBufferToBlob(updatedFile.arrayBuffer);
-      zip.file(updatedFile.relativePath, blob);
-    });
-
-    const zipBlob = await zip.generateAsync({ type: 'blob' });
-    this.form.get('zip').setValue(zipBlob);
-
     this.OnSubmit.emit({
       platform: this.form.get('platform').value,
     });
@@ -88,8 +77,7 @@ export class FilesFormComponent implements OnInit {
         this.executables.push(relativePath);
       }
 
-      const md5 = this.fileReaderService.arrayBufferToMd5(content);
-      this.updatedFiles.push({ arrayBuffer: content, md5, relativePath, size: file.size });
+      this.updatedFiles.push({ arrayBuffer: content, relativePath, size: file.size });
     }
 
     this.processingMessage = null;
