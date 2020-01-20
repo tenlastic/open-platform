@@ -1,5 +1,5 @@
 paths:
-  /releases/{releaseId}/files:
+  /releases/{releaseId}/platforms/{platform}/files:
     get:
       summary: Find
       tags: [Files]
@@ -9,6 +9,11 @@ paths:
       parameters:
         - in: path
           name: releaseId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: platform
           schema:
             type: string
           required: true

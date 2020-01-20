@@ -77,10 +77,10 @@ export class ReleasesFormPageComponent implements OnInit {
 
   private async create(data: Partial<Release>) {
     try {
-      await this.releaseService.create(data);
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+      const result = await this.releaseService.create(data);
+      this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
     } catch (e) {
-      this.error = 'That slug is already taken.';
+      this.error = 'That version is already taken.';
     }
   }
 
@@ -101,9 +101,8 @@ export class ReleasesFormPageComponent implements OnInit {
 
     try {
       await this.releaseService.update(data);
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
-      this.error = 'That slug is already taken.';
+      this.error = 'That version is already taken.';
     }
   }
 }

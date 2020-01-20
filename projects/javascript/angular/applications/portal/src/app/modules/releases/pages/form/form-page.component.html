@@ -37,12 +37,14 @@
     <ten-button color="primary" (OnClick)="save()">Save</ten-button>
     <ten-button color="accent" routerLink="../">Cancel</ten-button>
 
-    <app-toggle-section
-      *ngFor="let platform of platforms"
-      [isVisible]="false"
-      [title]="platform.label"
-    >
-      <app-files-form></app-files-form>
-    </app-toggle-section>
+    <ng-container *ngIf="data._id">
+      <app-toggle-section
+        *ngFor="let platform of platforms"
+        [isVisible]="false"
+        [title]="platform.label"
+      >
+        <app-files-form [platform]="platform.value" [release]="data"></app-files-form>
+      </app-toggle-section>
+    </ng-container>
   </form>
 </div>

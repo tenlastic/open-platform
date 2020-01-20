@@ -27,11 +27,13 @@
     "@tenlastic/mongoose-permissions": "0.0.33",
     "@tenlastic/mongoose-unique-error": "0.0.33",
     "@tenlastic/web-server": "0.0.33",
+    "busboy": "0.3.1",
     "chance": "1.0.16",
     "koa-router": "7.4.0",
     "minio": "7.0.13",
     "mongoose": "5.7.11",
-    "source-map-support": "0.5.12"
+    "source-map-support": "0.5.12",
+    "unzipper": "0.10.5"
   },
   "devDependencies": {
     "merge-yaml-cli": "1.1.2",

@@ -48,17 +48,6 @@
     line-height: normal;
     padding: 8px 14px;
 
-    &[color='primary'] {
-      background: $primary;
-      box-shadow: 3px 4px 5px #000000, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
-      color: white;
-
-      &:hover {
-        background: $primary-highlight;
-        color: white;
-      }
-    }
-
     &[color='accent'] {
       background: transparent;
       color: white;
@@ -66,6 +55,29 @@
       &:hover {
         background: rgba(255, 255, 255, 0.1);
         box-shadow: 3px 4px 5px #000000, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
+      }
+    }
+
+    &[color='primary'] {
+      box-shadow: 3px 4px 5px #000000, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
+      color: white;
+
+      &:not([disabled]) {
+        background: $primary;
+
+        &:hover {
+          background: $primary-highlight;
+          color: white;
+        }
+      }
+
+      &[disabled] {
+        background: #707070;
+        cursor: initial;
+
+        &:hover {
+          background: #707070;
+        }
       }
     }
 

@@ -1,7 +1,8 @@
 @import '../../../../../assets/scss/page.scss';
 
-form > ten-button {
+ten-button {
   margin-bottom: 8px;
+  margin-right: 8px;
 }
 
 mat-hint.mat-hint {
@@ -9,7 +10,7 @@ mat-hint.mat-hint {
 }
 
 mat-list.mat-list {
-  background: rgba(255, 255, 255, 0.125);
+  background: rgba(255, 255, 255, 0.1);
   margin-bottom: 4px;
   max-height: 250px;
   padding-top: 0px;
@@ -20,8 +21,26 @@ mat-list.mat-list {
     font-size: 0.9rem;
     height: auto;
 
-    &:hover {
-      background: rgba(255, 255, 255, 0.125);
+    &[status='modified'] {
+      background: rgba(128, 255, 128, 0.1);
+
+      &:hover {
+        background: rgba(128, 255, 128, 0.2);
+      }
+    }
+
+    &[status='removed'] {
+      background: rgba(255, 128, 128, 0.1);
+
+      &:hover {
+        background: rgba(255, 128, 128, 0.2);
+      }
+    }
+
+    &[status='unmodified'] {
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
     }
 
     ::ng-deep {
@@ -43,37 +62,43 @@ mat-list.mat-list {
   }
 }
 
+mat-spinner.mat-spinner {
+  filter: drop-shadow(1px 1px 1px black);
+  margin-right: 4px;
+  margin-top: -3px;
+}
+
 button.mat-button[centered] {
   margin-bottom: 0px;
 }
 
-div.row {
-  margin: 8px 0px 0px;
+mat-form-field.mat-form-field {
+  display: inline-block;
+  width: 250px;
 }
 
-form {
-  button {
-    display: block;
-    margin-top: 16px;
-  }
+mat-select {
+  margin-top: -1px;
+}
 
-  mat-form-field.mat-form-field {
-    display: inline-block;
-    width: 250px;
-  }
+div.display-block {
+  display: block;
+}
 
-  mat-select {
-    margin-top: -1px;
-  }
+div.row {
+  margin: 8px 0px 0px;
 
-  div.display-block {
-    display: block;
-  }
-
-  .form-field {
-    display: inline-block;
-    max-width: 640px;
+  div.col-sm-6 {
+    padding: 0px;
     vertical-align: top;
+
+    &:first-of-type {
+      padding-right: 8px;
+    }
+
+    &:nth-of-type(2) {
+      padding-left: 8px;
+    }
 
     mat-label,
     mat-hint {
@@ -88,14 +113,14 @@ form {
       margin-top: -2px;
     }
   }
+}
 
-  .margin-right {
-    margin-right: 16px;
-  }
+.margin-right {
+  margin-right: 16px;
+}
 
-  .margin-top {
-    margin-top: 16px;
-  }
+.margin-top {
+  margin-top: 16px;
 }
 
 hr {

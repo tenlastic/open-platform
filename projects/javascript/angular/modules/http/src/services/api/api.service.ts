@@ -22,7 +22,7 @@ export class ApiService {
    * @param params The parameters to pass to the endpoint. Ex: { where: { name: 'John Doe' }, limit: 10, sort: 'name' }.
    */
   public request(method: RequestMethod, url: string, params?: any): Promise<any> {
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    const headers = new HttpHeaders();
     const options: any = { headers };
 
     if ((method === 'get' || method === 'delete') && params) {

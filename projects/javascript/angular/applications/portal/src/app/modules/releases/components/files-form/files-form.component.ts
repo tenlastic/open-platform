@@ -1,18 +1,29 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { IdentityService } from '@tenlastic/ng-authentication';
-import { IRelease, Release } from '@tenlastic/ng-http';
+import { FileService, IRelease, Release, ReleaseService } from '@tenlastic/ng-http';
+import JSZip from 'jszip';
 
 import { FileReaderService } from '../../../../core/services';
+import { MatSelectChange } from '@angular/material';
 
 export interface FileFormComponentData {
   platform: IRelease.Platform;
 }
 
 export interface UpdatedFile {
-  arrayBuffer: ArrayBuffer;
-  relativePath: string;
+  arrayBuffer?: ArrayBuffer;
+  md5: string;
+  path: string;
   size: number;
+  status: string;
 }
 
 @Component({
@@ -21,39 +32,50 @@ export interface UpdatedFile {
   styleUrls: ['files-form.component.scss'],
 })
 export class FilesFormComponent implements OnInit {
+  @Input() public platform: string;
   @Input() public release = new Release();
   @Output() public OnSubmit = new EventEmitter<FileFormComponentData>();
+  @ViewChild('selectFilesInput', { static: true }) public selectFilesInput: ElementRef;
 
   public error: string;
-  public executable: string;
-  public executables: string[] = [];
-  public form: FormGroup;
-  public processingMessage: string;
-  public updatedFiles: UpdatedFile[] = [];
+  public loadingMessage: string;
+  public get modifiedFiles() {
+    return this.stagedFiles.filter(f => f.status === 'modified');
+  }
+  public previousFiles: any[] = [];
+  public previousRelease: Release;
+  public releases: Release[] = [];
+  public get removedFiles() {
+    return this.stagedFiles.filter(f => f.status === 'removed');
+  }
+  public stagedFiles: UpdatedFile[] = [];
+  public status: string;
+  public get unmodifiedFiles() {
+    return this.stagedFiles.filter(f => f.status === 'unmodified');
+  }
 
   constructor(
     private fileReaderService: FileReaderService,
-    private formBuilder: FormBuilder,
+    private fileService: FileService,
     public identityService: IdentityService,
+    private releaseService: ReleaseService,
   ) {}
 
-  public ngOnInit() {
-    this.setupForm();
+  public async ngOnInit() {
+    this.releases = await this.releaseService.find({
+      sort: 'publishedAt',
+      where: { gameId: this.release.gameId },
+    });
+
+    if (this.releases.length) {
+      const release = this.releases.find(r => r.publishedAt);
+      await this.setPreviousRelease(release || this.releases[0]);
+    }
   }
 
-  public async onSubmit($event) {
-    $event.preventDefault();
-
-    if (this.form.invalid) {
-      this.form.get('platform').markAsTouched();
-      this.form.get('zip').markAsTouched();
-
-      return;
-    }
-
-    this.OnSubmit.emit({
-      platform: this.form.get('platform').value,
-    });
+  public cancel() {
+    this.selectFilesInput.nativeElement.value = [];
+    this.stagedFiles = [];
   }
 
   public async onFilesChanged($event) {
@@ -62,30 +84,78 @@ export class FilesFormComponent implements OnInit {
       return;
     }
 
-    this.executables = [];
-    this.processingMessage = 'Calculating file changes...';
-    this.updatedFiles = [];
+    this.status = 'Calculating file changes...';
+    this.stagedFiles = [];
 
+    const sortArray = ['modified', 'removed', 'unmodified'];
     for (const file of files) {
       const content = await this.fileReaderService.fileToArrayBuffer(file);
-      const relativePath = file.webkitRelativePath.substring(
-        file.webkitRelativePath.indexOf('/') + 1,
-      );
+      const path = file.webkitRelativePath.substring(file.webkitRelativePath.indexOf('/') + 1);
+      const previousFile = this.previousFiles.find(p => p.path === path);
 
-      const executableRegex = /^.*\.exe$/;
-      if (executableRegex.test(relativePath)) {
-        this.executables.push(relativePath);
-      }
+      const md5 = this.fileReaderService.arrayBufferToMd5(content);
+      const status = !previousFile || previousFile.md5 !== md5 ? 'modified' : 'unmodified';
 
-      this.updatedFiles.push({ arrayBuffer: content, relativePath, size: file.size });
+      this.stagedFiles.push({ arrayBuffer: content, md5, path, size: file.size, status });
+      this.stagedFiles.sort((a, b) => sortArray.indexOf(a.status) - sortArray.indexOf(b.status));
     }
 
-    this.processingMessage = null;
+    const updatedFilePaths = this.stagedFiles.map(u => u.path);
+    const removedFiles = this.previousFiles
+      .filter(f => !updatedFilePaths.includes(f.path))
+      .map(f => ({ md5: f.md5, path: f.path, size: 0, status: 'removed' }));
+    this.stagedFiles = this.stagedFiles
+      .concat(removedFiles)
+      .sort((a, b) => sortArray.indexOf(a.status) - sortArray.indexOf(b.status));
+
+    this.status = null;
   }
 
-  private setupForm(): void {
-    this.form = this.formBuilder.group({});
+  public async setPreviousRelease(value: Release) {
+    this.cancel();
+    this.status = 'Retrieving files from previous Release...';
 
-    this.form.valueChanges.subscribe(() => (this.error = null));
+    this.previousRelease = value;
+
+    this.previousFiles = await this.fileService.find(this.previousRelease._id, this.platform, {
+      limit: 1000,
+      sort: 'path',
+    });
+
+    this.status = null;
+  }
+
+  public async upload() {
+    this.status = 'Zipping files...';
+
+    const zip = new JSZip();
+    this.stagedFiles
+      .filter(u => u.status === 'modified')
+      .forEach(u => {
+        const blob = this.fileReaderService.arrayBufferToBlob(u.arrayBuffer);
+        zip.file(u.path, blob);
+      });
+
+    const zipBlob = await zip.generateAsync({
+      compression: 'DEFLATE',
+      compressionOptions: {
+        level: 5,
+      },
+      type: 'blob',
+    });
+
+    this.status = 'Uploading files...';
+
+    await this.fileService.upload(this.release._id, this.platform, {
+      modified: this.modifiedFiles.map(f => f.path),
+      previousReleaseId: this.previousRelease._id,
+      removed: this.removedFiles.map(f => f.path),
+      unmodified: this.unmodifiedFiles.map(f => f.path),
+      zip: zipBlob,
+    });
+
+    this.status = null;
+
+    this.setPreviousRelease(this.releases.find(r => r._id === this.release._id));
   }
 }

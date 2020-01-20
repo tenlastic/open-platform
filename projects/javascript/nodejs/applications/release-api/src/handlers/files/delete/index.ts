@@ -10,7 +10,7 @@ export async function handler(ctx: Context) {
   }
 
   const where = await FilePermissions.where(
-    { releaseId: release._id, name: ctx.params.name },
+    { _id: ctx.params._id, platform: ctx.params.platform, releaseId: release._id },
     ctx.state.user,
   );
   const record = await File.findOne(where).populate(FilePermissions.accessControl.options.populate);

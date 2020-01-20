@@ -1,49 +1,90 @@
-<form [formGroup]="form" autocomplete="off">
-  <input
-    #selectFilesInput
-    directory
-    hidden
-    webkitdirectory
-    type="file"
-    (change)="onFilesChanged($event)"
-  />
-  <ten-button *ngIf="!updatedFiles.length" color="primary" (OnClick)="selectFilesInput.click()">
-    <span>Browse</span>
-  </ten-button>
+<input
+  #selectFilesInput
+  directory
+  hidden
+  webkitdirectory
+  type="file"
+  (change)="onFilesChanged($event)"
+/>
 
-  <div *ngIf="updatedFiles.length" class="row">
-    <mat-form-field class="inline-block" floatLabel="always">
-      <mat-label>Entrypoint</mat-label>
-      <mat-select required>
-        <mat-option *ngFor="let executable of executables" [value]="executable">
-          {{ executable }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
+<div class="row">
+  <mat-form-field class="inline-block" floatLabel="always">
+    <mat-label>Previous Release</mat-label>
+    <mat-select
+      *ngIf="releases.length"
+      [(ngModel)]="previousRelease"
+      (selectionChange)="setPreviousRelease($event.value)"
+    >
+      <mat-option *ngFor="let release of releases" [value]="release">
+        {{ release.version }}
+      </mat-option>
+    </mat-select>
+    <input *ngIf="!releases.length" disabled matInput value="No Previous Releases" />
+  </mat-form-field>
+</div>
 
-  <div *ngIf="updatedFiles.length" class="display-block form-field">
+<div class="row">
+  <div *ngIf="previousFiles.length" class="col-sm-6">
     <mat-label>
-      <span>Files</span>
+      <span>Previous Files</span>
     </mat-label>
 
-    <mat-list class="updated-files">
-      <mat-list-item *ngFor="let updatedFile of updatedFiles">
-        <span>{{ updatedFile.relativePath }}</span>
-        <span>{{ updatedFile.size | filesize }}</span>
+    <mat-list>
+      <mat-list-item *ngFor="let previousFile of previousFiles" [attr.status]="previousFile.status">
+        <span>{{ previousFile.path }}</span>
       </mat-list-item>
     </mat-list>
 
     <mat-hint>
-      <span>Count: {{ updatedFiles.length }}</span>
-      <span>Size: {{ updatedFiles | sum: 'size' | filesize }}</span>
+      <span>Count: {{ previousFiles.length }}</span>
     </mat-hint>
   </div>
 
-  <div *ngIf="error" class="form-error">
-    {{ error }}
-  </div>
+  <div *ngIf="stagedFiles.length" class="col-sm-6">
+    <mat-label>
+      <span>Staged Files</span>
+    </mat-label>
 
-  <ten-button *ngIf="updatedFiles.length" color="primary">Upload</ten-button>
-  <ten-button *ngIf="updatedFiles.length" color="accent">Cancel</ten-button>
-</form>
+    <mat-list>
+      <mat-list-item *ngFor="let stagedFile of stagedFiles" [attr.status]="stagedFile.status">
+        <span>{{ stagedFile.path }}</span>
+        <span *ngIf="stagedFile.size !== undefined && stagedFile.size !== null">{{
+          stagedFile.size | filesize
+        }}</span>
+      </mat-list-item>
+    </mat-list>
+
+    <mat-hint>
+      <span>
+        Count: {{ modifiedFiles.length }} Modified, {{ removedFiles.length }} Removed,
+        {{ unmodifiedFiles.length }} Unmodified
+      </span>
+      <span>
+        Size: {{ modifiedFiles | sum: 'size' | filesize }} Modified,
+        {{ removedFiles | sum: 'size' | filesize }} Removed,
+        {{ unmodifiedFiles | sum: 'size' | filesize }} Unmodified
+      </span>
+    </mat-hint>
+  </div>
+</div>
+
+<div *ngIf="error" class="form-error">
+  {{ error }}
+</div>
+
+<ten-button
+  *ngIf="!stagedFiles.length"
+  color="primary"
+  [disabled]="status"
+  (OnClick)="selectFilesInput.click()"
+>
+  <mat-spinner *ngIf="status" [diameter]="20"></mat-spinner>
+  <span>{{ status ? status : 'Browse' }}</span>
+</ten-button>
+<ten-button *ngIf="stagedFiles.length" color="primary" [disabled]="status" (OnClick)="upload()">
+  <mat-spinner *ngIf="status" [diameter]="20"></mat-spinner>
+  <span>{{ status ? status : 'Upload' }}</span>
+</ten-button>
+<ten-button *ngIf="stagedFiles.length && !status" color="accent" (OnClick)="cancel()">
+  <span>Cancel</span>
+</ten-button>

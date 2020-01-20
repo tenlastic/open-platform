@@ -20,6 +20,20 @@ storiesOf('Button', module)
       </ten-button>
     `,
   }))
+  .add('Primary (Disabled)', () => ({
+    component: ButtonComponent,
+    moduleMetadata: {
+      declarations: [ButtonComponent],
+      imports: [...imports],
+    },
+    template: `
+      <ten-button color="primary" [disabled]="true" href="https://www.google.com">
+        <mat-icon>add</mat-icon>
+        <span>Text</span>
+        <mat-icon>remove</mat-icon>
+      </ten-button>
+    `,
+  }))
   .add('Accent', () => ({
     component: ButtonComponent,
     moduleMetadata: {

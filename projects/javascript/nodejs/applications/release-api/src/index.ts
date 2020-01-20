@@ -5,6 +5,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { WebServer } from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
 
+import { router as filesRouter } from './handlers/files';
 import { router as releasesRouter } from './handlers/releases';
 import { ReadonlyGame, ReadonlyNamespace, ReadonlyUser } from './models';
 
@@ -37,6 +38,7 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
 })();
 
 const webServer = new WebServer();
+webServer.use(filesRouter.routes());
 webServer.use(releasesRouter.routes());
 webServer.start();
 

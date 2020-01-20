@@ -42,6 +42,7 @@ describe('handlers/files/find-one', function() {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
+          platform: record.platform,
           releaseId: release._id,
         },
         state: { user: user.toObject() },
@@ -49,25 +50,7 @@ describe('handlers/files/find-one', function() {
 
       await handler(ctx as any);
 
-      expect(ctx.response.body.presignedUrl).to.exist;
       expect(ctx.response.body.record).to.exist;
-      expect(ctx.response.body.record.md5).to.not.exist;
-    });
-
-    it('returns the md5 hash from minio', async function() {
-      await minio.getClient().fPutObject(FileSchema.bucket, record.key, __filename, {});
-
-      const ctx = new ContextMock({
-        params: {
-          _id: record._id,
-          releaseId: release._id,
-        },
-        state: { user: user.toObject() },
-      });
-
-      await handler(ctx as any);
-
-      expect(ctx.response.body.record.md5).to.exist;
     });
   });
 
@@ -84,6 +67,7 @@ describe('handlers/files/find-one', function() {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
+          platform: record.platform,
           releaseId: release._id,
         },
         state: { user: user.toObject() },

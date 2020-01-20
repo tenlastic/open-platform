@@ -1,7 +1,6 @@
-import * as minio from '@tenlastic/minio';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { File, FilePermissions, FileSchema, Release } from '../../../models';
+import { File, FilePermissions, Release } from '../../../models';
 
 export async function handler(ctx: Context) {
   const release = await Release.findOne({ _id: ctx.params.releaseId });
@@ -10,7 +9,7 @@ export async function handler(ctx: Context) {
   }
 
   const where = await FilePermissions.where(
-    { releaseId: release._id, name: ctx.params.name },
+    { _id: ctx.params._id, platform: ctx.params.platform, releaseId: release._id },
     ctx.state.user,
   );
   const record = await File.findOne(where).populate(FilePermissions.accessControl.options.populate);
@@ -18,12 +17,8 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('File');
   }
 
-  const override = { releaseId: ctx.params.releaseId };
+  const override = { platform: ctx.params.platform, releaseId: ctx.params.releaseId };
   const result = await FilePermissions.update(record, ctx.request.body, override, ctx.state.user);
 
-  const presignedUrl = await minio
-    .getClient()
-    .presignedPutObject(FileSchema.bucket, result.key, 24 * 60 * 60);
-
-  ctx.response.body = { presignedUrl, record: result };
+  ctx.response.body = { record: result };
 }

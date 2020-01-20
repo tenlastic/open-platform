@@ -2,6 +2,10 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
+import * as crypto from 'crypto';
+import * as FormData from 'form-data';
+import * as fs from 'fs';
+import * as JSZip from 'jszip';
 
 import {
   FileMock,
@@ -33,21 +37,21 @@ describe('handlers/files/create', function() {
 
       const ctx = new ContextMock({
         params: {
+          platform: FileMock.getPlatform(),
           releaseId: release._id,
         },
         request: {
           body: {
+            md5: chance.hash(),
             path: chance.hash(),
-            platform: FileMock.getPlatform(),
             url: chance.hash(),
           },
         },
         state: { user },
-      });
+      } as any);
 
       await handler(ctx as any);
 
-      expect(ctx.response.body.presignedUrl).to.exist;
       expect(ctx.response.body.record).to.exist;
     });
   });
@@ -64,8 +68,8 @@ describe('handlers/files/create', function() {
         },
         request: {
           body: {
+            md5: chance.hash(),
             path: chance.hash(),
-            platform: FileMock.getPlatform(),
             url: chance.hash(),
           },
         },

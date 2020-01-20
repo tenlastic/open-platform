@@ -13,7 +13,11 @@ before(async function() {
     secretKey: minioConnectionUrl.password,
     useSSL: minioConnectionUrl.protocol === 'https',
   });
-  await minio.getClient().makeBucket('releases', 'us-east-1');
+
+  const bucketExists = await minio.getClient().bucketExists('releases');
+  if (!bucketExists) {
+    await minio.getClient().makeBucket('releases', 'us-east-1');
+  }
 
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
   await mongoose.connect(process.env.MONGO_CONNECTION_STRING, {

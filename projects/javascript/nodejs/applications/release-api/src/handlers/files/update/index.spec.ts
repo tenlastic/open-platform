@@ -43,12 +43,12 @@ describe('handlers/files/update', function() {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
+          platform: record.platform,
           releaseId: release._id,
         },
         request: {
           body: {
             path: chance.hash(),
-            platform: FileMock.getPlatform(),
             url: chance.hash(),
           },
         },
@@ -57,7 +57,6 @@ describe('handlers/files/update', function() {
 
       await handler(ctx as any);
 
-      expect(ctx.response.body.presignedUrl).to.exist;
       expect(ctx.response.body.record).to.exist;
     });
   });
@@ -75,12 +74,12 @@ describe('handlers/files/update', function() {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
+          platform: record.platform,
           releaseId: release._id,
         },
         request: {
           body: {
             path: chance.hash(),
-            platform: FileMock.getPlatform(),
             releaseId: release._id,
             url: chance.hash(),
           },
