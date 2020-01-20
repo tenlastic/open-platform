@@ -30,7 +30,7 @@ export enum FilePlatform {
   Linux32 = 'linux32',
 }
 
-@index({ platform: 1, releaseId: 1, url: 1 }, { unique: true })
+@index({ path: 1, platform: 1, releaseId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
@@ -47,7 +47,7 @@ export class FileSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop()
+  @prop({ required: true })
   public md5: string;
 
   @prop({ required: true })
@@ -58,9 +58,6 @@ export class FileSchema {
 
   @prop({ ref: Release, required: true })
   public releaseId: Ref<ReleaseDocument>;
-
-  @prop({ required: true })
-  public url: string;
 
   public updatedAt: Date;
 

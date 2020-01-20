@@ -1,6 +1,7 @@
 export * from './models/article';
 export * from './models/collection';
 export * from './models/database';
+export * from './models/file';
 export * from './models/game';
 export * from './models/model';
 export * from './models/namespace';
@@ -13,6 +14,7 @@ export * from './services/article/article.service';
 export * from './services/collection/collection.service';
 export * from './services/database/database.service';
 export * from './services/environment/environment.service';
+export * from './services/file/file.service';
 export * from './services/game/game.service';
 export * from './services/login/login.service';
 export * from './services/namespace/namespace.service';

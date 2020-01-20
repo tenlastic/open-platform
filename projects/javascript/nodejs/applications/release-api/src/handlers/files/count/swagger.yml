@@ -1,5 +1,5 @@
 paths:
-  /releases/{releaseId}/files/count:
+  /releases/{releaseId}//platforms/{platform}/files/count:
     get:
       summary: Count
       tags: [Files]
@@ -9,6 +9,11 @@ paths:
       parameters:
         - in: path
           name: releaseId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: platform
           schema:
             type: string
           required: true

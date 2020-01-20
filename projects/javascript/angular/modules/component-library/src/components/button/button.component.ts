@@ -7,6 +7,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class ButtonComponent {
   @Input() public color = 'primary';
+  @Input() public disabled: boolean;
   @Input() public href: string;
   @Input() public layout = 'horizontal';
   @Input() public target: string;

@@ -1,11 +1,9 @@
-import * as minio from '@tenlastic/minio';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
 import {
   FileDocument,
   FileMock,
-  FileSchema,
   ReadonlyGameMock,
   ReadonlyNamespaceMock,
   ReadonlyUserDocument,
@@ -33,27 +31,13 @@ describe('handlers/files/find', function() {
 
   it('returns the number of matching records', async function() {
     const ctx = new ContextMock({
-      params: { releaseId: release._id },
+      params: { platform: record.platform, releaseId: release._id },
       state: { user: user.toObject() },
     });
 
     await handler(ctx as any);
 
-    expect(ctx.response.body.presignedUrls.length).to.eql(1);
     expect(ctx.response.body.records.length).to.eql(1);
     expect(ctx.response.body.records[0]._id.toString()).to.eql(record._id.toString());
-  });
-
-  it('returns the md5 hash from minio', async function() {
-    await minio.getClient().fPutObject(FileSchema.bucket, record.key, __filename, {});
-
-    const ctx = new ContextMock({
-      params: { releaseId: release._id },
-      state: { user: user.toObject() },
-    });
-
-    await handler(ctx as any);
-
-    expect(ctx.response.body.records[0].md5).to.exist;
   });
 });

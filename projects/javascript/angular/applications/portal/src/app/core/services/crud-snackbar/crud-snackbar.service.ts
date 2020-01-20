@@ -7,6 +7,7 @@ import {
   GameService,
   NamespaceService,
   RecordService,
+  ReleaseService,
   UserService,
 } from '@tenlastic/ng-http';
 
@@ -21,6 +22,7 @@ export class CrudSnackbarService {
     private gameService: GameService,
     private namespaceService: NamespaceService,
     private recordService: RecordService,
+    private releaseService: ReleaseService,
     private snackBar: MatSnackBar,
     private userService: UserService,
   ) {
@@ -47,6 +49,10 @@ export class CrudSnackbarService {
     this.recordService.onCreate.subscribe(() => this.createMessage('Record'));
     this.recordService.onDelete.subscribe(() => this.deleteMessage('Record'));
     this.recordService.onUpdate.subscribe(() => this.updateMessage('Record'));
+
+    this.releaseService.onCreate.subscribe(() => this.createMessage('Release'));
+    this.releaseService.onDelete.subscribe(() => this.deleteMessage('Release'));
+    this.releaseService.onUpdate.subscribe(() => this.updateMessage('Release'));
 
     this.userService.onCreate.subscribe(() => this.createMessage('User'));
     this.userService.onDelete.subscribe(() => this.deleteMessage('User'));

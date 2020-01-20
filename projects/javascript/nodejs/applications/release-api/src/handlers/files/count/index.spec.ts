@@ -2,6 +2,7 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
 import {
+  FileDocument,
   FileMock,
   ReadonlyGameMock,
   ReadonlyNamespaceMock,
@@ -14,6 +15,7 @@ import {
 import { handler } from './';
 
 describe('handlers/files/count', function() {
+  let record: FileDocument;
   let release: ReleaseDocument;
   let user: ReadonlyUserDocument;
 
@@ -23,14 +25,14 @@ describe('handlers/files/count', function() {
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await ReadonlyNamespaceMock.create({ accessControlList: [userRoles] });
     const game = await ReadonlyGameMock.create({ namespaceId: namespace._id });
-    release = await ReleaseMock.create({ gameId: game._id });
 
-    await FileMock.create({ releaseId: release._id });
+    release = await ReleaseMock.create({ gameId: game._id });
+    record = await FileMock.create({ releaseId: release._id });
   });
 
   it('returns the number of matching records', async function() {
     const ctx = new ContextMock({
-      params: { releaseId: release._id },
+      params: { platform: record.platform, releaseId: release._id },
       state: { user: user.toObject() },
     });
 

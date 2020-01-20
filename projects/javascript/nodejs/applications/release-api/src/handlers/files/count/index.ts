@@ -8,7 +8,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Release');
   }
 
-  const override = { releaseId: release._id };
+  const override = { platform: ctx.params.platform, releaseId: release._id };
   const result = await FilePermissions.count(ctx.request.query.where, override, ctx.state.user);
 
   ctx.response.body = { count: result };

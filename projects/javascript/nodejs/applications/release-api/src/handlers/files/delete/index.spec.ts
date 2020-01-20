@@ -42,6 +42,7 @@ describe('handlers/files/delete', function() {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
+          platform: record.platform,
           releaseId: release._id,
         },
         state: { user: user.toObject() },
@@ -58,6 +59,7 @@ describe('handlers/files/delete', function() {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
+          platform: record.platform,
           releaseId: release._id,
         },
         state: { user: user.toObject() },
@@ -83,6 +85,7 @@ describe('handlers/files/delete', function() {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
+          platform: record.platform,
           releaseId: release._id,
         },
         state: { user: user.toObject() },

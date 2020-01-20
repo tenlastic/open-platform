@@ -1,9 +1,14 @@
 import { Injectable } from '@angular/core';
+import * as SparkMd5 from 'spark-md5';
 
 @Injectable({ providedIn: 'root' })
 export class FileReaderService {
   public arrayBufferToBlob(arrayBuffer: ArrayBuffer) {
     return new Blob([new Uint8Array(arrayBuffer)]);
+  }
+
+  public arrayBufferToMd5(arrayBuffer: ArrayBuffer) {
+    return SparkMd5.ArrayBuffer.hash(arrayBuffer);
   }
 
   public fileToArrayBuffer(file: File) {
