@@ -23,8 +23,8 @@
   </mat-form-field>
 </div>
 
-<div *ngIf="previousFiles.length" class="row">
-  <div class="col-sm-6">
+<div class="row">
+  <div *ngIf="previousFiles.length" class="col-sm-6">
     <mat-label>
       <span>Previous Files</span>
     </mat-label>
@@ -48,7 +48,9 @@
     <mat-list>
       <mat-list-item *ngFor="let stagedFile of stagedFiles" [attr.status]="stagedFile.status">
         <span>{{ stagedFile.path }}</span>
-        <span *ngIf="stagedFile.size">{{ stagedFile.size | filesize }}</span>
+        <span *ngIf="stagedFile.size !== undefined && stagedFile.size !== null">{{
+          stagedFile.size | filesize
+        }}</span>
       </mat-list-item>
     </mat-list>
 
@@ -57,7 +59,11 @@
         Count: {{ modifiedFiles.length }} Modified, {{ removedFiles.length }} Removed,
         {{ unmodifiedFiles.length }} Unmodified
       </span>
-      <span>Size: {{ stagedFiles | sum: 'size' | filesize }}</span>
+      <span>
+        Size: {{ modifiedFiles | sum: 'size' | filesize }} Modified,
+        {{ removedFiles | sum: 'size' | filesize }} Removed,
+        {{ unmodifiedFiles | sum: 'size' | filesize }} Unmodified
+      </span>
     </mat-hint>
   </div>
 </div>

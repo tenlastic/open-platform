@@ -69,7 +69,7 @@ export class FilesFormComponent implements OnInit {
 
     if (this.releases.length) {
       const release = this.releases.find(r => r.publishedAt);
-      await this.setPreviousRelease(release);
+      await this.setPreviousRelease(release || this.releases[0]);
     }
   }
 
@@ -155,5 +155,7 @@ export class FilesFormComponent implements OnInit {
     });
 
     this.status = null;
+
+    this.setPreviousRelease(this.releases.find(r => r._id === this.release._id));
   }
 }

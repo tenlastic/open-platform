@@ -82,6 +82,10 @@ export async function handler(ctx: Context) {
   // Copy files from previous Release.
   if (fields.previousReleaseId && fields.unmodified && fields.unmodified.length) {
     for (const path of fields.unmodified) {
+      if (ctx.params.releaseId === fields.previousReleaseId) {
+        continue;
+      }
+
       const copiedFile = await copyObject(
         path,
         ctx.params.platform,
