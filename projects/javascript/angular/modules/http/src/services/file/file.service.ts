@@ -4,6 +4,10 @@ import { File } from '../../models/file';
 import { ApiService, RestParameters } from '../api/api.service';
 import { EnvironmentService } from '../environment/environment.service';
 
+export interface FileServiceDownloadOptions {
+  include?: string[];
+}
+
 export interface FileServiceUploadOptions {
   modified?: string[];
   previousReleaseId?: string;
@@ -47,6 +51,19 @@ export class FileService {
     this.onDelete.emit(record);
 
     return record;
+  }
+
+  public async download(
+    releaseId: string,
+    platform: string,
+    parameters: FileServiceDownloadOptions,
+  ) {
+    return this.apiService.request(
+      'post',
+      `${this.basePath}/${releaseId}/platforms/${platform}/files/download`,
+      parameters,
+      { responseType: 'blob' },
+    );
   }
 
   public async find(

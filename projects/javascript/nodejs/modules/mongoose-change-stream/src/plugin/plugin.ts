@@ -58,6 +58,7 @@ export function changeStreamPlugin<T extends mongoose.Document>(
 
     const payload = {
       documentKey,
+      fullDocument: document,
       ns: { coll: document.collection.name, db: document.db.db.databaseName },
       operationType: 'delete',
     } as IDatabasePayload<T>;
@@ -107,6 +108,7 @@ export function changeStreamPlugin<T extends mongoose.Document>(
 
     const payload = {
       documentKey,
+      fullDocument: this,
       ns: { coll: this.collection.name, db: this.db.db.databaseName },
       operationType: 'delete',
     } as IDatabasePayload<T>;

@@ -14,7 +14,7 @@ import { ArticleDialogComponent } from '../../components';
 export class InformationPageComponent implements OnInit {
   public articles: Article[];
   public articlesByDate: Article[][];
-  public data: Game;
+  public game: Game;
   public error: string;
   public loadingMessage: string;
 
@@ -33,13 +33,13 @@ export class InformationPageComponent implements OnInit {
 
       const slug = params.get('slug');
       if (slug) {
-        this.data = await this.gameService.findOne(slug);
+        this.game = await this.gameService.findOne(slug);
 
         this.articles = await this.articleService.find({
           sort: '-publishedAt',
           where: {
             $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
-            gameId: this.data._id,
+            gameId: this.game._id,
           },
         });
         this.articlesByDate = this.groupByDate(this.articles);

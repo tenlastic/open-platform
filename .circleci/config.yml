@@ -188,7 +188,7 @@ jobs:
           working_directory: /tmp/workspace/projects/javascript/
       - run:
           name: Lerna Bootstrap
-          command: lerna bootstrap --concurrency 1 --include-dependencies --scope @tenlastic/*-ui
+          command: lerna bootstrap --concurrency 1 --include-dependencies --scope @tenlastic/*-ui --scope angular
           working_directory: /tmp/workspace/projects/javascript/
       - run:
           name: Install Electron Builder Dependencies

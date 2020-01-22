@@ -1,0 +1,37 @@
+paths:
+  /releases/{releaseId}/platforms/{platform}/files/download:
+    post:
+      summary: Download
+      tags: [Files]
+      description: Returns a zip file containing all files of a Release.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: releaseId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: platform
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                include:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary

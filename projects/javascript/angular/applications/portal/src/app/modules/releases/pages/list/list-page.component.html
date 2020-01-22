@@ -40,7 +40,7 @@
     matSortDirection="desc"
   >
     <ng-container matColumnDef="title">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Title</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Game</th>
       <td mat-cell *matCellDef="let element">
         {{ getGameTitle(element.gameId) | truncate: 50:true }}
       </td>

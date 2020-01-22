@@ -1,11 +1,12 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { Release, ReleasePermissions } from '../../../models';
+import { ReleasePermissions } from '../../../models';
 
 export async function handler(ctx: Context) {
-  const where = await ReleasePermissions.where({ _id: ctx.params._id }, ctx.state.user);
-  const record = await Release.findOne(where).populate(
-    ReleasePermissions.accessControl.options.populate,
+  const record = await ReleasePermissions.findOne(
+    {},
+    { where: { _id: ctx.params._id } },
+    ctx.state.user,
   );
   if (!record) {
     throw new RecordNotFoundError('Release');

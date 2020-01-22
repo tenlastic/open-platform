@@ -98,6 +98,15 @@ export async function handler(ctx: Context) {
     }
   }
 
+  // Remove files from current Release.
+  if (fields.removed && fields.removed.length) {
+    const promises = fields.removed.map(path => {
+      return removeObject(path, ctx.params.platform, ctx.params.releaseId, ctx.state.user);
+    });
+
+    await Promise.all(promises);
+  }
+
   ctx.response.body = { records };
 }
 
@@ -135,6 +144,12 @@ async function copyObject(
     },
     { new: true, upsert: true },
   );
+}
+
+async function removeObject(path: string, platform: string, releaseId: string, user: any) {
+  path = path.replace(/[\.]+\//g, '');
+
+  return File.findOneAndDelete({ path, platform, releaseId });
 }
 
 async function processZip(platform: FilePlatform, release: ReleaseDocument, stream: Stream) {

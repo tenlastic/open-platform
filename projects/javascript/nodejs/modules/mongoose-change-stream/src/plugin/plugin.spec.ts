@@ -23,6 +23,7 @@ describe('plugin', function() {
 
       const args: IDatabasePayload<ExampleDocument> = spy.getCall(0).args[0];
       expect(args.documentKey._id.toString()).to.eql(record._id.toString());
+      expect(args.fullDocument._id.toString()).to.eql(record._id.toString());
       expect(args.ns).to.eql({ db: process.env.MONGO_DATABASE_NAME, coll: 'examples' });
       expect(args.operationType).to.eql('delete');
     });
@@ -87,6 +88,7 @@ describe('plugin', function() {
 
       const args: IDatabasePayload<ExampleDocument> = spy.getCall(0).args[0];
       expect(args.documentKey._id.toString()).to.eql(record._id.toString());
+      expect(args.fullDocument._id.toString()).to.eql(record._id.toString());
       expect(args.ns).to.eql({ db: process.env.MONGO_DATABASE_NAME, coll: 'examples' });
       expect(args.operationType).to.eql('delete');
     });

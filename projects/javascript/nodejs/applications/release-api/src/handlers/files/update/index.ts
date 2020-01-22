@@ -8,11 +8,11 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Release');
   }
 
-  const where = await FilePermissions.where(
-    { _id: ctx.params._id, platform: ctx.params.platform, releaseId: release._id },
+  const record = await FilePermissions.findOne(
+    {},
+    { where: { _id: ctx.params._id, platform: ctx.params.platform, releaseId: release._id } },
     ctx.state.user,
   );
-  const record = await File.findOne(where).populate(FilePermissions.accessControl.options.populate);
   if (!record) {
     throw new RecordNotFoundError('File');
   }

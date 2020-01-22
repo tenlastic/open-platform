@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as SparkMd5 from 'spark-md5';
+import SparkMd5 from 'spark-md5';
 
 @Injectable({ providedIn: 'root' })
 export class FileReaderService {

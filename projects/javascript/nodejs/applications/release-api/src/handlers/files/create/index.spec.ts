@@ -47,7 +47,7 @@ describe('handlers/files/create', function() {
             url: chance.hash(),
           },
         },
-        state: { user },
+        state: { user: user.toObject() },
       } as any);
 
       await handler(ctx as any);
@@ -73,7 +73,7 @@ describe('handlers/files/create', function() {
             url: chance.hash(),
           },
         },
-        state: { user },
+        state: { user: user.toObject() },
       });
 
       const promise = handler(ctx as any);

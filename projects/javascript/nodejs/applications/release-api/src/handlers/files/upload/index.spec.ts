@@ -2,7 +2,6 @@ import * as minio from '@tenlastic/minio';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
 import * as crypto from 'crypto';
 import * as FormData from 'form-data';
 import * as fs from 'fs';
@@ -11,6 +10,7 @@ import * as JSZip from 'jszip';
 import {
   File,
   FileMock,
+  FilePlatform,
   FileSchema,
   ReadonlyGameMock,
   ReadonlyNamespaceMock,
@@ -22,7 +22,6 @@ import {
 } from '../../../models';
 import { handler } from './';
 
-const chance = new Chance();
 use(chaiAsPromised);
 
 describe('handlers/files/upload', function() {
@@ -36,6 +35,7 @@ describe('handlers/files/upload', function() {
     let ctx: ContextMock;
     let form: FormData;
     let md5: string;
+    let platform: FilePlatform;
     let previousRelease: ReleaseDocument;
     let release: ReleaseDocument;
 
@@ -44,7 +44,7 @@ describe('handlers/files/upload', function() {
       const namespace = await ReadonlyNamespaceMock.create({ accessControlList: [userRoles] });
       const game = await ReadonlyGameMock.create({ namespaceId: namespace._id });
 
-      const platform = FileMock.getPlatform();
+      platform = FileMock.getPlatform();
       previousRelease = await ReleaseMock.create({ gameId: game._id, publishedAt: new Date() });
       release = await ReleaseMock.create({ gameId: game._id });
 
@@ -56,11 +56,17 @@ describe('handlers/files/upload', function() {
       });
       await minio
         .getClient()
-        .putObject(
-          FileSchema.bucket,
-          `${previousRelease._id}/${platform}/index.ts`,
-          fs.createReadStream(__filename),
-        );
+        .putObject(FileSchema.bucket, previousFile.key, fs.createReadStream(__filename));
+
+      // Set up File to remove.
+      const removedFile = await FileMock.create({
+        path: 'swagger.yml',
+        platform,
+        releaseId: release._id,
+      });
+      await minio
+        .getClient()
+        .putObject(FileSchema.bucket, removedFile.key, fs.createReadStream(__filename));
 
       const zip = new JSZip();
       zip.file('index.spec.ts', fs.createReadStream(__filename));
@@ -73,6 +79,7 @@ describe('handlers/files/upload', function() {
       form = new FormData();
       form.append('modified[]', 'index.spec.ts');
       form.append('previousReleaseId', previousRelease._id.toString());
+      form.append('removed[]', 'swagger.yml');
       form.append('unmodified[]', 'index.ts');
       form.append('zip', stream);
 
@@ -97,7 +104,7 @@ describe('handlers/files/upload', function() {
         request: {
           headers: form.getHeaders(),
         },
-        state: { user },
+        state: { user: user.toObject() },
       } as any);
     });
 
@@ -118,6 +125,16 @@ describe('handlers/files/upload', function() {
         .statObject(FileSchema.bucket, `${file.releaseId}/${file.platform}/index.ts`);
 
       expect(result).to.exist;
+    });
+
+    it('deletes removed files from Minio', async function() {
+      await handler(ctx as any);
+
+      const promise = minio
+        .getClient()
+        .statObject(FileSchema.bucket, `${release._id}/${platform}/swagger.yml`);
+
+      return expect(promise).to.be.rejectedWith('Not Found');
     });
 
     it('uploads unzipped files to Minio', async function() {
@@ -143,7 +160,7 @@ describe('handlers/files/upload', function() {
           platform: FileMock.getPlatform(),
           releaseId: release._id,
         },
-        state: { user },
+        state: { user: user.toObject() },
       });
 
       const promise = handler(ctx as any);

@@ -1,0 +1,13 @@
+<div class="action">
+  <ten-button color="primary" [disabled]="isButtonDisabled" (OnClick)="update()">
+    <mat-icon *ngIf="buttonIcon">{{ buttonIcon }}</mat-icon>
+    <span>{{ buttonText }}</span>
+  </ten-button>
+</div>
+
+<div *ngIf="statusText" class="status">
+  <div>
+    <span>{{ statusText }}</span>
+    <span>{{ progressText }}</span>
+  </div>
+</div>
