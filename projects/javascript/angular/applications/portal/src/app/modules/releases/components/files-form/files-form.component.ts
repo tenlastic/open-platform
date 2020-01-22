@@ -24,8 +24,8 @@ export interface UpdatedFile {
   arrayBuffer?: ArrayBuffer;
   md5: string;
   path: string;
-  size: number;
   status: string;
+  uncompressedBytes?: number;
 }
 
 @Component({
@@ -90,28 +90,25 @@ export class FilesFormComponent implements OnInit {
     }
 
     this.status = 'Calculating file changes...';
+
     this.stagedFiles = [];
+    await new Promise(resolve => {
+      const worker = new Worker('../../../../workers/file-reader.worker', { type: 'module' });
+      worker.onmessage = ({ data }) => {
+        if (data.file) {
+          this.stagedFiles.push(data.file);
+        }
 
-    const sortArray = ['modified', 'removed', 'unmodified'];
-    for (const file of files) {
-      const content = await this.fileReaderService.fileToArrayBuffer(file);
-      const path = file.webkitRelativePath.substring(file.webkitRelativePath.indexOf('/') + 1);
-      const previousFile = this.previousFiles.find(p => p.path === path);
+        if (data.isDone) {
+          return resolve();
+        }
+      };
+      worker.postMessage({ files, previousFiles: this.previousFiles });
+    });
 
-      const md5 = this.fileReaderService.arrayBufferToMd5(content);
-      const status = !previousFile || previousFile.md5 !== md5 ? 'modified' : 'unmodified';
-
-      this.stagedFiles.push({ arrayBuffer: content, md5, path, size: file.size, status });
-      this.stagedFiles.sort((a, b) => sortArray.indexOf(a.status) - sortArray.indexOf(b.status));
-    }
-
-    const updatedFilePaths = this.stagedFiles.map(u => u.path);
-    const removedFiles = this.previousFiles
-      .filter(f => !updatedFilePaths.includes(f.path))
-      .map(f => ({ md5: f.md5, path: f.path, size: 0, status: 'removed' }));
-    this.stagedFiles = this.stagedFiles
-      .concat(removedFiles)
-      .sort((a, b) => sortArray.indexOf(a.status) - sortArray.indexOf(b.status));
+    this.stagedFiles = this.stagedFiles.sort((a, b) =>
+      a.path < b.path ? -1 : a.path > b.path ? 1 : 0,
+    );
 
     this.status = null;
   }
