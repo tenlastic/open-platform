@@ -60,6 +60,10 @@ export enum FilePlatform {
 })
 export class FileSchema {
   public _id: mongoose.Types.ObjectId;
+
+  @prop({ required: true })
+  public compressedBytes: number;
+
   public createdAt: Date;
 
   @prop({ required: true })
@@ -73,6 +77,9 @@ export class FileSchema {
 
   @prop({ ref: Release, required: true })
   public releaseId: Ref<ReleaseDocument>;
+
+  @prop({ required: true })
+  public uncompressedBytes: number;
 
   public updatedAt: Date;
 

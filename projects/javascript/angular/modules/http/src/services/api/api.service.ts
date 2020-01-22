@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 export type RequestMethod = 'delete' | 'get' | 'post' | 'put';
 
@@ -43,24 +44,35 @@ export class ApiService {
     url: string,
     params?: any,
     options: RequestOptions = {},
-  ): Promise<any> {
+  ): Observable<any> | Promise<any> {
     options.headers = new HttpHeaders();
 
     if ((method === 'get' || method === 'delete') && params) {
       options.params = new HttpParams().set('query', JSON.stringify(params));
     }
 
+    let observable: Observable<ArrayBuffer>;
     switch (method) {
       case 'get':
-        return this.http.get(url, options as any).toPromise();
+        observable = this.http.get(url, options as any);
+        break;
+
       case 'post':
-        return this.http.post(url, params ? params : undefined, options as any).toPromise();
+        observable = this.http.post(url, params ? params : undefined, options as any);
+        break;
+
       case 'put':
-        return this.http.put(url, params ? params : undefined, options as any).toPromise();
+        observable = this.http.put(url, params ? params : undefined, options as any);
+        break;
+
       case 'delete':
-        return this.http.delete(url, options as any).toPromise();
+        observable = this.http.delete(url, options as any);
+        break;
+
       default:
         throw new Error('Unsupported HTTP verb.');
     }
+
+    return options.reportProgress ? observable : observable.toPromise();
   }
 }

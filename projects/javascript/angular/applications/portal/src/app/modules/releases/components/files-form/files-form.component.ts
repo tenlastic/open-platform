@@ -1,4 +1,6 @@
+import { HttpEvent, HttpEventType } from '@angular/common/http';
 import {
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -10,9 +12,9 @@ import {
 import { IdentityService } from '@tenlastic/ng-authentication';
 import { FileService, IRelease, Release, ReleaseService } from '@tenlastic/ng-http';
 import JSZip from 'jszip';
+import { last, map, tap } from 'rxjs/operators';
 
 import { FileReaderService } from '../../../../core/services';
-import { MatSelectChange } from '@angular/material';
 
 export interface FileFormComponentData {
   platform: IRelease.Platform;
@@ -53,8 +55,11 @@ export class FilesFormComponent implements OnInit {
   public get unmodifiedFiles() {
     return this.stagedFiles.filter(f => f.status === 'unmodified');
   }
+  public uploadStatus: any;
+  public zipStatus: any;
 
   constructor(
+    private changeDetectorRef: ChangeDetectorRef,
     private fileReaderService: FileReaderService,
     private fileService: FileService,
     public identityService: IdentityService,
@@ -129,33 +134,62 @@ export class FilesFormComponent implements OnInit {
     this.status = 'Zipping files...';
 
     const zip = new JSZip();
-    this.stagedFiles
-      .filter(u => u.status === 'modified')
-      .forEach(u => {
-        const blob = this.fileReaderService.arrayBufferToBlob(u.arrayBuffer);
-        zip.file(u.path, blob);
-      });
-
-    const zipBlob = await zip.generateAsync({
-      compression: 'DEFLATE',
-      compressionOptions: {
-        level: 5,
-      },
-      type: 'blob',
+    const zipFiles = this.stagedFiles.filter(u => u.status === 'modified');
+    zipFiles.forEach(u => {
+      const blob = this.fileReaderService.arrayBufferToBlob(u.arrayBuffer);
+      zip.file(u.path, blob);
     });
+
+    const zipBlob = await zip.generateAsync(
+      {
+        compression: 'DEFLATE',
+        compressionOptions: {
+          level: 5,
+        },
+        type: 'blob',
+      },
+      metadata => {
+        const total = zipFiles.length;
+        this.zipStatus = { current: Math.floor(total * (metadata.percent / 100)), total };
+
+        this.changeDetectorRef.detectChanges();
+      },
+    );
+    this.zipStatus = null;
 
     this.status = 'Uploading files...';
-
-    await this.fileService.upload(this.release._id, this.platform, {
-      modified: this.modifiedFiles.map(f => f.path),
-      previousReleaseId: this.previousRelease._id,
-      removed: this.removedFiles.map(f => f.path),
-      unmodified: this.unmodifiedFiles.map(f => f.path),
-      zip: zipBlob,
-    });
-
+    await this.fileService
+      .upload(this.release._id, this.platform, {
+        modified: this.modifiedFiles.map(f => f.path),
+        previousReleaseId: this.previousRelease._id,
+        removed: this.removedFiles.map(f => f.path),
+        unmodified: this.unmodifiedFiles.map(f => f.path),
+        zip: zipBlob,
+      })
+      .pipe(
+        map(event => this.getEventMessage(event, zipBlob)),
+        tap(message => (this.uploadStatus = message)),
+        last(),
+      )
+      .toPromise();
     this.status = null;
+    this.uploadStatus = null;
 
     this.setPreviousRelease(this.releases.find(r => r._id === this.release._id));
+  }
+
+  private getEventMessage(event: HttpEvent<any>, blob: Blob) {
+    const file = new File([blob], 'file');
+
+    switch (event.type) {
+      case HttpEventType.Sent:
+        return { current: 0, total: file.size };
+
+      case HttpEventType.UploadProgress:
+        return { current: event.loaded, total: event.total };
+
+      case HttpEventType.Response:
+        return { current: file.size, total: file.size };
+    }
   }
 }

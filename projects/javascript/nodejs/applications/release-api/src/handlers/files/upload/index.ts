@@ -178,16 +178,18 @@ async function processZip(platform: FilePlatform, release: ReleaseDocument, stre
   });
 }
 
-async function saveFile(entry: Stream, record: FileDocument) {
+async function saveFile(entry: any, record: FileDocument) {
   const md5 = await uploadToMinio(entry, record);
 
   return File.findOneAndUpdate(
     { path: record.path, platform: record.platform, releaseId: record.releaseId },
     {
+      compressedBytes: entry.vars.compressedSize,
       md5,
       path: record.path,
       platform: record.platform,
       releaseId: record.releaseId,
+      uncompressedBytes: entry.vars.uncompressedSize,
     },
     { new: true, upsert: true },
   );

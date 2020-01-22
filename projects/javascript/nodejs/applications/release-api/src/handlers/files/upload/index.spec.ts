@@ -113,7 +113,9 @@ describe('handlers/files/upload', function() {
 
       expect(ctx.response.body.records).to.exist;
       expect(ctx.response.body.records.length).to.eql(2);
+      expect(ctx.response.body.records[0].compressedBytes).to.be.greaterThan(0);
       expect(ctx.response.body.records[0].md5).to.eql(md5);
+      expect(ctx.response.body.records[0].uncompressedBytes).to.be.greaterThan(0);
     });
 
     it('copies unmodified files from the previous release', async function() {

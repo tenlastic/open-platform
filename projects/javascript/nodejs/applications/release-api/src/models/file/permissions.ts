@@ -5,8 +5,22 @@ import { File, FileDocument } from './model';
 export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
   create: {
     roles: {
-      'namespace-administrator': ['md5', 'path', 'platform', 'releaseId'],
-      'system-administrator': ['md5', 'path', 'platform', 'releaseId'],
+      'namespace-administrator': [
+        'compressedBytes',
+        'md5',
+        'path',
+        'platform',
+        'releaseId',
+        'uncompressedBytes',
+      ],
+      'system-administrator': [
+        'compressedBytes',
+        'md5',
+        'path',
+        'platform',
+        'releaseId',
+        'uncompressedBytes',
+      ],
     },
   },
   delete: {
@@ -86,7 +100,17 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
     },
   ],
   read: {
-    base: ['_id', 'createdAt', 'md5', 'path', 'platform', 'releaseId', 'updatedAt'],
+    base: [
+      '_id',
+      'compressedBytes',
+      'createdAt',
+      'md5',
+      'path',
+      'platform',
+      'releaseId',
+      'uncompressedBytes',
+      'updatedAt',
+    ],
   },
   roles: [
     {
@@ -109,8 +133,22 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
   ],
   update: {
     roles: {
-      'namespace-administrator': ['md5', 'path', 'platform', 'releaseId'],
-      'system-administrator': ['md5', 'path', 'platform', 'releaseId'],
+      'namespace-administrator': [
+        'compressedBytes',
+        'md5',
+        'path',
+        'platform',
+        'releaseId',
+        'uncompressedBytes',
+      ],
+      'system-administrator': [
+        'compressedBytes',
+        'md5',
+        'path',
+        'platform',
+        'releaseId',
+        'uncompressedBytes',
+      ],
     },
   },
 });
