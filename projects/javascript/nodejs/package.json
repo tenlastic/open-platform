@@ -1,7 +1,7 @@
 {
   "name": "nodejs",
   "private": true,
-  "version": "0.0.33",
+  "version": "0.0.34",
   "scripts": {
     "docker": "docker-compose run --rm application npm run --if-present",
     "docker:install": "docker-compose run --rm application npm install",
@@ -59,6 +59,7 @@
     "googleapis": "42.0.0",
     "istanbul-combine": "0.3.0",
     "jsonwebtoken": "8.5.1",
+    "jszip": "3.2.2",
     "junit-merge": "2.0.0",
     "mocha": "6.1.4",
     "mocha-junit-reporter": "1.18.0",

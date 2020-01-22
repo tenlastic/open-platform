@@ -3,7 +3,7 @@
   "name": "@tenlastic/ng-electron",
   "private": true,
   "typings": "./dist/angular/module.d.ts",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "scripts": {
     "build": "ng build electron",
     "lint": "ng lint electron",
