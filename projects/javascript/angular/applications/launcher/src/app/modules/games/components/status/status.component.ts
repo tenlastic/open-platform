@@ -1,7 +1,9 @@
+import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
+import { IdentityService } from '@tenlastic/ng-authentication';
 import { ElectronService } from '@tenlastic/ng-electron';
 import { File, FileService, Game, Release, ReleaseService } from '@tenlastic/ng-http';
-import SparkMd5 from 'spark-md5';
+import { last, map, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-status',
@@ -15,7 +17,7 @@ export class StatusComponent implements OnInit {
   public buttonText: string;
   public isButtonDisabled: boolean;
   public modifiedFiles: File[] = [];
-  public progressText: string;
+  public progress: any = {};
   public statusText: string;
 
   private get platform() {
@@ -35,6 +37,7 @@ export class StatusComponent implements OnInit {
   constructor(
     private electronService: ElectronService,
     private fileService: FileService,
+    private identityService: IdentityService,
     private releaseService: ReleaseService,
   ) {}
 
@@ -46,7 +49,10 @@ export class StatusComponent implements OnInit {
     const directory = this.electronService.remote.app.getAppPath().replace(/\\/g, '/');
     const target = `${directory}/${this.game.slug}/${this.release.entrypoint}.exe`;
 
-    this.electronService.childProcess.execFileSync(target);
+    this.electronService.childProcess.execFileSync(target, [
+      `--accessToken ${this.identityService.accessToken}`,
+      `--refreshToken ${this.identityService.refreshToken}`,
+    ]);
   }
 
   public async update() {
@@ -54,17 +60,186 @@ export class StatusComponent implements OnInit {
       return this.play();
     }
 
-    this.buttonIcon = null;
-    this.buttonText = 'Updating...';
-    this.isButtonDisabled = true;
-    this.statusText = 'Downloading updates...';
+    this.setButton(null, 'Updating...', true);
 
-    const response = await this.fileService.download(this.release._id, this.platform, {
-      include: this.modifiedFiles.map(f => f.path),
+    this.setStatus('Downloading update...');
+    const response = await this.download();
+
+    this.setStatus('Installing update...');
+    await this.unzip(response);
+
+    this.modifiedFiles = [];
+
+    this.setButton('play_arrow', 'Play', false);
+    this.setStatus(null);
+  }
+
+  private async checkForUpdates() {
+    this.buttonText = 'Checking for updates...';
+    this.isButtonDisabled = true;
+
+    this.setStatus('Retrieving latest release...');
+    const releases = await this.releaseService.find({
+      sort: 'publishedAt',
+      where: {
+        $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
+        gameId: this.game._id,
+      },
     });
 
-    this.statusText = 'Installing updates...';
+    if (releases.length === 0) {
+      this.setButton(null, 'Not Available', true);
+      this.setStatus();
+      return;
+    }
 
+    this.setStatus('Retrieving release files...');
+    this.release = releases[0];
+    const remoteFiles = await this.fileService.find(this.release._id, this.platform, {
+      limit: 10000,
+    });
+    if (remoteFiles.length === 0) {
+      this.setButton(null, 'Not Available', true);
+      this.setStatus();
+      return;
+    }
+
+    this.setStatus('Checking local files...');
+    const localFiles = await this.getLocalFiles();
+    if (localFiles.length === 0) {
+      this.modifiedFiles = remoteFiles;
+
+      this.setButton('get_app', 'Install', false);
+      this.setStatus();
+
+      return;
+    }
+
+    this.setStatus('Deleting stale files...');
+    await this.deleteRemovedFiles(remoteFiles, localFiles);
+
+    const updatedFiles = remoteFiles.filter((rf, i) => {
+      this.setStatus('Calculating updated files...', i, remoteFiles.length);
+
+      const directory = this.electronService.remote.app.getAppPath().replace(/\\/g, '/');
+      const localFile = localFiles.find(
+        lf => lf.path === `${directory}/${this.game.slug}/${rf.path}`,
+      );
+
+      return !localFile || localFile.md5 !== rf.md5;
+    });
+
+    if (updatedFiles.length > 0) {
+      this.modifiedFiles = updatedFiles;
+
+      this.setButton('get_app', 'Update', false);
+      this.setStatus();
+    } else {
+      this.modifiedFiles = [];
+
+      this.setButton('play_arrow', 'Play', false);
+      this.setStatus();
+    }
+  }
+
+  private async deleteRemovedFiles(
+    remoteFiles: File[],
+    localFiles: { md5: string; path: string }[],
+  ) {
+    const { fs } = this.electronService;
+
+    for (const localFile of localFiles) {
+      const directory = this.electronService.remote.app.getAppPath().replace(/\\/g, '/');
+      const localPath = localFile.path.replace(`${directory}/${this.game.slug}/`, '');
+      const remotePaths = remoteFiles.map(rf => rf.path);
+
+      if (!remotePaths.includes(localPath)) {
+        await new Promise(resolve =>
+          fs.unlink(`${directory}/${this.game.slug}/${localPath}`, err => resolve()),
+        );
+      }
+    }
+  }
+
+  private async download() {
+    const compressedBytes = this.modifiedFiles.reduce(
+      (previousValue, currentValue) => previousValue + currentValue.compressedBytes,
+      0,
+    );
+
+    return this.fileService
+      .download(this.release._id, this.platform, {
+        include: this.modifiedFiles.map(f => f.path),
+      })
+      .pipe(
+        map(event => this.getEventMessage(event, compressedBytes)),
+        tap(message => {
+          if (!message || !message.current || !message.total) {
+            return;
+          }
+
+          return this.setStatus('Downloading update...', message.current, message.total);
+        }),
+        last(),
+      )
+      .toPromise();
+  }
+
+  private getEventMessage(event: HttpEvent<any>, compressedBytes: number) {
+    switch (event.type) {
+      case HttpEventType.Sent:
+        return { current: 0, total: compressedBytes };
+
+      case HttpEventType.DownloadProgress:
+        return { current: event.loaded, total: compressedBytes };
+
+      case HttpEventType.Response:
+        return event.body;
+    }
+  }
+
+  private async getLocalFiles() {
+    const { crypto, fs, glob } = this.electronService;
+
+    const directory = this.electronService.remote.app.getAppPath().replace(/\\/g, '/');
+    const files = glob.sync(`${directory}/${this.game.slug}/**/*`, { nodir: true });
+
+    const localFiles: { md5: string; path: string }[] = [];
+    for (let i = 0; i < files.length; i++) {
+      this.setStatus('Checking local files...', i, files.length);
+
+      const path = files[i];
+      const md5 = await new Promise<string>((resolve, reject) => {
+        const stream = fs.createReadStream(path);
+        const hash = crypto.createHash('md5');
+        hash.setEncoding('hex');
+
+        stream.on('end', () => {
+          hash.end();
+          return resolve(hash.read() as string);
+        });
+
+        stream.pipe(hash);
+      });
+
+      localFiles.push({ md5, path });
+    }
+
+    return localFiles;
+  }
+
+  private setButton(icon: string, text: string, disabled: boolean) {
+    this.buttonIcon = icon;
+    this.buttonText = text;
+    this.isButtonDisabled = disabled;
+  }
+
+  private setStatus(text: string = null, current: number = null, total: number = null) {
+    this.statusText = text;
+    this.progress = { current, total };
+  }
+
+  private async unzip(response: any) {
     // Convert blob into buffer.
     const { unzipper } = this.electronService;
     const buffer = await new Promise<Buffer>(resolve => {
@@ -80,7 +255,8 @@ export class StatusComponent implements OnInit {
     const files = root.files.filter(f => f.type === 'File');
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      this.progressText = `${i} / ${files.length} Files`;
+
+      this.setStatus('Installing update...', i, files.length);
 
       const target = `${directory}/${this.game.slug}/${file.path}`;
       const targetDirectory = target.substr(0, target.lastIndexOf('/'));
@@ -96,104 +272,5 @@ export class StatusComponent implements OnInit {
           .on('finish', resolve);
       });
     }
-
-    this.buttonIcon = 'play_arrow';
-    this.buttonText = 'Play';
-    this.isButtonDisabled = false;
-    this.progressText = null;
-    this.statusText = null;
-
-    this.modifiedFiles = [];
-  }
-
-  private async checkForUpdates() {
-    this.buttonText = 'Checking for updates...';
-    this.isButtonDisabled = true;
-
-    this.statusText = 'Retrieving latest release...';
-    const releases = await this.releaseService.find({
-      sort: 'publishedAt',
-      where: {
-        $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
-        gameId: this.game._id,
-      },
-    });
-
-    if (releases.length === 0) {
-      this.buttonText = 'No Updates Available';
-      this.isButtonDisabled = true;
-      this.statusText = null;
-      return;
-    }
-
-    this.statusText = 'Retrieving release files...';
-    this.release = releases[0];
-    const remoteFiles = await this.fileService.find(this.release._id, this.platform, {
-      limit: 10000,
-    });
-    if (remoteFiles.length === 0) {
-      this.buttonText = 'No Updates Available';
-      this.isButtonDisabled = true;
-      this.statusText = null;
-      return;
-    }
-
-    this.statusText = 'Finding local files...';
-    const localFiles = await this.getLocalFiles();
-    if (localFiles.length === 0) {
-      this.buttonIcon = 'get_app';
-      this.buttonText = 'Install';
-      this.isButtonDisabled = false;
-      this.modifiedFiles = remoteFiles;
-
-      return;
-    }
-
-    this.statusText = 'Calculating updated files...';
-    const updatedFiles = remoteFiles.filter((rf, i) => {
-      this.progressText = `Checking ${i} / ${remoteFiles.length} Files`;
-      const directory = this.electronService.remote.app.getAppPath().replace(/\\/g, '/');
-      const localFile = localFiles.find(
-        lf => lf.path === `${directory}/${this.game.slug}/${rf.path}`,
-      );
-
-      return !localFile || localFile.md5 !== rf.md5;
-    });
-
-    if (updatedFiles.length > 0) {
-      this.buttonIcon = 'get_app';
-      this.buttonText = 'Update';
-      this.isButtonDisabled = false;
-      this.modifiedFiles = updatedFiles;
-      this.statusText = null;
-      this.progressText = null;
-    } else {
-      this.buttonIcon = 'play_arrow';
-      this.buttonText = 'Play';
-      this.isButtonDisabled = false;
-      this.modifiedFiles = [];
-      this.statusText = null;
-      this.progressText = null;
-    }
-  }
-
-  private getLocalFiles() {
-    const { fs, glob } = this.electronService;
-
-    const directory = this.electronService.remote.app.getAppPath().replace(/\\/g, '/');
-    const files = glob.sync(`${directory}/${this.game.slug}/**/*`, { nodir: true });
-
-    const promises = files.map(async path => {
-      const file = await new Promise<Buffer>(resolve =>
-        fs.readFile(path, (err, buffer) => resolve(buffer)),
-      );
-
-      const arrayBuffer = file.buffer.slice(file.byteOffset, file.byteOffset + file.byteLength);
-      const md5 = SparkMd5.ArrayBuffer.hash(arrayBuffer);
-
-      return { md5, path };
-    });
-
-    return Promise.all(promises);
   }
 }

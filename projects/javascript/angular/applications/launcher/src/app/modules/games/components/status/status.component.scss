@@ -25,10 +25,31 @@
 
       span {
         flex: 1 1 auto;
-        margin-bottom: 2px;
+        margin-bottom: 8px;
+        margin-top: -4px;
 
-        &:last-of-type {
+        &:nth-of-type(2) {
           text-align: right;
+        }
+      }
+    }
+
+    ::ng-deep {
+      mat-progress-bar.mat-progress-bar {
+        div.mat-progress-bar-buffer {
+          background: rgba(255, 255, 255, 0.25);
+        }
+
+        div.mat-progress-bar-fill {
+          transition-duration: 10ms;
+
+          &::after {
+            background: #ffff55;
+          }
+        }
+
+        svg.mat-progress-bar-background {
+          fill: transparent;
         }
       }
     }
@@ -37,9 +58,15 @@
   ten-button {
     ::ng-deep {
       a.mat-button mat-icon.mat-icon {
-        font-size: 20px;
-        height: 17px;
-        width: 17px;
+        color: white;
+        font-size: 36px;
+        height: 22px;
+        margin-right: 8px;
+        width: 36px;
+      }
+
+      span {
+        font-size: 24px !important;
       }
     }
   }
