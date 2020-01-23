@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { ElectronService } from '@tenlastic/ng-electron';
 import { Game, GameService } from '@tenlastic/ng-http';
 
 @Component({
@@ -9,7 +10,11 @@ import { Game, GameService } from '@tenlastic/ng-http';
 export class LayoutComponent implements OnInit {
   public games: Game[] = [];
 
-  constructor(private gameService: GameService, private router: Router) {}
+  constructor(
+    public electronService: ElectronService,
+    private gameService: GameService,
+    private router: Router,
+  ) {}
 
   public async ngOnInit() {
     this.games = await this.gameService.find({});

@@ -36,7 +36,7 @@ describe('handlers/articles/create', function() {
             title: chance.hash(),
           },
         },
-        state: { user },
+        state: { user: user.toObject() },
       });
 
       await handler(ctx as any);
@@ -57,7 +57,7 @@ describe('handlers/articles/create', function() {
             title: chance.hash(),
           },
         },
-        state: { user },
+        state: { user: user.toObject() },
       });
 
       const promise = handler(ctx as any);

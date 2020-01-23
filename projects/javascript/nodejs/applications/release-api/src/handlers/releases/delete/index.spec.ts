@@ -1,8 +1,13 @@
+import * as minio from '@tenlastic/minio';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
+import * as fs from 'fs';
 
 import {
+  FileMock,
+  FilePlatform,
+  FileSchema,
   ReadonlyGameMock,
   ReadonlyNamespaceMock,
   ReadonlyUserDocument,
@@ -23,6 +28,7 @@ describe('handlers/releases/delete', function() {
   });
 
   context('when permission is granted', function() {
+    let platform: FilePlatform;
     let record: ReleaseDocument;
 
     beforeEach(async function() {
@@ -31,6 +37,12 @@ describe('handlers/releases/delete', function() {
       const game = await ReadonlyGameMock.create({ namespaceId: namespace._id });
 
       record = await ReleaseMock.create({ gameId: game._id });
+
+      platform = FileMock.getPlatform();
+      const file = await FileMock.create({ path: 'index.ts', platform, releaseId: record._id });
+      await minio
+        .getClient()
+        .putObject(FileSchema.bucket, file.key, fs.createReadStream(__filename));
     });
 
     it('returns the deleted record', async function() {
@@ -44,6 +56,23 @@ describe('handlers/releases/delete', function() {
       await handler(ctx as any);
 
       expect(ctx.response.body.record).to.exist;
+    });
+
+    it('deletes removed files from Minio', async function() {
+      const ctx = new ContextMock({
+        params: {
+          _id: record._id,
+        },
+        state: { user: user.toObject() },
+      });
+
+      await handler(ctx as any);
+
+      const promise = minio
+        .getClient()
+        .statObject(FileSchema.bucket, `${record._id}/${platform}/swagger.yml`);
+
+      return expect(promise).to.be.rejectedWith('Not Found');
     });
   });
 

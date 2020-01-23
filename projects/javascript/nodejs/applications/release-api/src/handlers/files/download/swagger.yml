@@ -1,9 +1,9 @@
 paths:
-  /releases/{releaseId}/platforms/{platform}/files:
+  /releases/{releaseId}/platforms/{platform}/files/download:
     post:
-      summary: Create
+      summary: Download
       tags: [Files]
-      description: Creates a new record.
+      description: Returns a zip file containing all files of a Release.
       security:
         - AccessToken: []
       parameters:
@@ -21,16 +21,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/File'
+              type: object
+              properties:
+                include:
+                  type: array
+                  items:
+                    type: string
       responses:
         200:
           description: OK
           content:
-            application/json:
+            application/octet-stream:
               schema:
-                type: object
-                properties:
-                  records:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/File'
+                type: string
+                format: binary

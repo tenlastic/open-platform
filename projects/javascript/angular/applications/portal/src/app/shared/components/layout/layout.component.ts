@@ -27,7 +27,7 @@ export class LayoutComponent {
     },
     {
       condition: () => this.selectedNamespaceService && this.selectedNamespaceService.namespaceId,
-      icon: 'games',
+      icon: 'sports_esports',
       label: 'Games',
       path: '/games',
     },

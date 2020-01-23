@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "lerna": "lerna",
-    "lerna:angular": "lerna --scope @tenlastic/*-ui --scope @tenlastic/ng-*",
-    "lerna:nodejs": "lerna --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/*"
+    "lerna:angular": "lerna --scope @tenlastic/*-ui --scope @tenlastic/ng-* --scope angular",
+    "lerna:nodejs": "lerna --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --scope nodejs"
   },
   "devDependencies": {
     "lerna": "^3.20.2"

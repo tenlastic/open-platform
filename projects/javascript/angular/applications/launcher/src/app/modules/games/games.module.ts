@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { ComponentLibraryModule } from '@tenlastic/ng-component-library';
 
 import { SharedModule } from '../../shared/shared.module';
-import { ArticleDialogComponent, LayoutComponent } from './components';
+import { ArticleDialogComponent, LayoutComponent, StatusComponent } from './components';
 import { InformationPageComponent } from './pages';
 
 export const ROUTES: Routes = [
@@ -25,7 +25,12 @@ export const ROUTES: Routes = [
 ];
 
 @NgModule({
-  declarations: [ArticleDialogComponent, LayoutComponent, InformationPageComponent],
+  declarations: [
+    ArticleDialogComponent,
+    LayoutComponent,
+    InformationPageComponent,
+    StatusComponent,
+  ],
   entryComponents: [ArticleDialogComponent],
   imports: [ComponentLibraryModule, SharedModule, RouterModule.forChild(ROUTES)],
 })

@@ -12,10 +12,12 @@ export class FileMock {
     const chance = new Chance();
 
     const defaults = {
+      compressedBytes: chance.integer(),
       md5: chance.hash(),
       path: chance.hash(),
       platform: this.getPlatform(),
       releaseId: mongoose.Types.ObjectId(),
+      uncompressedBytes: chance.integer(),
     };
 
     return File.create({ ...defaults, ...params });

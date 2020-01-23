@@ -39,7 +39,8 @@ describe('ApiService', () => {
         };
         const url = 'http://localhost:3000/users';
 
-        service.request(method, url, parameters).then(res => {
+        const promise = service.request(method, url, parameters) as Promise<any>;
+        promise.then(res => {
           expect(res.length).toBe(1);
           expect(res[0]._id).toBe(_id);
         });
@@ -58,7 +59,8 @@ describe('ApiService', () => {
         const parameters = { _id };
         const url = 'http://localhost:3000/users';
 
-        service.request(method, url, parameters).then(res => {
+        const promise = service.request(method, url, parameters) as Promise<any>;
+        promise.then(res => {
           expect(res._id).toBe(_id);
         });
 

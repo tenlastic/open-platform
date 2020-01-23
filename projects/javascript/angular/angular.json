@@ -461,7 +461,8 @@
               },
               "applications/portal/src/assets/scss/index.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "webWorkerTsConfig": "applications/portal/tsconfig.worker.json"
           },
           "configurations": {
             "production": {
@@ -538,6 +539,7 @@
             "tsConfig": [
               "applications/portal/tsconfig.app.json",
               "applications/portal/tsconfig.spec.json",
+              "applications/portal/tsconfig.worker.json",
               "applications/portal/e2e/tsconfig.json"
             ],
             "exclude": ["**/node_modules/**"]

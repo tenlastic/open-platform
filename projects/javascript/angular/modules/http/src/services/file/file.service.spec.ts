@@ -35,33 +35,6 @@ describe('FileService', () => {
     httpMock.verify();
   });
 
-  describe('create()', () => {
-    it('creates and returns a File', () => {
-      const platform = chance.hash();
-      const releaseId = chance.hash();
-      const params = {
-        path: chance.hash(),
-      };
-
-      service.create(releaseId, platform, params).then(res => {
-        expect(res).toEqual(jasmine.any(File));
-        expect(res._id).toBeDefined();
-        expect(res.path).toEqual(params.path);
-      });
-
-      const req = httpMock.expectOne(
-        `${service.basePath}/${releaseId}/platforms/${platform}/files`,
-      );
-      expect(req.request.method).toBe('POST');
-      req.flush({
-        record: {
-          _id: chance.hash(),
-          path: params.path,
-        },
-      });
-    });
-  });
-
   describe('delete()', () => {
     it('deletes the File and returns true', () => {
       const _id = chance.hash();
@@ -122,29 +95,6 @@ describe('FileService', () => {
       req.flush({
         record: { _id },
       });
-    });
-  });
-
-  describe('update()', () => {
-    it('updates and returns a File', () => {
-      const platform = chance.hash();
-      const releaseId = chance.hash();
-      const params = {
-        _id: chance.hash(),
-        path: chance.hash(),
-      };
-
-      service.update(releaseId, platform, params).then(res => {
-        expect(res).toEqual(jasmine.any(File));
-        expect(res._id).toEqual(params._id);
-        expect(res.path).toEqual(params.path);
-      });
-
-      const req = httpMock.expectOne(
-        `${service.basePath}/${releaseId}/platforms/${platform}/files/${params._id}`,
-      );
-      expect(req.request.method).toBe('PUT');
-      req.flush({ record: params });
     });
   });
 });

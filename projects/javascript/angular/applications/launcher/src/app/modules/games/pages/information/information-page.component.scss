@@ -1,27 +1,15 @@
-div.col-sm-1 {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-
-  mat-icon.mat-icon {
-    color: #ffff55;
-  }
-}
-
-div.col-sm-11 {
-  align-content: center;
-  display: flex;
-  flex-direction: column;
-}
-
-div.col-sm-1,
-div.col-sm-11 {
-  padding: 0px;
+div.container {
+  flex: 1 1 auto;
+  margin: 0px;
+  max-width: none;
+  padding: 16px;
 }
 
 div.row {
+  display: flex;
+  flex-direction: column;
   margin: 0px 0px 4px;
-  padding: 8px 0px;
+  padding: 8px 16px;
 
   &:hover {
     background: rgba(255, 255, 255, 0.1);
@@ -37,7 +25,16 @@ h3 {
   margin: 0px;
 }
 
+hr {
+  background: #ffff55;
+  border-color: #ffff55;
+}
+
 span.type-date {
   color: rgba(255, 255, 255, 0.75);
   font-size: 12px;
+}
+
+ten-title {
+  font-size: 36px;
 }

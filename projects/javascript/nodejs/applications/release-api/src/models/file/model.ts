@@ -13,13 +13,28 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
+import * as minio from '@tenlastic/minio';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { Release, ReleaseDocument } from '../release';
+import { Release, ReleaseDocument, ReleaseEvent } from '../release';
 
 export const FileEvent = new EventEmitter<IDatabasePayload<FileDocument>>();
 FileEvent.on(kafka.publish);
+FileEvent.on(async event => {
+  switch (event.operationType) {
+    case 'delete':
+      return minio.getClient().removeObject(FileSchema.bucket, event.fullDocument.key);
+  }
+});
+ReleaseEvent.on(async event => {
+  switch (event.operationType) {
+    case 'delete':
+      const files = await File.find({ releaseId: event.fullDocument._id });
+      const promises = files.map(f => f.remove());
+      return Promise.all(promises);
+  }
+});
 
 export enum FilePlatform {
   Windows64 = 'windows64',
@@ -45,6 +60,10 @@ export enum FilePlatform {
 })
 export class FileSchema {
   public _id: mongoose.Types.ObjectId;
+
+  @prop({ required: true })
+  public compressedBytes: number;
+
   public createdAt: Date;
 
   @prop({ required: true })
@@ -58,6 +77,9 @@ export class FileSchema {
 
   @prop({ ref: Release, required: true })
   public releaseId: Ref<ReleaseDocument>;
+
+  @prop({ required: true })
+  public uncompressedBytes: number;
 
   public updatedAt: Date;
 

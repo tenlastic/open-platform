@@ -32,11 +32,19 @@
     <mat-list>
       <mat-list-item *ngFor="let previousFile of previousFiles" [attr.status]="previousFile.status">
         <span>{{ previousFile.path }}</span>
+        <span
+          *ngIf="
+            previousFile.uncompressedBytes !== undefined && previousFile.uncompressedBytes !== null
+          "
+        >
+          {{ previousFile.uncompressedBytes | filesize }}
+        </span>
       </mat-list-item>
     </mat-list>
 
     <mat-hint>
       <span>Count: {{ previousFiles.length }}</span>
+      <span>Size: {{ previousFiles | sum: 'uncompressedBytes' | filesize }}</span>
     </mat-hint>
   </div>
 
@@ -48,9 +56,13 @@
     <mat-list>
       <mat-list-item *ngFor="let stagedFile of stagedFiles" [attr.status]="stagedFile.status">
         <span>{{ stagedFile.path }}</span>
-        <span *ngIf="stagedFile.size !== undefined && stagedFile.size !== null">{{
-          stagedFile.size | filesize
-        }}</span>
+        <span
+          *ngIf="
+            stagedFile.uncompressedBytes !== undefined && stagedFile.uncompressedBytes !== null
+          "
+        >
+          {{ stagedFile.uncompressedBytes | filesize }}
+        </span>
       </mat-list-item>
     </mat-list>
 
@@ -60,9 +72,9 @@
         {{ unmodifiedFiles.length }} Unmodified
       </span>
       <span>
-        Size: {{ modifiedFiles | sum: 'size' | filesize }} Modified,
-        {{ removedFiles | sum: 'size' | filesize }} Removed,
-        {{ unmodifiedFiles | sum: 'size' | filesize }} Unmodified
+        Size: {{ modifiedFiles | sum: 'uncompressedBytes' | filesize }} Modified,
+        {{ removedFiles | sum: 'uncompressedBytes' | filesize }} Removed,
+        {{ unmodifiedFiles | sum: 'uncompressedBytes' | filesize }} Unmodified
       </span>
     </mat-hint>
   </div>
@@ -83,7 +95,11 @@
 </ten-button>
 <ten-button *ngIf="stagedFiles.length" color="primary" [disabled]="status" (OnClick)="upload()">
   <mat-spinner *ngIf="status" [diameter]="20"></mat-spinner>
-  <span>{{ status ? status : 'Upload' }}</span>
+  <span *ngIf="uploadStatus">
+    Uploading ({{ uploadStatus.current | filesize }} / {{ uploadStatus.total | filesize }})
+  </span>
+  <span *ngIf="zipStatus">Zipping Files ({{ zipStatus.current }} / {{ zipStatus.total }})</span>
+  <span *ngIf="!uploadStatus && !zipStatus">{{ status ? status : 'Upload' }}</span>
 </ten-button>
 <ten-button *ngIf="stagedFiles.length && !status" color="accent" (OnClick)="cancel()">
   <span>Cancel</span>

@@ -1,4 +1,6 @@
+import { HttpEvent, HttpEventType } from '@angular/common/http';
 import {
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -10,9 +12,9 @@ import {
 import { IdentityService } from '@tenlastic/ng-authentication';
 import { FileService, IRelease, Release, ReleaseService } from '@tenlastic/ng-http';
 import JSZip from 'jszip';
+import { last, map, tap } from 'rxjs/operators';
 
 import { FileReaderService } from '../../../../core/services';
-import { MatSelectChange } from '@angular/material';
 
 export interface FileFormComponentData {
   platform: IRelease.Platform;
@@ -22,8 +24,8 @@ export interface UpdatedFile {
   arrayBuffer?: ArrayBuffer;
   md5: string;
   path: string;
-  size: number;
   status: string;
+  uncompressedBytes?: number;
 }
 
 @Component({
@@ -53,8 +55,11 @@ export class FilesFormComponent implements OnInit {
   public get unmodifiedFiles() {
     return this.stagedFiles.filter(f => f.status === 'unmodified');
   }
+  public uploadStatus: any;
+  public zipStatus: any;
 
   constructor(
+    private changeDetectorRef: ChangeDetectorRef,
     private fileReaderService: FileReaderService,
     private fileService: FileService,
     public identityService: IdentityService,
@@ -85,28 +90,25 @@ export class FilesFormComponent implements OnInit {
     }
 
     this.status = 'Calculating file changes...';
+
     this.stagedFiles = [];
+    await new Promise(resolve => {
+      const worker = new Worker('../../../../workers/file-reader.worker', { type: 'module' });
+      worker.onmessage = ({ data }) => {
+        if (data.file) {
+          this.stagedFiles.push(data.file);
+        }
 
-    const sortArray = ['modified', 'removed', 'unmodified'];
-    for (const file of files) {
-      const content = await this.fileReaderService.fileToArrayBuffer(file);
-      const path = file.webkitRelativePath.substring(file.webkitRelativePath.indexOf('/') + 1);
-      const previousFile = this.previousFiles.find(p => p.path === path);
+        if (data.isDone) {
+          return resolve();
+        }
+      };
+      worker.postMessage({ files, previousFiles: this.previousFiles });
+    });
 
-      const md5 = this.fileReaderService.arrayBufferToMd5(content);
-      const status = !previousFile || previousFile.md5 !== md5 ? 'modified' : 'unmodified';
-
-      this.stagedFiles.push({ arrayBuffer: content, md5, path, size: file.size, status });
-      this.stagedFiles.sort((a, b) => sortArray.indexOf(a.status) - sortArray.indexOf(b.status));
-    }
-
-    const updatedFilePaths = this.stagedFiles.map(u => u.path);
-    const removedFiles = this.previousFiles
-      .filter(f => !updatedFilePaths.includes(f.path))
-      .map(f => ({ md5: f.md5, path: f.path, size: 0, status: 'removed' }));
-    this.stagedFiles = this.stagedFiles
-      .concat(removedFiles)
-      .sort((a, b) => sortArray.indexOf(a.status) - sortArray.indexOf(b.status));
+    this.stagedFiles = this.stagedFiles.sort((a, b) =>
+      a.path < b.path ? -1 : a.path > b.path ? 1 : 0,
+    );
 
     this.status = null;
   }
@@ -129,33 +131,62 @@ export class FilesFormComponent implements OnInit {
     this.status = 'Zipping files...';
 
     const zip = new JSZip();
-    this.stagedFiles
-      .filter(u => u.status === 'modified')
-      .forEach(u => {
-        const blob = this.fileReaderService.arrayBufferToBlob(u.arrayBuffer);
-        zip.file(u.path, blob);
-      });
-
-    const zipBlob = await zip.generateAsync({
-      compression: 'DEFLATE',
-      compressionOptions: {
-        level: 5,
-      },
-      type: 'blob',
+    const zipFiles = this.stagedFiles.filter(u => u.status === 'modified');
+    zipFiles.forEach(u => {
+      const blob = this.fileReaderService.arrayBufferToBlob(u.arrayBuffer);
+      zip.file(u.path, blob);
     });
+
+    const zipBlob = await zip.generateAsync(
+      {
+        compression: 'DEFLATE',
+        compressionOptions: {
+          level: 5,
+        },
+        type: 'blob',
+      },
+      metadata => {
+        const total = zipFiles.length;
+        this.zipStatus = { current: Math.floor(total * (metadata.percent / 100)), total };
+
+        this.changeDetectorRef.detectChanges();
+      },
+    );
+    this.zipStatus = null;
 
     this.status = 'Uploading files...';
-
-    await this.fileService.upload(this.release._id, this.platform, {
-      modified: this.modifiedFiles.map(f => f.path),
-      previousReleaseId: this.previousRelease._id,
-      removed: this.removedFiles.map(f => f.path),
-      unmodified: this.unmodifiedFiles.map(f => f.path),
-      zip: zipBlob,
-    });
-
+    await this.fileService
+      .upload(this.release._id, this.platform, {
+        modified: this.modifiedFiles.map(f => f.path),
+        previousReleaseId: this.previousRelease._id,
+        removed: this.removedFiles.map(f => f.path),
+        unmodified: this.unmodifiedFiles.map(f => f.path),
+        zip: zipBlob,
+      })
+      .pipe(
+        map(event => this.getEventMessage(event, zipBlob)),
+        tap(message => (this.uploadStatus = message)),
+        last(),
+      )
+      .toPromise();
     this.status = null;
+    this.uploadStatus = null;
 
     this.setPreviousRelease(this.releases.find(r => r._id === this.release._id));
+  }
+
+  private getEventMessage(event: HttpEvent<any>, blob: Blob) {
+    const file = new File([blob], 'file');
+
+    switch (event.type) {
+      case HttpEventType.Sent:
+        return { current: 0, total: file.size };
+
+      case HttpEventType.UploadProgress:
+        return { current: event.loaded, total: event.total };
+
+      case HttpEventType.Response:
+        return { current: file.size, total: file.size };
+    }
   }
 }

@@ -1,7 +1,25 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 export type RequestMethod = 'delete' | 'get' | 'post' | 'put';
+
+export interface RequestOptions {
+  headers?:
+    | HttpHeaders
+    | {
+        [header: string]: string | string[];
+      };
+  observe?: string;
+  params?:
+    | HttpParams
+    | {
+        [param: string]: string | string[];
+      };
+  reportProgress?: boolean;
+  responseType?: string;
+  withCredentials?: boolean;
+}
 
 export interface RestParameters {
   limit?: number;
@@ -21,25 +39,40 @@ export class ApiService {
    * @param path The relative path from the object's base endpoint. Ex: '/count', '/recent'.
    * @param params The parameters to pass to the endpoint. Ex: { where: { name: 'John Doe' }, limit: 10, sort: 'name' }.
    */
-  public request(method: RequestMethod, url: string, params?: any): Promise<any> {
-    const headers = new HttpHeaders();
-    const options: any = { headers };
+  public request(
+    method: RequestMethod,
+    url: string,
+    params?: any,
+    options: RequestOptions = {},
+  ): Observable<any> | Promise<any> {
+    options.headers = new HttpHeaders();
 
     if ((method === 'get' || method === 'delete') && params) {
       options.params = new HttpParams().set('query', JSON.stringify(params));
     }
 
+    let observable: Observable<ArrayBuffer>;
     switch (method) {
       case 'get':
-        return this.http.get(url, options).toPromise();
+        observable = this.http.get(url, options as any);
+        break;
+
       case 'post':
-        return this.http.post(url, params ? params : undefined, options).toPromise();
+        observable = this.http.post(url, params ? params : undefined, options as any);
+        break;
+
       case 'put':
-        return this.http.put(url, params ? params : undefined, options).toPromise();
+        observable = this.http.put(url, params ? params : undefined, options as any);
+        break;
+
       case 'delete':
-        return this.http.delete(url, options).toPromise();
+        observable = this.http.delete(url, options as any);
+        break;
+
       default:
         throw new Error('Unsupported HTTP verb.');
     }
+
+    return options.reportProgress ? observable : observable.toPromise();
   }
 }
