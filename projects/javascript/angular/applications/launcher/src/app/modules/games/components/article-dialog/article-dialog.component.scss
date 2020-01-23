@@ -1,9 +1,8 @@
 ::ng-deep {
   div.article-dialog-component {
     ten-markdown.mat-dialog-content {
-      border: 1px solid rgba(255, 255, 255, 0.25);
       margin: 0px;
-      padding: 0px 8px;
+      padding: 0px 8px 0px 0px;
     }
 
     div.mat-dialog-title {
@@ -12,9 +11,11 @@
       margin: 0px;
 
       h1 {
+        border-bottom: 2px solid #ffff55;
         font-size: 1.3em;
         line-height: 1em;
         margin: 4px 0px 12px;
+        padding-bottom: 12px;
       }
     }
 
