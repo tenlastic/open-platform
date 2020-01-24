@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: documentation-ui
-          image: tenlastic/documentation-ui:0.0.35
+          image: tenlastic/documentation-ui:0.0.36
           ports:
             - containerPort: 80
           resources:
