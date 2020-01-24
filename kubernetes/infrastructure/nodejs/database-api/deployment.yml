@@ -20,7 +20,7 @@ spec:
                     operator: Exists
       containers:
         - name: database-api
-          image: tenlastic/database-api:0.0.36
+          image: tenlastic/database-api:0.0.37
           envFrom:
             - secretRef:
                 name: database-api-environment-variables
