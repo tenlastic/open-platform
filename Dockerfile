@@ -54,8 +54,10 @@ RUN curl -o /usr/local/bin/jq http://stedolan.github.io/jq/download/linux64/jq &
 
 # Install fluxctl.
 RUN wget -O fluxctl https://github.com/fluxcd/flux/releases/download/$FLUX_VERSION/fluxctl_linux_amd64 && \
+  chmod +x fluxctl && \
   mv fluxctl /usr/local/bin/fluxctl
 
 # Install kubeseal.
 RUN wget https://github.com/bitnami-labs/sealed-secrets/releases/download/$KUBESEAL_VERSION/kubeseal-linux-amd64 -O kubeseal && \
+  chmod +x kubeseal && \
   mv kubeseal /usr/local/bin/kubeseal
