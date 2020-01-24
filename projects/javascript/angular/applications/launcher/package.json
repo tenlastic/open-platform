@@ -16,7 +16,7 @@
     "electron:mac": "npm run electron:build && electron-builder build --mac",
     "electron:serve": "wait-on http-get://localhost:8083/ && npm run electron:build:tsc && electron ./dist/electron/main.js --serve",
     "electron:start": "npm-run-all -p start electron:serve",
-    "electron:windows": "npm run electron:build && electron-builder build --publish always --win",
+    "electron:windows": "npm run electron:build && electron-builder build --win",
     "lint": "ng lint launcher",
     "start": "ng serve --port 8083 launcher",
     "test": "ng test --code-coverage --watch false launcher",
@@ -26,7 +26,9 @@
   "private": true,
   "dependencies": {
     "electron-log": "~4.0.2",
-    "electron-updater": "~4.2.0"
+    "electron-updater": "~4.2.0",
+    "glob": "~7.1.6",
+    "unzipper": "~0.10.5"
   },
   "devDependencies": {
     "@angular/cli": "~8.3.21",
