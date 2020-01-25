@@ -15,7 +15,7 @@ minio.connect({
   endPoint: minioConnectionUrl.hostname,
   port: Number(minioConnectionUrl.port || '443'),
   secretKey: minioConnectionUrl.password,
-  useSSL: minioConnectionUrl.protocol === 'https',
+  useSSL: minioConnectionUrl.protocol === 'https:',
 });
 
 async () => {

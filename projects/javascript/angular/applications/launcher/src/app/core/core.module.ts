@@ -11,7 +11,6 @@ import {
 } from '@tenlastic/ng-authentication';
 
 import { MaterialModule } from '../material.module';
-import { CrudSnackbarService } from './services';
 
 @NgModule({
   exports: [MaterialModule],
@@ -24,8 +23,6 @@ import { CrudSnackbarService } from './services';
     RouterModule,
   ],
   providers: [
-    CrudSnackbarService,
-
     {
       provide: HTTP_INTERCEPTORS,
       useClass: RefreshTokenInterceptor,

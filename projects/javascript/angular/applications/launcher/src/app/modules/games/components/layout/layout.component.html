@@ -10,7 +10,8 @@
       width="full"
     >
       <img *ngIf="game.icon" [src]="game.icon" />
-      <span>{{ game.title }}</span>
+      <div>{{ game.title }}</div>
+      <mat-progress-bar *ngIf="getProgress(game)" [value]="getProgress(game)"></mat-progress-bar>
     </ten-button>
   </div>
 
