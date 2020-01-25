@@ -10,7 +10,7 @@ import {
 
 import { SNACKBAR_DURATION } from '../../../shared/constants';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class CrudSnackbarService {
   constructor(
     private collectionService: CollectionService,

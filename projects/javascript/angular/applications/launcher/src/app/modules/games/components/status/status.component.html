@@ -1,32 +1,18 @@
 <div class="action">
-  <ten-button color="primary" [disabled]="isButtonDisabled" (OnClick)="update()">
-    <mat-icon *ngIf="buttonIcon">{{ buttonIcon }}</mat-icon>
-    <span>{{ buttonText }}</span>
+  <ten-button color="primary" [disabled]="isButtonDisabled" (OnClick)="click()">
+    <mat-icon *ngIf="buttonIcon" [attr.icon]="buttonIcon">{{ buttonIcon }}</mat-icon>
+    <span class="text">{{ buttonText }}</span>
+    <div class="clearfix"></div>
   </ten-button>
 </div>
 
 <div *ngIf="statusText" class="status">
   <div>
     <span>{{ statusText }}</span>
-    <span
-      *ngIf="
-        progress && progress.current && progress.total && statusText === 'Downloading update...'
-      "
-    >
-      {{ progress.current | filesize }} / {{ progress.total | filesize }}
-    </span>
-    <span
-      *ngIf="
-        progress && progress.current && progress.total && statusText !== 'Downloading update...'
-      "
-    >
-      {{ progress.current }} / {{ progress.total }} Files
+    <span *ngIf="progressText">
+      {{ progressText }}
     </span>
   </div>
 
-  <mat-progress-bar
-    *ngIf="progress && progress.current && progress.total"
-    mode="determinate"
-    [value]="(progress.current / progress.total) * 100"
-  ></mat-progress-bar>
+  <mat-progress-bar *ngIf="progress" [value]="progress"></mat-progress-bar>
 </div>

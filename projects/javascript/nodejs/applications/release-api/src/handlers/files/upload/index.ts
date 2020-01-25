@@ -39,7 +39,7 @@ export async function handler(ctx: Context) {
     const busboy = new Busboy({ headers: ctx.request.headers });
     let promise: Promise<Array<Promise<FileDocument>>>;
 
-    busboy.on('file', async (field, stream) => {
+    busboy.on('file', (field, stream) => {
       if (field !== 'zip') {
         return;
       }
@@ -100,11 +100,10 @@ export async function handler(ctx: Context) {
 
   // Remove files from current Release.
   if (fields.removed && fields.removed.length) {
-    const promises = fields.removed.map(path => {
-      return removeObject(path, ctx.params.platform, ctx.params.releaseId, ctx.state.user);
-    });
-
-    await Promise.all(promises);
+    for (const path of fields.removed) {
+      const { platform, releaseId } = ctx.params;
+      await File.findOneAndDelete({ path: path.replace(/[\.]+\//g, ''), platform, releaseId });
+    }
   }
 
   ctx.response.body = { records };
@@ -146,19 +145,13 @@ async function copyObject(
   );
 }
 
-async function removeObject(path: string, platform: string, releaseId: string, user: any) {
-  path = path.replace(/[\.]+\//g, '');
-
-  return File.findOneAndDelete({ path, platform, releaseId });
-}
-
-async function processZip(platform: FilePlatform, release: ReleaseDocument, stream: Stream) {
+function processZip(platform: FilePlatform, release: ReleaseDocument, stream: Stream) {
   const promises = [];
 
   return new Promise<Array<Promise<FileDocument>>>((resolve, reject) => {
     stream
       .pipe(unzipper.Parse())
-      .on('entry', async entry => {
+      .on('entry', entry => {
         const { path, type } = entry;
         if (type === 'Directory') {
           return;
@@ -170,8 +163,12 @@ async function processZip(platform: FilePlatform, release: ReleaseDocument, stre
           releaseId: release._id,
         });
 
-        const promise = saveFile(entry, record);
-        promises.push(promise);
+        try {
+          const promise = saveFile(entry, record);
+          promises.push(promise);
+        } catch (e) {
+          throw e;
+        }
       })
       .on('error', reject)
       .on('finish', () => resolve(promises));
@@ -179,23 +176,6 @@ async function processZip(platform: FilePlatform, release: ReleaseDocument, stre
 }
 
 async function saveFile(entry: any, record: FileDocument) {
-  const md5 = await uploadToMinio(entry, record);
-
-  return File.findOneAndUpdate(
-    { path: record.path, platform: record.platform, releaseId: record.releaseId },
-    {
-      compressedBytes: entry.vars.compressedSize,
-      md5,
-      path: record.path,
-      platform: record.platform,
-      releaseId: record.releaseId,
-      uncompressedBytes: entry.vars.uncompressedSize,
-    },
-    { new: true, upsert: true },
-  );
-}
-
-async function uploadToMinio(entry: Stream, record: FileDocument) {
   const results = await Promise.all([
     new Promise((resolve, reject) => {
       const hash = crypto.createHash('md5');
@@ -212,5 +192,16 @@ async function uploadToMinio(entry: Stream, record: FileDocument) {
     minio.getClient().putObject(FileSchema.bucket, record.key, entry),
   ]);
 
-  return results[0] as string;
+  return File.findOneAndUpdate(
+    { path: record.path, platform: record.platform, releaseId: record.releaseId },
+    {
+      compressedBytes: entry.vars.compressedSize,
+      md5: results[0],
+      path: record.path,
+      platform: record.platform,
+      releaseId: record.releaseId,
+      uncompressedBytes: entry.vars.uncompressedSize,
+    },
+    { new: true, upsert: true },
+  );
 }

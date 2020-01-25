@@ -1,14 +1,24 @@
-ten-sidenav div.content {
-  display: flex;
-  flex-direction: column;
-  padding: 0px;
-  position: relative;
+ten-sidenav {
+  div.content {
+    display: flex;
+    flex-direction: column;
+    padding: 0px;
+    position: relative;
 
-  ::ng-deep {
-    ng-component {
-      flex: 1 1 auto;
-      display: flex;
-      flex-direction: column;
+    ::ng-deep {
+      ng-component {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+
+  div.nav {
+    ::ng-deep {
+      mat-progress-bar.mat-progress-bar {
+        margin-bottom: 3px;
+      }
     }
   }
 }
