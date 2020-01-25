@@ -196,7 +196,7 @@ jobs:
           working_directory: /tmp/workspace/projects/javascript/
       - run:
           name: Build and Publish Electron Applications
-          command: lerna run --concurrency 1 electron:windows
+          command: lerna run --concurrency 1 electron:windows -- -- --publish always
           working_directory: /tmp/workspace/projects/javascript/
 
   publish_miscellaneous_docker_images:
