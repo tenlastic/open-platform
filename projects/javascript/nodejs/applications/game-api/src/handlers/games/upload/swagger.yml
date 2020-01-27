@@ -1,0 +1,31 @@
+paths:
+  /games/{slug}/upload:
+    post:
+      summary: Upload
+      tags: [Games]
+      description: Uploads files for a Game.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: slug
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                modified:
+                  type: array
+                  items:
+                    type: string
+                removed:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        200:
+          description: OK

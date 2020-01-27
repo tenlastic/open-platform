@@ -8,7 +8,6 @@ services:
       - JWT_SECRET
       - KAFKA_CONNECTION_STRING
       - MONGO_CONNECTION_STRING
-      - MONGO_DATABASE_NAME
       - RABBITMQ_CONNECTION_STRING
     links:
       - kafka

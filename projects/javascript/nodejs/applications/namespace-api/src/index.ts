@@ -3,13 +3,13 @@ import 'source-map-support/register';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { WebServer } from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
-import * as path from 'path';
 
+import { MONGO_DATABASE_NAME } from './constants';
 import { router as namespacesRouter } from './handlers/namespaces';
 import { ReadonlyUser } from './models';
 
 mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
-  dbName: process.env.MONGO_DATABASE_NAME,
+  dbName: MONGO_DATABASE_NAME,
   poolSize: 10,
   useCreateIndex: true,
   useFindAndModify: false,

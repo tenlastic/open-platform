@@ -4,10 +4,10 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs';
 
+import { MINIO_BUCKET } from '../../../constants';
 import {
   FileMock,
   FilePlatform,
-  FileSchema,
   ReadonlyGameMock,
   ReadonlyNamespaceMock,
   ReadonlyUserDocument,
@@ -40,9 +40,7 @@ describe('handlers/releases/delete', function() {
 
       platform = FileMock.getPlatform();
       const file = await FileMock.create({ path: 'index.ts', platform, releaseId: record._id });
-      await minio
-        .getClient()
-        .putObject(FileSchema.bucket, file.key, fs.createReadStream(__filename));
+      await minio.getClient().putObject(MINIO_BUCKET, file.key, fs.createReadStream(__filename));
     });
 
     it('returns the deleted record', async function() {
@@ -70,7 +68,7 @@ describe('handlers/releases/delete', function() {
 
       const promise = minio
         .getClient()
-        .statObject(FileSchema.bucket, `${record._id}/${platform}/swagger.yml`);
+        .statObject(MINIO_BUCKET, `${record._id}/${platform}/swagger.yml`);
 
       return expect(promise).to.be.rejectedWith('Not Found');
     });

@@ -41,6 +41,10 @@ export class UpdateService {
       .replace('/app.asar', '');
   }
   private get platform() {
+    if (!this.electronService.isElectron) {
+      return null;
+    }
+
     const arch = this.electronService.os.arch();
     const platform = this.electronService.os.platform();
 

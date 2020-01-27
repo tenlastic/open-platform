@@ -5,7 +5,17 @@ import { Game, GameDocument } from './model';
 export const GamePermissions = new MongoosePermissions<GameDocument>(Game, {
   create: {
     roles: {
-      administrator: ['description', 'namespaceId', 'slug', 'subtitle', 'title'],
+      administrator: [
+        'background',
+        'description',
+        'icon',
+        'images',
+        'namespaceId',
+        'slug',
+        'subtitle',
+        'title',
+        'videos',
+      ],
     },
   },
   delete: {
@@ -20,13 +30,17 @@ export const GamePermissions = new MongoosePermissions<GameDocument>(Game, {
   read: {
     base: [
       '_id',
+      'background',
       'createdAt',
       'description',
+      'icon',
+      'images',
       'namespaceId',
       'slug',
       'subtitle',
       'title',
       'updatedAt',
+      'videos',
     ],
   },
   roles: [
@@ -44,7 +58,17 @@ export const GamePermissions = new MongoosePermissions<GameDocument>(Game, {
   ],
   update: {
     roles: {
-      administrator: ['description', 'namespaceId', 'slug', 'subtitle', 'title'],
+      administrator: [
+        'background',
+        'description',
+        'icon',
+        'images',
+        'namespaceId',
+        'slug',
+        'subtitle',
+        'title',
+        'videos',
+      ],
     },
   },
 });

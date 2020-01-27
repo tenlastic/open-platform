@@ -1,6 +1,7 @@
 import {
   DocumentType,
   Ref,
+  arrayProp,
   getModelForClass,
   modelOptions,
   prop,
@@ -33,6 +34,9 @@ export class ExampleSchema {
   public parentId: Ref<ExampleSchema>;
 
   public updatedAt: Date;
+
+  @arrayProp({ items: String })
+  public urls: string[];
 
   @prop({ ref: 'ExampleSchema' })
   public userId: Ref<ExampleSchema>;

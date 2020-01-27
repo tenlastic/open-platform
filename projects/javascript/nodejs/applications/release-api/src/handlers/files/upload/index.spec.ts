@@ -7,11 +7,11 @@ import * as FormData from 'form-data';
 import * as fs from 'fs';
 import * as JSZip from 'jszip';
 
+import { MINIO_BUCKET } from '../../../constants';
 import {
   File,
   FileMock,
   FilePlatform,
-  FileSchema,
   ReadonlyGameMock,
   ReadonlyNamespaceMock,
   ReadonlyUserDocument,
@@ -56,7 +56,7 @@ describe('handlers/files/upload', function() {
       });
       await minio
         .getClient()
-        .putObject(FileSchema.bucket, previousFile.key, fs.createReadStream(__filename));
+        .putObject(MINIO_BUCKET, previousFile.key, fs.createReadStream(__filename));
 
       // Set up File to remove.
       const removedFile = await FileMock.create({
@@ -66,7 +66,7 @@ describe('handlers/files/upload', function() {
       });
       await minio
         .getClient()
-        .putObject(FileSchema.bucket, removedFile.key, fs.createReadStream(__filename));
+        .putObject(MINIO_BUCKET, removedFile.key, fs.createReadStream(__filename));
 
       const zip = new JSZip();
       zip.file('index.spec.ts', fs.createReadStream(__filename));
@@ -124,7 +124,7 @@ describe('handlers/files/upload', function() {
       const file = new File(ctx.response.body.records[0]);
       const result = await minio
         .getClient()
-        .statObject(FileSchema.bucket, `${file.releaseId}/${file.platform}/index.ts`);
+        .statObject(MINIO_BUCKET, `${file.releaseId}/${file.platform}/index.ts`);
 
       expect(result).to.exist;
     });
@@ -134,7 +134,7 @@ describe('handlers/files/upload', function() {
 
       const promise = minio
         .getClient()
-        .statObject(FileSchema.bucket, `${release._id}/${platform}/swagger.yml`);
+        .statObject(MINIO_BUCKET, `${release._id}/${platform}/swagger.yml`);
 
       return expect(promise).to.be.rejectedWith('Not Found');
     });
@@ -145,7 +145,7 @@ describe('handlers/files/upload', function() {
       const file = new File(ctx.response.body.records[0]);
       const result = await minio
         .getClient()
-        .statObject(FileSchema.bucket, `${file.releaseId}/${file.platform}/index.spec.ts`);
+        .statObject(MINIO_BUCKET, `${file.releaseId}/${file.platform}/index.spec.ts`);
 
       expect(result).to.exist;
     });

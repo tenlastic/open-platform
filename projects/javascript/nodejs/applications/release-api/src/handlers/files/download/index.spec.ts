@@ -5,9 +5,9 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs';
 import * as unzipper from 'unzipper';
 
+import { MINIO_BUCKET } from '../../../constants';
 import {
   FileMock,
-  FileSchema,
   ReadonlyGameMock,
   ReadonlyNamespaceMock,
   ReadonlyUserDocument,
@@ -46,10 +46,10 @@ describe('handlers/files/download', function() {
       ]);
       await minio
         .getClient()
-        .putObject(FileSchema.bucket, files[0].key, fs.createReadStream(__filename));
+        .putObject(MINIO_BUCKET, files[0].key, fs.createReadStream(__filename));
       await minio
         .getClient()
-        .putObject(FileSchema.bucket, files[1].key, fs.createReadStream(__filename));
+        .putObject(MINIO_BUCKET, files[1].key, fs.createReadStream(__filename));
 
       ctx = new ContextMock({
         params: {

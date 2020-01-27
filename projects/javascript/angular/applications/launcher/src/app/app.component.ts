@@ -1,10 +1,10 @@
 import { Title } from '@angular/platform-browser';
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import { LoginService } from '@tenlastic/ng-http';
 
-import { CrudSnackbarService } from './core/services';
+import { BackgroundService, CrudSnackbarService } from './core/services';
 import { TITLE } from './shared/constants';
 
 @Component({
@@ -13,6 +13,7 @@ import { TITLE } from './shared/constants';
 })
 export class AppComponent {
   constructor(
+    public backgroundService: BackgroundService,
     private loginService: LoginService,
     private crudSnackbarService: CrudSnackbarService,
     private identityService: IdentityService,

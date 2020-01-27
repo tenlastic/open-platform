@@ -2,7 +2,8 @@ import * as minio from '@tenlastic/minio';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as JSZip from 'jszip';
 
-import { Release, FileSchema, FilePermissions } from '../../../models';
+import { MINIO_BUCKET } from '../../../constants';
+import { Release, FilePermissions } from '../../../models';
 
 export async function handler(ctx: Context) {
   const release = await Release.findOne({ _id: ctx.params.releaseId });
@@ -24,7 +25,7 @@ export async function handler(ctx: Context) {
 
   const zip = new JSZip();
   for (const file of files) {
-    const stream = (await minio.getClient().getObject(FileSchema.bucket, file.key)) as any;
+    const stream = (await minio.getClient().getObject(MINIO_BUCKET, file.key)) as any;
     zip.file(file.path, stream);
   }
 
