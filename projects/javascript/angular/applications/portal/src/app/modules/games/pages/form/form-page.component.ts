@@ -40,7 +40,7 @@ export class GamesFormPageComponent implements OnInit {
     });
   }
 
-  public async onFieldChanged($event, field: string, isArray: boolean) {
+  public async onFieldChanged($event, field: string, isArray: boolean = false) {
     const files: any[] = Array.from($event.target.files);
     if (!files.length) {
       return;
