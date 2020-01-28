@@ -2,7 +2,7 @@ import * as minio from '@tenlastic/minio';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { MONGO_DATABASE_NAME } from './constants';
+import { MINIO_BUCKET, MONGO_DATABASE_NAME } from './constants';
 import { File, ReadonlyGame, ReadonlyNamespace, ReadonlyUser, Release } from './models';
 
 before(async function() {
@@ -15,9 +15,9 @@ before(async function() {
     useSSL: minioConnectionUrl.protocol === 'https',
   });
 
-  const bucketExists = await minio.getClient().bucketExists('releases');
+  const bucketExists = await minio.getClient().bucketExists(MINIO_BUCKET);
   if (!bucketExists) {
-    await minio.getClient().makeBucket('releases', 'us-east-1');
+    await minio.getClient().makeBucket(MINIO_BUCKET, 'us-east-1');
   }
 
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
