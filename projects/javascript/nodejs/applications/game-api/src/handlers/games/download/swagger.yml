@@ -1,0 +1,31 @@
+paths:
+  /games/{slug}/{field}/{_id}:
+    post:
+      summary: Download
+      tags: [Games]
+      description: Returns a stream containing the requested file.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: slug
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: field
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: _id
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary

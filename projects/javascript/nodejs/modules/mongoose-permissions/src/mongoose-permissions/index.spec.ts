@@ -186,6 +186,7 @@ describe('permissions', function() {
         properties: {
           name: chance.hash(),
         },
+        urls: [chance.url(), chance.url()],
       });
     });
 
@@ -206,6 +207,7 @@ describe('permissions', function() {
             age: chance.integer(),
             name: chance.hash(),
           },
+          urls: [chance.url()],
         };
 
         record = await ExamplePermissions.update(record, params, {}, admin, ['properties']);
@@ -219,6 +221,8 @@ describe('permissions', function() {
         expect(record.properties.name).to.exist;
         expect(record.name).to.eql(params.name);
         expect(record.updatedAt).to.exist;
+        expect(record.urls.length).to.eql(1);
+        expect(record.urls).to.eql(params.urls);
       });
     });
 

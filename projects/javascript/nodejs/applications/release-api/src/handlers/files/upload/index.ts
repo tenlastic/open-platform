@@ -6,12 +6,12 @@ import * as crypto from 'crypto';
 import { Stream } from 'stream';
 import * as unzipper from 'unzipper';
 
+import { MINIO_BUCKET } from '../../../constants';
 import {
   File,
   FileDocument,
   FilePermissions,
   FilePlatform,
-  FileSchema,
   Release,
   ReleaseDocument,
 } from '../../../models';
@@ -35,10 +35,11 @@ export async function handler(ctx: Context) {
   }
 
   const fields: any = {};
-  const records = await new Promise<FileDocument[]>((resolve, reject) => {
+  let promise: Promise<Array<Promise<FileDocument>>>;
+  await new Promise<FileDocument[]>((resolve, reject) => {
     const busboy = new Busboy({ headers: ctx.request.headers });
-    let promise: Promise<Array<Promise<FileDocument>>>;
 
+    busboy.on('error', reject);
     busboy.on('file', (field, stream) => {
       if (field !== 'zip') {
         return;
@@ -46,7 +47,6 @@ export async function handler(ctx: Context) {
 
       promise = processZip(ctx.params.platform, release, stream);
     });
-
     busboy.on('field', (key, value) => {
       try {
         value = JSON.parse(value);
@@ -64,20 +64,13 @@ export async function handler(ctx: Context) {
         fields[key] = value;
       }
     });
-
-    busboy.on('finish', async () => {
-      try {
-        const promises = await promise;
-        const results = await Promise.all(promises);
-
-        return resolve(results);
-      } catch (e) {
-        return reject(e);
-      }
-    });
+    busboy.on('finish', resolve);
 
     ctx.req.pipe(busboy);
   });
+
+  const promises = await promise;
+  const records = await Promise.all(promises);
 
   // Copy files from previous Release.
   if (fields.previousReleaseId && fields.unmodified && fields.unmodified.length) {
@@ -127,9 +120,9 @@ async function copyObject(
   await minio
     .getClient()
     .copyObject(
-      FileSchema.bucket,
+      MINIO_BUCKET,
       `${releaseId}/${previousFile.platform}/${path}`,
-      `${FileSchema.bucket}/${previousFile.releaseId}/${previousFile.platform}/${path}`,
+      `${MINIO_BUCKET}/${previousFile.releaseId}/${previousFile.platform}/${path}`,
       null,
     );
 
@@ -189,7 +182,7 @@ async function saveFile(entry: any, record: FileDocument) {
       entry.on('error', reject);
       entry.pipe(hash);
     }),
-    minio.getClient().putObject(FileSchema.bucket, record.key, entry),
+    minio.getClient().putObject(MINIO_BUCKET, record.key, entry),
   ]);
 
   return File.findOneAndUpdate(

@@ -1,11 +1,4 @@
-div.container {
-  flex: 1 1 auto;
-  margin: 0px;
-  max-width: none;
-  padding: 16px;
-}
-
-div.row {
+div.article {
   display: flex;
   flex-direction: column;
   margin: 0px 0px 4px;
@@ -17,8 +10,16 @@ div.row {
   }
 }
 
+div.container {
+  flex: 1 1 auto;
+  margin: 0px;
+  max-width: none;
+  overflow: auto;
+  padding: 16px;
+}
+
 h2 {
-  margin: 8px 0px;
+  margin: 0px 0px 8px 0px;
 }
 
 h3 {
@@ -28,6 +29,95 @@ h3 {
 hr {
   background: #ffff55;
   border-color: #ffff55;
+  margin: 16px 0px;
+}
+
+div.main-media {
+  background-position: center;
+  background-size: cover;
+  display: block;
+  filter: drop-shadow(3px 3px 3px black);
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+div.news-container {
+  margin-top: 16px;
+
+  hr {
+    margin-bottom: 8px;
+  }
+}
+
+div.row {
+  div.col-sm-6 {
+    padding: 0px 16px;
+
+    &:nth-of-type(1) {
+      padding-right: 8px;
+    }
+
+    &:nth-of-type(2) {
+      padding-left: 8px;
+    }
+  }
+}
+
+mat-grid-list.mat-grid-list {
+  &.main {
+    margin-bottom: 8px;
+  }
+
+  mat-grid-tile.mat-grid-tile {
+    background-position: center;
+    background-size: cover;
+    box-shadow: 3px 3px 3px black;
+    cursor: pointer;
+    filter: brightness(0.5);
+
+    &:hover {
+      filter: brightness(1);
+    }
+
+    &.selected {
+      cursor: initial;
+      filter: brightness(1);
+    }
+
+    ::ng-deep {
+      .mat-figure {
+        align-items: flex-end;
+      }
+    }
+
+    mat-icon.mat-icon {
+      align-self: center;
+      cursor: pointer;
+      font-size: 32px;
+      height: 32px;
+      position: absolute;
+      user-select: none;
+      width: 32px;
+    }
+
+    ten-button {
+      align-self: center;
+      margin-bottom: 8px;
+      margin-left: 8px;
+
+      &:nth-of-type(2) {
+        margin-right: 8px;
+      }
+    }
+
+    video {
+      align-self: center;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      width: 100%;
+    }
+  }
 }
 
 span.type-date {
@@ -37,4 +127,5 @@ span.type-date {
 
 ten-title {
   font-size: 36px;
+  line-height: 36px;
 }

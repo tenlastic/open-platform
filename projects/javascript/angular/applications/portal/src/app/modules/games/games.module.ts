@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../shared/shared.module';
 
+import { MediaDialogComponent } from './components';
 import { GamesFormPageComponent } from './pages/form/form-page.component';
 import { GamesListPageComponent } from './pages/list/list-page.component';
 
@@ -16,7 +17,8 @@ export const ROUTES: Routes = [
 ];
 
 @NgModule({
-  declarations: [GamesFormPageComponent, GamesListPageComponent],
+  declarations: [GamesFormPageComponent, GamesListPageComponent, MediaDialogComponent],
+  entryComponents: [MediaDialogComponent],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })
 export class GameModule {}

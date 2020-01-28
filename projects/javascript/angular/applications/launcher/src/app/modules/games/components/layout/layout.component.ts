@@ -1,18 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ElectronService } from '@tenlastic/ng-electron';
 import { Game, GameService } from '@tenlastic/ng-http';
 
-import { UpdateService, UpdateServiceState } from '../../../../core/services';
+import { BackgroundService, UpdateService, UpdateServiceState } from '../../../../core/services';
 
 @Component({
   styleUrls: ['./layout.component.scss'],
   templateUrl: './layout.component.html',
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent implements OnDestroy, OnInit {
   public games: Game[] = [];
 
   constructor(
+    private backgroundService: BackgroundService,
     public electronService: ElectronService,
     private gameService: GameService,
     private router: Router,
@@ -22,6 +23,10 @@ export class LayoutComponent implements OnInit {
   public async ngOnInit() {
     this.games = await this.gameService.find({});
     this.router.navigate(['/games', this.games[0].slug]);
+  }
+
+  public ngOnDestroy() {
+    this.backgroundService.subject.next('/assets/images/background.jpg');
   }
 
   public getProgress(game: Game) {

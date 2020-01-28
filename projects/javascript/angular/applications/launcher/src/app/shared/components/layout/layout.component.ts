@@ -1,9 +1,10 @@
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { EnvironmentService, IdentityService } from '@tenlastic/ng-authentication';
 import { ElectronService } from '@tenlastic/ng-electron';
 
+import { BackgroundService } from '../../../core/services';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -17,6 +18,7 @@ export class LayoutComponent implements OnInit {
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
+    private backgroundService: BackgroundService,
     private changeDetectorRef: ChangeDetectorRef,
     public electronService: ElectronService,
     public environmentService: EnvironmentService,
@@ -25,6 +27,14 @@ export class LayoutComponent implements OnInit {
   ) {}
 
   public ngOnInit() {
+    this.backgroundService.subject.subscribe(value => {
+      this.document.body.style.backgroundImage = `url('${value}')`;
+    });
+
+    if (!this.electronService.isElectron) {
+      return;
+    }
+
     const { ipcRenderer } = this.electronService;
     ipcRenderer.on('message', (event, text) => {
       if (text.includes('Update available')) {

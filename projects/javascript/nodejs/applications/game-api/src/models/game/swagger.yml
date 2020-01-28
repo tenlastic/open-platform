@@ -11,6 +11,8 @@ components:
           format: date-time
         description:
           type: string
+        iconUrl:
+          type: string
         slug:
           type: string
           format: ^[0-9a-z\-]{2,40}$

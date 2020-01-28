@@ -56,13 +56,6 @@ spec:
             backend:
               serviceName: authentication-api
               servicePort: 3000
-    - host: launcher.tenlastic.com
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: launcher-ui
-              servicePort: 80
     - host: minio.tenlastic.com
       http:
         paths:
@@ -70,6 +63,13 @@ spec:
             backend:
               serviceName: minio
               servicePort: 9000
+    - host: platform.tenlastic.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: launcher-ui
+              servicePort: 80
     - host: portal.tenlastic.com
       http:
         paths:

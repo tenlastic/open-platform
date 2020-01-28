@@ -4,11 +4,12 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { WebServer } from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
 
+import { MONGO_DATABASE_NAME } from './constants';
 import { router as articlesRouter } from './handlers/articles';
 import { ReadonlyGame, ReadonlyNamespace, ReadonlyUser } from './models';
 
 mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
-  dbName: process.env.MONGO_DATABASE_NAME,
+  dbName: MONGO_DATABASE_NAME,
   useCreateIndex: true,
   useFindAndModify: false,
   useNewUrlParser: true,

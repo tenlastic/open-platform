@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import { Game, GameService } from '@tenlastic/ng-http';
 
 import { SelectedNamespaceService } from '../../../../core/services';
+import { PromptComponent } from '../../../../shared/components';
+import { MediaDialogComponent } from '../../components';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -20,6 +23,7 @@ export class GamesFormPageComponent implements OnInit {
     private formBuilder: FormBuilder,
     private gameService: GameService,
     public identityService: IdentityService,
+    private matDialog: MatDialog,
     private router: Router,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
@@ -33,6 +37,45 @@ export class GamesFormPageComponent implements OnInit {
       }
 
       this.setupForm();
+    });
+  }
+
+  public async onFieldChanged($event, field: string, isArray: boolean = false) {
+    const files: any[] = Array.from($event.target.files);
+    if (!files.length) {
+      return;
+    }
+
+    const response = await this.gameService
+      .upload(this.data.slug, { [field]: files[0] })
+      .toPromise();
+
+    this.data = await this.gameService.update({
+      ...this.data,
+      [field]: isArray ? this.data[field].concat(response.body[field]) : response.body[field],
+    });
+  }
+
+  public async remove(field: string, index = -1) {
+    const dialogRef = this.matDialog.open(PromptComponent, {
+      data: {
+        buttons: [
+          { background: 'accent', label: 'No' },
+          { color: 'white', label: 'Yes' },
+        ],
+        message: `Are you sure you want to remove this item?`,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(async result => {
+      if (result === 'Yes') {
+        if (index >= 0) {
+          const value = this.data[field].filter((f, i) => i !== index);
+          this.data = await this.gameService.update({ ...this.data, [field]: value });
+        } else {
+          this.data = await this.gameService.update({ ...this.data, [field]: null });
+        }
+      }
     });
   }
 
@@ -61,10 +104,14 @@ export class GamesFormPageComponent implements OnInit {
     }
   }
 
+  public view(src: string, type: string = 'image') {
+    this.matDialog.open(MediaDialogComponent, { autoFocus: false, data: { src, type } });
+  }
+
   private async create(data: Partial<Game>) {
     try {
-      await this.gameService.create(data);
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+      const response = await this.gameService.create(data);
+      this.router.navigate(['../', response._id], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That slug is already taken.';
     }
@@ -75,6 +122,7 @@ export class GamesFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       description: [this.data.description, Validators.required],
+      iconUrl: [this.data.icon],
       slug: [this.data.slug, Validators.required],
       subtitle: [this.data.subtitle],
       title: [this.data.title, Validators.required],
@@ -87,8 +135,7 @@ export class GamesFormPageComponent implements OnInit {
     data._id = this.data._id;
 
     try {
-      await this.gameService.update(data);
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+      this.data = await this.gameService.update(data);
     } catch (e) {
       this.error = 'That slug is already taken.';
     }

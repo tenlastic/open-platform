@@ -1,4 +1,3 @@
-import * as minio from '@tenlastic/minio';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -6,7 +5,6 @@ import * as chaiAsPromised from 'chai-as-promised';
 import {
   FileDocument,
   FileMock,
-  FileSchema,
   ReadonlyGameMock,
   ReadonlyNamespaceMock,
   ReadonlyUserDocument,

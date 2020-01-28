@@ -4,8 +4,8 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { WebServer } from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
-import * as path from 'path';
 
+import { MONGO_DATABASE_NAME } from './constants';
 import { router as collectionsRouter } from './handlers/collections';
 import { router as databasesRouter } from './handlers/databases';
 import { router as indexesRouter } from './handlers/indexes';
@@ -19,7 +19,7 @@ import {
 } from './workers';
 
 mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
-  dbName: process.env.MONGO_DATABASE_NAME,
+  dbName: MONGO_DATABASE_NAME,
   poolSize: 10,
   useCreateIndex: true,
   useFindAndModify: false,

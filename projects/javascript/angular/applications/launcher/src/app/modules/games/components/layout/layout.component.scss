@@ -10,14 +10,26 @@ ten-sidenav {
         flex: 1 1 auto;
         display: flex;
         flex-direction: column;
+        height: 100%;
       }
     }
   }
 
   div.nav {
     ::ng-deep {
+      div {
+        flex: 1 1 auto;
+      }
+
       mat-progress-bar.mat-progress-bar {
-        margin-bottom: 3px;
+        margin-bottom: 4px;
+        margin-top: 2px;
+      }
+
+      span.mat-button-wrapper {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
       }
     }
   }

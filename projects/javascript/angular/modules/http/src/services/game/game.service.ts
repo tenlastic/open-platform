@@ -1,8 +1,14 @@
 import { EventEmitter, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
 import { Game } from '../../models/game';
 import { ApiService, RestParameters } from '../api/api.service';
 import { EnvironmentService } from '../environment/environment.service';
+
+export interface GameServiceUploadOptions {
+  background?: Blob;
+  icon?: Blob;
+}
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -57,5 +63,18 @@ export class GameService {
     this.onUpdate.emit(record);
 
     return record;
+  }
+
+  public upload(slug: string, parameters: GameServiceUploadOptions) {
+    const formData = new FormData();
+
+    Object.entries(parameters).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    return this.apiService.request('post', `${this.basePath}/${slug}/upload`, formData, {
+      observe: 'events',
+      reportProgress: true,
+    }) as Observable<any>;
   }
 }
