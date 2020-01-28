@@ -53,14 +53,18 @@ div.row {
   div.col-sm-6 {
     padding: 0px 16px;
 
-    &:nth-of-type(1) {
-      padding-right: 8px;
-    }
-
-    &:nth-of-type(2) {
+    &:nth-of-type(even) {
       padding-left: 8px;
     }
+
+    &:nth-of-type(odd) {
+      padding-right: 8px;
+    }
   }
+}
+
+hr {
+  box-shadow: 3px 3px 3px black;
 }
 
 mat-grid-list.mat-grid-list {

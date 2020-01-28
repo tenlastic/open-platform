@@ -6,13 +6,14 @@ import { ElectronService } from '@tenlastic/ng-electron';
 import { Article, ArticleService, Game, GameService } from '@tenlastic/ng-http';
 
 import { BackgroundService } from '../../../../core/services';
-import { ArticleDialogComponent } from '../../components';
+import { ArticleDialogComponent, StatusComponent } from '../../components';
 
 @Component({
   styleUrls: ['./information-page.component.scss'],
   templateUrl: 'information-page.component.html',
 })
 export class InformationPageComponent implements OnInit {
+  @ViewChild(StatusComponent, { static: false }) private statusComponent: StatusComponent;
   @ViewChild('video', { static: false }) private video: ElementRef;
 
   public articles: Article[];
@@ -61,6 +62,11 @@ export class InformationPageComponent implements OnInit {
         this.backgroundService.subject.next(
           this.game.background || '/assets/images/background.jpg',
         );
+
+        if (this.statusComponent) {
+          this.statusComponent.game = this.game;
+          this.statusComponent.ngOnInit();
+        }
 
         this.loadingMessage = null;
       }

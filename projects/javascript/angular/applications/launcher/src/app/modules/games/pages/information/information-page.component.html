@@ -42,10 +42,8 @@
         <hr />
         <ten-markdown [markdown]="game.description"></ten-markdown>
       </div>
-    </div>
 
-    <div *ngIf="articlesByDate.length > 0" class="row news-container">
-      <div class="col-sm-6">
+      <div *ngIf="articlesByDate.length > 0" class="col-sm-6 news-container">
         <ten-title>News</ten-title>
         <hr />
         <ng-container *ngFor="let group of articlesByDate">

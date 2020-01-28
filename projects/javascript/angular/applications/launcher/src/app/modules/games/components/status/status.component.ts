@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { Game } from '@tenlastic/ng-http';
 
 import { UpdateService, UpdateServiceState, UpdateServiceStatus } from '../../../../core/services';
@@ -115,14 +114,12 @@ export class StatusComponent implements OnInit {
     }
   }
 
-  constructor(private activatedRoute: ActivatedRoute, private updateService: UpdateService) {}
+  constructor(private updateService: UpdateService) {}
 
   public ngOnInit() {
-    this.status = this.updateService.getStatus(this.game);
-
-    this.activatedRoute.paramMap.subscribe(async params => {
+    if (this.updateService) {
       this.status = this.updateService.getStatus(this.game);
-    });
+    }
   }
 
   public click() {

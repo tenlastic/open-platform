@@ -62,7 +62,7 @@ export class GamesListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.databaseService.delete(record.title);
+        await this.databaseService.delete(record.slug);
         this.deleteGame(record);
       }
     });

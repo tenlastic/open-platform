@@ -111,7 +111,7 @@ export class GamesFormPageComponent implements OnInit {
   private async create(data: Partial<Game>) {
     try {
       const response = await this.gameService.create(data);
-      this.router.navigate(['../', response._id], { relativeTo: this.activatedRoute });
+      this.router.navigate(['../', response.slug], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That slug is already taken.';
     }
