@@ -1,0 +1,92 @@
+div.information-container {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 3px 3px 5px black;
+  display: flex;
+  flex: 0 0 auto;
+  padding: 16px;
+
+  h2 {
+    display: inline-block;
+    line-height: 24px;
+    margin: -1px 0px 0px;
+    padding: 0px;
+  }
+
+  mat-icon.mat-icon {
+    color: #ffff55;
+    display: inline-block;
+    margin-right: 8px;
+  }
+
+  > span {
+    flex: 1 1 auto;
+    text-align: right;
+  }
+}
+
+div.input-container {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 3px 3px 5px black;
+  display: flex;
+  flex: 0 0 auto;
+  padding: 8px 16px;
+
+  mat-form-field {
+    flex: 1 1 auto;
+    margin-bottom: -1.2em;
+  }
+
+  ten-button {
+    flex: 0 0 auto;
+    margin-left: 8px;
+  }
+}
+
+div.messages-container {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column-reverse;
+  margin: 0px;
+  max-width: none;
+  overflow: auto;
+  padding: 16px;
+
+  .message {
+    margin-right: auto;
+    margin-top: 2px;
+
+    &:last-of-type {
+      padding-top: 12px;
+    }
+
+    div.sender {
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 4px;
+      white-space: nowrap;
+    }
+
+    div.timestamp {
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 12px;
+      font-weight: normal;
+      white-space: nowrap;
+    }
+
+    span {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: block;
+      padding: 8px;
+    }
+  }
+}
+
+div.no-messages {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}

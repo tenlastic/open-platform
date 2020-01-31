@@ -1,0 +1,25 @@
+components:
+  schemas:
+    Message:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[a-f0-9]{24}$
+        body:
+          type: string
+          format: ^.{0,512}
+        createdAt:
+          type: string
+          format: date-time
+        fromUserId:
+          type: string
+          format: ^[a-f0-9]{24}$
+        toUserIds:
+          type: array
+          items:
+            type: string
+            format: ^[a-f0-9]{24}$
+        updatedAt:
+          type: string
+          format: date-time

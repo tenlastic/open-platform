@@ -9,6 +9,7 @@
 - 3003: Game API
 - 3004: Article API
 - 3005: Release API
+- 3006: Social API
 - 5672: RabbitMQ
 - 8080: Home UI
 - 8081: Portal UI

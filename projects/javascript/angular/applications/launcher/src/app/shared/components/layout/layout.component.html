@@ -20,7 +20,12 @@
     <span>Games</span>
   </ten-button>
 
-  <ten-button color="accent">
+  <ten-button
+    *ngIf="identityService.user"
+    color="accent"
+    [routerLink]="['/social']"
+    routerLinkActive="active"
+  >
     <mat-icon>question_answer</mat-icon>
     <span>Social</span>
   </ten-button>

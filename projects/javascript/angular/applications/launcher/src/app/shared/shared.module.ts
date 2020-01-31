@@ -8,7 +8,7 @@ import { ElectronModule } from '@tenlastic/ng-electron';
 
 import { MaterialModule } from '../material.module';
 import {
-  InputPromptComponent,
+  InputDialogComponent,
   LayoutComponent,
   LoadingMessageComponent,
   PromptComponent,
@@ -17,7 +17,7 @@ import {
 import { AsAnyPipe, CamelCaseToTitleCasePipe, FilesizePipe, KeysPipe } from './pipes';
 
 const components = [
-  InputPromptComponent,
+  InputDialogComponent,
   LayoutComponent,
   LoadingMessageComponent,
   PromptComponent,
@@ -37,7 +37,7 @@ const pipes = [AsAnyPipe, CamelCaseToTitleCasePipe, FilesizePipe, KeysPipe];
 
 @NgModule({
   declarations: [...components, ...pipes],
-  entryComponents: [InputPromptComponent, PromptComponent],
+  entryComponents: [InputDialogComponent, PromptComponent],
   exports: [...components, ...modules, ...pipes],
   imports: [...modules],
 })

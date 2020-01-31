@@ -1,0 +1,116 @@
+<ten-sidenav>
+  <div class="nav">
+    <ten-button
+      color="accent"
+      layout="vertical"
+      text="left"
+      width="full"
+      (OnClick)="isConversationsVisible = !isConversationsVisible"
+    >
+      <span>Conversations</span>
+      <mat-icon>
+        {{ isConversationsVisible ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
+      </mat-icon>
+    </ten-button>
+
+    <ng-container *ngIf="isConversationsVisible">
+      <ten-button
+        color="accent"
+        layout="vertical"
+        text="left"
+        width="full"
+        (OnClick)="newMessage()"
+      >
+        <mat-icon>add</mat-icon>
+        <span>New Message</span>
+      </ten-button>
+
+      <ten-button
+        *ngFor="let group of groups"
+        color="accent"
+        layout="vertical"
+        [routerLink]="group.users[0]._id"
+        routerLinkActive="active"
+        text="left"
+        width="full"
+      >
+        <mat-icon>radio_button_unchecked</mat-icon>
+        <span>{{ group.users[0].username }}</span>
+      </ten-button>
+    </ng-container>
+
+    <ten-button
+      color="accent"
+      layout="vertical"
+      text="left"
+      width="full"
+      (OnClick)="isFriendsVisible = !isFriendsVisible"
+    >
+      <span>Friends</span>
+      <mat-icon>{{ isFriendsVisible ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}</mat-icon>
+    </ten-button>
+
+    <ng-container *ngIf="isFriendsVisible">
+      <ten-button color="accent" layout="vertical" text="left" width="full" (OnClick)="addFriend()">
+        <mat-icon>add</mat-icon>
+        <span>Add Friend</span>
+      </ten-button>
+
+      <ten-button
+        *ngFor="let friend of friends"
+        color="accent"
+        layout="vertical"
+        [routerLink]="friend._id"
+        routerLinkActive="active"
+        text="left"
+        width="full"
+      >
+        <mat-icon>radio_button_unchecked</mat-icon>
+        <span>{{ friend.username }}</span>
+      </ten-button>
+    </ng-container>
+
+    <ten-button
+      color="accent"
+      layout="vertical"
+      text="left"
+      width="full"
+      (OnClick)="isIgnoredUsersVisible = !isIgnoredUsersVisible"
+    >
+      <span>Ignored Users</span>
+      <mat-icon>
+        {{ isIgnoredUsersVisible ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
+      </mat-icon>
+    </ten-button>
+
+    <ng-container *ngIf="isIgnoredUsersVisible">
+      <ten-button
+        color="accent"
+        layout="vertical"
+        text="left"
+        width="full"
+        (OnClick)="addIgnoredUser()"
+      >
+        <mat-icon>add</mat-icon>
+        <span>Add Ignored User</span>
+      </ten-button>
+
+      <ten-button
+        *ngFor="let ignoration of ignorations"
+        color="accent"
+        layout="vertical"
+        [routerLink]="ignoration._id"
+        routerLinkActive="active"
+        text="left"
+        width="full"
+      >
+        <mat-icon>radio_button_unchecked</mat-icon>
+        <span>{{ ignoration.username }}</span>
+      </ten-button>
+    </ng-container>
+  </div>
+
+  <div class="content">
+    <router-outlet></router-outlet>
+  </div>
+</ten-sidenav>

@@ -1,0 +1,46 @@
+<ng-container *ngIf="!loadingMessage">
+  <div class="information-container">
+    <mat-icon>radio_button_unchecked</mat-icon>
+    <h2>{{ user.username }}</h2>
+
+    <span>
+      <ten-button color="accent" (OnClick)="toggleFriend()">
+        <mat-icon>favorite</mat-icon>
+        <span>{{ friend ? 'Unfriend' : 'Friend' }}</span>
+      </ten-button>
+      <ten-button color="accent" (OnClick)="toggleIgnoration()">
+        <mat-icon>block</mat-icon>
+        <span>{{ ignoration ? 'Unignore' : 'Ignore' }}</span>
+      </ten-button>
+    </span>
+  </div>
+  <div class="messages-container">
+    <div *ngFor="let message of messages; let i = index" class="message">
+      <div
+        *ngIf="!messages[i + 1] || messages[i + 1].fromUserId !== message.fromUserId"
+        class="sender"
+      >
+        {{ message.fromUserId === user._id ? user.username : identityService.user.username }}
+      </div>
+      <span>{{ message.body }}</span>
+      <div
+        *ngIf="!messages[i - 1] || messages[i - 1].fromUserId !== message.fromUserId"
+        class="timestamp"
+      >
+        {{ message.createdAt | date: 'M/d/y' }} at
+        {{ message.createdAt | date: 'h:mm a' }}
+      </div>
+    </div>
+
+    <div *ngIf="messages.length === 0" class="no-messages">No Messages Found</div>
+  </div>
+  <div class="input-container">
+    <mat-form-field floatLabel="always">
+      <mat-label>Message</mat-label>
+      <textarea matInput cdkTextareaAutosize (keyup.enter)="sendMessage($event)"></textarea>
+      <mat-error>Enter a valid title.</mat-error>
+    </mat-form-field>
+  </div>
+</ng-container>
+
+<ten-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</ten-loading-message>

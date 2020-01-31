@@ -77,7 +77,7 @@ export class UpdateService {
     status.state = UpdateServiceState.Checking;
     status.text = 'Retrieving latest release...';
     const releases = await this.releaseService.find({
-      sort: 'publishedAt',
+      sort: '-publishedAt',
       where: {
         $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
         gameId: game._id,
