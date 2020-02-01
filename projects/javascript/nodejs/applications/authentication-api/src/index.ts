@@ -9,6 +9,7 @@ import { MONGO_DATABASE_NAME } from './constants';
 import { router as loginsRouter } from './handlers/logins';
 import { router as passwordResetsRouter } from './handlers/password-resets';
 import { router as usersRouter } from './handlers/users';
+import { init as initConnections } from './sockets/connections';
 
 kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
 mailgun.setCredentials(process.env.MAILGUN_DOMAIN, process.env.MAILGUN_KEY);
@@ -27,5 +28,7 @@ webServer.use(loginsRouter.routes());
 webServer.use(passwordResetsRouter.routes());
 webServer.use(usersRouter.routes());
 webServer.start();
+
+initConnections(webServer.server);
 
 export { webServer };

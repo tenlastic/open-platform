@@ -15,7 +15,7 @@ export const FriendPermissions = new MongoosePermissions<FriendDocument>(Friend,
   },
   find: {
     base: {
-      fromUserId: { $ref: 'user._id' },
+      fromUserId: { $eq: { $ref: 'user._id' } },
     },
   },
   read: {

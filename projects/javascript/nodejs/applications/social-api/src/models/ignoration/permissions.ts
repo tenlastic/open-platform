@@ -15,7 +15,7 @@ export const IgnorationPermissions = new MongoosePermissions<IgnorationDocument>
   },
   find: {
     base: {
-      fromUserId: { $ref: 'user._id' },
+      fromUserId: { $eq: { $ref: 'user._id' } },
     },
   },
   read: {

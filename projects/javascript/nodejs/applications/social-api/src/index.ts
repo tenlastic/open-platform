@@ -9,6 +9,7 @@ import { router as friendsRouter } from './handlers/friends';
 import { router as ignorationsRouter } from './handlers/ignorations';
 import { router as messagesRouter } from './handlers/messages';
 import { ReadonlyUser } from './models';
+import { init as initMessages } from './sockets/messages';
 
 mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
   dbName: MONGO_DATABASE_NAME,
@@ -28,5 +29,7 @@ webServer.use(friendsRouter.routes());
 webServer.use(ignorationsRouter.routes());
 webServer.use(messagesRouter.routes());
 webServer.start();
+
+initMessages(webServer.server);
 
 export { webServer };

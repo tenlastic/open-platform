@@ -8,5 +8,8 @@
   },
   "exclude": ["./src/**/*.spec.ts"],
   "include": ["./src"],
-  "references": [{ "path": "../mongoose-change-stream/tsconfig.app.json" }]
+  "references": [
+    { "path": "../mongoose-change-stream/tsconfig.app.json" },
+    { "path": "../mongoose-permissions/tsconfig.app.json" }
+  ]
 }

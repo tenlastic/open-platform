@@ -48,7 +48,7 @@ export class MessageSchema {
   public updatedAt: Date;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: ReadonlyUser })
-  public fromUserIdDocument: ReadonlyUserDocument;
+  public fromUserDocument: ReadonlyUserDocument;
 
   @arrayProp({
     foreignField: '_id',
@@ -56,7 +56,7 @@ export class MessageSchema {
     localField: 'toUserIds',
     ref: ReadonlyUser,
   })
-  public toUserIdsDocuments: ReadonlyUserDocument[];
+  public toUserDocuments: ReadonlyUserDocument[];
 }
 
 export type MessageDocument = DocumentType<MessageSchema>;

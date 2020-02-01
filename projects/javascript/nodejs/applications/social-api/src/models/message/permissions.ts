@@ -15,7 +15,10 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
   },
   find: {
     base: {
-      $or: [{ fromUserId: { $ref: 'user._id' } }, { toUserIds: { $ref: 'user._id' } }],
+      $or: [
+        { fromUserId: { $eq: { $ref: 'user._id' } } },
+        { toUserIds: { $eq: { $ref: 'user._id' } } },
+      ],
     },
   },
   read: {

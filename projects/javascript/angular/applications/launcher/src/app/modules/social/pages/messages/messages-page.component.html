@@ -37,7 +37,7 @@
   <div class="input-container">
     <mat-form-field floatLabel="always">
       <mat-label>Message</mat-label>
-      <textarea matInput cdkTextareaAutosize (keyup.enter)="sendMessage($event)"></textarea>
+      <textarea matInput cdkTextareaAutosize (keydown.enter)="sendMessage($event)"></textarea>
       <mat-error>Enter a valid title.</mat-error>
     </mat-form-field>
   </div>

@@ -21,7 +21,7 @@ export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Dat
             model: 'ReadonlyNamespaceSchema',
             select: '_id',
             where: {
-              'accessControlList.userId': { $ref: 'user._id' },
+              'accessControlList.userId': { $eq: { $ref: 'user._id' } },
             },
           },
         },

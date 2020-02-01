@@ -15,7 +15,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     },
   },
   find: {
-    base: { 'accessControlList.userId': { $ref: 'user._id' } },
+    base: { 'accessControlList.userId': { $eq: { $ref: 'user._id' } } },
   },
   read: {
     base: ['_id', 'createdAt', 'accessControlList', 'name', 'updatedAt'],

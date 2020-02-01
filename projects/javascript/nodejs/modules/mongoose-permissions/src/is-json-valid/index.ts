@@ -13,9 +13,9 @@ export function isJsonValid(json: any, query: any, and = true) {
     const operations = substitutedQuery[key];
 
     if (key === '$and') {
-      return operations.map(o => isJsonValid(json, o));
+      return operations.map(o => isJsonValid(json, o)).every(f => f);
     } else if (key === '$or') {
-      return operations.map(o => isJsonValid(json, o, false));
+      return operations.map(o => isJsonValid(json, o, false)).includes(true);
     }
 
     return Object.keys(operations).map(operator => {
@@ -30,6 +30,8 @@ export function isJsonValid(json: any, query: any, and = true) {
           return $exists(json, key, value);
         case '$in':
           return $in(json, key, value);
+        case '$ne':
+          return $ne(json, key, value);
         default:
           throw new Error(`Operation not supported: ${operator}.`);
       }
@@ -96,6 +98,21 @@ function $in(json: any, key: string, value: any[]) {
     return Boolean(value.find(v => reference.equals(v)));
   } else {
     return value.includes(reference);
+  }
+}
+
+/**
+ * Determines if the referenced value equals the given value.
+ */
+function $ne(json: any, key: string, value: any) {
+  const reference = getPropertyByDotNotation(json, key);
+
+  if (reference.constructor === Array && value.constructor !== Array) {
+    return !reference.includes(value);
+  } else if (reference && reference instanceof mongoose.Types.ObjectId) {
+    return !reference.equals(value);
+  } else {
+    return reference !== value;
   }
 }
 
