@@ -5,6 +5,7 @@ import { Environment } from './environment.service';
 @Injectable()
 export class EnvironmentServiceMock implements Environment {
   public articleApiBaseUrl = 'http://localhost:3004/articles';
+  public connectionApiBaseUrl = 'http://localhost:3002/connections';
   public databaseApiBaseUrl = 'http://localhost:3002/databases';
   public friendApiBaseUrl = 'http://localhost:3006/friends';
   public gameApiBaseUrl = 'http://loclahost:3003/games';

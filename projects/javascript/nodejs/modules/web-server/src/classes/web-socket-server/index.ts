@@ -61,11 +61,13 @@ export class WebSocketServer {
       return;
     }
 
-    try {
-      await guard(query, result.user);
-    } catch (e) {
-      socket.destroy();
-      return;
+    if (guard) {
+      try {
+        await guard(query, result.user);
+      } catch (e) {
+        socket.destroy();
+        return;
+      }
     }
 
     // Approve connection request and pass user data to connection event.

@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import {
+  Connection,
+  ConnectionService,
   FriendService,
   IgnorationService,
   Message,
@@ -23,7 +25,8 @@ export interface MessageGroup {
   styleUrls: ['./layout.component.scss'],
   templateUrl: './layout.component.html',
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent implements OnDestroy, OnInit {
+  public connections: Connection[] = [];
   public friends: User[] = [];
   public groups: MessageGroup[] = [];
   public ignorations: User[] = [];
@@ -31,9 +34,13 @@ export class LayoutComponent implements OnInit {
   public isFriendsVisible = true;
   public isIgnoredUsersVisible = false;
   public messages: Message[] = [];
+  public users: User[] = [];
+
+  private sockets: WebSocket[] = [];
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private connectionService: ConnectionService,
     private friendService: FriendService,
     private identityService: IdentityService,
     private ignorationService: IgnorationService,
@@ -41,13 +48,18 @@ export class LayoutComponent implements OnInit {
     private messageService: MessageService,
     private router: Router,
     private userService: UserService,
+    private zone: NgZone,
   ) {}
 
   public async ngOnInit() {
+    this.connections = await this.connectionService.find({
+      where: { disconnectedAt: { $exists: false } },
+    });
+
     const friends = await this.friendService.find({});
     const ignorations = await this.ignorationService.find({});
 
-    const users = await this.userService.find({
+    this.users = await this.userService.find({
       where: {
         _id: {
           $in: [...friends.map(f => f.toUserId), ...ignorations.map(i => i.toUserId)],
@@ -55,11 +67,17 @@ export class LayoutComponent implements OnInit {
       },
     });
 
-    this.friends = friends.map(f => users.find(u => u._id === f.toUserId));
-    this.ignorations = ignorations.map(i => users.find(u => u._id === i.toUserId));
+    this.friends = friends.map(f => this.users.find(u => u._id === f.toUserId));
+    this.ignorations = ignorations.map(i => this.users.find(u => u._id === i.toUserId));
 
     this.getMessages();
     this.subscribeToServices();
+    this.watchForConnectionChanges();
+    this.watchForMessageChanges();
+  }
+
+  public ngOnDestroy() {
+    this.sockets.forEach(s => s.close());
   }
 
   public addFriend() {
@@ -116,6 +134,10 @@ export class LayoutComponent implements OnInit {
         });
       } catch {}
     });
+  }
+
+  public getConnection(userId: string) {
+    return this.connections.find(c => c.userId === userId);
   }
 
   public newMessage() {
@@ -198,11 +220,24 @@ export class LayoutComponent implements OnInit {
   }
 
   private async subscribeToServices() {
+    this.connectionService.onCreate.subscribe(async connection => {
+      this.connections.push(connection);
+    });
+    this.connectionService.onUpdate.subscribe(async connection => {
+      const { _id, disconnectedAt } = connection;
+      const connectionIndex = this.connections.findIndex(c => c._id === _id);
+
+      if (connectionIndex >= 0 && disconnectedAt) {
+        this.connections.splice(connectionIndex, 1);
+      } else if (connectionIndex < 0 && !disconnectedAt) {
+        this.connections.push(connection);
+      }
+    });
+
     this.friendService.onCreate.subscribe(async friend => {
       const user = await this.userService.findOne(friend.toUserId);
       this.friends.push(user);
     });
-
     this.friendService.onDelete.subscribe(async friend => {
       const index = this.friends.findIndex(f => f._id === friend.toUserId);
       this.friends.splice(index, 1);
@@ -212,10 +247,78 @@ export class LayoutComponent implements OnInit {
       const user = await this.userService.findOne(ignoration.toUserId);
       this.ignorations.push(user);
     });
-
     this.ignorationService.onDelete.subscribe(async ignoration => {
       const index = this.ignorations.findIndex(f => f._id === ignoration.toUserId);
       this.ignorations.splice(index, 1);
     });
+
+    this.messageService.onCreate.subscribe(async message => {
+      this.messages.push(message);
+
+      if (message.fromUserId !== this.identityService.user._id) {
+        const user = this.users.find(u => u._id === message.fromUserId);
+
+        this.zone.run(async () => {
+          if (Notification.permission !== 'denied') {
+            await new Promise(resolve => {
+              Notification.requestPermission(resolve);
+            });
+          }
+
+          const myNotification = new Notification(user.username, {
+            body: message.body,
+            requireInteraction: false,
+          });
+          myNotification.onclick = () => {
+            this.router.navigate([user._id], { relativeTo: this.activatedRoute });
+          };
+        });
+      }
+    });
+  }
+
+  private watchForConnectionChanges() {
+    const url = new URL(this.connectionService.basePath.replace('http', 'ws'));
+    url.searchParams.append('token', this.identityService.accessToken);
+    url.searchParams.append('watch', JSON.stringify({}));
+
+    const socket = new WebSocket(url.href);
+    socket.onmessage = msg => {
+      const payload = JSON.parse(msg.data);
+
+      if (payload.operationType === 'insert') {
+        const connection = new Connection(payload.fullDocument);
+        this.connectionService.onCreate.emit(connection);
+      } else if (payload.operationType === 'update') {
+        const connection = new Connection(payload.fullDocument);
+        this.connectionService.onUpdate.emit(connection);
+      }
+    };
+
+    this.sockets.push(socket);
+  }
+
+  private watchForMessageChanges() {
+    const url = new URL(this.messageService.basePath.replace('http', 'ws'));
+    url.searchParams.append('token', this.identityService.accessToken);
+    url.searchParams.append(
+      'watch',
+      JSON.stringify({ fromUserId: { $ne: this.identityService.user._id } }),
+    );
+
+    const socket = new WebSocket(url.href);
+    socket.onmessage = msg => {
+      const payload = JSON.parse(msg.data);
+
+      if (payload.operationType === 'insert') {
+        const message = new Message(payload.fullDocument);
+        this.messageService.onCreate.emit(message);
+      } else if (payload.operationType === 'update') {
+        const message = new Message(payload.fullDocument);
+        this.messageService.onUpdate.emit(message);
+      }
+    };
+
+    this.sockets.push(socket);
   }
 }

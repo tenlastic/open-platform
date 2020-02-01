@@ -54,18 +54,10 @@ div.messages-container {
   padding: 16px;
 
   .message {
-    margin-right: auto;
     margin-top: 2px;
 
     &:last-of-type {
       padding-top: 12px;
-    }
-
-    div.sender {
-      font-size: 14px;
-      font-weight: bold;
-      margin-top: 4px;
-      white-space: nowrap;
     }
 
     div.timestamp {
@@ -75,11 +67,12 @@ div.messages-container {
       white-space: nowrap;
     }
 
-    span {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      display: block;
-      padding: 8px;
+    span.sender {
+      font-size: 14px;
+      font-weight: bold;
+      line-height: 14px;
+      margin-right: 4px;
+      white-space: nowrap;
     }
   }
 }

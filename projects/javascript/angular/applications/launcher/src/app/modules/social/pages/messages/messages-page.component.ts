@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import {
+  Connection,
+  ConnectionService,
   Friend,
   FriendService,
   Ignoration,
@@ -17,6 +19,10 @@ import {
   templateUrl: 'messages-page.component.html',
 })
 export class MessagesPageComponent implements OnInit {
+  @ViewChild('messagesScrollContainer', { static: false })
+  public messagesScrollContainer: ElementRef;
+
+  public connections: Connection[] = [];
   public friend: Friend;
   public ignoration: Ignoration;
   public loadingMessage: string;
@@ -25,6 +31,7 @@ export class MessagesPageComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private connectionService: ConnectionService,
     private friendService: FriendService,
     public identityService: IdentityService,
     private ignorationService: IgnorationService,
@@ -37,6 +44,13 @@ export class MessagesPageComponent implements OnInit {
       this.loadingMessage = 'Loading conversation...';
 
       const _id = params.get('_id');
+      if (!_id) {
+        return;
+      }
+
+      this.connections = await this.connectionService.find({
+        where: { disconnectedAt: { $exists: false } },
+      });
       this.user = await this.userService.findOne(_id);
 
       const friends = await this.friendService.find({
@@ -60,6 +74,10 @@ export class MessagesPageComponent implements OnInit {
     });
 
     this.subscribeToServices();
+  }
+
+  public getConnection(userId: string) {
+    return this.connections.find(c => c.userId === userId);
   }
 
   public async sendMessage($event) {
@@ -99,6 +117,20 @@ export class MessagesPageComponent implements OnInit {
   }
 
   private async subscribeToServices() {
+    this.connectionService.onCreate.subscribe(async connection => {
+      this.connections.push(connection);
+    });
+    this.connectionService.onUpdate.subscribe(async connection => {
+      const { _id, disconnectedAt } = connection;
+      const connectionIndex = this.connections.findIndex(c => c._id === _id);
+
+      if (connectionIndex >= 0 && disconnectedAt) {
+        this.connections.splice(connectionIndex, 1);
+      } else if (connectionIndex < 0 && !disconnectedAt) {
+        this.connections.push(connection);
+      }
+    });
+
     this.friendService.onCreate.subscribe(async friend => {
       this.friend = friend.toUserId === this.user._id ? friend : this.friend;
     });
@@ -131,6 +163,12 @@ export class MessagesPageComponent implements OnInit {
       }
 
       this.messages.unshift(message);
+
+      try {
+        setTimeout(() => {
+          this.messagesScrollContainer.nativeElement.scrollTop = this.messagesScrollContainer.nativeElement.scrollHeight;
+        }, 10);
+      } catch (err) {}
     });
   }
 }

@@ -7,7 +7,7 @@ import { Connection, ConnectionPermissions } from '../models';
 export function init(server: http.Server) {
   new WebSocketServer(
     server,
-    { path: '/messages' },
+    { path: '/connections' },
     (ws, query, user) => onConnection(ws, query, user),
     (query, user) => onUpgradeRequest(query, user),
   );
@@ -22,8 +22,8 @@ async function onConnection(ws: WebSocket, query: URLSearchParams, user: any) {
     ws.on('close', () => consumer.disconnect());
   }
 
-  ws.on('close', () =>
-    Connection.findOneAndUpdate(
+  ws.on('close', async () => {
+    await Connection.findOneAndUpdate(
       {
         disconnectedAt: { $exists: false },
         gameId: query.get('gameId'),
@@ -32,8 +32,8 @@ async function onConnection(ws: WebSocket, query: URLSearchParams, user: any) {
       {
         disconnectedAt: new Date(),
       },
-    ),
-  );
+    );
+  });
 }
 
 async function onUpgradeRequest(query: URLSearchParams, user: any) {

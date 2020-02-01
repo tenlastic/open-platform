@@ -10,11 +10,6 @@
 <ten-header-toolbar>
   <img src="/assets/images/logo.png" />
 
-  <ten-button color="accent">
-    <mat-icon>store_mall_directory</mat-icon>
-    <span>Store</span>
-  </ten-button>
-
   <ten-button color="accent" routerLink="/games" routerLinkActive="active">
     <mat-icon>sports_esports</mat-icon>
     <span>Games</span>
@@ -31,11 +26,6 @@
   </ten-button>
 
   <span class="space"></span>
-
-  <ten-button color="accent">
-    <mat-icon>help</mat-icon>
-    <span>Support</span>
-  </ten-button>
 
   <ten-button
     *ngIf="identityService.user"

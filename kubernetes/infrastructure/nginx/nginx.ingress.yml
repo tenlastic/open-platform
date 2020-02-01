@@ -29,6 +29,10 @@ spec:
             backend:
               serviceName: article-api
               servicePort: 3000
+          - path: /connections
+            backend:
+              serviceName: authentication-api
+              servicePort: 3000
           - path: /databases
             backend:
               serviceName: database-api

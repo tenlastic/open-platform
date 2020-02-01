@@ -1,5 +1,6 @@
 export const environment = {
   articleApiBaseUrl: 'http://localhost:3004/articles',
+  connectionApiBaseUrl: 'http://localhost:3000/connections',
   databaseApiBaseUrl: 'http://localhost:3002/databases',
   friendApiBaseUrl: 'http://localhost:3006/friends',
   gameApiBaseUrl: 'http://localhost:3003/games',

@@ -1,5 +1,10 @@
 <ten-sidenav>
   <div class="nav">
+    <ten-button color="accent" layout="vertical" text="left" width="full" (OnClick)="newMessage()">
+      <mat-icon>add</mat-icon>
+      <span><strong>New Message</strong></span>
+    </ten-button>
+
     <ten-button
       color="accent"
       layout="vertical"
@@ -15,17 +20,6 @@
 
     <ng-container *ngIf="isConversationsVisible">
       <ten-button
-        color="accent"
-        layout="vertical"
-        text="left"
-        width="full"
-        (OnClick)="newMessage()"
-      >
-        <mat-icon>add</mat-icon>
-        <span>New Message</span>
-      </ten-button>
-
-      <ten-button
         *ngFor="let group of groups"
         color="accent"
         layout="vertical"
@@ -34,7 +28,9 @@
         text="left"
         width="full"
       >
-        <mat-icon>radio_button_unchecked</mat-icon>
+        <mat-icon>
+          {{ getConnection(group.users[0]._id) ? 'brightness_1' : 'radio_button_unchecked' }}
+        </mat-icon>
         <span>{{ group.users[0].username }}</span>
       </ten-button>
     </ng-container>
@@ -51,11 +47,6 @@
     </ten-button>
 
     <ng-container *ngIf="isFriendsVisible">
-      <ten-button color="accent" layout="vertical" text="left" width="full" (OnClick)="addFriend()">
-        <mat-icon>add</mat-icon>
-        <span>Add Friend</span>
-      </ten-button>
-
       <ten-button
         *ngFor="let friend of friends"
         color="accent"
@@ -65,7 +56,9 @@
         text="left"
         width="full"
       >
-        <mat-icon>radio_button_unchecked</mat-icon>
+        <mat-icon>
+          {{ getConnection(friend._id) ? 'brightness_1' : 'radio_button_unchecked' }}
+        </mat-icon>
         <span>{{ friend.username }}</span>
       </ten-button>
     </ng-container>
@@ -84,17 +77,6 @@
     </ten-button>
 
     <ng-container *ngIf="isIgnoredUsersVisible">
-      <ten-button
-        color="accent"
-        layout="vertical"
-        text="left"
-        width="full"
-        (OnClick)="addIgnoredUser()"
-      >
-        <mat-icon>add</mat-icon>
-        <span>Add Ignored User</span>
-      </ten-button>
-
       <ten-button
         *ngFor="let ignoration of ignorations"
         color="accent"

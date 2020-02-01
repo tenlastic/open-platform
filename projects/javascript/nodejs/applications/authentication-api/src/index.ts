@@ -6,6 +6,7 @@ import { WebServer } from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
 
 import { MONGO_DATABASE_NAME } from './constants';
+import { router as connectionsRouter } from './handlers/connections';
 import { router as loginsRouter } from './handlers/logins';
 import { router as passwordResetsRouter } from './handlers/password-resets';
 import { router as usersRouter } from './handlers/users';
@@ -24,6 +25,7 @@ mongoose.connect(connectionString, {
 });
 
 const webServer = new WebServer();
+webServer.use(connectionsRouter.routes());
 webServer.use(loginsRouter.routes());
 webServer.use(passwordResetsRouter.routes());
 webServer.use(usersRouter.routes());
