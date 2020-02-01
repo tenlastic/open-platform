@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { ConnectionMock, ConnectionDocument } from '../../../models';
 import { handler } from '.';
 
-describe('handlers/users/find-one', function() {
+describe('handlers/connections/find-one', function() {
   let record: ConnectionDocument;
   let user: any;
 

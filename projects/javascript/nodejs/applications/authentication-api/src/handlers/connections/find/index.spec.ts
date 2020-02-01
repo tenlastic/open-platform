@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { ConnectionMock, ConnectionDocument } from '../../../models';
 import { handler } from '.';
 
-describe('handlers/users/find', function() {
+describe('handlers/connections/find', function() {
   let user: ConnectionDocument;
 
   beforeEach(async function() {
