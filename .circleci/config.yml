@@ -120,9 +120,9 @@ jobs:
       - checkout
       - fetch_master_branch
       - run:
-        name: Install Lerna
-        command: npm i -g lerna
-        working_directory: ./projects/javascript/
+          name: Install Lerna
+          command: npm i -g lerna
+          working_directory: ./projects/javascript/
       - restore_cache:
           key: root-packages-{{ checksum "./projects/javascript/package.json" }}
       - restore_cache:
