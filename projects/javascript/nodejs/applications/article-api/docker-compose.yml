@@ -9,7 +9,6 @@ services:
       - MONGO_CONNECTION_STRING
     links:
       - kafka
-      - minio
       - mongo
     ports:
       - 3004:3000

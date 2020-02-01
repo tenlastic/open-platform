@@ -1,0 +1,44 @@
+<ng-container *ngIf="!loadingMessage">
+  <div class="information-container">
+    <mat-icon>
+      {{ getConnection(user._id) ? 'brightness_1' : 'radio_button_unchecked' }}
+    </mat-icon>
+    <h2>{{ user.username }}</h2>
+
+    <span>
+      <ten-button color="accent" (OnClick)="toggleFriend()">
+        <mat-icon>favorite</mat-icon>
+        <span>{{ friend ? 'Unfriend' : 'Friend' }}</span>
+      </ten-button>
+      <ten-button color="accent" (OnClick)="toggleIgnoration()">
+        <mat-icon>block</mat-icon>
+        <span>{{ ignoration ? 'Unignore' : 'Ignore' }}</span>
+      </ten-button>
+    </span>
+  </div>
+  <div #messagesScrollContainer class="messages-container">
+    <ng-container *ngFor="let message of messages; let i = index">
+      <div class="message">
+        <span class="sender">
+          [{{ message.fromUserId === user._id ? user.username : identityService.user.username }}]:
+        </span>
+        <span>{{ message.body }}</span>
+        <div *ngIf="i === 0" class="timestamp">
+          {{ message.createdAt | date: 'M/d/y' }} at
+          {{ message.createdAt | date: 'h:mm a' }}
+        </div>
+      </div>
+    </ng-container>
+
+    <div *ngIf="messages.length === 0" class="no-messages">No Messages Found</div>
+  </div>
+  <div class="input-container">
+    <mat-form-field floatLabel="always">
+      <mat-label>Message</mat-label>
+      <textarea matInput cdkTextareaAutosize (keydown.enter)="sendMessage($event)"></textarea>
+      <mat-error>Enter a valid title.</mat-error>
+    </mat-form-field>
+  </div>
+</ng-container>
+
+<ten-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</ten-loading-message>

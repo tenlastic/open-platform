@@ -4,7 +4,7 @@ import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
 import { MONGO_DATABASE_NAME } from './constants';
-import { PasswordReset, User } from './models';
+import { Connection, PasswordReset, User } from './models';
 
 before(async function() {
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
@@ -23,6 +23,7 @@ beforeEach(async function() {
   sandbox = sinon.createSandbox();
   sandbox.stub(mailgun, 'send').resolves();
 
+  await Connection.deleteMany({});
   await PasswordReset.deleteMany({});
   await User.deleteMany({});
 });

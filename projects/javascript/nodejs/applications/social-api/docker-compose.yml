@@ -1,0 +1,15 @@
+version: '2.1'
+services:
+  application:
+    depends_on:
+      - mongo_healthcheck
+    environment:
+      - JWT_SECRET
+      - KAFKA_CONNECTION_STRING
+      - MONGO_CONNECTION_STRING
+    links:
+      - kafka
+      - mongo
+    ports:
+      - 3006:3000
+    working_dir: /usr/src/app/applications/social-api/

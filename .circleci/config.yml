@@ -123,10 +123,25 @@ jobs:
           name: Install Lerna
           command: npm i -g lerna
           working_directory: ./projects/javascript/
+      - restore_cache:
+          key: root-packages-{{ checksum "./projects/javascript/package.json" }}
+      - restore_cache:
+          key: angular-packages-{{ checksum "./projects/javascript/angular/package.json" }}
+      - restore_cache:
+          key: nodejs-packages-{{ checksum "./projects/javascript/nodejs/package.json" }}
       - run:
           name: Lerna Bootstrap
           command: lerna bootstrap --concurrency 1 --include-dependencies --since
           working_directory: ./projects/javascript/
+      - save_cache:
+          key: root-packages-{{ checksum "./projects/javascript/package.json" }}
+          paths: -./projects/javascript/node_modules/
+      - save_cache:
+          key: angular-packages-{{ checksum "./projects/javascript/angular/package.json" }}
+          paths: -./projects/javascript/angular/node_modules/
+      - save_cache:
+          key: nodejs-packages-{{ checksum "./projects/javascript/nodejs/package.json" }}
+          paths: -./projects/javascript/nodejs/node_modules/
       - run:
           name: Lint
           command: lerna run lint --concurrency 1 --include-dependencies --since

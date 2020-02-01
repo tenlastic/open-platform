@@ -11,6 +11,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
     nginx.ingress.kubernetes.io/proxy-body-size: "1G"
+    nginx.org/websocket-services: "authentication-api,social-api"
 spec:
   tls:
     - hosts:
@@ -28,17 +29,33 @@ spec:
             backend:
               serviceName: article-api
               servicePort: 3000
+          - path: /connections
+            backend:
+              serviceName: authentication-api
+              servicePort: 3000
           - path: /databases
             backend:
               serviceName: database-api
+              servicePort: 3000
+          - path: /friends
+            backend:
+              serviceName: social-api
               servicePort: 3000
           - path: /games
             backend:
               serviceName: game-api
               servicePort: 3000
+          - path: /ignorations
+            backend:
+              serviceName: social-api
+              servicePort: 3000
           - path: /logins
             backend:
               serviceName: authentication-api
+              servicePort: 3000
+          - path: /messages
+            backend:
+              serviceName: social-api
               servicePort: 3000
           - path: /namespaces
             backend:

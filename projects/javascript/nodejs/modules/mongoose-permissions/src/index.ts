@@ -1,2 +1,3 @@
-export * from './access-control/';
-export * from './mongoose-permissions/';
+export * from './access-control';
+export * from './is-json-valid';
+export * from './mongoose-permissions';

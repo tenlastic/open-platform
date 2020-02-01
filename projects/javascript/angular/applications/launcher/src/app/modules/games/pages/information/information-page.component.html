@@ -43,20 +43,22 @@
         <ten-markdown [markdown]="game.description"></ten-markdown>
       </div>
 
-      <div *ngIf="articlesByDate.length > 0" class="col-sm-6 news-container">
+      <div *ngIf="articlesByDate.length > 0" class="col-sm-12 news-container">
         <ten-title>News</ten-title>
         <hr />
-        <ng-container *ngFor="let group of articlesByDate">
-          <h2>{{ group[0].publishedAt | date: 'longDate' }}</h2>
+        <div class="row">
+          <div *ngFor="let group of articlesByDate" class="col-sm-6">
+            <h2>{{ group[0].publishedAt | date: 'longDate' }}</h2>
 
-          <div *ngFor="let article of group" class="article" (click)="showArticle(article)">
-            <span class="type-date">
-              {{ article.type }} | {{ article.publishedAt | date: 'shortTime' }}
-            </span>
-            <h3>{{ article.title }}</h3>
-            <span>{{ article.caption }}</span>
+            <div *ngFor="let article of group" class="article" (click)="showArticle(article)">
+              <span class="type-date">
+                {{ article.type }} | {{ article.publishedAt | date: 'shortTime' }}
+              </span>
+              <h3>{{ article.title }}</h3>
+              <span>{{ article.caption }}</span>
+            </div>
           </div>
-        </ng-container>
+        </div>
       </div>
     </div>
   </div>

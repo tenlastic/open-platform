@@ -227,10 +227,6 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       Object.keys(where).forEach(key => {
         if (key === '$and' && '$and' in substitutedQuery) {
           substitutedQuery.$and = substitutedQuery.$and.concat(where.$and);
-        } else if (key === '$or' && '$or' in substitutedQuery) {
-          substitutedQuery.$or = substitutedQuery.$or.concat(where.$or);
-        } else if (key === '$nor' && '$nor' in substitutedQuery) {
-          substitutedQuery.$nor = substitutedQuery.$nor.concat(where.$nor);
         } else if (key in substitutedQuery) {
           if (!substitutedQuery.$and) {
             substitutedQuery.$and = [];

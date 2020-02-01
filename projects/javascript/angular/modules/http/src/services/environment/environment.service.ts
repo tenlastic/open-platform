@@ -2,9 +2,13 @@ import { Inject, Injectable, InjectionToken } from '@angular/core';
 
 export interface Environment {
   articleApiBaseUrl: string;
+  connectionApiBaseUrl: string;
   databaseApiBaseUrl: string;
+  friendApiBaseUrl: string;
   gameApiBaseUrl: string;
+  ignorationApiBaseUrl: string;
   loginApiBaseUrl: string;
+  messageApiBaseUrl: string;
   namespaceApiBaseUrl: string;
   passwordResetApiBaseUrl: string;
   releaseApiBaseUrl: string;
@@ -16,9 +20,13 @@ export const EnvironmentServiceConfig = new InjectionToken<Environment>('Environ
 @Injectable({ providedIn: 'root' })
 export class EnvironmentService implements Environment {
   public articleApiBaseUrl: string;
+  public connectionApiBaseUrl: string;
   public databaseApiBaseUrl: string;
+  public friendApiBaseUrl: string;
   public gameApiBaseUrl: string;
+  public ignorationApiBaseUrl: string;
   public loginApiBaseUrl: string;
+  public messageApiBaseUrl: string;
   public namespaceApiBaseUrl: string;
   public passwordResetApiBaseUrl: string;
   public releaseApiBaseUrl: string;

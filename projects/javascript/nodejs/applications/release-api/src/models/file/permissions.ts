@@ -68,7 +68,7 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
                                 model: 'ReadonlyNamespaceSchema',
                                 select: '_id',
                                 where: {
-                                  'accessControlList.userId': { $ref: 'user._id' },
+                                  'accessControlList.userId': { $eq: { $ref: 'user._id' } },
                                 },
                               },
                             },

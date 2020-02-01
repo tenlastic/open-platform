@@ -33,6 +33,11 @@ export const ROUTES: Routes = [
     component: OAuthComponent,
     path: 'oauth',
   },
+  {
+    component: LayoutComponent,
+    loadChildren: () => import('./modules/social/social.module').then(m => m.SocialModule),
+    path: 'social',
+  },
 ];
 
 @NgModule({

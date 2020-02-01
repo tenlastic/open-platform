@@ -43,7 +43,10 @@ describe('is-json-valid', function() {
       it('returns true', function() {
         const json = {
           user: {
-            names: [{ first: 'first', last: 'first' }, { first: 'second', last: 'second' }],
+            names: [
+              { first: 'first', last: 'first' },
+              { first: 'second', last: 'second' },
+            ],
           },
         };
         const query = {
@@ -63,7 +66,10 @@ describe('is-json-valid', function() {
       it('returns false', function() {
         const json = {
           user: {
-            names: [{ first: 'first', last: 'first' }, { first: 'second', last: 'second' }],
+            names: [
+              { first: 'first', last: 'first' },
+              { first: 'second', last: 'second' },
+            ],
           },
         };
         const query = {
@@ -339,6 +345,104 @@ describe('is-json-valid', function() {
       });
     });
 
+    describe('$ne', function() {
+      context('when the reference is an array', function() {
+        it('returns false', function() {
+          const json = {
+            user: {
+              roles: ['Admin'],
+            },
+          };
+          const query = {
+            'user.roles': { $ne: 'Admin' },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+
+        it('returns true', function() {
+          const json = {
+            user: {
+              roles: ['Admin'],
+            },
+          };
+          const query = {
+            'user.roles': { $ne: 'Owner' },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+      });
+
+      context('when the reference is an ObjectId', function() {
+        it('returns false', function() {
+          const json = {
+            user: {
+              _id: mongoose.Types.ObjectId(),
+            },
+          };
+          const query = {
+            'user._id': { $ne: json.user._id.toHexString() },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+
+        it('returns true', function() {
+          const json = {
+            user: {
+              _id: mongoose.Types.ObjectId(),
+            },
+          };
+          const query = {
+            'user._id': { $ne: mongoose.Types.ObjectId() },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+      });
+
+      context('when the reference is anything else', function() {
+        it('returns false', function() {
+          const json = {
+            user: {
+              _id: '123',
+            },
+          };
+          const query = {
+            'user._id': { $ne: '123' },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+
+        it('returns true', function() {
+          const json = {
+            user: {
+              _id: '123',
+            },
+          };
+          const query = {
+            'user._id': { $ne: '1' },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+      });
+    });
+
     describe('$or', function() {
       it('returns true', function() {
         const json = {
@@ -351,7 +455,7 @@ describe('is-json-valid', function() {
           $or: [{ 'user.age': { $eq: 1 } }, { 'user.name': { $eq: 'Test User' } }],
         };
 
-        const result = isJsonValid(json, query, false);
+        const result = isJsonValid(json, query);
 
         expect(result).to.eql(true);
       });
@@ -367,7 +471,7 @@ describe('is-json-valid', function() {
           $or: [{ 'user.age': { $eq: 1 } }, { 'user.name': { $eq: 'Another User' } }],
         };
 
-        const result = isJsonValid(json, query, false);
+        const result = isJsonValid(json, query);
 
         expect(result).to.eql(false);
       });

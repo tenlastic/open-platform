@@ -29,6 +29,7 @@ h3 {
 hr {
   background: #ffff55;
   border-color: #ffff55;
+  box-shadow: 3px 3px 3px black;
   margin: 16px 0px;
 }
 
@@ -61,10 +62,6 @@ div.row {
       padding-right: 8px;
     }
   }
-}
-
-hr {
-  box-shadow: 3px 3px 3px black;
 }
 
 mat-grid-list.mat-grid-list {
