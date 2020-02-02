@@ -1,7 +1,7 @@
 {
   "main": "./dist/electron/main.js",
   "name": "@tenlastic/launcher-ui",
-  "version": "0.0.41",
+  "version": "0.0.42",
   "scripts": {
     "build": "ng build --preserve-symlinks --prod launcher",
     "build:electron": "ng build --base-href ./ --configuration electron --preserve-symlinks launcher",
@@ -32,10 +32,10 @@
   },
   "devDependencies": {
     "@angular/cli": "~8.3.21",
-    "@tenlastic/ng-authentication": "0.0.41",
-    "@tenlastic/ng-component-library": "0.0.41",
-    "@tenlastic/ng-electron": "0.0.41",
-    "@tenlastic/ng-http": "0.0.41",
+    "@tenlastic/ng-authentication": "0.0.42",
+    "@tenlastic/ng-component-library": "0.0.42",
+    "@tenlastic/ng-electron": "0.0.42",
+    "@tenlastic/ng-http": "0.0.42",
     "electron": "~7.1.7",
     "electron-builder": "~21.2.0",
     "electron-reload": "~1.5.0",
