@@ -16,6 +16,7 @@ import { plugin as uniqueErrorPlugin } from '../plugin';
 @index({ updatedAt: 1 })
 @modelOptions({
   schemaOptions: {
+    autoIndex: true,
     collection: 'uniques',
     timestamps: true,
   },
