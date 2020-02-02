@@ -57,6 +57,15 @@ app.on('ready', () => {
 log.transports.file.level = 'info';
 
 // ==================
+// NOTIFICATIONS
+// ==================
+app.on('ready', () => {
+  if (process.platform === 'win32') {
+    app.setAppUserModelId('com.tenlastic.desktop-notifications');
+  }
+});
+
+// ==================
 // PROTOCOL
 // ==================
 app.on('ready', () => {
