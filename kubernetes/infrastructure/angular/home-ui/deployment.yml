@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: home-ui
-          image: tenlastic/home-ui:0.0.40
+          image: tenlastic/home-ui:0.0.41
           ports:
             - containerPort: 80
           resources:

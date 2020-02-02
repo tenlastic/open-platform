@@ -20,7 +20,7 @@ spec:
                     operator: Exists
       containers:
         - name: authentication-api
-          image: tenlastic/authentication-api:0.0.40
+          image: tenlastic/authentication-api:0.0.41
           envFrom:
             - secretRef:
                 name: authentication-api-environment-variables

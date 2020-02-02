@@ -20,7 +20,7 @@ spec:
                     operator: Exists
       containers:
         - name: release-api
-          image: tenlastic/release-api:0.0.40
+          image: tenlastic/release-api:0.0.41
           envFrom:
             - secretRef:
                 name: release-api-environment-variables
