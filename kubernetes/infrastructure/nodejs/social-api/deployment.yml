@@ -26,7 +26,7 @@ spec:
                 name: social-api-environment-variables
           livenessProbe:
             httpGet:
-              path: /socials
+              path: /messages
               port: 3000
             initialDelaySeconds: 15
             periodSeconds: 15
