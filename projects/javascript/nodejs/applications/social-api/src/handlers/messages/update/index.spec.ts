@@ -12,13 +12,15 @@ import { handler } from './';
 
 use(chaiAsPromised);
 
-describe('handlers/messages/delete', function() {
+describe('handlers/messages/update', function() {
   let fromUser: ReadonlyUserDocument;
+  let otherUser: ReadonlyUserDocument;
   let record: MessageDocument;
   let toUser: ReadonlyUserDocument;
 
   beforeEach(async function() {
     fromUser = await ReadonlyUserMock.create();
+    otherUser = await ReadonlyUserMock.create();
     toUser = await ReadonlyUserMock.create();
 
     record = await MessageMock.create({ fromUserId: fromUser._id, toUserId: toUser._id });
@@ -51,14 +53,12 @@ describe('handlers/messages/delete', function() {
             toUserId: toUser._id,
           },
         },
-        state: { user: toUser.toObject() },
+        state: { user: otherUser.toObject() },
       });
 
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejectedWith(
-        'User does not have permission to perform this action.',
-      );
+      return expect(promise).to.be.rejectedWith('Message not found.');
     });
   });
 });
