@@ -8,5 +8,6 @@ export * from './interceptors/unauthorized/unauthorized.interceptor';
 
 export * from './services/environment/environment.service';
 export * from './services/identity/identity.service';
+export * from './services/socket/socket.service';
 
 export * from './module';

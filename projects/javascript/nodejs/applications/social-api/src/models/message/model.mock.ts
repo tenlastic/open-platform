@@ -14,7 +14,7 @@ export class MessageMock {
     const defaults = {
       body: chance.hash(),
       fromUserId: mongoose.Types.ObjectId(),
-      toUserIds: [mongoose.Types.ObjectId()],
+      toUserId: mongoose.Types.ObjectId(),
     };
 
     return Message.create({ ...defaults, ...params });

@@ -1,5 +1,5 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import {
   Connection,
@@ -13,12 +13,13 @@ import {
   User,
   UserService,
 } from '@tenlastic/ng-http';
+import { Subscription } from 'rxjs';
 
 @Component({
   styleUrls: ['./messages-page.component.scss'],
   templateUrl: 'messages-page.component.html',
 })
-export class MessagesPageComponent implements OnInit {
+export class MessagesPageComponent implements OnDestroy, OnInit {
   @ViewChild('messagesScrollContainer', { static: false })
   public messagesScrollContainer: ElementRef;
 
@@ -29,6 +30,8 @@ export class MessagesPageComponent implements OnInit {
   public messages: Message[] = [];
   public user: User;
 
+  private subscriptions: Subscription[] = [];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private connectionService: ConnectionService,
@@ -36,6 +39,7 @@ export class MessagesPageComponent implements OnInit {
     public identityService: IdentityService,
     private ignorationService: IgnorationService,
     private messageService: MessageService,
+    private router: Router,
     private userService: UserService,
   ) {}
 
@@ -45,6 +49,12 @@ export class MessagesPageComponent implements OnInit {
 
       const _id = params.get('_id');
       if (!_id) {
+        const previousConversationId = localStorage.getItem('previousConversationId');
+        if (previousConversationId) {
+          this.router.navigate([previousConversationId], { relativeTo: this.activatedRoute });
+        }
+
+        this.loadingMessage = null;
         return;
       }
 
@@ -66,14 +76,32 @@ export class MessagesPageComponent implements OnInit {
       this.messages = await this.messageService.find({
         sort: '-createdAt',
         where: {
-          $or: [{ fromUserId: _id }, { toUserIds: [_id] }],
+          $or: [{ fromUserId: _id }, { toUserId: _id }],
         },
       });
+
+      const unreadMessages = this.messages.filter(
+        m => !m.readAt && m.toUserId === this.identityService.user._id,
+      );
+      for (const message of unreadMessages) {
+        try {
+          message.readAt = new Date();
+          await this.messageService.update(message);
+        } catch (e) {
+          console.error('Error marking message as read:', e);
+        }
+      }
+
+      localStorage.setItem('previousConversationId', _id);
 
       this.loadingMessage = null;
     });
 
     this.subscribeToServices();
+  }
+
+  public ngOnDestroy() {
+    this.subscriptions.forEach(s => s.unsubscribe());
   }
 
   public getConnection(userId: string) {
@@ -86,7 +114,7 @@ export class MessagesPageComponent implements OnInit {
     await this.messageService.create({
       body: $event.target.value,
       fromUserId: this.identityService.user._id,
-      toUserIds: [this.user._id],
+      toUserId: this.user._id,
     });
 
     $event.target.value = '';
@@ -117,58 +145,69 @@ export class MessagesPageComponent implements OnInit {
   }
 
   private async subscribeToServices() {
-    this.connectionService.onCreate.subscribe(async connection => {
-      this.connections.push(connection);
-    });
-    this.connectionService.onUpdate.subscribe(async connection => {
-      const { _id, disconnectedAt } = connection;
-      const connectionIndex = this.connections.findIndex(c => c._id === _id);
-
-      if (connectionIndex >= 0 && disconnectedAt) {
-        this.connections.splice(connectionIndex, 1);
-      } else if (connectionIndex < 0 && !disconnectedAt) {
+    this.subscriptions.push(
+      this.connectionService.onCreate.subscribe(async connection => {
         this.connections.push(connection);
-      }
-    });
+      }),
+    );
+    this.subscriptions.push(
+      this.connectionService.onUpdate.subscribe(async connection => {
+        const { _id, disconnectedAt } = connection;
+        const connectionIndex = this.connections.findIndex(c => c._id === _id);
 
-    this.friendService.onCreate.subscribe(async friend => {
-      this.friend = friend.toUserId === this.user._id ? friend : this.friend;
-    });
+        if (connectionIndex >= 0 && disconnectedAt) {
+          this.connections.splice(connectionIndex, 1);
+        } else if (connectionIndex < 0 && !disconnectedAt) {
+          this.connections.push(connection);
+        }
+      }),
+    );
 
-    this.friendService.onDelete.subscribe(async friend => {
-      this.friend = friend.toUserId === this.user._id ? null : this.friend;
-    });
+    this.subscriptions.push(
+      this.friendService.onCreate.subscribe(async friend => {
+        this.friend = friend.toUserId === this.user._id ? friend : this.friend;
+      }),
+    );
 
-    this.ignorationService.onCreate.subscribe(async ignoration => {
-      this.ignoration = ignoration.toUserId === this.user._id ? ignoration : this.ignoration;
-    });
+    this.subscriptions.push(
+      this.friendService.onDelete.subscribe(async friend => {
+        this.friend = friend.toUserId === this.user._id ? null : this.friend;
+      }),
+    );
 
-    this.ignorationService.onDelete.subscribe(async ignoration => {
-      this.ignoration = ignoration.toUserId === this.user._id ? null : this.ignoration;
-    });
+    this.subscriptions.push(
+      this.ignorationService.onCreate.subscribe(async ignoration => {
+        this.ignoration = ignoration.toUserId === this.user._id ? ignoration : this.ignoration;
+      }),
+    );
 
-    this.messageService.onCreate.subscribe(async message => {
-      if (
-        message.fromUserId !== this.identityService.user._id &&
-        message.fromUserId !== this.user._id
-      ) {
-        return;
-      }
+    this.subscriptions.push(
+      this.ignorationService.onDelete.subscribe(async ignoration => {
+        this.ignoration = ignoration.toUserId === this.user._id ? null : this.ignoration;
+      }),
+    );
 
-      if (
-        !message.toUserIds.includes(this.identityService.user._id) &&
-        !message.toUserIds.includes(this.user._id)
-      ) {
-        return;
-      }
+    this.subscriptions.push(
+      this.messageService.onCreate.subscribe(async message => {
+        if (
+          (message.fromUserId !== this.identityService.user._id &&
+            message.fromUserId !== this.user._id) ||
+          (message.toUserId !== this.identityService.user._id && message.toUserId !== this.user._id)
+        ) {
+          return;
+        }
 
-      this.messages.unshift(message);
+        this.messages.unshift(message);
 
-      try {
-        setTimeout(() => {
-          this.messagesScrollContainer.nativeElement.scrollTop = this.messagesScrollContainer.nativeElement.scrollHeight;
-        }, 10);
-      } catch (err) {}
-    });
+        message.readAt = new Date();
+        await this.messageService.update(message);
+
+        try {
+          setTimeout(() => {
+            this.messagesScrollContainer.nativeElement.scrollTop = this.messagesScrollContainer.nativeElement.scrollHeight;
+          }, 10);
+        } catch (err) {}
+      }),
+    );
   }
 }

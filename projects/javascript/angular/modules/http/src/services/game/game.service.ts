@@ -13,6 +13,7 @@ export interface GameServiceUploadOptions {
 @Injectable({ providedIn: 'root' })
 export class GameService {
   public basePath: string;
+  public emitEvents = true;
 
   public onCreate = new EventEmitter<Game>();
   public onDelete = new EventEmitter<Game>();
@@ -26,7 +27,10 @@ export class GameService {
     const response = await this.apiService.request('post', this.basePath, parameters);
 
     const record = new Game(response.record);
-    this.onCreate.emit(record);
+
+    if (this.emitEvents) {
+      this.onCreate.emit(record);
+    }
 
     return record;
   }
@@ -35,7 +39,10 @@ export class GameService {
     const response = await this.apiService.request('delete', `${this.basePath}/${slug}`, null);
 
     const record = new Game(response.record);
-    this.onDelete.emit(record);
+
+    if (this.emitEvents) {
+      this.onDelete.emit(record);
+    }
 
     return record;
   }
@@ -60,7 +67,10 @@ export class GameService {
     );
 
     const record = new Game(response.record);
-    this.onUpdate.emit(record);
+
+    if (this.emitEvents) {
+      this.onUpdate.emit(record);
+    }
 
     return record;
   }

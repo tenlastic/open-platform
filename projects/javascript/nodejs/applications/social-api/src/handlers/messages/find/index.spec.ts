@@ -12,11 +12,11 @@ describe('handlers/messages/find', function() {
     fromUser = await ReadonlyUserMock.create();
     const toUser = await ReadonlyUserMock.create();
 
-    await MessageMock.create({ fromUserId: fromUser._id, toUserIds: [toUser._id] });
-    await MessageMock.create({ fromUserId: toUser._id, toUserIds: [fromUser._id] });
+    await MessageMock.create({ fromUserId: fromUser._id, toUserId: toUser._id });
+    await MessageMock.create({ fromUserId: toUser._id, toUserId: fromUser._id });
     await MessageMock.create({
       fromUserId: mongoose.Types.ObjectId(),
-      toUserIds: [mongoose.Types.ObjectId()],
+      toUserId: mongoose.Types.ObjectId(),
     });
   });
 

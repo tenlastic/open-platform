@@ -13,12 +13,14 @@ import {
   User,
   UserService,
 } from '@tenlastic/ng-http';
+import { Subscription } from 'rxjs';
 
+import { MessageState } from '../../../../core/states';
 import { InputDialogComponent } from '../../../../shared/components';
 
 export interface MessageGroup {
   messages: Message[];
-  users: User[];
+  user: User;
 }
 
 @Component({
@@ -36,7 +38,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public messages: Message[] = [];
   public users: User[] = [];
 
-  private sockets: WebSocket[] = [];
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -46,6 +48,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private ignorationService: IgnorationService,
     private matDialog: MatDialog,
     private messageService: MessageService,
+    public messageState: MessageState,
     private router: Router,
     private userService: UserService,
     private zone: NgZone,
@@ -72,12 +75,10 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
     this.getMessages();
     this.subscribeToServices();
-    this.watchForConnectionChanges();
-    this.watchForMessageChanges();
   }
 
   public ngOnDestroy() {
-    this.sockets.forEach(s => s.close());
+    this.subscriptions.forEach(s => s.unsubscribe());
   }
 
   public addFriend() {
@@ -93,8 +94,11 @@ export class LayoutComponent implements OnDestroy, OnInit {
     });
 
     dialogRef.afterClosed().subscribe(async username => {
-      const users = await this.userService.find({ where: { username } });
+      if (!username) {
+        return;
+      }
 
+      const users = await this.userService.find({ where: { username } });
       if (users.length === 0) {
         return;
       }
@@ -121,8 +125,11 @@ export class LayoutComponent implements OnDestroy, OnInit {
     });
 
     dialogRef.afterClosed().subscribe(async username => {
-      const users = await this.userService.find({ where: { username } });
+      if (!username) {
+        return;
+      }
 
+      const users = await this.userService.find({ where: { username } });
       if (users.length === 0) {
         return;
       }
@@ -140,6 +147,12 @@ export class LayoutComponent implements OnDestroy, OnInit {
     return this.connections.find(c => c.userId === userId);
   }
 
+  public getUnreadMessages(fromUserId: string) {
+    return this.messageState.messages.filter(
+      m => m.fromUserId === fromUserId && !m.readAt && m.toUserId === this.identityService.user._id,
+    );
+  }
+
   public newMessage() {
     const dialogRef = this.matDialog.open(InputDialogComponent, {
       data: {
@@ -153,8 +166,11 @@ export class LayoutComponent implements OnDestroy, OnInit {
     });
 
     dialogRef.afterClosed().subscribe(async username => {
-      const users = await this.userService.find({ where: { username } });
+      if (!username) {
+        return;
+      }
 
+      const users = await this.userService.find({ where: { username } });
       if (users.length === 0) {
         return;
       }
@@ -184,7 +200,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     const userMap: { [key: string]: User } = {};
     messages.forEach(m => {
       userMap[m.fromUserId] = null;
-      m.toUserIds.forEach(tui => (userMap[tui] = null));
+      userMap[m.toUserId] = null;
     });
 
     const users = await this.userService.find({ where: { _id: { $in: Object.keys(userMap) } } });
@@ -199,7 +215,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
         previous[fromKey] = [current];
       }
 
-      const toKey = current.toUserIds.join(',');
+      const toKey = current.toUserId;
 
       if (previous[toKey]) {
         previous[toKey].push(current);
@@ -214,111 +230,80 @@ export class LayoutComponent implements OnDestroy, OnInit {
       .map(key => {
         const value = groupMap[key];
 
-        return { messages: value, users: key.split(',').map(tui => userMap[tui]) };
+        return { messages: value, user: userMap[key] };
       })
-      .filter(g => g.users[0]._id !== this.identityService.user._id);
+      .filter(g => g.user._id !== this.identityService.user._id);
   }
 
   private async subscribeToServices() {
-    this.connectionService.onCreate.subscribe(async connection => {
-      this.connections.push(connection);
-    });
-    this.connectionService.onUpdate.subscribe(async connection => {
-      const { _id, disconnectedAt } = connection;
-      const connectionIndex = this.connections.findIndex(c => c._id === _id);
-
-      if (connectionIndex >= 0 && disconnectedAt) {
-        this.connections.splice(connectionIndex, 1);
-      } else if (connectionIndex < 0 && !disconnectedAt) {
+    this.subscriptions.push(
+      this.connectionService.onCreate.subscribe(async connection => {
         this.connections.push(connection);
-      }
-    });
+      }),
+    );
+    this.subscriptions.push(
+      this.connectionService.onUpdate.subscribe(async connection => {
+        const { _id, disconnectedAt } = connection;
+        const connectionIndex = this.connections.findIndex(c => c._id === _id);
 
-    this.friendService.onCreate.subscribe(async friend => {
-      const user = await this.userService.findOne(friend.toUserId);
-      this.friends.push(user);
-    });
-    this.friendService.onDelete.subscribe(async friend => {
-      const index = this.friends.findIndex(f => f._id === friend.toUserId);
-      this.friends.splice(index, 1);
-    });
-
-    this.ignorationService.onCreate.subscribe(async ignoration => {
-      const user = await this.userService.findOne(ignoration.toUserId);
-      this.ignorations.push(user);
-    });
-    this.ignorationService.onDelete.subscribe(async ignoration => {
-      const index = this.ignorations.findIndex(f => f._id === ignoration.toUserId);
-      this.ignorations.splice(index, 1);
-    });
-
-    this.messageService.onCreate.subscribe(async message => {
-      this.messages.push(message);
-
-      if (message.fromUserId !== this.identityService.user._id) {
-        const user = this.users.find(u => u._id === message.fromUserId);
-
-        this.zone.run(async () => {
-          if (Notification.permission !== 'denied') {
-            await new Promise(resolve => {
-              Notification.requestPermission(resolve);
-            });
-          }
-
-          const myNotification = new Notification(user.username, {
-            body: message.body,
-            requireInteraction: false,
-          });
-          myNotification.onclick = () => {
-            this.router.navigate([user._id], { relativeTo: this.activatedRoute });
-          };
-        });
-      }
-    });
-  }
-
-  private watchForConnectionChanges() {
-    const url = new URL(this.connectionService.basePath.replace('http', 'ws'));
-    url.searchParams.append('token', this.identityService.accessToken);
-    url.searchParams.append('watch', JSON.stringify({}));
-
-    const socket = new WebSocket(url.href);
-    socket.onmessage = msg => {
-      const payload = JSON.parse(msg.data);
-
-      if (payload.operationType === 'insert') {
-        const connection = new Connection(payload.fullDocument);
-        this.connectionService.onCreate.emit(connection);
-      } else if (payload.operationType === 'update') {
-        const connection = new Connection(payload.fullDocument);
-        this.connectionService.onUpdate.emit(connection);
-      }
-    };
-
-    this.sockets.push(socket);
-  }
-
-  private watchForMessageChanges() {
-    const url = new URL(this.messageService.basePath.replace('http', 'ws'));
-    url.searchParams.append('token', this.identityService.accessToken);
-    url.searchParams.append(
-      'watch',
-      JSON.stringify({ fromUserId: { $ne: this.identityService.user._id } }),
+        if (connectionIndex >= 0 && disconnectedAt) {
+          this.connections.splice(connectionIndex, 1);
+        } else if (connectionIndex < 0 && !disconnectedAt) {
+          this.connections.push(connection);
+        }
+      }),
     );
 
-    const socket = new WebSocket(url.href);
-    socket.onmessage = msg => {
-      const payload = JSON.parse(msg.data);
+    this.subscriptions.push(
+      this.friendService.onCreate.subscribe(async friend => {
+        const user = await this.userService.findOne(friend.toUserId);
+        this.friends.push(user);
+      }),
+    );
+    this.subscriptions.push(
+      this.friendService.onDelete.subscribe(async friend => {
+        const index = this.friends.findIndex(f => f._id === friend.toUserId);
+        this.friends.splice(index, 1);
+      }),
+    );
 
-      if (payload.operationType === 'insert') {
-        const message = new Message(payload.fullDocument);
-        this.messageService.onCreate.emit(message);
-      } else if (payload.operationType === 'update') {
-        const message = new Message(payload.fullDocument);
-        this.messageService.onUpdate.emit(message);
-      }
-    };
+    this.subscriptions.push(
+      this.ignorationService.onCreate.subscribe(async ignoration => {
+        const user = await this.userService.findOne(ignoration.toUserId);
+        this.ignorations.push(user);
+      }),
+    );
+    this.subscriptions.push(
+      this.ignorationService.onDelete.subscribe(async ignoration => {
+        const index = this.ignorations.findIndex(f => f._id === ignoration.toUserId);
+        this.ignorations.splice(index, 1);
+      }),
+    );
 
-    this.sockets.push(socket);
+    this.subscriptions.push(
+      this.messageService.onCreate.subscribe(async message => {
+        this.messages.push(message);
+
+        if (message.fromUserId !== this.identityService.user._id) {
+          const user = this.users.find(u => u._id === message.fromUserId);
+
+          this.zone.run(async () => {
+            if (Notification.permission !== 'denied') {
+              await new Promise(resolve => {
+                Notification.requestPermission(resolve);
+              });
+            }
+
+            const myNotification = new Notification(user.username, {
+              body: message.body,
+              requireInteraction: false,
+            });
+            myNotification.onclick = () => {
+              this.router.navigate([user._id], { relativeTo: this.activatedRoute });
+            };
+          });
+        }
+      }),
+    );
   }
 }

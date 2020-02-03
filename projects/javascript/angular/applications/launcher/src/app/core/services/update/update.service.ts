@@ -22,6 +22,7 @@ export interface UpdateServiceProgress {
 }
 
 export interface UpdateServiceStatus {
+  game?: Game;
   isInstalled?: boolean;
   modifiedFiles?: File[];
   progress?: UpdateServiceProgress;
@@ -34,11 +35,8 @@ export interface UpdateServiceStatus {
 export class UpdateService {
   public OnChange = new Subject<Map<Game, UpdateServiceStatus>>();
 
-  private get appPath() {
-    return this.electronService.remote.app
-      .getAppPath()
-      .replace(/\\/g, '/')
-      .replace('/app.asar', '');
+  private get installPath() {
+    return this.electronService.remote.app.getPath('home').replace(/\\/g, '/') + '/Tenlastic';
   }
   private get platform() {
     if (!this.electronService.isElectron) {
@@ -63,11 +61,12 @@ export class UpdateService {
     private fileService: FileService,
     private identityService: IdentityService,
     private releaseService: ReleaseService,
-  ) {}
+  ) {
+    this.subscribeToServices();
+  }
 
   public async checkForUpdates(game: Game) {
     const status = this.getStatus(game);
-
     if (status.state >= 0) {
       return;
     }
@@ -129,7 +128,7 @@ export class UpdateService {
       updatedFiles = remoteFiles.filter((rf, i) => {
         status.progress = { current: i, total: remoteFiles.length };
 
-        const localFile = localFilePaths[`${this.appPath}/${game.slug}/${rf.path}`];
+        const localFile = localFilePaths[`${this.installPath}/${game.slug}/${rf.path}`];
         return !localFile || localFile.md5 !== rf.md5;
       });
     }
@@ -147,7 +146,7 @@ export class UpdateService {
 
   public getStatus(game: Game) {
     if (!this.status.has(game._id)) {
-      this.status.set(game._id, {});
+      this.status.set(game._id, { game });
       this.checkForUpdates(game);
     }
 
@@ -156,9 +155,9 @@ export class UpdateService {
 
   public play(game: Game) {
     const status = this.getStatus(game);
-    const target = `${this.appPath}/${game.slug}/${status.release.entrypoint}.exe`;
+    const target = `${this.installPath}/${game.slug}/${status.release.entrypoint}.exe`;
 
-    this.electronService.childProcess.execFileSync(target, [
+    this.electronService.childProcess.execFile(target, [
       `--accessToken ${this.identityService.accessToken}`,
       `--refreshToken ${this.identityService.refreshToken}`,
     ]);
@@ -177,8 +176,12 @@ export class UpdateService {
     status.text = 'Installing update...';
     await this.unzip(game, response);
 
-    status.modifiedFiles = [];
-    status.state = UpdateServiceState.Ready;
+    // Make sure download is complete.
+    status.state = -1;
+    await this.checkForUpdates(game);
+    if (status.modifiedFiles.length > 0) {
+      this.update(game);
+    }
   }
 
   private async deleteRemovedFiles(
@@ -189,12 +192,12 @@ export class UpdateService {
     const { fs } = this.electronService;
 
     for (const localFile of localFiles) {
-      const localPath = localFile.path.replace(`${this.appPath}/${game.slug}/`, '');
+      const localPath = localFile.path.replace(`${this.installPath}/${game.slug}/`, '');
       const remotePaths = remoteFiles.map(rf => rf.path);
 
       if (!remotePaths.includes(localPath)) {
         await new Promise(resolve =>
-          fs.unlink(`${this.appPath}/${game.slug}/${localPath}`, err => resolve()),
+          fs.unlink(`${this.installPath}/${game.slug}/${localPath}`, err => resolve()),
         );
       }
     }
@@ -241,7 +244,7 @@ export class UpdateService {
     const { crypto, fs, glob } = this.electronService;
     const status = this.getStatus(game);
 
-    const files = glob.sync(`${this.appPath}/${game.slug}/**/*`, { nodir: true });
+    const files = glob.sync(`${this.installPath}/${game.slug}/**/*`, { nodir: true });
 
     const localFiles: { md5: string; path: string }[] = [];
     for (let i = 0; i < files.length; i++) {
@@ -267,6 +270,18 @@ export class UpdateService {
     return localFiles;
   }
 
+  private subscribeToServices() {
+    this.releaseService.onUpdate.subscribe(record => {
+      const game = this.status.get(record.gameId).game;
+      const status = this.getStatus(game);
+
+      if (!status.release || record._id !== status.release._id) {
+        status.state = -1;
+        this.checkForUpdates(game);
+      }
+    });
+  }
+
   private async unzip(game: Game, response: any) {
     const status = this.getStatus(game);
 
@@ -287,7 +302,7 @@ export class UpdateService {
 
       status.progress = { current: i, total: files.length };
 
-      const target = `${this.appPath}/${game.slug}/${file.path}`;
+      const target = `${this.installPath}/${game.slug}/${file.path}`;
       const targetDirectory = target.substr(0, target.lastIndexOf('/'));
       if (!fs.existsSync(targetDirectory)) {
         fs.mkdirSync(targetDirectory, { recursive: true } as any);

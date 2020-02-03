@@ -15,11 +15,12 @@ components:
         fromUserId:
           type: string
           format: ^[a-f0-9]{24}$
-        toUserIds:
-          type: array
-          items:
-            type: string
-            format: ^[a-f0-9]{24}$
+        readAt:
+          type: string
+          format: date-time
+        toUserId:
+          type: string
+          format: ^[a-f0-9]{24}$
         updatedAt:
           type: string
           format: date-time

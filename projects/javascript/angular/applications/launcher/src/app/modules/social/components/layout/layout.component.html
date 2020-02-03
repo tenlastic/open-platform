@@ -23,15 +23,18 @@
         *ngFor="let group of groups"
         color="accent"
         layout="vertical"
-        [routerLink]="group.users[0]._id"
+        [routerLink]="group.user._id"
         routerLinkActive="active"
         text="left"
         width="full"
       >
         <mat-icon>
-          {{ getConnection(group.users[0]._id) ? 'brightness_1' : 'radio_button_unchecked' }}
+          {{ getConnection(group.user._id) ? 'brightness_1' : 'radio_button_unchecked' }}
         </mat-icon>
-        <span>{{ group.users[0].username }}</span>
+        <span>{{ group.user.username }}</span>
+        <span *ngIf="getUnreadMessages(group.user._id).length" class="badge">
+          {{ getUnreadMessages(group.user._id).length }}
+        </span>
       </ten-button>
     </ng-container>
 
@@ -60,6 +63,9 @@
           {{ getConnection(friend._id) ? 'brightness_1' : 'radio_button_unchecked' }}
         </mat-icon>
         <span>{{ friend.username }}</span>
+        <span *ngIf="getUnreadMessages(friend._id).length" class="badge">
+          {{ getUnreadMessages(friend._id).length }}
+        </span>
       </ten-button>
     </ng-container>
 
@@ -88,6 +94,9 @@
       >
         <mat-icon>radio_button_unchecked</mat-icon>
         <span>{{ ignoration.username }}</span>
+        <span *ngIf="getUnreadMessages(ignoration._id).length" class="badge">
+          {{ getUnreadMessages(ignoration._id).length }}
+        </span>
       </ten-button>
     </ng-container>
   </div>

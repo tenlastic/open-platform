@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import { ElectronService } from '@tenlastic/ng-electron';
 import { Article, ArticleService, Game, GameService } from '@tenlastic/ng-http';
@@ -34,6 +34,7 @@ export class InformationPageComponent implements OnInit {
     public identityService: IdentityService,
     private gameService: GameService,
     private matDialog: MatDialog,
+    private router: Router,
   ) {}
 
   public ngOnInit() {
@@ -41,35 +42,42 @@ export class InformationPageComponent implements OnInit {
       this.loadingMessage = 'Loading Game...';
 
       const slug = params.get('slug');
-      if (slug) {
-        this.game = await this.gameService.findOne(slug);
-
-        if (this.game.videos.length > 0) {
-          this.selectMedia(0, 'video');
-        } else {
-          this.selectMedia(0, 'image');
+      if (!slug) {
+        const previousGameSlug = localStorage.getItem('previousGameSlug');
+        if (previousGameSlug) {
+          this.router.navigate([previousGameSlug], { relativeTo: this.activatedRoute });
         }
 
-        this.articles = await this.articleService.find({
-          sort: '-publishedAt',
-          where: {
-            $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
-            gameId: this.game._id,
-          },
-        });
-        this.articlesByDate = this.groupByDate(this.articles);
-
-        this.backgroundService.subject.next(
-          this.game.background || '/assets/images/background.jpg',
-        );
-
-        if (this.statusComponent) {
-          this.statusComponent.game = this.game;
-          this.statusComponent.ngOnInit();
-        }
-
-        this.loadingMessage = null;
+        return;
       }
+
+      this.game = await this.gameService.findOne(slug);
+
+      if (this.game.videos.length > 0) {
+        this.selectMedia(0, 'video');
+      } else {
+        this.selectMedia(0, 'image');
+      }
+
+      this.articles = await this.articleService.find({
+        sort: '-publishedAt',
+        where: {
+          $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
+          gameId: this.game._id,
+        },
+      });
+      this.articlesByDate = this.groupByDate(this.articles);
+
+      this.backgroundService.subject.next(this.game.background || '/assets/images/background.jpg');
+
+      if (this.statusComponent) {
+        this.statusComponent.game = this.game;
+        this.statusComponent.ngOnInit();
+      }
+
+      localStorage.setItem('previousGameSlug', slug);
+
+      this.loadingMessage = null;
     });
   }
 

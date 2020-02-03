@@ -82,6 +82,7 @@ export class IdentityService {
   constructor(private loginService: LoginService, private userService: UserService) {
     this.loginService.onLogin.subscribe(this.login.bind(this));
     this.loginService.onLogout.subscribe(this.clear.bind(this));
+    this.loginService.onRefresh.subscribe(this.login.bind(this));
     this.userService.onUpdate.subscribe(this.updateUser.bind(this));
   }
 

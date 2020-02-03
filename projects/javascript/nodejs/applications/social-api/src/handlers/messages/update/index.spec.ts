@@ -12,16 +12,18 @@ import { handler } from './';
 
 use(chaiAsPromised);
 
-describe('handlers/messages/delete', function() {
+describe('handlers/messages/update', function() {
   let fromUser: ReadonlyUserDocument;
+  let otherUser: ReadonlyUserDocument;
   let record: MessageDocument;
   let toUser: ReadonlyUserDocument;
 
   beforeEach(async function() {
     fromUser = await ReadonlyUserMock.create();
+    otherUser = await ReadonlyUserMock.create();
     toUser = await ReadonlyUserMock.create();
 
-    record = await MessageMock.create({ fromUserId: fromUser._id, toUserIds: [toUser._id] });
+    record = await MessageMock.create({ fromUserId: fromUser._id, toUserId: toUser._id });
   });
 
   context('when permission is granted', function() {
@@ -30,7 +32,7 @@ describe('handlers/messages/delete', function() {
         params: { _id: record._id },
         request: {
           body: {
-            toUserIds: [toUser._id],
+            toUserId: toUser._id,
           },
         },
         state: { user: fromUser.toObject() },
@@ -48,17 +50,15 @@ describe('handlers/messages/delete', function() {
         params: { _id: record._id },
         request: {
           body: {
-            toUserIds: [toUser._id],
+            toUserId: toUser._id,
           },
         },
-        state: { user: toUser.toObject() },
+        state: { user: otherUser.toObject() },
       });
 
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejectedWith(
-        'User does not have permission to perform this action.',
-      );
+      return expect(promise).to.be.rejectedWith('Message not found.');
     });
   });
 });

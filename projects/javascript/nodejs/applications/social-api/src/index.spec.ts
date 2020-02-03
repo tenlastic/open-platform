@@ -2,7 +2,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { MONGO_DATABASE_NAME } from './constants';
-import { Friend, Ignoration, ReadonlyUser } from './models';
+import { Friend, Ignoration, Message, ReadonlyUser } from './models';
 
 before(async function() {
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
@@ -18,5 +18,6 @@ before(async function() {
 beforeEach(async function() {
   await Friend.deleteMany({});
   await Ignoration.deleteMany({});
+  await Message.deleteMany({});
   await ReadonlyUser.deleteMany({});
 });

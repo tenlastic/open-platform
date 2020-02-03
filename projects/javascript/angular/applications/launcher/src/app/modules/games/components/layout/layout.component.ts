@@ -22,7 +22,11 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.games = await this.gameService.find({});
-    this.router.navigate(['/games', this.games[0].slug]);
+
+    const previousGameSlug = localStorage.getItem('previousGameSlug');
+    if (!previousGameSlug) {
+      this.router.navigate(['/games', this.games[0].slug]);
+    }
   }
 
   public ngOnDestroy() {

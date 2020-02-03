@@ -20,6 +20,7 @@ export interface FileServiceUploadOptions {
 @Injectable({ providedIn: 'root' })
 export class FileService {
   public basePath: string;
+  public emitEvents = true;
 
   public onCreate = new EventEmitter<File>();
   public onDelete = new EventEmitter<File>();
@@ -36,7 +37,10 @@ export class FileService {
     );
 
     const record = new File(response.record);
-    this.onDelete.emit(record);
+
+    if (this.emitEvents) {
+      this.onDelete.emit(record);
+    }
 
     return record;
   }

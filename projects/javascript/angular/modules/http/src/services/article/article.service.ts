@@ -7,6 +7,7 @@ import { EnvironmentService } from '../environment/environment.service';
 @Injectable({ providedIn: 'root' })
 export class ArticleService {
   public basePath: string;
+  public emitEvents = true;
 
   public onCreate = new EventEmitter<Article>();
   public onDelete = new EventEmitter<Article>();
@@ -20,7 +21,10 @@ export class ArticleService {
     const response = await this.apiService.request('post', `${this.basePath}`, parameters);
 
     const record = new Article(response.record);
-    this.onCreate.emit(record);
+
+    if (this.emitEvents) {
+      this.onCreate.emit(record);
+    }
 
     return record;
   }
@@ -29,7 +33,10 @@ export class ArticleService {
     const response = await this.apiService.request('delete', `${this.basePath}/${_id}`, null);
 
     const record = new Article(response.record);
-    this.onDelete.emit(record);
+
+    if (this.emitEvents) {
+      this.onDelete.emit(record);
+    }
 
     return record;
   }
@@ -54,7 +61,10 @@ export class ArticleService {
     );
 
     const record = new Article(response.record);
-    this.onUpdate.emit(record);
+
+    if (this.emitEvents) {
+      this.onUpdate.emit(record);
+    }
 
     return record;
   }

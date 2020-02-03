@@ -11,9 +11,11 @@ export interface IOnLogin {
 @Injectable({ providedIn: 'root' })
 export class LoginService {
   public basePath: string;
+  public emitEvents = true;
 
   public onLogin = new EventEmitter<IOnLogin>();
   public onLogout = new EventEmitter();
+  public onRefresh = new EventEmitter<IOnLogin>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
     this.basePath = this.environmentService.loginApiBaseUrl;
@@ -38,7 +40,7 @@ export class LoginService {
     );
 
     const { accessToken, refreshToken } = response;
-    this.onLogin.emit({ accessToken, refreshToken });
+    this.onRefresh.emit({ accessToken, refreshToken });
 
     return { accessToken, refreshToken };
   }

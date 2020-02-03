@@ -24,7 +24,7 @@ describe('handlers/messages/create', function() {
         body: {
           body: chance.hash(),
           fromUserId: fromUser._id,
-          toUserIds: [toUser._id],
+          toUserId: toUser._id,
         },
       },
       state: { user: fromUser.toObject() },

@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { IdentityService } from '@tenlastic/ng-authentication';
-import { User, UserService } from '@tenlastic/ng-http';
+import { ConnectionService, User, UserService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -18,13 +18,15 @@ export class UsersListPageComponent implements OnInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<User>;
 
-  public dataSource: MatTableDataSource<User>;
-  public displayedColumns: string[] = ['username', 'createdAt', 'updatedAt'];
+  public dataSource: MatTableDataSource<any>;
+  public displayedColumns: string[] = ['connection', 'username', 'createdAt', 'updatedAt'];
   public search = '';
 
   private subject: Subject<string> = new Subject();
+  private users: User[] = [];
 
   constructor(
+    private connectionService: ConnectionService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private titleService: Title,
@@ -41,6 +43,8 @@ export class UsersListPageComponent implements OnInit {
     this.fetchUsers();
 
     this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
+
+    this.subscribeToServices();
   }
 
   public clearSearch() {
@@ -76,9 +80,17 @@ export class UsersListPageComponent implements OnInit {
   }
 
   private async fetchUsers() {
-    const users = await this.userService.find({ sort: 'email' });
+    this.users = await this.userService.find({ sort: 'email' });
 
-    this.dataSource = new MatTableDataSource<User>(users);
+    const connections = await this.connectionService.find({
+      where: { disconnectedAt: { $exists: false }, userId: { $in: this.users.map(u => u._id) } },
+    });
+    connections.forEach(c => {
+      const user = this.users.find(u => u._id === c.userId) as any;
+      user.connection = c;
+    });
+
+    this.dataSource = new MatTableDataSource<any>(this.users);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
@@ -89,5 +101,17 @@ export class UsersListPageComponent implements OnInit {
 
     this.dataSource.data = [].concat(this.dataSource.data);
     this.table.renderRows();
+  }
+
+  private subscribeToServices() {
+    this.connectionService.onCreate.subscribe(c => {
+      const user = this.users.find(u => u._id === c.userId) as any;
+      user.connection = c;
+    });
+
+    this.connectionService.onUpdate.subscribe(c => {
+      const user = this.users.find(u => u._id === c.userId) as any;
+      user.connection = c;
+    });
   }
 }
