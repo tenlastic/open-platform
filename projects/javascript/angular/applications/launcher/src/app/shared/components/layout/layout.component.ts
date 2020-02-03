@@ -5,6 +5,7 @@ import { EnvironmentService, IdentityService } from '@tenlastic/ng-authenticatio
 import { ElectronService } from '@tenlastic/ng-electron';
 
 import { BackgroundService } from '../../../core/services';
+import { MessageState } from '../../../core/states';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -23,6 +24,7 @@ export class LayoutComponent implements OnInit {
     public electronService: ElectronService,
     public environmentService: EnvironmentService,
     public identityService: IdentityService,
+    public messageState: MessageState,
     public router: Router,
   ) {}
 

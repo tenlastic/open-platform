@@ -1,5 +1,5 @@
 <ten-sidenav>
-  <div class="nav">
+  <div *ngIf="games.length > 1" class="nav">
     <ten-button
       *ngFor="let game of games"
       color="accent"

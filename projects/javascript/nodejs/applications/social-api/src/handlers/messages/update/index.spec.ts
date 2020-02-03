@@ -21,7 +21,7 @@ describe('handlers/messages/delete', function() {
     fromUser = await ReadonlyUserMock.create();
     toUser = await ReadonlyUserMock.create();
 
-    record = await MessageMock.create({ fromUserId: fromUser._id, toUserIds: [toUser._id] });
+    record = await MessageMock.create({ fromUserId: fromUser._id, toUserId: toUser._id });
   });
 
   context('when permission is granted', function() {
@@ -30,7 +30,7 @@ describe('handlers/messages/delete', function() {
         params: { _id: record._id },
         request: {
           body: {
-            toUserIds: [toUser._id],
+            toUserId: toUser._id,
           },
         },
         state: { user: fromUser.toObject() },
@@ -48,7 +48,7 @@ describe('handlers/messages/delete', function() {
         params: { _id: record._id },
         request: {
           body: {
-            toUserIds: [toUser._id],
+            toUserId: toUser._id,
           },
         },
         state: { user: toUser.toObject() },

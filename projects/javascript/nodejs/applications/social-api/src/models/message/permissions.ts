@@ -5,7 +5,7 @@ import { Message, MessageDocument } from './model';
 export const MessagePermissions = new MongoosePermissions<MessageDocument>(Message, {
   create: {
     roles: {
-      sender: ['body', 'fromUserId', 'toUserIds'],
+      sender: ['body', 'fromUserId', 'toUserId'],
     },
   },
   delete: {
@@ -17,12 +17,12 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
     base: {
       $or: [
         { fromUserId: { $eq: { $ref: 'user._id' } } },
-        { toUserIds: { $eq: { $ref: 'user._id' } } },
+        { toUserId: { $eq: { $ref: 'user._id' } } },
       ],
     },
   },
   read: {
-    base: ['_id', 'body', 'createdAt', 'fromUserId', 'toUserIds', 'updatedAt'],
+    base: ['_id', 'body', 'createdAt', 'fromUserId', 'readAt', 'toUserId', 'updatedAt'],
   },
   roles: [
     {
@@ -34,12 +34,13 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
     {
       name: 'recipient',
       query: {
-        'record.toUserIds': { $eq: { $ref: 'user._id' } },
+        'record.toUserId': { $eq: { $ref: 'user._id' } },
       },
     },
   ],
   update: {
     roles: {
+      recipient: ['readAt'],
       sender: ['body', 'toUserId'],
     },
   },

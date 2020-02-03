@@ -6,6 +6,7 @@ import { EnvironmentService } from '../environment/environment.service';
 @Injectable({ providedIn: 'root' })
 export class PasswordResetService {
   public basePath: string;
+  public emitEvents = true;
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
     this.basePath = this.environmentService.passwordResetApiBaseUrl;

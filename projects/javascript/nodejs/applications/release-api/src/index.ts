@@ -9,6 +9,7 @@ import { MONGO_DATABASE_NAME } from './constants';
 import { router as filesRouter } from './handlers/files';
 import { router as releasesRouter } from './handlers/releases';
 import { ReadonlyGame, ReadonlyNamespace, ReadonlyUser } from './models';
+import { init as initReleases } from './sockets/releases';
 
 const minioConnectionUrl = new URL(process.env.MINIO_CONNECTION_STRING);
 minio.connect({
@@ -42,5 +43,7 @@ const webServer = new WebServer();
 webServer.use(filesRouter.routes());
 webServer.use(releasesRouter.routes());
 webServer.start();
+
+initReleases(webServer.server);
 
 export { webServer };

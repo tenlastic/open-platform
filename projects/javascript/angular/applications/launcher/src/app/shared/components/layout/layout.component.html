@@ -18,11 +18,14 @@
   <ten-button
     *ngIf="identityService.user"
     color="accent"
-    [routerLink]="['/social']"
+    [routerLink]="['/messages']"
     routerLinkActive="active"
   >
     <mat-icon>question_answer</mat-icon>
     <span>Social</span>
+    <span *ngIf="messageState.unreadMessages.length" class="badge">
+      {{ messageState.unreadMessages.length }}
+    </span>
   </ten-button>
 
   <span class="space"></span>

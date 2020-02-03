@@ -1,12 +1,42 @@
 @import '../../assets/scss/fonts.scss';
 @import '../../assets/scss/theme.scss';
 
+@-o-keyframes alert-info-pulse {
+  0% {
+    border: 2px solid rgba(255, 255, 255, 0);
+  }
+  50% {
+    border: 2px solid rgba(255, 255, 85, 0.5);
+  }
+  100% {
+    border: 2px solid rgba(255, 255, 255, 0);
+  }
+}
+@keyframes alert-info-pulse {
+  0% {
+    border: 2px solid rgba(255, 255, 255, 0);
+  }
+  50% {
+    border: 2px solid rgba(255, 255, 85, 0.5);
+  }
+  100% {
+    border: 2px solid rgba(255, 255, 255, 0);
+  }
+}
+
 :host {
   display: inline-block;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
   width: max-content;
+
+  &[alert='info'] a.mat-button {
+    padding: 6px 12px;
+
+    -o-animation: alert-info-pulse 3s infinite;
+    animation: alert-info-pulse 3s infinite;
+  }
 
   &[layout='vertical'] {
     display: block;

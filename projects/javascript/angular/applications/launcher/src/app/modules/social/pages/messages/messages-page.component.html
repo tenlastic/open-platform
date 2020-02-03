@@ -1,5 +1,5 @@
 <ng-container *ngIf="!loadingMessage">
-  <div class="information-container">
+  <div *ngIf="user" class="information-container">
     <mat-icon>
       {{ getConnection(user._id) ? 'brightness_1' : 'radio_button_unchecked' }}
     </mat-icon>
@@ -32,7 +32,7 @@
 
     <div *ngIf="messages.length === 0" class="no-messages">No Messages Found</div>
   </div>
-  <div class="input-container">
+  <div *ngIf="user" class="input-container">
     <mat-form-field floatLabel="always">
       <mat-label>Message</mat-label>
       <textarea matInput cdkTextareaAutosize (keydown.enter)="sendMessage($event)"></textarea>

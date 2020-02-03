@@ -2,7 +2,6 @@ import {
   DocumentType,
   Ref,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   modelOptions,
   plugin,
@@ -42,21 +41,19 @@ export class MessageSchema {
   @prop({ ref: ReadonlyUser, required: true })
   public fromUserId: Ref<ReadonlyUserDocument>;
 
-  @arrayProp({ itemsRef: ReadonlyUser, required: true })
-  public toUserIds: Array<Ref<ReadonlyUserDocument>>;
+  @prop()
+  public readAt: Date;
+
+  @prop({ ref: ReadonlyUser, required: true })
+  public toUserId: Ref<ReadonlyUserDocument>;
 
   public updatedAt: Date;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: ReadonlyUser })
   public fromUserDocument: ReadonlyUserDocument;
 
-  @arrayProp({
-    foreignField: '_id',
-    justOne: false,
-    localField: 'toUserIds',
-    ref: ReadonlyUser,
-  })
-  public toUserDocuments: ReadonlyUserDocument[];
+  @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: ReadonlyUser })
+  public toUserDocument: ReadonlyUserDocument;
 }
 
 export type MessageDocument = DocumentType<MessageSchema>;

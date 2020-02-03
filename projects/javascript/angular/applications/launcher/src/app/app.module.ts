@@ -36,7 +36,7 @@ export const ROUTES: Routes = [
   {
     component: LayoutComponent,
     loadChildren: () => import('./modules/social/social.module').then(m => m.SocialModule),
-    path: 'social',
+    path: 'messages',
   },
 ];
 
