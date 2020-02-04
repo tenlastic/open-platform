@@ -11,7 +11,6 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
     nginx.ingress.kubernetes.io/proxy-body-size: "1G"
-    nginx.org/websocket-services: "authentication-api,social-api"
 spec:
   tls:
     - hosts:
