@@ -28,6 +28,5 @@ describe('handlers/messages/find', function() {
     await handler(ctx as any);
 
     expect(ctx.response.body.records.length).to.eql(2);
-    expect(ctx.response.body.records[0].fromUserId.toString()).to.eql(fromUser._id.toString());
   });
 });
