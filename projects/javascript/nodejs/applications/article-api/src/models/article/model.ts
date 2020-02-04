@@ -3,6 +3,7 @@ import {
   Ref,
   ReturnModelType,
   getModelForClass,
+  index,
   modelOptions,
   plugin,
   prop,
@@ -20,6 +21,8 @@ import { ReadonlyGame, ReadonlyGameDocument } from '../readonly-game';
 export const ArticleEvent = new EventEmitter<IDatabasePayload<ArticleDocument>>();
 ArticleEvent.on(kafka.publish);
 
+@index({ gameId: 1 })
+@index({ publishedAt: 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,

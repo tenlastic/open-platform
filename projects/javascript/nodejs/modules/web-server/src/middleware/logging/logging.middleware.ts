@@ -11,11 +11,11 @@ export async function loggingMiddleware(ctx: Context, next: MiddlewareCallback) 
     return;
   }
 
-  const start = performance.now();
+  const start = Date.now();
 
   await next();
 
-  const duration = Math.round(performance.now() - start);
+  const duration = Date.now() - start;
   const { method, path } = ctx.request;
   const { status } = ctx.response;
 

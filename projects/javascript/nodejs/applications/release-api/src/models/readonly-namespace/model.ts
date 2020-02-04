@@ -3,6 +3,7 @@ import {
   ReturnModelType,
   arrayProp,
   getModelForClass,
+  index,
   modelOptions,
   prop,
 } from '@hasezoey/typegoose';
@@ -10,6 +11,8 @@ import * as mongoose from 'mongoose';
 
 import { UserRoles, UserRolesDocument } from './user-roles';
 
+@index({ 'accessControlList.roles': 1 })
+@index({ 'accessControlList.userIds': 1 })
 @modelOptions({
   schemaOptions: {
     collection: 'readonly.namespaces',
@@ -28,9 +31,6 @@ export class ReadonlyNamespaceSchema {
 
   @prop()
   public name: string;
-
-  @prop()
-  public username: string;
 }
 
 export type ReadonlyNamespaceDocument = DocumentType<ReadonlyNamespaceSchema>;

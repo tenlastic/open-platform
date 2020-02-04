@@ -22,6 +22,7 @@ export const ReleaseEvent = new EventEmitter<IDatabasePayload<ReleaseDocument>>(
 ReleaseEvent.on(kafka.publish);
 
 @index({ version: 1 }, { unique: true })
+@index({ gameId: 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,

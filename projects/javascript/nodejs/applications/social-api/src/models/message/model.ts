@@ -3,6 +3,7 @@ import {
   Ref,
   ReturnModelType,
   getModelForClass,
+  index,
   modelOptions,
   plugin,
   prop,
@@ -20,6 +21,9 @@ import { ReadonlyUser, ReadonlyUserDocument } from '../readonly-user';
 export const MessageEvent = new EventEmitter<IDatabasePayload<MessageDocument>>();
 MessageEvent.on(kafka.publish);
 
+@index({ fromUserId: 1 })
+@index({ readAt: 1 })
+@index({ toUserId: 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,

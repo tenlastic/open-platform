@@ -3,6 +3,7 @@ import {
   Ref,
   ReturnModelType,
   getModelForClass,
+  index,
   modelOptions,
   prop,
 } from '@hasezoey/typegoose';
@@ -10,6 +11,7 @@ import * as mongoose from 'mongoose';
 
 import { ReadonlyNamespace, ReadonlyNamespaceDocument } from '../readonly-namespace';
 
+@index({ namespaceId: 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,

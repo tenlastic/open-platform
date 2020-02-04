@@ -44,6 +44,7 @@ UserEvent.on(kafka.publish);
     unique: true,
   },
 )
+@index({ roles: 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,

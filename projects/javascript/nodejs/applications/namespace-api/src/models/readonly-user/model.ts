@@ -3,11 +3,15 @@ import {
   ReturnModelType,
   arrayProp,
   getModelForClass,
+  index,
   modelOptions,
   prop,
 } from '@hasezoey/typegoose';
 import * as mongoose from 'mongoose';
 
+@index({ email: 1 })
+@index({ roles: 1 })
+@index({ username: 1 })
 @modelOptions({
   schemaOptions: {
     collation: {

@@ -24,6 +24,8 @@ export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocumen
 NamespaceEvent.on(kafka.publish);
 
 @index({ name: 1 }, { unique: true })
+@index({ 'accessControlList.roles': 1 })
+@index({ 'accessControlList.userIds': 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,

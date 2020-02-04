@@ -23,8 +23,8 @@
   >
     <mat-icon>question_answer</mat-icon>
     <span>Social</span>
-    <span *ngIf="messageState.unreadMessages.length" class="badge">
-      {{ messageState.unreadMessages.length }}
+    <span *ngIf="messageState.getUnreadMessages(identityService.user._id).length" class="badge">
+      {{ messageState.getUnreadMessages(identityService.user._id).length }}
     </span>
   </ten-button>
 

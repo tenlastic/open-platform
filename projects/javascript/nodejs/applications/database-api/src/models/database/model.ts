@@ -14,6 +14,7 @@ import * as mongoose from 'mongoose';
 import { ReadonlyNamespace, ReadonlyNamespaceDocument } from '../readonly-namespace';
 
 @index({ name: 1 }, { unique: true })
+@index({ namespaceId: 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,

@@ -1,1 +1,1 @@
-export type MiddlewareCallback = () => void;
+export type MiddlewareCallback = () => Promise<void>;

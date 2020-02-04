@@ -35,6 +35,8 @@ ConnectionEvent.on(kafka.publish);
     unique: true,
   },
 )
+@index({ disconnectedAt: 1 })
+@index({ disconnectedAt: -1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,

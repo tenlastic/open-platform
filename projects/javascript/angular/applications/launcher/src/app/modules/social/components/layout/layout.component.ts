@@ -3,6 +3,7 @@ import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
+import { ElectronService } from '@tenlastic/ng-electron';
 import {
   Connection,
   ConnectionService,
@@ -43,8 +44,9 @@ export class LayoutComponent implements OnDestroy, OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private connectionService: ConnectionService,
+    private electronService: ElectronService,
     private friendService: FriendService,
-    private identityService: IdentityService,
+    public identityService: IdentityService,
     private ignorationService: IgnorationService,
     private matDialog: MatDialog,
     private messageService: MessageService,
@@ -145,12 +147,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   public getConnection(userId: string) {
     return this.connections.find(c => c.userId === userId);
-  }
-
-  public getUnreadMessages(fromUserId: string) {
-    return this.messageState.messages.filter(
-      m => m.fromUserId === fromUserId && !m.readAt && m.toUserId === this.identityService.user._id,
-    );
   }
 
   public newMessage() {
@@ -294,12 +290,16 @@ export class LayoutComponent implements OnDestroy, OnInit {
               });
             }
 
-            const myNotification = new Notification(user.username, {
-              body: message.body,
+            const myNotification = new Notification('Tenlastic', {
+              body: `New message from ${user.username}.`,
               requireInteraction: false,
             });
             myNotification.onclick = () => {
               this.router.navigate([user._id], { relativeTo: this.activatedRoute });
+
+              if (this.electronService.isElectron) {
+                this.electronService.remote.getCurrentWindow().show();
+              }
             };
           });
         }

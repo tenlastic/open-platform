@@ -26,6 +26,7 @@ PasswordResetEvent.on(kafka.publish);
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ hash: 1 }, { unique: true })
+@index({ userId: 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,

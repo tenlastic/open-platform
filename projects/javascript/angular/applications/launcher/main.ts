@@ -1,11 +1,13 @@
-import { app, BrowserWindow, globalShortcut, protocol, shell } from 'electron';
+import { app, BrowserWindow, globalShortcut, Menu, protocol, shell, Tray } from 'electron';
 import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import { format } from 'url';
 
 const args = process.argv.slice(1);
+let isQuitting = false;
 const serve = args.some(val => val === '--serve');
+let tray: Tray;
 let win: BrowserWindow = null;
 
 // ==================
@@ -90,6 +92,23 @@ function createWindow() {
     return win;
   }
 
+  tray = new Tray(path.join(__dirname, '../angular/assets/images/favicon-256x256.png'));
+  tray.on('click', () => win.show());
+  tray.setContextMenu(
+    Menu.buildFromTemplate([
+      {
+        click: () => win.show(),
+        label: 'Show Window',
+      },
+      {
+        click: () => {
+          isQuitting = true;
+          app.quit();
+        },
+        label: 'Quit',
+      },
+    ]),
+  );
   win = new BrowserWindow({
     frame: false,
     height: 640,
@@ -132,11 +151,21 @@ function createWindow() {
   win.webContents.on('new-window', handleRedirect);
 
   // Emitted when the window is closed.
+  win.on('close', event => {
+    if (isQuitting) {
+      return;
+    }
+
+    event.preventDefault();
+    event.returnValue = false;
+    win.hide();
+  });
   win.on('closed', () => (win = null));
 
   return win;
 }
 app.on('activate', () => createWindow());
+app.on('before-quit', () => (isQuitting = true));
 app.on('ready', () => createWindow());
 app.on('window-all-closed', () => {
   // On OS X it is common for applications and their menu bar

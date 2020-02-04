@@ -32,8 +32,11 @@
           {{ getConnection(group.user._id) ? 'brightness_1' : 'radio_button_unchecked' }}
         </mat-icon>
         <span>{{ group.user.username }}</span>
-        <span *ngIf="getUnreadMessages(group.user._id).length" class="badge">
-          {{ getUnreadMessages(group.user._id).length }}
+        <span
+          *ngIf="messageState.getUnreadMessages(identityService.user._id, group.user._id).length"
+          class="badge"
+        >
+          {{ messageState.getUnreadMessages(identityService.user._id, group.user._id).length }}
         </span>
       </ten-button>
     </ng-container>
@@ -63,8 +66,11 @@
           {{ getConnection(friend._id) ? 'brightness_1' : 'radio_button_unchecked' }}
         </mat-icon>
         <span>{{ friend.username }}</span>
-        <span *ngIf="getUnreadMessages(friend._id).length" class="badge">
-          {{ getUnreadMessages(friend._id).length }}
+        <span
+          *ngIf="messageState.getUnreadMessages(identityService.user._id, friend._id).length"
+          class="badge"
+        >
+          {{ messageState.getUnreadMessages(identityService.user._id, friend._id).length }}
         </span>
       </ten-button>
     </ng-container>
@@ -94,8 +100,11 @@
       >
         <mat-icon>radio_button_unchecked</mat-icon>
         <span>{{ ignoration.username }}</span>
-        <span *ngIf="getUnreadMessages(ignoration._id).length" class="badge">
-          {{ getUnreadMessages(ignoration._id).length }}
+        <span
+          *ngIf="messageState.getUnreadMessages(identityService.user._id, ignoration._id).length"
+          class="badge"
+        >
+          {{ messageState.getUnreadMessages(identityService.user._id, ignoration._id).length }}
         </span>
       </ten-button>
     </ng-container>
