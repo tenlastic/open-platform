@@ -6,7 +6,7 @@ import { ContextMock } from '../../mocks';
 import { authenticationMiddleware } from './authentication.middleware';
 
 const chance = new Chance();
-const noop = () => {};
+const noop = async () => {};
 
 use(chaiAsPromised);
 

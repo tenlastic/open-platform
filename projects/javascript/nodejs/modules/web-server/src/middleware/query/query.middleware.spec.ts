@@ -5,7 +5,7 @@ import { ContextMock } from '../../mocks';
 import { queryMiddleware } from './query.middleware';
 
 const chance = new Chance();
-const noop = () => {};
+const noop = async () => {};
 
 describe('middleware/query', function() {
   context('when query is undefined', function() {

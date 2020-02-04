@@ -6,7 +6,7 @@ import { ContextMock } from '../../mocks';
 import { errorMiddleware } from './error.middleware';
 
 const chance = new Chance();
-const noop = () => {};
+const noop = async () => {};
 
 describe('middleware/error', function() {
   let ctx: ContextMock;
