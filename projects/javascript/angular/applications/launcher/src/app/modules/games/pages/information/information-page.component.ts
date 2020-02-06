@@ -53,10 +53,10 @@ export class InformationPageComponent implements OnInit {
 
       this.game = await this.gameService.findOne(slug);
 
-      if (this.game.videos.length > 0) {
-        this.selectMedia(0, 'video');
-      } else {
+      if (this.game.images.length > 0) {
         this.selectMedia(0, 'image');
+      } else {
+        this.selectMedia(0, 'video');
       }
 
       this.articles = await this.articleService.find({

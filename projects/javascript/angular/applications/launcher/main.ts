@@ -47,6 +47,12 @@ autoUpdater.on('update-downloaded', info => {
 app.on('ready', () => autoUpdater.checkForUpdatesAndNotify());
 
 // ==================
+// COMMAND LINE FLAGS
+// ==================
+app.commandLine.appendSwitch('auto-detect', 'false');
+app.commandLine.appendSwitch('no-proxy-server');
+
+// ==================
 // GLOBAL SHORTCUTS
 // ==================
 app.on('ready', () => {
@@ -164,13 +170,30 @@ function createWindow() {
 
   return win;
 }
-app.on('activate', () => createWindow());
-app.on('before-quit', () => (isQuitting = true));
-app.on('ready', () => createWindow());
-app.on('window-all-closed', () => {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
+
+const instanceLock = app.requestSingleInstanceLock();
+if (instanceLock) {
+  app.on('activate', () => createWindow());
+  app.on('before-quit', () => (isQuitting = true));
+  app.on('ready', () => createWindow());
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (win) {
+      if (win.isMinimized()) {
+        win.restore();
+      }
+
+      win.show();
+      win.focus();
+    }
+  });
+  app.on('window-all-closed', () => {
+    // On OS X it is common for applications and their menu bar
+    // to stay active until the user quits explicitly with Cmd + Q
+    if (process.platform !== 'darwin') {
+      app.quit();
+    }
+  });
+} else {
+  app.quit();
+}

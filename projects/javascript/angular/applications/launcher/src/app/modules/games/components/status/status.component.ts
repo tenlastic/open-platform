@@ -21,7 +21,7 @@ export class StatusComponent implements OnInit {
         return 'get_app';
 
       case UpdateServiceState.Ready:
-        return 'play_arrow';
+        return this.status.childProcess ? 'close' : 'play_arrow';
 
       default:
         return null;
@@ -46,7 +46,7 @@ export class StatusComponent implements OnInit {
         return 'Update';
 
       case UpdateServiceState.Ready:
-        return 'Play';
+        return this.status.childProcess ? 'Stop' : 'Play';
     }
   }
   public get isButtonDisabled() {
@@ -123,7 +123,9 @@ export class StatusComponent implements OnInit {
   }
 
   public click() {
-    if (this.status.state === UpdateServiceState.Ready) {
+    if (this.status.state === UpdateServiceState.Ready && this.status.childProcess) {
+      this.updateService.stop(this.game);
+    } else if (this.status.state === UpdateServiceState.Ready && !this.status.childProcess) {
       this.updateService.play(this.game);
     } else {
       this.updateService.update(this.game);

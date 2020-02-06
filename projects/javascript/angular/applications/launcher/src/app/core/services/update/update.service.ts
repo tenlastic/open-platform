@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import { ElectronService } from '@tenlastic/ng-electron';
 import { File, FileService, Game, Release, ReleaseService } from '@tenlastic/ng-http';
+import { ChildProcess } from 'child_process';
 import { Subject } from 'rxjs';
 import { last, map, tap } from 'rxjs/operators';
 
@@ -22,6 +23,7 @@ export interface UpdateServiceProgress {
 }
 
 export interface UpdateServiceStatus {
+  childProcess?: ChildProcess;
   game?: Game;
   isInstalled?: boolean;
   modifiedFiles?: File[];
@@ -157,10 +159,20 @@ export class UpdateService {
     const status = this.getStatus(game);
     const target = `${this.installPath}/${game.slug}/${status.release.entrypoint}.exe`;
 
-    this.electronService.childProcess.execFile(target, [
+    status.childProcess = this.electronService.childProcess.execFile(target, [
       `--accessToken ${this.identityService.accessToken}`,
       `--refreshToken ${this.identityService.refreshToken}`,
     ]);
+    status.childProcess.on('close', () => (status.childProcess = null));
+  }
+
+  public stop(game: Game) {
+    const status = this.getStatus(game);
+    if (!status.childProcess) {
+      return;
+    }
+
+    status.childProcess.kill();
   }
 
   public async update(game: Game) {
