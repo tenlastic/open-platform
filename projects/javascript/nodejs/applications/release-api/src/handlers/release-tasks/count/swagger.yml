@@ -6,12 +6,12 @@ paths:
       description: Finds tasks matching the search criteria.
       security:
         - AccessToken: []
-        parameters:
-          - in: path
-            name: releaseId
-            schema:
-              type: string
-            required: true
+      parameters:
+        - in: path
+          name: releaseId
+          schema:
+            type: string
+          required: true
       responses:
         200:
           description: OK
