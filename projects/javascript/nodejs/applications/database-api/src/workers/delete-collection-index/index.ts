@@ -2,9 +2,10 @@ import * as rabbitmq from '@tenlastic/rabbitmq';
 import { Channel, ConsumeMessage } from 'amqplib';
 import * as mongoose from 'mongoose';
 
+import { RABBITMQ_PREFIX } from '../../constants';
 import { Collection, Index, IndexDocument } from '../../models';
 
-export const DELETE_COLLECTION_INDEX_QUEUE = 'delete-collection-index';
+export const DELETE_COLLECTION_INDEX_QUEUE = `${RABBITMQ_PREFIX}.delete-collection-index`;
 
 export async function deleteCollectionIndexWorker(
   channel: Channel,

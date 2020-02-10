@@ -6,12 +6,6 @@ paths:
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []
-      parameters:
-        - in: path
-          name: gameId
-          schema:
-            type: string
-          required: true
       responses:
         200:
           description: OK

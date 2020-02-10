@@ -10,7 +10,14 @@ import {
   ViewChild,
 } from '@angular/core';
 import { IdentityService } from '@tenlastic/ng-authentication';
-import { FileService, IRelease, Release, ReleaseService } from '@tenlastic/ng-http';
+import {
+  FileService,
+  IRelease,
+  Release,
+  ReleaseService,
+  ReleaseJob,
+  ReleaseJobService,
+} from '@tenlastic/ng-http';
 import JSZip from 'jszip';
 import { last, map, tap } from 'rxjs/operators';
 
@@ -39,11 +46,18 @@ export class FilesFormComponent implements OnInit {
   @Output() public OnSubmit = new EventEmitter<FileFormComponentData>();
   @ViewChild('selectFilesInput', { static: true }) public selectFilesInput: ElementRef;
 
+  public JOBS = {
+    copy: 'Copy',
+    remove: 'Remove',
+    unzip: 'Unzip',
+  };
+
   public error: string;
   public loadingMessage: string;
   public get modifiedFiles() {
     return this.stagedFiles.filter(f => f.status === 'modified');
   }
+  public jobs: ReleaseJob[] = [];
   public previousFiles: any[] = [];
   public previousRelease: Release;
   public releases: Release[] = [];
@@ -63,6 +77,7 @@ export class FilesFormComponent implements OnInit {
     private fileReaderService: FileReaderService,
     private fileService: FileService,
     public identityService: IdentityService,
+    private releaseJobService: ReleaseJobService,
     private releaseService: ReleaseService,
   ) {}
 
@@ -169,6 +184,20 @@ export class FilesFormComponent implements OnInit {
         last(),
       )
       .toPromise();
+
+    this.status = 'Waiting for background jobs...';
+    this.uploadStatus = null;
+
+    do {
+      this.jobs = await this.releaseJobService.find(this.release._id, {
+        where: { completedAt: { $eq: null } },
+      });
+
+      if (this.jobs.length > 0) {
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      }
+    } while (this.jobs.length > 0);
+
     this.status = null;
     this.uploadStatus = null;
 

@@ -26,12 +26,33 @@ div.col-sm-6 {
   }
 }
 
+div.row {
+  div.col-sm-3 {
+    &:not(:last-of-type) {
+      padding-right: 8px;
+    }
+
+    &:not(:first-of-type) {
+      padding-left: 8px;
+    }
+  }
+
+  div.col-sm-6 {
+    &:not(:last-of-type) {
+      padding-right: 8px;
+    }
+
+    &:not(:first-of-type) {
+      padding-left: 8px;
+    }
+  }
+}
+
 form > ten-button {
   margin-bottom: 16px;
 }
 
 mat-form-field {
-  margin-right: 16px;
   width: 100%;
 }
 

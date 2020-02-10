@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
-import { Game, GameService, Release, ReleaseService } from '@tenlastic/ng-http';
+import { Game, GameService, Release, ReleaseJob, ReleaseService } from '@tenlastic/ng-http';
 
 import { SelectedNamespaceService } from '../../../../core/services';
 
@@ -15,6 +15,7 @@ export class ReleasesFormPageComponent implements OnInit {
   public error: string;
   public form: FormGroup;
   public games: Game[];
+  public jobs: ReleaseJob[];
   public platforms = [
     { label: 'Windows (x64)', value: 'windows64' },
     { label: 'Windows (x32)', value: 'windows32' },

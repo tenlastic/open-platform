@@ -1,9 +1,11 @@
 import * as minio from '@tenlastic/minio';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import * as rabbitmq from '@tenlastic/rabbitmq';
 import * as mongoose from 'mongoose';
 
 import { MINIO_BUCKET, MONGO_DATABASE_NAME } from './constants';
-import { File, ReadonlyGame, ReadonlyNamespace, ReadonlyUser, Release } from './models';
+import { File, ReadonlyGame, ReadonlyNamespace, ReadonlyUser, Release, ReleaseJob } from './models';
+import { COPY_QUEUE, REMOVE_QUEUE, UNZIP_QUEUE } from './workers';
 
 before(async function() {
   const minioConnectionUrl = new URL(process.env.MINIO_CONNECTION_STRING);
@@ -28,6 +30,7 @@ before(async function() {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
+  await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 });
 
 beforeEach(async function() {
@@ -36,4 +39,9 @@ beforeEach(async function() {
   await ReadonlyNamespace.deleteMany({});
   await ReadonlyUser.deleteMany({});
   await Release.deleteMany({});
+  await ReleaseJob.deleteMany({});
+
+  await rabbitmq.purge(COPY_QUEUE);
+  await rabbitmq.purge(REMOVE_QUEUE);
+  await rabbitmq.purge(UNZIP_QUEUE);
 });

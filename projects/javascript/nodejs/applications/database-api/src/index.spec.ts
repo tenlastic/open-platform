@@ -4,6 +4,7 @@ import * as mongoose from 'mongoose';
 
 import { MONGO_DATABASE_NAME } from './constants';
 import { Collection, Database } from './models';
+import { CREATE_COLLECTION_INDEX_QUEUE, DELETE_COLLECTION_INDEX_QUEUE } from './workers';
 
 kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
 
@@ -21,4 +22,7 @@ before(async function() {
 beforeEach(async function() {
   await Collection.deleteMany({});
   await Database.deleteMany({});
+
+  await rabbitmq.purge(CREATE_COLLECTION_INDEX_QUEUE);
+  await rabbitmq.purge(DELETE_COLLECTION_INDEX_QUEUE);
 });

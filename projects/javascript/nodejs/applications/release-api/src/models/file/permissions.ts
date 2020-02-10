@@ -100,17 +100,30 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
     },
   ],
   read: {
-    base: [
-      '_id',
-      'compressedBytes',
-      'createdAt',
-      'md5',
-      'path',
-      'platform',
-      'releaseId',
-      'uncompressedBytes',
-      'updatedAt',
-    ],
+    roles: {
+      'namespace-administrator': [
+        '_id',
+        'compressedBytes',
+        'createdAt',
+        'md5',
+        'path',
+        'platform',
+        'releaseId',
+        'uncompressedBytes',
+        'updatedAt',
+      ],
+      'system-administrator': [
+        '_id',
+        'compressedBytes',
+        'createdAt',
+        'md5',
+        'path',
+        'platform',
+        'releaseId',
+        'uncompressedBytes',
+        'updatedAt',
+      ],
+    },
   },
   roles: [
     {
