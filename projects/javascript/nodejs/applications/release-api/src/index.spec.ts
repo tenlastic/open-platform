@@ -4,7 +4,14 @@ import * as rabbitmq from '@tenlastic/rabbitmq';
 import * as mongoose from 'mongoose';
 
 import { MINIO_BUCKET, MONGO_DATABASE_NAME } from './constants';
-import { File, ReadonlyGame, ReadonlyNamespace, ReadonlyUser, Release, ReleaseJob } from './models';
+import {
+  File,
+  ReadonlyGame,
+  ReadonlyNamespace,
+  ReadonlyUser,
+  Release,
+  ReleaseTask,
+} from './models';
 import { COPY_QUEUE, REMOVE_QUEUE, UNZIP_QUEUE } from './workers';
 
 before(async function() {
@@ -39,7 +46,7 @@ beforeEach(async function() {
   await ReadonlyNamespace.deleteMany({});
   await ReadonlyUser.deleteMany({});
   await Release.deleteMany({});
-  await ReleaseJob.deleteMany({});
+  await ReleaseTask.deleteMany({});
 
   await rabbitmq.purge(COPY_QUEUE);
   await rabbitmq.purge(REMOVE_QUEUE);

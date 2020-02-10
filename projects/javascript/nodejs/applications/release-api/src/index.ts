@@ -8,11 +8,11 @@ import * as mongoose from 'mongoose';
 
 import { MINIO_BUCKET, MONGO_DATABASE_NAME } from './constants';
 import { router as filesRouter } from './handlers/files';
-import { router as releaseJobsRouter } from './handlers/release-jobs';
+import { router as releaseTasksRouter } from './handlers/release-tasks';
 import { router as releasesRouter } from './handlers/releases';
 import { ReadonlyGame, ReadonlyNamespace, ReadonlyUser } from './models';
 import * as releaseSockets from './sockets/releases';
-import * as releaseJobSockets from './sockets/release-jobs';
+import * as releaseTaskSockets from './sockets/release-tasks';
 import {
   COPY_QUEUE,
   REMOVE_QUEUE,
@@ -62,12 +62,12 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
 
 const webServer = new WebServer();
 webServer.use(filesRouter.routes());
-webServer.use(releaseJobsRouter.routes());
+webServer.use(releaseTasksRouter.routes());
 webServer.use(releasesRouter.routes());
 webServer.start();
 
 const webSocketServer = new WebSocketServer(webServer.server);
 webSocketServer.connection('/releases', releaseSockets.onConnection);
-webSocketServer.connection('/releases/:releaseId/jobs', releaseJobSockets.onConnection);
+webSocketServer.connection('/releases/:releaseId/tasks', releaseTaskSockets.onConnection);
 
 export { webServer };

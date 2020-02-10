@@ -1,6 +1,6 @@
 components:
   schemas:
-    ReleaseJob:
+    ReleaseTask:
       type: object
       properties:
         _id:

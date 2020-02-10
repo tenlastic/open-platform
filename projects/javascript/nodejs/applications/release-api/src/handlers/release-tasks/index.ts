@@ -4,7 +4,7 @@ import { handler as countHandler } from './count';
 import { handler as deleteHandler } from './delete';
 import { handler as findHandler } from './find';
 
-export const router = new Router({ prefix: '/releases/:releaseId/jobs' });
+export const router = new Router({ prefix: '/releases/:releaseId/tasks' });
 
 router.delete('/:_id', deleteHandler);
 router.get('/', findHandler);

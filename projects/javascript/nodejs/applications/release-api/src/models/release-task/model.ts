@@ -19,12 +19,12 @@ import * as mongoose from 'mongoose';
 
 import { FilePlatform } from '../file';
 import { Release, ReleaseDocument } from '../release';
-import { ReleaseJobFailure, ReleaseJobFailureDocument } from './failure';
+import { ReleaseTaskFailure, ReleaseTaskFailureDocument } from './failure';
 
-export const ReleaseJobEvent = new EventEmitter<IDatabasePayload<ReleaseJobDocument>>();
-ReleaseJobEvent.on(kafka.publish);
+export const ReleaseTaskEvent = new EventEmitter<IDatabasePayload<ReleaseTaskDocument>>();
+ReleaseTaskEvent.on(kafka.publish);
 
-export enum ReleaseJobAction {
+export enum ReleaseTaskAction {
   Copy = 'copy',
   Remove = 'remove',
   Unzip = 'unzip',
@@ -37,28 +37,28 @@ export enum ReleaseJobAction {
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
-    collection: 'releasejobs',
+    collection: 'releasetasks',
     minimize: false,
     timestamps: true,
   },
 })
 @plugin(changeStreamPlugin, {
   documentKeys: ['_id'],
-  eventEmitter: ReleaseJobEvent,
+  eventEmitter: ReleaseTaskEvent,
 })
-export class ReleaseJobSchema {
+export class ReleaseTaskSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ enum: ReleaseJobAction, required: true })
-  public action: ReleaseJobAction;
+  @prop({ enum: ReleaseTaskAction, required: true })
+  public action: ReleaseTaskAction;
 
   @prop({ default: null })
   public completedAt: Date;
 
   public createdAt: Date;
 
-  @arrayProp({ default: [], items: ReleaseJobFailure })
-  public failures: ReleaseJobFailureDocument[];
+  @arrayProp({ default: [], items: ReleaseTaskFailure })
+  public failures: ReleaseTaskFailureDocument[];
 
   @prop({ default: {} })
   public metadata: any;
@@ -82,6 +82,6 @@ export class ReleaseJobSchema {
   }
 }
 
-export type ReleaseJobDocument = DocumentType<ReleaseJobSchema>;
-export type ReleaseJobModel = ReturnModelType<typeof ReleaseJobSchema>;
-export const ReleaseJob = getModelForClass(ReleaseJobSchema);
+export type ReleaseTaskDocument = DocumentType<ReleaseTaskSchema>;
+export type ReleaseTaskModel = ReturnModelType<typeof ReleaseTaskSchema>;
+export const ReleaseTask = getModelForClass(ReleaseTaskSchema);

@@ -16,7 +16,7 @@ import {
   ReleaseDocument,
   ReleaseMock,
   UserRolesMock,
-  ReleaseJob,
+  ReleaseTask,
 } from '../../../models';
 import { COPY_QUEUE, REMOVE_QUEUE, UNZIP_QUEUE } from '../../../workers';
 import { handler } from './';
@@ -77,18 +77,18 @@ describe('handlers/files/upload', function() {
     it('copies unmodified files from the previous release', async function() {
       await handler(ctx as any);
 
-      expect(ctx.response.body.jobs.filter(j => j.action === 'copy').length).to.eql(1);
+      expect(ctx.response.body.tasks.filter(j => j.action === 'copy').length).to.eql(1);
 
-      const releaseJob = await ReleaseJob.findOne({ action: 'copy' });
-      expect(releaseJob).to.exist;
-      expect(releaseJob.metadata.previousReleaseId.toString()).to.eql(
+      const releaseTask = await ReleaseTask.findOne({ action: 'copy' });
+      expect(releaseTask).to.exist;
+      expect(releaseTask.metadata.previousReleaseId.toString()).to.eql(
         previousRelease._id.toString(),
       );
-      expect(releaseJob.metadata.unmodified).to.eql(['index.ts']);
+      expect(releaseTask.metadata.unmodified).to.eql(['index.ts']);
 
       return new Promise(resolve => {
         rabbitmq.consume(COPY_QUEUE, (channel, content, msg) => {
-          expect(content._id).to.eql(releaseJob._id.toString());
+          expect(content._id).to.eql(releaseTask._id.toString());
 
           resolve();
         });
@@ -98,15 +98,15 @@ describe('handlers/files/upload', function() {
     it('deletes removed files from Minio', async function() {
       await handler(ctx as any);
 
-      expect(ctx.response.body.jobs.filter(j => j.action === 'remove').length).to.eql(1);
+      expect(ctx.response.body.tasks.filter(j => j.action === 'remove').length).to.eql(1);
 
-      const releaseJob = await ReleaseJob.findOne({ action: 'remove' });
-      expect(releaseJob).to.exist;
-      expect(releaseJob.metadata.removed).to.eql(['swagger.yml']);
+      const releaseTask = await ReleaseTask.findOne({ action: 'remove' });
+      expect(releaseTask).to.exist;
+      expect(releaseTask.metadata.removed).to.eql(['swagger.yml']);
 
       return new Promise(resolve => {
         rabbitmq.consume(REMOVE_QUEUE, (channel, content, msg) => {
-          expect(content._id).to.eql(releaseJob._id.toString());
+          expect(content._id).to.eql(releaseTask._id.toString());
 
           resolve();
         });
@@ -116,14 +116,14 @@ describe('handlers/files/upload', function() {
     it('uploads unzipped files to Minio', async function() {
       await handler(ctx as any);
 
-      expect(ctx.response.body.jobs.filter(j => j.action === 'unzip').length).to.eql(1);
+      expect(ctx.response.body.tasks.filter(j => j.action === 'unzip').length).to.eql(1);
 
-      const releaseJob = await ReleaseJob.findOne({ action: 'unzip' });
-      expect(releaseJob).to.exist;
+      const releaseTask = await ReleaseTask.findOne({ action: 'unzip' });
+      expect(releaseTask).to.exist;
 
       return new Promise(resolve => {
         rabbitmq.consume(UNZIP_QUEUE, (channel, content, msg) => {
-          expect(content._id).to.eql(releaseJob._id.toString());
+          expect(content._id).to.eql(releaseTask._id.toString());
 
           resolve();
         });

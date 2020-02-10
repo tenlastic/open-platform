@@ -2,8 +2,8 @@ paths:
   /releases/{releaseId}:
     get:
       summary: Find
-      tags: [ReleaseJobs]
-      description: Finds jobs matching the search criteria.
+      tags: [ReleaseTasks]
+      description: Finds tasks matching the search criteria.
       security:
         - AccessToken: []
         parameters:
@@ -23,4 +23,4 @@ paths:
                   records:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ReleaseJob'
+                      $ref: '#/components/schemas/ReleaseTask'

@@ -15,9 +15,9 @@ import {
   FilePlatform,
   Release,
   ReleaseDocument,
-  ReleaseJob,
-  ReleaseJobAction,
-  ReleaseJobDocument,
+  ReleaseTask,
+  ReleaseTaskAction,
+  ReleaseTaskDocument,
 } from '../../../models';
 import { COPY_QUEUE, REMOVE_QUEUE, UNZIP_QUEUE } from '../../../workers';
 
@@ -40,7 +40,7 @@ export async function handler(ctx: Context) {
   }
 
   const fields: any = {};
-  let promise: Promise<ReleaseJobDocument>;
+  let promise: Promise<ReleaseTaskDocument>;
   await new Promise<FileDocument[]>((resolve, reject) => {
     const busboy = new Busboy({ headers: ctx.request.headers });
 
@@ -81,7 +81,7 @@ export async function handler(ctx: Context) {
   });
 
   // Copy files from previous Release.
-  let copyJob: ReleaseJobDocument;
+  let copyJob: ReleaseTaskDocument;
   if (fields.previousReleaseId && fields.unmodified && fields.unmodified.length) {
     copyJob = await publishCopyMessage(
       fields,
@@ -92,7 +92,7 @@ export async function handler(ctx: Context) {
   }
 
   // Remove files from current Release.
-  let removeJob: ReleaseJobDocument;
+  let removeJob: ReleaseTaskDocument;
   if (fields.removed && fields.removed.length) {
     removeJob = await publishRemoveMessage(
       fields,
@@ -103,24 +103,24 @@ export async function handler(ctx: Context) {
   }
 
   // Upload zip to Minio.
-  let unzipJob: ReleaseJobDocument;
+  let unzipJob: ReleaseTaskDocument;
   if (Object.keys(fields).includes('zip')) {
     unzipJob = await promise;
   }
 
-  // Return jobs in response.
-  const jobs = [];
+  // Return tasks in response.
+  const tasks = [];
   if (copyJob) {
-    jobs.push(copyJob);
+    tasks.push(copyJob);
   }
   if (removeJob) {
-    jobs.push(removeJob);
+    tasks.push(removeJob);
   }
   if (unzipJob) {
-    jobs.push(unzipJob);
+    tasks.push(unzipJob);
   }
 
-  ctx.response.body = { jobs };
+  ctx.response.body = { tasks };
 }
 
 async function publishCopyMessage(
@@ -160,8 +160,8 @@ async function publishCopyMessage(
     throw new PermissionError();
   }
 
-  const releaseJob = await ReleaseJob.create({
-    action: ReleaseJobAction.Copy,
+  const releaseTask = await ReleaseTask.create({
+    action: ReleaseTaskAction.Copy,
     metadata: {
       previousReleaseId: fields.previousReleaseId,
       unmodified: fields.unmodified,
@@ -169,9 +169,9 @@ async function publishCopyMessage(
     platform: targetFile.platform,
     releaseId: targetFile.releaseId,
   });
-  await rabbitmq.publish(COPY_QUEUE, releaseJob);
+  await rabbitmq.publish(COPY_QUEUE, releaseTask);
 
-  return releaseJob;
+  return releaseTask;
 }
 
 async function publishRemoveMessage(
@@ -189,15 +189,15 @@ async function publishRemoveMessage(
     throw new PermissionError();
   }
 
-  const releaseJob = await ReleaseJob.create({
-    action: ReleaseJobAction.Remove,
+  const releaseTask = await ReleaseTask.create({
+    action: ReleaseTaskAction.Remove,
     metadata: { removed: fields.removed },
     platform: targetFile.platform,
     releaseId: targetFile.releaseId,
   });
-  await rabbitmq.publish(REMOVE_QUEUE, releaseJob);
+  await rabbitmq.publish(REMOVE_QUEUE, releaseTask);
 
-  return releaseJob;
+  return releaseTask;
 }
 
 async function publishUnzipMessage(
@@ -219,14 +219,14 @@ async function publishUnzipMessage(
     throw new PermissionError();
   }
 
-  const releaseJob = await ReleaseJob.create({
-    action: ReleaseJobAction.Unzip,
+  const releaseTask = await ReleaseTask.create({
+    action: ReleaseTaskAction.Unzip,
     platform: targetFile.platform,
     releaseId: targetFile.releaseId,
   });
 
-  await minio.getClient().putObject(MINIO_BUCKET, releaseJob.minioZipObjectName, stream);
-  await rabbitmq.publish(UNZIP_QUEUE, releaseJob);
+  await minio.getClient().putObject(MINIO_BUCKET, releaseTask.minioZipObjectName, stream);
+  await rabbitmq.publish(UNZIP_QUEUE, releaseTask);
 
-  return releaseJob;
+  return releaseTask;
 }

@@ -15,8 +15,8 @@ import {
   IRelease,
   Release,
   ReleaseService,
-  ReleaseJob,
-  ReleaseJobService,
+  ReleaseTask,
+  ReleaseTaskService,
 } from '@tenlastic/ng-http';
 import JSZip from 'jszip';
 import { last, map, tap } from 'rxjs/operators';
@@ -46,7 +46,7 @@ export class FilesFormComponent implements OnInit {
   @Output() public OnSubmit = new EventEmitter<FileFormComponentData>();
   @ViewChild('selectFilesInput', { static: true }) public selectFilesInput: ElementRef;
 
-  public JOBS = {
+  public TASKS = {
     copy: 'Copy',
     remove: 'Remove',
     unzip: 'Unzip',
@@ -57,7 +57,7 @@ export class FilesFormComponent implements OnInit {
   public get modifiedFiles() {
     return this.stagedFiles.filter(f => f.status === 'modified');
   }
-  public jobs: ReleaseJob[] = [];
+  public tasks: ReleaseTask[] = [];
   public previousFiles: any[] = [];
   public previousRelease: Release;
   public releases: Release[] = [];
@@ -77,7 +77,7 @@ export class FilesFormComponent implements OnInit {
     private fileReaderService: FileReaderService,
     private fileService: FileService,
     public identityService: IdentityService,
-    private releaseJobService: ReleaseJobService,
+    private releaseTaskService: ReleaseTaskService,
     private releaseService: ReleaseService,
   ) {}
 
@@ -185,18 +185,18 @@ export class FilesFormComponent implements OnInit {
       )
       .toPromise();
 
-    this.status = 'Waiting for background jobs...';
+    this.status = 'Waiting for background tasks...';
     this.uploadStatus = null;
 
     do {
-      this.jobs = await this.releaseJobService.find(this.release._id, {
+      this.tasks = await this.releaseTaskService.find(this.release._id, {
         where: { completedAt: { $eq: null } },
       });
 
-      if (this.jobs.length > 0) {
+      if (this.tasks.length > 0) {
         await new Promise(resolve => setTimeout(resolve, 5000));
       }
-    } while (this.jobs.length > 0);
+    } while (this.tasks.length > 0);
 
     this.status = null;
     this.uploadStatus = null;

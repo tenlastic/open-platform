@@ -12,36 +12,36 @@ import {
   FilePlatform,
   Release,
   ReleaseDocument,
-  ReleaseJob,
-  ReleaseJobDocument,
-  ReleaseJobFailure,
+  ReleaseTask,
+  ReleaseTaskDocument,
+  ReleaseTaskFailure,
 } from '../../models';
 
 export const UNZIP_QUEUE = `${RABBITMQ_PREFIX}.unzip`;
 
 export async function unzipWorker(
   channel: Channel,
-  content: Partial<ReleaseJobDocument>,
+  content: Partial<ReleaseTaskDocument>,
   msg: ConsumeMessage,
 ) {
   try {
-    let job = ReleaseJob.hydrate(content);
+    let task = ReleaseTask.hydrate(content);
 
     // Set Job status to In Progress.
-    job.startedAt = new Date();
-    job = await job.save();
+    task.startedAt = new Date();
+    task = await task.save();
 
     // Read the zip from Minio and unzip the files back to Minio.
-    const stream = await minio.getClient().getObject(MINIO_BUCKET, job.minioZipObjectName);
+    const stream = await minio.getClient().getObject(MINIO_BUCKET, task.minioZipObjectName);
 
-    job = await job.populate({ path: 'releaseDocument' }).execPopulate();
-    const release = new Release(job.releaseDocument);
+    task = await task.populate({ path: 'releaseDocument' }).execPopulate();
+    const release = new Release(task.releaseDocument);
     const promises = await processZip(content.platform, release, stream);
     await Promise.all(promises);
 
     // Set Job status to Complete.
-    job.completedAt = new Date();
-    job = await job.save();
+    task.completedAt = new Date();
+    task = await task.save();
 
     channel.ack(msg);
   } catch (e) {
@@ -50,12 +50,12 @@ export async function unzipWorker(
       return;
     }
 
-    const job = await ReleaseJob.findOne({ _id: content._id });
+    const task = await ReleaseTask.findOne({ _id: content._id });
 
-    const failure = new ReleaseJobFailure({ createdAt: new Date(), message: e.message });
-    job.failures = job.failures.concat(failure);
-    job.startedAt = null;
-    await job.save();
+    const failure = new ReleaseTaskFailure({ createdAt: new Date(), message: e.message });
+    task.failures = task.failures.concat(failure);
+    task.startedAt = null;
+    await task.save();
 
     await rabbitmq.requeue(channel, msg, { delay: 30 * 1000, retries: 3 });
   }

@@ -81,22 +81,22 @@
 </div>
 
 <div class="row">
-  <div *ngIf="jobs.length" class="col-sm-6">
+  <div *ngIf="tasks.length" class="col-sm-6">
     <mat-label>
       <span>Background Tasks</span>
     </mat-label>
 
     <mat-list>
-      <mat-list-item *ngFor="let job of jobs" [attr.status]="job.status">
-        <span>{{ JOBS[job.action] }}</span>
+      <mat-list-item *ngFor="let task of tasks" [attr.status]="task.status">
+        <span>{{ JOBS[task.action] }}</span>
         <span>
-          {{ job.startedAt ? 'In Progress' : 'Queued' }}
+          {{ task.startedAt ? 'In Progress' : 'Queued' }}
         </span>
       </mat-list-item>
     </mat-list>
 
     <mat-hint>
-      <span>Count: {{ jobs.length }}</span>
+      <span>Count: {{ tasks.length }}</span>
     </mat-hint>
   </div>
 </div>

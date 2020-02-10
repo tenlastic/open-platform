@@ -14,7 +14,7 @@ import * as mongoose from 'mongoose';
     timestamps: true,
   },
 })
-export class ReleaseJobFailureSchema {
+export class ReleaseTaskFailureSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
@@ -24,6 +24,6 @@ export class ReleaseJobFailureSchema {
   public updatedAt: Date;
 }
 
-export type ReleaseJobFailureDocument = DocumentType<ReleaseJobFailureSchema>;
-export type ReleaseJobFailureModel = ReturnModelType<typeof ReleaseJobFailureSchema>;
-export const ReleaseJobFailure = getModelForClass(ReleaseJobFailureSchema);
+export type ReleaseTaskFailureDocument = DocumentType<ReleaseTaskFailureSchema>;
+export type ReleaseTaskFailureModel = ReturnModelType<typeof ReleaseTaskFailureSchema>;
+export const ReleaseTaskFailure = getModelForClass(ReleaseTaskFailureSchema);

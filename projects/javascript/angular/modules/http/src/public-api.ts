@@ -11,7 +11,7 @@ export * from './models/model';
 export * from './models/namespace';
 export * from './models/record';
 export * from './models/release';
-export * from './models/release-job';
+export * from './models/release-task';
 export * from './models/user';
 
 export * from './services/api/api.service';
@@ -30,7 +30,7 @@ export * from './services/namespace/namespace.service';
 export * from './services/password-reset/password-reset.service';
 export * from './services/record/record.service';
 export * from './services/release/release.service';
-export * from './services/release-job/release-job.service';
+export * from './services/release-task/release-task.service';
 export * from './services/user/user.service';
 
 export * from './module';

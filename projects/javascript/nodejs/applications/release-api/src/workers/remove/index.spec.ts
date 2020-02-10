@@ -14,11 +14,11 @@ import {
   ReadonlyUserDocument,
   ReadonlyUserMock,
   ReleaseDocument,
-  ReleaseJobMock,
+  ReleaseTaskMock,
   ReleaseMock,
   UserRolesMock,
-  ReleaseJob,
-  ReleaseJobDocument,
+  ReleaseTask,
+  ReleaseTaskDocument,
   FilePlatform,
 } from '../../models';
 import { removeWorker } from './';
@@ -41,7 +41,7 @@ describe('workers/remove', function() {
   context('when successful', function() {
     let platform: FilePlatform;
     let release: ReleaseDocument;
-    let releaseJob: ReleaseJobDocument;
+    let releaseTask: ReleaseTaskDocument;
 
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
@@ -50,7 +50,7 @@ describe('workers/remove', function() {
 
       platform = FileMock.getPlatform();
       release = await ReleaseMock.create({ gameId: game._id });
-      releaseJob = await ReleaseJobMock.create({
+      releaseTask = await ReleaseTaskMock.create({
         metadata: { removed: ['index.spec.ts'] },
         platform,
         releaseId: release._id,
@@ -79,27 +79,27 @@ describe('workers/remove', function() {
 
     it('acks the message', async function() {
       const channel = { ack: sinon.stub().resolves() };
-      const content = releaseJob.toObject();
+      const content = releaseTask.toObject();
 
       await removeWorker(channel as any, content, null);
 
       expect(channel.ack.calledOnce).to.eql(true);
     });
 
-    it('marks the job status complete', async function() {
+    it('marks the task status complete', async function() {
       const channel = { ack: sinon.stub().resolves() };
-      const content = releaseJob.toObject();
+      const content = releaseTask.toObject();
 
       await removeWorker(channel as any, content, null);
 
-      const updatedJob = await ReleaseJob.findOne({ _id: releaseJob._id });
+      const updatedJob = await ReleaseTask.findOne({ _id: releaseTask._id });
       expect(updatedJob.completedAt).to.exist;
       expect(updatedJob.startedAt).to.exist;
     });
 
     it('deletes file records', async function() {
       const channel = { ack: sinon.stub().resolves() };
-      const content = releaseJob.toObject();
+      const content = releaseTask.toObject();
 
       await removeWorker(channel as any, content, null);
 
@@ -110,7 +110,7 @@ describe('workers/remove', function() {
 
     it('deletes files within Minio', async function() {
       const channel = { ack: sinon.stub().resolves() };
-      const content = releaseJob.toObject();
+      const content = releaseTask.toObject();
 
       await removeWorker(channel as any, content, null);
 
@@ -134,18 +134,18 @@ describe('workers/remove', function() {
 
       const requeueStub = sandbox.stub(rabbitmq, 'requeue').resolves();
 
-      const releaseJob = await ReleaseJobMock.create({
+      const releaseTask = await ReleaseTaskMock.create({
         releaseId: release._id,
       });
-      const content = releaseJob.toObject();
+      const content = releaseTask.toObject();
       await removeWorker({} as any, content, null);
 
       expect(requeueStub.calledOnce).to.eql(true);
 
-      const updatedJob = await ReleaseJob.findOne({ _id: releaseJob._id });
+      const updatedJob = await ReleaseTask.findOne({ _id: releaseTask._id });
       expect(updatedJob.failures.length).to.eql(1);
       expect(updatedJob.failures[0].createdAt).to.exist;
-      expect(updatedJob.failures[0].message).to.eql('job.metadata.removed is not iterable');
+      expect(updatedJob.failures[0].message).to.eql('task.metadata.removed is not iterable');
     });
   });
 });

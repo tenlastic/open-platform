@@ -7,15 +7,14 @@ import {
   ReadonlyUserDocument,
   ReadonlyUserMock,
   ReleaseDocument,
-  ReleaseJobDocument,
+  ReleaseTaskDocument,
   ReleaseMock,
   UserRolesMock,
-  ReleaseJobMock,
+  ReleaseTaskMock,
 } from '../../../models';
 import { handler } from './';
 
-describe('handlers/releases/jobs', function() {
-  let record: ReleaseJobDocument;
+describe('handlers/release-tasks/count', function() {
   let release: ReleaseDocument;
   let user: ReadonlyUserDocument;
 
@@ -27,11 +26,11 @@ describe('handlers/releases/jobs', function() {
     const game = await ReadonlyGameMock.create({ namespaceId: namespace._id });
     release = await ReleaseMock.create({ gameId: game._id });
 
-    record = await ReleaseJobMock.create({ releaseId: release._id });
-    await ReleaseJobMock.create();
+    await ReleaseTaskMock.create({ releaseId: release._id });
+    await ReleaseTaskMock.create();
   });
 
-  it('returns the matching records', async function() {
+  it('returns the count of matching records', async function() {
     const ctx = new ContextMock({
       params: { releaseId: release._id },
       state: { user: user.toObject() },
@@ -39,7 +38,6 @@ describe('handlers/releases/jobs', function() {
 
     await handler(ctx as any);
 
-    expect(ctx.response.body.records.length).to.eql(1);
-    expect(ctx.response.body.records[0]._id.toString()).to.eql(record._id.toString());
+    expect(ctx.response.body.count).to.eql(1);
   });
 });

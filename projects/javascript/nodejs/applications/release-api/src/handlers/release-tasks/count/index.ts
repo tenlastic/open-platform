@@ -1,10 +1,10 @@
 import { Context } from '@tenlastic/web-server';
 
-import { ReleaseJobPermissions } from '../../../models';
+import { ReleaseTaskPermissions } from '../../../models';
 
 export async function handler(ctx: Context) {
   const override = { releaseId: ctx.params.releaseId };
-  const result = await ReleaseJobPermissions.count(
+  const result = await ReleaseTaskPermissions.count(
     ctx.request.query.where,
     override,
     ctx.state.user,

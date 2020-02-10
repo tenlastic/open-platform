@@ -15,12 +15,12 @@ import {
   ReadonlyUserDocument,
   ReadonlyUserMock,
   ReleaseDocument,
-  ReleaseJobAction,
-  ReleaseJobMock,
+  ReleaseTaskAction,
+  ReleaseTaskMock,
   ReleaseMock,
   UserRolesMock,
-  ReleaseJob,
-  ReleaseJobDocument,
+  ReleaseTask,
+  ReleaseTaskDocument,
 } from '../../models';
 import { unzipWorker } from './';
 
@@ -42,7 +42,7 @@ describe('workers/unzip', function() {
   context('when successful', function() {
     let md5: string;
     let release: ReleaseDocument;
-    let releaseJob: ReleaseJobDocument;
+    let releaseTask: ReleaseTaskDocument;
 
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
@@ -50,7 +50,7 @@ describe('workers/unzip', function() {
       const game = await ReadonlyGameMock.create({ namespaceId: namespace._id });
 
       release = await ReleaseMock.create({ gameId: game._id });
-      releaseJob = await ReleaseJobMock.create({ releaseId: release });
+      releaseTask = await ReleaseTaskMock.create({ releaseId: release });
 
       // Upload zip to Minio.
       const zip = new JSZip();
@@ -59,7 +59,7 @@ describe('workers/unzip', function() {
         compression: 'DEFLATE',
         compressionOptions: { level: 1 },
       });
-      await minio.getClient().putObject(MINIO_BUCKET, releaseJob.minioZipObjectName, stream);
+      await minio.getClient().putObject(MINIO_BUCKET, releaseTask.minioZipObjectName, stream);
 
       // Calculate MD5 for zipped file.
       md5 = await new Promise((resolve, reject) => {
@@ -77,27 +77,27 @@ describe('workers/unzip', function() {
 
     it('acks the message', async function() {
       const channel = { ack: sinon.stub().resolves() };
-      const content = releaseJob.toObject();
+      const content = releaseTask.toObject();
 
       await unzipWorker(channel as any, content, null);
 
       expect(channel.ack.calledOnce).to.eql(true);
     });
 
-    it('marks the job status complete', async function() {
+    it('marks the task status complete', async function() {
       const channel = { ack: sinon.stub().resolves() };
-      const content = releaseJob.toObject();
+      const content = releaseTask.toObject();
 
       await unzipWorker(channel as any, content, null);
 
-      const updatedJob = await ReleaseJob.findOne({ _id: releaseJob._id });
+      const updatedJob = await ReleaseTask.findOne({ _id: releaseTask._id });
       expect(updatedJob.completedAt).to.exist;
       expect(updatedJob.startedAt).to.exist;
     });
 
     it('creates file records', async function() {
       const channel = { ack: sinon.stub().resolves() };
-      const content = releaseJob.toObject();
+      const content = releaseTask.toObject();
 
       await unzipWorker(channel as any, content, null);
 
@@ -108,7 +108,7 @@ describe('workers/unzip', function() {
 
     it('uploads unzipped files to Minio', async function() {
       const channel = { ack: sinon.stub().resolves() };
-      const content = releaseJob.toObject();
+      const content = releaseTask.toObject();
 
       await unzipWorker(channel as any, content, null);
 
@@ -126,16 +126,16 @@ describe('workers/unzip', function() {
 
       const requeueStub = sandbox.stub(rabbitmq, 'requeue').resolves();
 
-      const releaseJob = await ReleaseJobMock.create({
-        action: ReleaseJobAction.Unzip,
+      const releaseTask = await ReleaseTaskMock.create({
+        action: ReleaseTaskAction.Unzip,
         releaseId: release._id,
       });
-      const content = releaseJob.toObject();
+      const content = releaseTask.toObject();
       await unzipWorker({} as any, content, null);
 
       expect(requeueStub.calledOnce).to.eql(true);
 
-      const updatedJob = await ReleaseJob.findOne({ _id: releaseJob._id });
+      const updatedJob = await ReleaseTask.findOne({ _id: releaseTask._id });
       expect(updatedJob.failures.length).to.eql(1);
       expect(updatedJob.failures[0].createdAt).to.exist;
       expect(updatedJob.failures[0].message).to.eql('The specified key does not exist.');

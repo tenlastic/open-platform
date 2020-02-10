@@ -1,17 +1,10 @@
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
-import { WebSocket, WebSocketServer } from '@tenlastic/web-server';
-import * as http from 'http';
+import { WebSocket } from '@tenlastic/web-server';
 
 import { Message, MessagePermissions } from '../models';
 
-export function init(server: http.Server) {
-  new WebSocketServer(server, { path: '/messages' }, (ws, query, user) =>
-    onConnection(ws, query, user),
-  );
-}
-
-async function onConnection(ws: WebSocket, query: URLSearchParams, user: any) {
-  if (query.has('watch')) {
+export async function onConnection(params: any, query: any, user: any, ws: WebSocket) {
+  if ('watch' in query) {
     const consumer = await kafka.watch(Message, MessagePermissions, query, user, payload =>
       ws.send(JSON.stringify(payload)),
     );

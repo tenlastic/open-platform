@@ -1,8 +1,8 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { ReleaseJob, ReleaseJobDocument } from './model';
+import { ReleaseTask, ReleaseTaskDocument } from './model';
 
-export const ReleaseJobPermissions = new MongoosePermissions<ReleaseJobDocument>(ReleaseJob, {
+export const ReleaseTaskPermissions = new MongoosePermissions<ReleaseTaskDocument>(ReleaseTask, {
   delete: {
     roles: {
       'namespace-administrator': true,

@@ -8,8 +8,8 @@ import {
   ReadonlyUserDocument,
   ReadonlyUserMock,
   ReleaseDocument,
-  ReleaseJobDocument,
-  ReleaseJobMock,
+  ReleaseTaskDocument,
+  ReleaseTaskMock,
   ReleaseMock,
   UserRolesMock,
 } from '../../../models';
@@ -18,7 +18,7 @@ import { handler } from './';
 use(chaiAsPromised);
 
 describe('handlers/releases/delete', function() {
-  let record: ReleaseJobDocument;
+  let record: ReleaseTaskDocument;
   let release: ReleaseDocument;
   let user: ReadonlyUserDocument;
 
@@ -33,7 +33,7 @@ describe('handlers/releases/delete', function() {
       const game = await ReadonlyGameMock.create({ namespaceId: namespace._id });
 
       release = await ReleaseMock.create({ gameId: game._id });
-      record = await ReleaseJobMock.create({ releaseId: release._id });
+      record = await ReleaseTaskMock.create({ releaseId: release._id });
     });
 
     it('returns the deleted record', async function() {
@@ -55,7 +55,7 @@ describe('handlers/releases/delete', function() {
     beforeEach(async function() {
       const game = await ReadonlyGameMock.create();
       release = await ReleaseMock.create({ gameId: game._id });
-      record = await ReleaseJobMock.create();
+      record = await ReleaseTaskMock.create();
     });
 
     it('throws an error', async function() {

@@ -3,4 +3,4 @@ export * from './readonly-game';
 export * from './readonly-namespace';
 export * from './readonly-user';
 export * from './release';
-export * from './release-job';
+export * from './release-task';

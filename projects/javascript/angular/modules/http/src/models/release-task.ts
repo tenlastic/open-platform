@@ -1,24 +1,24 @@
 import { Model } from './model';
 
-export namespace IReleaseJob {
+export namespace IReleaseTask {
   export interface Failure {
     createdAt: Date;
     message: string;
   }
 }
 
-export class ReleaseJob extends Model {
+export class ReleaseTask extends Model {
   public _id: string;
   public completedAt: Date;
   public createdAt: Date;
-  public failures: IReleaseJob.Failure[];
+  public failures: IReleaseTask.Failure[];
   public metadata: any;
   public platform: string;
   public releaseId: string;
   public startedAt: Date;
   public updatedAt: Date;
 
-  constructor(params: Partial<ReleaseJob> = {}) {
+  constructor(params: Partial<ReleaseTask> = {}) {
     super(params);
 
     this.completedAt = params.completedAt ? new Date(params.completedAt) : null;
