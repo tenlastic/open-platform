@@ -8,10 +8,12 @@ services:
       - KAFKA_CONNECTION_STRING
       - MINIO_CONNECTION_STRING
       - MONGO_CONNECTION_STRING
+      - RABBITMQ_CONNECTION_STRING
     links:
       - kafka
       - minio
       - mongo
+      - rabbitmq
     ports:
       - 3005:3000
     working_dir: /usr/src/app/applications/release-api/

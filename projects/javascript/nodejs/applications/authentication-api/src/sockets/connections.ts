@@ -1,22 +1,16 @@
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
-import { WebSocket, WebSocketServer } from '@tenlastic/web-server';
-import * as http from 'http';
+import { WebSocket } from '@tenlastic/web-server';
 
 import { Connection, ConnectionPermissions } from '../models';
 
-export function init(server: http.Server) {
-  new WebSocketServer(
-    server,
-    { path: '/connections' },
-    (ws, query, user) => onConnection(ws, query, user),
-    (query, user) => onUpgradeRequest(query, user),
-  );
-}
-
-async function onConnection(ws: WebSocket, query: URLSearchParams, user: any) {
-  if (query.has('watch')) {
-    const consumer = await kafka.watch(Connection, ConnectionPermissions, query, user, payload =>
-      ws.send(JSON.stringify(payload)),
+export async function onConnection(params: any, query: any, user: any, ws: WebSocket) {
+  if ('watch' in query) {
+    const consumer = await kafka.watch(
+      Connection,
+      ConnectionPermissions,
+      query.watch,
+      user,
+      payload => ws.send(JSON.stringify(payload)),
     );
 
     ws.on('close', () => consumer.disconnect());
@@ -26,7 +20,7 @@ async function onConnection(ws: WebSocket, query: URLSearchParams, user: any) {
     await Connection.findOneAndUpdate(
       {
         disconnectedAt: { $exists: false },
-        gameId: query.get('gameId'),
+        gameId: query.gameId,
         userId: user._id,
       },
       {
@@ -36,6 +30,6 @@ async function onConnection(ws: WebSocket, query: URLSearchParams, user: any) {
   });
 }
 
-async function onUpgradeRequest(query: URLSearchParams, user: any) {
-  return Connection.create({ gameId: query.get('gameId'), userId: user._id });
+export async function onUpgradeRequest(params: string, query: any, user: any) {
+  await Connection.create({ gameId: query.gameId, userId: user._id });
 }

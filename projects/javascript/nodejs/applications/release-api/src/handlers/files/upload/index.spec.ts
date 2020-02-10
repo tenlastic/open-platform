@@ -1,15 +1,12 @@
-import * as minio from '@tenlastic/minio';
+import * as rabbitmq from '@tenlastic/rabbitmq';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import * as crypto from 'crypto';
 import * as FormData from 'form-data';
 import * as fs from 'fs';
 import * as JSZip from 'jszip';
 
-import { MINIO_BUCKET } from '../../../constants';
 import {
-  File,
   FileMock,
   FilePlatform,
   ReadonlyGameMock,
@@ -19,7 +16,9 @@ import {
   ReleaseDocument,
   ReleaseMock,
   UserRolesMock,
+  ReleaseTask,
 } from '../../../models';
+import { COPY_QUEUE, REMOVE_QUEUE, UNZIP_QUEUE } from '../../../workers';
 import { handler } from './';
 
 use(chaiAsPromised);
@@ -34,7 +33,6 @@ describe('handlers/files/upload', function() {
   context('when permission is granted', function() {
     let ctx: ContextMock;
     let form: FormData;
-    let md5: string;
     let platform: FilePlatform;
     let previousRelease: ReleaseDocument;
     let release: ReleaseDocument;
@@ -47,26 +45,6 @@ describe('handlers/files/upload', function() {
       platform = FileMock.getPlatform();
       previousRelease = await ReleaseMock.create({ gameId: game._id, publishedAt: new Date() });
       release = await ReleaseMock.create({ gameId: game._id });
-
-      // Set up Previous Release.
-      const previousFile = await FileMock.create({
-        path: 'index.ts',
-        platform,
-        releaseId: previousRelease._id,
-      });
-      await minio
-        .getClient()
-        .putObject(MINIO_BUCKET, previousFile.key, fs.createReadStream(__filename));
-
-      // Set up File to remove.
-      const removedFile = await FileMock.create({
-        path: 'swagger.yml',
-        platform,
-        releaseId: release._id,
-      });
-      await minio
-        .getClient()
-        .putObject(MINIO_BUCKET, removedFile.key, fs.createReadStream(__filename));
 
       const zip = new JSZip();
       zip.file('index.spec.ts', fs.createReadStream(__filename));
@@ -83,18 +61,6 @@ describe('handlers/files/upload', function() {
       form.append('unmodified[]', 'index.ts');
       form.append('zip', stream);
 
-      md5 = await new Promise((resolve, reject) => {
-        const fileStream = fs.createReadStream(__filename);
-        const hash = crypto.createHash('md5');
-        hash.setEncoding('hex');
-        fileStream.on('end', () => {
-          hash.end();
-          return resolve(hash.read() as string);
-        });
-        fileStream.on('error', reject);
-        fileStream.pipe(hash);
-      });
-
       ctx = new ContextMock({
         params: {
           platform,
@@ -108,46 +74,60 @@ describe('handlers/files/upload', function() {
       } as any);
     });
 
-    it('creates a new record', async function() {
-      await handler(ctx as any);
-
-      expect(ctx.response.body.records).to.exist;
-      expect(ctx.response.body.records.length).to.eql(2);
-      expect(ctx.response.body.records[0].compressedBytes).to.be.greaterThan(0);
-      expect(ctx.response.body.records[0].md5).to.eql(md5);
-      expect(ctx.response.body.records[0].uncompressedBytes).to.be.greaterThan(0);
-    });
-
     it('copies unmodified files from the previous release', async function() {
       await handler(ctx as any);
 
-      const file = new File(ctx.response.body.records[0]);
-      const result = await minio
-        .getClient()
-        .statObject(MINIO_BUCKET, `${file.releaseId}/${file.platform}/index.ts`);
+      expect(ctx.response.body.tasks.filter(j => j.action === 'copy').length).to.eql(1);
 
-      expect(result).to.exist;
+      const releaseTask = await ReleaseTask.findOne({ action: 'copy' });
+      expect(releaseTask).to.exist;
+      expect(releaseTask.metadata.previousReleaseId.toString()).to.eql(
+        previousRelease._id.toString(),
+      );
+      expect(releaseTask.metadata.unmodified).to.eql(['index.ts']);
+
+      return new Promise(resolve => {
+        rabbitmq.consume(COPY_QUEUE, (channel, content, msg) => {
+          expect(content._id).to.eql(releaseTask._id.toString());
+
+          resolve();
+        });
+      });
     });
 
     it('deletes removed files from Minio', async function() {
       await handler(ctx as any);
 
-      const promise = minio
-        .getClient()
-        .statObject(MINIO_BUCKET, `${release._id}/${platform}/swagger.yml`);
+      expect(ctx.response.body.tasks.filter(j => j.action === 'remove').length).to.eql(1);
 
-      return expect(promise).to.be.rejectedWith('Not Found');
+      const releaseTask = await ReleaseTask.findOne({ action: 'remove' });
+      expect(releaseTask).to.exist;
+      expect(releaseTask.metadata.removed).to.eql(['swagger.yml']);
+
+      return new Promise(resolve => {
+        rabbitmq.consume(REMOVE_QUEUE, (channel, content, msg) => {
+          expect(content._id).to.eql(releaseTask._id.toString());
+
+          resolve();
+        });
+      });
     });
 
     it('uploads unzipped files to Minio', async function() {
       await handler(ctx as any);
 
-      const file = new File(ctx.response.body.records[0]);
-      const result = await minio
-        .getClient()
-        .statObject(MINIO_BUCKET, `${file.releaseId}/${file.platform}/index.spec.ts`);
+      expect(ctx.response.body.tasks.filter(j => j.action === 'unzip').length).to.eql(1);
 
-      expect(result).to.exist;
+      const releaseTask = await ReleaseTask.findOne({ action: 'unzip' });
+      expect(releaseTask).to.exist;
+
+      return new Promise(resolve => {
+        rabbitmq.consume(UNZIP_QUEUE, (channel, content, msg) => {
+          expect(content._id).to.eql(releaseTask._id.toString());
+
+          resolve();
+        });
+      });
     });
   });
 

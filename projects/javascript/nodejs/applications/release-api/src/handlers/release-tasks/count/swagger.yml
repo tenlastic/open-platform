@@ -1,0 +1,26 @@
+paths:
+  /releases/{releaseId}/tasks:
+    get:
+      summary: Count
+      tags: [ReleaseTasks]
+      description: Finds tasks matching the search criteria.
+      security:
+        - AccessToken: []
+        parameters:
+          - in: path
+            name: releaseId
+            schema:
+              type: string
+            required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReleaseTask'

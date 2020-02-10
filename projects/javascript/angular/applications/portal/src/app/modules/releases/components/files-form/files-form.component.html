@@ -80,6 +80,27 @@
   </div>
 </div>
 
+<div class="row">
+  <div *ngIf="tasks.length" class="col-sm-6">
+    <mat-label>
+      <span>Background Tasks</span>
+    </mat-label>
+
+    <mat-list>
+      <mat-list-item *ngFor="let task of tasks" [attr.status]="task.status">
+        <span>{{ TASKS[task.action] }}</span>
+        <span>
+          {{ task.startedAt ? 'In Progress' : 'Queued' }}
+        </span>
+      </mat-list-item>
+    </mat-list>
+
+    <mat-hint>
+      <span>Count: {{ tasks.length }}</span>
+    </mat-hint>
+  </div>
+</div>
+
 <div *ngIf="error" class="form-error">
   {{ error }}
 </div>

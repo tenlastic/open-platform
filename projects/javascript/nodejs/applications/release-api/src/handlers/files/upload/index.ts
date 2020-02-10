@@ -1,4 +1,5 @@
 import * as minio from '@tenlastic/minio';
+import * as rabbitmq from '@tenlastic/rabbitmq';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
@@ -14,7 +15,11 @@ import {
   FilePlatform,
   Release,
   ReleaseDocument,
+  ReleaseTask,
+  ReleaseTaskAction,
+  ReleaseTaskDocument,
 } from '../../../models';
+import { COPY_QUEUE, REMOVE_QUEUE, UNZIP_QUEUE } from '../../../workers';
 
 export async function handler(ctx: Context) {
   const release = await Release.findOne({ _id: ctx.params.releaseId });
@@ -35,17 +40,23 @@ export async function handler(ctx: Context) {
   }
 
   const fields: any = {};
-  let promise: Promise<Array<Promise<FileDocument>>>;
+  let promise: Promise<ReleaseTaskDocument>;
   await new Promise<FileDocument[]>((resolve, reject) => {
     const busboy = new Busboy({ headers: ctx.request.headers });
 
     busboy.on('error', reject);
-    busboy.on('file', (field, stream) => {
+    busboy.on('file', async (field, stream) => {
       if (field !== 'zip') {
         return;
       }
 
-      promise = processZip(ctx.params.platform, release, stream);
+      fields['zip'] = stream;
+      promise = publishUnzipMessage(
+        ctx.params.platform,
+        ctx.params.releaseId,
+        stream,
+        ctx.state.user,
+      );
     });
     busboy.on('field', (key, value) => {
       try {
@@ -69,132 +80,153 @@ export async function handler(ctx: Context) {
     ctx.req.pipe(busboy);
   });
 
-  const promises = await promise;
-  const records = await Promise.all(promises);
-
   // Copy files from previous Release.
+  let copyJob: ReleaseTaskDocument;
   if (fields.previousReleaseId && fields.unmodified && fields.unmodified.length) {
-    for (const path of fields.unmodified) {
-      if (ctx.params.releaseId === fields.previousReleaseId) {
-        continue;
-      }
-
-      const copiedFile = await copyObject(
-        path,
-        ctx.params.platform,
-        fields.previousReleaseId,
-        ctx.params.releaseId,
-        ctx.state.user,
-      );
-
-      records.push(copiedFile);
-    }
+    copyJob = await publishCopyMessage(
+      fields,
+      ctx.params.platform,
+      ctx.params.releaseId,
+      ctx.state.user,
+    );
   }
 
   // Remove files from current Release.
+  let removeJob: ReleaseTaskDocument;
   if (fields.removed && fields.removed.length) {
-    for (const path of fields.removed) {
-      const { platform, releaseId } = ctx.params;
-      await File.findOneAndDelete({ path: path.replace(/[\.]+\//g, ''), platform, releaseId });
-    }
+    removeJob = await publishRemoveMessage(
+      fields,
+      ctx.params.platform,
+      ctx.params.releaseId,
+      ctx.state.user,
+    );
   }
 
-  ctx.response.body = { records };
+  // Upload zip to Minio.
+  let unzipJob: ReleaseTaskDocument;
+  if (Object.keys(fields).includes('zip')) {
+    unzipJob = await promise;
+  }
+
+  // Return tasks in response.
+  const tasks = [];
+  if (copyJob) {
+    tasks.push(copyJob);
+  }
+  if (removeJob) {
+    tasks.push(removeJob);
+  }
+  if (unzipJob) {
+    tasks.push(unzipJob);
+  }
+
+  ctx.response.body = { tasks };
 }
 
-async function copyObject(
-  path: string,
-  platform: string,
-  previousReleaseId: string,
+async function publishCopyMessage(
+  fields: any,
+  platform: FilePlatform,
   releaseId: string,
   user: any,
 ) {
-  path = path.replace(/[\.]+\//g, '');
-
-  const previousFile = await File.findOne({ path, platform, releaseId: previousReleaseId });
-  if (!previousFile) {
-    throw new RecordNotFoundError('Previous File');
+  // If the previous Release and target Release are the same, do not queue the message.
+  if (releaseId === fields.previousReleaseId) {
+    return;
   }
 
-  // Copy the previous file to the new release.
-  await minio
-    .getClient()
-    .copyObject(
-      MINIO_BUCKET,
-      `${releaseId}/${previousFile.platform}/${path}`,
-      `${MINIO_BUCKET}/${previousFile.releaseId}/${previousFile.platform}/${path}`,
-      null,
-    );
-
-  return File.findOneAndUpdate(
-    { path: previousFile.path, platform: previousFile.platform, releaseId },
-    {
-      md5: previousFile.md5,
-      path: previousFile.path,
-      platform: previousFile.platform,
-      releaseId,
-    },
-    { new: true, upsert: true },
+  // If the user does not have permission to create Files for this Release, throw an error.
+  const targetFile = await new File({ platform, releaseId })
+    .populate(FilePermissions.accessControl.options.populate)
+    .execPopulate();
+  const createPermissions = FilePermissions.accessControl.getFieldPermissions(
+    'create',
+    targetFile,
+    user,
   );
-}
+  if (createPermissions.length === 0) {
+    throw new PermissionError();
+  }
 
-function processZip(platform: FilePlatform, release: ReleaseDocument, stream: Stream) {
-  const promises = [];
+  // If the user does not have permission to read files from the previous Release, throw an error.
+  const previousFile = await new File({ platform, releaseId })
+    .populate(FilePermissions.accessControl.options.populate)
+    .execPopulate();
+  const readPermissions = FilePermissions.accessControl.getFieldPermissions(
+    'read',
+    previousFile,
+    user,
+  );
+  if (readPermissions.length === 0) {
+    throw new PermissionError();
+  }
 
-  return new Promise<Array<Promise<FileDocument>>>((resolve, reject) => {
-    stream
-      .pipe(unzipper.Parse())
-      .on('entry', entry => {
-        const { path, type } = entry;
-        if (type === 'Directory') {
-          return;
-        }
-
-        const record = new File({
-          path: path.replace(/[\.]+\//g, ''),
-          platform,
-          releaseId: release._id,
-        });
-
-        try {
-          const promise = saveFile(entry, record);
-          promises.push(promise);
-        } catch (e) {
-          throw e;
-        }
-      })
-      .on('error', reject)
-      .on('finish', () => resolve(promises));
+  const releaseTask = await ReleaseTask.create({
+    action: ReleaseTaskAction.Copy,
+    metadata: {
+      previousReleaseId: fields.previousReleaseId,
+      unmodified: fields.unmodified,
+    },
+    platform: targetFile.platform,
+    releaseId: targetFile.releaseId,
   });
+  await rabbitmq.publish(COPY_QUEUE, releaseTask);
+
+  return releaseTask;
 }
 
-async function saveFile(entry: any, record: FileDocument) {
-  const results = await Promise.all([
-    new Promise((resolve, reject) => {
-      const hash = crypto.createHash('md5');
-      hash.setEncoding('hex');
-      entry.on('end', () => {
-        hash.end();
+async function publishRemoveMessage(
+  fields: any,
+  platform: FilePlatform,
+  releaseId: string,
+  user: any,
+) {
+  // If the user does not have permission to delete Files for this Release, throw an error.
+  const targetFile = await new File({ platform, releaseId })
+    .populate(FilePermissions.accessControl.options.populate)
+    .execPopulate();
+  const deletePermissions = FilePermissions.accessControl.delete(targetFile, user);
+  if (!deletePermissions) {
+    throw new PermissionError();
+  }
 
-        const md5 = hash.read();
-        return resolve(md5);
-      });
-      entry.on('error', reject);
-      entry.pipe(hash);
-    }),
-    minio.getClient().putObject(MINIO_BUCKET, record.key, entry),
-  ]);
+  const releaseTask = await ReleaseTask.create({
+    action: ReleaseTaskAction.Remove,
+    metadata: { removed: fields.removed },
+    platform: targetFile.platform,
+    releaseId: targetFile.releaseId,
+  });
+  await rabbitmq.publish(REMOVE_QUEUE, releaseTask);
 
-  return File.findOneAndUpdate(
-    { path: record.path, platform: record.platform, releaseId: record.releaseId },
-    {
-      compressedBytes: entry.vars.compressedSize,
-      md5: results[0],
-      path: record.path,
-      platform: record.platform,
-      releaseId: record.releaseId,
-      uncompressedBytes: entry.vars.uncompressedSize,
-    },
-    { new: true, upsert: true },
+  return releaseTask;
+}
+
+async function publishUnzipMessage(
+  platform: FilePlatform,
+  releaseId: string,
+  stream: Stream,
+  user: any,
+) {
+  // If the user does not have permission to create Files for this Release, throw an error.
+  const targetFile = await new File({ platform, releaseId })
+    .populate(FilePermissions.accessControl.options.populate)
+    .execPopulate();
+  const createPermissions = FilePermissions.accessControl.getFieldPermissions(
+    'create',
+    targetFile,
+    user,
   );
+  if (createPermissions.length === 0) {
+    throw new PermissionError();
+  }
+
+  const releaseTask = await ReleaseTask.create({
+    action: ReleaseTaskAction.Unzip,
+    platform: targetFile.platform,
+    releaseId: targetFile.releaseId,
+  });
+
+  await minio.getClient().putObject(MINIO_BUCKET, releaseTask.minioZipObjectName, stream);
+  await rabbitmq.publish(UNZIP_QUEUE, releaseTask);
+
+  return releaseTask;
 }

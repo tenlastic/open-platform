@@ -1,6 +1,8 @@
 import * as http from 'http';
 import * as jwt from 'jsonwebtoken';
 import { Socket } from 'net';
+import { posix } from 'path';
+import { parse } from 'url';
 import * as WS from 'ws';
 
 export type WebSocketCallback = 'connection' | 'message';
@@ -8,74 +10,152 @@ export type WebSocketCallback = 'connection' | 'message';
 export class WebSocket extends WS {
   public isAlive: boolean;
 }
+export interface Connection {
+  callback: ConnectionCallback;
+  path: string;
+}
+export interface Upgrade {
+  callback: UpgradeCallback;
+  path: string;
+}
+export type ConnectionCallback = (
+  params: any,
+  query: any,
+  user: any,
+  ws: WebSocket,
+) => Promise<any>;
+export type UpgradeCallback = (params: any, query: any, user: any) => Promise<any>;
 
 export class WebSocketServer {
+  private connections: Connection[] = [];
   private server: http.Server;
+  private upgrades: Upgrade[] = [];
   private wss: WS.Server;
 
-  constructor(
-    server: http.Server,
-    options: WS.ServerOptions = {},
-    onConnection?: (ws: WebSocket, query: URLSearchParams, user: any) => void,
-    onUpgradeRequest?: (query: URLSearchParams, user: any) => Promise<any>,
-  ) {
+  constructor(server: http.Server) {
     this.server = server;
-    this.server.on('upgrade', (request: http.IncomingMessage, socket: Socket, head: Buffer) => {
-      this.onUpgradeRequest(request, socket, head, onUpgradeRequest);
-    });
+    this.server.on(
+      'upgrade',
+      async (request: http.IncomingMessage, socket: Socket, head: Buffer) => {
+        await this.onUpgradeRequest(request, socket, head);
+      },
+    );
 
-    this.wss = new WS.Server({ noServer: true, ...options });
-    this.wss.on('connection', (ws: WebSocket, query: any, user: any) => {
-      if (onConnection) {
-        onConnection(ws, query, user);
-      }
-
+    this.wss = new WS.Server({ noServer: true });
+    this.wss.on('connection', async (query: any, url: string, user: any, ws: WebSocket) => {
       this.startHeartbeat(ws);
+
+      for (const connection of this.connections) {
+        const isMatch = this.match(connection.path, url);
+        if (!isMatch) {
+          continue;
+        }
+
+        const params = this.params(connection.path, url);
+        await connection.callback(params, query, user, ws);
+      }
     });
   }
 
-  private async onUpgradeRequest(
-    request: http.IncomingMessage,
-    socket: Socket,
-    head: Buffer,
-    guard: (query: URLSearchParams, user: any) => Promise<void>,
-  ) {
-    // Extract token from query string.
-    const querystring = request.url.includes('?')
-      ? request.url.substr(request.url.indexOf('?'))
-      : request.url;
-    const query = new URLSearchParams(querystring);
+  public connection(path: string, callback: ConnectionCallback) {
+    this.connections.push({ callback, path });
+  }
 
-    const token = query.get('token');
-    if (!token) {
-      socket.destroy();
-      return;
-    }
+  public upgrade(path: string, callback: UpgradeCallback) {
+    this.upgrades.push({ callback, path });
+  }
 
-    // Verify it is a valid JWT.
-    let result: any;
+  /**
+   * Returns true if the provided method and path match the incoming request.
+   */
+  private match(path: string, url: string) {
+    const parsedUrl = parse(url);
+
+    return this.pathToRegExp(path).test(parsedUrl.pathname);
+  }
+
+  private async onUpgradeRequest(request: http.IncomingMessage, socket: Socket, head: Buffer) {
     try {
-      result = jwt.verify(token, process.env.JWT_SECRET);
+      const url = request.url.split('?')[0];
+
+      // Parse query string.
+      const querystring = request.url.includes('?')
+        ? request.url.substr(request.url.indexOf('?'))
+        : request.url;
+      const urlSearchParams = new URLSearchParams(querystring);
+      const query = JSON.parse(urlSearchParams.get('query'));
+
+      // Check to see if token is set.
+      const token = query.token;
+      if (!token) {
+        socket.destroy();
+        return;
+      }
+
+      // Verify it is a valid JWT.
+      const result: any = jwt.verify(token, process.env.JWT_SECRET);
+
+      // If any upgrade callbacks throw an error, kill the connection.
+      for (const upgrade of this.upgrades) {
+        const isMatch = this.match(upgrade.path, url);
+        if (!isMatch) {
+          continue;
+        }
+
+        const params = this.params(upgrade.path, url);
+        await upgrade.callback(params, query, result.user);
+      }
+
+      // Approve connection request and pass user data to connection event.
+      this.wss.handleUpgrade(request, socket, head, ws => {
+        this.wss.emit('connection', query, url, result.user, ws);
+      });
     } catch (e) {
       socket.destroy();
       return;
     }
-
-    if (guard) {
-      try {
-        await guard(query, result.user);
-      } catch (e) {
-        socket.destroy();
-        return;
-      }
-    }
-
-    // Approve connection request and pass user data to connection event.
-    this.wss.handleUpgrade(request, socket, head, ws => {
-      this.wss.emit('connection', ws, query, result.user);
-    });
   }
 
+  /**
+   * Gets the named route parameters from the URL.
+   */
+  private params(path: string, url: string) {
+    // Find variables within path.
+    let variables = path.match(/:\w+/g);
+
+    if (!variables) {
+      return {};
+    }
+
+    const parsedUrl = parse(url);
+
+    // Remove : from variable names.
+    variables = variables.map(s => s.substring(1));
+
+    // Map path variables into params object.
+    const regex = this.pathToRegExp(path);
+    const matches = regex.exec(parsedUrl.pathname);
+
+    return variables.reduce((pre, cur, i) => {
+      pre[cur] = matches[i + 1];
+      return pre;
+    }, {});
+  }
+
+  /**
+   * Returns a RegExp for the path.
+   */
+  private pathToRegExp(path) {
+    // Replace all variables with alphanumeric regular expression matching.
+    path = path.replace(/:\w+/g, '([^\\/]+)');
+
+    // Combine basePath with path.
+    const wholePath = posix.join('/', path);
+
+    return new RegExp('^' + wholePath + '$');
+  }
+
+  // Sends ping requests to connected clients.
   private startHeartbeat(ws: WebSocket) {
     let timeout: NodeJS.Timeout;
 

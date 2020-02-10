@@ -26,7 +26,7 @@ describe('handlers/releases/find', function() {
     record = await ReleaseMock.create({ gameId: game._id });
   });
 
-  it('returns the number of matching records', async function() {
+  it('returns the matching records', async function() {
     const ctx = new ContextMock({
       state: { user: user.toObject() },
     });

@@ -2,9 +2,10 @@ import * as rabbitmq from '@tenlastic/rabbitmq';
 import { Channel, ConsumeMessage } from 'amqplib';
 import * as mongoose from 'mongoose';
 
+import { RABBITMQ_PREFIX } from '../../constants';
 import { Collection, Index, IndexDocument } from '../../models';
 
-export const CREATE_COLLECTION_INDEX_QUEUE = 'create-collection-index';
+export const CREATE_COLLECTION_INDEX_QUEUE = `${RABBITMQ_PREFIX}.create-collection-index`;
 
 export async function createCollectionIndexWorker(
   channel: Channel,
