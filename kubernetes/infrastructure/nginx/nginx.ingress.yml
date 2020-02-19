@@ -93,6 +93,13 @@ spec:
             backend:
               serviceName: portal-ui
               servicePort: 80
+    - host: rabbitmq.tenlastic.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: rabbitmq-rabbitmq-ha
+              servicePort: 15672
     - host: sso.tenlastic.com
       http:
         paths:
