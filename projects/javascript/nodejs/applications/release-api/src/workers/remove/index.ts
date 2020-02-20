@@ -29,6 +29,8 @@ export async function removeWorker(
 
     channel.ack(msg);
   } catch (e) {
+    console.error(e);
+
     if (e.name === 'DocumentNotFoundError') {
       channel.ack(msg);
       return;

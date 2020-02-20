@@ -37,6 +37,8 @@ export async function copyWorker(
 
     channel.ack(msg);
   } catch (e) {
+    console.error(e);
+
     if (e.name === 'DocumentNotFoundError') {
       channel.ack(msg);
       return;
