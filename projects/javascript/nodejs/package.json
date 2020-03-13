@@ -1,7 +1,7 @@
 {
   "name": "nodejs",
   "private": true,
-  "version": "0.0.48",
+  "version": "0.0.49",
   "scripts": {
     "docker": "docker-compose run --rm application npm run --if-present",
     "docker:install": "docker-compose run --rm application npm install",
