@@ -108,8 +108,10 @@ jobs:
       - image: node:10
       - image: minio/minio:latest
         command: minio server /data
-      - image: mongo:4
       - image: rabbitmq:latest
+      - image: tenlastic/mongo-replica-set:latest
+        environment:
+          REPLICA_SET_HOSTNAME: localhost
       - image: wurstmeister/kafka:latest
         environment:
           KAFKA_ADVERTISED_HOST_NAME: localhost

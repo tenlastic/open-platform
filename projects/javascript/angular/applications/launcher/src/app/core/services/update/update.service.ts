@@ -5,7 +5,7 @@ import { ElectronService } from '@tenlastic/ng-electron';
 import { File, FileService, Game, Release, ReleaseService } from '@tenlastic/ng-http';
 import { ChildProcess } from 'child_process';
 import { Subject } from 'rxjs';
-import { last, map, tap } from 'rxjs/operators';
+import { last, map, tap, retry } from 'rxjs/operators';
 
 export enum UpdateServiceState {
   Checking,
@@ -226,6 +226,7 @@ export class UpdateService {
     return this.fileService
       .download(status.release._id, this.platform, { include })
       .pipe(
+        retry(3),
         map(event => this.getEventMessage(event, compressedBytes)),
         tap(message => {
           if (!message || !message.current || !message.total) {

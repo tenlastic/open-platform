@@ -189,13 +189,18 @@ async function publishRemoveMessage(
     throw new PermissionError();
   }
 
-  const releaseTask = await ReleaseTask.create({
+  const session = await ReleaseTask.db.startSession();
+  session.startTransaction();
+
+  const releaseTask = await new ReleaseTask({
     action: ReleaseTaskAction.Remove,
     metadata: { removed: fields.removed },
     platform: targetFile.platform,
     releaseId: targetFile.releaseId,
-  });
+  }).save({ session });
   await rabbitmq.publish(REMOVE_QUEUE, releaseTask);
+
+  await session.commitTransaction();
 
   return releaseTask;
 }
