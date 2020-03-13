@@ -45,10 +45,10 @@ export class LayoutComponent implements OnDestroy, OnInit {
         return (status.progress.current / status.progress.total) * 100;
 
       case UpdateServiceState.Downloading:
-        return (status.progress.current / status.progress.total) * 50;
+        return (status.progress.current / status.progress.total) * 100;
 
       case UpdateServiceState.Installing:
-        return (status.progress.current / status.progress.total) * 50 + 50;
+        return (status.progress.current / status.progress.total) * 100;
 
       default:
         return null;

@@ -83,7 +83,7 @@ export class FilesFormComponent implements OnInit {
 
   public async ngOnInit() {
     this.releases = await this.releaseService.find({
-      sort: 'publishedAt',
+      sort: '-publishedAt',
       where: { gameId: this.release.gameId },
     });
 

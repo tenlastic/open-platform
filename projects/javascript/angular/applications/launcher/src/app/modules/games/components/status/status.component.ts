@@ -70,10 +70,10 @@ export class StatusComponent implements OnInit {
         return (this.status.progress.current / this.status.progress.total) * 100;
 
       case UpdateServiceState.Downloading:
-        return (this.status.progress.current / this.status.progress.total) * 50;
+        return (this.status.progress.current / this.status.progress.total) * 100;
 
       case UpdateServiceState.Installing:
-        return (this.status.progress.current / this.status.progress.total) * 50 + 50;
+        return (this.status.progress.current / this.status.progress.total) * 100;
 
       default:
         return null;
