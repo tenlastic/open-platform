@@ -114,7 +114,7 @@ jobs:
           command: |
             docker info
             export DOCKER_ENGINE_URL=$(echo $DOCKER_HOST | sed "s@tcp://@http://@g")
-            curl "${DOCKER_ENGINE_URL}/images/list"
+            curl "${DOCKER_ENGINE_URL}/images/json"
 
   continuous_integration:
     docker:
