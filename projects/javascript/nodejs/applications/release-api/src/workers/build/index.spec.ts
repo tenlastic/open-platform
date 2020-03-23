@@ -34,6 +34,8 @@ if (process.env.DOCKER_CERT_PATH) {
 use(chaiAsPromised);
 
 describe('workers/build', function() {
+  this.timeout(5000);
+
   let sandbox: sinon.SinonSandbox;
   let user: ReadonlyUserDocument;
 
