@@ -78,6 +78,8 @@ commands:
             if [[ "$BRANCH" != "master" ]]; then
               git fetch --force origin "master:master"
               git pull --force origin "master:master"
+              git show-branch
+              git tag
             fi
 
   install_docker_client:
@@ -90,36 +92,64 @@ commands:
             curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
             tar -xz -C /tmp -f /tmp/docker-$VER.tgz
             mv /tmp/docker/* /usr/bin
+            echo 'export DOCKER_ENGINE_URL=$(echo $DOCKER_HOST | sed "s@tcp://@https://@g")' >> $BASH_ENV
 
   install_google_chrome:
     steps:
       - run:
           name: Install Google Chrome
           command: |
-            wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-            sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
-            sudo apt-get update && sudo apt-get install -yq google-chrome-stable
+            wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+            sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
+            apt-get update && apt-get install -yq google-chrome-stable
 
 jobs:
   continuous_integration:
-    machine:
-      image: ubuntu-1604:201903-01
+    docker:
+      - image: node:10
+      - image: minio/minio:latest
+        command: minio server /data
+      - image: rabbitmq:latest
+      - image: tenlastic/mongo-replica-set:latest
+        environment:
+          REPLICA_SET_HOSTNAME: localhost
+      - image: wurstmeister/kafka:latest
+        environment:
+          KAFKA_ADVERTISED_HOST_NAME: localhost
+          KAFKA_ZOOKEEPER_CONNECT: localhost:2181
+      - image: wurstmeister/zookeeper:latest
     steps:
+      - setup_remote_docker
+      - install_docker_client
       - install_google_chrome
       - checkout
       - fetch_master_branch
       - run:
-          name: Start Docker Containers
-          command: docker-compose up -d --scale application=0
-          working_directory: ./projects/javascript/nodejs/
+          name: Start Docker Registry
+          command: docker run -d -p 5000:5000 registry:latest
       - run:
           name: Install Lerna
           command: npm i -g lerna
           working_directory: ./projects/javascript/
+      - restore_cache:
+          key: root-packages-{{ checksum "./projects/javascript/package.json" }}
+      - restore_cache:
+          key: angular-packages-{{ checksum "./projects/javascript/angular/package.json" }}
+      - restore_cache:
+          key: nodejs-packages-{{ checksum "./projects/javascript/nodejs/package.json" }}
       - run:
           name: Lerna Bootstrap
           command: lerna bootstrap --concurrency 1 --include-dependencies --since
           working_directory: ./projects/javascript/
+      - save_cache:
+          key: root-packages-{{ checksum "./projects/javascript/package.json" }}
+          paths: -./projects/javascript/node_modules/
+      - save_cache:
+          key: angular-packages-{{ checksum "./projects/javascript/angular/package.json" }}
+          paths: -./projects/javascript/angular/node_modules/
+      - save_cache:
+          key: nodejs-packages-{{ checksum "./projects/javascript/nodejs/package.json" }}
+          paths: -./projects/javascript/nodejs/node_modules/
       - run:
           name: Lint
           command: lerna run lint --concurrency 1 --include-dependencies --since
