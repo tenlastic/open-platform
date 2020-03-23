@@ -92,6 +92,7 @@ commands:
             curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
             tar -xz -C /tmp -f /tmp/docker-$VER.tgz
             mv /tmp/docker/* /usr/bin
+            echo 'export DOCKER_ENGINE_URL=$(echo $DOCKER_HOST | sed "s@tcp://@https://@g")' >> $BASH_ENV
 
   install_google_chrome:
     steps:
@@ -112,7 +113,6 @@ jobs:
       - run:
           name: Docker Info
           command: |
-            export DOCKER_ENGINE_URL=$(echo $DOCKER_HOST | sed "s@tcp://@https://@g")
             curl -i --cacert "$DOCKER_CERT_PATH/ca.pem" --cert "$DOCKER_CERT_PATH/cert.pem" --key "$DOCKER_CERT_PATH/key.pem" "${DOCKER_ENGINE_URL}/images/json"
 
   continuous_integration:
