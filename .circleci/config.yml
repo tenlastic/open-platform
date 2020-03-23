@@ -78,11 +78,6 @@ commands:
             if [[ "$BRANCH" != "master" ]]; then
               git fetch --force origin "master:master"
               git pull --force origin "master:master"
-              echo "git pull"
-              git show-branch
-              echo "show-branch"
-              git tag
-              echo "tag"
             fi
 
   install_docker_client:
