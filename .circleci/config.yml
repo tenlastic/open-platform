@@ -113,7 +113,8 @@ jobs:
           name: Docker Info
           command: |
             docker info
-            curl "${DOCKER_HOST}/images/list"
+            export DOCKER_ENGINE_URL=$(echo $DOCKER_HOST | sed "s@tcp://@http://@g")
+            curl "${DOCKER_ENGINE_URL}/images/list"
 
   continuous_integration:
     docker:
