@@ -1,6 +1,7 @@
 import * as minio from '@tenlastic/minio';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { Channel, ConsumeMessage } from 'amqplib';
+import * as fs from 'fs';
 import * as path from 'path';
 import * as request from 'request-promise-native';
 import * as tar from 'tar';
@@ -54,17 +55,27 @@ export async function buildWorker(
         tmps.push(file.path);
       }
 
+      const options: Partial<request.OptionsWithUri> = {};
+      if (process.env.DOCKER_CERT_PATH) {
+        options.ca = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/ca.pem`);
+        options.cert = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/cert.pem`);
+        options.key = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/key.pem`);
+        options.rejectUnauthorized = false;
+      }
+
       const stream = tar.create({ cwd: dir.name }, tmps);
 
       const dockerEngineUrl = process.env.DOCKER_ENGINE_URL;
       const release = await Release.findOne({ _id: task.releaseId });
       const tag = `${release.gameId}:${task.releaseId}`;
       await request.post({
+        ...options,
         body: stream,
         url: `${dockerEngineUrl}/build?t=${tag}`,
       });
 
       const response = await request.get({
+        ...options,
         json: true,
         url: `${dockerEngineUrl}/images/json?filters={"reference":["${tag}"]}`,
       });
@@ -72,11 +83,15 @@ export async function buildWorker(
       const id = response[0].Id;
       const url = new URL(process.env.DOCKER_REGISTRY_URL);
       const repo = `${url.host}/${release.gameId}`;
-      await request.post(`${dockerEngineUrl}/images/${id}/tag?repo=${repo}&tag=${task.releaseId}`);
+      await request.post({
+        ...options,
+        uri: `${dockerEngineUrl}/images/${id}/tag?repo=${repo}&tag=${task.releaseId}`,
+      });
 
       const credentials = JSON.stringify({ password: '', username: '' });
       const xRegistryAuth = Buffer.from(credentials).toString('base64');
       await request.post({
+        ...options,
         headers: { 'X-Registry-Auth': xRegistryAuth },
         url: `${dockerEngineUrl}/images/${repo}/push?tag=${task.releaseId}`,
       });

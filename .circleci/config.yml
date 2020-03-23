@@ -104,26 +104,6 @@ commands:
             apt-get update && apt-get install -yq google-chrome-stable
 
 jobs:
-  attempt_docker_setup:
-    docker:
-      - image: node:10
-    steps:
-      - setup_remote_docker
-      - install_docker_client
-      - run:
-          name: Docker Info
-          command: |
-            hostname -I
-            ssh remote-docker \<\< EOF
-              json=`mktemp`
-              echo '{ "insecure-registries": [ "172.30.0.0/16", "registry.access.redhat.com", "docker-registry-default.127.0.0.1.nip.io:80" ] }' > ${json}
-              mkdir -p /etc/docker/
-              mv ${json} /etc/docker/daemon.json
-              systemctl status docker
-              echo "Configured Docker daemon with insecure-registry"
-            EOF
-            curl -i --cacert "$DOCKER_CERT_PATH/ca.pem" --cert "$DOCKER_CERT_PATH/cert.pem" --key "$DOCKER_CERT_PATH/key.pem" "${DOCKER_ENGINE_URL}/images/json"
-
   continuous_integration:
     docker:
       - image: node:10
@@ -139,9 +119,14 @@ jobs:
           KAFKA_ZOOKEEPER_CONNECT: localhost:2181
       - image: wurstmeister/zookeeper:latest
     steps:
+      - setup_remote_docker
+      - install_docker_client
       - install_google_chrome
       - checkout
       - fetch_master_branch
+      - run:
+          name: Start Docker Registry
+          command: docker run -d -p 5000:5000 registry:latest
       - run:
           name: Install Lerna
           command: npm i -g lerna
@@ -335,30 +320,32 @@ workflows:
   version: 2.1
   build-deploy:
     jobs:
-      - attempt_docker_setup
-      # - continuous_integration:
-      #     context: open-platform-review
-      # - publish_miscellaneous_docker_images:
-      #     filters:
-      #       branches:
-      #         only: master
-      #     requires:
-      #       - continuous_integration
-      # - publish_npm_modules:
-      #     filters:
-      #       branches:
-      #         only: master
-      #     requires:
-      #       - continuous_integration
-      # - publish_docker_images:
-      #     requires:
-      #       - publish_npm_modules
-      # - publish_electron_applications:
-      #     requires:
-      #       - publish_npm_modules
-      # - terraform:
-      #     filters:
-      #       branches:
-      #         only: master
-      #     requires:
-      #       - continuous_integration
+      - continuous_integration:
+          context: open-platform-review
+
+      - publish_miscellaneous_docker_images:
+          filters:
+            branches:
+              only: master
+          requires:
+            - continuous_integration
+
+      - publish_npm_modules:
+          filters:
+            branches:
+              only: master
+          requires:
+            - continuous_integration
+      - publish_docker_images:
+          requires:
+            - publish_npm_modules
+      - publish_electron_applications:
+          requires:
+            - publish_npm_modules
+
+      - terraform:
+          filters:
+            branches:
+              only: master
+          requires:
+            - continuous_integration

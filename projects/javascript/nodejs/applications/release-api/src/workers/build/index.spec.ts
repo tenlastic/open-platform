@@ -24,6 +24,13 @@ import {
 } from '../../models';
 import { buildWorker } from './';
 
+const options: Partial<request.OptionsWithUri> = {};
+if (process.env.DOCKER_CERT_PATH) {
+  options.ca = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/ca.pem`);
+  options.cert = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/cert.pem`);
+  options.key = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/key.pem`);
+  options.rejectUnauthorized = false;
+}
 use(chaiAsPromised);
 
 describe('workers/build', function() {
@@ -120,6 +127,7 @@ describe('workers/build', function() {
 
       const tag = `${release.gameId}:${releaseTask.releaseId}`;
       const response = await request.get({
+        ...options,
         json: true,
         url: `${process.env.DOCKER_ENGINE_URL}/images/json?filters={"reference":["${tag}"]}`,
       });
@@ -138,6 +146,7 @@ describe('workers/build', function() {
       const tag = `${repo}:${releaseTask.releaseId}`;
 
       const response = await request.get({
+        ...options,
         json: true,
         url: `${process.env.DOCKER_ENGINE_URL}/images/json?filters={"reference":["${tag}"]}`,
       });
