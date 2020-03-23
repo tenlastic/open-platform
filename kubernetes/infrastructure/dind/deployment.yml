@@ -26,7 +26,7 @@ spec:
             - "--host"
             - "tcp://0.0.0.0:2375"
             - "--insecure-registry"
-            - "registry:5000"
+            - "docker-registry:5000"
           ports:
             - containerPort: 2375
           resources:
