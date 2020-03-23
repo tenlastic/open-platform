@@ -113,7 +113,7 @@ jobs:
           name: Docker Info
           command: |
             export DOCKER_ENGINE_URL=$(echo $DOCKER_HOST | sed "s@tcp://@http://@g")
-            curl -X GET "${DOCKER_ENGINE_URL}/images/json"
+            curl --cert "${DOCKER_CERT_PATH}" -k "${DOCKER_ENGINE_URL}/images/json"
 
   continuous_integration:
     docker:
