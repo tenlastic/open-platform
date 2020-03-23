@@ -47,6 +47,8 @@
     "@types/request-promise-native": "1.0.15",
     "@types/sinon": "5.0.1",
     "@types/source-map-support": "0.4.1",
+    "@types/tar": "4.0.3",
+    "@types/tmp": "0.1.0",
     "@types/unzipper": "0.10.1",
     "@types/uuid": "3.4.4",
     "@types/ws": "7.2.1",

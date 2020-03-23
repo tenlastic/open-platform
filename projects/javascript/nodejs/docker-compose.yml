@@ -5,6 +5,12 @@ services:
     volumes:
       - ./:/usr/src/app/
     working_dir: /usr/src/app/
+  dind:
+    image: docker:dind
+    command: dockerd --host tcp://0.0.0.0:2375 --insecure-registry registry:5000
+    ports:
+      - 2375:2375
+    privileged: true
   kafka:
     depends_on:
       - kafka_trifecta
@@ -47,6 +53,10 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+  registry:
+    image: registry:latest
+    ports:
+      - 5000:5000
   zookeeper:
     image: wurstmeister/zookeeper:latest
     ports:

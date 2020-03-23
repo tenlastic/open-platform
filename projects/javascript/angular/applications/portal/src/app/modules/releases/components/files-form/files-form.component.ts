@@ -47,6 +47,7 @@ export class FilesFormComponent implements OnInit {
   @ViewChild('selectFilesInput', { static: true }) public selectFilesInput: ElementRef;
 
   public TASKS = {
+    build: 'Build',
     copy: 'Copy',
     remove: 'Remove',
     unzip: 'Unzip',
@@ -91,6 +92,8 @@ export class FilesFormComponent implements OnInit {
       const release = this.releases.find(r => r.publishedAt);
       await this.setPreviousRelease(release || this.releases[0]);
     }
+
+    this.getReleaseTasks();
   }
 
   public cancel() {
@@ -188,15 +191,13 @@ export class FilesFormComponent implements OnInit {
     this.status = 'Waiting for background tasks...';
     this.uploadStatus = null;
 
-    do {
-      this.tasks = await this.releaseTaskService.find(this.release._id, {
-        where: { completedAt: { $eq: null } },
-      });
+    this.tasks = await this.releaseTaskService.find(this.release._id, {
+      where: { completedAt: { $eq: null } },
+    });
 
-      if (this.tasks.length > 0) {
-        await new Promise(resolve => setTimeout(resolve, 5000));
-      }
-    } while (this.tasks.length > 0);
+    while (this.tasks.length > 0) {
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
 
     this.status = null;
     this.uploadStatus = null;
@@ -217,5 +218,17 @@ export class FilesFormComponent implements OnInit {
       case HttpEventType.Response:
         return { current: file.size, total: file.size };
     }
+  }
+
+  private async getReleaseTasks() {
+    try {
+      this.tasks = await this.releaseTaskService.find(this.release._id, {
+        where: { completedAt: { $eq: null }, platform: this.platform },
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    } catch {}
+
+    return this.getReleaseTasks();
   }
 }
