@@ -24,7 +24,7 @@ import {
 } from '../../models';
 import { buildWorker } from './';
 
-const options: Partial<request.OptionsWithUri> = {};
+const options: Partial<request.OptionsWithUrl> = {};
 if (process.env.DOCKER_CERT_PATH) {
   options.ca = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/ca.pem`);
   options.cert = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/cert.pem`);
