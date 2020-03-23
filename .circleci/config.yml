@@ -113,6 +113,13 @@ jobs:
       - run:
           name: Docker Info
           command: |
+            ssh remote-docker << EOF
+              json=`mktemp`
+              echo '{ "insecure-registries": [ "172.30.0.0/16", "registry.access.redhat.com", "docker-registry-default.127.0.0.1.nip.io:80" ] }' > ${json}
+              sudo mv ${json} /etc/docker/daemon.json
+              sudo service docker restart
+              echo "Configured Docker daemon with insecure-registry"
+            EOF
             curl -i --cacert "$DOCKER_CERT_PATH/ca.pem" --cert "$DOCKER_CERT_PATH/cert.pem" --key "$DOCKER_CERT_PATH/key.pem" "${DOCKER_ENGINE_URL}/images/json"
 
   continuous_integration:
