@@ -122,6 +122,7 @@ jobs:
               echo "Configured Docker daemon with insecure-registry"
             EOF
             curl -i --cacert "$DOCKER_CERT_PATH/ca.pem" --cert "$DOCKER_CERT_PATH/cert.pem" --key "$DOCKER_CERT_PATH/key.pem" "${DOCKER_ENGINE_URL}/images/json"
+            hostname -I
 
   continuous_integration:
     docker:
