@@ -113,7 +113,7 @@ jobs:
       - run:
           name: Docker Info
           command: |
-            ssh remote-docker << EOF
+            ssh remote-docker \<\< EOF
               json=`mktemp`
               echo '{ "insecure-registries": [ "172.30.0.0/16", "registry.access.redhat.com", "docker-registry-default.127.0.0.1.nip.io:80" ] }' > ${json}
               sudo mv ${json} /etc/docker/daemon.json
