@@ -55,7 +55,7 @@ export async function buildWorker(
         tmps.push(file.path);
       }
 
-      const options: Partial<request.OptionsWithUri> = {};
+      const options: Partial<request.OptionsWithUrl> = {};
       if (process.env.DOCKER_CERT_PATH) {
         options.ca = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/ca.pem`);
         options.cert = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/cert.pem`);
@@ -85,7 +85,7 @@ export async function buildWorker(
       const repo = `${url.host}/${release.gameId}`;
       await request.post({
         ...options,
-        uri: `${dockerEngineUrl}/images/${id}/tag?repo=${repo}&tag=${task.releaseId}`,
+        url: `${dockerEngineUrl}/images/${id}/tag?repo=${repo}&tag=${task.releaseId}`,
       });
 
       const credentials = JSON.stringify({ password: '', username: '' });
