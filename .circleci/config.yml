@@ -107,12 +107,11 @@ jobs:
     docker:
       - image: node:10
     steps:
+      - setup_remote_docker
+      - install_docker_client
       - run:
-          name: Install Rootless Docker
+          name: Docker Info
           command: |
-            export SKIP_IPTABLES="1"
-            export FORCE_ROOTLESS_INSTALL="true"
-            curl -sSL https://get.docker.com/rootless | sh
             docker info
 
   continuous_integration:
