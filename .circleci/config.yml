@@ -110,7 +110,7 @@ jobs:
       - fetch_master_branch
       - run:
           name: Start Docker Containers
-          command: docker-compose up --scale application=0
+          command: docker-compose up -d --scale application=0
           working_directory: ./projects/javascript/nodejs/
       - run:
           name: Install Lerna
