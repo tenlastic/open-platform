@@ -110,7 +110,7 @@ jobs:
       - run:
           name: Install Rootless Docker
           command: |
-            sudo sh -x
+            sh -x
             apt-get install -y uidmap
             apt-get install -y iptables
             modprobe ip_tables
