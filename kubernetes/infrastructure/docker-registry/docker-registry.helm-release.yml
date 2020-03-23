@@ -1,0 +1,34 @@
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: docker-registry
+  namespace: default
+  annotations:
+    flux.weave.works/automated: "true"
+spec:
+  releaseName: docker-registry
+  chart:
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    name: docker-registry
+    version: 1.9.2
+  values:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: cloud.google.com/gke-preemptible
+                  operator: Exists
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+                - key: release
+                  operator: In
+                  values:
+                    - docker-registry
+            topologyKey: kubernetes.io/hostname
+    persistence:
+      size: 25Gi
+      storageClass: standard-expandable
+    replicaCount: 3

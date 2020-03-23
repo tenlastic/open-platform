@@ -17,7 +17,7 @@ components:
           type: string
         platform:
           type: string
-          enum: windows64, windows32, mac64, mac32, linux64, linux32
+          enum: linux64, mac64, server64, windows64
         releaseId:
           type: string
           format: ^[a-f0-9]{24}$

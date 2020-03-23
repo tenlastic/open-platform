@@ -10,10 +10,12 @@ services:
       - MONGO_CONNECTION_STRING
       - RABBITMQ_CONNECTION_STRING
     links:
+      - dind
       - kafka
       - minio
       - mongo
       - rabbitmq
+      - registry
     ports:
       - 3005:3000
     working_dir: /usr/src/app/applications/release-api/

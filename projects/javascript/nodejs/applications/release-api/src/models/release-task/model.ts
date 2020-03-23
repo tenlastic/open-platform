@@ -25,6 +25,7 @@ export const ReleaseTaskEvent = new EventEmitter<IDatabasePayload<ReleaseTaskDoc
 ReleaseTaskEvent.on(kafka.publish);
 
 export enum ReleaseTaskAction {
+  Build = 'build',
   Copy = 'copy',
   Remove = 'remove',
   Unzip = 'unzip',

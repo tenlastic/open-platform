@@ -14,9 +14,11 @@ import { ReadonlyGame, ReadonlyNamespace, ReadonlyUser } from './models';
 import * as releaseSockets from './sockets/releases';
 import * as releaseTaskSockets from './sockets/release-tasks';
 import {
+  BUILD_QUEUE,
   COPY_QUEUE,
   REMOVE_QUEUE,
   UNZIP_QUEUE,
+  buildWorker,
   copyWorker,
   removeWorker,
   unzipWorker,
@@ -55,6 +57,7 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
 
 (async () => {
   await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
+  rabbitmq.consume(BUILD_QUEUE, buildWorker);
   rabbitmq.consume(COPY_QUEUE, copyWorker);
   rabbitmq.consume(REMOVE_QUEUE, removeWorker);
   rabbitmq.consume(UNZIP_QUEUE, unzipWorker);

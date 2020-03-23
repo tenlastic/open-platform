@@ -17,8 +17,8 @@ export class ReleasesFormPageComponent implements OnInit {
   public games: Game[];
   public tasks: ReleaseTask[];
   public platforms = [
-    { label: 'Windows (x64)', value: 'windows64' },
-    { label: 'Windows (x32)', value: 'windows32' },
+    { label: 'Windows Client (x64)', value: 'windows64' },
+    { label: 'Linux Server (x64)', value: 'server64' },
   ];
 
   private game: Game;

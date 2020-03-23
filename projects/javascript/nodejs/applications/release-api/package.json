@@ -35,7 +35,11 @@
     "koa-router": "7.4.0",
     "minio": "7.0.13",
     "mongoose": "5.7.11",
+    "request": "2.88.0",
+    "request-promise-native": "1.0.7",
     "source-map-support": "0.5.12",
+    "tar": "6.0.1",
+    "tmp": "0.1.0",
     "unzipper": "0.10.5"
   },
   "devDependencies": {

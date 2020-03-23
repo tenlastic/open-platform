@@ -38,12 +38,10 @@ ReleaseEvent.on(async event => {
 });
 
 export enum FilePlatform {
-  Windows64 = 'windows64',
-  Windows32 = 'windows32',
-  Mac64 = 'mac64',
-  Mac32 = 'mac32',
   Linux64 = 'linux64',
-  Linux32 = 'linux32',
+  Mac64 = 'mac64',
+  Server64 = 'server64',
+  Windows64 = 'windows64',
 }
 
 @index({ path: 1, platform: 1, releaseId: 1 }, { unique: true })

@@ -1,0 +1,48 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: dind
+  labels:
+    app: dind
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: dind
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
+      containers:
+        - name: dind
+          image: docker/dind:latest
+          command:
+            - "dockerd"
+            - "--host"
+            - "tcp://0.0.0.0:2375"
+            - "--insecure-registry"
+            - "registry:5000"
+          ports:
+            - containerPort: 2375
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dind
+  labels:
+    app: dind
+    service: dind
+spec:
+  ports:
+    - port: 2375
+      name: http
+  selector:
+    app: dind

@@ -18,7 +18,7 @@ import {
   UserRolesMock,
   ReleaseTask,
 } from '../../../models';
-import { COPY_QUEUE, REMOVE_QUEUE, UNZIP_QUEUE } from '../../../workers';
+import { COPY_QUEUE, REMOVE_QUEUE, UNZIP_QUEUE, BUILD_QUEUE } from '../../../workers';
 import { handler } from './';
 
 use(chaiAsPromised);
@@ -72,6 +72,25 @@ describe('handlers/files/upload', function() {
         },
         state: { user: user.toObject() },
       } as any);
+    });
+
+    it('builds server image', async function() {
+      ctx.params.platform = 'server64';
+
+      await handler(ctx as any);
+
+      expect(ctx.response.body.tasks.filter(j => j.action === 'build').length).to.eql(1);
+
+      const releaseTask = await ReleaseTask.findOne({ action: 'build' });
+      expect(releaseTask).to.exist;
+
+      return new Promise(resolve => {
+        rabbitmq.consume(BUILD_QUEUE, (channel, content, msg) => {
+          expect(content._id).to.eql(releaseTask._id.toString());
+
+          resolve();
+        });
+      });
     });
 
     it('copies unmodified files from the previous release', async function() {

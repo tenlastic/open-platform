@@ -103,6 +103,16 @@ commands:
             apt-get update && apt-get install -yq google-chrome-stable
 
 jobs:
+  attempt_docker_setup:
+    docker:
+      - image: node:10
+    steps:
+      - run:
+          name: Install Rootless Docker
+          command: |
+            curl -sSL https://get.docker.com/rootless | sh
+            docker info
+
   continuous_integration:
     docker:
       - image: node:10
@@ -314,32 +324,30 @@ workflows:
   version: 2.1
   build-deploy:
     jobs:
-      - continuous_integration:
-          context: open-platform-review
-
-      - publish_miscellaneous_docker_images:
-          filters:
-            branches:
-              only: master
-          requires:
-            - continuous_integration
-
-      - publish_npm_modules:
-          filters:
-            branches:
-              only: master
-          requires:
-            - continuous_integration
-      - publish_docker_images:
-          requires:
-            - publish_npm_modules
-      - publish_electron_applications:
-          requires:
-            - publish_npm_modules
-
-      - terraform:
-          filters:
-            branches:
-              only: master
-          requires:
-            - continuous_integration
+      - attempt_docker_setup
+      # - continuous_integration:
+      #     context: open-platform-review
+      # - publish_miscellaneous_docker_images:
+      #     filters:
+      #       branches:
+      #         only: master
+      #     requires:
+      #       - continuous_integration
+      # - publish_npm_modules:
+      #     filters:
+      #       branches:
+      #         only: master
+      #     requires:
+      #       - continuous_integration
+      # - publish_docker_images:
+      #     requires:
+      #       - publish_npm_modules
+      # - publish_electron_applications:
+      #     requires:
+      #       - publish_npm_modules
+      # - terraform:
+      #     filters:
+      #       branches:
+      #         only: master
+      #     requires:
+      #       - continuous_integration

@@ -12,7 +12,7 @@ import {
   Release,
   ReleaseTask,
 } from './models';
-import { COPY_QUEUE, REMOVE_QUEUE, UNZIP_QUEUE } from './workers';
+import { COPY_QUEUE, REMOVE_QUEUE, UNZIP_QUEUE, BUILD_QUEUE } from './workers';
 
 before(async function() {
   const minioConnectionUrl = new URL(process.env.MINIO_CONNECTION_STRING);
@@ -48,6 +48,7 @@ beforeEach(async function() {
   await Release.deleteMany({});
   await ReleaseTask.deleteMany({});
 
+  await rabbitmq.purge(BUILD_QUEUE);
   await rabbitmq.purge(COPY_QUEUE);
   await rabbitmq.purge(REMOVE_QUEUE);
   await rabbitmq.purge(UNZIP_QUEUE);
