@@ -32,6 +32,8 @@ spec:
           resources:
             requests:
               cpu: 50m
+          securityContext:
+            privileged: true
 ---
 apiVersion: v1
 kind: Service
