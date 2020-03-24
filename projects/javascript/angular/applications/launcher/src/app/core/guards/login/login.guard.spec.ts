@@ -1,13 +1,11 @@
 import { DOCUMENT } from '@angular/common';
-import { Router } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { AuthenticationModule, IdentityService } from '@tenlastic/ng-authentication';
 import { EnvironmentService, HttpModule, LoginService } from '@tenlastic/ng-http';
 import { Chance } from 'chance';
 import * as jsonwebtoken from 'jsonwebtoken';
 
-import { IdentityService } from '../../services/identity/identity.service';
-import { AuthenticationModule } from '../../module';
 import { LoginGuard } from './login.guard';
 
 describe('LoginGuard', () => {
@@ -48,6 +46,8 @@ describe('LoginGuard', () => {
   });
 
   describe('canActivate()', () => {
+    let spy: jasmine.Spy;
+
     describe('when user is authenticated', () => {
       beforeEach(() => {
         const secret = chance.hash();
@@ -57,9 +57,7 @@ describe('LoginGuard', () => {
         identityService.accessToken = accessToken;
         identityService.refreshToken = refreshToken;
 
-        spyOn(loginService, 'createWithRefreshToken').and.returnValue(
-          Promise.resolve({ accessToken, refreshToken }),
-        );
+        spy = spyOn(loginService.onLogout, 'emit');
       });
 
       it('it returns true', async () => {
@@ -72,12 +70,13 @@ describe('LoginGuard', () => {
     describe('when user is not authenticated', () => {
       beforeEach(() => {
         identityService.refreshToken = null;
+        spy = spyOn(loginService.onLogout, 'emit');
       });
 
       it('it navigates to the login page', async () => {
         await service.canActivate();
 
-        expect(document.location.href).toBe(loginUrl);
+        expect(spy).toHaveBeenCalled();
       });
 
       it('returns false', async () => {
