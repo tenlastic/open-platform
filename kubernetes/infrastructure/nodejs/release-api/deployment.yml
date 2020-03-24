@@ -35,6 +35,16 @@ spec:
           resources:
             requests:
               cpu: 50m
+        - name: dind
+          image: docker:19.03.8-dind
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: dind
+              mountPath: /var/lib/docker
+      volumes:
+        - name: dind
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
