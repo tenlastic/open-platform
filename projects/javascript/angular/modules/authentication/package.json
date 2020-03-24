@@ -3,7 +3,7 @@
   "name": "@tenlastic/ng-authentication",
   "private": true,
   "typings": "./dist/angular/module.d.ts",
-  "version": "0.0.50",
+  "version": "0.0.51",
   "scripts": {
     "build": "ng build authentication",
     "lint": "ng lint authentication",
@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@angular/cli": "~8.3.21",
-    "@tenlastic/ng-electron": "0.0.50",
-    "@tenlastic/ng-http": "0.0.50"
+    "@tenlastic/ng-electron": "0.0.51",
+    "@tenlastic/ng-http": "0.0.51"
   }
 }

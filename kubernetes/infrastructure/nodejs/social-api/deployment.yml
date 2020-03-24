@@ -20,7 +20,7 @@ spec:
                     operator: Exists
       containers:
         - name: social-api
-          image: tenlastic/social-api:0.0.50
+          image: tenlastic/social-api:0.0.51
           envFrom:
             - secretRef:
                 name: social-api-environment-variables
