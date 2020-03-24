@@ -7,6 +7,7 @@ import { HttpModule } from '@tenlastic/ng-http';
 
 import { environment } from '../environments/environment';
 import { CoreModule } from './core/core.module';
+import { LoginGuard } from './core/guards';
 import { LayoutComponent } from './shared/components';
 import { SharedModule } from './shared/shared.module';
 import { AppComponent } from './app.component';
@@ -14,6 +15,7 @@ import { AppComponent } from './app.component';
 export const ROUTES: Routes = [
   { path: '', pathMatch: 'full', redirectTo: '/games' },
   {
+    canActivate: [LoginGuard],
     component: LayoutComponent,
     loadChildren: () => import('./modules/account/account.module').then(m => m.AccountModule),
     path: 'account',
@@ -25,6 +27,7 @@ export const ROUTES: Routes = [
     path: 'authentication',
   },
   {
+    canActivate: [LoginGuard],
     component: LayoutComponent,
     loadChildren: () => import('./modules/games/games.module').then(m => m.GamesModule),
     path: 'games',
@@ -34,6 +37,7 @@ export const ROUTES: Routes = [
     path: 'oauth',
   },
   {
+    canActivate: [LoginGuard],
     component: LayoutComponent,
     loadChildren: () => import('./modules/social/social.module').then(m => m.SocialModule),
     path: 'messages',

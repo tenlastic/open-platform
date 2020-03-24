@@ -16,12 +16,6 @@ import { LoginService, PasswordResetService, UserService } from '@tenlastic/ng-h
 
 import { TITLE } from '../../../../shared/constants';
 
-enum Action {
-  LogIn,
-  Register,
-  RequestPasswordReset,
-}
-
 @Component({
   templateUrl: 'login-page.component.html',
   styleUrls: ['./login-page.component.scss'],
@@ -29,15 +23,7 @@ enum Action {
 export class LoginPageComponent implements OnInit {
   @ViewChild(LoginFormComponent, { static: false })
   public loginForm: LoginFormComponent;
-  @ViewChild(RegistrationFormComponent, { static: false })
-  public registrationForm: RegistrationFormComponent;
-  @ViewChild(PasswordResetRequestFormComponent, { static: false })
-  public passwordResetRequestForm: PasswordResetRequestFormComponent;
-  @ViewChild(PasswordResetFormComponent, { static: false })
-  public passwordResetForm: PasswordResetFormComponent;
 
-  public Action = Action;
-  public action = Action.LogIn;
   public disableLogin: boolean;
   public hasErrors = false;
   public isLoggingIn = false;
@@ -47,10 +33,8 @@ export class LoginPageComponent implements OnInit {
     @Inject(DOCUMENT) private document: Document,
     private identityService: IdentityService,
     private loginService: LoginService,
-    private passwordResetService: PasswordResetService,
     private router: Router,
     private titleService: Title,
-    private userService: UserService,
   ) {
     this.titleService.setTitle(`${TITLE} | Log In`);
   }
@@ -70,43 +54,6 @@ export class LoginPageComponent implements OnInit {
     } catch (e) {
       this.loadingMessage = null;
       this.loginForm.error = 'Invalid email address or password.';
-    }
-  }
-
-  public async onRegister(data: IOnRegister) {
-    try {
-      await this.userService.create(data);
-    } catch (e) {
-      this.registrationForm.error = 'Email address has already been registered.';
-    }
-
-    this.onLogIn(data);
-  }
-
-  public async onPasswordResetRequested(data: IPasswordResetRequested) {
-    try {
-      await this.passwordResetService.create(data.email);
-      this.passwordResetRequestForm.message = `An email explaining how to reset your password has been sent to ${data.email}.`;
-    } catch (e) {
-      this.passwordResetRequestForm.error = 'Email address has not been registered yet.';
-    }
-  }
-
-  public setAction(action: Action) {
-    this.action = action;
-
-    switch (this.action) {
-      case Action.LogIn:
-        this.titleService.setTitle(`${TITLE} | Log In`);
-        break;
-
-      case Action.Register:
-        this.titleService.setTitle(`${TITLE} | Create Account`);
-        break;
-
-      case Action.RequestPasswordReset:
-        this.titleService.setTitle(`${TITLE} | Reset Password`);
-        break;
     }
   }
 

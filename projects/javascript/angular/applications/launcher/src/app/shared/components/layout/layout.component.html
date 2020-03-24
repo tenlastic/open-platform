@@ -10,7 +10,12 @@
 <ten-header-toolbar>
   <img src="/assets/images/logo.png" />
 
-  <ten-button color="accent" routerLink="/games" routerLinkActive="active">
+  <ten-button
+    *ngIf="identityService.user"
+    color="accent"
+    routerLink="/games"
+    routerLinkActive="active"
+  >
     <mat-icon>sports_esports</mat-icon>
     <span>Games</span>
   </ten-button>

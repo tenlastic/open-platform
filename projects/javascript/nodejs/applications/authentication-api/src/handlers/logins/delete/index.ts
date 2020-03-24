@@ -3,8 +3,10 @@ import { Context } from '@tenlastic/web-server';
 import { RefreshToken } from '../../../models';
 
 export async function handler(ctx: Context) {
-  const { jti } = ctx.state.jwt;
-  await RefreshToken.findOneAndDelete({ jti });
+  if (ctx.state.jwt) {
+    const { jti } = ctx.state.jwt;
+    await RefreshToken.findOneAndDelete({ jti });
+  }
 
   ctx.response.status = 200;
   ctx.response.body = {};

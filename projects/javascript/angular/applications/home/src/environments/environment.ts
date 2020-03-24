@@ -1,6 +1,6 @@
 export const environment = {
   databaseApiBaseUrl: 'https://api.tenlastic.com/databases',
-  launcherUrl: 'https://drive.google.com/open?id=188gILrSq_1BHH4Pq4crzjbOS7iMzeySt',
+  launcherUrl: 'https://minio.tenlastic.com/launcher/TenlasticLauncherSetup.exe',
   loginApiBaseUrl: 'https://api.tenlastic.com/logins',
   loginUrl: 'https://sso.tenlastic.com/login?redirectUrl=http://localhost:8080/oauth',
   logoutUrl: 'https://sso.tenlastic.com/logout?redirectUrl=http://localhost:8080/oauth',

@@ -1,7 +1,9 @@
+import { DOCUMENT } from '@angular/common';
 import { Title } from '@angular/platform-browser';
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { IdentityService, SocketService } from '@tenlastic/ng-authentication';
+import { ElectronService } from '@tenlastic/ng-electron';
 import {
   Connection,
   ConnectionService,
@@ -12,6 +14,7 @@ import {
   ReleaseService,
 } from '@tenlastic/ng-http';
 
+import { environment } from '../environments/environment';
 import { BackgroundService, CrudSnackbarService } from './core/services';
 import { TITLE } from './shared/constants';
 
@@ -21,9 +24,11 @@ import { TITLE } from './shared/constants';
 })
 export class AppComponent implements OnInit {
   constructor(
+    @Inject(DOCUMENT) private document: Document,
     public backgroundService: BackgroundService,
     private connectionService: ConnectionService,
     private crudSnackbarService: CrudSnackbarService,
+    private electronService: ElectronService,
     private loginService: LoginService,
     private messageService: MessageService,
     private identityService: IdentityService,
@@ -37,15 +42,19 @@ export class AppComponent implements OnInit {
     this.loginService.onLogin.subscribe(() => this.watch());
     this.loginService.onLogout.subscribe(() => this.socketService.closeAll());
 
-    this.loginService.onLogout.subscribe(() => this.logOut());
+    this.loginService.onLogout.subscribe(() => this.navigateToLogin());
   }
 
   public ngOnInit() {
     this.watch();
   }
 
-  private logOut() {
-    this.router.navigateByUrl('/');
+  public navigateToLogin() {
+    if (this.electronService.isElectron) {
+      this.router.navigateByUrl('/authentication/log-in');
+    } else {
+      this.document.location.href = environment.loginUrl;
+    }
   }
 
   private watch() {

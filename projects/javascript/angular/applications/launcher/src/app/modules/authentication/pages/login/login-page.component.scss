@@ -1,11 +1,23 @@
-ten-login-form::ng-deep {
-  ten-button {
-    margin: 0px;
-  }
+h2 {
+  color: white;
+  font-size: 32px;
+  margin: 0px 0px 32px;
+  text-align: center;
 
-  form {
-    max-width: 300px;
+  mat-icon.mat-icon {
+    color: #ffff55;
+    margin-right: 4px;
   }
+}
+
+ten-button {
+  display: block;
+  margin: 0px auto;
+}
+
+ten-loading-message {
+  justify-content: center;
+  position: relative;
 }
 
 .row {
