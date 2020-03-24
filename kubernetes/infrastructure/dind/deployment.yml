@@ -20,7 +20,7 @@ spec:
                     operator: Exists
       containers:
         - name: dind
-          image: docker/dind:latest
+          image: docker:dind
           command:
             - "dockerd"
             - "--host"
