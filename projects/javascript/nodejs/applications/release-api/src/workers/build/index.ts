@@ -88,7 +88,11 @@ export async function buildWorker(
         url: `${dockerEngineUrl}/images/${id}/tag?repo=${repo}&tag=${task.releaseId}`,
       });
 
-      const credentials = JSON.stringify({ password: '', username: '' });
+      const credentials = JSON.stringify({
+        password: url.password,
+        serveraddress: url.host,
+        username: url.username,
+      });
       const xRegistryAuth = Buffer.from(credentials).toString('base64');
       await request.post({
         ...options,
