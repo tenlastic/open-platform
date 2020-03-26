@@ -103,6 +103,13 @@ spec:
             backend:
               serviceName: rabbitmq-rabbitmq-ha
               servicePort: 15672
+    - host: registry.tenlastic.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: docker-registry
+              servicePort: 5000
     - host: sso.tenlastic.com
       http:
         paths:
