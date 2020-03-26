@@ -14,8 +14,8 @@ data:
     http:
       addr: :5000
       headers:
-        X-Content-Type-Options:
-        - nosniff
+        X-Content-Type-Options: [nosniff]
+      secret: docker-registry
     log:
       fields:
         service: registry
