@@ -29,6 +29,7 @@ spec:
                     - minio
             topologyKey: kubernetes.io/hostname
     buckets:
+      - docker-registry
       - game-api
       - launcher
       - release-api
