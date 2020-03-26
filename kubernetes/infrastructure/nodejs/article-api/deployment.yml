@@ -20,7 +20,7 @@ spec:
                     operator: Exists
       containers:
         - name: article-api
-          image: tenlastic/article-api:0.0.52
+          image: tenlastic/article-api:0.0.53
           envFrom:
             - secretRef:
                 name: article-api-environment-variables
