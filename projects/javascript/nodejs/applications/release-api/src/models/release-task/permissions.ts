@@ -67,6 +67,7 @@ export const ReleaseTaskPermissions = new MongoosePermissions<ReleaseTaskDocumen
       'action',
       'completedAt',
       'createdAt',
+      'failedAt',
       'metadata',
       'platform',
       'releaseId',

@@ -192,7 +192,7 @@ export class FilesFormComponent implements OnInit {
     this.uploadStatus = null;
 
     this.tasks = await this.releaseTaskService.find(this.release._id, {
-      where: { completedAt: { $eq: null } },
+      where: { completedAt: { $eq: null }, failedAt: { $eq: null } },
     });
 
     while (this.tasks.length > 0) {
@@ -223,7 +223,7 @@ export class FilesFormComponent implements OnInit {
   private async getReleaseTasks() {
     try {
       this.tasks = await this.releaseTaskService.find(this.release._id, {
-        where: { completedAt: { $eq: null }, platform: this.platform },
+        where: { completedAt: { $eq: null }, failedAt: { $eq: null }, platform: this.platform },
       });
 
       await new Promise(resolve => setTimeout(resolve, 5000));

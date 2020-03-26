@@ -31,6 +31,7 @@ export async function buildWorker(
     const count = await ReleaseTask.countDocuments({
       action: { $ne: ReleaseTaskAction.Build },
       completedAt: null,
+      failedAt: null,
       releaseId: task.releaseId,
     });
     if (count > 0) {
@@ -116,14 +117,15 @@ export async function buildWorker(
       return;
     }
 
+    const wasRequeued = await rabbitmq.requeue(channel, msg, { delay: 30 * 1000, retries: 3 });
+
     const task = await ReleaseTask.findOne({ _id: content._id });
     if (task) {
       const failure = new ReleaseTaskFailure({ createdAt: new Date(), message: e.message });
+      task.failedAt = wasRequeued ? null : new Date();
       task.failures = task.failures.concat(failure);
       task.startedAt = null;
       await task.save();
     }
-
-    await rabbitmq.requeue(channel, msg, { delay: 30 * 1000, retries: 3 });
   }
 }

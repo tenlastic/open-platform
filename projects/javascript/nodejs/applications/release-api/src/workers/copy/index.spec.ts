@@ -115,7 +115,7 @@ describe('workers/copy', function() {
       const game = await ReadonlyGameMock.create({ namespaceId: namespace._id });
       const release = await ReleaseMock.create({ gameId: game._id });
 
-      const requeueStub = sandbox.stub(rabbitmq, 'requeue').resolves();
+      const requeueStub = sandbox.stub(rabbitmq, 'requeue').resolves(false);
 
       const releaseTask = await ReleaseTaskMock.create({
         releaseId: release._id,
@@ -126,6 +126,7 @@ describe('workers/copy', function() {
       expect(requeueStub.calledOnce).to.eql(true);
 
       const updatedJob = await ReleaseTask.findOne({ _id: releaseTask._id });
+      expect(updatedJob.failedAt).to.exist;
       expect(updatedJob.failures.length).to.eql(1);
       expect(updatedJob.failures[0].createdAt).to.exist;
       expect(updatedJob.failures[0].message).to.eql('task.metadata.unmodified is not iterable');

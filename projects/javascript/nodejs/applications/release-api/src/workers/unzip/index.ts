@@ -52,15 +52,16 @@ export async function unzipWorker(
       return;
     }
 
+    const wasRequeued = await rabbitmq.requeue(channel, msg, { delay: 30 * 1000, retries: 3 });
+
     const task = await ReleaseTask.findOne({ _id: content._id });
     if (task) {
       const failure = new ReleaseTaskFailure({ createdAt: new Date(), message: e.message });
+      task.failedAt = wasRequeued ? null : new Date();
       task.failures = task.failures.concat(failure);
       task.startedAt = null;
       await task.save();
     }
-
-    await rabbitmq.requeue(channel, msg, { delay: 30 * 1000, retries: 3 });
   }
 }
 

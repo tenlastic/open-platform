@@ -33,6 +33,7 @@ export enum ReleaseTaskAction {
 
 @index({ action: 1 })
 @index({ completedAt: 1 })
+@index({ failedAt: 1 })
 @index({ releaseId: 1 })
 @index({ startedAt: 1 })
 @modelOptions({
@@ -57,6 +58,9 @@ export class ReleaseTaskSchema {
   public completedAt: Date;
 
   public createdAt: Date;
+
+  @prop({ default: null })
+  public failedAt: Date;
 
   @arrayProp({ default: [], items: ReleaseTaskFailure })
   public failures: ReleaseTaskFailureDocument[];

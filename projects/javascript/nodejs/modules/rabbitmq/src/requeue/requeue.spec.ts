@@ -20,6 +20,26 @@ describe('requeue', function() {
   });
 
   context('when the message should not be retried', function() {
+    it('returns false', async function() {
+      const msg = { key: 'value' };
+      const queue = chance.hash();
+
+      await publish(queue, msg);
+
+      return new Promise((resolve, reject) => {
+        consume(queue, async (channel, content, message) => {
+          try {
+            const result = await requeue(channel, message, { retries: 0 });
+            expect(result).to.eql(false);
+
+            resolve();
+          } catch (e) {
+            reject(e);
+          }
+        });
+      });
+    });
+
     it('does not publish the message to another queue', async function() {
       const msg = { key: 'value' };
       const queue = chance.hash();
@@ -46,7 +66,27 @@ describe('requeue', function() {
     });
   });
 
-  context('when the should be retried', function() {
+  context('when the message should be retried', function() {
+    it('returns true', async function() {
+      const msg = { key: 'value' };
+      const queue = chance.hash();
+
+      await publish(queue, msg);
+
+      return new Promise((resolve, reject) => {
+        consume(queue, async (channel, content, message) => {
+          try {
+            const result = await requeue(channel, message, { delay: 60 });
+            expect(result).to.eql(true);
+
+            resolve();
+          } catch (e) {
+            reject(e);
+          }
+        });
+      });
+    });
+
     context('when the message should be delayed', function() {
       it('publishes the message to a TTL queue', async function() {
         const msg = { key: 'value' };

@@ -20,7 +20,7 @@ export async function requeue(
   // If the message has already been retried too many times, just ACK it.
   if (options.retries >= 0 && retries > options.retries) {
     channel.ack(msg);
-    return;
+    return false;
   }
 
   const stringified = JSON.stringify(msg);
@@ -45,4 +45,5 @@ export async function requeue(
   }
 
   channel.ack(msg);
+  return true;
 }
