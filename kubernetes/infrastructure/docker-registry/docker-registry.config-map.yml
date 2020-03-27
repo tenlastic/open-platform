@@ -15,6 +15,7 @@ data:
       addr: :5000
       headers:
         X-Content-Type-Options: [nosniff]
+      relativeurls: true
     log:
       fields:
         service: registry
