@@ -45,6 +45,8 @@ spec:
               value: "Registry Realm"
             - name: REGISTRY_AUTH_HTPASSWD_PATH
               value: "/auth/htpasswd"
+            - name: REGISTRY_HTTP_HOST
+              value: "https://registry.tenlastic.com"
             - name: REGISTRY_HTTP_SECRET
               valueFrom:
                 secretKeyRef:
