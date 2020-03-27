@@ -66,8 +66,6 @@ spec:
               value: us-east-1
             - name: REGISTRY_STORAGE_S3_REGIONENDPOINT
               value: minio.tenlastic.com
-            - name: REGISTRY_STORAGE_S3_SECURE
-              value: "false"
             - name: REGISTRY_STORAGE_S3_BUCKET
               value: docker-registry
           volumeMounts:
