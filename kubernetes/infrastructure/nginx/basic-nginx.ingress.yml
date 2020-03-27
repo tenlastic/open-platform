@@ -25,6 +25,13 @@ spec:
         - "*.tenlastic.com"
       secretName: letsencrypt-production
   rules:
+    - host: kafka.tenlastic.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: kafdrop
+              servicePort: 9000
     - host: mongo.tenlastic.com
       http:
         paths:
