@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mongoku
+  labels:
+    app: mongoku
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: mongoku
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
+      containers:
+        - name: mongoku
+          image: huggingface/mongoku:latest
+          envFrom:
+            - secretRef:
+                name: mongoku-environment-variables
+          ports:
+            - containerPort: 3100
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongoku
+  labels:
+    app: mongoku
+    service: mongoku
+spec:
+  ports:
+    - port: 3100
+      name: http
+  selector:
+    app: mongoku
