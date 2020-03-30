@@ -26,6 +26,13 @@ export const ROUTES: Routes = [
     canActivate: [LoginGuard, NamespaceGuard],
   },
   {
+    path: 'game-servers',
+    component: LayoutComponent,
+    loadChildren: () =>
+      import('./modules/game-servers/game-servers.module').then(m => m.GameServerModule),
+    canActivate: [LoginGuard, NamespaceGuard],
+  },
+  {
     path: 'games',
     component: LayoutComponent,
     loadChildren: () => import('./modules/games/games.module').then(m => m.GameModule),

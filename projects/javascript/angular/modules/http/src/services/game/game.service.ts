@@ -23,6 +23,12 @@ export class GameService {
     this.basePath = this.environmentService.gameApiBaseUrl;
   }
 
+  public async count(parameters: RestParameters): Promise<number> {
+    const response = await this.apiService.request('get', `${this.basePath}/count`, parameters);
+
+    return response.count;
+  }
+
   public async create(parameters: Partial<Game>): Promise<Game> {
     const response = await this.apiService.request('post', this.basePath, parameters);
 

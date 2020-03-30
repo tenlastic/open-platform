@@ -59,11 +59,14 @@ export class GameServerSchema {
   @prop()
   public metadata: any;
 
-  @prop()
+  @prop({ required: true })
   public name: string;
 
   @prop()
   public password: string;
+
+  @prop()
+  public releaseId: string;
 
   public updatedAt: Date;
 

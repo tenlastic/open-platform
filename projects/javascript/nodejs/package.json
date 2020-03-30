@@ -5,6 +5,7 @@
   "scripts": {
     "docker": "docker-compose run --rm application npm run --if-present",
     "docker:install": "docker-compose run --rm application npm install",
+    "docker:start": "sh ./scripts/docker-start.sh",
     "google:tokens": "ts-node ./scripts/get-google-tokens.ts",
     "merge:coverage": "./scripts/merge-coverage.sh",
     "merge:junit": "./scripts/merge-junit.sh",

@@ -13,7 +13,6 @@ services:
     privileged: true
   kafka:
     depends_on:
-      - kafka_trifecta
       - zookeeper
     environment:
       KAFKA_ADVERTISED_HOST_NAME: kafka
@@ -23,12 +22,6 @@ services:
       - zookeeper
     ports:
       - 9092:9092
-  kafka_trifecta:
-    environment:
-      ZOOKEEPERS: zookeeper:2181
-    image: chatu/trifecta
-    ports:
-      - 19092:8888
   minio:
     command: minio server /data
     image: minio/minio:latest

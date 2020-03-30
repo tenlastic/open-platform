@@ -32,6 +32,9 @@ components:
           type: string
         password:
           type: string
+        releaseId:
+          type: string
+          format: ^[a-f0-9]{24}$
         updatedAt:
           type: string
           format: date-time
@@ -39,3 +42,4 @@ components:
           type: string
       required:
         - gameId
+        - name

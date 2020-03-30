@@ -3,32 +3,32 @@ import { Chance } from 'chance';
 import { TestBed, getTestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
-import { Game } from '../../models/game';
+import { GameServer } from '../../models/game-server';
 import { ApiService } from '../api/api.service';
 import { EnvironmentService } from '../environment/environment.service';
 import { EnvironmentServiceMock } from '../environment/environment.service.mock';
-import { GameService } from './game.service';
+import { GameServerService } from './game-server.service';
 
-describe('GameService', () => {
+describe('GameServerService', () => {
   const chance = new Chance();
 
   let httpMock: HttpTestingController;
   let injector: TestBed;
-  let service: GameService;
+  let service: GameServerService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
         ApiService,
-        GameService,
+        GameServerService,
         { provide: EnvironmentService, useClass: EnvironmentServiceMock },
       ],
     });
 
     injector = getTestBed();
     httpMock = injector.get(HttpTestingController);
-    service = injector.get(GameService);
+    service = injector.get(GameServerService);
   });
 
   afterEach(() => {
@@ -53,15 +53,15 @@ describe('GameService', () => {
   });
 
   describe('create()', () => {
-    it('creates and returns a Game', () => {
+    it('creates and returns a GameServer', () => {
       const params = {
-        title: chance.hash(),
+        name: chance.hash(),
       };
 
       service.create(params).then(res => {
-        expect(res).toEqual(jasmine.any(Game));
+        expect(res).toEqual(jasmine.any(GameServer));
         expect(res._id).toBeDefined();
-        expect(res.title).toEqual(params.title);
+        expect(res.name).toEqual(params.name);
       });
 
       const req = httpMock.expectOne(service.basePath);
@@ -69,7 +69,7 @@ describe('GameService', () => {
       req.flush({
         record: {
           _id: chance.hash(),
-          title: params.title,
+          name: params.name,
         },
       });
     });
@@ -77,19 +77,19 @@ describe('GameService', () => {
 
   describe('delete()', () => {
     it('deletes the user and returns true', () => {
-      const slug = chance.hash();
+      const _id = chance.hash();
 
-      service.delete(slug).then(res => {
+      service.delete(_id).then(res => {
         expect(res).toBeTruthy();
       });
 
-      const req = httpMock.expectOne(`${service.basePath}/${slug}`);
+      const req = httpMock.expectOne(`${service.basePath}/${_id}`);
       expect(req.request.method).toBe('DELETE');
     });
   });
 
   describe('find()', () => {
-    it('returns an array of Games', () => {
+    it('returns an array of GameServers', () => {
       const _id = chance.hash();
       const params = {
         where: { _id },
@@ -97,7 +97,7 @@ describe('GameService', () => {
 
       service.find(params).then(res => {
         expect(res.length).toBe(1);
-        expect(res[0]).toEqual(jasmine.any(Game));
+        expect(res[0]).toEqual(jasmine.any(GameServer));
         expect(res[0]._id).toBe(_id);
       });
 
@@ -110,16 +110,15 @@ describe('GameService', () => {
   });
 
   describe('findOne()', () => {
-    it('returns a Game', () => {
+    it('returns a GameServer', () => {
       const _id = chance.hash();
-      const slug = chance.hash();
 
-      service.findOne(slug).then(res => {
-        expect(res).toEqual(jasmine.any(Game));
+      service.findOne(_id).then(res => {
+        expect(res).toEqual(jasmine.any(GameServer));
         expect(res._id).toBe(_id);
       });
 
-      const req = httpMock.expectOne(`${service.basePath}/${slug}`);
+      const req = httpMock.expectOne(`${service.basePath}/${_id}`);
       expect(req.request.method).toBe('GET');
       req.flush({
         record: { _id },
@@ -128,21 +127,20 @@ describe('GameService', () => {
   });
 
   describe('update()', () => {
-    it('updates and returns a Game', () => {
+    it('updates and returns a GameServer', () => {
       const params = {
         _id: chance.hash(),
-        slug: chance.hash(),
-        title: chance.hash(),
+        name: chance.hash(),
       };
 
       service.update(params).then(res => {
-        expect(res).toEqual(jasmine.any(Game));
+        expect(res).toEqual(jasmine.any(GameServer));
         expect(res._id).toEqual(params._id);
-        expect(res.slug).toEqual(params.slug);
-        expect(res.title).toEqual(params.title);
+        expect(res._id).toEqual(params._id);
+        expect(res.name).toEqual(params.name);
       });
 
-      const req = httpMock.expectOne(`${service.basePath}/${params.slug}`);
+      const req = httpMock.expectOne(`${service.basePath}/${params._id}`);
       expect(req.request.method).toBe('PUT');
       req.flush({ record: params });
     });
