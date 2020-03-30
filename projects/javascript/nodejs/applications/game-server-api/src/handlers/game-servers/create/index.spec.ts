@@ -1,6 +1,7 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
+import * as Chance from 'chance';
 
 import {
   ReadonlyGameMock,
@@ -11,6 +12,7 @@ import {
 } from '../../../models';
 import { handler } from './';
 
+const chance = new Chance();
 use(chaiAsPromised);
 
 describe('handlers/game-servers/create', function() {
@@ -30,6 +32,7 @@ describe('handlers/game-servers/create', function() {
         request: {
           body: {
             gameId: game._id,
+            name: chance.hash(),
           },
         },
         state: { user },
@@ -50,6 +53,7 @@ describe('handlers/game-servers/create', function() {
         request: {
           body: {
             gameId: game._id,
+            name: chance.hash(),
           },
         },
         state: { user },

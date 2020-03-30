@@ -37,6 +37,7 @@
     "minio": "7.0.13",
     "mongoose": "5.7.11",
     "source-map-support": "0.5.12",
+    "tmp": "0.1.0",
     "unzipper": "0.10.5"
   },
   "devDependencies": {

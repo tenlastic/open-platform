@@ -30,7 +30,6 @@
   "dependencies": {
     "request": "2.88.0",
     "request-promise-native": "1.0.7",
-    "tar": "6.0.1",
-    "tmp": "0.1.0"
+    "tar": "6.0.1"
   }
 }
