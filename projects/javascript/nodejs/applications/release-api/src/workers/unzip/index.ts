@@ -39,6 +39,9 @@ export async function unzipWorker(
     const promises = await processZip(content.platform, release, stream);
     await Promise.all(promises);
 
+    // Remove Zip.
+    await minio.getClient().removeObject(MINIO_BUCKET, task.minioZipObjectName);
+
     // Set Job status to Complete.
     task.completedAt = new Date();
     task = await task.save();

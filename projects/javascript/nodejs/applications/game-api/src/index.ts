@@ -29,7 +29,7 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
 (async () => {
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
   kafka.subscribe(ReadonlyNamespace, { group: 'game-api', topic: 'namespace-api.namespaces' });
-  kafka.subscribe(ReadonlyUser, { group: 'game-api', topic: 'user-api.users' });
+  kafka.subscribe(ReadonlyUser, { group: 'game-api', topic: 'authentication-api.users' });
 })();
 
 const webServer = new WebServer();

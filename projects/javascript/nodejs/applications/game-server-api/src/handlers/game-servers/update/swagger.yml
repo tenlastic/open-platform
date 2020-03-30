@@ -1,0 +1,29 @@
+paths:
+  /game-servers/{slug}:
+    put:
+      summary: Update
+      tags: [GameServers]
+      description: Updates an existing record.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: slug
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameServer'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/GameServer'

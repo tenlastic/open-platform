@@ -20,7 +20,7 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
   kafka.subscribe(ReadonlyGame, { group: 'article-api', topic: 'game-api.games' });
   kafka.subscribe(ReadonlyNamespace, { group: 'article-api', topic: 'namespace-api.namespaces' });
-  kafka.subscribe(ReadonlyUser, { group: 'article-api', topic: 'user-api.users' });
+  kafka.subscribe(ReadonlyUser, { group: 'article-api', topic: 'authentication-api.users' });
 })();
 
 const webServer = new WebServer();

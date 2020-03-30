@@ -1,0 +1,36 @@
+{
+  "engines": {
+    "node": "^10"
+  },
+  "license": "ISC",
+  "main": "./dist/index.js",
+  "name": "@tenlastic/docker-engine",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com/tenlastic/open-platform.git"
+  },
+  "version": "0.0.53",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "build:watch": "watch ../../scripts/build.sh ./src",
+    "docker": "sh ../../scripts/docker.sh npm run --if-present",
+    "lint": "../../scripts/lint.sh"
+  },
+  "devDependencies": {
+    "mocha": "6.1.4",
+    "nyc": "12.0.2",
+    "ts-node": "8.3.0",
+    "tslint": "5.18.0",
+    "typescript": "3.5.3",
+    "watch": "1.0.2"
+  },
+  "dependencies": {
+    "request": "2.88.0",
+    "request-promise-native": "1.0.7",
+    "tar": "6.0.1",
+    "tmp": "0.1.0"
+  }
+}
