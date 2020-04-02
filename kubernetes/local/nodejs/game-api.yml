@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: game-api
+  labels:
+    app: game-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: game-api
+    spec:
+      containers:
+        - name: game-api
+          image: tenlastic/game-api:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: nodejs-environment-variables
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: game-api
+  labels:
+    app: game-api
+    service: game-api
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: game-api

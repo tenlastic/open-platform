@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: node
+  labels:
+    name: node
+spec:
+  containers:
+    - name: node
+      image: node:10
+      command:
+        - /bin/bash
+        - -c
+        - --
+        - while true; do sleep 30; done;
+      volumeMounts:
+        - name: app
+          mountPath: /usr/src/app/
+      workingDir: /usr/src/app/
+  volumes:
+    - name: app
+      hostPath:
+        path: /c/Users/Dan Appello/Documents/open-platform

@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: release-api
+  labels:
+    app: release-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: release-api
+    spec:
+      containers:
+        - name: release-api
+          image: tenlastic/release-api:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: nodejs-environment-variables
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+        - name: dind
+          image: docker:19.03.8-dind
+          command:
+            - "dockerd"
+            - "--host"
+            - "tcp://0.0.0.0:2375"
+            - "--insecure-registry"
+            - "docker-registry:5000"
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: dind
+              mountPath: /var/lib/docker
+      volumes:
+        - name: dind
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-api
+  labels:
+    app: release-api
+    service: release-api
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: release-api

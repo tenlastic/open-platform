@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: social-api
+  labels:
+    app: social-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: social-api
+    spec:
+      containers:
+        - name: social-api
+          image: tenlastic/social-api:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: nodejs-environment-variables
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: social-api
+  labels:
+    app: social-api
+    service: social-api
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: social-api

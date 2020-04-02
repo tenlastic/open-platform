@@ -4,6 +4,7 @@ ENV FLUX_VERSION 1.16.0
 ENV HELM_VERSION v2.16.0
 ENV KUBECONFIG /.kube/config
 ENV KUBESEAL_VERSION v0.9.5
+ENV STERN_VERSION 1.11.0
 ENV TERRAFORM_VERSION 0.11.13
 
 USER root
@@ -42,10 +43,10 @@ RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add 
   ln -s /usr/bin/kubectl /usr/local/bin/kubectl
 
 # Install helm.
-RUN curl -o helm-$HELM_VERSION-linux-amd64.tgz https://storage.googleapis.com/kubernetes-helm/helm-$HELM_VERSION-linux-amd64.tar.gz && \
-  tar -zxvf helm-$HELM_VERSION-linux-amd64.tgz && \
+RUN curl -o helm-${HELM_VERSION}-linux-amd64.tgz https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz && \
+  tar -zxvf helm-${HELM_VERSION}-linux-amd64.tgz && \
   mv linux-amd64/helm /usr/local/bin/helm && \
-  rm helm-$HELM_VERSION-linux-amd64.tgz && \
+  rm helm-${HELM_VERSION}-linux-amd64.tgz && \
   rm -rf linux-amd64
 
 # Install jq to parse JSON within bash scripts.
@@ -53,11 +54,16 @@ RUN curl -o /usr/local/bin/jq http://stedolan.github.io/jq/download/linux64/jq &
   chmod +x /usr/local/bin/jq
 
 # Install fluxctl.
-RUN wget -O fluxctl https://github.com/fluxcd/flux/releases/download/$FLUX_VERSION/fluxctl_linux_amd64 && \
+RUN wget -O fluxctl https://github.com/fluxcd/flux/releases/download/${FLUX_VERSION}/fluxctl_linux_amd64 && \
   chmod +x fluxctl && \
   mv fluxctl /usr/local/bin/fluxctl
 
 # Install kubeseal.
-RUN wget https://github.com/bitnami-labs/sealed-secrets/releases/download/$KUBESEAL_VERSION/kubeseal-linux-amd64 -O kubeseal && \
+RUN wget https://github.com/bitnami-labs/sealed-secrets/releases/download/${KUBESEAL_VERSION}/kubeseal-linux-amd64 -O kubeseal && \
   chmod +x kubeseal && \
   mv kubeseal /usr/local/bin/kubeseal
+
+# Install Stern
+RUN wget https://github.com/wercker/stern/releases/download/$STERN_VERSION/stern_linux_amd64 -O stern && \
+  chmod +x stern && \
+  mv stern /usr/local/bin/stern

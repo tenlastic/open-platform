@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: docker-registry-ui
+  labels:
+    app: docker-registry-ui
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: docker-registry-ui
+    spec:
+      containers:
+        - name: docker-registry-ui
+          image: joxit/docker-registry-ui:static
+          env:
+            - name: REGISTRY_URL
+              value: http://docker-registry:5000
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docker-registry-ui
+  labels:
+    app: docker-registry-ui
+    service: docker-registry-ui
+spec:
+  ports:
+    - port: 80
+      name: http
+  selector:
+    app: docker-registry-ui

@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: portal-ui
+  labels:
+    app: portal-ui
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: portal-ui
+    spec:
+      containers:
+        - name: portal-ui
+          image: tenlastic/portal-ui:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: portal-ui
+  labels:
+    app: portal-ui
+    service: portal-ui
+spec:
+  ports:
+    - port: 80
+      name: http
+  selector:
+    app: portal-ui

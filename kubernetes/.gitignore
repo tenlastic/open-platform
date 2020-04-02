@@ -1,3 +1,4 @@
+secret.yml
 *.secret.yml
 
 bin/

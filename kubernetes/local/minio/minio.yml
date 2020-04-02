@@ -1,0 +1,338 @@
+# minio-make-bucket-job
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: minio-make-bucket-job
+  labels:
+    app: minio-make-bucket-job
+    chart: minio-5.0.19
+    release: minio
+    heritage: Tiller
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        app: minio-job
+        release: minio
+    spec:
+      restartPolicy: OnFailure
+      volumes:
+        - name: minio-configuration
+          projected:
+            sources:
+            - configMap:
+                name: minio
+            - secret:
+                name: minio
+      containers:
+      - name: minio-mc
+        image: "minio/mc:RELEASE.2020-03-14T01-23-37Z"
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "/config/initialize"]
+        env:
+          - name: MINIO_ENDPOINT
+            value: minio
+          - name: MINIO_PORT
+            value: "9000"
+        volumeMounts:
+          - name: minio-configuration
+            mountPath: /config
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64M
+MANIFEST:
+
+---
+# Source: minio/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minio
+  labels:
+    app: minio
+    chart: minio-5.0.19
+    release: minio
+    heritage: Tiller
+type: Opaque
+data:
+  accesskey: "dXNlcm5hbWU="
+  secretkey: "cGFzc3dvcmQ="
+---
+# Source: minio/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minio
+  labels:
+    app: minio
+    chart: minio-5.0.19
+    release: minio
+    heritage: Tiller
+data:
+  initialize: |-
+    #!/bin/sh
+    set -e ; # Have script exit in the event of a failed command.
+    MC_CONFIG_DIR="/etc/minio/mc/"
+    MC="/usr/bin/mc --config-dir ${MC_CONFIG_DIR}"
+    
+    # connectToMinio
+    # Use a check-sleep-check loop to wait for Minio service to be available
+    connectToMinio() {
+      SCHEME=$1
+      ATTEMPTS=0 ; LIMIT=29 ; # Allow 30 attempts
+      set -e ; # fail if we can't read the keys.
+      ACCESS=$(cat /config/accesskey) ; SECRET=$(cat /config/secretkey) ;
+      set +e ; # The connections to minio are allowed to fail.
+      echo "Connecting to Minio server: $SCHEME://$MINIO_ENDPOINT:$MINIO_PORT" ;
+      MC_COMMAND="${MC} config host add myminio $SCHEME://$MINIO_ENDPOINT:$MINIO_PORT $ACCESS $SECRET" ;
+      $MC_COMMAND ;
+      STATUS=$? ;
+      until [ $STATUS = 0 ]
+      do
+        ATTEMPTS=`expr $ATTEMPTS + 1` ;
+        echo \"Failed attempts: $ATTEMPTS\" ;
+        if [ $ATTEMPTS -gt $LIMIT ]; then
+          exit 1 ;
+        fi ;
+        sleep 2 ; # 1 second intervals between attempts
+        $MC_COMMAND ;
+        STATUS=$? ;
+      done ;
+      set -e ; # reset `e` as active
+      return 0
+    }
+    
+    # checkBucketExists ($bucket)
+    # Check if the bucket exists, by using the exit code of `mc ls`
+    checkBucketExists() {
+      BUCKET=$1
+      CMD=$(${MC} ls myminio/$BUCKET > /dev/null 2>&1)
+      return $?
+    }
+    
+    # createBucket ($bucket, $policy, $purge)
+    # Ensure bucket exists, purging if asked to
+    createBucket() {
+      BUCKET=$1
+      POLICY=$2
+      PURGE=$3
+    
+      # Purge the bucket, if set & exists
+      # Since PURGE is user input, check explicitly for `true`
+      if [ $PURGE = true ]; then
+        if checkBucketExists $BUCKET ; then
+          echo "Purging bucket '$BUCKET'."
+          set +e ; # don't exit if this fails
+          ${MC} rm -r --force myminio/$BUCKET
+          set -e ; # reset `e` as active
+        else
+          echo "Bucket '$BUCKET' does not exist, skipping purge."
+        fi
+      fi
+    
+      # Create the bucket if it does not exist
+      if ! checkBucketExists $BUCKET ; then
+        echo "Creating bucket '$BUCKET'"
+        ${MC} mb myminio/$BUCKET
+      else
+        echo "Bucket '$BUCKET' already exists."
+      fi
+    
+      # At this point, the bucket should exist, skip checking for existence
+      # Set policy on the bucket
+      echo "Setting policy of bucket '$BUCKET' to '$POLICY'."
+      ${MC} policy set $POLICY myminio/$BUCKET
+    }
+    
+    # Try connecting to Minio instance
+    scheme=http
+    connectToMinio $scheme
+    # Create the buckets
+    createBucket docker-registry none false
+    createBucket game-api none false
+    createBucket launcher none false
+    createBucket release-api none false
+---
+# Source: minio/templates/post-install-prometheus-metrics-serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: minio-update-prometheus-secret
+  labels:
+    app: minio-update-prometheus-secret
+    chart: minio-5.0.19
+    release: minio
+    heritage: Tiller
+---
+# Source: minio/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "minio"
+  namespace: "default"
+---
+# Source: minio/templates/post-install-prometheus-metrics-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: minio-update-prometheus-secret
+  labels:
+    app: minio-update-prometheus-secret
+    chart: minio-5.0.19
+    release: minio
+    heritage: Tiller
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - create
+      - update
+      - patch
+    resourceNames:
+      - minio-prometheus
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+  - apiGroups:
+      - monitoring.coreos.com
+    resources:
+      - servicemonitors
+    verbs:
+      - get
+    resourceNames:
+      - minio
+---
+# Source: minio/templates/post-install-prometheus-metrics-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: minio-update-prometheus-secret
+  labels:
+    app: minio-update-prometheus-secret
+    chart: minio-5.0.19
+    release: minio
+    heritage: Tiller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: minio-update-prometheus-secret
+subjects:
+  - kind: ServiceAccount
+    name: minio-update-prometheus-secret
+    namespace: default
+---
+# Source: minio/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  labels:
+    app: minio
+    chart: minio-5.0.19
+    release: minio
+    heritage: Tiller
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 9000
+      protocol: TCP
+      targetPort: 9000
+  selector:
+    app: minio
+    release: minio
+---
+# Source: minio/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  labels:
+    app: minio
+    chart: minio-5.0.19
+    release: minio
+    heritage: Tiller
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: minio
+      release: minio
+  template:
+    metadata:
+      name: minio
+      labels:
+        app: minio
+        release: minio
+      annotations:
+        rollme: "6pHOL"
+        checksum/secrets: 9e3db82c897d207b625006e7d9b6d09b12f69f383e6614b38c055a7349d33e5f
+        checksum/config: c252130587ea84b628307d8c80ed293ec3405a8161a9d59713fe0c7efe363f00
+    spec:
+      serviceAccountName: "minio"
+      containers:
+        - name: minio
+          image: "minio/minio:RELEASE.2020-03-25T07-03-04Z"
+          imagePullPolicy: IfNotPresent
+          command: [ "/bin/sh",
+          "-ce",
+          "/usr/bin/docker-entrypoint.sh minio -S /etc/minio/certs/ server /export" ]
+          volumeMounts:
+          ports:
+            - name: http
+              containerPort: 9000
+          env:
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: accesskey
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: secretkey
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64M
+            
+      volumes:
+        - name: export
+          emptyDir: {}
+        - name: minio-user
+          secret:
+            secretName: minio

@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: article-api
+  labels:
+    app: article-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: article-api
+    spec:
+      containers:
+        - name: article-api
+          image: tenlastic/article-api:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: nodejs-environment-variables
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: article-api
+  labels:
+    app: article-api
+    service: article-api
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: article-api

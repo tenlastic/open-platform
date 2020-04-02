@@ -25,10 +25,6 @@ commands:
               -u "${DOCKER_HUB_USERNAME}" \
               -p "${DOCKER_HUB_PASSWORD}"
 
-            # Tag and push version to Docker Hub.
-            docker tag "${IMAGE_ID}" "${URL}:latest"
-            docker push "${URL}:latest"
-
             # Tag and push latest version to Docker Hub.
             docker tag "${IMAGE_ID}" "${URL}:latest"
             docker push "${URL}:latest"
@@ -39,10 +35,6 @@ commands:
             docker login docker.pkg.github.com \
               -u "${GITHUB_USER_EMAIL}" \
               -p "${GITHUB_TOKEN}"
-
-            # Tag and push version to Github Package Registry.
-            docker tag "${IMAGE_ID}" "${URL}:latest"
-            docker push "${URL}:latest"
 
             # Tag and push latest version to Github Package Registry.
             docker tag "${IMAGE_ID}" "${URL}:latest"
