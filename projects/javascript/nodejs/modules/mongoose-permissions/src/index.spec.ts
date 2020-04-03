@@ -1,11 +1,11 @@
 import * as mongoose from 'mongoose';
 
+import { MONGO_DATABASE_NAME } from './constants';
 import { Example } from './example-model';
 
 const connectionString = process.env.MONGO_CONNECTION_STRING;
-const databaseName = process.env.MONGO_DATABASE_NAME;
 mongoose.connect(connectionString, {
-  dbName: databaseName,
+  dbName: MONGO_DATABASE_NAME,
   useCreateIndex: true,
   useFindAndModify: false,
   useNewUrlParser: true,
