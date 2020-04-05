@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e
 
-# Allow Scripts to Execute (Argo Artifact Bug).
-chmod +x -R ./
-
 ROOT=$(pwd)
 
 # Update Custom Roles.

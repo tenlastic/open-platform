@@ -12,15 +12,22 @@ spec:
   entrypoint: pipeline
   podGC:
     strategy: OnWorkflowCompletion
+  volumeClaimTemplates:
+    - metadata:
+        name: repository
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
   templates:
     - name: pipeline
       inputs:
         parameters:
           - name: branch
           - name: repository
-      dag:
-        tasks:
-          - name: checkout
+      steps:
+        - - name: checkout
             template: checkout
             arguments:
               parameters:
@@ -28,59 +35,23 @@ spec:
                   value: "{{inputs.parameters.branch}}"
                 - name: repository
                   value: "{{inputs.parameters.repository}}"
-          - name: continuous-integration
+        - - name: continuous-integration
             template: continuous-integration
-            dependencies:
-              - checkout
-            arguments:
-              artifacts:
-                - name: repository
-                  from: "{{tasks.checkout.outputs.artifacts.repository}}"
-          - name: publish-miscellaneous-docker-images
-            template: publish-miscellaneous-docker-images
-            dependencies:
-              - continuous-integration
-            when: "'{{inputs.parameters.branch}}' == master"
-            arguments:
-              artifacts:
-                - name: repository
-                  from: "{{tasks.continuous-integration.outputs.artifacts.repository}}"
-          - name: publish-npm-modules
-            template: publish-npm-modules
-            dependencies:
-              - continuous-integration
-            when: "'{{inputs.parameters.branch}}' == master"
-            arguments:
-              artifacts:
-                - name: repository
-                  from: "{{tasks.continuous-integration.outputs.artifacts.repository}}"
-          - name: publish-docker-images
-            template: publish-docker-images
-            dependencies:
-              - publish-npm-modules
-            when: "'{{inputs.parameters.branch}}' == master"
-            arguments:
-              artifacts:
-                - name: repository
-                  from: "{{tasks.continuous-integration.outputs.artifacts.repository}}"
-          - name: publish-electron-applications
-            template: publish-electron-applications
-            dependencies:
-              - publish-docker-images
-            when: "'{{inputs.parameters.branch}}' == master"
-            arguments:
-              artifacts:
-                - name: repository
-                  from: "{{tasks.continuous-integration.outputs.artifacts.repository}}"
-          - name: terraform
+        - - name: terraform
             template: terraform
-            dependencies:
-              - continuous-integration
             when: "'{{inputs.parameters.branch}}' == master"
-            arguments:
-              artifacts:
-                - name: repository
-                  from: "{{tasks.continuous-integration.outputs.artifacts.repository}}"
+        - - name: publish-miscellaneous-docker-images
+            template: publish-miscellaneous-docker-images
+            when: "'{{inputs.parameters.branch}}' == master"
+        - - name: publish-npm-modules
+            template: publish-npm-modules
+            when: "'{{inputs.parameters.branch}}' == master"
+        - - name: publish-docker-images
+            template: publish-docker-images
+            when: "'{{inputs.parameters.branch}}' == master"
+        - - name: publish-electron-applications
+            template: publish-electron-applications
+            when: "'{{inputs.parameters.branch}}' == master"
 
     - name: checkout
       container:
@@ -90,7 +61,10 @@ spec:
           - --branch
           - "{{inputs.parameters.branch}}"
           - "{{inputs.parameters.repository}}"
-          - /repository/
+          - /usr/src/app/
+        volumeMounts:
+          - name: repository
+            mountPath: /usr/src/app/
       inputs:
         parameters:
           - name: branch
@@ -100,7 +74,7 @@ spec:
           - archive:
               none: {}
             name: repository
-            path: /repository/
+            path: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -113,6 +87,9 @@ spec:
         envFrom:
           - secretRef:
               name: continuous-integration-environment-variables
+        volumeMounts:
+          - name: repository
+            mountPath: /usr/src/app/
         workingDir: /usr/src/app/
       sidecars:
         - name: dind
@@ -154,21 +131,13 @@ spec:
           image: rabbitmq
         - name: zookeeper
           image: wurstmeister/zookeeper:latest
-      inputs:
-        artifacts:
-          - name: repository
-            path: /usr/src/app/
       outputs:
         artifacts:
-          - archive:
-              none: {}
-            name: repository
-            path: /usr/src/app/
           - name: test-results
             path: /usr/src/app/projects/javascript/nodejs/test-results/
       retryStrategy:
         limit: 2
-        retryPolicy: OnFailure
+        retryPolicy: OnError
 
     - name: publish-docker-images
       container:
@@ -178,11 +147,10 @@ spec:
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
-        workingDir: /usr/src/app/
-      inputs:
-        artifacts:
+        volumeMounts:
           - name: repository
-            path: /usr/src/app/
+            mountPath: /usr/src/app/
+        workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -195,11 +163,10 @@ spec:
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
-        workingDir: /usr/src/app/
-      inputs:
-        artifacts:
+        volumeMounts:
           - name: repository
-            path: /usr/src/app/
+            mountPath: /usr/src/app/
+        workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -213,11 +180,10 @@ spec:
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
-        workingDir: /usr/src/app/
-      inputs:
-        artifacts:
+        volumeMounts:
           - name: repository
-            path: /usr/src/app/
+            mountPath: /usr/src/app/
+        workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -230,11 +196,10 @@ spec:
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
-        workingDir: /usr/src/app/
-      inputs:
-        artifacts:
+        volumeMounts:
           - name: repository
-            path: /usr/src/app/
+            mountPath: /usr/src/app/
+        workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -248,11 +213,10 @@ spec:
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
-        workingDir: /usr/src/app/
-      inputs:
-        artifacts:
+        volumeMounts:
           - name: repository
-            path: /usr/src/app/
+            mountPath: /usr/src/app/
+        workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError

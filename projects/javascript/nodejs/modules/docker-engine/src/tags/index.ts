@@ -8,6 +8,6 @@ export async function tags(image: string) {
   return request.get({
     ...options,
     json: true,
-    url: `${configuration.url}/v2/${image}/tags/list`,
+    url: `${configuration.registryUrl}/v2/${image}/tags/list`,
   });
 }
