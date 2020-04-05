@@ -23,7 +23,7 @@ spec:
           image: tenlastic/release-api:0.0.53
           envFrom:
             - secretRef:
-                name: release-api-environment-variables
+                name: nodejs-environment-variables
           livenessProbe:
             httpGet:
               path: /releases

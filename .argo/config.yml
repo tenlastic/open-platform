@@ -1,0 +1,258 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: continuous-integration-
+spec:
+  arguments:
+    parameters:
+      - name: branch
+        value: master
+      - name: repository
+        value: https://github.com/tenlastic/open-platform
+  entrypoint: pipeline
+  podGC:
+    strategy: OnWorkflowCompletion
+  templates:
+    - name: pipeline
+      inputs:
+        parameters:
+          - name: branch
+          - name: repository
+      dag:
+        tasks:
+          - name: checkout
+            template: checkout
+            arguments:
+              parameters:
+                - name: branch
+                  value: "{{inputs.parameters.branch}}"
+                - name: repository
+                  value: "{{inputs.parameters.repository}}"
+          - name: continuous-integration
+            template: continuous-integration
+            dependencies:
+              - checkout
+            arguments:
+              artifacts:
+                - name: repository
+                  from: "{{tasks.checkout.outputs.artifacts.repository}}"
+          - name: publish-miscellaneous-docker-images
+            template: publish-miscellaneous-docker-images
+            dependencies:
+              - continuous-integration
+            when: "'{{inputs.parameters.branch}}' == master"
+            arguments:
+              artifacts:
+                - name: repository
+                  from: "{{tasks.continuous-integration.outputs.artifacts.repository}}"
+          - name: publish-npm-modules
+            template: publish-npm-modules
+            dependencies:
+              - continuous-integration
+            when: "'{{inputs.parameters.branch}}' == master"
+            arguments:
+              artifacts:
+                - name: repository
+                  from: "{{tasks.continuous-integration.outputs.artifacts.repository}}"
+          - name: publish-docker-images
+            template: publish-docker-images
+            dependencies:
+              - publish-npm-modules
+            when: "'{{inputs.parameters.branch}}' == master"
+            arguments:
+              artifacts:
+                - name: repository
+                  from: "{{tasks.continuous-integration.outputs.artifacts.repository}}"
+          - name: publish-electron-applications
+            template: publish-electron-applications
+            dependencies:
+              - publish-docker-images
+            when: "'{{inputs.parameters.branch}}' == master"
+            arguments:
+              artifacts:
+                - name: repository
+                  from: "{{tasks.continuous-integration.outputs.artifacts.repository}}"
+          - name: terraform
+            template: terraform
+            dependencies:
+              - continuous-integration
+            when: "'{{inputs.parameters.branch}}' == master"
+            arguments:
+              artifacts:
+                - name: repository
+                  from: "{{tasks.continuous-integration.outputs.artifacts.repository}}"
+
+    - name: checkout
+      container:
+        image: alpine/git:latest
+        args:
+          - clone
+          - --branch
+          - "{{inputs.parameters.branch}}"
+          - "{{inputs.parameters.repository}}"
+          - /repository/
+      inputs:
+        parameters:
+          - name: branch
+          - name: repository
+      outputs:
+        artifacts:
+          - archive:
+              none: {}
+            name: repository
+            path: /repository/
+      retryStrategy:
+        limit: 2
+        retryPolicy: OnError
+
+    - name: continuous-integration
+      container:
+        image: circleci/node:10-browsers
+        command:
+          - ./.argo/continuous-integration.sh
+        envFrom:
+          - secretRef:
+              name: continuous-integration-environment-variables
+        workingDir: /usr/src/app/
+      sidecars:
+        - name: dind
+          image: docker:19.03.8-dind
+          command:
+            - "dockerd"
+            - "--host"
+            - "tcp://0.0.0.0:2375"
+          securityContext:
+            privileged: true
+        - name: docker-registry
+          image: registry:latest
+          command:
+            - /bin/sh
+            - -c
+            - trap 'exit 0' SIGKILL
+            - /etc/docker/registry/config.yml
+        - name: kafka
+          image: wurstmeister/kafka:latest
+          env:
+            - name: KAFKA_ADVERTISED_HOST_NAME
+              value: localhost
+            - name: KAFKA_PORT
+              value: "9092"
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: localhost:2181
+        - name: mongo
+          image: tenlastic/mongo-replica-set:latest
+          env:
+            - name: REPLICA_SET_HOSTNAME
+              value: localhost
+        - name: minio
+          image: minio/minio:latest
+          command:
+            - minio
+            - server
+            - /data
+        - name: rabbitmq
+          image: rabbitmq
+        - name: zookeeper
+          image: wurstmeister/zookeeper:latest
+      inputs:
+        artifacts:
+          - name: repository
+            path: /usr/src/app/
+      outputs:
+        artifacts:
+          - archive:
+              none: {}
+            name: repository
+            path: /usr/src/app/
+          - name: test-results
+            path: /usr/src/app/projects/javascript/nodejs/test-results/
+      retryStrategy:
+        limit: 2
+        retryPolicy: OnFailure
+
+    - name: publish-docker-images
+      container:
+        image: node:10
+        command:
+          - ./.argo/publish-docker-images.sh
+        envFrom:
+          - secretRef:
+              name: continuous-deployment-environment-variables
+        workingDir: /usr/src/app/
+      inputs:
+        artifacts:
+          - name: repository
+            path: /usr/src/app/
+      retryStrategy:
+        limit: 2
+        retryPolicy: OnError
+
+    - name: publish-electron-applications
+      container:
+        image: electronuserland/builder:wine
+        command:
+          - ./.argo/publish-electron-applications.sh
+        envFrom:
+          - secretRef:
+              name: continuous-deployment-environment-variables
+        workingDir: /usr/src/app/
+      inputs:
+        artifacts:
+          - name: repository
+            path: /usr/src/app/
+      retryStrategy:
+        limit: 2
+        retryPolicy: OnError
+
+    - name: publish-miscellaneous-docker-images
+      container:
+        image: docker:19.03.8-dind
+        command:
+          - sh
+          - ./.argo/publish-miscellaneous-docker-images.sh
+        envFrom:
+          - secretRef:
+              name: continuous-deployment-environment-variables
+        workingDir: /usr/src/app/
+      inputs:
+        artifacts:
+          - name: repository
+            path: /usr/src/app/
+      retryStrategy:
+        limit: 2
+        retryPolicy: OnError
+
+    - name: publish-npm-modules
+      container:
+        image: node:10
+        command:
+          - ./.argo/publish-npm-modules.sh
+        envFrom:
+          - secretRef:
+              name: continuous-deployment-environment-variables
+        workingDir: /usr/src/app/
+      inputs:
+        artifacts:
+          - name: repository
+            path: /usr/src/app/
+      retryStrategy:
+        limit: 2
+        retryPolicy: OnError
+
+    - name: terraform
+      container:
+        image: hashicorp/terraform:0.11.13
+        command:
+          - sh
+          - ./.argo/terraform.sh
+        envFrom:
+          - secretRef:
+              name: continuous-deployment-environment-variables
+        workingDir: /usr/src/app/
+      inputs:
+        artifacts:
+          - name: repository
+            path: /usr/src/app/
+      retryStrategy:
+        limit: 2
+        retryPolicy: OnError

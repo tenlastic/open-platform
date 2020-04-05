@@ -23,7 +23,7 @@ spec:
           image: tenlastic/namespace-api:0.0.53
           envFrom:
             - secretRef:
-                name: namespace-api-environment-variables
+                name: nodejs-environment-variables
           livenessProbe:
             httpGet:
               path: /namespaces

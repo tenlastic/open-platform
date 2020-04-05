@@ -23,7 +23,7 @@ spec:
           image: tenlastic/article-api:0.0.53
           envFrom:
             - secretRef:
-                name: article-api-environment-variables
+                name: nodejs-environment-variables
           livenessProbe:
             httpGet:
               path: /articles

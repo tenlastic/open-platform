@@ -25,6 +25,13 @@ spec:
         - "*.tenlastic.com"
       secretName: letsencrypt-production
   rules:
+    - host: argo.tenlastic.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: argo-server
+              servicePort: 2746
     - host: docker-registry.tenlastic.com
       http:
         paths:

@@ -1,15 +1,15 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: authentication-api
+  name: game-server-api
   labels:
-    app: authentication-api
+    app: game-server-api
 spec:
   replicas: 3
   template:
     metadata:
       labels:
-        app: authentication-api
+        app: game-server-api
     spec:
       affinity:
         nodeAffinity:
@@ -19,14 +19,14 @@ spec:
                   - key: cloud.google.com/gke-preemptible
                     operator: Exists
       containers:
-        - name: authentication-api
-          image: tenlastic/authentication-api:0.0.53
+        - name: game-server-api
+          image: tenlastic/game-server-api:0.0.53
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
           livenessProbe:
             httpGet:
-              path: /users
+              path: /games
               port: 3000
             initialDelaySeconds: 15
             periodSeconds: 15
@@ -39,13 +39,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: authentication-api
+  name: game-server-api
   labels:
-    app: authentication-api
-    service: authentication-api
+    app: game-server-api
+    service: game-server-api
 spec:
   ports:
     - port: 3000
       name: http
   selector:
-    app: authentication-api
+    app: game-server-api

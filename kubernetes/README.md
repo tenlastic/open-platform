@@ -17,6 +17,7 @@ Add the following lines to your hosts file to properly route to your local Kuber
 
 ```
 127.0.0.1 api.localhost
+127.0.0.1 argo.localhost
 127.0.0.1 docker-registry.localhost
 127.0.0.1 kafka.localhost
 127.0.0.1 minio.localhost

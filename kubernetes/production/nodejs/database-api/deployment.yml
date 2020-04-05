@@ -23,7 +23,7 @@ spec:
           image: tenlastic/database-api:0.0.53
           envFrom:
             - secretRef:
-                name: database-api-environment-variables
+                name: nodejs-environment-variables
           livenessProbe:
             httpGet:
               path: /databases

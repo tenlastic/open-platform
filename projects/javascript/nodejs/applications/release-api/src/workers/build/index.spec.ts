@@ -139,8 +139,7 @@ describe('workers/build', function() {
       expect(response.length).to.eql(1);
     });
 
-    // Skipped for CircleCI.
-    it.skip('pushes the image to the registry', async function() {
+    it('pushes the image to the registry', async function() {
       const channel = { ack: sinon.stub().resolves() };
       const content = releaseTask.toObject();
 

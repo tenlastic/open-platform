@@ -23,7 +23,7 @@ spec:
           image: tenlastic/game-api:0.0.53
           envFrom:
             - secretRef:
-                name: game-api-environment-variables
+                name: nodejs-environment-variables
           livenessProbe:
             httpGet:
               path: /games

@@ -16,7 +16,7 @@ spec:
           image: obsidiandynamics/kafdrop:latest
           env:
             - name: KAFKA_BROKERCONNECT
-              value: kafka-0.kafka-headless:9092,kafka-1.kafka-headless:9092,kafka-2.kafka-headless:9092
+              value: kafka-0.kafka-headless:9092
           ports:
             - containerPort: 9000
           resources:

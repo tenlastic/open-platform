@@ -65,6 +65,13 @@ spec:
             backend:
               serviceName: authentication-api
               servicePort: 3000
+    - host: argo.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: argo-server
+              servicePort: 2746
     - host: docker-registry.localhost
       http:
         paths:
