@@ -1,0 +1,67 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: release-api
+  labels:
+    app: release-api
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: release-api
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
+      containers:
+        - name: release-api
+          image: tenlastic/release-api:0.0.53
+          envFrom:
+            - secretRef:
+                name: nodejs-environment-variables
+          livenessProbe:
+            httpGet:
+              path: /releases
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+        - name: dind
+          image: docker:19.03.8-dind
+          command:
+            - "dockerd"
+            - "--host"
+            - "tcp://0.0.0.0:2375"
+            - "--insecure-registry"
+            - "docker-registry:5000"
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: dind
+              mountPath: /var/lib/docker
+      volumes:
+        - name: dind
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-api
+  labels:
+    app: release-api
+    service: release-api
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: release-api

@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mongoku
+  labels:
+    app: mongoku
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongoku
+    spec:
+      containers:
+        - name: mongoku
+          image: huggingface/mongoku:latest
+          env:
+            - name: MONGOKU_DEFAULT_HOST
+              value: mongodb://mongodb-mongodb-replicaset-0.mongodb-mongodb-replicaset,mongodb-mongodb-replicaset-1.mongodb-mongodb-replicaset,mongodb-mongodb-replicaset-2.mongodb-mongodb-replicaset:27017/admin?replicaSet=rs0
+          ports:
+            - containerPort: 3100
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongoku
+  labels:
+    app: mongoku
+    service: mongoku
+spec:
+  ports:
+    - port: 3100
+      name: http
+  selector:
+    app: mongoku

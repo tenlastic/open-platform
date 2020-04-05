@@ -1,0 +1,51 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: article-api
+  labels:
+    app: article-api
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: article-api
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
+      containers:
+        - name: article-api
+          image: tenlastic/article-api:0.0.53
+          envFrom:
+            - secretRef:
+                name: nodejs-environment-variables
+          livenessProbe:
+            httpGet:
+              path: /articles
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: article-api
+  labels:
+    app: article-api
+    service: article-api
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: article-api

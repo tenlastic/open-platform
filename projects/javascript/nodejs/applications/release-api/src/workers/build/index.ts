@@ -1,10 +1,8 @@
+import * as docker from '@tenlastic/docker-engine';
 import * as minio from '@tenlastic/minio';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { Channel, ConsumeMessage } from 'amqplib';
-import * as fs from 'fs';
 import * as path from 'path';
-import * as request from 'request-promise-native';
-import * as tar from 'tar';
 import * as tmp from 'tmp';
 
 import { MINIO_BUCKET, RABBITMQ_PREFIX } from '../../constants';
@@ -56,50 +54,16 @@ export async function buildWorker(
         tmps.push(file.path);
       }
 
-      const options: Partial<request.OptionsWithUrl> = {};
-      if (process.env.DOCKER_CERT_PATH) {
-        options.ca = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/ca.pem`);
-        options.cert = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/cert.pem`);
-        options.key = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/key.pem`);
-        options.rejectUnauthorized = false;
-      }
-
-      const stream = tar.create({ cwd: dir.name }, tmps);
-
-      const dockerEngineUrl = process.env.DOCKER_ENGINE_URL;
+      // Build
       const release = await Release.findOne({ _id: task.releaseId });
-      const tag = `${release.gameId}:${task.releaseId}`;
-      await request.post({
-        ...options,
-        body: stream,
-        url: `${dockerEngineUrl}/build?t=${tag}`,
-      });
+      await docker.build(dir.name, tmps, release.gameId.toString(), task.releaseId.toString());
 
-      const response = await request.get({
-        ...options,
-        json: true,
-        url: `${dockerEngineUrl}/images/json?filters={"reference":["${tag}"]}`,
-      });
+      // Tag
+      const response = await docker.inspect(release.gameId.toString(), task.releaseId.toString());
+      await docker.tag(response[0].Id, release.gameId.toString(), task.releaseId.toString());
 
-      const id = response[0].Id;
-      const url = new URL(process.env.DOCKER_REGISTRY_URL);
-      const repo = `${url.host}/${release.gameId}`;
-      await request.post({
-        ...options,
-        url: `${dockerEngineUrl}/images/${id}/tag?repo=${repo}&tag=${task.releaseId}`,
-      });
-
-      const credentials = JSON.stringify({
-        password: url.password,
-        serveraddress: url.host,
-        username: url.username,
-      });
-      const xRegistryAuth = Buffer.from(credentials).toString('base64');
-      await request.post({
-        ...options,
-        headers: { 'X-Registry-Auth': xRegistryAuth },
-        url: `${dockerEngineUrl}/images/${repo}/push?tag=${task.releaseId}`,
-      });
+      // Push
+      await docker.push(release.gameId.toString(), task.releaseId.toString());
 
       dir.removeCallback();
     }

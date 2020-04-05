@@ -1,0 +1,144 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: "1G"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+spec:
+  rules:
+    - host: api.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: documentation-ui
+              servicePort: 80
+          - path: /articles
+            backend:
+              serviceName: article-api
+              servicePort: 3000
+          - path: /connections
+            backend:
+              serviceName: authentication-api
+              servicePort: 3000
+          - path: /databases
+            backend:
+              serviceName: database-api
+              servicePort: 3000
+          - path: /friends
+            backend:
+              serviceName: social-api
+              servicePort: 3000
+          - path: /games
+            backend:
+              serviceName: game-api
+              servicePort: 3000
+          - path: /ignorations
+            backend:
+              serviceName: social-api
+              servicePort: 3000
+          - path: /logins
+            backend:
+              serviceName: authentication-api
+              servicePort: 3000
+          - path: /messages
+            backend:
+              serviceName: social-api
+              servicePort: 3000
+          - path: /namespaces
+            backend:
+              serviceName: namespace-api
+              servicePort: 3000
+          - path: /password-resets
+            backend:
+              serviceName: authentication-api
+              servicePort: 3000
+          - path: /releases
+            backend:
+              serviceName: release-api
+              servicePort: 3000
+          - path: /users
+            backend:
+              serviceName: authentication-api
+              servicePort: 3000
+    - host: argo.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: argo-server
+              servicePort: 2746
+    - host: docker-registry.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: docker-registry-ui
+              servicePort: 80
+    - host: kafka.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: kafdrop
+              servicePort: 9000
+    - host: minio.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: minio
+              servicePort: 9000
+    - host: mongo.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: mongoku
+              servicePort: 3100
+    - host: platform.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: launcher-ui
+              servicePort: 80
+    - host: portal.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: portal-ui
+              servicePort: 80
+    - host: rabbitmq.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: rabbitmq-rabbitmq-ha
+              servicePort: 15672
+    - host: registry.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: docker-registry
+              servicePort: 5000
+    - host: sso.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: sso-ui
+              servicePort: 80
+    - host: www.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: home-ui
+              servicePort: 80

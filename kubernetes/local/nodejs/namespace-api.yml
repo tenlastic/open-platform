@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: namespace-api
+  labels:
+    app: namespace-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: namespace-api
+    spec:
+      containers:
+        - name: namespace-api
+          image: tenlastic/namespace-api:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: nodejs-environment-variables
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: namespace-api
+  labels:
+    app: namespace-api
+    service: namespace-api
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: namespace-api

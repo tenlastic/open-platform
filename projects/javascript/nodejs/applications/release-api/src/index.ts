@@ -2,6 +2,7 @@ import 'source-map-support/register';
 
 import * as minio from '@tenlastic/minio';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import * as docker from '@tenlastic/docker-engine';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { WebServer, WebSocketServer } from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
@@ -24,11 +25,17 @@ import {
   unzipWorker,
 } from './workers';
 
+docker.init({
+  certPath: process.env.DOCKER_CERT_PATH,
+  registryUrl: process.env.DOCKER_REGISTRY_URL,
+  url: process.env.DOCKER_ENGINE_URL,
+});
+
 (async () => {
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
   kafka.subscribe(ReadonlyGame, { group: 'release-api', topic: 'game-api.games' });
   kafka.subscribe(ReadonlyNamespace, { group: 'release-api', topic: 'namespace-api.namespaces' });
-  kafka.subscribe(ReadonlyUser, { group: 'release-api', topic: 'user-api.users' });
+  kafka.subscribe(ReadonlyUser, { group: 'release-api', topic: 'authentication-api.users' });
 })();
 
 (async () => {

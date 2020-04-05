@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: database-api
+  labels:
+    app: database-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: database-api
+    spec:
+      containers:
+        - name: database-api
+          image: tenlastic/database-api:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: nodejs-environment-variables
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database-api
+  labels:
+    app: database-api
+    service: database-api
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: database-api

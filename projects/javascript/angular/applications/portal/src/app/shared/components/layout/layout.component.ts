@@ -21,9 +21,15 @@ export class LayoutComponent {
     },
     {
       condition: () => this.selectedNamespaceService && this.selectedNamespaceService.namespaceId,
-      icon: 'storage',
+      icon: 'sd_card',
       label: 'Databases',
       path: '/databases',
+    },
+    {
+      condition: () => this.selectedNamespaceService && this.selectedNamespaceService.namespaceId,
+      icon: 'dns',
+      label: 'Game Servers',
+      path: '/game-servers',
     },
     {
       condition: () => this.selectedNamespaceService && this.selectedNamespaceService.namespaceId,

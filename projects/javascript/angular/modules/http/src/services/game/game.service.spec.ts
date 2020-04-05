@@ -35,6 +35,23 @@ describe('GameService', () => {
     httpMock.verify();
   });
 
+  describe('count()', () => {
+    it('returns a count', () => {
+      const _id = chance.hash();
+      const params = {
+        where: { _id },
+      };
+
+      service.count(params).then(res => {
+        expect(res).toBe(1);
+      });
+
+      const req = httpMock.expectOne(r => r.url === `${service.basePath}/count`);
+      expect(req.request.method).toBe('GET');
+      req.flush({ count: 1 });
+    });
+  });
+
   describe('create()', () => {
     it('creates and returns a Game', () => {
       const params = {

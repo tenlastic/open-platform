@@ -21,7 +21,7 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
 
 (async () => {
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
-  kafka.subscribe(ReadonlyUser, { group: 'social-api', topic: 'user-api.users' });
+  kafka.subscribe(ReadonlyUser, { group: 'social-api', topic: 'authentication-api.users' });
 })();
 
 const webServer = new WebServer();

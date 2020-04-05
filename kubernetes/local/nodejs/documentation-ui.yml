@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: documentation-ui
+  labels:
+    app: documentation-ui
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: documentation-ui
+    spec:
+      containers:
+        - name: documentation-ui
+          image: tenlastic/documentation-ui:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: documentation-ui
+  labels:
+    app: documentation-ui
+    service: documentation-ui
+spec:
+  ports:
+    - port: 80
+      name: http
+  selector:
+    app: documentation-ui

@@ -1,9 +1,8 @@
+import * as docker from '@tenlastic/docker-engine';
 import * as minio from '@tenlastic/minio';
-import * as rabbitmq from '@tenlastic/rabbitmq';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs';
-import * as request from 'request-promise-native';
 import * as sinon from 'sinon';
 
 import { MINIO_BUCKET } from '../../constants';
@@ -24,13 +23,6 @@ import {
 } from '../../models';
 import { buildWorker } from './';
 
-const options: Partial<request.OptionsWithUrl> = {};
-if (process.env.DOCKER_CERT_PATH) {
-  options.ca = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/ca.pem`);
-  options.cert = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/cert.pem`);
-  options.key = fs.readFileSync(`${process.env.DOCKER_CERT_PATH}/key.pem`);
-  options.rejectUnauthorized = false;
-}
 use(chaiAsPromised);
 
 describe('workers/build', function() {
@@ -127,13 +119,10 @@ describe('workers/build', function() {
 
       await buildWorker(channel as any, content, null);
 
-      const tag = `${release.gameId}:${releaseTask.releaseId}`;
-      const response = await request.get({
-        ...options,
-        json: true,
-        url: `${process.env.DOCKER_ENGINE_URL}/images/json?filters={"reference":["${tag}"]}`,
-      });
-
+      const response = await docker.inspect(
+        release.gameId.toString(),
+        releaseTask.releaseId.toString(),
+      );
       expect(response.length).to.eql(1);
     });
 
@@ -145,28 +134,18 @@ describe('workers/build', function() {
 
       const url = new URL(process.env.DOCKER_REGISTRY_URL);
       const repo = `${url.host}/${release.gameId}`;
-      const tag = `${repo}:${releaseTask.releaseId}`;
 
-      const response = await request.get({
-        ...options,
-        json: true,
-        url: `${process.env.DOCKER_ENGINE_URL}/images/json?filters={"reference":["${tag}"]}`,
-      });
-
+      const response = await docker.inspect(repo, releaseTask.releaseId.toString());
       expect(response.length).to.eql(1);
     });
 
-    it.skip('pushes the image to the registry', async function() {
+    it('pushes the image to the registry', async function() {
       const channel = { ack: sinon.stub().resolves() };
       const content = releaseTask.toObject();
 
       await buildWorker(channel as any, content, null);
 
-      const response = await request.get({
-        json: true,
-        url: `${process.env.DOCKER_REGISTRY_URL}/v2/${release.gameId}/tags/list`,
-      });
-
+      const response = await docker.tags(release.gameId.toString());
       expect(response.tags).to.include(releaseTask.releaseId.toString());
     });
   });

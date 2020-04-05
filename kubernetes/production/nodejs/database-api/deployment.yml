@@ -1,0 +1,51 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: database-api
+  labels:
+    app: database-api
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: database-api
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
+      containers:
+        - name: database-api
+          image: tenlastic/database-api:0.0.53
+          envFrom:
+            - secretRef:
+                name: nodejs-environment-variables
+          livenessProbe:
+            httpGet:
+              path: /databases
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database-api
+  labels:
+    app: database-api
+    service: database-api
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: database-api

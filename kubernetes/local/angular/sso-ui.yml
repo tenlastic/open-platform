@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sso-ui
+  labels:
+    app: sso-ui
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sso-ui
+    spec:
+      containers:
+        - name: sso-ui
+          image: tenlastic/sso-ui:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sso-ui
+  labels:
+    app: sso-ui
+    service: sso-ui
+spec:
+  ports:
+    - port: 80
+      name: http
+  selector:
+    app: sso-ui

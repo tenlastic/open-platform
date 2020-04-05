@@ -13,6 +13,10 @@ export const ROUTES: Routes = [
     path: ':gameSlug/articles',
     loadChildren: () => import('../articles/articles.module').then(m => m.ArticleModule),
   },
+  {
+    path: ':gameSlug/game-servers',
+    loadChildren: () => import('../game-servers/game-servers.module').then(m => m.GameServerModule),
+  },
   { path: ':slug', component: GamesFormPageComponent },
 ];
 

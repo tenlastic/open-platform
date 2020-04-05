@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: authentication-api
+  labels:
+    app: authentication-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: authentication-api
+    spec:
+      containers:
+        - name: authentication-api
+          image: tenlastic/authentication-api:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: nodejs-environment-variables
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentication-api
+  labels:
+    app: authentication-api
+    service: authentication-api
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: authentication-api

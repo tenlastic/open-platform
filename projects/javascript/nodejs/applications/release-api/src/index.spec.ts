@@ -1,3 +1,4 @@
+import * as docker from '@tenlastic/docker-engine';
 import * as minio from '@tenlastic/minio';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as rabbitmq from '@tenlastic/rabbitmq';
@@ -15,6 +16,12 @@ import {
 import { COPY_QUEUE, REMOVE_QUEUE, UNZIP_QUEUE, BUILD_QUEUE } from './workers';
 
 before(async function() {
+  docker.init({
+    certPath: process.env.DOCKER_CERT_PATH,
+    registryUrl: process.env.DOCKER_REGISTRY_URL,
+    url: process.env.DOCKER_ENGINE_URL,
+  });
+
   const minioConnectionUrl = new URL(process.env.MINIO_CONNECTION_STRING);
   minio.connect({
     accessKey: minioConnectionUrl.username,

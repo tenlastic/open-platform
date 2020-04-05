@@ -4,6 +4,7 @@ export const environment = {
   databaseApiBaseUrl: 'http://localhost:3002/databases',
   friendApiBaseUrl: 'http://localhost:3006/friends',
   gameApiBaseUrl: 'http://localhost:3003/games',
+  gameServerApiBaseUrl: 'http://localhost:3007/game-servers',
   ignorationApiBaseUrl: 'http://localhost:3006/ignorations',
   loginApiBaseUrl: 'http://localhost:3000/logins',
   loginUrl: 'http://localhost:8082/login?redirectUrl=http://localhost:8081/oauth',

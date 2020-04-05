@@ -7,6 +7,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "paths": {
+      "@tenlastic/docker-engine": ["./modules/docker-engine/src"],
       "@tenlastic/json-schema": ["./modules/json-schema/src"],
       "@tenlastic/mailgun": ["./modules/mailgun/src"],
       "@tenlastic/minio": ["./modules/minio/src"],

@@ -19,7 +19,7 @@ export class UsersListPageComponent implements OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<User>;
 
   public dataSource: MatTableDataSource<any>;
-  public displayedColumns: string[] = ['connection', 'username', 'createdAt', 'updatedAt'];
+  public displayedColumns: string[] = ['username', 'createdAt', 'updatedAt'];
   public search = '';
 
   private subject: Subject<string> = new Subject();

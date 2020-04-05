@@ -35,7 +35,7 @@ helmOperator:
   createCRD: true
   replicaCount: 3
 git:
-  path: kubernetes/infrastructure
+  path: kubernetes/production
   readonly: true
   url: https://github.com/tenlastic/open-platform
 replicaCount: 3

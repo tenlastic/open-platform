@@ -9,6 +9,7 @@ export class EnvironmentServiceMock implements Environment {
   public databaseApiBaseUrl = 'http://localhost:3002/databases';
   public friendApiBaseUrl = 'http://localhost:3006/friends';
   public gameApiBaseUrl = 'http://loclahost:3003/games';
+  public gameServerApiBaseUrl = 'http://loclahost:3007/games';
   public ignorationApiBaseUrl = 'http://localhost:3006/ignorations';
   public loginApiBaseUrl = 'http://localhost:3000/logins';
   public messageApiBaseUrl = 'http://localhost:3006/messages';

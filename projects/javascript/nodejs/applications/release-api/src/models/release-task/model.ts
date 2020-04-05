@@ -83,7 +83,7 @@ export class ReleaseTaskSchema {
   public releaseDocument: ReleaseDocument;
 
   public get minioZipObjectName() {
-    return `${this.releaseId}/${this.platform}/${this._id}.zip`;
+    return `${this.releaseId}/archives/${this._id}.zip`;
   }
 }
 
