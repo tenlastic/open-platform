@@ -1,5 +1,6 @@
 FROM ubuntu:18.04
 
+ENV ARGO_VERSION 2.7.0
 ENV FLUX_VERSION 1.16.0
 ENV HELM_VERSION v2.16.0
 ENV KUBECONFIG /.kube/config
@@ -67,3 +68,7 @@ RUN wget https://github.com/bitnami-labs/sealed-secrets/releases/download/${KUBE
 RUN wget https://github.com/wercker/stern/releases/download/$STERN_VERSION/stern_linux_amd64 -O stern && \
   chmod +x stern && \
   mv stern /usr/local/bin/stern
+
+RUN wget https://github.com/argoproj/argo/releases/download/v$ARGO_VERSION/argo-linux-amd64 -O argo && \
+  chmod +x argo && \
+  mv argo /usr/local/bin/argo

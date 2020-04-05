@@ -107,7 +107,7 @@ spec:
 
     - name: continuous-integration
       container:
-        image: circleci/node:10-browsers
+        image: node:10
         command:
           - ./.argo/continuous-integration.sh
         envFrom:
