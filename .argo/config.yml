@@ -20,13 +20,6 @@ spec:
         resources:
           requests:
             storage: 1Gi
-  volumes:
-    - name: continuous-integration-angular-node-modules
-      persistentVolumeClaim:
-        claimName: continuous-integration-angular-node-modules
-    - name: continuous-integration-nodejs-node-modules
-      persistentVolumeClaim:
-        claimName: continuous-integration-nodejs-node-modules
   templates:
     - name: pipeline
       inputs:
@@ -97,10 +90,6 @@ spec:
         volumeMounts:
           - name: continuous-integration-repository
             mountPath: /usr/src/app/
-          - name: continuous-integration-angular-node-modules
-            mountPath: /usr/src/app/projects/javascript/angular/node_modules/
-          - name: continuous-integration-nodejs-node-modules
-            mountPath: /usr/src/app/projects/javascript/nodejs/node_modules/
         workingDir: /usr/src/app/
       sidecars:
         - name: dind
