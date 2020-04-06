@@ -141,10 +141,6 @@ spec:
           image: rabbitmq
         - name: zookeeper
           image: wurstmeister/zookeeper:latest
-      outputs:
-        artifacts:
-          - name: test-results
-            path: /usr/src/app/projects/javascript/nodejs/test-results/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
