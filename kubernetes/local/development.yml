@@ -27,6 +27,10 @@ spec:
         privileged: true
     - name: docker-registry
       image: registry:latest
+      command:
+        - /bin/sh
+        - -c
+        - trap "exit 0" SIGKILL && ./entrypoint.sh /etc/docker/registry/config.yml
     - name: kafka
       image: wurstmeister/kafka:latest
       env:

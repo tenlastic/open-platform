@@ -11,10 +11,10 @@ apt-get update && apt-get install -qy google-chrome-stable
 # Run Javascript Applications.
 cd "${ROOT}/projects/javascript/"
 npm i -g lerna
-lerna bootstrap --ci --concurrency 1 --include-dependencies --since
-lerna run lint --ci --concurrency 1 --include-dependencies --since
-lerna run build --ci --concurrency 1 --include-dependencies --since
-lerna run test --ci --concurrency 1 --include-dependencies --since
+lerna bootstrap --ci --include-dependencies --since
+lerna run lint --ci --include-dependencies --since
+lerna run build --ci --include-dependencies --since
+lerna run test --ci --include-dependencies --since
 
 # Merge NodeJS Test Results.
 cd "${ROOT}/projects/javascript/nodejs/"

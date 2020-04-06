@@ -14,12 +14,19 @@ spec:
     strategy: OnWorkflowCompletion
   volumeClaimTemplates:
     - metadata:
-        name: repository
+        name: continuous-integration-repository
       spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
             storage: 1Gi
+  volumes:
+    - name: continuous-integration-angular-node-modules
+      persistentVolumeClaim:
+        claimName: continuous-integration-angular-node-modules
+    - name: continuous-integration-nodejs-node-modules
+      persistentVolumeClaim:
+        claimName: continuous-integration-nodejs-node-modules
   templates:
     - name: pipeline
       inputs:
@@ -63,7 +70,7 @@ spec:
           - "{{inputs.parameters.repository}}"
           - /usr/src/app/
         volumeMounts:
-          - name: repository
+          - name: continuous-integration-repository
             mountPath: /usr/src/app/
       inputs:
         parameters:
@@ -88,8 +95,12 @@ spec:
           - secretRef:
               name: continuous-integration-environment-variables
         volumeMounts:
-          - name: repository
+          - name: continuous-integration-repository
             mountPath: /usr/src/app/
+          - name: continuous-integration-angular-node-modules
+            mountPath: /usr/src/app/projects/javascript/angular/node_modules/
+          - name: continuous-integration-nodejs-node-modules
+            mountPath: /usr/src/app/projects/javascript/nodejs/node_modules/
         workingDir: /usr/src/app/
       sidecars:
         - name: dind
@@ -105,8 +116,7 @@ spec:
           command:
             - /bin/sh
             - -c
-            - trap 'exit 0' SIGKILL
-            - /etc/docker/registry/config.yml
+            - trap "exit 0" SIGKILL && ./entrypoint.sh /etc/docker/registry/config.yml
         - name: kafka
           image: wurstmeister/kafka:latest
           env:
@@ -148,7 +158,7 @@ spec:
           - secretRef:
               name: continuous-deployment-environment-variables
         volumeMounts:
-          - name: repository
+          - name: continuous-integration-repository
             mountPath: /usr/src/app/
         workingDir: /usr/src/app/
       retryStrategy:
@@ -164,7 +174,7 @@ spec:
           - secretRef:
               name: continuous-deployment-environment-variables
         volumeMounts:
-          - name: repository
+          - name: continuous-integration-repository
             mountPath: /usr/src/app/
         workingDir: /usr/src/app/
       retryStrategy:
@@ -181,7 +191,7 @@ spec:
           - secretRef:
               name: continuous-deployment-environment-variables
         volumeMounts:
-          - name: repository
+          - name: continuous-integration-repository
             mountPath: /usr/src/app/
         workingDir: /usr/src/app/
       retryStrategy:
@@ -197,7 +207,7 @@ spec:
           - secretRef:
               name: continuous-deployment-environment-variables
         volumeMounts:
-          - name: repository
+          - name: continuous-integration-repository
             mountPath: /usr/src/app/
         workingDir: /usr/src/app/
       retryStrategy:
@@ -214,7 +224,7 @@ spec:
           - secretRef:
               name: continuous-deployment-environment-variables
         volumeMounts:
-          - name: repository
+          - name: continuous-integration-repository
             mountPath: /usr/src/app/
         workingDir: /usr/src/app/
       retryStrategy:
