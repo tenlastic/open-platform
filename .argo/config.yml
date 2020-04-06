@@ -19,7 +19,7 @@ spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
-            storage: 1Gi
+            storage: 10Gi
   templates:
     - name: pipeline
       inputs:
@@ -64,17 +64,11 @@ spec:
           - /usr/src/app/
         volumeMounts:
           - name: continuous-integration-repository
-            mountPath: /usr/src/app/
+            mountPath: /usr/src/
       inputs:
         parameters:
           - name: branch
           - name: repository
-      outputs:
-        artifacts:
-          - archive:
-              none: {}
-            name: repository
-            path: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -89,7 +83,7 @@ spec:
               name: continuous-integration-environment-variables
         volumeMounts:
           - name: continuous-integration-repository
-            mountPath: /usr/src/app/
+            mountPath: /usr/src/
         workingDir: /usr/src/app/
       sidecars:
         - name: dind
@@ -144,7 +138,7 @@ spec:
               name: continuous-deployment-environment-variables
         volumeMounts:
           - name: continuous-integration-repository
-            mountPath: /usr/src/app/
+            mountPath: /usr/src/
         workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
@@ -160,7 +154,7 @@ spec:
               name: continuous-deployment-environment-variables
         volumeMounts:
           - name: continuous-integration-repository
-            mountPath: /usr/src/app/
+            mountPath: /usr/src/
         workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
@@ -177,7 +171,7 @@ spec:
               name: continuous-deployment-environment-variables
         volumeMounts:
           - name: continuous-integration-repository
-            mountPath: /usr/src/app/
+            mountPath: /usr/src/
         workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
@@ -193,7 +187,7 @@ spec:
               name: continuous-deployment-environment-variables
         volumeMounts:
           - name: continuous-integration-repository
-            mountPath: /usr/src/app/
+            mountPath: /usr/src/
         workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
@@ -210,7 +204,7 @@ spec:
               name: continuous-deployment-environment-variables
         volumeMounts:
           - name: continuous-integration-repository
-            mountPath: /usr/src/app/
+            mountPath: /usr/src/
         workingDir: /usr/src/app/
       retryStrategy:
         limit: 2

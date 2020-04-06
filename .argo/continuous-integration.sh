@@ -13,8 +13,10 @@ cd "${ROOT}/projects/javascript/"
 npm i -g lerna
 lerna bootstrap --ci --include-dependencies --since
 lerna run lint --ci --include-dependencies --since
-lerna run build --ci --include-dependencies --since
-lerna run test --ci --include-dependencies --since
+lerna run --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* build
+lerna run --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* build
+lerna run --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* test
+lerna run --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* test
 
 # Merge NodeJS Test Results.
 cd "${ROOT}/projects/javascript/nodejs/"
