@@ -15,9 +15,9 @@ apt-get update && apt-get install -qy google-chrome-stable
 cd "${ROOT}/projects/javascript/"
 npm i -g lerna
 lerna bootstrap --ci --include-dependencies --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
-lerna run --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* lint
-lerna run --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* build
-lerna run --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* test
+lerna run --ci --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* --scope angular lint
+lerna run --ci --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* --scope angular build
+lerna run --ci --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* --scope angular test
 
 # Remove Node Modules.
 find . -name "node_modules" -exec rm -rf '{}' +
