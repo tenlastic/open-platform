@@ -405,6 +405,7 @@ kind: Deployment
 metadata:
   name: argo-server
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: argo-server
@@ -434,6 +435,7 @@ kind: Deployment
 metadata:
   name: workflow-controller
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: workflow-controller
