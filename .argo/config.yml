@@ -12,6 +12,11 @@ spec:
   entrypoint: pipeline
   podGC:
     strategy: OnWorkflowCompletion
+  volumes:
+    - name: continuous-deployment-ssh-keys
+      secret:
+        secretName: continuous-deployment-ssh-keys
+        defaultMode: 0600
   volumeClaimTemplates:
     - metadata:
         name: continuous-integration-repository
@@ -162,10 +167,13 @@ spec:
 
     - name: publish-miscellaneous-docker-images
       container:
-        image: docker:19.03.8-dind
+        image: docker:19.03.8
         command:
           - sh
           - ./.argo/publish-miscellaneous-docker-images.sh
+        env:
+          - name: DOCKER_HOST
+            value: 127.0.0.1
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
@@ -173,6 +181,15 @@ spec:
           - name: continuous-integration-repository
             mountPath: /usr/src/
         workingDir: /usr/src/app/
+      sidecars:
+        - name: dind
+          image: docker:19.03.8-dind
+          command:
+            - "dockerd"
+            - "--host"
+            - "tcp://0.0.0.0:2375"
+          securityContext:
+            privileged: true
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -188,6 +205,9 @@ spec:
         volumeMounts:
           - name: continuous-integration-repository
             mountPath: /usr/src/
+          - name: continuous-deployment-ssh-keys
+            mountPath: /root/.ssh/
+            readOnly: true
         workingDir: /usr/src/app/
       retryStrategy:
         limit: 2

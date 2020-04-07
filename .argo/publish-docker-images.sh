@@ -12,5 +12,5 @@ mv /tmp/docker/* /usr/bin
 # Build and Push Docker Images.
 cd "${ROOT}/projects/javascript/"
 npm i -g lerna
-lerna run --concurrency 1 docker:build
-lerna run --concurrency 1 docker:push
+lerna run docker:build
+lerna run docker:push
