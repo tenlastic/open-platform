@@ -11,17 +11,10 @@ apt-get update && apt-get install -qy google-chrome-stable
 # Run Javascript Applications.
 cd "${ROOT}/projects/javascript/"
 npm i -g lerna
-lerna bootstrap --ci --include-dependencies --since
-lerna run lint --ci --include-dependencies --since
+lerna bootstrap --ci --include-dependencies --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
+lerna run --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* lint
 lerna run --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* build
-lerna run --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* build
 lerna run --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* test
-lerna run --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* test
 
-# Merge NodeJS Test Results.
-cd "${ROOT}/projects/javascript/nodejs/"
-npm ci
-npm run merge:junit
-npm run merge:coverage
-npm ci --prefix ./modules/mochawesome-merge-json/
-npm run merge:mochawesome
+# Remove Node Modules.
+find . -name "node_modules" -exec rm -rf '{}' +
