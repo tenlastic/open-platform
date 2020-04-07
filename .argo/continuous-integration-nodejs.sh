@@ -3,6 +3,9 @@ set -e
 
 ROOT=$(pwd)
 
+# Reset Git Changes from Argo Artifacts.
+git reset --hard
+
 # Run Javascript Applications.
 cd "${ROOT}/projects/javascript/"
 npm i -g lerna

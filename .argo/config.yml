@@ -305,6 +305,7 @@ spec:
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
+        volumeMounts:
           - name: continuous-deployment-ssh-keys
             mountPath: /root/.ssh/
             readOnly: true
