@@ -3,7 +3,7 @@
     "node": "^10"
   },
   "license": "Apache-2.0",
-  "name": "@tenlastic/documentation-ui",
+  "name": "@tenlastic/documentation",
   "private": true,
   "version": "0.0.53",
   "scripts": {
