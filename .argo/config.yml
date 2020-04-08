@@ -30,54 +30,40 @@ spec:
           - name: branch
           - name: repository
       steps:
-        - name: checkout
-          template: checkout
-          arguments:
-            parameters:
-              - name: branch
-                value: "{{inputs.parameters.branch}}"
-              - name: repository
-                value: "{{inputs.parameters.repository}}"
+        - - name: checkout
+            template: checkout
+            arguments:
+              parameters:
+                - name: branch
+                  value: "{{inputs.parameters.branch}}"
+                - name: repository
+                  value: "{{inputs.parameters.repository}}"
 
-        - name: continuous-integration-nodejs
-          template: continuous-integration-nodejs
-          dependencies:
-            - checkout
+        - - name: continuous-integration-nodejs
+            template: continuous-integration-nodejs
 
-        - name: continuous-integration-angular
-          template: continuous-integration-angular
-          dependencies:
-            - continuous-integration-nodejs
+        - - name: continuous-integration-angular
+            template: continuous-integration-angular
 
-        - name: terraform
-          template: terraform
-          dependencies:
-            - continuous-integration-angular
-          when: "'{{inputs.parameters.branch}}' == master"
+        - - name: terraform
+            template: terraform
+            when: "'{{inputs.parameters.branch}}' == master"
 
-        - name: publish-npm-modules
-          template: publish-npm-modules
-          dependencies:
-            - terraform
-          when: "'{{inputs.parameters.branch}}' == master"
+        - - name: publish-npm-modules
+            template: publish-npm-modules
+            when: "'{{inputs.parameters.branch}}' == master"
 
-        - name: publish-docker-images
-          template: publish-docker-images
-          dependencies:
-            - publish-npm-modules
-          when: "'{{inputs.parameters.branch}}' == master"
+        - - name: publish-docker-images
+            template: publish-docker-images
+            when: "'{{inputs.parameters.branch}}' == master"
 
-        - name: publish-electron-applications
-          template: publish-electron-applications
-          dependencies:
-            - publish-docker-images
-          when: "'{{inputs.parameters.branch}}' == master"
+        - - name: publish-electron-applications
+            template: publish-electron-applications
+            when: "'{{inputs.parameters.branch}}' == master"
 
-        - name: publish-miscellaneous-docker-images
-          template: publish-miscellaneous-docker-images
-          dependencies:
-            - publish-electron-applications
-          when: "'{{inputs.parameters.branch}}' == master"
+        - - name: publish-miscellaneous-docker-images
+            template: publish-miscellaneous-docker-images
+            when: "'{{inputs.parameters.branch}}' == master"
 
     - name: checkout
       script:
