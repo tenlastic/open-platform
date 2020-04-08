@@ -434,7 +434,7 @@ kind: Deployment
 metadata:
   name: workflow-controller
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: workflow-controller
