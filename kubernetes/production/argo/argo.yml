@@ -365,7 +365,6 @@ metadata:
 data:
   config: |
     artifactRepository:
-      archiveLogs: true
       s3:
         bucket: argo
         endpoint: minio:9000

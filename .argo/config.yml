@@ -10,8 +10,6 @@ spec:
       - name: repository
         value: git@github.com:tenlastic/open-platform.git
   entrypoint: pipeline
-  podGC:
-    strategy: OnWorkflowCompletion
   volumes:
     - name: continuous-deployment-ssh-keys
       secret:
