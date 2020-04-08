@@ -10,6 +10,14 @@ spec:
       - name: repository
         value: git@github.com:tenlastic/open-platform.git
   entrypoint: pipeline
+  volumeClaimTemplates:
+    - metadata:
+        name: workspace
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
   volumes:
     - name: continuous-deployment-ssh-keys
       secret:
@@ -31,82 +39,46 @@ spec:
                   value: "{{inputs.parameters.branch}}"
                 - name: repository
                   value: "{{inputs.parameters.repository}}"
-          - name: continuous-integration-angular
-            template: continuous-integration-angular
+
+          # - name: continuous-integration-angular
+          #   template: continuous-integration-angular
+          #   dependencies:
+          #     - checkout
+
+          # - name: continuous-integration-nodejs
+          #   template: continuous-integration-nodejs
+          #   dependencies:
+          #     - continuous-integration-angular
+
+          - name: terraform
+            template: terraform
             dependencies:
               - checkout
-            arguments:
-              artifacts:
-                - name: repository
-                  from: "{{tasks.checkout.outputs.artifacts.repository}}"
-          - name: continuous-integration-nodejs
-            template: continuous-integration-nodejs
-            dependencies:
-              - checkout
-            arguments:
-              artifacts:
-                - name: repository
-                  from: "{{tasks.checkout.outputs.artifacts.repository}}"
-          - name: publish-miscellaneous-docker-images
-            template: publish-miscellaneous-docker-images
-            dependencies:
-              - continuous-integration-angular
-              - continuous-integration-nodejs
             when: "'{{inputs.parameters.branch}}' == master"
-            arguments:
-              artifacts:
-                - name: repository
-                  from: "{{tasks.checkout.outputs.artifacts.repository}}"
+
           - name: publish-npm-modules
             template: publish-npm-modules
             dependencies:
-              - continuous-integration-angular
-              - continuous-integration-nodejs
+              - terraform
             when: "'{{inputs.parameters.branch}}' == master"
-            arguments:
-              artifacts:
-                - name: repository
-                  from: "{{tasks.checkout.outputs.artifacts.repository}}"
-                - name: angular
-                  from: "{{tasks.continuous-integration-angular.outputs.artifacts.angular}}"
-                - name: nodejs
-                  from: "{{tasks.continuous-integration-nodejs.outputs.artifacts.nodejs}}"
+
           - name: publish-docker-images
             template: publish-docker-images
             dependencies:
               - publish-npm-modules
             when: "'{{inputs.parameters.branch}}' == master"
-            arguments:
-              artifacts:
-                - name: repository
-                  from: "{{tasks.checkout.outputs.artifacts.repository}}"
-                - name: angular
-                  from: "{{tasks.continuous-integration-angular.outputs.artifacts.angular}}"
-                - name: nodejs
-                  from: "{{tasks.continuous-integration-nodejs.outputs.artifacts.nodejs}}"
+
           - name: publish-electron-applications
             template: publish-electron-applications
             dependencies:
               - publish-docker-images
             when: "'{{inputs.parameters.branch}}' == master"
-            arguments:
-              artifacts:
-                - name: repository
-                  from: "{{tasks.checkout.outputs.artifacts.repository}}"
-                - name: angular
-                  from: "{{tasks.continuous-integration-angular.outputs.artifacts.angular}}"
-                - name: nodejs
-                  from: "{{tasks.continuous-integration-nodejs.outputs.artifacts.nodejs}}"
-          - name: terraform
-            template: terraform
+
+          - name: publish-miscellaneous-docker-images
+            template: publish-miscellaneous-docker-images
             dependencies:
-              - continuous-integration-angular
-              - continuous-integration-nodejs
+              - publish-electron-applications
             when: "'{{inputs.parameters.branch}}' == master"
-            arguments:
-              artifacts:
-                - name: repository
-                  from: "{{tasks.checkout.outputs.artifacts.repository}}"
 
     - name: checkout
       script:
@@ -121,16 +93,12 @@ spec:
           - name: continuous-deployment-ssh-keys
             mountPath: /tmp/secrets/continuous-deployment-ssh-keys/
             readonly: true
+          - name: workspace
+            mountPath: /usr/src/
       inputs:
         parameters:
           - name: branch
           - name: repository
-      outputs:
-        artifacts:
-          - archive:
-              none: {}
-            name: repository
-            path: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -138,21 +106,12 @@ spec:
     - name: continuous-integration-angular
       container:
         image: node:10
-        command:
-          - /bin/sh
-          - -c
-          - chmod +x ./.argo/continuous-integration-angular.sh && ./.argo/continuous-integration-angular.sh
+        command: [sh]
+        args: [./.argo/continuous-integration-angular.sh]
+        volumeMounts:
+          - name: workspace
+            mountPath: /usr/src/
         workingDir: /usr/src/app/
-      inputs:
-        artifacts:
-          - name: repository
-            path: /usr/src/app/
-      outputs:
-        artifacts:
-          - archive:
-              none: {}
-            name: angular
-            path: /usr/src/app/projects/javascript/angular/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -160,13 +119,14 @@ spec:
     - name: continuous-integration-nodejs
       container:
         image: node:10
-        command:
-          - /bin/sh
-          - -c
-          - chmod +x ./.argo/continuous-integration-nodejs.sh && ./.argo/continuous-integration-nodejs.sh
+        command: [sh]
+        args: [./.argo/continuous-integration-nodejs.sh]
         envFrom:
           - secretRef:
               name: continuous-integration-environment-variables
+        volumeMounts:
+          - name: workspace
+            mountPath: /usr/src/
         workingDir: /usr/src/app/
       sidecars:
         - name: dind
@@ -207,16 +167,6 @@ spec:
           image: rabbitmq
         - name: zookeeper
           image: wurstmeister/zookeeper:latest
-      inputs:
-        artifacts:
-          - name: repository
-            path: /usr/src/app/
-      outputs:
-        artifacts:
-          - archive:
-              none: {}
-            name: nodejs
-            path: /usr/src/app/projects/javascript/nodejs/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -224,22 +174,15 @@ spec:
     - name: publish-docker-images
       container:
         image: node:10
-        command:
-          - /bin/sh
-          - -c
-          - chmod +x ./.argo/publish-docker-images.sh && ./.argo/publish-docker-images.sh
+        command: [sh]
+        args: [./.argo/publish-docker-images.sh]
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
+        volumeMounts:
+          - name: workspace
+            mountPath: /usr/src/
         workingDir: /usr/src/app/
-      inputs:
-        artifacts:
-          - name: repository
-            path: /usr/src/app/
-          - name: angular
-            path: /usr/src/app/projects/javascript/angular/
-          - name: nodejs
-            path: /usr/src/app/projects/javascript/nodejs/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -247,22 +190,15 @@ spec:
     - name: publish-electron-applications
       container:
         image: electronuserland/builder:wine
-        command:
-          - /bin/sh
-          - -c
-          - chmod +x ./.argo/publish-electron-applications.sh && ./.argo/publish-electron-applications.sh
+        command: [sh]
+        args: [./.argo/publish-electron-applications.sh]
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
+        volumeMounts:
+          - name: workspace
+            mountPath: /usr/src/
         workingDir: /usr/src/app/
-      inputs:
-        artifacts:
-          - name: repository
-            path: /usr/src/app/
-          - name: angular
-            path: /usr/src/app/projects/javascript/angular/
-          - name: nodejs
-            path: /usr/src/app/projects/javascript/nodejs/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -270,16 +206,17 @@ spec:
     - name: publish-miscellaneous-docker-images
       container:
         image: docker:19.03.8
-        command:
-          - /bin/sh
-          - -c
-          - chmod +x ./.argo/publish-miscellaneous-docker-images.sh && sh ./.argo/publish-miscellaneous-docker-images.sh
+        command: [sh]
+        args: [./.argo/publish-miscellaneous-docker-images.sh]
         env:
           - name: DOCKER_HOST
             value: 127.0.0.1
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
+        volumeMounts:
+          - name: workspace
+            mountPath: /usr/src/
         workingDir: /usr/src/app/
       sidecars:
         - name: dind
@@ -290,10 +227,6 @@ spec:
             - "tcp://0.0.0.0:2375"
           securityContext:
             privileged: true
-      inputs:
-        artifacts:
-          - name: repository
-            path: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -301,10 +234,8 @@ spec:
     - name: publish-npm-modules
       container:
         image: node:10
-        command:
-          - /bin/sh
-          - -c
-          - chmod +x ./.argo/publish-npm-modules.sh && ./.argo/publish-npm-modules.sh
+        command: [sh]
+        args: [./.argo/publish-npm-modules.sh]
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
@@ -312,15 +243,9 @@ spec:
           - name: continuous-deployment-ssh-keys
             mountPath: /root/.ssh/
             readOnly: true
+          - name: workspace
+            mountPath: /usr/src/
         workingDir: /usr/src/app/
-      inputs:
-        artifacts:
-          - name: repository
-            path: /usr/src/app/
-          - name: angular
-            path: /usr/src/app/projects/javascript/angular/
-          - name: nodejs
-            path: /usr/src/app/projects/javascript/nodejs/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -328,18 +253,15 @@ spec:
     - name: terraform
       container:
         image: hashicorp/terraform:0.11.13
-        command:
-          - /bin/sh
-          - -c
-          - chmod +x ./.argo/terraform.sh && sh ./.argo/terraform.sh
+        command: [sh]
+        args: [./.argo/terraform.sh]
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
+        volumeMounts:
+          - name: workspace
+            mountPath: /usr/src/
         workingDir: /usr/src/app/
-      inputs:
-        artifacts:
-          - name: repository
-            path: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
