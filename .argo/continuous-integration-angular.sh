@@ -3,9 +3,6 @@ set -e
 
 ROOT=$(pwd)
 
-# Reset Git Changes from Argo Artifacts.
-git reset --hard
-
 # Install Google Chrome.
 wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
 sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
@@ -18,6 +15,3 @@ lerna bootstrap --ci --include-dependencies --scope @tenlastic/*-ui --scope @ten
 lerna run lint --ci --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
 lerna run build --ci --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
 lerna run test --ci --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
-
-# Remove Node Modules.
-find . -name "node_modules" -exec rm -rf '{}' +

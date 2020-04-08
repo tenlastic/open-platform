@@ -3,9 +3,6 @@ set -e
 
 ROOT=$(pwd)
 
-# Reset Git Changes from Argo Artifacts.
-git reset --hard
-
 # Run Javascript Applications.
 cd "${ROOT}/projects/javascript/"
 npm i -g lerna
@@ -13,6 +10,3 @@ lerna bootstrap --ci --include-dependencies --ignore @tenlastic/*-ui --ignore @t
 lerna run lint --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since 
 lerna run build --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since
 lerna run test --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since
-
-# Remove Node Modules.
-find . -name "node_modules" -exec rm -rf '{}' +
