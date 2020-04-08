@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/documentation",
   "private": true,
-  "version": "0.0.53",
+  "version": "0.0.54",
   "scripts": {
     "build": "sh ./scripts/build.sh",
     "docker:build": "sh ./scripts/docker-build.sh documentation-ui",
