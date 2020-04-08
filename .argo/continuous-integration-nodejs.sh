@@ -10,9 +10,9 @@ git reset --hard
 cd "${ROOT}/projects/javascript/"
 npm i -g lerna
 lerna bootstrap --ci --include-dependencies --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --scope nodejs --since
-lerna run --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* lint
-lerna run --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* build
-lerna run --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* test
+lerna run lint --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since 
+lerna run build --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since
+lerna run test --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since
 
 # Remove Node Modules.
 find . -name "node_modules" -exec rm -rf '{}' +

@@ -40,20 +40,20 @@ spec:
                 - name: repository
                   value: "{{inputs.parameters.repository}}"
 
-          # - name: continuous-integration-angular
-          #   template: continuous-integration-angular
-          #   dependencies:
-          #     - checkout
+          - name: continuous-integration-nodejs
+            template: continuous-integration-nodejs
+            dependencies:
+              - checkout
 
-          # - name: continuous-integration-nodejs
-          #   template: continuous-integration-nodejs
-          #   dependencies:
-          #     - continuous-integration-angular
+          - name: continuous-integration-angular
+            template: continuous-integration-angular
+            dependencies:
+              - continuous-integration-nodejs
 
           - name: terraform
             template: terraform
             dependencies:
-              - checkout
+              - continuous-integration-nodejs
             when: "'{{inputs.parameters.branch}}' == master"
 
           - name: publish-npm-modules
@@ -176,6 +176,9 @@ spec:
         image: node:10
         command: [sh]
         args: [./.argo/publish-docker-images.sh]
+        env:
+          - name: DOCKER_HOST
+            value: 127.0.0.1
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
@@ -183,6 +186,15 @@ spec:
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
+      sidecars:
+        - name: dind
+          image: docker:19.03.8-dind
+          command:
+            - "dockerd"
+            - "--host"
+            - "tcp://0.0.0.0:2375"
+          securityContext:
+            privileged: true
       retryStrategy:
         limit: 2
         retryPolicy: OnError
