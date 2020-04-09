@@ -104,7 +104,7 @@ spec:
       container:
         image: node:10
         command: [sh]
-        args: [./.argo/continuous-integration-angular.sh]
+        args: [./.argo-ci/continuous-integration-angular.sh]
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
@@ -117,7 +117,7 @@ spec:
       container:
         image: node:10
         command: [sh]
-        args: [./.argo/continuous-integration-nodejs.sh]
+        args: [./.argo-ci/continuous-integration-nodejs.sh]
         envFrom:
           - secretRef:
               name: continuous-integration-environment-variables
@@ -188,7 +188,7 @@ spec:
       container:
         image: node:10
         command: [sh]
-        args: [./.argo/publish-docker-images.sh]
+        args: [./.argo-ci/publish-docker-images.sh]
         env:
           - name: DOCKER_HOST
             value: 127.0.0.1
@@ -216,7 +216,7 @@ spec:
       container:
         image: electronuserland/builder:wine
         command: [sh]
-        args: [./.argo/publish-electron-applications.sh]
+        args: [./.argo-ci/publish-electron-applications.sh]
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
@@ -232,7 +232,7 @@ spec:
       container:
         image: docker:19.03.8
         command: [sh]
-        args: [./.argo/publish-miscellaneous-docker-images.sh]
+        args: [./.argo-ci/publish-miscellaneous-docker-images.sh]
         env:
           - name: DOCKER_HOST
             value: 127.0.0.1
@@ -260,7 +260,7 @@ spec:
       container:
         image: node:10
         command: [sh]
-        args: [./.argo/publish-npm-modules.sh]
+        args: [./.argo-ci/publish-npm-modules.sh]
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
@@ -279,7 +279,7 @@ spec:
       container:
         image: hashicorp/terraform:0.11.13
         command: [sh]
-        args: [./.argo/terraform.sh]
+        args: [./.argo-ci/terraform.sh]
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
