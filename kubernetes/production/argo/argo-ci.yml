@@ -36,6 +36,7 @@ spec:
           resources:
             requests:
               cpu: 50m
+      serviceAccountName: argo
 ---
 apiVersion: v1
 kind: Service
