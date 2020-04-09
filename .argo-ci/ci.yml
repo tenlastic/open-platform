@@ -5,10 +5,9 @@ metadata:
 spec:
   arguments:
     parameters:
-      - name: branch
-        value: master
-      - name: repository
+      - name: repo
         value: git@github.com:tenlastic/open-platform.git
+      - name: revision
   entrypoint: pipeline
   volumeClaimTemplates:
     - metadata:
@@ -27,17 +26,24 @@ spec:
     - name: pipeline
       inputs:
         parameters:
-          - name: branch
-          - name: repository
+          - name: repo
+          - name: revision
       steps:
         - - name: checkout
             template: checkout
             arguments:
               parameters:
-                - name: branch
-                  value: "{{inputs.parameters.branch}}"
-                - name: repository
-                  value: "{{inputs.parameters.repository}}"
+                - name: repo
+                  value: "{{inputs.parameters.repo}}"
+                - name: revision
+                  value: "{{inputs.parameters.revision}}"
+
+        - - name: get-branch
+            template: get-branch
+            arguments:
+              parameters:
+                - name: revision
+                  value: "{{inputs.parameters.revision}}"
 
         - - name: continuous-integration-nodejs
             template: continuous-integration-nodejs
@@ -47,33 +53,39 @@ spec:
 
         - - name: terraform
             template: terraform
-            when: "'{{inputs.parameters.branch}}' == master"
+            when: "'{{steps.get-branch.outputs.result}}' == master"
 
         - - name: publish-npm-modules
             template: publish-npm-modules
-            when: "'{{inputs.parameters.branch}}' == master"
+            when: "'{{steps.get-branch.outputs.result}}' == master"
 
         - - name: publish-docker-images
             template: publish-docker-images
-            when: "'{{inputs.parameters.branch}}' == master"
+            when: "'{{steps.get-branch.outputs.result}}' == master"
 
         - - name: publish-electron-applications
             template: publish-electron-applications
-            when: "'{{inputs.parameters.branch}}' == master"
+            when: "'{{steps.get-branch.outputs.result}}' == master"
 
         - - name: publish-miscellaneous-docker-images
             template: publish-miscellaneous-docker-images
-            when: "'{{inputs.parameters.branch}}' == master"
+            when: "'{{steps.get-branch.outputs.result}}' == master"
 
     - name: checkout
       script:
         image: alpine/git:latest
         command: [sh]
         source: |
+          # Set up SSH keys.
           mkdir -p /root/.ssh/
           echo 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==' > ~/.ssh/known_hosts
           cp /tmp/secrets/continuous-deployment-ssh-keys/id_rsa /root/.ssh/id_rsa
-          git clone --branch {{inputs.parameters.branch}} {{inputs.parameters.repository}} /usr/src/app/
+
+          # Clone repository and reset to specific revision.
+          git clone {{inputs.parameters.repo}} /usr/src/app/
+          cd /usr/src/app/
+          git fetch --all
+          git reset --hard {{inputs.parameters.revision}}
         volumeMounts:
           - name: continuous-deployment-ssh-keys
             mountPath: /tmp/secrets/continuous-deployment-ssh-keys/
@@ -82,8 +94,8 @@ spec:
             mountPath: /usr/src/
       inputs:
         parameters:
-          - name: branch
-          - name: repository
+          - name: repo
+          - name: revision
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -152,6 +164,22 @@ spec:
           image: rabbitmq
         - name: zookeeper
           image: wurstmeister/zookeeper:latest
+      retryStrategy:
+        limit: 2
+        retryPolicy: OnError
+
+    - name: get-branch
+      script:
+        image: alpine/git:latest
+        command: [sh]
+        source: git branch -a --contains {{inputs.parameters.revision}} | cut -c 3-
+        volumeMounts:
+          - name: workspace
+            mountPath: /usr/src/
+        workingDir: /usr/src/app/
+      inputs:
+        parameters:
+          - name: revision
       retryStrategy:
         limit: 2
         retryPolicy: OnError

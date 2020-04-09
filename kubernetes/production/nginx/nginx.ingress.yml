@@ -77,6 +77,13 @@ spec:
             backend:
               serviceName: authentication-api
               servicePort: 3000
+    - host: ci.tenlastic.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: argo-ci
+              servicePort: 8001
     - host: minio.tenlastic.com
       http:
         paths:
