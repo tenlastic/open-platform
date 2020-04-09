@@ -5,6 +5,8 @@ ROOT=$(pwd)
 cd "${ROOT}/projects/javascript/"
 
 # Update Git Credentials.
+git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
+git config --global gc.auto 0 || true
 git config user.email $GITHUB_USER_EMAIL
 git config user.name $GITHUB_USER_NAME
 
