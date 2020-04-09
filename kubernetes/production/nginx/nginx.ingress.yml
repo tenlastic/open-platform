@@ -83,7 +83,7 @@ spec:
           - path: /
             backend:
               serviceName: argo-ci
-              servicePort: 8001
+              servicePort: 8002
     - host: minio.tenlastic.com
       http:
         paths:
