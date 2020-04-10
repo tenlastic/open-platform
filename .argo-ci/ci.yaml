@@ -9,6 +9,8 @@ spec:
         value: git@github.com:tenlastic/open-platform.git
       - name: revision
   entrypoint: pipeline
+  podGC:
+    strategy: OnWorkflowSuccess
   volumeClaimTemplates:
     - metadata:
         name: workspace
@@ -115,7 +117,7 @@ spec:
         resources:
           requests:
             memory: 4096M
-            cpu: 1000m
+            cpu: 500m
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
@@ -135,7 +137,7 @@ spec:
         resources:
           requests:
             memory: 4096M
-            cpu: 1000m
+            cpu: 500m
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
@@ -213,7 +215,7 @@ spec:
         resources:
           requests:
             memory: 4096M
-            cpu: 1000m
+            cpu: 500m
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
@@ -242,7 +244,7 @@ spec:
         resources:
           requests:
             memory: 4096M
-            cpu: 1000m
+            cpu: 500m
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
@@ -290,7 +292,7 @@ spec:
         resources:
           requests:
             memory: 4096M
-            cpu: 1000m
+            cpu: 500m
         volumeMounts:
           - name: continuous-deployment-ssh-keys
             mountPath: /root/.ssh/
