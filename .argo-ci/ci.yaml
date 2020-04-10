@@ -9,9 +9,6 @@ spec:
         value: git@github.com:tenlastic/open-platform.git
       - name: revision
   entrypoint: pipeline
-  onExit:
-    - name: set-final-status
-      template: set-final-status
   podGC:
     strategy: OnWorkflowSuccess
   volumeClaimTemplates:
@@ -318,40 +315,6 @@ spec:
       retryStrategy:
         limit: 2
         retryPolicy: OnError
-
-    - name: set-final-status
-      script:
-        image: curlimages/curl:7.69.1
-        command: [sh]
-        source: |
-          [ {{workflow.status}} == "Succeeded" ] && STATUS="success" || STATUS="failure"
-          curl --location --request POST 'https://api.github.com/repos/tenlastic/open-platform/statuses/{{inputs.parameters.revision}}' \
-            --data-raw "{\"context\":\"argo\",\"state\":\"${STATUS}\"}" \
-            --header "Authorization: Bearer ${GITHUB_TOKEN}" \
-            --header 'Content-Type: application/json'
-        envFrom:
-          - secretRef:
-              name: continuous-deployment-environment-variables
-      inputs:
-        parameters:
-          - name: revision
-
-    - name: set-initial-status
-      script:
-        image: curlimages/curl:7.69.1
-        command: [sh]
-        source: |
-          echo 'https://api.github.com/repos/tenlastic/open-platform/statuses/{{inputs.parameters.revision}}'
-          curl --location --request POST 'https://api.github.com/repos/tenlastic/open-platform/statuses/{{inputs.parameters.revision}}' \
-            --data-raw '{"context":"argo","state":"pending"}' \
-            --header "Authorization: Bearer ${GITHUB_TOKEN}" \
-            --header 'Content-Type: application/json'
-        envFrom:
-          - secretRef:
-              name: continuous-deployment-environment-variables
-      inputs:
-        parameters:
-          - name: revision
 
     - name: skip-ci
       script:
