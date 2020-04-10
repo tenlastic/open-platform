@@ -9,6 +9,7 @@ spec:
         value: git@github.com:tenlastic/open-platform.git
       - name: revision
   entrypoint: pipeline
+  serviceAccountName: argo
   volumeClaimTemplates:
     - metadata:
         name: workspace
