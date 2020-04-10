@@ -20,7 +20,7 @@ spec:
                     operator: Exists
       containers:
         - name: argo-ci
-          image: argoproj/argoci:latest
+          image: argoproj/argoci:v0.0.1-701df82
           env:
             - name: IN_CLUSTER
               value: "true"
@@ -29,7 +29,7 @@ spec:
             - name: NAMESPACE
               value: default
             - name: ARGO_CI_IMAGE
-              value: "argoproj/argoci:latest"
+              value: argoproj/argoci:v0.0.1-701df82
           ports:
             - containerPort: 8001
             - containerPort: 8002
