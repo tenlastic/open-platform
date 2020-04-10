@@ -32,7 +32,6 @@ spec:
               value: argoproj/argoci:v1.0.0-alpha1
           ports:
             - containerPort: 8001
-            - containerPort: 8002
           resources:
             requests:
               cpu: 50m
