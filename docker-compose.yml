@@ -4,5 +4,6 @@ services:
     build:
       context: ./
     volumes:
-      - ~/.kube/config:/.kube/config
+      - ~/.config/gcloud/:/root/.config/gcloud/
+      - ~/.kube/config/:/.kube/config/
       - ./:/home/

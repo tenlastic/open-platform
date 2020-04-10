@@ -109,6 +109,14 @@ spec:
         image: node:10
         command: [sh]
         args: [./.argo-ci/continuous-integration-angular.sh]
+        envFrom:
+          - secretRef:
+              name: continuous-integration-environment-variables
+        resources:
+          requests:
+            cpu:
+              memory: 4096M
+              cpu: 1000m
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
@@ -125,6 +133,11 @@ spec:
         envFrom:
           - secretRef:
               name: continuous-integration-environment-variables
+        resources:
+          requests:
+            cpu:
+              memory: 4096M
+              cpu: 1000m
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
@@ -199,6 +212,11 @@ spec:
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
+        resources:
+          requests:
+            cpu:
+              memory: 4096M
+              cpu: 1000m
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
@@ -224,6 +242,11 @@ spec:
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
+        resources:
+          requests:
+            cpu:
+              memory: 4096M
+              cpu: 1000m
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
@@ -268,6 +291,11 @@ spec:
         envFrom:
           - secretRef:
               name: continuous-deployment-environment-variables
+        resources:
+          requests:
+            cpu:
+              memory: 4096M
+              cpu: 1000m
         volumeMounts:
           - name: continuous-deployment-ssh-keys
             mountPath: /root/.ssh/

@@ -64,11 +64,12 @@ RUN wget https://github.com/bitnami-labs/sealed-secrets/releases/download/${KUBE
   chmod +x kubeseal && \
   mv kubeseal /usr/local/bin/kubeseal
 
-# Install Stern
+# Install Stern.
 RUN wget https://github.com/wercker/stern/releases/download/$STERN_VERSION/stern_linux_amd64 -O stern && \
   chmod +x stern && \
   mv stern /usr/local/bin/stern
 
+#Install Argo CLI.
 RUN wget https://github.com/argoproj/argo/releases/download/v$ARGO_VERSION/argo-linux-amd64 -O argo && \
   chmod +x argo && \
   mv argo /usr/local/bin/argo
