@@ -31,13 +31,6 @@ spec:
           - name: repo
           - name: revision
       steps:
-        - - name: set-initial-status
-            template: set-initial-status
-            arguments:
-              parameters:
-                - name: revision
-                  value: "{{inputs.parameters.revision}}"
-
         - - name: checkout
             template: checkout
             arguments:
