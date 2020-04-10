@@ -9,8 +9,6 @@ spec:
         value: git@github.com:tenlastic/open-platform.git
       - name: revision
   entrypoint: pipeline
-  podGC:
-    strategy: OnWorkflowSuccess
   volumeClaimTemplates:
     - metadata:
         name: workspace
