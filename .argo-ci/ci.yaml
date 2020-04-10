@@ -9,7 +9,9 @@ spec:
         value: git@github.com:tenlastic/open-platform.git
       - name: revision
   entrypoint: pipeline
-  onExit: set-final-status
+  onExit:
+    - name: set-final-status
+      template: set-final-status
   podGC:
     strategy: OnWorkflowSuccess
   volumeClaimTemplates:
@@ -320,11 +322,11 @@ spec:
     - name: set-final-status
       script:
         image: curlimages/curl:7.69.1
-        command: [curl]
+        command: [sh]
         source: |
           [ {{workflow.status}} == "Succeeded" ] && STATUS="success" || STATUS="failure"
-          curl --location --request POST 'https://api.github.com/repos/tenlastic/open-platform/statuses/{{input.parameters.revision}}' \
-            --data-raw "{\"state\":\"${STATUS}\"}" \
+          curl --location --request POST 'https://api.github.com/repos/tenlastic/open-platform/statuses/{{inputs.parameters.revision}}' \
+            --data-raw "{\"context\":\"argo\",\"state\":\"${STATUS}\"}" \
             --header "Authorization: Bearer ${GITHUB_TOKEN}" \
             --header 'Content-Type: application/json'
         envFrom:
@@ -337,10 +339,11 @@ spec:
     - name: set-initial-status
       script:
         image: curlimages/curl:7.69.1
-        command: [curl]
+        command: [sh]
         source: |
-          curl --location --request POST 'https://api.github.com/repos/tenlastic/open-platform/statuses/{{input.parameters.revision}}' \
-            --data-raw '{"state":"pending"}' \
+          echo 'https://api.github.com/repos/tenlastic/open-platform/statuses/{{inputs.parameters.revision}}'
+          curl --location --request POST 'https://api.github.com/repos/tenlastic/open-platform/statuses/{{inputs.parameters.revision}}' \
+            --data-raw '{"context":"argo","state":"pending"}' \
             --header "Authorization: Bearer ${GITHUB_TOKEN}" \
             --header 'Content-Type: application/json'
         envFrom:
