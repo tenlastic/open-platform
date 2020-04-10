@@ -40,6 +40,9 @@ spec:
                 - name: revision
                   value: "{{inputs.parameters.revision}}"
 
+        - - name: skip-ci
+            template: skip-ci
+
         - - name: get-branch
             template: get-branch
             arguments:
@@ -49,29 +52,31 @@ spec:
 
         - - name: continuous-integration-nodejs
             template: continuous-integration-nodejs
+            when: "'{{steps.skip-ci.outputs.result}}' == false"
 
         - - name: continuous-integration-angular
             template: continuous-integration-angular
+            when: "'{{steps.skip-ci.outputs.result}}' == false"
 
         - - name: terraform
             template: terraform
-            when: "'{{steps.get-branch.outputs.result}}' == master"
+            when: "('{{steps.skip-ci.outputs.result}}' == false) && ('{{steps.get-branch.outputs.result}}' == master)"
 
         - - name: publish-npm-modules
             template: publish-npm-modules
-            when: "'{{steps.get-branch.outputs.result}}' == master"
+            when: "('{{steps.skip-ci.outputs.result}}' == false) && ('{{steps.get-branch.outputs.result}}' == master)"
 
         - - name: publish-docker-images
             template: publish-docker-images
-            when: "'{{steps.get-branch.outputs.result}}' == master"
+            when: "('{{steps.skip-ci.outputs.result}}' == false) && ('{{steps.get-branch.outputs.result}}' == master)"
 
         - - name: publish-electron-applications
             template: publish-electron-applications
-            when: "'{{steps.get-branch.outputs.result}}' == master"
+            when: "('{{steps.skip-ci.outputs.result}}' == false) && ('{{steps.get-branch.outputs.result}}' == master)"
 
         - - name: publish-miscellaneous-docker-images
             template: publish-miscellaneous-docker-images
-            when: "'{{steps.get-branch.outputs.result}}' == master"
+            when: "('{{steps.skip-ci.outputs.result}}' == false) && ('{{steps.get-branch.outputs.result}}' == master)"
 
     - name: checkout
       script:
@@ -297,6 +302,19 @@ spec:
           - name: continuous-deployment-ssh-keys
             mountPath: /root/.ssh/
             readOnly: true
+          - name: workspace
+            mountPath: /usr/src/
+        workingDir: /usr/src/app/
+      retryStrategy:
+        limit: 2
+        retryPolicy: OnError
+
+    - name: skip-ci
+      script:
+        image: alpine/git:latest
+        command: [sh]
+        source: '[[ $(git log -1 --pretty=%B) == *"[skip ci]"* ]] && echo "true" || echo "false"'
+        volumeMounts:
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
