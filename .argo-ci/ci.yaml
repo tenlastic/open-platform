@@ -9,6 +9,7 @@ spec:
         value: git@github.com:tenlastic/open-platform.git
       - name: revision
   entrypoint: pipeline
+  onExit: set-final-status
   podGC:
     strategy: OnWorkflowSuccess
   volumeClaimTemplates:
@@ -31,6 +32,13 @@ spec:
           - name: repo
           - name: revision
       steps:
+        - - name: set-initial-status
+            template: set-initial-status
+            arguments:
+              parameters:
+                - name: revision
+                  value: "{{inputs.parameters.revision}}"
+
         - - name: checkout
             template: checkout
             arguments:
@@ -308,6 +316,39 @@ spec:
       retryStrategy:
         limit: 2
         retryPolicy: OnError
+
+    - name: set-final-status
+      script:
+        image: curlimages/curl:7.69.1
+        command: [curl]
+        source: |
+          [ {{workflow.status}} == "Succeeded" ] && STATUS="success" || STATUS="failure"
+          curl --location --request POST 'https://api.github.com/repos/tenlastic/open-platform/statuses/{{input.parameters.revision}}' \
+            --data-raw "{\"state\":\"${STATUS}\"}" \
+            --header "Authorization: Bearer ${GITHUB_TOKEN}" \
+            --header 'Content-Type: application/json'
+        envFrom:
+          - secretRef:
+              name: continuous-deployment-environment-variables
+      inputs:
+        parameters:
+          - name: revision
+
+    - name: set-initial-status
+      script:
+        image: curlimages/curl:7.69.1
+        command: [curl]
+        source: |
+          curl --location --request POST 'https://api.github.com/repos/tenlastic/open-platform/statuses/{{input.parameters.revision}}' \
+            --data-raw '{"state":"pending"}' \
+            --header "Authorization: Bearer ${GITHUB_TOKEN}" \
+            --header 'Content-Type: application/json'
+        envFrom:
+          - secretRef:
+              name: continuous-deployment-environment-variables
+      inputs:
+        parameters:
+          - name: revision
 
     - name: skip-ci
       script:
