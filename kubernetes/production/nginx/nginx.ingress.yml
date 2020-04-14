@@ -49,6 +49,10 @@ spec:
             backend:
               serviceName: game-api
               servicePort: 3000
+          - path: /game-servers
+            backend:
+              serviceName: game-server-api
+              servicePort: 3000
           - path: /ignorations
             backend:
               serviceName: social-api
