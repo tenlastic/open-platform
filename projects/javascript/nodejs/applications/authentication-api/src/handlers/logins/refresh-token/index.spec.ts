@@ -48,7 +48,9 @@ describe('handlers/logins/refresh-token', function() {
     context('when the JWT passes verification', function() {
       context('when the JWT does not include required parameters', function() {
         it('throws an error', async function() {
-          const token = jwt.sign({}, process.env.JWT_PRIVATE_KEY, { algorithm: 'RS256' });
+          const token = jwt.sign({}, process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'), {
+            algorithm: 'RS256',
+          });
           const ctx: any = new ContextMock({
             request: {
               body: { token },
@@ -65,7 +67,7 @@ describe('handlers/logins/refresh-token', function() {
         context('when the RefreshToken is not in the database', function() {
           it('throws an error', async function() {
             const user = await UserMock.create();
-            const token = jwt.sign({ user }, process.env.JWT_PRIVATE_KEY, {
+            const token = jwt.sign({ user }, process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'), {
               algorithm: 'RS256',
               jwtid: chance.hash(),
             });
@@ -88,7 +90,7 @@ describe('handlers/logins/refresh-token', function() {
               const refreshToken = await RefreshTokenMock.create({
                 userId: mongoose.Types.ObjectId() as any,
               });
-              const token = jwt.sign({ user }, process.env.JWT_PRIVATE_KEY, {
+              const token = jwt.sign({ user }, process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'), {
                 algorithm: 'RS256',
                 jwtid: refreshToken.jti,
               });
@@ -108,7 +110,7 @@ describe('handlers/logins/refresh-token', function() {
             it('returns accessToken and refreshToken', async function() {
               const user = await UserMock.create();
               const refreshToken = await RefreshTokenMock.create({ userId: user._id });
-              const token = jwt.sign({ user }, process.env.JWT_PRIVATE_KEY, {
+              const token = jwt.sign({ user }, process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'), {
                 algorithm: 'RS256',
                 jwtid: refreshToken.jti,
               });

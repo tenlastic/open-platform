@@ -13,6 +13,6 @@ describe('handlers/miscellaneous/public-keys', function() {
     await handler(ctx);
 
     expect(ctx.response.body.algorithm).to.eql('rs256');
-    expect(ctx.response.body.key).to.eql(process.env.JWT_PUBLIC_KEY);
+    expect(ctx.response.body.key).to.eql(process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n'));
   });
 });

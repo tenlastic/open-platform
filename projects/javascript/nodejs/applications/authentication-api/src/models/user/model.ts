@@ -128,16 +128,24 @@ export class UserSchema {
     // Remove unauthorized fields from the User.
     const filteredUser = await UserPermissions.read(this, this);
 
-    const accessToken = jwt.sign({ user: filteredUser }, process.env.JWT_PRIVATE_KEY, {
-      algorithm: 'RS256',
-      expiresIn: '30m',
-      jwtid: jti,
-    });
-    const refreshToken = jwt.sign({ user: filteredUser }, process.env.JWT_PRIVATE_KEY, {
-      algorithm: 'RS256',
-      expiresIn: '14d',
-      jwtid: jti,
-    });
+    const accessToken = jwt.sign(
+      { user: filteredUser },
+      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      {
+        algorithm: 'RS256',
+        expiresIn: '30m',
+        jwtid: jti,
+      },
+    );
+    const refreshToken = jwt.sign(
+      { user: filteredUser },
+      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      {
+        algorithm: 'RS256',
+        expiresIn: '14d',
+        jwtid: jti,
+      },
+    );
 
     return { accessToken, refreshToken };
   }

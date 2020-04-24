@@ -22,7 +22,11 @@ export async function handler(ctx: Context) {
     jwtid: jti,
     ...(expiresIn && { expiresIn }),
   };
-  const refreshToken = jwt.sign({ user: filteredUser }, process.env.JWT_PRIVATE_KEY, options);
+  const refreshToken = jwt.sign(
+    { user: filteredUser },
+    process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    options,
+  );
 
   const override = { jti, userId: ctx.state.user._id };
   const result = await RefreshTokenPermissions.create(ctx.request.body, override, ctx.state.user);

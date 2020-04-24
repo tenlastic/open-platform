@@ -11,7 +11,9 @@ export async function handler(ctx: Context) {
 
   let decodedToken: any;
   try {
-    decodedToken = jwt.verify(token, process.env.JWT_PUBLIC_KEY, { algorithms: ['RS256'] });
+    decodedToken = jwt.verify(token, process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n'), {
+      algorithms: ['RS256'],
+    });
   } catch (e) {
     throw new Error('Invalid refresh token.');
   }

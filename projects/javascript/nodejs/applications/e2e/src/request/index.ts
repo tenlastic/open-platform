@@ -31,9 +31,13 @@ export function request(
     let jwt = options.jwt;
 
     if (options.user) {
-      jwt = jsonwebtoken.sign({ user: options.user }, process.env.JWT_PRIVATE_KEY, {
-        algorithm: 'RS256',
-      });
+      jwt = jsonwebtoken.sign(
+        { user: options.user },
+        process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        {
+          algorithm: 'RS256',
+        },
+      );
     }
 
     headers.authorization = `Bearer ${jwt}`;

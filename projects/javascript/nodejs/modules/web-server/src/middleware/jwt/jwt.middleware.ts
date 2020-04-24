@@ -9,7 +9,9 @@ export async function jwtMiddleware(ctx: Context, next: MiddlewareCallback) {
   try {
     const authorization = ctx.request.headers.Authorization || ctx.request.headers.authorization;
     const token = authorization.replace('Bearer ', '');
-    const decoded: any = jwt.verify(token, process.env.JWT_PUBLIC_KEY, { algorithms: ['RS256'] });
+    const decoded: any = jwt.verify(token, process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n'), {
+      algorithms: ['RS256'],
+    });
 
     ctx.state.jwt = decoded;
     ctx.state.user = decoded.user;
