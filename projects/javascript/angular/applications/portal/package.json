@@ -7,7 +7,7 @@
     "docker:push": "sh ../../scripts/docker-push.sh portal-ui",
     "e2e": "ng e2e portal",
     "lint": "ng lint portal",
-    "start": "ng serve --port 8081 portal",
+    "start": "ng serve --disable-host-check --host 0.0.0.0 --poll 1000 --port 3000 portal",
     "test": "ng test --code-coverage --watch false portal",
     "test:watch": "ng test portal",
     "version": "../../scripts/version.sh portal-ui"

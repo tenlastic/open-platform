@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: game-server-api
+  labels:
+    app: game-server-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: game-server-api
+    spec:
+      containers:
+        - name: game-server-api
+          image: node:10
+          command: ["npm", "run", "start"]
+          envFrom:
+            - secretRef:
+                name: nodejs-environment-variables
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+          volumeMounts:
+            - name: app
+              mountPath: /usr/src/app/
+          workingDir: /usr/src/app/projects/javascript/nodejs/applications/game-server-api/
+      volumes:
+        - name: app
+          hostPath:
+            path: /c/open-platform/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: game-server-api
+  labels:
+    app: game-server-api
+    service: game-server-api
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: game-server-api

@@ -15,7 +15,7 @@ import { ReadonlyNamespace, ReadonlyNamespaceDocument } from '../readonly-namesp
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
-    collection: 'games',
+    collection: 'readonly.games',
     minimize: false,
     timestamps: true,
   },

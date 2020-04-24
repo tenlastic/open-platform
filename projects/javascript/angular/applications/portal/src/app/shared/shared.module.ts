@@ -11,6 +11,7 @@ import {
   LayoutComponent,
   LoadingMessageComponent,
   PromptComponent,
+  RefreshTokenPromptComponent,
   ToggleSectionComponent,
 } from './components';
 import { AsAnyPipe, CamelCaseToTitleCasePipe, FilesizePipe, KeysPipe, SumPipe } from './pipes';
@@ -20,6 +21,7 @@ const components = [
   LayoutComponent,
   LoadingMessageComponent,
   PromptComponent,
+  RefreshTokenPromptComponent,
   ToggleSectionComponent,
 ];
 const modules = [
@@ -35,7 +37,7 @@ const pipes = [AsAnyPipe, CamelCaseToTitleCasePipe, FilesizePipe, KeysPipe, SumP
 
 @NgModule({
   declarations: [...components, ...pipes],
-  entryComponents: [InputPromptComponent, PromptComponent],
+  entryComponents: [InputPromptComponent, PromptComponent, RefreshTokenPromptComponent],
   exports: [...components, ...modules, ...pipes],
   imports: [...modules],
 })

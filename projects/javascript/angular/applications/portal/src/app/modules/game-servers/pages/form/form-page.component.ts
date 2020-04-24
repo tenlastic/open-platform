@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import {
@@ -12,6 +12,12 @@ import {
 } from '@tenlastic/ng-http';
 
 import { SelectedNamespaceService } from '../../../../core/services';
+
+interface PropertyFormGroup {
+  key?: string;
+  type?: string;
+  value?: any;
+}
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -55,16 +61,29 @@ export class GameServersFormPageComponent implements OnInit {
       }
 
       if (this.game) {
-        this.releases = await this.releaseService.find({ where: { gameId: this.game._id } });
+        this.releases = await this.releaseService.find({
+          sort: '-publishedAt',
+          where: { gameId: this.game._id },
+        });
       }
 
       this.setupForm();
 
-      this.form.get('gameId').valueChanges.subscribe(async v => {
-        this.form.get('releaseId').setValue(null);
-        this.releases = await this.releaseService.find({ where: { gameId: v } });
-      });
+      this.getReleases(this.game && this.game._id);
+      this.form.get('gameId').valueChanges.subscribe(gameId => this.getReleases(gameId));
     });
+  }
+
+  public addProperty() {
+    const property = this.getDefaultPropertyFormGroup();
+    const formArray = this.form.get('metadata') as FormArray;
+
+    formArray.push(property);
+  }
+
+  public removeProperty(index: number) {
+    const formArray = this.form.get('metadata') as FormArray;
+    formArray.removeAt(index);
   }
 
   public async save() {
@@ -77,9 +96,15 @@ export class GameServersFormPageComponent implements OnInit {
       return;
     }
 
+    const metadata = this.form.get('metadata').value.reduce((accumulator, property) => {
+      accumulator[property.key] = this.getJsonFromProperty(property);
+      return accumulator;
+    }, {});
+
     const values: Partial<GameServer> = {
       description: this.form.get('description').value,
       gameId: this.form.get('gameId').value,
+      metadata,
       name: this.form.get('name').value,
       releaseId: this.form.get('releaseId').value,
     };
@@ -100,12 +125,69 @@ export class GameServersFormPageComponent implements OnInit {
     }
   }
 
+  private getDefaultPropertyFormGroup() {
+    return this.formBuilder.group({
+      key: ['', [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
+      value: false,
+      type: 'boolean',
+    });
+  }
+
+  private getJsonFromProperty(property: PropertyFormGroup): any {
+    switch (property.type) {
+      case 'boolean':
+        return property.value || false;
+
+      case 'number':
+        return isNaN(parseFloat(property.value)) ? 0 : parseFloat(property.value);
+
+      default:
+        return property.value || '';
+    }
+  }
+
+  private async getReleases(gameId: string) {
+    if (!gameId) {
+      this.releases = [];
+    }
+
+    this.form.get('releaseId').setValue(null);
+    this.releases = await this.releaseService.find({
+      sort: '-publishedAt',
+      where: { gameId },
+    });
+  }
+
   private setupForm(): void {
     this.data = this.data || new GameServer();
+
+    const properties = [];
+    if (this.data.metadata) {
+      Object.entries(this.data.metadata).forEach(([key, property]) => {
+        let type = 'boolean';
+        if (typeof property === 'string' || property instanceof String) {
+          type = 'string';
+        } else if (typeof property === 'number') {
+          type = 'number';
+        }
+
+        const formGroup = this.formBuilder.group({
+          key: [key, [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
+          value: property,
+          type,
+        });
+        properties.push(formGroup);
+      });
+    }
+
+    if (properties.length === 0) {
+      properties.push(this.getDefaultPropertyFormGroup());
+    }
 
     this.form = this.formBuilder.group({
       description: [this.data.description],
       gameId: [this.game ? this.game._id : null, Validators.required],
+      metadata: this.formBuilder.array(properties),
       name: [this.data.name, Validators.required],
       releaseId: [this.data.releaseId],
     });

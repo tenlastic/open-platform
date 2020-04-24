@@ -12,4 +12,4 @@ fi
 # Run migrations if script is present.
 # npm run --if-present migrations up
 
-ts-node ./src/index.ts $@
+ts-node-dev --interval 1000 --poll ./src/index.ts

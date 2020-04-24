@@ -13,13 +13,21 @@ spec:
     spec:
       containers:
         - name: documentation-ui
-          image: tenlastic/documentation-ui:latest
-          imagePullPolicy: IfNotPresent
+          image: node:10
+          command: ["npm", "run", "start"]
           ports:
-            - containerPort: 80
+            - containerPort: 3000
           resources:
             requests:
               cpu: 50m
+          volumeMounts:
+            - name: app
+              mountPath: /usr/src/app/
+          workingDir: /usr/src/app/projects/javascript/nodejs/applications/documentation/
+      volumes:
+        - name: app
+          hostPath:
+            path: /c/open-platform/
 ---
 apiVersion: v1
 kind: Service

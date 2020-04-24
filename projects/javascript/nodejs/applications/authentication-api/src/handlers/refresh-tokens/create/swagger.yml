@@ -1,0 +1,25 @@
+paths:
+  /refresh-tokens:
+    post:
+      summary: Create
+      tags: [RefreshTokens]
+      description: Creates a new record.
+      security:
+        - AccessToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/RefreshToken'
+                  refreshToken:
+                    type: string

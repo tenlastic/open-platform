@@ -29,7 +29,10 @@ export class RefreshTokenSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ required: true })
+  @prop()
+  public description: string;
+
+  @prop()
   public expiresAt: Date;
 
   @prop({ required: true })

@@ -13,7 +13,7 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/ngin
 
 #### Configure Hosts File
 
-Add the following lines to your hosts file to properly route to your local Kubernetes cluster.
+Add the following lines to your `hosts` file to properly route to your local Kubernetes cluster.
 
 ```
 127.0.0.1 api.localhost
@@ -26,6 +26,7 @@ Add the following lines to your hosts file to properly route to your local Kuber
 127.0.0.1 portal.localhost
 127.0.0.1 rabbitmq.localhost
 127.0.0.1 registry.localhost
+127.0.0.1 sandbox.localhost
 127.0.0.1 sso.localhost
 127.0.0.1 www.localhost
 ```

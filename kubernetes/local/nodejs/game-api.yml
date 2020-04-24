@@ -13,8 +13,8 @@ spec:
     spec:
       containers:
         - name: game-api
-          image: tenlastic/game-api:latest
-          imagePullPolicy: IfNotPresent
+          image: node:10
+          command: ["npm", "run", "start"]
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
@@ -23,6 +23,14 @@ spec:
           resources:
             requests:
               cpu: 50m
+          volumeMounts:
+            - name: app
+              mountPath: /usr/src/app/
+          workingDir: /usr/src/app/projects/javascript/nodejs/applications/game-api/
+      volumes:
+        - name: app
+          hostPath:
+            path: /c/open-platform/
 ---
 apiVersion: v1
 kind: Service

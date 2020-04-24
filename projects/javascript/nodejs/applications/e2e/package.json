@@ -8,8 +8,6 @@
   "version": "0.0.56",
   "scripts": {
     "build": "../../scripts/build.sh",
-    "docker": "sh ../../scripts/docker.sh npm run --if-present",
-    "docker:down": "sh ../../scripts/docker-down.sh",
     "lint": "../../scripts/lint.sh",
     "start": "./scripts/start.sh",
     "test": "../../scripts/test.sh --code-coverage",

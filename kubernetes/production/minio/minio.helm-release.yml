@@ -39,7 +39,7 @@ spec:
         policy: none
         purge: "false"
       - name: launcher
-        policy: none
+        policy: download
         purge: "false"
       - name: release-api
         policy: none

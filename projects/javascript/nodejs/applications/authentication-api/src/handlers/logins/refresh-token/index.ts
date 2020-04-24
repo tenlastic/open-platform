@@ -11,7 +11,7 @@ export async function handler(ctx: Context) {
 
   let decodedToken: any;
   try {
-    decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    decodedToken = jwt.verify(token, process.env.JWT_PUBLIC_KEY, { algorithms: ['RS256'] });
   } catch (e) {
     throw new Error('Invalid refresh token.');
   }
@@ -20,10 +20,15 @@ export async function handler(ctx: Context) {
     throw new Error('Invalid refresh token.');
   }
 
-  const refreshTokenDocument = await RefreshToken.findOne({
-    jti: decodedToken.jti,
-    userId: decodedToken.user._id,
-  });
+  const refreshTokenDocument = await RefreshToken.findOneAndUpdate(
+    {
+      jti: decodedToken.jti,
+      userId: decodedToken.user._id,
+    },
+    {
+      updatedAt: new Date(),
+    },
+  );
 
   if (!refreshTokenDocument) {
     throw new Error('Invalid refresh token.');

@@ -1,0 +1,18 @@
+paths:
+  /public-keys/jwt:
+    post:
+      summary: JWT
+      tags: [Public Keys]
+      description: Returns the Public Key to verify JSON Web Tokens signed by Tenlastic.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  algorithm:
+                    type: string
+                  key:
+                    type: string

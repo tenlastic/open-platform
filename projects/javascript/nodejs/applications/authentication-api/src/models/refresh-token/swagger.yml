@@ -1,0 +1,24 @@
+components:
+  schemas:
+    RefreshToken:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[a-f0-9]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        description:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        jti:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        userId:
+          type: string
+          format: ^[a-f0-9]{24}$

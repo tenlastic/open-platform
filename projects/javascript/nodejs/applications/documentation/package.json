@@ -7,10 +7,10 @@
   "private": true,
   "version": "0.0.56",
   "scripts": {
-    "build": "sh ./scripts/build.sh",
-    "docker:build": "sh ./scripts/docker-build.sh documentation-ui",
-    "docker:push": "sh ./scripts/docker-push.sh documentation-ui",
-    "start": "http-server -p 8085 ./dist/",
+    "build": "./scripts/build.sh",
+    "docker:build": "./scripts/docker-build.sh documentation-ui",
+    "docker:push": "./scripts/docker-push.sh documentation-ui",
+    "start": "http-server -p 3000 ./dist/",
     "version": "../../scripts/version.sh documentation-ui"
   },
   "devDependencies": {

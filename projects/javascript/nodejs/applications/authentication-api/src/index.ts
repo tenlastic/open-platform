@@ -9,6 +9,8 @@ import { MONGO_DATABASE_NAME } from './constants';
 import { router as connectionsRouter } from './handlers/connections';
 import { router as loginsRouter } from './handlers/logins';
 import { router as passwordResetsRouter } from './handlers/password-resets';
+import { router as publicKeysRouter } from './handlers/public-keys';
+import { router as refreshTokensRouter } from './handlers/refresh-tokens';
 import { router as usersRouter } from './handlers/users';
 import * as connectionSockets from './sockets/connections';
 import * as userSockets from './sockets/users';
@@ -29,6 +31,8 @@ const webServer = new WebServer();
 webServer.use(connectionsRouter.routes());
 webServer.use(loginsRouter.routes());
 webServer.use(passwordResetsRouter.routes());
+webServer.use(publicKeysRouter.routes());
+webServer.use(refreshTokensRouter.routes());
 webServer.use(usersRouter.routes());
 webServer.start();
 

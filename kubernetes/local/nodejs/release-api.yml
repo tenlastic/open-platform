@@ -13,8 +13,8 @@ spec:
     spec:
       containers:
         - name: release-api
-          image: tenlastic/release-api:latest
-          imagePullPolicy: IfNotPresent
+          image: node:10
+          command: ["npm", "run", "start"]
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
@@ -23,6 +23,10 @@ spec:
           resources:
             requests:
               cpu: 50m
+          volumeMounts:
+            - name: app
+              mountPath: /usr/src/app/
+          workingDir: /usr/src/app/projects/javascript/nodejs/applications/release-api/
         - name: dind
           image: docker:19.03.8-dind
           command:
@@ -37,6 +41,9 @@ spec:
             - name: dind
               mountPath: /var/lib/docker
       volumes:
+        - name: app
+          hostPath:
+            path: /c/open-platform/
         - name: dind
           emptyDir: {}
 ---

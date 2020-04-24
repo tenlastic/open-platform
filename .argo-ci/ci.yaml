@@ -53,31 +53,31 @@ spec:
 
         - - name: continuous-integration-nodejs
             template: continuous-integration-nodejs
-            when: "'{{steps.skip-ci.outputs.result}}' == false"
+            when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
 
         - - name: continuous-integration-angular
             template: continuous-integration-angular
-            when: "'{{steps.skip-ci.outputs.result}}' == false"
+            when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
 
         - - name: terraform
             template: terraform
-            when: "('{{steps.skip-ci.outputs.result}}' == false) && ('{{steps.get-branch.outputs.result}}' == master)"
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == master)"
 
         - - name: publish-npm-modules
             template: publish-npm-modules
-            when: "('{{steps.skip-ci.outputs.result}}' == false) && ('{{steps.get-branch.outputs.result}}' == master)"
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == master)"
 
         - - name: publish-docker-images
             template: publish-docker-images
-            when: "('{{steps.skip-ci.outputs.result}}' == false) && ('{{steps.get-branch.outputs.result}}' == master)"
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == master)"
 
         - - name: publish-electron-applications
             template: publish-electron-applications
-            when: "('{{steps.skip-ci.outputs.result}}' == false) && ('{{steps.get-branch.outputs.result}}' == master)"
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == master)"
 
         - - name: publish-miscellaneous-docker-images
             template: publish-miscellaneous-docker-images
-            when: "('{{steps.skip-ci.outputs.result}}' == false) && ('{{steps.get-branch.outputs.result}}' == master)"
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == master)"
 
     - name: checkout
       script:

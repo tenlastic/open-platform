@@ -54,6 +54,13 @@ export const ROUTES: Routes = [
     component: OAuthComponent,
   },
   {
+    path: 'refresh-tokens',
+    component: LayoutComponent,
+    loadChildren: () =>
+      import('./modules/refresh-tokens/refresh-tokens.module').then(m => m.RefreshTokenModule),
+    canActivate: [LoginGuard],
+  },
+  {
     path: 'releases',
     component: LayoutComponent,
     loadChildren: () => import('./modules/releases/releases.module').then(m => m.ReleaseModule),
