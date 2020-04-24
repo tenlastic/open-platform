@@ -39,6 +39,12 @@ export class LayoutComponent {
     },
     { icon: 'layers', label: 'Namespaces', path: '/namespaces' },
     {
+      condition: () => this.identityService && this.identityService.user,
+      icon: 'vpn_key',
+      label: 'Refresh Tokens',
+      path: '/refresh-tokens',
+    },
+    {
       condition: () => this.selectedNamespaceService && this.selectedNamespaceService.namespaceId,
       icon: 'unarchive',
       label: 'Releases',

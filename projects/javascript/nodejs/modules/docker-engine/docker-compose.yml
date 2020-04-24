@@ -1,8 +1,0 @@
-version: '2.1'
-services:
-  application:
-    environment:
-      - DOCKER_ENGINE_URL
-    links:
-      - dind
-    working_dir: /usr/src/app/modules/docker-engine/

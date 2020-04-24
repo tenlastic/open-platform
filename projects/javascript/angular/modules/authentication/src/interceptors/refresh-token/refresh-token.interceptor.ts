@@ -14,7 +14,7 @@ export class RefreshTokenInterceptor implements HttpInterceptor {
   constructor(public identityService: IdentityService, public loginService: LoginService) {}
 
   public intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (request.url.indexOf('refresh-token') >= 0) {
+    if (request.url.indexOf('/logins/refresh-token') >= 0) {
       return next.handle(request);
     }
 
@@ -23,31 +23,31 @@ export class RefreshTokenInterceptor implements HttpInterceptor {
     const refreshExpired =
       !this.identityService.refreshTokenJwt || this.identityService.refreshTokenJwt.isExpired;
 
-    if (accessExpired && !refreshExpired) {
-      if (!this.refreshTokenInProgress) {
-        this.refreshTokenInProgress = true;
-        this.refreshTokenSubject.next(null);
-
-        const { refreshToken } = this.identityService;
-        const observable = from(this.loginService.createWithRefreshToken(refreshToken));
-
-        return observable.pipe(
-          switchMap((response: any) => {
-            this.refreshTokenInProgress = false;
-            this.refreshTokenSubject.next(response.refreshToken);
-
-            return next.handle(request);
-          }),
-        );
-      } else {
-        return this.refreshTokenSubject.pipe(
-          filter(result => result !== null),
-          take(1),
-          switchMap(() => next.handle(request)),
-        );
-      }
+    if (!accessExpired || refreshExpired) {
+      return next.handle(request);
     }
 
-    return next.handle(request);
+    if (!this.refreshTokenInProgress) {
+      this.refreshTokenInProgress = true;
+      this.refreshTokenSubject.next(null);
+
+      const { refreshToken } = this.identityService;
+      const observable = from(this.loginService.createWithRefreshToken(refreshToken));
+
+      return observable.pipe(
+        switchMap((response: any) => {
+          this.refreshTokenInProgress = false;
+          this.refreshTokenSubject.next(response.refreshToken);
+
+          return next.handle(request);
+        }),
+      );
+    } else {
+      return this.refreshTokenSubject.pipe(
+        filter(result => result !== null),
+        take(1),
+        switchMap(() => next.handle(request)),
+      );
+    }
   }
 }

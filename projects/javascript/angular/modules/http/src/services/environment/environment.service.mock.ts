@@ -15,6 +15,7 @@ export class EnvironmentServiceMock implements Environment {
   public messageApiBaseUrl = 'http://localhost:3006/messages';
   public namespaceApiBaseUrl = 'http://localhost:3001/namespaces';
   public passwordResetApiBaseUrl = 'http://localhost:3000/password-resets';
+  public refreshTokenApiBaseUrl = 'http://localhost:3000/refresh-tokens';
   public releaseApiBaseUrl = 'http://localhost:3004/releases';
   public userApiBaseUrl = 'http://localhost:3000/users';
 }

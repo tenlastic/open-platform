@@ -12,7 +12,6 @@ export class RefreshTokenMock {
    */
   public static async create(params: Partial<RefreshTokenSchema> = {}) {
     const defaults = {
-      expiresAt: new Date(),
       jti: chance.hash(),
       userId: new mongoose.Types.ObjectId(),
     };

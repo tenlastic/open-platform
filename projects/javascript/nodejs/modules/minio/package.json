@@ -16,7 +16,6 @@
   "scripts": {
     "build": "../../scripts/build.sh",
     "build:watch": "watch ../../scripts/build.sh ./src",
-    "docker": "sh ../../scripts/docker.sh npm run --if-present",
     "lint": "../../scripts/lint.sh"
   },
   "devDependencies": {

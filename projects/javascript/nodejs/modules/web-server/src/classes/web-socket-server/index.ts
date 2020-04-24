@@ -93,7 +93,7 @@ export class WebSocketServer {
       }
 
       // Verify it is a valid JWT.
-      const result: any = jwt.verify(token, process.env.JWT_SECRET);
+      const result: any = jwt.verify(token, process.env.JWT_PUBLIC_KEY, { algorithms: ['RS256'] });
 
       // If any upgrade callbacks throw an error, kill the connection.
       for (const upgrade of this.upgrades) {

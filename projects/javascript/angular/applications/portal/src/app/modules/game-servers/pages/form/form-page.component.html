@@ -47,6 +47,23 @@
       </mat-form-field>
     </div>
 
+    <app-toggle-section isVisible="true" title="Metadata">
+      <div
+        class="row"
+        formArrayName="metadata"
+        *ngFor="let property of form['controls'].metadata['controls']; let i = index"
+      >
+        <app-metadata-field [form]="property" (remove)="removeProperty(i)"></app-metadata-field>
+      </div>
+
+      <div class="row">
+        <button mat-button color="white" type="button" (click)="addProperty()">
+          <mat-icon>add</mat-icon>
+          Add Property
+        </button>
+      </div>
+    </app-toggle-section>
+
     <div *ngIf="error" class="form-error">
       {{ error }}
     </div>

@@ -1,6 +1,7 @@
 *.tsbuildinfo
 .nyc_output
 lerna-debug.log
+npm-debug.log
 package.json.lerna_backup
 settings.sh
 tscommand*.tmp.txt

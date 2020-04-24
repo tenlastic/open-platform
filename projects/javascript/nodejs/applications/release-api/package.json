@@ -8,10 +8,8 @@
   "version": "0.0.56",
   "scripts": {
     "build": "../../scripts/build.sh",
-    "docker": "sh ../../scripts/docker.sh npm run --if-present",
-    "docker:build": "sh ../../scripts/docker-build.sh release-api",
-    "docker:down": "sh ../../scripts/docker-down.sh",
-    "docker:push": "sh ../../scripts/docker-push.sh release-api",
+    "docker:build": "../../scripts/docker-build.sh release-api",
+    "docker:push": "../../scripts/docker-push.sh release-api",
     "lint": "../../scripts/lint.sh",
     "migrations": "../../scripts/migrations.sh",
     "start": "../../scripts/start.sh",
@@ -46,6 +44,7 @@
     "mocha": "6.1.4",
     "nyc": "15.0.0",
     "ts-node": "8.3.0",
+    "ts-node-dev": "1.0.0-pre.44",
     "tslint": "5.18.0",
     "typescript": "3.5.3"
   }

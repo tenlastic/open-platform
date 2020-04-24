@@ -3,9 +3,6 @@
   "private": true,
   "version": "0.0.56",
   "scripts": {
-    "docker": "docker-compose run --rm application npm run --if-present",
-    "docker:install": "docker-compose run --rm application npm install",
-    "docker:start": "sh ./scripts/docker-start.sh",
     "google:tokens": "ts-node ./scripts/get-google-tokens.ts",
     "merge:coverage": "./scripts/merge-coverage.sh",
     "merge:junit": "./scripts/merge-junit.sh",
@@ -79,6 +76,7 @@
     "sinon-chai": "3.3.0",
     "ts-loader": "5.2.2",
     "ts-node": "8.3.0",
+    "ts-node-dev": "1.0.0-pre.44",
     "tslint": "5.18.0",
     "tslint-microsoft-contrib": "6.2.0",
     "typescript": "3.5.3",

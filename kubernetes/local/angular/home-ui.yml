@@ -13,13 +13,21 @@ spec:
     spec:
       containers:
         - name: home-ui
-          image: tenlastic/home-ui:latest
-          imagePullPolicy: IfNotPresent
+          image: node:10
+          command: ["npm", "run", "start"]
           ports:
-            - containerPort: 80
+            - containerPort: 3000
           resources:
             requests:
               cpu: 50m
+          volumeMounts:
+            - name: app
+              mountPath: /usr/src/app/
+          workingDir: /usr/src/app/projects/javascript/angular/applications/home/
+      volumes:
+        - name: app
+          hostPath:
+            path: /c/open-platform/
 ---
 apiVersion: v1
 kind: Service
@@ -30,7 +38,7 @@ metadata:
     service: home-ui
 spec:
   ports:
-    - port: 80
+    - port: 3000
       name: http
   selector:
     app: home-ui

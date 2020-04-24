@@ -1,6 +1,6 @@
 export const environment = {
-  loginApiBaseUrl: 'http://localhost:3000/logins',
-  passwordResetApiBaseUrl: 'http://localhost:3000/password-resets',
+  loginApiBaseUrl: 'http://api.localhost/logins',
+  passwordResetApiBaseUrl: 'http://api.localhost/password-resets',
   production: false,
-  userApiBaseUrl: 'http://localhost:3000/users',
+  userApiBaseUrl: 'http://api.localhost/users',
 };

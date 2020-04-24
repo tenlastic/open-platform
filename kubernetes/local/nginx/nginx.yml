@@ -37,6 +37,10 @@ spec:
             backend:
               serviceName: game-api
               servicePort: 3000
+          - path: /game-servers
+            backend:
+              serviceName: game-server-api
+              servicePort: 3000
           - path: /ignorations
             backend:
               serviceName: social-api
@@ -54,6 +58,14 @@ spec:
               serviceName: namespace-api
               servicePort: 3000
           - path: /password-resets
+            backend:
+              serviceName: authentication-api
+              servicePort: 3000
+          - path: /public-keys/jwt
+            backend:
+              serviceName: authentication-api
+              servicePort: 3000
+          - path: /refresh-tokens
             backend:
               serviceName: authentication-api
               servicePort: 3000
@@ -106,14 +118,14 @@ spec:
           - path: /
             backend:
               serviceName: launcher-ui
-              servicePort: 80
+              servicePort: 3000
     - host: portal.localhost
       http:
         paths:
           - path: /
             backend:
               serviceName: portal-ui
-              servicePort: 80
+              servicePort: 3000
     - host: rabbitmq.localhost
       http:
         paths:
@@ -128,17 +140,24 @@ spec:
             backend:
               serviceName: docker-registry
               servicePort: 5000
+    - host: sandbox.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: sandbox
+              servicePort: 3000
     - host: sso.localhost
       http:
         paths:
           - path: /
             backend:
               serviceName: sso-ui
-              servicePort: 80
+              servicePort: 3000
     - host: www.localhost
       http:
         paths:
           - path: /
             backend:
               serviceName: home-ui
-              servicePort: 80
+              servicePort: 3000
