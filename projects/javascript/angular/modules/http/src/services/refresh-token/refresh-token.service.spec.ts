@@ -42,7 +42,7 @@ describe('RefreshTokenService', () => {
       };
 
       service.create(params).then(res => {
-        expect(res).toEqual(jasmine.any(RefreshToken));
+        expect(res.record).toEqual(jasmine.any(RefreshToken));
         expect(res.record.jti).toBeDefined();
         expect(res.record.description).toEqual(params.description);
       });
