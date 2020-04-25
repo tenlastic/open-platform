@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
+import { connection } from '../connect';
 import { publish } from '../publish';
 import { subscribe } from './';
 
@@ -19,6 +20,10 @@ const Model = mongoose.model('example', schema);
 describe('subscribe()', function() {
   this.timeout(5000);
 
+  beforeEach(async function() {
+    await Model.deleteMany({});
+  });
+
   context('when the operationType is delete', function() {
     it('deletes the document from MongoDB', async function() {
       const record = await Model.create({ _id: mongoose.Types.ObjectId() });
@@ -34,7 +39,16 @@ describe('subscribe()', function() {
       subscribe(Model, { group: chance.hash(), topic });
 
       await publish(payload);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Wait for message to be published.
+      await new Promise(async resolve => {
+        const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
+        await consumer.connect();
+
+        await consumer.subscribe({ fromBeginning: true, topic });
+        await consumer.run({ eachMessage: async () => resolve() });
+      });
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       const result = await Model.findOne({ _id: record._id });
       expect(result).to.eql(null);
@@ -61,7 +75,16 @@ describe('subscribe()', function() {
       subscribe(Model as any, { group: chance.hash(), topic });
 
       await publish(payload);
-      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Wait for message to be published.
+      await new Promise(async resolve => {
+        const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
+        await consumer.connect();
+
+        await consumer.subscribe({ fromBeginning: true, topic });
+        await consumer.run({ eachMessage: async () => resolve() });
+      });
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       const result = (await Model.findOne({ _id: payload.fullDocument._id })) as any;
       expect(result._id.toString()).to.eql(payload.fullDocument._id.toString());
@@ -96,7 +119,16 @@ describe('subscribe()', function() {
         subscribe(Model as any, { group: chance.hash(), topic, useUpdateDescription: true });
 
         await publish(payload);
-        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Wait for message to be published.
+        await new Promise(async resolve => {
+          const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
+          await consumer.connect();
+
+          await consumer.subscribe({ fromBeginning: true, topic });
+          await consumer.run({ eachMessage: async () => resolve() });
+        });
+        await new Promise(resolve => setTimeout(resolve, 200));
 
         const result: any = await Model.findOne({ _id: record._id });
         expect(result.createdAt).to.not.exist;
@@ -129,7 +161,16 @@ describe('subscribe()', function() {
         subscribe(Model as any, { group: chance.hash(), topic });
 
         await publish(payload);
-        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Wait for message to be published.
+        await new Promise(async resolve => {
+          const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
+          await consumer.connect();
+
+          await consumer.subscribe({ fromBeginning: true, topic });
+          await consumer.run({ eachMessage: async () => resolve() });
+        });
+        await new Promise(resolve => setTimeout(resolve, 200));
 
         const result: any = await Model.findOne({ _id: record._id });
         expect(result._id.toString()).to.eql(payload.fullDocument._id.toString());
