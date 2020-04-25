@@ -13,5 +13,5 @@ cd "${ROOT}/projects/javascript/"
 npm i -g lerna
 lerna bootstrap --ci --include-dependencies --scope @tenlastic/*-ui --scope @tenlastic/ng-* --scope angular --since
 lerna run lint --ci --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
-lerna run build --ci --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
+lerna run build --ci --concurrency 1 --include-dependencies --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
 lerna run test --ci --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
