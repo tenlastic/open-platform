@@ -21,6 +21,6 @@ describe('handlers/refresh-tokens/find', function() {
     await handler(ctx as any);
 
     expect(ctx.response.body.records.length).to.eql(1);
-    expect(ctx.response.body.records[0]._id.toString()).to.eql(record._id.toString());
+    expect(ctx.response.body.records[0].jti.toString()).to.eql(record.jti.toString());
   });
 });

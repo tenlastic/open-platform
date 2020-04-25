@@ -4,7 +4,7 @@ import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
 import { MONGO_DATABASE_NAME } from './constants';
-import { Connection, PasswordReset, User } from './models';
+import { Connection, PasswordReset, RefreshToken, User } from './models';
 
 before(async function() {
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
@@ -25,6 +25,7 @@ beforeEach(async function() {
 
   await Connection.deleteMany({});
   await PasswordReset.deleteMany({});
+  await RefreshToken.deleteMany({});
   await User.deleteMany({});
 });
 

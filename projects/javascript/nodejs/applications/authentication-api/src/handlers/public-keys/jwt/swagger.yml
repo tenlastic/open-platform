@@ -12,7 +12,18 @@ paths:
               schema:
                 type: object
                 properties:
-                  algorithm:
-                    type: string
-                  key:
-                    type: string
+                  keys:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        alg:
+                          type: string
+                        kwt:
+                          type: string
+                        use:
+                          type: string
+                        x5c:
+                          type: array
+                          items:
+                            type: string
