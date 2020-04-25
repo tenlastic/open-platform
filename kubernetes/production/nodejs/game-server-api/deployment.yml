@@ -20,7 +20,7 @@ spec:
                     operator: Exists
       containers:
         - name: game-server-api
-          image: tenlastic/game-server-api:0.0.56
+          image: tenlastic/game-server-api:0.0.57
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
