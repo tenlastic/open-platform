@@ -14,6 +14,8 @@ export class GameServerMock {
     const defaults = {
       gameId: mongoose.Types.ObjectId(),
       name: chance.hash(),
+      releaseId: mongoose.Types.ObjectId(),
+      url: chance.url(),
     };
 
     return GameServer.create({ ...defaults, ...params });

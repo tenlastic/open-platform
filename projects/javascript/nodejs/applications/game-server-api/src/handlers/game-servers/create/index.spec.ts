@@ -2,6 +2,7 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
+import * as mongoose from 'mongoose';
 
 import {
   ReadonlyGameMock,
@@ -33,6 +34,8 @@ describe('handlers/game-servers/create', function() {
           body: {
             gameId: game._id,
             name: chance.hash(),
+            releaseId: mongoose.Types.ObjectId(),
+            url: chance.url(),
           },
         },
         state: { user },
@@ -54,6 +57,8 @@ describe('handlers/game-servers/create', function() {
           body: {
             gameId: game._id,
             name: chance.hash(),
+            releaseId: mongoose.Types.ObjectId(),
+            url: chance.url(),
           },
         },
         state: { user },
