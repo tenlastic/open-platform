@@ -60,16 +60,9 @@ export class GameServersFormPageComponent implements OnInit {
         this.game = this.games.find(g => g._id === this.data.gameId);
       }
 
-      if (this.game) {
-        this.releases = await this.releaseService.find({
-          sort: '-publishedAt',
-          where: { gameId: this.game._id },
-        });
-      }
+      this.getReleases(this.game && this.game._id);
 
       this.setupForm();
-
-      this.getReleases(this.game && this.game._id);
       this.form.get('gameId').valueChanges.subscribe(gameId => this.getReleases(gameId));
     });
   }
@@ -147,15 +140,18 @@ export class GameServersFormPageComponent implements OnInit {
   }
 
   private async getReleases(gameId: string) {
-    if (!gameId) {
+    if (gameId) {
+      this.releases = await this.releaseService.find({
+        sort: '-publishedAt',
+        where: { gameId },
+      });
+    } else {
       this.releases = [];
     }
 
-    this.form.get('releaseId').setValue(null);
-    this.releases = await this.releaseService.find({
-      sort: '-publishedAt',
-      where: { gameId },
-    });
+    if (this.form) {
+      this.form.get('releaseId').setValue(this.releases.length > 0 ? this.releases[0]._id : null);
+    }
   }
 
   private setupForm(): void {

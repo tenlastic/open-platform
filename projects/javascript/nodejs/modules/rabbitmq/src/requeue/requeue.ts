@@ -23,15 +23,12 @@ export async function requeue(
     return false;
   }
 
-  const stringified = JSON.stringify(msg);
-  const buffer = Buffer.from(stringified);
-
   // If the message should wait before being requeued, send it to a TTL queue.
   if (options.delay > 0) {
     const ttlQueue = `${queue}-ttl`;
 
     await channel.assertQueue(ttlQueue, { deadLetterExchange: queue, durable: true });
-    channel.sendToQueue(ttlQueue, buffer, {
+    channel.sendToQueue(ttlQueue, msg.content, {
       expiration: options.delay,
       headers,
       persistent: true,
@@ -41,7 +38,7 @@ export async function requeue(
     await channel.assertQueue(queue, { durable: true });
     await channel.bindQueue(queue, queue, '');
 
-    channel.publish(queue, queue, buffer, { headers, persistent: true });
+    channel.publish(queue, queue, msg.content, { headers, persistent: true });
   }
 
   channel.ack(msg);

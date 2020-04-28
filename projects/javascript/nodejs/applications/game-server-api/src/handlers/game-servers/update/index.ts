@@ -9,7 +9,7 @@ export async function handler(ctx: Context) {
   );
 
   if (!record) {
-    throw new RecordNotFoundError('GameServer');
+    throw new RecordNotFoundError('Game Server');
   }
 
   const result = await GameServerPermissions.update(record, ctx.request.body, {}, ctx.state.user);

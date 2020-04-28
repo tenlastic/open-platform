@@ -94,7 +94,7 @@ export class GameServersListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.gameServerService.delete(record.name);
+        await this.gameServerService.delete(record._id);
         this.deleteGameServer(record);
       }
     });

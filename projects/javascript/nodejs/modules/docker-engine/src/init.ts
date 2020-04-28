@@ -35,7 +35,9 @@ export function getConfiguration() {
 }
 
 export function getDefaultRequestOptions() {
-  const options: Partial<OptionsWithUrl> = {};
+  const options: Partial<OptionsWithUrl> = {
+    timeout: 10 * 60 * 1000,
+  };
 
   if (configuration.certPath) {
     options.ca = configuration.ca;
@@ -53,7 +55,7 @@ export function getDefaultRequestOptions() {
     });
 
     const xRegistryAuth = Buffer.from(credentials).toString('base64');
-    options.headers = { 'X-Registry-Auth': xRegistryAuth };
+    options.headers = { Connection: 'keep-alive', 'X-Registry-Auth': xRegistryAuth };
   }
 
   return options;

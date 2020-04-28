@@ -1,3 +1,50 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: sandbox-role
+rules:
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sandbox
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sandbox-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: sandbox-role
+subjects:
+  - kind: ServiceAccount
+    name: sandbox
+---
 apiVersion: v1
 kind: Pod
 metadata:
@@ -53,6 +100,7 @@ spec:
         - /data
     - name: rabbitmq
       image: rabbitmq
+  serviceAccountName: sandbox
   volumes:
     - name: app
       hostPath:

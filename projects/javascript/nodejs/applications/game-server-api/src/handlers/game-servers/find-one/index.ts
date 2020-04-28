@@ -7,7 +7,7 @@ export async function handler(ctx: Context) {
   const result = await GameServerPermissions.findOne({}, override, ctx.state.user);
 
   if (!result) {
-    throw new RecordNotFoundError('Game');
+    throw new RecordNotFoundError('Game Server');
   }
 
   ctx.response.body = { record: result };

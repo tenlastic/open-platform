@@ -5,6 +5,7 @@ import {
   ElementRef,
   EventEmitter,
   Input,
+  OnDestroy,
   OnInit,
   Output,
   ViewChild,
@@ -40,7 +41,7 @@ export interface UpdatedFile {
   templateUrl: 'files-form.component.html',
   styleUrls: ['files-form.component.scss'],
 })
-export class FilesFormComponent implements OnInit {
+export class FilesFormComponent implements OnDestroy, OnInit {
   @Input() public platform: string;
   @Input() public release = new Release();
   @Output() public OnSubmit = new EventEmitter<FileFormComponentData>();
@@ -73,6 +74,8 @@ export class FilesFormComponent implements OnInit {
   public uploadStatus: any;
   public zipStatus: any;
 
+  private isDestroyed = false;
+
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
     private fileReaderService: FileReaderService,
@@ -94,6 +97,10 @@ export class FilesFormComponent implements OnInit {
     }
 
     this.getReleaseTasks();
+  }
+
+  public ngOnDestroy() {
+    this.isDestroyed = true;
   }
 
   public cancel() {
@@ -221,6 +228,10 @@ export class FilesFormComponent implements OnInit {
   }
 
   private async getReleaseTasks() {
+    if (this.isDestroyed) {
+      return;
+    }
+
     try {
       this.tasks = await this.releaseTaskService.find(this.release._id, {
         where: { completedAt: { $eq: null }, failedAt: { $eq: null }, platform: this.platform },

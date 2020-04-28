@@ -2,8 +2,8 @@
 set -a
 
 # Docker
-DOCKER_ENGINE_URL="http://dind:2375"
-DOCKER_REGISTRY_URL="http://registry:5000"
+DOCKER_ENGINE_URL="http://host.docker.internal:2375"
+DOCKER_REGISTRY_URL="http://username:password@docker-registry:5000"
 
 # Emails
 PASSWORD_RESET_URL="http://localhost:4201/password-reset"

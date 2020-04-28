@@ -27,25 +27,10 @@ spec:
             - name: app
               mountPath: /usr/src/app/
           workingDir: /usr/src/app/projects/javascript/nodejs/applications/release-api/
-        - name: dind
-          image: docker:19.03.8-dind
-          command:
-            - "dockerd"
-            - "--host"
-            - "tcp://0.0.0.0:2375"
-            - "--insecure-registry"
-            - "docker-registry:5000"
-          securityContext:
-            privileged: true
-          volumeMounts:
-            - name: dind
-              mountPath: /var/lib/docker
       volumes:
         - name: app
           hostPath:
             path: /c/open-platform/
-        - name: dind
-          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
