@@ -24,7 +24,6 @@ beforeEach(async function() {
     .resolves({
       body: {
         spec: {
-          clusterIP: chance.ip(),
           ports: [chance.integer()],
         },
       },

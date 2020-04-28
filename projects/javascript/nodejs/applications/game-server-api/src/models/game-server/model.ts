@@ -80,7 +80,7 @@ export class GameServerSchema {
 
   public updatedAt: Date;
 
-  @prop({ required: true })
+  @prop()
   public url: string;
 
   @prop({ foreignField: '_id', justOne: false, localField: 'allowedUserIds', ref: ReadonlyUser })
