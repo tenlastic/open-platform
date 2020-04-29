@@ -309,7 +309,12 @@ spec:
     - name: skip-ci
       script:
         image: alpine/git:latest
-        source: '[[ $(git log -1 --pretty=%B) == *"[skip ci]"* ]] && echo "true" || echo "false"'
+        command: [bash]
+        source: |
+          case $(git log -1 --pretty=%B) in 
+            *\[skip\ ci\]*) echo "true" ;;
+            *) echo "false";; 
+          esac
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
