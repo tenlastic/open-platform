@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: portal-ui
-          image: tenlastic/portal-ui:0.0.59
+          image: tenlastic/portal-ui:0.0.60
           ports:
             - containerPort: 80
           resources:
