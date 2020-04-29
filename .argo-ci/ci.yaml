@@ -309,7 +309,7 @@ spec:
     - name: skip-ci
       script:
         image: alpine/git:latest
-        command: [bash]
+        command: [sh]
         source: |
           case $(git log -1 --pretty=%B) in 
             *\[skip\ ci\]*) echo "true" ;;
