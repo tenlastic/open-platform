@@ -1,3 +1,50 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: api-role
+rules:
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: api
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: api-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: api-role
+subjects:
+  - kind: ServiceAccount
+    name: api
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -46,6 +93,7 @@ spec:
           volumeMounts:
             - name: dind
               mountPath: /var/lib/docker
+      serviceAccountName: api
       volumes:
         - name: dind
           emptyDir: {}
