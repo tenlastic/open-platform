@@ -309,7 +309,6 @@ spec:
     - name: skip-ci
       script:
         image: alpine/git:latest
-        command: [sh]
         source: '[[ $(git log -1 --pretty=%B) == *"[skip ci]"* ]] && echo "true" || echo "false"'
         volumeMounts:
           - name: workspace
