@@ -139,6 +139,7 @@ export class GameServerSchema {
                 ],
               },
             ],
+            imagePullSecrets: [{ name: 'docker-registry-image-pull-secret' }],
           },
         },
       },
