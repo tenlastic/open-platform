@@ -31,9 +31,8 @@ $COVERAGE_ARGUMENTS \
   mocha \
   --exit \
   --recursive \
-  --require ts-node/register \
+  --require ts-node/register/transpile-only \
   --reporter mocha-multi-reporters \
   --reporter-options configFile="../../mocha-multi-reporters.json" \
   $WATCH_ARGUMENTS \
   "src/**/*.spec.ts"
-

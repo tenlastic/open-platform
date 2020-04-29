@@ -22,9 +22,9 @@
     "request-promise-native": "1.0.7"
   },
   "devDependencies": {
-    "mocha": "6.1.4",
+    "mocha": "7.1.2",
     "nyc": "15.0.0",
-    "ts-node": "8.3.0",
+    "ts-node": "8.9.1",
     "tslint": "5.18.0",
     "typescript": "3.5.3"
   }

@@ -39,7 +39,7 @@ export class WebServer {
   public serve(directory = 'public', path = '/', root = 'index.html') {
     // Redirect naked root URL to root document.
     const router = new Router();
-    router.get(path, ctx => ctx.redirect(`${path}/${root}`));
+    router.get(path, ctx => ctx.redirect(`${root}`));
     this.app.use(router.routes());
 
     // Serve static files from specified directory.
