@@ -10,10 +10,10 @@ export async function handler(ctx: Context) {
     try {
       result = await GameServerPermissions.create(ctx.request.body, {}, ctx.state.user);
     } catch (e) {
-      console.error(e);
-
       if (e.name === 'MongoError' && e.code === 11000 && e.keyPattern.port) {
         portError = e;
+      } else {
+        throw e;
       }
     }
   } while (portError);

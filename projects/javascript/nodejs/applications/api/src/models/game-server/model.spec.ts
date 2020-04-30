@@ -15,7 +15,8 @@ let patchNamespacedConfigMapStub: sinon.SinonStub;
 let patchNamespacedServiceStub: sinon.SinonStub;
 let sandbox: sinon.SinonSandbox;
 
-beforeEach(async function() {
+beforeEach(function() {
+  console.log('game-server:beforeEach()');
   sandbox = sinon.createSandbox();
 
   createNamespacedDeploymentStub = sandbox
@@ -44,6 +45,7 @@ beforeEach(async function() {
   patchNamespacedServiceStub = sandbox
     .stub(k8s.CoreV1Api.prototype, 'patchNamespacedService')
     .resolves();
+  console.log('game-server:beforeEach()');
 });
 
 afterEach(function() {
@@ -52,12 +54,6 @@ afterEach(function() {
 
 describe('models/game-server/model', function() {
   describe('createKubernetesResources()', function() {
-    it(`sets the record's url`, async function() {
-      const record = await GameServerMock.create({ releaseId: mongoose.Types.ObjectId() });
-
-      expect(record.url).to.exist;
-    });
-
     it(`creates Kubernetes resources`, async function() {
       await GameServerMock.create({ releaseId: mongoose.Types.ObjectId() });
 
@@ -67,7 +63,7 @@ describe('models/game-server/model', function() {
       expect(deleteNamespacedDeploymentStub.calledOnce).to.eql(true);
       expect(deleteNamespacedServiceStub.calledOnce).to.eql(true);
 
-      expect(patchNamespacedConfigMapStub.calledOnce).to.eql(true);
+      expect(patchNamespacedConfigMapStub.calledTwice).to.eql(true);
       expect(patchNamespacedServiceStub.calledOnce).to.eql(true);
     });
   });
