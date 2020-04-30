@@ -71,7 +71,6 @@ before(async function() {
 });
 
 beforeEach(async function() {
-  console.log('index.spec.ts:beforeEach()');
   sandbox = sinon.createSandbox();
   sandbox.stub(mailgun, 'send').resolves();
 
@@ -98,7 +97,6 @@ beforeEach(async function() {
   await rabbitmq.purge(DELETE_COLLECTION_INDEX_QUEUE);
   await rabbitmq.purge(REMOVE_RELEASE_FILES_QUEUE);
   await rabbitmq.purge(UNZIP_RELEASE_FILES_QUEUE);
-  console.log('index.spec.ts:beforeEach()');
 });
 
 afterEach(function() {

@@ -18,8 +18,6 @@ const schema = new mongoose.Schema({
 const Model = mongoose.model('example', schema);
 
 describe('subscribe()', function() {
-  this.timeout(5000);
-
   beforeEach(async function() {
     await Model.deleteMany({});
   });

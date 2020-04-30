@@ -16,7 +16,6 @@ let patchNamespacedServiceStub: sinon.SinonStub;
 let sandbox: sinon.SinonSandbox;
 
 beforeEach(function() {
-  console.log('game-server:beforeEach()');
   sandbox = sinon.createSandbox();
 
   createNamespacedDeploymentStub = sandbox
@@ -45,7 +44,6 @@ beforeEach(function() {
   patchNamespacedServiceStub = sandbox
     .stub(k8s.CoreV1Api.prototype, 'patchNamespacedService')
     .resolves();
-  console.log('game-server:beforeEach()');
 });
 
 afterEach(function() {

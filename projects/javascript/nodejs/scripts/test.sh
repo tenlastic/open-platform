@@ -34,5 +34,6 @@ $COVERAGE_ARGUMENTS \
   --require ts-node/register/transpile-only \
   --reporter mocha-multi-reporters \
   --reporter-options configFile="../../mocha-multi-reporters.json" \
+  --timeout 10000 \
   $WATCH_ARGUMENTS \
   "src/**/*.spec.ts"

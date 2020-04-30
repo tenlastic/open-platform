@@ -8,8 +8,6 @@ import { publish } from './';
 const chance = new Chance();
 
 describe('publish()', function() {
-  this.timeout(5000);
-
   it('publishes the payload to Kafka', async function() {
     const payload: IDatabasePayload<any> = {
       documentKey: { _id: chance.hash() },
