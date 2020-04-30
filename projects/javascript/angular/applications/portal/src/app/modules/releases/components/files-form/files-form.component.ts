@@ -10,6 +10,7 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import {
   FileService,
@@ -55,6 +56,9 @@ export class FilesFormComponent implements OnDestroy, OnInit {
   };
 
   public error: string;
+  public get finishedTasks() {
+    return this.tasks.filter(t => t.completedAt || t.failedAt);
+  }
   public loadingMessage: string;
   public get modifiedFiles() {
     return this.stagedFiles.filter(f => f.status === 'modified');
@@ -70,6 +74,9 @@ export class FilesFormComponent implements OnDestroy, OnInit {
   public status: string;
   public get unmodifiedFiles() {
     return this.stagedFiles.filter(f => f.status === 'unmodified');
+  }
+  public get unfinishedTasks() {
+    return this.tasks.filter(t => !t.completedAt && !t.failedAt);
   }
   public uploadStatus: any;
   public zipStatus: any;
@@ -106,6 +113,20 @@ export class FilesFormComponent implements OnDestroy, OnInit {
   public cancel() {
     this.selectFilesInput.nativeElement.value = [];
     this.stagedFiles = [];
+  }
+
+  public getReleaseTaskStatusText(releaseTask: ReleaseTask) {
+    const datePipe = new DatePipe('en-US');
+
+    if (releaseTask.completedAt) {
+      return `Completed at ${datePipe.transform(releaseTask.completedAt, 'h:mm a on M/d/yy')}.`;
+    } else if (releaseTask.failedAt) {
+      return `Failed at ${datePipe.transform(releaseTask.failedAt, 'h:mm a on M/d/yy')}`;
+    } else if (releaseTask.startedAt) {
+      return `Started at ${datePipe.transform(releaseTask.startedAt, 'h:mm a on M/d/yy')}`;
+    } else {
+      return `Created at ${datePipe.transform(releaseTask.createdAt, 'h:mm a on M/d/yy')}`;
+    }
   }
 
   public async onFilesChanged($event) {
@@ -199,7 +220,11 @@ export class FilesFormComponent implements OnDestroy, OnInit {
     this.uploadStatus = null;
 
     this.tasks = await this.releaseTaskService.find(this.release._id, {
-      where: { completedAt: { $eq: null }, failedAt: { $eq: null } },
+      where: {
+        completedAt: { $eq: null },
+        finishedAt: { $eq: null },
+        platform: { $eq: this.platform },
+      },
     });
 
     while (this.tasks.length > 0) {
@@ -234,7 +259,8 @@ export class FilesFormComponent implements OnDestroy, OnInit {
 
     try {
       this.tasks = await this.releaseTaskService.find(this.release._id, {
-        where: { completedAt: { $eq: null }, failedAt: { $eq: null }, platform: this.platform },
+        sort: '-createdAt',
+        where: { platform: this.platform },
       });
 
       await new Promise(resolve => setTimeout(resolve, 5000));

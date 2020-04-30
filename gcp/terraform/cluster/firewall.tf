@@ -9,11 +9,11 @@ resource "google_compute_firewall" "node-ports" {
 
   allow {
     protocol = "tcp"
-    ports    = ["30000-32767"]
+    ports    = ["60000-65535"]
   }
 
   allow {
     protocol = "udp"
-    ports    = ["30000-32767"]
+    ports    = ["60000-65535"]
   }
 }

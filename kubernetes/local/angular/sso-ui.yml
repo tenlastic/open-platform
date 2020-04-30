@@ -17,9 +17,6 @@ spec:
           command: ["npm", "run", "start"]
           ports:
             - containerPort: 3000
-          resources:
-            requests:
-              cpu: 50m
           volumeMounts:
             - name: app
               mountPath: /usr/src/app/

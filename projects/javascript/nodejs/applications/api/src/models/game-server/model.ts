@@ -7,6 +7,7 @@ import {
   index,
   modelOptions,
   plugin,
+  post,
   pre,
   prop,
 } from '@hasezoey/typegoose';
@@ -26,6 +27,7 @@ export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocum
 GameServerEvent.on(kafka.publish);
 
 @index({ gameId: 1 })
+@index({ port: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
@@ -42,12 +44,18 @@ GameServerEvent.on(kafka.publish);
   await this.deleteKubernetesResources();
 })
 @pre('save', async function(this: GameServerDocument) {
-  if (!this.isModified('releaseId')) {
-    return;
-  }
-
+  this.port = this.port || this.getRandomPort();
+})
+@post('save', async function(this: GameServerDocument) {
+  // Delete outdated resources.
   await this.deleteKubernetesResources();
-  await this.createKubernetesResources();
+
+  // Delete created resources if entire stack is not successful.
+  try {
+    await this.createKubernetesResources();
+  } catch (e) {
+    await this.deleteKubernetesResources();
+  }
 })
 export class GameServerSchema {
   public _id: mongoose.Types.ObjectId;
@@ -74,6 +82,9 @@ export class GameServerSchema {
 
   @prop({ required: true })
   public name: string;
+
+  @prop()
+  public port: number;
 
   @prop({ required: true })
   public releaseId: mongoose.Types.ObjectId;
@@ -106,6 +117,9 @@ export class GameServerSchema {
     kc.loadFromDefault();
 
     const appsv1 = kc.makeApiClient(k8s.AppsV1Api);
+    const corev1 = kc.makeApiClient(k8s.CoreV1Api);
+
+    // Create Deployment and Service.
     await appsv1.createNamespacedDeployment(namespace, {
       metadata: {
         labels: {
@@ -144,9 +158,7 @@ export class GameServerSchema {
         },
       },
     });
-
-    const corev1 = kc.makeApiClient(k8s.CoreV1Api);
-    const service = await corev1.createNamespacedService(namespace, {
+    await corev1.createNamespacedService(namespace, {
       metadata: {
         labels: {
           app: name,
@@ -164,14 +176,45 @@ export class GameServerSchema {
         selector: {
           app: name,
         },
-        type: 'NodePort',
       },
     });
 
-    const ip = service.body.spec.externalIPs ? service.body.spec.externalIPs[0] : '127.0.0.1';
-    const port = service.body.spec.ports[0].nodePort;
-
-    this.url = `${ip}:${port}`;
+    // Patch Nginx resources.
+    await corev1.patchNamespacedConfigMap(
+      'tcp-services',
+      namespace,
+      {
+        data: {
+          [this.port]: `${namespace}/${name}:7777`,
+        },
+      },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+    );
+    await corev1.patchNamespacedService(
+      'nginx-ingress-controller',
+      namespace,
+      {
+        spec: {
+          ports: [
+            {
+              name,
+              port: this.port,
+              protocol: 'TCP',
+              targetPort: this.port,
+            },
+          ],
+        },
+      },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+    );
   }
 
   /**
@@ -184,15 +227,33 @@ export class GameServerSchema {
     const kc = new k8s.KubeConfig();
     kc.loadFromDefault();
 
+    const appsv1 = kc.makeApiClient(k8s.AppsV1Api);
+    const corev1 = kc.makeApiClient(k8s.CoreV1Api);
+
     try {
-      const appsv1 = kc.makeApiClient(k8s.AppsV1Api);
       await appsv1.deleteNamespacedDeployment(name, namespace);
     } catch {}
 
     try {
-      const corev1 = kc.makeApiClient(k8s.CoreV1Api);
       await corev1.deleteNamespacedService(name, namespace);
     } catch {}
+
+    try {
+      await corev1.patchNamespacedConfigMap(
+        'tcp-services',
+        namespace,
+        [{ op: 'remove', path: `/data/${this.port}` }],
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { headers: { 'Content-Type': 'application/json-patch+json' } },
+      );
+    } catch {}
+  }
+
+  private getRandomPort(max = 65535, min = 60000) {
+    return Math.round(Math.random() * (max - min) + min);
   }
 }
 

@@ -80,17 +80,36 @@
   </div>
 </div>
 
-<div class="row">
-  <div *ngIf="tasks.length" class="col-sm-6">
+<div *ngIf="unfinishedTasks.length" class="row">
+  <div class="col-sm-6">
     <mat-label>
-      <span>Background Tasks</span>
+      <span>Unfinished Tasks</span>
     </mat-label>
 
     <mat-list>
-      <mat-list-item *ngFor="let task of tasks" [attr.status]="task.status">
+      <mat-list-item *ngFor="let task of unfinishedTasks" [attr.status]="task.status">
         <span>{{ TASKS[task.action] }}</span>
         <span>
-          {{ task.startedAt ? 'In Progress' : 'Queued' }}
+          {{ getReleaseTaskStatusText(task) }}
+        </span>
+      </mat-list-item>
+    </mat-list>
+
+    <mat-hint>
+      <span>Count: {{ tasks.length }}</span>
+    </mat-hint>
+  </div>
+
+  <div class="col-sm-6">
+    <mat-label>
+      <span>Finished Tasks</span>
+    </mat-label>
+
+    <mat-list>
+      <mat-list-item *ngFor="let task of finishedTasks" [attr.status]="task.status">
+        <span>{{ TASKS[task.action] }}</span>
+        <span>
+          {{ getReleaseTaskStatusText(task) }}
         </span>
       </mat-list-item>
     </mat-list>

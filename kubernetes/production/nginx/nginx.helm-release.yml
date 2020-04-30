@@ -36,6 +36,10 @@ spec:
       replicaCount: 3
       service:
         loadBalancerIP: 35.224.200.212
+      tcp:
+        configMapNamespace: default
+      udp:
+        configMapNamespace: default
     defaultBackend:
       affinity:
         nodeAffinity:
@@ -61,3 +65,5 @@ spec:
       resources:
         requests:
           cpu: 50m
+    tcp:
+      1337: default/default:1337

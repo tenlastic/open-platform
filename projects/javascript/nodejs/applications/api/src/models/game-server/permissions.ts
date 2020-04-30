@@ -41,9 +41,9 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'maxUsers',
       'metadata.*',
       'name',
+      'port',
       'releaseId',
       'updatedAt',
-      'url',
     ],
   },
   roles: [

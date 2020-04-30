@@ -11,6 +11,8 @@ let createNamespacedDeploymentStub: sinon.SinonStub;
 let createNamespacedServiceStub: sinon.SinonStub;
 let deleteNamespacedDeploymentStub: sinon.SinonStub;
 let deleteNamespacedServiceStub: sinon.SinonStub;
+let patchNamespacedConfigMapStub: sinon.SinonStub;
+let patchNamespacedServiceStub: sinon.SinonStub;
 let sandbox: sinon.SinonSandbox;
 
 beforeEach(async function() {
@@ -35,6 +37,13 @@ beforeEach(async function() {
   deleteNamespacedServiceStub = sandbox
     .stub(k8s.CoreV1Api.prototype, 'deleteNamespacedService')
     .resolves();
+
+  patchNamespacedConfigMapStub = sandbox
+    .stub(k8s.CoreV1Api.prototype, 'patchNamespacedConfigMap')
+    .resolves();
+  patchNamespacedServiceStub = sandbox
+    .stub(k8s.CoreV1Api.prototype, 'patchNamespacedService')
+    .resolves();
 });
 
 afterEach(function() {
@@ -57,6 +66,9 @@ describe('models/game-server/model', function() {
 
       expect(deleteNamespacedDeploymentStub.calledOnce).to.eql(true);
       expect(deleteNamespacedServiceStub.calledOnce).to.eql(true);
+
+      expect(patchNamespacedConfigMapStub.calledOnce).to.eql(true);
+      expect(patchNamespacedServiceStub.calledOnce).to.eql(true);
     });
   });
 

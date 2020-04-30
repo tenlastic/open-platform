@@ -41,7 +41,7 @@ export class RecordSchema {
       { properties },
       {
         autoIndex: true,
-        collection: collection._id.toString(),
+        collection: `collections.${collection._id}`,
         minimize: false,
         timestamps: true,
       },
