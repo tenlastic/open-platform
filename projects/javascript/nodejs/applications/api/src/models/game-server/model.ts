@@ -181,7 +181,7 @@ export class GameServerSchema {
 
     // Patch Nginx resources.
     await corev1.patchNamespacedConfigMap(
-      'tcp-services',
+      'nginx-ingress-tcp',
       namespace,
       {
         data: {

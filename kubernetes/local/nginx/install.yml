@@ -18,7 +18,7 @@ metadata:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: tcp-services
+  name: nginx-ingress-tcp
   namespace: default
   labels:
     app.kubernetes.io/name: ingress-nginx
@@ -27,7 +27,7 @@ metadata:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: udp-services
+  name: nginx-ingress-udp
   namespace: default
   labels:
     app.kubernetes.io/name: ingress-nginx
@@ -210,8 +210,8 @@ spec:
           args:
             - /nginx-ingress-controller
             - --configmap=$(POD_NAMESPACE)/nginx-configuration
-            - --tcp-services-configmap=$(POD_NAMESPACE)/tcp-services
-            - --udp-services-configmap=$(POD_NAMESPACE)/udp-services
+            - --tcp-services-configmap=$(POD_NAMESPACE)/nginx-ingress-tcp
+            - --udp-services-configmap=$(POD_NAMESPACE)/nginx-ingress-udp
             - --publish-service=$(POD_NAMESPACE)/ingress-nginx
             - --annotations-prefix=nginx.ingress.kubernetes.io
           securityContext:
