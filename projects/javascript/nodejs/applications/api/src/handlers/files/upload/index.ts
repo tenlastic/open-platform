@@ -293,14 +293,20 @@ async function publishUnzipMessage(
   const session = await ReleaseTask.db.startSession();
   session.startTransaction();
 
-  let releaseTask: ReleaseTaskDocument;
+  let releaseTasks: ReleaseTaskDocument[];
   try {
-    releaseTask = await ReleaseTask.create({
-      action: ReleaseTaskAction.Unzip,
-      platform: targetFile.platform,
-      releaseId: targetFile.releaseId,
-    });
+    releaseTasks = await ReleaseTask.create(
+      [
+        {
+          action: ReleaseTaskAction.Unzip,
+          platform: targetFile.platform,
+          releaseId: targetFile.releaseId,
+        },
+      ],
+      { session },
+    );
 
+    const releaseTask = releaseTasks[0];
     await minio.getClient().putObject(MINIO_BUCKET, releaseTask.minioZipObjectName, stream);
     await rabbitmq.publish(UNZIP_RELEASE_FILES_QUEUE, releaseTask);
 
@@ -311,5 +317,5 @@ async function publishUnzipMessage(
     throw e;
   }
 
-  return releaseTask;
+  return releaseTasks[0];
 }

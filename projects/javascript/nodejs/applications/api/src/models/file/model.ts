@@ -83,7 +83,7 @@ export class FileSchema {
   public updatedAt: Date;
 
   public get key() {
-    return `${this.releaseId}/${this.platform}/${this.path}`;
+    return `releases/${this.releaseId}/${this.platform}/${this.path}`;
   }
 
   @prop({ foreignField: '_id', justOne: true, localField: 'releaseId', ref: Release })

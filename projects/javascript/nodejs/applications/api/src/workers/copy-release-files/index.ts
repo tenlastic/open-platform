@@ -75,8 +75,8 @@ async function copyObject(
     .getClient()
     .copyObject(
       MINIO_BUCKET,
-      `${releaseId}/${previousFile.platform}/${path}`,
-      `${MINIO_BUCKET}/${previousFile.releaseId}/${previousFile.platform}/${path}`,
+      `releases/${releaseId}/${previousFile.platform}/${path}`,
+      `${MINIO_BUCKET}/releases/${previousFile.releaseId}/${previousFile.platform}/${path}`,
       null,
     );
 

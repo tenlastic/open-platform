@@ -119,7 +119,7 @@ export class FilesFormComponent implements OnDestroy, OnInit {
     const datePipe = new DatePipe('en-US');
 
     if (releaseTask.completedAt) {
-      return `Completed at ${datePipe.transform(releaseTask.completedAt, 'h:mm a on M/d/yy')}.`;
+      return `Completed at ${datePipe.transform(releaseTask.completedAt, 'h:mm a on M/d/yy')}`;
     } else if (releaseTask.failedAt) {
       return `Failed at ${datePipe.transform(releaseTask.failedAt, 'h:mm a on M/d/yy')}`;
     } else if (releaseTask.startedAt) {
@@ -220,15 +220,11 @@ export class FilesFormComponent implements OnDestroy, OnInit {
     this.uploadStatus = null;
 
     this.tasks = await this.releaseTaskService.find(this.release._id, {
-      where: {
-        completedAt: { $eq: null },
-        finishedAt: { $eq: null },
-        platform: { $eq: this.platform },
-      },
+      where: { platform: { $eq: this.platform } },
     });
 
-    while (this.tasks.length > 0) {
-      await new Promise(resolve => setTimeout(resolve, 5000));
+    while (this.unfinishedTasks.length > 0) {
+      await new Promise(resolve => setTimeout(resolve, 15000));
     }
 
     this.status = null;
@@ -263,7 +259,7 @@ export class FilesFormComponent implements OnDestroy, OnInit {
         where: { platform: this.platform },
       });
 
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 15000));
     } catch {}
 
     return this.getReleaseTasks();

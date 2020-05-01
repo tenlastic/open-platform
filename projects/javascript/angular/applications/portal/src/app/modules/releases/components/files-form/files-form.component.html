@@ -96,11 +96,11 @@
     </mat-list>
 
     <mat-hint>
-      <span>Count: {{ tasks.length }}</span>
+      <span>Count: {{ unfinishedTasks.length }}</span>
     </mat-hint>
   </div>
 
-  <div class="col-sm-6">
+  <div *ngIf="finishedTasks.length" class="col-sm-6">
     <mat-label>
       <span>Finished Tasks</span>
     </mat-label>
@@ -115,7 +115,7 @@
     </mat-list>
 
     <mat-hint>
-      <span>Count: {{ tasks.length }}</span>
+      <span>Count: {{ finishedTasks.length }}</span>
     </mat-hint>
   </div>
 </div>

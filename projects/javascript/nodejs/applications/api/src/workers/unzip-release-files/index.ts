@@ -2,7 +2,6 @@ import * as minio from '@tenlastic/minio';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { Channel, ConsumeMessage } from 'amqplib';
 import * as crypto from 'crypto';
-import { Stream } from 'stream';
 import * as unzipper from 'unzipper';
 
 import { MINIO_BUCKET, RABBITMQ_PREFIX } from '../../constants';
@@ -11,7 +10,6 @@ import {
   FileDocument,
   FilePlatform,
   Release,
-  ReleaseDocument,
   ReleaseTask,
   ReleaseTaskDocument,
   ReleaseTaskFailure,
@@ -36,8 +34,24 @@ export async function unzipReleaseFilesWorker(
 
     task = await task.populate({ path: 'releaseDocument' }).execPopulate();
     const release = new Release(task.releaseDocument);
-    const promises = await processZip(content.platform as FilePlatform, release, stream);
-    await Promise.all(promises);
+
+    // Process the zip.
+    const zip = stream.pipe(unzipper.Parse({ forceStream: true }));
+    for await (const entry of zip) {
+      const { path, type } = entry;
+      if (type === 'Directory') {
+        continue;
+      }
+
+      const record = new File({
+        path: path.replace(/[\.]+\//g, ''),
+        platform: content.platform as FilePlatform,
+        releaseId: release._id,
+      });
+
+      const buffer: Buffer = await entry.buffer();
+      await saveFile(buffer, entry, record);
+    }
 
     // Remove Zip.
     await minio.getClient().removeObject(MINIO_BUCKET, task.minioZipObjectName);
@@ -68,58 +82,37 @@ export async function unzipReleaseFilesWorker(
   }
 }
 
-function processZip(platform: FilePlatform, release: ReleaseDocument, stream: Stream) {
-  const promises = [];
+/**
+ * Recursively uploads object to Minio
+ * @param content
+ * @param record
+ */
+async function putObject(content: Buffer, record: FileDocument, timeout = 1000) {
+  try {
+    await minio.getClient().putObject(MINIO_BUCKET, record.key, content);
+  } catch (e) {
+    if (e.code && e.code === 'SlowDown') {
+      await new Promise(res => setTimeout(res, 1000));
+      return putObject(content, record, timeout * 2);
+    }
 
-  return new Promise<Array<Promise<FileDocument>>>((resolve, reject) => {
-    stream
-      .pipe(unzipper.Parse())
-      .on('entry', entry => {
-        const { path, type } = entry;
-        if (type === 'Directory') {
-          return;
-        }
-
-        const record = new File({
-          path: path.replace(/[\.]+\//g, ''),
-          platform,
-          releaseId: release._id,
-        });
-
-        try {
-          const promise = saveFile(entry, record);
-          promises.push(promise);
-        } catch (e) {
-          throw e;
-        }
-      })
-      .on('error', reject)
-      .on('finish', () => resolve(promises));
-  });
+    throw e;
+  }
 }
 
-async function saveFile(entry: any, record: FileDocument) {
-  const results = await Promise.all([
-    new Promise((resolve, reject) => {
-      const hash = crypto.createHash('md5');
-      hash.setEncoding('hex');
-      entry.on('end', () => {
-        hash.end();
+async function saveFile(content: Buffer, entry: any, record: FileDocument) {
+  const md5 = crypto
+    .createHash('md5')
+    .update(content)
+    .digest('hex');
 
-        const md5 = hash.read();
-        return resolve(md5);
-      });
-      entry.on('error', reject);
-      entry.pipe(hash);
-    }),
-    minio.getClient().putObject(MINIO_BUCKET, record.key, entry),
-  ]);
+  await putObject(content, record);
 
   return File.findOneAndUpdate(
     { path: record.path, platform: record.platform, releaseId: record.releaseId },
     {
       compressedBytes: entry.vars.compressedSize,
-      md5: results[0],
+      md5,
       path: record.path,
       platform: record.platform,
       releaseId: record.releaseId,

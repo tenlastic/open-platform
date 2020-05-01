@@ -116,12 +116,12 @@ describe('workers/remove', function() {
 
       const result = await minio
         .getClient()
-        .statObject(MINIO_BUCKET, `${release._id}/${platform}/index.ts`);
+        .statObject(MINIO_BUCKET, `releases/${release._id}/${platform}/index.ts`);
       expect(result).to.exist;
 
       const promise = minio
         .getClient()
-        .statObject(MINIO_BUCKET, `${release._id}/${platform}/index.spec.ts`);
+        .statObject(MINIO_BUCKET, `releases/${release._id}/${platform}/index.spec.ts`);
       return expect(promise).to.be.rejectedWith('Not Found');
     });
   });
