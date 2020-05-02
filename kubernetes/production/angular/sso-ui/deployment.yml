@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: sso-ui
-          image: tenlastic/sso-ui:0.0.63
+          image: tenlastic/sso-ui:0.0.64
           ports:
             - containerPort: 80
           resources:
