@@ -34,9 +34,11 @@ describe('handlers/files/download', function() {
       game = await GameMock.create({ namespaceId: namespace._id });
 
       // Upload test file to Minio.
-      await minio
-        .getClient()
-        .putObject(MINIO_BUCKET, game.getMinioPath('background'), fs.createReadStream(__filename));
+      await minio.putObject(
+        MINIO_BUCKET,
+        game.getMinioPath('background'),
+        fs.createReadStream(__filename),
+      );
 
       ctx = new ContextMock({
         params: {

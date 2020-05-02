@@ -65,9 +65,7 @@ describe('handlers/games/upload', function() {
     it('uploads file to Minio', async function() {
       await handler(ctx as any);
 
-      const result = await minio
-        .getClient()
-        .statObject(MINIO_BUCKET, game.getMinioPath('background'));
+      const result = await minio.statObject(MINIO_BUCKET, game.getMinioPath('background'));
 
       expect(result).to.exist;
     });

@@ -59,7 +59,7 @@ describe('workers/unzip', function() {
         compression: 'DEFLATE',
         compressionOptions: { level: 1 },
       });
-      await minio.getClient().putObject(MINIO_BUCKET, releaseTask.minioZipObjectName, stream);
+      await minio.putObject(MINIO_BUCKET, releaseTask.minioZipObjectName, stream);
 
       // Calculate MD5 for zipped file.
       md5 = await new Promise((resolve, reject) => {
@@ -113,7 +113,7 @@ describe('workers/unzip', function() {
       await unzipReleaseFilesWorker(channel as any, content, null);
 
       const file = await File.findOne({ releaseId: release._id });
-      const result = await minio.getClient().statObject(MINIO_BUCKET, file.key);
+      const result = await minio.statObject(MINIO_BUCKET, file.key);
       expect(result).to.exist;
     });
   });

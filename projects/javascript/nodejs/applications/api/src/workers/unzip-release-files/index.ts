@@ -30,7 +30,7 @@ export async function unzipReleaseFilesWorker(
     task = await task.save();
 
     // Read the zip from Minio and unzip the files back to Minio.
-    const stream = await minio.getClient().getObject(MINIO_BUCKET, task.minioZipObjectName);
+    const stream = await minio.getObject(MINIO_BUCKET, task.minioZipObjectName);
 
     task = await task.populate({ path: 'releaseDocument' }).execPopulate();
     const release = new Release(task.releaseDocument);
@@ -54,7 +54,7 @@ export async function unzipReleaseFilesWorker(
     }
 
     // Remove Zip.
-    await minio.getClient().removeObject(MINIO_BUCKET, task.minioZipObjectName);
+    await minio.removeObject(MINIO_BUCKET, task.minioZipObjectName);
 
     // Set Job status to Complete.
     task.completedAt = new Date();
@@ -82,31 +82,13 @@ export async function unzipReleaseFilesWorker(
   }
 }
 
-/**
- * Recursively uploads object to Minio
- * @param content
- * @param record
- */
-async function putObject(content: Buffer, record: FileDocument, timeout = 1000) {
-  try {
-    await minio.getClient().putObject(MINIO_BUCKET, record.key, content);
-  } catch (e) {
-    if (e.code && e.code === 'SlowDown') {
-      await new Promise(res => setTimeout(res, 1000));
-      return putObject(content, record, timeout * 2);
-    }
-
-    throw e;
-  }
-}
-
 async function saveFile(content: Buffer, entry: any, record: FileDocument) {
   const md5 = crypto
     .createHash('md5')
     .update(content)
     .digest('hex');
 
-  await putObject(content, record);
+  await minio.putObject(MINIO_BUCKET, record.key, content);
 
   return File.findOneAndUpdate(
     { path: record.path, platform: record.platform, releaseId: record.releaseId },

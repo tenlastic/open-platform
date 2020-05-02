@@ -54,9 +54,9 @@ before(async function() {
     useSSL: minioConnectionUrl.protocol === 'https:',
   });
 
-  const bucketExists = await minio.getClient().bucketExists(MINIO_BUCKET);
+  const bucketExists = await minio.bucketExists(MINIO_BUCKET);
   if (!bucketExists) {
-    await minio.getClient().makeBucket(MINIO_BUCKET, 'us-east-1');
+    await minio.makeBucket(MINIO_BUCKET);
   }
 
   await mongoose.connect(process.env.MONGO_CONNECTION_STRING, {

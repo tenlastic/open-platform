@@ -49,7 +49,7 @@ export async function buildReleaseServerWorker(
 
       for (const file of files) {
         const absolutePath = path.join(dir.name, file.path);
-        await minio.getClient().fGetObject(MINIO_BUCKET, file.key, absolutePath);
+        await minio.fGetObject(MINIO_BUCKET, file.key, absolutePath);
 
         tmps.push(file.path);
       }

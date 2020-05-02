@@ -62,9 +62,7 @@ describe('workers/remove', function() {
         platform,
         releaseId: release._id,
       });
-      await minio
-        .getClient()
-        .putObject(MINIO_BUCKET, keptFile.key, fs.createReadStream(__filename));
+      await minio.putObject(MINIO_BUCKET, keptFile.key, fs.createReadStream(__filename));
 
       // Set up File to remove.
       const removedFile = await FileMock.create({
@@ -72,9 +70,7 @@ describe('workers/remove', function() {
         platform,
         releaseId: release._id,
       });
-      await minio
-        .getClient()
-        .putObject(MINIO_BUCKET, removedFile.key, fs.createReadStream(__filename));
+      await minio.putObject(MINIO_BUCKET, removedFile.key, fs.createReadStream(__filename));
     });
 
     it('acks the message', async function() {
@@ -114,14 +110,16 @@ describe('workers/remove', function() {
 
       await removeReleaseFilesWorker(channel as any, content, null);
 
-      const result = await minio
-        .getClient()
-        .statObject(MINIO_BUCKET, `releases/${release._id}/${platform}/index.ts`);
+      const result = await minio.statObject(
+        MINIO_BUCKET,
+        `releases/${release._id}/${platform}/index.ts`,
+      );
       expect(result).to.exist;
 
-      const promise = minio
-        .getClient()
-        .statObject(MINIO_BUCKET, `releases/${release._id}/${platform}/index.spec.ts`);
+      const promise = minio.statObject(
+        MINIO_BUCKET,
+        `releases/${release._id}/${platform}/index.spec.ts`,
+      );
       return expect(promise).to.be.rejectedWith('Not Found');
     });
   });

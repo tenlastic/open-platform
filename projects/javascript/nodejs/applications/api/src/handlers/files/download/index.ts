@@ -25,7 +25,7 @@ export async function handler(ctx: Context) {
 
   const zip = new JSZip();
   for (const file of files) {
-    const stream = (await minio.getClient().getObject(MINIO_BUCKET, file.key)) as any;
+    const stream = (await minio.getObject(MINIO_BUCKET, file.key)) as any;
     zip.file(file.path, stream);
   }
 

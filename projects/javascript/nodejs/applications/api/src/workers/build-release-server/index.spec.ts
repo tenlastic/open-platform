@@ -70,25 +70,21 @@ describe('workers/build', function() {
 
         CMD ["./Linux_Core.x86_64", "-batchmode", "-logFile", "-nographics"]
       `;
-      await minio.getClient().putObject(MINIO_BUCKET, dockerFile.key, dockerFileContent);
+      await minio.putObject(MINIO_BUCKET, dockerFile.key, dockerFileContent);
 
       const indexFile = await FileMock.create({
         path: 'index.ts',
         platform,
         releaseId: release._id,
       });
-      await minio
-        .getClient()
-        .putObject(MINIO_BUCKET, indexFile.key, fs.createReadStream(__filename));
+      await minio.putObject(MINIO_BUCKET, indexFile.key, fs.createReadStream(__filename));
 
       const specFile = await FileMock.create({
         path: 'index.spec.ts',
         platform,
         releaseId: release._id,
       });
-      await minio
-        .getClient()
-        .putObject(MINIO_BUCKET, specFile.key, fs.createReadStream(__filename));
+      await minio.putObject(MINIO_BUCKET, specFile.key, fs.createReadStream(__filename));
     });
 
     it('acks the message', async function() {

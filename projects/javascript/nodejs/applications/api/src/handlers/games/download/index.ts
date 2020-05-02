@@ -26,10 +26,8 @@ export async function handler(ctx: Context) {
     throw new PermissionError();
   }
 
-  const info = await minio.getClient().statObject(MINIO_BUCKET, game.getMinioPath(field, _id));
-  const stream = (await minio
-    .getClient()
-    .getObject(MINIO_BUCKET, game.getMinioPath(field, _id))) as any;
+  const info = await minio.statObject(MINIO_BUCKET, game.getMinioPath(field, _id));
+  const stream = (await minio.getObject(MINIO_BUCKET, game.getMinioPath(field, _id))) as any;
 
   ctx.response.body = stream;
   ctx.response.type = info.metaData['content-type'];

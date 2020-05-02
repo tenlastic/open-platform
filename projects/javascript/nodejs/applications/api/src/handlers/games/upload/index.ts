@@ -68,7 +68,7 @@ async function fileHandler(
   }
 
   const path = game.getMinioPath(field);
-  await minio.getClient().putObject(MINIO_BUCKET, path, stream, { 'content-type': mimetype });
+  await minio.putObject(MINIO_BUCKET, path, stream, { 'content-type': mimetype });
 
   return { field, path } as FieldPath;
 }

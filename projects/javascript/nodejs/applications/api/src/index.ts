@@ -74,9 +74,9 @@ mailgun.setCredentials(process.env.MAILGUN_DOMAIN, process.env.MAILGUN_KEY);
     useSSL: minioConnectionUrl.protocol === 'https:',
   });
 
-  const bucketExists = await minio.getClient().bucketExists(MINIO_BUCKET);
+  const bucketExists = await minio.bucketExists(MINIO_BUCKET);
   if (!bucketExists) {
-    await minio.getClient().makeBucket(MINIO_BUCKET, 'us-east-1');
+    await minio.makeBucket(MINIO_BUCKET);
   }
 })();
 

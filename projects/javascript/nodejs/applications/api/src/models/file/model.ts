@@ -25,7 +25,7 @@ FileEvent.on(kafka.publish);
 FileEvent.on(async event => {
   switch (event.operationType) {
     case 'delete':
-      return minio.getClient().removeObject(MINIO_BUCKET, event.fullDocument.key);
+      return minio.removeObject(MINIO_BUCKET, event.fullDocument.key);
   }
 });
 ReleaseEvent.on(async event => {

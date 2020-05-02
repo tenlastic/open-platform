@@ -62,9 +62,7 @@ describe('workers/copy', function() {
         platform,
         releaseId: previousRelease._id,
       });
-      await minio
-        .getClient()
-        .putObject(MINIO_BUCKET, previousFile.key, fs.createReadStream(__filename));
+      await minio.putObject(MINIO_BUCKET, previousFile.key, fs.createReadStream(__filename));
     });
 
     it('acks the message', async function() {
@@ -104,7 +102,7 @@ describe('workers/copy', function() {
       await copyReleaseFilesWorker(channel as any, content, null);
 
       const file = await File.findOne({ releaseId: release._id });
-      const result = await minio.getClient().statObject(MINIO_BUCKET, file.key);
+      const result = await minio.statObject(MINIO_BUCKET, file.key);
       expect(result).to.exist;
     });
   });

@@ -54,7 +54,7 @@ describe('handlers/files/delete', function() {
     });
 
     it('removes the object from minio', async function() {
-      await minio.getClient().fPutObject(MINIO_BUCKET, record.key, __filename, {});
+      await minio.fPutObject(MINIO_BUCKET, record.key, __filename, {});
 
       const ctx = new ContextMock({
         params: {
@@ -67,7 +67,7 @@ describe('handlers/files/delete', function() {
 
       await handler(ctx as any);
 
-      const promise = minio.getClient().statObject(MINIO_BUCKET, record.key);
+      const promise = minio.statObject(MINIO_BUCKET, record.key);
       expect(promise).to.be.rejected;
     });
   });

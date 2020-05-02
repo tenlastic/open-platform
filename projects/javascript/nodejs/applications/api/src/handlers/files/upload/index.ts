@@ -307,7 +307,7 @@ async function publishUnzipMessage(
     );
 
     const releaseTask = releaseTasks[0];
-    await minio.getClient().putObject(MINIO_BUCKET, releaseTask.minioZipObjectName, stream);
+    await minio.putObject(MINIO_BUCKET, releaseTask.minioZipObjectName, stream);
     await rabbitmq.publish(UNZIP_RELEASE_FILES_QUEUE, releaseTask);
 
     await session.commitTransaction();

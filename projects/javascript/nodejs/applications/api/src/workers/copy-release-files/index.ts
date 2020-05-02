@@ -71,14 +71,12 @@ async function copyObject(
   }
 
   // Copy the previous file to the new release.
-  await minio
-    .getClient()
-    .copyObject(
-      MINIO_BUCKET,
-      `releases/${releaseId}/${previousFile.platform}/${path}`,
-      `${MINIO_BUCKET}/releases/${previousFile.releaseId}/${previousFile.platform}/${path}`,
-      null,
-    );
+  await minio.copyObject(
+    MINIO_BUCKET,
+    `releases/${releaseId}/${previousFile.platform}/${path}`,
+    `${MINIO_BUCKET}/releases/${previousFile.releaseId}/${previousFile.platform}/${path}`,
+    null,
+  );
 
   return File.findOneAndUpdate(
     { path: previousFile.path, platform: previousFile.platform, releaseId },

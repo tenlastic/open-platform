@@ -40,7 +40,7 @@ describe('handlers/releases/delete', function() {
 
       platform = FileMock.getPlatform();
       const file = await FileMock.create({ path: 'index.ts', platform, releaseId: record._id });
-      await minio.getClient().putObject(MINIO_BUCKET, file.key, fs.createReadStream(__filename));
+      await minio.putObject(MINIO_BUCKET, file.key, fs.createReadStream(__filename));
     });
 
     it('returns the deleted record', async function() {
@@ -66,9 +66,7 @@ describe('handlers/releases/delete', function() {
 
       await handler(ctx as any);
 
-      const promise = minio
-        .getClient()
-        .statObject(MINIO_BUCKET, `${record._id}/${platform}/swagger.yml`);
+      const promise = minio.statObject(MINIO_BUCKET, `${record._id}/${platform}/swagger.yml`);
 
       return expect(promise).to.be.rejectedWith('Not Found');
     });
