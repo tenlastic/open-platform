@@ -48,6 +48,7 @@ setInterval(async () => {
     unique: true,
   },
 )
+@index({ heartbeatAt: 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
