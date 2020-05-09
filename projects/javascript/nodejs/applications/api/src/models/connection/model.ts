@@ -6,6 +6,7 @@ import {
   index,
   modelOptions,
   plugin,
+  post,
   prop,
 } from '@hasezoey/typegoose';
 import {
@@ -19,8 +20,21 @@ import * as mongoose from 'mongoose';
 
 import { UserDocument } from '../user/model';
 
+// Publish changes to Kafka.
 const ConnectionEvent = new EventEmitter<IDatabasePayload<ConnectionDocument>>();
 ConnectionEvent.on(kafka.publish);
+
+// Delete stale Connections.
+const HEARTBEAT = 15000;
+setInterval(async () => {
+  const date = new Date();
+  date.setSeconds(date.getSeconds() - HEARTBEAT / 1000);
+
+  const connections = await Connection.find({ heartbeatAt: { $lt: date } });
+  for (const connection of connections) {
+    await connection.remove();
+  }
+}, HEARTBEAT);
 
 @index(
   {
@@ -29,14 +43,11 @@ ConnectionEvent.on(kafka.publish);
   },
   {
     partialFilterExpression: {
-      $or: [{ disconnectedAt: { $exists: false } }, { disconnectedAt: null }],
       gameId: { $exists: true },
     },
     unique: true,
   },
 )
-@index({ disconnectedAt: 1 })
-@index({ disconnectedAt: -1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
@@ -50,15 +61,26 @@ ConnectionEvent.on(kafka.publish);
   eventEmitter: ConnectionEvent,
 })
 @plugin(uniqueErrorPlugin)
+@post('remove', (doc: ConnectionDocument) => clearTimeout(doc.heartbeatTimeout))
+@post('save', (doc: ConnectionDocument) => {
+  clearTimeout(doc.heartbeatTimeout);
+  doc.heartbeatTimeout = setTimeout(() => {
+    doc.heartbeatAt = new Date();
+    doc.save();
+  }, HEARTBEAT * 0.75);
+})
 export class ConnectionSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
   @prop()
-  public disconnectedAt: Date;
+  public deleteAt: Date;
 
   @prop()
   public gameId: mongoose.Types.ObjectId;
+
+  @prop({ default: Date.now })
+  public heartbeatAt: Date;
 
   public updatedAt: Date;
 
@@ -67,6 +89,8 @@ export class ConnectionSchema {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'UserSchema' })
   public userDocument: UserDocument;
+
+  public heartbeatTimeout: NodeJS.Timeout;
 }
 
 export type ConnectionDocument = DocumentType<ConnectionSchema>;

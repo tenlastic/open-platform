@@ -19,7 +19,7 @@ export class UsersListPageComponent implements OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<User>;
 
   public dataSource: MatTableDataSource<any>;
-  public displayedColumns: string[] = ['username', 'createdAt', 'updatedAt'];
+  public displayedColumns: string[] = ['connection', 'username', 'createdAt', 'updatedAt'];
   public search = '';
 
   private subject: Subject<string> = new Subject();
@@ -83,7 +83,7 @@ export class UsersListPageComponent implements OnInit {
     this.users = await this.userService.find({ sort: 'email' });
 
     const connections = await this.connectionService.find({
-      where: { disconnectedAt: { $exists: false }, userId: { $in: this.users.map(u => u._id) } },
+      where: { userId: { $in: this.users.map(u => u._id) } },
     });
     connections.forEach(c => {
       const user = this.users.find(u => u._id === c.userId) as any;
@@ -109,9 +109,9 @@ export class UsersListPageComponent implements OnInit {
       user.connection = c;
     });
 
-    this.connectionService.onUpdate.subscribe(c => {
+    this.connectionService.onDelete.subscribe(c => {
       const user = this.users.find(u => u._id === c.userId) as any;
-      user.connection = c;
+      user.connection = null;
     });
   }
 }

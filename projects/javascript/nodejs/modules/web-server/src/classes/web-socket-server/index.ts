@@ -182,10 +182,13 @@ export class WebSocketServer {
         if (!ws.isAlive) {
           clearInterval(interval);
           ws.terminate();
-
-          return;
         }
       }, 15000);
     }, 5000);
+
+    ws.on('close', () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    });
   }
 }

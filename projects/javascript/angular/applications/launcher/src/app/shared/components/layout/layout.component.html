@@ -10,29 +10,6 @@
 <ten-header-toolbar>
   <img src="/assets/images/logo.png" />
 
-  <ten-button
-    *ngIf="identityService.user"
-    color="accent"
-    routerLink="/games"
-    routerLinkActive="active"
-  >
-    <mat-icon>sports_esports</mat-icon>
-    <span>Games</span>
-  </ten-button>
-
-  <ten-button
-    *ngIf="identityService.user"
-    color="accent"
-    [routerLink]="['/messages']"
-    routerLinkActive="active"
-  >
-    <mat-icon>question_answer</mat-icon>
-    <span>Social</span>
-    <span *ngIf="messageState.getUnreadMessages(identityService.user._id).length" class="badge">
-      {{ messageState.getUnreadMessages(identityService.user._id).length }}
-    </span>
-  </ten-button>
-
   <span class="space"></span>
 
   <ten-button
@@ -86,5 +63,5 @@
 </ten-header-toolbar>
 
 <div class="content">
-  <router-outlet></router-outlet>
+  <app-social></app-social>
 </div>

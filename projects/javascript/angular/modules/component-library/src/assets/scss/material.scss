@@ -76,6 +76,16 @@ div.mat-sort-header-sorted {
   color: black;
 }
 
+div.mat-tooltip {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 0px;
+  box-shadow: 3px 3px 5px black;
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  padding: 6px 12px;
+  text-shadow: 2px 3px 3px black;
+}
+
 mat-datepicker-content.mat-datepicker-content {
   background: black;
   color: white;

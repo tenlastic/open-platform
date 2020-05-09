@@ -12,7 +12,7 @@
               'background-image': mainMedia.type === 'image' ? 'url(' + mainMedia.src + ')' : null
             }"
           >
-            <video #video *ngIf="mainMedia.type === 'video'" autoplay controls [muted]="'muted'">
+            <video #video *ngIf="mainMedia.type === 'video'" autoplay controls>
               <source [src]="mainMedia.src + '?timestamp=' + timestamp" type="video/mp4" />
             </video>
           </mat-grid-tile>

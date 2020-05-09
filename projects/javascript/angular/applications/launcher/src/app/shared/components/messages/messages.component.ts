@@ -1,5 +1,4 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import {
   Connection,
@@ -11,15 +10,17 @@ import {
   Message,
   MessageService,
   User,
-  UserService,
 } from '@tenlastic/ng-http';
 import { Subscription } from 'rxjs';
 
+import { SocialService } from '../../../core/services';
+
 @Component({
-  styleUrls: ['./messages-page.component.scss'],
-  templateUrl: 'messages-page.component.html',
+  selector: 'app-messages',
+  styleUrls: ['./messages.component.scss'],
+  templateUrl: 'messages.component.html',
 })
-export class MessagesPageComponent implements OnDestroy, OnInit {
+export class MessagesComponent implements OnDestroy, OnInit {
   @ViewChild('messagesScrollContainer', { static: false })
   public messagesScrollContainer: ElementRef;
 
@@ -33,75 +34,27 @@ export class MessagesPageComponent implements OnDestroy, OnInit {
   private subscriptions: Subscription[] = [];
 
   constructor(
-    private activatedRoute: ActivatedRoute,
     private connectionService: ConnectionService,
     private friendService: FriendService,
     public identityService: IdentityService,
     private ignorationService: IgnorationService,
     private messageService: MessageService,
-    private router: Router,
-    private userService: UserService,
+    private socialService: SocialService,
   ) {}
 
-  public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
-      this.loadingMessage = 'Loading conversation...';
-
-      const _id = params.get('_id');
-      if (!_id) {
-        const previousConversationId = localStorage.getItem('previousConversationId');
-        if (previousConversationId) {
-          this.router.navigate([previousConversationId], { relativeTo: this.activatedRoute });
-        }
-
-        this.loadingMessage = null;
-        return;
-      }
-
-      this.connections = await this.connectionService.find({
-        where: { disconnectedAt: { $exists: false } },
-      });
-      this.user = await this.userService.findOne(_id);
-
-      const friends = await this.friendService.find({
-        where: { fromUserId: this.identityService.user._id, toUserId: this.user._id },
-      });
-      this.friend = friends[0];
-
-      const ignorations = await this.ignorationService.find({
-        where: { fromUserId: this.identityService.user._id, toUserId: this.user._id },
-      });
-      this.ignoration = ignorations[0];
-
-      this.messages = await this.messageService.find({
-        sort: '-createdAt',
-        where: {
-          $or: [{ fromUserId: _id }, { toUserId: _id }],
-        },
-      });
-
-      const unreadMessages = this.messages.filter(
-        m => !m.readAt && m.toUserId === this.identityService.user._id,
-      );
-      for (const message of unreadMessages) {
-        try {
-          message.readAt = new Date();
-          await this.messageService.update(message);
-        } catch (e) {
-          console.error('Error marking message as read:', e);
-        }
-      }
-
-      localStorage.setItem('previousConversationId', _id);
-
-      this.loadingMessage = null;
-    });
+  public async ngOnInit() {
+    this.setUser(this.socialService.user);
+    this.subscriptions.push(this.socialService.OnUserSet.subscribe(user => this.setUser(user)));
 
     this.subscribeToServices();
   }
 
   public ngOnDestroy() {
     this.subscriptions.forEach(s => s.unsubscribe());
+  }
+
+  public close() {
+    this.socialService.user = null;
   }
 
   public getConnection(userId: string) {
@@ -144,6 +97,48 @@ export class MessagesPageComponent implements OnDestroy, OnInit {
     }
   }
 
+  private async setUser(user: User) {
+    this.user = user;
+    if (!this.user) {
+      return;
+    }
+
+    this.loadingMessage = 'Loading conversation...';
+
+    this.connections = await this.connectionService.find({});
+
+    const friends = await this.friendService.find({
+      where: { fromUserId: this.identityService.user._id, toUserId: this.user._id },
+    });
+    this.friend = friends[0];
+
+    const ignorations = await this.ignorationService.find({
+      where: { fromUserId: this.identityService.user._id, toUserId: this.user._id },
+    });
+    this.ignoration = ignorations[0];
+
+    this.messages = await this.messageService.find({
+      sort: '-createdAt',
+      where: {
+        $or: [{ fromUserId: this.user._id }, { toUserId: this.user._id }],
+      },
+    });
+
+    const unreadMessages = this.messages.filter(
+      m => !m.readAt && m.toUserId === this.identityService.user._id,
+    );
+    for (const message of unreadMessages) {
+      try {
+        message.readAt = new Date();
+        await this.messageService.update(message);
+      } catch (e) {
+        console.error('Error marking message as read:', e);
+      }
+    }
+
+    this.loadingMessage = null;
+  }
+
   private async subscribeToServices() {
     this.subscriptions.push(
       this.connectionService.onCreate.subscribe(async connection => {
@@ -151,14 +146,12 @@ export class MessagesPageComponent implements OnDestroy, OnInit {
       }),
     );
     this.subscriptions.push(
-      this.connectionService.onUpdate.subscribe(async connection => {
-        const { _id, disconnectedAt } = connection;
+      this.connectionService.onDelete.subscribe(async connection => {
+        const { _id } = connection;
         const connectionIndex = this.connections.findIndex(c => c._id === _id);
 
-        if (connectionIndex >= 0 && disconnectedAt) {
+        if (connectionIndex >= 0) {
           this.connections.splice(connectionIndex, 1);
-        } else if (connectionIndex < 0 && !disconnectedAt) {
-          this.connections.push(connection);
         }
       }),
     );

@@ -16,8 +16,9 @@ import {
 } from '@tenlastic/ng-http';
 import { Subscription } from 'rxjs';
 
-import { MessageState } from '../../../../core/states';
-import { InputDialogComponent } from '../../../../shared/components';
+import { SocialService } from '../../../core/services';
+import { MessageState } from '../../../core/states';
+import { InputDialogComponent } from '../input-dialog/input-dialog.component';
 
 export interface MessageGroup {
   messages: Message[];
@@ -25,10 +26,11 @@ export interface MessageGroup {
 }
 
 @Component({
-  styleUrls: ['./layout.component.scss'],
-  templateUrl: './layout.component.html',
+  selector: 'app-social',
+  styleUrls: ['./social.component.scss'],
+  templateUrl: './social.component.html',
 })
-export class LayoutComponent implements OnDestroy, OnInit {
+export class SocialComponent implements OnDestroy, OnInit {
   public connections: Connection[] = [];
   public friends: User[] = [];
   public groups: MessageGroup[] = [];
@@ -52,14 +54,13 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private messageService: MessageService,
     public messageState: MessageState,
     private router: Router,
+    public socialService: SocialService,
     private userService: UserService,
     private zone: NgZone,
   ) {}
 
   public async ngOnInit() {
-    this.connections = await this.connectionService.find({
-      where: { disconnectedAt: { $exists: false } },
-    });
+    this.connections = await this.connectionService.find({});
 
     const friends = await this.friendService.find({});
     const ignorations = await this.ignorationService.find({});
@@ -171,8 +172,12 @@ export class LayoutComponent implements OnDestroy, OnInit {
         return;
       }
 
-      this.router.navigate([users[0]._id], { relativeTo: this.activatedRoute });
+      this.socialService.user = users[0];
     });
+  }
+
+  public setUser(user: User) {
+    this.socialService.user = user;
   }
 
   private async autocomplete(value: string) {
@@ -238,14 +243,12 @@ export class LayoutComponent implements OnDestroy, OnInit {
       }),
     );
     this.subscriptions.push(
-      this.connectionService.onUpdate.subscribe(async connection => {
-        const { _id, disconnectedAt } = connection;
+      this.connectionService.onDelete.subscribe(async connection => {
+        const { _id } = connection;
         const connectionIndex = this.connections.findIndex(c => c._id === _id);
 
-        if (connectionIndex >= 0 && disconnectedAt) {
+        if (connectionIndex >= 0) {
           this.connections.splice(connectionIndex, 1);
-        } else if (connectionIndex < 0 && !disconnectedAt) {
-          this.connections.push(connection);
         }
       }),
     );

@@ -9,9 +9,6 @@ components:
         createdAt:
           type: string
           format: date-time
-        disconnectedAt:
-          type: string
-          format: date-time
         gameId:
           type: string
           format: ^[a-f0-9]{24}$

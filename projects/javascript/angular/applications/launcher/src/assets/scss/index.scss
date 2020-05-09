@@ -2,15 +2,3 @@
 @import '~bootstrap/scss/bootstrap-grid.scss';
 @import './material.scss';
 @import './prompt.scss';
-
-span.badge {
-  background: #d74444;
-  border-radius: 100%;
-  display: inline-block;
-  font-size: 12px;
-  height: 20px;
-  margin-left: 6px;
-  text-align: center;
-  vertical-align: bottom !important;
-  width: 20px;
-}

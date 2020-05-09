@@ -14,7 +14,7 @@ export class SocketService {
     this.sockets = [];
   }
 
-  public watch(Model: any, service: any, query: any) {
+  public watch(Model: any, service: any, watch: any) {
     if (!this.identityService.accessToken || this.identityService.accessTokenJwt.isExpired) {
       return;
     }
@@ -22,20 +22,27 @@ export class SocketService {
     service.emitEvents = false;
 
     const url = new URL(service.basePath.replace('http', 'ws'));
-    if (this.resumeTokens[url.href]) {
-      url.searchParams.append('resumeToken', this.resumeTokens[url.href]);
+    const urlWithoutSearchString = url.href.replace(url.search, '');
+
+    const query = {} as any;
+    if (this.resumeTokens[urlWithoutSearchString]) {
+      query.resumeToken = this.resumeTokens[urlWithoutSearchString];
     }
-    url.searchParams.append('token', this.identityService.accessToken);
-    if (query) {
-      url.searchParams.append('watch', JSON.stringify(query));
+    query.token = this.identityService.accessToken;
+    if (watch) {
+      query.watch = watch;
     }
+    url.searchParams.append('query', JSON.stringify(query));
 
     const socket = new WebSocket(url.href);
+
+    const interval = setInterval(() => socket.send('42["ping"]'), 5000);
+
     socket.onmessage = msg => {
       const payload = JSON.parse(msg.data);
 
       if (payload.resumeToken) {
-        this.resumeTokens[url.href] = payload.resumeToken;
+        this.resumeTokens[urlWithoutSearchString] = payload.resumeToken;
       }
 
       const record = new Model(payload.fullDocument);
@@ -49,10 +56,12 @@ export class SocketService {
     };
 
     socket.onclose = e => {
+      clearInterval(interval);
+
       const index = this.sockets.indexOf(socket);
       this.sockets.splice(index, 1);
 
-      setTimeout(() => this.watch(Model, service, query), 5000);
+      setTimeout(() => this.watch(Model, service, watch), 5000);
     };
 
     socket.onerror = (e: any) => {

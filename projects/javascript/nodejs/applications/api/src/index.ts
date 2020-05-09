@@ -56,6 +56,7 @@ docker.init({
   url: process.env.DOCKER_ENGINE_URL,
 });
 
+// Kafka.
 (async () => {
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
 })();
@@ -134,6 +135,3 @@ webSocketServer.connection('/messages', messageSockets.onConnection);
 webSocketServer.connection('/releases', releaseSockets.onConnection);
 webSocketServer.connection('/releases/:releaseId/tasks', releaseTaskSockets.onConnection);
 webSocketServer.connection('/users', userSockets.onConnection);
-webSocketServer.upgrade('/connections', connectionSockets.onUpgradeRequest);
-
-export { webServer };

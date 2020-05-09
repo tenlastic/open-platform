@@ -7,7 +7,6 @@ export const ConnectionPermissions = new MongoosePermissions<ConnectionDocument>
     base: {},
   },
   read: {
-    base: ['_id', 'createdAt', 'disconnectedAt', 'gameId', 'updatedAt', 'userId'],
+    base: ['_id', 'createdAt', 'gameId', 'updatedAt', 'userId'],
   },
-  roles: [{ name: 'owner', query: { 'record.userId': { $eq: { $ref: 'user._id' } } } }],
 });

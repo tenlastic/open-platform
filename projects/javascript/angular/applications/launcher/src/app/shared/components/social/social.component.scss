@@ -1,0 +1,58 @@
+::ng-deep {
+  app-social {
+    ten-button {
+      &.offline {
+        div.name,
+        div.status,
+        mat-icon.mat-icon {
+          color: #aaaaaa !important;
+        }
+      }
+
+      &.online {
+        div.status {
+          color: #ffff55;
+        }
+      }
+
+      div.label {
+        display: inline-block;
+
+        div.status {
+          font-size: 12px;
+        }
+      }
+
+      span.badge {
+        background: #d74444;
+        float: right;
+        font-size: 12px;
+        height: 20px;
+        margin-left: 8px;
+        margin-top: 8px;
+        padding-right: 2px;
+        text-align: center;
+        width: 20px;
+      }
+    }
+  }
+}
+
+ten-sidenav {
+  div.content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0px;
+    position: relative;
+
+    ::ng-deep {
+      ng-component {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+    }
+  }
+}

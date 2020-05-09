@@ -7,7 +7,7 @@ import { connection } from '../connect';
 export async function watch(
   Model: any,
   Permissions: MongoosePermissions<any>,
-  query: URLSearchParams,
+  query: any,
   user: any,
   onChange: (payload: any) => void,
 ) {
@@ -15,9 +15,7 @@ export async function watch(
   const db = Model.db.db.databaseName;
   const topic = `${db}.${coll}`;
 
-  const resumeToken = query.get('resumeToken')
-    ? query.get('resumeToken')
-    : mongoose.Types.ObjectId();
+  const resumeToken = query.resumeToken ? query.resumeToken : mongoose.Types.ObjectId();
   const groupId = `${user.username}-${resumeToken}`;
 
   const consumer = connection.consumer({ groupId });
@@ -30,10 +28,7 @@ export async function watch(
         const value = data.message.value.toString();
         const json = JSON.parse(value) as IDatabasePayload<any>;
 
-        const where = await Permissions.where(
-          query.get('watch') ? JSON.parse(query.get('watch')) : {},
-          user,
-        );
+        const where = await Permissions.where(query.watch || {}, user);
 
         if (isJsonValid(json.fullDocument, where)) {
           const fullDocument = await Permissions.read(json.fullDocument, user);

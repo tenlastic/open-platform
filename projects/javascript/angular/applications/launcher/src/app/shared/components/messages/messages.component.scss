@@ -1,22 +1,72 @@
+:host {
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: -3px 3px 5px rgba(0, 0, 0, 0.5);
+  bottom: 0px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: absolute;
+  right: 0px;
+  width: 450px;
+  z-index: 1;
+}
+
 div.information-container {
   align-items: center;
   background: rgba(0, 0, 0, 0.5);
-  box-shadow: 3px 3px 5px black;
+  box-shadow: 0px 3px 5px black;
   display: flex;
   flex: 0 0 auto;
-  padding: 16px;
+  padding: 8px;
 
-  h2 {
+  &:first-of-type {
+    margin-bottom: 8px;
+  }
+
+  &.offline {
+    div.name,
+    div.status {
+      color: #aaaaaa;
+    }
+  }
+
+  &.online {
+    div.status {
+      color: #ffff55;
+    }
+  }
+
+  div.label {
     display: inline-block;
-    line-height: 24px;
-    margin: -1px 0px 0px;
+
+    div.status {
+      font-size: 12px;
+    }
+  }
+
+  h3 {
+    display: inline-block;
+    margin: 0px;
     padding: 0px;
   }
 
-  mat-icon.mat-icon {
+  mat-icon.mat-icon.grey {
+    color: #aaaaaa !important;
+  }
+
+  ten-button {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+
+  > mat-icon.mat-icon {
     color: #ffff55;
     display: inline-block;
+    font-size: 20px;
+    height: 18px;
+    margin-left: 4px;
     margin-right: 8px;
+    width: 20px;
   }
 
   > span {
@@ -28,14 +78,15 @@ div.information-container {
 div.input-container {
   align-items: center;
   background: rgba(0, 0, 0, 0.5);
-  box-shadow: 3px 3px 5px black;
+  box-shadow: 3px -3px 5px black;
   display: flex;
   flex: 0 0 auto;
-  padding: 8px 16px;
+  padding: 6px 8px 8px;
 
   mat-form-field {
     flex: 1 1 auto;
     margin-bottom: -1.2em;
+    margin-top: -18px;
   }
 
   ten-button {
@@ -45,19 +96,22 @@ div.input-container {
 }
 
 div.messages-container {
+  align-items: flex-start;
   display: flex;
   flex: 1 1 auto;
   flex-direction: column-reverse;
   margin: 0px;
   max-width: none;
   overflow: auto;
-  padding: 16px;
+  padding: 8px;
 
   .message {
+    text-indent: -1em;
     margin-top: 2px;
+    padding-left: 1em;
 
     &:last-of-type {
-      padding-top: 12px;
+      padding-top: 4px;
     }
 
     div.timestamp {
@@ -68,10 +122,8 @@ div.messages-container {
     }
 
     span.sender {
-      font-size: 14px;
-      font-weight: bold;
-      line-height: 14px;
-      margin-right: 4px;
+      font-weight: 500;
+      margin-right: 2px;
       white-space: nowrap;
     }
   }

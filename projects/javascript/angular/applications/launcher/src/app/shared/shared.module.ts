@@ -11,7 +11,9 @@ import {
   InputDialogComponent,
   LayoutComponent,
   LoadingMessageComponent,
+  MessagesComponent,
   PromptComponent,
+  SocialComponent,
   ToggleSectionComponent,
 } from './components';
 import { AsAnyPipe, CamelCaseToTitleCasePipe, FilesizePipe, KeysPipe } from './pipes';
@@ -20,7 +22,9 @@ const components = [
   InputDialogComponent,
   LayoutComponent,
   LoadingMessageComponent,
+  MessagesComponent,
   PromptComponent,
+  SocialComponent,
   ToggleSectionComponent,
 ];
 const modules = [

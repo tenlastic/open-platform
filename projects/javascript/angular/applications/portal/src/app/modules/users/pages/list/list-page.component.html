@@ -37,13 +37,9 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
       <td mat-cell *matCellDef="let element">
         <mat-icon class="connection-status">
-          {{
-            element.connection && !element.connection.disconnectedAt
-              ? 'brightness_1'
-              : 'radio_button_unchecked'
-          }}
+          {{ element.connection ? 'brightness_1' : 'radio_button_unchecked' }}
         </mat-icon>
-        {{ element.connection && !element.connection.disconnectedAt ? 'Online' : 'Offline' }}
+        {{ element.connection ? 'Online' : 'Offline' }}
       </td>
     </ng-container>
     <ng-container matColumnDef="username">

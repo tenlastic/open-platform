@@ -76,6 +76,7 @@
     display: block;
     font-family: 'Oswald', sans-serif;
     line-height: normal;
+    min-width: initial;
     padding: 8px 14px;
 
     &[color='accent'] {

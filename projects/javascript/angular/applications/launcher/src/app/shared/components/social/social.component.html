@@ -1,5 +1,10 @@
 <ten-sidenav>
-  <div class="nav">
+  <div class="content">
+    <app-messages *ngIf="socialService.user"></app-messages>
+    <router-outlet></router-outlet>
+  </div>
+
+  <div *ngIf="identityService.user" class="nav">
     <ten-button color="accent" layout="vertical" text="left" width="full" (OnClick)="newMessage()">
       <mat-icon>add</mat-icon>
       <span><strong>New Message</strong></span>
@@ -12,7 +17,7 @@
       width="full"
       (OnClick)="isConversationsVisible = !isConversationsVisible"
     >
-      <span>Conversations</span>
+      <span>Recent Conversations</span>
       <mat-icon>
         {{ isConversationsVisible ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
       </mat-icon>
@@ -23,15 +28,21 @@
         *ngFor="let group of groups"
         color="accent"
         layout="vertical"
-        [routerLink]="group.user._id"
-        routerLinkActive="active"
         text="left"
         width="full"
+        [ngClass]="{
+          online: getConnection(group.user._id),
+          offline: !getConnection(group.user._id)
+        }"
+        (OnClick)="setUser(group.user)"
       >
         <mat-icon>
           {{ getConnection(group.user._id) ? 'brightness_1' : 'radio_button_unchecked' }}
         </mat-icon>
-        <span>{{ group.user.username }}</span>
+        <div class="label">
+          <div class="name">{{ group.user.username }}</div>
+          <div class="status">{{ getConnection(group.user._id) ? 'Online' : 'Offline' }}</div>
+        </div>
         <span
           *ngIf="messageState.getUnreadMessages(identityService.user._id, group.user._id).length"
           class="badge"
@@ -57,15 +68,18 @@
         *ngFor="let friend of friends"
         color="accent"
         layout="vertical"
-        [routerLink]="friend._id"
-        routerLinkActive="active"
         text="left"
         width="full"
+        [ngClass]="{ online: getConnection(friend._id), offline: !getConnection(friend._id) }"
+        (OnClick)="setUser(friend)"
       >
         <mat-icon>
           {{ getConnection(friend._id) ? 'brightness_1' : 'radio_button_unchecked' }}
         </mat-icon>
-        <span>{{ friend.username }}</span>
+        <div class="label">
+          <div class="name">{{ friend.username }}</div>
+          <div class="status">{{ getConnection(friend._id) ? 'Online' : 'Offline' }}</div>
+        </div>
         <span
           *ngIf="messageState.getUnreadMessages(identityService.user._id, friend._id).length"
           class="badge"
@@ -91,12 +105,12 @@
     <ng-container *ngIf="isIgnoredUsersVisible">
       <ten-button
         *ngFor="let ignoration of ignorations"
+        class="offline"
         color="accent"
         layout="vertical"
-        [routerLink]="ignoration._id"
-        routerLinkActive="active"
         text="left"
         width="full"
+        (OnClick)="setUser(ignoration)"
       >
         <mat-icon>radio_button_unchecked</mat-icon>
         <span>{{ ignoration.username }}</span>
@@ -108,9 +122,5 @@
         </span>
       </ten-button>
     </ng-container>
-  </div>
-
-  <div class="content">
-    <router-outlet></router-outlet>
   </div>
 </ten-sidenav>

@@ -4,32 +4,28 @@ import { WebSocket } from '@tenlastic/web-server';
 import { Connection, ConnectionPermissions } from '../models';
 
 export async function onConnection(params: any, query: any, user: any, ws: WebSocket) {
+  createAndDeleteConnection(query, user, ws);
+
   if ('watch' in query) {
-    const consumer = await kafka.watch(
-      Connection,
-      ConnectionPermissions,
-      query.watch,
-      user,
-      payload => ws.send(JSON.stringify(payload)),
-    );
-
-    ws.on('close', () => consumer.disconnect());
+    watchForChanges(query, user, ws);
   }
-
-  ws.on('close', async () => {
-    await Connection.findOneAndUpdate(
-      {
-        disconnectedAt: { $exists: false },
-        gameId: query.gameId,
-        userId: user._id,
-      },
-      {
-        disconnectedAt: new Date(),
-      },
-    );
-  });
 }
 
-export async function onUpgradeRequest(params: string, query: any, user: any) {
-  await Connection.create({ gameId: query.gameId, userId: user._id });
+async function createAndDeleteConnection(query: any, user: any, ws: WebSocket) {
+  const connection = new Connection({ userId: user._id });
+  if (query.gameId) {
+    connection.gameId = query.gameId;
+  }
+
+  ws.on('close', () => connection.remove());
+
+  return connection.save();
+}
+
+async function watchForChanges(query: any, user: any, ws: WebSocket) {
+  const consumer = await kafka.watch(Connection, ConnectionPermissions, query, user, payload =>
+    ws.send(JSON.stringify(payload)),
+  );
+
+  ws.on('close', () => consumer.disconnect());
 }
