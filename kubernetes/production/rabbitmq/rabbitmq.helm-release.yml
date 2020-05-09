@@ -25,7 +25,7 @@ spec:
         enabled: true
       operator:
         enabled: false
-    replicaCount: 3
+    replicaCount: 5
     resources:
       requests:
         memory: 128M
