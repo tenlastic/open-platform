@@ -1,7 +1,7 @@
 {
   "name": "nodejs",
   "private": true,
-  "version": "0.0.64",
+  "version": "0.0.65",
   "scripts": {
     "google:tokens": "ts-node ./scripts/get-google-tokens.ts",
     "merge:coverage": "./scripts/merge-coverage.sh",
