@@ -10,6 +10,16 @@
 <ten-header-toolbar>
   <img src="/assets/images/logo.png" />
 
+  <ten-button
+    *ngIf="identityService.user"
+    color="accent"
+    routerLink="/"
+    [ngClass]="{ active: !router.url.includes('/account') }"
+  >
+    <mat-icon>home</mat-icon>
+    <span>Home</span>
+  </ten-button>
+
   <span class="space"></span>
 
   <ten-button

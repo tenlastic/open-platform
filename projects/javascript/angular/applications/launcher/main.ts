@@ -117,13 +117,14 @@ function createWindow() {
   );
   win = new BrowserWindow({
     frame: false,
-    height: 640,
+    height: 720,
+    resizable: serve,
     webPreferences: {
-      allowRunningInsecureContent: serve ? true : false,
+      allowRunningInsecureContent: serve,
       nodeIntegration: true,
       webSecurity: false,
     },
-    width: 960,
+    width: 1280,
     x: 0,
     y: 0,
   });
@@ -132,7 +133,7 @@ function createWindow() {
     require('electron-reload')(__dirname, {
       electron: require(`${__dirname}/../../node_modules/electron`),
     });
-    win.loadURL('http://localhost:8083');
+    win.loadURL('http://platform.localhost');
 
     win.webContents.openDevTools();
   } else {

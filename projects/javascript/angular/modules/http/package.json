@@ -12,7 +12,8 @@
   },
   "peerDependencies": {
     "@angular/common": "^8.2.14",
-    "@angular/core": "^8.2.14"
+    "@angular/core": "^8.2.14",
+    "@datorama/akita": "^4.23.1"
   },
   "devDependencies": {
     "@angular/cli": "~8.3.21"

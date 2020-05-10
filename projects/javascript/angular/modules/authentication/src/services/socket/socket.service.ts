@@ -35,6 +35,7 @@ export class SocketService {
     url.searchParams.append('query', JSON.stringify(query));
 
     const socket = new WebSocket(url.href);
+    this.sockets.push(socket);
 
     const interval = setInterval(() => socket.send('42["ping"]'), 5000);
 

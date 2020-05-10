@@ -11,6 +11,7 @@ export class IgnorationService {
 
   public onCreate = new EventEmitter<Ignoration>();
   public onDelete = new EventEmitter<Ignoration>();
+  public onRead = new EventEmitter<Ignoration[]>();
   public onUpdate = new EventEmitter<Ignoration>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
@@ -50,6 +51,9 @@ export class IgnorationService {
   public async find(parameters: RestParameters): Promise<Ignoration[]> {
     const response = await this.apiService.request('get', this.basePath, parameters);
 
-    return response.records.map(record => new Ignoration(record));
+    const records = response.records.map(record => new Ignoration(record));
+    this.onRead.emit(records);
+
+    return records;
   }
 }

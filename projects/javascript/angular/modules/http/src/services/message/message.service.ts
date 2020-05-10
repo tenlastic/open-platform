@@ -16,6 +16,7 @@ export class MessageService {
 
   public onCreate = new EventEmitter<Message>();
   public onDelete = new EventEmitter<Message>();
+  public onRead = new EventEmitter<Message[]>();
   public onUpdate = new EventEmitter<Message>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
@@ -55,13 +56,19 @@ export class MessageService {
   public async find(parameters: RestParameters): Promise<Message[]> {
     const response = await this.apiService.request('get', this.basePath, parameters);
 
-    return response.records.map(record => new Message(record));
+    const records = response.records.map(record => new Message(record));
+    this.onRead.emit(records);
+
+    return records;
   }
 
   public async findOne(_id: string): Promise<Message> {
     const response = await this.apiService.request('get', `${this.basePath}/${_id}`, null);
 
-    return new Message(response.record);
+    const record = new Message(response.record);
+    this.onRead.emit([record]);
+
+    return record;
   }
 
   public async update(parameters: Partial<Message>): Promise<Message> {

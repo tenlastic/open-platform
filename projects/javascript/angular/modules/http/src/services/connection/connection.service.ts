@@ -11,6 +11,7 @@ export class ConnectionService {
 
   public onCreate = new EventEmitter<Connection>();
   public onDelete = new EventEmitter<Connection>();
+  public onRead = new EventEmitter<Connection[]>();
   public onUpdate = new EventEmitter<Connection>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
@@ -20,12 +21,18 @@ export class ConnectionService {
   public async find(parameters: RestParameters): Promise<Connection[]> {
     const response = await this.apiService.request('get', `${this.basePath}`, parameters);
 
-    return response.records.map(record => new Connection(record));
+    const records = response.records.map(record => new Connection(record));
+    this.onRead.emit(records);
+
+    return records;
   }
 
   public async findOne(_id: string): Promise<Connection> {
     const response = await this.apiService.request('get', `${this.basePath}/${_id}`);
 
-    return new Connection(response.record);
+    const record = new Connection(response.record);
+    this.onRead.emit([record]);
+
+    return record;
   }
 }

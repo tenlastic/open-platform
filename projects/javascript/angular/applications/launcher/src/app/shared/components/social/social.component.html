@@ -1,5 +1,5 @@
 <ten-sidenav>
-  <div class="content">
+  <div class="content" [ngStyle]="{ 'overflow-y': socialService.user ? 'hidden' : 'auto' }">
     <app-messages *ngIf="socialService.user"></app-messages>
     <router-outlet></router-outlet>
   </div>
@@ -11,13 +11,56 @@
     </ten-button>
 
     <ten-button
+      *ngIf="($friends | async).length"
+      color="accent"
+      layout="vertical"
+      text="left"
+      width="full"
+      (OnClick)="isFriendsVisible = !isFriendsVisible"
+    >
+      <span>Friends</span>
+      <mat-icon>{{ isFriendsVisible ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}</mat-icon>
+    </ten-button>
+
+    <ng-container *ngIf="isFriendsVisible">
+      <ten-button
+        *ngFor="let friend of $friends | async"
+        color="accent"
+        layout="vertical"
+        text="left"
+        width="full"
+        [ngClass]="{
+          online: $getConnection(friend.toUserId) | async,
+          offline: !($getConnection(friend.toUserId) | async)
+        }"
+        (OnClick)="setUser(friend.toUser)"
+      >
+        <mat-icon>
+          {{
+            ($getConnection(friend.toUserId) | async) ? 'brightness_1' : 'radio_button_unchecked'
+          }}
+        </mat-icon>
+        <div class="label">
+          <div class="name">{{ friend.toUser?.username }}</div>
+          <div class="status">
+            {{ ($getConnection(friend.toUserId) | async) ? 'Online' : 'Offline' }}
+          </div>
+        </div>
+        <span *ngIf="$getUnreadMessagesCount(friend.toUserId) | async" class="badge">
+          {{ $getUnreadMessagesCount(friend.toUserId) | async }}
+        </span>
+      </ten-button>
+    </ng-container>
+
+    <ten-button
+      *ngIf="groups.length"
       color="accent"
       layout="vertical"
       text="left"
       width="full"
       (OnClick)="isConversationsVisible = !isConversationsVisible"
     >
-      <span>Recent Conversations</span>
+      <span>Other Conversations</span>
       <mat-icon>
         {{ isConversationsVisible ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
       </mat-icon>
@@ -31,94 +74,22 @@
         text="left"
         width="full"
         [ngClass]="{
-          online: getConnection(group.user._id),
-          offline: !getConnection(group.user._id)
+          online: $getConnection(group.user._id) | async,
+          offline: !($getConnection(group.user._id) | async)
         }"
         (OnClick)="setUser(group.user)"
       >
         <mat-icon>
-          {{ getConnection(group.user._id) ? 'brightness_1' : 'radio_button_unchecked' }}
+          {{ ($getConnection(group.user._id) | async) ? 'brightness_1' : 'radio_button_unchecked' }}
         </mat-icon>
         <div class="label">
           <div class="name">{{ group.user.username }}</div>
-          <div class="status">{{ getConnection(group.user._id) ? 'Online' : 'Offline' }}</div>
+          <div class="status">
+            {{ ($getConnection(group.user._id) | async) ? 'Online' : 'Offline' }}
+          </div>
         </div>
-        <span
-          *ngIf="messageState.getUnreadMessages(identityService.user._id, group.user._id).length"
-          class="badge"
-        >
-          {{ messageState.getUnreadMessages(identityService.user._id, group.user._id).length }}
-        </span>
-      </ten-button>
-    </ng-container>
-
-    <ten-button
-      color="accent"
-      layout="vertical"
-      text="left"
-      width="full"
-      (OnClick)="isFriendsVisible = !isFriendsVisible"
-    >
-      <span>Friends</span>
-      <mat-icon>{{ isFriendsVisible ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}</mat-icon>
-    </ten-button>
-
-    <ng-container *ngIf="isFriendsVisible">
-      <ten-button
-        *ngFor="let friend of friends"
-        color="accent"
-        layout="vertical"
-        text="left"
-        width="full"
-        [ngClass]="{ online: getConnection(friend._id), offline: !getConnection(friend._id) }"
-        (OnClick)="setUser(friend)"
-      >
-        <mat-icon>
-          {{ getConnection(friend._id) ? 'brightness_1' : 'radio_button_unchecked' }}
-        </mat-icon>
-        <div class="label">
-          <div class="name">{{ friend.username }}</div>
-          <div class="status">{{ getConnection(friend._id) ? 'Online' : 'Offline' }}</div>
-        </div>
-        <span
-          *ngIf="messageState.getUnreadMessages(identityService.user._id, friend._id).length"
-          class="badge"
-        >
-          {{ messageState.getUnreadMessages(identityService.user._id, friend._id).length }}
-        </span>
-      </ten-button>
-    </ng-container>
-
-    <ten-button
-      color="accent"
-      layout="vertical"
-      text="left"
-      width="full"
-      (OnClick)="isIgnoredUsersVisible = !isIgnoredUsersVisible"
-    >
-      <span>Ignored Users</span>
-      <mat-icon>
-        {{ isIgnoredUsersVisible ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
-      </mat-icon>
-    </ten-button>
-
-    <ng-container *ngIf="isIgnoredUsersVisible">
-      <ten-button
-        *ngFor="let ignoration of ignorations"
-        class="offline"
-        color="accent"
-        layout="vertical"
-        text="left"
-        width="full"
-        (OnClick)="setUser(ignoration)"
-      >
-        <mat-icon>radio_button_unchecked</mat-icon>
-        <span>{{ ignoration.username }}</span>
-        <span
-          *ngIf="messageState.getUnreadMessages(identityService.user._id, ignoration._id).length"
-          class="badge"
-        >
-          {{ messageState.getUnreadMessages(identityService.user._id, ignoration._id).length }}
+        <span *ngIf="$getUnreadMessagesCount(group.user._id) | async" class="badge">
+          {{ $getUnreadMessagesCount(group.user._id) | async }}
         </span>
       </ten-button>
     </ng-container>

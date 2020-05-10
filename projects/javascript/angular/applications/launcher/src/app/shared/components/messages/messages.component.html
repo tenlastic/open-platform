@@ -1,68 +1,79 @@
-<div
-  class="information-container"
-  [ngClass]="{ online: getConnection(user._id), offline: !getConnection(user._id) }"
+<ng-container
+  *ngIf="{
+    connection: $connection | async,
+    friend: ($friends | async)[0],
+    ignoration: ($ignorations | async)[0]
+  } as async"
 >
-  <mat-icon [ngClass]="{ grey: !getConnection(user._id) }">
-    {{ getConnection(user._id) ? 'brightness_1' : 'radio_button_unchecked' }}
-  </mat-icon>
+  <div
+    class="information-container"
+    [ngClass]="{
+      online: async.connection,
+      offline: !async.connection
+    }"
+  >
+    <mat-icon [ngClass]="{ grey: !async.connection }">
+      {{ async.connection ? 'brightness_1' : 'radio_button_unchecked' }}
+    </mat-icon>
 
-  <div class="label">
-    <div class="name">{{ user.username }}</div>
-    <div class="status">{{ getConnection(user._id) ? 'Online' : 'Offline' }}</div>
-  </div>
+    <div class="label">
+      <div class="name">{{ user.username }}</div>
+      <div class="status">{{ async.connection ? 'Online' : 'Offline' }}</div>
+    </div>
 
-  <span>
-    <ten-button
-      color="accent"
-      [matTooltip]="friend ? 'Unfriend' : 'Friend'"
-      matTooltipPosition="below"
-      (OnClick)="toggleFriend()"
-    >
-      <mat-icon [ngClass]="{ grey: !friend }">favorite</mat-icon>
-    </ten-button>
-    <ten-button
-      color="accent"
-      [matTooltip]="ignoration ? 'Unignore' : 'Ignore'"
-      matTooltipPosition="below"
-      (OnClick)="toggleIgnoration()"
-    >
-      <mat-icon [ngClass]="{ grey: !ignoration }">block</mat-icon>
-    </ten-button>
-    <ten-button color="accent" matTooltip="Close" matTooltipPosition="below" (OnClick)="close()">
-      <mat-icon>close</mat-icon>
-    </ten-button>
-  </span>
-</div>
-
-<ng-container *ngIf="!loadingMessage">
-  <div #messagesScrollContainer class="messages-container">
-    <ng-container *ngFor="let message of messages; let i = index">
-      <div
-        class="message"
-        matTooltip="{{ message.createdAt | date: 'M/d/y' }} at {{
-          message.createdAt | date: 'h:mm a'
-        }}"
-        matTooltipPosition="before"
+    <span>
+      <ten-button
+        color="accent"
+        [matTooltip]="async.friend ? 'Unfriend' : 'Friend'"
+        matTooltipPosition="below"
+        (OnClick)="toggleFriend()"
       >
-        <span class="sender">
-          [{{ message.fromUserId === user._id ? user.username : identityService.user.username }}]:
-        </span>
-        <span>{{ message.body }}</span>
-      </div>
-    </ng-container>
+        <mat-icon [ngClass]="{ grey: !async.friend }">favorite</mat-icon>
+      </ten-button>
+      <ten-button
+        color="accent"
+        [matTooltip]="async.ignoration ? 'Unignore' : 'Ignore'"
+        matTooltipPosition="below"
+        (OnClick)="toggleIgnoration()"
+      >
+        <mat-icon [ngClass]="{ grey: !async.ignoration }">block</mat-icon>
+      </ten-button>
+      <ten-button color="accent" matTooltip="Close" matTooltipPosition="below" (OnClick)="close()">
+        <mat-icon>close</mat-icon>
+      </ten-button>
+    </span>
+  </div>
 
-    <div *ngIf="messages.length === 0" class="no-messages">No Messages Found</div>
-  </div>
-  <div *ngIf="user" class="input-container">
-    <mat-form-field floatLabel="never">
-      <textarea
-        matInput
-        cdkTextareaAutosize
-        placeholder="Type your message here..."
-        (keydown.enter)="sendMessage($event)"
-      ></textarea>
-    </mat-form-field>
-  </div>
+  <ng-container *ngIf="!loadingMessage">
+    <div #messagesScrollContainer class="messages-container">
+      <ng-container *ngFor="let message of ($messages | async).slice().reverse(); let i = index">
+        <div
+          class="message"
+          matTooltip="{{ message.createdAt | date: 'M/d/y' }} at {{
+            message.createdAt | date: 'h:mm a'
+          }}"
+          matTooltipPosition="before"
+        >
+          <span class="sender">
+            [{{ message.fromUserId === user._id ? user.username : identityService.user.username }}]:
+          </span>
+          <span>{{ message.body }}</span>
+        </div>
+      </ng-container>
+
+      <div *ngIf="($messages | async).length === 0" class="no-messages">No Messages Found</div>
+    </div>
+    <div class="input-container">
+      <mat-form-field floatLabel="never">
+        <textarea
+          matInput
+          cdkTextareaAutosize
+          placeholder="Type your message here..."
+          (keydown.enter)="sendMessage($event)"
+        ></textarea>
+      </mat-form-field>
+    </div>
+  </ng-container>
+
+  <ten-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</ten-loading-message>
 </ng-container>
-
-<ten-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</ten-loading-message>

@@ -11,6 +11,7 @@ export class FriendService {
 
   public onCreate = new EventEmitter<Friend>();
   public onDelete = new EventEmitter<Friend>();
+  public onRead = new EventEmitter<Friend[]>();
   public onUpdate = new EventEmitter<Friend>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
@@ -50,6 +51,9 @@ export class FriendService {
   public async find(parameters: RestParameters): Promise<Friend[]> {
     const response = await this.apiService.request('get', this.basePath, parameters);
 
-    return response.records.map(record => new Friend(record));
+    const records = response.records.map(record => new Friend(record));
+    this.onRead.emit(records);
+
+    return records;
   }
 }

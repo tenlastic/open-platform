@@ -14,7 +14,7 @@
     "electron:linux": "npm run electron:build && electron-builder build --linux",
     "electron:local": "npm run electron:build && electron ./dist/electron/main.js",
     "electron:mac": "npm run electron:build && electron-builder build --mac",
-    "electron:serve": "wait-on http-get://localhost:8083/ && npm run electron:build:tsc && electron ./dist/electron/main.js --serve",
+    "electron:serve": "wait-on http-get://platform.localhost/ && npm run electron:build:tsc && electron ./dist/electron/main.js --serve",
     "electron:start": "npm-run-all -p start electron:serve",
     "electron:windows": "npm run electron:build && electron-builder build --win",
     "lint": "ng lint launcher",

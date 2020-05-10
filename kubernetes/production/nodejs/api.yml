@@ -76,8 +76,8 @@ spec:
             httpGet:
               path: /articles
               port: 3000
-            initialDelaySeconds: 15
-            periodSeconds: 15
+            initialDelaySeconds: 30
+            periodSeconds: 30
           ports:
             - containerPort: 3000
         - name: dind

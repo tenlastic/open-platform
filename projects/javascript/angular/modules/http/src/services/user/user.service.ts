@@ -11,6 +11,7 @@ export class UserService {
 
   public onCreate = new EventEmitter<User>();
   public onDelete = new EventEmitter<User>();
+  public onRead = new EventEmitter<User[]>();
   public onUpdate = new EventEmitter<User>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
@@ -19,7 +20,6 @@ export class UserService {
 
   public async create(parameters: Partial<User>): Promise<User> {
     const response = await this.apiService.request('post', this.basePath, parameters);
-
     const record = new User(response.record);
 
     if (this.emitEvents) {
@@ -31,7 +31,6 @@ export class UserService {
 
   public async delete(_id: string): Promise<User> {
     const response = await this.apiService.request('delete', `${this.basePath}/${_id}`, null);
-
     const record = new User(response.record);
 
     if (this.emitEvents) {
@@ -43,14 +42,20 @@ export class UserService {
 
   public async find(parameters: RestParameters): Promise<User[]> {
     const response = await this.apiService.request('get', this.basePath, parameters);
+    const records = response.records.map(record => new User(record));
 
-    return response.records.map(record => new User(record));
+    this.onRead.emit(records);
+
+    return records;
   }
 
   public async findOne(_id: string): Promise<User> {
     const response = await this.apiService.request('get', `${this.basePath}/${_id}`, null);
+    const record = new User(response.record);
 
-    return new User(response.record);
+    this.onRead.emit([record]);
+
+    return record;
   }
 
   public async update(parameters: Partial<User>): Promise<User> {
@@ -59,7 +64,6 @@ export class UserService {
       `${this.basePath}/${parameters._id}`,
       parameters,
     );
-
     const record = new User(response.record);
 
     if (this.emitEvents) {
