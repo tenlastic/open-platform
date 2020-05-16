@@ -6,7 +6,7 @@
   </div>
 
   <div *ngIf="identityService.user" class="nav">
-    <ng-container *ngIf="!($group | async)">
+    <ng-container *ngIf="($group | async) === undefined">
       <div *ngIf="$groupInvitation | async as groupInvitation" class="group-invitation">
         <div class="hover-off">
           <mat-icon>person_add</mat-icon>
