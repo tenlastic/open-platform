@@ -1,4 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { AppModule } from '../../../../app.module';
 import { AuthenticationModule } from '../../authentication.module';
@@ -10,7 +11,7 @@ describe('LogoutPage', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [AppModule, AuthenticationModule],
+      imports: [AppModule, AuthenticationModule, HttpClientTestingModule],
     }).compileComponents();
   }));
 
