@@ -24,7 +24,7 @@
     </ng-container>
 
     <ten-button
-      *ngIf="!($group | async)"
+      *ngIf="($group | async) === undefined"
       color="accent"
       layout="vertical"
       text="left"

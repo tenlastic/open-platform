@@ -22,7 +22,7 @@
     [ngClass]="{
       active: ($activeUser | async)?._id === user._id,
       online: $getConnection(user._id) | async,
-      offline: !($getConnection(user._id) | async)
+      offline: ($getConnection(user._id) | async) === undefined
     }"
     (OnClick)="setUser(user)"
   >

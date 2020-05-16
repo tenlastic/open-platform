@@ -29,7 +29,7 @@
     [ngClass]="{
       active: router.url.includes('/account'),
       online: $getConnection(identityService.user._id) | async,
-      offline: !($getConnection(identityService.user._id) | async)
+      offline: ($getConnection(identityService.user._id) | async) === undefined
     }"
   >
     <mat-icon>
