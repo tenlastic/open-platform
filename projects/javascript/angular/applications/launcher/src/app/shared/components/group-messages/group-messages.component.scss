@@ -1,0 +1,128 @@
+:host {
+  background: url('/assets/images/background.jpg');
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  box-shadow: -3px 3px 5px rgba(0, 0, 0, 0.5);
+  bottom: 0px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: absolute;
+  right: 0px;
+  width: 450px;
+  z-index: 1;
+}
+
+div.information-container {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 3px 5px black;
+  display: flex;
+  flex: 0 0 auto;
+  padding: 8px;
+
+  &:first-of-type {
+    margin-bottom: 8px;
+  }
+
+  div.label {
+    display: inline-block;
+
+    div.status {
+      color: #ffff55;
+      font-size: 12px;
+    }
+  }
+
+  h3 {
+    display: inline-block;
+    margin: 0px;
+    padding: 0px;
+  }
+
+  mat-icon.mat-icon.grey {
+    color: #aaaaaa !important;
+  }
+
+  ten-button {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+
+  > mat-icon.mat-icon {
+    color: #ffff55;
+    display: inline-block;
+    font-size: 20px;
+    height: 18px;
+    margin-left: 4px;
+    margin-right: 8px;
+    width: 20px;
+  }
+
+  > span {
+    flex: 1 1 auto;
+    text-align: right;
+  }
+}
+
+div.input-container {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 3px -3px 5px black;
+  display: flex;
+  flex: 0 0 auto;
+  padding: 6px 8px 8px;
+
+  mat-form-field {
+    flex: 1 1 auto;
+    margin-bottom: -1.2em;
+    margin-top: -18px;
+  }
+
+  ten-button {
+    flex: 0 0 auto;
+    margin-left: 8px;
+  }
+}
+
+div.messages-container {
+  align-items: flex-start;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column-reverse;
+  margin: 0px;
+  max-width: none;
+  overflow: auto;
+  padding: 8px;
+
+  .message {
+    text-indent: -1em;
+    margin-top: 2px;
+    padding-left: 1em;
+
+    &:last-of-type {
+      padding-top: 4px;
+    }
+
+    div.timestamp {
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 12px;
+      font-weight: normal;
+      white-space: nowrap;
+    }
+
+    span.sender {
+      font-weight: 500;
+      margin-right: 2px;
+      white-space: nowrap;
+    }
+  }
+}
+
+div.no-messages {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}

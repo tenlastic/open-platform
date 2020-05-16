@@ -1,3 +1,15 @@
+@keyframes color {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(255, 255, 85, 0.25);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
 ::ng-deep {
   app-social {
     ten-button {
@@ -35,6 +47,57 @@
         width: 20px;
       }
     }
+  }
+}
+
+div.group-invitation {
+  animation-name: color;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  background-color: transparent;
+  padding: 8px 14px;
+
+  &:hover {
+    div.hover-off {
+      display: none;
+    }
+
+    div.hover-on {
+      display: block;
+    }
+  }
+
+  div.hover-on {
+    display: none;
+    padding: 1.5px 0px;
+    text-align: center;
+
+    ten-button {
+      margin: 0px 4px;
+    }
+  }
+
+  div.label {
+    display: inline-block;
+
+    div.name {
+      font-size: 14px;
+    }
+
+    div.status {
+      color: #ffff55;
+      font-size: 12px;
+    }
+  }
+
+  mat-icon.mat-icon {
+    color: #ff5;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 5px;
+    margin-right: 6px;
+    vertical-align: text-bottom;
+    width: 16px;
   }
 }
 

@@ -3,9 +3,10 @@ import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { EnvironmentService, IdentityService } from '@tenlastic/ng-authentication';
 import { ElectronService } from '@tenlastic/ng-electron';
+import { ConnectionQuery } from '@tenlastic/ng-http';
+import { map } from 'rxjs/operators';
 
 import { BackgroundService } from '../../../core/services';
-import { MessageState } from '../../../core/states';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -21,10 +22,10 @@ export class LayoutComponent implements OnInit {
     @Inject(DOCUMENT) private document: Document,
     private backgroundService: BackgroundService,
     private changeDetectorRef: ChangeDetectorRef,
+    private connectionQuery: ConnectionQuery,
     public electronService: ElectronService,
     public environmentService: EnvironmentService,
     public identityService: IdentityService,
-    public messageState: MessageState,
     public router: Router,
   ) {}
 
@@ -49,6 +50,12 @@ export class LayoutComponent implements OnInit {
 
       this.changeDetectorRef.detectChanges();
     });
+  }
+
+  public $getConnection(userId: string) {
+    return this.connectionQuery
+      .selectAll({ filterBy: c => c.userId === userId })
+      .pipe(map(connections => connections[0]));
   }
 
   public close() {

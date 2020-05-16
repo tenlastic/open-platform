@@ -1,0 +1,24 @@
+paths:
+  /messages/{_id}/read-by-user-ids:
+    post:
+      summary: Read
+      tags: [Messages]
+      description: Marks a message as read.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Message'

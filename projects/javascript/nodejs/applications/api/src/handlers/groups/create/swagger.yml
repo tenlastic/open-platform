@@ -1,0 +1,23 @@
+paths:
+  /groups:
+    post:
+      summary: Create
+      tags: [Groups]
+      description: Creates a new record.
+      security:
+        - AccessToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Group'

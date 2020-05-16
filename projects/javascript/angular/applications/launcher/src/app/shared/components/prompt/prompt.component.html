@@ -2,13 +2,12 @@
   <p>{{ data.message }}</p>
 </div>
 <div mat-dialog-actions>
-  <button
+  <ten-button
     *ngFor="let button of data.buttons"
     mat-button
-    [attr.background]="button.background"
-    [attr.color]="button.color | asAny"
-    (click)="dialogRef.close(button.label)"
+    [color]="button.color | asAny"
+    (OnClick)="dialogRef.close(button.label)"
   >
     {{ button.label }}
-  </button>
+  </ten-button>
 </div>

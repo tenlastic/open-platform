@@ -29,7 +29,7 @@ export class MessageQuery extends QueryEntity<MessageState, Message> {
   }
 
   public populateUsers($input: Observable<Message[]>) {
-    return combineLatest([$input, this.userQuery.selectAll()]).pipe(
+    return combineLatest([$input, this.userQuery.selectAll({ asObject: true })]).pipe(
       map(([messages, users]) => {
         return messages.map(message => {
           return new Message({
@@ -42,9 +42,33 @@ export class MessageQuery extends QueryEntity<MessageState, Message> {
     );
   }
 
-  public selectAllUnread(fromUserId: string, toUserId: string) {
+  public selectAllInConversation(fromUserId: string, toUserId: string) {
     return this.selectAll({
-      filterBy: m => !m.readAt && m.fromUserId === fromUserId && m.toUserId === toUserId,
+      filterBy: m =>
+        [m.fromUserId, m.toUserId].sort().toString() === [fromUserId, toUserId].sort().toString(),
+      sortBy: 'createdAt',
+    });
+  }
+
+  public selectAllInGroup(groupId: string) {
+    return this.selectAll({
+      filterBy: m => m.toGroupId === groupId,
+      sortBy: 'createdAt',
+    });
+  }
+
+  public selectAllUnreadInConversation(fromUserId: string, toUserId: string) {
+    return this.selectAll({
+      filterBy: m =>
+        !m.readByUserIds.includes(fromUserId) &&
+        [m.fromUserId, m.toUserId].sort().toString() === [fromUserId, toUserId].sort().toString(),
+      sortBy: 'createdAt',
+    });
+  }
+
+  public selectAllUnreadInGroup(groupId: string, userId) {
+    return this.selectAll({
+      filterBy: m => m.toGroupId === groupId && !m.readByUserIds.includes(userId),
       sortBy: 'createdAt',
     });
   }

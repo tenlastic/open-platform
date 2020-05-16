@@ -11,6 +11,13 @@ import {
   Friend,
   FriendQuery,
   FriendService,
+  Group,
+  GroupInvitation,
+  GroupInvitationQuery,
+  GroupInvitationService,
+  GroupQuery,
+  GroupService,
+  GroupStore,
   Ignoration,
   IgnorationQuery,
   IgnorationService,
@@ -20,15 +27,14 @@ import {
   User,
   UserQuery,
   UserService,
+  UserStore,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription, combineLatest } from 'rxjs';
-import { first } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 
-import { SocialService } from '../../../core/services';
-import { MessageState } from '../../../core/states';
 import { InputDialogComponent } from '../input-dialog/input-dialog.component';
 
-export interface MessageGroup {
+export interface Conversation {
   messages: Message[];
   user: User;
 }
@@ -39,19 +45,29 @@ export interface MessageGroup {
   templateUrl: './social.component.html',
 })
 export class SocialComponent implements OnDestroy, OnInit {
+  public get $activeGroup() {
+    return this.groupQuery.selectActive() as Observable<Group>;
+  }
+  public get $activeUser() {
+    return this.userQuery.selectActive() as Observable<User>;
+  }
   public $connections: Observable<Connection[]>;
   public $friends: Observable<Friend[]>;
+  public $group: Observable<Group>;
+  public $groupInvitation: Observable<GroupInvitation>;
   public $ignorations: Observable<Ignoration[]>;
   public $messages: Observable<Message[]>;
   public $users: Observable<User[]>;
   public fetchFriendUser$ = new Subscription();
   public fetchIgnorationUser$ = new Subscription();
   public fetchMessageUser$ = new Subscription();
+  public fetchUserGroup$ = new Subscription();
   public newMessageNotification$ = new Subscription();
-  public updateGroups$ = new Subscription();
-  public groups: MessageGroup[] = [];
+  public updateConversations$ = new Subscription();
+  public conversations: Conversation[] = [];
   public isConversationsVisible = true;
   public isFriendsVisible = true;
+  public isGroupVisible = true;
   public isIgnoredUsersVisible = false;
 
   constructor(
@@ -61,17 +77,21 @@ export class SocialComponent implements OnDestroy, OnInit {
     private electronService: ElectronService,
     private friendQuery: FriendQuery,
     private friendService: FriendService,
+    private groupInvitationQuery: GroupInvitationQuery,
+    private groupInvitationService: GroupInvitationService,
+    private groupService: GroupService,
+    private groupStore: GroupStore,
+    public groupQuery: GroupQuery,
     public identityService: IdentityService,
     private ignorationQuery: IgnorationQuery,
     private ignorationService: IgnorationService,
     private matDialog: MatDialog,
     private messageQuery: MessageQuery,
     private messageService: MessageService,
-    public messageState: MessageState,
     private router: Router,
-    public socialService: SocialService,
-    private userQuery: UserQuery,
+    public userQuery: UserQuery,
     private userService: UserService,
+    private userStore: UserStore,
     private zone: NgZone,
   ) {}
 
@@ -79,6 +99,17 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.$connections = this.connectionQuery.selectAll();
     this.$friends = this.friendQuery.selectAll();
     this.$friends = this.friendQuery.populateUsers(this.$friends);
+    const $groups = this.groupQuery.selectAll({
+      filterBy: g => g.userIds.includes(this.identityService.user._id),
+    });
+    this.$group = this.groupQuery.populate($groups).pipe(map(groups => groups[0]));
+    const $groupInvitations = this.groupInvitationQuery.selectAll({
+      filterBy: gi => gi.toUserId === this.identityService.user._id,
+      sortBy: 'createdAt',
+    });
+    this.$groupInvitation = this.groupInvitationQuery
+      .populate($groupInvitations)
+      .pipe(map(groups => groups[0]));
     this.$ignorations = this.ignorationQuery.selectAll();
     this.$ignorations = this.ignorationQuery.populateUsers(this.$ignorations);
     this.$messages = this.messageQuery.selectAll();
@@ -87,54 +118,85 @@ export class SocialComponent implements OnDestroy, OnInit {
     await Promise.all([
       this.connectionService.find({}),
       this.friendService.find({}),
+      this.groupInvitationService.find({ where: { toUserId: this.identityService.user._id } }),
+      this.groupService.find({}),
       this.ignorationService.find({}),
-      this.messageService.find({}),
+      this.messageService.find({ sort: '-createdAt' }),
       this.userService.find({}),
     ]);
 
-    this.fetchFriendUser$ = this.$friends.subscribe(friends =>
-      this.userService.find({ where: { _id: { $in: friends.map(f => f.toUserId) } } }),
-    );
-    this.fetchIgnorationUser$ = this.$ignorations.subscribe(ignorations =>
-      this.userService.find({ where: { _id: { $in: ignorations.map(i => i.toUserId) } } }),
-    );
-    this.fetchMessageUser$ = this.$messages.subscribe(messages =>
-      this.userService.find({ where: { _id: { $in: messages.map(m => m.toUserId) } } }),
-    );
+    this.fetchFriendUser$ = this.$friends.subscribe(friends => {
+      const missingUserIds = friends
+        .map(f => f.toUserId)
+        .filter(toUserId => !this.userQuery.hasEntity(toUserId));
 
-    this.updateGroups$ = combineLatest([this.$friends, this.$messages, this.$users]).subscribe(
-      ([friends, messages, users]) => {
-        const friendIds = friends.map(f => f.toUserId);
+      return missingUserIds.length > 0
+        ? this.userService.find({ where: { _id: { $in: missingUserIds } } })
+        : null;
+    });
+    this.fetchIgnorationUser$ = this.$ignorations.subscribe(ignorations => {
+      const missingUserIds = ignorations
+        .map(f => f.toUserId)
+        .filter(toUserId => !this.userQuery.hasEntity(toUserId));
 
-        const groupsMap = messages.reduce((previous, current) => {
-          if (
-            current.fromUserId === this.identityService.user._id &&
-            current.toUserId === this.identityService.user._id
-          ) {
-            return previous;
-          }
+      return missingUserIds.length > 0
+        ? this.userService.find({ where: { _id: { $in: missingUserIds } } })
+        : null;
+    });
+    this.fetchMessageUser$ = this.$messages.subscribe(messages => {
+      const fromUserIds = messages.map(m => m.fromUserId);
+      const toUserIds = messages.map(m => m.toUserId).filter(toUserId => toUserId);
+      const missingUserIds = fromUserIds
+        .concat(toUserIds)
+        .filter(toUserId => !this.userQuery.hasEntity(toUserId));
 
-          const userId =
-            current.fromUserId === this.identityService.user._id
-              ? current.toUserId
-              : current.fromUserId;
+      return missingUserIds.length > 0
+        ? this.userService.find({ where: { _id: { $in: missingUserIds } } })
+        : null;
+    });
+    this.fetchUserGroup$ = this.$users.subscribe(users => {
+      return this.groupService.find({ where: { userIds: { $in: users.map(u => u._id) } } });
+    });
 
-          if (friendIds.includes(userId)) {
-            return previous;
-          }
+    this.updateConversations$ = combineLatest([
+      this.$friends,
+      this.$messages,
+      this.$users,
+    ]).subscribe(([friends, messages, users]) => {
+      const friendIds = friends.map(f => f.toUserId);
 
-          previous[userId] = previous[userId] || [];
-          previous[userId].push(current);
-
+      const conversationsMap = messages.reduce((previous, current) => {
+        if (current.toGroupId) {
           return previous;
-        }, {});
+        }
 
-        this.groups = Object.keys(groupsMap).map(key => ({
-          messages: groupsMap[key],
-          user: users.find(u => u._id === key),
-        }));
-      },
-    );
+        if (
+          current.fromUserId === this.identityService.user._id &&
+          current.toUserId === this.identityService.user._id
+        ) {
+          return previous;
+        }
+
+        const userId =
+          current.fromUserId === this.identityService.user._id
+            ? current.toUserId
+            : current.fromUserId;
+
+        if (friendIds.includes(userId)) {
+          return previous;
+        }
+
+        previous[userId] = previous[userId] || [];
+        previous[userId].push(current);
+
+        return previous;
+      }, {});
+
+      this.conversations = Object.keys(conversationsMap).map(key => ({
+        messages: conversationsMap[key],
+        user: users.find(u => u._id === key),
+      }));
+    });
 
     this.newMessageNotification$ = this.messageService.onCreate.subscribe(message =>
       this.newMessageNotification(message),
@@ -145,16 +207,25 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.fetchFriendUser$.unsubscribe();
     this.fetchIgnorationUser$.unsubscribe();
     this.fetchMessageUser$.unsubscribe();
+    this.fetchUserGroup$.unsubscribe();
     this.newMessageNotification$.unsubscribe();
-    this.updateGroups$.unsubscribe();
+    this.updateConversations$.unsubscribe();
   }
 
-  public $getConnection(userId: string) {
-    return this.connectionQuery.selectCount(c => c.userId === userId);
+  public $getUnreadGroupMessagesCount(groupId: string) {
+    return this.messageQuery
+      .selectAllUnreadInGroup(groupId, this.identityService.user._id)
+      .pipe(map(messages => messages.length));
   }
 
-  public $getUnreadMessagesCount(userId: string) {
-    return this.messageQuery.selectCount(m => !m.readAt && m.fromUserId === userId);
+  public async acceptGroupInvitation() {
+    const groupInvitation = await this.$groupInvitation.pipe(first()).toPromise();
+    await this.groupService.join(groupInvitation.groupId);
+  }
+
+  public async newGroup() {
+    const group = await this.groupService.create({});
+    this.groupStore.setActive(group._id);
   }
 
   public newMessage() {
@@ -179,12 +250,23 @@ export class SocialComponent implements OnDestroy, OnInit {
         return;
       }
 
-      this.socialService.user = users[0];
+      this.userStore.setActive(users[0]._id);
     });
   }
 
-  public setUser(user: User) {
-    this.socialService.user = user;
+  public async rejectGroupInvitation() {
+    const groupInvitation = await this.$groupInvitation.pipe(first()).toPromise();
+    await this.groupInvitationService.delete(groupInvitation._id);
+  }
+
+  public setGroup(group: Group) {
+    this.groupQuery.hasActive()
+      ? this.groupStore.removeActive(this.groupQuery.getActiveId())
+      : this.groupStore.setActive(group._id);
+
+    if (this.userQuery.hasActive()) {
+      this.userStore.removeActive(this.userQuery.getActiveId());
+    }
   }
 
   private async autocomplete(value: string) {

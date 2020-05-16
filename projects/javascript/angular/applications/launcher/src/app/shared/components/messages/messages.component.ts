@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, OnDestroy, ViewChild } from '@angular/core';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import {
   Connection,
@@ -6,6 +6,8 @@ import {
   Friend,
   FriendQuery,
   FriendService,
+  GroupQuery,
+  GroupService,
   Ignoration,
   IgnorationQuery,
   IgnorationService,
@@ -13,18 +15,18 @@ import {
   MessageQuery,
   MessageService,
   User,
+  UserStore,
 } from '@tenlastic/ng-http';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
-
-import { SocialService } from '../../../core/services';
 
 @Component({
   selector: 'app-messages',
   styleUrls: ['./messages.component.scss'],
   templateUrl: 'messages.component.html',
 })
-export class MessagesComponent implements OnDestroy, OnInit {
+export class MessagesComponent implements OnChanges, OnDestroy {
+  @Input() public user: User;
   @ViewChild('messagesScrollContainer', { static: false })
   public messagesScrollContainer: ElementRef;
 
@@ -32,42 +34,54 @@ export class MessagesComponent implements OnDestroy, OnInit {
     return this.connectionQuery.selectCount(c => c.userId === this.user._id);
   }
   public $connections: Observable<Connection[]>;
+  public get $currentUserGroup() {
+    return this.groupQuery
+      .selectAll({ filterBy: g => g.userIds.includes(this.identityService.user._id) })
+      .pipe(map(groups => groups[0]));
+  }
   public $friends: Observable<Friend[]>;
+  public get $group() {
+    return this.groupQuery
+      .selectAll({ filterBy: g => g.userIds.includes(this.user._id) })
+      .pipe(map(groups => groups[0]));
+  }
   public $ignorations: Observable<Ignoration[]>;
   public $messages: Observable<Message[]>;
+  public $showJoinGroupButton: Observable<boolean>;
   public readUnreadMessages$ = new Subscription();
   public scrollToBottom$ = new Subscription();
-  public setUser$ = new Subscription();
   public loadingMessage: string;
-  public get user() {
-    return this.socialService.user;
-  }
 
   constructor(
     private connectionQuery: ConnectionQuery,
     private friendQuery: FriendQuery,
     private friendService: FriendService,
+    private groupQuery: GroupQuery,
+    private groupService: GroupService,
     public identityService: IdentityService,
     private ignorationQuery: IgnorationQuery,
     private ignorationService: IgnorationService,
     private messageQuery: MessageQuery,
     private messageService: MessageService,
-    private socialService: SocialService,
+    private userStore: UserStore,
   ) {}
 
-  public async ngOnInit() {
-    this.setUser();
-    this.setUser$ = this.socialService.OnUserSet.subscribe(() => this.setUser());
+  public async ngOnChanges() {
+    return this.setUser();
   }
 
   public ngOnDestroy() {
     this.readUnreadMessages$.unsubscribe();
     this.scrollToBottom$.unsubscribe();
-    this.setUser$.unsubscribe();
   }
 
-  public close() {
-    this.socialService.user = null;
+  public async close() {
+    this.userStore.removeActive(this.user._id);
+  }
+
+  public async joinGroup() {
+    const group = await this.$group.pipe(first()).toPromise();
+    return this.groupService.join(group._id);
   }
 
   public async sendMessage($event) {
@@ -76,7 +90,7 @@ export class MessagesComponent implements OnDestroy, OnInit {
     await this.messageService.create({
       body: $event.target.value,
       fromUserId: this.identityService.user._id,
-      toUserId: this.socialService.user._id,
+      toUserId: this.user._id,
     });
 
     $event.target.value = '';
@@ -86,11 +100,11 @@ export class MessagesComponent implements OnDestroy, OnInit {
     const [friend] = await this.$friends.pipe(first()).toPromise();
 
     if (friend) {
-      this.friendService.delete(friend._id);
+      return this.friendService.delete(friend._id);
     } else {
-      this.friendService.create({
+      return this.friendService.create({
         fromUserId: this.identityService.user._id,
-        toUserId: this.socialService.user._id,
+        toUserId: this.user._id,
       });
     }
   }
@@ -99,11 +113,11 @@ export class MessagesComponent implements OnDestroy, OnInit {
     const [ignoration] = await this.$ignorations.pipe(first()).toPromise();
 
     if (ignoration) {
-      this.ignorationService.delete(ignoration._id);
+      return this.ignorationService.delete(ignoration._id);
     } else {
-      this.ignorationService.create({
+      return this.ignorationService.create({
         fromUserId: this.identityService.user._id,
-        toUserId: this.socialService.user._id,
+        toUserId: this.user._id,
       });
     }
   }
@@ -117,56 +131,43 @@ export class MessagesComponent implements OnDestroy, OnInit {
     }
 
     this.$friends = this.friendQuery.selectAll({
-      filterBy: f =>
-        f.fromUserId === this.identityService.user._id &&
-        f.toUserId === this.socialService.user._id,
+      filterBy: f => f.fromUserId === this.identityService.user._id && f.toUserId === this.user._id,
     });
     this.$ignorations = this.ignorationQuery.selectAll({
-      filterBy: f =>
-        f.fromUserId === this.identityService.user._id &&
-        f.toUserId === this.socialService.user._id,
+      filterBy: f => f.fromUserId === this.identityService.user._id && f.toUserId === this.user._id,
     });
-    this.$messages = this.messageQuery.selectAll({
-      filterBy: m =>
-        m.fromUserId === this.socialService.user._id || m.toUserId === this.socialService.user._id,
-      sortBy: 'createdAt',
-    });
+    this.$messages = this.messageQuery.selectAllInConversation(
+      this.identityService.user._id,
+      this.user._id,
+    );
+    this.$messages = this.messageQuery.populateUsers(this.$messages);
+    this.$showJoinGroupButton = combineLatest([this.$currentUserGroup, this.$group]).pipe(
+      map(([currentUserGroup, group]) => !currentUserGroup && group && group.isOpen),
+    );
 
     this.loadingMessage = 'Loading conversation...';
-
     await this.messageService.find({
+      sort: '-createdAt',
       where: {
         $or: [
-          { fromUserId: this.socialService.user._id },
-          { toUserId: this.socialService.user._id },
+          { fromUserId: this.user._id, toUserId: this.identityService.user._id },
+          { fromUserId: this.identityService.user._id, toUserId: this.user._id },
         ],
       },
     });
-
     this.loadingMessage = null;
 
     // Mark unread messages as read.
     this.readUnreadMessages$ = this.messageQuery
-      .selectAll({
-        filterBy: m =>
-          !m.readAt &&
-          m.fromUserId === this.socialService.user._id &&
-          m.toUserId === this.identityService.user._id,
-      })
-      .subscribe(ms => {
-        for (const m of ms) {
-          const message = new Message({ ...m, readAt: new Date() });
-          this.messageService.update(message);
-        }
-      });
+      .selectAllUnreadInConversation(this.identityService.user._id, this.user._id)
+      .pipe(map(messages => messages[0]))
+      .subscribe(message => (message ? this.messageService.read(message._id) : null));
 
     // Scroll to the bottom when new message received.
-    this.scrollToBottom$ = this.$messages.subscribe(() => {
-      if (!this.messagesScrollContainer) {
-        return;
-      }
-
-      this.messagesScrollContainer.nativeElement.scrollTop = this.messagesScrollContainer.nativeElement.scrollHeight;
-    });
+    this.scrollToBottom$ = this.$messages.subscribe(() =>
+      this.messagesScrollContainer
+        ? (this.messagesScrollContainer.nativeElement.scrollTop = this.messagesScrollContainer.nativeElement.scrollHeight)
+        : null,
+    );
   }
 }

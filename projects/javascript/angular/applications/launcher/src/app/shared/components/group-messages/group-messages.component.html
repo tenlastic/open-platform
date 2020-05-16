@@ -1,0 +1,85 @@
+<div class="information-container">
+  <mat-icon>people</mat-icon>
+
+  <div class="label">
+    <div class="name">Group</div>
+    <div class="status" [matTooltip]="usernames">
+      {{ group.userIds.length }} Member{{ group.userIds.length > 1 ? 's' : '' }}
+    </div>
+  </div>
+
+  <span>
+    <ten-button
+      *ngIf="canInvite"
+      color="accent"
+      matTooltip="Invite"
+      matTooltipPosition="below"
+      (OnClick)="invite()"
+    >
+      <mat-icon>person_add</mat-icon>
+    </ten-button>
+    <ten-button
+      *ngIf="group.userIds.length > 1"
+      color="accent"
+      matTooltip="Leave Group"
+      matTooltipPosition="below"
+      (OnClick)="leave()"
+    >
+      <mat-icon>exit_to_app</mat-icon>
+    </ten-button>
+    <ten-button
+      *ngIf="isLeader"
+      color="accent"
+      [matTooltip]="group.isOpen ? 'Invitations: Open' : 'Invitations: Only Leader'"
+      matTooltipPosition="below"
+      (OnClick)="toggleIsOpen()"
+    >
+      <mat-icon [ngClass]="{ grey: group.isOpen }">
+        {{ group.isOpen ? 'lock_open' : 'lock' }}
+      </mat-icon>
+    </ten-button>
+    <ten-button
+      *ngIf="isLeader"
+      color="accent"
+      matTooltip="Disband"
+      matTooltipPosition="below"
+      (OnClick)="showDisbandPrompt()"
+    >
+      <mat-icon>delete</mat-icon>
+    </ten-button>
+    <ten-button color="accent" matTooltip="Close" matTooltipPosition="below" (OnClick)="close()">
+      <mat-icon>close</mat-icon>
+    </ten-button>
+  </span>
+</div>
+
+<ng-container *ngIf="!loadingMessage">
+  <div #messagesScrollContainer class="messages-container">
+    <ng-container *ngFor="let message of ($messages | async).slice().reverse(); let i = index">
+      <div
+        class="message"
+        matTooltip="{{ message.createdAt | date: 'M/d/y' }} at {{
+          message.createdAt | date: 'h:mm a'
+        }}"
+        matTooltipPosition="before"
+      >
+        <span class="sender">[{{ message.fromUser.username }}]:</span>
+        <span>{{ message.body }}</span>
+      </div>
+    </ng-container>
+
+    <div *ngIf="($messages | async).length === 0" class="no-messages">No Messages Found</div>
+  </div>
+  <div class="input-container">
+    <mat-form-field floatLabel="never">
+      <textarea
+        matInput
+        cdkTextareaAutosize
+        placeholder="Type your message here..."
+        (keydown.enter)="sendMessage($event)"
+      ></textarea>
+    </mat-form-field>
+  </div>
+</ng-container>
+
+<ten-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</ten-loading-message>

@@ -4,6 +4,8 @@ export const environment = {
   databaseApiBaseUrl: 'https://api.tenlastic.com/databases',
   friendApiBaseUrl: 'https://api.tenlastic.com/friends',
   gameApiBaseUrl: 'https://api.tenlastic.com/games',
+  groupApiBaseUrl: 'https://api.tenlastic.com/groups',
+  groupInvitationApiBaseUrl: 'https://api.tenlastic.com/group-invitations',
   ignorationApiBaseUrl: 'https://api.tenlastic.com/ignorations',
   launcherUrl: 'https://minio.tenlastic.com/launcher/TenlasticLauncherSetup.exe',
   loginApiBaseUrl: 'https://api.tenlastic.com/logins',

@@ -64,6 +64,10 @@ setInterval(async () => {
 @plugin(uniqueErrorPlugin)
 @post('remove', (doc: ConnectionDocument) => clearTimeout(doc.heartbeatTimeout))
 @post('save', (doc: ConnectionDocument) => {
+  if (process.env.NODE_ENV === 'test') {
+    return;
+  }
+
   clearTimeout(doc.heartbeatTimeout);
   doc.heartbeatTimeout = setTimeout(() => {
     doc.heartbeatAt = new Date();

@@ -288,7 +288,7 @@ describe('is-json-valid', function() {
             },
           };
           const query = {
-            'user._id': { $in: [json.user._id.toHexString()] },
+            'user._id': { $in: [json.user._id] },
           };
 
           const result = isJsonValid(json, query);

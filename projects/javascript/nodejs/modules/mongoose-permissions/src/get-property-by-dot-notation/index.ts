@@ -8,6 +8,8 @@ export function getPropertyByDotNotation(json: any, path: string) {
 /**
  * Return an object's property with a key string (Ex: 'property').
  *
+ * If the object is an Array, find subdocument at the given index.
+ *
  * If the object is an Array, find all subdocument properties matching the path.
  * Remove any null or undefined values afterward.
  *
@@ -17,9 +19,13 @@ export function getPropertyByDotNotation(json: any, path: string) {
  */
 function getPropertyByKey(obj: any, key: string) {
   if (obj && obj.constructor === Array) {
-    return obj
-      .map(o => (o && o.constructor === Object ? o[key] : null))
-      .filter(o => o !== null && o !== undefined);
+    if (/^\d+$/.test(key)) {
+      return obj[key];
+    } else {
+      return obj
+        .map(o => (o && o.constructor === Object ? o[key] : null))
+        .filter(o => o !== null && o !== undefined);
+    }
   } else if (obj && obj.constructor === Object) {
     return obj[key];
   } else {

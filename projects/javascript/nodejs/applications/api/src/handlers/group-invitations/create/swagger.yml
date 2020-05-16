@@ -1,0 +1,23 @@
+paths:
+  /group-invitations:
+    post:
+      summary: Create
+      tags: [GroupInvitations]
+      description: Creates a new record.
+      security:
+        - AccessToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupInvitation'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/GroupInvitation'

@@ -15,6 +15,7 @@ export function isJsonValid(json: any, query: any, and = true) {
     if (key === '$and') {
       return operations.map(o => isJsonValid(json, o)).every(f => f);
     } else if (key === '$or') {
+      console.log(operations.map(o => isJsonValid(json, o, false)));
       return operations.map(o => isJsonValid(json, o, false)).includes(true);
     }
 
@@ -67,6 +68,9 @@ function $elemMatch(json: any, key: string, value: any) {
  */
 function $eq(json: any, key: string, value: any) {
   const reference = getPropertyByDotNotation(json, key);
+  if (reference === undefined) {
+    return false;
+  }
 
   if (reference.constructor === Array && value.constructor !== Array) {
     return reference.includes(value);
@@ -91,13 +95,16 @@ function $exists(json: any, key: string, value: any) {
  */
 function $in(json: any, key: string, value: any[]) {
   const reference = getPropertyByDotNotation(json, key);
+  if (reference === undefined) {
+    return false;
+  }
 
   if (reference.constructor === Array) {
     return reference.includes(...value);
   } else if (reference instanceof mongoose.Types.ObjectId) {
     return Boolean(value.find(v => reference.equals(v)));
   } else {
-    return value.includes(reference);
+    return value.some(v => (v.equals ? v.equals(reference) : v === reference));
   }
 }
 
@@ -106,6 +113,9 @@ function $in(json: any, key: string, value: any[]) {
  */
 function $ne(json: any, key: string, value: any) {
   const reference = getPropertyByDotNotation(json, key);
+  if (reference === undefined) {
+    return false;
+  }
 
   if (reference.constructor === Array && value.constructor !== Array) {
     return !reference.includes(value);

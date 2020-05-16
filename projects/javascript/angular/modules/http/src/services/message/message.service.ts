@@ -71,6 +71,22 @@ export class MessageService {
     return record;
   }
 
+  public async read(_id: string): Promise<Message> {
+    const response = await this.apiService.request(
+      'post',
+      `${this.basePath}/${_id}/read-by-user-ids`,
+      null,
+    );
+
+    const record = new Message(response.record);
+
+    if (this.emitEvents) {
+      this.onUpdate.emit(record);
+    }
+
+    return record;
+  }
+
   public async update(parameters: Partial<Message>): Promise<Message> {
     const response = await this.apiService.request(
       'put',

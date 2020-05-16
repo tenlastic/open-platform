@@ -2,6 +2,7 @@ import {
   DocumentType,
   Ref,
   ReturnModelType,
+  arrayProp,
   getModelForClass,
   index,
   modelOptions,
@@ -16,13 +17,15 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
+import { Group, GroupDocument } from '../group';
 import { User, UserDocument } from '../user';
 
 export const MessageEvent = new EventEmitter<IDatabasePayload<MessageDocument>>();
 MessageEvent.on(kafka.publish);
 
 @index({ fromUserId: 1 })
-@index({ readAt: 1 })
+@index({ readByUserIds: 1 })
+@index({ toGroupId: 1 })
 @index({ toUserId: 1 })
 @modelOptions({
   schemaOptions: {
@@ -45,16 +48,32 @@ export class MessageSchema {
   @prop({ ref: User, required: true })
   public fromUserId: Ref<UserDocument>;
 
-  @prop()
-  public readAt: Date;
+  @arrayProp({ itemsRef: User })
+  public readByUserIds: Array<Ref<UserDocument>>;
 
-  @prop({ ref: User, required: true })
+  @prop({
+    ref: Group,
+    required(this: MessageDocument) {
+      return !this.toUserId;
+    },
+  })
+  public toGroupId: Ref<GroupDocument>;
+
+  @prop({
+    ref: User,
+    required(this: MessageDocument) {
+      return !this.toGroupId;
+    },
+  })
   public toUserId: Ref<UserDocument>;
 
   public updatedAt: Date;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: User })
   public fromUserDocument: UserDocument;
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'toGroupId', ref: Group })
+  public toGroupDocument: GroupDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: User })
   public toUserDocument: UserDocument;

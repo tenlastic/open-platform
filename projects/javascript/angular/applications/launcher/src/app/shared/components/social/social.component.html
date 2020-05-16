@@ -1,97 +1,86 @@
 <ten-sidenav>
-  <div class="content" [ngStyle]="{ 'overflow-y': socialService.user ? 'hidden' : 'auto' }">
-    <app-messages *ngIf="socialService.user"></app-messages>
+  <div class="content">
+    <app-group-messages *ngIf="$activeGroup | async as group" [group]="group"></app-group-messages>
+    <app-messages *ngIf="$activeUser | async as user" [user]="user"></app-messages>
     <router-outlet></router-outlet>
   </div>
 
   <div *ngIf="identityService.user" class="nav">
+    <ng-container *ngIf="!($group | async)">
+      <div *ngIf="$groupInvitation | async as groupInvitation" class="group-invitation">
+        <div class="hover-off">
+          <mat-icon>person_add</mat-icon>
+          <div class="label">
+            <div class="name">Group Invitation</div>
+            <div class="status">From {{ groupInvitation.fromUser.username }}</div>
+          </div>
+        </div>
+
+        <div class="hover-on">
+          <ten-button color="accent" (OnClick)="rejectGroupInvitation()">Reject</ten-button>
+          <ten-button color="primary" (OnClick)="acceptGroupInvitation()">Accept</ten-button>
+        </div>
+      </div>
+    </ng-container>
+
+    <ten-button
+      *ngIf="!($group | async)"
+      color="accent"
+      layout="vertical"
+      text="left"
+      width="full"
+      (OnClick)="newGroup()"
+    >
+      <mat-icon>group_add</mat-icon>
+      <span>Start Group</span>
+    </ten-button>
+
+    <ten-button
+      *ngIf="$group | async as group"
+      class="online"
+      color="accent"
+      layout="vertical"
+      text="left"
+      width="full"
+      [ngClass]="{ active: ($activeGroup | async)?._id === group._id }"
+      (OnClick)="setGroup(group)"
+    >
+      <mat-icon>people</mat-icon>
+      <div class="label">
+        <div class="name">Group</div>
+        <div class="status">
+          {{ group.userIds.length }} Member{{ group.userIds.length > 1 ? 's' : '' }}
+        </div>
+      </div>
+      <span *ngIf="$getUnreadGroupMessagesCount(group._id) | async" class="badge">
+        {{ $getUnreadGroupMessagesCount(group._id) | async }}
+      </span>
+    </ten-button>
+
     <ten-button color="accent" layout="vertical" text="left" width="full" (OnClick)="newMessage()">
       <mat-icon>add</mat-icon>
-      <span><strong>New Message</strong></span>
+      <span>New Direct Message</span>
     </ten-button>
 
-    <ten-button
+    <app-message-group
+      *ngIf="$group | async as group"
+      header="Group"
+      [isVisible]="true"
+      [showGroup]="false"
+      [users]="group.users | truthy"
+    ></app-message-group>
+
+    <app-message-group
       *ngIf="($friends | async).length"
-      color="accent"
-      layout="vertical"
-      text="left"
-      width="full"
-      (OnClick)="isFriendsVisible = !isFriendsVisible"
-    >
-      <span>Friends</span>
-      <mat-icon>{{ isFriendsVisible ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}</mat-icon>
-    </ten-button>
+      header="Friends"
+      [isVisible]="true"
+      [users]="$friends | async | select: 'toUser' | truthy"
+    ></app-message-group>
 
-    <ng-container *ngIf="isFriendsVisible">
-      <ten-button
-        *ngFor="let friend of $friends | async"
-        color="accent"
-        layout="vertical"
-        text="left"
-        width="full"
-        [ngClass]="{
-          online: $getConnection(friend.toUserId) | async,
-          offline: !($getConnection(friend.toUserId) | async)
-        }"
-        (OnClick)="setUser(friend.toUser)"
-      >
-        <mat-icon>
-          {{
-            ($getConnection(friend.toUserId) | async) ? 'brightness_1' : 'radio_button_unchecked'
-          }}
-        </mat-icon>
-        <div class="label">
-          <div class="name">{{ friend.toUser?.username }}</div>
-          <div class="status">
-            {{ ($getConnection(friend.toUserId) | async) ? 'Online' : 'Offline' }}
-          </div>
-        </div>
-        <span *ngIf="$getUnreadMessagesCount(friend.toUserId) | async" class="badge">
-          {{ $getUnreadMessagesCount(friend.toUserId) | async }}
-        </span>
-      </ten-button>
-    </ng-container>
-
-    <ten-button
-      *ngIf="groups.length"
-      color="accent"
-      layout="vertical"
-      text="left"
-      width="full"
-      (OnClick)="isConversationsVisible = !isConversationsVisible"
-    >
-      <span>Other Conversations</span>
-      <mat-icon>
-        {{ isConversationsVisible ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
-      </mat-icon>
-    </ten-button>
-
-    <ng-container *ngIf="isConversationsVisible">
-      <ten-button
-        *ngFor="let group of groups"
-        color="accent"
-        layout="vertical"
-        text="left"
-        width="full"
-        [ngClass]="{
-          online: $getConnection(group.user._id) | async,
-          offline: !($getConnection(group.user._id) | async)
-        }"
-        (OnClick)="setUser(group.user)"
-      >
-        <mat-icon>
-          {{ ($getConnection(group.user._id) | async) ? 'brightness_1' : 'radio_button_unchecked' }}
-        </mat-icon>
-        <div class="label">
-          <div class="name">{{ group.user.username }}</div>
-          <div class="status">
-            {{ ($getConnection(group.user._id) | async) ? 'Online' : 'Offline' }}
-          </div>
-        </div>
-        <span *ngIf="$getUnreadMessagesCount(group.user._id) | async" class="badge">
-          {{ $getUnreadMessagesCount(group.user._id) | async }}
-        </span>
-      </ten-button>
-    </ng-container>
+    <app-message-group
+      *ngIf="conversations.length"
+      header="Other Conversations"
+      [users]="conversations | select: 'user' | truthy"
+    ></app-message-group>
   </div>
 </ten-sidenav>

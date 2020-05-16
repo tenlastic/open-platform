@@ -8,20 +8,31 @@ import { ElectronModule } from '@tenlastic/ng-electron';
 
 import { MaterialModule } from '../material.module';
 import {
+  GroupMessagesComponent,
   InputDialogComponent,
   LayoutComponent,
   LoadingMessageComponent,
+  MessageGroupComponent,
   MessagesComponent,
   PromptComponent,
   SocialComponent,
   ToggleSectionComponent,
 } from './components';
-import { AsAnyPipe, CamelCaseToTitleCasePipe, FilesizePipe, KeysPipe } from './pipes';
+import {
+  AsAnyPipe,
+  CamelCaseToTitleCasePipe,
+  FilesizePipe,
+  KeysPipe,
+  SelectPipe,
+  TruthyPipe,
+} from './pipes';
 
 const components = [
+  GroupMessagesComponent,
   InputDialogComponent,
   LayoutComponent,
   LoadingMessageComponent,
+  MessageGroupComponent,
   MessagesComponent,
   PromptComponent,
   SocialComponent,
@@ -37,7 +48,7 @@ const modules = [
   ReactiveFormsModule,
   RouterModule,
 ];
-const pipes = [AsAnyPipe, CamelCaseToTitleCasePipe, FilesizePipe, KeysPipe];
+const pipes = [AsAnyPipe, CamelCaseToTitleCasePipe, FilesizePipe, KeysPipe, SelectPipe, TruthyPipe];
 
 @NgModule({
   declarations: [...components, ...pipes],

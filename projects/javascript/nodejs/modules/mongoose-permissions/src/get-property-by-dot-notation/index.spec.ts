@@ -5,6 +5,17 @@ import { getPropertyByDotNotation } from './';
 
 describe('get-property-by-dot-notation', function() {
   context('when the JSON is an array', function() {
+    it('returns the value matching the given index', function() {
+      const json = {
+        names: [{ first: 'first' }, { last: 'last' }],
+      };
+      const path = 'names.0';
+
+      const result = getPropertyByDotNotation(json, path);
+
+      expect(result).to.eql({ first: 'first' });
+    });
+
     it('returns all values matching the given path', function() {
       const json = [
         { name: { first: 'first', last: 'last' } },

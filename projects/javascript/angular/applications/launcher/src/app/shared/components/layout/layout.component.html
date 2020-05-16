@@ -26,9 +26,19 @@
     *ngIf="identityService.user"
     color="accent"
     [matMenuTriggerFor]="menu"
-    [ngClass]="{ active: router.url.includes('/account') }"
+    [ngClass]="{
+      active: router.url.includes('/account'),
+      online: $getConnection(identityService.user._id) | async,
+      offline: !($getConnection(identityService.user._id) | async)
+    }"
   >
-    <mat-icon>person</mat-icon>
+    <mat-icon>
+      {{
+        ($getConnection(identityService.user._id) | async)
+          ? 'brightness_1'
+          : 'radio_button_unchecked'
+      }}
+    </mat-icon>
     <span>{{ identityService.user.username }}</span>
     <mat-icon>keyboard_arrow_down</mat-icon>
   </ten-button>

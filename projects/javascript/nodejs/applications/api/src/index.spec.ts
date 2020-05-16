@@ -16,6 +16,8 @@ import {
   Friend,
   Game,
   GameServer,
+  Group,
+  GroupInvitation,
   Ignoration,
   Message,
   Namespace,
@@ -82,6 +84,8 @@ beforeEach(async function() {
   await Friend.deleteMany({});
   await Game.deleteMany({});
   await GameServer.deleteMany({});
+  await Group.deleteMany({});
+  await GroupInvitation.deleteMany({});
   await Ignoration.deleteMany({});
   await Message.deleteMany({});
   await Namespace.deleteMany({});

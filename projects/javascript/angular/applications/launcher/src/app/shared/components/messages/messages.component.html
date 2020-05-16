@@ -23,6 +23,7 @@
 
     <span>
       <ten-button
+        *ngIf="identityService.user._id !== user._id"
         color="accent"
         [matTooltip]="async.friend ? 'Unfriend' : 'Friend'"
         matTooltipPosition="below"
@@ -31,12 +32,22 @@
         <mat-icon [ngClass]="{ grey: !async.friend }">favorite</mat-icon>
       </ten-button>
       <ten-button
+        *ngIf="identityService.user._id !== user._id"
         color="accent"
         [matTooltip]="async.ignoration ? 'Unignore' : 'Ignore'"
         matTooltipPosition="below"
         (OnClick)="toggleIgnoration()"
       >
         <mat-icon [ngClass]="{ grey: !async.ignoration }">block</mat-icon>
+      </ten-button>
+      <ten-button
+        *ngIf="$showJoinGroupButton | async"
+        color="accent"
+        matTooltip="Join Group"
+        matTooltipPosition="below"
+        (OnClick)="joinGroup()"
+      >
+        <mat-icon>group_add</mat-icon>
       </ten-button>
       <ten-button color="accent" matTooltip="Close" matTooltipPosition="below" (OnClick)="close()">
         <mat-icon>close</mat-icon>
@@ -54,9 +65,7 @@
           }}"
           matTooltipPosition="before"
         >
-          <span class="sender">
-            [{{ message.fromUserId === user._id ? user.username : identityService.user.username }}]:
-          </span>
+          <span class="sender">[{{ message.fromUser.username }}]:</span>
           <span>{{ message.body }}</span>
         </div>
       </ng-container>

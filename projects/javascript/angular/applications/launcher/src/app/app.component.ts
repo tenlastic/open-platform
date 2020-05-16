@@ -7,6 +7,10 @@ import { ElectronService } from '@tenlastic/ng-electron';
 import {
   Connection,
   ConnectionService,
+  Group,
+  GroupInvitation,
+  GroupInvitationService,
+  GroupService,
   LoginService,
   Message,
   MessageService,
@@ -17,6 +21,7 @@ import {
 import { environment } from '../environments/environment';
 import { BackgroundService, CrudSnackbarService } from './core/services';
 import { TITLE } from './shared/constants';
+import {} from 'modules/http/src/public-api';
 
 @Component({
   selector: 'app-root',
@@ -29,6 +34,8 @@ export class AppComponent implements OnInit {
     private connectionService: ConnectionService,
     private crudSnackbarService: CrudSnackbarService,
     private electronService: ElectronService,
+    private groupService: GroupService,
+    private groupInvitationService: GroupInvitationService,
     private loginService: LoginService,
     private messageService: MessageService,
     private identityService: IdentityService,
@@ -59,6 +66,8 @@ export class AppComponent implements OnInit {
 
   private watch() {
     this.socketService.watch(Connection, this.connectionService, {});
+    this.socketService.watch(Group, this.groupService, {});
+    this.socketService.watch(GroupInvitation, this.groupInvitationService, {});
     this.socketService.watch(Message, this.messageService, {});
     this.socketService.watch(Release, this.releaseService, {});
   }

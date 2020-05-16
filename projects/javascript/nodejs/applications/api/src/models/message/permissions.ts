@@ -5,7 +5,7 @@ import { Message, MessageDocument } from './model';
 export const MessagePermissions = new MongoosePermissions<MessageDocument>(Message, {
   create: {
     roles: {
-      sender: ['body', 'fromUserId', 'toUserId'],
+      sender: ['body', 'fromUserId', 'toGroupId', 'toUserId'],
     },
   },
   delete: {
@@ -17,12 +17,35 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
     base: {
       $or: [
         { fromUserId: { $eq: { $ref: 'user._id' } } },
+        {
+          toGroupId: {
+            $in: {
+              // Find Groups of which the User is a member.
+              $query: {
+                model: 'GroupSchema',
+                select: '_id',
+                where: {
+                  userIds: { $eq: { $ref: 'user._id' } },
+                },
+              },
+            },
+          },
+        },
         { toUserId: { $eq: { $ref: 'user._id' } } },
       ],
     },
   },
   read: {
-    base: ['_id', 'body', 'createdAt', 'fromUserId', 'readAt', 'toUserId', 'updatedAt'],
+    base: [
+      '_id',
+      'body',
+      'createdAt',
+      'fromUserId',
+      'readByUserIds',
+      'toGroupId',
+      'toUserId',
+      'updatedAt',
+    ],
   },
   roles: [
     {
@@ -40,8 +63,7 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
   ],
   update: {
     roles: {
-      recipient: ['readAt'],
-      sender: ['body', 'toUserId'],
+      sender: ['body'],
     },
   },
 });

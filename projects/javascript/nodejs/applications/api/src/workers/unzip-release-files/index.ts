@@ -62,7 +62,9 @@ export async function unzipReleaseFilesWorker(
 
     channel.ack(msg);
   } catch (e) {
-    console.error(e);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error(e);
+    }
 
     if (e.name === 'DocumentNotFoundError') {
       channel.ack(msg);
