@@ -1,6 +1,7 @@
 import 'source-map-support/register';
 
 import * as docker from '@tenlastic/docker-engine';
+import '@tenlastic/logging';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';

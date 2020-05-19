@@ -161,15 +161,12 @@ export class WebSocketServer {
   private startHeartbeat(ws: WebSocket) {
     let timeout: NodeJS.Timeout;
 
-    ws.isAlive = true;
     ws.on('pong', () => {
       clearTimeout(timeout);
-      ws.isAlive = true;
     });
 
     // Send ping request every 5s seconds.
     const interval = setInterval(() => {
-      ws.isAlive = false;
       ws.ping();
 
       // If a timeout has already been started, don't start another one.
@@ -179,10 +176,8 @@ export class WebSocketServer {
 
       // If the socket has not responded before 15s, terminate the connection.
       timeout = setTimeout(() => {
-        if (!ws.isAlive) {
-          clearInterval(interval);
-          ws.terminate();
-        }
+        clearInterval(interval);
+        ws.terminate();
       }, 15000);
     }, 5000);
 

@@ -74,7 +74,17 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       this.toPlainObject(override),
       { arrayMerge: overwriteMerge },
     );
+
+    const start = Date.now();
     const record = await this.Model.create(mergedParams);
+    console.log({
+      _id: record._id,
+      collection: this.Model.collection.collectionName,
+      database: this.Model.db.db.databaseName,
+      duration: Date.now() - start,
+      label: 'create()',
+      module: 'mongoose-permissions',
+    });
 
     // Filter unauthorized attributes
     const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
@@ -93,7 +103,16 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       throw new PermissionError();
     }
 
+    const start = Date.now();
     record = await record.remove();
+    console.log({
+      _id: record._id,
+      collection: this.Model.collection.collectionName,
+      database: this.Model.db.db.databaseName,
+      duration: Date.now() - start,
+      label: 'delete()',
+      module: 'mongoose-permissions',
+    });
 
     // Filter unauthorized attributes
     const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
@@ -124,9 +143,18 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       query = query.populate(this.accessControl.options.populate);
     }
 
+    const start = Date.now();
     const records = (await query.exec()) as TDocument[];
-    const promises = records.map(record => this.read(record, user));
+    console.log({
+      collection: this.Model.collection.collectionName,
+      database: this.Model.db.db.databaseName,
+      duration: Date.now() - start,
+      label: 'find()',
+      module: 'mongoose-permissions',
+      where,
+    });
 
+    const promises = records.map(record => this.read(record, user));
     return Promise.all(promises);
   }
 
@@ -198,8 +226,17 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       { arrayMerge, customMerge },
     );
 
+    const start = Date.now();
     Object.keys(mergedParams).forEach(key => (record[key] = mergedParams[key]));
     record = await record.save();
+    console.log({
+      _id: record._id,
+      collection: this.Model.collection.collectionName,
+      database: this.Model.db.db.databaseName,
+      duration: Date.now() - start,
+      label: 'update()',
+      module: 'mongoose-permissions',
+    });
 
     // Remove unauthorized fields
     const readPermissions = this.accessControl.getFieldPermissions('read', record, user);

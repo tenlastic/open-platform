@@ -1,6 +1,9 @@
 #!/bin/bash
 set -a
 
+# Debug
+DEBUG_DURATION_THRESHOLD="100"
+
 # Docker
 DOCKER_ENGINE_URL="http://host.docker.internal:2375"
 DOCKER_REGISTRY_URL="http://username:password@docker-registry:5000"

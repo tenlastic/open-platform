@@ -12,6 +12,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     base: false,
     roles: {
       administrator: true,
+      'system-administrator': true,
     },
   },
   find: {
@@ -35,6 +36,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
   update: {
     roles: {
       administrator: ['accessControlList', 'name'],
+      'system-administrator': ['accessControlList', 'name'],
     },
   },
 });

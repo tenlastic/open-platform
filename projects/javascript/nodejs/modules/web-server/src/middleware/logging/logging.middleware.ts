@@ -1,5 +1,3 @@
-import { performance } from 'perf_hooks';
-
 import { Context, MiddlewareCallback } from '../..';
 
 /**

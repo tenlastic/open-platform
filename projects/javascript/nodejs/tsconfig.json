@@ -9,6 +9,7 @@
     "paths": {
       "@tenlastic/docker-engine": ["./modules/docker-engine/src"],
       "@tenlastic/json-schema": ["./modules/json-schema/src"],
+      "@tenlastic/logging": ["./modules/logging/src"],
       "@tenlastic/mailgun": ["./modules/mailgun/src"],
       "@tenlastic/minio": ["./modules/minio/src"],
       "@tenlastic/mongoose-change-stream": ["./modules/mongoose-change-stream/src"],

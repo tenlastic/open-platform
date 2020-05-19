@@ -26,5 +26,5 @@ export async function consume(
   handler = () => consume(queue, onMessage);
   events.on('connect', handler);
 
-  console.log('Subscribed to RabbitMQ queue:', queue);
+  console.log(`Subscribed to RabbitMQ queue: ${queue}.`);
 }
