@@ -16,9 +16,7 @@
   "scripts": {
     "build": "../../scripts/build.sh",
     "build:watch": "watch ../../scripts/build.sh ./src",
-    "lint": "../../scripts/lint.sh",
-    "test": "../../scripts/test.sh --code-coverage",
-    "test:watch": "../../scripts/test.sh --watch"
+    "lint": "../../scripts/lint.sh"
   },
   "dependencies": {
     "winston": "3.2.1"
