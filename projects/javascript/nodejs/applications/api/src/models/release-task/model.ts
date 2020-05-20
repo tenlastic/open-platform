@@ -22,7 +22,9 @@ import { Release, ReleaseDocument } from '../release';
 import { ReleaseTaskFailure, ReleaseTaskFailureDocument } from './failure';
 
 export const ReleaseTaskEvent = new EventEmitter<IDatabasePayload<ReleaseTaskDocument>>();
-ReleaseTaskEvent.on(kafka.publish);
+ReleaseTaskEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 export enum ReleaseTaskAction {
   Build = 'build',

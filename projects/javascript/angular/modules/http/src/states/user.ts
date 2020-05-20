@@ -14,8 +14,8 @@ export class UserStore extends EntityStore<UserState, User> {
 
     this.userService.onCreate.subscribe(record => this.add(record));
     this.userService.onDelete.subscribe(record => this.remove(record._id));
-    this.userService.onRead.subscribe(records => this.add(records));
-    this.userService.onUpdate.subscribe(record => this.replace(record._id, record));
+    this.userService.onRead.subscribe(records => this.upsertMany(records));
+    this.userService.onUpdate.subscribe(record => this.update(record._id, record));
   }
 }
 

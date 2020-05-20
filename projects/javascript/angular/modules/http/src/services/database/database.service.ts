@@ -7,7 +7,6 @@ import { EnvironmentService } from '../environment/environment.service';
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
   public basePath: string;
-  public emitEvents = true;
 
   public onCreate = new EventEmitter<Database>();
   public onDelete = new EventEmitter<Database>();
@@ -21,10 +20,7 @@ export class DatabaseService {
     const response = await this.apiService.request('post', this.basePath, parameters);
 
     const record = new Database(response.record);
-
-    if (this.emitEvents) {
-      this.onCreate.emit(record);
-    }
+    this.onCreate.emit(record);
 
     return record;
   }
@@ -33,10 +29,7 @@ export class DatabaseService {
     const response = await this.apiService.request('delete', `${this.basePath}/${_id}`, null);
 
     const record = new Database(response.record);
-
-    if (this.emitEvents) {
-      this.onDelete.emit(record);
-    }
+    this.onDelete.emit(record);
 
     return record;
   }
@@ -61,10 +54,7 @@ export class DatabaseService {
     );
 
     const record = new Database(response.record);
-
-    if (this.emitEvents) {
-      this.onUpdate.emit(record);
-    }
+    this.onUpdate.emit(record);
 
     return record;
   }

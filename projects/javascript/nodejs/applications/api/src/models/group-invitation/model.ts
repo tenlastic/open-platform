@@ -21,7 +21,9 @@ import { User, UserDocument } from '../user';
 
 // Publish changes to Kafka.
 export const GroupInvitationEvent = new EventEmitter<IDatabasePayload<GroupInvitationDocument>>();
-GroupInvitationEvent.on(kafka.publish);
+GroupInvitationEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 // Delete stale GroupInvitations.
 setInterval(async () => {

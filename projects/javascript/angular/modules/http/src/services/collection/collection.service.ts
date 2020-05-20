@@ -7,7 +7,6 @@ import { EnvironmentService } from '../environment/environment.service';
 @Injectable({ providedIn: 'root' })
 export class CollectionService {
   public basePath: string;
-  public emitEvents = true;
 
   public onCreate = new EventEmitter<Collection>();
   public onDelete = new EventEmitter<Collection>();
@@ -25,10 +24,7 @@ export class CollectionService {
     );
 
     const record = new Collection(response.record);
-
-    if (this.emitEvents) {
-      this.onCreate.emit(record);
-    }
+    this.onCreate.emit(record);
 
     return record;
   }
@@ -40,10 +36,7 @@ export class CollectionService {
     );
 
     const record = new Collection(response.record);
-
-    if (this.emitEvents) {
-      this.onDelete.emit(record);
-    }
+    this.onDelete.emit(record);
 
     return record;
   }
@@ -75,10 +68,7 @@ export class CollectionService {
     );
 
     const record = new Collection(response.record);
-
-    if (this.emitEvents) {
-      this.onUpdate.emit(record);
-    }
+    this.onUpdate.emit(record);
 
     return record;
   }

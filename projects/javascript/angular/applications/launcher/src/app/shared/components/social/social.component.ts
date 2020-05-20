@@ -225,7 +225,7 @@ export class SocialComponent implements OnDestroy, OnInit {
 
   public async newGroup() {
     const group = await this.groupService.create({});
-    this.groupStore.setActive(group._id);
+    this.setGroup(group);
   }
 
   public newMessage() {

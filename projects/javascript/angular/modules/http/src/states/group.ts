@@ -17,8 +17,8 @@ export class GroupStore extends EntityStore<GroupState, Group> {
 
     this.groupService.onCreate.subscribe(record => this.add(record));
     this.groupService.onDelete.subscribe(record => this.remove(record._id));
-    this.groupService.onRead.subscribe(records => this.add(records));
-    this.groupService.onUpdate.subscribe(record => this.replace(record._id, record));
+    this.groupService.onRead.subscribe(records => this.upsertMany(records));
+    this.groupService.onUpdate.subscribe(record => this.update(record._id, record));
   }
 }
 

@@ -4,7 +4,6 @@
   box-shadow: 3px 3px 5px black;
   display: flex;
   flex: 0 0 auto;
-  flex-direction: row-reverse;
   height: 75px;
 
   div.action {
@@ -19,7 +18,7 @@
 
   div.status {
     flex: 1 1 auto;
-    padding-left: 16px;
+    padding-right: 16px;
 
     div {
       display: flex;

@@ -7,7 +7,6 @@ import { EnvironmentService } from '../environment/environment.service';
 @Injectable({ providedIn: 'root' })
 export class ConnectionService {
   public basePath: string;
-  public emitEvents = true;
 
   public onCreate = new EventEmitter<Connection>();
   public onDelete = new EventEmitter<Connection>();

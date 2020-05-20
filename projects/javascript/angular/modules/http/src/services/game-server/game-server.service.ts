@@ -13,7 +13,6 @@ export interface GameServerServiceUploadOptions {
 @Injectable({ providedIn: 'root' })
 export class GameServerService {
   public basePath: string;
-  public emitEvents = true;
 
   public onCreate = new EventEmitter<GameServer>();
   public onDelete = new EventEmitter<GameServer>();
@@ -32,10 +31,7 @@ export class GameServerService {
   public async create(parameters: Partial<GameServer>): Promise<GameServer> {
     const response = await this.apiService.request('post', this.basePath, parameters);
     const record = new GameServer(response.record);
-
-    if (this.emitEvents) {
-      this.onCreate.emit(record);
-    }
+    this.onCreate.emit(record);
 
     return record;
   }
@@ -43,10 +39,7 @@ export class GameServerService {
   public async delete(_id: string): Promise<GameServer> {
     const response = await this.apiService.request('delete', `${this.basePath}/${_id}`, null);
     const record = new GameServer(response.record);
-
-    if (this.emitEvents) {
-      this.onDelete.emit(record);
-    }
+    this.onDelete.emit(record);
 
     return record;
   }
@@ -71,10 +64,7 @@ export class GameServerService {
     );
 
     const record = new GameServer(response.record);
-
-    if (this.emitEvents) {
-      this.onUpdate.emit(record);
-    }
+    this.onUpdate.emit(record);
 
     return record;
   }

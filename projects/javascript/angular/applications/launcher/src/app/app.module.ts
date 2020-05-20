@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
 import { AuthenticationModule, OAuthComponent } from '@tenlastic/ng-authentication';
 import { ComponentLibraryModule } from '@tenlastic/ng-component-library';
 import { ElectronModule } from '@tenlastic/ng-electron';
@@ -42,6 +43,7 @@ export const ROUTES: Routes = [
   declarations: [AppComponent],
   entryComponents: [AppComponent],
   imports: [
+    environment.production ? [] : AkitaNgDevtools,
     AuthenticationModule.forRoot(environment),
     ComponentLibraryModule,
     CoreModule,

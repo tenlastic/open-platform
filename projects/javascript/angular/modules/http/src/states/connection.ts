@@ -14,8 +14,8 @@ export class ConnectionStore extends EntityStore<ConnectionState, Connection> {
 
     this.connectionService.onCreate.subscribe(record => this.add(record));
     this.connectionService.onDelete.subscribe(record => this.remove(record._id));
-    this.connectionService.onRead.subscribe(records => this.add(records));
-    this.connectionService.onUpdate.subscribe(record => this.replace(record._id, record));
+    this.connectionService.onRead.subscribe(records => this.upsertMany(records));
+    this.connectionService.onUpdate.subscribe(record => this.update(record._id, record));
   }
 }
 

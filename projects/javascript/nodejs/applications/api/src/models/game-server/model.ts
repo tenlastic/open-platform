@@ -24,7 +24,9 @@ import { Game, GameDocument } from '../game';
 import { User, UserDocument } from '../user';
 
 export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
-GameServerEvent.on(kafka.publish);
+GameServerEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 @index({ gameId: 1 })
 @index({ port: 1 }, { unique: true })

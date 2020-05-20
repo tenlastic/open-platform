@@ -11,7 +11,6 @@ export interface IOnLogin {
 @Injectable({ providedIn: 'root' })
 export class LoginService {
   public basePath: string;
-  public emitEvents = true;
 
   public onLogin = new EventEmitter<IOnLogin>();
   public onLogout = new EventEmitter();

@@ -21,7 +21,9 @@ import { Group, GroupDocument } from '../group';
 import { User, UserDocument } from '../user';
 
 export const MessageEvent = new EventEmitter<IDatabasePayload<MessageDocument>>();
-MessageEvent.on(kafka.publish);
+MessageEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 @index({ fromUserId: 1 })
 @index({ readByUserIds: 1 })

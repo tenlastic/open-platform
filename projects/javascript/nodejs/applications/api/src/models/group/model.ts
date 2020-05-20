@@ -21,7 +21,9 @@ import { User, UserDocument } from '../user';
 
 // Publish to Kafka.
 export const GroupEvent = new EventEmitter<IDatabasePayload<GroupDocument>>();
-GroupEvent.on(kafka.publish);
+GroupEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 // Delete Groups without Users.
 setInterval(async () => {

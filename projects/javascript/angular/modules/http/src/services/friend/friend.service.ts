@@ -7,7 +7,6 @@ import { EnvironmentService } from '../environment/environment.service';
 @Injectable({ providedIn: 'root' })
 export class FriendService {
   public basePath: string;
-  public emitEvents = true;
 
   public onCreate = new EventEmitter<Friend>();
   public onDelete = new EventEmitter<Friend>();
@@ -28,10 +27,7 @@ export class FriendService {
     const response = await this.apiService.request('post', this.basePath, parameters);
 
     const record = new Friend(response.record);
-
-    if (this.emitEvents) {
-      this.onCreate.emit(record);
-    }
+    this.onCreate.emit(record);
 
     return record;
   }
@@ -40,10 +36,7 @@ export class FriendService {
     const response = await this.apiService.request('delete', `${this.basePath}/${_id}`, null);
 
     const record = new Friend(response.record);
-
-    if (this.emitEvents) {
-      this.onDelete.emit(record);
-    }
+    this.onDelete.emit(record);
 
     return record;
   }

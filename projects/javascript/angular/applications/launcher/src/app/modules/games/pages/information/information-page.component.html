@@ -13,7 +13,7 @@
             }"
           >
             <video #video *ngIf="mainMedia.type === 'video'" autoplay controls>
-              <source [src]="mainMedia.src + '?timestamp=' + timestamp" type="video/mp4" />
+              <source [src]="mainMedia.src" type="video/mp4" />
             </video>
           </mat-grid-tile>
         </mat-grid-list>
@@ -25,7 +25,7 @@
             (click)="selectMedia(i, 'video')"
           >
             <video preload="metadata">
-              <source [src]="video + '?timestamp=' + timestamp" type="video/mp4" />
+              <source [src]="video" type="video/mp4" />
             </video>
             <mat-icon>play_arrow</mat-icon>
           </mat-grid-tile>

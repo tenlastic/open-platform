@@ -31,7 +31,9 @@ import { RefreshToken } from '../refresh-token/model';
 import { UserPermissions } from './';
 
 const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
-UserEvent.on(kafka.publish);
+UserEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 @index({ email: 1 }, { unique: true })
 @index(

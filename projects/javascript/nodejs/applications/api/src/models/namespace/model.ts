@@ -21,7 +21,9 @@ import { UserDocument } from '../user';
 import { UserRolesDocument, UserRoles } from './user-roles';
 
 export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocument>>();
-NamespaceEvent.on(kafka.publish);
+NamespaceEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 @index({ name: 1 }, { unique: true })
 @index({ 'accessControlList.roles': 1 })

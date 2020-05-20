@@ -22,7 +22,9 @@ import * as emails from '../../emails';
 import { UserSchema } from '../user/model';
 
 export const PasswordResetEvent = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
-PasswordResetEvent.on(kafka.publish);
+PasswordResetEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ hash: 1 }, { unique: true })

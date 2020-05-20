@@ -19,8 +19,6 @@ export class SocketService {
       return;
     }
 
-    service.emitEvents = false;
-
     const url = new URL(service.basePath.replace('http', 'ws'));
     const urlWithoutSearchString = url.href.replace(url.search, '');
 

@@ -3,7 +3,7 @@
  * Source: https://basarat.gitbooks.io/typescript/docs/tips/typed-event.html
  */
 
-type Listener<T> = (event: T) => Promise<any>;
+type Listener<T> = (event: T) => void | Promise<any>;
 
 export interface Disposable {
   dispose(): any;

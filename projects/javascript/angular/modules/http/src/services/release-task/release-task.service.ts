@@ -7,7 +7,6 @@ import { EnvironmentService } from '../environment/environment.service';
 @Injectable({ providedIn: 'root' })
 export class ReleaseTaskService {
   public basePath: string;
-  public emitEvents = true;
 
   public onCreate = new EventEmitter<ReleaseTask>();
   public onDelete = new EventEmitter<ReleaseTask>();
@@ -25,10 +24,7 @@ export class ReleaseTaskService {
     );
 
     const record = new ReleaseTask(response.record);
-
-    if (this.emitEvents) {
-      this.onDelete.emit(record);
-    }
+    this.onDelete.emit(record);
 
     return record;
   }

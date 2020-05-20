@@ -21,7 +21,9 @@ import { MINIO_BUCKET } from '../../constants';
 import { Release, ReleaseDocument, ReleaseEvent } from '../release';
 
 export const FileEvent = new EventEmitter<IDatabasePayload<FileDocument>>();
-FileEvent.on(kafka.publish);
+FileEvent.on(payload => {
+  kafka.publish(payload);
+});
 FileEvent.on(async event => {
   switch (event.operationType) {
     case 'delete':

@@ -22,7 +22,9 @@ import { UserDocument } from '../user/model';
 
 // Publish changes to Kafka.
 const ConnectionEvent = new EventEmitter<IDatabasePayload<ConnectionDocument>>();
-ConnectionEvent.on(kafka.publish);
+ConnectionEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 // Delete stale Connections.
 const HEARTBEAT = 15000;

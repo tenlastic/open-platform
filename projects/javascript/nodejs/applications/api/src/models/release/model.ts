@@ -19,7 +19,9 @@ import * as mongoose from 'mongoose';
 import { Game, GameDocument } from '../game';
 
 export const ReleaseEvent = new EventEmitter<IDatabasePayload<ReleaseDocument>>();
-ReleaseEvent.on(kafka.publish);
+ReleaseEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 @index({ version: 1 }, { unique: true })
 @index({ gameId: 1 })

@@ -21,7 +21,9 @@ import * as mongoose from 'mongoose';
 import { Namespace, NamespaceDocument } from '../namespace';
 
 export const GameEvent = new EventEmitter<IDatabasePayload<GameDocument>>();
-GameEvent.on(kafka.publish);
+GameEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 @index({ slug: 1 }, { unique: true })
 @index({ title: 1 }, { unique: true })

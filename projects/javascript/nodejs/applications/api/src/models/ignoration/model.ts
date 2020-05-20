@@ -19,7 +19,9 @@ import * as mongoose from 'mongoose';
 import { User, UserDocument } from '../user';
 
 export const IgnorationEvent = new EventEmitter<IDatabasePayload<IgnorationDocument>>();
-IgnorationEvent.on(kafka.publish);
+IgnorationEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 @index({ fromUserId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({

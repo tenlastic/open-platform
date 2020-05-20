@@ -19,7 +19,9 @@ import * as mongoose from 'mongoose';
 import { User, UserDocument } from '../user';
 
 export const FriendEvent = new EventEmitter<IDatabasePayload<FriendDocument>>();
-FriendEvent.on(kafka.publish);
+FriendEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 @index({ fromUserId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({

@@ -90,6 +90,7 @@ mailgun.setCredentials(process.env.MAILGUN_DOMAIN, process.env.MAILGUN_KEY);
 const connectionString = process.env.MONGO_CONNECTION_STRING;
 mongoose.connect(connectionString, {
   dbName: MONGO_DATABASE_NAME,
+  poolSize: 25,
   useCreateIndex: true,
   useFindAndModify: false,
   useNewUrlParser: true,

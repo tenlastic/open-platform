@@ -17,8 +17,8 @@ export class FriendStore extends EntityStore<FriendState, Friend> {
 
     this.friendService.onCreate.subscribe(record => this.add(record));
     this.friendService.onDelete.subscribe(record => this.remove(record._id));
-    this.friendService.onRead.subscribe(records => this.add(records));
-    this.friendService.onUpdate.subscribe(record => this.replace(record._id, record));
+    this.friendService.onRead.subscribe(records => this.upsertMany(records));
+    this.friendService.onUpdate.subscribe(record => this.update(record._id, record));
   }
 }
 
