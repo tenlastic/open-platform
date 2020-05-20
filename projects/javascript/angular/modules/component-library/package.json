@@ -3,7 +3,7 @@
   "name": "@tenlastic/ng-component-library",
   "private": true,
   "typings": "./dist/angular/module.d.ts",
-  "version": "0.0.68",
+  "version": "0.0.69",
   "scripts": {
     "build": "ng build component-library",
     "lint": "ng lint component-library",
