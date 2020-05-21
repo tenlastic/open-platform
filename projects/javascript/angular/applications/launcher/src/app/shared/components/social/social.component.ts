@@ -61,6 +61,7 @@ export class SocialComponent implements OnDestroy, OnInit {
   public fetchFriendUser$ = new Subscription();
   public fetchIgnorationUser$ = new Subscription();
   public fetchMessageUser$ = new Subscription();
+  public fetchUserConnections$ = new Subscription();
   public fetchUserGroup$ = new Subscription();
   public newMessageNotification$ = new Subscription();
   public updateConversations$ = new Subscription();
@@ -154,6 +155,9 @@ export class SocialComponent implements OnDestroy, OnInit {
         ? this.userService.find({ where: { _id: { $in: missingUserIds } } })
         : null;
     });
+    this.fetchUserConnections$ = this.$users.subscribe(users => {
+      return this.connectionService.find({ where: { userId: { $in: users.map(u => u._id) } } });
+    });
     this.fetchUserGroup$ = this.$users.subscribe(users => {
       return this.groupService.find({ where: { userIds: { $in: users.map(u => u._id) } } });
     });
@@ -207,6 +211,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.fetchFriendUser$.unsubscribe();
     this.fetchIgnorationUser$.unsubscribe();
     this.fetchMessageUser$.unsubscribe();
+    this.fetchUserConnections$.unsubscribe();
     this.fetchUserGroup$.unsubscribe();
     this.newMessageNotification$.unsubscribe();
     this.updateConversations$.unsubscribe();

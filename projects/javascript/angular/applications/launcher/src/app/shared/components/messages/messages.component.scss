@@ -7,10 +7,12 @@
   bottom: 0px;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 50%;
+  max-height: 400px;
+  max-width: 800px;
   position: absolute;
   right: 0px;
-  width: 450px;
+  width: 50%;
   z-index: 1;
 }
 
