@@ -16,6 +16,7 @@ export class GameService {
 
   public onCreate = new EventEmitter<Game>();
   public onDelete = new EventEmitter<Game>();
+  public onRead = new EventEmitter<Game[]>();
   public onUpdate = new EventEmitter<Game>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
@@ -49,13 +50,19 @@ export class GameService {
   public async find(parameters: RestParameters): Promise<Game[]> {
     const response = await this.apiService.request('get', this.basePath, parameters);
 
-    return response.records.map(record => new Game(record));
+    const records = response.records.map(record => new Game(record));
+    this.onRead.emit(records);
+
+    return records;
   }
 
   public async findOne(slug: string): Promise<Game> {
     const response = await this.apiService.request('get', `${this.basePath}/${slug}`, null);
 
-    return new Game(response.record);
+    const record = new Game(response.record);
+    this.onRead.emit([record]);
+
+    return record;
   }
 
   public async update(parameters: Partial<Game>): Promise<Game> {

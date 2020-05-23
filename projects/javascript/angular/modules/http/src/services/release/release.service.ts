@@ -10,6 +10,7 @@ export class ReleaseService {
 
   public onCreate = new EventEmitter<Release>();
   public onDelete = new EventEmitter<Release>();
+  public onRead = new EventEmitter<Release[]>();
   public onUpdate = new EventEmitter<Release>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
@@ -37,13 +38,19 @@ export class ReleaseService {
   public async find(parameters: RestParameters): Promise<Release[]> {
     const response = await this.apiService.request('get', `${this.basePath}`, parameters);
 
-    return response.records.map(record => new Release(record));
+    const records = response.records.map(record => new Release(record));
+    this.onRead.emit(records);
+
+    return records;
   }
 
   public async findOne(_id: string): Promise<Release> {
     const response = await this.apiService.request('get', `${this.basePath}/${_id}`, null);
 
-    return new Release(response.record);
+    const record = new Release(response.record);
+    this.onRead.emit([record]);
+
+    return record;
   }
 
   public async update(parameters: Partial<Release>): Promise<Release> {

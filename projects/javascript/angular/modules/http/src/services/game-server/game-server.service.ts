@@ -16,6 +16,7 @@ export class GameServerService {
 
   public onCreate = new EventEmitter<GameServer>();
   public onDelete = new EventEmitter<GameServer>();
+  public onRead = new EventEmitter<GameServer[]>();
   public onUpdate = new EventEmitter<GameServer>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
@@ -47,13 +48,19 @@ export class GameServerService {
   public async find(parameters: RestParameters): Promise<GameServer[]> {
     const response = await this.apiService.request('get', this.basePath, parameters);
 
-    return response.records.map(record => new GameServer(record));
+    const records = response.records.map(record => new GameServer(record));
+    this.onRead.emit(records);
+
+    return records;
   }
 
   public async findOne(_id: string): Promise<GameServer> {
     const response = await this.apiService.request('get', `${this.basePath}/${_id}`, null);
 
-    return new GameServer(response.record);
+    const record = new GameServer(response.record);
+    this.onRead.emit([record]);
+
+    return record;
   }
 
   public async update(parameters: Partial<GameServer>): Promise<GameServer> {

@@ -4,7 +4,7 @@ import { ComponentLibraryModule } from '@tenlastic/ng-component-library';
 
 import { SharedModule } from '../../shared/shared.module';
 import { ArticleDialogComponent, LayoutComponent, StatusComponent } from './components';
-import { InformationPageComponent } from './pages';
+import { GameServersPageComponent, InformationPageComponent } from './pages';
 
 export const ROUTES: Routes = [
   {
@@ -17,6 +17,11 @@ export const ROUTES: Routes = [
       {
         component: InformationPageComponent,
         path: ':slug',
+        pathMatch: 'full',
+      },
+      {
+        component: GameServersPageComponent,
+        path: ':slug/game-servers',
       },
     ],
     component: LayoutComponent,
@@ -27,8 +32,9 @@ export const ROUTES: Routes = [
 @NgModule({
   declarations: [
     ArticleDialogComponent,
-    LayoutComponent,
+    GameServersPageComponent,
     InformationPageComponent,
+    LayoutComponent,
     StatusComponent,
   ],
   entryComponents: [ArticleDialogComponent],

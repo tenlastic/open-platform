@@ -10,6 +10,7 @@ export class ArticleService {
 
   public onCreate = new EventEmitter<Article>();
   public onDelete = new EventEmitter<Article>();
+  public onRead = new EventEmitter<Article[]>();
   public onUpdate = new EventEmitter<Article>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
@@ -37,13 +38,19 @@ export class ArticleService {
   public async find(parameters: RestParameters): Promise<Article[]> {
     const response = await this.apiService.request('get', `${this.basePath}`, parameters);
 
-    return response.records.map(record => new Article(record));
+    const records = response.records.map(record => new Article(record));
+    this.onRead.emit(records);
+
+    return records;
   }
 
   public async findOne(_id: string): Promise<Article> {
     const response = await this.apiService.request('get', `${this.basePath}/${_id}`, null);
 
-    return new Article(response.record);
+    const record = new Article(response.record);
+    this.onRead.emit([record]);
+
+    return record;
   }
 
   public async update(parameters: Partial<Article>): Promise<Article> {

@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Game } from '@tenlastic/ng-http';
 
 import { UpdateService, UpdateServiceState, UpdateServiceStatus } from '../../../../core/services';
@@ -114,7 +115,11 @@ export class StatusComponent implements OnInit {
     }
   }
 
-  constructor(private updateService: UpdateService) {}
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
+    private updateService: UpdateService,
+  ) {}
 
   public ngOnInit() {
     if (this.updateService) {
@@ -126,7 +131,7 @@ export class StatusComponent implements OnInit {
     if (this.status.state === UpdateServiceState.Ready && this.status.childProcess) {
       this.updateService.stop(this.game);
     } else if (this.status.state === UpdateServiceState.Ready && !this.status.childProcess) {
-      this.updateService.play(this.game);
+      this.router.navigate(['game-servers'], { relativeTo: this.activatedRoute });
     } else {
       this.updateService.update(this.game);
     }

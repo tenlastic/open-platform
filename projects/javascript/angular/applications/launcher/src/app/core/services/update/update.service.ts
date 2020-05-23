@@ -17,6 +17,11 @@ export enum UpdateServiceState {
   Ready,
 }
 
+export interface UpdateServicePlayOptions {
+  gameServerId?: string;
+  groupId?: string;
+}
+
 export interface UpdateServiceProgress {
   current?: number;
   total?: number;
@@ -155,14 +160,24 @@ export class UpdateService {
     return this.status.get(game._id);
   }
 
-  public play(game: Game) {
+  public play(game: Game, options: UpdateServicePlayOptions = {}) {
     const status = this.getStatus(game);
     const target = `${this.installPath}/${game.slug}/${status.release.entrypoint}.exe`;
 
-    status.childProcess = this.electronService.childProcess.execFile(target, [
-      `--accessToken ${this.identityService.accessToken}`,
-      `--refreshToken ${this.identityService.refreshToken}`,
-    ]);
+    const args = [
+      '--access-token',
+      this.identityService.accessToken,
+      '--refresh-token',
+      this.identityService.refreshToken,
+    ];
+    if (options.gameServerId) {
+      args.push('--game-server-id', options.gameServerId);
+    }
+    if (options.groupId) {
+      args.push('--group-id', options.groupId);
+    }
+
+    status.childProcess = this.electronService.childProcess.execFile(target, args);
     status.childProcess.on('close', () => (status.childProcess = null));
   }
 

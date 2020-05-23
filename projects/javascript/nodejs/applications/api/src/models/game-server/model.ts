@@ -145,7 +145,7 @@ export class GameServerSchema {
           spec: {
             containers: [
               {
-                args: ['--gameServerId', this._id.toHexString()],
+                args: ['--game-server-id', this._id.toHexString()],
                 image,
                 name,
                 ports: [

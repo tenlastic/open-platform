@@ -33,6 +33,7 @@ import { router as releaseTasksRouter } from './handlers/release-tasks';
 import { router as releasesRouter } from './handlers/releases';
 import { router as usersRouter } from './handlers/users';
 import * as connectionSockets from './sockets/connections';
+import * as gameServerSockets from './sockets/game-servers';
 import * as groupInvitiationSockets from './sockets/group-invitations';
 import * as groupSockets from './sockets/groups';
 import * as messageSockets from './sockets/messages';
@@ -139,6 +140,7 @@ webServer.start();
 // Web Sockets.
 const webSocketServer = new WebSocketServer(webServer.server);
 webSocketServer.connection('/connections', connectionSockets.onConnection);
+webSocketServer.connection('/game-servers', gameServerSockets.onConnection);
 webSocketServer.connection('/group-invitations', groupInvitiationSockets.onConnection);
 webSocketServer.connection('/groups', groupSockets.onConnection);
 webSocketServer.connection('/messages', messageSockets.onConnection);

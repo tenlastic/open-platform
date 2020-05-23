@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import { ElectronService } from '@tenlastic/ng-electron';
-import { Article, ArticleService, Game, GameService } from '@tenlastic/ng-http';
+import { Article, ArticleService, Game, GameService, GameStore } from '@tenlastic/ng-http';
 
 import { BackgroundService } from '../../../../core/services';
 import { ArticleDialogComponent, StatusComponent } from '../../components';
@@ -33,6 +33,7 @@ export class InformationPageComponent implements OnInit {
     public electronService: ElectronService,
     public identityService: IdentityService,
     private gameService: GameService,
+    private gameStore: GameStore,
     private matDialog: MatDialog,
     private router: Router,
   ) {}
@@ -52,6 +53,7 @@ export class InformationPageComponent implements OnInit {
       }
 
       this.game = await this.gameService.findOne(slug);
+      this.gameStore.setActive(this.game._id);
 
       if (this.game.images.length > 0) {
         this.selectMedia(0, 'image');

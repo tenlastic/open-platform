@@ -10,7 +10,7 @@
         <div
           class="row"
           [formArrayName]="key"
-          *ngFor="let item of form['controls'].key['controls']; let i = index"
+          *ngFor="let item of form.controls[key].controls; let i = index"
         >
           <mat-form-field floatLabel="always">
             <mat-label>Element #{{ i + 1 }}</mat-label>

@@ -41,12 +41,16 @@ export * from './services/release/release.service';
 export * from './services/release-task/release-task.service';
 export * from './services/user/user.service';
 
+export * from './states/article';
 export * from './states/connection';
 export * from './states/friend';
+export * from './states/game';
+export * from './states/game-server';
 export * from './states/group';
 export * from './states/group-invitation';
 export * from './states/ignoration';
 export * from './states/message';
+export * from './states/release';
 export * from './states/user';
 
 export * from './module';

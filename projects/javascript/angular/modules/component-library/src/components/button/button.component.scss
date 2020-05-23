@@ -105,6 +105,7 @@
       &[disabled] {
         background: #707070;
         cursor: initial;
+        pointer-events: none;
 
         &:hover {
           background: #707070;

@@ -321,21 +321,30 @@ snack-bar-container.mat-snack-bar-container {
 table.mat-table {
   background: transparent;
   border: 1px solid rgba(0, 0, 0, 0.5);
+  width: 100%;
 
   button.mat-sort-header-button {
     color: white;
   }
 
   div.mat-sort-header-stem {
-    color: white;
+    color: #ffff77;
   }
 
   div.mat-sort-header-indicator {
-    color: white;
+    color: #ffff77;
   }
 
   td.mat-cell {
     color: white;
+  }
+
+  .mat-column-actions {
+    text-align: right;
+
+    ten-button {
+      margin-left: 8px;
+    }
   }
 
   .mat-header-row {

@@ -7,6 +7,8 @@ import { ElectronService } from '@tenlastic/ng-electron';
 import {
   Connection,
   ConnectionService,
+  GameServer,
+  GameServerService,
   Group,
   GroupInvitation,
   GroupInvitationService,
@@ -34,6 +36,7 @@ export class AppComponent implements OnInit {
     private connectionService: ConnectionService,
     private crudSnackbarService: CrudSnackbarService,
     private electronService: ElectronService,
+    private gameServerService: GameServerService,
     private groupService: GroupService,
     private groupInvitationService: GroupInvitationService,
     private loginService: LoginService,
@@ -66,6 +69,7 @@ export class AppComponent implements OnInit {
 
   private watch() {
     this.socketService.watch(Connection, this.connectionService, {});
+    this.socketService.watch(GameServer, this.gameServerService, {});
     this.socketService.watch(Group, this.groupService, {});
     this.socketService.watch(GroupInvitation, this.groupInvitationService, {});
     this.socketService.watch(Message, this.messageService, {});
