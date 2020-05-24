@@ -20,13 +20,15 @@ export async function publish<T extends Document>(msg: IDatabasePayload<T>) {
 
   await producer.send({ topic, messages: [{ key, value }] });
 
-  console.log({
-    collection: coll,
-    database: db,
-    documentKey: msg.documentKey,
-    duration: Date.now() - start,
-    label: 'publish()',
-    operationType: msg.operationType,
-    package: 'mongoose-change-stream-kafka',
-  });
+  if (process.env.NODE_ENV !== 'test') {
+    console.log({
+      collection: coll,
+      database: db,
+      documentKey: msg.documentKey,
+      duration: Date.now() - start,
+      label: 'publish()',
+      operationType: msg.operationType,
+      package: 'mongoose-change-stream-kafka',
+    });
+  }
 }

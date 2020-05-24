@@ -236,7 +236,7 @@ async function publishRemoveMessage(
     throw new PermissionError();
   }
 
-  const releaseTask = await new ReleaseTask({
+  const releaseTask = await ReleaseTask.create({
     action: ReleaseTaskAction.Remove,
     metadata: { removed: fields.removed },
     platform: targetFile.platform,
