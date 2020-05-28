@@ -15,6 +15,7 @@ import * as k8s from '@kubernetes/client-node';
 import {
   EventEmitter,
   IDatabasePayload,
+  IOriginalDocument,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
@@ -49,7 +50,7 @@ GameServerEvent.on(payload => {
   this.port = this.port || this.getRandomPort();
 })
 @post('save', async function(this: GameServerDocument) {
-  if (!this.isModified('releaseId')) {
+  if (!this.wasNew && !this.wasModified.includes('releaseId')) {
     return;
   }
 
@@ -63,7 +64,7 @@ GameServerEvent.on(payload => {
     await this.deleteKubernetesResources();
   }
 })
-export class GameServerSchema {
+export class GameServerSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
 
   @arrayProp({ itemsRef: User })
@@ -111,6 +112,10 @@ export class GameServerSchema {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: Game })
   public gameDocument: GameDocument[];
+
+  public _original: any;
+  public wasModified: string[];
+  public wasNew: boolean;
 
   /**
    * Creates a deployment and service within Kubernetes for the Game Server.

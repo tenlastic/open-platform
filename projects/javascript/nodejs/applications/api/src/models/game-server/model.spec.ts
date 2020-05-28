@@ -53,7 +53,7 @@ afterEach(function() {
 describe('models/game-server/model', function() {
   describe('createKubernetesResources()', function() {
     it(`creates Kubernetes resources`, async function() {
-      await GameServerMock.create({ releaseId: mongoose.Types.ObjectId() });
+      await GameServerMock.create();
 
       expect(createNamespacedDeploymentStub.calledOnce).to.eql(true);
       expect(createNamespacedServiceStub.calledOnce).to.eql(true);
@@ -68,7 +68,7 @@ describe('models/game-server/model', function() {
 
   describe('deleteKubernetesResources()', function() {
     it(`removes created Kubernetes resources`, async function() {
-      await GameServerMock.create({ releaseId: mongoose.Types.ObjectId() });
+      await GameServerMock.create();
 
       expect(deleteNamespacedDeploymentStub.calledOnce).to.eql(true);
       expect(deleteNamespacedServiceStub.calledOnce).to.eql(true);
