@@ -7,17 +7,30 @@
   {{ message }}
 </ten-system-toolbar>
 
-<ten-header-toolbar>
+<ten-header-toolbar *ngIf="$activeGame | async as activeGame">
   <img src="/assets/images/logo.png" />
 
   <ten-button
     *ngIf="identityService.user"
     color="accent"
-    routerLink="/"
-    [ngClass]="{ active: !router.url.includes('/account') }"
+    [routerLink]="[activeGame.slug]"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
   >
     <mat-icon>home</mat-icon>
     <span>Home</span>
+  </ten-button>
+
+  <ten-button
+    *ngIf="electronService.isElectron && identityService.user"
+    [ngClass]="{ disabled: ($isReady | async) === false }"
+    color="accent"
+    [disabled]="($isReady | async) === false"
+    [routerLink]="[activeGame.slug, 'game-servers']"
+    routerLinkActive="active"
+  >
+    <mat-icon>dns</mat-icon>
+    <span>Game Servers</span>
   </ten-button>
 
   <span class="space"></span>
@@ -82,6 +95,6 @@
   </ten-button>
 </ten-header-toolbar>
 
-<div class="content">
+<div *ngIf="$activeGame | async as activeGame" class="content">
   <app-social></app-social>
 </div>

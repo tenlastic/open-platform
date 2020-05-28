@@ -9,6 +9,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
         'allowedUserIds',
         'description',
         'gameId',
+        'heartbeatAt',
         'maxUsers',
         'metadata.*',
         'name',
@@ -38,6 +39,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'currentUserIds',
       'description',
       'gameId',
+      'heartbeatAt',
       'maxUsers',
       'metadata.*',
       'name',
@@ -63,8 +65,10 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
     roles: {
       administrator: [
         'allowedUserIds',
+        'currentUserIds',
         'description',
         'gameId',
+        'heartbeatAt',
         'maxUsers',
         'metadata.*',
         'name',

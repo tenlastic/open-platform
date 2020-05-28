@@ -9,6 +9,10 @@
 ::ng-deep {
   app-layout {
     ten-button {
+      &.disabled {
+        pointer-events: none;
+      }
+
       &.offline {
         div.name,
         div.status,
@@ -21,6 +25,10 @@
         div.status {
           color: #ffff55;
         }
+      }
+
+      a[color='accent'][disabled] {
+        opacity: 0.5;
       }
 
       div.label {

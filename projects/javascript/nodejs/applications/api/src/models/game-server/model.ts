@@ -49,6 +49,10 @@ GameServerEvent.on(payload => {
   this.port = this.port || this.getRandomPort();
 })
 @post('save', async function(this: GameServerDocument) {
+  if (!this.isModified('releaseId')) {
+    return;
+  }
+
   // Delete outdated resources.
   await this.deleteKubernetesResources();
 
@@ -75,6 +79,9 @@ export class GameServerSchema {
 
   @prop({ ref: Game, required: true })
   public gameId: Ref<GameDocument>;
+
+  @prop()
+  public heartbeatAt: Date;
 
   @prop()
   public maxUsers: number;

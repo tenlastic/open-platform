@@ -57,6 +57,7 @@ export class AppComponent implements OnInit {
 
   public ngOnInit() {
     this.watch();
+    this.identityService.OnAccessTokenSet.subscribe(() => this.watch());
   }
 
   public navigateToLogin() {
@@ -68,6 +69,8 @@ export class AppComponent implements OnInit {
   }
 
   private watch() {
+    this.socketService.closeAll();
+
     this.socketService.watch(Connection, this.connectionService, {});
     this.socketService.watch(GameServer, this.gameServerService, {});
     this.socketService.watch(Group, this.groupService, {});

@@ -144,6 +144,8 @@ export class UpdateService {
       status.modifiedFiles = updatedFiles;
       status.progress = null;
       status.state = UpdateServiceState.NotUpdated;
+
+      this.update(status.game);
     } else {
       status.modifiedFiles = [];
       status.progress = null;

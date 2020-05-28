@@ -1,7 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ElectronService } from '@tenlastic/ng-electron';
-import { Game, GameService } from '@tenlastic/ng-http';
+import { Game, GameQuery, GameService, GameStore } from '@tenlastic/ng-http';
+import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { BackgroundService, UpdateService, UpdateServiceState } from '../../../../core/services';
 
@@ -10,23 +12,37 @@ import { BackgroundService, UpdateService, UpdateServiceState } from '../../../.
   templateUrl: './layout.component.html',
 })
 export class LayoutComponent implements OnDestroy, OnInit {
+  public get $activeGame() {
+    return this.gameQuery.selectActive() as Observable<Game>;
+  }
+  public $games: Observable<Game[]>;
+  public get $showStatusComponent() {
+    return this.$activeGame.pipe(
+      map(game => {
+        if (!this.electronService.isElectron || !game) {
+          return null;
+        }
+
+        const status = this.updateService.getStatus(game);
+        if (!status) {
+          return null;
+        }
+
+        return status.state === UpdateServiceState.Ready ? null : game;
+      }),
+    );
+  }
   public games: Game[] = [];
 
   constructor(
     private backgroundService: BackgroundService,
     public electronService: ElectronService,
-    private gameService: GameService,
-    private router: Router,
+    private gameQuery: GameQuery,
     public updateService: UpdateService,
   ) {}
 
   public async ngOnInit() {
-    this.games = await this.gameService.find({});
-
-    const previousGameSlug = localStorage.getItem('previousGameSlug');
-    if (!previousGameSlug) {
-      this.router.navigate(['/games', this.games[0].slug]);
-    }
+    this.$games = this.gameQuery.selectAll();
   }
 
   public ngOnDestroy() {

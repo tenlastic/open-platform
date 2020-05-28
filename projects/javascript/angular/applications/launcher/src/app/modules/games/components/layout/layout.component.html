@@ -20,5 +20,6 @@
 
   <div class="content">
     <router-outlet></router-outlet>
+    <app-status *ngIf="$showStatusComponent | async as game" [game]="game"></app-status>
   </div>
 </ten-sidenav>

@@ -2,7 +2,6 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
-import { ElectronService } from '@tenlastic/ng-electron';
 import { Article, ArticleService, Game, GameService, GameStore } from '@tenlastic/ng-http';
 
 import { BackgroundService } from '../../../../core/services';
@@ -30,7 +29,6 @@ export class InformationPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private articleService: ArticleService,
     private backgroundService: BackgroundService,
-    public electronService: ElectronService,
     public identityService: IdentityService,
     private gameService: GameService,
     private gameStore: GameStore,

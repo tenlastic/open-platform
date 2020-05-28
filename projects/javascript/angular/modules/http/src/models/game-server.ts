@@ -5,6 +5,7 @@ export class GameServer extends Model {
   public currentUserIds: string[];
   public description: string;
   public gameId: string;
+  public heartbeatAt: Date;
   public maxUsers: number;
   public metadata: any;
   public name: string;
@@ -14,5 +15,7 @@ export class GameServer extends Model {
 
   constructor(params?: Partial<GameServer>) {
     super(params);
+
+    this.heartbeatAt = params.heartbeatAt ? new Date(params.heartbeatAt) : null;
   }
 }

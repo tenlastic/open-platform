@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { IOnLogin, LoginService, User, UserService } from '@tenlastic/ng-http';
 import jwtDecode from 'jwt-decode';
 
@@ -20,6 +20,9 @@ export class Jwt {
 
 @Injectable({ providedIn: 'root' })
 export class IdentityService {
+  public OnAccessTokenSet = new EventEmitter<string>();
+  public OnRefreshTokenSet = new EventEmitter<string>();
+
   public get accessToken() {
     if (this._accessToken) {
       return this._accessToken;
@@ -38,6 +41,7 @@ export class IdentityService {
     }
 
     this._accessToken = value;
+    this.OnAccessTokenSet.emit(value);
   }
   public get accessTokenJwt() {
     return this.accessToken ? new Jwt(this.accessToken) : null;
@@ -60,6 +64,7 @@ export class IdentityService {
     }
 
     this._refreshToken = value;
+    this.OnRefreshTokenSet.emit(value);
   }
   public get refreshTokenJwt() {
     return this.refreshToken ? new Jwt(this.refreshToken) : null;

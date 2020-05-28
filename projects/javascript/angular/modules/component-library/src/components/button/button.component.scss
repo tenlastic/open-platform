@@ -77,6 +77,7 @@
     font-family: 'Oswald', sans-serif;
     line-height: normal;
     min-width: initial;
+    outline: none;
     padding: 8px 14px;
 
     &[color='accent'] {
@@ -86,6 +87,15 @@
       &:hover {
         background: rgba(255, 255, 255, 0.1);
         box-shadow: 3px 4px 5px #000000, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
+      }
+
+      &[disabled] {
+        cursor: initial;
+        pointer-events: none;
+
+        &:hover {
+          background: transparent;
+        }
       }
     }
 

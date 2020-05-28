@@ -115,6 +115,7 @@ function createWindow() {
       },
     ]),
   );
+
   win = new BrowserWindow({
     frame: false,
     height: 720,
@@ -128,6 +129,7 @@ function createWindow() {
     x: 0,
     y: 0,
   });
+  win.center();
 
   if (serve) {
     require('electron-reload')(__dirname, {

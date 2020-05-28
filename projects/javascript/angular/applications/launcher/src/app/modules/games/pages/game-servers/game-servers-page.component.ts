@@ -12,7 +12,7 @@ import {
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
-import { UpdateService } from '../../../../core/services';
+import { UpdateService, UpdateServiceState } from '../../../../core/services';
 
 @Component({
   styleUrls: ['./game-servers-page.component.scss'],
@@ -21,7 +21,7 @@ import { UpdateService } from '../../../../core/services';
 export class GameServersPageComponent implements OnInit {
   public $gameServers: Observable<GameServer[]>;
   public $group: Observable<Group>;
-  public displayedColumns = ['name', 'description', 'currentUsers', 'actions'];
+  public displayedColumns = ['name', 'description', 'status', 'currentUsers', 'actions'];
 
   constructor(
     private gameQuery: GameQuery,
@@ -39,6 +39,17 @@ export class GameServersPageComponent implements OnInit {
       .pipe(map(groups => groups[0]));
 
     await this.gameServerService.find({ where: { gameId: this.gameQuery.getActiveId() } });
+  }
+
+  public getStatus(gameServer: GameServer) {
+    if (!gameServer.heartbeatAt) {
+      return 'Unavailable';
+    }
+
+    const date = new Date();
+    date.setSeconds(date.getSeconds() - 30);
+
+    return gameServer.heartbeatAt < date ? 'Unavailable' : 'Available';
   }
 
   public async joinAsGroup(gameServerId: string) {
