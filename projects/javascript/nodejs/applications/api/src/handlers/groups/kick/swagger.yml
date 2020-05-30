@@ -1,0 +1,29 @@
+paths:
+  /groups/{_id}/user-ids/{userId}:
+    delete:
+      summary: Kick
+      tags: [Groups]
+      description: Kicks a user from the group.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Group'

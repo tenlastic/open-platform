@@ -13,7 +13,7 @@
   <ten-button
     *ngIf="identityService.user"
     color="accent"
-    [routerLink]="[activeGame.slug]"
+    [routerLink]="['/', 'games', activeGame.slug]"
     routerLinkActive="active"
     [routerLinkActiveOptions]="{ exact: true }"
   >
@@ -26,7 +26,7 @@
     [ngClass]="{ disabled: ($isReady | async) === false }"
     color="accent"
     [disabled]="($isReady | async) === false"
-    [routerLink]="[activeGame.slug, 'game-servers']"
+    [routerLink]="['/', 'games', activeGame.slug, 'game-servers']"
     routerLinkActive="active"
   >
     <mat-icon>dns</mat-icon>

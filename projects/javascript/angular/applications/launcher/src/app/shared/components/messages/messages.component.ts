@@ -1,4 +1,5 @@
 import { Component, ElementRef, Input, OnChanges, OnDestroy, ViewChild } from '@angular/core';
+import { MatSnackBar } from '@angular/material';
 import { IdentityService } from '@tenlastic/ng-authentication';
 import {
   Connection,
@@ -6,6 +7,7 @@ import {
   Friend,
   FriendQuery,
   FriendService,
+  GroupInvitationService,
   GroupQuery,
   GroupService,
   Ignoration,
@@ -30,6 +32,30 @@ export class MessagesComponent implements OnChanges, OnDestroy {
   @ViewChild('messagesScrollContainer', { static: false })
   public messagesScrollContainer: ElementRef;
 
+  public get $canInvite() {
+    return combineLatest([this.$currentUserGroup, this.$group]).pipe(
+      map(([currentUserGroup, group]) => {
+        if (!currentUserGroup || currentUserGroup.userIds.includes(this.user._id) || group) {
+          return false;
+        }
+
+        return (
+          currentUserGroup.isOpen || currentUserGroup.userIds[0] === this.identityService.user._id
+        );
+      }),
+    );
+  }
+  public get $canKick() {
+    return this.$currentUserGroup.pipe(
+      map(currentUserGroup => {
+        if (!currentUserGroup || !currentUserGroup.userIds.includes(this.user._id)) {
+          return false;
+        }
+
+        return currentUserGroup.userIds[0] === this.identityService.user._id;
+      }),
+    );
+  }
   public get $connection() {
     return this.connectionQuery.selectCount(c => c.userId === this.user._id);
   }
@@ -58,9 +84,11 @@ export class MessagesComponent implements OnChanges, OnDestroy {
     private friendService: FriendService,
     private groupQuery: GroupQuery,
     private groupService: GroupService,
+    private groupInvitationService: GroupInvitationService,
     public identityService: IdentityService,
     private ignorationQuery: IgnorationQuery,
     private ignorationService: IgnorationService,
+    private matSnackBar: MatSnackBar,
     private messageQuery: MessageQuery,
     private messageService: MessageService,
     private userStore: UserStore,
@@ -79,9 +107,32 @@ export class MessagesComponent implements OnChanges, OnDestroy {
     this.userStore.removeActive(this.user._id);
   }
 
+  public async inviteToGroup() {
+    const currentUserGroup = await this.$currentUserGroup.pipe(first()).toPromise();
+
+    try {
+      await this.groupInvitationService.create({
+        groupId: currentUserGroup._id,
+        toUserId: this.user._id,
+      });
+    } catch {}
+
+    this.matSnackBar.open('Invitation sent.', null, { duration: 3000 });
+  }
+
   public async joinGroup() {
     const group = await this.$group.pipe(first()).toPromise();
     return this.groupService.join(group._id);
+  }
+
+  public async kickFromGroup() {
+    const currentUserGroup = await this.$currentUserGroup.pipe(first()).toPromise();
+
+    try {
+      await this.groupService.kick(currentUserGroup._id, this.user._id);
+    } catch {}
+
+    this.matSnackBar.open('User has been kicked from the group.', null, { duration: 3000 });
   }
 
   public async sendMessage($event) {

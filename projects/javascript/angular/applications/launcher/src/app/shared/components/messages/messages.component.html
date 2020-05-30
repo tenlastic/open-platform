@@ -41,6 +41,24 @@
         <mat-icon [ngClass]="{ grey: !async.ignoration }">block</mat-icon>
       </ten-button>
       <ten-button
+        *ngIf="$canInvite | async"
+        color="accent"
+        matTooltip="Invite to Group"
+        matTooltipPosition="below"
+        (OnClick)="inviteToGroup()"
+      >
+        <mat-icon>person_add_alt_1</mat-icon>
+      </ten-button>
+      <ten-button
+        *ngIf="$canKick | async"
+        color="accent"
+        matTooltip="Kick from Group"
+        matTooltipPosition="below"
+        (OnClick)="kickFromGroup()"
+      >
+        <mat-icon>person_remove</mat-icon>
+      </ten-button>
+      <ten-button
         *ngIf="$showJoinGroupButton | async"
         color="accent"
         matTooltip="Join Group"

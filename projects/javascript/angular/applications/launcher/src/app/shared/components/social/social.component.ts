@@ -55,6 +55,11 @@ export class SocialComponent implements OnDestroy, OnInit {
   public $friends: Observable<Friend[]>;
   public $group: Observable<Group>;
   public $groupInvitation: Observable<GroupInvitation>;
+  public get $groupUsersWithoutCurrentUser() {
+    return this.$group.pipe(
+      map(group => group && group.users.filter(u => u._id !== this.identityService.user._id)),
+    );
+  }
   public $ignorations: Observable<Ignoration[]>;
   public $messages: Observable<Message[]>;
   public $users: Observable<User[]>;

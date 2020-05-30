@@ -12,11 +12,11 @@
     <ten-button
       *ngIf="canInvite"
       color="accent"
-      matTooltip="Invite"
+      matTooltip="Invite to Group"
       matTooltipPosition="below"
       (OnClick)="invite()"
     >
-      <mat-icon>person_add</mat-icon>
+      <mat-icon>person_add_alt_1</mat-icon>
     </ten-button>
     <ten-button
       *ngIf="group.userIds.length > 1"
@@ -25,7 +25,7 @@
       matTooltipPosition="below"
       (OnClick)="leave()"
     >
-      <mat-icon>exit_to_app</mat-icon>
+      <mat-icon>person_remove</mat-icon>
     </ten-button>
     <ten-button
       *ngIf="isLeader"

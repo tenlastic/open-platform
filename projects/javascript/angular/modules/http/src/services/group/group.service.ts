@@ -72,6 +72,19 @@ export class GroupService {
     return record;
   }
 
+  public async kick(_id: string, userId: string): Promise<Group> {
+    const response = await this.apiService.request(
+      'delete',
+      `${this.basePath}/${_id}/user-ids/${userId}`,
+      null,
+    );
+
+    const record = new Group(response.record);
+    this.onUpdate.emit(record);
+
+    return record;
+  }
+
   public async leave(_id: string): Promise<Group> {
     const response = await this.apiService.request(
       'delete',

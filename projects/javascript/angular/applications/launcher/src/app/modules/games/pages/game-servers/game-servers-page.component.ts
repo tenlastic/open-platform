@@ -47,7 +47,7 @@ export class GameServersPageComponent implements OnInit {
     }
 
     const date = new Date();
-    date.setSeconds(date.getSeconds() - 30);
+    date.setMinutes(date.getMinutes() - 1);
 
     return gameServer.heartbeatAt < date ? 'Unavailable' : 'Available';
   }

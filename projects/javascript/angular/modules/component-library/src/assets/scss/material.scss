@@ -306,7 +306,9 @@ mat-toolbar.mat-toolbar-single-row {
 }
 
 snack-bar-container.mat-snack-bar-container {
+  background: rgba(0, 0, 0, 0.75);
   color: white;
+  min-width: initial;
   padding-left: 20px;
 
   div.mat-simple-snackbar-action {

@@ -67,7 +67,7 @@
       header="Group"
       [isVisible]="true"
       [showGroup]="false"
-      [users]="group.users | truthy"
+      [users]="$groupUsersWithoutCurrentUser | async | truthy"
     ></app-message-group>
 
     <app-message-group

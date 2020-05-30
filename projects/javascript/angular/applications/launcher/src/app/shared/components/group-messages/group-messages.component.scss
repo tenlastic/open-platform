@@ -23,10 +23,7 @@ div.information-container {
   display: flex;
   flex: 0 0 auto;
   padding: 8px;
-
-  &:first-of-type {
-    margin-bottom: 8px;
-  }
+  z-index: 1;
 
   div.label {
     display: inline-block;
@@ -95,7 +92,7 @@ div.messages-container {
   flex-direction: column-reverse;
   margin: 0px;
   max-width: none;
-  overflow: auto;
+  overflow: hidden auto;
   padding: 8px;
 
   .message {

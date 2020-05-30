@@ -7,7 +7,7 @@ import { handler } from './';
 
 use(chaiAsPromised);
 
-describe('handlers/groups/leave', function() {
+describe('handlers/groups/kick', function() {
   it('returns the record', async function() {
     const otherUser = await UserMock.create();
     const user = await UserMock.create();
@@ -16,8 +16,9 @@ describe('handlers/groups/leave', function() {
     const ctx = new ContextMock({
       params: {
         _id: record._id,
+        userId: otherUser._id,
       },
-      state: { user: otherUser.toObject() },
+      state: { user: user.toObject() },
     });
 
     await handler(ctx as any);
