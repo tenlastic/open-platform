@@ -164,6 +164,10 @@ export class UpdateService {
 
   public play(game: Game, options: UpdateServicePlayOptions = {}) {
     const status = this.getStatus(game);
+    if (status.childProcess) {
+      return;
+    }
+
     const target = `${this.installPath}/${game.slug}/${status.release.entrypoint}.exe`;
 
     const args = [

@@ -13,7 +13,7 @@ export class GameServer extends Model {
   public releaseId: string;
   public url: string;
 
-  constructor(params?: Partial<GameServer>) {
+  constructor(params: Partial<GameServer> = {}) {
     super(params);
 
     this.heartbeatAt = params.heartbeatAt ? new Date(params.heartbeatAt) : null;

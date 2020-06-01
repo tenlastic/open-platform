@@ -35,15 +35,30 @@
       <td mat-cell *matCellDef="let element">
         <ng-container *ngIf="getStatus(element) !== 'Unavailable'">
           <ng-container *ngIf="$group | async; else solo">
-            <ten-button mat-button color="accent" (OnClick)="joinAsIndividual(element._id)">
+            <ten-button
+              mat-button
+              color="accent"
+              [disabled]="status.childProcess"
+              (OnClick)="joinAsIndividual(element._id)"
+            >
               <span>Join as Individual</span>
             </ten-button>
-            <ten-button mat-button color="primary" (OnClick)="joinAsGroup(element._id)">
+            <ten-button
+              mat-button
+              color="primary"
+              [disabled]="status.childProcess"
+              (OnClick)="joinAsGroup(element._id)"
+            >
               <span>Join as Group</span>
             </ten-button>
           </ng-container>
           <ng-template #solo>
-            <ten-button mat-button color="primary" (OnClick)="joinAsIndividual(element._id)">
+            <ten-button
+              mat-button
+              color="primary"
+              [disabled]="status.childProcess"
+              (OnClick)="joinAsIndividual(element._id)"
+            >
               <span>Join as Individual</span>
             </ten-button>
           </ng-template>

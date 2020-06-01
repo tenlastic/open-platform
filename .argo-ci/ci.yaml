@@ -110,7 +110,7 @@ spec:
           - name: revision
       retryStrategy:
         limit: 2
-        retryPolicy: OnError
+        retryPolicy: OnFailure
 
     - name: continuous-integration-angular
       container:
@@ -233,7 +233,7 @@ spec:
             privileged: true
       retryStrategy:
         limit: 2
-        retryPolicy: OnError
+        retryPolicy: OnFailure
 
     - name: publish-electron-applications
       container:
@@ -253,7 +253,7 @@ spec:
         workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
-        retryPolicy: OnError
+        retryPolicy: OnFailure
 
     - name: publish-miscellaneous-docker-images
       container:
@@ -281,7 +281,7 @@ spec:
             privileged: true
       retryStrategy:
         limit: 2
-        retryPolicy: OnError
+        retryPolicy: OnFailure
 
     - name: publish-npm-modules
       container:
@@ -304,7 +304,7 @@ spec:
         workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
-        retryPolicy: OnError
+        retryPolicy: OnFailure
 
     - name: skip-ci
       script:
@@ -321,7 +321,7 @@ spec:
         workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
-        retryPolicy: OnError
+        retryPolicy: OnFailure
 
     - name: terraform
       container:
@@ -337,4 +337,4 @@ spec:
         workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
-        retryPolicy: OnError
+        retryPolicy: OnFailure
