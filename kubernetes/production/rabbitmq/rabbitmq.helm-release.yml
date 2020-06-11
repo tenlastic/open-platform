@@ -12,20 +12,32 @@ spec:
     name: rabbitmq-ha
     version: 1.36.4
   values:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: cloud.google.com/gke-preemptible
+                  operator: DoesNotExist
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+                - key: release
+                  operator: In
+                  values:
+                    - rabbitmq
+            topologyKey: kubernetes.io/hostname
     existingSecret: rabbitmq
-    nodeSelector:
-      cloud.google.com/gke-preemptible: "true"
     persistentVolume:
       enabled: true
       storageClass: standard-expandable
     podAntiAffinity: hard
     podAntiAffinityTopologyKey: kubernetes.io/hostname
     prometheus:
-      exporter:
-        enabled: true
       operator:
         enabled: false
-    replicaCount: 5
+    replicaCount: 3
     resources:
       requests:
         memory: 128M

@@ -18,7 +18,7 @@ spec:
           nodeSelectorTerms:
             - matchExpressions:
                 - key: cloud.google.com/gke-preemptible
-                  operator: Exists
+                  operator: DoesNotExist
       podAntiAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -30,13 +30,9 @@ spec:
             topologyKey: kubernetes.io/hostname
     image:
       tag: 4.0
-    metrics:
-      enabled: true
-      resources:
-        cpu: 50m
     persistentVolume:
       storageClass: standard-expandable
-    replicas: 5
+    replicas: 3
     resources:
       requests:
         memory: 128M

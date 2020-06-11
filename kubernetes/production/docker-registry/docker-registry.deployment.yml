@@ -37,7 +37,6 @@ spec:
               path: /
               port: 5000
           resources: {}
-
           env:
             - name: REGISTRY_AUTH
               value: "htpasswd"
@@ -80,17 +79,16 @@ spec:
             nodeSelectorTerms:
               - matchExpressions:
                   - key: cloud.google.com/gke-preemptible
-                    operator: Exists
+                    operator: DoesNotExist
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
-                  - key: release
+                  - key: app
                     operator: In
                     values:
                       - docker-registry
               topologyKey: kubernetes.io/hostname
-
       volumes:
         - name: auth
           secret:
