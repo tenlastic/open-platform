@@ -15,7 +15,7 @@ module "default_pool" {
   source = "../modules/node-pool"
 
   cluster_name   = "${google_container_cluster.primary.name}"
-  machine_type   = "n1-standard-1"
+  machine_type   = "n1-standard-2"
   max_node_count = 3
   min_node_count = 1
 }
