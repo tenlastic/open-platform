@@ -1,6 +1,6 @@
 {
   "name": "@tenlastic/sso-ui",
-  "version": "0.0.75",
+  "version": "0.0.76",
   "scripts": {
     "build": "ng build --preserve-symlinks --prod sso",
     "docker:build": "sh ../../scripts/docker-build.sh sso sso-ui",
@@ -15,9 +15,9 @@
   "private": true,
   "devDependencies": {
     "@angular/cli": "~8.3.21",
-    "@tenlastic/ng-authentication": "0.0.75",
-    "@tenlastic/ng-component-library": "0.0.75",
-    "@tenlastic/ng-electron": "0.0.75",
-    "@tenlastic/ng-http": "0.0.75"
+    "@tenlastic/ng-authentication": "0.0.76",
+    "@tenlastic/ng-component-library": "0.0.76",
+    "@tenlastic/ng-electron": "0.0.76",
+    "@tenlastic/ng-http": "0.0.76"
   }
 }
