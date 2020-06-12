@@ -41,7 +41,7 @@ spec:
       - name: launcher
         policy: download
         purge: "false"
-    drivesPerNode: 3
+    drivesPerNode: 2
     existingSecret: minio
     mode: distributed
     persistence:
