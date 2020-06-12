@@ -13,19 +13,19 @@ export async function connect(options: ConnectionOptions) {
     connection = await amqp.connect(options.url, { heartbeat: 60 });
   } catch (err) {
     console.error(err);
-    setTimeout(() => connect(options), 1000);
+    setTimeout(() => connect(options), 5000);
 
     return;
   }
 
   connection.on('close', () => {
     console.error('RabbitMQ connection closed.');
-    setTimeout(() => connect(options), 1000);
+    setTimeout(() => connect(options), 5000);
   });
 
   connection.on('error', err => {
     console.error(err);
-    setTimeout(() => connect(options), 1000);
+    setTimeout(() => connect(options), 5000);
   });
 
   events.emit('connect');

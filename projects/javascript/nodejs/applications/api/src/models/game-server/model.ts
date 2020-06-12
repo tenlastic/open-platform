@@ -165,6 +165,12 @@ export class GameServerSchema implements IOriginalDocument {
                     containerPort: 7777,
                   },
                 ],
+                resources: {
+                  requests: {
+                    cpu: '500m',
+                    memory: '500M',
+                  },
+                },
               },
             ],
             imagePullSecrets: [{ name: 'docker-registry-image-pull-secret' }],
