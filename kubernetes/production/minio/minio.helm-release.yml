@@ -54,5 +54,5 @@ spec:
     replicas: 3
     resources:
       requests:
-        memory: 64M
+        memory: 128M
         cpu: 100m

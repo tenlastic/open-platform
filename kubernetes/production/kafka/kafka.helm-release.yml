@@ -33,7 +33,7 @@ spec:
       storageClass: standard-expandable
     prometheus:
       kafka:
-        enabled: true
+        enabled: false
     replicas: 3
     resources:
       requests:

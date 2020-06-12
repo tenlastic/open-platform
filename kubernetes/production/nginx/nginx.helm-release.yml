@@ -19,7 +19,7 @@ spec:
             nodeSelectorTerms:
               - matchExpressions:
                   - key: cloud.google.com/gke-preemptible
-                    operator: Exists
+                    operator: DoesNotExist
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
@@ -47,7 +47,7 @@ spec:
             nodeSelectorTerms:
               - matchExpressions:
                   - key: cloud.google.com/gke-preemptible
-                    operator: Exists
+                    operator: DoesNotExist
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:

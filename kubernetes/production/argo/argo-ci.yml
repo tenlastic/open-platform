@@ -17,7 +17,16 @@ spec:
             nodeSelectorTerms:
               - matchExpressions:
                   - key: cloud.google.com/gke-preemptible
-                    operator: Exists
+                    operator: DoesNotExist
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - argo-ci
+              topologyKey: kubernetes.io/hostname
       containers:
         - name: argo-ci
           image: argoproj/argoci:v1.0.0-alpha1
