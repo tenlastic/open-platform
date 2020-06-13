@@ -1,18 +1,9 @@
-import { DOCUMENT } from '@angular/common';
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { IdentityService } from '@tenlastic/ng-authentication';
-import {
-  ILogIn,
-  IOnRegister,
-  IPasswordResetRequested,
-  LoginFormComponent,
-  RegistrationFormComponent,
-  PasswordResetRequestFormComponent,
-  PasswordResetFormComponent,
-} from '@tenlastic/ng-component-library';
-import { LoginService, PasswordResetService, UserService } from '@tenlastic/ng-http';
+import { ILogIn, LoginFormComponent } from '@tenlastic/ng-component-library';
+import { LoginService } from '@tenlastic/ng-http';
 
 import { TITLE } from '../../../../shared/constants';
 
@@ -30,7 +21,6 @@ export class LoginPageComponent implements OnInit {
   public loadingMessage: string;
 
   constructor(
-    @Inject(DOCUMENT) private document: Document,
     private identityService: IdentityService,
     private loginService: LoginService,
     private router: Router,
@@ -58,7 +48,7 @@ export class LoginPageComponent implements OnInit {
   }
 
   private logIn() {
-    this.router.navigateByUrl('/games');
+    this.router.navigateByUrl('/');
   }
 
   private async refreshToken() {

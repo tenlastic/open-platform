@@ -11,9 +11,17 @@ a.mat-list-item {
   }
 }
 
+button.mat-icon-button[disabled][disabled] {
+  color: rgba(255, 255, 255, 0.25);
+}
+
 button.mat-menu-item {
   height: 36px;
   line-height: 36px;
+}
+
+div.cdk-overlay-dark-backdrop {
+  background: rgba(0, 0, 0, 0.5);
 }
 
 div.mat-autocomplete-panel {
@@ -51,8 +59,12 @@ div.mat-menu-content {
 }
 
 div.mat-menu-panel {
+  backdrop-filter: blur(5px);
   background: rgba(0, 0, 0, 0.5);
   border-radius: 0px;
+  min-height: auto;
+  min-width: auto;
+  overflow: initial;
 
   div.mat-menu-content:not(:empty) {
     padding: 0px;
@@ -73,6 +85,77 @@ div.mat-select-value {
 
 div.mat-sort-header-sorted {
   color: black;
+}
+
+div.mat-tooltip {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 0px;
+  box-shadow: 3px 3px 5px black;
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  padding: 6px 12px;
+  text-shadow: 2px 3px 3px black;
+  white-space: pre-line;
+}
+
+mat-datepicker-content.mat-datepicker-content {
+  background: black;
+  color: white;
+
+  button.mat-calendar-period-button {
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  button.mat-icon-button {
+    border-radius: 0px;
+    color: white;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  div.mat-calendar-arrow {
+    border-top-color: #ffff77;
+  }
+
+  div.mat-calendar-body-cell-content {
+    border-radius: 0px;
+    color: white;
+  }
+
+  div.mat-calendar-body-selected {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  div.mat-calendar-body-today:not(.mat-calendar-body-selected) {
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  td.mat-calendar-body-cell:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  td.mat-calendar-body-label {
+    color: white;
+  }
+
+  thead.mat-calendar-table-header {
+    color: white;
+  }
+}
+
+mat-dialog-container.mat-dialog-container {
+  background: url('/assets/images/background.jpg');
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  border-radius: 0px;
+  box-shadow: 3px 4px 5px #000000;
+  color: white;
+  padding: 16px 24px;
 }
 
 mat-form-field.mat-form-field {
@@ -100,6 +183,16 @@ mat-form-field.mat-form-field {
 
   mat-error.mat-error {
     line-height: 14px;
+  }
+
+  textarea {
+    overflow-y: hidden;
+  }
+}
+
+mat-form-field.mat-form-field-appearance-legacy {
+  div.mat-form-field-suffix .mat-icon-button {
+    color: white;
   }
 }
 
@@ -157,6 +250,24 @@ mat-paginator.mat-paginator {
   }
 }
 
+mat-progress-bar.mat-progress-bar {
+  div.mat-progress-bar-buffer {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  div.mat-progress-bar-fill {
+    transition-duration: 10ms;
+
+    &::after {
+      background: #ffff55;
+    }
+  }
+
+  svg.mat-progress-bar-background {
+    fill: transparent;
+  }
+}
+
 mat-pseudo-checkbox.mat-pseudo-checkbox {
   color: rgba(255, 255, 255, 0.5);
 
@@ -201,7 +312,9 @@ mat-toolbar.mat-toolbar-single-row {
 }
 
 snack-bar-container.mat-snack-bar-container {
+  background: rgba(0, 0, 0, 0.75);
   color: white;
+  min-width: initial;
   padding-left: 20px;
 
   div.mat-simple-snackbar-action {
@@ -216,6 +329,7 @@ snack-bar-container.mat-snack-bar-container {
 table.mat-table {
   background: transparent;
   border: 1px solid rgba(0, 0, 0, 0.5);
+  width: 100%;
 
   button.mat-sort-header-button {
     color: white;
@@ -231,6 +345,14 @@ table.mat-table {
 
   td.mat-cell {
     color: white;
+  }
+
+  .mat-column-actions {
+    text-align: right;
+
+    app-button {
+      margin-left: 8px;
+    }
   }
 
   .mat-header-row {

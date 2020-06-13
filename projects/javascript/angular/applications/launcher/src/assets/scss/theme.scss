@@ -1,0 +1,79 @@
+@import '~@angular/material/theming';
+
+$grey: (
+  50: rgb(33, 33, 33),
+  100: rgb(33, 33, 33),
+  200: rgb(33, 33, 33),
+  300: rgb(33, 33, 33),
+  400: rgb(33, 33, 33),
+  500: rgb(33, 33, 33),
+  600: rgb(33, 33, 33),
+  700: rgb(33, 33, 33),
+  800: rgb(33, 33, 33),
+  900: rgb(33, 33, 33),
+  A100: rgb(33, 33, 33),
+  A200: rgb(33, 33, 33),
+  A400: rgb(33, 33, 33),
+  A700: rgb(33, 33, 33),
+  contrast: (
+    50: white,
+    100: white,
+    200: white,
+    300: white,
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: white,
+    A200: white,
+    A400: white,
+    A700: white,
+  ),
+);
+$red: (
+  50: rgb(211, 47, 47),
+  100: rgb(211, 47, 47),
+  200: rgb(211, 47, 47),
+  300: rgb(211, 47, 47),
+  400: rgb(211, 47, 47),
+  500: rgb(211, 47, 47),
+  600: rgb(211, 47, 47),
+  700: rgb(211, 47, 47),
+  800: rgb(211, 47, 47),
+  900: rgb(211, 47, 47),
+  A100: rgb(211, 47, 47),
+  A200: rgb(211, 47, 47),
+  A400: rgb(211, 47, 47),
+  A700: rgb(211, 47, 47),
+  contrast: (
+    50: white,
+    100: white,
+    200: white,
+    300: white,
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: white,
+    A200: white,
+    A400: white,
+    A700: white,
+  ),
+);
+
+$theme-accent: mat-palette($grey);
+$theme-primary: mat-palette($red, 700, 300, 900);
+$theme-warn: mat-palette($red);
+$theme: mat-light-theme($theme-primary, $theme-accent, $theme-warn);
+
+$accent: mat-color($theme-accent);
+$accent-highlight: lighten($accent, 5%);
+$foreground: map-get($theme, foreground);
+$primary: mat-color($theme-primary);
+$primary-highlight: lighten($primary, 5%);
+
+$text-shadow: 2px 3px 3px #000000;

@@ -1,8 +1,8 @@
-<ten-sidenav>
+<app-sidenav>
   <div class="content">
     <app-group-messages *ngIf="$activeGroup | async as group" [group]="group"></app-group-messages>
     <app-messages *ngIf="$activeUser | async as user" [user]="user"></app-messages>
-    <router-outlet></router-outlet>
+    <ng-content></ng-content>
   </div>
 
   <div *ngIf="identityService.user" class="nav">
@@ -17,13 +17,13 @@
         </div>
 
         <div class="hover-on">
-          <ten-button color="accent" (OnClick)="rejectGroupInvitation()">Reject</ten-button>
-          <ten-button color="primary" (OnClick)="acceptGroupInvitation()">Accept</ten-button>
+          <app-button color="accent" (OnClick)="rejectGroupInvitation()">Reject</app-button>
+          <app-button color="primary" (OnClick)="acceptGroupInvitation()">Accept</app-button>
         </div>
       </div>
     </ng-container>
 
-    <ten-button
+    <app-button
       *ngIf="($group | async) === undefined"
       color="accent"
       layout="vertical"
@@ -33,9 +33,9 @@
     >
       <mat-icon>group_add</mat-icon>
       <span>Start Group</span>
-    </ten-button>
+    </app-button>
 
-    <ten-button
+    <app-button
       *ngIf="$group | async as group"
       class="online"
       color="accent"
@@ -55,12 +55,12 @@
       <span *ngIf="$getUnreadGroupMessagesCount(group._id) | async" class="badge">
         {{ $getUnreadGroupMessagesCount(group._id) | async }}
       </span>
-    </ten-button>
+    </app-button>
 
-    <ten-button color="accent" layout="vertical" text="left" width="full" (OnClick)="newMessage()">
+    <app-button color="accent" layout="vertical" text="left" width="full" (OnClick)="newMessage()">
       <mat-icon>add</mat-icon>
       <span>New Direct Message</span>
-    </ten-button>
+    </app-button>
 
     <app-message-group
       *ngIf="$group | async as group"
@@ -83,4 +83,4 @@
       [users]="conversations | select: 'user' | truthy"
     ></app-message-group>
   </div>
-</ten-sidenav>
+</app-sidenav>

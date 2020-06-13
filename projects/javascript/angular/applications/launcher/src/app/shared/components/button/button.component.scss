@@ -1,0 +1,165 @@
+@import '../../../../assets/scss/fonts.scss';
+@import '../../../../assets/scss/theme.scss';
+
+@-o-keyframes alert-info-pulse {
+  0% {
+    border: 2px solid rgba(255, 255, 255, 0);
+  }
+  50% {
+    border: 2px solid rgba(255, 255, 85, 0.5);
+  }
+  100% {
+    border: 2px solid rgba(255, 255, 255, 0);
+  }
+}
+@keyframes alert-info-pulse {
+  0% {
+    border: 2px solid rgba(255, 255, 255, 0);
+  }
+  50% {
+    border: 2px solid rgba(255, 255, 85, 0.5);
+  }
+  100% {
+    border: 2px solid rgba(255, 255, 255, 0);
+  }
+}
+
+:host {
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  width: max-content;
+
+  &[alert='info'] a.mat-button {
+    padding: 6px 12px;
+
+    -o-animation: alert-info-pulse 3s infinite;
+    animation: alert-info-pulse 3s infinite;
+  }
+
+  &[layout='left'] {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+
+  &[layout='vertical'] {
+    display: block;
+  }
+
+  &[mat-icon-button] {
+    min-width: 0px;
+    padding: 2px 8px;
+  }
+
+  &[text='left'] a.mat-button {
+    text-align: left;
+
+    mat-icon.mat-icon {
+      margin-right: 8px;
+    }
+  }
+
+  &[width='full'] {
+    width: 100%;
+
+    a.mat-button {
+      width: 100%;
+    }
+  }
+
+  &.active {
+    a.mat-button[color='accent'],
+    a.mat-button[color='accent']:hover {
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 3px 4px 5px #000000, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  a.mat-button {
+    border-radius: 0px;
+    display: block;
+    font-family: 'Oswald', sans-serif;
+    line-height: normal;
+    min-width: initial;
+    outline: none;
+    padding: 8px 14px;
+
+    &[color='accent'] {
+      background: transparent;
+      color: white;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 3px 4px 5px #000000, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
+      }
+
+      &[disabled] {
+        cursor: initial;
+        pointer-events: none;
+
+        &:hover {
+          background: transparent;
+        }
+      }
+    }
+
+    &[color='primary'] {
+      box-shadow: 3px 4px 5px #000000, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
+      color: white;
+
+      &:not([disabled]) {
+        background: $primary;
+
+        &:hover {
+          background: $primary-highlight;
+          color: white;
+        }
+      }
+
+      &[disabled] {
+        background: #707070;
+        cursor: initial;
+        pointer-events: none;
+
+        &:hover {
+          background: #707070;
+        }
+      }
+    }
+
+    &::ng-deep {
+      img {
+        filter: drop-shadow(2px 2px black);
+        max-height: 20px;
+        float: left;
+        margin: 1px 8px 0px 0px;
+      }
+
+      mat-icon.mat-icon {
+        color: #ffff55;
+        font-size: 16px;
+        height: 16px;
+        line-height: 13px;
+        margin-right: 6px;
+        vertical-align: text-bottom;
+        width: 16px;
+
+        &:only-child {
+          margin-right: 0px;
+        }
+      }
+
+      span.mat-button-wrapper span {
+        outline: none;
+        vertical-align: baseline;
+        white-space: nowrap;
+
+        + mat-icon {
+          margin-left: 6px;
+          margin-right: 0px;
+        }
+      }
+    }
+  }
+}

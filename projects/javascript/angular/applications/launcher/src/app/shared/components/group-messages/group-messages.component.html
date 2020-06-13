@@ -9,7 +9,7 @@
   </div>
 
   <span>
-    <ten-button
+    <app-button
       *ngIf="canInvite"
       color="accent"
       matTooltip="Invite to Group"
@@ -17,8 +17,8 @@
       (OnClick)="invite()"
     >
       <mat-icon>person_add_alt_1</mat-icon>
-    </ten-button>
-    <ten-button
+    </app-button>
+    <app-button
       *ngIf="group.userIds.length > 1"
       color="accent"
       matTooltip="Leave Group"
@@ -26,8 +26,8 @@
       (OnClick)="leave()"
     >
       <mat-icon>person_remove</mat-icon>
-    </ten-button>
-    <ten-button
+    </app-button>
+    <app-button
       *ngIf="isLeader"
       color="accent"
       [matTooltip]="group.isOpen ? 'Invitations: Open' : 'Invitations: Only Leader'"
@@ -37,8 +37,8 @@
       <mat-icon [ngClass]="{ grey: group.isOpen }">
         {{ group.isOpen ? 'lock_open' : 'lock' }}
       </mat-icon>
-    </ten-button>
-    <ten-button
+    </app-button>
+    <app-button
       *ngIf="isLeader"
       color="accent"
       matTooltip="Disband"
@@ -46,10 +46,10 @@
       (OnClick)="showDisbandPrompt()"
     >
       <mat-icon>delete</mat-icon>
-    </ten-button>
-    <ten-button color="accent" matTooltip="Close" matTooltipPosition="below" (OnClick)="close()">
+    </app-button>
+    <app-button color="accent" matTooltip="Close" matTooltipPosition="below" (OnClick)="close()">
       <mat-icon>close</mat-icon>
-    </ten-button>
+    </app-button>
   </span>
 </div>
 
@@ -82,4 +82,4 @@
   </div>
 </ng-container>
 
-<ten-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</ten-loading-message>
+<app-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</app-loading-message>

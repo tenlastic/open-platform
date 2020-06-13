@@ -59,13 +59,6 @@ spec:
             backend:
               serviceName: launcher-ui
               servicePort: 3000
-    - host: portal.localhost
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: portal-ui
-              servicePort: 3000
     - host: rabbitmq.localhost
       http:
         paths:
@@ -93,11 +86,4 @@ spec:
           - path: /
             backend:
               serviceName: sso-ui
-              servicePort: 3000
-    - host: www.localhost
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: home-ui
               servicePort: 3000

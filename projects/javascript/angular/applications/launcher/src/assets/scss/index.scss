@@ -1,4 +1,57 @@
-@import '~@tenlastic/ng-component-library/src/assets/scss/index.scss';
 @import '~bootstrap/scss/bootstrap-grid.scss';
+@import './fonts.scss';
 @import './material.scss';
-@import './prompt.scss';
+@import './scrollbar.scss';
+
+* {
+  font-family: 'Oswald', sans-serif;
+  text-shadow: 2px 3px 3px #000000;
+}
+
+body {
+  background: url('/assets/images/background.jpg');
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  color: white;
+  height: 100vh;
+  margin: 0px;
+  overflow: hidden;
+  padding: 0px;
+}
+
+form {
+  div.row {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+}
+
+hr {
+  background: rgba(255, 255, 85, 0.5);
+  border-color: rgba(255, 255, 85, 0.5);
+  box-shadow: 3px 3px 3px black;
+  margin: 12px 0px;
+}
+
+[centered] {
+  display: block;
+  margin: 8px auto;
+  width: max-content;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+[text='center'] {
+  text-align: center;
+}
+
+[text='left'] {
+  text-align: left;
+}
+
+.clearfix {
+  clear: both;
+}

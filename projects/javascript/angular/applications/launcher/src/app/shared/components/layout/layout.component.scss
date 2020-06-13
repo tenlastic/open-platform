@@ -1,67 +1,54 @@
-:host {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-  width: 100vw;
-}
+mat-toolbar.mat-toolbar {
+  background: rgba(0, 0, 0, 0.75);
+  box-shadow: 3px 3px 5px black;
+  height: 32px;
+  overflow: initial;
+  padding: 4px;
 
-::ng-deep {
-  app-layout {
-    ten-button {
-      &.disabled {
-        pointer-events: none;
-      }
+  &::ng-deep {
+    > app-button {
+      margin-right: 4px;
 
-      &.offline {
-        div.name,
-        div.status,
-        mat-icon.mat-icon:first-of-type {
-          color: #aaaaaa !important;
-        }
-      }
-
-      &.online {
-        div.status {
-          color: #ffff55;
-        }
-      }
-
-      a[color='accent'][disabled] {
-        opacity: 0.5;
-      }
-
-      div.label {
-        display: inline-block;
-
-        div.status {
-          font-size: 12px;
-        }
-      }
-
-      span.badge {
-        background: #d74444;
-        float: right;
-        font-size: 12px;
-        height: 20px;
-        margin-left: 8px;
-        margin-top: 8px;
-        padding-right: 2px;
-        text-align: center;
-        width: 20px;
+      &:last-of-type {
+        margin-right: 0px;
       }
     }
   }
-}
 
-div.content {
-  flex: 1 1 auto;
-  overflow: hidden;
-  position: relative;
-}
+  span.space {
+    color: white;
+    flex: 1 1 auto;
+    font-size: 12px;
+    height: 20px;
+    line-height: 18px;
+    margin: 4px 0px 0px 4px;
+    padding-left: 4px;
 
-ten-header-toolbar::ng-deep {
-  mat-toolbar {
-    padding: 0px 16px;
+    -webkit-app-region: drag;
+  }
+
+  &::ng-deep {
+    a.mat-button[color='accent'] {
+      font-size: 12px;
+      height: 24px;
+      line-height: 24px;
+      min-width: 0px;
+      padding-bottom: 0px;
+      padding-top: 0px;
+
+      &:hover {
+        box-shadow: none;
+      }
+
+      mat-icon.mat-icon {
+        font-size: 14px;
+        height: 14px;
+        width: 14px;
+      }
+    }
+
+    div.container {
+      display: flex;
+    }
   }
 }

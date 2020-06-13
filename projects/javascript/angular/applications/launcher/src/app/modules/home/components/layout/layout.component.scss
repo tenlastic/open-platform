@@ -1,0 +1,19 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 32px);
+  overflow: hidden;
+  width: 100vw;
+}
+
+div.content {
+  flex: 1 1 auto;
+  overflow: hidden;
+  position: relative;
+}
+
+app-header-toolbar::ng-deep {
+  mat-toolbar {
+    padding: 0px 16px;
+  }
+}

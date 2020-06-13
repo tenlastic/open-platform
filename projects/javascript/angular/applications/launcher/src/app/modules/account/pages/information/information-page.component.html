@@ -1,5 +1,5 @@
 <div class="page">
-  <ten-title>Account Information</ten-title>
+  <app-title>Account Information</app-title>
 
   <app-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</app-loading-message>
 
@@ -24,6 +24,6 @@
       {{ error }}
     </div>
 
-    <ten-button color="primary" (OnClick)="save()">Save</ten-button>
+    <app-button color="primary" (OnClick)="save()">Save</app-button>
   </form>
 </div>

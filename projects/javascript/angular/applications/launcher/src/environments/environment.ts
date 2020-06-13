@@ -16,6 +16,7 @@ export const environment = {
   namespaceApiBaseUrl: 'http://api.localhost/namespaces',
   passwordResetApiBaseUrl: 'http://api.localhost/password-resets',
   production: false,
+  refreshTokenApiBaseUrl: 'http://api.localhost/refresh-tokens',
   releaseApiBaseUrl: 'http://api.localhost/releases',
   useHash: false,
   userApiBaseUrl: 'http://api.localhost/users',

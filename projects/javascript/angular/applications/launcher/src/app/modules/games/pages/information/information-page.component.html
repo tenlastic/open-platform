@@ -38,13 +38,13 @@
         </mat-grid-list>
       </div>
       <div class="col-sm-6">
-        <ten-title>{{ game.title }}</ten-title>
+        <app-title>{{ game.title }}</app-title>
         <hr />
-        <ten-markdown [markdown]="game.description"></ten-markdown>
+        <app-markdown [markdown]="game.description"></app-markdown>
       </div>
 
       <div *ngIf="articlesByDate.length > 0" class="col-sm-12 news-container">
-        <ten-title>News</ten-title>
+        <app-title>News</app-title>
         <hr />
         <div class="row">
           <div *ngFor="let group of articlesByDate" class="col-sm-6">
@@ -63,5 +63,5 @@
     </div>
   </div>
 
-  <ten-loading-message *ngIf="!!loadingMessage">{{ loadingMessage }}</ten-loading-message>
+  <app-loading-message *ngIf="!!loadingMessage">{{ loadingMessage }}</app-loading-message>
 </div>

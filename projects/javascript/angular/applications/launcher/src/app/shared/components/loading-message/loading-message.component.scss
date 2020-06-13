@@ -1,4 +1,28 @@
+@import '../../../../assets/scss/fonts.scss';
+@import '../../../../assets/scss/theme.scss';
+
+:host {
+  display: flex;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+mat-spinner {
+  display: inline-block;
+  margin-right: 8px;
+  margin-top: 2px;
+
+  ::ng-deep {
+    circle {
+      stroke: white;
+    }
+  }
+}
+
 span {
   color: white;
+  font-family: 'Oswald', sans-serif;
   margin-left: 4px;
 }

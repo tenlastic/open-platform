@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { ComponentLibraryModule } from '@tenlastic/ng-component-library';
 
 import { SharedModule } from '../../shared/shared.module';
 import { LayoutComponent } from './components';
@@ -17,6 +16,6 @@ export const ROUTES: Routes = [
 
 @NgModule({
   declarations: [LayoutComponent, InformationPageComponent],
-  imports: [ComponentLibraryModule, SharedModule, RouterModule.forChild(ROUTES)],
+  imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })
 export class AccountModule {}

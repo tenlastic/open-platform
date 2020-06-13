@@ -1,4 +1,4 @@
-<ten-button
+<app-button
   *ngIf="users.length"
   color="accent"
   layout="vertical"
@@ -10,10 +10,10 @@
   <mat-icon>
     {{ isVisible ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
   </mat-icon>
-</ten-button>
+</app-button>
 
 <ng-container *ngIf="isVisible">
-  <ten-button
+  <app-button
     *ngFor="let user of users"
     color="accent"
     layout="vertical"
@@ -44,5 +44,5 @@
     <span *ngIf="$getUnreadMessagesCount(user._id) | async as messageCount" class="badge">
       {{ messageCount }}
     </span>
-  </ten-button>
+  </app-button>
 </ng-container>

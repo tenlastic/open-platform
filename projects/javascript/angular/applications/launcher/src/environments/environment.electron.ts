@@ -16,6 +16,7 @@ export const environment = {
   namespaceApiBaseUrl: 'https://api.tenlastic.com/namespaces',
   passwordResetApiBaseUrl: 'https://api.tenlastic.com/password-resets',
   production: true,
+  refreshTokenApiBaseUrl: 'http://api.tenlastic.com/refresh-tokens',
   releaseApiBaseUrl: 'https://api.tenlastic.com/releases',
   useHash: true,
   userApiBaseUrl: 'https://api.tenlastic.com/users',

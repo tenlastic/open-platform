@@ -1,0 +1,87 @@
+<app-header-toolbar>
+  <img src="/assets/images/logo.png" />
+
+  <app-button color="accent" routerLink="namespaces">
+    <mat-icon>layers</mat-icon>
+    <span>
+      {{
+        selectedNamespaceService.namespace
+          ? selectedNamespaceService.namespace.name
+          : 'Select Namespace'
+      }}
+    </span>
+    <mat-icon>keyboard_arrow_down</mat-icon>
+  </app-button>
+
+  <span class="space"></span>
+
+  <app-button *ngIf="identityService.user" color="accent" [matMenuTriggerFor]="menu">
+    <mat-icon>person</mat-icon>
+    <span>{{ identityService.user.username }}</span>
+    <mat-icon>keyboard_arrow_down</mat-icon>
+  </app-button>
+  <mat-menu #menu="matMenu" xPosition="before">
+    <app-button
+      *ngIf="identityService.user"
+      color="accent"
+      layout="vertical"
+      [routerLink]="['/account']"
+      text="left"
+      width="full"
+    >
+      <mat-icon>create</mat-icon>
+      <span>Manage Account</span>
+    </app-button>
+
+    <app-button
+      color="accent"
+      layout="vertical"
+      text="left"
+      width="full"
+      (OnClick)="navigateToLogout()"
+    >
+      <mat-icon>exit_to_app</mat-icon>
+      <span>Log out</span>
+    </app-button>
+  </mat-menu>
+
+  <app-button
+    *ngIf="!identityService.user"
+    color="accent"
+    [ngClass]="{ active: router.url.includes('/authentication') }"
+    (OnClick)="navigateToLogin()"
+  >
+    <mat-icon>lock</mat-icon>
+    <span>Log In</span>
+  </app-button>
+
+  <app-button *ngIf="!electronService.isElectron" color="primary" [href]="launcherUrl">
+    <span>Download Launcher</span>
+  </app-button>
+</app-header-toolbar>
+
+<div class="content">
+  <app-social>
+    <app-sidenav>
+      <div class="nav">
+        <app-button
+          *ngFor="let link of links"
+          color="accent"
+          [hidden]="link.condition && !link.condition()"
+          layout="vertical"
+          [routerLink]="link.path"
+          routerLinkActive="active"
+          text="left"
+          width="full"
+        >
+          <mat-icon>{{ link.icon }}</mat-icon>
+          <span>{{ link.label }}</span>
+        </app-button>
+      </div>
+
+      <div class="content">
+        <router-outlet></router-outlet>
+      </div>
+    </app-sidenav>
+  </app-social>
+</div>

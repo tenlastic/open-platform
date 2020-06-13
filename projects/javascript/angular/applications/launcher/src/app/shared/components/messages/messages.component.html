@@ -22,7 +22,7 @@
     </div>
 
     <span>
-      <ten-button
+      <app-button
         *ngIf="identityService.user._id !== user._id"
         color="accent"
         [matTooltip]="async.friend ? 'Unfriend' : 'Friend'"
@@ -30,8 +30,8 @@
         (OnClick)="toggleFriend()"
       >
         <mat-icon [ngClass]="{ grey: !async.friend }">favorite</mat-icon>
-      </ten-button>
-      <ten-button
+      </app-button>
+      <app-button
         *ngIf="identityService.user._id !== user._id"
         color="accent"
         [matTooltip]="async.ignoration ? 'Unignore' : 'Ignore'"
@@ -39,8 +39,8 @@
         (OnClick)="toggleIgnoration()"
       >
         <mat-icon [ngClass]="{ grey: !async.ignoration }">block</mat-icon>
-      </ten-button>
-      <ten-button
+      </app-button>
+      <app-button
         *ngIf="$canInvite | async"
         color="accent"
         matTooltip="Invite to Group"
@@ -48,8 +48,8 @@
         (OnClick)="inviteToGroup()"
       >
         <mat-icon>person_add_alt_1</mat-icon>
-      </ten-button>
-      <ten-button
+      </app-button>
+      <app-button
         *ngIf="$canKick | async"
         color="accent"
         matTooltip="Kick from Group"
@@ -57,8 +57,8 @@
         (OnClick)="kickFromGroup()"
       >
         <mat-icon>person_remove</mat-icon>
-      </ten-button>
-      <ten-button
+      </app-button>
+      <app-button
         *ngIf="$showJoinGroupButton | async"
         color="accent"
         matTooltip="Join Group"
@@ -66,10 +66,10 @@
         (OnClick)="joinGroup()"
       >
         <mat-icon>group_add</mat-icon>
-      </ten-button>
-      <ten-button color="accent" matTooltip="Close" matTooltipPosition="below" (OnClick)="close()">
+      </app-button>
+      <app-button color="accent" matTooltip="Close" matTooltipPosition="below" (OnClick)="close()">
         <mat-icon>close</mat-icon>
-      </ten-button>
+      </app-button>
     </span>
   </div>
 
@@ -102,5 +102,5 @@
     </div>
   </ng-container>
 
-  <ten-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</ten-loading-message>
+  <app-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</app-loading-message>
 </ng-container>

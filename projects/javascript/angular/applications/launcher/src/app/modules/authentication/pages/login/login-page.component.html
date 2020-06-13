@@ -1,24 +1,26 @@
 <div [hidden]="!!loadingMessage">
+  <img src="/assets/images/logo.png" />
+
   <h2>
     <mat-icon>lock</mat-icon>
     Log In
   </h2>
-  <ten-login-form (logIn)="onLogIn($event)"></ten-login-form>
+  <app-login-form (logIn)="onLogIn($event)"></app-login-form>
 
   <div class="row">
     <div class="col-sm-6">
-      <ten-button color="accent" layout="vertical" routerLink="../create-account">
+      <app-button color="accent" layout="vertical" routerLink="../create-account">
         <mat-icon>person_add</mat-icon>
         <span>Create Account</span>
-      </ten-button>
+      </app-button>
     </div>
     <div class="col-sm-6">
-      <ten-button color="accent" layout="vertical" routerLink="../reset-password">
+      <app-button color="accent" layout="vertical" routerLink="../reset-password">
         <mat-icon>refresh</mat-icon>
         <span>Reset Password</span>
-      </ten-button>
+      </app-button>
     </div>
   </div>
 </div>
 
-<ten-loading-message [hidden]="!loadingMessage">{{ loadingMessage }}</ten-loading-message>
+<app-loading-message [hidden]="!loadingMessage">{{ loadingMessage }}</app-loading-message>
