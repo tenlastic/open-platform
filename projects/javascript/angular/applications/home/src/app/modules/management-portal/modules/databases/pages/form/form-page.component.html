@@ -1,0 +1,20 @@
+<div class="page">
+  <app-title>{{ data && data._id ? 'Edit' : 'Create' }} Database</app-title>
+
+  <form *ngIf="form" [formGroup]="form" autocomplete="off">
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" />
+        <mat-error>Enter a valid name.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="error" class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button color="primary" (click)="save()">Save</app-button>
+    <app-button color="accent" routerLink="../">Cancel</app-button>
+  </form>
+</div>

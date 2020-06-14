@@ -1,29 +1,57 @@
-@import '@tenlastic/ng-component-library/src/assets/scss/index.scss';
 @import '~bootstrap/scss/bootstrap-grid.scss';
+@import './fonts.scss';
+@import './material.scss';
+@import './scrollbar.scss';
 
-h1 {
+* {
+  font-family: 'Oswald', sans-serif;
+  text-shadow: 2px 3px 3px #000000;
+}
+
+body {
+  background: url('/assets/images/background.jpg');
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  color: white;
+  height: 100vh;
+  margin: 0px;
   overflow: hidden;
+  padding: 0px;
+}
+
+form {
+  div.row {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+}
+
+hr {
+  background: rgba(255, 255, 85, 0.5);
+  border-color: rgba(255, 255, 85, 0.5);
+  box-shadow: 3px 3px 3px black;
+  margin: 12px 0px;
+}
+
+[centered] {
+  display: block;
+  margin: 8px auto;
+  width: max-content;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+[text='center'] {
   text-align: center;
 }
 
-h1:before,
-h1:after {
-  background-color: white;
-  box-shadow: 3px 4px 5px black;
-  content: '';
-  display: inline-block;
-  height: 2px;
-  position: relative;
-  vertical-align: middle;
-  width: 50%;
+[text='left'] {
+  text-align: left;
 }
 
-h1:before {
-  right: 0.5em;
-  margin-left: -50%;
-}
-
-h1:after {
-  left: 0.5em;
-  margin-right: -50%;
+.clearfix {
+  clear: both;
 }

@@ -1,0 +1,29 @@
+<div class="page">
+  <app-title>Account Information</app-title>
+
+  <app-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</app-loading-message>
+
+  <form *ngIf="form" [formGroup]="form" autocomplete="off">
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Email Address</mat-label>
+        <input matInput type="email" formControlName="email" />
+        <mat-error>Enter a valid email address.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" />
+        <mat-error>Enter a valid username.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="error" class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button color="primary" (OnClick)="save()">Save</app-button>
+  </form>
+</div>

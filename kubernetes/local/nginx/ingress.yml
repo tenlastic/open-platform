@@ -52,20 +52,6 @@ spec:
             backend:
               serviceName: mongoku
               servicePort: 3100
-    - host: platform.localhost
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: launcher-ui
-              servicePort: 3000
-    - host: portal.localhost
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: portal-ui
-              servicePort: 3000
     - host: rabbitmq.localhost
       http:
         paths:
@@ -86,13 +72,6 @@ spec:
           - path: /
             backend:
               serviceName: sandbox
-              servicePort: 3000
-    - host: sso.localhost
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: sso-ui
               servicePort: 3000
     - host: www.localhost
       http:

@@ -1,0 +1,25 @@
+::ng-deep {
+  app-input-dialog {
+    app-button {
+      margin-left: 8px !important;
+      margin-right: 8px !important;
+    }
+  }
+}
+
+div.mat-dialog-actions {
+  padding-top: 0px;
+
+  button {
+    margin-bottom: 0px;
+  }
+}
+
+div.mat-dialog-title {
+  font-family: 'Oswald';
+  font-weight: bold;
+}
+
+form {
+  margin-top: 4px;
+}

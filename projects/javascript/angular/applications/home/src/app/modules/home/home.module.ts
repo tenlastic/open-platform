@@ -2,13 +2,29 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../shared/shared.module';
-import { HomeComponent } from './home.component';
+import { LayoutComponent } from './components';
 
-export const ROUTES: Routes = [{ path: '', component: HomeComponent }];
+export const ROUTES: Routes = [
+  {
+    children: [
+      {
+        loadChildren: () => import('./pages/home/home.module').then(m => m.HomeModule),
+        path: '',
+        pathMatch: 'full',
+      },
+      {
+        loadChildren: () =>
+          import('./pages/contact-us/contact-us.module').then(m => m.ContactUsModule),
+        path: 'contact-us',
+      },
+    ],
+    component: LayoutComponent,
+    path: '',
+  },
+];
 
 @NgModule({
-  entryComponents: [],
-  declarations: [HomeComponent],
+  declarations: [LayoutComponent],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })
 export class HomeModule {}

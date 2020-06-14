@@ -1,0 +1,63 @@
+@import './theme.scss';
+
+div.form-error {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+form {
+  & > app-button {
+    margin-right: 8px;
+  }
+}
+
+h2 {
+  margin: 0px 0px 16px;
+}
+
+mat-form-field.mat-form-field {
+  display: inline-block;
+}
+
+span {
+  color: white;
+}
+
+table {
+  width: 100%;
+
+  a {
+    color: rgba(255, 255, 255, 0.5);
+    margin-left: 8px;
+    vertical-align: middle;
+
+    &:hover {
+      color: white;
+    }
+  }
+
+  .mat-column-actions {
+    text-align: right;
+
+    app-button {
+      margin-left: 8px;
+    }
+  }
+}
+
+.offset-sm-6 {
+  text-align: right;
+
+  app-button {
+    margin-top: 14px;
+  }
+}
+
+.row {
+  margin: 0px;
+
+  .col-sm-3 {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+}

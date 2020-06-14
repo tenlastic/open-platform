@@ -1,0 +1,19 @@
+<form [formGroup]="form">
+  <mat-form-field floatLabel="always">
+    <mat-label>Email address</mat-label>
+    <input matInput autofocus type="email" formControlName="email" />
+    <mat-error>Enter a valid email address.</mat-error>
+  </mat-form-field>
+
+  <mat-form-field floatLabel="always" margin-top>
+    <mat-label>Password</mat-label>
+    <input matInput type="password" formControlName="password" />
+    <mat-error>Enter a password.</mat-error>
+  </mat-form-field>
+
+  <app-form-message *ngIf="error" level="error" text="center">{{ error }}</app-form-message>
+
+  <app-button centered color="primary" layout="vertical" (OnClick)="submit()">
+    <span>Submit</span>
+  </app-button>
+</form>

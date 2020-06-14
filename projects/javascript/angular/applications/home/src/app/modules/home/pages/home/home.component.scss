@@ -1,0 +1,21 @@
+.billboard {
+  font-size: 64px;
+  left: 50%;
+  line-height: 72px;
+  position: absolute;
+  text-align: center;
+  top: calc(50% + 16px);
+  transform: translate(-50%, -50%);
+  width: 100%;
+
+  ::ng-deep {
+    a.mat-button {
+      font-size: 1.5rem;
+      padding: 12px 32px;
+    }
+  }
+
+  app-button {
+    margin-top: 16px;
+  }
+}

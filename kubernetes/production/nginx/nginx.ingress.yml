@@ -43,20 +43,6 @@ spec:
             backend:
               serviceName: minio
               servicePort: 9000
-    - host: platform.tenlastic.com
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: launcher-ui
-              servicePort: 80
-    - host: portal.tenlastic.com
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: portal-ui
-              servicePort: 80
     - host: rabbitmq.tenlastic.com
       http:
         paths:
@@ -71,13 +57,6 @@ spec:
             backend:
               serviceName: docker-registry
               servicePort: 5000
-    - host: sso.tenlastic.com
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: sso-ui
-              servicePort: 80
     - host: www.tenlastic.com
       http:
         paths:

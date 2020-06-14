@@ -1,0 +1,43 @@
+<div class="page">
+  <app-title>{{ data && data._id ? 'Edit' : 'Create' }} Namespace</app-title>
+
+  <form *ngIf="form" [formGroup]="form" autocomplete="off">
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" />
+        <mat-error>Enter a valid name.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <app-toggle-section title="Access Control List">
+      <div
+        class="row"
+        formArrayName="accessControlList"
+        *ngFor="
+          let accessControlListItem of form['controls'].accessControlList['controls'];
+          let i = index
+        "
+      >
+        <app-access-control-list-field
+          [form]="accessControlListItem"
+          (remove)="removeAccessControlListItem(i)"
+        ></app-access-control-list-field>
+      </div>
+
+      <div class="row">
+        <app-button color="accent" layout="left" (OnClick)="addAccessControlListItem()">
+          <mat-icon>add</mat-icon>
+          <span>Add Access Control List Entry</span>
+        </app-button>
+      </div>
+    </app-toggle-section>
+
+    <div *ngIf="error" class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button color="primary" (click)="save()">Save</app-button>
+    <app-button color="accent" routerLink="../">Cancel</app-button>
+  </form>
+</div>

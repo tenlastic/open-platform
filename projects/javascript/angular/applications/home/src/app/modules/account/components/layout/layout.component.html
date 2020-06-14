@@ -1,0 +1,18 @@
+<app-sidenav>
+  <div class="nav">
+    <app-button
+      color="accent"
+      layout="vertical"
+      routerLink="/account"
+      routerLinkActive="active"
+      text="left"
+      width="full"
+    >
+      <span>Account Information</span>
+    </app-button>
+  </div>
+
+  <div class="content">
+    <router-outlet></router-outlet>
+  </div>
+</app-sidenav>

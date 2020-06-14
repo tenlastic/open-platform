@@ -1,0 +1,133 @@
+div.article {
+  display: flex;
+  flex-direction: column;
+  margin: 0px 0px 4px;
+  padding: 8px 16px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+  }
+}
+
+div.container {
+  flex: 1 1 auto;
+  height: 0px;
+  margin: 0px;
+  max-width: none;
+  overflow: auto;
+  padding: 16px;
+}
+
+h2 {
+  margin: 0px 0px 8px 0px;
+}
+
+h3 {
+  margin: 0px;
+}
+
+hr {
+  background: #ffff55;
+  border-color: #ffff55;
+  box-shadow: 3px 3px 3px black;
+  margin: 16px 0px;
+}
+
+div.main-media {
+  background-position: center;
+  background-size: cover;
+  display: block;
+  filter: drop-shadow(3px 3px 3px black);
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+div.news-container {
+  margin-top: 16px;
+
+  hr {
+    margin-bottom: 8px;
+  }
+}
+
+div.row {
+  div.col-sm-6 {
+    padding: 0px 16px;
+
+    &:nth-of-type(even) {
+      padding-left: 8px;
+    }
+
+    &:nth-of-type(odd) {
+      padding-right: 8px;
+    }
+  }
+}
+
+mat-grid-list.mat-grid-list {
+  &.main {
+    margin-bottom: 8px;
+  }
+
+  mat-grid-tile.mat-grid-tile {
+    background-position: center;
+    background-size: cover;
+    box-shadow: 3px 3px 3px black;
+    cursor: pointer;
+    filter: brightness(0.5);
+
+    &:hover {
+      filter: brightness(1);
+    }
+
+    &.selected {
+      cursor: initial;
+      filter: brightness(1);
+    }
+
+    ::ng-deep {
+      .mat-figure {
+        align-items: flex-end;
+      }
+    }
+
+    mat-icon.mat-icon {
+      align-self: center;
+      cursor: pointer;
+      font-size: 32px;
+      height: 32px;
+      position: absolute;
+      user-select: none;
+      width: 32px;
+    }
+
+    app-button {
+      align-self: center;
+      margin-bottom: 8px;
+      margin-left: 8px;
+
+      &:nth-of-type(2) {
+        margin-right: 8px;
+      }
+    }
+
+    video {
+      align-self: center;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      width: 100%;
+    }
+  }
+}
+
+span.type-date {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 12px;
+}
+
+app-title {
+  font-size: 36px;
+  line-height: 36px;
+}

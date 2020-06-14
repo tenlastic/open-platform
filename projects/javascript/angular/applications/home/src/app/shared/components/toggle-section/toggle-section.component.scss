@@ -1,0 +1,25 @@
+:host {
+  width: 100%;
+}
+
+h3 {
+  color: white;
+  display: inline-block;
+  margin: 0px 16px 0px 0px;
+}
+
+.row {
+  display: block;
+  margin-left: 0px;
+  margin-right: 0px;
+
+  &:first-of-type {
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    padding-bottom: 8px;
+    padding-top: 8px;
+  }
+
+  &:last-of-type {
+    padding-bottom: 8px;
+  }
+}

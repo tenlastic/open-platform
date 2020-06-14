@@ -1,0 +1,138 @@
+<mat-form-field floatLabel="always">
+  <mat-label>Key</mat-label>
+  <input matInput [formControl]="form.controls.key | asAny" />
+  <mat-error>Enter a valid key.</mat-error>
+</mat-form-field>
+
+<ng-container *ngIf="!isDefault">
+  <div class="row">
+    <app-toggle-section title="Criteria" [isVisible]="false">
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Required Matches</mat-label>
+          <mat-select [formControl]="form.controls.operator | asAny">
+            <mat-option value="$and">All</mat-option>
+            <mat-option value="$or">At Least One</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div
+        class="row"
+        *ngFor="let criterion of form['controls'].criteria['controls']; let i = index"
+      >
+        <app-criterion-field
+          [fields]="criteriaFields"
+          [form]="criterion"
+          [operators]="criteriaOperators"
+          [properties]="properties"
+          [referenceFields]="criteriaFields"
+          (remove)="removeCriterion(i)"
+        ></app-criterion-field>
+      </div>
+
+      <div class="row">
+        <app-button color="accent" layout="left" (OnClick)="addCriterion()">
+          <mat-icon>add</mat-icon>
+          <span>Add Criterion</span>
+        </app-button>
+      </div>
+    </app-toggle-section>
+  </div>
+</ng-container>
+
+<div class="row">
+  <app-toggle-section title="Permissions" [isVisible]="false">
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Create</mat-label>
+        <mat-select
+          multiple
+          placeholder="None"
+          [formControl]="form['controls'].permissions['controls'].create"
+        >
+          <mat-option *ngFor="let field of propertyFields" [value]="field">
+            {{ field }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Read</mat-label>
+        <mat-select
+          multiple
+          placeholder="None"
+          [formControl]="form['controls'].permissions['controls'].read"
+        >
+          <mat-option *ngFor="let field of recordFields.concat(propertyFields)" [value]="field">
+            {{ field }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Update</mat-label>
+        <mat-select
+          multiple
+          placeholder="None"
+          [formControl]="form['controls'].permissions['controls'].update"
+        >
+          <mat-option *ngFor="let field of propertyFields" [value]="field">
+            {{ field }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Delete</mat-label>
+        <mat-select [formControl]="form['controls'].permissions['controls'].delete">
+          <mat-option [value]="true">True</mat-option>
+          <mat-option [value]="false">False</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </app-toggle-section>
+</div>
+
+<div class="row border-bottom">
+  <app-toggle-section title="Filter Query" [isVisible]="false">
+    <div
+      class="row"
+      *ngFor="
+        let criterion of form['controls'].permissions['controls'].find.controls;
+        let i = index
+      "
+    >
+      <app-criterion-field
+        [fields]="propertyFields"
+        [form]="criterion"
+        [operators]="findOperators"
+        [properties]="properties"
+        [referenceFields]="propertyFields"
+        (remove)="removeFindCriterion(i)"
+      ></app-criterion-field>
+    </div>
+
+    <div class="row">
+      <app-button color="accent" layout="left" (OnClick)="addFindCriterion()">
+        <mat-icon>add</mat-icon>
+        <span>Add Criterion</span>
+      </app-button>
+    </div>
+  </app-toggle-section>
+</div>
+
+<div *ngIf="!isDefault" class="row remove-button">
+  <app-button color="accent" layout="left" (OnClick)="moveUp.emit()">
+    <mat-icon>arrow_upward</mat-icon>
+    <span>Move Up</span>
+  </app-button>
+  <app-button color="accent" layout="left" (OnClick)="moveDown.emit()">
+    <mat-icon>arrow_downward</mat-icon>
+    <span>Move Down</span>
+  </app-button>
+  <app-button color="accent" layout="left" (OnClick)="remove.emit()">
+    <mat-icon>close</mat-icon>
+    <span>Remove Role</span>
+  </app-button>
+</div>

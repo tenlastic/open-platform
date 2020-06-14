@@ -1,32 +1,53 @@
-import { APP_BASE_HREF } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
 import { AuthenticationModule, OAuthComponent } from '@tenlastic/ng-authentication';
+import { ElectronModule } from '@tenlastic/ng-electron';
 import { HttpModule } from '@tenlastic/ng-http';
 
+import { environment } from '../environments/environment';
 import { CoreModule } from './core/core.module';
+import { LoginGuard } from './core/guards';
 import { LayoutComponent } from './shared/components';
 import { SharedModule } from './shared/shared.module';
-import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
-import { MaterialModule } from './material.module';
 
 export const ROUTES: Routes = [
   {
-    path: '',
-    pathMatch: 'full',
+    canActivate: [LoginGuard],
     component: LayoutComponent,
-    loadChildren: () => import('./modules/home/home.module').then(m => m.HomeModule),
+    loadChildren: () => import('./modules/account/account.module').then(m => m.AccountModule),
+    path: 'account',
   },
   {
-    path: 'contact-us',
     component: LayoutComponent,
     loadChildren: () =>
-      import('./modules/contact-us/contact-us.module').then(m => m.ContactUsModule),
+      import('./modules/authentication/authentication.module').then(m => m.AuthenticationModule),
+    path: 'authentication',
   },
   {
-    path: 'oauth',
+    canActivate: [LoginGuard],
+    component: LayoutComponent,
+    loadChildren: () => import('./modules/games/games.module').then(m => m.GamesModule),
+    path: 'games',
+  },
+  {
+    canActivate: [LoginGuard],
+    component: LayoutComponent,
+    loadChildren: () =>
+      import('./modules/management-portal/management-portal.module').then(
+        m => m.ManagementPortalModule,
+      ),
+    path: 'management-portal',
+  },
+  {
     component: OAuthComponent,
+    path: 'oauth',
+  },
+  {
+    component: LayoutComponent,
+    loadChildren: () => import('./modules/home/home.module').then(m => m.HomeModule),
+    path: '',
   },
 ];
 
@@ -34,14 +55,14 @@ export const ROUTES: Routes = [
   declarations: [AppComponent],
   entryComponents: [AppComponent],
   imports: [
+    environment.production ? [] : AkitaNgDevtools,
     AuthenticationModule.forRoot(environment),
     CoreModule,
+    ElectronModule,
     HttpModule.forRoot(environment),
-    MaterialModule,
     SharedModule,
-    RouterModule.forRoot(ROUTES),
+    RouterModule.forRoot(ROUTES, { useHash: environment.useHash }),
   ],
-  providers: [{ provide: APP_BASE_HREF, useValue: '/' }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

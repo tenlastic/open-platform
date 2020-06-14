@@ -1,0 +1,54 @@
+mat-toolbar.mat-toolbar {
+  background: rgba(0, 0, 0, 0.75);
+  box-shadow: 3px 3px 5px black;
+  height: 32px;
+  overflow: initial;
+  padding: 4px;
+
+  &::ng-deep {
+    > app-button {
+      margin-right: 4px;
+
+      &:last-of-type {
+        margin-right: 0px;
+      }
+    }
+  }
+
+  span.space {
+    color: white;
+    flex: 1 1 auto;
+    font-size: 12px;
+    height: 20px;
+    line-height: 18px;
+    margin: 4px 0px 0px 4px;
+    padding-left: 4px;
+
+    -webkit-app-region: drag;
+  }
+
+  &::ng-deep {
+    a.mat-button[color='accent'] {
+      font-size: 12px;
+      height: 24px;
+      line-height: 24px;
+      min-width: 0px;
+      padding-bottom: 0px;
+      padding-top: 0px;
+
+      &:hover {
+        box-shadow: none;
+      }
+
+      mat-icon.mat-icon {
+        font-size: 14px;
+        height: 14px;
+        width: 14px;
+      }
+    }
+
+    div.container {
+      display: flex;
+    }
+  }
+}

@@ -1,0 +1,15 @@
+@import '../../../../../../../assets/scss/page.scss';
+
+:host {
+  ::ng-deep {
+    mat-icon.connection-status {
+      color: #ffff55;
+      font-size: 20px;
+      float: left;
+      height: 21px;
+      margin-right: 8px;
+      vertical-align: middle;
+      width: 20px;
+    }
+  }
+}

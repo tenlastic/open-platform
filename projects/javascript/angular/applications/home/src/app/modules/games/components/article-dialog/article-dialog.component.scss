@@ -1,0 +1,34 @@
+::ng-deep {
+  div.article-dialog-component {
+    app-markdown.mat-dialog-content {
+      margin: 0px;
+      padding: 0px 8px 0px 0px;
+    }
+
+    div.mat-dialog-title {
+      display: flex;
+      flex-direction: column;
+      margin: 0px;
+
+      h1 {
+        font-size: 1.3em;
+        line-height: 1em;
+        margin: 8px 0px;
+      }
+
+      hr {
+        background: #ffff55;
+        border-color: #ffff55;
+        box-shadow: 3px 3px 3px black;
+        margin: 12px 0px;
+      }
+    }
+
+    span.type-date {
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 12px;
+      font-weight: normal;
+      line-height: 12px;
+    }
+  }
+}
