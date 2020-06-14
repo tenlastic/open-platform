@@ -129,11 +129,20 @@
     }
 
     &::ng-deep {
+      div {
+        display: inline-block;
+
+        div {
+          display: block;
+          font-size: 12px;
+        }
+      }
+
       img {
         filter: drop-shadow(2px 2px black);
         max-height: 20px;
         float: left;
-        margin: 1px 8px 0px 0px;
+        margin: 0px 8px 0px 0px;
       }
 
       mat-icon.mat-icon {

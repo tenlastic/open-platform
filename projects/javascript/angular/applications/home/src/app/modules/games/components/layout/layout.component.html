@@ -5,8 +5,7 @@
     *ngIf="identityService.user"
     color="accent"
     [routerLink]="['/', 'games', activeGame.slug]"
-    routerLinkActive="active"
-    [routerLinkActiveOptions]="{ exact: true }"
+    [ngClass]="{ active: router.url === '/games/' + activeGame.slug }"
   >
     <mat-icon>home</mat-icon>
     <span>Home</span>
@@ -71,9 +70,34 @@
   </app-button>
 </app-header-toolbar>
 
-<div *ngIf="$activeGame | async as activeGame" class="content">
+<div class="content">
   <app-social>
-    <router-outlet></router-outlet>
-    <app-status *ngIf="$showStatusComponent | async as game" [game]="game"></app-status>
+    <app-sidenav>
+      <div *ngIf="($games | async)?.length > 1" class="nav">
+        <app-button
+          *ngFor="let game of $games | async"
+          color="accent"
+          layout="vertical"
+          [routerLink]="['/', 'games', game.slug]"
+          routerLinkActive="active"
+          text="left"
+          width="full"
+        >
+          <img *ngIf="game.icon" [src]="game.icon" />
+          <div>
+            {{ game.title }}
+
+            <div *ngIf="game.subtitle">
+              {{ game.subtitle }}
+            </div>
+          </div>
+        </app-button>
+      </div>
+
+      <div *ngIf="$activeGame | async as activeGame" class="content">
+        <router-outlet></router-outlet>
+        <app-status *ngIf="$showStatusComponent | async as game" [game]="game"></app-status>
+      </div>
+    </app-sidenav>
   </app-social>
 </div>

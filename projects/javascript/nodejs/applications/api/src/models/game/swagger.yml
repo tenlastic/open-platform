@@ -11,8 +11,12 @@ components:
           format: date-time
         description:
           type: string
-        iconUrl:
+        icon:
           type: string
+        images:
+          type: array
+          items:
+            type: string
         slug:
           type: string
           format: ^[0-9a-z\-]{2,40}$
@@ -25,3 +29,7 @@ components:
         updatedAt:
           type: string
           format: date-time
+        videos:
+          type: array
+          items:
+            type: string

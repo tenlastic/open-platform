@@ -59,8 +59,8 @@ export class GamesFormPageComponent implements OnInit {
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
-          { background: 'accent', label: 'No' },
-          { color: 'white', label: 'Yes' },
+          { color: 'primary', label: 'No' },
+          { color: 'accent', label: 'Yes' },
         ],
         message: `Are you sure you want to remove this item?`,
       },
@@ -121,7 +121,7 @@ export class GamesFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       description: [this.data.description, Validators.required],
-      iconUrl: [this.data.icon],
+      icon: [this.data.icon],
       slug: [this.data.slug, Validators.required],
       subtitle: [this.data.subtitle],
       title: [this.data.title, Validators.required],

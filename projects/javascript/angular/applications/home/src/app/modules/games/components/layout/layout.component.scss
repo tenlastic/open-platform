@@ -10,57 +10,30 @@
   app-layout {
     app-button {
       &.disabled {
-        pointer-events: none;
-      }
-
-      &.offline {
-        div.name,
-        div.status,
-        mat-icon.mat-icon:first-of-type {
-          color: #aaaaaa !important;
-        }
-      }
-
-      &.online {
-        div.status {
-          color: #ffff55;
-        }
-      }
-
-      a[color='accent'][disabled] {
         opacity: 0.5;
-      }
-
-      div.label {
-        display: inline-block;
-
-        div.status {
-          font-size: 12px;
-        }
-      }
-
-      span.badge {
-        background: #d74444;
-        float: right;
-        font-size: 12px;
-        height: 20px;
-        margin-left: 8px;
-        margin-top: 8px;
-        padding-right: 2px;
-        text-align: center;
-        width: 20px;
+        pointer-events: none;
       }
     }
   }
 }
 
-div.content {
-  flex: 1 1 auto;
-  overflow: hidden;
-  position: relative;
+app-sidenav app-button img {
+  margin-right: 12px;
+  max-height: 36px;
 }
 
 app-header-toolbar::ng-deep {
+  app-button:first-of-type {
+    a.mat-button {
+      padding: 8px 12px !important;
+    }
+
+    mat-icon {
+      font-size: 18px !important;
+      width: 18px !important;
+    }
+  }
+
   mat-toolbar {
     padding: 0px 16px;
   }
@@ -99,5 +72,24 @@ app-sidenav {
         flex-direction: row;
       }
     }
+  }
+}
+
+div.content {
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding: 0px;
+  position: relative;
+
+  app-sidenav div.content {
+    overflow: auto;
+  }
+}
+
+img.logo {
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(120%);
   }
 }

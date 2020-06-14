@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Game } from '@tenlastic/ng-http';
 
@@ -10,7 +10,7 @@ import { FilesizePipe } from '../../../../shared/pipes';
   styleUrls: ['./status.component.scss'],
   templateUrl: './status.component.html',
 })
-export class StatusComponent implements OnInit {
+export class StatusComponent implements OnChanges, OnInit {
   @Input() public game: Game;
 
   public get buttonIcon() {
@@ -122,6 +122,12 @@ export class StatusComponent implements OnInit {
   ) {}
 
   public ngOnInit() {
+    if (this.updateService) {
+      this.status = this.updateService.getStatus(this.game);
+    }
+  }
+
+  public ngOnChanges(changes: SimpleChanges) {
     if (this.updateService) {
       this.status = this.updateService.getStatus(this.game);
     }

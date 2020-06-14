@@ -26,7 +26,7 @@ GameEvent.on(payload => {
 });
 
 @index({ slug: 1 }, { unique: true })
-@index({ title: 1 }, { unique: true })
+@index({ subtitle: 1, title: 1 }, { unique: true })
 @index({ namespaceId: 1 })
 @modelOptions({
   schemaOptions: {

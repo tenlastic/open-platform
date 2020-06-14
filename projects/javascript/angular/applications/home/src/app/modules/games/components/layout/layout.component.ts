@@ -48,10 +48,12 @@ export class LayoutComponent implements OnDestroy, OnInit {
       }),
     );
   }
-  private selectActiveGame$ = new Subscription();
-  private setBackground$ = new Subscription();
   public launcherUrl = environment.launcherUrl;
   public message: string;
+  public showSidenav = false;
+
+  private selectActiveGame$ = new Subscription();
+  private setBackground$ = new Subscription();
 
   constructor(
     @Inject(DOCUMENT) private document: Document,

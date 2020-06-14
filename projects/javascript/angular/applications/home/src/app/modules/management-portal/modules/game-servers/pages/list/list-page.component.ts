@@ -84,8 +84,8 @@ export class GameServersListPageComponent implements OnInit {
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
-          { background: 'accent', label: 'No' },
-          { color: 'white', label: 'Yes' },
+          { color: 'primary', label: 'No' },
+          { color: 'accent', label: 'Yes' },
         ],
         message: `Are you sure you want to delete this Game Server?`,
       },
