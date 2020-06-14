@@ -10,8 +10,6 @@ export const environment = {
   ignorationApiBaseUrl: 'http://api.localhost/ignorations',
   launcherUrl: 'https://minio.tenlastic.com/launcher/TenlasticLauncherSetup.exe',
   loginApiBaseUrl: 'http://api.localhost/logins',
-  loginUrl: 'http://sso.localhost/login?redirectUrl=http://platform.localhost/oauth',
-  logoutUrl: 'http://sso.localhost/logout?redirectUrl=http://platform.localhost/oauth',
   messageApiBaseUrl: 'http://api.localhost/messages',
   namespaceApiBaseUrl: 'http://api.localhost/namespaces',
   passwordResetApiBaseUrl: 'http://api.localhost/password-resets',

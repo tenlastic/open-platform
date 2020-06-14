@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IdentityService } from '@tenlastic/ng-authentication';
 import {
   Game,
   RefreshToken,
@@ -11,6 +10,7 @@ import {
   ReleaseService,
 } from '@tenlastic/ng-http';
 
+import { IdentityService } from '../../../../../../core/services';
 import { RefreshTokenPromptComponent } from '../../../../../../shared/components';
 
 @Component({

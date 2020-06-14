@@ -2,8 +2,6 @@ import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IdentityService } from '@tenlastic/ng-authentication';
-import { ElectronService } from '@tenlastic/ng-electron';
 import {
   Connection,
   ConnectionQuery,
@@ -32,6 +30,7 @@ import {
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
+import { ElectronService, IdentityService } from '../../../core/services';
 import { InputDialogComponent } from '../input-dialog/input-dialog.component';
 
 export interface Conversation {

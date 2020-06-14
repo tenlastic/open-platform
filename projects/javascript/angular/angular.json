@@ -3,105 +3,6 @@
   "version": 1,
   "newProjectRoot": "modules",
   "projects": {
-    "authentication": {
-      "projectType": "library",
-      "root": "modules/authentication",
-      "sourceRoot": "modules/authentication/src",
-      "prefix": "ten",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
-          "options": {
-            "tsConfig": "modules/authentication/tsconfig.lib.json",
-            "project": "modules/authentication/ng-package.json"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "modules/authentication/src/test.ts",
-            "tsConfig": "modules/authentication/tsconfig.spec.json",
-            "karmaConfig": "modules/authentication/karma.conf.js"
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "modules/authentication/tsconfig.lib.json",
-              "modules/authentication/tsconfig.spec.json"
-            ],
-            "exclude": ["**/node_modules/**"]
-          }
-        }
-      }
-    },
-    "component-library": {
-      "projectType": "library",
-      "root": "modules/component-library",
-      "sourceRoot": "modules/component-library/src",
-      "prefix": "ten",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
-          "options": {
-            "tsConfig": "modules/component-library/tsconfig.lib.json",
-            "project": "modules/component-library/ng-package.json"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "modules/component-library/src/test.ts",
-            "tsConfig": "modules/component-library/tsconfig.spec.json",
-            "karmaConfig": "modules/component-library/karma.conf.js"
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "modules/component-library/tsconfig.lib.json",
-              "modules/component-library/tsconfig.spec.json"
-            ],
-            "exclude": ["**/node_modules/**"]
-          }
-        }
-      }
-    },
-    "electron": {
-      "projectType": "library",
-      "root": "modules/electron",
-      "sourceRoot": "modules/electron/src",
-      "prefix": "ten",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
-          "options": {
-            "tsConfig": "modules/electron/tsconfig.lib.json",
-            "project": "modules/electron/ng-package.json"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "modules/electron/src/test.ts",
-            "tsConfig": "modules/electron/tsconfig.spec.json",
-            "karmaConfig": "modules/electron/karma.conf.js"
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "modules/electron/tsconfig.lib.json",
-              "modules/electron/tsconfig.spec.json"
-            ],
-            "exclude": ["**/node_modules/**"]
-          }
-        }
-      }
-    },
     "http": {
       "projectType": "library",
       "root": "modules/http",
@@ -152,15 +53,7 @@
             "polyfills": "applications/home/src/polyfills.ts",
             "tsConfig": "applications/home/tsconfig.app.json",
             "aot": true,
-            "assets": [
-              "applications/home/src/favicon.ico",
-              "applications/home/src/assets",
-              {
-                "glob": "**/*",
-                "input": "applications/home/node_modules/@tenlastic/ng-component-library/src/assets/",
-                "output": "./assets/"
-              }
-            ],
+            "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets"],
             "styles": [
               "applications/home/src/assets/scss/index.scss",
               {
@@ -257,15 +150,7 @@
             "polyfills": "applications/home/src/polyfills.ts",
             "tsConfig": "applications/home/tsconfig.spec.json",
             "karmaConfig": "applications/home/karma.conf.js",
-            "assets": [
-              "applications/home/src/favicon.ico",
-              "applications/home/src/assets",
-              {
-                "glob": "**/*",
-                "input": "applications/home/node_modules/@tenlastic/ng-component-library/src/assets/",
-                "output": "./assets/"
-              }
-            ],
+            "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets"],
             "styles": ["applications/home/src/assets/scss/index.scss"],
             "scripts": []
           }

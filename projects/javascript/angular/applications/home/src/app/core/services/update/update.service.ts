@@ -1,11 +1,11 @@
 import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { IdentityService } from '@tenlastic/ng-authentication';
-import { ElectronService } from '@tenlastic/ng-electron';
 import { File, FileService, Game, Release, ReleaseService } from '@tenlastic/ng-http';
 import { ChildProcess } from 'child_process';
 import { Subject } from 'rxjs';
 import { last, map, tap, retry } from 'rxjs/operators';
+
+import { ElectronService, IdentityService } from '../../services';
 
 export enum UpdateServiceState {
   Checking,

@@ -11,7 +11,6 @@ import {
   ViewChild,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { IdentityService } from '@tenlastic/ng-authentication';
 import {
   FileService,
   IRelease,
@@ -23,7 +22,7 @@ import {
 import JSZip from 'jszip';
 import { last, map, tap } from 'rxjs/operators';
 
-import { FileReaderService } from '../../../../../../core/services';
+import { FileReaderService, IdentityService } from '../../../../../../core/services';
 
 export interface FileFormComponentData {
   platform: IRelease.Platform;

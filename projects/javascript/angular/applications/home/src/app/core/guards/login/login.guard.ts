@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { CanActivate } from '@angular/router';
-import { IdentityService } from '@tenlastic/ng-authentication';
 import { LoginService } from '@tenlastic/ng-http';
+
+import { IdentityService } from '../../services';
 
 @Injectable({ providedIn: 'root' })
 export class LoginGuard implements CanActivate {

@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { ElectronService } from '@tenlastic/ng-electron';
 import { UserService } from '@tenlastic/ng-http';
 
 import { environment } from '../../../../../environments/environment';
+import { ElectronService } from '../../../../core/services';
 
 @Component({
   templateUrl: 'home.component.html',

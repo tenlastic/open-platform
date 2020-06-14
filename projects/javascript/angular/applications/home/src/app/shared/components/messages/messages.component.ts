@@ -1,6 +1,5 @@
 import { Component, ElementRef, Input, OnChanges, OnDestroy, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
-import { IdentityService } from '@tenlastic/ng-authentication';
 import {
   Connection,
   ConnectionQuery,
@@ -21,6 +20,8 @@ import {
 } from '@tenlastic/ng-http';
 import { Subscription, Observable, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
+
+import { IdentityService } from '../../../core/services';
 
 @Component({
   selector: 'app-messages',

@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material';
-import { IdentityService } from '@tenlastic/ng-authentication';
 import {
   Group,
   GroupInvitationService,
@@ -25,6 +24,7 @@ import {
 import { Subscription, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { IdentityService } from '../../../core/services';
 import { InputDialogComponent } from '../input-dialog/input-dialog.component';
 import { PromptComponent } from '../prompt/prompt.component';
 

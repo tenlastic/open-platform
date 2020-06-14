@@ -47,9 +47,9 @@
     <app-button
       color="accent"
       layout="vertical"
+      routerLink="/authentication/log-out"
       text="left"
       width="full"
-      (OnClick)="navigateToLogout()"
     >
       <mat-icon>exit_to_app</mat-icon>
       <span>Log out</span>
@@ -59,8 +59,8 @@
   <app-button
     *ngIf="!identityService.user"
     color="accent"
+    routerLink="/authentication/log-in"
     [ngClass]="{ active: router.url.includes('/authentication') }"
-    (OnClick)="navigateToLogin()"
   >
     <mat-icon>lock</mat-icon>
     <span>Log In</span>

@@ -2,9 +2,9 @@ import { DOCUMENT } from '@angular/common';
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IdentityService } from '@tenlastic/ng-authentication';
 import { LoginService } from '@tenlastic/ng-http';
 
+import { IdentityService } from '../../../../core/services';
 import { TITLE } from '../../../../shared/constants';
 import { ILogIn, LoginFormComponent } from '../../components';
 

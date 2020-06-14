@@ -1,10 +1,9 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IdentityService } from '@tenlastic/ng-authentication';
 import { Article, ArticleService, Game, GameService, GameStore } from '@tenlastic/ng-http';
 
-import { BackgroundService } from '../../../../core/services';
+import { BackgroundService, IdentityService } from '../../../../core/services';
 import { ArticleDialogComponent, StatusComponent } from '../../components';
 
 @Component({

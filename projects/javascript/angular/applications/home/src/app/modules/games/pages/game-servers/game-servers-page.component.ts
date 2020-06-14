@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { IdentityService } from '@tenlastic/ng-authentication';
 import {
   Game,
   GameQuery,
@@ -12,7 +11,7 @@ import {
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
-import { UpdateService, UpdateServiceState } from '../../../../core/services';
+import { IdentityService, UpdateService } from '../../../../core/services';
 
 @Component({
   styleUrls: ['./game-servers-page.component.scss'],

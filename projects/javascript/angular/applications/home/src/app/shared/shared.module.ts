@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { ElectronModule } from '@tenlastic/ng-electron';
 
 import { MaterialModule } from '../material.module';
 import {
@@ -56,7 +55,6 @@ const components = [
 ];
 const modules = [
   CommonModule,
-  ElectronModule,
   FormsModule,
   LayoutModule,
   MaterialModule,

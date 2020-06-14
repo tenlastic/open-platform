@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IdentityService } from '@tenlastic/ng-authentication';
 import {
   Game,
   GameServer,
@@ -11,7 +10,7 @@ import {
   ReleaseService,
 } from '@tenlastic/ng-http';
 
-import { SelectedNamespaceService } from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 
 interface PropertyFormGroup {
   key?: string;

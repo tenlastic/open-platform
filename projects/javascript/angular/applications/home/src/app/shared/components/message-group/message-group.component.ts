@@ -1,5 +1,4 @@
 import { Component, Input } from '@angular/core';
-import { IdentityService } from '@tenlastic/ng-authentication';
 import {
   ConnectionQuery,
   GroupQuery,
@@ -11,6 +10,8 @@ import {
 } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+
+import { IdentityService } from '../../../core/services';
 
 @Component({
   selector: 'app-message-group',

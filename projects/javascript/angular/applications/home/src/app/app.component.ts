@@ -1,9 +1,6 @@
-import { DOCUMENT } from '@angular/common';
 import { Title } from '@angular/platform-browser';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { IdentityService, SocketService } from '@tenlastic/ng-authentication';
-import { ElectronService } from '@tenlastic/ng-electron';
 import {
   Connection,
   ConnectionService,
@@ -20,10 +17,13 @@ import {
   ReleaseService,
 } from '@tenlastic/ng-http';
 
-import { environment } from '../environments/environment';
-import { BackgroundService, CrudSnackbarService } from './core/services';
+import {
+  BackgroundService,
+  CrudSnackbarService,
+  IdentityService,
+  SocketService,
+} from './core/services';
 import { TITLE } from './shared/constants';
-import {} from 'modules/http/src/public-api';
 
 @Component({
   selector: 'app-root',
@@ -31,11 +31,9 @@ import {} from 'modules/http/src/public-api';
 })
 export class AppComponent implements OnInit {
   constructor(
-    @Inject(DOCUMENT) private document: Document,
     public backgroundService: BackgroundService,
     private connectionService: ConnectionService,
     private crudSnackbarService: CrudSnackbarService,
-    private electronService: ElectronService,
     private gameServerService: GameServerService,
     private groupService: GroupService,
     private groupInvitationService: GroupInvitationService,
@@ -61,11 +59,7 @@ export class AppComponent implements OnInit {
   }
 
   public navigateToLogin() {
-    if (this.electronService.isElectron) {
-      this.router.navigateByUrl('/authentication/log-in');
-    } else {
-      this.document.location.href = environment.loginUrl;
-    }
+    this.router.navigateByUrl('/authentication/log-in');
   }
 
   private watch() {

@@ -135,7 +135,7 @@ function createWindow() {
     require('electron-reload')(__dirname, {
       electron: require(`${__dirname}/../../node_modules/electron`),
     });
-    win.loadURL('http://platform.localhost');
+    win.loadURL('http://www.localhost');
 
     win.webContents.openDevTools();
   } else {

@@ -1,13 +1,17 @@
 import { DOCUMENT } from '@angular/common';
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { EnvironmentService, IdentityService } from '@tenlastic/ng-authentication';
-import { ElectronService } from '@tenlastic/ng-electron';
-import { ConnectionQuery, Game, GameQuery, GameService, GameStore } from '@tenlastic/ng-http';
+import { Game, GameQuery, GameService, GameStore } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { BackgroundService, UpdateService, UpdateServiceState } from '../../../../core/services';
+import {
+  BackgroundService,
+  ElectronService,
+  IdentityService,
+  UpdateService,
+  UpdateServiceState,
+} from '../../../../core/services';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -53,9 +57,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     @Inject(DOCUMENT) private document: Document,
     private backgroundService: BackgroundService,
     private changeDetectorRef: ChangeDetectorRef,
-    private connectionQuery: ConnectionQuery,
     public electronService: ElectronService,
-    public environmentService: EnvironmentService,
     private gameQuery: GameQuery,
     private gameService: GameService,
     private gameStore: GameStore,
@@ -113,22 +115,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
       default:
         return null;
-    }
-  }
-
-  public navigateToLogin() {
-    if (this.electronService.isElectron) {
-      this.router.navigateByUrl('/authentication/log-in');
-    } else {
-      this.document.location.href = environment.loginUrl;
-    }
-  }
-
-  public navigateToLogout() {
-    if (this.electronService.isElectron) {
-      this.router.navigateByUrl('/authentication/log-out');
-    } else {
-      this.document.location.href = environment.logoutUrl;
     }
   }
 

@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IdentityService } from '@tenlastic/ng-authentication';
 import { Collection, CollectionService, Database, DatabaseService } from '@tenlastic/ng-http';
 
-import { CollectionFormService } from '../../../../../../core/services';
+import { CollectionFormService, IdentityService } from '../../../../../../core/services';
 
 @Component({
   templateUrl: 'form-page.component.html',

@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IdentityService } from '@tenlastic/ng-authentication';
 import { Namespace, NamespaceService, UserService } from '@tenlastic/ng-http';
+
+import { IdentityService } from '../../../../../../core/services';
 
 export interface AccessControlListItem {
   roles: string[];

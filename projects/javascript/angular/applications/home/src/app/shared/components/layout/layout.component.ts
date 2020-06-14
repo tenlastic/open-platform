@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
-import { IdentityService } from '@tenlastic/ng-authentication';
-import { ElectronService } from '@tenlastic/ng-electron';
 import { Namespace, NamespaceService } from '@tenlastic/ng-http';
+
+import { ElectronService, IdentityService } from '../../../core/services';
 import { PromptComponent } from '../prompt/prompt.component';
 
 @Component({

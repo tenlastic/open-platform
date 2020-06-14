@@ -1,18 +1,15 @@
 import { DOCUMENT } from '@angular/common';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { AuthenticationModule, IdentityService } from '@tenlastic/ng-authentication';
 import { EnvironmentService, HttpModule, LoginService } from '@tenlastic/ng-http';
 import { Chance } from 'chance';
 import * as jsonwebtoken from 'jsonwebtoken';
 
+import { IdentityService } from '../../services';
 import { LoginGuard } from './login.guard';
 
 describe('LoginGuard', () => {
   const chance = new Chance();
-
-  const loginUrl = chance.url();
-  const logoutUrl = chance.url();
 
   let document: Document;
   let identityService: IdentityService;
@@ -21,11 +18,7 @@ describe('LoginGuard', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        AuthenticationModule.forRoot({ loginUrl, logoutUrl }),
-        HttpClientTestingModule,
-        HttpModule,
-      ],
+      imports: [HttpClientTestingModule, HttpModule],
       providers: [
         IdentityService,
         {

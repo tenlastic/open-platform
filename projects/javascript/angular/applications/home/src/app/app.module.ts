@@ -1,8 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
-import { AuthenticationModule, OAuthComponent } from '@tenlastic/ng-authentication';
-import { ElectronModule } from '@tenlastic/ng-electron';
 import { HttpModule } from '@tenlastic/ng-http';
 
 import { environment } from '../environments/environment';
@@ -41,10 +39,6 @@ export const ROUTES: Routes = [
     path: 'management-portal',
   },
   {
-    component: OAuthComponent,
-    path: 'oauth',
-  },
-  {
     component: LayoutComponent,
     loadChildren: () => import('./modules/home/home.module').then(m => m.HomeModule),
     path: '',
@@ -56,9 +50,7 @@ export const ROUTES: Routes = [
   entryComponents: [AppComponent],
   imports: [
     environment.production ? [] : AkitaNgDevtools,
-    AuthenticationModule.forRoot(environment),
     CoreModule,
-    ElectronModule,
     HttpModule.forRoot(environment),
     SharedModule,
     RouterModule.forRoot(ROUTES, { useHash: environment.useHash }),
