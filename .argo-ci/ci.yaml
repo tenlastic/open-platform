@@ -191,7 +191,7 @@ spec:
       script:
         image: alpine/git:latest
         command: [sh]
-        source: git branch --contains {{inputs.parameters.revision}} --remotes | cut -c 3-
+        source: git branch --contains {{inputs.parameters.revision}} --remotes | tail +2 | cut -c 3-
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
