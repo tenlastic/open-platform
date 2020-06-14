@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: home-ui
+  labels:
+    app: home-ui
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: home-ui
+    spec:
+      containers:
+        - name: home-ui
+          image: node:10
+          command: ["npm", "run", "start"]
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: app
+              mountPath: /usr/src/app/
+          workingDir: /usr/src/app/projects/javascript/angular/applications/home/
+      volumes:
+        - name: app
+          hostPath:
+            path: /c/open-platform/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-ui
+  labels:
+    app: home-ui
+    service: home-ui
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: home-ui

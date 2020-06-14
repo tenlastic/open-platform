@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: home-ui
+  labels:
+    app: home-ui
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: home-ui
+    spec:
+      containers:
+        - name: home-ui
+          image: tenlastic/home-ui:0.0.76
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-ui
+  labels:
+    app: home-ui
+    service: home-ui
+spec:
+  ports:
+    - port: 80
+      name: http
+  selector:
+    app: home-ui
