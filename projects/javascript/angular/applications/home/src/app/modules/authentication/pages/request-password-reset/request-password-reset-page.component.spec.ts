@@ -2,11 +2,11 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AppModule } from '../../../../app.module';
 import { AuthenticationModule } from '../../authentication.module';
-import { ResetPasswordPageComponent } from './reset-password-page.component';
+import { RequestPasswordResetPageComponent } from './request-password-reset-page.component';
 
 describe('ResetPasswordPage', () => {
-  let component: ResetPasswordPageComponent;
-  let fixture: ComponentFixture<ResetPasswordPageComponent>;
+  let component: RequestPasswordResetPageComponent;
+  let fixture: ComponentFixture<RequestPasswordResetPageComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -15,7 +15,7 @@ describe('ResetPasswordPage', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ResetPasswordPageComponent);
+    fixture = TestBed.createComponent(RequestPasswordResetPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
