@@ -13,6 +13,8 @@ import { PromptComponent } from '../prompt/prompt.component';
 export class LayoutComponent implements OnInit {
   public namespaces: Namespace[] = [];
 
+  private updateAvailable = false;
+
   constructor(
     public electronService: ElectronService,
     public identityService: IdentityService,
@@ -34,18 +36,29 @@ export class LayoutComponent implements OnInit {
       }
 
       if (text.includes('Update downloaded')) {
-        console.log('Restart to install update.');
+        this.updateAvailable = true;
       }
     });
   }
 
   public close() {
+    let buttons = [];
+    if (this.updateAvailable) {
+      buttons = [
+        { color: 'accent', label: 'Minimize to Taskbar' },
+        { color: 'primary', label: 'Update and Restart' },
+        { color: 'accent', label: 'Close' },
+      ];
+    } else {
+      buttons = [
+        { color: 'accent', label: 'Minimize to Taskbar' },
+        { color: 'primary', label: 'Close' },
+      ];
+    }
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
-        buttons: [
-          { color: 'accent', label: 'Minimize to Taskbar' },
-          { color: 'primary', label: 'Close' },
-        ],
+        buttons,
         message: `Are you sure you want to close the launcher?`,
       },
     });
@@ -54,6 +67,9 @@ export class LayoutComponent implements OnInit {
       if (result === 'Minimize to Taskbar') {
         const window = this.electronService.remote.getCurrentWindow();
         window.close();
+      } else if (result === 'Update and Restart') {
+        const { ipcRenderer } = this.electronService;
+        ipcRenderer.send('quitAndInstall');
       } else if (result === 'Close') {
         this.electronService.remote.app.quit();
       }

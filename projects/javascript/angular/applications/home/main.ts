@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, Menu, protocol, shell, Tray } from 'electron';
+import { app, BrowserWindow, globalShortcut, ipcMain, Menu, protocol, shell, Tray } from 'electron';
 import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
@@ -45,6 +45,7 @@ autoUpdater.on('update-downloaded', info => {
   sendStatusToWindow('Update downloaded');
 });
 app.on('ready', () => autoUpdater.checkForUpdatesAndNotify());
+ipcMain.on('quitAndInstall', () => autoUpdater.quitAndInstall());
 
 // ==================
 // COMMAND LINE FLAGS
