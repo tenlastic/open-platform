@@ -8,6 +8,7 @@ import * as minio from '@tenlastic/minio';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { WebServer, WebSocketServer } from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
+import * as path from 'path';
 
 import { MINIO_BUCKET, MONGO_DATABASE_NAME } from './constants';
 import { router as articlesRouter } from './handlers/articles';
@@ -137,7 +138,7 @@ webServer.use(refreshTokensRouter.routes());
 webServer.use(releaseTasksRouter.routes());
 webServer.use(releasesRouter.routes());
 webServer.use(usersRouter.routes());
-webServer.serve('public', '/', 'index.html');
+webServer.serve(path.resolve(__dirname, 'public'), '/', 'index.html');
 webServer.start();
 
 // Web Sockets.
