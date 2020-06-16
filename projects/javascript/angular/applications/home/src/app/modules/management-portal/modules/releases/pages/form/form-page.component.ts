@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Game, GameService, Release, ReleaseTask, ReleaseService } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -27,6 +29,7 @@ export class ReleasesFormPageComponent implements OnInit {
     private formBuilder: FormBuilder,
     private gameService: GameService,
     public identityService: IdentityService,
+    private matSnackBar: MatSnackBar,
     private releaseService: ReleaseService,
     private router: Router,
     public selectedNamespaceService: SelectedNamespaceService,
@@ -78,6 +81,7 @@ export class ReleasesFormPageComponent implements OnInit {
   private async create(data: Partial<Release>) {
     try {
       const result = await this.releaseService.create(data);
+      this.matSnackBar.open('Release created successfully.', null, { duration: SNACKBAR_DURATION });
       this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That version is already taken.';
@@ -101,6 +105,7 @@ export class ReleasesFormPageComponent implements OnInit {
 
     try {
       await this.releaseService.update(data);
+      this.matSnackBar.open('Release updated successfully.', null, { duration: SNACKBAR_DURATION });
     } catch (e) {
       this.error = 'That version is already taken.';
     }

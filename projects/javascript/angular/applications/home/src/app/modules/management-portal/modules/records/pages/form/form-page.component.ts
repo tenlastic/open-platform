@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   Collection,
@@ -9,6 +10,8 @@ import {
   Record,
   RecordService,
 } from '@tenlastic/ng-http';
+
+import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -27,6 +30,7 @@ export class RecordsFormPageComponent implements OnInit {
     private collectionService: CollectionService,
     private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
+    private matSnackBar: MatSnackBar,
     private recordService: RecordService,
     private router: Router,
   ) {}
@@ -109,6 +113,7 @@ export class RecordsFormPageComponent implements OnInit {
   private async create(data: Partial<Record>) {
     try {
       await this.recordService.create(this.database.name, this.collection.name, data);
+      this.matSnackBar.open('Record created successfully.', null, { duration: SNACKBAR_DURATION });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That name is already taken.';
@@ -171,6 +176,7 @@ export class RecordsFormPageComponent implements OnInit {
 
     try {
       await this.recordService.update(this.database.name, this.collection.name, data);
+      this.matSnackBar.open('Record updated successfully.', null, { duration: SNACKBAR_DURATION });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That name is already taken.';

@@ -19,12 +19,7 @@ import {
   ReleaseService,
 } from '@tenlastic/ng-http';
 
-import {
-  BackgroundService,
-  CrudSnackbarService,
-  IdentityService,
-  SocketService,
-} from './core/services';
+import { BackgroundService, IdentityService, SocketService } from './core/services';
 import { TITLE } from './shared/constants';
 
 @Component({
@@ -35,7 +30,6 @@ export class AppComponent implements OnInit {
   constructor(
     public backgroundService: BackgroundService,
     private connectionService: ConnectionService,
-    private crudSnackbarService: CrudSnackbarService,
     private gameInvitationService: GameInvitationService,
     private gameServerService: GameServerService,
     private groupService: GroupService,

@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Game, GameService } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
+import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 import { MediaDialogComponent } from '../../components';
 
 @Component({
@@ -23,6 +24,7 @@ export class GamesFormPageComponent implements OnInit {
     private gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private router: Router,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
@@ -110,6 +112,7 @@ export class GamesFormPageComponent implements OnInit {
   private async create(data: Partial<Game>) {
     try {
       const response = await this.gameService.create(data);
+      this.matSnackBar.open('Game created successfully.', null, { duration: SNACKBAR_DURATION });
       this.router.navigate(['../', response.slug], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That slug is already taken.';
@@ -135,6 +138,7 @@ export class GamesFormPageComponent implements OnInit {
 
     try {
       this.data = await this.gameService.update(data);
+      this.matSnackBar.open('Game updated successfully.', null, { duration: SNACKBAR_DURATION });
     } catch (e) {
       this.error = 'That slug is already taken.';
     }

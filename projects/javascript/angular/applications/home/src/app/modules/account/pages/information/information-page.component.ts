@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute } from '@angular/router';
 import { User, UserService } from '@tenlastic/ng-http';
 
 import { IdentityService } from '../../../../core/services';
+import { SNACKBAR_DURATION } from '../../../../shared/constants';
 
 @Component({ templateUrl: 'information-page.component.html' })
 export class InformationPageComponent implements OnInit {
@@ -16,6 +18,7 @@ export class InformationPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
+    private matSnackbar: MatSnackBar,
     private userService: UserService,
   ) {}
 
@@ -55,6 +58,7 @@ export class InformationPageComponent implements OnInit {
   private async create(data: Partial<User>) {
     try {
       await this.userService.create(data);
+      this.matSnackbar.open('User created successfully.', null, { duration: SNACKBAR_DURATION });
     } catch (e) {
       this.error = 'That email is already taken.';
     }
@@ -76,6 +80,7 @@ export class InformationPageComponent implements OnInit {
 
     try {
       await this.userService.update(data);
+      this.matSnackbar.open('User updated successfully.', null, { duration: SNACKBAR_DURATION });
     } catch (e) {
       this.error = 'That email is already taken.';
     }

@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Article, ArticleService, Game, GameService } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -27,6 +29,7 @@ export class ArticlesFormPageComponent implements OnInit {
     private formBuilder: FormBuilder,
     private gameService: GameService,
     public identityService: IdentityService,
+    private matSnackBar: MatSnackBar,
     private router: Router,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
@@ -81,6 +84,7 @@ export class ArticlesFormPageComponent implements OnInit {
   private async create(data: Partial<Article>) {
     try {
       await this.articleService.create(data);
+      this.matSnackBar.open('Article created successfully.', null, { duration: SNACKBAR_DURATION });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That slug is already taken.';
@@ -106,6 +110,7 @@ export class ArticlesFormPageComponent implements OnInit {
 
     try {
       await this.articleService.update(data);
+      this.matSnackBar.open('Article updated successfully.', null, { duration: SNACKBAR_DURATION });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That slug is already taken.';

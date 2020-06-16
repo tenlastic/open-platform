@@ -14,7 +14,6 @@ export class InformationPageComponent implements OnInit {
   @ViewChild('video', { static: false }) private video: ElementRef;
 
   public articles: Article[];
-  public articlesByDate: Article[][];
   public game: Game;
   public error: string;
   public loadingMessage: string;
@@ -64,7 +63,6 @@ export class InformationPageComponent implements OnInit {
           gameId: this.game._id,
         },
       });
-      this.articlesByDate = this.groupByDate(this.articles);
 
       this.backgroundService.subject.next(this.game.background || '/assets/images/background.jpg');
 
@@ -105,14 +103,5 @@ export class InformationPageComponent implements OnInit {
       data: { article },
       width: '1000000px',
     });
-  }
-
-  private groupByDate(articles: Article[]) {
-    const map = new Map<any, any>(
-      Array.from(articles, obj => [obj.publishedAt.toLocaleDateString(), []]),
-    );
-    articles.forEach(obj => map.get(obj.publishedAt.toLocaleDateString()).push(obj));
-
-    return Array.from(map.values());
   }
 }

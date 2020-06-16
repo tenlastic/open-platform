@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   Game,
@@ -11,6 +12,7 @@ import {
 } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 interface PropertyFormGroup {
   key?: string;
@@ -37,6 +39,7 @@ export class GameServersFormPageComponent implements OnInit {
     private gameServerService: GameServerService,
     private gameService: GameService,
     public identityService: IdentityService,
+    private matSnackBar: MatSnackBar,
     private releaseService: ReleaseService,
     private router: Router,
     private selectedNamespaceService: SelectedNamespaceService,
@@ -111,6 +114,9 @@ export class GameServersFormPageComponent implements OnInit {
   private async create(data: Partial<GameServer>) {
     try {
       await this.gameServerService.create(data);
+      this.matSnackBar.open('Game Server created successfully.', null, {
+        duration: SNACKBAR_DURATION,
+      });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That name is already taken.';
@@ -195,6 +201,9 @@ export class GameServersFormPageComponent implements OnInit {
 
     try {
       await this.gameServerService.update(data);
+      this.matSnackBar.open('Game Server updated successfully.', null, {
+        duration: SNACKBAR_DURATION,
+      });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That name is already taken.';

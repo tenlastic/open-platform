@@ -7,7 +7,7 @@
         <mat-label>Game</mat-label>
         <mat-select formControlName="gameId">
           <mat-option *ngFor="let game of games" [value]="game._id">
-            {{ game.title }}
+            {{ game.fullTitle }}
           </mat-option>
         </mat-select>
         <mat-error>Choose a game.</mat-error>

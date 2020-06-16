@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { User, UserService } from '@tenlastic/ng-http';
 
 import { IdentityService } from '../../../../../../core/services';
+import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -19,6 +21,7 @@ export class UsersFormPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
+    private matSnackBar: MatSnackBar,
     private router: Router,
     private userService: UserService,
   ) {}
@@ -68,6 +71,7 @@ export class UsersFormPageComponent implements OnInit {
   private async create(data: Partial<User>) {
     try {
       await this.userService.create(data);
+      this.matSnackBar.open('User created successfully.', null, { duration: SNACKBAR_DURATION });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That email is already taken.';
@@ -91,6 +95,7 @@ export class UsersFormPageComponent implements OnInit {
 
     try {
       await this.userService.update(data);
+      this.matSnackBar.open('User updated successfully.', null, { duration: SNACKBAR_DURATION });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That email is already taken.';

@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Namespace, NamespaceService, UserService } from '@tenlastic/ng-http';
 
 import { IdentityService } from '../../../../../../core/services';
+import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 export interface AccessControlListItem {
   roles: string[];
@@ -25,6 +27,7 @@ export class NamespacesFormPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
+    private matSnackBar: MatSnackBar,
     private namespaceService: NamespaceService,
     private router: Router,
     private userService: UserService,
@@ -85,6 +88,9 @@ export class NamespacesFormPageComponent implements OnInit {
   private async create(data: Partial<Namespace>) {
     try {
       await this.namespaceService.create(data);
+      this.matSnackBar.open('Namespace created successfully.', null, {
+        duration: SNACKBAR_DURATION,
+      });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That name is already taken.';
@@ -125,6 +131,9 @@ export class NamespacesFormPageComponent implements OnInit {
 
     try {
       await this.namespaceService.update(data);
+      this.matSnackBar.open('Namespace updated successfully.', null, {
+        duration: SNACKBAR_DURATION,
+      });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That name is already taken.';

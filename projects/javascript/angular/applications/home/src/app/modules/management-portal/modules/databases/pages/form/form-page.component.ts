@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Database, DatabaseService } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -19,6 +21,7 @@ export class DatabasesFormPageComponent implements OnInit {
     private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
+    private matSnackBar: MatSnackBar,
     private router: Router,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
@@ -57,6 +60,9 @@ export class DatabasesFormPageComponent implements OnInit {
   private async create(data: Partial<Database>) {
     try {
       await this.databaseService.create(data);
+      this.matSnackBar.open('Database created successfully.', null, {
+        duration: SNACKBAR_DURATION,
+      });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That name is already taken.';
@@ -78,6 +84,9 @@ export class DatabasesFormPageComponent implements OnInit {
 
     try {
       await this.databaseService.update(data);
+      this.matSnackBar.open('Database updated successfully.', null, {
+        duration: SNACKBAR_DURATION,
+      });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That name is already taken.';

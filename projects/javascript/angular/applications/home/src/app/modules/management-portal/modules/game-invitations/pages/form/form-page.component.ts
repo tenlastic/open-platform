@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   Game,
@@ -13,6 +14,7 @@ import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -35,6 +37,7 @@ export class GameInvitationsFormPageComponent implements OnInit {
     private gameInvitationService: GameInvitationService,
     private gameService: GameService,
     public identityService: IdentityService,
+    private matSnackBar: MatSnackBar,
     private router: Router,
     public selectedNamespaceService: SelectedNamespaceService,
     private userService: UserService,
@@ -88,6 +91,9 @@ export class GameInvitationsFormPageComponent implements OnInit {
   private async create(data: Partial<GameInvitation>) {
     try {
       await this.gameInvitationService.create(data);
+      this.matSnackBar.open('Game Invitation created successfully.', null, {
+        duration: SNACKBAR_DURATION,
+      });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'An error occurred creating Game Invitation.';

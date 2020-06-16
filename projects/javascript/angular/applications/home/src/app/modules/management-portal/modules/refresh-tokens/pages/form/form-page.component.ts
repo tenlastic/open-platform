@@ -1,17 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  Game,
-  RefreshToken,
-  RefreshTokenService,
-  Release,
-  ReleaseService,
-} from '@tenlastic/ng-http';
+import { Game, RefreshToken, RefreshTokenService, Release } from '@tenlastic/ng-http';
 
 import { IdentityService } from '../../../../../../core/services';
 import { RefreshTokenPromptComponent } from '../../../../../../shared/components';
+import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -31,8 +26,8 @@ export class RefreshTokensFormPageComponent implements OnInit {
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private refreshTokenService: RefreshTokenService,
-    private releaseService: ReleaseService,
     private router: Router,
   ) {}
 
@@ -70,6 +65,9 @@ export class RefreshTokensFormPageComponent implements OnInit {
 
     try {
       const result = await this.refreshTokenService.create(data);
+      this.matSnackBar.open('Refresh Token created successfully.', null, {
+        duration: SNACKBAR_DURATION,
+      });
       refreshToken = result.refreshToken;
     } catch (e) {
       this.error = 'That description is already taken.';
@@ -100,6 +98,9 @@ export class RefreshTokensFormPageComponent implements OnInit {
 
     try {
       await this.refreshTokenService.update(data);
+      this.matSnackBar.open('Refresh Token updated successfully.', null, {
+        duration: SNACKBAR_DURATION,
+      });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.error = 'That name is already taken.';
