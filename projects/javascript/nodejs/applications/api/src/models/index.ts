@@ -5,6 +5,7 @@ export * from './database';
 export * from './file';
 export * from './friend';
 export * from './game';
+export * from './game-invitation';
 export * from './game-server';
 export * from './group';
 export * from './group-invitation';

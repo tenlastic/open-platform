@@ -47,7 +47,7 @@
     display: block;
   }
 
-  &[mat-icon-button] {
+  &[mat-icon-button] a.mat-button {
     min-width: 0px;
     padding: 2px 8px;
   }

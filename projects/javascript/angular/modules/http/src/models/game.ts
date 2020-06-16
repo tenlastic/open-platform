@@ -17,4 +17,9 @@ export class Game extends Model {
   constructor(params?: Partial<Game>) {
     super(params);
   }
+
+  public get fullTitle() {
+    const subtitle = this.subtitle ? `: ${this.subtitle}` : '';
+    return `${this.title}${subtitle}`;
+  }
 }

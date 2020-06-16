@@ -1,9 +1,11 @@
 import { Title } from '@angular/platform-browser';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import {
   Connection,
   ConnectionService,
+  GameInvitation,
+  GameInvitationService,
   GameServer,
   GameServerService,
   Group,
@@ -34,6 +36,7 @@ export class AppComponent implements OnInit {
     public backgroundService: BackgroundService,
     private connectionService: ConnectionService,
     private crudSnackbarService: CrudSnackbarService,
+    private gameInvitationService: GameInvitationService,
     private gameServerService: GameServerService,
     private groupService: GroupService,
     private groupInvitationService: GroupInvitationService,
@@ -44,18 +47,36 @@ export class AppComponent implements OnInit {
     private router: Router,
     private socketService: SocketService,
     private titleService: Title,
-  ) {
+  ) {}
+
+  public ngOnInit() {
     this.titleService.setTitle(`${TITLE}`);
 
+    // Navigate to login page on logout.
+    this.loginService.onLogout.subscribe(() => this.navigateToLogin());
+
+    // Handle websockets when logging in and out.
     this.loginService.onLogin.subscribe(() => this.watch());
     this.loginService.onLogout.subscribe(() => this.socketService.closeAll());
 
-    this.loginService.onLogout.subscribe(() => this.navigateToLogin());
-  }
-
-  public ngOnInit() {
-    this.watch();
+    // Handle websockets when access token is set.
     this.identityService.OnAccessTokenSet.subscribe(() => this.watch());
+
+    // Connect to websockets.
+    this.watch();
+
+    // Load previous url if set.
+    const url = localStorage.getItem('url');
+    if (url) {
+      this.router.navigateByUrl(url);
+    }
+
+    // Remember url when changing pages.
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        localStorage.setItem('url', event.url);
+      }
+    });
   }
 
   public navigateToLogin() {
@@ -66,6 +87,7 @@ export class AppComponent implements OnInit {
     this.socketService.closeAll();
 
     this.socketService.watch(Connection, this.connectionService, {});
+    this.socketService.watch(GameInvitation, this.gameInvitationService, {});
     this.socketService.watch(GameServer, this.gameServerService, {});
     this.socketService.watch(Group, this.groupService, {});
     this.socketService.watch(GroupInvitation, this.groupInvitationService, {});

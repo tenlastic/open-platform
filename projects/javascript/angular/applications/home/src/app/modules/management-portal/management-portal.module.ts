@@ -21,6 +21,14 @@ export const ROUTES: Routes = [
         canActivate: [NamespaceGuard],
       },
       {
+        path: 'game-invitations',
+        loadChildren: () =>
+          import('./modules/game-invitations/game-invitations.module').then(
+            m => m.GameInvitationModule,
+          ),
+        canActivate: [NamespaceGuard],
+      },
+      {
         path: 'game-servers',
         loadChildren: () =>
           import('./modules/game-servers/game-servers.module').then(m => m.GameServerModule),

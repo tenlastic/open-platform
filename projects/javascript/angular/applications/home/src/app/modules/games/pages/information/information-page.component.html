@@ -38,14 +38,10 @@
         </mat-grid-list>
       </div>
       <div class="col-sm-6">
-        <app-title>{{ game.title }}</app-title>
-        <hr />
         <app-markdown [markdown]="game.description"></app-markdown>
       </div>
 
       <div *ngIf="articlesByDate.length > 0" class="col-sm-12 news-container">
-        <app-title>News</app-title>
-        <hr />
         <div class="row">
           <div *ngFor="let group of articlesByDate" class="col-sm-6">
             <h2>{{ group[0].publishedAt | date: 'longDate' }}</h2>

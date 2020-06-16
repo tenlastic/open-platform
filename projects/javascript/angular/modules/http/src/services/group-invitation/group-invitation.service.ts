@@ -58,17 +58,4 @@ export class GroupInvitationService {
 
     return record;
   }
-
-  public async update(parameters: Partial<GroupInvitation>): Promise<GroupInvitation> {
-    const response = await this.apiService.request(
-      'put',
-      `${this.basePath}/${parameters._id}`,
-      parameters,
-    );
-
-    const record = new GroupInvitation(response.record);
-    this.onUpdate.emit(record);
-
-    return record;
-  }
 }

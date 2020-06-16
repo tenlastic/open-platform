@@ -24,7 +24,6 @@ export const ROUTES: Routes = [
     path: 'authentication',
   },
   {
-    canActivate: [LoginGuard],
     component: LayoutComponent,
     loadChildren: () => import('./modules/games/games.module').then(m => m.GamesModule),
     path: 'games',

@@ -128,25 +128,4 @@ describe('GroupInvitationService', () => {
       });
     });
   });
-
-  describe('update()', () => {
-    it('updates and returns a GroupInvitation', () => {
-      const params = {
-        _id: chance.hash(),
-        groupId: chance.hash(),
-        toUserId: chance.hash(),
-      };
-
-      service.update(params).then(res => {
-        expect(res).toEqual(jasmine.any(GroupInvitation));
-        expect(res._id).toEqual(params._id);
-        expect(res.groupId).toEqual(params.groupId);
-        expect(res.toUserId).toEqual(params.toUserId);
-      });
-
-      const req = httpMock.expectOne(`${service.basePath}/${params._id}`);
-      expect(req.request.method).toBe('PUT');
-      req.flush({ record: params });
-    });
-  });
 });

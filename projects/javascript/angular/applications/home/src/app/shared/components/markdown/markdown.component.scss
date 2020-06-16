@@ -1,5 +1,9 @@
 :host {
   ::ng-deep {
+    :first-child {
+      margin-top: 0px;
+    }
+
     a {
       color: #ffff55;
       outline: none;

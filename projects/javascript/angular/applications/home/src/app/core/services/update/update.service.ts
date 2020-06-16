@@ -1,6 +1,13 @@
 import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { File, FileService, Game, Release, ReleaseService } from '@tenlastic/ng-http';
+import {
+  File,
+  FileService,
+  Game,
+  GameInvitationService,
+  Release,
+  ReleaseService,
+} from '@tenlastic/ng-http';
 import { ChildProcess } from 'child_process';
 import { Subject } from 'rxjs';
 import { last, map, tap, retry } from 'rxjs/operators';
@@ -13,6 +20,7 @@ export enum UpdateServiceState {
   Installing,
   NotAvailable,
   NotInstalled,
+  NotInvited,
   NotUpdated,
   Ready,
 }
@@ -66,6 +74,7 @@ export class UpdateService {
   constructor(
     private electronService: ElectronService,
     private fileService: FileService,
+    private gameInvitationService: GameInvitationService,
     private identityService: IdentityService,
     private releaseService: ReleaseService,
   ) {
@@ -78,9 +87,23 @@ export class UpdateService {
       return;
     }
 
-    // Get the latest Release from the server.
     status.progress = null;
     status.state = UpdateServiceState.Checking;
+
+    // Check if the user has been invited.
+    status.text = 'Checking access permission...';
+    const invitations = await this.gameInvitationService.find({
+      where: {
+        gameId: game._id,
+        toUserId: this.identityService.user._id,
+      },
+    });
+    if (invitations.length === 0) {
+      status.state = UpdateServiceState.NotInvited;
+      return;
+    }
+
+    // Get the latest Release from the server.
     status.text = 'Retrieving latest release...';
     const releases = await this.releaseService.find({
       sort: '-publishedAt',

@@ -38,6 +38,7 @@ export class StatusComponent implements OnChanges, OnInit {
         return this.status.isInstalled ? 'Updating...' : 'Installing...';
 
       case UpdateServiceState.NotAvailable:
+      case UpdateServiceState.NotInvited:
         return 'Not Available';
 
       case UpdateServiceState.NotInstalled:

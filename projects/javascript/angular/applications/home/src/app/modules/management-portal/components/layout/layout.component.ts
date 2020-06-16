@@ -31,6 +31,12 @@ export class LayoutComponent {
     },
     {
       condition: () => this.selectedNamespaceService && this.selectedNamespaceService.namespaceId,
+      icon: 'person_add_alt_1',
+      label: 'Game Invitations',
+      path: 'game-invitations',
+    },
+    {
+      condition: () => this.selectedNamespaceService && this.selectedNamespaceService.namespaceId,
       icon: 'dns',
       label: 'Game Servers',
       path: 'game-servers',

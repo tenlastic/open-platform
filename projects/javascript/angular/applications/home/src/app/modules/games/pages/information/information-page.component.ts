@@ -4,14 +4,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Article, ArticleService, Game, GameService, GameStore } from '@tenlastic/ng-http';
 
 import { BackgroundService, IdentityService } from '../../../../core/services';
-import { ArticleDialogComponent, StatusComponent } from '../../components';
+import { ArticleDialogComponent } from '../../components';
 
 @Component({
   styleUrls: ['./information-page.component.scss'],
   templateUrl: 'information-page.component.html',
 })
 export class InformationPageComponent implements OnInit {
-  @ViewChild(StatusComponent, { static: false }) private statusComponent: StatusComponent;
   @ViewChild('video', { static: false }) private video: ElementRef;
 
   public articles: Article[];
@@ -68,11 +67,6 @@ export class InformationPageComponent implements OnInit {
       this.articlesByDate = this.groupByDate(this.articles);
 
       this.backgroundService.subject.next(this.game.background || '/assets/images/background.jpg');
-
-      if (this.statusComponent) {
-        this.statusComponent.game = this.game;
-        this.statusComponent.ngOnInit();
-      }
 
       localStorage.setItem('previousGameSlug', slug);
 
