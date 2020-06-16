@@ -138,7 +138,7 @@ export class FilesFormComponent implements OnDestroy, OnInit {
 
     this.stagedFiles = [];
     await new Promise(resolve => {
-      const worker = new Worker('../../../../../../../workers/file-reader.worker', {
+      const worker = new Worker('../../../../../../workers/file-reader.worker', {
         type: 'module',
       });
       worker.onmessage = ({ data }) => {
