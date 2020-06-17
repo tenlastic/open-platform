@@ -63,7 +63,8 @@
             "scripts": [],
             "customWebpackConfig": {
               "path": "./applications/home/electron.webpack.js"
-            }
+            },
+            "webWorkerTsConfig": "applications/home/tsconfig.worker.json"
           },
           "configurations": {
             "electron": {
@@ -161,7 +162,8 @@
             "tsConfig": [
               "applications/home/tsconfig.app.json",
               "applications/home/tsconfig.spec.json",
-              "applications/home/e2e/tsconfig.json"
+              "applications/home/e2e/tsconfig.json",
+              "applications/home/tsconfig.worker.json"
             ],
             "exclude": ["**/node_modules/**"]
           }

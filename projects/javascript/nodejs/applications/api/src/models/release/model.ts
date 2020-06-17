@@ -23,8 +23,7 @@ ReleaseEvent.on(payload => {
   kafka.publish(payload);
 });
 
-@index({ version: 1 }, { unique: true })
-@index({ gameId: 1 })
+@index({ gameId: 1, version: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,

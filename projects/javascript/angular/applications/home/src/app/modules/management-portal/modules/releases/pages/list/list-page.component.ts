@@ -67,7 +67,7 @@ export class ReleasesListPageComponent implements OnInit {
   }
 
   public getGameTitle(_id: string) {
-    return this.games.find(g => g._id === _id).title;
+    return this.games.find(g => g._id === _id).fullTitle;
   }
 
   public onKeyUp(searchTextValue: string) {
