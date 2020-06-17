@@ -3,7 +3,7 @@
   "name": "@tenlastic/ng-http",
   "private": true,
   "typings": "./dist/angular/module.d.ts",
-  "version": "0.0.85",
+  "version": "0.0.86",
   "scripts": {
     "build": "ng build http",
     "lint": "ng lint http",
