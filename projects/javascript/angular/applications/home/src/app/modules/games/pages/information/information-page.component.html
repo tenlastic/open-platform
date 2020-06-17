@@ -1,60 +1,56 @@
 <div class="container">
   <div *ngIf="!loadingMessage" class="page">
     <div class="row">
-      <div
-        *ngIf="(game.images && game.images.length) || (game.videos && game.videos.length)"
-        class="col-sm-6"
-      >
-        <mat-grid-list class="main" cols="1" rowHeight="1920:1080">
-          <mat-grid-tile
-            class="selected"
-            [ngStyle]="{
-              'background-image': mainMedia.type === 'image' ? 'url(' + mainMedia.src + ')' : null
-            }"
-          >
-            <video #video *ngIf="mainMedia.type === 'video'" autoplay controls>
-              <source [src]="mainMedia.src" type="video/mp4" />
-            </video>
-          </mat-grid-tile>
-        </mat-grid-list>
-
-        <mat-grid-list cols="4" gutterSize="8" rowHeight="1920:1080">
-          <mat-grid-tile
-            *ngFor="let video of game.videos; let i = index"
-            [ngClass]="{ selected: mainMedia.src === video }"
-            (click)="selectMedia(i, 'video')"
-          >
-            <video preload="metadata">
-              <source [src]="video" type="video/mp4" />
-            </video>
-            <mat-icon>play_arrow</mat-icon>
-          </mat-grid-tile>
-          <mat-grid-tile
-            *ngFor="let image of game.images; let i = index"
-            [ngClass]="{ selected: mainMedia.src === image }"
-            [ngStyle]="{ 'background-image': 'url(' + image + ')' }"
-            (click)="selectMedia(i, 'image')"
-          ></mat-grid-tile>
-        </mat-grid-list>
-      </div>
       <div class="col-sm-6">
+        <div *ngIf="(game.images && game.images.length) || (game.videos && game.videos.length)">
+          <mat-grid-list class="main" cols="1" rowHeight="1920:1080">
+            <mat-grid-tile
+              class="selected"
+              [ngStyle]="{
+                'background-image': mainMedia.type === 'image' ? 'url(' + mainMedia.src + ')' : null
+              }"
+            >
+              <video #video *ngIf="mainMedia.type === 'video'" autoplay controls>
+                <source [src]="mainMedia.src" type="video/mp4" />
+              </video>
+            </mat-grid-tile>
+          </mat-grid-list>
+
+          <mat-grid-list cols="4" gutterSize="8" rowHeight="1920:1080">
+            <mat-grid-tile
+              *ngFor="let video of game.videos; let i = index"
+              [ngClass]="{ selected: mainMedia.src === video }"
+              (click)="selectMedia(i, 'video')"
+            >
+              <video preload="metadata">
+                <source [src]="video" type="video/mp4" />
+              </video>
+              <mat-icon>play_arrow</mat-icon>
+            </mat-grid-tile>
+            <mat-grid-tile
+              *ngFor="let image of game.images; let i = index"
+              [ngClass]="{ selected: mainMedia.src === image }"
+              [ngStyle]="{ 'background-image': 'url(' + image + ')' }"
+              (click)="selectMedia(i, 'image')"
+            ></mat-grid-tile>
+          </mat-grid-list>
+        </div>
+
         <app-markdown [markdown]="game.description"></app-markdown>
       </div>
-
-      <div *ngIf="articles.length > 0" class="col-sm-12 news-container">
-        <div class="row">
-          <div *ngFor="let article of articles" class="col-sm-6" (click)="showArticle(article)">
-            <div class="article">
-              <span class="type-date">
-                {{ article.type }} | {{ article.publishedAt | date: 'longDate' }} at
-                {{ article.publishedAt | date: 'shortTime' }}
-              </span>
-              <h2>{{ article.title }}</h2>
-              <span>{{ article.caption }}</span>
-            </div>
-          </div>
+      <div class="col-sm-6">
+        <div *ngFor="let article of articles" class="article" (click)="showArticle(article)">
+          <span class="type-date">
+            {{ article.type }} | {{ article.publishedAt | date: 'longDate' }} at
+            {{ article.publishedAt | date: 'shortTime' }}
+          </span>
+          <h2>{{ article.title }}</h2>
+          <span>{{ article.caption }}</span>
         </div>
       </div>
+    </div>
+    <div class="row">
+      <div *ngIf="articles.length > 0" class="col-sm-12 news-container"></div>
     </div>
   </div>
 
