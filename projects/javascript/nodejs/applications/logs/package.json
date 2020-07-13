@@ -7,15 +7,14 @@
   "private": true,
   "version": "0.0.86",
   "scripts": {
-    "build": "../../scripts/build.sh",
+    "build": "../../scraipts/build.sh",
     "docker:build": "../../scripts/docker-build.sh logs",
     "docker:push": "../../scripts/docker-push.sh logs",
     "lint": "../../scripts/lint.sh",
     "migrations": "../../scripts/migrations.sh",
     "start": "../../scripts/start.sh",
     "test": "../../scripts/test.sh",
-    "test:watch": "../../scripts/test.sh --watch",
-    "version": "../../scripts/version.sh logs"
+    "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
     "@kubernetes/client-node": "0.11.2",
