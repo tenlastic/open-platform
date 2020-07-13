@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/e2e",
   "private": true,
-  "version": "0.0.87",
+  "version": "0.0.88",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
