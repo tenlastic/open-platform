@@ -32,11 +32,25 @@ request
     const string = data.toString();
     const lines = split(string);
 
+    console.log(`Received lines: ${lines.length}.`);
+
     for (const line of lines) {
       request.post({
         headers: { Authorization: `Bearer ${accessToken}` },
         json: { body: line, gameServerId },
         url: 'http://api:3000/logs',
+      }, (err, response, body) {
+        if (err) {
+          console.error(err);
+          return;
+        }
+
+        if (response.statusCode !== 200) {
+          console.error(`Received error status code: ${response.statusCode}.`);
+          return;
+        }
+
+        console.log('Log saved successfully.');
       });
     }
   });
