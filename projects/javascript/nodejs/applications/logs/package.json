@@ -7,7 +7,7 @@
   "private": true,
   "version": "0.0.86",
   "scripts": {
-    "build": "../../scraipts/build.sh",
+    "build": "../../scripts/build.sh",
     "docker:build": "../../scripts/docker-build.sh logs",
     "docker:push": "../../scripts/docker-push.sh logs",
     "lint": "../../scripts/lint.sh",
