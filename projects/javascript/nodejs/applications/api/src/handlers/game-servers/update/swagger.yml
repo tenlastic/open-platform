@@ -1,5 +1,5 @@
 paths:
-  /game-servers/{slug}:
+  /game-servers/{_id}/restart:
     put:
       summary: Update
       tags: [GameServers]
@@ -8,7 +8,7 @@ paths:
         - AccessToken: []
       parameters:
         - in: path
-          name: slug
+          name: _id
           schema:
             type: string
           required: true

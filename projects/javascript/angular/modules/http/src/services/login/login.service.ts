@@ -20,8 +20,8 @@ export class LoginService {
     this.basePath = this.environmentService.loginApiBaseUrl;
   }
 
-  public async createWithCredentials(email: string, password: string) {
-    const parameters = { email, password };
+  public async createWithCredentials(username: string, password: string) {
+    const parameters = { password, username };
     const response = await this.apiService.request('post', this.basePath, parameters);
 
     const { accessToken, refreshToken } = response;

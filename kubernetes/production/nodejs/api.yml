@@ -19,6 +19,8 @@ rules:
       - ""
     resources:
       - configmaps
+      - pods
+      - pods/log
       - services
     verbs:
       - create

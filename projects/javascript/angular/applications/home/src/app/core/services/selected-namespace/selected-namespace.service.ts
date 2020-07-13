@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Namespace, NamespaceService } from '@tenlastic/ng-http';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class SelectedNamespaceService {
   public get namespace() {
     return this._namespace;
@@ -11,14 +9,14 @@ export class SelectedNamespaceService {
   public set namespace(value: Namespace) {
     if (value) {
       this._namespace = value;
-      localStorage.setItem('selectedNamespaceId', value._id);
+      localStorage.setItem('management-portal.namespace._id', value._id);
     } else {
       this._namespace = null;
-      localStorage.removeItem('selectedNamespaceId');
+      localStorage.removeItem('management-portal.namespace._id');
     }
   }
   public get namespaceId() {
-    return localStorage.getItem('selectedNamespaceId');
+    return localStorage.getItem('management-portal.namespace._id');
   }
 
   private _namespace: Namespace;

@@ -108,7 +108,7 @@ export class AccessControl {
    * @param record The record being accessed.
    * @param user The user accessing the record.
    */
-  private getRole(record: any, user: any) {
+  public getRole(record: any, user: any) {
     if (!this.options.roles) {
       return 'default';
     }

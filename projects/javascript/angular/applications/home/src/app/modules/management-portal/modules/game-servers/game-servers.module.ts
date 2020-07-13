@@ -7,14 +7,20 @@ import { MetadataFieldComponent } from './components';
 
 import { GameServersFormPageComponent } from './pages/form/form-page.component';
 import { GameServersListPageComponent } from './pages/list/list-page.component';
+import { GameServersLogsPageComponent } from './pages/logs/logs-page.component';
 
 export const ROUTES: Routes = [
   { path: '', component: GameServersListPageComponent },
   { path: ':_id', component: GameServersFormPageComponent },
+  { path: ':_id/logs', component: GameServersLogsPageComponent },
 ];
 
 const components = [MetadataFieldComponent];
-const pages = [GameServersFormPageComponent, GameServersListPageComponent];
+const pages = [
+  GameServersFormPageComponent,
+  GameServersListPageComponent,
+  GameServersLogsPageComponent,
+];
 
 @NgModule({
   declarations: [...components, ...pages],

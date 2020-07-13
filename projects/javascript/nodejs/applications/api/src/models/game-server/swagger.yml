@@ -6,11 +6,6 @@ components:
         _id:
           type: string
           format: ^[a-f0-9]{24}$
-        allowedUserIds:
-          type: array
-          items:
-            type: string
-            format: ^[a-f0-9]{24}$
         createdAt:
           type: string
           format: date-time
@@ -27,13 +22,13 @@ components:
         heartbeatAt:
           type: string
           format: date-time
-        maxUsers:
-          type: integer
+        isPersistent:
+          type: boolean
+        isPreemptible:
+          type: boolean
         metadata:
           type: object
         name:
-          type: string
-        password:
           type: string
         releaseId:
           type: string

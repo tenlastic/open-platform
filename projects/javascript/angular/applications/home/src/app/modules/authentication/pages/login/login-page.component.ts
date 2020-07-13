@@ -41,12 +41,12 @@ export class LoginPageComponent implements OnInit {
   public async onLogIn(data: ILogIn) {
     try {
       this.loadingMessage = 'Logging in...';
-      await this.loginService.createWithCredentials(data.email, data.password);
+      await this.loginService.createWithCredentials(data.username, data.password);
 
       this.logIn();
     } catch (e) {
       this.loadingMessage = null;
-      this.loginForm.error = 'Invalid email address or password.';
+      this.loginForm.error = 'Invalid username or password.';
     }
   }
 

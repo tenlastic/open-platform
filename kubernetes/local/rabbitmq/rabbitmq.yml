@@ -334,8 +334,8 @@ spec:
                   key: rabbitmq-management-password
           resources:
             requests:
-              cpu: 50m
-              memory: 64M
+              cpu: 100m
+              memory: 128M
 
           volumeMounts:
             - name: data

@@ -595,8 +595,8 @@ spec:
               containerPort: 27017
           resources:
             requests:
-              cpu: 50m
-              memory: 64M
+              cpu: 100m
+              memory: 128M
 
           command:
             - mongod

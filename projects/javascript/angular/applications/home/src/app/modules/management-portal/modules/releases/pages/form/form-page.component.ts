@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Game, GameService, Release, ReleaseTask, ReleaseService } from '@tenlastic/ng-http';
+import { Release, ReleaseTask, ReleaseService } from '@tenlastic/ng-http';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { IdentityService, SelectedGameService } from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
@@ -15,41 +15,27 @@ export class ReleasesFormPageComponent implements OnInit {
   public data: Release;
   public error: string;
   public form: FormGroup;
-  public games: Game[];
   public tasks: ReleaseTask[];
   public platforms = [
     { label: 'Windows Client (x64)', value: 'windows64' },
     { label: 'Linux Server (x64)', value: 'server64' },
   ];
 
-  private game: Game;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private gameService: GameService,
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private releaseService: ReleaseService,
     private router: Router,
-    public selectedNamespaceService: SelectedNamespaceService,
+    private selectedGameService: SelectedGameService,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
-      const { namespaceId } = this.selectedNamespaceService;
-      this.games = await this.gameService.find({ where: { namespaceId } });
-
       const _id = params.get('_id');
       if (_id !== 'new') {
         this.data = await this.releaseService.findOne(_id);
-      }
-
-      const gameSlug = params.get('gameSlug');
-      if (gameSlug) {
-        this.game = this.games.find(g => g.slug === gameSlug);
-      } else if (this.data) {
-        this.game = this.games.find(g => g._id === this.data.gameId);
       }
 
       this.setupForm();
@@ -93,7 +79,10 @@ export class ReleasesFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       entrypoint: [this.data.entrypoint, Validators.required],
-      gameId: [this.game ? this.game._id : null, Validators.required],
+      gameId: [
+        this.selectedGameService.game ? this.selectedGameService.game._id : null,
+        Validators.required,
+      ],
       version: [this.data.version, Validators.required],
     });
 

@@ -51,7 +51,7 @@ describe('RegistrationFormComponent', () => {
       it('has requirement errors', () => {
         component.submit();
 
-        expect(component.form.get('email').hasError('required')).toBeTruthy();
+        expect(component.form.get('email').hasError('required')).toBeFalsy();
         expect(
           component.form
             .get('passwords')

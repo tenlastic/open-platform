@@ -28,7 +28,10 @@ export class UnauthorizedInterceptor implements HttpInterceptor {
 
   private redirectToLoginOnUnauthorizedResponse(err: any) {
     if (err instanceof HttpErrorResponse) {
-      if (err.status === 401) {
+      const isUnauthorized = err.status === 401;
+      const refreshTokenIsInvalid = err.status === 400 && err.url.includes('/logins/refresh-token');
+
+      if (isUnauthorized || refreshTokenIsInvalid) {
         this.identityService.clear();
         this.router.navigateByUrl('/authentication/log-in');
       }

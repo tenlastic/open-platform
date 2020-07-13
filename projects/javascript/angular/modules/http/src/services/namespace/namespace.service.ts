@@ -10,6 +10,7 @@ export class NamespaceService {
 
   public onCreate = new EventEmitter<Namespace>();
   public onDelete = new EventEmitter<Namespace>();
+  public onRead = new EventEmitter<Namespace[]>();
   public onUpdate = new EventEmitter<Namespace>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
@@ -37,13 +38,19 @@ export class NamespaceService {
   public async find(parameters: RestParameters): Promise<Namespace[]> {
     const response = await this.apiService.request('get', this.basePath, parameters);
 
-    return response.records.map(record => new Namespace(record));
+    const records = response.records.map(record => new Namespace(record));
+    this.onRead.emit(records);
+
+    return records;
   }
 
   public async findOne(_id: string): Promise<Namespace> {
     const response = await this.apiService.request('get', `${this.basePath}/${_id}`, null);
 
-    return new Namespace(response.record);
+    const record = new Namespace(response.record);
+    this.onRead.emit([record]);
+
+    return record;
   }
 
   public async update(parameters: Partial<Namespace>): Promise<Namespace> {

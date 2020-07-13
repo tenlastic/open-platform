@@ -55,7 +55,7 @@ export class RegistrationFormComponent implements OnInit {
 
   private setupForm(): void {
     this.form = new FormGroup({
-      email: new FormControl('', [Validators.required, Validators.email]),
+      email: new FormControl('', [Validators.email]),
       passwords: new FormGroup(
         {
           confirmPassword: new FormControl('', Validators.required),

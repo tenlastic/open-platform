@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { UserService } from '@tenlastic/ng-http';
+import { LoginService, UserService } from '@tenlastic/ng-http';
 
 import { TITLE } from '../../../../shared/constants';
 import { IOnRegister, RegistrationFormComponent } from '../../components';
@@ -20,6 +20,7 @@ export class CreateAccountPageComponent {
   public loadingMessage: string;
 
   constructor(
+    private loginService: LoginService,
     private router: Router,
     private titleService: Title,
     private userService: UserService,
@@ -32,8 +33,10 @@ export class CreateAccountPageComponent {
       await this.userService.create(data);
     } catch (e) {
       this.registrationForm.error = 'Email address has already been registered.';
+      return;
     }
 
-    this.router.navigateByUrl('/authentication/log-in');
+    await this.loginService.createWithCredentials(data.username, data.password);
+    this.router.navigateByUrl('/');
   }
 }

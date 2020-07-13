@@ -80,8 +80,8 @@
   </div>
 </div>
 
-<div *ngIf="unfinishedTasks.length" class="row">
-  <div class="col-sm-6">
+<div *ngIf="finishedTasks.length || unfinishedTasks.length" class="row">
+  <div *ngIf="unfinishedTasks.length" class="col-sm-6">
     <mat-label>
       <span>Unfinished Tasks</span>
     </mat-label>

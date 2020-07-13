@@ -23,13 +23,6 @@ describe('handlers/logins/delete', function() {
     user = await UserMock.create({ password: 'password' });
 
     ctx = new ContextMock({
-      request: {
-        body: {
-          email: user.email,
-          password: 'password',
-        },
-        headers: {},
-      },
       state: {
         jwt: {
           jti: refreshToken.jti,

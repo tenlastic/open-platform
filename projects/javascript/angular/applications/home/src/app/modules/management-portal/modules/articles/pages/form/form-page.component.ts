@@ -4,7 +4,11 @@ import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Article, ArticleService, Game, GameService } from '@tenlastic/ng-http';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import {
+  IdentityService,
+  SelectedGameService,
+  SelectedNamespaceService,
+} from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
@@ -15,40 +19,27 @@ export class ArticlesFormPageComponent implements OnInit {
   public data: Article;
   public error: string;
   public form: FormGroup;
-  public games: Game[];
   public types = [
     { label: 'News', value: 'News' },
     { label: 'Patch Notes', value: 'Patch Notes' },
   ];
 
-  private game: Game;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private articleService: ArticleService,
     private formBuilder: FormBuilder,
-    private gameService: GameService,
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private router: Router,
+    private selectedGameService: SelectedGameService,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
-      const { namespaceId } = this.selectedNamespaceService;
-      this.games = await this.gameService.find({ where: { namespaceId } });
-
       const _id = params.get('_id');
       if (_id !== 'new') {
         this.data = await this.articleService.findOne(_id);
-      }
-
-      const gameSlug = params.get('gameSlug');
-      if (gameSlug) {
-        this.game = this.games.find(g => g.slug === gameSlug);
-      } else if (this.data) {
-        this.game = this.games.find(g => g._id === this.data.gameId);
       }
 
       this.setupForm();
@@ -97,7 +88,10 @@ export class ArticlesFormPageComponent implements OnInit {
     this.form = this.formBuilder.group({
       body: [this.data.body, Validators.required],
       caption: [this.data.caption],
-      gameId: [this.game ? this.game._id : null, Validators.required],
+      gameId: [
+        this.selectedGameService.game ? this.selectedGameService.game._id : null,
+        Validators.required,
+      ],
       title: [this.data.title, Validators.required],
       type: [this.data.type || this.types[0].value, Validators.required],
     });

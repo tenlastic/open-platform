@@ -76,7 +76,7 @@ export class NamespacesListPageComponent implements OnInit {
   }
 
   private async fetchNamespaces() {
-    const records = await this.namespaceService.find({ sort: 'email' });
+    const records = await this.namespaceService.find({ sort: 'name' });
 
     this.dataSource = new MatTableDataSource<Namespace>(records);
     this.dataSource.paginator = this.paginator;

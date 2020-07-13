@@ -15,10 +15,12 @@ import {
   File,
   Friend,
   Game,
+  GameInvitation,
   GameServer,
   Group,
   GroupInvitation,
   Ignoration,
+  Log,
   Message,
   Namespace,
   PasswordReset,
@@ -83,10 +85,12 @@ beforeEach(async function() {
   await File.deleteMany({});
   await Friend.deleteMany({});
   await Game.deleteMany({});
+  await GameInvitation.deleteMany({});
   await GameServer.deleteMany({});
   await Group.deleteMany({});
   await GroupInvitation.deleteMany({});
   await Ignoration.deleteMany({});
+  await Log.deleteMany({});
   await Message.deleteMany({});
   await Namespace.deleteMany({});
   await PasswordReset.deleteMany({});

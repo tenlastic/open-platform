@@ -63,6 +63,15 @@ export class GameServerService {
     return record;
   }
 
+  public async restart(_id: string): Promise<GameServer> {
+    const response = await this.apiService.request('post', `${this.basePath}/${_id}/restart`, null);
+
+    const record = new GameServer(response.record);
+    this.onRead.emit([record]);
+
+    return record;
+  }
+
   public async update(parameters: Partial<GameServer>): Promise<GameServer> {
     const response = await this.apiService.request(
       'put',

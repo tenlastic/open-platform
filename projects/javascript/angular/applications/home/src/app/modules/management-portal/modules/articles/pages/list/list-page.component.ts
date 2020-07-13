@@ -2,11 +2,11 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { Article, ArticleService, Game, GameService } from '@tenlastic/ng-http';
+import { Article, ArticleService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { IdentityService, SelectedGameService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -28,8 +28,6 @@ export class ArticlesListPageComponent implements OnInit {
     'updatedAt',
     'actions',
   ];
-  public game: Game;
-  public gameIds: string[] = [];
   public search = '';
 
   private subject: Subject<string> = new Subject();
@@ -37,25 +35,14 @@ export class ArticlesListPageComponent implements OnInit {
   constructor(
     private articleService: ArticleService,
     private activatedRoute: ActivatedRoute,
-    private gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
-    private selectedNamespaceService: SelectedNamespaceService,
+    private selectedGameService: SelectedGameService,
     private titleService: Title,
   ) {}
 
   ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
-      const gameSlug = params.get('gameSlug');
-      if (gameSlug) {
-        this.game = await this.gameService.findOne(gameSlug);
-      } else {
-        const { namespaceId } = this.selectedNamespaceService;
-        const games = await this.gameService.find({ select: '_id', where: { namespaceId } });
-
-        this.gameIds = games.map(g => g._id);
-      }
-
       this.titleService.setTitle(`${TITLE} | Articles`);
       this.fetchArticles();
 
@@ -112,8 +99,10 @@ export class ArticlesListPageComponent implements OnInit {
   }
 
   private async fetchArticles() {
-    const where = this.game ? { gameId: this.game._id } : { gameId: { $in: this.gameIds } };
-    const records = await this.articleService.find({ sort: 'name', where });
+    const records = await this.articleService.find({
+      sort: 'name',
+      where: { gameId: this.selectedGameService.game._id },
+    });
 
     this.dataSource = new MatTableDataSource<Article>(records);
     this.dataSource.paginator = this.paginator;

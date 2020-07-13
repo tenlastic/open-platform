@@ -5,7 +5,11 @@ import { Game, GameService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import {
+  IdentityService,
+  SelectedGameService,
+  SelectedNamespaceService,
+} from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -28,6 +32,7 @@ export class GamesListPageComponent implements OnInit {
     private databaseService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    public selectedGameService: SelectedGameService,
     private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
@@ -46,6 +51,10 @@ export class GamesListPageComponent implements OnInit {
 
   public onKeyUp(searchTextValue: string) {
     this.subject.next(searchTextValue);
+  }
+
+  public select(record: Game) {
+    this.selectedGameService.game = record;
   }
 
   public showDeletePrompt(record: Game) {

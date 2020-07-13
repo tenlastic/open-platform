@@ -12,8 +12,8 @@ describe('LoginFormComponent', () => {
       component.ngOnInit();
 
       expect(component.form).toBeTruthy();
-      expect(component.form.get('email').value).toEqual('');
       expect(component.form.get('password').value).toEqual('');
+      expect(component.form.get('username').value).toEqual('');
     });
   });
 
@@ -23,10 +23,10 @@ describe('LoginFormComponent', () => {
     });
 
     describe('when the form is valid', () => {
-      it('emits onLogIn() with the email address and password', () => {
+      it('emits onLogIn() with the username and password', () => {
         const values = {
-          email: 'test@example.com',
           password: 'password',
+          username: 'test',
         };
         component.form.setValue(values);
 
@@ -34,8 +34,8 @@ describe('LoginFormComponent', () => {
         component.submit();
 
         expect(onLogInSpy).toHaveBeenCalledWith({
-          email: values.email,
           password: values.password,
+          username: values.username,
         });
       });
     });
@@ -44,8 +44,8 @@ describe('LoginFormComponent', () => {
       it('has validation errors', () => {
         component.submit();
 
-        expect(component.form.get('email').hasError('required')).toBeTruthy();
         expect(component.form.get('password').hasError('required')).toBeTruthy();
+        expect(component.form.get('username').hasError('required')).toBeTruthy();
       });
     });
   });

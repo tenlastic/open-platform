@@ -18,6 +18,8 @@ export class UserService {
   }
 
   public async create(parameters: Partial<User>): Promise<User> {
+    parameters.email = parameters.email || null;
+
     const response = await this.apiService.request('post', this.basePath, parameters);
     const record = new User(response.record);
     this.onCreate.emit(record);
@@ -52,6 +54,8 @@ export class UserService {
   }
 
   public async update(parameters: Partial<User>): Promise<User> {
+    parameters.email = parameters.email || null;
+
     const response = await this.apiService.request(
       'put',
       `${this.basePath}/${parameters._id}`,

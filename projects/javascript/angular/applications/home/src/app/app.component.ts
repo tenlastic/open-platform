@@ -12,6 +12,8 @@ import {
   GroupInvitation,
   GroupInvitationService,
   GroupService,
+  Log,
+  LogService,
   LoginService,
   Message,
   MessageService,
@@ -19,7 +21,12 @@ import {
   ReleaseService,
 } from '@tenlastic/ng-http';
 
-import { BackgroundService, IdentityService, SocketService } from './core/services';
+import {
+  BackgroundService,
+  ElectronService,
+  IdentityService,
+  SocketService,
+} from './core/services';
 import { TITLE } from './shared/constants';
 
 @Component({
@@ -30,10 +37,12 @@ export class AppComponent implements OnInit {
   constructor(
     public backgroundService: BackgroundService,
     private connectionService: ConnectionService,
+    private electronService: ElectronService,
     private gameInvitationService: GameInvitationService,
     private gameServerService: GameServerService,
     private groupService: GroupService,
     private groupInvitationService: GroupInvitationService,
+    private logService: LogService,
     private loginService: LoginService,
     private messageService: MessageService,
     private identityService: IdentityService,
@@ -61,7 +70,7 @@ export class AppComponent implements OnInit {
 
     // Load previous url if set.
     const url = localStorage.getItem('url');
-    if (url) {
+    if (url && this.electronService.isElectron) {
       this.router.navigateByUrl(url);
     }
 
@@ -85,6 +94,7 @@ export class AppComponent implements OnInit {
     this.socketService.watch(GameServer, this.gameServerService, {});
     this.socketService.watch(Group, this.groupService, {});
     this.socketService.watch(GroupInvitation, this.groupInvitationService, {});
+    this.socketService.watch(Log, this.logService, {});
     this.socketService.watch(Message, this.messageService, {});
     this.socketService.watch(Release, this.releaseService, {});
   }

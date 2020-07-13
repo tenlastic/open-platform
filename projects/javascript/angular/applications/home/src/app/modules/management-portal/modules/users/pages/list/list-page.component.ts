@@ -80,7 +80,7 @@ export class UsersListPageComponent implements OnInit {
   }
 
   private async fetchUsers() {
-    this.users = await this.userService.find({ sort: 'email' });
+    this.users = await this.userService.find({ sort: 'username' });
 
     const connections = await this.connectionService.find({
       where: { userId: { $in: this.users.map(u => u._id) } },

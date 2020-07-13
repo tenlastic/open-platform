@@ -20,6 +20,7 @@
       "@tenlastic/validations": ["./modules/validations/src"],
       "@tenlastic/web-server": ["./modules/web-server/src"]
     },
+    "resolveJsonModule": true,
     "sourceMap": true,
     "target": "es2015"
   },

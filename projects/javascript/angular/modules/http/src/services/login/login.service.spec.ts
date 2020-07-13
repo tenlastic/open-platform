@@ -36,10 +36,10 @@ describe('LoginService', () => {
 
   describe('createWithCredentials()', () => {
     it('emits the accessToken and refreshToken', () => {
-      const email = chance.email();
       const password = chance.hash();
+      const username = chance.hash();
 
-      service.createWithCredentials(email, password);
+      service.createWithCredentials(username, password);
 
       const secret = chance.hash();
       const accessToken = jsonwebtoken.sign({}, secret);

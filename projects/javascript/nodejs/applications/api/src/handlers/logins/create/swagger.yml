@@ -1,7 +1,7 @@
 paths:
   /logins:
     post:
-      summary: Log In with Email Address and Password
+      summary: Log In with Username and Password
       tags: [Logins]
       description: Returns an access and refresh token.
       requestBody:
@@ -10,12 +10,11 @@ paths:
             schema:
               type: object
               properties:
-                email:
-                  type: string
-                  format: email
                 password:
                   type: string
                   format: password
+                username:
+                  type: string
       responses:
         200:
           description: OK

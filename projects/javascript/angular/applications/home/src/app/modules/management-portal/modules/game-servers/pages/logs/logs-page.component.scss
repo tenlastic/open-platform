@@ -1,0 +1,34 @@
+@import '../../../../../../../assets/scss/page.scss';
+
+:host {
+  height: 100%;
+}
+
+app-button {
+  margin-left: 0px;
+  margin-right: 8px;
+}
+
+div.log {
+  display: flex;
+
+  span {
+    white-space: pre-wrap;
+  }
+
+  span.timestamp {
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+}
+
+div.logs-container {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+div.page {
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+}

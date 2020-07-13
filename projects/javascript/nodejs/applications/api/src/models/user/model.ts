@@ -35,7 +35,15 @@ UserEvent.on(payload => {
   kafka.publish(payload);
 });
 
-@index({ email: 1 }, { unique: true })
+@index(
+  { email: 1 },
+  {
+    partialFilterExpression: {
+      email: { $type: 'string' },
+    },
+    unique: true,
+  },
+)
 @index(
   { username: 1 },
   {
@@ -80,7 +88,6 @@ export class UserSchema {
 
   @prop({
     lowercase: true,
-    required: true,
     trim: true,
     validate: [emailValidator],
   })

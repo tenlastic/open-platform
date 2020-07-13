@@ -19,8 +19,8 @@ describe('handlers/logins/create', function() {
       const ctx: any = new ContextMock({
         request: {
           body: {
-            email: user.email,
             password: 'password',
+            username: user.username,
           },
           headers: {},
         },
@@ -38,8 +38,8 @@ describe('handlers/logins/create', function() {
       const ctx: any = new ContextMock({
         request: {
           body: {
-            email: user.email,
             password: 'wrong',
+            username: user.username,
           },
           headers: {},
         },
@@ -47,7 +47,7 @@ describe('handlers/logins/create', function() {
 
       const promise = handler(ctx);
 
-      return expect(promise).to.be.rejectedWith('Invalid email address or password.');
+      return expect(promise).to.be.rejectedWith('Invalid username or password.');
     });
   });
 });

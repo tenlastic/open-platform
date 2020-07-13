@@ -1,15 +1,14 @@
 import { Model } from './model';
 
 export class GameServer extends Model {
-  public allowedUserIds: string[];
   public currentUserIds: string[];
   public description: string;
   public gameId: string;
   public heartbeatAt: Date;
-  public maxUsers: number;
+  public isPersistent: boolean;
+  public isPreemptible: boolean;
   public metadata: any;
   public name: string;
-  public password: string;
   public releaseId: string;
   public url: string;
 

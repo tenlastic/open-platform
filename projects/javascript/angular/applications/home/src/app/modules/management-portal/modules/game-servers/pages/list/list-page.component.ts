@@ -1,14 +1,20 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
-import { Game, GameServer, GameServerService, GameService } from '@tenlastic/ng-http';
+import { GameServer, GameServerService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { IdentityService, SelectedGameService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
+import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -20,55 +26,25 @@ export class GameServersListPageComponent implements OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<GameServer>;
 
   public dataSource: MatTableDataSource<GameServer>;
-  public displayedColumns: string[] = [
-    'game',
-    'name',
-    'description',
-    'createdAt',
-    'updatedAt',
-    'actions',
-  ];
-  public game: Game;
-  public gamesCount: number;
-  public gamesMap: { [k: string]: Game } = {};
+  public displayedColumns: string[] = ['name', 'description', 'createdAt', 'updatedAt', 'actions'];
   public search = '';
 
-  private _games: Game[] = [];
-  private get games() {
-    return this._games;
-  }
-  private set games(value: Game[]) {
-    this._games = value;
-    this._games.forEach(g => (this.gamesMap[g._id] = g));
-  }
   private subject: Subject<string> = new Subject();
 
   constructor(
-    private activatedRoute: ActivatedRoute,
     private gameServerService: GameServerService,
-    private gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
-    private selectedNamespaceService: SelectedNamespaceService,
+    private matSnackBar: MatSnackBar,
+    private selectedGameService: SelectedGameService,
     private titleService: Title,
   ) {}
 
   public async ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
-      this.titleService.setTitle(`${TITLE} | Game Servers`);
-      this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
+    this.titleService.setTitle(`${TITLE} | Game Servers`);
+    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
 
-      const gameSlug = params.get('gameSlug');
-      if (gameSlug) {
-        this.game = await this.gameService.findOne(gameSlug);
-      } else {
-        const { namespaceId } = this.selectedNamespaceService;
-        this.gamesCount = await this.gameService.count({ where: { namespaceId } });
-      }
-
-      await this.fetchGames();
-      await this.fetchGameServers();
-    });
+    await this.fetchGameServers();
   }
 
   public clearSearch() {
@@ -78,6 +54,13 @@ export class GameServersListPageComponent implements OnInit {
 
   public onKeyUp(searchTextValue: string) {
     this.subject.next(searchTextValue);
+  }
+
+  public async restart(record: GameServer) {
+    await this.gameServerService.restart(record._id);
+    this.matSnackBar.open('Game Server restarted successfully!', null, {
+      duration: SNACKBAR_DURATION,
+    });
   }
 
   public showDeletePrompt(record: GameServer) {
@@ -103,22 +86,10 @@ export class GameServersListPageComponent implements OnInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  private async fetchGames() {
-    this.games = await this.gameService.find({
-      sort: 'name',
-      where: {
-        namespaceId: this.selectedNamespaceService.namespace._id,
-      },
-    });
-  }
-
   private async fetchGameServers() {
-    const where = this.game
-      ? { gameId: this.game._id }
-      : { gameId: { $in: this.games.map(g => g._id) } };
     const records = await this.gameServerService.find({
       sort: 'name',
-      where,
+      where: { gameId: this.selectedGameService.game._id },
     });
 
     this.dataSource = new MatTableDataSource<GameServer>(records);

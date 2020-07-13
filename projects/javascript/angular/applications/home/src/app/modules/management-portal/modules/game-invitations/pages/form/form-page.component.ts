@@ -13,7 +13,11 @@ import {
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import {
+  IdentityService,
+  SelectedGameService,
+  SelectedNamespaceService,
+} from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
@@ -24,40 +28,26 @@ export class GameInvitationsFormPageComponent implements OnInit {
   public data: GameInvitation;
   public error: string;
   public form: FormGroup;
-  public games: Game[];
   public isLoading = false;
   public users: User[] = [];
 
-  private game: Game;
   private subject: Subject<string> = new Subject();
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private gameInvitationService: GameInvitationService,
-    private gameService: GameService,
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private router: Router,
+    private selectedGameService: SelectedGameService,
     public selectedNamespaceService: SelectedNamespaceService,
     private userService: UserService,
   ) {}
 
-  public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
-      const { namespaceId } = this.selectedNamespaceService;
-      this.games = await this.gameService.find({ where: { namespaceId } });
-
-      const gameSlug = params.get('gameSlug');
-      if (gameSlug) {
-        this.game = this.games.find(g => g.slug === gameSlug);
-      } else if (this.data) {
-        this.game = this.games.find(g => g._id === this.data.gameId);
-      }
-
-      this.subject.pipe(debounceTime(300)).subscribe(this.findUsers.bind(this));
-      this.setupForm();
-    });
+  public async ngOnInit() {
+    this.subject.pipe(debounceTime(300)).subscribe(this.findUsers.bind(this));
+    this.setupForm();
   }
 
   public displayWith(user: User) {
@@ -117,7 +107,10 @@ export class GameInvitationsFormPageComponent implements OnInit {
     this.data = this.data || new GameInvitation();
 
     this.form = this.formBuilder.group({
-      gameId: [this.game ? this.game._id : null, Validators.required],
+      gameId: [
+        this.selectedGameService.game ? this.selectedGameService.game._id : null,
+        Validators.required,
+      ],
       toUser: [null, Validators.required],
     });
 

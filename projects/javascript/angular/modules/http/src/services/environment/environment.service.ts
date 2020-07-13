@@ -11,6 +11,7 @@ export interface Environment {
   groupApiBaseUrl: string;
   groupInvitationApiBaseUrl: string;
   ignorationApiBaseUrl: string;
+  logApiBaseUrl: string;
   loginApiBaseUrl: string;
   messageApiBaseUrl: string;
   namespaceApiBaseUrl: string;
@@ -34,6 +35,7 @@ export class EnvironmentService implements Environment {
   public groupApiBaseUrl: string;
   public groupInvitationApiBaseUrl: string;
   public ignorationApiBaseUrl: string;
+  public logApiBaseUrl: string;
   public loginApiBaseUrl: string;
   public messageApiBaseUrl: string;
   public namespaceApiBaseUrl: string;

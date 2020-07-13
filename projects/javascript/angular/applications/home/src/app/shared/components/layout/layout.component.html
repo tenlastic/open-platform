@@ -16,7 +16,7 @@
     </app-button>
 
     <app-button
-      *ngIf="namespaces.length > 0"
+      *ngIf="identityService.user?.roles?.includes('Administrator') || namespaces.length > 0"
       color="accent"
       routerLink="/management-portal"
       routerLinkActive="active"

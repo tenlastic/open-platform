@@ -82,7 +82,7 @@ export class UsersFormPageComponent implements OnInit {
     this.data = this.data || new User();
 
     this.form = this.formBuilder.group({
-      email: [this.data.email, Validators.required],
+      email: [this.data.email],
       roles: [this.data.roles],
       username: [this.data.username, Validators.required],
     });

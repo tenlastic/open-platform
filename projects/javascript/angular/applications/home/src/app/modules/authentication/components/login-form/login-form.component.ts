@@ -2,8 +2,8 @@ import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 export interface ILogIn {
-  email: string;
   password: string;
+  username: string;
 }
 
 @Component({
@@ -22,23 +22,23 @@ export class LoginFormComponent implements OnInit {
 
   public submit() {
     if (this.form.invalid) {
-      this.form.get('email').markAsTouched();
       this.form.get('password').markAsTouched();
+      this.form.get('username').markAsTouched();
 
       return;
     }
 
     const values = {
-      email: this.form.get('email').value,
       password: this.form.get('password').value,
+      username: this.form.get('username').value,
     };
     this.logIn.emit(values);
   }
 
   private setupForm(): void {
     this.form = new FormGroup({
-      email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', Validators.required),
+      username: new FormControl('', [Validators.required]),
     });
 
     this.form.valueChanges.subscribe(data => {

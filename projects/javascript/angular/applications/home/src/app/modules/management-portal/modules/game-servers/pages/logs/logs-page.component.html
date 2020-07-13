@@ -1,0 +1,16 @@
+<div class="page">
+  <app-title>Game Server Logs</app-title>
+
+  <div class="logs-container">
+    <ng-container *ngIf="($logs | async).length > 0">
+      <div *ngFor="let log of $logs | async" class="log">
+        <span class="timestamp">[{{ log.createdAt | date: 'short' }}]</span>
+        <span>{{ getJson(log) ? (getJson(log) | json) : log.body }}</span>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="($logs | async).length === 0">
+      <div class="log">No logs found.</div>
+    </ng-container>
+  </div>
+</div>

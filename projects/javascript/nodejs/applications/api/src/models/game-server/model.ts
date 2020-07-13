@@ -19,8 +19,10 @@ import {
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
+import { version } from '../../../package.json';
 import { Game, GameDocument } from '../game';
 import { User, UserDocument } from '../user';
 
@@ -50,7 +52,11 @@ GameServerEvent.on(payload => {
   this.port = this.port || this.getRandomPort();
 })
 @post('save', async function(this: GameServerDocument) {
-  if (!this.wasNew && !this.wasModified.includes('releaseId')) {
+  if (
+    !this.wasNew &&
+    !this.wasModified.includes('isPersistent') &&
+    !this.wasModified.includes('releaseId')
+  ) {
     return;
   }
 
@@ -67,9 +73,6 @@ GameServerEvent.on(payload => {
 export class GameServerSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
 
-  @arrayProp({ itemsRef: User })
-  public allowedUserIds: Array<Ref<UserDocument>>;
-
   public createdAt: Date;
 
   @arrayProp({ itemsRef: User })
@@ -85,7 +88,10 @@ export class GameServerSchema implements IOriginalDocument {
   public heartbeatAt: Date;
 
   @prop()
-  public maxUsers: number;
+  public isPersistent: boolean;
+
+  @prop()
+  public isPreemptible: boolean;
 
   @prop({ default: {} })
   public metadata: any;
@@ -118,9 +124,44 @@ export class GameServerSchema implements IOriginalDocument {
   public wasNew: boolean;
 
   /**
+   * Restarts a persistent Game Server.
+   */
+  public async restart() {
+    if (!this.isPersistent) {
+      throw new Error('Game Server must be persistent to be restarted.');
+    }
+
+    const name = `game-server-${this._id}`;
+    const namespace = 'default';
+
+    const kc = new k8s.KubeConfig();
+    kc.loadFromDefault();
+
+    const corev1 = kc.makeApiClient(k8s.CoreV1Api);
+
+    const pods = await corev1.listNamespacedPod(
+      namespace,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      `app=${name}`,
+    );
+
+    return pods.body.items.map(item => corev1.deleteNamespacedPod(item.metadata.name, namespace));
+  }
+
+  /**
    * Creates a deployment and service within Kubernetes for the Game Server.
    */
   private async createKubernetesResources() {
+    const administrator = { username: 'administrator' };
+    const accessToken = jwt.sign(
+      { user: administrator },
+      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      { algorithm: 'RS256' },
+    );
+
     const name = `game-server-${this._id}`;
     const namespace = 'default';
 
@@ -133,8 +174,7 @@ export class GameServerSchema implements IOriginalDocument {
     const appsv1 = kc.makeApiClient(k8s.AppsV1Api);
     const corev1 = kc.makeApiClient(k8s.CoreV1Api);
 
-    // Create Deployment and Service.
-    await appsv1.createNamespacedDeployment(namespace, {
+    const podManifest: k8s.V1PodTemplateSpec = {
       metadata: {
         labels: {
           app: name,
@@ -142,42 +182,105 @@ export class GameServerSchema implements IOriginalDocument {
         name,
       },
       spec: {
-        replicas: 1,
-        selector: {
-          matchLabels: {
-            app: name,
-          },
-        },
-        template: {
-          metadata: {
-            labels: {
-              app: name,
+        affinity: {
+          nodeAffinity: {
+            requiredDuringSchedulingIgnoredDuringExecution: {
+              nodeSelectorTerms: [
+                {
+                  matchExpressions: [
+                    {
+                      key: 'cloud.google.com/gke-preemptible',
+                      operator: this.isPreemptible ? 'Exists' : 'DoesNotExist',
+                    },
+                  ],
+                },
+              ],
             },
           },
-          spec: {
-            containers: [
+        },
+        containers: [
+          {
+            args: ['--game-server-id', this._id.toHexString()],
+            image,
+            name: 'application',
+            ports: [
               {
-                args: ['--game-server-id', this._id.toHexString()],
-                image,
-                name,
-                ports: [
-                  {
-                    containerPort: 7777,
+                containerPort: 7777,
+              },
+            ],
+            resources: {
+              requests: {
+                cpu: '500m',
+                memory: '500M',
+              },
+            },
+          },
+          {
+            args: ['--game-server-id', this._id.toHexString()],
+            env: [
+              {
+                name: 'ACCESS_TOKEN',
+                value: accessToken,
+              },
+              {
+                name: 'GAME_SERVER_ID',
+                value: this._id.toHexString(),
+              },
+              {
+                name: 'POD_NAME',
+                valueFrom: {
+                  fieldRef: {
+                    fieldPath: 'metadata.name',
                   },
-                ],
-                resources: {
-                  requests: {
-                    cpu: '500m',
-                    memory: '500M',
+                },
+              },
+              {
+                name: 'POD_NAMESPACE',
+                valueFrom: {
+                  fieldRef: {
+                    fieldPath: 'metadata.namespace',
                   },
                 },
               },
             ],
-            imagePullSecrets: [{ name: 'docker-registry-image-pull-secret' }],
+            image: `@tenlastic/logs:${version}`,
+            name: 'logs',
+            resources: {
+              requests: {
+                cpu: '50m',
+                memory: '64M',
+              },
+            },
           },
-        },
+        ],
+        imagePullSecrets: [{ name: 'docker-registry-image-pull-secret' }],
       },
-    });
+    };
+
+    // Create Deployment if persistent, or a Pod if not.
+    if (this.isPersistent) {
+      await appsv1.createNamespacedDeployment(namespace, {
+        metadata: {
+          labels: {
+            app: name,
+          },
+          name,
+        },
+        spec: {
+          replicas: 1,
+          selector: {
+            matchLabels: {
+              app: name,
+            },
+          },
+          template: podManifest,
+        },
+      });
+    } else {
+      await corev1.createNamespacedPod(namespace, podManifest);
+    }
+
+    // Create a Service to access the Game Server Pods.
     await corev1.createNamespacedService(namespace, {
       metadata: {
         labels: {
@@ -252,6 +355,10 @@ export class GameServerSchema implements IOriginalDocument {
 
     try {
       await appsv1.deleteNamespacedDeployment(name, namespace);
+    } catch {}
+
+    try {
+      await corev1.deleteNamespacedPod(name, namespace);
     } catch {}
 
     try {
