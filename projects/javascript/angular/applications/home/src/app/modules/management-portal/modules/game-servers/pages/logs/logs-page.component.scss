@@ -11,13 +11,27 @@ app-button {
 
 div.log {
   display: flex;
+  padding: 2px;
 
-  span {
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+  }
+
+  &.collapsed span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &.expanded span {
     white-space: pre-wrap;
   }
 
   span.timestamp {
     margin-right: 8px;
+    overflow: initial;
+    text-overflow: initial;
     white-space: nowrap;
   }
 }

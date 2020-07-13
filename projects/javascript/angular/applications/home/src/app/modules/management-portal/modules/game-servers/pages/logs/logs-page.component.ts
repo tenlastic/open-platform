@@ -12,6 +12,7 @@ import { IdentityService } from '../../../../../../core/services';
 })
 export class GameServersLogsPageComponent implements OnInit {
   public $logs: Observable<Log[]>;
+  public visibility = {};
 
   private logJson: { [_id: string]: any } = {};
 

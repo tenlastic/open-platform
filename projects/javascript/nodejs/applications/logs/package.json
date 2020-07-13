@@ -12,8 +12,6 @@
     "docker:push": "../../scripts/docker-push.sh logs",
     "lint": "../../scripts/lint.sh",
     "migrations": "../../scripts/migrations.sh",
-    "prebuild": "./scripts/documentation.sh",
-    "prestart": "./scripts/documentation.sh",
     "start": "../../scripts/start.sh",
     "test": "../../scripts/test.sh",
     "test:watch": "../../scripts/test.sh --watch",
