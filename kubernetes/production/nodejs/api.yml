@@ -70,7 +70,7 @@ spec:
                     operator: Exists
       containers:
         - name: api
-          image: tenlastic/api:0.0.86
+          image: tenlastic/api:0.0.87
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
