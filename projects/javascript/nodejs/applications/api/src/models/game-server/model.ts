@@ -22,6 +22,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
+import * as path from 'path';
 
 import { Game, GameDocument } from '../game';
 import { User, UserDocument } from '../user';
@@ -177,7 +178,7 @@ export class GameServerSchema implements IOriginalDocument {
     const appsv1 = kc.makeApiClient(k8s.AppsV1Api);
     const corev1 = kc.makeApiClient(k8s.CoreV1Api);
 
-    const packageDotJson = fs.readFileSync('../../../package.json', 'utf8');
+    const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
     const version = JSON.parse(packageDotJson).version;
 
     const podManifest: k8s.V1PodTemplateSpec = {
@@ -206,7 +207,12 @@ export class GameServerSchema implements IOriginalDocument {
         },
         containers: [
           {
-            args: ['--game-server-id', this._id.toHexString()],
+            env: [
+              {
+                name: 'GAME_SERVER_ID',
+                value: this._id.toHexString(),
+              },
+            ],
             image,
             name: 'application',
             ports: [
@@ -222,7 +228,6 @@ export class GameServerSchema implements IOriginalDocument {
             },
           },
           {
-            args: ['--game-server-id', this._id.toHexString()],
             env: [
               {
                 name: 'ACCESS_TOKEN',
@@ -249,7 +254,7 @@ export class GameServerSchema implements IOriginalDocument {
                 },
               },
             ],
-            image: `@tenlastic/logs:${version}`,
+            image: `tenlastic/logs:${version}`,
             name: 'logs',
             resources: {
               requests: {

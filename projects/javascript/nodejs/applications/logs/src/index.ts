@@ -21,9 +21,10 @@ request
     agentOptions: { ca: certificate },
     headers: { Authorization: `Bearer ${token}` },
     qs: {
-      follow: 'true',
-      tailLines: '0',
-      timestamps: 'true',
+      container: 'application',
+      follow: true,
+      tailLines: 0,
+      timestamps: true,
     },
     url: `${server}/api/v1/namespaces/${podNamespace}/pods/${podName}/log`,
   })

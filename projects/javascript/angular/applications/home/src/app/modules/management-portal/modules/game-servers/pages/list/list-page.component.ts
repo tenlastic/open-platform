@@ -26,7 +26,14 @@ export class GameServersListPageComponent implements OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<GameServer>;
 
   public dataSource: MatTableDataSource<GameServer>;
-  public displayedColumns: string[] = ['name', 'description', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns: string[] = [
+    'name',
+    'description',
+    'status',
+    'createdAt',
+    'updatedAt',
+    'actions',
+  ];
   public search = '';
 
   private subject: Subject<string> = new Subject();
@@ -50,6 +57,17 @@ export class GameServersListPageComponent implements OnInit {
   public clearSearch() {
     this.search = '';
     this.applyFilter('');
+  }
+
+  public getStatus(gameServer: GameServer) {
+    if (!gameServer.heartbeatAt) {
+      return 'Unavailable';
+    }
+
+    const date = new Date();
+    date.setMinutes(date.getMinutes() - 1);
+
+    return gameServer.heartbeatAt < date ? 'Unavailable' : 'Available';
   }
 
   public onKeyUp(searchTextValue: string) {
