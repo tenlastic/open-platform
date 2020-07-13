@@ -1,14 +1,22 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
+import * as Chance from 'chance';
 import * as chaiAsPromised from 'chai-as-promised';
-import * as mongoose from 'mongoose';
 
-import { UserDocument, UserMock, GameMock, UserRolesMock, NamespaceMock } from '../../../models';
+import {
+  GameMock,
+  GameServerMock,
+  NamespaceMock,
+  UserDocument,
+  UserMock,
+  UserRolesMock,
+} from '../../../models';
 import { handler } from './';
 
+const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/game-invitations/create', function() {
+describe('handlers/logs/create', function() {
   let user: UserDocument;
 
   beforeEach(async function() {
@@ -20,11 +28,13 @@ describe('handlers/game-invitations/create', function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
       const game = await GameMock.create({ namespaceId: namespace._id });
+      const gameServer = await GameServerMock.create({ gameId: game._id });
+
       const ctx = new ContextMock({
         request: {
           body: {
-            gameId: game._id,
-            toUserId: mongoose.Types.ObjectId(),
+            body: chance.hash(),
+            gameServerId: gameServer._id,
           },
         },
         state: { user: user.toObject() },
@@ -38,12 +48,13 @@ describe('handlers/game-invitations/create', function() {
 
   context('when permission is denied', function() {
     it('throws an error', async function() {
-      const game = await GameMock.create();
+      const gameServer = await GameServerMock.create();
+
       const ctx = new ContextMock({
         request: {
           body: {
-            gameId: game._id,
-            toUserId: mongoose.Types.ObjectId(),
+            body: chance.hash(),
+            gameServerId: gameServer._id,
           },
         },
         state: { user: user.toObject() },

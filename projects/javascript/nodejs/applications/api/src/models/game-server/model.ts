@@ -148,7 +148,10 @@ export class GameServerSchema implements IOriginalDocument {
       `app=${name}`,
     );
 
-    return pods.body.items.map(item => corev1.deleteNamespacedPod(item.metadata.name, namespace));
+    const promises = pods.body.items.map(item =>
+      corev1.deleteNamespacedPod(item.metadata.name, namespace),
+    );
+    return Promise.all(promises);
   }
 
   /**

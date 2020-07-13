@@ -3,7 +3,8 @@ import { expect } from 'chai';
 
 import {
   GameMock,
-  GameInvitationMock,
+  GameServerMock,
+  LogMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -11,7 +12,7 @@ import {
 } from '../../../models';
 import { handler } from './';
 
-describe('handlers/game-invitations/count', function() {
+describe('handlers/logs/count', function() {
   let user: UserDocument;
 
   beforeEach(async function() {
@@ -20,8 +21,9 @@ describe('handlers/game-invitations/count', function() {
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
     const game = await GameMock.create({ namespaceId: namespace._id });
-    await GameInvitationMock.create({ gameId: game._id, toUserId: user._id });
-    await GameInvitationMock.create();
+    const gameServer = await GameServerMock.create({ gameId: game._id });
+    await LogMock.create({ gameServerId: gameServer._id });
+    await LogMock.create();
   });
 
   it('returns the number of matching records', async function() {

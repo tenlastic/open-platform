@@ -3,8 +3,9 @@ import { expect } from 'chai';
 
 import {
   GameMock,
-  GameInvitationDocument,
-  GameInvitationMock,
+  GameServerMock,
+  LogDocument,
+  LogMock,
   UserDocument,
   UserMock,
   UserRolesMock,
@@ -12,8 +13,8 @@ import {
 } from '../../../models';
 import { handler } from './';
 
-describe('handlers/game-invitations/find', function() {
-  let record: GameInvitationDocument;
+describe('handlers/logs/find', function() {
+  let record: LogDocument;
   let user: UserDocument;
 
   beforeEach(async function() {
@@ -22,8 +23,9 @@ describe('handlers/game-invitations/find', function() {
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
     const game = await GameMock.create({ namespaceId: namespace._id });
-    record = await GameInvitationMock.create({ gameId: game._id, toUserId: user._id });
-    await GameInvitationMock.create();
+    const gameServer = await GameServerMock.create({ gameId: game._id });
+    record = await LogMock.create({ gameServerId: gameServer._id });
+    await LogMock.create();
   });
 
   it('returns the number of matching records', async function() {

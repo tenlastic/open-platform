@@ -31,7 +31,7 @@ describe('handlers/game-servers/restart', function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
       const game = await GameMock.create({ namespaceId: namespace._id });
-      record = await GameServerMock.create({ gameId: game._id });
+      record = await GameServerMock.create({ gameId: game._id, isPersistent: true });
     });
 
     it('returns the record', async function() {
@@ -39,18 +39,12 @@ describe('handlers/game-servers/restart', function() {
         params: {
           _id: record._id,
         },
-        request: {
-          body: {
-            name: chance.hash(),
-          },
-        },
         state: { user: user.toObject() },
       });
 
       await handler(ctx as any);
 
       expect(ctx.response.body.record).to.exist;
-      expect(ctx.response.body.record.name).to.eql(ctx.request.body.name);
     });
   });
 
@@ -65,11 +59,6 @@ describe('handlers/game-servers/restart', function() {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
-        },
-        request: {
-          body: {
-            name: chance.hash(),
-          },
         },
         state: { user: user.toObject() },
       });
