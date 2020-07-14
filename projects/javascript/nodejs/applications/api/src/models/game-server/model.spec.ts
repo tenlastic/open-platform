@@ -2,7 +2,6 @@ import * as k8s from '@kubernetes/client-node';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
-import * as request from 'request';
 import * as sinon from 'sinon';
 
 import { GameServerMock } from './model.mock';
@@ -10,10 +9,16 @@ import { GameServerMock } from './model.mock';
 const chance = new Chance();
 let createNamespacedDeploymentStub: sinon.SinonStub;
 let createNamespacedPodStub: sinon.SinonStub;
+let createNamespacedRoleBindingStub: sinon.SinonStub;
+let createNamespacedRoleStub: sinon.SinonStub;
 let createNamespacedServiceStub: sinon.SinonStub;
+let createNamespacedServiceAccountStub: sinon.SinonStub;
 let deleteNamespacedDeploymentStub: sinon.SinonStub;
 let deleteNamespacedPodStub: sinon.SinonStub;
+let deleteNamespacedRoleBindingStub: sinon.SinonStub;
+let deleteNamespacedRoleStub: sinon.SinonStub;
 let deleteNamespacedServiceStub: sinon.SinonStub;
+let deleteNamespacedServiceAccountStub: sinon.SinonStub;
 let listNamespacedPodStub: sinon.SinonStub;
 let patchNamespacedConfigMapStub: sinon.SinonStub;
 let patchNamespacedServiceStub: sinon.SinonStub;
@@ -29,6 +34,12 @@ beforeEach(function() {
     .stub(k8s.AppsV1Api.prototype, 'createNamespacedDeployment')
     .resolves();
   createNamespacedPodStub = sandbox.stub(k8s.CoreV1Api.prototype, 'createNamespacedPod').resolves();
+  createNamespacedRoleStub = sandbox
+    .stub(k8s.RbacAuthorizationV1Api.prototype, 'createNamespacedRole')
+    .resolves();
+  createNamespacedRoleBindingStub = sandbox
+    .stub(k8s.RbacAuthorizationV1Api.prototype, 'createNamespacedRoleBinding')
+    .resolves();
   createNamespacedServiceStub = sandbox
     .stub(k8s.CoreV1Api.prototype, 'createNamespacedService')
     .resolves({
@@ -38,13 +49,25 @@ beforeEach(function() {
         },
       },
     });
+  createNamespacedServiceAccountStub = sandbox
+    .stub(k8s.CoreV1Api.prototype, 'createNamespacedServiceAccount')
+    .resolves();
 
   deleteNamespacedDeploymentStub = sandbox
     .stub(k8s.AppsV1Api.prototype, 'deleteNamespacedDeployment')
     .resolves();
   deleteNamespacedPodStub = sandbox.stub(k8s.CoreV1Api.prototype, 'deleteNamespacedPod').resolves();
+  deleteNamespacedRoleStub = sandbox
+    .stub(k8s.RbacAuthorizationV1Api.prototype, 'deleteNamespacedRole')
+    .resolves();
+  deleteNamespacedRoleBindingStub = sandbox
+    .stub(k8s.RbacAuthorizationV1Api.prototype, 'deleteNamespacedRoleBinding')
+    .resolves();
   deleteNamespacedServiceStub = sandbox
     .stub(k8s.CoreV1Api.prototype, 'deleteNamespacedService')
+    .resolves();
+  deleteNamespacedServiceAccountStub = sandbox
+    .stub(k8s.CoreV1Api.prototype, 'deleteNamespacedServiceAccount')
     .resolves();
 
   listNamespacedPodStub = sandbox.stub(k8s.CoreV1Api.prototype, 'listNamespacedPod').resolves({

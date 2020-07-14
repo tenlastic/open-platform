@@ -164,10 +164,6 @@ export class GameServersFormPageComponent implements OnInit {
       });
     }
 
-    if (properties.length === 0) {
-      properties.push(this.getDefaultPropertyFormGroup());
-    }
-
     this.form = this.formBuilder.group({
       description: [this.data.description],
       gameId: [

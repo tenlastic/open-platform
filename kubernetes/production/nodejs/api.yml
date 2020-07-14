@@ -16,12 +16,26 @@ rules:
       - update
       - watch
   - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - roles
+      - roleBindings
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
       - ""
     resources:
       - configmaps
       - pods
       - pods/log
       - services
+      - serviceAccounts
     verbs:
       - create
       - delete

@@ -64,7 +64,7 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
     {
       name: 'system-administrator',
       query: {
-        'user.roles': { $eq: 'administrator' },
+        'user.roles': { $eq: 'Administrator' },
       },
     },
     {

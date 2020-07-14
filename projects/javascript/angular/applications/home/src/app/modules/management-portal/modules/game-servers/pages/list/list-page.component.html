@@ -48,6 +48,11 @@
       <td mat-cell *matCellDef="let element">{{ getStatus(element) }}</td>
     </ng-container>
 
+    <ng-container matColumnDef="isPersistent">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Persistent</th>
+      <td mat-cell *matCellDef="let element">{{ element.isPersistent ? 'Yes' : 'No' }}</td>
+    </ng-container>
+
     <ng-container matColumnDef="createdAt">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Created At</th>
       <td mat-cell *matCellDef="let element">{{ element.createdAt | date }}</td>

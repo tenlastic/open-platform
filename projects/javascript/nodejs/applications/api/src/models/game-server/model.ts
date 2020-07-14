@@ -159,7 +159,7 @@ export class GameServerSchema implements IOriginalDocument {
    * Creates a deployment and service within Kubernetes for the Game Server.
    */
   private async createKubernetesResources() {
-    const administrator = { username: 'administrator' };
+    const administrator = { roles: ['Administrator'] };
     const accessToken = jwt.sign(
       { user: administrator },
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
@@ -176,11 +176,57 @@ export class GameServerSchema implements IOriginalDocument {
     kc.loadFromDefault();
 
     const appsv1 = kc.makeApiClient(k8s.AppsV1Api);
+    const authorizationv1 = kc.makeApiClient(k8s.RbacAuthorizationV1beta1Api);
     const corev1 = kc.makeApiClient(k8s.CoreV1Api);
 
     const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
     const version = JSON.parse(packageDotJson).version;
 
+    /**
+     * ======================
+     * ROLE + SERVICE ACCOUNT
+     * ======================
+     */
+    await authorizationv1.createNamespacedRole(namespace, {
+      metadata: {
+        name,
+      },
+      rules: [
+        {
+          apiGroups: [''],
+          resourceNames: [name],
+          resources: ['pods/log'],
+          verbs: ['get', 'list', 'watch'],
+        },
+      ],
+    });
+    await corev1.createNamespacedServiceAccount(namespace, {
+      metadata: {
+        name,
+      },
+    });
+    await authorizationv1.createNamespacedRoleBinding(namespace, {
+      metadata: {
+        name,
+      },
+      roleRef: {
+        apiGroup: 'rbac.authorization.k8s.io',
+        kind: 'Role',
+        name,
+      },
+      subjects: [
+        {
+          kind: 'ServiceAccount',
+          name,
+        },
+      ],
+    });
+
+    /**
+     * =======================
+     * POD DEFINITION
+     * =======================
+     */
     const podManifest: k8s.V1PodTemplateSpec = {
       metadata: {
         labels: {
@@ -268,7 +314,11 @@ export class GameServerSchema implements IOriginalDocument {
       },
     };
 
-    // Create Deployment if persistent, or a Pod if not.
+    /**
+     * =======================
+     * DEPLOYMENT / POD + SERVICE
+     * =======================
+     */
     if (this.isPersistent) {
       await appsv1.createNamespacedDeployment(namespace, {
         metadata: {
@@ -313,7 +363,11 @@ export class GameServerSchema implements IOriginalDocument {
       },
     });
 
-    // Patch Nginx resources.
+    /**
+     * =======================
+     * NGINX
+     * =======================
+     */
     await corev1.patchNamespacedConfigMap(
       'nginx-ingress-tcp',
       namespace,
@@ -362,7 +416,20 @@ export class GameServerSchema implements IOriginalDocument {
     kc.loadFromDefault();
 
     const appsv1 = kc.makeApiClient(k8s.AppsV1Api);
+    const authorizationv1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
     const corev1 = kc.makeApiClient(k8s.CoreV1Api);
+
+    try {
+      await authorizationv1.deleteNamespacedRole(name, namespace);
+    } catch {}
+
+    try {
+      await corev1.deleteNamespacedServiceAccount(name, namespace);
+    } catch {}
+
+    try {
+      await authorizationv1.deleteNamespacedRoleBinding(name, namespace);
+    } catch {}
 
     try {
       await appsv1.deleteNamespacedDeployment(name, namespace);

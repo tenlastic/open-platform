@@ -30,6 +30,7 @@ export class GameServersListPageComponent implements OnInit {
     'name',
     'description',
     'status',
+    'isPersistent',
     'createdAt',
     'updatedAt',
     'actions',

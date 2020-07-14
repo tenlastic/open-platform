@@ -12,8 +12,6 @@ import {
   GroupInvitation,
   GroupInvitationService,
   GroupService,
-  Log,
-  LogService,
   LoginService,
   Message,
   MessageService,
@@ -42,7 +40,6 @@ export class AppComponent implements OnInit {
     private gameServerService: GameServerService,
     private groupService: GroupService,
     private groupInvitationService: GroupInvitationService,
-    private logService: LogService,
     private loginService: LoginService,
     private messageService: MessageService,
     private identityService: IdentityService,
@@ -94,7 +91,6 @@ export class AppComponent implements OnInit {
     this.socketService.watch(GameServer, this.gameServerService, {});
     this.socketService.watch(Group, this.groupService, {});
     this.socketService.watch(GroupInvitation, this.groupInvitationService, {});
-    this.socketService.watch(Log, this.logService, {});
     this.socketService.watch(Message, this.messageService, {});
     this.socketService.watch(Release, this.releaseService, {});
   }

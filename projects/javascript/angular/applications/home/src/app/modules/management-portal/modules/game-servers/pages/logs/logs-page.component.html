@@ -1,5 +1,14 @@
 <div class="page">
-  <app-title>Game Server Logs</app-title>
+  <div class="row">
+    <div class="col-sm-6">
+      <app-title>Game Server Logs</app-title>
+    </div>
+    <div class="col-sm-6">
+      <app-button [color]="isLive ? 'accent' : 'primary'" (click)="toggleIsLive()">
+        {{ isLive ? 'Stop' : 'Start' }} Live Tail
+      </app-button>
+    </div>
+  </div>
 
   <div class="logs-container">
     <ng-container *ngIf="($logs | async).length > 0">
@@ -9,7 +18,7 @@
         [ngClass]="visibility[log._id] ? 'expanded' : 'collapsed'"
         (click)="visibility[log._id] = !visibility[log._id]"
       >
-        <span class="timestamp">[{{ log.createdAt | date: 'short' }}]</span>
+        <span class="timestamp">[{{ log.createdAt | date: 'M/d/yy, H:mm:ss' }}]</span>
 
         <span *ngIf="getJson(log) as json">{{ json | json }}</span>
         <span *ngIf="!getJson(log)">{{ log.body }}</span>

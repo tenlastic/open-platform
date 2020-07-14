@@ -9,6 +9,18 @@ app-button {
   margin-right: 8px;
 }
 
+div.col-sm-6 {
+  padding: 0px;
+
+  &:nth-child(2) {
+    text-align: right;
+
+    app-button {
+      margin-right: 0px;
+    }
+  }
+}
+
 div.log {
   display: flex;
   padding: 2px;
