@@ -136,7 +136,7 @@ describe('models/game-server/model', function() {
         await gameServer.restart();
 
         const calls = deleteNamespacedPodStub.getCalls();
-        expect(deleteNamespacedPodStub.calledThrice).to.eql(true);
+        expect(deleteNamespacedPodStub.calledTwice).to.eql(true);
         expect(calls[0].args[0]).to.eql(`game-server-${gameServer._id}`);
         expect(calls[1].args[0]).to.eql(names[0]);
         expect(calls[2].args[0]).to.eql(names[1]);
