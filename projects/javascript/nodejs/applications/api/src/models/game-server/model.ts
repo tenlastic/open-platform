@@ -135,7 +135,7 @@ export class GameServerSchema implements IOriginalDocument {
     }
 
     const name = `game-server-${this._id}`;
-    const namespace = 'default';
+    const namespace = name;
 
     const kc = new k8s.KubeConfig();
     kc.loadFromDefault();
@@ -169,7 +169,7 @@ export class GameServerSchema implements IOriginalDocument {
     );
 
     const name = `game-server-${this._id}`;
-    const namespace = 'default';
+    const namespace = name;
 
     const url = new URL(process.env.DOCKER_REGISTRY_URL);
     const image = `${url.host}/${this.gameId}:${this.releaseId}`;
@@ -186,6 +186,13 @@ export class GameServerSchema implements IOriginalDocument {
 
     /**
      * ======================
+     * NAMESPACE
+     * ======================
+     */
+    await corev1.createNamespace({ metadata: { name: namespace } });
+
+    /**
+     * ======================
      * ROLE + SERVICE ACCOUNT
      * ======================
      */
@@ -196,7 +203,6 @@ export class GameServerSchema implements IOriginalDocument {
       rules: [
         {
           apiGroups: [''],
-          resourceNames: [name],
           resources: ['pods/log'],
           verbs: ['get', 'list', 'watch'],
         },
@@ -220,6 +226,7 @@ export class GameServerSchema implements IOriginalDocument {
         {
           kind: 'ServiceAccount',
           name,
+          namespace,
         },
       ],
     });
@@ -413,37 +420,15 @@ export class GameServerSchema implements IOriginalDocument {
    */
   private async deleteKubernetesResources() {
     const name = `game-server-${this._id}`;
-    const namespace = 'default';
+    const namespace = name;
 
     const kc = new k8s.KubeConfig();
     kc.loadFromDefault();
 
-    const appsv1 = kc.makeApiClient(k8s.AppsV1Api);
-    const authorizationv1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
     const corev1 = kc.makeApiClient(k8s.CoreV1Api);
 
     try {
-      await authorizationv1.deleteNamespacedRole(name, namespace);
-    } catch {}
-
-    try {
-      await corev1.deleteNamespacedServiceAccount(name, namespace);
-    } catch {}
-
-    try {
-      await authorizationv1.deleteNamespacedRoleBinding(name, namespace);
-    } catch {}
-
-    try {
-      await appsv1.deleteNamespacedDeployment(name, namespace);
-    } catch {}
-
-    try {
-      await corev1.deleteNamespacedPod(name, namespace);
-    } catch {}
-
-    try {
-      await corev1.deleteNamespacedService(name, namespace);
+      await corev1.deleteNamespace(namespace);
     } catch {}
 
     try {

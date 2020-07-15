@@ -7,18 +7,15 @@ import * as sinon from 'sinon';
 import { GameServerMock } from './model.mock';
 
 const chance = new Chance();
+let createNamespaceStub: sinon.SinonStub;
 let createNamespacedDeploymentStub: sinon.SinonStub;
 let createNamespacedPodStub: sinon.SinonStub;
 let createNamespacedRoleBindingStub: sinon.SinonStub;
 let createNamespacedRoleStub: sinon.SinonStub;
 let createNamespacedServiceStub: sinon.SinonStub;
 let createNamespacedServiceAccountStub: sinon.SinonStub;
-let deleteNamespacedDeploymentStub: sinon.SinonStub;
+let deleteNamespaceStub: sinon.SinonStub;
 let deleteNamespacedPodStub: sinon.SinonStub;
-let deleteNamespacedRoleBindingStub: sinon.SinonStub;
-let deleteNamespacedRoleStub: sinon.SinonStub;
-let deleteNamespacedServiceStub: sinon.SinonStub;
-let deleteNamespacedServiceAccountStub: sinon.SinonStub;
 let listNamespacedPodStub: sinon.SinonStub;
 let patchNamespacedConfigMapStub: sinon.SinonStub;
 let patchNamespacedServiceStub: sinon.SinonStub;
@@ -30,6 +27,7 @@ use(chaiAsPromised);
 beforeEach(function() {
   sandbox = sinon.createSandbox();
 
+  createNamespaceStub = sandbox.stub(k8s.CoreV1Api.prototype, 'createNamespace').resolves();
   createNamespacedDeploymentStub = sandbox
     .stub(k8s.AppsV1Api.prototype, 'createNamespacedDeployment')
     .resolves();
@@ -53,22 +51,8 @@ beforeEach(function() {
     .stub(k8s.CoreV1Api.prototype, 'createNamespacedServiceAccount')
     .resolves();
 
-  deleteNamespacedDeploymentStub = sandbox
-    .stub(k8s.AppsV1Api.prototype, 'deleteNamespacedDeployment')
-    .resolves();
+  deleteNamespaceStub = sandbox.stub(k8s.CoreV1Api.prototype, 'deleteNamespace').resolves();
   deleteNamespacedPodStub = sandbox.stub(k8s.CoreV1Api.prototype, 'deleteNamespacedPod').resolves();
-  deleteNamespacedRoleStub = sandbox
-    .stub(k8s.RbacAuthorizationV1Api.prototype, 'deleteNamespacedRole')
-    .resolves();
-  deleteNamespacedRoleBindingStub = sandbox
-    .stub(k8s.RbacAuthorizationV1Api.prototype, 'deleteNamespacedRoleBinding')
-    .resolves();
-  deleteNamespacedServiceStub = sandbox
-    .stub(k8s.CoreV1Api.prototype, 'deleteNamespacedService')
-    .resolves();
-  deleteNamespacedServiceAccountStub = sandbox
-    .stub(k8s.CoreV1Api.prototype, 'deleteNamespacedServiceAccount')
-    .resolves();
 
   listNamespacedPodStub = sandbox.stub(k8s.CoreV1Api.prototype, 'listNamespacedPod').resolves({
     body: {
@@ -101,9 +85,7 @@ describe('models/game-server/model', function() {
         expect(createNamespacedDeploymentStub.calledOnce).to.eql(true);
         expect(createNamespacedServiceStub.calledOnce).to.eql(true);
 
-        expect(deleteNamespacedDeploymentStub.calledOnce).to.eql(true);
-        expect(deleteNamespacedPodStub.calledOnce).to.eql(true);
-        expect(deleteNamespacedServiceStub.calledOnce).to.eql(true);
+        expect(deleteNamespaceStub.calledOnce).to.eql(true);
 
         expect(patchNamespacedConfigMapStub.calledTwice).to.eql(true);
         expect(patchNamespacedServiceStub.calledOnce).to.eql(true);
@@ -117,9 +99,7 @@ describe('models/game-server/model', function() {
         expect(createNamespacedPodStub.calledOnce).to.eql(true);
         expect(createNamespacedServiceStub.calledOnce).to.eql(true);
 
-        expect(deleteNamespacedDeploymentStub.calledOnce).to.eql(true);
-        expect(deleteNamespacedPodStub.calledOnce).to.eql(true);
-        expect(deleteNamespacedServiceStub.calledOnce).to.eql(true);
+        expect(deleteNamespaceStub.calledOnce).to.eql(true);
 
         expect(patchNamespacedConfigMapStub.calledTwice).to.eql(true);
         expect(patchNamespacedServiceStub.calledOnce).to.eql(true);
@@ -131,9 +111,7 @@ describe('models/game-server/model', function() {
     it(`removes created Kubernetes resources`, async function() {
       await GameServerMock.create();
 
-      expect(deleteNamespacedDeploymentStub.calledOnce).to.eql(true);
-      expect(deleteNamespacedPodStub.calledOnce).to.eql(true);
-      expect(deleteNamespacedServiceStub.calledOnce).to.eql(true);
+      expect(deleteNamespaceStub.calledOnce).to.eql(true);
     });
   });
 
