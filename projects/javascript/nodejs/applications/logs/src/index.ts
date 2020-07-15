@@ -39,7 +39,7 @@ request
         {
           headers: { Authorization: `Bearer ${accessToken}` },
           json: { body: line, gameServerId },
-          url: 'http://api:3000/logs',
+          url: 'http://api.default:3000/logs',
         },
         (err, response, body) => {
           if (err) {
