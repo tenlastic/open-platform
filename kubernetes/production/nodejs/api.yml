@@ -19,7 +19,7 @@ rules:
       - rbac.authorization.k8s.io
     resources:
       - roles
-      - roleBindings
+      - rolebindings
     verbs:
       - create
       - delete
@@ -35,7 +35,7 @@ rules:
       - pods
       - pods/log
       - services
-      - serviceAccounts
+      - serviceaccounts
     verbs:
       - create
       - delete
