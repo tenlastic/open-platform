@@ -380,7 +380,7 @@ export class GameServerSchema implements IOriginalDocument {
      */
     await corev1.patchNamespacedConfigMap(
       'nginx-ingress-tcp',
-      namespace,
+      'default',
       {
         data: {
           [this.port]: `${namespace}/${name}:7777`,
@@ -394,7 +394,7 @@ export class GameServerSchema implements IOriginalDocument {
     );
     await corev1.patchNamespacedService(
       'nginx-ingress-controller',
-      namespace,
+      'default',
       {
         spec: {
           ports: [
@@ -434,7 +434,7 @@ export class GameServerSchema implements IOriginalDocument {
     try {
       await corev1.patchNamespacedConfigMap(
         'tcp-services',
-        namespace,
+        'default',
         [{ op: 'remove', path: `/data/${this.port}` }],
         undefined,
         undefined,
