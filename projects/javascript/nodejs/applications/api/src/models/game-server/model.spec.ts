@@ -92,7 +92,7 @@ afterEach(function() {
   sandbox.restore();
 });
 
-describe.skip('models/game-server/model', function() {
+describe('models/game-server/model', function() {
   describe('createKubernetesResources()', function() {
     context('when persistent', function() {
       it(`creates Kubernetes resources`, async function() {

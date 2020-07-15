@@ -68,6 +68,7 @@ GameServerEvent.on(payload => {
   try {
     await this.createKubernetesResources();
   } catch (e) {
+    console.error(e);
     await this.deleteKubernetesResources();
   }
 })
@@ -176,7 +177,7 @@ export class GameServerSchema implements IOriginalDocument {
     kc.loadFromDefault();
 
     const appsv1 = kc.makeApiClient(k8s.AppsV1Api);
-    const authorizationv1 = kc.makeApiClient(k8s.RbacAuthorizationV1beta1Api);
+    const authorizationv1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
     const corev1 = kc.makeApiClient(k8s.CoreV1Api);
 
     const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
