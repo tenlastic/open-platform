@@ -56,6 +56,7 @@ GameServerEvent.on(payload => {
   if (
     !this.wasNew &&
     !this.wasModified.includes('isPersistent') &&
+    !this.wasModified.includes('isPreemptible') &&
     !this.wasModified.includes('releaseId')
   ) {
     return;
@@ -312,6 +313,7 @@ export class GameServerSchema implements IOriginalDocument {
           },
         ],
         imagePullSecrets: [{ name: 'docker-registry-image-pull-secret' }],
+        serviceAccountName: name,
       },
     };
 
