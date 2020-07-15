@@ -233,6 +233,21 @@ export class GameServerSchema implements IOriginalDocument {
 
     /**
      * =======================
+     * IMAGE PULL SECRET
+     * =======================
+     */
+    const secret = await corev1.readNamespacedSecret(
+      'docker-registry-image-pull-secret',
+      'default',
+    );
+    await corev1.createNamespacedSecret(namespace, {
+      data: secret.body.data,
+      metadata: { name: secret.body.metadata.name },
+      type: secret.body.type,
+    });
+
+    /**
+     * =======================
      * POD DEFINITION
      * =======================
      */

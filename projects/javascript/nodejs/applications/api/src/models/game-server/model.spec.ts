@@ -12,6 +12,7 @@ let createNamespacedDeploymentStub: sinon.SinonStub;
 let createNamespacedPodStub: sinon.SinonStub;
 let createNamespacedRoleBindingStub: sinon.SinonStub;
 let createNamespacedRoleStub: sinon.SinonStub;
+let createNamespacedSecretStub: sinon.SinonStub;
 let createNamespacedServiceStub: sinon.SinonStub;
 let createNamespacedServiceAccountStub: sinon.SinonStub;
 let deleteNamespaceStub: sinon.SinonStub;
@@ -19,7 +20,7 @@ let deleteNamespacedPodStub: sinon.SinonStub;
 let listNamespacedPodStub: sinon.SinonStub;
 let patchNamespacedConfigMapStub: sinon.SinonStub;
 let patchNamespacedServiceStub: sinon.SinonStub;
-let readNamespacedPodLogStub: sinon.SinonStub;
+let readNamespacedSecretStub: sinon.SinonStub;
 let sandbox: sinon.SinonSandbox;
 
 use(chaiAsPromised);
@@ -37,6 +38,9 @@ beforeEach(function() {
     .resolves();
   createNamespacedRoleBindingStub = sandbox
     .stub(k8s.RbacAuthorizationV1Api.prototype, 'createNamespacedRoleBinding')
+    .resolves();
+  createNamespacedSecretStub = sandbox
+    .stub(k8s.CoreV1Api.prototype, 'createNamespacedSecret')
     .resolves();
   createNamespacedServiceStub = sandbox
     .stub(k8s.CoreV1Api.prototype, 'createNamespacedService')
@@ -67,9 +71,15 @@ beforeEach(function() {
     .stub(k8s.CoreV1Api.prototype, 'patchNamespacedService')
     .resolves();
 
-  readNamespacedPodLogStub = sandbox
-    .stub(k8s.CoreV1Api.prototype, 'readNamespacedPodLog')
-    .resolves();
+  readNamespacedSecretStub = sandbox
+    .stub(k8s.CoreV1Api.prototype, 'readNamespacedSecret')
+    .resolves({
+      body: {
+        data: { key: 'value' },
+        metadata: { name: chance.hash() },
+        type: chance.hash(),
+      },
+    });
 });
 
 afterEach(function() {
