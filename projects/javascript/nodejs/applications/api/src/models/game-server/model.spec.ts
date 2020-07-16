@@ -95,7 +95,7 @@ describe('models/game-server/model', function() {
         expect(createNamespacedDeploymentStub.calledOnce).to.eql(true);
         expect(createNamespacedServiceStub.calledOnce).to.eql(true);
 
-        expect(patchNamespacedConfigMapStub.calledTwice).to.eql(true);
+        expect(patchNamespacedConfigMapStub.calledOnce).to.eql(true);
         expect(patchNamespacedServiceStub.calledOnce).to.eql(true);
       });
     });
@@ -107,7 +107,7 @@ describe('models/game-server/model', function() {
         expect(createNamespacedPodStub.calledOnce).to.eql(true);
         expect(createNamespacedServiceStub.calledOnce).to.eql(true);
 
-        expect(patchNamespacedConfigMapStub.calledTwice).to.eql(true);
+        expect(patchNamespacedConfigMapStub.calledOnce).to.eql(true);
         expect(patchNamespacedServiceStub.calledOnce).to.eql(true);
       });
     });
