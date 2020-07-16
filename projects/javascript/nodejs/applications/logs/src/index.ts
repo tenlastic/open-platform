@@ -23,7 +23,6 @@ request
     qs: {
       container: 'application',
       follow: true,
-      tailLines: 0,
       timestamps: true,
     },
     url: `${server}/api/v1/namespaces/${podNamespace}/pods/${podName}/log`,

@@ -32,6 +32,13 @@ GameServerEvent.on(payload => {
   kafka.publish(payload);
 });
 
+const kc = new k8s.KubeConfig();
+kc.loadFromDefault();
+
+const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
+const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
+const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
+
 @index({ gameId: 1 })
 @index({ port: 1 }, { unique: true })
 @modelOptions({
@@ -62,15 +69,16 @@ GameServerEvent.on(payload => {
     return;
   }
 
-  // Delete outdated resources.
-  await this.deleteKubernetesResources();
-
-  // Delete created resources if entire stack is not successful.
-  try {
-    await this.createKubernetesResources();
-  } catch (e) {
-    console.error(e);
-    await this.deleteKubernetesResources();
+  if (this.wasNew) {
+    // Delete created resources if entire stack is not successful.
+    try {
+      await this.createKubernetesResources();
+    } catch (e) {
+      await this.deleteKubernetesResources();
+      throw e;
+    }
+  } else {
+    await this.updateKubernetesResources();
   }
 })
 export class GameServerSchema implements IOriginalDocument {
@@ -122,6 +130,14 @@ export class GameServerSchema implements IOriginalDocument {
   @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: Game })
   public gameDocument: GameDocument[];
 
+  private get kubernetesNamespace() {
+    return this.kubernetesResourceName;
+  }
+
+  private get kubernetesResourceName() {
+    return `game-server-${this._id}`;
+  }
+
   public _original: any;
   public wasModified: string[];
   public wasNew: boolean;
@@ -134,33 +150,22 @@ export class GameServerSchema implements IOriginalDocument {
       throw new Error('Game Server must be persistent to be restarted.');
     }
 
-    const name = `game-server-${this._id}`;
-    const namespace = name;
-
-    const kc = new k8s.KubeConfig();
-    kc.loadFromDefault();
-
-    const corev1 = kc.makeApiClient(k8s.CoreV1Api);
-
-    const pods = await corev1.listNamespacedPod(
-      namespace,
+    const pods = await coreV1.listNamespacedPod(
+      this.kubernetesNamespace,
       undefined,
       undefined,
       undefined,
       undefined,
-      `app=${name}`,
+      `app=${this.kubernetesResourceName}`,
     );
 
     const promises = pods.body.items.map(item =>
-      corev1.deleteNamespacedPod(item.metadata.name, namespace),
+      coreV1.deleteNamespacedPod(item.metadata.name, this.kubernetesNamespace),
     );
     return Promise.all(promises);
   }
 
-  /**
-   * Creates a deployment and service within Kubernetes for the Game Server.
-   */
-  private async createKubernetesResources() {
+  private async createDeploymentOrPod() {
     const administrator = { roles: ['Administrator'] };
     const accessToken = jwt.sign(
       { user: administrator },
@@ -168,95 +173,18 @@ export class GameServerSchema implements IOriginalDocument {
       { algorithm: 'RS256' },
     );
 
-    const name = `game-server-${this._id}`;
-    const namespace = name;
-
     const url = new URL(process.env.DOCKER_REGISTRY_URL);
     const image = `${url.host}/${this.gameId}:${this.releaseId}`;
-
-    const kc = new k8s.KubeConfig();
-    kc.loadFromDefault();
-
-    const appsv1 = kc.makeApiClient(k8s.AppsV1Api);
-    const authorizationv1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
-    const corev1 = kc.makeApiClient(k8s.CoreV1Api);
 
     const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
     const version = JSON.parse(packageDotJson).version;
 
-    /**
-     * ======================
-     * NAMESPACE
-     * ======================
-     */
-    await corev1.createNamespace({ metadata: { name: namespace } });
-
-    /**
-     * ======================
-     * ROLE + SERVICE ACCOUNT
-     * ======================
-     */
-    await authorizationv1.createNamespacedRole(namespace, {
-      metadata: {
-        name,
-      },
-      rules: [
-        {
-          apiGroups: [''],
-          resources: ['pods/log'],
-          verbs: ['get', 'list', 'watch'],
-        },
-      ],
-    });
-    await corev1.createNamespacedServiceAccount(namespace, {
-      metadata: {
-        name,
-      },
-    });
-    await authorizationv1.createNamespacedRoleBinding(namespace, {
-      metadata: {
-        name,
-      },
-      roleRef: {
-        apiGroup: 'rbac.authorization.k8s.io',
-        kind: 'Role',
-        name,
-      },
-      subjects: [
-        {
-          kind: 'ServiceAccount',
-          name,
-          namespace,
-        },
-      ],
-    });
-
-    /**
-     * =======================
-     * IMAGE PULL SECRET
-     * =======================
-     */
-    const secret = await corev1.readNamespacedSecret(
-      'docker-registry-image-pull-secret',
-      'default',
-    );
-    await corev1.createNamespacedSecret(namespace, {
-      data: secret.body.data,
-      metadata: { name: secret.body.metadata.name },
-      type: secret.body.type,
-    });
-
-    /**
-     * =======================
-     * POD DEFINITION
-     * =======================
-     */
     const podManifest: k8s.V1PodTemplateSpec = {
       metadata: {
         labels: {
-          app: name,
+          app: this.kubernetesResourceName,
         },
-        name,
+        name: this.kubernetesResourceName,
       },
       spec: {
         affinity: {
@@ -335,7 +263,7 @@ export class GameServerSchema implements IOriginalDocument {
           },
         ],
         imagePullSecrets: [{ name: 'docker-registry-image-pull-secret' }],
-        serviceAccountName: name,
+        serviceAccountName: this.kubernetesResourceName,
       },
     };
 
@@ -345,35 +273,107 @@ export class GameServerSchema implements IOriginalDocument {
      * =======================
      */
     if (this.isPersistent) {
-      await appsv1.createNamespacedDeployment(namespace, {
+      await appsV1.createNamespacedDeployment(this.kubernetesNamespace, {
         metadata: {
           labels: {
-            app: name,
+            app: this.kubernetesResourceName,
           },
-          name,
+          name: this.kubernetesResourceName,
         },
         spec: {
           replicas: 1,
           selector: {
             matchLabels: {
-              app: name,
+              app: this.kubernetesResourceName,
             },
           },
           template: podManifest,
         },
       });
     } else {
-      await corev1.createNamespacedPod(namespace, podManifest);
+      await coreV1.createNamespacedPod(this.kubernetesNamespace, podManifest);
     }
+  }
 
-    // Create a Service to access the Game Server Pods.
-    await corev1.createNamespacedService(namespace, {
+  /**
+   * Creates a deployment and service within Kubernetes for the Game Server.
+   */
+  private async createKubernetesResources() {
+    /**
+     * ======================
+     * NAMESPACE
+     * ======================
+     */
+    await coreV1.createNamespace({ metadata: { name: this.kubernetesNamespace } });
+
+    /**
+     * ======================
+     * ROLE + SERVICE ACCOUNT
+     * ======================
+     */
+    await rbacAuthorizationV1.createNamespacedRole(this.kubernetesNamespace, {
+      metadata: {
+        name: this.kubernetesResourceName,
+      },
+      rules: [
+        {
+          apiGroups: [''],
+          resources: ['pods/log'],
+          verbs: ['get', 'list', 'watch'],
+        },
+      ],
+    });
+    await coreV1.createNamespacedServiceAccount(this.kubernetesNamespace, {
+      metadata: {
+        name: this.kubernetesResourceName,
+      },
+    });
+    await rbacAuthorizationV1.createNamespacedRoleBinding(this.kubernetesNamespace, {
+      metadata: {
+        name: this.kubernetesResourceName,
+      },
+      roleRef: {
+        apiGroup: 'rbac.authorization.k8s.io',
+        kind: 'Role',
+        name: this.kubernetesResourceName,
+      },
+      subjects: [
+        {
+          kind: 'ServiceAccount',
+          name: this.kubernetesResourceName,
+          namespace: this.kubernetesNamespace,
+        },
+      ],
+    });
+
+    /**
+     * =======================
+     * IMAGE PULL SECRET
+     * =======================
+     */
+    const secret = await coreV1.readNamespacedSecret(
+      'docker-registry-image-pull-secret',
+      'default',
+    );
+    await coreV1.createNamespacedSecret(this.kubernetesNamespace, {
+      data: secret.body.data,
+      metadata: { name: secret.body.metadata.name },
+      type: secret.body.type,
+    });
+
+    /**
+     * =======================
+     * PODS + SERVICE
+     * =======================
+     */
+    await this.createDeploymentOrPod();
+    await coreV1.createNamespacedService(this.kubernetesNamespace, {
       metadata: {
         labels: {
-          app: name,
-          service: name,
+          app: this.kubernetesResourceName,
+          service: this.kubernetesResourceName,
         },
-        name,
+        name: this.kubernetesResourceName,
       },
       spec: {
         ports: [
@@ -383,7 +383,7 @@ export class GameServerSchema implements IOriginalDocument {
           },
         ],
         selector: {
-          app: name,
+          app: this.kubernetesResourceName,
         },
       },
     });
@@ -393,12 +393,12 @@ export class GameServerSchema implements IOriginalDocument {
      * NGINX
      * =======================
      */
-    await corev1.patchNamespacedConfigMap(
+    await coreV1.patchNamespacedConfigMap(
       'nginx-ingress-tcp',
       'default',
       {
         data: {
-          [this.port]: `${namespace}/${name}:7777`,
+          [this.port]: `${this.kubernetesNamespace}/${this.kubernetesResourceName}:7777`,
         },
       },
       undefined,
@@ -407,14 +407,14 @@ export class GameServerSchema implements IOriginalDocument {
       undefined,
       { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
     );
-    await corev1.patchNamespacedService(
+    await coreV1.patchNamespacedService(
       'nginx-ingress-controller',
       'default',
       {
         spec: {
           ports: [
             {
-              name,
+              name: this.kubernetesResourceName,
               port: this.port,
               protocol: 'TCP',
               targetPort: this.port,
@@ -434,20 +434,12 @@ export class GameServerSchema implements IOriginalDocument {
    * Deletes the associated deployment and service within Kubernetes.
    */
   private async deleteKubernetesResources() {
-    const name = `game-server-${this._id}`;
-    const namespace = name;
-
-    const kc = new k8s.KubeConfig();
-    kc.loadFromDefault();
-
-    const corev1 = kc.makeApiClient(k8s.CoreV1Api);
-
     try {
-      await corev1.deleteNamespace(namespace);
+      await coreV1.deleteNamespace(this.kubernetesNamespace);
     } catch {}
 
     try {
-      await corev1.patchNamespacedConfigMap(
+      await coreV1.patchNamespacedConfigMap(
         'tcp-services',
         'default',
         [{ op: 'remove', path: `/data/${this.port}` }],
@@ -458,6 +450,24 @@ export class GameServerSchema implements IOriginalDocument {
         { headers: { 'Content-Type': 'application/json-patch+json' } },
       );
     } catch {}
+  }
+
+  /**
+   * Updates the associated deployment and service within Kubernetes.
+   */
+  private async updateKubernetesResources() {
+    try {
+      await appsV1.deleteNamespacedDeployment(
+        this.kubernetesNamespace,
+        this.kubernetesResourceName,
+      );
+    } catch {}
+
+    try {
+      await coreV1.deleteNamespacedPod(this.kubernetesNamespace, this.kubernetesResourceName);
+    } catch {}
+
+    await this.createDeploymentOrPod();
   }
 
   private getRandomPort(max = 65535, min = 60000) {
