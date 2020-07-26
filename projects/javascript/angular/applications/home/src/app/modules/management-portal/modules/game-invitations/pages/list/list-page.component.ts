@@ -95,7 +95,9 @@ export class GameInvitationsListPageComponent implements OnDestroy, OnInit {
   }
 
   private async fetchGameInvitations() {
-    const $gameInvitations = this.gameInvitationQuery.selectAll();
+    const $gameInvitations = this.gameInvitationQuery.selectAll({
+      filterBy: gameInvitation => gameInvitation.gameId === this.selectedGameService.game._id,
+    });
     this.$gameInvitations = this.gameInvitationQuery.populate($gameInvitations);
 
     await this.gameInvitationService.find({

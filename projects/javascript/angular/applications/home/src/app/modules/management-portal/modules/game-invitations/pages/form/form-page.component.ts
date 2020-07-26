@@ -2,14 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  Game,
-  GameService,
-  GameInvitation,
-  GameInvitationService,
-  User,
-  UserService,
-} from '@tenlastic/ng-http';
+import { GameInvitation, GameInvitationService, User, UserService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -62,7 +55,6 @@ export class GameInvitationsFormPageComponent implements OnInit {
 
   public async save() {
     if (this.form.invalid) {
-      this.form.get('gameId').markAsTouched();
       this.form.get('toUser').markAsTouched();
 
       return;
@@ -71,7 +63,7 @@ export class GameInvitationsFormPageComponent implements OnInit {
     const toUser: User = this.form.get('toUser').value;
 
     const values: Partial<GameInvitation> = {
-      gameId: this.form.get('gameId').value,
+      gameId: this.selectedGameService.game._id,
       toUserId: toUser._id,
     };
 
@@ -107,10 +99,6 @@ export class GameInvitationsFormPageComponent implements OnInit {
     this.data = this.data || new GameInvitation();
 
     this.form = this.formBuilder.group({
-      gameId: [
-        this.selectedGameService.game ? this.selectedGameService.game._id : null,
-        Validators.required,
-      ],
       toUser: [null, Validators.required],
     });
 
