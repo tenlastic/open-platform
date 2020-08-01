@@ -39,6 +39,10 @@ export const ROUTES: Routes = [
           import('./modules/namespaces/namespaces.module').then(m => m.NamespaceModule),
       },
       {
+        path: 'queues',
+        loadChildren: () => import('./modules/queues/queues.module').then(m => m.QueueModule),
+      },
+      {
         path: 'refresh-tokens',
         loadChildren: () =>
           import('./modules/refresh-tokens/refresh-tokens.module').then(m => m.RefreshTokenModule),

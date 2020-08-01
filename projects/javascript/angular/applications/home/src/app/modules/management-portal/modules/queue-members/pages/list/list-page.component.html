@@ -1,0 +1,61 @@
+<div class="page">
+  <app-title>Queue Members</app-title>
+
+  <div class="row">
+    <div class="col-sm-3">
+      <mat-form-field floatLabel="always">
+        <mat-label>Filter Queue Members</mat-label>
+        <input
+          matInput
+          type="text"
+          autocomplete="off"
+          [(ngModel)]="search"
+          (keyup)="onKeyUp($event.target.value)"
+        />
+        <app-button
+          *ngIf="search"
+          color="accent"
+          matSuffix
+          mat-icon-button
+          aria-label="Clear"
+          (click)="clearSearch()"
+        >
+          <mat-icon>close</mat-icon>
+        </app-button>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <table
+    mat-table
+    [dataSource]="dataSource"
+    matSort
+    matSortActive="createdAt"
+    matSortDirection="asc"
+  >
+    <ng-container matColumnDef="username">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Username</th>
+      <td mat-cell *matCellDef="let element">{{ element.user.username }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Created At</th>
+      <td mat-cell *matCellDef="let element">{{ element.createdAt | date }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let element">
+        <app-button color="accent" (OnClick)="showDeletePrompt(element)">
+          <mat-icon>delete</mat-icon>
+          <span>Delete</span>
+        </app-button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[10, 25, 100]" showFirstLastButtons></mat-paginator>
+</div>

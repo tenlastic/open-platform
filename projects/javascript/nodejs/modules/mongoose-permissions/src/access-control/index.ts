@@ -27,7 +27,7 @@ export interface IOptions {
 
 export interface IPopulate {
   path: string;
-  populate?: IPopulate;
+  populate?: IPopulate | IPopulate[];
 }
 
 export interface IRole {

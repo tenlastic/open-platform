@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import {
   MatPaginator,
   MatSort,
@@ -8,8 +8,8 @@ import {
   MatSnackBar,
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { GameServer, GameServerService } from '@tenlastic/ng-http';
-import { Subject } from 'rxjs';
+import { GameServer, GameServerQuery, GameServerService } from '@tenlastic/ng-http';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedGameService } from '../../../../../../core/services';
@@ -20,12 +20,13 @@ import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class GameServersListPageComponent implements OnInit {
+export class GameServersListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<GameServer>;
 
-  public dataSource: MatTableDataSource<GameServer>;
+  public $gameServers: Observable<GameServer[]>;
+  public dataSource = new MatTableDataSource<GameServer>();
   public displayedColumns: string[] = [
     'name',
     'description',
@@ -37,9 +38,11 @@ export class GameServersListPageComponent implements OnInit {
   ];
   public search = '';
 
+  private updateDataSource$ = new Subscription();
   private subject: Subject<string> = new Subject();
 
   constructor(
+    private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
@@ -53,6 +56,10 @@ export class GameServersListPageComponent implements OnInit {
     this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
 
     await this.fetchGameServers();
+  }
+
+  public ngOnDestroy() {
+    this.updateDataSource$.unsubscribe();
   }
 
   public clearSearch() {
@@ -106,12 +113,19 @@ export class GameServersListPageComponent implements OnInit {
   }
 
   private async fetchGameServers() {
-    const records = await this.gameServerService.find({
+    this.$gameServers = this.gameServerQuery.selectAll({
+      filterBy: gs => gs.gameId === this.selectedGameService.game._id,
+    });
+
+    await this.gameServerService.find({
       sort: 'name',
       where: { gameId: this.selectedGameService.game._id },
     });
 
-    this.dataSource = new MatTableDataSource<GameServer>(records);
+    this.updateDataSource$ = this.$gameServers.subscribe(
+      gameServers => (this.dataSource.data = gameServers),
+    );
+
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }

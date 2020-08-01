@@ -209,6 +209,19 @@
             color="accent"
             [hidden]="!selectedNamespaceService.namespaceId"
             layout="vertical"
+            routerLink="queues"
+            routerLinkActive="active"
+            text="left"
+            width="full"
+          >
+            <mat-icon>schedule</mat-icon>
+            <span>Queues</span>
+          </app-button>
+
+          <app-button
+            color="accent"
+            [hidden]="!selectedNamespaceService.namespaceId"
+            layout="vertical"
             routerLink="releases"
             routerLinkActive="active"
             text="left"

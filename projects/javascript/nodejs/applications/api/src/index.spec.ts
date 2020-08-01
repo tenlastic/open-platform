@@ -24,6 +24,8 @@ import {
   Message,
   Namespace,
   PasswordReset,
+  Queue,
+  QueueMember,
   RefreshToken,
   Release,
   ReleaseTask,
@@ -94,6 +96,8 @@ beforeEach(async function() {
   await Message.deleteMany({});
   await Namespace.deleteMany({});
   await PasswordReset.deleteMany({});
+  await Queue.deleteMany({});
+  await QueueMember.deleteMany({});
   await RefreshToken.deleteMany({});
   await Release.deleteMany({});
   await ReleaseTask.deleteMany({});

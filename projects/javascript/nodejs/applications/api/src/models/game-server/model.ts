@@ -47,6 +47,8 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
     collection: 'gameservers',
     minimize: false,
     timestamps: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
   },
 })
 @plugin(changeStreamPlugin, {
@@ -104,7 +106,12 @@ export class GameServerSchema implements IOriginalDocument {
   @prop()
   public isPreemptible: boolean;
 
-  @prop({ default: {} })
+  @prop({
+    _id: false,
+    default: JSON.stringify({ type: 'object' }),
+    get: value => (typeof value === 'string' ? JSON.parse(value) : value),
+    set: value => (typeof value === 'string' ? value : JSON.stringify(value)),
+  })
   public metadata: any;
 
   @prop({ required: true })

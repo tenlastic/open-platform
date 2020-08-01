@@ -1,0 +1,31 @@
+components:
+  schemas:
+    Queue:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[a-f0-9]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        description:
+          type: string
+        gameId:
+          type: string
+          format: ^[a-f0-9]{24}$
+        metadata:
+          type: object
+        name:
+          type: string
+        playersPerTeam:
+          type: integer
+        teams:
+          type: integer
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - name
+        - playersPerTeam
+        - teams

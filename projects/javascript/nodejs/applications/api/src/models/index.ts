@@ -14,6 +14,8 @@ export * from './log';
 export * from './message';
 export * from './namespace';
 export * from './password-reset';
+export * from './queue';
+export * from './queue-member';
 export * from './record';
 export * from './refresh-token';
 export * from './release';

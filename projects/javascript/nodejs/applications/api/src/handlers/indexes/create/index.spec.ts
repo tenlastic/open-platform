@@ -9,18 +9,31 @@ import {
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as mongoose from 'mongoose';
+import * as sinon from 'sinon';
 
-import { CollectionMock, DatabaseMock, NamespaceMock, UserRolesMock } from '../../../models';
+import {
+  CollectionMock,
+  DatabaseMock,
+  NamespaceMock,
+  UserRolesMock,
+  CollectionDocument,
+} from '../../../models';
 import { CREATE_COLLECTION_INDEX_QUEUE } from '../../../workers';
 import { handler } from './';
 
 use(chaiAsPromised);
 
 describe('handlers/indexes/create', function() {
+  let sandbox: sinon.SinonSandbox;
   let user: any;
 
   beforeEach(async function() {
+    sandbox = sinon.createSandbox();
     user = { _id: new mongoose.Types.ObjectId(), roles: ['Administrator'] };
+  });
+
+  afterEach(async function() {
+    sandbox.restore();
   });
 
   context('when the collection is not found', function() {
@@ -85,14 +98,15 @@ describe('handlers/indexes/create', function() {
       });
 
       context('when required fields are supplied', function() {
-        let ctx: Context;
+        it('adds the request to RabbitMQ', async function() {
+          const stub = sandbox.stub(rabbitmq, 'publish').resolves();
 
-        beforeEach(async function() {
           const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
           const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
           const database = await DatabaseMock.create({ namespaceId: namespace._id });
           const collection = await CollectionMock.create({ databaseId: database._id });
-          ctx = new ContextMock({
+
+          const ctx = new ContextMock({
             params: {
               collectionId: collection._id,
               databaseId: collection.databaseId,
@@ -106,20 +120,12 @@ describe('handlers/indexes/create', function() {
           }) as Context;
 
           await handler(ctx as any);
-        });
 
-        it('returns a 200 status code', async function() {
           expect(ctx.response.status).to.eql(200);
-        });
 
-        it('adds the request to RabbitMQ', async function() {
-          return new Promise(resolve => {
-            rabbitmq.consume(CREATE_COLLECTION_INDEX_QUEUE, (channel, content, msg) => {
-              expect(content.key).to.eql({ properties: 1 });
-
-              resolve();
-            });
-          });
+          expect(stub.calledOnce).to.eql(true);
+          expect(stub.getCalls()[0].args[0]).to.eql(CREATE_COLLECTION_INDEX_QUEUE);
+          expect(stub.getCalls()[0].args[1]).to.exist;
         });
       });
     });

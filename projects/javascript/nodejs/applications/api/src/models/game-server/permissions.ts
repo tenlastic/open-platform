@@ -41,7 +41,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'heartbeatAt',
       'isPersistent',
       'isPreemptible',
-      'metadata.*',
+      'metadata',
       'name',
       'port',
       'releaseId',

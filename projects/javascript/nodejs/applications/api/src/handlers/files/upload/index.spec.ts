@@ -5,6 +5,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as FormData from 'form-data';
 import * as fs from 'fs';
 import * as JSZip from 'jszip';
+import * as sinon from 'sinon';
 
 import {
   FileMock,
@@ -29,10 +30,16 @@ import { handler } from './';
 use(chaiAsPromised);
 
 describe('handlers/files/upload', function() {
+  let sandbox: sinon.SinonSandbox;
   let user: UserDocument;
 
   beforeEach(async function() {
+    sandbox = sinon.createSandbox();
     user = await UserMock.create();
+  });
+
+  afterEach(function() {
+    sandbox.restore();
   });
 
   context('when permission is granted', function() {
@@ -80,6 +87,7 @@ describe('handlers/files/upload', function() {
     });
 
     it('builds server image', async function() {
+      const publishStub = sandbox.stub(rabbitmq, 'publish').resolves();
       ctx.params.platform = 'server64';
 
       await handler(ctx as any);
@@ -89,16 +97,15 @@ describe('handlers/files/upload', function() {
       const releaseTask = await ReleaseTask.findOne({ action: 'build' });
       expect(releaseTask).to.exist;
 
-      return new Promise(resolve => {
-        rabbitmq.consume(BUILD_RELEASE_SERVER_QUEUE, (channel, content, msg) => {
-          expect(content._id).to.eql(releaseTask._id.toString());
+      expect(publishStub.called).to.eql(true);
 
-          resolve();
-        });
-      });
+      const call = publishStub.getCalls().find(c => c.args[0] === BUILD_RELEASE_SERVER_QUEUE);
+      expect(call).to.exist;
     });
 
     it('copies unmodified files from the previous release', async function() {
+      const publishStub = sandbox.stub(rabbitmq, 'publish').resolves();
+
       await handler(ctx as any);
 
       expect(ctx.response.body.tasks.filter(j => j.action === 'copy').length).to.eql(1);
@@ -110,16 +117,15 @@ describe('handlers/files/upload', function() {
       );
       expect(releaseTask.metadata.unmodified).to.eql(['index.ts']);
 
-      return new Promise(resolve => {
-        rabbitmq.consume(COPY_RELEASE_FILES_QUEUE, (channel, content, msg) => {
-          expect(content._id).to.eql(releaseTask._id.toString());
+      expect(publishStub.called).to.eql(true);
 
-          resolve();
-        });
-      });
+      const call = publishStub.getCalls().find(c => c.args[0] === COPY_RELEASE_FILES_QUEUE);
+      expect(call).to.exist;
     });
 
     it('deletes removed files from Minio', async function() {
+      const publishStub = sandbox.stub(rabbitmq, 'publish').resolves();
+
       await handler(ctx as any);
 
       expect(ctx.response.body.tasks.filter(j => j.action === 'remove').length).to.eql(1);
@@ -128,16 +134,15 @@ describe('handlers/files/upload', function() {
       expect(releaseTask).to.exist;
       expect(releaseTask.metadata.removed).to.eql(['swagger.yml']);
 
-      return new Promise(resolve => {
-        rabbitmq.consume(REMOVE_RELEASE_FILES_QUEUE, (channel, content, msg) => {
-          expect(content._id).to.eql(releaseTask._id.toString());
+      expect(publishStub.called).to.eql(true);
 
-          resolve();
-        });
-      });
+      const call = publishStub.getCalls().find(c => c.args[0] === REMOVE_RELEASE_FILES_QUEUE);
+      expect(call).to.exist;
     });
 
     it('uploads unzipped files to Minio', async function() {
+      const publishStub = sandbox.stub(rabbitmq, 'publish').resolves();
+
       await handler(ctx as any);
 
       expect(ctx.response.body.tasks.filter(j => j.action === 'unzip').length).to.eql(1);
@@ -145,13 +150,10 @@ describe('handlers/files/upload', function() {
       const releaseTask = await ReleaseTask.findOne({ action: 'unzip' });
       expect(releaseTask).to.exist;
 
-      return new Promise(resolve => {
-        rabbitmq.consume(UNZIP_RELEASE_FILES_QUEUE, (channel, content, msg) => {
-          expect(content._id).to.eql(releaseTask._id.toString());
+      expect(publishStub.called).to.eql(true);
 
-          resolve();
-        });
-      });
+      const call = publishStub.getCalls().find(c => c.args[0] === UNZIP_RELEASE_FILES_QUEUE);
+      expect(call).to.exist;
     });
   });
 

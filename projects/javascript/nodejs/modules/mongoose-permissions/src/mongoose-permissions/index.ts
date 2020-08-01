@@ -223,8 +223,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
         return deepmerge;
       }
 
-      return (x, y) =>
-        Array.isArray(x) || Array.isArray(y) ? arrayMerge(x, y) : Object.assign(x, y);
+      return (x, y) => (Array.isArray(x) || Array.isArray(y) ? arrayMerge(x, y) : y);
     };
     const mergedParams = deepmerge.all(
       [
