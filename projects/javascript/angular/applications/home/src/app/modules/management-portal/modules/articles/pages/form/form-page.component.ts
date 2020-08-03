@@ -78,7 +78,7 @@ export class ArticlesFormPageComponent implements OnInit {
       this.matSnackBar.open('Article created successfully.', null, { duration: SNACKBAR_DURATION });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
-      this.error = 'That slug is already taken.';
+      this.error = 'That title is already taken.';
     }
   }
 
@@ -107,7 +107,7 @@ export class ArticlesFormPageComponent implements OnInit {
       this.matSnackBar.open('Article updated successfully.', null, { duration: SNACKBAR_DURATION });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
-      this.error = 'That slug is already taken.';
+      this.error = 'That title is already taken.';
     }
   }
 }

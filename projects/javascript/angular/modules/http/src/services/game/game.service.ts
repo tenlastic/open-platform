@@ -38,8 +38,8 @@ export class GameService {
     return record;
   }
 
-  public async delete(slug: string): Promise<Game> {
-    const response = await this.apiService.request('delete', `${this.basePath}/${slug}`, null);
+  public async delete(_id: string): Promise<Game> {
+    const response = await this.apiService.request('delete', `${this.basePath}/${_id}`, null);
 
     const record = new Game(response.record);
     this.onDelete.emit(record);
@@ -56,8 +56,8 @@ export class GameService {
     return records;
   }
 
-  public async findOne(slug: string): Promise<Game> {
-    const response = await this.apiService.request('get', `${this.basePath}/${slug}`, null);
+  public async findOne(_id: string): Promise<Game> {
+    const response = await this.apiService.request('get', `${this.basePath}/${_id}`, null);
 
     const record = new Game(response.record);
     this.onRead.emit([record]);
@@ -68,7 +68,7 @@ export class GameService {
   public async update(parameters: Partial<Game>): Promise<Game> {
     const response = await this.apiService.request(
       'put',
-      `${this.basePath}/${parameters.slug}`,
+      `${this.basePath}/${parameters._id}`,
       parameters,
     );
 
@@ -78,14 +78,14 @@ export class GameService {
     return record;
   }
 
-  public upload(slug: string, parameters: GameServiceUploadOptions) {
+  public upload(_id: string, parameters: GameServiceUploadOptions) {
     const formData = new FormData();
 
     Object.entries(parameters).forEach(([key, value]) => {
       formData.append(key, value);
     });
 
-    return this.apiService.request('post', `${this.basePath}/${slug}/upload`, formData, {
+    return this.apiService.request('post', `${this.basePath}/${_id}/upload`, formData, {
       observe: 'events',
       reportProgress: true,
     }) as Observable<any>;

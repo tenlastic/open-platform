@@ -13,7 +13,6 @@ export class GameMock {
 
     const defaults = {
       namespaceId: mongoose.Types.ObjectId(),
-      slug: chance.hash(),
       title: chance.hash(),
     };
 

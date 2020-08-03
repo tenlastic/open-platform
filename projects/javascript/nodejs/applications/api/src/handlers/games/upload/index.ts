@@ -12,7 +12,7 @@ interface FieldPath {
 }
 
 export async function handler(ctx: Context) {
-  const game = await Game.findOne({ slug: ctx.params.slug });
+  const game = await Game.findOne({ _id: ctx.params._id });
   if (!game) {
     throw new RecordNotFoundError('Game');
   }

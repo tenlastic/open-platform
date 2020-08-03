@@ -31,10 +31,10 @@ export class GamesFormPageComponent implements OnInit {
 
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
-      const slug = params.get('slug');
+      const _id = params.get('_id');
 
-      if (slug !== 'new') {
-        this.data = await this.gameService.findOne(slug);
+      if (_id !== 'new') {
+        this.data = await this.gameService.findOne(_id);
       }
 
       this.setupForm();
@@ -48,7 +48,7 @@ export class GamesFormPageComponent implements OnInit {
     }
 
     const response = await this.gameService
-      .upload(this.data.slug, { [field]: files[0] })
+      .upload(this.data._id, { [field]: files[0] })
       .toPromise();
 
     this.data = await this.gameService.update({
@@ -83,7 +83,6 @@ export class GamesFormPageComponent implements OnInit {
   public async save() {
     if (this.form.invalid) {
       this.form.get('description').markAsTouched();
-      this.form.get('slug').markAsTouched();
       this.form.get('subtitle').markAsTouched();
       this.form.get('title').markAsTouched();
 
@@ -93,7 +92,6 @@ export class GamesFormPageComponent implements OnInit {
     const values: Partial<Game> = {
       description: this.form.get('description').value,
       namespaceId: this.selectedNamespaceService.namespaceId,
-      slug: this.form.get('slug').value,
       subtitle: this.form.get('subtitle').value,
       title: this.form.get('title').value,
     };
@@ -113,9 +111,9 @@ export class GamesFormPageComponent implements OnInit {
     try {
       const response = await this.gameService.create(data);
       this.matSnackBar.open('Game created successfully.', null, { duration: SNACKBAR_DURATION });
-      this.router.navigate(['../', response.slug], { relativeTo: this.activatedRoute });
+      this.router.navigate(['../', response._id], { relativeTo: this.activatedRoute });
     } catch (e) {
-      this.error = 'That slug is already taken.';
+      this.error = 'That title is already taken.';
     }
   }
 
@@ -125,7 +123,6 @@ export class GamesFormPageComponent implements OnInit {
     this.form = this.formBuilder.group({
       description: [this.data.description, Validators.required],
       icon: [this.data.icon],
-      slug: [this.data.slug, Validators.required],
       subtitle: [this.data.subtitle],
       title: [this.data.title, Validators.required],
     });
@@ -140,7 +137,7 @@ export class GamesFormPageComponent implements OnInit {
       this.data = await this.gameService.update(data);
       this.matSnackBar.open('Game updated successfully.', null, { duration: SNACKBAR_DURATION });
     } catch (e) {
-      this.error = 'That slug is already taken.';
+      this.error = 'That title is already taken.';
     }
   }
 }

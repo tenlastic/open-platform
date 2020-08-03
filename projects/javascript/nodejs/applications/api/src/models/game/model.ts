@@ -25,7 +25,6 @@ GameEvent.on(payload => {
   kafka.publish(payload);
 });
 
-@index({ slug: 1 }, { unique: true })
 @index({ subtitle: 1, title: 1 }, { unique: true })
 @index({ namespaceId: 1 })
 @modelOptions({
@@ -61,9 +60,6 @@ export class GameSchema {
   @prop({ ref: Namespace, required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
-  @prop({ match: /^[0-9a-z\-]{2,40}$/, required: true })
-  public slug: string;
-
   @prop({ match: /^.{2,40}$/ })
   public subtitle: string;
 
@@ -86,13 +82,13 @@ export class GameSchema {
 
     switch (field) {
       case 'background':
-        return `games/${this.slug}/background`;
+        return `games/${this._id}/background`;
       case 'icon':
-        return `games/${this.slug}/icon`;
+        return `games/${this._id}/icon`;
       case 'images':
-        return `games/${this.slug}/images/${id}`;
+        return `games/${this._id}/images/${id}`;
       case 'videos':
-        return `games/${this.slug}/videos/${id}`;
+        return `games/${this._id}/videos/${id}`;
       default:
         return null;
     }

@@ -29,7 +29,7 @@ export class GamesListPageComponent implements OnInit {
   private subject: Subject<string> = new Subject();
 
   constructor(
-    private databaseService: GameService,
+    private gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     public selectedGameService: SelectedGameService,
@@ -70,7 +70,7 @@ export class GamesListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.databaseService.delete(record.slug);
+        await this.gameService.delete(record._id);
         this.deleteGame(record);
       }
     });
@@ -81,7 +81,7 @@ export class GamesListPageComponent implements OnInit {
   }
 
   private async fetchGames() {
-    const records = await this.databaseService.find({
+    const records = await this.gameService.find({
       sort: 'title',
       where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });

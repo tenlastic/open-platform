@@ -97,7 +97,7 @@ export class QueuesFormPageComponent implements OnInit {
       this.matSnackBar.open('Queue created successfully.', null, { duration: SNACKBAR_DURATION });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
-      this.error = 'That slug is already taken.';
+      this.error = 'That name is already taken.';
     }
   }
 
@@ -164,7 +164,7 @@ export class QueuesFormPageComponent implements OnInit {
       this.matSnackBar.open('Queue updated successfully.', null, { duration: SNACKBAR_DURATION });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
-      this.error = 'That slug is already taken.';
+      this.error = 'That name is already taken.';
     }
   }
 }

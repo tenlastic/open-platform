@@ -6,12 +6,12 @@ import { MINIO_BUCKET } from '../../../constants';
 import { Game, GamePermissions } from '../../../models';
 
 export async function handler(ctx: Context) {
-  const game = await Game.findOne({ slug: ctx.params.slug });
+  const game = await Game.findOne({ _id: ctx.params._id });
   if (!game) {
     throw new RecordNotFoundError('Game');
   }
 
-  const { _id, field } = ctx.params;
+  const { field, fileId } = ctx.params;
 
   // Get permissions for the Game
   const populatedGame = await game
@@ -26,8 +26,8 @@ export async function handler(ctx: Context) {
     throw new PermissionError();
   }
 
-  const info = await minio.statObject(MINIO_BUCKET, game.getMinioPath(field, _id));
-  const stream = (await minio.getObject(MINIO_BUCKET, game.getMinioPath(field, _id))) as any;
+  const info = await minio.statObject(MINIO_BUCKET, game.getMinioPath(field, fileId));
+  const stream = (await minio.getObject(MINIO_BUCKET, game.getMinioPath(field, fileId))) as any;
 
   ctx.response.body = stream;
   ctx.response.type = info.metaData['content-type'];

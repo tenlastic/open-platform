@@ -128,13 +128,13 @@ export class LayoutComponent implements OnDestroy, OnInit {
         return;
       }
 
-      const previousGameSlug = localStorage.getItem('previousGameSlug');
-      const game = previousGameSlug
-        ? games.find(g => g.slug === previousGameSlug) || games[0]
+      const previousGameId = localStorage.getItem('previousGameId');
+      const game = previousGameId
+        ? games.find(g => g._id === previousGameId) || games[0]
         : games[0];
 
       this.gameStore.setActive(game._id);
-      this.router.navigate(['/games', game.slug]);
+      this.router.navigate(['/games', game._id]);
     });
 
     return this.gameService.find({});

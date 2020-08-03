@@ -36,7 +36,7 @@
 
 1. Create an account at [mailgun.org](https://www.mailgun.org).
 2. Set up a domain with your domain name. **Note:** You will need to have control of your DNS to verify your domain.
-3. Update the `MAILGUN_DOMAIN` and `MAILGUN_KEY` with your values.
+3. Update the `MAILGUN_DOMAIN` and `MAILGUN_SECRET` with your values.
 
 ### Setting up Gmail for End-to-End Testing
 

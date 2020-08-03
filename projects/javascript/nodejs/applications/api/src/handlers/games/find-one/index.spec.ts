@@ -29,7 +29,7 @@ describe('handlers/games/find-one', function() {
   it('returns the record', async function() {
     const ctx = new ContextMock({
       params: {
-        slug: record.slug,
+        _id: record._id,
       },
       state: { user: user.toObject() },
     });

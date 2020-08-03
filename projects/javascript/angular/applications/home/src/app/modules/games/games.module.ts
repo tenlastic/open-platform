@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../shared/shared.module';
 import { ArticleDialogComponent, LayoutComponent, StatusComponent } from './components';
-import { GameServersPageComponent, InformationPageComponent } from './pages';
+import { GameServersPageComponent, InformationPageComponent, QueuesPageComponent } from './pages';
 
 export const ROUTES: Routes = [
   {
@@ -15,12 +15,16 @@ export const ROUTES: Routes = [
       },
       {
         component: InformationPageComponent,
-        path: ':slug',
+        path: ':_id',
         pathMatch: 'full',
       },
       {
         component: GameServersPageComponent,
-        path: ':slug/game-servers',
+        path: ':_id/game-servers',
+      },
+      {
+        component: QueuesPageComponent,
+        path: ':_id/queues',
       },
     ],
     component: LayoutComponent,
@@ -34,6 +38,7 @@ export const ROUTES: Routes = [
     GameServersPageComponent,
     InformationPageComponent,
     LayoutComponent,
+    QueuesPageComponent,
     StatusComponent,
   ],
   entryComponents: [ArticleDialogComponent],

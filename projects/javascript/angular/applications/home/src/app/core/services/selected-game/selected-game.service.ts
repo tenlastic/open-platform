@@ -9,14 +9,14 @@ export class SelectedGameService {
   public set game(value: Game) {
     if (value) {
       this._game = value;
-      localStorage.setItem('management-portal.game.slug', value.slug);
+      localStorage.setItem('management-portal.game._id', value._id);
     } else {
       this._game = null;
-      localStorage.removeItem('management-portal.game.slug');
+      localStorage.removeItem('management-portal.game._id');
     }
   }
-  public get gameSlug() {
-    return localStorage.getItem('management-portal.game.slug');
+  public get gameId() {
+    return localStorage.getItem('management-portal.game._id');
   }
 
   private _game: Game;

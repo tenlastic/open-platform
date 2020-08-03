@@ -35,7 +35,7 @@ describe('handlers/games/update', function() {
     it('returns the record', async function() {
       const ctx = new ContextMock({
         params: {
-          slug: record.slug,
+          _id: record._id,
         },
         request: {
           body: {
@@ -62,7 +62,7 @@ describe('handlers/games/update', function() {
     it('throws an error', async function() {
       const ctx = new ContextMock({
         params: {
-          slug: record.slug,
+          _id: record._id,
         },
         request: {
           body: {

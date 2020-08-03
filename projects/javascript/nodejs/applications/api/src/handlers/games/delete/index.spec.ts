@@ -33,7 +33,7 @@ describe('handlers/games/delete', function() {
     it('returns the deleted record', async function() {
       const ctx = new ContextMock({
         params: {
-          slug: record.slug,
+          _id: record._id,
         },
         state: { user: user.toObject() },
       });
@@ -54,7 +54,7 @@ describe('handlers/games/delete', function() {
     it('throws an error', async function() {
       const ctx = new ContextMock({
         params: {
-          slug: record.slug,
+          _id: record._id,
         },
         state: { user: user.toObject() },
       });

@@ -11,12 +11,12 @@ import { handler as uploadHandler } from './upload';
 
 export const router = new Router({ prefix: '/games' });
 
-router.delete('/:slug', deleteHandler);
+router.delete('/:_id', deleteHandler);
 router.get('/', findHandler);
 router.get('/count', countHandler);
-router.get('/:slug', findOneHandler);
-router.get('/:slug/:field', downloadHandler);
-router.get('/:slug/:field/:_id', downloadHandler);
+router.get('/:_id', findOneHandler);
+router.get('/:_id/:field', downloadHandler);
+router.get('/:_id/:field/:fileId', downloadHandler);
 router.post('/', createHandler);
-router.post('/:slug/upload', uploadHandler);
-router.put('/:slug', updateHandler);
+router.post('/:_id/upload', uploadHandler);
+router.put('/:_id', updateHandler);

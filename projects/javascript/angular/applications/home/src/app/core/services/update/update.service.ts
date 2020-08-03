@@ -158,7 +158,7 @@ export class UpdateService {
       updatedFiles = remoteFiles.filter((rf, i) => {
         status.progress = { current: i, total: remoteFiles.length };
 
-        const localFile = localFilePaths[`${this.installPath}/${game.slug}/${rf.path}`];
+        const localFile = localFilePaths[`${this.installPath}/${game._id}/${rf.path}`];
         return !localFile || localFile.md5 !== rf.md5;
       });
     }
@@ -191,7 +191,7 @@ export class UpdateService {
       return;
     }
 
-    const target = `${this.installPath}/${game.slug}/${status.release.entrypoint}.exe`;
+    const target = `${this.installPath}/${game._id}/${status.release.entrypoint}.exe`;
 
     const args = [
       '--access-token',
@@ -248,12 +248,12 @@ export class UpdateService {
     const { fs } = this.electronService;
 
     for (const localFile of localFiles) {
-      const localPath = localFile.path.replace(`${this.installPath}/${game.slug}/`, '');
+      const localPath = localFile.path.replace(`${this.installPath}/${game._id}/`, '');
       const remotePaths = remoteFiles.map(rf => rf.path);
 
       if (!remotePaths.includes(localPath)) {
         await new Promise(resolve =>
-          fs.unlink(`${this.installPath}/${game.slug}/${localPath}`, err => resolve()),
+          fs.unlink(`${this.installPath}/${game._id}/${localPath}`, err => resolve()),
         );
       }
     }
@@ -301,7 +301,7 @@ export class UpdateService {
     const { crypto, fs, glob } = this.electronService;
     const status = this.getStatus(game);
 
-    const files = glob.sync(`${this.installPath}/${game.slug}/**/*`, { nodir: true });
+    const files = glob.sync(`${this.installPath}/${game._id}/**/*`, { nodir: true });
 
     const localFiles: { md5: string; path: string }[] = [];
     for (let i = 0; i < files.length; i++) {
@@ -359,7 +359,7 @@ export class UpdateService {
 
       status.progress = { current: i, total: files.length };
 
-      const target = `${this.installPath}/${game.slug}/${file.path}`;
+      const target = `${this.installPath}/${game._id}/${file.path}`;
       const targetDirectory = target.substr(0, target.lastIndexOf('/'));
       if (!fs.existsSync(targetDirectory)) {
         fs.mkdirSync(targetDirectory, { recursive: true } as any);

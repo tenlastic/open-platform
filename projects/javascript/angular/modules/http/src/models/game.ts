@@ -8,7 +8,6 @@ export class Game extends Model {
   public icon: string;
   public images: string[];
   public namespaceId: string;
-  public slug: string;
   public subtitle: string;
   public title: string;
   public updatedAt: Date;

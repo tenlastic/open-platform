@@ -42,8 +42,8 @@ describe('handlers/files/download', function() {
 
       ctx = new ContextMock({
         params: {
+          _id: game._id,
           field: 'background',
-          slug: game.slug,
         },
         state: { user: user.toObject() },
       } as any);
@@ -63,8 +63,8 @@ describe('handlers/files/download', function() {
 
       const ctx = new ContextMock({
         params: {
+          _id: game._id,
           field: 'existentialism',
-          slug: game.slug,
         },
         state: { user: user.toObject() },
       } as any);

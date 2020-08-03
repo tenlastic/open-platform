@@ -25,7 +25,6 @@ describe('handlers/games/create', function() {
         request: {
           body: {
             namespaceId: namespace._id,
-            slug: chance.hash(),
             title: chance.hash(),
           },
         },
@@ -46,7 +45,6 @@ describe('handlers/games/create', function() {
         request: {
           body: {
             namespaceId: namespace._id,
-            slug: chance.hash(),
             title: chance.hash(),
           },
         },

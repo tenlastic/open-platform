@@ -10,14 +10,14 @@ import { GamesListPageComponent } from './pages/list/list-page.component';
 export const ROUTES: Routes = [
   { path: '', component: GamesListPageComponent },
   {
-    path: ':gameSlug/articles',
+    path: ':gameId/articles',
     loadChildren: () => import('../articles/articles.module').then(m => m.ArticleModule),
   },
   {
-    path: ':gameSlug/game-servers',
+    path: ':gameId/game-servers',
     loadChildren: () => import('../game-servers/game-servers.module').then(m => m.GameServerModule),
   },
-  { path: ':slug', component: GamesFormPageComponent },
+  { path: ':_id', component: GamesFormPageComponent },
 ];
 
 @NgModule({

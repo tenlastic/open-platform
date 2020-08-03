@@ -1,5 +1,5 @@
 paths:
-  /games/{slug}/upload:
+  /games/{_id}/upload:
     post:
       summary: Upload
       tags: [Games]
@@ -8,7 +8,7 @@ paths:
         - AccessToken: []
       parameters:
         - in: path
-          name: slug
+          name: _id
           schema:
             type: string
           required: true

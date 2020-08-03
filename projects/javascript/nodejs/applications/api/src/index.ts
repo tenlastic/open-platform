@@ -77,7 +77,7 @@ docker.init({
 })();
 
 // Mailgun.
-mailgun.setCredentials(process.env.MAILGUN_DOMAIN, process.env.MAILGUN_KEY);
+mailgun.setCredentials(process.env.MAILGUN_DOMAIN, process.env.MAILGUN_SECRET);
 
 // Minio.
 (async () => {

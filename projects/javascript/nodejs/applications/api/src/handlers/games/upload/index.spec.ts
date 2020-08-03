@@ -42,7 +42,7 @@ describe('handlers/games/upload', function() {
 
       ctx = new ContextMock({
         params: {
-          slug: game.slug,
+          _id: game._id,
         },
         req: form,
         request: {
@@ -58,7 +58,7 @@ describe('handlers/games/upload', function() {
       await handler(ctx as any);
 
       expect(ctx.response.body.background).to.eql(
-        `http://localhost:3000/games/${game.slug}/background`,
+        `http://localhost:3000/games/${game._id}/background`,
       );
     });
 
@@ -78,7 +78,7 @@ describe('handlers/games/upload', function() {
 
       const ctx = new ContextMock({
         params: {
-          slug: game.slug,
+          _id: game._id,
         },
         state: { user: user.toObject() },
       });

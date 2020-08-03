@@ -9,11 +9,11 @@ export class GameGuard implements CanActivate {
   constructor(private gameService: GameService, private selectedGameService: SelectedGameService) {}
 
   public async canActivate() {
-    const { game, gameSlug } = this.selectedGameService;
+    const { game, gameId } = this.selectedGameService;
 
-    if (gameSlug && !game) {
+    if (!game && gameId) {
       try {
-        this.selectedGameService.game = await this.gameService.findOne(gameSlug);
+        this.selectedGameService.game = await this.gameService.findOne(gameId);
       } catch {
         this.selectedGameService.game = null;
       }

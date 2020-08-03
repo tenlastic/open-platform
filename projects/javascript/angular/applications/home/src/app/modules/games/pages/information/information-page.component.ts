@@ -37,17 +37,17 @@ export class InformationPageComponent implements OnInit {
     this.activatedRoute.paramMap.subscribe(async params => {
       this.loadingMessage = 'Loading Game...';
 
-      const slug = params.get('slug');
-      if (!slug) {
-        const previousGameSlug = localStorage.getItem('previousGameSlug');
-        if (previousGameSlug) {
-          this.router.navigate([previousGameSlug], { relativeTo: this.activatedRoute });
+      const _id = params.get('_id');
+      if (!_id) {
+        const previousGameId = localStorage.getItem('previousGameId');
+        if (previousGameId) {
+          this.router.navigate([previousGameId], { relativeTo: this.activatedRoute });
         }
 
         return;
       }
 
-      this.game = await this.gameService.findOne(slug);
+      this.game = await this.gameService.findOne(_id);
       this.gameStore.setActive(this.game._id);
 
       if (this.game.images.length > 0) {
@@ -66,7 +66,7 @@ export class InformationPageComponent implements OnInit {
 
       this.backgroundService.subject.next(this.game.background || '/assets/images/background.jpg');
 
-      localStorage.setItem('previousGameSlug', slug);
+      localStorage.setItem('previousGameId', _id);
 
       this.loadingMessage = null;
     });
