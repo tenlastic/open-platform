@@ -9,7 +9,7 @@ DOCKER_ENGINE_URL="http://host.docker.internal:2375"
 DOCKER_REGISTRY_URL="http://username:password@docker-registry:5000"
 
 # Emails
-PASSWORD_RESET_URL="http://localhost:4201/password-reset"
+PASSWORD_RESET_URL="http://www.localhost/authentication/password-reset"
 
 # End-to-End Testing
 E2E_GMAIL_CLIENT_ID="012345678901-abcd12a1abcdef123abcde12abcd1a1a.apps.googleusercontent.com"

@@ -1,8 +1,6 @@
-<div class="action">
+<div *ngIf="isButtonVisible" class="action">
   <app-button color="primary" [disabled]="isButtonDisabled" layout="vertical" (OnClick)="click()">
-    <mat-icon *ngIf="buttonIcon" [attr.icon]="buttonIcon">{{ buttonIcon }}</mat-icon>
     <span class="text">{{ buttonText }}</span>
-    <div class="clearfix"></div>
   </app-button>
 </div>
 

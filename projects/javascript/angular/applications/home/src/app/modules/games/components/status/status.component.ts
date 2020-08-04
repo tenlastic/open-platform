@@ -13,21 +13,6 @@ import { FilesizePipe } from '../../../../shared/pipes';
 export class StatusComponent implements OnChanges, OnInit {
   @Input() public game: Game;
 
-  public get buttonIcon() {
-    switch (this.status.state) {
-      case UpdateServiceState.NotInstalled:
-        return 'get_app';
-
-      case UpdateServiceState.NotUpdated:
-        return 'get_app';
-
-      case UpdateServiceState.Ready:
-        return this.status.childProcess ? 'close' : 'play_arrow';
-
-      default:
-        return null;
-    }
-  }
   public get buttonText() {
     switch (this.status.state) {
       case UpdateServiceState.Checking:
@@ -53,13 +38,23 @@ export class StatusComponent implements OnChanges, OnInit {
   }
   public get isButtonDisabled() {
     switch (this.status.state) {
-      case UpdateServiceState.NotInstalled:
-      case UpdateServiceState.NotUpdated:
-      case UpdateServiceState.Ready:
-        return false;
+      case UpdateServiceState.NotAvailable:
+      case UpdateServiceState.NotInvited:
+        return true;
 
       default:
+        return false;
+    }
+  }
+  public get isButtonVisible() {
+    switch (this.status.state) {
+      case UpdateServiceState.NotAvailable:
+      case UpdateServiceState.NotInvited:
+      case UpdateServiceState.NotInstalled:
         return true;
+
+      default:
+        return false;
     }
   }
   public get progress() {
