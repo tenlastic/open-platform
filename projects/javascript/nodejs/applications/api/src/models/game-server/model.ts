@@ -128,9 +128,6 @@ export class GameServerSchema implements IOriginalDocument {
   @prop()
   public url: string;
 
-  @prop({ foreignField: '_id', justOne: false, localField: 'allowedUserIds', ref: User })
-  public allowedUserDocuments: UserDocument[];
-
   @prop({ foreignField: '_id', justOne: false, localField: 'currentUserIds', ref: User })
   public currentUserDocuments: UserDocument[];
 

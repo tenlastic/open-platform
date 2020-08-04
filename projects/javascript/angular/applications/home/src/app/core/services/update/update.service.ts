@@ -328,6 +328,16 @@ export class UpdateService {
   }
 
   private subscribeToServices() {
+    this.gameInvitationService.onCreate.subscribe(record => {
+      const game = this.status.get(record.gameId).game;
+      const status = this.getStatus(game);
+
+      if (!status.release) {
+        status.state = -1;
+        this.checkForUpdates(game);
+      }
+    });
+
     this.releaseService.onUpdate.subscribe(record => {
       const game = this.status.get(record.gameId).game;
       const status = this.getStatus(game);

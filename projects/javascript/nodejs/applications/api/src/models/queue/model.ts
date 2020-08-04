@@ -18,6 +18,8 @@ import * as mongoose from 'mongoose';
 
 import { Game, GameDocument } from '../game';
 import { GameInvitation, GameInvitationDocument } from '../game-invitation';
+import { Match } from '../match';
+import { QueueMember } from '../queue-member';
 
 export const QueueEvent = new EventEmitter<IDatabasePayload<QueueDocument>>();
 QueueEvent.on(payload => {
@@ -73,6 +75,25 @@ export class QueueSchema {
 
   @prop({ foreignField: 'gameId', justOne: true, localField: 'gameId', ref: GameInvitation })
   public gameInvitationDocument: GameInvitationDocument;
+
+  /**
+   * Creates a new Match if enough Users are in-queue.
+   */
+  public async createMatch() {
+    const threshold = this.teams * this.playersPerTeam;
+    const queueMembers = await QueueMember.find({ queueId: this._id }).limit(threshold);
+
+    if (queueMembers.length < this.teams * this.playersPerTeam) {
+      return;
+    }
+
+    // Create a new Match.
+    const userIds = queueMembers.map(qm => qm.userId);
+    const match = await Match.create({ queueId: this._id, userIds });
+    await Promise.all(queueMembers.map(qm => qm.remove()));
+
+    return match;
+  }
 }
 
 export type QueueDocument = DocumentType<QueueSchema>;

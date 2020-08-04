@@ -21,6 +21,7 @@ import {
   GroupInvitation,
   Ignoration,
   Log,
+  Match,
   Message,
   Namespace,
   PasswordReset,
@@ -93,6 +94,7 @@ beforeEach(async function() {
   await GroupInvitation.deleteMany({});
   await Ignoration.deleteMany({});
   await Log.deleteMany({});
+  await Match.deleteMany({});
   await Message.deleteMany({});
   await Namespace.deleteMany({});
   await PasswordReset.deleteMany({});
