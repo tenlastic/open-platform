@@ -1,7 +1,7 @@
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
 import * as Chance from 'chance';
 
-import { PasswordReset, User } from '../../../models';
+import { PasswordReset, User } from '@tenlastic/mongoose-models';
 
 const chance = new Chance();
 

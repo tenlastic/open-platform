@@ -4,7 +4,7 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
 import { MINIO_BUCKET } from '../../../constants';
-import { Game, GameDocument, GamePermissions } from '../../../models';
+import { Game, GameDocument, GamePermissions } from '@tenlastic/mongoose-models';
 
 interface FieldPath {
   field: string;

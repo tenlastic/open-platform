@@ -11,7 +11,7 @@ import {
   ReleaseTask,
   ReleaseTaskDocument,
   ReleaseTaskFailure,
-} from '../../models';
+} from '@tenlastic/mongoose-models';
 
 export const COPY_RELEASE_FILES_QUEUE = `${RABBITMQ_PREFIX}.copy-release-files`;
 

@@ -1,6 +1,6 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { GroupInvitationPermissions } from '../../../models';
+import { GroupInvitationPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const override = { where: { _id: ctx.params._id } };

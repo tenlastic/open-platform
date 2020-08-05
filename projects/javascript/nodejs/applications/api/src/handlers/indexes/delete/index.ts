@@ -2,7 +2,7 @@ import { PermissionError } from '@tenlastic/mongoose-permissions';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { CollectionPermissions } from '../../../models';
+import { CollectionPermissions } from '@tenlastic/mongoose-models';
 import { DELETE_COLLECTION_INDEX_QUEUE } from '../../../workers';
 
 export async function handler(ctx: Context) {

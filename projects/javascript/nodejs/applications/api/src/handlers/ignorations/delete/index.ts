@@ -1,6 +1,6 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { IgnorationPermissions } from '../../../models';
+import { IgnorationPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const override = { where: { _id: ctx.params._id } };

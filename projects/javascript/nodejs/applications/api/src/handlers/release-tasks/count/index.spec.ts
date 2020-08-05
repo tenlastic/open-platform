@@ -11,7 +11,7 @@ import {
   ReleaseMock,
   UserRolesMock,
   ReleaseTaskMock,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/release-tasks/count', function() {

@@ -9,7 +9,7 @@ import {
   UserMock,
   UserDocument,
   UserRolesMock,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
 use(chaiAsExpected);

@@ -2,7 +2,7 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 
-import { MessageMock, UserDocument, UserMock } from '../../../models';
+import { MessageMock, UserDocument, UserMock } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/messages/find', function() {

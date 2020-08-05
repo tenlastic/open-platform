@@ -1,7 +1,13 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
-import { GameMock, NamespaceMock, UserDocument, UserMock, UserRolesMock } from '../../../models';
+import {
+  GameMock,
+  NamespaceMock,
+  UserDocument,
+  UserMock,
+  UserRolesMock,
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/games/count', function() {

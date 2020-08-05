@@ -1,6 +1,6 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { Group, GroupPermissions } from '../../../models';
+import { Group, GroupPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const where = await GroupPermissions.where({ _id: ctx.params._id }, ctx.state.user);

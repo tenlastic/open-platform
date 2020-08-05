@@ -4,7 +4,13 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
-import { GameMock, NamespaceMock, UserDocument, UserMock, UserRolesMock } from '../../../models';
+import {
+  GameMock,
+  NamespaceMock,
+  UserDocument,
+  UserMock,
+  UserRolesMock,
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 const chance = new Chance();

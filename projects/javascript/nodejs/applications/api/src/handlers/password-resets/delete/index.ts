@@ -1,6 +1,6 @@
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
 
-import { PasswordReset, RefreshToken, User } from '../../../models';
+import { PasswordReset, RefreshToken, User } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const { hash } = ctx.params;

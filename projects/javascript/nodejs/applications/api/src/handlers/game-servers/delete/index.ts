@@ -1,6 +1,6 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { GameServer, GameServerPermissions } from '../../../models';
+import { GameServer, GameServerPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const where = await GameServerPermissions.where({ _id: ctx.params._id }, ctx.state.user);

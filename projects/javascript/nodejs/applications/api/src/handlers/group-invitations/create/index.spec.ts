@@ -3,7 +3,7 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as mongoose from 'mongoose';
 
-import { UserDocument, UserMock, GroupMock } from '../../../models';
+import { UserDocument, UserMock, GroupMock } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 use(chaiAsPromised);

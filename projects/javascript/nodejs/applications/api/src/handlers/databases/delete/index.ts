@@ -1,6 +1,6 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { Database, DatabasePermissions } from '../../../models';
+import { Database, DatabasePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const where = await DatabasePermissions.where({ name: ctx.params.name }, ctx.state.user);

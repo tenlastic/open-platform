@@ -1,6 +1,6 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { Namespace, NamespacePermissions } from '../../../models';
+import { Namespace, NamespacePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const where = await NamespacePermissions.where({ _id: ctx.params.id }, ctx.state.user);

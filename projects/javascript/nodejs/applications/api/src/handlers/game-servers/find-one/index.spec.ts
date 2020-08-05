@@ -10,7 +10,7 @@ import {
   UserMock,
   UserRolesMock,
   GameServerMock,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 use(chaiAsPromised);

@@ -1,6 +1,6 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { ReleaseTaskPermissions } from '../../../models';
+import { ReleaseTaskPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const record = await ReleaseTaskPermissions.findOne(

@@ -1,7 +1,7 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
-import { ConnectionMock, ConnectionDocument } from '../../../models';
+import { ConnectionMock, ConnectionDocument } from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
 describe('handlers/connections/count', function() {

@@ -21,7 +21,7 @@ import {
   UserRolesMock,
   ReleaseTask,
   ReleaseTaskDocument,
-} from '../../models';
+} from '@tenlastic/mongoose-models';
 import { unzipReleaseFilesWorker } from './';
 
 use(chaiAsPromised);

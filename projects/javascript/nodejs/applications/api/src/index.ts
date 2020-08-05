@@ -2,12 +2,12 @@ import 'source-map-support/register';
 
 import * as docker from '@tenlastic/docker-engine';
 import '@tenlastic/logging';
+import * as mongoose from '@tenlastic/mongoose-models';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { WebServer, WebSocketServer } from '@tenlastic/web-server';
-import * as mongoose from 'mongoose';
 import * as path from 'path';
 
 import { MINIO_BUCKET, MONGO_DATABASE_NAME } from './constants';
@@ -99,14 +99,9 @@ mailgun.setCredentials(process.env.MAILGUN_DOMAIN, process.env.MAILGUN_SECRET);
 })();
 
 // MongoDB.
-const connectionString = process.env.MONGO_CONNECTION_STRING;
-mongoose.connect(connectionString, {
-  dbName: MONGO_DATABASE_NAME,
-  poolSize: 25,
-  useCreateIndex: true,
-  useFindAndModify: false,
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+mongoose.connect({
+  connectionString: process.env.MONGO_CONNECTION_STRING,
+  databaseName: MONGO_DATABASE_NAME,
 });
 
 // RabbitMQ.

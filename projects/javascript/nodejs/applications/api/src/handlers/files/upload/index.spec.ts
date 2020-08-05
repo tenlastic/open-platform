@@ -18,7 +18,7 @@ import {
   ReleaseMock,
   UserRolesMock,
   ReleaseTask,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import {
   COPY_RELEASE_FILES_QUEUE,
   REMOVE_RELEASE_FILES_QUEUE,

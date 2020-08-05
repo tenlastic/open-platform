@@ -1,7 +1,7 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
-import { RefreshTokenMock, UserDocument, UserMock } from '../../../models';
+import { RefreshTokenMock, UserDocument, UserMock } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/refresh-tokens/count', function() {

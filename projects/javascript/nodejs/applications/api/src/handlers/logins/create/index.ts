@@ -1,6 +1,6 @@
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
 
-import { User } from '../../../models';
+import { User } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const { password, username } = ctx.request.body;

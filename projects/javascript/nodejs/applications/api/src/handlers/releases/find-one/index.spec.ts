@@ -10,7 +10,7 @@ import {
   ReleaseDocument,
   ReleaseMock,
   UserRolesMock,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 use(chaiAsPromised);

@@ -1,6 +1,6 @@
 import { Context } from '@tenlastic/web-server';
 
-import { RefreshToken } from '../../../models';
+import { RefreshToken } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   if (ctx.state.jwt) {

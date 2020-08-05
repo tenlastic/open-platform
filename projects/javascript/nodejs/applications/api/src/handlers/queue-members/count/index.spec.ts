@@ -10,7 +10,7 @@ import {
   UserMock,
   UserRolesMock,
   QueueMemberMock,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/queue-members/count', function() {

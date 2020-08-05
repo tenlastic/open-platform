@@ -40,6 +40,20 @@ export class IndexSchema {
 
   @prop({ default: {} })
   public options?: IndexOptions;
+
+  public async createMongoIndex() {
+    return mongoose.connection.db.collection(this.collectionId.toString()).createIndex(this.key, {
+      ...this.options,
+      background: true,
+      name: this._id.toHexString(),
+    });
+  }
+
+  public deleteMongoIndex() {
+    return mongoose.connection.db
+      .collection(this.collectionId.toString())
+      .dropIndex(this._id.toHexString());
+  }
 }
 
 export type IndexDocument = DocumentType<IndexSchema>;

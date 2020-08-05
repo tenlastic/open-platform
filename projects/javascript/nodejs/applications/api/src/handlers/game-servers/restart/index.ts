@@ -1,7 +1,7 @@
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { GameServerPermissions } from '../../../models';
+import { GameServerPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const override = { where: { _id: ctx.params._id } };

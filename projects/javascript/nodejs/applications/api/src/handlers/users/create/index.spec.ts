@@ -2,7 +2,7 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 
-import { User, UserMock, UserDocument } from '../../../models';
+import { User, UserMock, UserDocument } from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
 const chance = new Chance();

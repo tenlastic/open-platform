@@ -39,6 +39,7 @@ MAILGUN_DOMAIN="support.example.com"
 MAILGUN_SECRET="a1234a123abc12ab12a1abc123456a12-1ab1a1a1-abc1234a"
 
 # Minio
+MINIO_BUCKET="api"
 MINIO_CONNECTION_STRING="http://minioadmin:minioadmin@minio:9000"
 
 # Mongo

@@ -20,7 +20,7 @@ import {
   UserRolesMock,
   ReleaseTask,
   ReleaseTaskDocument,
-} from '../../models';
+} from '@tenlastic/mongoose-models';
 import { buildReleaseServerWorker } from './';
 
 use(chaiAsPromised);

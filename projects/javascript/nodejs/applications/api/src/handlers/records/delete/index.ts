@@ -1,7 +1,7 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { Collection, Database, RecordDocument, RecordSchema } from '../../../models';
+import { Collection, Database, RecordDocument, RecordSchema } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const { _id, collectionName, databaseName } = ctx.params;

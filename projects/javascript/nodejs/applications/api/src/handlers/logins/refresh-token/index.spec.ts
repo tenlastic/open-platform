@@ -5,7 +5,7 @@ import * as Chance from 'chance';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
-import { RefreshTokenMock, UserMock } from '../../../models';
+import { RefreshTokenMock, UserMock } from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
 const chance = new Chance();

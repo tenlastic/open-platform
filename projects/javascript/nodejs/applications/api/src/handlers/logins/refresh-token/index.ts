@@ -1,7 +1,7 @@
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
 import * as jwt from 'jsonwebtoken';
 
-import { RefreshToken, User } from '../../../models';
+import { RefreshToken, User } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const { token } = ctx.request.body;

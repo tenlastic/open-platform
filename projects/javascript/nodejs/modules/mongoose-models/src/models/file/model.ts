@@ -17,7 +17,6 @@ import * as minio from '@tenlastic/minio';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { MINIO_BUCKET } from '../../constants';
 import { Release, ReleaseDocument, ReleaseEvent } from '../release';
 
 export const FileEvent = new EventEmitter<IDatabasePayload<FileDocument>>();
@@ -27,7 +26,7 @@ FileEvent.on(payload => {
 FileEvent.on(async event => {
   switch (event.operationType) {
     case 'delete':
-      return minio.removeObject(MINIO_BUCKET, event.fullDocument.key);
+      return minio.removeObject(process.env.MINIO_BUCKET, event.fullDocument.key);
   }
 });
 ReleaseEvent.on(async event => {

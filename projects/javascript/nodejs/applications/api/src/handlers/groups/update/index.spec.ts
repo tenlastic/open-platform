@@ -3,7 +3,7 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 
-import { GroupDocument, GroupMock, UserDocument, UserMock } from '../../../models';
+import { GroupDocument, GroupMock, UserDocument, UserMock } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 const chance = new Chance();

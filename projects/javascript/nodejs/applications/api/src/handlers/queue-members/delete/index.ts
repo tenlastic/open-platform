@@ -1,6 +1,6 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { QueueMember, QueueMemberPermissions } from '../../../models';
+import { QueueMember, QueueMemberPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const where = await QueueMemberPermissions.where({ _id: ctx.params._id }, ctx.state.user);

@@ -10,7 +10,7 @@ import {
   UserMock,
   UserRolesMock,
   NamespaceMock,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/logs/find', function() {

@@ -1,6 +1,6 @@
 import { Context } from '@tenlastic/web-server';
 
-import { GroupInvitationPermissions } from '../../../models';
+import { GroupInvitationPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const result = await GroupInvitationPermissions.find(ctx.request.query, {}, ctx.state.user);

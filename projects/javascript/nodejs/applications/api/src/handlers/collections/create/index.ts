@@ -1,6 +1,6 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { CollectionPermissions, Database } from '../../../models';
+import { CollectionPermissions, Database } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const database = await Database.findOne({ name: ctx.params.databaseName });

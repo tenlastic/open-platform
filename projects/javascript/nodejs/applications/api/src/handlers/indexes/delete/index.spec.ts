@@ -6,7 +6,13 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
-import { CollectionMock, DatabaseMock, Index, NamespaceMock, UserRolesMock } from '../../../models';
+import {
+  CollectionMock,
+  DatabaseMock,
+  Index,
+  NamespaceMock,
+  UserRolesMock,
+} from '@tenlastic/mongoose-models';
 import { DELETE_COLLECTION_INDEX_QUEUE } from '../../../workers';
 import { handler } from './';
 

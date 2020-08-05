@@ -3,7 +3,7 @@ import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 import { MINIO_BUCKET } from '../../../constants';
-import { Game, GamePermissions } from '../../../models';
+import { Game, GamePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const game = await Game.findOne({ _id: ctx.params._id });

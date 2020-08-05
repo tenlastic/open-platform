@@ -1,9 +1,8 @@
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { Channel, ConsumeMessage } from 'amqplib';
-import * as mongoose from 'mongoose';
 
 import { RABBITMQ_PREFIX } from '../../constants';
-import { Collection, Index, IndexDocument } from '../../models';
+import { Collection, Index, IndexDocument } from '@tenlastic/mongoose-models';
 
 export const CREATE_COLLECTION_INDEX_QUEUE = `${RABBITMQ_PREFIX}.create-collection-index`;
 
@@ -13,14 +12,8 @@ export async function createCollectionIndexWorker(
   msg: ConsumeMessage,
 ) {
   try {
-    const index = new Index(content);
-
-    // Create the index within MongoDB.
-    await mongoose.connection.db.collection(index.collectionId.toString()).createIndex(index.key, {
-      ...index.options,
-      background: true,
-      name: index.id,
-    });
+    const index = Index.hydrate(content);
+    await index.createMongoIndex();
 
     // Save the index information to the Collection document.
     await Collection.findOneAndUpdate(

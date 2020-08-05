@@ -4,7 +4,13 @@ import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
-import { Collection, CollectionDocument, CollectionMock, Index, IndexDocument } from '../../models';
+import {
+  Collection,
+  CollectionDocument,
+  CollectionMock,
+  Index,
+  IndexDocument,
+} from '@tenlastic/mongoose-models';
 import { deleteCollectionIndexWorker } from './';
 
 const chance = new Chance();
@@ -29,31 +35,16 @@ describe('workers/delete-collection-index', function() {
 
       const index = new Index({ key: { properties: 1 }, options: { unique: true } });
       collection = await CollectionMock.create({ indexes: [index] });
+      index.collectionId = collection._id;
 
-      const collectionId = collection._id.toString();
-      await mongoose.connection.db.collection(collectionId).createIndex(
-        {
-          properties: 1,
-        },
-        {
-          name: index._id.toString(),
-          unique: true,
-        },
-      );
+      await index.createMongoIndex();
 
       const content: Partial<IndexDocument> = {
         _id: index._id,
-        collectionId,
+        collectionId: collection._id,
         databaseId: collection.databaseId,
       };
       await deleteCollectionIndexWorker(channel as any, content, null);
-    });
-
-    it('deletes the index on the collection', async function() {
-      const indexes = await mongoose.connection.db.collection(collection._id.toString()).indexes();
-
-      expect(indexes.length).to.eql(1);
-      expect(indexes[0].key).to.eql({ _id: 1 });
     });
 
     it('pulls the index from the Collection', async function() {

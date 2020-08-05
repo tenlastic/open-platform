@@ -1,7 +1,7 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
-import { MatchMock, UserDocument, UserMock } from '../../../models';
+import { MatchMock, UserDocument, UserMock } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/matches/count', function() {

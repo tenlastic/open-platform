@@ -1,6 +1,6 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { RefreshTokenPermissions } from '../../../models';
+import { RefreshTokenPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const override = { where: { jti: ctx.params.jti } };

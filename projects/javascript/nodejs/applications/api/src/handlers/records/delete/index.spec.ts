@@ -9,7 +9,7 @@ import {
   DatabaseMock,
   RecordDocument,
   RecordSchema,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/records/delete', function() {

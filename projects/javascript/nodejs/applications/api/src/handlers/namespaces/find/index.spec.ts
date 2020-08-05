@@ -1,7 +1,7 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
-import { NamespaceMock, UserDocument, UserMock, UserRolesMock } from '../../../models';
+import { NamespaceMock, UserDocument, UserMock, UserRolesMock } from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
 describe('handlers/namespaces/find', function() {

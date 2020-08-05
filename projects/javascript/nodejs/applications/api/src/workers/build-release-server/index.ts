@@ -13,7 +13,7 @@ import {
   ReleaseTaskDocument,
   ReleaseTaskFailure,
   ReleaseTaskAction,
-} from '../../models';
+} from '@tenlastic/mongoose-models';
 
 export const BUILD_RELEASE_SERVER_QUEUE = `${RABBITMQ_PREFIX}.build-release-server`;
 

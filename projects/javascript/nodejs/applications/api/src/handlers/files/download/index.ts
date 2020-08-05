@@ -3,7 +3,7 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as JSZip from 'jszip';
 
 import { MINIO_BUCKET } from '../../../constants';
-import { Release, FilePermissions } from '../../../models';
+import { Release, FilePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const release = await Release.findOne({ _id: ctx.params.releaseId });

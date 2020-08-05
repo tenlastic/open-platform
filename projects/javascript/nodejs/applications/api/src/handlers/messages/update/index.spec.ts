@@ -2,7 +2,7 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
-import { MessageDocument, MessageMock, UserDocument, UserMock } from '../../../models';
+import { MessageDocument, MessageMock, UserDocument, UserMock } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 use(chaiAsPromised);

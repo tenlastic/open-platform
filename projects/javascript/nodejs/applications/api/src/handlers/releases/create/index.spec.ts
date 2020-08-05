@@ -10,7 +10,7 @@ import {
   UserMock,
   ReleaseMock,
   UserRolesMock,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 const chance = new Chance();

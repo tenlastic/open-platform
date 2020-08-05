@@ -1,6 +1,6 @@
 import { Context } from '@tenlastic/web-server';
 
-import { GameServerDocument, GameServerPermissions } from '../../../models';
+import { GameServerDocument, GameServerPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   let result: GameServerDocument;

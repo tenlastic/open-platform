@@ -2,7 +2,12 @@ import * as rabbitmq from '@tenlastic/rabbitmq';
 import { Channel, ConsumeMessage } from 'amqplib';
 
 import { RABBITMQ_PREFIX } from '../../constants';
-import { File, ReleaseTask, ReleaseTaskDocument, ReleaseTaskFailure } from '../../models';
+import {
+  File,
+  ReleaseTask,
+  ReleaseTaskDocument,
+  ReleaseTaskFailure,
+} from '@tenlastic/mongoose-models';
 
 export const REMOVE_RELEASE_FILES_QUEUE = `${RABBITMQ_PREFIX}.remove-release-files`;
 

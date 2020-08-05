@@ -17,7 +17,7 @@ import {
   NamespaceMock,
   UserRolesMock,
   CollectionDocument,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { CREATE_COLLECTION_INDEX_QUEUE } from '../../../workers';
 import { handler } from './';
 

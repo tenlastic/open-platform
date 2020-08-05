@@ -7,7 +7,7 @@ import {
   UserDocument,
   UserMock,
   UserRolesMock,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/databases/count', function() {

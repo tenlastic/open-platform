@@ -1,6 +1,6 @@
 import { Context } from '@tenlastic/web-server';
 
-import { UserPermissions } from '../../../models';
+import { UserPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const user = await UserPermissions.create(ctx.request.body, {}, ctx.state.user);

@@ -2,7 +2,7 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as jwt from 'jsonwebtoken';
 import * as uuid from 'uuid/v4';
 
-import { RefreshTokenPermissions, User, UserPermissions } from '../../../models';
+import { RefreshTokenPermissions, User, UserPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const user = await User.findOne({ _id: ctx.state.user._id });

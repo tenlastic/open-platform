@@ -8,7 +8,7 @@ import {
   DatabaseDocument,
   DatabaseMock,
   RecordSchema,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/records/find-one', function() {

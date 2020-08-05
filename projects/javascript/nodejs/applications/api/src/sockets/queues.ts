@@ -1,7 +1,7 @@
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { WebSocket } from '@tenlastic/web-server';
 
-import { Queue, QueuePermissions } from '../models';
+import { Queue, QueuePermissions } from '@tenlastic/mongoose-models';
 
 export async function onConnection(params: any, query: any, user: any, ws: WebSocket) {
   if ('watch' in query) {

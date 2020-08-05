@@ -4,7 +4,12 @@ import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
-import { Collection, CollectionDocument, CollectionMock, IndexDocument } from '../../models';
+import {
+  Collection,
+  CollectionDocument,
+  CollectionMock,
+  IndexDocument,
+} from '@tenlastic/mongoose-models';
 import { createCollectionIndexWorker } from './';
 
 const chance = new Chance();
@@ -37,14 +42,6 @@ describe('workers/create-collection-index', function() {
       };
 
       await createCollectionIndexWorker(channel as any, index, null);
-    });
-
-    it('creates an index on the collection', async function() {
-      const indexes = await mongoose.connection.db.collection(collection._id.toString()).indexes();
-
-      expect(indexes[1].key).to.eql({ properties: 1 });
-      expect(indexes[1].name).to.eql(index._id.toString());
-      expect(indexes[1].unique).to.eql(true);
     });
 
     it('saves the index to the Collection', async function() {

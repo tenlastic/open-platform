@@ -13,7 +13,7 @@ import {
   ReleaseTask,
   ReleaseTaskDocument,
   ReleaseTaskFailure,
-} from '../../models';
+} from '@tenlastic/mongoose-models';
 
 export const UNZIP_RELEASE_FILES_QUEUE = `${RABBITMQ_PREFIX}.unzip-release-files`;
 

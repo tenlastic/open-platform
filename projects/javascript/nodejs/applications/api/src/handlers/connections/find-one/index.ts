@@ -1,6 +1,6 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { ConnectionPermissions } from '../../../models';
+import { ConnectionPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const query = {

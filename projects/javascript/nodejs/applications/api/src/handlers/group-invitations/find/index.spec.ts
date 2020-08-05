@@ -7,7 +7,7 @@ import {
   GroupInvitationMock,
   UserDocument,
   UserMock,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/group-invitations/find', function() {

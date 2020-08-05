@@ -1,7 +1,7 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
-import { GroupMock, GroupInvitationMock, UserDocument, UserMock } from '../../../models';
+import { GroupMock, GroupInvitationMock, UserDocument, UserMock } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/group-invitations/count', function() {

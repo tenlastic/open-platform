@@ -8,7 +8,7 @@ import {
   GroupInvitationMock,
   UserDocument,
   UserMock,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 use(chaiAsPromised);

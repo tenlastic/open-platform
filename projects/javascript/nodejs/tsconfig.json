@@ -14,6 +14,7 @@
       "@tenlastic/minio": ["./modules/minio/src"],
       "@tenlastic/mongoose-change-stream": ["./modules/mongoose-change-stream/src"],
       "@tenlastic/mongoose-change-stream-kafka": ["./modules/mongoose-change-stream-kafka/src"],
+      "@tenlastic/mongoose-models": ["./modules/mongoose-models/src"],
       "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],
       "@tenlastic/mongoose-unique-error": ["./modules/mongoose-unique-error/src"],
       "@tenlastic/rabbitmq": ["./modules/rabbitmq/src"],

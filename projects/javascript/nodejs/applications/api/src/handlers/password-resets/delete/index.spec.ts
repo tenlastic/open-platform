@@ -11,7 +11,7 @@ import {
   UserDocument,
   UserMock,
   User,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { handler } from '.';
 import { Context } from 'koa';
 

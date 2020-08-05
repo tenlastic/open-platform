@@ -1,6 +1,6 @@
 import { Context } from '@tenlastic/web-server';
 
-import { ReleaseTaskPermissions } from '../../../models';
+import { ReleaseTaskPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const override = { where: { releaseId: ctx.params.releaseId } };

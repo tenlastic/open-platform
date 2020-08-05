@@ -8,7 +8,7 @@ import {
   UserMock,
   ReleaseMock,
   UserRolesMock,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/releases/count', function() {

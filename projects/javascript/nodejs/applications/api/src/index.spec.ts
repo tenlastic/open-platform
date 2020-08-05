@@ -1,9 +1,9 @@
 import * as docker from '@tenlastic/docker-engine';
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
+import * as mongoose from '@tenlastic/mongoose-models';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as rabbitmq from '@tenlastic/rabbitmq';
-import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
 import { MINIO_BUCKET, MONGO_DATABASE_NAME } from './constants';
@@ -31,7 +31,7 @@ import {
   Release,
   ReleaseTask,
   User,
-} from './models';
+} from '@tenlastic/mongoose-models';
 import {
   BUILD_RELEASE_SERVER_QUEUE,
   COPY_RELEASE_FILES_QUEUE,
@@ -66,12 +66,9 @@ before(async function() {
     await minio.makeBucket(MINIO_BUCKET);
   }
 
-  await mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
-    dbName: `${MONGO_DATABASE_NAME}-test`,
-    useCreateIndex: true,
-    useFindAndModify: false,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+  await mongoose.connect({
+    connectionString: process.env.MONGO_CONNECTION_STRING,
+    databaseName: `${MONGO_DATABASE_NAME}-test`,
   });
 
   await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
@@ -116,3 +113,5 @@ beforeEach(async function() {
 afterEach(function() {
   sandbox.restore();
 });
+
+export { mongoose };

@@ -20,7 +20,7 @@ import {
   ReleaseTask,
   ReleaseTaskDocument,
   FilePlatform,
-} from '../../models';
+} from '@tenlastic/mongoose-models';
 import { removeReleaseFilesWorker } from './';
 
 use(chaiAsPromised);

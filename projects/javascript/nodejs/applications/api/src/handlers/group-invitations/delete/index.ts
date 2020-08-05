@@ -1,6 +1,6 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { GroupInvitation, GroupInvitationPermissions } from '../../../models';
+import { GroupInvitation, GroupInvitationPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const where = await GroupInvitationPermissions.where({ _id: ctx.params._id }, ctx.state.user);

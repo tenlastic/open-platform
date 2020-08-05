@@ -15,7 +15,7 @@ import {
   ReleaseTask,
   ReleaseTaskAction,
   ReleaseTaskDocument,
-} from '../../../models';
+} from '@tenlastic/mongoose-models';
 import {
   BUILD_RELEASE_SERVER_QUEUE,
   COPY_RELEASE_FILES_QUEUE,

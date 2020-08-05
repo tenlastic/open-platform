@@ -1,6 +1,6 @@
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { Message, MessagePermissions } from '../../../models';
+import { Message, MessagePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const message = await MessagePermissions.findOne(
