@@ -76,7 +76,14 @@ before(async function() {
 
 beforeEach(async function() {
   sandbox = sinon.createSandbox();
+
+  // Do not send Mailgun emails.
   sandbox.stub(mailgun, 'send').resolves();
+
+  // Do not create Game Server resources within Kubernetes.
+  sandbox.stub(GameServer.prototype, 'createKubernetesResources').resolves();
+  sandbox.stub(GameServer.prototype, 'deleteKubernetesResources').resolves();
+  sandbox.stub(GameServer.prototype, 'updateKubernetesResources').resolves();
 
   await Article.deleteMany({});
   await Collection.deleteMany({});
