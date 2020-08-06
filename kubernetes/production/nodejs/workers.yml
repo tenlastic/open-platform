@@ -38,17 +38,3 @@ spec:
       volumes:
         - name: dind
           emptyDir: {}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: workers
-  labels:
-    app: workers
-    service: workers
-spec:
-  ports:
-    - port: 3000
-      name: http
-  selector:
-    app: workers
