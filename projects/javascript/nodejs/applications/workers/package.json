@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/workers",
   "private": true,
-  "version": "0.0.100",
+  "version": "0.0.101",
   "scripts": {
     "build": "../../scripts/build.sh",
     "docker:build": "../../scripts/docker-build.sh workers",
@@ -16,13 +16,13 @@
     "version": "../../scripts/version.sh workers"
   },
   "dependencies": {
-    "@tenlastic/docker-engine": "0.0.100",
-    "@tenlastic/logging": "0.0.100",
-    "@tenlastic/minio": "0.0.100",
-    "@tenlastic/mongoose-change-stream-kafka": "0.0.100",
-    "@tenlastic/mongoose-models": "0.0.100",
-    "@tenlastic/rabbitmq": "0.0.100",
-    "@tenlastic/rabbitmq-models": "0.0.100",
+    "@tenlastic/docker-engine": "0.0.101",
+    "@tenlastic/logging": "0.0.101",
+    "@tenlastic/minio": "0.0.101",
+    "@tenlastic/mongoose-change-stream-kafka": "0.0.101",
+    "@tenlastic/mongoose-models": "0.0.101",
+    "@tenlastic/rabbitmq": "0.0.101",
+    "@tenlastic/rabbitmq-models": "0.0.101",
     "source-map-support": "0.5.12"
   },
   "devDependencies": {
