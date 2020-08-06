@@ -9,7 +9,7 @@
     "type": "git",
     "url": "ssh://git@github.com/tenlastic/open-platform.git"
   },
-  "version": "0.0.99",
+  "version": "0.0.100",
   "publishConfig": {
     "access": "public"
   },
@@ -23,14 +23,14 @@
   "dependencies": {
     "@hasezoey/typegoose": "6.0.0-27",
     "@kubernetes/client-node": "0.11.2",
-    "@tenlastic/json-schema": "0.0.99",
-    "@tenlastic/mailgun": "0.0.99",
-    "@tenlastic/minio": "0.0.99",
-    "@tenlastic/mongoose-change-stream": "0.0.99",
-    "@tenlastic/mongoose-change-stream-kafka": "0.0.99",
-    "@tenlastic/mongoose-permissions": "0.0.99",
-    "@tenlastic/mongoose-unique-error": "0.0.99",
-    "@tenlastic/validations": "0.0.99",
+    "@tenlastic/json-schema": "0.0.100",
+    "@tenlastic/mailgun": "0.0.100",
+    "@tenlastic/minio": "0.0.100",
+    "@tenlastic/mongoose-change-stream": "0.0.100",
+    "@tenlastic/mongoose-change-stream-kafka": "0.0.100",
+    "@tenlastic/mongoose-permissions": "0.0.100",
+    "@tenlastic/mongoose-unique-error": "0.0.100",
+    "@tenlastic/validations": "0.0.100",
     "bcryptjs": "2.4.3",
     "chance": "1.0.16",
     "jsonwebtoken": "8.5.1",
