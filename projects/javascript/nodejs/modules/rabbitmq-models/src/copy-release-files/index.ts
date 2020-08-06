@@ -57,6 +57,7 @@ async function onMessage(
   try {
     console.log('Received message:', content);
 
+    console.log(`MongoDB connection status: ${ReleaseTask.db.readyState}.`);
     let task = ReleaseTask.hydrate(content);
     console.log('ReleaseTask:', task);
 
