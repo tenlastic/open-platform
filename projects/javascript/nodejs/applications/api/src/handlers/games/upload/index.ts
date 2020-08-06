@@ -3,7 +3,6 @@ import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
-import { MINIO_BUCKET } from '../../../constants';
 import { Game, GameDocument, GamePermissions } from '@tenlastic/mongoose-models';
 
 interface FieldPath {
@@ -68,7 +67,7 @@ async function fileHandler(
   }
 
   const path = game.getMinioPath(field);
-  await minio.putObject(MINIO_BUCKET, path, stream, { 'content-type': mimetype });
+  await minio.putObject(process.env.MINIO_BUCKET, path, stream, { 'content-type': mimetype });
 
   return { field, path } as FieldPath;
 }

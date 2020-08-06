@@ -3,7 +3,6 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as minio from '@tenlastic/minio';
 
-import { MINIO_BUCKET } from '../../../constants';
 import {
   FileDocument,
   FileMock,
@@ -17,6 +16,7 @@ import {
 } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
+const bucket = process.env.MINIO_BUCKET;
 use(chaiAsPromised);
 
 describe('handlers/files/delete', function() {
@@ -54,7 +54,7 @@ describe('handlers/files/delete', function() {
     });
 
     it('removes the object from minio', async function() {
-      await minio.fPutObject(MINIO_BUCKET, record.key, __filename, {});
+      await minio.fPutObject(bucket, record.key, __filename, {});
 
       const ctx = new ContextMock({
         params: {
@@ -67,7 +67,7 @@ describe('handlers/files/delete', function() {
 
       await handler(ctx as any);
 
-      const promise = minio.statObject(MINIO_BUCKET, record.key);
+      const promise = minio.statObject(bucket, record.key);
       expect(promise).to.be.rejected;
     });
   });

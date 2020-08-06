@@ -4,7 +4,6 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs';
 
-import { MINIO_BUCKET } from '../../../constants';
 import {
   FileMock,
   FilePlatform,
@@ -18,6 +17,7 @@ import {
 } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
+const bucket = process.env.MINIO_BUCKET;
 use(chaiAsPromised);
 
 describe('handlers/releases/delete', function() {
@@ -40,7 +40,7 @@ describe('handlers/releases/delete', function() {
 
       platform = FileMock.getPlatform();
       const file = await FileMock.create({ path: 'index.ts', platform, releaseId: record._id });
-      await minio.putObject(MINIO_BUCKET, file.key, fs.createReadStream(__filename));
+      await minio.putObject(bucket, file.key, fs.createReadStream(__filename));
     });
 
     it('returns the deleted record', async function() {
@@ -66,7 +66,7 @@ describe('handlers/releases/delete', function() {
 
       await handler(ctx as any);
 
-      const promise = minio.statObject(MINIO_BUCKET, `${record._id}/${platform}/swagger.yml`);
+      const promise = minio.statObject(bucket, `${record._id}/${platform}/swagger.yml`);
 
       return expect(promise).to.be.rejectedWith('Not Found');
     });

@@ -2,7 +2,6 @@ import * as minio from '@tenlastic/minio';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { MINIO_BUCKET } from '../../../constants';
 import { Game, GamePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
@@ -26,8 +25,9 @@ export async function handler(ctx: Context) {
     throw new PermissionError();
   }
 
-  const info = await minio.statObject(MINIO_BUCKET, game.getMinioPath(field, fileId));
-  const stream = (await minio.getObject(MINIO_BUCKET, game.getMinioPath(field, fileId))) as any;
+  const bucket = process.env.MINIO_BUCKET;
+  const info = await minio.statObject(bucket, game.getMinioPath(field, fileId));
+  const stream = (await minio.getObject(bucket, game.getMinioPath(field, fileId))) as any;
 
   ctx.response.body = stream;
   ctx.response.type = info.metaData['content-type'];

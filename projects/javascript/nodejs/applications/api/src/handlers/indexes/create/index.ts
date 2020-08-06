@@ -1,9 +1,8 @@
 import { PermissionError } from '@tenlastic/mongoose-permissions';
-import * as rabbitmq from '@tenlastic/rabbitmq';
+import { CreateCollectionIndex } from '@tenlastic/rabbitmq-models';
 import { Context, RecordNotFoundError, RequiredFieldError } from '@tenlastic/web-server';
 
 import { CollectionPermissions, Index } from '@tenlastic/mongoose-models';
-import { CREATE_COLLECTION_INDEX_QUEUE } from '../../../workers';
 
 export async function handler(ctx: Context) {
   const override = {
@@ -33,13 +32,13 @@ export async function handler(ctx: Context) {
     throw new RequiredFieldError(['key']);
   }
 
-  const msg = new Index({
+  const index = new Index({
     collectionId: collection._id,
     databaseId: collection.databaseId,
     key,
     options,
   });
-  await rabbitmq.publish(CREATE_COLLECTION_INDEX_QUEUE, msg);
+  await CreateCollectionIndex.publish(index);
 
   ctx.response.status = 200;
   ctx.response.body = {};

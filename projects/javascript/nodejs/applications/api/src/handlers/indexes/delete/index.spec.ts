@@ -1,11 +1,3 @@
-import { PermissionError } from '@tenlastic/mongoose-permissions';
-import * as rabbitmq from '@tenlastic/rabbitmq';
-import { Context, ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
-import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as mongoose from 'mongoose';
-import * as sinon from 'sinon';
-
 import {
   CollectionMock,
   DatabaseMock,
@@ -13,7 +5,14 @@ import {
   NamespaceMock,
   UserRolesMock,
 } from '@tenlastic/mongoose-models';
-import { DELETE_COLLECTION_INDEX_QUEUE } from '../../../workers';
+import { PermissionError } from '@tenlastic/mongoose-permissions';
+import { DeleteCollectionIndex } from '@tenlastic/rabbitmq-models';
+import { Context, ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
+import { expect, use } from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+import * as mongoose from 'mongoose';
+import * as sinon from 'sinon';
+
 import { handler } from './';
 
 use(chaiAsPromised);
@@ -98,7 +97,7 @@ describe('handlers/indexes/delete', function() {
 
       context('when the collection contains the specified index', function() {
         it('adds the request to RabbitMQ', async function() {
-          const stub = sinon.stub(rabbitmq, 'publish').resolves();
+          const stub = sinon.stub(DeleteCollectionIndex, 'publish').resolves();
 
           const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
           const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
@@ -128,8 +127,6 @@ describe('handlers/indexes/delete', function() {
           expect(ctx.response.status).to.eql(200);
 
           expect(stub.calledOnce).to.eql(true);
-          expect(stub.getCalls()[0].args[0]).to.eql(DELETE_COLLECTION_INDEX_QUEUE);
-          expect(stub.getCalls()[0].args[1]).to.exist;
         });
       });
     });

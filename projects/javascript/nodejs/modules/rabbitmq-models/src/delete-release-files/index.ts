@@ -1,17 +1,18 @@
-import * as rabbitmq from '@tenlastic/rabbitmq';
-import { Channel, ConsumeMessage } from 'amqplib';
-
-import { RABBITMQ_PREFIX } from '../../constants';
 import {
   File,
+  FilePlatform,
   ReleaseTask,
+  ReleaseTaskAction,
   ReleaseTaskDocument,
   ReleaseTaskFailure,
 } from '@tenlastic/mongoose-models';
+import * as rabbitmq from '@tenlastic/rabbitmq';
+import { Channel, ConsumeMessage } from 'amqplib';
+import * as mongoose from 'mongoose';
 
-export const REMOVE_RELEASE_FILES_QUEUE = `${RABBITMQ_PREFIX}.remove-release-files`;
+const QUEUE = `${process.env.RABBITMQ_PREFIX}.delete-release-files`;
 
-export async function removeReleaseFilesWorker(
+async function onMessage(
   channel: Channel,
   content: Partial<ReleaseTaskDocument>,
   msg: ConsumeMessage,
@@ -55,3 +56,34 @@ export async function removeReleaseFilesWorker(
     }
   }
 }
+
+async function publish(
+  platform: FilePlatform,
+  releaseId: mongoose.Types.ObjectId | string,
+  removed: string[],
+): Promise<ReleaseTaskDocument> {
+  const releaseTask = await ReleaseTask.create({
+    action: ReleaseTaskAction.Remove,
+    metadata: { removed },
+    platform,
+    releaseId,
+  });
+  await rabbitmq.publish(QUEUE, releaseTask);
+
+  return releaseTask;
+}
+
+function purge() {
+  return rabbitmq.purge(QUEUE);
+}
+
+function subscribe() {
+  return rabbitmq.consume(QUEUE, onMessage);
+}
+
+export const DeleteReleaseFiles = {
+  onMessage,
+  publish,
+  purge,
+  subscribe,
+};

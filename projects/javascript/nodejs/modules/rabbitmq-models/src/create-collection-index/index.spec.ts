@@ -10,11 +10,11 @@ import {
   CollectionMock,
   IndexDocument,
 } from '@tenlastic/mongoose-models';
-import { createCollectionIndexWorker } from './';
+import { CreateCollectionIndex } from './';
 
 const chance = new Chance();
 
-describe('workers/create-collection-index', function() {
+describe('create-collection-index', function() {
   let sandbox: sinon.SinonSandbox;
 
   beforeEach(function() {
@@ -41,7 +41,7 @@ describe('workers/create-collection-index', function() {
         options: { unique: true },
       };
 
-      await createCollectionIndexWorker(channel as any, index, null);
+      await CreateCollectionIndex.onMessage(channel as any, index, null);
     });
 
     it('saves the index to the Collection', async function() {
@@ -70,7 +70,7 @@ describe('workers/create-collection-index', function() {
         key: { properties: 1 },
         options: { unique: true },
       };
-      await createCollectionIndexWorker({} as any, content, null);
+      await CreateCollectionIndex.onMessage({} as any, content, null);
 
       expect(requeueStub.calledOnce).to.eql(true);
     });

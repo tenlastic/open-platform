@@ -1,16 +1,10 @@
+import { Collection, Index, IndexDocument } from '@tenlastic/mongoose-models';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { Channel, ConsumeMessage } from 'amqplib';
 
-import { RABBITMQ_PREFIX } from '../../constants';
-import { Collection, Index, IndexDocument } from '@tenlastic/mongoose-models';
+const QUEUE = `${process.env.RABBITMQ_PREFIX}.create-collection-index`;
 
-export const CREATE_COLLECTION_INDEX_QUEUE = `${RABBITMQ_PREFIX}.create-collection-index`;
-
-export async function createCollectionIndexWorker(
-  channel: Channel,
-  content: Partial<IndexDocument>,
-  msg: ConsumeMessage,
-) {
+async function onMessage(channel: Channel, content: Partial<IndexDocument>, msg: ConsumeMessage) {
   try {
     const index = Index.hydrate(content);
     await index.createMongoIndex();
@@ -33,3 +27,22 @@ export async function createCollectionIndexWorker(
     rabbitmq.requeue(channel, msg, { delay: 30 * 1000, retries: 3 });
   }
 }
+
+async function publish(index: IndexDocument) {
+  return rabbitmq.publish(QUEUE, index);
+}
+
+function purge() {
+  return rabbitmq.purge(QUEUE);
+}
+
+function subscribe() {
+  return rabbitmq.consume(QUEUE, onMessage);
+}
+
+export const CreateCollectionIndex = {
+  onMessage,
+  publish,
+  purge,
+  subscribe,
+};

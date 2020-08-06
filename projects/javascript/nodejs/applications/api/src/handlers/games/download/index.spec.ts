@@ -4,7 +4,6 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs';
 
-import { MINIO_BUCKET } from '../../../constants';
 import {
   GameDocument,
   GameMock,
@@ -35,7 +34,7 @@ describe('handlers/files/download', function() {
 
       // Upload test file to Minio.
       await minio.putObject(
-        MINIO_BUCKET,
+        process.env.MINIO_BUCKET,
         game.getMinioPath('background'),
         fs.createReadStream(__filename),
       );

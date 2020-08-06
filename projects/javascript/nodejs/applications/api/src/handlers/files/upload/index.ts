@@ -1,27 +1,22 @@
-import * as minio from '@tenlastic/minio';
-import * as rabbitmq from '@tenlastic/rabbitmq';
-import { PermissionError } from '@tenlastic/mongoose-permissions';
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
-import * as Busboy from 'busboy';
-import { Stream } from 'stream';
-
-import { MINIO_BUCKET } from '../../../constants';
 import {
   File,
   FileDocument,
   FilePermissions,
   FilePlatform,
   Release,
-  ReleaseTask,
-  ReleaseTaskAction,
   ReleaseTaskDocument,
 } from '@tenlastic/mongoose-models';
+import { PermissionError } from '@tenlastic/mongoose-permissions';
 import {
-  BUILD_RELEASE_SERVER_QUEUE,
-  COPY_RELEASE_FILES_QUEUE,
-  REMOVE_RELEASE_FILES_QUEUE,
-  UNZIP_RELEASE_FILES_QUEUE,
-} from '../../../workers';
+  BuildReleaseDockerImage,
+  CopyReleaseFiles,
+  DeleteReleaseFiles,
+  UnzipReleaseFiles,
+} from '@tenlastic/rabbitmq-models';
+import { Context, RecordNotFoundError } from '@tenlastic/web-server';
+import * as Busboy from 'busboy';
+import * as mongoose from 'mongoose';
+import { Stream } from 'stream';
 
 export async function handler(ctx: Context) {
   const release = await Release.findOne({ _id: ctx.params.releaseId });
@@ -148,26 +143,10 @@ async function publishBuildMessage(platform: FilePlatform, releaseId: string, us
     throw new PermissionError();
   }
 
-  const session = await ReleaseTask.db.startSession();
-  session.startTransaction();
-
-  let releaseTask: ReleaseTaskDocument;
-  try {
-    releaseTask = await ReleaseTask.create({
-      action: ReleaseTaskAction.Build,
-      platform: targetFile.platform,
-      releaseId: targetFile.releaseId,
-    });
-    await rabbitmq.publish(BUILD_RELEASE_SERVER_QUEUE, releaseTask);
-
-    await session.commitTransaction();
-  } catch (e) {
-    await session.abortTransaction();
-
-    throw e;
-  }
-
-  return releaseTask;
+  return BuildReleaseDockerImage.publish(
+    targetFile.platform,
+    targetFile.releaseId as mongoose.Types.ObjectId,
+  );
 }
 
 async function publishCopyMessage(
@@ -207,18 +186,12 @@ async function publishCopyMessage(
     throw new PermissionError();
   }
 
-  const releaseTask = await ReleaseTask.create({
-    action: ReleaseTaskAction.Copy,
-    metadata: {
-      previousReleaseId: fields.previousReleaseId,
-      unmodified: fields.unmodified,
-    },
-    platform: targetFile.platform,
-    releaseId: targetFile.releaseId,
-  });
-  await rabbitmq.publish(COPY_RELEASE_FILES_QUEUE, releaseTask);
-
-  return releaseTask;
+  return CopyReleaseFiles.publish(
+    targetFile.platform,
+    fields.previousReleaseId,
+    targetFile.releaseId as mongoose.Types.ObjectId,
+    fields.unmodified,
+  );
 }
 
 async function publishRemoveMessage(
@@ -236,15 +209,11 @@ async function publishRemoveMessage(
     throw new PermissionError();
   }
 
-  const releaseTask = await ReleaseTask.create({
-    action: ReleaseTaskAction.Remove,
-    metadata: { removed: fields.removed },
-    platform: targetFile.platform,
-    releaseId: targetFile.releaseId,
-  });
-  await rabbitmq.publish(REMOVE_RELEASE_FILES_QUEUE, releaseTask);
-
-  return releaseTask;
+  return DeleteReleaseFiles.publish(
+    targetFile.platform,
+    targetFile.releaseId as mongoose.Types.ObjectId,
+    fields.removed,
+  );
 }
 
 async function publishUnzipMessage(
@@ -266,14 +235,9 @@ async function publishUnzipMessage(
     throw new PermissionError();
   }
 
-  const releaseTask = await ReleaseTask.create({
-    action: ReleaseTaskAction.Unzip,
-    platform: targetFile.platform,
-    releaseId: targetFile.releaseId,
-  });
-
-  await minio.putObject(MINIO_BUCKET, releaseTask.minioZipObjectName, stream);
-  await rabbitmq.publish(UNZIP_RELEASE_FILES_QUEUE, releaseTask);
-
-  return releaseTask;
+  return UnzipReleaseFiles.publish(
+    targetFile.platform,
+    targetFile.releaseId as mongoose.Types.ObjectId,
+    stream,
+  );
 }

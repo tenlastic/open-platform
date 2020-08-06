@@ -2,11 +2,6 @@ import * as docker from '@tenlastic/docker-engine';
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as mongoose from '@tenlastic/mongoose-models';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
-import * as rabbitmq from '@tenlastic/rabbitmq';
-import * as sinon from 'sinon';
-
-import { MINIO_BUCKET, MONGO_DATABASE_NAME } from './constants';
 import {
   Article,
   Collection,
@@ -32,14 +27,19 @@ import {
   ReleaseTask,
   User,
 } from '@tenlastic/mongoose-models';
+import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import * as rabbitmq from '@tenlastic/rabbitmq';
 import {
-  BUILD_RELEASE_SERVER_QUEUE,
-  COPY_RELEASE_FILES_QUEUE,
-  CREATE_COLLECTION_INDEX_QUEUE,
-  DELETE_COLLECTION_INDEX_QUEUE,
-  REMOVE_RELEASE_FILES_QUEUE,
-  UNZIP_RELEASE_FILES_QUEUE,
-} from './workers';
+  BuildReleaseDockerImage,
+  CopyReleaseFiles,
+  CreateCollectionIndex,
+  DeleteCollectionIndex,
+  DeleteReleaseFiles,
+  UnzipReleaseFiles,
+} from '@tenlastic/rabbitmq-models';
+import * as sinon from 'sinon';
+
+import { MONGO_DATABASE_NAME } from './constants';
 
 let sandbox: sinon.SinonSandbox;
 
@@ -61,9 +61,10 @@ before(async function() {
     useSSL: minioConnectionUrl.protocol === 'https:',
   });
 
-  const bucketExists = await minio.bucketExists(MINIO_BUCKET);
+  const bucket = process.env.MINIO_BUCKET;
+  const bucketExists = await minio.bucketExists(bucket);
   if (!bucketExists) {
-    await minio.makeBucket(MINIO_BUCKET);
+    await minio.makeBucket(bucket);
   }
 
   await mongoose.connect({
@@ -74,7 +75,7 @@ before(async function() {
   await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 });
 
-beforeEach(async function() {
+beforeEach(function() {
   sandbox = sinon.createSandbox();
 
   // Do not send Mailgun emails.
@@ -85,40 +86,40 @@ beforeEach(async function() {
   sandbox.stub(GameServer.prototype, 'deleteKubernetesResources').resolves();
   sandbox.stub(GameServer.prototype, 'updateKubernetesResources').resolves();
 
-  await Article.deleteMany({});
-  await Collection.deleteMany({});
-  await Connection.deleteMany({});
-  await Database.deleteMany({});
-  await File.deleteMany({});
-  await Friend.deleteMany({});
-  await Game.deleteMany({});
-  await GameInvitation.deleteMany({});
-  await GameServer.deleteMany({});
-  await Group.deleteMany({});
-  await GroupInvitation.deleteMany({});
-  await Ignoration.deleteMany({});
-  await Log.deleteMany({});
-  await Match.deleteMany({});
-  await Message.deleteMany({});
-  await Namespace.deleteMany({});
-  await PasswordReset.deleteMany({});
-  await Queue.deleteMany({});
-  await QueueMember.deleteMany({});
-  await RefreshToken.deleteMany({});
-  await Release.deleteMany({});
-  await ReleaseTask.deleteMany({});
-  await User.deleteMany({});
+  return Promise.all<any>([
+    Article.deleteMany({}),
+    Collection.deleteMany({}),
+    Connection.deleteMany({}),
+    Database.deleteMany({}),
+    File.deleteMany({}),
+    Friend.deleteMany({}),
+    Game.deleteMany({}),
+    GameInvitation.deleteMany({}),
+    GameServer.deleteMany({}),
+    Group.deleteMany({}),
+    GroupInvitation.deleteMany({}),
+    Ignoration.deleteMany({}),
+    Log.deleteMany({}),
+    Match.deleteMany({}),
+    Message.deleteMany({}),
+    Namespace.deleteMany({}),
+    PasswordReset.deleteMany({}),
+    Queue.deleteMany({}),
+    QueueMember.deleteMany({}),
+    RefreshToken.deleteMany({}),
+    Release.deleteMany({}),
+    ReleaseTask.deleteMany({}),
+    User.deleteMany({}),
 
-  await rabbitmq.purge(BUILD_RELEASE_SERVER_QUEUE);
-  await rabbitmq.purge(COPY_RELEASE_FILES_QUEUE);
-  await rabbitmq.purge(CREATE_COLLECTION_INDEX_QUEUE);
-  await rabbitmq.purge(DELETE_COLLECTION_INDEX_QUEUE);
-  await rabbitmq.purge(REMOVE_RELEASE_FILES_QUEUE);
-  await rabbitmq.purge(UNZIP_RELEASE_FILES_QUEUE);
+    BuildReleaseDockerImage.purge(),
+    CopyReleaseFiles.purge(),
+    CreateCollectionIndex.purge(),
+    DeleteCollectionIndex.purge(),
+    DeleteReleaseFiles.purge(),
+    UnzipReleaseFiles.purge(),
+  ]);
 });
 
 afterEach(function() {
   sandbox.restore();
 });
-
-export { mongoose };

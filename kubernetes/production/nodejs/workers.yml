@@ -1,0 +1,54 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: workers
+  labels:
+    app: workers
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: workers
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cloud.google.com/gke-preemptible
+                    operator: Exists
+      containers:
+        - name: workers
+          image: tenlastic/workers:0.0.98
+          envFrom:
+            - secretRef:
+                name: nodejs-environment-variables
+        - name: dind
+          image: docker:19.03.8-dind
+          command:
+            - "dockerd"
+            - "--host"
+            - "tcp://0.0.0.0:2375"
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: dind
+              mountPath: /var/lib/docker
+      volumes:
+        - name: dind
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: workers
+  labels:
+    app: workers
+    service: workers
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: workers

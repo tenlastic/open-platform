@@ -1,9 +1,9 @@
+import { IndexDocument } from '@tenlastic/mongoose-models';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
-import * as rabbitmq from '@tenlastic/rabbitmq';
+import { DeleteCollectionIndex } from '@tenlastic/rabbitmq-models';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 import { CollectionPermissions } from '@tenlastic/mongoose-models';
-import { DELETE_COLLECTION_INDEX_QUEUE } from '../../../workers';
 
 export async function handler(ctx: Context) {
   const override = {
@@ -33,7 +33,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Index');
   }
 
-  await rabbitmq.publish(DELETE_COLLECTION_INDEX_QUEUE, index);
+  await DeleteCollectionIndex.publish(index as IndexDocument);
 
   ctx.response.status = 200;
   ctx.response.body = {};

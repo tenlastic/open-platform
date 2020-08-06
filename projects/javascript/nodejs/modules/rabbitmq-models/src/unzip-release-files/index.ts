@@ -1,23 +1,32 @@
 import * as minio from '@tenlastic/minio';
-import * as rabbitmq from '@tenlastic/rabbitmq';
-import { Channel, ConsumeMessage } from 'amqplib';
-import * as crypto from 'crypto';
-import * as unzipper from 'unzipper';
-
-import { MINIO_BUCKET, RABBITMQ_PREFIX } from '../../constants';
 import {
   File,
   FileDocument,
   FilePlatform,
   Release,
   ReleaseTask,
+  ReleaseTaskAction,
   ReleaseTaskDocument,
   ReleaseTaskFailure,
 } from '@tenlastic/mongoose-models';
+import * as rabbitmq from '@tenlastic/rabbitmq';
+import { Channel, ConsumeMessage } from 'amqplib';
+import * as mongoose from 'mongoose';
+import * as crypto from 'crypto';
+import * as unzipper from 'unzipper';
 
-export const UNZIP_RELEASE_FILES_QUEUE = `${RABBITMQ_PREFIX}.unzip-release-files`;
+import { Stream } from 'stream';
 
-export async function unzipReleaseFilesWorker(
+const QUEUE = `${process.env.RABBITMQ_PREFIX}.unzip-release-files`;
+
+function getMinioZipPath(
+  releaseId: mongoose.Types.ObjectId,
+  releaseTaskId: mongoose.Types.ObjectId,
+) {
+  return `releases/${releaseId}/archives/${releaseTaskId}.zip`;
+}
+
+async function onMessage(
   channel: Channel,
   content: Partial<ReleaseTaskDocument>,
   msg: ConsumeMessage,
@@ -30,7 +39,8 @@ export async function unzipReleaseFilesWorker(
     task = await task.save();
 
     // Read the zip from Minio and unzip the files back to Minio.
-    const stream = await minio.getObject(MINIO_BUCKET, task.minioZipObjectName);
+    const minioZipPath = getMinioZipPath(task.releaseId as mongoose.Types.ObjectId, task._id);
+    const stream = await minio.getObject(process.env.MINIO_BUCKET, minioZipPath);
 
     task = await task.populate({ path: 'releaseDocument' }).execPopulate();
     const release = new Release(task.releaseDocument);
@@ -54,7 +64,7 @@ export async function unzipReleaseFilesWorker(
     }
 
     // Remove Zip.
-    await minio.removeObject(MINIO_BUCKET, task.minioZipObjectName);
+    await minio.removeObject(process.env.MINIO_BUCKET, task.minioZipObjectName);
 
     // Set Job status to Complete.
     task.completedAt = new Date();
@@ -84,13 +94,34 @@ export async function unzipReleaseFilesWorker(
   }
 }
 
+async function publish(
+  platform: FilePlatform,
+  releaseId: mongoose.Types.ObjectId | string,
+  stream: Stream,
+): Promise<ReleaseTaskDocument> {
+  const releaseTask = await ReleaseTask.create({
+    action: ReleaseTaskAction.Unzip,
+    platform,
+    releaseId,
+  });
+
+  await minio.putObject(process.env.MINIO_BUCKET, releaseTask.minioZipObjectName, stream);
+  await rabbitmq.publish(QUEUE, releaseTask);
+
+  return releaseTask;
+}
+
+function purge() {
+  return rabbitmq.purge(QUEUE);
+}
+
 async function saveFile(content: Buffer, entry: any, record: FileDocument) {
   const md5 = crypto
     .createHash('md5')
     .update(content)
     .digest('hex');
 
-  await minio.putObject(MINIO_BUCKET, record.key, content);
+  await minio.putObject(process.env.MINIO_BUCKET, record.key, content);
 
   return File.findOneAndUpdate(
     { path: record.path, platform: record.platform, releaseId: record.releaseId },
@@ -105,3 +136,14 @@ async function saveFile(content: Buffer, entry: any, record: FileDocument) {
     { new: true, upsert: true },
   );
 }
+
+function subscribe() {
+  return rabbitmq.consume(QUEUE, onMessage);
+}
+
+export const UnzipReleaseFiles = {
+  onMessage,
+  publish,
+  purge,
+  subscribe,
+};

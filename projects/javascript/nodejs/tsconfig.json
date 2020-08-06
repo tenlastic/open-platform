@@ -18,6 +18,7 @@
       "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],
       "@tenlastic/mongoose-unique-error": ["./modules/mongoose-unique-error/src"],
       "@tenlastic/rabbitmq": ["./modules/rabbitmq/src"],
+      "@tenlastic/rabbitmq-models": ["./modules/rabbitmq-models/src"],
       "@tenlastic/validations": ["./modules/validations/src"],
       "@tenlastic/web-server": ["./modules/web-server/src"]
     },

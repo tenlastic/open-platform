@@ -1,23 +1,23 @@
 import * as docker from '@tenlastic/docker-engine';
 import * as minio from '@tenlastic/minio';
-import * as rabbitmq from '@tenlastic/rabbitmq';
-import { Channel, ConsumeMessage } from 'amqplib';
-import * as path from 'path';
-import * as tmp from 'tmp';
-
-import { MINIO_BUCKET, RABBITMQ_PREFIX } from '../../constants';
 import {
   File,
+  FilePlatform,
   Release,
   ReleaseTask,
   ReleaseTaskDocument,
   ReleaseTaskFailure,
   ReleaseTaskAction,
 } from '@tenlastic/mongoose-models';
+import * as rabbitmq from '@tenlastic/rabbitmq';
+import { Channel, ConsumeMessage } from 'amqplib';
+import * as mongoose from 'mongoose';
+import * as path from 'path';
+import * as tmp from 'tmp';
 
-export const BUILD_RELEASE_SERVER_QUEUE = `${RABBITMQ_PREFIX}.build-release-server`;
+const QUEUE = `${process.env.RABBITMQ_PREFIX}.build-release-docker-image`;
 
-export async function buildReleaseServerWorker(
+async function onMessage(
   channel: Channel,
   content: Partial<ReleaseTaskDocument>,
   msg: ConsumeMessage,
@@ -49,7 +49,7 @@ export async function buildReleaseServerWorker(
 
       for (const file of files) {
         const absolutePath = path.join(dir.name, file.path);
-        await minio.fGetObject(MINIO_BUCKET, file.key, absolutePath);
+        await minio.fGetObject(process.env.MINIO_BUCKET, file.key, absolutePath);
 
         tmps.push(file.path);
       }
@@ -95,3 +95,33 @@ export async function buildReleaseServerWorker(
     }
   }
 }
+
+async function publish(
+  platform: FilePlatform,
+  releaseId: mongoose.Types.ObjectId,
+): Promise<ReleaseTaskDocument> {
+  const releaseTask = await ReleaseTask.create({
+    action: ReleaseTaskAction.Build,
+    platform,
+    releaseId,
+  });
+
+  await rabbitmq.publish(QUEUE, releaseTask);
+
+  return releaseTask;
+}
+
+function purge() {
+  return rabbitmq.purge(QUEUE);
+}
+
+function subscribe() {
+  return rabbitmq.consume(QUEUE, onMessage);
+}
+
+export const BuildReleaseDockerImage = {
+  onMessage,
+  publish,
+  purge,
+  subscribe,
+};

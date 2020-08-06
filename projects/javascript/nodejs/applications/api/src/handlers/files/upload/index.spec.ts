@@ -1,12 +1,3 @@
-import * as rabbitmq from '@tenlastic/rabbitmq';
-import { ContextMock } from '@tenlastic/web-server';
-import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as FormData from 'form-data';
-import * as fs from 'fs';
-import * as JSZip from 'jszip';
-import * as sinon from 'sinon';
-
 import {
   FileMock,
   FilePlatform,
@@ -19,22 +10,42 @@ import {
   UserRolesMock,
   ReleaseTask,
 } from '@tenlastic/mongoose-models';
+import * as rabbitmq from '@tenlastic/rabbitmq';
 import {
-  COPY_RELEASE_FILES_QUEUE,
-  REMOVE_RELEASE_FILES_QUEUE,
-  UNZIP_RELEASE_FILES_QUEUE,
-  BUILD_RELEASE_SERVER_QUEUE,
-} from '../../../workers';
+  BuildReleaseDockerImage,
+  CopyReleaseFiles,
+  DeleteReleaseFiles,
+  UnzipReleaseFiles,
+} from '@tenlastic/rabbitmq-models';
+import { ContextMock } from '@tenlastic/web-server';
+import { expect, use } from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+import * as FormData from 'form-data';
+import * as fs from 'fs';
+import * as JSZip from 'jszip';
+import * as sinon from 'sinon';
+
 import { handler } from './';
 
 use(chaiAsPromised);
 
 describe('handlers/files/upload', function() {
+  let buildReleaseDockerImageSpy: sinon.SinonSpy;
+  let copyReleaseFilesSpy: sinon.SinonSpy;
+  let deleteReleaseFilesSpy: sinon.SinonSpy;
   let sandbox: sinon.SinonSandbox;
+  let unzipReleaseFilesSpy: sinon.SinonSpy;
   let user: UserDocument;
 
   beforeEach(async function() {
     sandbox = sinon.createSandbox();
+    sandbox.stub(rabbitmq, 'publish').resolves();
+
+    buildReleaseDockerImageSpy = sandbox.spy(BuildReleaseDockerImage, 'publish');
+    copyReleaseFilesSpy = sandbox.spy(CopyReleaseFiles, 'publish');
+    deleteReleaseFilesSpy = sandbox.spy(DeleteReleaseFiles, 'publish');
+    unzipReleaseFilesSpy = sandbox.spy(UnzipReleaseFiles, 'publish');
+
     user = await UserMock.create();
   });
 
@@ -87,7 +98,6 @@ describe('handlers/files/upload', function() {
     });
 
     it('builds server image', async function() {
-      const publishStub = sandbox.stub(rabbitmq, 'publish').resolves();
       ctx.params.platform = 'server64';
 
       await handler(ctx as any);
@@ -97,15 +107,10 @@ describe('handlers/files/upload', function() {
       const releaseTask = await ReleaseTask.findOne({ action: 'build' });
       expect(releaseTask).to.exist;
 
-      expect(publishStub.called).to.eql(true);
-
-      const call = publishStub.getCalls().find(c => c.args[0] === BUILD_RELEASE_SERVER_QUEUE);
-      expect(call).to.exist;
+      expect(buildReleaseDockerImageSpy.called).to.eql(true);
     });
 
     it('copies unmodified files from the previous release', async function() {
-      const publishStub = sandbox.stub(rabbitmq, 'publish').resolves();
-
       await handler(ctx as any);
 
       expect(ctx.response.body.tasks.filter(j => j.action === 'copy').length).to.eql(1);
@@ -117,15 +122,10 @@ describe('handlers/files/upload', function() {
       );
       expect(releaseTask.metadata.unmodified).to.eql(['index.ts']);
 
-      expect(publishStub.called).to.eql(true);
-
-      const call = publishStub.getCalls().find(c => c.args[0] === COPY_RELEASE_FILES_QUEUE);
-      expect(call).to.exist;
+      expect(copyReleaseFilesSpy.called).to.eql(true);
     });
 
     it('deletes removed files from Minio', async function() {
-      const publishStub = sandbox.stub(rabbitmq, 'publish').resolves();
-
       await handler(ctx as any);
 
       expect(ctx.response.body.tasks.filter(j => j.action === 'remove').length).to.eql(1);
@@ -134,15 +134,10 @@ describe('handlers/files/upload', function() {
       expect(releaseTask).to.exist;
       expect(releaseTask.metadata.removed).to.eql(['swagger.yml']);
 
-      expect(publishStub.called).to.eql(true);
-
-      const call = publishStub.getCalls().find(c => c.args[0] === REMOVE_RELEASE_FILES_QUEUE);
-      expect(call).to.exist;
+      expect(deleteReleaseFilesSpy.called).to.eql(true);
     });
 
     it('uploads unzipped files to Minio', async function() {
-      const publishStub = sandbox.stub(rabbitmq, 'publish').resolves();
-
       await handler(ctx as any);
 
       expect(ctx.response.body.tasks.filter(j => j.action === 'unzip').length).to.eql(1);
@@ -150,10 +145,7 @@ describe('handlers/files/upload', function() {
       const releaseTask = await ReleaseTask.findOne({ action: 'unzip' });
       expect(releaseTask).to.exist;
 
-      expect(publishStub.called).to.eql(true);
-
-      const call = publishStub.getCalls().find(c => c.args[0] === UNZIP_RELEASE_FILES_QUEUE);
-      expect(call).to.exist;
+      expect(unzipReleaseFilesSpy.called).to.eql(true);
     });
   });
 

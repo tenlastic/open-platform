@@ -1,9 +1,6 @@
-import * as mailgun from '@tenlastic/mailgun';
+import * as docker from '@tenlastic/docker-engine';
 import * as minio from '@tenlastic/minio';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
-import * as mongoose from 'mongoose';
-import * as sinon from 'sinon';
-
+import * as mongoose from '@tenlastic/mongoose-models';
 import {
   Article,
   Collection,
@@ -28,11 +25,29 @@ import {
   Release,
   ReleaseTask,
   User,
-} from './models';
+} from '@tenlastic/mongoose-models';
+import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import * as sinon from 'sinon';
+
+import {
+  BuildReleaseDockerImage,
+  CopyReleaseFiles,
+  CreateCollectionIndex,
+  DeleteCollectionIndex,
+  DeleteReleaseFiles,
+  UnzipReleaseFiles,
+  connect,
+} from './';
 
 let sandbox: sinon.SinonSandbox;
 
 before(async function() {
+  docker.init({
+    certPath: process.env.DOCKER_CERT_PATH,
+    registryUrl: process.env.DOCKER_REGISTRY_URL,
+    url: process.env.DOCKER_ENGINE_URL,
+  });
+
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
 
   const minioConnectionUrl = new URL(process.env.MINIO_CONNECTION_STRING);
@@ -50,18 +65,21 @@ before(async function() {
     await minio.makeBucket(bucket);
   }
 
-  await mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
-    dbName: `mongoose-models-test`,
-    useCreateIndex: true,
-    useFindAndModify: false,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+  await mongoose.connect({
+    connectionString: process.env.MONGO_CONNECTION_STRING,
+    databaseName: `rabbitmq-models-test`,
   });
+
+  await connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 });
 
 beforeEach(async function() {
   sandbox = sinon.createSandbox();
-  sandbox.stub(mailgun, 'send').resolves();
+
+  // Do not create Game Server resources within Kubernetes.
+  sandbox.stub(GameServer.prototype, 'createKubernetesResources').resolves();
+  sandbox.stub(GameServer.prototype, 'deleteKubernetesResources').resolves();
+  sandbox.stub(GameServer.prototype, 'updateKubernetesResources').resolves();
 
   await Article.deleteMany({});
   await Collection.deleteMany({});
@@ -86,6 +104,13 @@ beforeEach(async function() {
   await Release.deleteMany({});
   await ReleaseTask.deleteMany({});
   await User.deleteMany({});
+
+  await BuildReleaseDockerImage.purge();
+  await CopyReleaseFiles.purge();
+  await CreateCollectionIndex.purge();
+  await DeleteCollectionIndex.purge();
+  await DeleteReleaseFiles.purge();
+  await UnzipReleaseFiles.purge();
 });
 
 afterEach(function() {

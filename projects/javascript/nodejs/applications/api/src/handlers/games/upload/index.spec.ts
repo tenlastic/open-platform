@@ -5,7 +5,6 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as FormData from 'form-data';
 import * as fs from 'fs';
 
-import { MINIO_BUCKET } from '../../../constants';
 import {
   GameDocument,
   GameMock,
@@ -65,7 +64,10 @@ describe('handlers/games/upload', function() {
     it('uploads file to Minio', async function() {
       await handler(ctx as any);
 
-      const result = await minio.statObject(MINIO_BUCKET, game.getMinioPath('background'));
+      const result = await minio.statObject(
+        process.env.MINIO_BUCKET,
+        game.getMinioPath('background'),
+      );
 
       expect(result).to.exist;
     });

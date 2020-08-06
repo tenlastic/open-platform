@@ -11,11 +11,11 @@ import {
   Index,
   IndexDocument,
 } from '@tenlastic/mongoose-models';
-import { deleteCollectionIndexWorker } from './';
+import { DeleteCollectionIndex } from './';
 
 const chance = new Chance();
 
-describe('workers/delete-collection-index', function() {
+describe('delete-collection-index', function() {
   let sandbox: sinon.SinonSandbox;
 
   beforeEach(function() {
@@ -44,7 +44,7 @@ describe('workers/delete-collection-index', function() {
         collectionId: collection._id,
         databaseId: collection.databaseId,
       };
-      await deleteCollectionIndexWorker(channel as any, content, null);
+      await DeleteCollectionIndex.onMessage(channel as any, content, null);
     });
 
     it('pulls the index from the Collection', async function() {
@@ -68,7 +68,7 @@ describe('workers/delete-collection-index', function() {
         collectionId: chance.hash() as any,
         databaseId: collection.databaseId,
       };
-      await deleteCollectionIndexWorker({} as any, content as any, null);
+      await DeleteCollectionIndex.onMessage({} as any, content as any, null);
 
       expect(requeueStub.calledOnce).to.eql(true);
     });

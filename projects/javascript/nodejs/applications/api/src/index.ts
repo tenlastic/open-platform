@@ -10,7 +10,7 @@ import * as rabbitmq from '@tenlastic/rabbitmq';
 import { WebServer, WebSocketServer } from '@tenlastic/web-server';
 import * as path from 'path';
 
-import { MINIO_BUCKET, MONGO_DATABASE_NAME } from './constants';
+import { MONGO_DATABASE_NAME } from './constants';
 import { router as articlesRouter } from './handlers/articles';
 import { router as collectionsRouter } from './handlers/collections';
 import { router as connectionsRouter } from './handlers/connections';
@@ -51,20 +51,6 @@ import * as queueMemberSockets from './sockets/queue-members';
 import * as releaseTaskSockets from './sockets/release-tasks';
 import * as releaseSockets from './sockets/releases';
 import * as userSockets from './sockets/users';
-import {
-  BUILD_RELEASE_SERVER_QUEUE,
-  COPY_RELEASE_FILES_QUEUE,
-  CREATE_COLLECTION_INDEX_QUEUE,
-  DELETE_COLLECTION_INDEX_QUEUE,
-  REMOVE_RELEASE_FILES_QUEUE,
-  UNZIP_RELEASE_FILES_QUEUE,
-  buildReleaseServerWorker,
-  copyReleaseFilesWorker,
-  createCollectionIndexWorker,
-  deleteCollectionIndexWorker,
-  removeReleaseFilesWorker,
-  unzipReleaseFilesWorker,
-} from './workers';
 
 // Docker Engine.
 docker.init({
@@ -92,9 +78,10 @@ mailgun.setCredentials(process.env.MAILGUN_DOMAIN, process.env.MAILGUN_SECRET);
     useSSL: minioConnectionUrl.protocol === 'https:',
   });
 
-  const bucketExists = await minio.bucketExists(MINIO_BUCKET);
+  const bucket = process.env.MINIO_BUCKET;
+  const bucketExists = await minio.bucketExists(bucket);
   if (!bucketExists) {
-    await minio.makeBucket(MINIO_BUCKET);
+    await minio.makeBucket(bucket);
   }
 })();
 
@@ -105,15 +92,7 @@ mongoose.connect({
 });
 
 // RabbitMQ.
-(async () => {
-  await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
-  rabbitmq.consume(BUILD_RELEASE_SERVER_QUEUE, buildReleaseServerWorker);
-  rabbitmq.consume(COPY_RELEASE_FILES_QUEUE, copyReleaseFilesWorker);
-  rabbitmq.consume(CREATE_COLLECTION_INDEX_QUEUE, createCollectionIndexWorker);
-  rabbitmq.consume(DELETE_COLLECTION_INDEX_QUEUE, deleteCollectionIndexWorker);
-  rabbitmq.consume(REMOVE_RELEASE_FILES_QUEUE, removeReleaseFilesWorker);
-  rabbitmq.consume(UNZIP_RELEASE_FILES_QUEUE, unzipReleaseFilesWorker);
-})();
+rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 
 // Web Server.
 const webServer = new WebServer();

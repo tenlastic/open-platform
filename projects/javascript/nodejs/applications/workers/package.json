@@ -1,0 +1,42 @@
+{
+  "engines": {
+    "node": "^10"
+  },
+  "license": "Apache-2.0",
+  "name": "@tenlastic/workers",
+  "private": true,
+  "version": "0.0.98",
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "docker:build": "../../scripts/docker-build.sh workers",
+    "docker:push": "../../scripts/docker-push.sh workers",
+    "lint": "../../scripts/lint.sh",
+    "migrations": "../../scripts/migrations.sh",
+    "start": "../../scripts/start.sh",
+    "test": "../../scripts/test.sh",
+    "test:watch": "../../scripts/test.sh --watch",
+    "version": "../../scripts/version.sh workers"
+  },
+  "dependencies": {
+    "@tenlastic/docker-engine": "0.0.98",
+    "@tenlastic/logging": "0.0.98",
+    "@tenlastic/minio": "0.0.98",
+    "@tenlastic/mongoose-change-stream-kafka": "0.0.98",
+    "@tenlastic/mongoose-models": "0.0.98",
+    "@tenlastic/rabbitmq": "0.0.98",
+    "@tenlastic/rabbitmq-models": "0.0.98",
+    "source-map-support": "0.5.12"
+  },
+  "devDependencies": {
+    "cpx": "1.5.0",
+    "merge-yaml-cli": "1.1.2",
+    "migrate-mongo": "6.0.0",
+    "mocha": "7.1.2",
+    "nyc": "15.0.0",
+    "ts-node": "8.9.1",
+    "ts-node-dev": "1.0.0-pre.44",
+    "tslint": "5.18.0",
+    "typescript": "3.5.3",
+    "yml-sorter": "1.1.1"
+  }
+}

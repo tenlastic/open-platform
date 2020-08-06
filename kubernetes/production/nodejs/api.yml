@@ -72,7 +72,7 @@ metadata:
   labels:
     app: api
 spec:
-  replicas: 5
+  replicas: 10
   template:
     metadata:
       labels:
@@ -99,21 +99,10 @@ spec:
             periodSeconds: 30
           ports:
             - containerPort: 3000
-        - name: dind
-          image: docker:19.03.8-dind
-          command:
-            - "dockerd"
-            - "--host"
-            - "tcp://0.0.0.0:2375"
-          securityContext:
-            privileged: true
-          volumeMounts:
-            - name: dind
-              mountPath: /var/lib/docker
+          resources:
+            requests:
+              cpu: 50m
       serviceAccountName: api
-      volumes:
-        - name: dind
-          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

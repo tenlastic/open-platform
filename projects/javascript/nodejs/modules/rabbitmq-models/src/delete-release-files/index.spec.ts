@@ -1,11 +1,4 @@
 import * as minio from '@tenlastic/minio';
-import * as rabbitmq from '@tenlastic/rabbitmq';
-import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as fs from 'fs';
-import * as sinon from 'sinon';
-
-import { MINIO_BUCKET } from '../../constants';
 import {
   File,
   FileMock,
@@ -21,11 +14,17 @@ import {
   ReleaseTaskDocument,
   FilePlatform,
 } from '@tenlastic/mongoose-models';
-import { removeReleaseFilesWorker } from './';
+import * as rabbitmq from '@tenlastic/rabbitmq';
+import { expect, use } from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+import * as fs from 'fs';
+import * as sinon from 'sinon';
+
+import { DeleteReleaseFiles } from './';
 
 use(chaiAsPromised);
 
-describe('workers/remove', function() {
+describe('remove-release-files', function() {
   let sandbox: sinon.SinonSandbox;
   let user: UserDocument;
 
@@ -62,7 +61,11 @@ describe('workers/remove', function() {
         platform,
         releaseId: release._id,
       });
-      await minio.putObject(MINIO_BUCKET, keptFile.key, fs.createReadStream(__filename));
+      await minio.putObject(
+        process.env.MINIO_BUCKET,
+        keptFile.key,
+        fs.createReadStream(__filename),
+      );
 
       // Set up File to remove.
       const removedFile = await FileMock.create({
@@ -70,14 +73,18 @@ describe('workers/remove', function() {
         platform,
         releaseId: release._id,
       });
-      await minio.putObject(MINIO_BUCKET, removedFile.key, fs.createReadStream(__filename));
+      await minio.putObject(
+        process.env.MINIO_BUCKET,
+        removedFile.key,
+        fs.createReadStream(__filename),
+      );
     });
 
     it('acks the message', async function() {
       const channel = { ack: sinon.stub().resolves() };
       const content = releaseTask.toObject();
 
-      await removeReleaseFilesWorker(channel as any, content, null);
+      await DeleteReleaseFiles.onMessage(channel as any, content, null);
 
       expect(channel.ack.calledOnce).to.eql(true);
     });
@@ -86,7 +93,7 @@ describe('workers/remove', function() {
       const channel = { ack: sinon.stub().resolves() };
       const content = releaseTask.toObject();
 
-      await removeReleaseFilesWorker(channel as any, content, null);
+      await DeleteReleaseFiles.onMessage(channel as any, content, null);
 
       const updatedJob = await ReleaseTask.findOne({ _id: releaseTask._id });
       expect(updatedJob.completedAt).to.exist;
@@ -97,7 +104,7 @@ describe('workers/remove', function() {
       const channel = { ack: sinon.stub().resolves() };
       const content = releaseTask.toObject();
 
-      await removeReleaseFilesWorker(channel as any, content, null);
+      await DeleteReleaseFiles.onMessage(channel as any, content, null);
 
       const files = await File.find({ releaseId: release._id });
       expect(files.length).to.eql(1);
@@ -108,16 +115,16 @@ describe('workers/remove', function() {
       const channel = { ack: sinon.stub().resolves() };
       const content = releaseTask.toObject();
 
-      await removeReleaseFilesWorker(channel as any, content, null);
+      await DeleteReleaseFiles.onMessage(channel as any, content, null);
 
       const result = await minio.statObject(
-        MINIO_BUCKET,
+        process.env.MINIO_BUCKET,
         `releases/${release._id}/${platform}/index.ts`,
       );
       expect(result).to.exist;
 
       const promise = minio.statObject(
-        MINIO_BUCKET,
+        process.env.MINIO_BUCKET,
         `releases/${release._id}/${platform}/index.spec.ts`,
       );
       return expect(promise).to.be.rejectedWith('Not Found');
@@ -136,7 +143,7 @@ describe('workers/remove', function() {
         releaseId: release._id,
       });
       const content = releaseTask.toObject();
-      await removeReleaseFilesWorker({} as any, content, null);
+      await DeleteReleaseFiles.onMessage({} as any, content, null);
 
       expect(requeueStub.calledOnce).to.eql(true);
 

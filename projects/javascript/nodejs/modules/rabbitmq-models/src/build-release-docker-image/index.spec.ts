@@ -1,11 +1,5 @@
 import * as docker from '@tenlastic/docker-engine';
 import * as minio from '@tenlastic/minio';
-import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as fs from 'fs';
-import * as sinon from 'sinon';
-
-import { MINIO_BUCKET } from '../../constants';
 import {
   FileMock,
   FilePlatform,
@@ -21,11 +15,16 @@ import {
   ReleaseTask,
   ReleaseTaskDocument,
 } from '@tenlastic/mongoose-models';
-import { buildReleaseServerWorker } from './';
+import { expect, use } from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+import * as fs from 'fs';
+import * as sinon from 'sinon';
+
+import { BuildReleaseDockerImage } from './';
 
 use(chaiAsPromised);
 
-describe('workers/build', function() {
+describe('build-release-docker-image', function() {
   let sandbox: sinon.SinonSandbox;
   let user: UserDocument;
 
@@ -70,28 +69,36 @@ describe('workers/build', function() {
 
         CMD ["./Linux_Core.x86_64", "-batchmode", "-logFile", "-nographics"]
       `;
-      await minio.putObject(MINIO_BUCKET, dockerFile.key, dockerFileContent);
+      await minio.putObject(process.env.MINIO_BUCKET, dockerFile.key, dockerFileContent);
 
       const indexFile = await FileMock.create({
         path: 'index.ts',
         platform,
         releaseId: release._id,
       });
-      await minio.putObject(MINIO_BUCKET, indexFile.key, fs.createReadStream(__filename));
+      await minio.putObject(
+        process.env.MINIO_BUCKET,
+        indexFile.key,
+        fs.createReadStream(__filename),
+      );
 
       const specFile = await FileMock.create({
         path: 'index.spec.ts',
         platform,
         releaseId: release._id,
       });
-      await minio.putObject(MINIO_BUCKET, specFile.key, fs.createReadStream(__filename));
+      await minio.putObject(
+        process.env.MINIO_BUCKET,
+        specFile.key,
+        fs.createReadStream(__filename),
+      );
     });
 
     it('acks the message', async function() {
       const channel = { ack: sinon.stub().resolves() };
       const content = releaseTask.toObject();
 
-      await buildReleaseServerWorker(channel as any, content, null);
+      await BuildReleaseDockerImage.onMessage(channel as any, content, null);
 
       expect(channel.ack.calledOnce).to.eql(true);
     });
@@ -100,7 +107,7 @@ describe('workers/build', function() {
       const channel = { ack: sinon.stub().resolves() };
       const content = releaseTask.toObject();
 
-      await buildReleaseServerWorker(channel as any, content, null);
+      await BuildReleaseDockerImage.onMessage(channel as any, content, null);
 
       const updatedJob = await ReleaseTask.findOne({ _id: releaseTask._id });
       expect(updatedJob.completedAt).to.exist;
@@ -111,7 +118,7 @@ describe('workers/build', function() {
       const channel = { ack: sinon.stub().resolves() };
       const content = releaseTask.toObject();
 
-      await buildReleaseServerWorker(channel as any, content, null);
+      await BuildReleaseDockerImage.onMessage(channel as any, content, null);
 
       const response = await docker.inspect(
         release.gameId.toString(),
@@ -124,7 +131,7 @@ describe('workers/build', function() {
       const channel = { ack: sinon.stub().resolves() };
       const content = releaseTask.toObject();
 
-      await buildReleaseServerWorker(channel as any, content, null);
+      await BuildReleaseDockerImage.onMessage(channel as any, content, null);
 
       const url = new URL(process.env.DOCKER_REGISTRY_URL);
       const repo = `${url.host}/${release.gameId}`;
@@ -137,7 +144,7 @@ describe('workers/build', function() {
       const channel = { ack: sinon.stub().resolves() };
       const content = releaseTask.toObject();
 
-      await buildReleaseServerWorker(channel as any, content, null);
+      await BuildReleaseDockerImage.onMessage(channel as any, content, null);
 
       const response = await docker.tags(release.gameId.toString());
       expect(response.tags).to.include(releaseTask.releaseId.toString());
@@ -162,7 +169,7 @@ describe('workers/build', function() {
       });
       const content = releaseTask.toObject();
 
-      await buildReleaseServerWorker(channel as any, content, null);
+      await BuildReleaseDockerImage.onMessage(channel as any, content, null);
 
       expect(channel.nack.calledOnce).to.eql(true);
     });

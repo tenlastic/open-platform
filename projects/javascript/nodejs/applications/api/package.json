@@ -33,6 +33,7 @@
     "@tenlastic/mongoose-permissions": "0.0.99",
     "@tenlastic/mongoose-unique-error": "0.0.99",
     "@tenlastic/rabbitmq": "0.0.99",
+    "@tenlastic/rabbitmq-models": "0.0.99",
     "@tenlastic/validations": "0.0.99",
     "@tenlastic/web-server": "0.0.99",
     "amqplib": "0.5.5",

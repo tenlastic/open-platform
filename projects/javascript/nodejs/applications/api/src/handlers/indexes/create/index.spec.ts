@@ -1,5 +1,11 @@
+import {
+  CollectionMock,
+  DatabaseMock,
+  NamespaceMock,
+  UserRolesMock,
+} from '@tenlastic/mongoose-models';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
-import * as rabbitmq from '@tenlastic/rabbitmq';
+import { CreateCollectionIndex } from '@tenlastic/rabbitmq-models';
 import {
   Context,
   ContextMock,
@@ -11,14 +17,6 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
-import {
-  CollectionMock,
-  DatabaseMock,
-  NamespaceMock,
-  UserRolesMock,
-  CollectionDocument,
-} from '@tenlastic/mongoose-models';
-import { CREATE_COLLECTION_INDEX_QUEUE } from '../../../workers';
 import { handler } from './';
 
 use(chaiAsPromised);
@@ -99,7 +97,7 @@ describe('handlers/indexes/create', function() {
 
       context('when required fields are supplied', function() {
         it('adds the request to RabbitMQ', async function() {
-          const stub = sandbox.stub(rabbitmq, 'publish').resolves();
+          const stub = sandbox.stub(CreateCollectionIndex, 'publish').resolves();
 
           const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
           const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
@@ -124,8 +122,6 @@ describe('handlers/indexes/create', function() {
           expect(ctx.response.status).to.eql(200);
 
           expect(stub.calledOnce).to.eql(true);
-          expect(stub.getCalls()[0].args[0]).to.eql(CREATE_COLLECTION_INDEX_QUEUE);
-          expect(stub.getCalls()[0].args[1]).to.exist;
         });
       });
     });

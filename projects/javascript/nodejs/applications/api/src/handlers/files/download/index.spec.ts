@@ -5,7 +5,6 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs';
 import * as unzipper from 'unzipper';
 
-import { MINIO_BUCKET } from '../../../constants';
 import {
   FileMock,
   GameMock,
@@ -18,6 +17,7 @@ import {
 } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
+const bucket = process.env.MINIO_BUCKET;
 use(chaiAsPromised);
 
 describe('handlers/files/download', function() {
@@ -44,8 +44,8 @@ describe('handlers/files/download', function() {
         FileMock.create({ path: 'index.ts', platform, releaseId: release._id }),
         FileMock.create({ path: 'index.spec.ts', platform, releaseId: release._id }),
       ]);
-      await minio.putObject(MINIO_BUCKET, files[0].key, fs.createReadStream(__filename));
-      await minio.putObject(MINIO_BUCKET, files[1].key, fs.createReadStream(__filename));
+      await minio.putObject(bucket, files[0].key, fs.createReadStream(__filename));
+      await minio.putObject(bucket, files[1].key, fs.createReadStream(__filename));
 
       ctx = new ContextMock({
         params: {
