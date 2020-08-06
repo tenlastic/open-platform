@@ -20,8 +20,6 @@ export async function consume(
     const content = msg.content.toString('utf8');
     const parsed = JSON.parse(content);
 
-    console.log('RabbitMQ message received:', parsed);
-
     onMessage(channel, parsed, msg);
   });
 

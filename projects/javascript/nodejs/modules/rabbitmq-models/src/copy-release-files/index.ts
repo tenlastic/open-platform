@@ -55,24 +55,31 @@ async function onMessage(
   msg: ConsumeMessage,
 ) {
   try {
+    console.log('Received message:', content);
+
     let task = ReleaseTask.hydrate(content);
+    console.log('ReleaseTask:', task);
 
     // Set Job status to In Progress.
     task.startedAt = new Date();
     task = await task.save();
+    console.log(`ReleaseTask started. Copying ${task.metadata.unmodified.length} files.`);
 
     for (const path of task.metadata.unmodified) {
+      console.log(`Copying file: ${path}.`);
       await copyObject(
         path,
         task.platform,
         task.metadata.previousReleaseId,
         task.releaseId as mongoose.Types.ObjectId,
       );
+      console.log(`Done copying file: ${path}.`);
     }
 
     // Set Job status to Complete.
     task.completedAt = new Date();
     task = await task.save();
+    console.log('ReleaseTask completed.');
 
     channel.ack(msg);
   } catch (e) {
