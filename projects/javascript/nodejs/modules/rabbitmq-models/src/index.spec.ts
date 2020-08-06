@@ -27,6 +27,7 @@ import {
   User,
 } from '@tenlastic/mongoose-models';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import * as rabbitmq from '@tenlastic/rabbitmq';
 import * as sinon from 'sinon';
 
 import {
@@ -36,7 +37,6 @@ import {
   DeleteCollectionIndex,
   DeleteReleaseFiles,
   UnzipReleaseFiles,
-  connect,
 } from './';
 
 let sandbox: sinon.SinonSandbox;
@@ -70,7 +70,7 @@ before(async function() {
     databaseName: `rabbitmq-models-test`,
   });
 
-  await connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
+  await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 });
 
 beforeEach(async function() {
