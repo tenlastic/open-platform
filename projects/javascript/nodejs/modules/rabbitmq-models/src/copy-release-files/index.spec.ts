@@ -130,7 +130,7 @@ describe('copy-release-files', function() {
       expect(updatedJob.failedAt).to.exist;
       expect(updatedJob.failures.length).to.eql(1);
       expect(updatedJob.failures[0].createdAt).to.exist;
-      expect(updatedJob.failures[0].message).to.eql('task.metadata.unmodified is not iterable');
+      expect(updatedJob.failures[0].message).to.eql(`Cannot read property 'length' of undefined`);
     });
   });
 });
