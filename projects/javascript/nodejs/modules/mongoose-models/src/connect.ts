@@ -6,11 +6,25 @@ export interface ConnectionOptions {
 }
 
 export function connect(options: ConnectionOptions) {
-  return mongoose.connect(options.connectionString, {
-    dbName: options.databaseName,
-    useCreateIndex: true,
-    useFindAndModify: false,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  return mongoose.connect(
+    options.connectionString,
+    {
+      dbName: options.databaseName,
+      useCreateIndex: true,
+      useFindAndModify: false,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    },
+    err => {
+      if (process.env.NODE_ENV === 'test') {
+        return;
+      }
+
+      if (err) {
+        console.error(err);
+      } else {
+        console.log('Connected to MongoDB.');
+      }
+    },
+  );
 }
