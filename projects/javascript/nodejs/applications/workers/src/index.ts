@@ -14,6 +14,8 @@ import {
   DeleteReleaseFiles,
   UnzipReleaseFiles,
 } from '@tenlastic/rabbitmq-models';
+import { WebServer } from '@tenlastic/web-server';
+import * as Router from 'koa-router';
 
 // Docker Engine.
 docker.init({
@@ -62,3 +64,10 @@ mongoose.connect({
   DeleteReleaseFiles.subscribe();
   UnzipReleaseFiles.subscribe();
 })();
+
+// Web Server.
+const router = new Router();
+router.get('/', ctx => (ctx.status = 200));
+const webServer = new WebServer();
+webServer.use(router.routes());
+webServer.start();

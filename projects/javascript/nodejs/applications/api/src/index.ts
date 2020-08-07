@@ -7,14 +7,6 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as rabbitmq from '@tenlastic/rabbitmq';
-import {
-  BuildReleaseDockerImage,
-  CopyReleaseFiles,
-  CreateCollectionIndex,
-  DeleteCollectionIndex,
-  DeleteReleaseFiles,
-  UnzipReleaseFiles,
-} from '@tenlastic/rabbitmq-models';
 import { WebServer, WebSocketServer } from '@tenlastic/web-server';
 import * as path from 'path';
 
@@ -99,16 +91,7 @@ mongoose.connect({
 });
 
 // RabbitMQ.
-(async () => {
-  await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
-
-  BuildReleaseDockerImage.subscribe();
-  CopyReleaseFiles.subscribe();
-  CreateCollectionIndex.subscribe();
-  DeleteCollectionIndex.subscribe();
-  DeleteReleaseFiles.subscribe();
-  UnzipReleaseFiles.subscribe();
-})();
+rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 
 // Web Server.
 const webServer = new WebServer();

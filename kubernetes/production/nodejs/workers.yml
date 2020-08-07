@@ -24,6 +24,14 @@ spec:
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          ports:
+            - containerPort: 3000
         - name: dind
           image: docker:19.03.8-dind
           command:

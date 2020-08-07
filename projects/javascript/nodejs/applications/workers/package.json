@@ -16,6 +16,7 @@
     "version": "../../scripts/version.sh workers"
   },
   "dependencies": {
+    "@hasezoey/typegoose": "6.0.0-27",
     "@tenlastic/docker-engine": "0.0.106",
     "@tenlastic/logging": "0.0.106",
     "@tenlastic/minio": "0.0.106",
@@ -23,6 +24,9 @@
     "@tenlastic/mongoose-models": "0.0.106",
     "@tenlastic/rabbitmq": "0.0.106",
     "@tenlastic/rabbitmq-models": "0.0.106",
+    "@tenlastic/web-server": "0.0.106",
+    "koa-router": "7.4.0",
+    "mongoose": "5.7.11",
     "source-map-support": "0.5.12"
   },
   "devDependencies": {
