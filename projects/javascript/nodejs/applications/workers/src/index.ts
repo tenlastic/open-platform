@@ -13,7 +13,6 @@ import {
   DeleteCollectionIndex,
   DeleteReleaseFiles,
   UnzipReleaseFiles,
-  connect,
 } from '@tenlastic/rabbitmq-models';
 
 // Docker Engine.
@@ -54,10 +53,6 @@ mongoose.connect({
 
 // RabbitMQ.
 (async () => {
-  await connect({
-    connectionString: process.env.MONGO_CONNECTION_STRING,
-    databaseName: 'api',
-  });
   await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 
   BuildReleaseDockerImage.subscribe();

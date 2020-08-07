@@ -7,10 +7,17 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as rabbitmq from '@tenlastic/rabbitmq';
+import {
+  BuildReleaseDockerImage,
+  CopyReleaseFiles,
+  CreateCollectionIndex,
+  DeleteCollectionIndex,
+  DeleteReleaseFiles,
+  UnzipReleaseFiles,
+} from '@tenlastic/rabbitmq-models';
 import { WebServer, WebSocketServer } from '@tenlastic/web-server';
 import * as path from 'path';
 
-import { MONGO_DATABASE_NAME } from './constants';
 import { router as articlesRouter } from './handlers/articles';
 import { router as collectionsRouter } from './handlers/collections';
 import { router as connectionsRouter } from './handlers/connections';
@@ -88,11 +95,20 @@ mailgun.setCredentials(process.env.MAILGUN_DOMAIN, process.env.MAILGUN_SECRET);
 // MongoDB.
 mongoose.connect({
   connectionString: process.env.MONGO_CONNECTION_STRING,
-  databaseName: MONGO_DATABASE_NAME,
+  databaseName: 'api',
 });
 
 // RabbitMQ.
-rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
+(async () => {
+  await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
+
+  BuildReleaseDockerImage.subscribe();
+  CopyReleaseFiles.subscribe();
+  CreateCollectionIndex.subscribe();
+  DeleteCollectionIndex.subscribe();
+  DeleteReleaseFiles.subscribe();
+  UnzipReleaseFiles.subscribe();
+})();
 
 // Web Server.
 const webServer = new WebServer();

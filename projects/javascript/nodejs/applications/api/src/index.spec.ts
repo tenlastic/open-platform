@@ -39,8 +39,6 @@ import {
 } from '@tenlastic/rabbitmq-models';
 import * as sinon from 'sinon';
 
-import { MONGO_DATABASE_NAME } from './constants';
-
 let sandbox: sinon.SinonSandbox;
 
 before(async function() {
@@ -69,7 +67,7 @@ before(async function() {
 
   await mongoose.connect({
     connectionString: process.env.MONGO_CONNECTION_STRING,
-    databaseName: `${MONGO_DATABASE_NAME}-test`,
+    databaseName: `api-test`,
   });
 
   await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
