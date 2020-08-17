@@ -18,13 +18,13 @@ components:
           $ref: '#/components/schemas/GameServer'
         name:
           type: string
-        usersPerTeam:
-          type: integer
         teams:
           type: integer
         updatedAt:
           type: string
           format: date-time
+        usersPerTeam:
+          type: integer
       required:
         - name
         - usersPerTeam

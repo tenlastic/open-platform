@@ -15,8 +15,8 @@ export class QueueMock {
       gameId: mongoose.Types.ObjectId(),
       gameServerTemplate: {},
       name: chance.hash(),
-      usersPerTeam: chance.integer(),
       teams: chance.integer(),
+      usersPerTeam: chance.integer(),
     };
 
     return Queue.create({ ...defaults, ...params });
