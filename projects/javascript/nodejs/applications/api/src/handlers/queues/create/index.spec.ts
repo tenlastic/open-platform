@@ -32,6 +32,7 @@ describe('handlers/queues/create', function() {
         request: {
           body: {
             gameId: game._id,
+            gameServerTemplate: { name: chance.hash() },
             name: chance.hash(),
             teams: chance.integer(),
             usersPerTeam: chance.integer(),
@@ -49,13 +50,16 @@ describe('handlers/queues/create', function() {
   context('when permission is denied', function() {
     it('throws an error', async function() {
       const namespace = await NamespaceMock.create();
-      await GameMock.create({ namespaceId: namespace._id });
+      const game = await GameMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         request: {
           body: {
-            body: chance.hash(),
-            title: chance.hash(),
+            gameId: game._id,
+            gameServerTemplate: { name: chance.hash() },
+            name: chance.hash(),
+            teams: chance.integer(),
+            usersPerTeam: chance.integer(),
           },
         },
         state: { user: user.toObject() },
