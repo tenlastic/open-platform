@@ -4,10 +4,15 @@ import * as mongoose from 'mongoose';
 
 import { connection } from '../connect';
 
+export interface WatchQuery {
+  resumeToken: string;
+  watch: any;
+}
+
 export async function watch(
-  Model: any,
+  Model: mongoose.Model<mongoose.Document>,
   Permissions: MongoosePermissions<any>,
-  query: any,
+  query: WatchQuery,
   user: any,
   onChange: (payload: any) => void,
 ) {

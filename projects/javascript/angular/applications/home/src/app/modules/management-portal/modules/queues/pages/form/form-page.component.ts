@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Queue, QueueService } from '@tenlastic/ng-http';
+import { Queue, QueueService, Release, ReleaseService } from '@tenlastic/ng-http';
 
 import {
   IdentityService,
@@ -25,6 +25,7 @@ export class QueuesFormPageComponent implements OnInit {
   public data: Queue;
   public error: string;
   public form: FormGroup;
+  public releases: Release[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -32,6 +33,7 @@ export class QueuesFormPageComponent implements OnInit {
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private queueService: QueueService,
+    private releaseService: ReleaseService,
     private router: Router,
     private selectedGameService: SelectedGameService,
     public selectedNamespaceService: SelectedNamespaceService,
@@ -44,19 +46,25 @@ export class QueuesFormPageComponent implements OnInit {
         this.data = await this.queueService.findOne(_id);
       }
 
+      const gameId = this.selectedGameService.game && this.selectedGameService.game._id;
+      this.releases = await this.releaseService.find({
+        sort: '-publishedAt',
+        where: { gameId },
+      });
+
       this.setupForm();
     });
   }
 
   public addProperty() {
     const property = this.getDefaultPropertyFormGroup();
-    const formArray = this.form.get('metadata') as FormArray;
+    const formArray = this.form.get('gameServerTemplate').get('metadata') as FormArray;
 
     formArray.push(property);
   }
 
   public removeProperty(index: number) {
-    const formArray = this.form.get('metadata') as FormArray;
+    const formArray = this.form.get('gameServerTemplate').get('metadata') as FormArray;
     formArray.removeAt(index);
   }
 
@@ -64,23 +72,49 @@ export class QueuesFormPageComponent implements OnInit {
     if (this.form.invalid) {
       this.form.get('description').markAsTouched();
       this.form.get('name').markAsTouched();
-      this.form.get('playersPerTeam').markAsTouched();
+      this.form.get('usersPerTeam').markAsTouched();
       this.form.get('teams').markAsTouched();
+
+      this.form
+        .get('gameServerTemplate')
+        .get('description')
+        .markAsTouched();
+      this.form
+        .get('gameServerTemplate')
+        .get('isPreemptible')
+        .markAsTouched();
+      this.form
+        .get('gameServerTemplate')
+        .get('name')
+        .markAsTouched();
+      this.form
+        .get('gameServerTemplate')
+        .get('releaseId')
+        .markAsTouched();
 
       return;
     }
 
-    const metadata = this.form.get('metadata').value.reduce((accumulator, property) => {
-      accumulator[property.key] = this.getJsonFromProperty(property);
-      return accumulator;
-    }, {});
+    const metadata = this.form
+      .get('gameServerTemplate')
+      .get('metadata')
+      .value.reduce((accumulator, property) => {
+        accumulator[property.key] = this.getJsonFromProperty(property);
+        return accumulator;
+      }, {});
 
     const values: Partial<Queue> = {
       description: this.form.get('description').value,
       gameId: this.form.get('gameId').value,
-      metadata,
+      gameServerTemplate: {
+        description: this.form.get('gameServerTemplate').get('description').value,
+        isPreemptible: this.form.get('gameServerTemplate').get('isPreemptible').value,
+        metadata,
+        name: this.form.get('gameServerTemplate').get('name').value,
+        releaseId: this.form.get('gameServerTemplate').get('releaseId').value,
+      },
       name: this.form.get('name').value,
-      playersPerTeam: this.form.get('playersPerTeam').value,
+      usersPerTeam: this.form.get('usersPerTeam').value,
       teams: this.form.get('teams').value,
     };
 
@@ -126,8 +160,8 @@ export class QueuesFormPageComponent implements OnInit {
     this.data = this.data || new Queue();
 
     const properties = [];
-    if (this.data.metadata) {
-      Object.entries(this.data.metadata).forEach(([key, property]) => {
+    if (this.data.gameServerTemplate && this.data.gameServerTemplate.metadata) {
+      Object.entries(this.data.gameServerTemplate.metadata).forEach(([key, property]) => {
         let type = 'boolean';
         if (typeof property === 'string' || property instanceof String) {
           type = 'string';
@@ -144,12 +178,31 @@ export class QueuesFormPageComponent implements OnInit {
       });
     }
 
+    let gameServerTemplateForm: FormGroup;
+    if (this.data.gameServerTemplate) {
+      gameServerTemplateForm = this.formBuilder.group({
+        description: [this.data.gameServerTemplate.description],
+        isPreemptible: [this.data.gameServerTemplate.isPreemptible || false],
+        metadata: this.formBuilder.array(properties),
+        name: [this.data.gameServerTemplate.name, Validators.required],
+        releaseId: [this.data.gameServerTemplate.releaseId],
+      });
+    } else {
+      gameServerTemplateForm = this.formBuilder.group({
+        description: [''],
+        isPreemptible: [false],
+        metadata: this.formBuilder.array(properties),
+        name: ['', Validators.required],
+        releaseId: [this.releases.length > 0 ? this.releases[0]._id : null],
+      });
+    }
+
     this.form = this.formBuilder.group({
       description: [this.data.description],
       gameId: [this.selectedGameService.game._id],
-      metadata: this.formBuilder.array(properties),
+      gameServerTemplate: gameServerTemplateForm,
       name: [this.data.name, Validators.required],
-      playersPerTeam: [this.data.playersPerTeam || 1, Validators.required],
+      usersPerTeam: [this.data.usersPerTeam || 1, Validators.required],
       teams: [this.data.teams || 2, Validators.required],
     });
 

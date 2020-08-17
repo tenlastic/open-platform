@@ -13,6 +13,7 @@ export interface Environment {
   ignorationApiBaseUrl: string;
   logApiBaseUrl: string;
   loginApiBaseUrl: string;
+  matchApiBaseUrl: string;
   messageApiBaseUrl: string;
   namespaceApiBaseUrl: string;
   passwordResetApiBaseUrl: string;
@@ -38,6 +39,7 @@ export class EnvironmentService implements Environment {
   public ignorationApiBaseUrl: string;
   public logApiBaseUrl: string;
   public loginApiBaseUrl: string;
+  public matchApiBaseUrl: string;
   public messageApiBaseUrl: string;
   public namespaceApiBaseUrl: string;
   public passwordResetApiBaseUrl: string;

@@ -1,6 +1,7 @@
 import { Model } from './model';
 
 export class GameServer extends Model {
+  public allowedUserIds: string[];
   public currentUserIds: string[];
   public description: string;
   public gameId: string;
@@ -9,8 +10,9 @@ export class GameServer extends Model {
   public isPreemptible: boolean;
   public metadata: any;
   public name: string;
+  public port: number;
+  public queueId: string;
   public releaseId: string;
-  public url: string;
 
   constructor(params: Partial<GameServer> = {}) {
     super(params);

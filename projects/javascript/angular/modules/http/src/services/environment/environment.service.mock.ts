@@ -16,6 +16,7 @@ export class EnvironmentServiceMock implements Environment {
   public ignorationApiBaseUrl = 'http://api.localhost/ignorations';
   public logApiBaseUrl = 'http://api.localhost/logs';
   public loginApiBaseUrl = 'http://api.localhost/logins';
+  public matchApiBaseUrl = 'http://api.localhost/matches';
   public messageApiBaseUrl = 'http://api.localhost/messages';
   public namespaceApiBaseUrl = 'http://api.localhost/namespaces';
   public passwordResetApiBaseUrl = 'http://api.localhost/password-resets';

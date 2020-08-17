@@ -57,12 +57,12 @@ mongoose.connect({
 (async () => {
   await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 
-  BuildReleaseDockerImage.subscribe();
-  CopyReleaseFiles.subscribe();
-  CreateCollectionIndex.subscribe();
-  DeleteCollectionIndex.subscribe();
-  DeleteReleaseFiles.subscribe();
-  UnzipReleaseFiles.subscribe();
+  await BuildReleaseDockerImage.subscribe();
+  await CopyReleaseFiles.subscribe();
+  await CreateCollectionIndex.subscribe();
+  await DeleteCollectionIndex.subscribe();
+  await DeleteReleaseFiles.subscribe();
+  await UnzipReleaseFiles.subscribe();
 })();
 
 // Web Server.

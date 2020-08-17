@@ -27,6 +27,16 @@
         }
       }
 
+      &.queue {
+        div.status {
+          color: #ffff55;
+        }
+
+        span.badge {
+          background: transparent;
+        }
+      }
+
       div.label {
         display: inline-block;
 
@@ -42,9 +52,8 @@
         height: 20px;
         margin-left: 8px;
         margin-top: 8px;
-        padding-right: 2px;
+        padding: 0px 4px;
         text-align: center;
-        width: 20px;
       }
     }
   }
@@ -54,6 +63,54 @@ div.group-invitation {
   animation-name: color;
   animation-duration: 2s;
   animation-iteration-count: infinite;
+  background-color: transparent;
+  padding: 8px 14px;
+
+  &:hover {
+    div.hover-off {
+      display: none;
+    }
+
+    div.hover-on {
+      display: block;
+    }
+  }
+
+  div.hover-on {
+    display: none;
+    padding: 1.5px 0px;
+    text-align: center;
+
+    app-button {
+      margin: 0px 4px;
+    }
+  }
+
+  div.label {
+    display: inline-block;
+
+    div.name {
+      font-size: 14px;
+    }
+
+    div.status {
+      color: #ffff55;
+      font-size: 12px;
+    }
+  }
+
+  mat-icon.mat-icon {
+    color: #ff5;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 5px;
+    margin-right: 6px;
+    vertical-align: text-bottom;
+    width: 16px;
+  }
+}
+
+div.queue-member {
   background-color: transparent;
   padding: 8px 14px;
 

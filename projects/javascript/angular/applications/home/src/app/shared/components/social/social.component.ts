@@ -9,6 +9,9 @@ import {
   Friend,
   FriendQuery,
   FriendService,
+  Game,
+  GameQuery,
+  GameServerService,
   Group,
   GroupInvitation,
   GroupInvitationQuery,
@@ -22,16 +25,23 @@ import {
   Message,
   MessageQuery,
   MessageService,
+  QueueMember,
+  QueueMemberQuery,
+  QueueMemberService,
+  QueueQuery,
+  QueueService,
   User,
   UserQuery,
   UserService,
   UserStore,
+  GameServer,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
-import { ElectronService, IdentityService } from '../../../core/services';
+import { ElectronService, IdentityService, UpdateService } from '../../../core/services';
 import { InputDialogComponent } from '../input-dialog/input-dialog.component';
+import { PromptComponent } from '../prompt/prompt.component';
 
 export interface Conversation {
   messages: Message[];
@@ -61,12 +71,16 @@ export class SocialComponent implements OnDestroy, OnInit {
   }
   public $ignorations: Observable<Ignoration[]>;
   public $messages: Observable<Message[]>;
+  public $queueMembers: Observable<QueueMember[]>;
   public $users: Observable<User[]>;
   public fetchFriendUser$ = new Subscription();
   public fetchIgnorationUser$ = new Subscription();
+  public fetchMatchesQueues$ = new Subscription();
   public fetchMessageUser$ = new Subscription();
+  public fetchQueueMembersQueues$ = new Subscription();
   public fetchUserConnections$ = new Subscription();
   public fetchUserGroup$ = new Subscription();
+  public newMatchNotification$ = new Subscription();
   public newMessageNotification$ = new Subscription();
   public updateConversations$ = new Subscription();
   public conversations: Conversation[] = [];
@@ -82,6 +96,8 @@ export class SocialComponent implements OnDestroy, OnInit {
     private electronService: ElectronService,
     private friendQuery: FriendQuery,
     private friendService: FriendService,
+    private gameQuery: GameQuery,
+    private gameServerService: GameServerService,
     private groupInvitationQuery: GroupInvitationQuery,
     private groupInvitationService: GroupInvitationService,
     private groupService: GroupService,
@@ -93,7 +109,12 @@ export class SocialComponent implements OnDestroy, OnInit {
     private matDialog: MatDialog,
     private messageQuery: MessageQuery,
     private messageService: MessageService,
+    private queueMemberQuery: QueueMemberQuery,
+    private queueMemberService: QueueMemberService,
+    private queueQuery: QueueQuery,
+    private queueService: QueueService,
     private router: Router,
+    private updateService: UpdateService,
     public userQuery: UserQuery,
     private userService: UserService,
     private userStore: UserStore,
@@ -114,10 +135,14 @@ export class SocialComponent implements OnDestroy, OnInit {
     });
     this.$groupInvitation = this.groupInvitationQuery
       .populate($groupInvitations)
-      .pipe(map(groups => groups[0]));
+      .pipe(map(groupInvitations => groupInvitations[0]));
     this.$ignorations = this.ignorationQuery.selectAll();
     this.$ignorations = this.ignorationQuery.populateUsers(this.$ignorations);
     this.$messages = this.messageQuery.selectAll();
+    const $queueMembers = this.queueMemberQuery.selectAll({
+      filterBy: qm => qm.userId === this.identityService.user._id,
+    });
+    this.$queueMembers = this.queueMemberQuery.populate($queueMembers);
     this.$users = this.userQuery.selectAll();
 
     await Promise.all([
@@ -127,6 +152,7 @@ export class SocialComponent implements OnDestroy, OnInit {
       this.groupService.find({}),
       this.ignorationService.find({}),
       this.messageService.find({ sort: '-createdAt' }),
+      this.queueMemberService.find({}),
       this.userService.find({}),
     ]);
 
@@ -157,6 +183,15 @@ export class SocialComponent implements OnDestroy, OnInit {
 
       return missingUserIds.length > 0
         ? this.userService.find({ where: { _id: { $in: missingUserIds } } })
+        : null;
+    });
+    this.fetchQueueMembersQueues$ = this.$queueMembers.subscribe(queueMembers => {
+      const missingQueueIds = queueMembers
+        .map(qm => qm.queueId)
+        .filter(queueId => !this.queueQuery.hasEntity(queueId));
+
+      return missingQueueIds.length > 0
+        ? this.queueService.find({ where: { _id: { $in: missingQueueIds } } })
         : null;
     });
     this.fetchUserConnections$ = this.$users.subscribe(users => {
@@ -209,14 +244,21 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.newMessageNotification$ = this.messageService.onCreate.subscribe(message =>
       this.newMessageNotification(message),
     );
+
+    this.newMatchNotification$ = this.gameServerService.onCreate.subscribe(gameServer =>
+      this.newMatchNotification(gameServer),
+    );
   }
 
   public ngOnDestroy() {
     this.fetchFriendUser$.unsubscribe();
     this.fetchIgnorationUser$.unsubscribe();
+    this.fetchMatchesQueues$.unsubscribe();
     this.fetchMessageUser$.unsubscribe();
+    this.fetchQueueMembersQueues$.unsubscribe();
     this.fetchUserConnections$.unsubscribe();
     this.fetchUserGroup$.unsubscribe();
+    this.newMatchNotification$.unsubscribe();
     this.newMessageNotification$.unsubscribe();
     this.updateConversations$.unsubscribe();
   }
@@ -230,6 +272,10 @@ export class SocialComponent implements OnDestroy, OnInit {
   public async acceptGroupInvitation() {
     const groupInvitation = await this.$groupInvitation.pipe(first()).toPromise();
     await this.groupService.join(groupInvitation.groupId);
+  }
+
+  public async leaveQueue(queueMemberId: string) {
+    await this.queueMemberService.delete(queueMemberId);
   }
 
   public async newGroup() {
@@ -291,6 +337,37 @@ export class SocialComponent implements OnDestroy, OnInit {
     });
 
     return users.map(u => ({ label: u.username, value: u.username }));
+  }
+
+  private async newMatchNotification(gameServer: GameServer) {
+    if (!gameServer.queueId || !gameServer.allowedUserIds.includes(this.identityService.user._id)) {
+      return;
+    }
+
+    const game = new Game(this.gameQuery.getEntity(gameServer.gameId));
+    const queue = this.queueQuery.getEntity(gameServer.queueId);
+
+    const dialogRef = this.matDialog.open(PromptComponent, {
+      data: {
+        buttons: [
+          { color: 'accent', label: 'Ignore' },
+          { color: 'primary', label: 'Join' },
+        ],
+        message: `Game: ${game.fullTitle}\nQueue: ${queue.name} - ${queue.description}`,
+        title: 'Match Found',
+      },
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe(async result => {
+      if (result === 'Join') {
+        this.updateService.play(game, { gameServerId: gameServer._id });
+      }
+    });
+
+    if (this.electronService.isElectron) {
+      this.electronService.remote.getCurrentWindow().show();
+    }
   }
 
   private async newMessageNotification(message: Message) {

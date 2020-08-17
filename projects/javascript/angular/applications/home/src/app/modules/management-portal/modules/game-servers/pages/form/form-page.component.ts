@@ -41,10 +41,13 @@ export class GameServersFormPageComponent implements OnInit {
         this.data = await this.gameServerService.findOne(_id);
       }
 
-      this.getReleases(this.selectedGameService.game && this.selectedGameService.game._id);
+      const gameId = this.selectedGameService.game && this.selectedGameService.game._id;
+      this.releases = await this.releaseService.find({
+        sort: '-publishedAt',
+        where: { gameId },
+      });
 
       this.setupForm();
-      this.form.get('gameId').valueChanges.subscribe(gameId => this.getReleases(gameId));
     });
   }
 
@@ -127,21 +130,6 @@ export class GameServersFormPageComponent implements OnInit {
     }
   }
 
-  private async getReleases(gameId: string) {
-    if (gameId) {
-      this.releases = await this.releaseService.find({
-        sort: '-publishedAt',
-        where: { gameId },
-      });
-    } else {
-      this.releases = [];
-    }
-
-    if (this.form) {
-      this.form.get('releaseId').setValue(this.releases.length > 0 ? this.releases[0]._id : null);
-    }
-  }
-
   private setupForm(): void {
     this.data = this.data || new GameServer();
 
@@ -174,7 +162,7 @@ export class GameServersFormPageComponent implements OnInit {
       isPreemptible: [this.data.isPreemptible || false],
       metadata: this.formBuilder.array(properties),
       name: [this.data.name, Validators.required],
-      releaseId: [this.data.releaseId],
+      releaseId: [this.data.releaseId || this.releases.length > 0 ? this.releases[0]._id : null],
     });
 
     this.form.valueChanges.subscribe(() => (this.error = null));

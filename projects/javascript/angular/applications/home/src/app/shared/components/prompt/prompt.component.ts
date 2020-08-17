@@ -4,6 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 export interface PromptComponentData {
   buttons: Array<{ color?: string; label: string }>;
   message: string;
+  title: string;
 }
 
 @Component({

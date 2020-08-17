@@ -12,6 +12,7 @@ export const environment = {
   launcherUrl: 'https://minio.tenlastic.com/launcher/TenlasticLauncherSetup.exe',
   logApiBaseUrl: 'http://api.localhost/logs',
   loginApiBaseUrl: 'http://api.localhost/logins',
+  matchApiBaseUrl: 'http://api.localhost/matches',
   messageApiBaseUrl: 'http://api.localhost/messages',
   namespaceApiBaseUrl: 'http://api.localhost/namespaces',
   passwordResetApiBaseUrl: 'http://api.localhost/password-resets',

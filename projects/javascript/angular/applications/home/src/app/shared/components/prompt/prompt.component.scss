@@ -7,6 +7,13 @@
 
     p {
       text-align: center;
+      white-space: pre;
     }
   }
+}
+
+div.mat-dialog-title {
+  font-family: 'Oswald';
+  font-weight: bold;
+  margin-bottom: 4px;
 }

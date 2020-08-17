@@ -4,3 +4,5 @@ export * from './create-collection-index';
 export * from './delete-collection-index';
 export * from './delete-release-files';
 export * from './unzip-release-files';
+
+export * from './delete-all';

@@ -33,7 +33,7 @@ describe('handlers/queues/create', function() {
           body: {
             gameId: game._id,
             name: chance.hash(),
-            playersPerTeam: chance.integer(),
+            usersPerTeam: chance.integer(),
             teams: chance.integer(),
           },
         },

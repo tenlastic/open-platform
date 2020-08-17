@@ -1,13 +1,14 @@
 import { Model } from './model';
+import { GameServer } from './game-server';
 
 export class Queue extends Model {
   public _id: string;
   public createdAt: Date;
   public description: string;
   public gameId: string;
-  public metadata: any;
+  public gameServerTemplate: Partial<GameServer>;
   public name: string;
-  public playersPerTeam: number;
+  public usersPerTeam: number;
   public teams: number;
   public updatedAt: Date;
 

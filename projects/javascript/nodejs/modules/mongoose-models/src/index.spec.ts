@@ -4,31 +4,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
-import {
-  Article,
-  Collection,
-  Connection,
-  Database,
-  File,
-  Friend,
-  Game,
-  GameInvitation,
-  GameServer,
-  Group,
-  GroupInvitation,
-  Ignoration,
-  Log,
-  Match,
-  Message,
-  Namespace,
-  PasswordReset,
-  Queue,
-  QueueMember,
-  RefreshToken,
-  Release,
-  ReleaseTask,
-  User,
-} from './models';
+import { deleteAll } from './';
 
 let sandbox: sinon.SinonSandbox;
 
@@ -63,29 +39,7 @@ beforeEach(async function() {
   sandbox = sinon.createSandbox();
   sandbox.stub(mailgun, 'send').resolves();
 
-  await Article.deleteMany({});
-  await Collection.deleteMany({});
-  await Connection.deleteMany({});
-  await Database.deleteMany({});
-  await File.deleteMany({});
-  await Friend.deleteMany({});
-  await Game.deleteMany({});
-  await GameInvitation.deleteMany({});
-  await GameServer.deleteMany({});
-  await Group.deleteMany({});
-  await GroupInvitation.deleteMany({});
-  await Ignoration.deleteMany({});
-  await Log.deleteMany({});
-  await Match.deleteMany({});
-  await Message.deleteMany({});
-  await Namespace.deleteMany({});
-  await PasswordReset.deleteMany({});
-  await Queue.deleteMany({});
-  await QueueMember.deleteMany({});
-  await RefreshToken.deleteMany({});
-  await Release.deleteMany({});
-  await ReleaseTask.deleteMany({});
-  await User.deleteMany({});
+  await deleteAll();
 });
 
 afterEach(function() {

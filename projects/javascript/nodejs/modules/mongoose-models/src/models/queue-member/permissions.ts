@@ -5,14 +5,14 @@ import { QueueMember, QueueMemberDocument } from './model';
 export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocument>(QueueMember, {
   create: {
     roles: {
-      'invited-user': ['queueId', 'userId'],
       'namespace-administrator': ['queueId', 'userId'],
+      owner: ['queueId', 'userId'],
     },
   },
   delete: {
     roles: {
-      'invited-user': true,
       'namespace-administrator': true,
+      owner: true,
     },
   },
   find: {
@@ -21,14 +21,14 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
         {
           queueId: {
             $in: {
-              // Find all Queues within the returned Game.
+              // Find all Queues within the returned Games.
               $query: {
                 model: 'QueueSchema',
                 select: '_id',
                 where: {
                   gameId: {
                     $in: {
-                      // Find all Databases within the returned Namespaces.
+                      // Find all Games within the returned Namespaces.
                       $query: {
                         model: 'GameSchema',
                         select: '_id',
@@ -55,7 +55,29 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
           },
         },
         {
-          userId: { $eq: { $ref: 'user._id' } },
+          queueId: {
+            $in: {
+              // Find all Queues within the returned Games.
+              $query: {
+                model: 'QueueSchema',
+                select: '_id',
+                where: {
+                  gameId: {
+                    $in: {
+                      // Find all Games of which the User has been invited.
+                      $query: {
+                        model: 'GameInvitationSchema',
+                        select: 'gameId',
+                        where: {
+                          userId: { $eq: { $ref: 'user._id' } },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       ],
     },
@@ -63,10 +85,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
   populate: [
     {
       path: 'queueDocument',
-      populate: [
-        { path: 'gameDocument', populate: { path: 'namespaceDocument' } },
-        { path: 'gameInvitationDocument' },
-      ],
+      populate: [{ path: 'gameDocument', populate: { path: 'namespaceDocument' } }],
     },
   ],
   read: {
@@ -85,11 +104,8 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
       },
     },
     {
-      name: 'invited-user',
-      query: {
-        'record.queueDocument.gameInvitationDocument': { $exists: true },
-        'record.userId': { $eq: { $ref: 'user._id' } },
-      },
+      name: 'owner',
+      query: { 'record.userId': { $eq: { $ref: 'user._id' } } },
     },
   ],
 });

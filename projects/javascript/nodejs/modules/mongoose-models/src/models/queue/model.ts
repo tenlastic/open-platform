@@ -18,6 +18,7 @@ import * as mongoose from 'mongoose';
 
 import { Game, GameDocument } from '../game';
 import { GameInvitation, GameInvitationDocument } from '../game-invitation';
+import { GameServerDocument } from '../game-server';
 
 export const QueueEvent = new EventEmitter<IDatabasePayload<QueueDocument>>();
 QueueEvent.on(payload => {
@@ -31,8 +32,6 @@ QueueEvent.on(payload => {
     collection: 'queues',
     minimize: false,
     timestamps: true,
-    toJSON: { getters: true },
-    toObject: { getters: true },
   },
 })
 @plugin(changeStreamPlugin, {
@@ -49,19 +48,14 @@ export class QueueSchema {
   @prop({ ref: Game, required: true })
   public gameId: Ref<GameDocument>;
 
-  @prop({
-    _id: false,
-    default: JSON.stringify({ type: 'object' }),
-    get: value => (typeof value === 'string' ? JSON.parse(value) : value),
-    set: value => (typeof value === 'string' ? value : JSON.stringify(value)),
-  })
-  public metadata: any;
+  @prop({ _id: false, required: true })
+  public gameServerTemplate: GameServerDocument;
 
   @prop({ required: true })
   public name: string;
 
   @prop({ required: true })
-  public playersPerTeam: number;
+  public usersPerTeam: number;
 
   @prop({ required: true })
   public teams: number;

@@ -1,42 +1,11 @@
 import * as docker from '@tenlastic/docker-engine';
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
-import * as mongoose from '@tenlastic/mongoose-models';
-import {
-  Article,
-  Collection,
-  Connection,
-  Database,
-  File,
-  Friend,
-  Game,
-  GameInvitation,
-  GameServer,
-  Group,
-  GroupInvitation,
-  Ignoration,
-  Log,
-  Match,
-  Message,
-  Namespace,
-  PasswordReset,
-  Queue,
-  QueueMember,
-  RefreshToken,
-  Release,
-  ReleaseTask,
-  User,
-} from '@tenlastic/mongoose-models';
+import * as mongooseModels from '@tenlastic/mongoose-models';
+import { GameServer } from '@tenlastic/mongoose-models';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as rabbitmq from '@tenlastic/rabbitmq';
-import {
-  BuildReleaseDockerImage,
-  CopyReleaseFiles,
-  CreateCollectionIndex,
-  DeleteCollectionIndex,
-  DeleteReleaseFiles,
-  UnzipReleaseFiles,
-} from '@tenlastic/rabbitmq-models';
+import * as rabbitmqModels from '@tenlastic/rabbitmq-models';
 import * as sinon from 'sinon';
 
 let sandbox: sinon.SinonSandbox;
@@ -65,7 +34,7 @@ before(async function() {
     await minio.makeBucket(bucket);
   }
 
-  await mongoose.connect({
+  await mongooseModels.connect({
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: `api-test`,
   });
@@ -73,7 +42,7 @@ before(async function() {
   await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 });
 
-beforeEach(function() {
+beforeEach(async function() {
   sandbox = sinon.createSandbox();
 
   // Do not send Mailgun emails.
@@ -84,38 +53,8 @@ beforeEach(function() {
   sandbox.stub(GameServer.prototype, 'deleteKubernetesResources').resolves();
   sandbox.stub(GameServer.prototype, 'updateKubernetesResources').resolves();
 
-  return Promise.all<any>([
-    Article.deleteMany({}),
-    Collection.deleteMany({}),
-    Connection.deleteMany({}),
-    Database.deleteMany({}),
-    File.deleteMany({}),
-    Friend.deleteMany({}),
-    Game.deleteMany({}),
-    GameInvitation.deleteMany({}),
-    GameServer.deleteMany({}),
-    Group.deleteMany({}),
-    GroupInvitation.deleteMany({}),
-    Ignoration.deleteMany({}),
-    Log.deleteMany({}),
-    Match.deleteMany({}),
-    Message.deleteMany({}),
-    Namespace.deleteMany({}),
-    PasswordReset.deleteMany({}),
-    Queue.deleteMany({}),
-    QueueMember.deleteMany({}),
-    RefreshToken.deleteMany({}),
-    Release.deleteMany({}),
-    ReleaseTask.deleteMany({}),
-    User.deleteMany({}),
-
-    BuildReleaseDockerImage.purge(),
-    CopyReleaseFiles.purge(),
-    CreateCollectionIndex.purge(),
-    DeleteCollectionIndex.purge(),
-    DeleteReleaseFiles.purge(),
-    UnzipReleaseFiles.purge(),
-  ]);
+  await mongooseModels.deleteAll();
+  await rabbitmqModels.deleteAll();
 });
 
 afterEach(function() {

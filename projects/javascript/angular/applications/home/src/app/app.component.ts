@@ -15,6 +15,10 @@ import {
   LoginService,
   Message,
   MessageService,
+  Queue,
+  QueueMember,
+  QueueMemberService,
+  QueueService,
   Release,
   ReleaseService,
 } from '@tenlastic/ng-http';
@@ -40,9 +44,11 @@ export class AppComponent implements OnInit {
     private gameServerService: GameServerService,
     private groupService: GroupService,
     private groupInvitationService: GroupInvitationService,
+    private identityService: IdentityService,
     private loginService: LoginService,
     private messageService: MessageService,
-    private identityService: IdentityService,
+    private queueMemberService: QueueMemberService,
+    private queueService: QueueService,
     private releaseService: ReleaseService,
     private router: Router,
     private socketService: SocketService,
@@ -92,6 +98,8 @@ export class AppComponent implements OnInit {
     this.socketService.watch(Group, this.groupService, {});
     this.socketService.watch(GroupInvitation, this.groupInvitationService, {});
     this.socketService.watch(Message, this.messageService, {});
+    this.socketService.watch(QueueMember, this.queueMemberService, {});
+    this.socketService.watch(Queue, this.queueService, {});
     this.socketService.watch(Release, this.releaseService, {});
   }
 }

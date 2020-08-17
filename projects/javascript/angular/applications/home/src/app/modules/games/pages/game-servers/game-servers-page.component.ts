@@ -36,13 +36,18 @@ export class GameServersPageComponent implements OnInit {
 
   public async ngOnInit() {
     this.$gameServers = this.gameServerQuery.selectAll({
-      filterBy: gs => gs.gameId === this.gameQuery.getActiveId(),
+      filterBy: gs => gs.gameId === this.gameQuery.getActiveId() && !gs.queueId,
     });
     this.$group = this.groupQuery
       .selectAll({ filterBy: g => g.userIds.includes(this.identityService.user._id) })
       .pipe(map(groups => groups[0]));
 
-    await this.gameServerService.find({ where: { gameId: this.gameQuery.getActiveId() } });
+    await this.gameServerService.find({
+      where: {
+        gameId: this.gameQuery.getActiveId(),
+        'metadata.matchId': { $exists: false },
+      },
+    });
   }
 
   public getStatus(gameServer: GameServer) {

@@ -20,19 +20,22 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let element">
-        <ng-container *ngIf="$group | async; else solo">
-          <app-button mat-button color="accent" (OnClick)="joinAsIndividual(element._id)">
-            <span>Join as Individual</span>
-          </app-button>
-          <app-button mat-button color="primary" (OnClick)="joinAsGroup(element._id)">
-            <span>Join as Group</span>
-          </app-button>
-        </ng-container>
-        <ng-template #solo>
-          <app-button mat-button color="primary" (OnClick)="joinAsIndividual(element._id)">
-            <span>Join as Individual</span>
-          </app-button>
-        </ng-template>
+        <app-button
+          *ngIf="$getQueueMember(element._id) | async as queueMember"
+          mat-button
+          color="accent"
+          (OnClick)="leaveAsIndividual(queueMember._id)"
+        >
+          <span>Leave Queue</span>
+        </app-button>
+        <app-button
+          *ngIf="($getQueueMember(element._id) | async) === undefined"
+          mat-button
+          color="primary"
+          (OnClick)="joinAsIndividual(element._id)"
+        >
+          <span>Join as Individual</span>
+        </app-button>
       </td>
     </ng-container>
 

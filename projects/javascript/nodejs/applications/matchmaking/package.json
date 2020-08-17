@@ -3,26 +3,22 @@
     "node": "^10"
   },
   "license": "Apache-2.0",
-  "name": "@tenlastic/workers",
+  "name": "@tenlastic/matchmaking",
   "private": true,
   "version": "0.0.108",
   "scripts": {
     "build": "../../scripts/build.sh",
-    "docker:build": "../../scripts/docker-build.sh workers",
-    "docker:push": "../../scripts/docker-push.sh workers",
+    "docker:build": "../../scripts/docker-build.sh matchmaking",
+    "docker:push": "../../scripts/docker-push.sh matchmaking",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh",
-    "version": "../../scripts/version.sh workers"
+    "version": "../../scripts/version.sh matchmaking"
   },
   "dependencies": {
     "@hasezoey/typegoose": "6.0.0-27",
-    "@tenlastic/docker-engine": "0.0.108",
     "@tenlastic/logging": "0.0.108",
-    "@tenlastic/minio": "0.0.108",
     "@tenlastic/mongoose-change-stream-kafka": "0.0.108",
     "@tenlastic/mongoose-models": "0.0.108",
-    "@tenlastic/rabbitmq": "0.0.108",
-    "@tenlastic/rabbitmq-models": "0.0.108",
     "@tenlastic/web-server": "0.0.108",
     "koa-router": "7.4.0",
     "mongoose": "5.7.11",

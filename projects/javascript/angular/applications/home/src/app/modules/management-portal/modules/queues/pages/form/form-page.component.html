@@ -21,7 +21,7 @@
     <div class="row">
       <mat-form-field floatLabel="always" width="300">
         <mat-label>Teams</mat-label>
-        <input matInput formControlName="teams" min="1" step="1" type="number" />
+        <input matInput required formControlName="teams" min="1" step="1" type="number" />
         <mat-error>Enter a valid amount of teams.</mat-error>
       </mat-form-field>
     </div>
@@ -29,16 +29,66 @@
     <div class="row">
       <mat-form-field floatLabel="always" width="300">
         <mat-label>Players Per Team</mat-label>
-        <input matInput formControlName="playersPerTeam" min="1" step="1" type="number" />
+        <input matInput required formControlName="usersPerTeam" min="1" step="1" type="number" />
         <mat-error>Enter a valid amount of players per team.</mat-error>
       </mat-form-field>
     </div>
 
-    <app-toggle-section isVisible="true" title="Metadata">
+    <app-toggle-section
+      formGroupName="gameServerTemplate"
+      isVisible="true"
+      title="Game Server Template"
+    >
+      <div class="row">
+        <mat-form-field floatLabel="always" width="300">
+          <mat-label>Release</mat-label>
+          <mat-select required formControlName="releaseId">
+            <mat-option *ngFor="let release of releases" [value]="release._id">
+              {{ release.version }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Name</mat-label>
+          <input matInput required formControlName="name" />
+          <mat-error>Enter a valid name.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Description</mat-label>
+          <input matInput formControlName="description" />
+          <mat-error>Enter a valid description.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row">
+        <mat-form-field floatLabel="always" width="300">
+          <mat-label>Is Preemptible</mat-label>
+          <mat-select formControlName="isPreemptible">
+            <mat-option [value]="true">Yes</mat-option>
+            <mat-option [value]="false">No</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </app-toggle-section>
+
+    <app-toggle-section
+      formGroupName="gameServerTemplate"
+      isVisible="true"
+      title="Game Server Metadata"
+    >
       <div
         class="row"
         formArrayName="metadata"
-        *ngFor="let property of form['controls'].metadata['controls']; let i = index"
+        *ngFor="
+          let property of form['controls'].gameServerTemplate['controls'].metadata['controls'];
+          let i = index
+        "
       >
         <app-metadata-field [form]="property" (remove)="removeProperty(i)"></app-metadata-field>
       </div>

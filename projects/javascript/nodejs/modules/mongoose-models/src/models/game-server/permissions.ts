@@ -6,6 +6,8 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   create: {
     roles: {
       administrator: [
+        'allowedUserIds',
+        'currentUserIds',
         'description',
         'gameId',
         'heartbeatAt',
@@ -34,6 +36,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   read: {
     base: [
       '_id',
+      'allowedUserIds',
       'createdAt',
       'currentUserIds',
       'description',
@@ -41,9 +44,10 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'heartbeatAt',
       'isPersistent',
       'isPreemptible',
-      'metadata',
+      'metadata.*',
       'name',
       'port',
+      'queueId',
       'releaseId',
       'updatedAt',
     ],
@@ -64,6 +68,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   update: {
     roles: {
       administrator: [
+        'allowedUserIds',
         'currentUserIds',
         'description',
         'gameId',

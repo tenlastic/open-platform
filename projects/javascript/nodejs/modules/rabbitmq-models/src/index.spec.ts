@@ -1,43 +1,12 @@
 import * as docker from '@tenlastic/docker-engine';
 import * as minio from '@tenlastic/minio';
-import * as mongoose from '@tenlastic/mongoose-models';
-import {
-  Article,
-  Collection,
-  Connection,
-  Database,
-  File,
-  Friend,
-  Game,
-  GameInvitation,
-  GameServer,
-  Group,
-  GroupInvitation,
-  Ignoration,
-  Log,
-  Match,
-  Message,
-  Namespace,
-  PasswordReset,
-  Queue,
-  QueueMember,
-  RefreshToken,
-  Release,
-  ReleaseTask,
-  User,
-} from '@tenlastic/mongoose-models';
+import * as mongooseModels from '@tenlastic/mongoose-models';
+import { GameServer } from '@tenlastic/mongoose-models';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import * as sinon from 'sinon';
 
-import {
-  BuildReleaseDockerImage,
-  CopyReleaseFiles,
-  CreateCollectionIndex,
-  DeleteCollectionIndex,
-  DeleteReleaseFiles,
-  UnzipReleaseFiles,
-} from './';
+import { deleteAll } from './';
 
 let sandbox: sinon.SinonSandbox;
 
@@ -65,7 +34,7 @@ before(async function() {
     await minio.makeBucket(bucket);
   }
 
-  await mongoose.connect({
+  await mongooseModels.connect({
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: `rabbitmq-models-test`,
   });
@@ -81,36 +50,8 @@ beforeEach(async function() {
   sandbox.stub(GameServer.prototype, 'deleteKubernetesResources').resolves();
   sandbox.stub(GameServer.prototype, 'updateKubernetesResources').resolves();
 
-  await Article.deleteMany({});
-  await Collection.deleteMany({});
-  await Connection.deleteMany({});
-  await Database.deleteMany({});
-  await File.deleteMany({});
-  await Friend.deleteMany({});
-  await Game.deleteMany({});
-  await GameInvitation.deleteMany({});
-  await GameServer.deleteMany({});
-  await Group.deleteMany({});
-  await GroupInvitation.deleteMany({});
-  await Ignoration.deleteMany({});
-  await Log.deleteMany({});
-  await Match.deleteMany({});
-  await Message.deleteMany({});
-  await Namespace.deleteMany({});
-  await PasswordReset.deleteMany({});
-  await Queue.deleteMany({});
-  await QueueMember.deleteMany({});
-  await RefreshToken.deleteMany({});
-  await Release.deleteMany({});
-  await ReleaseTask.deleteMany({});
-  await User.deleteMany({});
-
-  await BuildReleaseDockerImage.purge();
-  await CopyReleaseFiles.purge();
-  await CreateCollectionIndex.purge();
-  await DeleteCollectionIndex.purge();
-  await DeleteReleaseFiles.purge();
-  await UnzipReleaseFiles.purge();
+  await mongooseModels.deleteAll();
+  await deleteAll();
 });
 
 afterEach(function() {

@@ -25,6 +25,7 @@ import * as mongoose from 'mongoose';
 import * as path from 'path';
 
 import { Game, GameDocument } from '../game';
+import { Queue, QueueDocument } from '../queue';
 import { User, UserDocument } from '../user';
 
 export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
@@ -41,14 +42,21 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 
 @index({ gameId: 1 })
 @index({ port: 1 }, { unique: true })
+@index(
+  { allowedUserIds: 1, gameId: 1 },
+  {
+    partialFilterExpression: {
+      queueId: { $exists: true },
+    },
+    unique: true,
+  },
+)
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
     collection: 'gameservers',
     minimize: false,
     timestamps: true,
-    toJSON: { getters: true },
-    toObject: { getters: true },
   },
 })
 @plugin(changeStreamPlugin, {
@@ -86,6 +94,9 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 export class GameServerSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
 
+  @arrayProp({ itemsRef: User })
+  public allowedUserIds: Array<Ref<UserDocument>>;
+
   public createdAt: Date;
 
   @arrayProp({ itemsRef: User })
@@ -106,12 +117,7 @@ export class GameServerSchema implements IOriginalDocument {
   @prop()
   public isPreemptible: boolean;
 
-  @prop({
-    _id: false,
-    default: JSON.stringify({ type: 'object' }),
-    get: value => (typeof value === 'string' ? JSON.parse(value) : value),
-    set: value => (typeof value === 'string' ? value : JSON.stringify(value)),
-  })
+  @prop({ default: {} })
   public metadata: any;
 
   @prop({ required: true })
@@ -120,19 +126,25 @@ export class GameServerSchema implements IOriginalDocument {
   @prop()
   public port: number;
 
+  @prop({ ref: Queue })
+  public queueId: Ref<QueueDocument>;
+
   @prop({ required: true })
   public releaseId: mongoose.Types.ObjectId;
 
   public updatedAt: Date;
 
-  @prop()
-  public url: string;
+  @prop({ foreignField: '_id', justOne: false, localField: 'allowedUserIds', ref: User })
+  public allowedUserDocuments: UserDocument[];
 
   @prop({ foreignField: '_id', justOne: false, localField: 'currentUserIds', ref: User })
   public currentUserDocuments: UserDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: Game })
   public gameDocument: GameDocument[];
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: Queue })
+  public queueDocument: QueueDocument[];
 
   private get kubernetesNamespace() {
     return this.kubernetesResourceName;

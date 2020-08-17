@@ -14,11 +14,11 @@ components:
         gameId:
           type: string
           format: ^[a-f0-9]{24}$
-        metadata:
-          type: object
+        gameServerTemplate:
+          $ref: '#/components/schemas/GameServer'
         name:
           type: string
-        playersPerTeam:
+        usersPerTeam:
           type: integer
         teams:
           type: integer
@@ -27,5 +27,5 @@ components:
           format: date-time
       required:
         - name
-        - playersPerTeam
+        - usersPerTeam
         - teams

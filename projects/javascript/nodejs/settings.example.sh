@@ -2,7 +2,7 @@
 set -a
 
 # Debug
-DEBUG_DURATION_THRESHOLD="100"
+DEBUG_DURATION_THRESHOLD="1000"
 
 # Docker
 DOCKER_ENGINE_URL="http://host.docker.internal:2375"

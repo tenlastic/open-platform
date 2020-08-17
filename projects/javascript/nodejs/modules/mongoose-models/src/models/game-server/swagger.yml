@@ -6,6 +6,11 @@ components:
         _id:
           type: string
           format: ^[a-f0-9]{24}$
+        allowedUserIds:
+          type: array
+          items:
+            type: string
+            format: ^[a-f0-9]{24}$
         createdAt:
           type: string
           format: date-time
@@ -30,14 +35,17 @@ components:
           type: object
         name:
           type: string
+        port:
+          type: string
+        queueId:
+          type: string
+          format: ^[a-f0-9]{24}$
         releaseId:
           type: string
           format: ^[a-f0-9]{24}$
         updatedAt:
           type: string
           format: date-time
-        url:
-          type: string
       required:
         - gameId
         - name
