@@ -1,3 +1,70 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: matchmaking-role
+rules:
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - roles
+      - rolebindings
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - namespaces
+      - pods
+      - pods/log
+      - secrets
+      - services
+      - serviceaccounts
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: matchmaking
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: matchmaking-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: matchmaking-role
+subjects:
+  - kind: ServiceAccount
+    name: matchmaking
+    namespace: default
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -32,3 +99,4 @@ spec:
             periodSeconds: 30
           ports:
             - containerPort: 3000
+      serviceAccountName: matchmaking
