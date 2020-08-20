@@ -13,10 +13,10 @@ import { IdentityService, SocketService } from '../../../../../../core/services'
 export class GameServersLogsPageComponent implements OnDestroy, OnInit {
   public $logs: Observable<Log[]>;
   public isLive = false;
+  public isVisible = false;
   public visibility = {};
 
   private setDefaultVisibility$ = new Subscription();
-  private isVisible = false;
   private logJson: { [_id: string]: any } = {};
   private socket: WebSocket;
 
