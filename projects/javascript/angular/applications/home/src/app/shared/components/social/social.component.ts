@@ -340,7 +340,11 @@ export class SocialComponent implements OnDestroy, OnInit {
   }
 
   private async newMatchNotification(gameServer: GameServer) {
-    if (!gameServer.queueId || !gameServer.allowedUserIds.includes(this.identityService.user._id)) {
+    if (
+      !this.electronService.isElectron ||
+      !gameServer.queueId ||
+      !gameServer.allowedUserIds.includes(this.identityService.user._id)
+    ) {
       return;
     }
 

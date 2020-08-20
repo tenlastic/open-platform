@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Order } from '@datorama/akita';
 import { Log, LogQuery, LogService } from '@tenlastic/ng-http';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService, SocketService } from '../../../../../../core/services';
 
@@ -15,6 +15,8 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
   public isLive = false;
   public visibility = {};
 
+  private setDefaultVisibility$ = new Subscription();
+  private isVisible = false;
   private logJson: { [_id: string]: any } = {};
   private socket: WebSocket;
 
@@ -31,6 +33,8 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
   }
 
   public ngOnDestroy() {
+    this.setDefaultVisibility$.unsubscribe();
+
     if (this.socket) {
       this.socket.close();
     }
@@ -41,12 +45,18 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
 
     this.$logs = this.logQuery.selectAll({
       filterBy: log => log.gameServerId === _id,
-      limitTo: 100,
+      limitTo: 250,
       sortBy: '_id',
       sortByOrder: Order.DESC,
     });
 
-    this.logService.find({ sort: '-_id', where: { gameServerId: _id } });
+    this.logService.find({ limit: 250, sort: '-_id', where: { gameServerId: _id } });
+
+    this.setDefaultVisibility$ = this.$logs.subscribe(logs => {
+      for (const log of logs) {
+        this.visibility[log._id] = this.isVisible;
+      }
+    });
 
     if (this.isLive) {
       this.socket = this.socketService.watch(Log, this.logService, {});
@@ -73,6 +83,14 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
 
     if (!this.isLive && this.socket) {
       this.socket.close();
+    }
+  }
+
+  public toggleVisibility(logs: Log[]) {
+    this.isVisible = !this.isVisible;
+
+    for (const log of logs) {
+      this.visibility[log._id] = this.isVisible;
     }
   }
 }

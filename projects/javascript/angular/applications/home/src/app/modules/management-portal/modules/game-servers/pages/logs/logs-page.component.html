@@ -4,7 +4,11 @@
       <app-title>Game Server Logs</app-title>
     </div>
     <div class="col-sm-6">
-      <app-button [color]="isLive ? 'accent' : 'primary'" (click)="toggleIsLive()">
+      <app-button *ngIf="$logs | async as logs" color="accent" (click)="toggleVisibility(logs)">
+        {{ isVisible ? 'Collapse' : 'Expand' }} All
+      </app-button>
+
+      <app-button color="primary" (click)="toggleIsLive()">
         {{ isLive ? 'Stop' : 'Start' }} Live Tail
       </app-button>
     </div>
