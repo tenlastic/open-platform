@@ -45,7 +45,9 @@ let timeout: NodeJS.Timeout;
 async function send() {
   console.log(`Sending logs: ${logs.length}.`);
 
-  for (const log of logs) {
+  while (logs.length) {
+    const log = logs.shift();
+
     const response: requestPromiseNative.FullResponse = await requestPromiseNative.post({
       headers: { Authorization: `Bearer ${accessToken}` },
       json: { body: log, gameServerId },
