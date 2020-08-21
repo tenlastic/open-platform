@@ -365,7 +365,7 @@ export class SocialComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Join') {
-        this.updateService.play(game, { gameServerId: gameServer._id });
+        this.updateService.play(game, { gameServer });
       }
     });
 

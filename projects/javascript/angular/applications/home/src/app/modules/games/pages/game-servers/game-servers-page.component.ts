@@ -61,15 +61,15 @@ export class GameServersPageComponent implements OnInit {
     return gameServer.heartbeatAt < date ? 'Unavailable' : 'Available';
   }
 
-  public async joinAsGroup(gameServerId: string) {
+  public async joinAsGroup(gameServer: GameServer) {
     const group = await this.$group.pipe(take(1)).toPromise();
     this.updateService.play(this.gameQuery.getActive() as Game, {
-      gameServerId,
+      gameServer,
       groupId: group._id,
     });
   }
 
-  public joinAsIndividual(gameServerId: string) {
-    this.updateService.play(this.gameQuery.getActive() as Game, { gameServerId });
+  public joinAsIndividual(gameServer: GameServer) {
+    this.updateService.play(this.gameQuery.getActive() as Game, { gameServer });
   }
 }

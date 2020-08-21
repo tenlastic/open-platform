@@ -5,6 +5,7 @@ import {
   FileService,
   Game,
   GameInvitationService,
+  GameServer,
   Release,
   ReleaseService,
 } from '@tenlastic/ng-http';
@@ -26,7 +27,7 @@ export enum UpdateServiceState {
 }
 
 export interface UpdateServicePlayOptions {
-  gameServerId?: string;
+  gameServer?: GameServer;
   groupId?: string;
 }
 
@@ -193,20 +194,16 @@ export class UpdateService {
 
     const target = `${this.installPath}/${game._id}/${status.release.entrypoint}.exe`;
 
-    const args = [
-      '--access-token',
-      this.identityService.accessToken,
-      '--refresh-token',
-      this.identityService.refreshToken,
-    ];
-    if (options.gameServerId) {
-      args.push('--game-server-id', options.gameServerId);
-    }
-    if (options.groupId) {
-      args.push('--group-id', options.groupId);
-    }
+    const env = {
+      ...process.env,
+      ACCESS_TOKEN: this.identityService.accessToken,
+      GAME_SERVER_ID: options.gameServer._id,
+      GAME_SERVER_JSON: JSON.stringify(options.gameServer),
+      GROUP_ID: options.groupId,
+      REFRESH_TOKEN: this.identityService.refreshToken,
+    };
 
-    status.childProcess = this.electronService.childProcess.execFile(target, args);
+    status.childProcess = this.electronService.childProcess.execFile(target, null, { env });
     status.childProcess.on('close', () => (status.childProcess = null));
   }
 

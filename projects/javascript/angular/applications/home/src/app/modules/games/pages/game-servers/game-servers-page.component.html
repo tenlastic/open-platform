@@ -39,7 +39,7 @@
               mat-button
               color="accent"
               [disabled]="status.childProcess"
-              (OnClick)="joinAsIndividual(element._id)"
+              (OnClick)="joinAsIndividual(element)"
             >
               <span>Join as Individual</span>
             </app-button>
@@ -47,7 +47,7 @@
               mat-button
               color="primary"
               [disabled]="status.childProcess"
-              (OnClick)="joinAsGroup(element._id)"
+              (OnClick)="joinAsGroup(element)"
             >
               <span>Join as Group</span>
             </app-button>
@@ -57,7 +57,7 @@
               mat-button
               color="primary"
               [disabled]="status.childProcess"
-              (OnClick)="joinAsIndividual(element._id)"
+              (OnClick)="joinAsIndividual(element)"
             >
               <span>Join as Individual</span>
             </app-button>

@@ -226,6 +226,10 @@ export class GameServerSchema implements IOriginalDocument {
                 name: 'GAME_SERVER_ID',
                 value: this._id.toHexString(),
               },
+              {
+                name: 'GAME_SERVER_JSON',
+                value: JSON.stringify(this),
+              },
             ],
             image,
             name: 'application',
