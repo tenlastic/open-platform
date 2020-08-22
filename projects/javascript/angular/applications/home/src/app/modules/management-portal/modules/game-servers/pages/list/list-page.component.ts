@@ -67,17 +67,6 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     this.applyFilter('');
   }
 
-  public getStatus(gameServer: GameServer) {
-    if (!gameServer.heartbeatAt) {
-      return 'Unavailable';
-    }
-
-    const date = new Date();
-    date.setMinutes(date.getMinutes() - 1);
-
-    return gameServer.heartbeatAt < date ? 'Unavailable' : 'Available';
-  }
-
   public onKeyUp(searchTextValue: string) {
     this.subject.next(searchTextValue);
   }

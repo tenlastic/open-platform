@@ -50,17 +50,6 @@ export class GameServersPageComponent implements OnInit {
     });
   }
 
-  public getStatus(gameServer: GameServer) {
-    if (!gameServer.heartbeatAt) {
-      return 'Unavailable';
-    }
-
-    const date = new Date();
-    date.setMinutes(date.getMinutes() - 1);
-
-    return gameServer.heartbeatAt < date ? 'Unavailable' : 'Available';
-  }
-
   public async joinAsGroup(gameServer: GameServer) {
     const group = await this.$group.pipe(take(1)).toPromise();
     this.updateService.play(this.gameQuery.getActive() as Game, {

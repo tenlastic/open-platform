@@ -24,9 +24,6 @@ components:
         gameId:
           type: string
           format: ^[a-f0-9]{24}$
-        heartbeatAt:
-          type: string
-          format: date-time
         isPersistent:
           type: boolean
         isPreemptible:
@@ -43,6 +40,9 @@ components:
         releaseId:
           type: string
           format: ^[a-f0-9]{24}$
+        status:
+          type: string
+          enum: running, terminated, waiting
         updatedAt:
           type: string
           format: date-time

@@ -5,6 +5,7 @@ const INTERVAL = 15000;
 
 const accessToken = process.env.ACCESS_TOKEN;
 const gameServerId = process.env.GAME_SERVER_ID;
+const gameServerIsPersistent = process.env.GAME_SERVER_IS_PERSISTENT;
 const podNamespace = process.env.POD_NAMESPACE;
 const podName = process.env.POD_NAME;
 
@@ -22,18 +23,27 @@ async function healthCheck() {
 
     const containerStatus = body.status.containerStatuses.find(cs => cs.name === 'application');
     const state = Object.keys(containerStatus.state)[0];
-    if (state !== 'terminated') {
-      throw new Error(`Container state: ${state}.`);
+
+    if (gameServerIsPersistent === 'true') {
+      console.log(`Updating Game Server status: ${state}.`);
+
+      await requestPromiseNative.put({
+        headers: { Authorization: `Bearer ${accessToken}` },
+        json: { status: state },
+        url: `http://api.default:3000/game-servers/${gameServerId}`,
+      });
+
+      console.log('Game Server updated successfully.');
+    } else if (state === 'terminated') {
+      console.log('Deleting Game Server...');
+
+      await requestPromiseNative.delete({
+        headers: { Authorization: `Bearer ${accessToken}` },
+        url: `http://api.default:3000/game-servers/${gameServerId}`,
+      });
+
+      console.log('Game Server deleted successfully.');
     }
-
-    console.log('Deleting Game Server...');
-
-    await requestPromiseNative.delete({
-      headers: { Authorization: `Bearer ${accessToken}` },
-      url: `http://api.default:3000/game-servers/${gameServerId}`,
-    });
-
-    console.log('Game Server deleted successfully.');
   } catch (e) {
     console.error(e);
   } finally {

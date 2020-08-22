@@ -5,23 +5,36 @@ import { GameServer, GameServerDocument } from './model';
 export const GameServerPermissions = new MongoosePermissions<GameServerDocument>(GameServer, {
   create: {
     roles: {
-      administrator: [
+      'namespace-administrator': [
         'allowedUserIds',
         'currentUserIds',
         'description',
         'gameId',
-        'heartbeatAt',
         'isPersistent',
         'isPreemptible',
         'metadata.*',
         'name',
         'releaseId',
+        'status',
+      ],
+      'system-administrator': [
+        'allowedUserIds',
+        'currentUserIds',
+        'description',
+        'gameId',
+        'isPersistent',
+        'isPreemptible',
+        'metadata.*',
+        'name',
+        'releaseId',
+        'status',
       ],
     },
   },
   delete: {
     roles: {
-      administrator: true,
+      'namespace-administrator': true,
+      'system-administrator': true,
     },
   },
   find: {
@@ -41,7 +54,6 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'currentUserIds',
       'description',
       'gameId',
-      'heartbeatAt',
       'isPersistent',
       'isPreemptible',
       'metadata.*',
@@ -49,12 +61,17 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'port',
       'queueId',
       'releaseId',
+      'status',
       'updatedAt',
     ],
   },
   roles: [
     {
-      name: 'administrator',
+      name: 'system-administrator',
+      query: { 'user.roles': { $eq: 'Administrator' } },
+    },
+    {
+      name: 'namespace-administrator',
       query: {
         'record.gameDocument.namespaceDocument.accessControlList': {
           $elemMatch: {
@@ -67,17 +84,29 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   ],
   update: {
     roles: {
-      administrator: [
+      'namespace-administrator': [
         'allowedUserIds',
         'currentUserIds',
         'description',
         'gameId',
-        'heartbeatAt',
         'isPersistent',
         'isPreemptible',
         'metadata.*',
         'name',
         'releaseId',
+        'status',
+      ],
+      'system-administrator': [
+        'allowedUserIds',
+        'currentUserIds',
+        'description',
+        'gameId',
+        'isPersistent',
+        'isPreemptible',
+        'metadata.*',
+        'name',
+        'releaseId',
+        'status',
       ],
     },
   },

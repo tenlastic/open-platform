@@ -1,11 +1,16 @@
 import { Model } from './model';
 
+export enum GameServerStatus {
+  Running = 'running',
+  Terminated = 'terminated',
+  Waiting = 'waiting',
+}
+
 export class GameServer extends Model {
   public allowedUserIds: string[];
   public currentUserIds: string[];
   public description: string;
   public gameId: string;
-  public heartbeatAt: Date;
   public isPersistent: boolean;
   public isPreemptible: boolean;
   public metadata: any;
@@ -13,10 +18,9 @@ export class GameServer extends Model {
   public port: number;
   public queueId: string;
   public releaseId: string;
+  public status: GameServerStatus;
 
   constructor(params: Partial<GameServer> = {}) {
     super(params);
-
-    this.heartbeatAt = params.heartbeatAt ? new Date(params.heartbeatAt) : null;
   }
 }

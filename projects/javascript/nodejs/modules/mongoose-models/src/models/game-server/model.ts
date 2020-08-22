@@ -28,6 +28,12 @@ import { Game, GameDocument } from '../game';
 import { Queue, QueueDocument } from '../queue';
 import { User, UserDocument } from '../user';
 
+export enum GameServerStatus {
+  Running = 'running',
+  Terminated = 'terminated',
+  Waiting = 'waiting',
+}
+
 export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
 GameServerEvent.on(payload => {
   kafka.publish(payload);
@@ -109,9 +115,6 @@ export class GameServerSchema implements IOriginalDocument {
   public gameId: Ref<GameDocument>;
 
   @prop()
-  public heartbeatAt: Date;
-
-  @prop()
   public isPersistent: boolean;
 
   @prop()
@@ -131,6 +134,9 @@ export class GameServerSchema implements IOriginalDocument {
 
   @prop({ required: true })
   public releaseId: mongoose.Types.ObjectId;
+
+  @prop({ default: GameServerStatus.Waiting, enum: GameServerStatus })
+  public status: GameServerStatus;
 
   public updatedAt: Date;
 
@@ -256,6 +262,46 @@ export class GameServerSchema implements IOriginalDocument {
                 value: this._id.toHexString(),
               },
               {
+                name: 'GAME_SERVER_IS_PERSISTENT',
+                value: this.isPersistent.toString(),
+              },
+              {
+                name: 'POD_NAME',
+                valueFrom: {
+                  fieldRef: {
+                    fieldPath: 'metadata.name',
+                  },
+                },
+              },
+              {
+                name: 'POD_NAMESPACE',
+                valueFrom: {
+                  fieldRef: {
+                    fieldPath: 'metadata.namespace',
+                  },
+                },
+              },
+            ],
+            image: `tenlastic/health-check:${version}`,
+            name: 'health-check',
+            resources: {
+              requests: {
+                cpu: '50m',
+                memory: '64M',
+              },
+            },
+          },
+          {
+            env: [
+              {
+                name: 'ACCESS_TOKEN',
+                value: accessToken,
+              },
+              {
+                name: 'GAME_SERVER_ID',
+                value: this._id.toHexString(),
+              },
+              {
                 name: 'POD_NAME',
                 valueFrom: {
                   fieldRef: {
@@ -312,44 +358,6 @@ export class GameServerSchema implements IOriginalDocument {
         },
       });
     } else {
-      // Add Health Check sidecar if Game Server is not persistent.
-      podManifest.spec.containers.push({
-        env: [
-          {
-            name: 'ACCESS_TOKEN',
-            value: accessToken,
-          },
-          {
-            name: 'GAME_SERVER_ID',
-            value: this._id.toHexString(),
-          },
-          {
-            name: 'POD_NAME',
-            valueFrom: {
-              fieldRef: {
-                fieldPath: 'metadata.name',
-              },
-            },
-          },
-          {
-            name: 'POD_NAMESPACE',
-            valueFrom: {
-              fieldRef: {
-                fieldPath: 'metadata.namespace',
-              },
-            },
-          },
-        ],
-        image: `tenlastic/health-check:${version}`,
-        name: 'health-check',
-        resources: {
-          requests: {
-            cpu: '50m',
-            memory: '64M',
-          },
-        },
-      });
-
       await coreV1.createNamespacedPod(this.kubernetesNamespace, podManifest);
     }
   }
