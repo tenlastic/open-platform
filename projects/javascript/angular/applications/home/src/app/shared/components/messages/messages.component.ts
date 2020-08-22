@@ -1,8 +1,6 @@
 import { Component, ElementRef, Input, OnChanges, OnDestroy, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
 import {
-  Connection,
-  ConnectionQuery,
   Friend,
   FriendQuery,
   FriendService,
@@ -17,6 +15,8 @@ import {
   MessageService,
   User,
   UserStore,
+  WebSocket,
+  WebSocketQuery,
 } from '@tenlastic/ng-http';
 import { Subscription, Observable, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
@@ -57,10 +57,6 @@ export class MessagesComponent implements OnChanges, OnDestroy {
       }),
     );
   }
-  public get $connection() {
-    return this.connectionQuery.selectCount(c => c.userId === this.user._id);
-  }
-  public $connections: Observable<Connection[]>;
   public get $currentUserGroup() {
     return this.groupQuery
       .selectAll({ filterBy: g => g.userIds.includes(this.identityService.user._id) })
@@ -75,12 +71,15 @@ export class MessagesComponent implements OnChanges, OnDestroy {
   public $ignorations: Observable<Ignoration[]>;
   public $messages: Observable<Message[]>;
   public $showJoinGroupButton: Observable<boolean>;
+  public get $webSocket() {
+    return this.webSocketQuery.selectCount(c => c.userId === this.user._id);
+  }
+  public $webSockets: Observable<WebSocket[]>;
   public readUnreadMessages$ = new Subscription();
   public scrollToBottom$ = new Subscription();
   public loadingMessage: string;
 
   constructor(
-    private connectionQuery: ConnectionQuery,
     private friendQuery: FriendQuery,
     private friendService: FriendService,
     private groupQuery: GroupQuery,
@@ -93,6 +92,7 @@ export class MessagesComponent implements OnChanges, OnDestroy {
     private messageQuery: MessageQuery,
     private messageService: MessageService,
     private userStore: UserStore,
+    private webSocketQuery: WebSocketQuery,
   ) {}
 
   public async ngOnChanges() {

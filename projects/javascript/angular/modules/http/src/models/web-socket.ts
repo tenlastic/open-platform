@@ -1,10 +1,10 @@
 import { Model } from './model';
 
-export class Connection extends Model {
+export class WebSocket extends Model {
   public gameId: string;
   public userId: string;
 
-  constructor(params?: Partial<Connection>) {
+  constructor(params?: Partial<WebSocket>) {
     super(params);
   }
 }

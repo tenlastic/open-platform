@@ -1,7 +1,6 @@
 import {
   Article,
   Collection,
-  Connection,
   Database,
   File,
   Friend,
@@ -21,13 +20,13 @@ import {
   Release,
   ReleaseTask,
   User,
+  WebSocket,
 } from './models';
 
 export function deleteAll() {
   return Promise.all([
     Article.deleteMany({}),
     Collection.deleteMany({}),
-    Connection.deleteMany({}),
     Database.deleteMany({}),
     File.deleteMany({}),
     Friend.deleteMany({}),
@@ -47,5 +46,6 @@ export function deleteAll() {
     Release.deleteMany({}),
     ReleaseTask.deleteMany({}),
     User.deleteMany({}),
+    WebSocket.deleteMany({}),
   ]);
 }

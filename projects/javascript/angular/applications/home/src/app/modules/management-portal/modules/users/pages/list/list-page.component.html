@@ -33,13 +33,13 @@
     matSortActive="username"
     matSortDirection="asc"
   >
-    <ng-container matColumnDef="connection">
+    <ng-container matColumnDef="webSocket">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
       <td mat-cell *matCellDef="let element">
-        <mat-icon class="connection-status">
-          {{ element.connection ? 'brightness_1' : 'radio_button_unchecked' }}
+        <mat-icon class="web-socket-status">
+          {{ element.webSocket ? 'brightness_1' : 'radio_button_unchecked' }}
         </mat-icon>
-        {{ element.connection ? 'Online' : 'Offline' }}
+        {{ element.webSocket ? 'Online' : 'Offline' }}
       </td>
     </ng-container>
     <ng-container matColumnDef="username">

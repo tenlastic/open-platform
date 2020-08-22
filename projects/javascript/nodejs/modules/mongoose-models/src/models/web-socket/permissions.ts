@@ -1,8 +1,8 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { Connection, ConnectionDocument } from './model';
+import { WebSocket, WebSocketDocument } from './model';
 
-export const ConnectionPermissions = new MongoosePermissions<ConnectionDocument>(Connection, {
+export const WebSocketPermissions = new MongoosePermissions<WebSocketDocument>(WebSocket, {
   find: {
     base: {},
   },

@@ -3,32 +3,32 @@ import { Chance } from 'chance';
 import { TestBed, getTestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
-import { Connection } from '../../models/connection';
+import { WebSocket } from '../../models/web-socket';
 import { ApiService } from '../api/api.service';
 import { EnvironmentService } from '../environment/environment.service';
 import { EnvironmentServiceMock } from '../environment/environment.service.mock';
-import { ConnectionService } from './connection.service';
+import { WebSocketService } from './web-socket.service';
 
-describe('ConnectionService', () => {
+describe('WebSocketService', () => {
   const chance = new Chance();
 
   let httpMock: HttpTestingController;
   let injector: TestBed;
-  let service: ConnectionService;
+  let service: WebSocketService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
         ApiService,
-        ConnectionService,
+        WebSocketService,
         { provide: EnvironmentService, useClass: EnvironmentServiceMock },
       ],
     });
 
     injector = getTestBed();
     httpMock = injector.get(HttpTestingController);
-    service = injector.get(ConnectionService);
+    service = injector.get(WebSocketService);
   });
 
   afterEach(() => {
@@ -36,7 +36,7 @@ describe('ConnectionService', () => {
   });
 
   describe('find()', () => {
-    it('returns an array of Connections', () => {
+    it('returns an array of WebSockets', () => {
       const _id = chance.hash();
       const params = {
         where: { _id },
@@ -44,7 +44,7 @@ describe('ConnectionService', () => {
 
       service.find(params).then(res => {
         expect(res.length).toBe(1);
-        expect(res[0]).toEqual(jasmine.any(Connection));
+        expect(res[0]).toEqual(jasmine.any(WebSocket));
         expect(res[0]._id).toBe(_id);
       });
 
@@ -57,11 +57,11 @@ describe('ConnectionService', () => {
   });
 
   describe('findOne()', () => {
-    it('returns a Connection', () => {
+    it('returns a WebSocket', () => {
       const _id = chance.hash();
 
       service.findOne(_id).then(res => {
-        expect(res).toEqual(jasmine.any(Connection));
+        expect(res).toEqual(jasmine.any(WebSocket));
         expect(res._id).toBe(_id);
       });
 

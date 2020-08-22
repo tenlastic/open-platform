@@ -5,7 +5,6 @@ import { Environment } from './environment.service';
 @Injectable()
 export class EnvironmentServiceMock implements Environment {
   public articleApiBaseUrl = 'http://api.localhost/articles';
-  public connectionApiBaseUrl = 'http://api.localhost/connections';
   public databaseApiBaseUrl = 'http://api.localhost/databases';
   public friendApiBaseUrl = 'http://api.localhost/friends';
   public gameApiBaseUrl = 'http://api.localhost/games';
@@ -25,4 +24,5 @@ export class EnvironmentServiceMock implements Environment {
   public refreshTokenApiBaseUrl = 'http://api.localhost/refresh-tokens';
   public releaseApiBaseUrl = 'http://api.localhost/releases';
   public userApiBaseUrl = 'http://api.localhost/users';
+  public webSocketApiBaseUrl = 'http://api.localhost/web-sockets';
 }

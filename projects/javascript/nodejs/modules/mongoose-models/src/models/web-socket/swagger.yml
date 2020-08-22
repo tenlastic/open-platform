@@ -1,6 +1,6 @@
 components:
   schemas:
-    Connection:
+    WebSocket:
       type: object
       properties:
         _id:

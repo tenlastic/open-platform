@@ -1,8 +1,8 @@
 paths:
-  /connections/count:
+  /web-sockets/count:
     get:
       summary: Count
-      tags: [Connections]
+      tags: [WebSockets]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []

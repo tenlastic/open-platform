@@ -2,8 +2,6 @@ import { Title } from '@angular/platform-browser';
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import {
-  Connection,
-  ConnectionService,
   GameInvitation,
   GameInvitationService,
   GameServer,
@@ -21,6 +19,8 @@ import {
   QueueService,
   Release,
   ReleaseService,
+  WebSocket,
+  WebSocketService,
 } from '@tenlastic/ng-http';
 
 import {
@@ -38,7 +38,6 @@ import { TITLE } from './shared/constants';
 export class AppComponent implements OnInit {
   constructor(
     public backgroundService: BackgroundService,
-    private connectionService: ConnectionService,
     private electronService: ElectronService,
     private gameInvitationService: GameInvitationService,
     private gameServerService: GameServerService,
@@ -53,6 +52,7 @@ export class AppComponent implements OnInit {
     private router: Router,
     private socketService: SocketService,
     private titleService: Title,
+    private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
@@ -92,7 +92,6 @@ export class AppComponent implements OnInit {
   private watch() {
     this.socketService.closeAll();
 
-    this.socketService.watch(Connection, this.connectionService, {});
     this.socketService.watch(GameInvitation, this.gameInvitationService, {});
     this.socketService.watch(GameServer, this.gameServerService, {});
     this.socketService.watch(Group, this.groupService, {});
@@ -101,5 +100,6 @@ export class AppComponent implements OnInit {
     this.socketService.watch(QueueMember, this.queueMemberService, {});
     this.socketService.watch(Queue, this.queueService, {});
     this.socketService.watch(Release, this.releaseService, {});
+    this.socketService.watch(WebSocket, this.webSocketService, {});
   }
 }

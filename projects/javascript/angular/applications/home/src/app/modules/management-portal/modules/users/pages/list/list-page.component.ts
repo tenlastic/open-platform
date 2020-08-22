@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { ConnectionService, User, UserService } from '@tenlastic/ng-http';
+import { User, UserService, WebSocketService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -19,18 +19,18 @@ export class UsersListPageComponent implements OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<User>;
 
   public dataSource: MatTableDataSource<any>;
-  public displayedColumns: string[] = ['connection', 'username', 'createdAt', 'updatedAt'];
+  public displayedColumns: string[] = ['webSocket', 'username', 'createdAt', 'updatedAt'];
   public search = '';
 
   private subject: Subject<string> = new Subject();
   private users: User[] = [];
 
   constructor(
-    private connectionService: ConnectionService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private titleService: Title,
     private userService: UserService,
+    private webSocketService: WebSocketService,
   ) {}
 
   ngOnInit() {
@@ -82,12 +82,12 @@ export class UsersListPageComponent implements OnInit {
   private async fetchUsers() {
     this.users = await this.userService.find({ sort: 'username' });
 
-    const connections = await this.connectionService.find({
+    const webSockets = await this.webSocketService.find({
       where: { userId: { $in: this.users.map(u => u._id) } },
     });
-    connections.forEach(c => {
+    webSockets.forEach(c => {
       const user = this.users.find(u => u._id === c.userId) as any;
-      user.connection = c;
+      user.webSocket = c;
     });
 
     this.dataSource = new MatTableDataSource<any>(this.users);
@@ -104,14 +104,14 @@ export class UsersListPageComponent implements OnInit {
   }
 
   private subscribeToServices() {
-    this.connectionService.onCreate.subscribe(c => {
+    this.webSocketService.onCreate.subscribe(c => {
       const user = this.users.find(u => u._id === c.userId) as any;
-      user.connection = c;
+      user.webSocket = c;
     });
 
-    this.connectionService.onDelete.subscribe(c => {
+    this.webSocketService.onDelete.subscribe(c => {
       const user = this.users.find(u => u._id === c.userId) as any;
-      user.connection = null;
+      user.webSocket = null;
     });
   }
 }

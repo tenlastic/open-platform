@@ -1,14 +1,14 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
-import { ConnectionMock, ConnectionDocument } from '@tenlastic/mongoose-models';
+import { WebSocketMock, WebSocketDocument } from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
 describe('handlers/connections/count', function() {
-  let user: ConnectionDocument;
+  let user: WebSocketDocument;
 
   beforeEach(async function() {
-    user = await ConnectionMock.create();
+    user = await WebSocketMock.create();
   });
 
   it('returns the number of matching records', async function() {

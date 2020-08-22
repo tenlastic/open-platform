@@ -21,20 +21,20 @@ import * as mongoose from 'mongoose';
 import { UserDocument } from '../user/model';
 
 // Publish changes to Kafka.
-const ConnectionEvent = new EventEmitter<IDatabasePayload<ConnectionDocument>>();
-ConnectionEvent.on(payload => {
+const WebSocketEvent = new EventEmitter<IDatabasePayload<WebSocketDocument>>();
+WebSocketEvent.on(payload => {
   kafka.publish(payload);
 });
 
-// Delete stale Connections.
+// Delete stale WebSockets.
 const HEARTBEAT = 15000;
 setInterval(async () => {
   const date = new Date();
   date.setSeconds(date.getSeconds() - HEARTBEAT / 1000);
 
-  const connections = await Connection.find({ heartbeatAt: { $lt: date } });
-  for (const connection of connections) {
-    await connection.remove();
+  const webSockets = await WebSocket.find({ heartbeatAt: { $lt: date } });
+  for (const webSocket of webSockets) {
+    await webSocket.remove();
   }
 }, HEARTBEAT);
 
@@ -54,18 +54,18 @@ setInterval(async () => {
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
-    collection: 'connections',
+    collection: 'websockets',
     minimize: false,
     timestamps: true,
   },
 })
 @plugin(changeStreamPlugin, {
   documentKeys: ['_id'],
-  eventEmitter: ConnectionEvent,
+  eventEmitter: WebSocketEvent,
 })
 @plugin(uniqueErrorPlugin)
-@post('remove', (doc: ConnectionDocument) => clearTimeout(doc.heartbeatTimeout))
-@post('save', (doc: ConnectionDocument) => {
+@post('remove', (doc: WebSocketDocument) => clearTimeout(doc.heartbeatTimeout))
+@post('save', (doc: WebSocketDocument) => {
   if (process.env.NODE_ENV === 'test') {
     return;
   }
@@ -76,7 +76,7 @@ setInterval(async () => {
     doc.save();
   }, HEARTBEAT * 0.75);
 })
-export class ConnectionSchema {
+export class WebSocketSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
@@ -100,6 +100,6 @@ export class ConnectionSchema {
   public heartbeatTimeout: NodeJS.Timeout;
 }
 
-export type ConnectionDocument = DocumentType<ConnectionSchema>;
-export type ConnectionModel = ReturnModelType<typeof ConnectionSchema>;
-export const Connection = getModelForClass(ConnectionSchema);
+export type WebSocketDocument = DocumentType<WebSocketSchema>;
+export type WebSocketModel = ReturnModelType<typeof WebSocketSchema>;
+export const WebSocket = getModelForClass(WebSocketSchema);

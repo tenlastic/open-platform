@@ -1,15 +1,15 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
-import { ConnectionMock, ConnectionDocument } from '@tenlastic/mongoose-models';
+import { WebSocketMock, WebSocketDocument } from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
 describe('handlers/connections/find-one', function() {
-  let record: ConnectionDocument;
+  let record: WebSocketDocument;
   let user: any;
 
   beforeEach(async function() {
-    record = await ConnectionMock.create();
+    record = await WebSocketMock.create();
     user = { roles: ['Administrator'] };
   });
 

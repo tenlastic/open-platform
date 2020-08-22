@@ -1,12 +1,12 @@
 import { Component, Input } from '@angular/core';
 import {
-  ConnectionQuery,
   GroupQuery,
   GroupStore,
   MessageQuery,
   User,
   UserQuery,
   UserStore,
+  WebSocketQuery,
 } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -28,7 +28,7 @@ export class MessageGroupComponent {
   }
 
   constructor(
-    private connectionQuery: ConnectionQuery,
+    private webSocketQuery: WebSocketQuery,
     private groupQuery: GroupQuery,
     private groupStore: GroupStore,
     private identityService: IdentityService,
@@ -37,10 +37,10 @@ export class MessageGroupComponent {
     private userStore: UserStore,
   ) {}
 
-  public $getConnection(userId: string) {
-    return this.connectionQuery
+  public $getWebSocket(userId: string) {
+    return this.webSocketQuery
       .selectAll({ filterBy: c => c.userId === userId })
-      .pipe(map(connections => connections[0]));
+      .pipe(map(webSockets => webSockets[0]));
   }
 
   public $getGroup(userId: string) {

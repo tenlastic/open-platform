@@ -3,14 +3,12 @@ import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  Connection,
-  ConnectionQuery,
-  ConnectionService,
   Friend,
   FriendQuery,
   FriendService,
   Game,
   GameQuery,
+  GameServer,
   GameServerService,
   Group,
   GroupInvitation,
@@ -34,7 +32,9 @@ import {
   UserQuery,
   UserService,
   UserStore,
-  GameServer,
+  WebSocket,
+  WebSocketQuery,
+  WebSocketService,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
@@ -60,7 +60,6 @@ export class SocialComponent implements OnDestroy, OnInit {
   public get $activeUser() {
     return this.userQuery.selectActive() as Observable<User>;
   }
-  public $connections: Observable<Connection[]>;
   public $friends: Observable<Friend[]>;
   public $group: Observable<Group>;
   public $groupInvitation: Observable<GroupInvitation>;
@@ -73,12 +72,13 @@ export class SocialComponent implements OnDestroy, OnInit {
   public $messages: Observable<Message[]>;
   public $queueMembers: Observable<QueueMember[]>;
   public $users: Observable<User[]>;
+  public $webSockets: Observable<WebSocket[]>;
   public fetchFriendUser$ = new Subscription();
   public fetchIgnorationUser$ = new Subscription();
   public fetchMatchesQueues$ = new Subscription();
   public fetchMessageUser$ = new Subscription();
   public fetchQueueMembersQueues$ = new Subscription();
-  public fetchUserConnections$ = new Subscription();
+  public fetchUserWebSockets$ = new Subscription();
   public fetchUserGroup$ = new Subscription();
   public newMatchNotification$ = new Subscription();
   public newMessageNotification$ = new Subscription();
@@ -91,8 +91,8 @@ export class SocialComponent implements OnDestroy, OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private connectionQuery: ConnectionQuery,
-    private connectionService: ConnectionService,
+    private webSocketQuery: WebSocketQuery,
+    private webSocketService: WebSocketService,
     private electronService: ElectronService,
     private friendQuery: FriendQuery,
     private friendService: FriendService,
@@ -122,7 +122,7 @@ export class SocialComponent implements OnDestroy, OnInit {
   ) {}
 
   public async ngOnInit() {
-    this.$connections = this.connectionQuery.selectAll();
+    this.$webSockets = this.webSocketQuery.selectAll();
     this.$friends = this.friendQuery.selectAll();
     this.$friends = this.friendQuery.populateUsers(this.$friends);
     const $groups = this.groupQuery.selectAll({
@@ -146,7 +146,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.$users = this.userQuery.selectAll();
 
     await Promise.all([
-      this.connectionService.find({}),
+      this.webSocketService.find({}),
       this.friendService.find({}),
       this.groupInvitationService.find({ where: { toUserId: this.identityService.user._id } }),
       this.groupService.find({}),
@@ -194,8 +194,8 @@ export class SocialComponent implements OnDestroy, OnInit {
         ? this.queueService.find({ where: { _id: { $in: missingQueueIds } } })
         : null;
     });
-    this.fetchUserConnections$ = this.$users.subscribe(users => {
-      return this.connectionService.find({ where: { userId: { $in: users.map(u => u._id) } } });
+    this.fetchUserWebSockets$ = this.$users.subscribe(users => {
+      return this.webSocketService.find({ where: { userId: { $in: users.map(u => u._id) } } });
     });
     this.fetchUserGroup$ = this.$users.subscribe(users => {
       return this.groupService.find({ where: { userIds: { $in: users.map(u => u._id) } } });
@@ -256,7 +256,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.fetchMatchesQueues$.unsubscribe();
     this.fetchMessageUser$.unsubscribe();
     this.fetchQueueMembersQueues$.unsubscribe();
-    this.fetchUserConnections$.unsubscribe();
+    this.fetchUserWebSockets$.unsubscribe();
     this.fetchUserGroup$.unsubscribe();
     this.newMatchNotification$.unsubscribe();
     this.newMessageNotification$.unsubscribe();

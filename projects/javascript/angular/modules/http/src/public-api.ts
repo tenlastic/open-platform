@@ -1,6 +1,5 @@
 export * from './models/article';
 export * from './models/collection';
-export * from './models/connection';
 export * from './models/database';
 export * from './models/file';
 export * from './models/friend';
@@ -21,11 +20,11 @@ export * from './models/refresh-token';
 export * from './models/release';
 export * from './models/release-task';
 export * from './models/user';
+export * from './models/web-socket';
 
 export * from './services/api/api.service';
 export * from './services/article/article.service';
 export * from './services/collection/collection.service';
-export * from './services/connection/connection.service';
 export * from './services/database/database.service';
 export * from './services/environment/environment.service';
 export * from './services/file/file.service';
@@ -48,9 +47,9 @@ export * from './services/refresh-token/refresh-token.service';
 export * from './services/release/release.service';
 export * from './services/release-task/release-task.service';
 export * from './services/user/user.service';
+export * from './services/web-socket/web-socket.service';
 
 export * from './states/article';
-export * from './states/connection';
 export * from './states/friend';
 export * from './states/game';
 export * from './states/game-invitation';
@@ -65,5 +64,6 @@ export * from './states/queue';
 export * from './states/queue-member';
 export * from './states/release';
 export * from './states/user';
+export * from './states/web-socket';
 
 export * from './module';

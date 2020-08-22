@@ -1,24 +1,24 @@
 <ng-container
   *ngIf="{
-    connection: $connection | async,
     friend: ($friends | async)[0],
-    ignoration: ($ignorations | async)[0]
+    ignoration: ($ignorations | async)[0],
+    webSocket: $webSocket | async
   } as async"
 >
   <div
     class="information-container"
     [ngClass]="{
-      online: async.connection,
-      offline: !async.connection
+      online: async.webSocket,
+      offline: !async.webSocket
     }"
   >
-    <mat-icon [ngClass]="{ grey: !async.connection }">
-      {{ async.connection ? 'brightness_1' : 'radio_button_unchecked' }}
+    <mat-icon [ngClass]="{ grey: !async.webSocket }">
+      {{ async.webSocket ? 'brightness_1' : 'radio_button_unchecked' }}
     </mat-icon>
 
     <div class="label">
       <div class="name">{{ user.username }}</div>
-      <div class="status">{{ async.connection ? 'Online' : 'Offline' }}</div>
+      <div class="status">{{ async.webSocket ? 'Online' : 'Offline' }}</div>
     </div>
 
     <span>

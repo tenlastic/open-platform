@@ -1,6 +1,5 @@
 export const environment = {
   articleApiBaseUrl: 'http://api.localhost/articles',
-  connectionApiBaseUrl: 'http://api.localhost/connections',
   databaseApiBaseUrl: 'http://api.localhost/databases',
   friendApiBaseUrl: 'http://api.localhost/friends',
   gameApiBaseUrl: 'http://api.localhost/games',
@@ -23,4 +22,5 @@ export const environment = {
   releaseApiBaseUrl: 'http://api.localhost/releases',
   useHash: false,
   userApiBaseUrl: 'http://api.localhost/users',
+  webSocketApiBaseUrl: 'http://api.localhost/web-sockets',
 };

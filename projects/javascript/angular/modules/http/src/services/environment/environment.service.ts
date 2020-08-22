@@ -2,7 +2,6 @@ import { Inject, Injectable, InjectionToken } from '@angular/core';
 
 export interface Environment {
   articleApiBaseUrl: string;
-  connectionApiBaseUrl: string;
   databaseApiBaseUrl: string;
   friendApiBaseUrl: string;
   gameApiBaseUrl: string;
@@ -21,6 +20,7 @@ export interface Environment {
   refreshTokenApiBaseUrl: string;
   releaseApiBaseUrl: string;
   userApiBaseUrl: string;
+  webSocketApiBaseUrl: string;
 }
 
 export const EnvironmentServiceConfig = new InjectionToken<Environment>('EnvironmentServiceConfig');
@@ -28,7 +28,6 @@ export const EnvironmentServiceConfig = new InjectionToken<Environment>('Environ
 @Injectable({ providedIn: 'root' })
 export class EnvironmentService implements Environment {
   public articleApiBaseUrl: string;
-  public connectionApiBaseUrl: string;
   public databaseApiBaseUrl: string;
   public friendApiBaseUrl: string;
   public gameApiBaseUrl: string;
@@ -48,6 +47,7 @@ export class EnvironmentService implements Environment {
   public refreshTokenApiBaseUrl: string;
   public releaseApiBaseUrl: string;
   public userApiBaseUrl: string;
+  public webSocketApiBaseUrl: string;
 
   constructor(@Inject(EnvironmentServiceConfig) environment: Environment) {
     Object.assign(this, environment);

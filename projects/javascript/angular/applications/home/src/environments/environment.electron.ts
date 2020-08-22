@@ -1,6 +1,5 @@
 export const environment = {
   articleApiBaseUrl: 'https://api.tenlastic.com/articles',
-  connectionApiBaseUrl: 'https://api.tenlastic.com/connections',
   databaseApiBaseUrl: 'https://api.tenlastic.com/databases',
   friendApiBaseUrl: 'https://api.tenlastic.com/friends',
   gameApiBaseUrl: 'https://api.tenlastic.com/games',
@@ -23,4 +22,5 @@ export const environment = {
   releaseApiBaseUrl: 'https://api.tenlastic.com/releases',
   useHash: true,
   userApiBaseUrl: 'https://api.tenlastic.com/users',
+  webSocketApiBaseUrl: 'https://api.tenlastic.com/web-sockets',
 };
