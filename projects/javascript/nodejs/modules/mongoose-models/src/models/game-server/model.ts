@@ -283,6 +283,7 @@ export class GameServerSchema implements IOriginalDocument {
           },
         ],
         imagePullSecrets: [{ name: 'docker-registry-image-pull-secret' }],
+        restartPolicy: this.isPersistent ? 'Always' : 'Never',
         serviceAccountName: this.kubernetesResourceName,
       },
     };
@@ -311,6 +312,44 @@ export class GameServerSchema implements IOriginalDocument {
         },
       });
     } else {
+      // Add Health Check sidecar if Game Server is not persistent.
+      podManifest.spec.containers.push({
+        env: [
+          {
+            name: 'ACCESS_TOKEN',
+            value: accessToken,
+          },
+          {
+            name: 'GAME_SERVER_ID',
+            value: this._id.toHexString(),
+          },
+          {
+            name: 'POD_NAME',
+            valueFrom: {
+              fieldRef: {
+                fieldPath: 'metadata.name',
+              },
+            },
+          },
+          {
+            name: 'POD_NAMESPACE',
+            valueFrom: {
+              fieldRef: {
+                fieldPath: 'metadata.namespace',
+              },
+            },
+          },
+        ],
+        image: `tenlastic/health-check:${version}`,
+        name: 'health-check',
+        resources: {
+          requests: {
+            cpu: '50m',
+            memory: '64M',
+          },
+        },
+      });
+
       await coreV1.createNamespacedPod(this.kubernetesNamespace, podManifest);
     }
   }
