@@ -12,7 +12,7 @@ export async function handler(ctx: Context) {
   }
 
   const role = GameServerPermissions.accessControl.getRole(result, ctx.state.user);
-  if (role !== 'administrator') {
+  if (role !== 'namespace-administrator' && role !== 'system-administrator') {
     throw new PermissionError();
   }
 
