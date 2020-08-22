@@ -1,11 +1,11 @@
 import * as k8s from '@kubernetes/client-node';
 import * as requestPromiseNative from 'request-promise-native';
 
-const INTERVAL = 15000;
+const INTERVAL = 5000;
 
 const accessToken = process.env.ACCESS_TOKEN;
+const gameServer = JSON.parse(process.env.GAME_SERVER_JSON);
 const gameServerId = process.env.GAME_SERVER_ID;
-const gameServerIsPersistent = process.env.GAME_SERVER_IS_PERSISTENT;
 const podNamespace = process.env.POD_NAMESPACE;
 const podName = process.env.POD_NAME;
 
@@ -24,7 +24,11 @@ async function healthCheck() {
     const containerStatus = body.status.containerStatuses.find(cs => cs.name === 'application');
     const state = Object.keys(containerStatus.state)[0];
 
-    if (gameServerIsPersistent === 'true') {
+    if (gameServer.status === state) {
+      throw new Error('Game Server status has not changed.');
+    }
+
+    if (gameServer.isPersistent || state !== 'terminated') {
       console.log(`Updating Game Server status: ${state}.`);
 
       await requestPromiseNative.put({
@@ -34,7 +38,7 @@ async function healthCheck() {
       });
 
       console.log('Game Server updated successfully.');
-    } else if (state === 'terminated') {
+    } else if (!gameServer.isPersistent && state === 'terminated') {
       console.log('Deleting Game Server...');
 
       await requestPromiseNative.delete({

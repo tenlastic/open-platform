@@ -262,8 +262,8 @@ export class GameServerSchema implements IOriginalDocument {
                 value: this._id.toHexString(),
               },
               {
-                name: 'GAME_SERVER_IS_PERSISTENT',
-                value: this.isPersistent.toString(),
+                name: 'GAME_SERVER_JSON',
+                value: JSON.stringify(this),
               },
               {
                 name: 'POD_NAME',
