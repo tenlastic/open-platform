@@ -23,16 +23,16 @@ export const FileEvent = new EventEmitter<IDatabasePayload<FileDocument>>();
 FileEvent.on(payload => {
   kafka.publish(payload);
 });
-FileEvent.on(async event => {
-  switch (event.operationType) {
+FileEvent.on(async payload => {
+  switch (payload.operationType) {
     case 'delete':
-      return minio.removeObject(process.env.MINIO_BUCKET, event.fullDocument.key);
+      return minio.removeObject(process.env.MINIO_BUCKET, payload.fullDocument.key);
   }
 });
-ReleaseEvent.on(async event => {
-  switch (event.operationType) {
+ReleaseEvent.on(async payload => {
+  switch (payload.operationType) {
     case 'delete':
-      const files = await File.find({ releaseId: event.fullDocument._id });
+      const files = await File.find({ releaseId: payload.fullDocument._id });
       const promises = files.map(f => f.remove());
       return Promise.all(promises);
   }

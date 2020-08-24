@@ -62,14 +62,15 @@ export class AppComponent implements OnInit {
     this.loginService.onLogout.subscribe(() => this.navigateToLogin());
 
     // Handle websockets when logging in and out.
-    this.loginService.onLogin.subscribe(() => this.watch());
-    this.loginService.onLogout.subscribe(() => this.socketService.closeAll());
+    this.loginService.onLogin.subscribe(() => this.socketService.connect());
+    this.loginService.onLogout.subscribe(() => this.socketService.close());
 
     // Handle websockets when access token is set.
-    this.identityService.OnAccessTokenSet.subscribe(() => this.watch());
+    this.identityService.OnAccessTokenSet.subscribe(() => this.socketService.connect());
 
     // Connect to websockets.
-    this.watch();
+    this.socketService.OnOpen.subscribe(() => this.subscribe());
+    this.socketService.connect();
 
     // Load previous url if set.
     const url = localStorage.getItem('url');
@@ -89,17 +90,15 @@ export class AppComponent implements OnInit {
     this.router.navigateByUrl('/authentication/log-in');
   }
 
-  private watch() {
-    this.socketService.closeAll();
-
-    this.socketService.watch(GameInvitation, this.gameInvitationService, {});
-    this.socketService.watch(GameServer, this.gameServerService, {});
-    this.socketService.watch(Group, this.groupService, {});
-    this.socketService.watch(GroupInvitation, this.groupInvitationService, {});
-    this.socketService.watch(Message, this.messageService, {});
-    this.socketService.watch(QueueMember, this.queueMemberService, {});
-    this.socketService.watch(Queue, this.queueService, {});
-    this.socketService.watch(Release, this.releaseService, {});
-    this.socketService.watch(WebSocket, this.webSocketService, {});
+  private subscribe() {
+    this.socketService.subscribe('game-invitations', GameInvitation, this.gameInvitationService);
+    this.socketService.subscribe('game-servers', GameServer, this.gameServerService);
+    this.socketService.subscribe('groups', Group, this.groupService);
+    this.socketService.subscribe('group-invitations', GroupInvitation, this.groupInvitationService);
+    this.socketService.subscribe('messages', Message, this.messageService);
+    this.socketService.subscribe('queue-members', QueueMember, this.queueMemberService);
+    this.socketService.subscribe('queues', Queue, this.queueService);
+    this.socketService.subscribe('releases', Release, this.releaseService);
+    this.socketService.subscribe('web-sockets', WebSocket, this.webSocketService);
   }
 }

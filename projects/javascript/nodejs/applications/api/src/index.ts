@@ -7,7 +7,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as rabbitmq from '@tenlastic/rabbitmq';
-import { WebServer, WebSocketServer } from '@tenlastic/web-server';
+import { WebServer } from '@tenlastic/web-server';
 import * as path from 'path';
 
 import { router as articlesRouter } from './handlers/articles';
@@ -36,18 +36,6 @@ import { router as releaseTasksRouter } from './handlers/release-tasks';
 import { router as releasesRouter } from './handlers/releases';
 import { router as usersRouter } from './handlers/users';
 import { router as webSocketsRouter } from './handlers/web-sockets';
-import * as gameInvitationSockets from './sockets/game-invitations';
-import * as gameServerSockets from './sockets/game-servers';
-import * as groupInvitationSockets from './sockets/group-invitations';
-import * as groupSockets from './sockets/groups';
-import * as logSockets from './sockets/logs';
-import * as messageSockets from './sockets/messages';
-import * as queueSockets from './sockets/queues';
-import * as queueMemberSockets from './sockets/queue-members';
-import * as releaseTaskSockets from './sockets/release-tasks';
-import * as releaseSockets from './sockets/releases';
-import * as userSockets from './sockets/users';
-import * as webSocketSockets from './sockets/web-sockets';
 
 // Docker Engine.
 docker.init({
@@ -122,18 +110,3 @@ webServer.use(usersRouter.routes());
 webServer.use(webSocketsRouter.routes());
 webServer.serve(path.resolve(__dirname, 'public'), '/', 'index.html');
 webServer.start();
-
-// Web Sockets.
-const webSocketServer = new WebSocketServer(webServer.server);
-webSocketServer.connection('/game-invitations', gameInvitationSockets.onConnection);
-webSocketServer.connection('/game-servers', gameServerSockets.onConnection);
-webSocketServer.connection('/group-invitations', groupInvitationSockets.onConnection);
-webSocketServer.connection('/groups', groupSockets.onConnection);
-webSocketServer.connection('/logs', logSockets.onConnection);
-webSocketServer.connection('/messages', messageSockets.onConnection);
-webSocketServer.connection('/queues', queueSockets.onConnection);
-webSocketServer.connection('/queue-members', queueMemberSockets.onConnection);
-webSocketServer.connection('/releases', releaseSockets.onConnection);
-webSocketServer.connection('/releases/:releaseId/tasks', releaseTaskSockets.onConnection);
-webSocketServer.connection('/users', userSockets.onConnection);
-webSocketServer.connection('/web-sockets', webSocketSockets.onConnection);

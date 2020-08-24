@@ -18,6 +18,7 @@ import * as mongoose from 'mongoose';
 
 import { Queue, QueueDocument } from '../queue';
 import { User, UserDocument } from '../user';
+import { WebSocketEvent } from '../web-socket';
 
 // Publish changes to Kafka.
 export const QueueMemberEvent = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
@@ -25,6 +26,17 @@ QueueMemberEvent.on(payload => {
   kafka.publish(payload);
 });
 
+// Delete QueueMember when associated WebSocket is deleted.
+WebSocketEvent.on(async payload => {
+  if (payload.operationType !== 'delete') {
+    return;
+  }
+
+  const queueMembers = await QueueMember.find({ jti: payload.fullDocument.jti });
+  return Promise.all(queueMembers.map(qm => qm.remove()));
+});
+
+@index({ jti: 1 })
 @index({ queueId: 1, userId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
@@ -41,6 +53,9 @@ QueueMemberEvent.on(payload => {
 export class QueueMemberSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
+
+  @prop({ required: true })
+  public jti: string;
 
   @prop({ ref: Queue, required: true })
   public queueId: Ref<QueueDocument>;

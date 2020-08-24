@@ -1,4 +1,5 @@
 export const environment = {
+  apiBaseUrl: 'https://wss.tenlastic.com',
   articleApiBaseUrl: 'https://api.tenlastic.com/articles',
   databaseApiBaseUrl: 'https://api.tenlastic.com/databases',
   friendApiBaseUrl: 'https://api.tenlastic.com/friends',

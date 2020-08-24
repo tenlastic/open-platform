@@ -1,0 +1,44 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wss
+  labels:
+    app: wss
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wss
+    spec:
+      containers:
+        - name: wss
+          image: node:10
+          command: ["npm", "run", "start"]
+          envFrom:
+            - secretRef:
+                name: nodejs-environment-variables
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: app
+              mountPath: /usr/src/app/
+          workingDir: /usr/src/app/projects/javascript/nodejs/applications/wss/
+      volumes:
+        - name: app
+          hostPath:
+            path: /c/open-platform/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wss
+  labels:
+    app: wss
+    service: wss
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: wss

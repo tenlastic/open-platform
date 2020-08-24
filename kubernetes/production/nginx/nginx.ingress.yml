@@ -57,6 +57,13 @@ spec:
             backend:
               serviceName: docker-registry
               servicePort: 5000
+    - host: wss.tenlastic.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: wss
+              servicePort: 3000
     - host: www.tenlastic.com
       http:
         paths:

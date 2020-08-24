@@ -18,7 +18,7 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
 
   private setDefaultVisibility$ = new Subscription();
   private logJson: { [_id: string]: any } = {};
-  private socket: WebSocket;
+  private socket: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -36,7 +36,7 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
     this.setDefaultVisibility$.unsubscribe();
 
     if (this.socket) {
-      this.socket.close();
+      this.socketService.unsubscribe(this.socket);
     }
   }
 
@@ -59,7 +59,7 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
     });
 
     if (this.isLive) {
-      this.socket = this.socketService.watch(Log, this.logService, {});
+      this.socket = this.socketService.subscribe('logs', Log, this.logService);
     }
   }
 
@@ -82,7 +82,7 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
     this.fetchLogs();
 
     if (!this.isLive && this.socket) {
-      this.socket.close();
+      this.socketService.unsubscribe(this.socket);
     }
   }
 

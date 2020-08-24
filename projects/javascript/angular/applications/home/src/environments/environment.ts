@@ -1,4 +1,5 @@
 export const environment = {
+  apiBaseUrl: 'http://wss.localhost',
   articleApiBaseUrl: 'http://api.localhost/articles',
   databaseApiBaseUrl: 'http://api.localhost/databases',
   friendApiBaseUrl: 'http://api.localhost/friends',

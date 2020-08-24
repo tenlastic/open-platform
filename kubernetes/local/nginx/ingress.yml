@@ -73,6 +73,13 @@ spec:
             backend:
               serviceName: sandbox
               servicePort: 3000
+    - host: wss.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: wss
+              servicePort: 3000
     - host: www.localhost
       http:
         paths:

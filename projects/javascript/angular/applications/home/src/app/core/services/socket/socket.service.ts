@@ -1,47 +1,83 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
+import { v4 as uuid } from 'uuid';
 
+import { environment } from '../../../../environments/environment';
 import { IdentityService } from '../identity/identity.service';
 
 @Injectable({ providedIn: 'root' })
 export class SocketService {
-  private sockets: WebSocket[] = [];
+  public OnOpen = new EventEmitter();
+
+  private socket: WebSocket;
   private resumeTokens: { [key: string]: string } = {};
 
   constructor(private identityService: IdentityService) {}
 
-  public closeAll() {
-    this.sockets.forEach(s => s.close());
-    this.sockets = [];
+  public close() {
+    if (!this.socket) {
+      return;
+    }
+
+    this.socket.close(200);
   }
 
-  public watch(Model: any, service: any, watch: any) {
+  public connect() {
+    if (this.socket) {
+      return this.socket;
+    }
+
     if (!this.identityService.accessToken || this.identityService.accessTokenJwt.isExpired) {
       return;
     }
 
-    const url = new URL(service.basePath.replace('http', 'ws'));
-    const urlWithoutSearchString = url.href.replace(url.search, '');
+    const hostname = environment.apiBaseUrl.replace('http', 'ws');
+    const url = `${hostname}?access_token=${this.identityService.accessToken}`;
+    this.socket = new WebSocket(url);
 
-    const query = {} as any;
-    if (this.resumeTokens[urlWithoutSearchString]) {
-      query.resumeToken = this.resumeTokens[urlWithoutSearchString];
-    }
-    query.token = this.identityService.accessToken;
-    if (watch) {
-      query.watch = watch;
-    }
-    url.searchParams.append('query', JSON.stringify(query));
+    const data = { _id: uuid(), method: 'ping' };
+    const interval = setInterval(() => this.socket.send(JSON.stringify(data)), 5000);
 
-    const socket = new WebSocket(url.href);
-    this.sockets.push(socket);
+    this.socket.onopen = () => this.OnOpen.emit();
+    this.socket.onclose = e => {
+      clearInterval(interval);
+      this.socket = null;
 
-    const interval = setInterval(() => socket.send('42["ping"]'), 5000);
+      if (e.code !== 200) {
+        setTimeout(() => this.connect(), 5000);
+      }
+    };
+    this.socket.onerror = (e: any) => {
+      console.error('Socket error:', e.message);
+      this.socket.close(400);
+    };
 
-    socket.onmessage = msg => {
+    return this.socket;
+  }
+
+  public subscribe(collection: string, Model: any, service: any, where: any = {}) {
+    const _id = uuid();
+    const data = {
+      _id,
+      method: 'subscribe',
+      parameters: {
+        collection,
+        resumeToken: this.resumeTokens[collection],
+        where,
+      },
+    };
+
+    this.socket.send(JSON.stringify(data));
+    this.socket.addEventListener('message', msg => {
       const payload = JSON.parse(msg.data);
 
+      // If the response is for a different request, ignore it.
+      if (payload._id !== _id) {
+        return;
+      }
+
+      // Save the resume token if available.
       if (payload.resumeToken) {
-        this.resumeTokens[urlWithoutSearchString] = payload.resumeToken;
+        this.resumeTokens[collection] = payload.resumeToken;
       }
 
       const record = new Model(payload.fullDocument);
@@ -52,22 +88,13 @@ export class SocketService {
       } else if (payload.operationType === 'update') {
         service.onUpdate.emit(record);
       }
-    };
+    });
 
-    socket.onclose = e => {
-      clearInterval(interval);
+    return _id;
+  }
 
-      const index = this.sockets.indexOf(socket);
-      this.sockets.splice(index, 1);
-
-      setTimeout(() => this.watch(Model, service, watch), 5000);
-    };
-
-    socket.onerror = (e: any) => {
-      console.error('Socket error:', e.message);
-      socket.close();
-    };
-
-    return socket;
+  public unsubscribe(_id: string) {
+    const data = { _id, method: 'unsubscribe' };
+    this.socket.send(JSON.stringify(data));
   }
 }

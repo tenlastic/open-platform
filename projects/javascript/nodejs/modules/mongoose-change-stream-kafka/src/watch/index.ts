@@ -1,18 +1,18 @@
 import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
-import { isJsonValid, MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { filterObject, isJsonValid, MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import * as mongoose from 'mongoose';
 
 import { connection } from '../connect';
 
 export interface WatchQuery {
   resumeToken: string;
-  watch: any;
+  where: any;
 }
 
 export async function watch(
   Model: mongoose.Model<mongoose.Document>,
   Permissions: MongoosePermissions<any>,
-  query: WatchQuery,
+  parameters: WatchQuery,
   user: any,
   onChange: (payload: any) => void,
 ) {
@@ -20,7 +20,7 @@ export async function watch(
   const db = Model.db.db.databaseName;
   const topic = `${db}.${coll}`;
 
-  const resumeToken = query.resumeToken ? query.resumeToken : mongoose.Types.ObjectId();
+  const resumeToken = parameters.resumeToken ? parameters.resumeToken : mongoose.Types.ObjectId();
   const groupId = `${user.username}-${resumeToken}`;
 
   const consumer = connection.consumer({ groupId });
@@ -33,18 +33,29 @@ export async function watch(
         const value = data.message.value.toString();
         const json = JSON.parse(value) as IDatabasePayload<any>;
 
-        const where = await Permissions.where(query.watch || {}, user);
+        const where = await Permissions.where(parameters.where || {}, user);
 
         if (isJsonValid(json.fullDocument, where)) {
           const fullDocument = await Permissions.read(json.fullDocument, user);
+
+          let updateDescription;
+          if (json.updateDescription) {
+            const { removedFields, updatedFields } = json.updateDescription;
+
+            updateDescription = {
+              removedFields: getRemovedFields(Permissions, json.fullDocument, removedFields, user),
+              updatedFields: getUpdatedFields(Permissions, json.fullDocument, updatedFields, user),
+            };
+          }
+
           const payload = {
             fullDocument,
             operationType: json.operationType,
             resumeToken,
-            updateDescription: json.updateDescription,
+            updateDescription,
           };
 
-          onChange(payload);
+          return onChange(payload);
         }
       } catch (e) {
         console.error(e);
@@ -53,4 +64,24 @@ export async function watch(
   });
 
   return consumer;
+}
+
+function getRemovedFields(
+  Permissions: MongoosePermissions<any>,
+  record: any,
+  removedFields: string[],
+  user: any,
+) {
+  const permissions = Permissions.accessControl.getFieldPermissions('read', record, user);
+  return removedFields.filter(rf => permissions.includes(rf));
+}
+
+function getUpdatedFields(
+  Permissions: MongoosePermissions<any>,
+  record: any,
+  updatedFields: any,
+  user: any,
+) {
+  const permissions = Permissions.accessControl.getFieldPermissions('read', record, user);
+  return filterObject(updatedFields, permissions);
 }
