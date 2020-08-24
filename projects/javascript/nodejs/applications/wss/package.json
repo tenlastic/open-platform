@@ -22,7 +22,8 @@
     "@tenlastic/mongoose-models": "0.0.116",
     "@tenlastic/web-server": "0.0.116",
     "koa-router": "7.4.0",
-    "mongoose": "5.7.11"
+    "mongoose": "5.7.11",
+    "source-map-support": "0.5.12"
   },
   "devDependencies": {
     "cpx": "1.5.0",
