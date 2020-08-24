@@ -40,7 +40,7 @@ describe('handlers/queue-members/create', function() {
             userId: user._id,
           },
         },
-        state: { user: user.toObject() },
+        state: { jwt: { jti: chance.hash() }, user: user.toObject() },
       });
 
       await handler(ctx as any);
@@ -65,7 +65,7 @@ describe('handlers/queue-members/create', function() {
             userId: user._id,
           },
         },
-        state: { user: otherUser.toObject() },
+        state: { jwt: { jti: chance.hash() }, user: otherUser.toObject() },
       });
 
       const promise = handler(ctx as any);

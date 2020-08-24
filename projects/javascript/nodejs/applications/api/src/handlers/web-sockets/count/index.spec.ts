@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { WebSocketMock, WebSocketDocument } from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
-describe('handlers/connections/count', function() {
+describe('handlers/web-sockets/count', function() {
   let user: WebSocketDocument;
 
   beforeEach(async function() {

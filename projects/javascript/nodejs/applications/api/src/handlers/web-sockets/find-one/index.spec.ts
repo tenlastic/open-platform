@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { WebSocketMock, WebSocketDocument } from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
-describe('handlers/connections/find-one', function() {
+describe('handlers/web-sockets/find-one', function() {
   let record: WebSocketDocument;
   let user: any;
 
