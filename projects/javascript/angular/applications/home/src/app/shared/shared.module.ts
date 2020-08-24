@@ -14,6 +14,7 @@ import {
   LayoutComponent,
   LoadingMessageComponent,
   MarkdownComponent,
+  MatchPromptComponent,
   MessageGroupComponent,
   MessagesComponent,
   MetadataFieldComponent,
@@ -45,6 +46,7 @@ const components = [
   LayoutComponent,
   LoadingMessageComponent,
   MarkdownComponent,
+  MatchPromptComponent,
   MessageGroupComponent,
   MessagesComponent,
   MetadataFieldComponent,
@@ -77,7 +79,12 @@ const pipes = [
 
 @NgModule({
   declarations: [...components, ...pipes],
-  entryComponents: [InputDialogComponent, PromptComponent, RefreshTokenPromptComponent],
+  entryComponents: [
+    InputDialogComponent,
+    MatchPromptComponent,
+    PromptComponent,
+    RefreshTokenPromptComponent,
+  ],
   exports: [...components, ...modules, ...pipes],
   imports: [...modules],
 })

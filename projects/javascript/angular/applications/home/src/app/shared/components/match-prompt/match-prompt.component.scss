@@ -1,0 +1,29 @@
+::ng-deep {
+  app-match-prompt {
+    app-button {
+      margin-left: 8px !important;
+      margin-right: 8px !important;
+      margin-top: 8px !important;
+    }
+
+    a {
+      font-size: 24px !important;
+      padding: 8px 24px !important;
+      text-transform: uppercase;
+    }
+
+    p {
+      text-align: center;
+      white-space: pre;
+    }
+  }
+}
+
+div.mat-dialog-title {
+  font-family: 'Oswald';
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  padding: 16px 16px;
+  text-align: center;
+}

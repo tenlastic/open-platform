@@ -52,7 +52,7 @@
         height: 20px;
         margin-left: 8px;
         margin-top: 8px;
-        padding: 0px 4px;
+        padding: 0px 8px;
         text-align: center;
       }
     }
@@ -65,21 +65,28 @@ div.group-invitation {
   animation-iteration-count: infinite;
   background-color: transparent;
   padding: 8px 14px;
+  position: relative;
 
   &:hover {
     div.hover-off {
-      display: none;
+      opacity: 0.25;
     }
 
     div.hover-on {
-      display: block;
+      display: flex;
     }
   }
 
   div.hover-on {
+    align-items: center;
     display: none;
+    height: 100%;
+    justify-content: center;
+    left: 0%;
     padding: 1.5px 0px;
-    text-align: center;
+    position: absolute;
+    top: 0%;
+    width: 100%;
 
     app-button {
       margin: 0px 4px;
@@ -110,52 +117,11 @@ div.group-invitation {
   }
 }
 
-div.queue-member {
+div.queue {
+  animation-name: color;
+  animation-duration: initial;
+  animation-iteration-count: initial;
   background-color: transparent;
-  padding: 8px 14px;
-
-  &:hover {
-    div.hover-off {
-      display: none;
-    }
-
-    div.hover-on {
-      display: block;
-    }
-  }
-
-  div.hover-on {
-    display: none;
-    padding: 1.5px 0px;
-    text-align: center;
-
-    app-button {
-      margin: 0px 4px;
-    }
-  }
-
-  div.label {
-    display: inline-block;
-
-    div.name {
-      font-size: 14px;
-    }
-
-    div.status {
-      color: #ffff55;
-      font-size: 12px;
-    }
-  }
-
-  mat-icon.mat-icon {
-    color: #ff5;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 5px;
-    margin-right: 6px;
-    vertical-align: text-bottom;
-    width: 16px;
-  }
 }
 
 app-sidenav {

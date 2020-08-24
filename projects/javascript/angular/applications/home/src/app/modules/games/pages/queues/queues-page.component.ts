@@ -61,11 +61,11 @@ export class QueuesPageComponent implements OnInit {
 
   public async joinAsGroup(queueId: string) {}
 
-  public async joinAsIndividual(queueId: string) {
+  public async joinSolo(queueId: string) {
     await this.queueMemberService.create({ queueId, userId: this.identityService.user._id });
   }
 
-  public async leaveAsIndividual(queueMemberId: string) {
+  public async leaveSolo(queueMemberId: string) {
     await this.queueMemberService.delete(queueMemberId);
   }
 }

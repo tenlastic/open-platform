@@ -6,21 +6,21 @@
   </div>
 
   <div *ngIf="identityService.user" class="nav">
-    <app-button
-      *ngFor="let queueMember of $queueMembers | async"
-      class="queue"
-      color="accent"
-      layout="vertical"
-      text="left"
-      width="full"
-      [routerLink]="['/games', queueMember.queue?.gameId, 'queues']"
-    >
-      <mat-icon>schedule</mat-icon>
-      <div class="label">
-        {{ queueMember.queue?.name }}
-        <div class="status">Individual Queue</div>
+    <div *ngFor="let queueMember of $queueMembers | async" class="group-invitation queue">
+      <div class="hover-off">
+        <mat-icon>schedule</mat-icon>
+        <div class="label">
+          <div class="name">{{ queueMember.queue?.name }}</div>
+          <div class="status">Solo Queue</div>
+        </div>
       </div>
-    </app-button>
+
+      <div class="hover-on">
+        <app-button color="primary" (OnClick)="leaveQueue(queueMember._id)">
+          Leave Queue
+        </app-button>
+      </div>
+    </div>
 
     <ng-container *ngIf="($group | async) === undefined">
       <div *ngIf="$groupInvitation | async as groupInvitation" class="group-invitation">

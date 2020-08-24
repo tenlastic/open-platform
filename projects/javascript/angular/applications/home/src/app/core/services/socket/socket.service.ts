@@ -8,7 +8,8 @@ import { IdentityService } from '../identity/identity.service';
 export class SocketService {
   public OnOpen = new EventEmitter();
 
-  private socket: WebSocket;
+  public socket: WebSocket;
+
   private resumeTokens: { [key: string]: string } = {};
 
   constructor(private identityService: IdentityService) {}
@@ -18,7 +19,7 @@ export class SocketService {
       return;
     }
 
-    this.socket.close(200);
+    this.socket.close(1000);
   }
 
   public connect() {
@@ -42,13 +43,13 @@ export class SocketService {
       clearInterval(interval);
       this.socket = null;
 
-      if (e.code !== 200) {
+      if (e.code !== 1000) {
         setTimeout(() => this.connect(), 5000);
       }
     };
     this.socket.onerror = (e: any) => {
       console.error('Socket error:', e.message);
-      this.socket.close(400);
+      this.socket.close();
     };
 
     return this.socket;

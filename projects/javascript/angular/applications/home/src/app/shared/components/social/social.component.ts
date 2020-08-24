@@ -41,7 +41,7 @@ import { first, map } from 'rxjs/operators';
 
 import { ElectronService, IdentityService, UpdateService } from '../../../core/services';
 import { InputDialogComponent } from '../input-dialog/input-dialog.component';
-import { PromptComponent } from '../prompt/prompt.component';
+import { MatchPromptComponent } from '../match-prompt/match-prompt.component';
 
 export interface Conversation {
   messages: Message[];
@@ -352,13 +352,10 @@ export class SocialComponent implements OnDestroy, OnInit {
     const game = new Game(this.gameQuery.getEntity(gameServer.gameId));
     const queue = this.queueQuery.getEntity(gameServer.queueId);
 
-    const dialogRef = this.matDialog.open(PromptComponent, {
+    const dialogRef = this.matDialog.open(MatchPromptComponent, {
       data: {
-        buttons: [
-          { color: 'accent', label: 'Ignore' },
-          { color: 'primary', label: 'Join' },
-        ],
-        message: `Game: ${game.fullTitle}\nQueue: ${queue.name} - ${queue.description}`,
+        buttons: [{ color: 'primary', label: 'Join' }],
+        message: `${game.fullTitle}\n${queue.name} - ${queue.description}`,
         title: 'Match Found',
       },
       disableClose: true,

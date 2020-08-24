@@ -24,7 +24,7 @@
           *ngIf="$getQueueMember(element._id) | async as queueMember"
           mat-button
           color="accent"
-          (OnClick)="leaveAsIndividual(queueMember._id)"
+          (OnClick)="leaveSolo(queueMember._id)"
         >
           <span>Leave Queue</span>
         </app-button>
@@ -32,9 +32,9 @@
           *ngIf="($getQueueMember(element._id) | async) === undefined"
           mat-button
           color="primary"
-          (OnClick)="joinAsIndividual(element._id)"
+          (OnClick)="joinSolo(element._id)"
         >
-          <span>Join as Individual</span>
+          <span>Join Solo</span>
         </app-button>
       </td>
     </ng-container>
