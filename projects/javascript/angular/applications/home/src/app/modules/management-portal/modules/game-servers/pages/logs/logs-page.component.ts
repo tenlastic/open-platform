@@ -16,7 +16,6 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
   public isVisible = false;
   public visibility = {};
 
-  private setDefaultVisibility$ = new Subscription();
   private logJson: { [_id: string]: any } = {};
   private socket: string;
 
@@ -33,8 +32,6 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
   }
 
   public ngOnDestroy() {
-    this.setDefaultVisibility$.unsubscribe();
-
     if (this.socket) {
       this.socketService.unsubscribe(this.socket);
     }
@@ -51,12 +48,6 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
     });
 
     this.logService.find({ limit: 250, sort: '-_id', where: { gameServerId: _id } });
-
-    this.setDefaultVisibility$ = this.$logs.subscribe(logs => {
-      for (const log of logs) {
-        this.visibility[log._id] = this.isVisible;
-      }
-    });
 
     if (this.isLive) {
       this.socket = this.socketService.subscribe('logs', Log, this.logService);

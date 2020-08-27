@@ -77,15 +77,7 @@ export class QueuesFormPageComponent implements OnInit {
 
       this.form
         .get('gameServerTemplate')
-        .get('description')
-        .markAsTouched();
-      this.form
-        .get('gameServerTemplate')
         .get('isPreemptible')
-        .markAsTouched();
-      this.form
-        .get('gameServerTemplate')
-        .get('name')
         .markAsTouched();
       this.form
         .get('gameServerTemplate')
@@ -107,10 +99,8 @@ export class QueuesFormPageComponent implements OnInit {
       description: this.form.get('description').value,
       gameId: this.form.get('gameId').value,
       gameServerTemplate: {
-        description: this.form.get('gameServerTemplate').get('description').value,
         isPreemptible: this.form.get('gameServerTemplate').get('isPreemptible').value,
         metadata,
-        name: this.form.get('gameServerTemplate').get('name').value,
         releaseId: this.form.get('gameServerTemplate').get('releaseId').value,
       },
       name: this.form.get('name').value,
@@ -181,18 +171,14 @@ export class QueuesFormPageComponent implements OnInit {
     let gameServerTemplateForm: FormGroup;
     if (this.data.gameServerTemplate) {
       gameServerTemplateForm = this.formBuilder.group({
-        description: [this.data.gameServerTemplate.description],
         isPreemptible: [this.data.gameServerTemplate.isPreemptible || false],
         metadata: this.formBuilder.array(properties),
-        name: [this.data.gameServerTemplate.name, Validators.required],
         releaseId: [this.data.gameServerTemplate.releaseId],
       });
     } else {
       gameServerTemplateForm = this.formBuilder.group({
-        description: [''],
         isPreemptible: [false],
         metadata: this.formBuilder.array(properties),
-        name: ['', Validators.required],
         releaseId: [this.releases.length > 0 ? this.releases[0]._id : null],
       });
     }

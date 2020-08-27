@@ -17,7 +17,7 @@ export async function matchmake(queueId: string) {
   // Create the Game Server.
   const gameServer = await GameServer.create({
     allowedUserIds: queueMembers.map(qm => qm.userId),
-    description: queue.gameServerTemplate.description,
+    description: queue.description,
     gameId: queue.gameId,
     isPersistent: false,
     isPreemptible: queue.gameServerTemplate.isPreemptible,
@@ -27,7 +27,7 @@ export async function matchmake(queueId: string) {
       teams: queue.teams,
       usersPerTeam: queue.usersPerTeam,
     },
-    name: queue.gameServerTemplate.name,
+    name: queue.name,
     queueId: queue._id,
     releaseId: queue.gameServerTemplate.releaseId,
   });

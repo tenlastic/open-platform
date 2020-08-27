@@ -1,4 +1,5 @@
 import { Model } from './model';
+import { Queue } from './queue';
 
 export enum GameServerStatus {
   Running = 'running',
@@ -16,6 +17,7 @@ export class GameServer extends Model {
   public metadata: any;
   public name: string;
   public port: number;
+  public queue: Queue;
   public queueId: string;
   public releaseId: string;
   public status: GameServerStatus;

@@ -28,6 +28,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   public $gameServers: Observable<GameServer[]>;
   public dataSource = new MatTableDataSource<GameServer>();
   public displayedColumns: string[] = [
+    'queue',
     'name',
     'description',
     'status',
