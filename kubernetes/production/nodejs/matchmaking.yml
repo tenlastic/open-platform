@@ -35,6 +35,7 @@ rules:
       - namespaces
       - pods
       - pods/log
+      - pods/status
       - secrets
       - services
       - serviceaccounts
