@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   GameQuery,
   Group,
@@ -11,7 +11,7 @@ import {
   QueueService,
 } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 
 import { IdentityService } from '../../../../core/services';
 
@@ -19,11 +19,14 @@ import { IdentityService } from '../../../../core/services';
   styleUrls: ['./queues-page.component.scss'],
   templateUrl: 'queues-page.component.html',
 })
-export class QueuesPageComponent implements OnInit {
+export class QueuesPageComponent implements OnDestroy, OnInit {
   public $group: Observable<Group>;
   public $queueMembers: Observable<QueueMember[]>;
   public $queues: Observable<Queue[]>;
+  public currentUsers: { [key: string]: number } = {};
   public displayedColumns = ['name', 'description', 'currentUsers', 'actions'];
+
+  private getCurrentUsersInterval: any;
 
   constructor(
     private gameQuery: GameQuery,
@@ -51,6 +54,13 @@ export class QueuesPageComponent implements OnInit {
       this.queueMemberService.find({ where: { userId: this.identityService.user._id } }),
       this.queueService.find({ where: { gameId: this.gameQuery.getActiveId() } }),
     ]);
+
+    await this.getCurrentUsers();
+    this.getCurrentUsersInterval = setInterval(() => this.getCurrentUsers(), 15000);
+  }
+
+  public ngOnDestroy() {
+    clearInterval(this.getCurrentUsersInterval);
   }
 
   public $getQueueMember(queueId: string) {
@@ -67,5 +77,16 @@ export class QueuesPageComponent implements OnInit {
 
   public async leaveSolo(queueMemberId: string) {
     await this.queueMemberService.delete(queueMemberId);
+  }
+
+  private async getCurrentUsers() {
+    const queues = await this.$queues.pipe(take(1)).toPromise();
+    const _ids = queues.map(q => q._id);
+
+    for (const _id of _ids) {
+      this.currentUsers[_id] = await this.queueMemberService.count({
+        where: { queueId: _id, userId: this.identityService.user._id },
+      });
+    }
   }
 }
