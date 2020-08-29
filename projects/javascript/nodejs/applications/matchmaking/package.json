@@ -12,6 +12,8 @@
     "docker:push": "../../scripts/docker-push.sh matchmaking",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh",
+    "test": "../../scripts/test.sh",
+    "test:watch": "../../scripts/test.sh --watch",
     "version": "../../scripts/version.sh matchmaking"
   },
   "dependencies": {
@@ -25,6 +27,7 @@
     "source-map-support": "0.5.12"
   },
   "devDependencies": {
+    "@tenlastic/mongoose-unique-error": "0.0.120",
     "cpx": "1.5.0",
     "merge-yaml-cli": "1.1.2",
     "mocha": "7.1.2",

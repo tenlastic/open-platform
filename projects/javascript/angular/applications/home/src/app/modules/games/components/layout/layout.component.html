@@ -39,9 +39,7 @@
 
   <app-button *ngIf="identityService.user" color="accent" [matMenuTriggerFor]="menu">
     <mat-icon>
-      {{
-        socketService.socket?.readyState === 1 ? 'radio_button_checked' : 'radio_button_unchecked'
-      }}
+      {{ socketService.socket?.readyState === 1 ? 'brightness_1' : 'radio_button_unchecked' }}
     </mat-icon>
     <span>{{ identityService.user.username }}</span>
     <mat-icon>keyboard_arrow_down</mat-icon>

@@ -69,7 +69,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
                         model: 'GameInvitationSchema',
                         select: 'gameId',
                         where: {
-                          userId: { $eq: { $ref: 'user._id' } },
+                          toUserId: { $eq: { $ref: 'user._id' } },
                         },
                       },
                     },
@@ -83,6 +83,9 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     },
   },
   populate: [
+    {
+      path: 'gameInvitationDocuments',
+    },
     {
       path: 'queueDocument',
       populate: [{ path: 'gameDocument', populate: { path: 'namespaceDocument' } }],
@@ -105,7 +108,10 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     },
     {
       name: 'owner',
-      query: { 'record.userId': { $eq: { $ref: 'user._id' } } },
+      query: {
+        'record.gameInvitationDocuments.gameId': { $eq: { $ref: 'record.queueDocument.gameId' } },
+        'record.userId': { $eq: { $ref: 'user._id' } },
+      },
     },
   ],
 });

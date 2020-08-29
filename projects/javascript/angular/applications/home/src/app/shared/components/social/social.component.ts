@@ -354,15 +354,18 @@ export class SocialComponent implements OnDestroy, OnInit {
 
     const dialogRef = this.matDialog.open(MatchPromptComponent, {
       data: {
-        buttons: [{ color: 'primary', label: 'Join' }],
-        message: `${game.fullTitle}\n${queue.name} - ${queue.description}`,
+        buttons: [
+          { color: 'accent', label: 'Decline' },
+          { color: 'primary', label: 'Accept' },
+        ],
+        message: `Game: ${game.fullTitle}\nQueue: ${queue.name} - ${queue.description}`,
         title: 'Match Found',
       },
       disableClose: true,
     });
 
     dialogRef.afterClosed().subscribe(async result => {
-      if (result === 'Join') {
+      if (result === 'Accept') {
         this.updateService.play(game, { gameServer });
       }
     });

@@ -16,6 +16,7 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
+import { GameInvitation, GameInvitationDocument } from '../game-invitation';
 import { Queue, QueueDocument } from '../queue';
 import { User, UserDocument } from '../user';
 import { WebSocketEvent } from '../web-socket';
@@ -64,6 +65,9 @@ export class QueueMemberSchema {
   public userId: Ref<UserDocument>;
 
   public updatedAt: Date;
+
+  @prop({ foreignField: 'toUserId', justOne: false, localField: 'userId', ref: GameInvitation })
+  public gameInvitationDocuments: GameInvitationDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: Queue })
   public queueDocument: QueueDocument;

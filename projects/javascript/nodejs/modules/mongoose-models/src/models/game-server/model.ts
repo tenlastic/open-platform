@@ -19,6 +19,7 @@ import {
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
@@ -69,6 +70,7 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
   documentKeys: ['_id'],
   eventEmitter: GameServerEvent,
 })
+@plugin(uniqueErrorPlugin)
 @pre('remove', async function(this: GameServerDocument) {
   await this.deleteKubernetesResources();
 })
@@ -147,10 +149,10 @@ export class GameServerSchema implements IOriginalDocument {
   public currentUserDocuments: UserDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: Game })
-  public gameDocument: GameDocument[];
+  public gameDocument: GameDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: Queue })
-  public queueDocument: QueueDocument[];
+  public queueDocument: QueueDocument;
 
   private get kubernetesNamespace() {
     return this.kubernetesResourceName;

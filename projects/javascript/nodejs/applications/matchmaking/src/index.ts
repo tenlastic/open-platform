@@ -21,7 +21,7 @@ import { matchmake } from './matchmake';
     QueueMember,
     'matchmaking',
     {},
-    payload => matchmake(payload.fullDocument.queueId.toString()),
+    matchmake,
   );
 })();
 

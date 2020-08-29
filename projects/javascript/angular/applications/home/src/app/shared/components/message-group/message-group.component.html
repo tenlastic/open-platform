@@ -27,7 +27,7 @@
     (OnClick)="setUser(user)"
   >
     <mat-icon>
-      {{ ($getWebSocket(user._id) | async) ? 'radio_button_checked' : 'radio_button_unchecked' }}
+      {{ ($getWebSocket(user._id) | async) ? 'brightness_1' : 'radio_button_unchecked' }}
     </mat-icon>
     <div class="label">
       {{ user.username }}

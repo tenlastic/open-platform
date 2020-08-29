@@ -41,7 +41,6 @@ request
   });
 
 // Send logs synchronously to preserve order.
-let timeout: NodeJS.Timeout;
 async function send() {
   console.log(`Sending logs: ${logs.length}.`);
 
@@ -64,6 +63,6 @@ async function send() {
     console.log('Log saved successfully.');
   }
 
-  timeout = setTimeout(send, 1000);
+  setTimeout(send, 1000);
 }
-timeout = setTimeout(send, 1000);
+setTimeout(send, 1000);
