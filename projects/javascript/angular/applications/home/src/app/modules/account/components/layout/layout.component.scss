@@ -1,0 +1,95 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 32px);
+  overflow: hidden;
+  width: 100vw;
+}
+
+::ng-deep {
+  app-layout {
+    app-button {
+      &.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+    }
+  }
+}
+
+app-sidenav app-button img {
+  margin-right: 12px;
+  max-height: 36px;
+}
+
+app-header-toolbar::ng-deep {
+  app-button:first-of-type {
+    a.mat-button {
+      padding: 8px 12px !important;
+    }
+
+    mat-icon {
+      font-size: 18px !important;
+      width: 18px !important;
+    }
+  }
+
+  mat-toolbar {
+    padding: 0px 16px;
+  }
+}
+
+app-sidenav {
+  div.content {
+    display: flex;
+    flex-direction: column;
+    padding: 0px;
+    position: relative;
+
+    ::ng-deep {
+      ng-component {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+
+  div.nav {
+    ::ng-deep {
+      div {
+        flex: 1 1 auto;
+      }
+
+      mat-progress-bar.mat-progress-bar {
+        margin-bottom: 4px;
+        margin-top: 2px;
+      }
+
+      span.mat-button-wrapper {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+      }
+    }
+  }
+}
+
+div.content {
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding: 0px;
+  position: relative;
+
+  app-sidenav div.content {
+    overflow: auto;
+  }
+}
+
+img.logo {
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(120%);
+  }
+}

@@ -7,7 +7,10 @@ import { User, UserService } from '@tenlastic/ng-http';
 import { IdentityService } from '../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../shared/constants';
 
-@Component({ templateUrl: 'information-page.component.html' })
+@Component({
+  styleUrls: ['./information-page.component.scss'],
+  templateUrl: 'information-page.component.html',
+})
 export class InformationPageComponent implements OnInit {
   public data: User;
   public error: string;
@@ -68,7 +71,7 @@ export class InformationPageComponent implements OnInit {
     this.data = this.data || new User();
 
     this.form = this.formBuilder.group({
-      email: [this.data.email, Validators.required],
+      email: [this.data.email],
       username: [this.data.username, Validators.required],
     });
 

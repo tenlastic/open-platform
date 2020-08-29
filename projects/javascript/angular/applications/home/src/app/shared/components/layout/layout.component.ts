@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { Namespace, NamespaceService } from '@tenlastic/ng-http';
 
-import { ElectronService, IdentityService } from '../../../core/services';
+import { ElectronService, IdentityService, SocketService } from '../../../core/services';
 import { PromptComponent } from '../prompt/prompt.component';
 
 @Component({
@@ -20,6 +20,7 @@ export class LayoutComponent implements OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private namespaceService: NamespaceService,
+    public socketService: SocketService,
   ) {}
 
   public async ngOnInit() {

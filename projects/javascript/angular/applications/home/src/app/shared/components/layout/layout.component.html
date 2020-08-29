@@ -28,6 +28,28 @@
 
   <span class="space"></span>
 
+  <app-button
+    *ngIf="identityService.user"
+    color="accent"
+    routerLink="/account"
+    routerLinkActive="active"
+  >
+    <mat-icon>
+      {{ socketService.socket?.readyState === 1 ? 'person' : 'person_outline' }}
+    </mat-icon>
+    <span>{{ identityService.user.username }}</span>
+  </app-button>
+
+  <app-button
+    *ngIf="!identityService.user"
+    color="accent"
+    routerLink="/authentication/log-in"
+    routerLinkActive="active"
+  >
+    <mat-icon>lock</mat-icon>
+    <span>Log In</span>
+  </app-button>
+
   <ng-container *ngIf="electronService.isElectron">
     <app-button color="accent" (OnClick)="minimize()">
       <mat-icon>remove</mat-icon>

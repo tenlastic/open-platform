@@ -9,7 +9,6 @@ import {
   BackgroundService,
   ElectronService,
   IdentityService,
-  SocketService,
   UpdateService,
   UpdateServiceState,
 } from '../../../../core/services';
@@ -66,7 +65,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private gameStore: GameStore,
     public identityService: IdentityService,
     public router: Router,
-    public socketService: SocketService,
     private updateService: UpdateService,
   ) {}
 

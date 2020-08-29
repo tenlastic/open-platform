@@ -1,18 +1,43 @@
-<app-sidenav>
-  <div class="nav">
-    <app-button
-      color="accent"
-      layout="vertical"
-      routerLink="/account"
-      routerLinkActive="active"
-      text="left"
-      width="full"
-    >
-      <span>Account Information</span>
-    </app-button>
-  </div>
+<app-header-toolbar>
+  <img src="/assets/images/logo.png" />
 
-  <div class="content">
-    <router-outlet></router-outlet>
-  </div>
-</app-sidenav>
+  <span class="space"></span>
+
+  <app-button *ngIf="!electronService.isElectron" color="primary" [href]="launcherUrl">
+    <span>Download Launcher</span>
+  </app-button>
+</app-header-toolbar>
+
+<div class="content">
+  <app-social>
+    <app-sidenav>
+      <div class="nav">
+        <app-button
+          color="accent"
+          layout="vertical"
+          routerLink="/account"
+          routerLinkActive="active"
+          text="left"
+          width="full"
+        >
+          <span>Account Information</span>
+        </app-button>
+
+        <app-button
+          color="accent"
+          layout="vertical"
+          routerLink="/authentication/log-out"
+          routerLinkActive="active"
+          text="left"
+          width="full"
+        >
+          <span>Log Out</span>
+        </app-button>
+      </div>
+
+      <div class="content">
+        <router-outlet></router-outlet>
+      </div>
+    </app-sidenav>
+  </app-social>
+</div>
