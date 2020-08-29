@@ -25,7 +25,14 @@ async function healthCheck() {
     console.log(JSON.stringify(body));
 
     const containerStatus = body.status.containerStatuses.find(cs => cs.name === 'application');
-    const state = Object.keys(containerStatus.state)[0];
+    console.log(`States: ${Object.keys(containerStatus.state)}`);
+
+    let state = 'waiting';
+    if (containerStatus.state.running) {
+      state = 'running';
+    } else if (containerStatus.state.terminated) {
+      state = 'terminated';
+    }
 
     if (gameServer.status === state) {
       throw new Error('Game Server status has not changed.');
