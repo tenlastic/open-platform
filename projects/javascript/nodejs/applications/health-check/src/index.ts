@@ -22,7 +22,7 @@ async function healthCheck() {
     const { body } = await coreV1Api.readNamespacedPodStatus(podName, podNamespace);
 
     console.log(`Pod Name: ${podName} - Pod Namespace: ${podNamespace}`);
-    console.log(body);
+    console.log(JSON.stringify(body));
 
     const containerStatus = body.status.containerStatuses.find(cs => cs.name === 'application');
     const state = Object.keys(containerStatus.state)[0];
