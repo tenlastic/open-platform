@@ -120,12 +120,14 @@ export class StatusComponent implements OnChanges, OnInit {
   public ngOnInit() {
     if (this.updateService) {
       this.status = this.updateService.getStatus(this.game);
+      this.updateService.checkForUpdates(this.game);
     }
   }
 
   public ngOnChanges(changes: SimpleChanges) {
     if (this.updateService) {
       this.status = this.updateService.getStatus(this.game);
+      this.updateService.checkForUpdates(this.game);
     }
   }
 

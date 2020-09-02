@@ -6,6 +6,7 @@ import {
   Game,
   GameInvitationService,
   GameServer,
+  LoginService,
   Release,
   ReleaseService,
 } from '@tenlastic/ng-http';
@@ -77,14 +78,21 @@ export class UpdateService {
     private fileService: FileService,
     private gameInvitationService: GameInvitationService,
     private identityService: IdentityService,
+    private loginService: LoginService,
     private releaseService: ReleaseService,
   ) {
     this.subscribeToServices();
+
+    this.loginService.onLogout.subscribe(() => this.clear());
   }
 
   public async checkForUpdates(game: Game) {
     const status = this.getStatus(game);
-    if (status.state >= 0) {
+    if (
+      status.state >= 0 &&
+      status.state !== UpdateServiceState.NotInvited &&
+      status.state !== UpdateServiceState.NotAvailable
+    ) {
       return;
     }
 
@@ -235,6 +243,10 @@ export class UpdateService {
     if (status.modifiedFiles.length > 0) {
       this.update(game);
     }
+  }
+
+  private clear() {
+    this.status = new Map();
   }
 
   private async deleteRemovedFiles(

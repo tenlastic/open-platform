@@ -32,9 +32,9 @@
           *ngIf="($getQueueMember(element._id) | async) === undefined"
           mat-button
           color="primary"
-          (OnClick)="joinSolo(element._id)"
+          (OnClick)="joinAsIndividual(element._id)"
         >
-          <span>Join Solo</span>
+          <span>Join as Individual</span>
         </app-button>
       </td>
     </ng-container>

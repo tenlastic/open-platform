@@ -58,7 +58,7 @@ export class GameServersPageComponent implements OnInit {
     });
   }
 
-  public joinSolo(gameServer: GameServer) {
+  public joinAsIndividual(gameServer: GameServer) {
     this.updateService.play(this.gameQuery.getActive() as Game, { gameServer });
   }
 }

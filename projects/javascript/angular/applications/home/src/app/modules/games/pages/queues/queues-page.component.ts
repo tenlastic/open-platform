@@ -71,7 +71,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
   public async joinAsGroup(queueId: string) {}
 
-  public async joinSolo(queueId: string) {
+  public async joinAsIndividual(queueId: string) {
     await this.queueMemberService.create({ queueId, userId: this.identityService.user._id });
   }
 
