@@ -85,7 +85,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
     for (const _id of _ids) {
       this.currentUsers[_id] = await this.queueMemberService.count({
-        where: { queueId: _id, userId: this.identityService.user._id },
+        where: { queueId: _id },
       });
     }
   }
