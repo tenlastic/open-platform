@@ -48,7 +48,8 @@ export async function handler(ctx: Context) {
   }
 
   const fieldPaths = fields.reduce((previous, current) => {
-    previous[current.field] = game.getUrl(ctx.request.host, ctx.request.protocol, current.path);
+    const host = ctx.request.host.replace('api', 'cdn');
+    previous[current.field] = game.getUrl(host, ctx.request.protocol, current.path);
     return previous;
   }, {});
 

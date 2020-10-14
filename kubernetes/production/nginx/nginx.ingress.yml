@@ -29,6 +29,13 @@ spec:
             backend:
               serviceName: api
               servicePort: 3000
+    - host: cdn.tenlastic.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: api
+              servicePort: 3000
     - host: ci.tenlastic.com
       http:
         paths:

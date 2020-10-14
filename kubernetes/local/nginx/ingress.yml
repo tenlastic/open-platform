@@ -24,6 +24,13 @@ spec:
             backend:
               serviceName: argo-server
               servicePort: 2746
+    - host: cdn.localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: api
+              servicePort: 3000
     - host: docker-registry.localhost
       http:
         paths:
