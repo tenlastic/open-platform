@@ -43,6 +43,7 @@ export class ElectronService {
     this.os = require('os');
     this.path = require('path');
     this.remote = require('electron').remote;
+    this.request = require('request');
     this.unzipper = require('unzipper');
     this.webFrame = require('electron').webFrame;
 

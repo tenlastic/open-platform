@@ -20,6 +20,7 @@
     "jszip": "3.1.5",
     "jwt-decode": "2.2.0",
     "marked": "0.8.0",
+    "request": "2.88.2",
     "rxjs": "6.4.0",
     "spark-md5": "3.0.0",
     "stream": "0.0.2",

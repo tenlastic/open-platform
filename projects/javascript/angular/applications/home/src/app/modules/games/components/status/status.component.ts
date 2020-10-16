@@ -1,4 +1,12 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Game } from '@tenlastic/ng-http';
 
@@ -10,7 +18,7 @@ import { FilesizePipe } from '../../../../shared/pipes';
   styleUrls: ['./status.component.scss'],
   templateUrl: './status.component.html',
 })
-export class StatusComponent implements OnChanges, OnInit {
+export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   @Input() public game: Game;
 
   public get buttonText() {
@@ -88,8 +96,9 @@ export class StatusComponent implements OnChanges, OnInit {
       case UpdateServiceState.Downloading:
         const pipe = new FilesizePipe();
         const current = pipe.transform(this.status.progress.current);
+        const speed = pipe.transform(this.status.progress.speed);
         const total = pipe.transform(this.status.progress.total);
-        return `${current} / ${total}`;
+        return `${current} / ${total} (${speed} / s)`;
 
       case UpdateServiceState.Installing:
         return `${this.status.progress.current} / ${this.status.progress.total} Files`;
@@ -111,8 +120,11 @@ export class StatusComponent implements OnChanges, OnInit {
     }
   }
 
+  private interval: NodeJS.Timer;
+
   constructor(
     private activatedRoute: ActivatedRoute,
+    private changeDetectorRef: ChangeDetectorRef,
     private router: Router,
     private updateService: UpdateService,
   ) {}
@@ -122,6 +134,9 @@ export class StatusComponent implements OnChanges, OnInit {
       this.status = this.updateService.getStatus(this.game);
       this.updateService.checkForUpdates(this.game);
     }
+
+    const { changeDetectorRef } = this;
+    this.interval = setInterval(() => changeDetectorRef.detectChanges(), 250);
   }
 
   public ngOnChanges(changes: SimpleChanges) {
@@ -129,6 +144,10 @@ export class StatusComponent implements OnChanges, OnInit {
       this.status = this.updateService.getStatus(this.game);
       this.updateService.checkForUpdates(this.game);
     }
+  }
+
+  public ngOnDestroy() {
+    clearInterval(this.interval);
   }
 
   public click() {

@@ -34,6 +34,7 @@ export interface UpdateServicePlayOptions {
 
 export interface UpdateServiceProgress {
   current?: number;
+  speed?: number;
   total?: number;
 }
 
@@ -229,13 +230,13 @@ export class UpdateService {
 
     status.progress = null;
     status.state = UpdateServiceState.Downloading;
-    status.text = 'Downloading update...';
-    const response = await this.download(game);
+    status.text = 'Downloading and installing update...';
 
-    status.progress = null;
-    status.state = UpdateServiceState.Installing;
-    status.text = 'Installing update...';
-    await this.unzip(game, response);
+    try {
+      await this.download(game);
+    } catch (e) {
+      console.error(e);
+    }
 
     // Make sure download is complete.
     status.state = -1;
@@ -270,40 +271,51 @@ export class UpdateService {
 
   private async download(game: Game) {
     const status = this.getStatus(game);
-    const compressedBytes = status.modifiedFiles.reduce(
+
+    let downloadedBytes = 0;
+    const start = performance.now();
+    const totalBytes = status.modifiedFiles.reduce(
       (previousValue, currentValue) => previousValue + currentValue.compressedBytes,
       0,
     );
 
     const include = status.modifiedFiles.map(f => f.path);
-    return this.fileService
-      .download(status.release._id, this.platform, { include })
-      .pipe(
-        retry(3),
-        map(event => this.getEventMessage(event, compressedBytes)),
-        tap(message => {
-          if (!message || !message.current || !message.total) {
+    const { fs, request, unzipper } = this.electronService;
+
+    return new Promise((resolve, reject) => {
+      request
+        .post({
+          body: { include },
+          headers: { Authorization: `Bearer ${this.identityService.accessToken}` },
+          json: true,
+          url: `${this.fileService.basePath}/${status.release._id}/platforms/${this.platform}/files/download`,
+        })
+        .on('data', data => {
+          downloadedBytes += data.length;
+          status.progress = {
+            current: downloadedBytes,
+            speed: (downloadedBytes / (performance.now() - start)) * 1000,
+            total: totalBytes,
+          };
+        })
+        .pipe(unzipper.Parse())
+        .on('close', resolve)
+        .on('entry', entry => {
+          if (entry.type !== 'File') {
+            entry.autodrain();
             return;
           }
 
-          status.progress = { current: message.current, total: message.total };
-        }),
-        last(),
-      )
-      .toPromise();
-  }
+          const target = `${this.installPath}/${game._id}/${entry.path}`;
+          const targetDirectory = target.substr(0, target.lastIndexOf('/'));
+          if (!fs.existsSync(targetDirectory)) {
+            fs.mkdirSync(targetDirectory, { recursive: true } as any);
+          }
 
-  private getEventMessage(event: HttpEvent<any>, compressedBytes: number) {
-    switch (event.type) {
-      case HttpEventType.Sent:
-        return { current: 0, total: compressedBytes };
-
-      case HttpEventType.DownloadProgress:
-        return { current: event.loaded, total: compressedBytes };
-
-      case HttpEventType.Response:
-        return event.body;
-    }
+          entry.pipe(fs.createWriteStream(target));
+        })
+        .on('error', reject);
+    });
   }
 
   private async getLocalFiles(game: Game) {
@@ -356,41 +368,5 @@ export class UpdateService {
         this.checkForUpdates(game);
       }
     });
-  }
-
-  private async unzip(game: Game, response: any) {
-    const status = this.getStatus(game);
-
-    // Convert blob into buffer.
-    const { unzipper } = this.electronService;
-    const buffer = await new Promise<Buffer>(resolve => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(new Buffer(reader.result as string));
-      reader.readAsArrayBuffer(response);
-    });
-
-    // Extract zip contents to Game directory.
-    const fs = this.electronService.fs;
-    const root = await unzipper.Open.buffer(buffer);
-    const files = root.files.filter(f => f.type === 'File');
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-
-      status.progress = { current: i, total: files.length };
-
-      const target = `${this.installPath}/${game._id}/${file.path}`;
-      const targetDirectory = target.substr(0, target.lastIndexOf('/'));
-      if (!fs.existsSync(targetDirectory)) {
-        fs.mkdirSync(targetDirectory, { recursive: true } as any);
-      }
-
-      await new Promise((resolve, reject) => {
-        file
-          .stream()
-          .pipe(fs.createWriteStream(target))
-          .on('error', reject)
-          .on('finish', resolve);
-      });
-    }
   }
 }
