@@ -26,7 +26,10 @@
   "private": true,
   "dependencies": {
     "electron-log": "~4.0.2",
-    "electron-updater": "~4.2.0"
+    "electron-updater": "~4.2.0",
+    "glob": "7.1.6",
+    "request": "2.88.2",
+    "unzipper": "0.10.5"
   },
   "devDependencies": {
     "@angular/cli": "~8.3.21",
