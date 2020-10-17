@@ -43,11 +43,11 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
     this.$logs = this.logQuery.selectAll({
       filterBy: log => log.gameServerId === _id,
       limitTo: 250,
-      sortBy: '_id',
+      sortBy: 'unix',
       sortByOrder: Order.DESC,
     });
 
-    this.logService.find({ limit: 250, sort: '-_id', where: { gameServerId: _id } });
+    this.logService.find({ limit: 250, sort: '-unix', where: { gameServerId: _id } });
 
     if (this.isLive) {
       this.socket = this.socketService.subscribe('logs', Log, this.logService);

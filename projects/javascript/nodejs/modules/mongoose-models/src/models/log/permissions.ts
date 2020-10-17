@@ -5,8 +5,8 @@ import { Log, LogDocument } from './model';
 export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
   create: {
     roles: {
-      'namespace-administrator': ['body', 'gameServerId'],
-      'system-administrator': ['body', 'gameServerId'],
+      'namespace-administrator': ['body', 'gameServerId', 'unix'],
+      'system-administrator': ['body', 'gameServerId', 'unix'],
     },
   },
   find: {
@@ -58,7 +58,7 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
     },
   ],
   read: {
-    base: ['_id', 'body', 'createdAt', 'gameServerId', 'updatedAt'],
+    base: ['_id', 'body', 'createdAt', 'gameServerId', 'unix', 'updatedAt'],
   },
   roles: [
     {

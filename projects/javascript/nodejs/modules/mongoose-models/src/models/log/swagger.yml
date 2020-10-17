@@ -14,6 +14,9 @@ components:
         gameServerId:
           type: string
           format: ^[a-f0-9]{24}$
+        unix:
+          type: number
+          format: double
         updatedAt:
           type: string
           format: date-time

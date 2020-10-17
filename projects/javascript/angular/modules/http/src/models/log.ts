@@ -5,6 +5,7 @@ export class Log extends Model {
   public body: string;
   public gameServer: GameServer;
   public gameServerId: string;
+  public unix: number;
 
   constructor(params?: Partial<Log>) {
     super(params);

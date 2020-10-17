@@ -57,6 +57,9 @@ export class LogSchema {
   @prop({ ref: GameServer, required: true })
   public gameServerId: Ref<GameServerDocument>;
 
+  @prop({ required: true })
+  public unix: number;
+
   public updatedAt: Date;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'gameServerId', ref: GameServer })

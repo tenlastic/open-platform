@@ -1,5 +1,6 @@
-import { split } from './';
 import { expect } from 'chai';
+
+import { split } from './';
 
 describe('split()', function() {
   it('properly splits Kubernetes logs into multiple lines', function() {
@@ -9,6 +10,6 @@ describe('split()', function() {
 
     const results = split(value);
 
-    expect(results).to.eql(['First Line', 'Second Line']);
+    expect(results).to.eql([first, second]);
   });
 });

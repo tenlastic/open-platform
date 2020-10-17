@@ -14,6 +14,7 @@ export class LogMock {
     const defaults = {
       body: chance.hash(),
       gameServerId: mongoose.Types.ObjectId(),
+      unix: Date.now(),
     };
 
     return Log.create({ ...defaults, ...params });
