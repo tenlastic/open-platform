@@ -35,6 +35,7 @@ describe('handlers/logs/create', function() {
           body: {
             body: chance.hash(),
             gameServerId: gameServer._id,
+            unix: Date.now(),
           },
         },
         state: { user: user.toObject() },
@@ -55,6 +56,7 @@ describe('handlers/logs/create', function() {
           body: {
             body: chance.hash(),
             gameServerId: gameServer._id,
+            unix: Date.now(),
           },
         },
         state: { user: user.toObject() },
