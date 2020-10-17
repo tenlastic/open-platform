@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/health-check",
   "private": true,
-  "version": "0.0.130",
+  "version": "0.0.131",
   "scripts": {
     "build": "../../scripts/build.sh",
     "docker:build": "../../scripts/docker-build.sh health-check",

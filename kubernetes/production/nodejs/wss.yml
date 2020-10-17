@@ -20,7 +20,7 @@ spec:
                     operator: Exists
       containers:
         - name: wss
-          image: tenlastic/wss:0.0.130
+          image: tenlastic/wss:0.0.131
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
