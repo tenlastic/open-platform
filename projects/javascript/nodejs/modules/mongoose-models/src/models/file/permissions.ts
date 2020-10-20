@@ -49,30 +49,19 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
         {
           releaseId: {
             $in: {
-              // Find all Releases within the returned Game.
+              // Find all Releases within the returned Namespace.
               $query: {
                 model: 'ReleaseSchema',
                 select: '_id',
                 where: {
-                  gameId: {
+                  namespaceId: {
                     $in: {
-                      // Find all Games within the returned Namespaces.
+                      // Find all Namespaces that the user is a member of.
                       $query: {
-                        model: 'GameSchema',
+                        model: 'NamespaceSchema',
                         select: '_id',
                         where: {
-                          namespaceId: {
-                            $in: {
-                              // Find all Namespaces that the user is a member of.
-                              $query: {
-                                model: 'NamespaceSchema',
-                                select: '_id',
-                                where: {
-                                  'accessControlList.userId': { $eq: { $ref: 'user._id' } },
-                                },
-                              },
-                            },
-                          },
+                          'accessControlList.userId': { $eq: { $ref: 'user._id' } },
                         },
                       },
                     },
@@ -92,10 +81,7 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
     {
       path: 'releaseDocument',
       populate: {
-        path: 'gameDocument',
-        populate: {
-          path: 'namespaceDocument',
-        },
+        path: 'namespaceDocument',
       },
     },
   ],
@@ -122,7 +108,7 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
     {
       name: 'namespace-administrator',
       query: {
-        'record.releaseDocument.gameDocument.namespaceDocument.accessControlList': {
+        'record.releaseDocument.namespaceDocument.accessControlList': {
           $elemMatch: {
             roles: { $eq: 'Administrator' },
             userId: { $eq: { $ref: 'user._id' } },

@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
+  Game,
   GameQuery,
   Group,
   GroupQuery,
@@ -39,6 +40,8 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public async ngOnInit() {
+    const game = this.gameQuery.getActive() as Game;
+
     this.$group = this.groupQuery
       .selectAll({ filterBy: g => g.userIds.includes(this.identityService.user._id) })
       .pipe(map(groups => groups[0]));
@@ -47,12 +50,12 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     });
     this.$queueMembers = this.queueMemberQuery.populate($queueMembers);
     this.$queues = this.queueQuery.selectAll({
-      filterBy: gs => gs.gameId === this.gameQuery.getActiveId(),
+      filterBy: gs => gs.namespaceId === game.namespaceId,
     });
 
     await Promise.all([
       this.queueMemberService.find({ where: { userId: this.identityService.user._id } }),
-      this.queueService.find({ where: { gameId: this.gameQuery.getActiveId() } }),
+      this.queueService.find({ where: { namespaceId: game.namespaceId } }),
     ]);
 
     await this.getCurrentUsers();

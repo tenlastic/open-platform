@@ -3,7 +3,6 @@ import { expect } from 'chai';
 
 import {
   QueueMock,
-  GameMock,
   GameInvitationMock,
   NamespaceMock,
   UserDocument,
@@ -21,10 +20,9 @@ describe('handlers/queue-members/count', function() {
 
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-    const game = await GameMock.create({ namespaceId: namespace._id });
-    const queue = await QueueMock.create({ gameId: game._id });
+    const queue = await QueueMock.create({ namespaceId: namespace._id });
 
-    await GameInvitationMock.create({ gameId: game._id, toUserId: user._id });
+    await GameInvitationMock.create({ namespaceId: namespace._id, toUserId: user._id });
     await QueueMemberMock.create({ queueId: queue._id, userId: user._id });
   });
 

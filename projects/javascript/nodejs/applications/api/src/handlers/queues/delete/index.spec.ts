@@ -5,7 +5,6 @@ import * as chaiAsPromised from 'chai-as-promised';
 import {
   QueueDocument,
   QueueMock,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -28,9 +27,8 @@ describe('handlers/queues/delete', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
 
-      record = await QueueMock.create({ gameId: game._id });
+      record = await QueueMock.create({ namespaceId: namespace._id });
     });
 
     it('returns the deleted record', async function() {
@@ -51,8 +49,8 @@ describe('handlers/queues/delete', function() {
     let record: QueueDocument;
 
     beforeEach(async function() {
-      const game = await GameMock.create();
-      record = await QueueMock.create({ gameId: game._id });
+      const namespace = await NamespaceMock.create();
+      record = await QueueMock.create({ namespaceId: namespace._id });
     });
 
     it('throws an error', async function() {

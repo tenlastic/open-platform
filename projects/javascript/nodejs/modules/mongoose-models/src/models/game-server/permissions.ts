@@ -9,11 +9,11 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
         'allowedUserIds',
         'currentUserIds',
         'description',
-        'gameId',
         'isPersistent',
         'isPreemptible',
         'metadata.*',
         'name',
+        'namespaceId',
         'releaseId',
         'status',
       ],
@@ -21,11 +21,11 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
         'allowedUserIds',
         'currentUserIds',
         'description',
-        'gameId',
         'isPersistent',
         'isPreemptible',
         'metadata.*',
         'name',
+        'namespaceId',
         'releaseId',
         'status',
       ],
@@ -40,12 +40,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   find: {
     base: {},
   },
-  populate: [
-    {
-      path: 'gameDocument',
-      populate: { path: 'namespaceDocument' },
-    },
-  ],
+  populate: [{ path: 'namespaceDocument' }],
   read: {
     base: [
       '_id',
@@ -53,11 +48,11 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'createdAt',
       'currentUserIds',
       'description',
-      'gameId',
       'isPersistent',
       'isPreemptible',
       'metadata.*',
       'name',
+      'namespaceId',
       'port',
       'queueId',
       'releaseId',
@@ -73,7 +68,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
     {
       name: 'namespace-administrator',
       query: {
-        'record.gameDocument.namespaceDocument.accessControlList': {
+        'record.namespaceDocument.accessControlList': {
           $elemMatch: {
             roles: { $eq: 'Administrator' },
             userId: { $eq: { $ref: 'user._id' } },
@@ -88,11 +83,11 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
         'allowedUserIds',
         'currentUserIds',
         'description',
-        'gameId',
         'isPersistent',
         'isPreemptible',
         'metadata.*',
         'name',
+        'namespaceId',
         'releaseId',
         'status',
       ],
@@ -100,11 +95,11 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
         'allowedUserIds',
         'currentUserIds',
         'description',
-        'gameId',
         'isPersistent',
         'isPreemptible',
         'metadata.*',
         'name',
+        'namespaceId',
         'releaseId',
         'status',
       ],

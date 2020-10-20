@@ -3,7 +3,6 @@ import { expect } from 'chai';
 
 import {
   ArticleMock,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -19,9 +18,8 @@ describe('handlers/articles/count', function() {
 
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-    const game = await GameMock.create({ namespaceId: namespace._id });
 
-    await ArticleMock.create({ gameId: game._id });
+    await ArticleMock.create({ namespaceId: namespace._id });
   });
 
   it('returns the number of matching records', async function() {

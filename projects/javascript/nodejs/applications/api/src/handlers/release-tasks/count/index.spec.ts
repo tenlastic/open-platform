@@ -2,12 +2,10 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
 import {
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
   ReleaseDocument,
-  ReleaseTaskDocument,
   ReleaseMock,
   UserRolesMock,
   ReleaseTaskMock,
@@ -23,8 +21,7 @@ describe('handlers/release-tasks/count', function() {
 
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-    const game = await GameMock.create({ namespaceId: namespace._id });
-    release = await ReleaseMock.create({ gameId: game._id });
+    release = await ReleaseMock.create({ namespaceId: namespace._id });
 
     await ReleaseTaskMock.create({ releaseId: release._id });
     await ReleaseTaskMock.create();

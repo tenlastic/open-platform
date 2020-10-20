@@ -5,8 +5,8 @@ import { Release, ReleaseDocument } from './model';
 export const ReleasePermissions = new MongoosePermissions<ReleaseDocument>(Release, {
   create: {
     roles: {
-      'namespace-administrator': ['entrypoint', 'gameId', 'publishedAt', 'version'],
-      'system-administrator': ['entrypoint', 'gameId', 'publishedAt', 'version'],
+      'namespace-administrator': ['entrypoint', 'namespaceId', 'publishedAt', 'version'],
+      'system-administrator': ['entrypoint', 'namespaceId', 'publishedAt', 'version'],
     },
   },
   delete: {
@@ -20,25 +20,14 @@ export const ReleasePermissions = new MongoosePermissions<ReleaseDocument>(Relea
       $or: [
         { $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }] },
         {
-          gameId: {
+          namespaceId: {
             $in: {
-              // Find all Games within the returned Namespaces.
+              // Find all Namespaces that the user is a member of.
               $query: {
-                model: 'GameSchema',
+                model: 'NamespaceSchema',
                 select: '_id',
                 where: {
-                  namespaceId: {
-                    $in: {
-                      // Find all Namespaces that the user is a member of.
-                      $query: {
-                        model: 'NamespaceSchema',
-                        select: '_id',
-                        where: {
-                          'accessControlList.userId': { $eq: { $ref: 'user._id' } },
-                        },
-                      },
-                    },
-                  },
+                  'accessControlList.userId': { $eq: { $ref: 'user._id' } },
                 },
               },
             },
@@ -50,9 +39,9 @@ export const ReleasePermissions = new MongoosePermissions<ReleaseDocument>(Relea
       'system-administrator': {},
     },
   },
-  populate: [{ path: 'gameDocument', populate: { path: 'namespaceDocument' } }],
+  populate: [{ path: 'namespaceDocument' }],
   read: {
-    base: ['_id', 'createdAt', 'entrypoint', 'gameId', 'publishedAt', 'version', 'updatedAt'],
+    base: ['_id', 'createdAt', 'entrypoint', 'namespaceId', 'publishedAt', 'version', 'updatedAt'],
   },
   roles: [
     {
@@ -64,7 +53,7 @@ export const ReleasePermissions = new MongoosePermissions<ReleaseDocument>(Relea
     {
       name: 'namespace-administrator',
       query: {
-        'record.gameDocument.namespaceDocument.accessControlList': {
+        'record.namespaceDocument.accessControlList': {
           $elemMatch: {
             roles: { $eq: 'Administrator' },
             userId: { $eq: { $ref: 'user._id' } },
@@ -75,8 +64,8 @@ export const ReleasePermissions = new MongoosePermissions<ReleaseDocument>(Relea
   ],
   update: {
     roles: {
-      'namespace-administrator': ['entrypoint', 'gameId', 'publishedAt', 'version'],
-      'system-administrator': ['entrypoint', 'gameId', 'publishedAt', 'version'],
+      'namespace-administrator': ['entrypoint', 'namespaceId', 'publishedAt', 'version'],
+      'system-administrator': ['entrypoint', 'namespaceId', 'publishedAt', 'version'],
     },
   },
 });

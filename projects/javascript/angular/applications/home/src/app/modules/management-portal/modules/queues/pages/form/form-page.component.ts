@@ -4,11 +4,7 @@ import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Queue, QueueService, Release, ReleaseService } from '@tenlastic/ng-http';
 
-import {
-  IdentityService,
-  SelectedGameService,
-  SelectedNamespaceService,
-} from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 interface PropertyFormGroup {
@@ -35,7 +31,6 @@ export class QueuesFormPageComponent implements OnInit {
     private queueService: QueueService,
     private releaseService: ReleaseService,
     private router: Router,
-    private selectedGameService: SelectedGameService,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
@@ -46,10 +41,9 @@ export class QueuesFormPageComponent implements OnInit {
         this.data = await this.queueService.findOne(_id);
       }
 
-      const gameId = this.selectedGameService.game && this.selectedGameService.game._id;
       this.releases = await this.releaseService.find({
         sort: '-publishedAt',
-        where: { gameId },
+        where: { namespaceId: this.selectedNamespaceService.namespaceId },
       });
 
       this.setupForm();
@@ -97,13 +91,13 @@ export class QueuesFormPageComponent implements OnInit {
 
     const values: Partial<Queue> = {
       description: this.form.get('description').value,
-      gameId: this.form.get('gameId').value,
       gameServerTemplate: {
         isPreemptible: this.form.get('gameServerTemplate').get('isPreemptible').value,
         metadata,
         releaseId: this.form.get('gameServerTemplate').get('releaseId').value,
       },
       name: this.form.get('name').value,
+      namespaceId: this.form.get('namespaceId').value,
       usersPerTeam: this.form.get('usersPerTeam').value,
       teams: this.form.get('teams').value,
     };
@@ -185,9 +179,9 @@ export class QueuesFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       description: [this.data.description],
-      gameId: [this.selectedGameService.game._id],
       gameServerTemplate: gameServerTemplateForm,
       name: [this.data.name, Validators.required],
+      namespaceId: [this.selectedNamespaceService.namespaceId],
       usersPerTeam: [this.data.usersPerTeam || 1, Validators.required],
       teams: [this.data.teams || 2, Validators.required],
     });

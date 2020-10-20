@@ -3,14 +3,7 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 
-import {
-  GameMock,
-  NamespaceMock,
-  UserDocument,
-  UserMock,
-  ReleaseMock,
-  UserRolesMock,
-} from '@tenlastic/mongoose-models';
+import { NamespaceMock, UserDocument, UserMock, UserRolesMock } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 const chance = new Chance();
@@ -27,13 +20,12 @@ describe('handlers/releases/create', function() {
     it('creates a new record', async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         request: {
           body: {
             entrypoint: chance.hash(),
-            gameId: game._id,
+            namespaceId: namespace._id,
             version: chance.hash(),
           },
         },
@@ -49,13 +41,12 @@ describe('handlers/releases/create', function() {
   context('when permission is denied', function() {
     it('throws an error', async function() {
       const namespace = await NamespaceMock.create();
-      const game = await GameMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         request: {
           body: {
             entrypoint: chance.hash(),
-            gameId: game._id,
+            namespaceId: namespace._id,
             version: chance.hash(),
           },
         },

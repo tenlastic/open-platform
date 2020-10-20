@@ -3,7 +3,6 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
 import {
-  GameMock,
   GameInvitationDocument,
   GameInvitationMock,
   NamespaceMock,
@@ -24,8 +23,7 @@ describe('handlers/game-invitations/find-one', function() {
 
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-    const game = await GameMock.create({ namespaceId: namespace._id });
-    record = await GameInvitationMock.create({ gameId: game._id, toUserId: user._id });
+    record = await GameInvitationMock.create({ namespaceId: namespace._id, toUserId: user._id });
   });
 
   context('when permission is granted', function() {

@@ -1,4 +1,3 @@
-import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {
   File,
@@ -12,7 +11,6 @@ import {
 } from '@tenlastic/ng-http';
 import { ChildProcess } from 'child_process';
 import { Subject } from 'rxjs';
-import { last, map, tap, retry } from 'rxjs/operators';
 
 import { ElectronService, IdentityService } from '../../services';
 
@@ -104,7 +102,7 @@ export class UpdateService {
     status.text = 'Checking access permission...';
     const invitations = await this.gameInvitationService.find({
       where: {
-        gameId: game._id,
+        namespaceId: game.namespaceId,
         toUserId: this.identityService.user._id,
       },
     });
@@ -119,7 +117,7 @@ export class UpdateService {
       sort: '-publishedAt',
       where: {
         $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
-        gameId: game._id,
+        namespaceId: game.namespaceId,
       },
     });
     if (releases.length === 0) {

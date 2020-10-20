@@ -52,10 +52,7 @@
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let element">
         <app-button
-          *ngIf="
-            !selectedNamespaceService.namespace ||
-            selectedNamespaceService.namespace._id !== element._id
-          "
+          *ngIf="selectedNamespaceService.namespaceId !== element._id"
           color="accent"
           (OnClick)="select(element)"
         >

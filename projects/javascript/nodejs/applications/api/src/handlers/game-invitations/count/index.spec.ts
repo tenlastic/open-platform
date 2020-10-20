@@ -2,7 +2,6 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
 import {
-  GameMock,
   GameInvitationMock,
   NamespaceMock,
   UserDocument,
@@ -19,8 +18,8 @@ describe('handlers/game-invitations/count', function() {
 
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-    const game = await GameMock.create({ namespaceId: namespace._id });
-    await GameInvitationMock.create({ gameId: game._id, toUserId: user._id });
+
+    await GameInvitationMock.create({ namespaceId: namespace._id, toUserId: user._id });
     await GameInvitationMock.create();
   });
 

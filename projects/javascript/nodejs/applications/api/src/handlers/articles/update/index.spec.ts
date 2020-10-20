@@ -6,7 +6,6 @@ import * as Chance from 'chance';
 import {
   ArticleDocument,
   ArticleMock,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -30,9 +29,8 @@ describe('handlers/articles/update', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
 
-      record = await ArticleMock.create({ gameId: game._id });
+      record = await ArticleMock.create({ namespaceId: namespace._id });
     });
 
     it('returns the record', async function() {
@@ -58,8 +56,8 @@ describe('handlers/articles/update', function() {
     let record: ArticleDocument;
 
     beforeEach(async function() {
-      const game = await GameMock.create();
-      record = await ArticleMock.create({ gameId: game._id });
+      const namespace = await NamespaceMock.create();
+      record = await ArticleMock.create({ namespaceId: namespace._id });
     });
 
     it('throws an error', async function() {

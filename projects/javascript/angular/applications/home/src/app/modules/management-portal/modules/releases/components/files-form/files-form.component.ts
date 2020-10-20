@@ -94,7 +94,7 @@ export class FilesFormComponent implements OnDestroy, OnInit {
   public async ngOnInit() {
     this.releases = await this.releaseService.find({
       sort: '-publishedAt',
-      where: { gameId: this.release.gameId },
+      where: { namespaceId: this.release.namespaceId },
     });
 
     if (this.releases.length) {

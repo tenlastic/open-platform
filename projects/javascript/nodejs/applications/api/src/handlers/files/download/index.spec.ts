@@ -7,7 +7,6 @@ import * as unzipper from 'unzipper';
 
 import {
   FileMock,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -34,10 +33,9 @@ describe('handlers/files/download', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
 
       const platform = FileMock.getPlatform();
-      release = await ReleaseMock.create({ gameId: game._id });
+      release = await ReleaseMock.create({ namespaceId: namespace._id });
 
       // Set up Release.
       const files = await Promise.all([
@@ -89,8 +87,7 @@ describe('handlers/files/download', function() {
   context('when permission is denied', function() {
     it('throws an error', async function() {
       const namespace = await NamespaceMock.create();
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const release = await ReleaseMock.create({ gameId: game._id });
+      const release = await ReleaseMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         params: {

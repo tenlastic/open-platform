@@ -5,7 +5,6 @@ import { environment } from '../../../../../environments/environment';
 import {
   ElectronService,
   IdentityService,
-  SelectedGameService,
   SelectedNamespaceService,
 } from '../../../../core/services';
 
@@ -16,14 +15,13 @@ import {
 })
 export class LayoutComponent {
   public launcherUrl = environment.launcherUrl;
-  public showGameButtons = true;
-  public showNamespaceButtons = true;
+  public showInfrastructureButtons = true;
+  public showLauncherButtons = true;
 
   constructor(
     public electronService: ElectronService,
     public identityService: IdentityService,
     public router: Router,
-    public selectedGameService: SelectedGameService,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 }

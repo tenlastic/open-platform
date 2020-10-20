@@ -14,7 +14,7 @@ export class Release extends Model {
   public _id: string;
   public createdAt: Date;
   public entrypoint: string;
-  public gameId: string;
+  public namespaceId: string;
   public publishedAt: Date;
   public version: string;
   public updatedAt: Date;

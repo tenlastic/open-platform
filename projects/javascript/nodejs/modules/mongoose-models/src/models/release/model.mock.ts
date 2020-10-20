@@ -13,7 +13,7 @@ export class ReleaseMock {
 
     const defaults = {
       entrypoint: './',
-      gameId: mongoose.Types.ObjectId(),
+      namespaceId: mongoose.Types.ObjectId(),
       version: chance.hash(),
     };
 

@@ -4,7 +4,6 @@ import * as Chance from 'chance';
 import * as chaiAsPromised from 'chai-as-promised';
 
 import {
-  GameMock,
   GameServerMock,
   NamespaceMock,
   UserDocument,
@@ -27,8 +26,7 @@ describe('handlers/logs/create', function() {
     it('creates a new record', async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const gameServer = await GameServerMock.create({ gameId: game._id });
+      const gameServer = await GameServerMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         request: {

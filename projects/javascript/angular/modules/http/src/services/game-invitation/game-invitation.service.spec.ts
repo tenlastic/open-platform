@@ -55,14 +55,14 @@ describe('GameInvitationService', () => {
   describe('create()', () => {
     it('creates and returns a GameInvitation', () => {
       const params = {
-        gameId: chance.hash(),
+        namespaceId: chance.hash(),
         toUserId: chance.hash(),
       };
 
       service.create(params).then(res => {
         expect(res).toEqual(jasmine.any(GameInvitation));
         expect(res._id).toBeDefined();
-        expect(res.gameId).toEqual(params.gameId);
+        expect(res.namespaceId).toEqual(params.namespaceId);
         expect(res.toUserId).toEqual(params.toUserId);
       });
 
@@ -71,7 +71,7 @@ describe('GameInvitationService', () => {
       req.flush({
         record: {
           _id: chance.hash(),
-          gameId: params.gameId,
+          namespaceId: params.namespaceId,
           toUserId: params.toUserId,
         },
       });

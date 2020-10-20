@@ -11,7 +11,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Article');
   }
 
-  const override = { gameId: ctx.params.gameId };
+  const override = { namespaceId: ctx.params.namespaceId };
   const result = await ArticlePermissions.update(
     record,
     ctx.request.body,

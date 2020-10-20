@@ -50,12 +50,12 @@ describe('create-game-server', function() {
 
       await GameServerMock.create({
         allowedUserIds: [user],
-        gameId: queue.gameId,
+        namespaceId: queue.namespaceId,
         queueId: queue._id,
       });
       await GameServerMock.create({
         allowedUserIds: [otherUser],
-        gameId: queue.gameId,
+        namespaceId: queue.namespaceId,
       });
 
       const queueMember = await QueueMemberMock.create({ userId: user._id });

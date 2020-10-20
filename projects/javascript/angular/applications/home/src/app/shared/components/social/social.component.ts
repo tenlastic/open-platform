@@ -349,7 +349,10 @@ export class SocialComponent implements OnDestroy, OnInit {
       return;
     }
 
-    const game = new Game(this.gameQuery.getEntity(gameServer.gameId));
+    const games = await this.gameQuery
+      .selectAll({ filterBy: g => g.namespaceId === gameServer.namespaceId })
+      .toPromise();
+    const game = new Game(games[0]);
     const queue = this.queueQuery.getEntity(gameServer.queueId);
 
     const dialogRef = this.matDialog.open(MatchPromptComponent, {

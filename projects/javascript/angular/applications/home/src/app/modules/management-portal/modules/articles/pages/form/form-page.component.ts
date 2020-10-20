@@ -2,13 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Article, ArticleService, Game, GameService } from '@tenlastic/ng-http';
+import { Article, ArticleService } from '@tenlastic/ng-http';
 
-import {
-  IdentityService,
-  SelectedGameService,
-  SelectedNamespaceService,
-} from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
@@ -31,7 +27,6 @@ export class ArticlesFormPageComponent implements OnInit {
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private router: Router,
-    private selectedGameService: SelectedGameService,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
@@ -50,7 +45,7 @@ export class ArticlesFormPageComponent implements OnInit {
     if (this.form.invalid) {
       this.form.get('body').markAsTouched();
       this.form.get('caption').markAsTouched();
-      this.form.get('gameId').markAsTouched();
+      this.form.get('namespaceId').markAsTouched();
       this.form.get('title').markAsTouched();
       this.form.get('type').markAsTouched();
 
@@ -60,7 +55,7 @@ export class ArticlesFormPageComponent implements OnInit {
     const values: Partial<Article> = {
       body: this.form.get('body').value,
       caption: this.form.get('caption').value,
-      gameId: this.form.get('gameId').value,
+      namespaceId: this.form.get('namespaceId').value,
       title: this.form.get('title').value,
       type: this.form.get('type').value,
     };
@@ -88,10 +83,7 @@ export class ArticlesFormPageComponent implements OnInit {
     this.form = this.formBuilder.group({
       body: [this.data.body, Validators.required],
       caption: [this.data.caption],
-      gameId: [
-        this.selectedGameService.game ? this.selectedGameService.game._id : null,
-        Validators.required,
-      ],
+      namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
       title: [this.data.title, Validators.required],
       type: [this.data.type || this.types[0].value, Validators.required],
     });

@@ -11,7 +11,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Queue');
   }
 
-  const override = { gameId: ctx.params.gameId };
+  const override = { namespaceId: ctx.params.namespaceId };
   const result = await QueuePermissions.update(record, ctx.request.body, override, ctx.state.user);
 
   ctx.response.body = { record: result };

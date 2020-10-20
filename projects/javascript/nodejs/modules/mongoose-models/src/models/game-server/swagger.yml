@@ -1,6 +1,6 @@
 components:
   schemas:
-    Game:
+    GameServer:
       type: object
       properties:
         _id:
@@ -21,9 +21,6 @@ components:
             format: ^[a-f0-9]{24}$
         description:
           type: string
-        gameId:
-          type: string
-          format: ^[a-f0-9]{24}$
         isPersistent:
           type: boolean
         isPreemptible:
@@ -32,6 +29,9 @@ components:
           type: object
         name:
           type: string
+        namespaceId:
+          type: string
+          format: ^[a-f0-9]{24}$
         port:
           type: string
         queueId:
@@ -47,5 +47,5 @@ components:
           type: string
           format: date-time
       required:
-        - gameId
         - name
+        - namespaceId

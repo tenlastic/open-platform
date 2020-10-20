@@ -5,7 +5,7 @@ export class Article extends Model {
   public body: string;
   public caption: string;
   public createdAt: Date;
-  public gameId: string;
+  public namespaceId: string;
   public publishedAt: Date;
   public title: string;
   public type: string;

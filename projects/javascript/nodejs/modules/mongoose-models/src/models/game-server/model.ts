@@ -25,7 +25,7 @@ import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 
-import { Game, GameDocument } from '../game';
+import { Namespace, NamespaceDocument } from '../namespace';
 import { Queue, QueueDocument } from '../queue';
 import { User, UserDocument } from '../user';
 
@@ -47,10 +47,10 @@ const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
 const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 
-@index({ gameId: 1 })
+@index({ namespaceId: 1 })
 @index({ port: 1 }, { unique: true })
 @index(
-  { allowedUserIds: 1, gameId: 1 },
+  { allowedUserIds: 1, namespaceId: 1 },
   {
     partialFilterExpression: {
       queueId: { $exists: true },
@@ -113,9 +113,6 @@ export class GameServerSchema implements IOriginalDocument {
   @prop()
   public description: string;
 
-  @prop({ ref: Game, required: true })
-  public gameId: Ref<GameDocument>;
-
   @prop()
   public isPersistent: boolean;
 
@@ -127,6 +124,9 @@ export class GameServerSchema implements IOriginalDocument {
 
   @prop({ required: true })
   public name: string;
+
+  @prop({ ref: Namespace, required: true })
+  public namespaceId: Ref<NamespaceDocument>;
 
   @prop()
   public port: number;
@@ -148,8 +148,8 @@ export class GameServerSchema implements IOriginalDocument {
   @prop({ foreignField: '_id', justOne: false, localField: 'currentUserIds', ref: User })
   public currentUserDocuments: UserDocument[];
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: Game })
-  public gameDocument: GameDocument;
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: Namespace })
+  public namespaceDocument: NamespaceDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: Queue })
   public queueDocument: QueueDocument;
@@ -198,7 +198,7 @@ export class GameServerSchema implements IOriginalDocument {
     );
 
     const url = new URL(process.env.DOCKER_REGISTRY_URL);
-    const image = `${url.host}/${this.gameId}:${this.releaseId}`;
+    const image = `${url.host}/${this.namespaceId}:${this.releaseId}`;
 
     const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
     const version = JSON.parse(packageDotJson).version;

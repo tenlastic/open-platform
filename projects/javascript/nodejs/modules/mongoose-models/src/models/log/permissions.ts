@@ -17,25 +17,14 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
             model: 'GameServerSchema',
             select: '_id',
             where: {
-              gameId: {
+              namespaceId: {
                 $in: {
-                  // Find all Databases within the returned Namespaces.
+                  // Find all Namespaces that the user is a member of.
                   $query: {
-                    model: 'GameSchema',
+                    model: 'NamespaceSchema',
                     select: '_id',
                     where: {
-                      namespaceId: {
-                        $in: {
-                          // Find all Namespaces that the user is a member of.
-                          $query: {
-                            model: 'NamespaceSchema',
-                            select: '_id',
-                            where: {
-                              'accessControlList.userId': { $eq: { $ref: 'user._id' } },
-                            },
-                          },
-                        },
-                      },
+                      'accessControlList.userId': { $eq: { $ref: 'user._id' } },
                     },
                   },
                 },
@@ -50,10 +39,7 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
     {
       path: 'gameServerDocument',
       populate: {
-        path: 'gameDocument',
-        populate: {
-          path: 'namespaceDocument',
-        },
+        path: 'namespaceDocument',
       },
     },
   ],
@@ -70,7 +56,7 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
     {
       name: 'namespace-administrator',
       query: {
-        'record.gameServerDocument.gameDocument.namespaceDocument.accessControlList': {
+        'record.gameServerDocument.namespaceDocument.accessControlList': {
           $elemMatch: {
             roles: { $eq: 'Administrator' },
             userId: { $eq: { $ref: 'user._id' } },

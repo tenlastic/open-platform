@@ -12,9 +12,9 @@ export class QueueMock {
     const chance = new Chance();
 
     const defaults = {
-      gameId: mongoose.Types.ObjectId(),
       gameServerTemplate: {},
       name: chance.hash(),
+      namespaceId: mongoose.Types.ObjectId(),
       teams: chance.integer(),
       usersPerTeam: chance.integer(),
     };

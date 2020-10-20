@@ -12,7 +12,7 @@ import { GameServer, GameServerQuery, GameServerService } from '@tenlastic/ng-ht
 import { Observable, Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedGameService } from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
 
@@ -46,7 +46,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private selectedGameService: SelectedGameService,
+    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
@@ -102,12 +102,12 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
   private async fetchGameServers() {
     this.$gameServers = this.gameServerQuery.selectAll({
-      filterBy: gs => gs.gameId === this.selectedGameService.game._id,
+      filterBy: gs => gs.namespaceId === this.selectedNamespaceService.namespaceId,
     });
 
     await this.gameServerService.find({
       sort: 'name',
-      where: { gameId: this.selectedGameService.game._id },
+      where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
     this.updateDataSource$ = this.$gameServers.subscribe(

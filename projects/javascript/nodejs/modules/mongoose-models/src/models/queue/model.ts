@@ -16,16 +16,16 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { Game, GameDocument } from '../game';
 import { GameInvitation, GameInvitationDocument } from '../game-invitation';
 import { GameServerDocument } from '../game-server';
+import { Namespace, NamespaceDocument } from '../namespace';
 
 export const QueueEvent = new EventEmitter<IDatabasePayload<QueueDocument>>();
 QueueEvent.on(payload => {
   kafka.publish(payload);
 });
 
-@index({ gameId: 1 })
+@index({ namespaceId: 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
@@ -45,14 +45,14 @@ export class QueueSchema {
   @prop()
   public description: string;
 
-  @prop({ ref: Game, required: true })
-  public gameId: Ref<GameDocument>;
-
   @prop({ _id: false, required: true })
   public gameServerTemplate: GameServerDocument;
 
   @prop({ required: true })
   public name: string;
+
+  @prop({ ref: Namespace, required: true })
+  public namespaceId: Ref<NamespaceDocument>;
 
   @prop({ required: true })
   public usersPerTeam: number;
@@ -62,11 +62,16 @@ export class QueueSchema {
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: Game })
-  public gameDocument: GameDocument;
-
-  @prop({ foreignField: 'gameId', justOne: true, localField: 'gameId', ref: GameInvitation })
+  @prop({
+    foreignField: 'namespaceId',
+    justOne: true,
+    localField: 'namespaceId',
+    ref: GameInvitation,
+  })
   public gameInvitationDocument: GameInvitationDocument;
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: Namespace })
+  public namespaceDocument: NamespaceDocument;
 }
 
 export type QueueDocument = DocumentType<QueueSchema>;

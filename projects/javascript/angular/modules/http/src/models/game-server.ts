@@ -11,11 +11,11 @@ export class GameServer extends Model {
   public allowedUserIds: string[];
   public currentUserIds: string[];
   public description: string;
-  public gameId: string;
   public isPersistent: boolean;
   public isPreemptible: boolean;
   public metadata: any;
   public name: string;
+  public namespaceId: string;
   public port: number;
   public queue: Queue;
   public queueId: string;

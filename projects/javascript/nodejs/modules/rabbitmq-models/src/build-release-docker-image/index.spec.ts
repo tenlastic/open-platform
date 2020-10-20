@@ -3,17 +3,16 @@ import * as minio from '@tenlastic/minio';
 import {
   FileMock,
   FilePlatform,
-  GameMock,
   NamespaceMock,
-  UserDocument,
-  UserMock,
   ReleaseDocument,
+  ReleaseTask,
   ReleaseTaskAction,
+  ReleaseTaskDocument,
   ReleaseTaskMock,
   ReleaseMock,
+  UserDocument,
+  UserMock,
   UserRolesMock,
-  ReleaseTask,
-  ReleaseTaskDocument,
 } from '@tenlastic/mongoose-models';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -45,10 +44,9 @@ describe('build-release-docker-image', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
 
       platform = FileMock.getPlatform();
-      release = await ReleaseMock.create({ gameId: game._id });
+      release = await ReleaseMock.create({ namespaceId: namespace._id });
       releaseTask = await ReleaseTaskMock.create({
         action: ReleaseTaskAction.Build,
         platform,
@@ -121,7 +119,7 @@ describe('build-release-docker-image', function() {
       await BuildReleaseDockerImage.onMessage(channel as any, content, null);
 
       const response = await docker.inspect(
-        release.gameId.toString(),
+        release.namespaceId.toString(),
         releaseTask.releaseId.toString(),
       );
       expect(response.length).to.eql(1);
@@ -134,7 +132,7 @@ describe('build-release-docker-image', function() {
       await BuildReleaseDockerImage.onMessage(channel as any, content, null);
 
       const url = new URL(process.env.DOCKER_REGISTRY_URL);
-      const repo = `${url.host}/${release.gameId}`;
+      const repo = `${url.host}/${release.namespaceId}`;
 
       const response = await docker.inspect(repo, releaseTask.releaseId.toString());
       expect(response.length).to.eql(1);
@@ -146,7 +144,7 @@ describe('build-release-docker-image', function() {
 
       await BuildReleaseDockerImage.onMessage(channel as any, content, null);
 
-      const response = await docker.tags(release.gameId.toString());
+      const response = await docker.tags(release.namespaceId.toString());
       expect(response.tags).to.include(releaseTask.releaseId.toString());
     });
   });
@@ -154,8 +152,7 @@ describe('build-release-docker-image', function() {
   context('when unsuccessful', function() {
     it('nacks the message', async function() {
       const namespace = await NamespaceMock.create();
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const release = await ReleaseMock.create({ gameId: game._id });
+      const release = await ReleaseMock.create({ namespaceId: namespace._id });
 
       const channel = { nack: sinon.stub().resolves() };
 

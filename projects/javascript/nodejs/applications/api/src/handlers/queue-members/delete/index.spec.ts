@@ -4,7 +4,6 @@ import * as chaiAsPromised from 'chai-as-promised';
 
 import {
   QueueMock,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -30,10 +29,9 @@ describe('handlers/queue-members/delete', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const queue = await QueueMock.create({ gameId: game._id });
+      const queue = await QueueMock.create({ namespaceId: namespace._id });
 
-      await GameInvitationMock.create({ gameId: game._id, toUserId: user._id });
+      await GameInvitationMock.create({ namespaceId: namespace._id, toUserId: user._id });
       record = await QueueMemberMock.create({ queueId: queue._id, userId: user._id });
     });
 
@@ -57,10 +55,9 @@ describe('handlers/queue-members/delete', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const queue = await QueueMock.create({ gameId: game._id });
+      const queue = await QueueMock.create({ namespaceId: namespace._id });
 
-      await GameInvitationMock.create({ gameId: game._id, toUserId: user._id });
+      await GameInvitationMock.create({ namespaceId: namespace._id, toUserId: user._id });
       record = await QueueMemberMock.create({ queueId: queue._id, userId: user._id });
     });
 

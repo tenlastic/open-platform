@@ -2,7 +2,6 @@ import * as minio from '@tenlastic/minio';
 import {
   File,
   FileMock,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -45,10 +44,9 @@ describe('remove-release-files', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
 
       platform = FileMock.getPlatform();
-      release = await ReleaseMock.create({ gameId: game._id });
+      release = await ReleaseMock.create({ namespaceId: namespace._id });
       releaseTask = await ReleaseTaskMock.create({
         metadata: { removed: ['index.spec.ts'] },
         platform,
@@ -134,8 +132,7 @@ describe('remove-release-files', function() {
   context('when unsuccessful', function() {
     it('requeues the message', async function() {
       const namespace = await NamespaceMock.create();
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const release = await ReleaseMock.create({ gameId: game._id });
+      const release = await ReleaseMock.create({ namespaceId: namespace._id });
 
       const requeueStub = sandbox.stub(rabbitmq, 'requeue').resolves(false);
 

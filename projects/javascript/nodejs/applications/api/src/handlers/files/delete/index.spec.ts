@@ -6,7 +6,6 @@ import * as minio from '@tenlastic/minio';
 import {
   FileDocument,
   FileMock,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -33,8 +32,8 @@ describe('handlers/files/delete', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      release = await ReleaseMock.create({ gameId: game._id });
+
+      release = await ReleaseMock.create({ namespaceId: namespace._id });
       record = await FileMock.create({ releaseId: release._id });
     });
 

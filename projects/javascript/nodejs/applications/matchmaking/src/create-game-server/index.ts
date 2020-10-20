@@ -17,7 +17,6 @@ export async function createGameServer(queue: QueueDocument, queueMembers: Queue
     const gameServer = await GameServer.create({
       allowedUserIds: userIds,
       description: queue.description,
-      gameId: queue.gameId,
       isPersistent: false,
       isPreemptible: queue.gameServerTemplate.isPreemptible,
       metadata: {
@@ -27,6 +26,7 @@ export async function createGameServer(queue: QueueDocument, queueMembers: Queue
         usersPerTeam: queue.usersPerTeam,
       },
       name: queue.name,
+      namespaceId: queue.namespaceId,
       queueId: queue._id,
       releaseId: queue.gameServerTemplate.releaseId,
     });
@@ -39,7 +39,7 @@ export async function createGameServer(queue: QueueDocument, queueMembers: Queue
     // Find GameServers that are associated with a Queue and QueueMembers.
     const gameServers = await GameServer.find({
       allowedUserIds: { $in: userIds },
-      gameId: queue.gameId,
+      namespaceId: queue.namespaceId,
       queueId: { $exists: true },
     });
 

@@ -6,11 +6,7 @@ import { GameInvitation, GameInvitationService, User, UserService } from '@tenla
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import {
-  IdentityService,
-  SelectedGameService,
-  SelectedNamespaceService,
-} from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
@@ -33,7 +29,6 @@ export class GameInvitationsFormPageComponent implements OnInit {
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private router: Router,
-    private selectedGameService: SelectedGameService,
     public selectedNamespaceService: SelectedNamespaceService,
     private userService: UserService,
   ) {}
@@ -63,7 +58,7 @@ export class GameInvitationsFormPageComponent implements OnInit {
     const toUser: User = this.form.get('toUser').value;
 
     const values: Partial<GameInvitation> = {
-      gameId: this.selectedGameService.game._id,
+      namespaceId: this.selectedNamespaceService.namespaceId,
       toUserId: toUser._id,
     };
 

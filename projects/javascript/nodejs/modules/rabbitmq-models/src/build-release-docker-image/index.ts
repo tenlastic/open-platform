@@ -56,14 +56,17 @@ async function onMessage(
 
       // Build
       const release = await Release.findOne({ _id: task.releaseId });
-      await docker.build(dir.name, tmps, release.gameId.toString(), task.releaseId.toString());
+      await docker.build(dir.name, tmps, release.namespaceId.toString(), task.releaseId.toString());
 
       // Tag
-      const response = await docker.inspect(release.gameId.toString(), task.releaseId.toString());
-      await docker.tag(response[0].Id, release.gameId.toString(), task.releaseId.toString());
+      const response = await docker.inspect(
+        release.namespaceId.toString(),
+        task.releaseId.toString(),
+      );
+      await docker.tag(response[0].Id, release.namespaceId.toString(), task.releaseId.toString());
 
       // Push
-      await docker.push(release.gameId.toString(), task.releaseId.toString());
+      await docker.push(release.namespaceId.toString(), task.releaseId.toString());
 
       dir.removeCallback();
     }

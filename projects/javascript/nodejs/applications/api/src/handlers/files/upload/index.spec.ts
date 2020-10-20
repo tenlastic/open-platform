@@ -1,7 +1,6 @@
 import {
   FileMock,
   FilePlatform,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -63,11 +62,13 @@ describe('handlers/files/upload', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
 
       platform = FileMock.getPlatform();
-      previousRelease = await ReleaseMock.create({ gameId: game._id, publishedAt: new Date() });
-      release = await ReleaseMock.create({ gameId: game._id });
+      previousRelease = await ReleaseMock.create({
+        namespaceId: namespace._id,
+        publishedAt: new Date(),
+      });
+      release = await ReleaseMock.create({ namespaceId: namespace._id });
 
       const zip = new JSZip();
       zip.file('index.spec.ts', fs.createReadStream(__filename));
@@ -152,8 +153,7 @@ describe('handlers/files/upload', function() {
   context('when permission is denied', function() {
     it('throws an error', async function() {
       const namespace = await NamespaceMock.create();
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const release = await ReleaseMock.create({ gameId: game._id });
+      const release = await ReleaseMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         params: {

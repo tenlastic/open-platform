@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Game, RefreshToken, RefreshTokenService, Release } from '@tenlastic/ng-http';
+import { RefreshToken, RefreshTokenService } from '@tenlastic/ng-http';
 
 import { IdentityService } from '../../../../../../core/services';
 import { RefreshTokenPromptComponent } from '../../../../../../shared/components';
@@ -16,10 +16,6 @@ export class RefreshTokensFormPageComponent implements OnInit {
   public data: RefreshToken;
   public error: string;
   public form: FormGroup;
-  public games: Game[];
-  public releases: Release[];
-
-  private game: Game;
 
   constructor(
     private activatedRoute: ActivatedRoute,

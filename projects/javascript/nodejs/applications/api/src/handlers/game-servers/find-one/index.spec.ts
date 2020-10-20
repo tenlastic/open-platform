@@ -4,7 +4,6 @@ import * as chaiAsPromised from 'chai-as-promised';
 
 import {
   GameServerDocument,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -24,8 +23,7 @@ describe('handlers/game-servers/find-one', function() {
 
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-    const game = await GameMock.create({ namespaceId: namespace._id });
-    record = await GameServerMock.create({ gameId: game._id });
+    record = await GameServerMock.create({ namespaceId: namespace._id });
   });
 
   it('returns the record', async function() {

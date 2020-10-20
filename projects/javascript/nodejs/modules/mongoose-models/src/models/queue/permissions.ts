@@ -9,9 +9,9 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
         '_id',
         'createdAt',
         'description',
-        'gameId',
         'gameServerTemplate.*',
         'name',
+        'namespaceId',
         'usersPerTeam',
         'teams',
         'updatedAt',
@@ -27,12 +27,12 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
     base: {
       $or: [
         {
-          gameId: {
+          namespaceId: {
             $in: {
-              // Find all Games of which the User has been invited.
+              // Find all Namespaces of which the User has been invited.
               $query: {
                 model: 'GameInvitationSchema',
-                select: 'gameId',
+                select: 'namespaceId',
                 where: {
                   toUserId: { $eq: { $ref: 'user._id' } },
                 },
@@ -41,25 +41,14 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
           },
         },
         {
-          gameId: {
+          namespaceId: {
             $in: {
-              // Find all Games within the returned Namespaces.
+              // Find all Namespaces that the user is a member of.
               $query: {
-                model: 'GameSchema',
+                model: 'NamespaceSchema',
                 select: '_id',
                 where: {
-                  namespaceId: {
-                    $in: {
-                      // Find all Namespaces that the user is a member of.
-                      $query: {
-                        model: 'NamespaceSchema',
-                        select: '_id',
-                        where: {
-                          'accessControlList.userId': { $eq: { $ref: 'user._id' } },
-                        },
-                      },
-                    },
-                  },
+                  'accessControlList.userId': { $eq: { $ref: 'user._id' } },
                 },
               },
             },
@@ -68,15 +57,15 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
       ],
     },
   },
-  populate: [{ path: 'gameDocument', populate: { path: 'namespaceDocument' } }],
+  populate: [{ path: 'namespaceDocument' }],
   read: {
     base: [
       '_id',
       'createdAt',
       'description',
-      'gameId',
       'gameServerTemplate.*',
       'name',
+      'namespaceId',
       'usersPerTeam',
       'teams',
       'updatedAt',
@@ -86,7 +75,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
     {
       name: 'namespace-administrator',
       query: {
-        'record.gameDocument.namespaceDocument.accessControlList': {
+        'record.namespaceDocument.accessControlList': {
           $elemMatch: {
             roles: { $eq: 'Administrator' },
             userId: { $eq: { $ref: 'user._id' } },
@@ -101,9 +90,9 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
         '_id',
         'createdAt',
         'description',
-        'gameId',
         'gameServerTemplate.*',
         'name',
+        'namespaceId',
         'usersPerTeam',
         'teams',
         'updatedAt',

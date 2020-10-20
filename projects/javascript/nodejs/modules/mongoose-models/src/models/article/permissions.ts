@@ -5,7 +5,7 @@ import { Article, ArticleDocument } from './model';
 export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Article, {
   create: {
     roles: {
-      'namespace-administrator': ['body', 'caption', 'gameId', 'publishedAt', 'title', 'type'],
+      'namespace-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
     },
   },
   delete: {
@@ -18,25 +18,14 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
       $or: [
         { $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }] },
         {
-          gameId: {
+          namespaceId: {
             $in: {
-              // Find all Games within the returned Namespaces.
+              // Find all Namespaces that the user is a member of.
               $query: {
-                model: 'GameSchema',
+                model: 'NamespaceSchema',
                 select: '_id',
                 where: {
-                  namespaceId: {
-                    $in: {
-                      // Find all Namespaces that the user is a member of.
-                      $query: {
-                        model: 'NamespaceSchema',
-                        select: '_id',
-                        where: {
-                          'accessControlList.userId': { $eq: { $ref: 'user._id' } },
-                        },
-                      },
-                    },
-                  },
+                  'accessControlList.userId': { $eq: { $ref: 'user._id' } },
                 },
               },
             },
@@ -45,14 +34,14 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
       ],
     },
   },
-  populate: [{ path: 'gameDocument', populate: { path: 'namespaceDocument' } }],
+  populate: [{ path: 'namespaceDocument' }],
   read: {
     base: [
       '_id',
       'body',
       'caption',
       'createdAt',
-      'gameId',
+      'namespaceId',
       'publishedAt',
       'title',
       'type',
@@ -63,7 +52,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
     {
       name: 'namespace-administrator',
       query: {
-        'record.gameDocument.namespaceDocument.accessControlList': {
+        'record.namespaceDocument.accessControlList': {
           $elemMatch: {
             roles: { $eq: 'Administrator' },
             userId: { $eq: { $ref: 'user._id' } },
@@ -74,7 +63,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
   ],
   update: {
     roles: {
-      'namespace-administrator': ['body', 'caption', 'gameId', 'publishedAt', 'title', 'type'],
+      'namespace-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
     },
   },
 });

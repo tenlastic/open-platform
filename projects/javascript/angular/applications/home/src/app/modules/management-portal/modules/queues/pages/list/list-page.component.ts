@@ -5,7 +5,7 @@ import { Queue, QueueService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedGameService } from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -28,7 +28,7 @@ export class QueuesListPageComponent implements OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private queueService: QueueService,
-    private selectedGameService: SelectedGameService,
+    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
@@ -74,7 +74,7 @@ export class QueuesListPageComponent implements OnInit {
   private async fetchQueues() {
     const records = await this.queueService.find({
       sort: 'name',
-      where: { gameId: this.selectedGameService.game._id },
+      where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
     this.dataSource = new MatTableDataSource<Queue>(records);

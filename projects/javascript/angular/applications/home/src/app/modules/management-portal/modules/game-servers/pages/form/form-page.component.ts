@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameServer, GameServerService, Release, ReleaseService } from '@tenlastic/ng-http';
 
-import { IdentityService, SelectedGameService } from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 interface PropertyFormGroup {
@@ -31,7 +31,7 @@ export class GameServersFormPageComponent implements OnInit {
     private matSnackBar: MatSnackBar,
     private releaseService: ReleaseService,
     private router: Router,
-    private selectedGameService: SelectedGameService,
+    private selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public ngOnInit() {
@@ -41,10 +41,9 @@ export class GameServersFormPageComponent implements OnInit {
         this.data = await this.gameServerService.findOne(_id);
       }
 
-      const gameId = this.selectedGameService.game && this.selectedGameService.game._id;
       this.releases = await this.releaseService.find({
         sort: '-publishedAt',
-        where: { gameId },
+        where: { namespaceId: this.selectedNamespaceService.namespaceId },
       });
 
       this.setupForm();
@@ -66,10 +65,10 @@ export class GameServersFormPageComponent implements OnInit {
   public async save() {
     if (this.form.invalid) {
       this.form.get('description').markAsTouched();
-      this.form.get('gameId').markAsTouched();
       this.form.get('isPersistent').markAsTouched();
       this.form.get('isPreemptible').markAsTouched();
       this.form.get('name').markAsTouched();
+      this.form.get('namespaceId').markAsTouched();
       this.form.get('releaseId').markAsTouched();
 
       return;
@@ -82,11 +81,11 @@ export class GameServersFormPageComponent implements OnInit {
 
     const values: Partial<GameServer> = {
       description: this.form.get('description').value,
-      gameId: this.form.get('gameId').value,
       isPersistent: this.form.get('isPersistent').value,
       isPreemptible: this.form.get('isPreemptible').value,
       metadata,
       name: this.form.get('name').value,
+      namespaceId: this.form.get('namespaceId').value,
       releaseId: this.form.get('releaseId').value,
     };
 
@@ -154,10 +153,7 @@ export class GameServersFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       description: [this.data.description],
-      gameId: [
-        this.selectedGameService.game ? this.selectedGameService.game._id : null,
-        Validators.required,
-      ],
+      namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
       isPersistent: [this.data.isPersistent || false],
       isPreemptible: [this.data.isPreemptible || false],
       metadata: this.formBuilder.array(properties),

@@ -5,7 +5,6 @@ import * as chaiAsPromised from 'chai-as-promised';
 import {
   QueueDocument,
   QueueMock,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -24,9 +23,8 @@ describe('handlers/queues/find-one', function() {
 
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-    const game = await GameMock.create({ namespaceId: namespace._id });
 
-    record = await QueueMock.create({ gameId: game._id });
+    record = await QueueMock.create({ namespaceId: namespace._id });
   });
 
   it('returns the record', async function() {

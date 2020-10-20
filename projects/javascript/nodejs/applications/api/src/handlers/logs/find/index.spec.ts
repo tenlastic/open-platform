@@ -2,7 +2,6 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
 import {
-  GameMock,
   GameServerMock,
   LogDocument,
   LogMock,
@@ -22,8 +21,7 @@ describe('handlers/logs/find', function() {
 
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-    const game = await GameMock.create({ namespaceId: namespace._id });
-    const gameServer = await GameServerMock.create({ gameId: game._id });
+    const gameServer = await GameServerMock.create({ namespaceId: namespace._id });
     record = await LogMock.create({ gameServerId: gameServer._id });
     await LogMock.create();
   });

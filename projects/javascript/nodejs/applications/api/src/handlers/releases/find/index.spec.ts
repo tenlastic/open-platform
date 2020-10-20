@@ -2,7 +2,6 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
 import {
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -21,9 +20,8 @@ describe('handlers/releases/find', function() {
 
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-    const game = await GameMock.create({ namespaceId: namespace._id });
 
-    record = await ReleaseMock.create({ gameId: game._id });
+    record = await ReleaseMock.create({ namespaceId: namespace._id });
   });
 
   it('returns the matching records', async function() {

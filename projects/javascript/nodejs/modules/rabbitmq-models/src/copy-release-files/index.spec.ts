@@ -2,16 +2,15 @@ import * as minio from '@tenlastic/minio';
 import {
   File,
   FileMock,
-  GameMock,
   NamespaceMock,
-  UserDocument,
-  UserMock,
   ReleaseDocument,
-  ReleaseTaskMock,
   ReleaseMock,
-  UserRolesMock,
   ReleaseTask,
   ReleaseTaskDocument,
+  ReleaseTaskMock,
+  UserDocument,
+  UserMock,
+  UserRolesMock,
 } from '@tenlastic/mongoose-models';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { expect, use } from 'chai';
@@ -44,11 +43,13 @@ describe('copy-release-files', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
 
       const platform = FileMock.getPlatform();
-      release = await ReleaseMock.create({ gameId: game._id });
-      previousRelease = await ReleaseMock.create({ gameId: game._id, publishedAt: new Date() });
+      release = await ReleaseMock.create({ namespaceId: namespace._id });
+      previousRelease = await ReleaseMock.create({
+        namespaceId: namespace._id,
+        publishedAt: new Date(),
+      });
       releaseTask = await ReleaseTaskMock.create({
         metadata: { previousReleaseId: previousRelease._id, unmodified: ['index.spec.ts'] },
         platform,
@@ -113,8 +114,7 @@ describe('copy-release-files', function() {
   context('when unsuccessful', function() {
     it('requeues the message', async function() {
       const namespace = await NamespaceMock.create();
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const release = await ReleaseMock.create({ gameId: game._id });
+      const release = await ReleaseMock.create({ namespaceId: namespace._id });
 
       const requeueStub = sandbox.stub(rabbitmq, 'requeue').resolves(false);
 

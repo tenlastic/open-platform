@@ -7,7 +7,6 @@ import * as fs from 'fs';
 import {
   FileMock,
   FilePlatform,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -34,9 +33,8 @@ describe('handlers/releases/delete', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
 
-      record = await ReleaseMock.create({ gameId: game._id });
+      record = await ReleaseMock.create({ namespaceId: namespace._id });
 
       platform = FileMock.getPlatform();
       const file = await FileMock.create({ path: 'index.ts', platform, releaseId: record._id });
@@ -76,8 +74,8 @@ describe('handlers/releases/delete', function() {
     let record: ReleaseDocument;
 
     beforeEach(async function() {
-      const game = await GameMock.create();
-      record = await ReleaseMock.create({ gameId: game._id });
+      const namespace = await NamespaceMock.create();
+      record = await ReleaseMock.create({ namespaceId: namespace._id });
     });
 
     it('throws an error', async function() {

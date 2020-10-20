@@ -3,7 +3,6 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
 import {
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -30,9 +29,8 @@ describe('handlers/releases/delete', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
 
-      release = await ReleaseMock.create({ gameId: game._id });
+      release = await ReleaseMock.create({ namespaceId: namespace._id });
       record = await ReleaseTaskMock.create({ releaseId: release._id });
     });
 
@@ -53,8 +51,8 @@ describe('handlers/releases/delete', function() {
 
   context('when permission is denied', function() {
     beforeEach(async function() {
-      const game = await GameMock.create();
-      release = await ReleaseMock.create({ gameId: game._id });
+      const namespace = await NamespaceMock.create();
+      release = await ReleaseMock.create({ namespaceId: namespace._id });
       record = await ReleaseTaskMock.create();
     });
 

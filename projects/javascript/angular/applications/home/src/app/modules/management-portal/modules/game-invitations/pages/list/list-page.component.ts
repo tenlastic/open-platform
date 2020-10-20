@@ -2,19 +2,18 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import {
-  Game,
-  GameService,
   GameInvitation,
   GameInvitationQuery,
   GameInvitationService,
-  GameQuery,
+  NamespaceQuery,
+  NamespaceService,
   UserQuery,
   UserService,
 } from '@tenlastic/ng-http';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedGameService } from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -40,11 +39,11 @@ export class GameInvitationsListPageComponent implements OnDestroy, OnInit {
   constructor(
     private gameInvitationQuery: GameInvitationQuery,
     private gameInvitationService: GameInvitationService,
-    private gameQuery: GameQuery,
-    private gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
-    private selectedGameService: SelectedGameService,
+    private namespaceQuery: NamespaceQuery,
+    private namespaceService: NamespaceService,
+    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
     private userQuery: UserQuery,
     private userService: UserService,
@@ -96,22 +95,23 @@ export class GameInvitationsListPageComponent implements OnDestroy, OnInit {
 
   private async fetchGameInvitations() {
     const $gameInvitations = this.gameInvitationQuery.selectAll({
-      filterBy: gameInvitation => gameInvitation.gameId === this.selectedGameService.game._id,
+      filterBy: gameInvitation =>
+        gameInvitation.namespaceId === this.selectedNamespaceService.namespaceId,
     });
     this.$gameInvitations = this.gameInvitationQuery.populate($gameInvitations);
 
     await this.gameInvitationService.find({
       sort: '-createdAt',
-      where: { gameId: this.selectedGameService.game._id },
+      where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
     this.fetchGameInvitationGame$ = this.$gameInvitations.subscribe(gameInvitations => {
-      const missingGameIds = gameInvitations
-        .map(f => f.gameId)
-        .filter(gameId => !this.gameQuery.hasEntity(gameId));
+      const missingNamespaceIds = gameInvitations
+        .map(f => f.namespaceId)
+        .filter(namespaceId => !this.namespaceQuery.hasEntity(namespaceId));
 
-      if (missingGameIds.length > 0) {
-        this.gameService.find({ where: { _id: { $in: missingGameIds } } });
+      if (missingNamespaceIds.length > 0) {
+        this.namespaceService.find({ where: { _id: { $in: missingNamespaceIds } } });
       }
     });
     this.fetchGameInvitationToUser$ = this.$gameInvitations.subscribe(gameInvitations => {

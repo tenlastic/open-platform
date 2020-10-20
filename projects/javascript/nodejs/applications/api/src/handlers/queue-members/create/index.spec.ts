@@ -4,7 +4,6 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 
 import {
-  GameMock,
   GameInvitationMock,
   NamespaceMock,
   QueueMock,
@@ -28,10 +27,9 @@ describe('handlers/queue-members/create', function() {
     it('creates a new record', async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const queue = await QueueMock.create({ gameId: game._id });
+      const queue = await QueueMock.create({ namespaceId: namespace._id });
 
-      await GameInvitationMock.create({ gameId: game._id, toUserId: user._id });
+      await GameInvitationMock.create({ namespaceId: namespace._id, toUserId: user._id });
 
       const ctx = new ContextMock({
         request: {
@@ -55,8 +53,7 @@ describe('handlers/queue-members/create', function() {
 
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const queue = await QueueMock.create({ gameId: game._id });
+      const queue = await QueueMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         request: {

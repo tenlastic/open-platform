@@ -60,7 +60,7 @@ export class InformationPageComponent implements OnInit {
         sort: '-publishedAt',
         where: {
           $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
-          gameId: this.game._id,
+          namespaceId: this.game.namespaceId,
         },
       });
 

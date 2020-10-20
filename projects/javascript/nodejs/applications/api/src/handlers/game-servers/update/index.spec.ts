@@ -6,7 +6,6 @@ import * as Chance from 'chance';
 import {
   GameServerDocument,
   GameServerMock,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -30,8 +29,7 @@ describe('handlers/game-servers/update', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      record = await GameServerMock.create({ gameId: game._id });
+      record = await GameServerMock.create({ namespaceId: namespace._id });
     });
 
     it('returns the record', async function() {

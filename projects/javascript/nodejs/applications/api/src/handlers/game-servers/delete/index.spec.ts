@@ -5,7 +5,6 @@ import * as chaiAsPromised from 'chai-as-promised';
 import {
   GameServerDocument,
   GameServerMock,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -28,8 +27,7 @@ describe('handlers/game-servers/delete', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      record = await GameServerMock.create({ gameId: game._id });
+      record = await GameServerMock.create({ namespaceId: namespace._id });
     });
 
     it('returns the deleted record', async function() {

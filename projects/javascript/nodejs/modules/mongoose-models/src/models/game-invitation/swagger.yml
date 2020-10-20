@@ -12,7 +12,7 @@ components:
         fromUserId:
           type: string
           format: ^[a-f0-9]{24}$
-        gameId:
+        namespaceId:
           type: string
           format: ^[a-f0-9]{24}$
         toUserId:

@@ -35,8 +35,9 @@ export class GameServersPageComponent implements OnInit {
   ) {}
 
   public async ngOnInit() {
+    const game = this.gameQuery.getActive() as Game;
     this.$gameServers = this.gameServerQuery.selectAll({
-      filterBy: gs => gs.gameId === this.gameQuery.getActiveId() && !gs.queueId,
+      filterBy: gs => gs.namespaceId === game.namespaceId && !gs.queueId,
     });
     this.$group = this.groupQuery
       .selectAll({ filterBy: g => g.userIds.includes(this.identityService.user._id) })
@@ -44,7 +45,7 @@ export class GameServersPageComponent implements OnInit {
 
     await this.gameServerService.find({
       where: {
-        gameId: this.gameQuery.getActiveId(),
+        namespaceId: game.namespaceId,
         'metadata.matchId': { $exists: false },
       },
     });

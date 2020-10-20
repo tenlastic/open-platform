@@ -7,6 +7,6 @@ export const WebSocketPermissions = new MongoosePermissions<WebSocketDocument>(W
     base: {},
   },
   read: {
-    base: ['_id', 'createdAt', 'gameId', 'updatedAt', 'userId'],
+    base: ['_id', 'createdAt', 'namespaceId', 'updatedAt', 'userId'],
   },
 });

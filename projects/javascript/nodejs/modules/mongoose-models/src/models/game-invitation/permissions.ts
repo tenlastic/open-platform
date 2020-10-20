@@ -7,7 +7,7 @@ export const GameInvitationPermissions = new MongoosePermissions<GameInvitationD
   {
     create: {
       roles: {
-        administrator: ['gameId', 'toUserId'],
+        administrator: ['namespaceId', 'toUserId'],
       },
     },
     delete: {
@@ -20,25 +20,14 @@ export const GameInvitationPermissions = new MongoosePermissions<GameInvitationD
       base: {
         $or: [
           {
-            gameId: {
+            namespaceId: {
               $in: {
-                // Find all Databases within the returned Namespaces.
+                // Find all Namespaces that the user is a member of.
                 $query: {
-                  model: 'GameSchema',
+                  model: 'NamespaceSchema',
                   select: '_id',
                   where: {
-                    namespaceId: {
-                      $in: {
-                        // Find all Namespaces that the user is a member of.
-                        $query: {
-                          model: 'NamespaceSchema',
-                          select: '_id',
-                          where: {
-                            'accessControlList.userId': { $eq: { $ref: 'user._id' } },
-                          },
-                        },
-                      },
-                    },
+                    'accessControlList.userId': { $eq: { $ref: 'user._id' } },
                   },
                 },
               },
@@ -50,15 +39,15 @@ export const GameInvitationPermissions = new MongoosePermissions<GameInvitationD
         ],
       },
     },
-    populate: [{ path: 'gameDocument', populate: { path: 'namespaceDocument' } }],
+    populate: [{ path: 'namespaceDocument' }],
     read: {
-      base: ['_id', 'createdAt', 'fromUserId', 'gameId', 'toUserId', 'updatedAt'],
+      base: ['_id', 'createdAt', 'fromUserId', 'namespaceId', 'toUserId', 'updatedAt'],
     },
     roles: [
       {
         name: 'administrator',
         query: {
-          'record.gameDocument.namespaceDocument.accessControlList': {
+          'record.namespaceDocument.accessControlList': {
             $elemMatch: {
               roles: { $eq: 'Administrator' },
               userId: { $eq: { $ref: 'user._id' } },

@@ -3,7 +3,6 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
 import {
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -24,9 +23,8 @@ describe('handlers/releases/find-one', function() {
 
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-    const game = await GameMock.create({ namespaceId: namespace._id });
 
-    record = await ReleaseMock.create({ gameId: game._id });
+    record = await ReleaseMock.create({ namespaceId: namespace._id });
   });
 
   it('returns the record', async function() {

@@ -1,17 +1,16 @@
 import * as minio from '@tenlastic/minio';
 import {
   File,
-  GameMock,
   NamespaceMock,
+  ReleaseDocument,
+  ReleaseMock,
+  ReleaseTask,
+  ReleaseTaskAction,
+  ReleaseTaskDocument,
+  ReleaseTaskMock,
   UserDocument,
   UserMock,
-  ReleaseDocument,
-  ReleaseTaskAction,
-  ReleaseTaskMock,
-  ReleaseMock,
   UserRolesMock,
-  ReleaseTask,
-  ReleaseTaskDocument,
 } from '@tenlastic/mongoose-models';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { expect, use } from 'chai';
@@ -46,9 +45,8 @@ describe('workers/unzip', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
 
-      release = await ReleaseMock.create({ gameId: game._id });
+      release = await ReleaseMock.create({ namespaceId: namespace._id });
       releaseTask = await ReleaseTaskMock.create({ releaseId: release });
 
       // Upload zip to Minio.
@@ -120,8 +118,7 @@ describe('workers/unzip', function() {
   context('when unsuccessful', function() {
     it('requeues the message', async function() {
       const namespace = await NamespaceMock.create();
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const release = await ReleaseMock.create({ gameId: game._id });
+      const release = await ReleaseMock.create({ namespaceId: namespace._id });
 
       const requeueStub = sandbox.stub(rabbitmq, 'requeue').resolves(false);
 

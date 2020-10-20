@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Release, ReleaseTask, ReleaseService } from '@tenlastic/ng-http';
 
-import { IdentityService, SelectedGameService } from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
@@ -28,7 +28,7 @@ export class ReleasesFormPageComponent implements OnInit {
     private matSnackBar: MatSnackBar,
     private releaseService: ReleaseService,
     private router: Router,
-    private selectedGameService: SelectedGameService,
+    private selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public ngOnInit() {
@@ -45,7 +45,7 @@ export class ReleasesFormPageComponent implements OnInit {
   public async save() {
     if (this.form.invalid) {
       this.form.get('entrypoint').markAsTouched();
-      this.form.get('gameId').markAsTouched();
+      this.form.get('namespaceId').markAsTouched();
       this.form.get('version').markAsTouched();
 
       return;
@@ -53,7 +53,7 @@ export class ReleasesFormPageComponent implements OnInit {
 
     const values: Partial<Release> = {
       entrypoint: this.form.get('entrypoint').value,
-      gameId: this.form.get('gameId').value,
+      namespaceId: this.form.get('namespaceId').value,
       version: this.form.get('version').value,
     };
 
@@ -79,10 +79,7 @@ export class ReleasesFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       entrypoint: [this.data.entrypoint, Validators.required],
-      gameId: [
-        this.selectedGameService.game ? this.selectedGameService.game._id : null,
-        Validators.required,
-      ],
+      namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
       version: [this.data.version, Validators.required],
     });
 

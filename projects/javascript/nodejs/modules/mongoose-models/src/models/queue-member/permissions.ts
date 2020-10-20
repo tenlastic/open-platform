@@ -26,25 +26,14 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
                 model: 'QueueSchema',
                 select: '_id',
                 where: {
-                  gameId: {
+                  namespaceId: {
                     $in: {
-                      // Find all Games within the returned Namespaces.
+                      // Find all Namespaces that the User is a member of.
                       $query: {
-                        model: 'GameSchema',
+                        model: 'NamespaceSchema',
                         select: '_id',
                         where: {
-                          namespaceId: {
-                            $in: {
-                              // Find all Namespaces that the User is a member of.
-                              $query: {
-                                model: 'NamespaceSchema',
-                                select: '_id',
-                                where: {
-                                  'accessControlList.userId': { $eq: { $ref: 'user._id' } },
-                                },
-                              },
-                            },
-                          },
+                          'accessControlList.userId': { $eq: { $ref: 'user._id' } },
                         },
                       },
                     },
@@ -57,17 +46,17 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
         {
           queueId: {
             $in: {
-              // Find all Queues within the returned Games.
+              // Find all Queues within the returned Namespaces.
               $query: {
                 model: 'QueueSchema',
                 select: '_id',
                 where: {
-                  gameId: {
+                  namespaceId: {
                     $in: {
-                      // Find all Games of which the User has been invited.
+                      // Find all Namespaces of which the User has been invited.
                       $query: {
                         model: 'GameInvitationSchema',
-                        select: 'gameId',
+                        select: 'namespaceId',
                         where: {
                           toUserId: { $eq: { $ref: 'user._id' } },
                         },
@@ -88,7 +77,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     },
     {
       path: 'queueDocument',
-      populate: [{ path: 'gameDocument', populate: { path: 'namespaceDocument' } }],
+      populate: [{ path: 'namespaceDocument' }],
     },
   ],
   read: {
@@ -98,7 +87,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     {
       name: 'namespace-administrator',
       query: {
-        'record.queueDocument.gameDocument.namespaceDocument.accessControlList': {
+        'record.queueDocument.namespaceDocument.accessControlList': {
           $elemMatch: {
             roles: { $eq: 'Administrator' },
             userId: { $eq: { $ref: 'user._id' } },
@@ -109,7 +98,9 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     {
       name: 'owner',
       query: {
-        'record.gameInvitationDocuments.gameId': { $eq: { $ref: 'record.queueDocument.gameId' } },
+        'record.gameInvitationDocuments.namespaceId': {
+          $eq: { $ref: 'record.queueDocument.namespaceId' },
+        },
         'record.userId': { $eq: { $ref: 'user._id' } },
       },
     },

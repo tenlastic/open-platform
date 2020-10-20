@@ -2,7 +2,6 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
 import {
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -19,9 +18,8 @@ describe('handlers/releases/count', function() {
 
     const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
     const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-    const game = await GameMock.create({ namespaceId: namespace._id });
 
-    await ReleaseMock.create({ gameId: game._id });
+    await ReleaseMock.create({ namespaceId: namespace._id });
   });
 
   it('returns the number of matching records', async function() {

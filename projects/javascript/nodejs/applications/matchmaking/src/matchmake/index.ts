@@ -7,7 +7,7 @@ export async function matchmake(payload: IDatabasePayload<Partial<QueueMemberDoc
   console.log(`Received QueueMember event for queue: ${payload.fullDocument.queueId}.`);
 
   const queue = await Queue.findOne({ _id: payload.fullDocument.queueId });
-  console.log(`Queue name: ${queue.name}. Queue Game ID: ${queue.gameId}.`);
+  console.log(`Queue name: ${queue.name}. Queue Game ID: ${queue.namespaceId}.`);
 
   // Check to see if enough Users are queued.
   const threshold = queue.teams * queue.usersPerTeam;

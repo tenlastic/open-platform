@@ -5,7 +5,7 @@ import { Release, ReleaseService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedGameService } from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -34,7 +34,7 @@ export class ReleasesListPageComponent implements OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private releaseService: ReleaseService,
-    private selectedGameService: SelectedGameService,
+    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
@@ -96,7 +96,7 @@ export class ReleasesListPageComponent implements OnInit {
   private async fetchReleases() {
     const records = await this.releaseService.find({
       sort: 'name',
-      where: { gameId: this.selectedGameService.game._id },
+      where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
     this.dataSource = new MatTableDataSource<Release>(records);

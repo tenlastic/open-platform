@@ -3,7 +3,6 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
 import {
-  GameMock,
   GameInvitationDocument,
   GameInvitationMock,
   UserDocument,
@@ -30,8 +29,10 @@ describe('handlers/game-invitations/delete', function() {
     beforeEach(async function() {
       const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
       const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      record = await GameInvitationMock.create({ gameId: game._id, toUserId: otherUser._id });
+      record = await GameInvitationMock.create({
+        namespaceId: namespace._id,
+        toUserId: otherUser._id,
+      });
     });
 
     it('returns the deleted record', async function() {
@@ -52,8 +53,8 @@ describe('handlers/game-invitations/delete', function() {
     let record: GameInvitationDocument;
 
     beforeEach(async function() {
-      const game = await GameMock.create();
-      record = await GameInvitationMock.create({ gameId: game._id, toUserId: user._id });
+      const namespace = await NamespaceMock.create();
+      record = await GameInvitationMock.create({ namespaceId: namespace._id, toUserId: user._id });
     });
 
     it('throws an error', async function() {

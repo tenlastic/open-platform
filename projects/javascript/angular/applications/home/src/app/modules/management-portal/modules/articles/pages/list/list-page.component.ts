@@ -6,7 +6,7 @@ import { Article, ArticleService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedGameService } from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -37,7 +37,7 @@ export class ArticlesListPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     public identityService: IdentityService,
     private matDialog: MatDialog,
-    private selectedGameService: SelectedGameService,
+    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
@@ -101,7 +101,7 @@ export class ArticlesListPageComponent implements OnInit {
   private async fetchArticles() {
     const records = await this.articleService.find({
       sort: 'name',
-      where: { gameId: this.selectedGameService.game._id },
+      where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
     this.dataSource = new MatTableDataSource<Article>(records);

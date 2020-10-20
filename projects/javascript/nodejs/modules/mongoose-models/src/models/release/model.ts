@@ -16,14 +16,14 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { Game, GameDocument } from '../game';
+import { Namespace, NamespaceDocument } from '../namespace';
 
 export const ReleaseEvent = new EventEmitter<IDatabasePayload<ReleaseDocument>>();
 ReleaseEvent.on(payload => {
   kafka.publish(payload);
 });
 
-@index({ gameId: 1, version: 1 }, { unique: true })
+@index({ namespaceId: 1, version: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
@@ -43,8 +43,8 @@ export class ReleaseSchema {
   @prop({ required: true })
   public entrypoint: string;
 
-  @prop({ ref: Game, required: true })
-  public gameId: Ref<GameDocument>;
+  @prop({ ref: Namespace, required: true })
+  public namespaceId: Ref<NamespaceDocument>;
 
   @prop()
   public publishedAt: Date;
@@ -54,8 +54,8 @@ export class ReleaseSchema {
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: Game })
-  public gameDocument: GameDocument;
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: Namespace })
+  public namespaceDocument: NamespaceDocument;
 }
 
 export type ReleaseDocument = DocumentType<ReleaseSchema>;
