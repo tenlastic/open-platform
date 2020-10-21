@@ -10,7 +10,7 @@ import {
   ReleaseTaskMock,
   UserDocument,
   UserMock,
-  UserRolesMock,
+  NamespaceRolesMock,
 } from '@tenlastic/mongoose-models';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { expect, use } from 'chai';
@@ -41,8 +41,11 @@ describe('copy-release-files', function() {
     let releaseTask: ReleaseTaskDocument;
 
     beforeEach(async function() {
-      const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-      const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
+      const namespaceRoles = NamespaceRolesMock.create({
+        roles: ['Administrator'],
+        userId: user._id,
+      });
+      const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
 
       const platform = FileMock.getPlatform();
       release = await ReleaseMock.create({ namespaceId: namespace._id });

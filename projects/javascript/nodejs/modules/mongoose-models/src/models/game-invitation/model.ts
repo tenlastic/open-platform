@@ -43,24 +43,24 @@ export class GameInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ ref: User, required: true })
+  @prop({ ref: 'UserSchema', required: true })
   public fromUserId: Ref<UserDocument>;
 
-  @prop({ ref: Namespace, required: true })
+  @prop({ ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
-  @prop({ ref: User, required: true })
+  @prop({ ref: 'UserSchema', required: true })
   public toUserId: Ref<UserDocument>;
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: User })
+  @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: 'UserSchema' })
   public fromUserDocument: UserDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: Namespace })
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: User })
+  @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: 'UserSchema' })
   public toUserDocument: UserDocument;
 }
 

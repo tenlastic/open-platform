@@ -24,7 +24,7 @@ export async function handler(ctx: Context) {
 
   const refreshTokenDocument = await RefreshToken.findOneAndUpdate(
     {
-      jti: decodedToken.jti,
+      _id: decodedToken.jti,
       userId: decodedToken.user._id,
     },
     {

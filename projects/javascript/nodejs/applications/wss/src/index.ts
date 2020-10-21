@@ -32,12 +32,12 @@ const webSocketServer = new WebSocketServer(webServer.server);
 webSocketServer.connection((jwt, ws) => {
   let interval: NodeJS.Timeout;
   interval = setInterval(async () => {
-    await WebSocket.findOneAndUpdate({ jti: jwt.jti }, { heartbeatAt: new Date() });
+    await WebSocket.findOneAndUpdate({ refreshTokenId: jwt.jti }, { heartbeatAt: new Date() });
   }, 10000);
 
-  ws.on('close', async () => await WebSocket.findOneAndDelete({ jti: jwt.jti }));
+  ws.on('close', async () => await WebSocket.findOneAndDelete({ refreshTokenId: jwt.jti }));
   ws.on('close', () => clearInterval(interval));
-  ws.on('error', async () => await WebSocket.findOneAndDelete({ jti: jwt.jti }));
+  ws.on('error', async () => await WebSocket.findOneAndDelete({ refreshTokenId: jwt.jti }));
   ws.on('error', () => clearInterval(interval));
 });
 webSocketServer.message((data, jwt, ws) => {
@@ -53,4 +53,4 @@ webSocketServer.message((data, jwt, ws) => {
       break;
   }
 });
-webSocketServer.upgrade(jwt => WebSocket.create({ jti: jwt.jti, userId: jwt.user._id }));
+webSocketServer.upgrade(jwt => WebSocket.create({ refreshTokenId: jwt.jti, userId: jwt.user._id }));

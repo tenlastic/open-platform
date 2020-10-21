@@ -84,7 +84,7 @@ describe('models/user.model', function() {
       const { refreshToken } = await user.logIn();
 
       const { jti } = jwt.decode(refreshToken) as any;
-      const count = await RefreshToken.countDocuments({ jti, userId: user._id });
+      const count = await RefreshToken.countDocuments({ _id: jti, userId: user._id });
 
       expect(count).to.eql(1);
     });

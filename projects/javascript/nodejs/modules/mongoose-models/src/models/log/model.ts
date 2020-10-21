@@ -54,7 +54,7 @@ export class LogSchema {
   @prop()
   public expiresAt: Date;
 
-  @prop({ ref: GameServer, required: true })
+  @prop({ ref: 'GameServerSchema', required: true })
   public gameServerId: Ref<GameServerDocument>;
 
   @prop({ required: true })
@@ -62,7 +62,7 @@ export class LogSchema {
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'gameServerId', ref: GameServer })
+  @prop({ foreignField: '_id', justOne: true, localField: 'gameServerId', ref: 'GameServerSchema' })
   public gameServerDocument: GameServerDocument[];
 }
 

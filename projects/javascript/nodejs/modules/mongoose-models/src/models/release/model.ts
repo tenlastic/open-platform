@@ -43,7 +43,7 @@ export class ReleaseSchema {
   @prop({ required: true })
   public entrypoint: string;
 
-  @prop({ ref: Namespace, required: true })
+  @prop({ ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
   @prop()
@@ -54,7 +54,7 @@ export class ReleaseSchema {
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: Namespace })
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
 }
 

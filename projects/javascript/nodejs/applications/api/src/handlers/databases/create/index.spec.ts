@@ -3,7 +3,12 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 
-import { NamespaceMock, UserDocument, UserMock, UserRolesMock } from '@tenlastic/mongoose-models';
+import {
+  NamespaceMock,
+  UserDocument,
+  UserMock,
+  NamespaceRolesMock,
+} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 const chance = new Chance();
@@ -18,8 +23,11 @@ describe('handlers/databases/create', function() {
 
   context('when permission is granted', function() {
     it('creates a new record', async function() {
-      const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-      const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
+      const namespaceRoles = NamespaceRolesMock.create({
+        roles: ['Administrator'],
+        userId: user._id,
+      });
+      const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
 
       const ctx = new ContextMock({
         request: {

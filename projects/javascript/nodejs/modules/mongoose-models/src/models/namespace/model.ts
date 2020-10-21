@@ -18,7 +18,7 @@ import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
 import { UserDocument } from '../user';
-import { UserRolesDocument, UserRoles } from './user-roles';
+import { NamespaceRole, NamespaceRoles, NamespaceRolesDocument } from './roles';
 
 export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocument>>();
 NamespaceEvent.on(payload => {
@@ -27,7 +27,7 @@ NamespaceEvent.on(payload => {
 
 @index({ name: 1 }, { unique: true })
 @index({ 'accessControlList.roles': 1 })
-@index({ 'accessControlList.userIds': 1 })
+@index({ 'accessControlList.userId': 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
@@ -44,8 +44,8 @@ NamespaceEvent.on(payload => {
 export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @arrayProp({ default: [], items: UserRoles })
-  public accessControlList: UserRolesDocument[];
+  @arrayProp({ default: [], items: NamespaceRoles })
+  public accessControlList: NamespaceRolesDocument[];
 
   public createdAt: Date;
 
@@ -55,28 +55,34 @@ export class NamespaceSchema {
   public updatedAt: Date;
 
   public static getDefaultAccessControlList(
-    accessControlList: Array<Partial<UserRolesDocument>>,
+    accessControlList: Array<Partial<NamespaceRolesDocument>>,
     user: Partial<UserDocument>,
   ) {
     const copy = accessControlList ? accessControlList.concat() : [];
 
     if (copy.length === 0) {
-      const userRoles = new UserRoles({ roles: ['Administrator'], userId: user._id });
-      copy.push(userRoles);
+      const namespaceRoles = new NamespaceRoles({
+        roles: [NamespaceRole.Namespaces],
+        userId: user._id,
+      });
+      copy.push(namespaceRoles);
 
       return copy;
     }
 
-    if (copy.find(acl => acl.roles.includes('Administrator'))) {
+    if (copy.find(acl => acl.roles.includes(NamespaceRole.Namespaces))) {
       return copy;
     }
 
     const result = copy.find(acl => acl.userId.toString() === user._id.toString());
     if (result) {
-      result.roles.push('Administrator');
+      result.roles.push(NamespaceRole.Namespaces);
     } else {
-      const userRoles = new UserRoles({ roles: ['Administrator'], userId: user._id });
-      copy.push(userRoles);
+      const namespaceRoles = new NamespaceRoles({
+        roles: [NamespaceRole.Namespaces],
+        userId: user._id,
+      });
+      copy.push(namespaceRoles);
     }
 
     return copy;

@@ -12,7 +12,7 @@ import {
   ReleaseMock,
   UserDocument,
   UserMock,
-  UserRolesMock,
+  NamespaceRolesMock,
 } from '@tenlastic/mongoose-models';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -42,15 +42,18 @@ describe('build-release-docker-image', function() {
     let releaseTask: ReleaseTaskDocument;
 
     beforeEach(async function() {
-      const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-      const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
+      const namespaceRoles = NamespaceRolesMock.create({
+        roles: ['Administrator'],
+        userId: user._id,
+      });
+      const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
 
       platform = FileMock.getPlatform();
       release = await ReleaseMock.create({ namespaceId: namespace._id });
       releaseTask = await ReleaseTaskMock.create({
         action: ReleaseTaskAction.Build,
         platform,
-        releaseId: release,
+        releaseId: release._id,
       });
 
       // Set up Files.

@@ -18,6 +18,7 @@ import * as mongoose from 'mongoose';
 
 import { GameInvitation, GameInvitationDocument } from '../game-invitation';
 import { Queue, QueueDocument } from '../queue';
+import { RefreshTokenDocument } from '../refresh-token';
 import { User, UserDocument } from '../user';
 import { WebSocketEvent } from '../web-socket';
 
@@ -33,12 +34,14 @@ WebSocketEvent.on(async payload => {
     return;
   }
 
-  const queueMembers = await QueueMember.find({ jti: payload.fullDocument.jti });
+  const queueMembers = await QueueMember.find({
+    refreshTokenId: payload.fullDocument.refreshTokenId,
+  });
   return Promise.all(queueMembers.map(qm => qm.remove()));
 });
 
-@index({ jti: 1 })
 @index({ queueId: 1, userId: 1 }, { unique: true })
+@index({ refreshTokenId: 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
@@ -55,24 +58,29 @@ export class QueueMemberSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ required: true })
-  public jti: string;
-
-  @prop({ ref: Queue, required: true })
+  @prop({ ref: 'QueueSchema', required: true })
   public queueId: Ref<QueueDocument>;
 
-  @prop({ ref: User, required: true })
+  @prop({ ref: 'RefreshTokenSchema', required: true })
+  public refreshTokenId: Ref<RefreshTokenDocument>;
+
+  @prop({ ref: 'UserSchema', required: true })
   public userId: Ref<UserDocument>;
 
   public updatedAt: Date;
 
-  @prop({ foreignField: 'toUserId', justOne: false, localField: 'userId', ref: GameInvitation })
+  @prop({
+    foreignField: 'toUserId',
+    justOne: false,
+    localField: 'userId',
+    ref: 'GameInvitationSchema',
+  })
   public gameInvitationDocuments: GameInvitationDocument[];
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: Queue })
+  @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: 'QueueSchema' })
   public queueDocument: QueueDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: User })
+  @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'UserSchema' })
   public userDocument: UserDocument;
 }
 

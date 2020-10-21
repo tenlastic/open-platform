@@ -7,7 +7,7 @@ import { RefreshTokensFormPageComponent, RefreshTokensListPageComponent } from '
 
 export const ROUTES: Routes = [
   { path: '', component: RefreshTokensListPageComponent },
-  { path: ':jti', component: RefreshTokensFormPageComponent },
+  { path: ':_id', component: RefreshTokensFormPageComponent },
 ];
 
 const pages = [RefreshTokensFormPageComponent, RefreshTokensListPageComponent];

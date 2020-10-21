@@ -31,12 +31,12 @@ export class DatabaseSchema {
   @prop({ match: /^[0-9a-z\-]{2,40}$/, required: true })
   public name: string;
 
-  @prop({ ref: Namespace, required: true })
+  @prop({ ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: Namespace })
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
 }
 

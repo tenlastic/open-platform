@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 
 import { Namespace } from './model';
+import { NamespaceRole } from './roles';
 
 describe('models/namespace/model', function() {
   describe('getDefaultAccessControlList()', function() {
@@ -12,7 +13,7 @@ describe('models/namespace/model', function() {
         const result = Namespace.getDefaultAccessControlList(null, user);
 
         expect(result.length).to.eql(1);
-        expect(result[0].roles).to.eql(['Administrator']);
+        expect(result[0].roles).to.eql([NamespaceRole.Namespaces]);
         expect(result[0].userId.toString()).to.eql(user._id.toHexString());
       });
     });
@@ -20,7 +21,7 @@ describe('models/namespace/model', function() {
     context('when the ACL includes an Administrator', function() {
       it('returns a copy of the original array', function() {
         const user = { _id: mongoose.Types.ObjectId() };
-        const acl = [{ roles: ['Administrator'], userId: user._id }];
+        const acl = [{ roles: [NamespaceRole.Namespaces], userId: user._id }];
 
         const result = Namespace.getDefaultAccessControlList(acl, user);
 
@@ -37,7 +38,7 @@ describe('models/namespace/model', function() {
           const result = Namespace.getDefaultAccessControlList(acl, user);
 
           expect(result.length).to.eql(1);
-          expect(result[0].roles).to.eql(['Owner', 'Administrator']);
+          expect(result[0].roles).to.eql(['Owner', NamespaceRole.Namespaces]);
           expect(result[0].userId.toString()).to.eql(user._id.toHexString());
         });
       });
@@ -54,7 +55,7 @@ describe('models/namespace/model', function() {
           expect(result[0].roles).to.eql(['Owner']);
           expect(result[0].userId.toString()).to.eql(acl[0].userId.toHexString());
 
-          expect(result[1].roles).to.eql(['Administrator']);
+          expect(result[1].roles).to.eql([NamespaceRole.Namespaces]);
           expect(result[1].userId.toString()).to.eql(user._id.toHexString());
         });
       });

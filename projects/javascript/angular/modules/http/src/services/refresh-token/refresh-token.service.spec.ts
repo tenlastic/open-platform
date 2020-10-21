@@ -43,7 +43,7 @@ describe('RefreshTokenService', () => {
 
       service.create(params).then(res => {
         expect(res.record).toEqual(jasmine.any(RefreshToken));
-        expect(res.record.jti).toBeDefined();
+        expect(res.record._id).toBeDefined();
         expect(res.record.description).toEqual(params.description);
       });
 
@@ -51,7 +51,7 @@ describe('RefreshTokenService', () => {
       expect(req.request.method).toBe('POST');
       req.flush({
         record: {
-          jti: chance.hash(),
+          _id: chance.hash(),
           description: params.description,
         },
         refreshToken: chance.hash(),
@@ -61,51 +61,51 @@ describe('RefreshTokenService', () => {
 
   describe('delete()', () => {
     it('deletes the user and returns true', () => {
-      const jti = chance.hash();
+      const _id = chance.hash();
 
-      service.delete(jti).then(res => {
+      service.delete(_id).then(res => {
         expect(res).toBeTruthy();
       });
 
-      const req = httpMock.expectOne(`${service.basePath}/${jti}`);
+      const req = httpMock.expectOne(`${service.basePath}/${_id}`);
       expect(req.request.method).toBe('DELETE');
     });
   });
 
   describe('find()', () => {
     it('returns an array of RefreshTokens', () => {
-      const jti = chance.hash();
+      const _id = chance.hash();
       const params = {
-        where: { jti },
+        where: { _id },
       };
 
       service.find(params).then(res => {
         expect(res.length).toBe(1);
         expect(res[0]).toEqual(jasmine.any(RefreshToken));
-        expect(res[0].jti).toBe(jti);
+        expect(res[0]._id).toBe(_id);
       });
 
       const req = httpMock.expectOne(r => r.url === service.basePath);
       expect(req.request.method).toBe('GET');
       req.flush({
-        records: [{ jti }],
+        records: [{ _id }],
       });
     });
   });
 
   describe('findOne()', () => {
     it('returns a RefreshToken', () => {
-      const jti = chance.hash();
+      const _id = chance.hash();
 
-      service.findOne(jti).then(res => {
+      service.findOne(_id).then(res => {
         expect(res).toEqual(jasmine.any(RefreshToken));
-        expect(res.jti).toBe(jti);
+        expect(res._id).toBe(_id);
       });
 
-      const req = httpMock.expectOne(`${service.basePath}/${jti}`);
+      const req = httpMock.expectOne(`${service.basePath}/${_id}`);
       expect(req.request.method).toBe('GET');
       req.flush({
-        record: { jti },
+        record: { _id },
       });
     });
   });
@@ -113,17 +113,17 @@ describe('RefreshTokenService', () => {
   describe('update()', () => {
     it('updates and returns a RefreshToken', () => {
       const params = {
-        jti: chance.hash(),
+        _id: chance.hash(),
         description: chance.hash(),
       };
 
       service.update(params).then(res => {
         expect(res).toEqual(jasmine.any(RefreshToken));
-        expect(res.jti).toEqual(params.jti);
+        expect(res._id).toEqual(params._id);
         expect(res.description).toEqual(params.description);
       });
 
-      const req = httpMock.expectOne(`${service.basePath}/${params.jti}`);
+      const req = httpMock.expectOne(`${service.basePath}/${params._id}`);
       expect(req.request.method).toBe('PUT');
       req.flush({ record: params });
     });

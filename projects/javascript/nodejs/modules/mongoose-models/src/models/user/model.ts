@@ -24,7 +24,6 @@ import {
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
-import * as uuid from 'uuid/v4';
 
 import * as emails from '../../emails';
 import { RefreshToken } from '../refresh-token/model';
@@ -96,7 +95,7 @@ export class UserSchema {
   @prop({ required: true })
   public password: string;
 
-  @arrayProp({ default: [], items: String })
+  @arrayProp({ default: [], enum: ['Administrator'], items: String })
   public roles: string[];
 
   public updatedAt: Date;
@@ -130,9 +129,8 @@ export class UserSchema {
    */
   public async logIn(this: UserDocument) {
     // Save the RefreshToken for renewal and revocation.
-    const jti = uuid();
     const expiresAt = new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000);
-    await RefreshToken.create({ expiresAt, jti, userId: this._id });
+    const token = await RefreshToken.create({ expiresAt, userId: this._id });
 
     // Remove unauthorized fields from the User.
     const filteredUser = await UserPermissions.read(this, this);
@@ -143,7 +141,7 @@ export class UserSchema {
       {
         algorithm: 'RS256',
         expiresIn: '30m',
-        jwtid: jti,
+        jwtid: token._id.toString(),
       },
     );
     const refreshToken = jwt.sign(
@@ -152,7 +150,7 @@ export class UserSchema {
       {
         algorithm: 'RS256',
         expiresIn: '14d',
-        jwtid: jti,
+        jwtid: token._id.toString(),
       },
     );
 

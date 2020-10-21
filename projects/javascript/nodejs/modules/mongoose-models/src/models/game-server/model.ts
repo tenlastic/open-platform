@@ -125,13 +125,13 @@ export class GameServerSchema implements IOriginalDocument {
   @prop({ required: true })
   public name: string;
 
-  @prop({ ref: Namespace, required: true })
+  @prop({ ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
   @prop()
   public port: number;
 
-  @prop({ ref: Queue })
+  @prop({ ref: 'QueueSchema' })
   public queueId: Ref<QueueDocument>;
 
   @prop({ required: true })
@@ -142,16 +142,16 @@ export class GameServerSchema implements IOriginalDocument {
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: false, localField: 'allowedUserIds', ref: User })
+  @prop({ foreignField: '_id', justOne: false, localField: 'allowedUserIds', ref: 'UserSchema' })
   public allowedUserDocuments: UserDocument[];
 
-  @prop({ foreignField: '_id', justOne: false, localField: 'currentUserIds', ref: User })
+  @prop({ foreignField: '_id', justOne: false, localField: 'currentUserIds', ref: 'UserSchema' })
   public currentUserDocuments: UserDocument[];
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: Namespace })
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: Queue })
+  @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: 'QueueSchema' })
   public queueDocument: QueueDocument;
 
   private get kubernetesNamespace() {

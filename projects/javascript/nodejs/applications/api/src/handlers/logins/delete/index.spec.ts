@@ -25,7 +25,7 @@ describe('handlers/logins/delete', function() {
     ctx = new ContextMock({
       state: {
         jwt: {
-          jti: refreshToken.jti,
+          jti: refreshToken._id.toString(),
         },
       },
     }) as any;
@@ -38,7 +38,7 @@ describe('handlers/logins/delete', function() {
   });
 
   it('deletes the associated RefreshToken', async function() {
-    const result = await RefreshToken.findOne({ jti: refreshToken.jti });
+    const result = await RefreshToken.findOne({ _id: refreshToken._id });
 
     expect(result).to.eql(null);
   });

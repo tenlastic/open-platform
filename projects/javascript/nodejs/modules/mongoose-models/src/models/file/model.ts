@@ -75,7 +75,7 @@ export class FileSchema {
   @prop({ enum: FilePlatform, required: true })
   public platform: FilePlatform;
 
-  @prop({ ref: Release, required: true })
+  @prop({ ref: 'ReleaseSchema', required: true })
   public releaseId: Ref<ReleaseDocument>;
 
   @prop({ required: true })
@@ -87,7 +87,7 @@ export class FileSchema {
     return `releases/${this.releaseId}/${this.platform}/${this.path}`;
   }
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'releaseId', ref: Release })
+  @prop({ foreignField: '_id', justOne: true, localField: 'releaseId', ref: 'ReleaseSchema' })
   public releaseDocument: ReleaseDocument;
 }
 

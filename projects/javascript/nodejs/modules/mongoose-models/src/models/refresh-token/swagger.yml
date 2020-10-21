@@ -14,8 +14,6 @@ components:
         expiresAt:
           type: string
           format: date-time
-        jti:
-          type: string
         updatedAt:
           type: string
           format: date-time

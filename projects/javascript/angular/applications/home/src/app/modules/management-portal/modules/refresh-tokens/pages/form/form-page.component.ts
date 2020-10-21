@@ -29,9 +29,9 @@ export class RefreshTokensFormPageComponent implements OnInit {
 
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
-      const jti = params.get('jti');
-      if (jti !== 'new') {
-        this.data = await this.refreshTokenService.findOne(jti);
+      const _id = params.get('_id');
+      if (_id !== 'new') {
+        this.data = await this.refreshTokenService.findOne(_id);
       }
 
       this.setupForm();
@@ -49,7 +49,7 @@ export class RefreshTokensFormPageComponent implements OnInit {
       description: this.form.get('description').value,
     };
 
-    if (this.data.jti) {
+    if (this.data._id) {
       this.update(values);
     } else {
       this.create(values);
@@ -82,15 +82,15 @@ export class RefreshTokensFormPageComponent implements OnInit {
     this.data = this.data || new RefreshToken();
 
     this.form = this.formBuilder.group({
+      _id: [{ disabled: true, value: this.data._id }],
       description: [this.data.description],
-      jti: [{ disabled: true, value: this.data.jti }],
     });
 
     this.form.valueChanges.subscribe(() => (this.error = null));
   }
 
   private async update(data: Partial<RefreshToken>) {
-    data.jti = this.data.jti;
+    data._id = this.data._id;
 
     try {
       await this.refreshTokenService.update(data);

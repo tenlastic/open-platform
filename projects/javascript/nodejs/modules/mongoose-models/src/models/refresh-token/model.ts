@@ -11,10 +11,9 @@ import {
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import { UserSchema } from '../user/model';
+import { UserDocument } from '../user';
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
-@index({ jti: 1 }, { unique: true })
 @index({ userId: 1 })
 @modelOptions({
   schemaOptions: {
@@ -35,13 +34,10 @@ export class RefreshTokenSchema {
   @prop()
   public expiresAt: Date;
 
-  @prop({ required: true })
-  public jti: string;
-
   public updatedAt: Date;
 
   @prop({ ref: 'UserSchema', required: true })
-  public userId: Ref<UserSchema>;
+  public userId: Ref<UserDocument>;
 }
 
 export type RefreshTokenDocument = DocumentType<RefreshTokenSchema>;

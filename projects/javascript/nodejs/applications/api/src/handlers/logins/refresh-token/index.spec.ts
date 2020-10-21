@@ -92,7 +92,7 @@ describe('handlers/logins/refresh-token', function() {
               });
               const token = jwt.sign({ user }, process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'), {
                 algorithm: 'RS256',
-                jwtid: refreshToken.jti,
+                jwtid: refreshToken._id.toString(),
               });
               const ctx: any = new ContextMock({
                 request: {
@@ -112,7 +112,7 @@ describe('handlers/logins/refresh-token', function() {
               const refreshToken = await RefreshTokenMock.create({ userId: user._id });
               const token = jwt.sign({ user }, process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'), {
                 algorithm: 'RS256',
-                jwtid: refreshToken.jti,
+                jwtid: refreshToken._id.toString(),
               });
               const ctx: any = new ContextMock({
                 request: {

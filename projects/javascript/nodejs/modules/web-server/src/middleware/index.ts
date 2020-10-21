@@ -1,3 +1,4 @@
+export * from './api-key/api-key.middleware';
 export * from './authentication/authentication.middleware';
 export * from './error/error.middleware';
 export * from './jwt/jwt.middleware';

@@ -34,8 +34,7 @@
     "bcryptjs": "2.4.3",
     "chance": "1.0.16",
     "jsonwebtoken": "8.5.1",
-    "mongoose": "5.7.11",
-    "uuid": "3.3.2"
+    "mongoose": "5.7.11"
   },
   "devDependencies": {
     "mocha": "7.1.2",

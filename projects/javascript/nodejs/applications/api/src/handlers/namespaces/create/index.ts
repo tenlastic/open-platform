@@ -1,6 +1,6 @@
 import { Context } from '@tenlastic/web-server';
 
-import { Namespace, NamespacePermissions, UserRoles } from '@tenlastic/mongoose-models';
+import { Namespace, NamespacePermissions, NamespaceRoles } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const { accessControlList } = ctx.request.body;

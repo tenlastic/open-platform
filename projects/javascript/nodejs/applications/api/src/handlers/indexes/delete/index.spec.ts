@@ -3,7 +3,7 @@ import {
   DatabaseMock,
   Index,
   NamespaceMock,
-  UserRolesMock,
+  NamespaceRolesMock,
 } from '@tenlastic/mongoose-models';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { DeleteCollectionIndex } from '@tenlastic/rabbitmq-models';
@@ -49,8 +49,8 @@ describe('handlers/indexes/delete', function() {
   context('when the collection is found', function() {
     context('when the user does not have permission', function() {
       it('throws an error', async function() {
-        const userRoles = UserRolesMock.create({ userId: user._id });
-        const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
+        const namespaceRoles = NamespaceRolesMock.create({ userId: user._id });
+        const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
         const database = await DatabaseMock.create({ namespaceId: namespace._id });
         const collection = await CollectionMock.create({ databaseId: database._id });
         const ctx = new ContextMock({
@@ -70,8 +70,11 @@ describe('handlers/indexes/delete', function() {
     context('when the user has permission', function() {
       context('when the collection does not contain the specified index', function() {
         it('throws an error', async function() {
-          const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-          const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
+          const namespaceRoles = NamespaceRolesMock.create({
+            roles: ['Administrator'],
+            userId: user._id,
+          });
+          const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
           const database = await DatabaseMock.create({ namespaceId: namespace._id });
           const index = new Index({ key: { properties: 1 } });
           const collection = await CollectionMock.create({ databaseId: database._id });
@@ -99,8 +102,11 @@ describe('handlers/indexes/delete', function() {
         it('adds the request to RabbitMQ', async function() {
           const stub = sinon.stub(DeleteCollectionIndex, 'publish').resolves();
 
-          const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-          const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
+          const namespaceRoles = NamespaceRolesMock.create({
+            roles: ['Administrator'],
+            userId: user._id,
+          });
+          const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
           const database = await DatabaseMock.create({ namespaceId: namespace._id });
           const index = new Index({ key: { properties: 1 } });
           const collection = await CollectionMock.create({

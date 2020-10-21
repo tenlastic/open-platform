@@ -48,7 +48,7 @@ export class ArticleSchema {
 
   public createdAt: Date;
 
-  @prop({ ref: Namespace, required: true })
+  @prop({ ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
   @prop()
@@ -62,7 +62,7 @@ export class ArticleSchema {
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: Namespace })
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
 }
 

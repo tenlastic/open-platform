@@ -7,6 +7,7 @@ import * as Router from 'koa-router';
 import * as serve from 'koa-static';
 
 import {
+  apiKeyMiddleware,
   errorMiddleware,
   jwtMiddleware,
   loggingMiddleware,
@@ -34,6 +35,7 @@ export class WebServer {
     this.app.use(errorMiddleware);
     this.app.use(queryMiddleware);
     this.app.use(jwtMiddleware);
+    this.app.use(apiKeyMiddleware);
   }
 
   public serve(directory = 'public', path = '/', root = 'index.html') {

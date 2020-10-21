@@ -39,7 +39,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    * @param override The system's where query.
    * @param user The user performing the query.
    */
-  public async count(where: any, override: any = {}, user: any) {
+  public async count(where: any, override: any, user: any) {
     const filteredWhere = await this.where(where, user);
 
     if (filteredWhere === null) {

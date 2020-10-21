@@ -8,7 +8,7 @@ import {
   NamespaceDocument,
   UserMock,
   UserDocument,
-  UserRolesMock,
+  NamespaceRolesMock,
 } from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
@@ -25,7 +25,10 @@ describe('handlers/namespaces/delete', function() {
     let record: NamespaceDocument;
 
     beforeEach(async function() {
-      const userRole = await UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
+      const userRole = await NamespaceRolesMock.create({
+        roles: ['Administrator'],
+        userId: user._id,
+      });
       record = await NamespaceMock.create({ accessControlList: [userRole] });
     });
 

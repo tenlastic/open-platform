@@ -54,24 +54,24 @@ export class GroupInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ ref: User, required: true })
+  @prop({ ref: 'UserSchema', required: true })
   public fromUserId: Ref<UserDocument>;
 
-  @prop({ ref: Group, required: true })
+  @prop({ ref: 'GroupSchema', required: true })
   public groupId: Ref<GroupDocument>;
 
-  @prop({ ref: User, required: true })
+  @prop({ ref: 'UserSchema', required: true })
   public toUserId: Ref<UserDocument>;
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: User })
+  @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: 'UserSchema' })
   public fromUserDocument: UserDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'groupId', ref: Group })
+  @prop({ foreignField: '_id', justOne: true, localField: 'groupId', ref: 'GroupSchema' })
   public groupDocument: GroupDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: User })
+  @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: 'UserSchema' })
   public toUserDocument: UserDocument;
 }
 

@@ -38,18 +38,6 @@
 
         <app-button
           color="accent"
-          layout="vertical"
-          routerLink="refresh-tokens"
-          routerLinkActive="active"
-          text="left"
-          width="full"
-        >
-          <mat-icon>vpn_key</mat-icon>
-          <span>Refresh Tokens</span>
-        </app-button>
-
-        <app-button
-          color="accent"
           [hidden]="!identityService?.user?.roles?.includes('Administrator')"
           layout="vertical"
           routerLink="users"
@@ -78,7 +66,6 @@
         <ng-container *ngIf="selectedNamespaceService.namespaceId && showInfrastructureButtons">
           <app-button
             color="accent"
-            [hidden]="!selectedNamespaceService.namespaceId"
             layout="vertical"
             routerLink="databases"
             routerLinkActive="active"
@@ -91,7 +78,6 @@
 
           <app-button
             color="accent"
-            [hidden]="!selectedNamespaceService.namespaceId"
             layout="vertical"
             routerLink="game-servers"
             routerLinkActive="active"
@@ -104,7 +90,6 @@
 
           <app-button
             color="accent"
-            [hidden]="!selectedNamespaceService.namespaceId"
             layout="vertical"
             routerLink="queues"
             routerLinkActive="active"
@@ -117,7 +102,6 @@
 
           <app-button
             color="accent"
-            [hidden]="!selectedNamespaceService.namespaceId"
             layout="vertical"
             routerLink="releases"
             routerLinkActive="active"
@@ -130,6 +114,7 @@
         </ng-container>
 
         <app-button
+          *ngIf="selectedNamespaceService.namespaceId"
           color="accent"
           layout="vertical"
           text="left"
@@ -145,7 +130,6 @@
         <ng-container *ngIf="selectedNamespaceService.namespaceId && showLauncherButtons">
           <app-button
               color="accent"
-              [hidden]="!selectedNamespaceService.namespaceId"
               layout="vertical"
               routerLink="articles"
               routerLinkActive="active"
@@ -158,7 +142,6 @@
 
           <app-button
             color="accent"
-            [hidden]="!selectedNamespaceService.namespaceId"
             layout="vertical"
             routerLink="games"
             routerLinkActive="active"
@@ -171,7 +154,6 @@
 
           <app-button
             color="accent"
-            [hidden]="!selectedNamespaceService.namespaceId"
             layout="vertical"
             routerLink="game-invitations"
             routerLinkActive="active"

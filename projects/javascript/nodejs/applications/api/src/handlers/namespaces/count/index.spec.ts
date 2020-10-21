@@ -1,7 +1,12 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
-import { NamespaceMock, UserDocument, UserMock, UserRolesMock } from '@tenlastic/mongoose-models';
+import {
+  NamespaceMock,
+  UserDocument,
+  UserMock,
+  NamespaceRolesMock,
+} from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
 describe('handlers/namespaces/count', function() {
@@ -11,7 +16,10 @@ describe('handlers/namespaces/count', function() {
     user = await UserMock.create();
     await NamespaceMock.create();
 
-    const userRole = await UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
+    const userRole = await NamespaceRolesMock.create({
+      roles: ['Administrator'],
+      userId: user._id,
+    });
     await NamespaceMock.create({ accessControlList: [userRole] });
   });
 

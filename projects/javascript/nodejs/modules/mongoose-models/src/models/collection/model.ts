@@ -16,7 +16,7 @@ import { jsonSchemaPropertiesValidator } from '@tenlastic/validations';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import { Database, DatabaseDocument, DatabaseSchema } from '../database/model';
+import { DatabaseDocument } from '../database/model';
 import { IndexSchema } from './index/model';
 
 @index({ databaseId: 1, name: 1 }, { unique: true })
@@ -38,8 +38,8 @@ export class CollectionSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ ref: Database, required: true })
-  public databaseId: Ref<DatabaseSchema>;
+  @prop({ ref: 'DatabaseSchema', required: true })
+  public databaseId: Ref<DatabaseDocument>;
 
   @arrayProp({ items: IndexSchema })
   public indexes: IndexSchema[];

@@ -73,7 +73,7 @@ export class ReleaseTaskSchema {
   @prop({ enum: FilePlatform, required: true })
   public platform: string;
 
-  @prop({ ref: Release, required: true })
+  @prop({ ref: 'ReleaseSchema', required: true })
   public releaseId: Ref<ReleaseDocument>;
 
   @prop({ default: null })
@@ -81,7 +81,7 @@ export class ReleaseTaskSchema {
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'releaseId', ref: Release })
+  @prop({ foreignField: '_id', justOne: true, localField: 'releaseId', ref: 'ReleaseSchema' })
   public releaseDocument: ReleaseDocument;
 
   public get minioZipObjectName() {

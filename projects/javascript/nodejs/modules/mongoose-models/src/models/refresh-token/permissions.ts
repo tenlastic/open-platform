@@ -16,7 +16,7 @@ export const RefreshTokenPermissions = new MongoosePermissions<RefreshTokenDocum
     base: { userId: { $eq: { $ref: 'user._id' } } },
   },
   read: {
-    base: ['createdAt', 'description', 'expiresAt', 'jti', 'updatedAt', 'userId'],
+    base: ['_id', 'createdAt', 'description', 'expiresAt', 'updatedAt', 'userId'],
   },
   roles: [{ name: 'owner', query: { 'record.userId': { $eq: { $ref: 'user._id' } } } }],
   update: {

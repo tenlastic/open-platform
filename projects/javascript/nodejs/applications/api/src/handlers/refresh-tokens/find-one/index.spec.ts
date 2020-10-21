@@ -24,7 +24,7 @@ describe('handlers/refresh-tokens/find-one', function() {
   it('returns the record', async function() {
     const ctx = new ContextMock({
       params: {
-        jti: record.jti,
+        _id: record._id,
       },
       state: { user: user.toObject() },
     });

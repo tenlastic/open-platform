@@ -24,7 +24,7 @@
 <mat-form-field floatLabel="always">
   <mat-label>Roles</mat-label>
   <mat-select placeholder="None" multiple [formControl]="form.controls.roles | asAny">
-    <mat-option value="Administrator">Administrator</mat-option>
+    <mat-option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</mat-option>
   </mat-select>
 </mat-form-field>
 

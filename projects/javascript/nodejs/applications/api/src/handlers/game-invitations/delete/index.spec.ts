@@ -7,7 +7,7 @@ import {
   GameInvitationMock,
   UserDocument,
   UserMock,
-  UserRolesMock,
+  NamespaceRolesMock,
   NamespaceMock,
 } from '@tenlastic/mongoose-models';
 import { handler } from './';
@@ -27,8 +27,11 @@ describe('handlers/game-invitations/delete', function() {
     let record: GameInvitationDocument;
 
     beforeEach(async function() {
-      const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-      const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
+      const namespaceRoles = NamespaceRolesMock.create({
+        roles: ['Administrator'],
+        userId: user._id,
+      });
+      const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
       record = await GameInvitationMock.create({
         namespaceId: namespace._id,
         toUserId: otherUser._id,

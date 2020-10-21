@@ -29,7 +29,7 @@ describe('handlers/refresh-tokens/delete', function() {
     it('returns the deleted record', async function() {
       const ctx = new ContextMock({
         params: {
-          jti: record.jti,
+          _id: record._id,
         },
         state: { user: user.toObject() },
       });
@@ -50,7 +50,7 @@ describe('handlers/refresh-tokens/delete', function() {
     it('throws an error', async function() {
       const ctx = new ContextMock({
         params: {
-          jti: record.jti,
+          _id: record._id,
         },
         state: { user: user.toObject() },
       });

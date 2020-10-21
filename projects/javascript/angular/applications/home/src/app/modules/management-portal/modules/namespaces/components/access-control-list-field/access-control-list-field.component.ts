@@ -14,6 +14,7 @@ export class AccessControlListFieldComponent implements OnInit {
   @Output() public remove = new EventEmitter();
 
   public isLoading = false;
+  public roles = [{ label: 'Namespaces', value: 'namespaces' }];
   public users: User[] = [];
 
   private subject: Subject<string> = new Subject();

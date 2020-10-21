@@ -5,7 +5,7 @@ import { RefreshToken, RefreshTokenService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService } from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -19,7 +19,7 @@ export class RefreshTokensListPageComponent implements OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<RefreshToken>;
 
   public dataSource: MatTableDataSource<RefreshToken>;
-  public displayedColumns: string[] = ['jti', 'description', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns: string[] = ['_id', 'description', 'createdAt', 'updatedAt', 'actions'];
   public search = '';
 
   private subject: Subject<string> = new Subject();
@@ -28,6 +28,7 @@ export class RefreshTokensListPageComponent implements OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private refreshTokenService: RefreshTokenService,
+    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
@@ -60,7 +61,7 @@ export class RefreshTokensListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.refreshTokenService.delete(record.jti);
+        await this.refreshTokenService.delete(record._id);
         this.deleteRefreshToken(record);
       }
     });
@@ -72,8 +73,11 @@ export class RefreshTokensListPageComponent implements OnInit {
 
   private async fetchRefreshTokens() {
     const records = await this.refreshTokenService.find({
-      sort: 'jti',
-      where: { expiresAt: { $exists: false } },
+      sort: '_id',
+      where: {
+        expiresAt: { $exists: false },
+        namespaceId: this.selectedNamespaceService.namespaceId,
+      },
     });
 
     this.dataSource = new MatTableDataSource<RefreshToken>(records);
@@ -82,7 +86,7 @@ export class RefreshTokensListPageComponent implements OnInit {
   }
 
   private deleteRefreshToken(record: RefreshToken) {
-    const index = this.dataSource.data.findIndex(u => u.jti === record.jti);
+    const index = this.dataSource.data.findIndex(u => u._id === record._id);
     this.dataSource.data.splice(index, 1);
 
     this.dataSource.data = [].concat(this.dataSource.data);

@@ -51,7 +51,7 @@ export class QueueSchema {
   @prop({ required: true })
   public name: string;
 
-  @prop({ ref: Namespace, required: true })
+  @prop({ ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
   @prop({ required: true })
@@ -66,11 +66,11 @@ export class QueueSchema {
     foreignField: 'namespaceId',
     justOne: true,
     localField: 'namespaceId',
-    ref: GameInvitation,
+    ref: 'GameInvitationSchema',
   })
   public gameInvitationDocument: GameInvitationDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: Namespace })
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
 }
 
