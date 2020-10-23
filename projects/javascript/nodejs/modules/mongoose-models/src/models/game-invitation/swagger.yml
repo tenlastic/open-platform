@@ -9,15 +9,12 @@ components:
         createdAt:
           type: string
           format: date-time
-        fromUserId:
-          type: string
-          format: ^[a-f0-9]{24}$
         namespaceId:
-          type: string
-          format: ^[a-f0-9]{24}$
-        toUserId:
           type: string
           format: ^[a-f0-9]{24}$
         updatedAt:
           type: string
           format: date-time
+        userId:
+          type: string
+          format: ^[a-f0-9]{24}$

@@ -2,7 +2,7 @@ import {
   CollectionMock,
   DatabaseMock,
   NamespaceMock,
-  NamespaceRolesMock,
+  NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { CreateCollectionIndex } from '@tenlastic/rabbitmq-models';
@@ -53,8 +53,8 @@ describe('handlers/indexes/create', function() {
   context('when the collection is found', function() {
     context('when the user does not have permission', function() {
       it('throws an error', async function() {
-        const namespaceRoles = NamespaceRolesMock.create({ userId: user._id });
-        const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
+        const namespaceUser = NamespaceUserMock.create({ _id: user._id });
+        const namespace = await NamespaceMock.create({ users: [namespaceUser] });
         const database = await DatabaseMock.create({ namespaceId: namespace._id });
         const collection = await CollectionMock.create({ databaseId: database._id });
         const ctx = new ContextMock({
@@ -74,11 +74,11 @@ describe('handlers/indexes/create', function() {
     context('when the user has permission', function() {
       context('when required fields are not supplied', function() {
         it('throws an error', async function() {
-          const namespaceRoles = NamespaceRolesMock.create({
-            roles: ['Administrator'],
-            userId: user._id,
+          const namespaceUser = NamespaceUserMock.create({
+            _id: user._id,
+            roles: ['databases'],
           });
-          const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
+          const namespace = await NamespaceMock.create({ users: [namespaceUser] });
           const database = await DatabaseMock.create({ namespaceId: namespace._id });
           const collection = await CollectionMock.create({ databaseId: database._id });
           const ctx = new ContextMock({
@@ -102,11 +102,11 @@ describe('handlers/indexes/create', function() {
         it('adds the request to RabbitMQ', async function() {
           const stub = sandbox.stub(CreateCollectionIndex, 'publish').resolves();
 
-          const namespaceRoles = NamespaceRolesMock.create({
-            roles: ['Administrator'],
-            userId: user._id,
+          const namespaceUser = NamespaceUserMock.create({
+            _id: user._id,
+            roles: ['databases'],
           });
-          const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
+          const namespace = await NamespaceMock.create({ users: [namespaceUser] });
           const database = await DatabaseMock.create({ namespaceId: namespace._id });
           const collection = await CollectionMock.create({ databaseId: database._id });
 

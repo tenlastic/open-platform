@@ -1,11 +1,6 @@
 import { Model } from './model';
 
 export namespace INamespace {
-  export interface AccessControlListItem {
-    roles: string[];
-    userId: string;
-  }
-
   export enum Role {
     Articles = 'articles',
     Databases = 'databases',
@@ -14,14 +9,25 @@ export namespace INamespace {
     Games = 'games',
     Namespaces = 'namespaces',
     Queues = 'queues',
-    RefreshTokens = 'refresh-tokens',
     Releases = 'releases',
+  }
+
+  export interface Key {
+    description: string;
+    roles: string[];
+    value: string;
+  }
+
+  export interface User {
+    _id: string;
+    roles: string[];
   }
 }
 
 export class Namespace extends Model {
-  public accessControlList: INamespace.AccessControlListItem[];
+  public keys: INamespace.Key[];
   public name: string;
+  public users: INamespace.User[];
 
   constructor(params?: Partial<Namespace>) {
     super(params);

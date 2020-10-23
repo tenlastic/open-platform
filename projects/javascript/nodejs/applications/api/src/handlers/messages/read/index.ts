@@ -16,7 +16,7 @@ export async function handler(ctx: Context) {
     { _id: ctx.params._id },
     { $addToSet: { readByUserIds: ctx.state.user._id } },
   );
-  const filteredRecord = await MessagePermissions.read(record, ctx.state.user);
+  const filteredRecord = await MessagePermissions.read(record, ctx.state.apiKey || ctx.state.user);
 
   ctx.response.body = { record: filteredRecord };
 }

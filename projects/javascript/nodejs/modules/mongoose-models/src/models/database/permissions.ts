@@ -5,23 +5,41 @@ import { Database, DatabaseDocument } from './model';
 export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Database, {
   create: {
     roles: {
-      administrator: ['name', 'namespaceId'],
+      'namespace-administrator': ['name', 'namespaceId'],
     },
   },
   delete: {
     roles: {
-      administrator: true,
+      'namespace-administrator': true,
     },
   },
   find: {
     base: {
       namespaceId: {
         $in: {
+          // Find Namespaces where the Key or User has administrator access.
           $query: {
             model: 'NamespaceSchema',
             select: '_id',
             where: {
-              'accessControlList.userId': { $eq: { $ref: 'user._id' } },
+              $or: [
+                {
+                  keys: {
+                    $elemMatch: {
+                      roles: { $eq: 'databases' },
+                      value: { $eq: { $ref: 'key' } },
+                    },
+                  },
+                },
+                {
+                  users: {
+                    $elemMatch: {
+                      _id: { $eq: { $ref: 'user._id' } },
+                      roles: { $eq: 'databases' },
+                    },
+                  },
+                },
+              ],
             },
           },
         },
@@ -34,20 +52,32 @@ export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Dat
   },
   roles: [
     {
-      name: 'administrator',
+      name: 'namespace-administrator',
       query: {
-        'record.namespaceDocument.accessControlList': {
-          $elemMatch: {
-            roles: { $eq: 'Administrator' },
-            userId: { $eq: { $ref: 'user._id' } },
+        $or: [
+          {
+            'record.namespaceDocument.keys': {
+              $elemMatch: {
+                roles: { $eq: 'databases' },
+                value: { $eq: { $ref: 'key' } },
+              },
+            },
           },
-        },
+          {
+            'record.namespaceDocument.users': {
+              $elemMatch: {
+                _id: { $eq: { $ref: 'user._id' } },
+                roles: { $eq: 'databases' },
+              },
+            },
+          },
+        ],
       },
     },
   ],
   update: {
     roles: {
-      administrator: ['name', 'namespace'],
+      'namespace-administrator': ['name', 'namespace'],
     },
   },
 });

@@ -1,5 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { Collection, CollectionService, Database, DatabaseService } from '@tenlastic/ng-http';
@@ -8,7 +15,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
+import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -32,6 +39,7 @@ export class CollectionsListPageComponent implements OnInit {
     private databaseService: DatabaseService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private titleService: Title,
   ) {}
 
@@ -71,6 +79,10 @@ export class CollectionsListPageComponent implements OnInit {
       if (result === 'Yes') {
         await this.collectionService.delete(this.database.name, record.name);
         this.deleteCollection(record);
+
+        this.matSnackBar.open('Collection deleted successfully.', null, {
+          duration: SNACKBAR_DURATION,
+        });
       }
     });
   }

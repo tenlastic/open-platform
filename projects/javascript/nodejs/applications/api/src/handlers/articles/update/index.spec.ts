@@ -9,7 +9,7 @@ import {
   NamespaceMock,
   UserDocument,
   UserMock,
-  NamespaceRolesMock,
+  NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
@@ -27,11 +27,11 @@ describe('handlers/articles/update', function() {
     let record: ArticleDocument;
 
     beforeEach(async function() {
-      const namespaceRoles = NamespaceRolesMock.create({
-        roles: ['Administrator'],
-        userId: user._id,
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['articles'],
       });
-      const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       record = await ArticleMock.create({ namespaceId: namespace._id });
     });

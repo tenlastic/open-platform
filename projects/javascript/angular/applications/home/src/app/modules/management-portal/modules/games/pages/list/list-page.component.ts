@@ -1,5 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { Game, GameService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
@@ -7,7 +14,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
+import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -28,6 +35,7 @@ export class GamesListPageComponent implements OnInit {
     private gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
@@ -63,6 +71,10 @@ export class GamesListPageComponent implements OnInit {
       if (result === 'Yes') {
         await this.gameService.delete(record._id);
         this.deleteGame(record);
+
+        this.matSnackBar.open('Game deleted successfully.', null, {
+          duration: SNACKBAR_DURATION,
+        });
       }
     });
   }

@@ -103,7 +103,7 @@ export class UpdateService {
     const invitations = await this.gameInvitationService.find({
       where: {
         namespaceId: game.namespaceId,
-        toUserId: this.identityService.user._id,
+        userId: this.identityService.user._id,
       },
     });
     if (invitations.length === 0) {

@@ -1,7 +1,7 @@
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
-import * as jwt from 'jsonwebtoken';
+import * as jsonwebtoken from 'jsonwebtoken';
 
-import { RefreshToken, User } from '@tenlastic/mongoose-models';
+import { User } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const { token } = ctx.request.body;
@@ -9,39 +9,28 @@ export async function handler(ctx: Context) {
     throw new RequiredFieldError(['token']);
   }
 
-  let decodedToken: any;
+  let jwt: any;
   try {
-    decodedToken = jwt.verify(token, process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n'), {
+    jwt = jsonwebtoken.verify(token, process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n'), {
       algorithms: ['RS256'],
     });
   } catch (e) {
     throw new Error('Invalid refresh token.');
   }
 
-  if (!decodedToken.jti || !decodedToken.user || !decodedToken.user._id) {
+  if (!jwt.jti || jwt.type !== 'refresh' || !jwt.user || !jwt.user._id) {
     throw new Error('Invalid refresh token.');
   }
 
-  const refreshTokenDocument = await RefreshToken.findOneAndUpdate(
-    {
-      _id: decodedToken.jti,
-      userId: decodedToken.user._id,
-    },
-    {
-      updatedAt: new Date(),
-    },
-  );
-
-  if (!refreshTokenDocument) {
-    throw new Error('Invalid refresh token.');
-  }
-
-  const user = await User.findOne({ _id: refreshTokenDocument.userId });
+  const user = await User.findOne({ _id: jwt.user._id });
   if (!user) {
     throw new Error('Invalid refresh token.');
   }
 
-  const { accessToken, refreshToken } = await user.logIn();
-
-  ctx.response.body = { accessToken, refreshToken };
+  try {
+    const { accessToken, refreshToken } = await user.logIn(jwt.jti);
+    ctx.response.body = { accessToken, refreshToken };
+  } catch {
+    throw new Error('Invalid refresh token.');
+  }
 }

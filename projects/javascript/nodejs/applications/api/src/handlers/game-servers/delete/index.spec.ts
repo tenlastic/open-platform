@@ -8,7 +8,7 @@ import {
   NamespaceMock,
   UserDocument,
   UserMock,
-  NamespaceRolesMock,
+  NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
@@ -25,11 +25,11 @@ describe('handlers/game-servers/delete', function() {
     let record: GameServerDocument;
 
     beforeEach(async function() {
-      const namespaceRoles = NamespaceRolesMock.create({
-        roles: ['Administrator'],
-        userId: user._id,
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['game-servers'],
       });
-      const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
       record = await GameServerMock.create({ namespaceId: namespace._id });
     });
 

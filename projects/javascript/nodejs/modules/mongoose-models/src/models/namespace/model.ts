@@ -18,16 +18,30 @@ import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
 import { UserDocument } from '../user';
-import { NamespaceRole, NamespaceRoles, NamespaceRolesDocument } from './roles';
+import { NamespaceKey, NamespaceKeyDocument } from './key';
+import { NamespaceUser, NamespaceUserDocument } from './user';
 
 export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocument>>();
 NamespaceEvent.on(payload => {
   kafka.publish(payload);
 });
 
+export enum NamespaceRole {
+  Articles = 'articles',
+  Databases = 'databases',
+  GameServers = 'game-servers',
+  GameInvitations = 'game-invitations',
+  Games = 'games',
+  Namespaces = 'namespaces',
+  Queues = 'queues',
+  Releases = 'releases',
+}
+
 @index({ name: 1 }, { unique: true })
-@index({ 'accessControlList.roles': 1 })
-@index({ 'accessControlList.userId': 1 })
+@index({ 'keys.roles': 1 })
+@index({ 'keys.value': 1 })
+@index({ 'users.roles': 1 })
+@index({ 'users._id': 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
@@ -44,45 +58,48 @@ NamespaceEvent.on(payload => {
 export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @arrayProp({ default: [], items: NamespaceRoles })
-  public accessControlList: NamespaceRolesDocument[];
-
   public createdAt: Date;
+
+  @arrayProp({ default: [], items: NamespaceKey })
+  public keys: NamespaceKeyDocument[];
 
   @prop({ match: /^[0-9a-z\-]{2,40}$/, required: true })
   public name: string;
 
   public updatedAt: Date;
 
-  public static getDefaultAccessControlList(
-    accessControlList: Array<Partial<NamespaceRolesDocument>>,
+  @arrayProp({ default: [], items: NamespaceUser })
+  public users: NamespaceUserDocument[];
+
+  public static getDefaultUsers(
+    users: Array<Partial<NamespaceUserDocument>>,
     user: Partial<UserDocument>,
   ) {
-    const copy = accessControlList ? accessControlList.concat() : [];
+    const copy = users ? users.concat() : [];
 
     if (copy.length === 0) {
-      const namespaceRoles = new NamespaceRoles({
+      const namespaceUser = new NamespaceUser({
+        _id: user._id,
         roles: [NamespaceRole.Namespaces],
-        userId: user._id,
       });
-      copy.push(namespaceRoles);
+      copy.push(namespaceUser);
 
       return copy;
     }
 
-    if (copy.find(acl => acl.roles.includes(NamespaceRole.Namespaces))) {
+    if (copy.find(u => u.roles.includes(NamespaceRole.Namespaces))) {
       return copy;
     }
 
-    const result = copy.find(acl => acl.userId.toString() === user._id.toString());
+    const result = copy.find(u => u._id.toString() === user._id.toString());
     if (result) {
       result.roles.push(NamespaceRole.Namespaces);
     } else {
-      const namespaceRoles = new NamespaceRoles({
+      const namespaceUser = new NamespaceUser({
+        _id: user._id,
         roles: [NamespaceRole.Namespaces],
-        userId: user._id,
       });
-      copy.push(namespaceRoles);
+      copy.push(namespaceUser);
     }
 
     return copy;

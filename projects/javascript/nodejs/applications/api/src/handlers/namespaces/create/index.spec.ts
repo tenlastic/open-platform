@@ -28,8 +28,8 @@ describe('handlers/namespaces/create', function() {
 
     expect(ctx.response.body.record).to.exist;
 
-    const accessControlList = ctx.response.body.record.accessControlList[0];
-    expect(accessControlList.roles).to.eql(['Administrator']);
-    expect(accessControlList.userId.toString()).to.eql(user._id.toString());
+    const users = ctx.response.body.record.users[0];
+    expect(users._id.toString()).to.eql(user._id.toString());
+    expect(users.roles).to.eql(['namespaces']);
   });
 });

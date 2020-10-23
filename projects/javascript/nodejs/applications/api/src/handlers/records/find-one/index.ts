@@ -20,7 +20,7 @@ export async function handler(ctx: Context) {
   const Permissions = new MongoosePermissions<RecordDocument>(Model, collection.permissions);
 
   const override = { where: { _id, collectionId: collection._id, databaseId: database._id } };
-  const result = await Permissions.findOne({}, override, ctx.state.user);
+  const result = await Permissions.findOne({}, override, ctx.state.apiKey || ctx.state.user);
 
   if (!result) {
     throw new RecordNotFoundError('Record');

@@ -38,6 +38,18 @@
 
         <app-button
           color="accent"
+          layout="vertical"
+          routerLink="refresh-tokens"
+          routerLinkActive="active"
+          text="left"
+          width="full"
+        >
+          <mat-icon>vpn_key</mat-icon>
+          <span>Refresh Tokens</span>
+        </app-button>
+
+        <app-button
+          color="accent"
           [hidden]="!identityService?.user?.roles?.includes('Administrator')"
           layout="vertical"
           routerLink="users"
@@ -50,7 +62,7 @@
         </app-button>
 
         <app-button
-          *ngIf="selectedNamespaceService.namespaceId"
+          *ngIf="selectedNamespaceService.namespaceId && hasInfrastructureButtons"
           color="accent"
           layout="vertical"
           text="left"
@@ -65,6 +77,7 @@
 
         <ng-container *ngIf="selectedNamespaceService.namespaceId && showInfrastructureButtons">
           <app-button
+            *ngIf="hasPermission('databases')"
             color="accent"
             layout="vertical"
             routerLink="databases"
@@ -77,6 +90,7 @@
           </app-button>
 
           <app-button
+            *ngIf="hasPermission('game-servers')"
             color="accent"
             layout="vertical"
             routerLink="game-servers"
@@ -89,6 +103,7 @@
           </app-button>
 
           <app-button
+            *ngIf="hasPermission('queues')"
             color="accent"
             layout="vertical"
             routerLink="queues"
@@ -101,6 +116,7 @@
           </app-button>
 
           <app-button
+            *ngIf="hasPermission('releases')"
             color="accent"
             layout="vertical"
             routerLink="releases"
@@ -114,7 +130,7 @@
         </ng-container>
 
         <app-button
-          *ngIf="selectedNamespaceService.namespaceId"
+          *ngIf="selectedNamespaceService.namespaceId && hasLauncherButtons"
           color="accent"
           layout="vertical"
           text="left"
@@ -129,18 +145,20 @@
 
         <ng-container *ngIf="selectedNamespaceService.namespaceId && showLauncherButtons">
           <app-button
-              color="accent"
-              layout="vertical"
-              routerLink="articles"
-              routerLinkActive="active"
-              text="left"
-              width="full"
-            >
+            *ngIf="hasPermission('articles')"
+            color="accent"
+            layout="vertical"
+            routerLink="articles"
+            routerLinkActive="active"
+            text="left"
+            width="full"
+          >
             <mat-icon>description</mat-icon>
             <span>Articles</span>
           </app-button>
 
           <app-button
+            *ngIf="hasPermission('games')"
             color="accent"
             layout="vertical"
             routerLink="games"
@@ -153,6 +171,7 @@
           </app-button>
 
           <app-button
+            *ngIf="hasPermission('game-invitations')"
             color="accent"
             layout="vertical"
             routerLink="game-invitations"

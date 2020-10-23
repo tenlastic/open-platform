@@ -6,7 +6,7 @@ import {
   UserMock,
   ReleaseDocument,
   ReleaseMock,
-  NamespaceRolesMock,
+  NamespaceUserMock,
   ReleaseTask,
 } from '@tenlastic/mongoose-models';
 import * as rabbitmq from '@tenlastic/rabbitmq';
@@ -60,11 +60,11 @@ describe('handlers/files/upload', function() {
     let release: ReleaseDocument;
 
     beforeEach(async function() {
-      const namespaceRoles = NamespaceRolesMock.create({
-        roles: ['Administrator'],
-        userId: user._id,
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['releases'],
       });
-      const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       platform = FileMock.getPlatform();
       previousRelease = await ReleaseMock.create({

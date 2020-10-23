@@ -24,7 +24,11 @@ export async function handler(ctx: Context) {
     databaseId: database._id,
     userId: ctx.state.user._id,
   };
-  const result = await Permissions.create(ctx.request.body, override, ctx.state.user);
+  const result = await Permissions.create(
+    ctx.request.body,
+    override,
+    ctx.state.apiKey || ctx.state.user,
+  );
 
   ctx.response.body = { record: result };
 }

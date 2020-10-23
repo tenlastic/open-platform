@@ -3,8 +3,11 @@ import { Context } from '@tenlastic/web-server';
 import { GameInvitationPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
-  const override = { fromUserId: ctx.state.user._id };
-  const result = await GameInvitationPermissions.create(ctx.request.body, override, ctx.state.user);
+  const result = await GameInvitationPermissions.create(
+    ctx.request.body,
+    {},
+    ctx.state.apiKey || ctx.state.user,
+  );
 
   ctx.response.body = { record: result };
 }

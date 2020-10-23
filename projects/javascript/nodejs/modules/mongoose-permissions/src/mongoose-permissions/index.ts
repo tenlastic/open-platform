@@ -267,7 +267,10 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     }
 
     // Substitute calculated values into default find query.
-    const results = substituteReferenceValues(query, { user });
+    const results = substituteReferenceValues(query, {
+      key: typeof user === 'string' ? user : null,
+      user: typeof user !== 'string' ? user : null,
+    });
     const substitutedQuery = await substituteSubqueryValues(this.Model.db, results);
 
     // Combines the two queries if a user-defined where clause is specified.

@@ -3,7 +3,10 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import { GameServer, GameServerPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
-  const where = await GameServerPermissions.where({ _id: ctx.params._id }, ctx.state.user);
+  const where = await GameServerPermissions.where(
+    { _id: ctx.params._id },
+    ctx.state.apiKey || ctx.state.user,
+  );
   const record = await GameServer.findOne(where).populate(
     GameServerPermissions.accessControl.options.populate,
   );
@@ -12,7 +15,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Game Server');
   }
 
-  const result = await GameServerPermissions.delete(record, ctx.state.user);
+  const result = await GameServerPermissions.delete(record, ctx.state.apiKey || ctx.state.user);
 
   ctx.response.body = { record: result };
 }

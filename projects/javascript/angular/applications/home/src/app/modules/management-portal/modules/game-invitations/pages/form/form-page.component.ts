@@ -50,16 +50,16 @@ export class GameInvitationsFormPageComponent implements OnInit {
 
   public async save() {
     if (this.form.invalid) {
-      this.form.get('toUser').markAsTouched();
+      this.form.get('user').markAsTouched();
 
       return;
     }
 
-    const toUser: User = this.form.get('toUser').value;
+    const user: User = this.form.get('user').value;
 
     const values: Partial<GameInvitation> = {
       namespaceId: this.selectedNamespaceService.namespaceId,
-      toUserId: toUser._id,
+      userId: user._id,
     };
 
     this.create(values);
@@ -94,7 +94,7 @@ export class GameInvitationsFormPageComponent implements OnInit {
     this.data = this.data || new GameInvitation();
 
     this.form = this.formBuilder.group({
-      toUser: [null, Validators.required],
+      user: [null, Validators.required],
     });
 
     this.form.valueChanges.subscribe(() => (this.error = null));

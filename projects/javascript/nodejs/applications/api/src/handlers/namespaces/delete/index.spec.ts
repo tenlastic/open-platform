@@ -8,7 +8,7 @@ import {
   NamespaceDocument,
   UserMock,
   UserDocument,
-  NamespaceRolesMock,
+  NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
@@ -25,11 +25,11 @@ describe('handlers/namespaces/delete', function() {
     let record: NamespaceDocument;
 
     beforeEach(async function() {
-      const userRole = await NamespaceRolesMock.create({
-        roles: ['Administrator'],
-        userId: user._id,
+      const userRole = await NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['namespaces'],
       });
-      record = await NamespaceMock.create({ accessControlList: [userRole] });
+      record = await NamespaceMock.create({ users: [userRole] });
     });
 
     it('returns the deleted record', async function() {

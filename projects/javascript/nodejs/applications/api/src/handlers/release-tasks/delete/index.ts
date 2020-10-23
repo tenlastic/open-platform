@@ -12,7 +12,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Release');
   }
 
-  const result = await ReleaseTaskPermissions.delete(record, ctx.state.user);
+  const result = await ReleaseTaskPermissions.delete(record, ctx.state.apiKey || ctx.state.user);
 
   ctx.response.body = { record: result };
 }

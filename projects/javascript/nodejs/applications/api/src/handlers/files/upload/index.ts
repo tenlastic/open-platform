@@ -108,7 +108,11 @@ export async function handler(ctx: Context) {
   // Build Docker images for server files.
   let buildJob: ReleaseTaskDocument;
   if (ctx.params.platform === 'server64') {
-    buildJob = await publishBuildMessage(ctx.params.platform, ctx.params.releaseId, ctx.state.user);
+    buildJob = await publishBuildMessage(
+      ctx.params.platform,
+      ctx.params.releaseId,
+      ctx.state.apiKey || ctx.state.user,
+    );
   }
 
   // Return tasks in response.

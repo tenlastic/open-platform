@@ -7,7 +7,7 @@ const chance = new Chance();
 
 export class NamespaceModel {
   public _id: string;
-  public accessControlList: any[];
+  public users: any[];
   public createdAt: Date;
   public name: string;
   public updatedAt: Date;

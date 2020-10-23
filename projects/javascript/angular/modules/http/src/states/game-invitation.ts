@@ -43,9 +43,8 @@ export class GameInvitationQuery extends QueryEntity<GameInvitationState, GameIn
         return gameInvitations.map(gameInvitation => {
           return new GameInvitation({
             ...gameInvitation,
-            fromUser: users[gameInvitation.fromUserId],
             namespace: namespaces[gameInvitation.namespaceId],
-            toUser: users[gameInvitation.toUserId],
+            user: users[gameInvitation.userId],
           });
         });
       }),

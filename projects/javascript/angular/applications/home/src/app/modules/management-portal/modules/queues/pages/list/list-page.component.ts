@@ -1,5 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { Queue, QueueService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
@@ -7,7 +14,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
+import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -27,6 +34,7 @@ export class QueuesListPageComponent implements OnInit {
   constructor(
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private queueService: QueueService,
     private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
@@ -63,6 +71,10 @@ export class QueuesListPageComponent implements OnInit {
       if (result === 'Yes') {
         await this.queueService.delete(record._id);
         this.deleteQueue(record);
+
+        this.matSnackBar.open('Queue deleted successfully.', null, {
+          duration: SNACKBAR_DURATION,
+        });
       }
     });
   }

@@ -25,8 +25,8 @@ GameEvent.on(payload => {
   kafka.publish(payload);
 });
 
+@index({ namespaceId: 1 }, { unique: true })
 @index({ subtitle: 1, title: 1 }, { unique: true })
-@index({ namespaceId: 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,

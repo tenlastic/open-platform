@@ -3,7 +3,10 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import { Example, ExamplePermissions } from '../../../models';
 
 export async function handler(ctx: Context) {
-  const where = await ExamplePermissions.where({ _id: ctx.params.id }, ctx.state.user);
+  const where = await ExamplePermissions.where(
+    { _id: ctx.params.id },
+    ctx.state.apiKey || ctx.state.user,
+  );
   const record = await Example.findOne(where).populate(
     ExamplePermissions.accessControl.options.populate,
   );
@@ -12,7 +15,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Example');
   }
 
-  const result = await ExamplePermissions.delete(record, ctx.state.user);
+  const result = await ExamplePermissions.delete(record, ctx.state.apiKey || ctx.state.user);
 
   ctx.response.body = { record: result };
 }

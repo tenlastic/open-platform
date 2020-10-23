@@ -15,7 +15,6 @@ export function isJsonValid(json: any, query: any, and = true) {
     if (key === '$and') {
       return operations.map(o => isJsonValid(json, o)).every(f => f);
     } else if (key === '$or') {
-      console.log(operations.map(o => isJsonValid(json, o, false)));
       return operations.map(o => isJsonValid(json, o, false)).includes(true);
     }
 

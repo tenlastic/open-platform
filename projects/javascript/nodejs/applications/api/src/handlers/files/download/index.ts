@@ -16,7 +16,11 @@ export async function handler(ctx: Context) {
   if (include && include.length > 0) {
     query.path = { $in: include };
   }
-  const files = await FilePermissions.find({}, { limit: 10000, where: query }, ctx.state.user);
+  const files = await FilePermissions.find(
+    {},
+    { limit: 10000, where: query },
+    ctx.state.apiKey || ctx.state.user,
+  );
 
   if (files.length === 0) {
     throw new RecordNotFoundError('Files');

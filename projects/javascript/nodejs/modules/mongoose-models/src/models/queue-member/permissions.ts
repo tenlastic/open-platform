@@ -21,19 +21,36 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
         {
           queueId: {
             $in: {
-              // Find all Queues within the returned Games.
+              // Find all Queues within the returned Namespaces.
               $query: {
                 model: 'QueueSchema',
                 select: '_id',
                 where: {
                   namespaceId: {
                     $in: {
-                      // Find all Namespaces that the User is a member of.
+                      // Find Namespaces where the Key or User has administrator access.
                       $query: {
                         model: 'NamespaceSchema',
                         select: '_id',
                         where: {
-                          'accessControlList.userId': { $eq: { $ref: 'user._id' } },
+                          $or: [
+                            {
+                              keys: {
+                                $elemMatch: {
+                                  roles: { $eq: 'queues' },
+                                  value: { $eq: { $ref: 'key' } },
+                                },
+                              },
+                            },
+                            {
+                              users: {
+                                $elemMatch: {
+                                  _id: { $eq: { $ref: 'user._id' } },
+                                  roles: { $eq: 'queues' },
+                                },
+                              },
+                            },
+                          ],
                         },
                       },
                     },
@@ -58,7 +75,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
                         model: 'GameInvitationSchema',
                         select: 'namespaceId',
                         where: {
-                          toUserId: { $eq: { $ref: 'user._id' } },
+                          userId: { $eq: { $ref: 'user._id' } },
                         },
                       },
                     },
@@ -87,7 +104,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     {
       name: 'namespace-administrator',
       query: {
-        'record.queueDocument.namespaceDocument.accessControlList': {
+        'record.queueDocument.namespaceDocument.users': {
           $elemMatch: {
             roles: { $eq: 'Administrator' },
             userId: { $eq: { $ref: 'user._id' } },

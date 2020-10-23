@@ -8,7 +8,7 @@ import {
   ReleaseDocument,
   ReleaseTaskMock,
   ReleaseMock,
-  NamespaceRolesMock,
+  NamespaceUserMock,
   ReleaseTask,
   ReleaseTaskDocument,
   FilePlatform,
@@ -42,11 +42,11 @@ describe('remove-release-files', function() {
     let releaseTask: ReleaseTaskDocument;
 
     beforeEach(async function() {
-      const namespaceRoles = NamespaceRolesMock.create({
-        roles: ['Administrator'],
-        userId: user._id,
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['releases'],
       });
-      const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       platform = FileMock.getPlatform();
       release = await ReleaseMock.create({ namespaceId: namespace._id });

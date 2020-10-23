@@ -3,7 +3,10 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import { Database, DatabasePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
-  const where = await DatabasePermissions.where({ name: ctx.params.name }, ctx.state.user);
+  const where = await DatabasePermissions.where(
+    { name: ctx.params.name },
+    ctx.state.apiKey || ctx.state.user,
+  );
   const record = await Database.findOne(where).populate(
     DatabasePermissions.accessControl.options.populate,
   );
@@ -12,7 +15,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Database');
   }
 
-  const result = await DatabasePermissions.delete(record, ctx.state.user);
+  const result = await DatabasePermissions.delete(record, ctx.state.apiKey || ctx.state.user);
 
   ctx.response.body = { record: result };
 }

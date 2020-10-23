@@ -4,7 +4,11 @@ import { DatabasePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const override = { where: { name: ctx.params.name } };
-  const result = await DatabasePermissions.findOne({}, override, ctx.state.user);
+  const result = await DatabasePermissions.findOne(
+    {},
+    override,
+    ctx.state.apiKey || ctx.state.user,
+  );
 
   if (!result) {
     throw new RecordNotFoundError('Database');

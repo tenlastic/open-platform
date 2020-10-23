@@ -20,7 +20,11 @@ export async function handler(ctx: Context) {
   const Permissions = new MongoosePermissions<RecordDocument>(Model, collection.permissions);
 
   const override = { where: { collectionId: collection._id, databaseId: database._id } };
-  const result = await Permissions.find(ctx.request.query, override, ctx.state.user);
+  const result = await Permissions.find(
+    ctx.request.query,
+    override,
+    ctx.state.apiKey || ctx.state.user,
+  );
 
   ctx.response.body = { records: result };
 }

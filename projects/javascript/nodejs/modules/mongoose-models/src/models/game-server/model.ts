@@ -25,8 +25,8 @@ import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 
-import { Namespace, NamespaceDocument } from '../namespace';
-import { Queue, QueueDocument } from '../queue';
+import { NamespaceDocument } from '../namespace';
+import { QueueDocument } from '../queue';
 import { User, UserDocument } from '../user';
 
 export enum GameServerStatus {
@@ -192,7 +192,7 @@ export class GameServerSchema implements IOriginalDocument {
   private async createDeploymentOrPod() {
     const administrator = { roles: ['Administrator'] };
     const accessToken = jwt.sign(
-      { user: administrator },
+      { type: 'access', user: administrator },
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
       { algorithm: 'RS256' },
     );

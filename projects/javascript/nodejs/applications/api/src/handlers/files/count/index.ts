@@ -9,7 +9,11 @@ export async function handler(ctx: Context) {
   }
 
   const override = { platform: ctx.params.platform, releaseId: release._id };
-  const result = await FilePermissions.count(ctx.request.query.where, override, ctx.state.user);
+  const result = await FilePermissions.count(
+    ctx.request.query.where,
+    override,
+    ctx.state.apiKey || ctx.state.user,
+  );
 
   ctx.response.body = { count: result };
 }

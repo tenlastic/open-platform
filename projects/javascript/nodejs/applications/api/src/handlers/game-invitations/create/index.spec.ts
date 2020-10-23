@@ -6,7 +6,7 @@ import * as mongoose from 'mongoose';
 import {
   UserDocument,
   UserMock,
-  NamespaceRolesMock,
+  NamespaceUserMock,
   NamespaceMock,
 } from '@tenlastic/mongoose-models';
 import { handler } from './';
@@ -22,16 +22,16 @@ describe('handlers/game-invitations/create', function() {
 
   context('when permission is granted', function() {
     it('creates a new record', async function() {
-      const namespaceRoles = NamespaceRolesMock.create({
-        roles: ['Administrator'],
-        userId: user._id,
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['game-invitations'],
       });
-      const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
       const ctx = new ContextMock({
         request: {
           body: {
             namespaceId: namespace._id,
-            toUserId: mongoose.Types.ObjectId(),
+            userId: mongoose.Types.ObjectId(),
           },
         },
         state: { user: user.toObject() },
@@ -50,7 +50,7 @@ describe('handlers/game-invitations/create', function() {
         request: {
           body: {
             namespaceId: namespace._id,
-            toUserId: mongoose.Types.ObjectId(),
+            userId: mongoose.Types.ObjectId(),
           },
         },
         state: { user: user.toObject() },

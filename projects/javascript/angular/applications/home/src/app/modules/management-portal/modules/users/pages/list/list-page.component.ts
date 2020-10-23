@@ -1,5 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { User, UserService, WebSocketService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
@@ -7,7 +14,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
+import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -28,6 +35,7 @@ export class UsersListPageComponent implements OnInit {
   constructor(
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private titleService: Title,
     private userService: UserService,
     private webSocketService: WebSocketService,
@@ -71,6 +79,10 @@ export class UsersListPageComponent implements OnInit {
       if (result === 'Yes') {
         await this.userService.delete(user._id);
         this.deleteUser(user);
+
+        this.matSnackBar.open('User deleted successfully.', null, {
+          duration: SNACKBAR_DURATION,
+        });
       }
     });
   }

@@ -7,12 +7,12 @@ export const GameInvitationPermissions = new MongoosePermissions<GameInvitationD
   {
     create: {
       roles: {
-        administrator: ['namespaceId', 'toUserId'],
+        'namespace-administrator': ['namespaceId', 'userId'],
       },
     },
     delete: {
       roles: {
-        administrator: true,
+        'namespace-administrator': true,
         recipient: true,
       },
     },
@@ -22,49 +22,72 @@ export const GameInvitationPermissions = new MongoosePermissions<GameInvitationD
           {
             namespaceId: {
               $in: {
-                // Find all Namespaces that the user is a member of.
+                // Find Namespaces where the Key or User has administrator access.
                 $query: {
                   model: 'NamespaceSchema',
                   select: '_id',
                   where: {
-                    'accessControlList.userId': { $eq: { $ref: 'user._id' } },
+                    $or: [
+                      {
+                        keys: {
+                          $elemMatch: {
+                            roles: { $eq: 'game-invitations' },
+                            value: { $eq: { $ref: 'key' } },
+                          },
+                        },
+                      },
+                      {
+                        users: {
+                          $elemMatch: {
+                            _id: { $eq: { $ref: 'user._id' } },
+                            roles: { $eq: 'game-invitations' },
+                          },
+                        },
+                      },
+                    ],
                   },
                 },
               },
             },
           },
           {
-            toUserId: { $eq: { $ref: 'user._id' } },
+            userId: { $eq: { $ref: 'user._id' } },
           },
         ],
       },
     },
     populate: [{ path: 'namespaceDocument' }],
     read: {
-      base: ['_id', 'createdAt', 'fromUserId', 'namespaceId', 'toUserId', 'updatedAt'],
+      base: ['_id', 'createdAt', 'namespaceId', 'userId', 'updatedAt'],
     },
     roles: [
       {
-        name: 'administrator',
+        name: 'namespace-administrator',
         query: {
-          'record.namespaceDocument.accessControlList': {
-            $elemMatch: {
-              roles: { $eq: 'Administrator' },
-              userId: { $eq: { $ref: 'user._id' } },
+          $or: [
+            {
+              'record.namespaceDocument.keys': {
+                $elemMatch: {
+                  roles: { $eq: 'game-invitations' },
+                  value: { $eq: { $ref: 'key' } },
+                },
+              },
             },
-          },
-        },
-      },
-      {
-        name: 'sender',
-        query: {
-          'record.fromUserId': { $eq: { $ref: 'user._id' } },
+            {
+              'record.namespaceDocument.users': {
+                $elemMatch: {
+                  _id: { $eq: { $ref: 'user._id' } },
+                  roles: { $eq: 'game-invitations' },
+                },
+              },
+            },
+          ],
         },
       },
       {
         name: 'recipient',
         query: {
-          'record.toUserId': { $eq: { $ref: 'user._id' } },
+          'record.userId': { $eq: { $ref: 'user._id' } },
         },
       },
     ],

@@ -13,18 +13,36 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
     base: {
       gameServerId: {
         $in: {
+          // Find Game Servers within returned Namespaces.
           $query: {
             model: 'GameServerSchema',
             select: '_id',
             where: {
               namespaceId: {
                 $in: {
-                  // Find all Namespaces that the user is a member of.
+                  // Find Namespaces where the Key or User has administrator access.
                   $query: {
                     model: 'NamespaceSchema',
                     select: '_id',
                     where: {
-                      'accessControlList.userId': { $eq: { $ref: 'user._id' } },
+                      $or: [
+                        {
+                          keys: {
+                            $elemMatch: {
+                              roles: { $eq: 'game-servers' },
+                              value: { $eq: { $ref: 'key' } },
+                            },
+                          },
+                        },
+                        {
+                          users: {
+                            $elemMatch: {
+                              _id: { $eq: { $ref: 'user._id' } },
+                              roles: { $eq: 'game-servers' },
+                            },
+                          },
+                        },
+                      ],
                     },
                   },
                 },
@@ -56,12 +74,24 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
     {
       name: 'namespace-administrator',
       query: {
-        'record.gameServerDocument.namespaceDocument.accessControlList': {
-          $elemMatch: {
-            roles: { $eq: 'Administrator' },
-            userId: { $eq: { $ref: 'user._id' } },
+        $or: [
+          {
+            'record.gameServerDocument.namespaceDocument.keys': {
+              $elemMatch: {
+                roles: { $eq: 'game-servers' },
+                value: { $eq: { $ref: 'key' } },
+              },
+            },
           },
-        },
+          {
+            'record.gameServerDocument.namespaceDocument.users': {
+              $elemMatch: {
+                _id: { $eq: { $ref: 'user._id' } },
+                roles: { $eq: 'game-servers' },
+              },
+            },
+          },
+        ],
       },
     },
   ],

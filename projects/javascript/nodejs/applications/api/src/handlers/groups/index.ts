@@ -19,6 +19,6 @@ router.delete('/:_id/user-ids/:userId', authenticationMiddleware, kickHandler);
 router.get('/', findHandler);
 router.get('/count', countHandler);
 router.get('/:_id', findOneHandler);
-router.post('/', createHandler);
+router.post('/', authenticationMiddleware, createHandler);
 router.post('/:_id/user-ids', authenticationMiddleware, joinHandler);
 router.put('/:_id', updateHandler);

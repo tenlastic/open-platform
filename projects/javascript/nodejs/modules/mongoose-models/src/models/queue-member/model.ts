@@ -70,7 +70,7 @@ export class QueueMemberSchema {
   public updatedAt: Date;
 
   @prop({
-    foreignField: 'toUserId',
+    foreignField: 'userId',
     justOne: false,
     localField: 'userId',
     ref: 'GameInvitationSchema',

@@ -9,7 +9,11 @@ export async function handler(ctx: Context) {
   }
 
   const override = { where: { databaseId: database._id, name: ctx.params.name } };
-  const result = await CollectionPermissions.findOne({}, override, ctx.state.user);
+  const result = await CollectionPermissions.findOne(
+    {},
+    override,
+    ctx.state.apiKey || ctx.state.user,
+  );
   if (!result) {
     throw new RecordNotFoundError('Collection');
   }

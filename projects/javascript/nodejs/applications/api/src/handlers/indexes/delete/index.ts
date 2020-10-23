@@ -13,7 +13,11 @@ export async function handler(ctx: Context) {
     },
   };
 
-  const collections = await CollectionPermissions.find({}, override, ctx.state.user);
+  const collections = await CollectionPermissions.find(
+    {},
+    override,
+    ctx.state.apiKey || ctx.state.user,
+  );
   if (collections.length === 0) {
     throw new RecordNotFoundError('Collection');
   }

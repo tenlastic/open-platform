@@ -8,7 +8,7 @@ import {
   NamespaceMock,
   UserDocument,
   UserMock,
-  NamespaceRolesMock,
+  NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
@@ -24,11 +24,11 @@ describe('handlers/collections/create', function() {
 
   context('when permission is granted', function() {
     it('creates a new record', async function() {
-      const namespaceRoles = NamespaceRolesMock.create({
-        roles: ['Administrator'],
-        userId: user._id,
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['databases'],
       });
-      const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
       const database = await DatabaseMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({

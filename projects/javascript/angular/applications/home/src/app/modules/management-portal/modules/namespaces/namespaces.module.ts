@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../../../shared/shared.module';
-import { AccessControlListFieldComponent } from './components';
+import { NamespaceUserFieldComponent } from './components';
 import { NamespacesFormPageComponent, NamespacesListPageComponent } from './pages';
 
 export const ROUTES: Routes = [
@@ -12,7 +12,7 @@ export const ROUTES: Routes = [
 
 @NgModule({
   declarations: [
-    AccessControlListFieldComponent,
+    NamespaceUserFieldComponent,
 
     NamespacesFormPageComponent,
     NamespacesListPageComponent,

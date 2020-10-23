@@ -5,16 +5,16 @@ import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-access-control-list-field',
-  styleUrls: ['./access-control-list-field.component.scss'],
-  templateUrl: 'access-control-list-field.component.html',
+  selector: 'app-namespace-user-field',
+  styleUrls: ['./namespace-user-field.component.scss'],
+  templateUrl: 'namespace-user-field.component.html',
 })
-export class AccessControlListFieldComponent implements OnInit {
+export class NamespaceUserFieldComponent implements OnInit {
   @Input() public form: FormGroup;
+  @Input() public roles: any[];
   @Output() public remove = new EventEmitter();
 
   public isLoading = false;
-  public roles = [{ label: 'Namespaces', value: 'namespaces' }];
   public users: User[] = [];
 
   private subject: Subject<string> = new Subject();

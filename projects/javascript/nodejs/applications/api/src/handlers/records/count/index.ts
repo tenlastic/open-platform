@@ -20,7 +20,11 @@ export async function handler(ctx: Context) {
   const Permissions = new MongoosePermissions<RecordDocument>(Model, collection.permissions);
 
   const override = { collectionId: collection._id, databaseId: database._id };
-  const result = await Permissions.count(ctx.request.query.where, override, ctx.state.user);
+  const result = await Permissions.count(
+    ctx.request.query.where,
+    override,
+    ctx.state.apiKey || ctx.state.user,
+  );
 
   ctx.response.body = { count: result };
 }

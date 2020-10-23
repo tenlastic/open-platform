@@ -1,13 +1,20 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { RefreshToken, RefreshTokenService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
+import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -19,7 +26,7 @@ export class RefreshTokensListPageComponent implements OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<RefreshToken>;
 
   public dataSource: MatTableDataSource<RefreshToken>;
-  public displayedColumns: string[] = ['_id', 'description', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns: string[] = ['_id', 'createdAt', 'updatedAt', 'expiresAt', 'actions'];
   public search = '';
 
   private subject: Subject<string> = new Subject();
@@ -27,8 +34,8 @@ export class RefreshTokensListPageComponent implements OnInit {
   constructor(
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private refreshTokenService: RefreshTokenService,
-    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
@@ -63,6 +70,10 @@ export class RefreshTokensListPageComponent implements OnInit {
       if (result === 'Yes') {
         await this.refreshTokenService.delete(record._id);
         this.deleteRefreshToken(record);
+
+        this.matSnackBar.open('Refresh Token deleted successfully.', null, {
+          duration: SNACKBAR_DURATION,
+        });
       }
     });
   }
@@ -72,13 +83,7 @@ export class RefreshTokensListPageComponent implements OnInit {
   }
 
   private async fetchRefreshTokens() {
-    const records = await this.refreshTokenService.find({
-      sort: '_id',
-      where: {
-        expiresAt: { $exists: false },
-        namespaceId: this.selectedNamespaceService.namespaceId,
-      },
-    });
+    const records = await this.refreshTokenService.find({});
 
     this.dataSource = new MatTableDataSource<RefreshToken>(records);
     this.dataSource.paginator = this.paginator;

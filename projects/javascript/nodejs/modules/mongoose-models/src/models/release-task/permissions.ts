@@ -13,19 +13,36 @@ export const ReleaseTaskPermissions = new MongoosePermissions<ReleaseTaskDocumen
     base: {
       releaseId: {
         $in: {
-          // Find all Releases within the returned Namespace.
+          // Find all Releases within the returned Namespaces.
           $query: {
             model: 'ReleaseSchema',
             select: '_id',
             where: {
               namespaceId: {
                 $in: {
-                  // Find all Namespaces that the User is a member of.
+                  // Find Namespaces where the Key or User has administrator access.
                   $query: {
                     model: 'NamespaceSchema',
                     select: '_id',
                     where: {
-                      'accessControlList.userId': { $eq: { $ref: 'user._id' } },
+                      $or: [
+                        {
+                          keys: {
+                            $elemMatch: {
+                              roles: { $eq: 'releases' },
+                              value: { $eq: { $ref: 'key' } },
+                            },
+                          },
+                        },
+                        {
+                          users: {
+                            $elemMatch: {
+                              _id: { $eq: { $ref: 'user._id' } },
+                              roles: { $eq: 'releases' },
+                            },
+                          },
+                        },
+                      ],
                     },
                   },
                 },
@@ -72,12 +89,24 @@ export const ReleaseTaskPermissions = new MongoosePermissions<ReleaseTaskDocumen
     {
       name: 'namespace-administrator',
       query: {
-        'record.releaseDocument.namespaceDocument.accessControlList': {
-          $elemMatch: {
-            roles: { $eq: 'Administrator' },
-            userId: { $eq: { $ref: 'user._id' } },
+        $or: [
+          {
+            'record.releaseDocument.namespaceDocument.keys': {
+              $elemMatch: {
+                roles: { $eq: 'releases' },
+                value: { $eq: { $ref: 'key' } },
+              },
+            },
           },
-        },
+          {
+            'record.releaseDocument.namespaceDocument.users': {
+              $elemMatch: {
+                _id: { $eq: { $ref: 'user._id' } },
+                roles: { $eq: 'releases' },
+              },
+            },
+          },
+        ],
       },
     },
   ],

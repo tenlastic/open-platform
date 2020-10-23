@@ -1,5 +1,12 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import {
   GameInvitation,
@@ -15,7 +22,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
+import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -41,6 +48,7 @@ export class GameInvitationsListPageComponent implements OnDestroy, OnInit {
     private gameInvitationService: GameInvitationService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
     private selectedNamespaceService: SelectedNamespaceService,
@@ -85,6 +93,10 @@ export class GameInvitationsListPageComponent implements OnDestroy, OnInit {
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
         await this.gameInvitationService.delete(record._id);
+
+        this.matSnackBar.open('Game Invitation deleted successfully.', null, {
+          duration: SNACKBAR_DURATION,
+        });
       }
     });
   }
@@ -116,8 +128,8 @@ export class GameInvitationsListPageComponent implements OnDestroy, OnInit {
     });
     this.fetchGameInvitationToUser$ = this.$gameInvitations.subscribe(gameInvitations => {
       const missingUserIds = gameInvitations
-        .map(f => f.toUserId)
-        .filter(toUserId => !this.userQuery.hasEntity(toUserId));
+        .map(f => f.userId)
+        .filter(userId => !this.userQuery.hasEntity(userId));
 
       if (missingUserIds.length > 0) {
         this.userService.find({ where: { _id: { $in: missingUserIds } } });

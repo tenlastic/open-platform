@@ -9,7 +9,11 @@ export async function handler(ctx: Context) {
   }
 
   const override = { databaseId: database._id };
-  const result = await CollectionPermissions.create(ctx.request.body, override, ctx.state.user);
+  const result = await CollectionPermissions.create(
+    ctx.request.body,
+    override,
+    ctx.state.apiKey || ctx.state.user,
+  );
 
   ctx.response.body = { record: result };
 }

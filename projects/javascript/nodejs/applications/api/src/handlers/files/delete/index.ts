@@ -17,7 +17,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('File');
   }
 
-  const result = await FilePermissions.delete(record, ctx.state.user);
+  const result = await FilePermissions.delete(record, ctx.state.apiKey || ctx.state.user);
 
   ctx.response.body = { record: result };
 }

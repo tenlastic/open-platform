@@ -1,5 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { Article, ArticleService } from '@tenlastic/ng-http';
@@ -8,7 +15,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
+import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -37,6 +44,7 @@ export class ArticlesListPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private snackBar: MatSnackBar,
     private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
@@ -82,6 +90,10 @@ export class ArticlesListPageComponent implements OnInit {
       if (result === 'Yes') {
         await this.articleService.delete(record._id);
         this.deleteArticle(record);
+
+        this.snackBar.open('Article deleted successfully.', null, {
+          duration: SNACKBAR_DURATION,
+        });
       }
     });
   }

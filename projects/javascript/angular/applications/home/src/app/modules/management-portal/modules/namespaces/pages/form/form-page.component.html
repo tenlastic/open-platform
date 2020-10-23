@@ -10,25 +10,71 @@
       </mat-form-field>
     </div>
 
-    <app-toggle-section title="Access Control List">
+    <app-toggle-section title="Users" formArrayName="users">
       <div
         class="row"
-        formArrayName="accessControlList"
         *ngFor="
-          let accessControlListItem of form['controls'].accessControlList['controls'];
+          let user of users.controls;
           let i = index
         "
       >
-        <app-access-control-list-field
-          [form]="accessControlListItem"
-          (remove)="removeAccessControlListItem(i)"
-        ></app-access-control-list-field>
+        <app-namespace-user-field
+          [form]="user"
+          [roles]="roles"
+          (remove)="removeUser(i)"
+        ></app-namespace-user-field>
       </div>
 
       <div class="row">
-        <app-button color="accent" layout="left" (OnClick)="addAccessControlListItem()">
+        <app-button color="accent" layout="left" (OnClick)="addUser()">
           <mat-icon>add</mat-icon>
-          <span>Add Access Control List Entry</span>
+          <span>Add User</span>
+        </app-button>
+      </div>
+    </app-toggle-section>
+
+    <app-toggle-section title="API Keys" formArrayName="keys" [isVisible]="false">
+      <div
+        class="row"
+        *ngFor="
+          let key of keys.controls;
+          let i = index
+        "
+        [formGroupName]="i"
+      >
+        <mat-form-field floatLabel="always">
+          <mat-label>Value</mat-label>
+          <input matInput formControlName="value" />
+        </mat-form-field>
+        
+        <mat-form-field floatLabel="always">
+          <mat-label>Description</mat-label>
+          <input matInput formControlName="description" />
+          <mat-error>Enter a valid name.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Roles</mat-label>
+          <mat-select placeholder="None" multiple formControlName="roles">
+            <mat-option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <app-button color="accent" layout="left" (OnClick)="copyToClipboard(i)">
+          <mat-icon>content_paste</mat-icon>
+          <span>Copy to Clipboard</span>
+        </app-button>
+        
+        <app-button color="accent" layout="left" (OnClick)="removeKey(i)">
+          <mat-icon>close</mat-icon>
+          <span>Remove</span>
+        </app-button>
+      </div>
+
+      <div class="row">
+        <app-button color="accent" layout="left" (OnClick)="addKey()">
+          <mat-icon>add</mat-icon>
+          <span>Add API Key</span>
         </app-button>
       </div>
     </app-toggle-section>

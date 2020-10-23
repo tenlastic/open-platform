@@ -41,16 +41,16 @@ describe('get-property-by-dot-notation', function() {
   context('when the JSON is an object', function() {
     it('returns the value matching the given path', function() {
       const json = {
-        accessControlList: [
-          { roles: ['Administrator'], userId: mongoose.Types.ObjectId() },
-          { roles: ['Administrator'], userId: mongoose.Types.ObjectId() },
+        users: [
+          { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] },
+          { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] },
         ],
       };
-      const path = 'accessControlList.userId';
+      const path = 'users._id';
 
       const result = getPropertyByDotNotation(json, path);
 
-      expect(result).to.eql([json.accessControlList[0].userId, json.accessControlList[1].userId]);
+      expect(result).to.eql([json.users[0]._id, json.users[1]._id]);
     });
 
     it('returns undefined when the matching property is not found', function() {

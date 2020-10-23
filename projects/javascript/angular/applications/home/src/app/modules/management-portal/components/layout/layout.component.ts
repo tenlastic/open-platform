@@ -14,6 +14,21 @@ import {
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent {
+  public get hasInfrastructureButtons() {
+    return (
+      this.hasPermission('databases') ||
+      this.hasPermission('game-servers') ||
+      this.hasPermission('queues') ||
+      this.hasPermission('releases')
+    );
+  }
+  public get hasLauncherButtons() {
+    return (
+      this.hasPermission('articles') ||
+      this.hasPermission('game-invitations') ||
+      this.hasPermission('games')
+    );
+  }
   public launcherUrl = environment.launcherUrl;
   public showInfrastructureButtons = true;
   public showLauncherButtons = true;
@@ -24,4 +39,14 @@ export class LayoutComponent {
     public router: Router,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
+
+  public hasPermission(role: string) {
+    if (this.identityService.user.roles.includes('Administrator')) {
+      return true;
+    }
+
+    return this.selectedNamespaceService.namespace.users
+      .find(u => u._id === this.identityService.user._id)
+      .roles.includes(role);
+  }
 }

@@ -92,6 +92,10 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
       if (result === 'Yes') {
         await this.gameServerService.delete(record._id);
         this.deleteGameServer(record);
+
+        this.matSnackBar.open('Game Server deleted successfully.', null, {
+          duration: SNACKBAR_DURATION,
+        });
       }
     });
   }

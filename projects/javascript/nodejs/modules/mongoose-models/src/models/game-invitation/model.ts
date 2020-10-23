@@ -16,8 +16,8 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { Namespace, NamespaceDocument } from '../namespace';
-import { User, UserDocument } from '../user';
+import { NamespaceDocument } from '../namespace';
+import { UserDocument } from '../user';
 
 // Publish changes to Kafka.
 export const GameInvitationEvent = new EventEmitter<IDatabasePayload<GameInvitationDocument>>();
@@ -25,8 +25,7 @@ GameInvitationEvent.on(payload => {
   kafka.publish(payload);
 });
 
-@index({ fromUserId: 1 })
-@index({ namespaceId: 1, toUserId: 1 }, { unique: true })
+@index({ namespaceId: 1, userId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
@@ -43,25 +42,19 @@ export class GameInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ ref: 'UserSchema', required: true })
-  public fromUserId: Ref<UserDocument>;
-
   @prop({ ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
-  @prop({ ref: 'UserSchema', required: true })
-  public toUserId: Ref<UserDocument>;
-
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: 'UserSchema' })
-  public fromUserDocument: UserDocument;
+  @prop({ ref: 'UserSchema', required: true })
+  public userId: Ref<UserDocument>;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: 'UserSchema' })
-  public toUserDocument: UserDocument;
+  @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'UserSchema' })
+  public userDocument: UserDocument;
 }
 
 export type GameInvitationDocument = DocumentType<GameInvitationSchema>;

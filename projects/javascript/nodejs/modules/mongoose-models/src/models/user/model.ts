@@ -26,7 +26,7 @@ import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
 import * as emails from '../../emails';
-import { RefreshToken } from '../refresh-token/model';
+import { RefreshToken, RefreshTokenDocument } from '../refresh-token/model';
 import { UserPermissions } from './';
 
 const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
@@ -127,16 +127,34 @@ export class UserSchema {
   /**
    * Creates an access and refresh token.
    */
-  public async logIn(this: UserDocument) {
+  public async logIn(this: UserDocument, jti?: string) {
     // Save the RefreshToken for renewal and revocation.
     const expiresAt = new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000);
-    const token = await RefreshToken.create({ expiresAt, userId: this._id });
+
+    let token: RefreshTokenDocument;
+    if (jti) {
+      token = await RefreshToken.findOneAndUpdate(
+        {
+          _id: jti,
+          userId: this._id,
+        },
+        {
+          expiresAt,
+          updatedAt: new Date(),
+        },
+        {
+          new: true,
+        },
+      );
+    } else {
+      token = await RefreshToken.create({ expiresAt, userId: this._id });
+    }
 
     // Remove unauthorized fields from the User.
     const filteredUser = await UserPermissions.read(this, this);
 
     const accessToken = jwt.sign(
-      { user: filteredUser },
+      { type: 'access', user: filteredUser },
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
       {
         algorithm: 'RS256',
@@ -145,7 +163,7 @@ export class UserSchema {
       },
     );
     const refreshToken = jwt.sign(
-      { user: filteredUser },
+      { type: 'refresh', user: filteredUser },
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
       {
         algorithm: 'RS256',

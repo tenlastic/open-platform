@@ -8,7 +8,11 @@ export async function handler(ctx: Context) {
 
   do {
     try {
-      result = await GameServerPermissions.create(ctx.request.body, {}, ctx.state.user);
+      result = await GameServerPermissions.create(
+        ctx.request.body,
+        {},
+        ctx.state.apiKey || ctx.state.user,
+      );
     } catch (e) {
       if (e.name === 'MongoError' && e.code === 11000 && e.keyPattern.port) {
         portError = e;

@@ -5,12 +5,12 @@ import { Collection, CollectionDocument } from './model';
 export const CollectionPermissions = new MongoosePermissions<CollectionDocument>(Collection, {
   create: {
     roles: {
-      administrator: ['databaseId', 'jsonSchema.*', 'name', 'permissions.*'],
+      'namespace-administrator': ['databaseId', 'jsonSchema.*', 'name', 'permissions.*'],
     },
   },
   delete: {
     roles: {
-      administrator: true,
+      'namespace-administrator': true,
     },
   },
   find: {
@@ -24,12 +24,29 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
             where: {
               namespaceId: {
                 $in: {
-                  // Find all Namespaces that the user is a member of.
+                  // Find Namespaces where the Key or User has administrator access.
                   $query: {
                     model: 'NamespaceSchema',
                     select: '_id',
                     where: {
-                      'accessControlList.userId': { $eq: { $ref: 'user._id' } },
+                      $or: [
+                        {
+                          keys: {
+                            $elemMatch: {
+                              roles: { $eq: 'databases' },
+                              value: { $eq: { $ref: 'key' } },
+                            },
+                          },
+                        },
+                        {
+                          users: {
+                            $elemMatch: {
+                              _id: { $eq: { $ref: 'user._id' } },
+                              roles: { $eq: 'databases' },
+                            },
+                          },
+                        },
+                      ],
                     },
                   },
                 },
@@ -55,20 +72,32 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
   },
   roles: [
     {
-      name: 'administrator',
+      name: 'namespace-administrator',
       query: {
-        'record.databaseDocument.namespaceDocument.accessControlList': {
-          $elemMatch: {
-            roles: { $eq: 'Administrator' },
-            userId: { $eq: { $ref: 'user._id' } },
+        $or: [
+          {
+            'record.databaseDocument.namespaceDocument.keys': {
+              $elemMatch: {
+                roles: { $eq: 'databases' },
+                value: { $eq: { $ref: 'key' } },
+              },
+            },
           },
-        },
+          {
+            'record.databaseDocument.namespaceDocument.users': {
+              $elemMatch: {
+                _id: { $eq: { $ref: 'user._id' } },
+                roles: { $eq: 'databases' },
+              },
+            },
+          },
+        ],
       },
     },
   ],
   update: {
     roles: {
-      administrator: ['databaseId', 'indexes', 'jsonSchema.*', 'name', 'permissions.*'],
+      'namespace-administrator': ['databaseId', 'indexes', 'jsonSchema.*', 'name', 'permissions.*'],
     },
   },
 });

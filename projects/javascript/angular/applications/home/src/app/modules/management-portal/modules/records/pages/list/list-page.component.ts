@@ -1,5 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -15,7 +22,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
+import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -40,6 +47,7 @@ export class RecordsListPageComponent implements OnInit {
     public databaseService: DatabaseService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private recordService: RecordService,
     private titleService: Title,
   ) {}
@@ -83,6 +91,10 @@ export class RecordsListPageComponent implements OnInit {
       if (result === 'Yes') {
         await this.recordService.delete(this.database.name, this.collection.name, record._id);
         this.deleteRecord(record);
+
+        this.matSnackBar.open('Record deleted successfully.', null, {
+          duration: SNACKBAR_DURATION,
+        });
       }
     });
   }

@@ -106,14 +106,18 @@ describe('handlers/logins/refresh-token', function() {
             });
           });
 
-          context('when the user is exists', function() {
+          context('when the user exists', function() {
             it('returns accessToken and refreshToken', async function() {
               const user = await UserMock.create();
               const refreshToken = await RefreshTokenMock.create({ userId: user._id });
-              const token = jwt.sign({ user }, process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'), {
-                algorithm: 'RS256',
-                jwtid: refreshToken._id.toString(),
-              });
+              const token = jwt.sign(
+                { type: 'refresh', user },
+                process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
+                {
+                  algorithm: 'RS256',
+                  jwtid: refreshToken._id.toString(),
+                },
+              );
               const ctx: any = new ContextMock({
                 request: {
                   body: { token },

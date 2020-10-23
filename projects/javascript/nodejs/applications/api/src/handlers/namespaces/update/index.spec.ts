@@ -9,7 +9,7 @@ import {
   NamespaceDocument,
   UserMock,
   UserDocument,
-  NamespaceRolesMock,
+  NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
@@ -27,11 +27,11 @@ describe('handlers/namespaces/update', function() {
     let record: NamespaceDocument;
 
     beforeEach(async function() {
-      const userRole = await NamespaceRolesMock.create({
-        roles: ['Administrator'],
-        userId: user._id,
+      const userRole = await NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['namespaces'],
       });
-      record = await NamespaceMock.create({ accessControlList: [userRole] });
+      record = await NamespaceMock.create({ users: [userRole] });
     });
 
     it('returns the updated record', async function() {
@@ -41,8 +41,8 @@ describe('handlers/namespaces/update', function() {
         },
         request: {
           body: {
-            accessControlList: [],
             name: chance.hash(),
+            users: [],
           },
         },
         state: { user: user.toObject() },
@@ -52,9 +52,9 @@ describe('handlers/namespaces/update', function() {
 
       expect(ctx.response.body.record).to.exist;
 
-      const accessControlList = ctx.response.body.record.accessControlList[0];
-      expect(accessControlList.roles).to.eql(['Administrator']);
-      expect(accessControlList.userId.toString()).to.eql(user._id.toString());
+      const users = ctx.response.body.record.users[0];
+      expect(users.roles).to.eql(['namespaces']);
+      expect(users._id.toString()).to.eql(user._id.toString());
     });
   });
 

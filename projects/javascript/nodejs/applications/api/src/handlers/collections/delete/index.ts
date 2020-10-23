@@ -24,7 +24,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Collection');
   }
 
-  const result = await CollectionPermissions.delete(record, ctx.state.user);
+  const result = await CollectionPermissions.delete(record, ctx.state.apiKey || ctx.state.user);
 
   ctx.response.body = { record: result };
 }

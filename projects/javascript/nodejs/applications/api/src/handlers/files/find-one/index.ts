@@ -15,7 +15,7 @@ export async function handler(ctx: Context) {
       releaseId: release._id,
     },
   };
-  const result = await FilePermissions.findOne({}, override, ctx.state.user);
+  const result = await FilePermissions.findOne({}, override, ctx.state.apiKey || ctx.state.user);
   if (!result) {
     throw new RecordNotFoundError('File');
   }

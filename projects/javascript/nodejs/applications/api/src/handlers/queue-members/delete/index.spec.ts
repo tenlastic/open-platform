@@ -7,7 +7,7 @@ import {
   NamespaceMock,
   UserDocument,
   UserMock,
-  NamespaceRolesMock,
+  NamespaceUserMock,
   GameInvitationMock,
   QueueMemberMock,
   QueueMemberDocument,
@@ -27,11 +27,11 @@ describe('handlers/queue-members/delete', function() {
     let record: QueueMemberDocument;
 
     beforeEach(async function() {
-      const namespaceRoles = NamespaceRolesMock.create({
-        roles: ['Administrator'],
-        userId: user._id,
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['queues'],
       });
-      const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
       const queue = await QueueMock.create({ namespaceId: namespace._id });
 
       await GameInvitationMock.create({ namespaceId: namespace._id, toUserId: user._id });
@@ -56,11 +56,11 @@ describe('handlers/queue-members/delete', function() {
     let record: QueueMemberDocument;
 
     beforeEach(async function() {
-      const namespaceRoles = NamespaceRolesMock.create({
-        roles: ['Administrator'],
-        userId: user._id,
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['queues'],
       });
-      const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
       const queue = await QueueMock.create({ namespaceId: namespace._id });
 
       await GameInvitationMock.create({ namespaceId: namespace._id, toUserId: user._id });

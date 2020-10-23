@@ -4,7 +4,7 @@ import { NamespacePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const query = { where: { _id: ctx.params.id } };
-  const result = await NamespacePermissions.findOne(query, {}, ctx.state.user);
+  const result = await NamespacePermissions.findOne(query, {}, ctx.state.apiKey || ctx.state.user);
 
   if (!result) {
     throw new RecordNotFoundError('Namespace');

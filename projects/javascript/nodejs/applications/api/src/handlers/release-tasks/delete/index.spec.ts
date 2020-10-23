@@ -10,7 +10,7 @@ import {
   ReleaseTaskDocument,
   ReleaseTaskMock,
   ReleaseMock,
-  NamespaceRolesMock,
+  NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
@@ -27,11 +27,11 @@ describe('handlers/releases/delete', function() {
 
   context('when permission is granted', function() {
     beforeEach(async function() {
-      const namespaceRoles = NamespaceRolesMock.create({
-        roles: ['Administrator'],
-        userId: user._id,
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['releases'],
       });
-      const namespace = await NamespaceMock.create({ accessControlList: [namespaceRoles] });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       release = await ReleaseMock.create({ namespaceId: namespace._id });
       record = await ReleaseTaskMock.create({ releaseId: release._id });

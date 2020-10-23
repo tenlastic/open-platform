@@ -3,14 +3,11 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../../../shared/shared.module';
 
-import { RefreshTokensFormPageComponent, RefreshTokensListPageComponent } from './pages';
+import { RefreshTokensListPageComponent } from './pages';
 
-export const ROUTES: Routes = [
-  { path: '', component: RefreshTokensListPageComponent },
-  { path: ':_id', component: RefreshTokensFormPageComponent },
-];
+export const ROUTES: Routes = [{ path: '', component: RefreshTokensListPageComponent }];
 
-const pages = [RefreshTokensFormPageComponent, RefreshTokensListPageComponent];
+const pages = [RefreshTokensListPageComponent];
 
 @NgModule({
   declarations: [...pages],

@@ -1,5 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { Namespace, NamespaceService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
@@ -7,7 +14,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
+import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -27,6 +34,7 @@ export class NamespacesListPageComponent implements OnInit {
   constructor(
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private namespaceService: NamespaceService,
     public selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
@@ -67,6 +75,10 @@ export class NamespacesListPageComponent implements OnInit {
       if (result === 'Yes') {
         await this.namespaceService.delete(record._id);
         this.deleteNamespace(record);
+
+        this.matSnackBar.open('Namespace deleted successfully.', null, {
+          duration: SNACKBAR_DURATION,
+        });
       }
     });
   }

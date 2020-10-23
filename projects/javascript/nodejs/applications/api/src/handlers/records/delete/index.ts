@@ -20,14 +20,14 @@ export async function handler(ctx: Context) {
   const Permissions = new MongoosePermissions<RecordDocument>(Model, collection.permissions);
 
   const query = { _id, collectionId: collection._id, databaseId: database._id };
-  const where = await Permissions.where(query, ctx.state.user);
+  const where = await Permissions.where(query, ctx.state.apiKey || ctx.state.user);
   const record = await Model.findOne(where).populate(Permissions.accessControl.options.populate);
 
   if (!record) {
     throw new RecordNotFoundError('Record');
   }
 
-  const result = await Permissions.delete(record, ctx.state.user);
+  const result = await Permissions.delete(record, ctx.state.apiKey || ctx.state.user);
 
   ctx.response.body = { record: result };
 }

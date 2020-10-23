@@ -2,26 +2,26 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Namespace, NamespaceService, UserService } from '@tenlastic/ng-http';
+import { INamespace, Namespace, NamespaceService, UserService } from '@tenlastic/ng-http';
 
 import { IdentityService } from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
-
-export interface AccessControlListItem {
-  roles: string[];
-  username: string;
-}
 
 @Component({
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
 export class NamespacesFormPageComponent implements OnInit {
-  public accessControlListItems: AccessControlListItem[] = [];
+  public data: Namespace;
   public error: string;
   public form: FormGroup;
-
-  public data: Namespace;
+  public get keys(): FormArray {
+    return this.form.get('keys') as FormArray;
+  }
+  public roles: any[];
+  public get users(): FormArray {
+    return this.form.get('users') as FormArray;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -30,6 +30,7 @@ export class NamespacesFormPageComponent implements OnInit {
     private matSnackBar: MatSnackBar,
     private namespaceService: NamespaceService,
     private router: Router,
+    private snackBar: MatSnackBar,
     private userService: UserService,
   ) {}
 
@@ -41,23 +42,81 @@ export class NamespacesFormPageComponent implements OnInit {
         this.data = await this.namespaceService.findOne(_id);
       }
 
+      this.roles = Object.keys(INamespace.Role).map(key => ({
+        label: key.replace(/([A-Z])/g, ' $1').trim(),
+        value: INamespace.Role[key],
+      }));
+
       this.setupForm();
     });
   }
 
-  public addAccessControlListItem() {
-    const accessControlListItem = this.getAccessControlListItem();
-    const formArray = this.form.get('accessControlList') as FormArray;
+  public addKey() {
+    const key = this.getKey();
+    const formArray = this.form.get('keys') as FormArray;
 
-    formArray.push(accessControlListItem);
+    formArray.push(key);
   }
 
-  public getAccessControlListItem() {
+  public addUser() {
+    const user = this.getUser();
+    const formArray = this.form.get('users') as FormArray;
+
+    formArray.push(user);
+  }
+
+  public copyToClipboard(index: number) {
+    const keys = this.form.get('keys') as FormArray;
+
+    // Create dummy element to copy.
+    const selBox = document.createElement('textarea');
+    selBox.style.position = 'fixed';
+    selBox.style.left = '0';
+    selBox.style.opacity = '0';
+    selBox.style.top = '0';
+    selBox.value = keys.at(index).get('value').value;
+
+    // Copy contents of created element.
+    document.body.appendChild(selBox);
+    selBox.focus();
+    selBox.select();
+    document.execCommand('copy');
+    document.body.removeChild(selBox);
+
+    // Let the user know the copy was successful.
+    this.snackBar.open('API key copied to clipboard.', null, {
+      duration: SNACKBAR_DURATION,
+    });
+  }
+
+  public getKey() {
+    const getRandomCharacter = () =>
+      Math.random()
+        .toString(36)
+        .charAt(2);
+    const value = Array(64)
+      .fill(0)
+      .map(getRandomCharacter)
+      .join('');
+
+    return this.formBuilder.group({
+      description: [null, Validators.required],
+      roles: null,
+      value: { disabled: true, value },
+    });
+  }
+
+  public getUser() {
     return this.formBuilder.group({ roles: null, user: null });
   }
 
-  public removeAccessControlListItem(index: number) {
-    const formArray = this.form.get('accessControlList') as FormArray;
+  public removeKey(index: number) {
+    const formArray = this.form.get('keys') as FormArray;
+    formArray.removeAt(index);
+  }
+
+  public removeUser(index: number) {
+    const formArray = this.form.get('users') as FormArray;
     formArray.removeAt(index);
   }
 
@@ -68,14 +127,16 @@ export class NamespacesFormPageComponent implements OnInit {
       return;
     }
 
-    const accessControlList = this.form
-      .get('accessControlList')
-      .value.filter(a => a.roles && a.user)
-      .map(a => ({ roles: a.roles, userId: a.user._id }));
+    const keys = this.form.getRawValue().keys;
+    const users = this.form
+      .get('users')
+      .value.filter(u => u.roles && u.user)
+      .map(u => ({ _id: u.user._id, roles: u.roles }));
 
     const values: Partial<Namespace> = {
-      accessControlList,
+      keys,
       name: this.form.get('name').value,
+      users,
     };
 
     if (this.data._id) {
@@ -100,12 +161,21 @@ export class NamespacesFormPageComponent implements OnInit {
   private async setupForm() {
     this.data = this.data || new Namespace();
 
-    const accessControlListItems = [];
-    if (this.data.accessControlList && this.data.accessControlList.length > 0) {
-      for (const element of this.data.accessControlList) {
-        const user = await this.userService.findOne(element.userId);
+    const array = this.data.keys || [];
+    const keys = array.map(key =>
+      this.formBuilder.group({
+        description: this.formBuilder.control(key.description),
+        roles: this.formBuilder.control(key.roles),
+        value: this.formBuilder.control({ disabled: true, value: key.value }),
+      }),
+    );
 
-        accessControlListItems.push(
+    const users = [];
+    if (this.data.users && this.data.users.length > 0) {
+      for (const element of this.data.users) {
+        const user = await this.userService.findOne(element._id);
+
+        users.push(
           this.formBuilder.group({
             roles: this.formBuilder.control(element.roles),
             user: this.formBuilder.control(user),
@@ -114,13 +184,10 @@ export class NamespacesFormPageComponent implements OnInit {
       }
     }
 
-    if (accessControlListItems.length === 0) {
-      accessControlListItems.push(this.getAccessControlListItem());
-    }
-
     this.form = this.formBuilder.group({
-      accessControlList: this.formBuilder.array(accessControlListItems),
+      keys: this.formBuilder.array(keys),
       name: [this.data.name, Validators.required],
+      users: this.formBuilder.array(users),
     });
 
     this.form.valueChanges.subscribe(() => (this.error = null));

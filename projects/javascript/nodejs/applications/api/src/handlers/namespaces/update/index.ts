@@ -3,7 +3,10 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import { Namespace, NamespacePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
-  const where = await NamespacePermissions.where({ _id: ctx.params.id }, ctx.state.user);
+  const where = await NamespacePermissions.where(
+    { _id: ctx.params.id },
+    ctx.state.apiKey || ctx.state.user,
+  );
   const record = await Namespace.findOne(where).populate(
     NamespacePermissions.accessControl.options.populate,
   );
@@ -12,13 +15,8 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Namespace');
   }
 
-  const { accessControlList } = record ? record : ctx.request.body;
-  const { user } = ctx.state;
-
-  const override: any =
-    ctx.request.body.accessControlList.length === 0
-      ? { accessControlList: Namespace.getDefaultAccessControlList(accessControlList, user) }
-      : {};
+  const users = ctx.request.body.users || record.users;
+  const override = { users: Namespace.getDefaultUsers(users, ctx.state.user) } as any;
 
   const result = await NamespacePermissions.update(
     record,
