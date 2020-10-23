@@ -50,7 +50,7 @@ describe('workers/unzip', function() {
       const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       release = await ReleaseMock.create({ namespaceId: namespace._id });
-      releaseTask = await ReleaseTaskMock.create({ releaseId: release });
+      releaseTask = await ReleaseTaskMock.create({ releaseId: release._id });
 
       // Upload zip to Minio.
       const zip = new JSZip();

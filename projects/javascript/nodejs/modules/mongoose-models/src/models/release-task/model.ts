@@ -18,7 +18,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { FilePlatform } from '../file';
-import { Release, ReleaseDocument } from '../release';
+import { ReleaseDocument } from '../release';
 import { ReleaseTaskFailure, ReleaseTaskFailureDocument } from './failure';
 
 export const ReleaseTaskEvent = new EventEmitter<IDatabasePayload<ReleaseTaskDocument>>();
