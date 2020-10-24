@@ -4,7 +4,6 @@ import {
   NamespaceMock,
   NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
-import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { CreateCollectionIndex } from '@tenlastic/rabbitmq-models';
 import {
   Context,
@@ -67,7 +66,7 @@ describe('handlers/indexes/create', function() {
 
         const promise = handler(ctx as any);
 
-        return expect(promise).to.be.rejectedWith(PermissionError);
+        return expect(promise).to.be.rejectedWith(RecordNotFoundError);
       });
     });
 

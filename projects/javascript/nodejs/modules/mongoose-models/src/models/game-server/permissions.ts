@@ -66,7 +66,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
                     {
                       keys: {
                         $elemMatch: {
-                          roles: { $eq: 'queues' },
+                          roles: { $eq: 'game-servers' },
                           value: { $eq: { $ref: 'key' } },
                         },
                       },
@@ -75,7 +75,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
                       users: {
                         $elemMatch: {
                           _id: { $eq: { $ref: 'user._id' } },
-                          roles: { $eq: 'queues' },
+                          roles: { $eq: 'game-servers' },
                         },
                       },
                     },
