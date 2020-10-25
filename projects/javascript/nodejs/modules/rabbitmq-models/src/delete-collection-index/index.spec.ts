@@ -10,6 +10,7 @@ import {
   CollectionMock,
   Index,
   IndexDocument,
+  IndexMock,
 } from '@tenlastic/mongoose-models';
 import { DeleteCollectionIndex } from './';
 
@@ -33,7 +34,7 @@ describe('delete-collection-index', function() {
     beforeEach(async function() {
       channel = { ack: sinon.spy() };
 
-      const index = new Index({ key: { properties: 1 }, options: { unique: true } });
+      const index = await IndexMock.create({ key: { properties: 1 }, options: { unique: true } });
       collection = await CollectionMock.create({ indexes: [index] });
       index.collectionId = collection._id;
 
@@ -64,7 +65,7 @@ describe('delete-collection-index', function() {
 
       const content: Partial<IndexDocument> = {
         _id: mongoose.Types.ObjectId(),
-        collectionId: chance.hash() as any,
+        collectionId: collection._id,
       };
       await DeleteCollectionIndex.onMessage({} as any, content as any, null);
 
