@@ -77,16 +77,16 @@
 
         <ng-container *ngIf="selectedNamespaceService.namespaceId && showInfrastructureButtons">
           <app-button
-            *ngIf="hasPermission('databases')"
+            *ngIf="hasPermission('collections')"
             color="accent"
             layout="vertical"
-            routerLink="databases"
+            routerLink="collections"
             routerLinkActive="active"
             text="left"
             width="full"
           >
             <mat-icon>sd_card</mat-icon>
-            <span>Databases</span>
+            <span>Collections</span>
           </app-button>
 
           <app-button

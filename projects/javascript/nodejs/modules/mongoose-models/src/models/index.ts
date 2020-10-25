@@ -1,6 +1,5 @@
 export * from './article';
 export * from './collection';
-export * from './database';
 export * from './file';
 export * from './friend';
 export * from './game';

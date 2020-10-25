@@ -25,7 +25,6 @@ describe('models/collection/model', function() {
       const index = new Index({
         _id: mongoose.Types.ObjectId(),
         collectionId: collection._id,
-        databaseId: collection.databaseId,
         key: { properties: 1 },
         options: { unique: true },
       });

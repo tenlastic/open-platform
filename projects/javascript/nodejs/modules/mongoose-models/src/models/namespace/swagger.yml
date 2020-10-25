@@ -27,7 +27,6 @@ components:
               - value
         name:
           type: string
-          format: ^[0-9a-z\-]{6,40}$
         updatedAt:
           type: string
           format: date-time

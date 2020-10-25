@@ -16,10 +16,10 @@ import { jsonSchemaPropertiesValidator } from '@tenlastic/validations';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import { DatabaseDocument } from '../database/model';
 import { IndexSchema } from './index/model';
+import { NamespaceDocument } from '../namespace/model';
 
-@index({ databaseId: 1, name: 1 }, { unique: true })
+@index({ namespaceId: 1, name: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
@@ -38,9 +38,6 @@ export class CollectionSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ ref: 'DatabaseSchema', required: true })
-  public databaseId: Ref<DatabaseDocument>;
-
   @arrayProp({ items: IndexSchema })
   public indexes: IndexSchema[];
 
@@ -53,8 +50,11 @@ export class CollectionSchema {
   })
   public jsonSchema: any;
 
-  @prop({ match: /^[0-9a-z\-]{2,40}$/, required: 'true' })
+  @prop({ required: 'true' })
   public name: string;
+
+  @prop({ ref: 'NamespaceSchema', required: true })
+  public namespaceId: Ref<NamespaceDocument>;
 
   @prop({
     _id: false,
@@ -66,8 +66,8 @@ export class CollectionSchema {
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', ref: 'DatabaseSchema' })
-  public databaseDocument: DatabaseDocument;
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
+  public namespaceDocument: NamespaceDocument;
 
   public getValidator(this: CollectionDocument) {
     return {
@@ -87,7 +87,7 @@ export class CollectionSchema {
           createdAt: {
             bsonType: 'date',
           },
-          databaseId: {
+          namespaceId: {
             bsonType: 'objectId',
           },
           properties: jsonSchema.toMongo(this.jsonSchema),

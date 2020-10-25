@@ -9,14 +9,7 @@ import {
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import {
-  Collection,
-  CollectionService,
-  Database,
-  DatabaseService,
-  Record,
-  RecordService,
-} from '@tenlastic/ng-http';
+import { Collection, CollectionService, Record, RecordService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -38,13 +31,11 @@ export class RecordsListPageComponent implements OnInit {
   public search = '';
 
   private collection: Collection;
-  private database: Database;
   private subject: Subject<string> = new Subject();
 
   constructor(
     public activatedRoute: ActivatedRoute,
     public collectionService: CollectionService,
-    public databaseService: DatabaseService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
@@ -54,11 +45,8 @@ export class RecordsListPageComponent implements OnInit {
 
   ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
-      const databaseName = params.get('databaseName');
-      this.database = await this.databaseService.findOne(databaseName);
-
-      const collectionName = params.get('collectionName');
-      this.collection = await this.collectionService.findOne(this.database.name, collectionName);
+      const collectionId = params.get('collectionId');
+      this.collection = await this.collectionService.findOne(collectionId);
 
       this.titleService.setTitle(`${TITLE} | Records`);
       this.fetchRecords();
@@ -89,7 +77,7 @@ export class RecordsListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.recordService.delete(this.database.name, this.collection.name, record._id);
+        await this.recordService.delete(this.collection._id, record._id);
         this.deleteRecord(record);
 
         this.matSnackBar.open('Record deleted successfully.', null, {
@@ -104,7 +92,7 @@ export class RecordsListPageComponent implements OnInit {
   }
 
   private async fetchRecords() {
-    const records = await this.recordService.find(this.database.name, this.collection.name, {
+    const records = await this.recordService.find(this.collection._id, {
       sort: '_id',
     });
 

@@ -1,5 +1,5 @@
 paths:
-  /databases/{databaseName}/collections/{collectionName}/records/{id}:
+  /collections/{collectionId}/records/{_id}:
     get:
       summary: Find One
       tags: [Records]
@@ -8,17 +8,12 @@ paths:
         - AccessToken: []
       parameters:
         - in: path
-          name: collectionName
+          name: _id
           schema:
             type: string
           required: true
         - in: path
-          name: databaseName
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: id
+          name: collectionId
           schema:
             type: string
           required: true

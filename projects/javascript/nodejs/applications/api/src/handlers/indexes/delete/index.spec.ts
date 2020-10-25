@@ -1,7 +1,7 @@
 import {
   CollectionMock,
-  DatabaseMock,
   Index,
+  IndexMock,
   NamespaceMock,
   NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
@@ -34,7 +34,6 @@ describe('handlers/indexes/delete', function() {
       const ctx = new ContextMock({
         params: {
           collectionId: new mongoose.Types.ObjectId(),
-          databaseId: new mongoose.Types.ObjectId(),
         },
         state: { user },
       });
@@ -50,12 +49,10 @@ describe('handlers/indexes/delete', function() {
       it('throws an error', async function() {
         const namespaceUser = NamespaceUserMock.create({ _id: user._id });
         const namespace = await NamespaceMock.create({ users: [namespaceUser] });
-        const database = await DatabaseMock.create({ namespaceId: namespace._id });
-        const collection = await CollectionMock.create({ databaseId: database._id });
+        const collection = await CollectionMock.create({ namespaceId: namespace._id });
         const ctx = new ContextMock({
           params: {
             collectionId: collection._id,
-            databaseId: collection.databaseId,
           },
           state: { user: { _id: user._id, roles: [] } },
         });
@@ -71,16 +68,14 @@ describe('handlers/indexes/delete', function() {
         it('throws an error', async function() {
           const namespaceUser = NamespaceUserMock.create({
             _id: user._id,
-            roles: ['databases'],
+            roles: ['collections'],
           });
           const namespace = await NamespaceMock.create({ users: [namespaceUser] });
-          const database = await DatabaseMock.create({ namespaceId: namespace._id });
           const index = new Index({ key: { properties: 1 } });
-          const collection = await CollectionMock.create({ databaseId: database._id });
+          const collection = await CollectionMock.create({ namespaceId: namespace._id });
           const ctx = new ContextMock({
             params: {
               collectionId: collection._id,
-              databaseId: collection.databaseId,
               id: index._id,
             },
             request: {
@@ -103,21 +98,19 @@ describe('handlers/indexes/delete', function() {
 
           const namespaceUser = NamespaceUserMock.create({
             _id: user._id,
-            roles: ['databases'],
+            roles: ['collections'],
           });
           const namespace = await NamespaceMock.create({ users: [namespaceUser] });
-          const database = await DatabaseMock.create({ namespaceId: namespace._id });
-          const index = new Index({ key: { properties: 1 } });
+          const index = await IndexMock.create({ key: { properties: 1 } });
           const collection = await CollectionMock.create({
-            databaseId: database._id,
             indexes: [index],
+            namespaceId: namespace._id,
           });
 
           const ctx = new ContextMock({
             params: {
+              _id: index._id,
               collectionId: collection._id,
-              databaseId: collection.databaseId,
-              id: index._id,
             },
             request: {
               body: {

@@ -1,17 +1,11 @@
 paths:
-  /databases/{databaseName}/collections:
+  /collections:
     get:
       summary: Find
       tags: [Collections]
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []
-      parameters:
-        - in: path
-          name: databaseName
-          schema:
-            type: string
-          required: true
       responses:
         200:
           description: OK

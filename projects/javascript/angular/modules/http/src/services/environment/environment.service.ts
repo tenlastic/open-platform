@@ -2,7 +2,7 @@ import { Inject, Injectable, InjectionToken } from '@angular/core';
 
 export interface Environment {
   articleApiBaseUrl: string;
-  databaseApiBaseUrl: string;
+  collectionApiBaseUrl: string;
   friendApiBaseUrl: string;
   gameApiBaseUrl: string;
   gameInvitationApiBaseUrl: string;
@@ -28,7 +28,7 @@ export const EnvironmentServiceConfig = new InjectionToken<Environment>('Environ
 @Injectable({ providedIn: 'root' })
 export class EnvironmentService implements Environment {
   public articleApiBaseUrl: string;
-  public databaseApiBaseUrl: string;
+  public collectionApiBaseUrl: string;
   public friendApiBaseUrl: string;
   public gameApiBaseUrl: string;
   public gameInvitationApiBaseUrl: string;

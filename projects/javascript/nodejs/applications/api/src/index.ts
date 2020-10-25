@@ -12,7 +12,6 @@ import * as path from 'path';
 
 import { router as articlesRouter } from './handlers/articles';
 import { router as collectionsRouter } from './handlers/collections';
-import { router as databasesRouter } from './handlers/databases';
 import { router as filesRouter } from './handlers/files';
 import { router as friendsRouter } from './handlers/friends';
 import { router as gameInvitationsRouter } from './handlers/game-invitations';
@@ -84,7 +83,6 @@ const webServer = new WebServer();
 webServer.use(articlesRouter.routes());
 webServer.use(articlesRouter.routes());
 webServer.use(collectionsRouter.routes());
-webServer.use(databasesRouter.routes());
 webServer.use(filesRouter.routes());
 webServer.use(friendsRouter.routes());
 webServer.use(gameInvitationsRouter.routes());

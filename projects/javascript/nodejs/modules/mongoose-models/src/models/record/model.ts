@@ -3,7 +3,6 @@ import * as jsonSchema from '@tenlastic/json-schema';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import { DatabaseDocument } from '../database/model';
 import { CollectionDocument } from '../collection/model';
 import { UserDocument } from '../user/model';
 
@@ -16,9 +15,6 @@ export class RecordSchema {
   public createdAt: Date;
   public properties: any;
 
-  @prop({ ref: 'DatabaseSchema', required: true })
-  public databaseId: Ref<DatabaseDocument>;
-
   public updatedAt: Date;
 
   @prop({ ref: 'UserSchema', required: true })
@@ -26,9 +22,6 @@ export class RecordSchema {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', ref: 'CollectionSchema' })
   public collectionDocument: CollectionDocument;
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', ref: 'DatabaseSchema' })
-  public databaseDocument: DatabaseDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'UserSchema' })
   public userDocument: UserDocument;

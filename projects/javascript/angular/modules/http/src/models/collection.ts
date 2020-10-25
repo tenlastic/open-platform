@@ -59,10 +59,10 @@ export namespace ICollection {
 }
 
 export class Collection extends Model {
-  public databaseId: string;
   public indexes: ICollection.Index;
   public jsonSchema: ICollection.JsonSchemaProperty;
   public name: string;
+  public namespaceId: string;
   public permissions: ICollection.Permissions;
 
   constructor(params?: Partial<Collection>) {

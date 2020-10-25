@@ -9,7 +9,6 @@ export async function handler(ctx: Context) {
   const override = {
     where: {
       _id: ctx.params.collectionId,
-      databaseId: ctx.params.databaseId,
     },
   };
 
@@ -32,7 +31,7 @@ export async function handler(ctx: Context) {
     throw new PermissionError();
   }
 
-  const index = collection.indexes.find(i => i._id.equals(ctx.params.id));
+  const index = collection.indexes.find(i => i._id.equals(ctx.params._id));
   if (!index) {
     throw new RecordNotFoundError('Index');
   }

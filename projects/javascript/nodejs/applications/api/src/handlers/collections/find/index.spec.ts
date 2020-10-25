@@ -4,8 +4,6 @@ import { expect } from 'chai';
 import {
   CollectionDocument,
   CollectionMock,
-  DatabaseDocument,
-  DatabaseMock,
   NamespaceMock,
   UserDocument,
   UserMock,
@@ -14,7 +12,6 @@ import {
 import { handler } from './';
 
 describe('handlers/collections/find', function() {
-  let database: DatabaseDocument;
   let record: CollectionDocument;
   let user: UserDocument;
 
@@ -23,16 +20,14 @@ describe('handlers/collections/find', function() {
 
     const namespaceUser = NamespaceUserMock.create({
       _id: user._id,
-      roles: ['databases'],
+      roles: ['collections'],
     });
     const namespace = await NamespaceMock.create({ users: [namespaceUser] });
-    database = await DatabaseMock.create({ namespaceId: namespace._id });
-    record = await CollectionMock.create({ databaseId: database._id });
+    record = await CollectionMock.create({ namespaceId: namespace._id });
   });
 
   it('returns the number of matching records', async function() {
     const ctx = new ContextMock({
-      params: { databaseName: database.name },
       state: { user: user.toObject() },
     });
 

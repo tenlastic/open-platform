@@ -3,25 +3,17 @@ import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
-import {
-  CollectionDocument,
-  CollectionMock,
-  DatabaseDocument,
-  DatabaseMock,
-} from '@tenlastic/mongoose-models';
+import { CollectionDocument, CollectionMock } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 const chance = new Chance();
 
 describe('handlers/records/create', function() {
   let collection: CollectionDocument;
-  let database: DatabaseDocument;
   let user: any;
 
   beforeEach(async function() {
-    database = await DatabaseMock.create();
     collection = await CollectionMock.create({
-      databaseId: database._id,
       jsonSchema: {
         properties: {
           email: { type: 'string' },
@@ -51,8 +43,7 @@ describe('handlers/records/create', function() {
     const properties = { email: chance.email(), name: chance.name() };
     const ctx = new ContextMock({
       params: {
-        collectionName: collection.name,
-        databaseName: database.name,
+        collectionId: collection._id,
       },
       request: {
         body: { properties },

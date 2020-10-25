@@ -8,12 +8,11 @@ import {
   MatSnackBar,
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
-import { Collection, CollectionService, Database, DatabaseService } from '@tenlastic/ng-http';
+import { Collection, CollectionService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService } from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
 
@@ -30,29 +29,22 @@ export class CollectionsListPageComponent implements OnInit {
   public displayedColumns: string[] = ['name', 'createdAt', 'updatedAt', 'actions'];
   public search = '';
 
-  private database: Database;
   private subject: Subject<string> = new Subject();
 
   constructor(
-    private activatedRoute: ActivatedRoute,
     private collectionService: CollectionService,
-    private databaseService: DatabaseService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
   ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
-      const databaseName = params.get('databaseName');
-      this.database = await this.databaseService.findOne(databaseName);
+    this.titleService.setTitle(`${TITLE} | Collections`);
+    this.fetchCollections();
 
-      this.titleService.setTitle(`${TITLE} | Collections`);
-      this.fetchCollections();
-
-      this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
-    });
+    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
   }
 
   public clearSearch() {
@@ -77,7 +69,7 @@ export class CollectionsListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.collectionService.delete(this.database.name, record.name);
+        await this.collectionService.delete(record._id);
         this.deleteCollection(record);
 
         this.matSnackBar.open('Collection deleted successfully.', null, {
@@ -92,7 +84,10 @@ export class CollectionsListPageComponent implements OnInit {
   }
 
   private async fetchCollections() {
-    const records = await this.collectionService.find(this.database.name, { sort: 'name' });
+    const records = await this.collectionService.find({
+      sort: 'name',
+      where: { namespaceId: this.selectedNamespaceService.namespaceId },
+    });
 
     this.dataSource = new MatTableDataSource<Collection>(records);
     this.dataSource.paginator = this.paginator;

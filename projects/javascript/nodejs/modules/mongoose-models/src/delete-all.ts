@@ -1,7 +1,6 @@
 import {
   Article,
   Collection,
-  Database,
   File,
   Friend,
   Game,
@@ -27,7 +26,6 @@ export function deleteAll() {
   return Promise.all([
     Article.deleteMany({}),
     Collection.deleteMany({}),
-    Database.deleteMany({}),
     File.deleteMany({}),
     Friend.deleteMany({}),
     Game.deleteMany({}),

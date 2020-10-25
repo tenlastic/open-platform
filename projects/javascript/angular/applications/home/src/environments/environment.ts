@@ -1,7 +1,7 @@
 export const environment = {
   apiBaseUrl: 'http://wss.localhost',
   articleApiBaseUrl: 'http://api.localhost/articles',
-  databaseApiBaseUrl: 'http://api.localhost/databases',
+  collectionApiBaseUrl: 'http://api.localhost/collections',
   friendApiBaseUrl: 'http://api.localhost/friends',
   gameApiBaseUrl: 'http://api.localhost/games',
   gameInvitationApiBaseUrl: 'http://api.localhost/game-invitations',

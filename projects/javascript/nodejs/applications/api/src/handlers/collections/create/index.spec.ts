@@ -1,15 +1,14 @@
-import { ContextMock } from '@tenlastic/web-server';
-import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
-
 import {
-  DatabaseMock,
   NamespaceMock,
   UserDocument,
   UserMock,
   NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
+import { ContextMock } from '@tenlastic/web-server';
+import { expect, use } from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+import * as Chance from 'chance';
+
 import { handler } from './';
 
 const chance = new Chance();
@@ -26,18 +25,15 @@ describe('handlers/collections/create', function() {
     it('creates a new record', async function() {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
-        roles: ['databases'],
+        roles: ['collections'],
       });
       const namespace = await NamespaceMock.create({ users: [namespaceUser] });
-      const database = await DatabaseMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
-        params: {
-          databaseName: database.name,
-        },
         request: {
           body: {
             name: chance.hash(),
+            namespaceId: namespace._id,
           },
         },
         state: { user },
@@ -52,15 +48,12 @@ describe('handlers/collections/create', function() {
   context('when permission is denied', function() {
     it('throws an error', async function() {
       const namespace = await NamespaceMock.create();
-      const database = await DatabaseMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
-        params: {
-          databaseName: database.name,
-        },
         request: {
           body: {
             name: chance.hash(),
+            namespaceId: namespace._id,
           },
         },
         state: { user },

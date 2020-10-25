@@ -5,7 +5,7 @@ import { Collection, CollectionDocument } from './model';
 export const CollectionPermissions = new MongoosePermissions<CollectionDocument>(Collection, {
   create: {
     roles: {
-      'namespace-administrator': ['databaseId', 'jsonSchema.*', 'name', 'permissions.*'],
+      'namespace-administrator': ['jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
     },
   },
   delete: {
@@ -15,57 +15,46 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
   },
   find: {
     base: {
-      databaseId: {
+      namespaceId: {
         $in: {
-          // Find all Databases within the returned Namespaces.
+          // Find Namespaces where the Key or User has administrator access.
           $query: {
-            model: 'DatabaseSchema',
+            model: 'NamespaceSchema',
             select: '_id',
             where: {
-              namespaceId: {
-                $in: {
-                  // Find Namespaces where the Key or User has administrator access.
-                  $query: {
-                    model: 'NamespaceSchema',
-                    select: '_id',
-                    where: {
-                      $or: [
-                        {
-                          keys: {
-                            $elemMatch: {
-                              roles: { $eq: 'databases' },
-                              value: { $eq: { $ref: 'key' } },
-                            },
-                          },
-                        },
-                        {
-                          users: {
-                            $elemMatch: {
-                              _id: { $eq: { $ref: 'user._id' } },
-                              roles: { $eq: 'databases' },
-                            },
-                          },
-                        },
-                      ],
+              $or: [
+                {
+                  keys: {
+                    $elemMatch: {
+                      roles: { $eq: 'collections' },
+                      value: { $eq: { $ref: 'key' } },
                     },
                   },
                 },
-              },
+                {
+                  users: {
+                    $elemMatch: {
+                      _id: { $eq: { $ref: 'user._id' } },
+                      roles: { $eq: 'collections' },
+                    },
+                  },
+                },
+              ],
             },
           },
         },
       },
     },
   },
-  populate: [{ path: 'databaseDocument', populate: { path: 'namespaceDocument' } }],
+  populate: [{ path: 'namespaceDocument' }],
   read: {
     base: [
       '_id',
       'createdAt',
-      'databaseId',
       'indexes',
       'jsonSchema',
       'name',
+      'namespaceId',
       'permissions',
       'updatedAt',
     ],
@@ -76,18 +65,18 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
       query: {
         $or: [
           {
-            'record.databaseDocument.namespaceDocument.keys': {
+            'record.namespaceDocument.keys': {
               $elemMatch: {
-                roles: { $eq: 'databases' },
+                roles: { $eq: 'collections' },
                 value: { $eq: { $ref: 'key' } },
               },
             },
           },
           {
-            'record.databaseDocument.namespaceDocument.users': {
+            'record.namespaceDocument.users': {
               $elemMatch: {
                 _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'databases' },
+                roles: { $eq: 'collections' },
               },
             },
           },
@@ -97,7 +86,13 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
   ],
   update: {
     roles: {
-      'namespace-administrator': ['databaseId', 'indexes', 'jsonSchema.*', 'name', 'permissions.*'],
+      'namespace-administrator': [
+        'indexes',
+        'jsonSchema.*',
+        'name',
+        'namespaceId',
+        'permissions.*',
+      ],
     },
   },
 });

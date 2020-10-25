@@ -1,6 +1,5 @@
 export * from './models/article';
 export * from './models/collection';
-export * from './models/database';
 export * from './models/file';
 export * from './models/friend';
 export * from './models/game';
@@ -25,7 +24,6 @@ export * from './models/web-socket';
 export * from './services/api/api.service';
 export * from './services/article/article.service';
 export * from './services/collection/collection.service';
-export * from './services/database/database.service';
 export * from './services/environment/environment.service';
 export * from './services/file/file.service';
 export * from './services/friend/friend.service';

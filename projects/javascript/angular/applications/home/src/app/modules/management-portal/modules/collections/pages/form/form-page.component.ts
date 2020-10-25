@@ -2,9 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Collection, CollectionService, Database, DatabaseService } from '@tenlastic/ng-http';
+import { Collection, CollectionService } from '@tenlastic/ng-http';
 
-import { CollectionFormService, IdentityService } from '../../../../../../core/services';
+import {
+  CollectionFormService,
+  IdentityService,
+  SelectedNamespaceService,
+} from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
@@ -16,28 +20,23 @@ export class CollectionsFormPageComponent implements OnInit {
   public error: string;
   public form: FormGroup;
 
-  private database: Database;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private collectionService: CollectionService,
     private collectionFormService: CollectionFormService,
-    private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private router: Router,
+    private selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
-      const name = params.get('name');
+      const _id = params.get('_id');
 
-      const databaseName = params.get('databaseName');
-      this.database = await this.databaseService.findOne(databaseName);
-
-      if (name !== 'new') {
-        this.data = await this.collectionService.findOne(this.database.name, name);
+      if (_id !== 'new') {
+        this.data = await this.collectionService.findOne(_id);
       }
 
       this.setupForm();
@@ -125,9 +124,9 @@ export class CollectionsFormPageComponent implements OnInit {
     });
 
     const values: Partial<Collection> = {
-      databaseId: this.database._id,
       jsonSchema,
       name: this.form.get('name').value,
+      namespaceId: this.selectedNamespaceService.namespaceId,
       permissions: { ...permissions, roles },
     };
 
@@ -140,7 +139,7 @@ export class CollectionsFormPageComponent implements OnInit {
 
   private async create(data: Partial<Collection>) {
     try {
-      await this.collectionService.create(this.database.name, data);
+      await this.collectionService.create(data);
       this.matSnackBar.open('Collection created successfully.', null, {
         duration: SNACKBAR_DURATION,
       });
@@ -211,7 +210,7 @@ export class CollectionsFormPageComponent implements OnInit {
     data._id = this.data._id;
 
     try {
-      await this.collectionService.update(this.database.name, data);
+      await this.collectionService.update(data);
       this.matSnackBar.open('Collection updated successfully.', null, {
         duration: SNACKBAR_DURATION,
       });

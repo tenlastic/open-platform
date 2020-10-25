@@ -9,8 +9,6 @@ components:
         createdAt:
           type: string
           format: date-time
-        databaseId:
-          type: string
         indexes:
           type: array
           items:
@@ -23,6 +21,8 @@ components:
         jsonSchema:
           type: object
         name:
+          type: string
+        namespaceId:
           type: string
         permissions:
           type: object

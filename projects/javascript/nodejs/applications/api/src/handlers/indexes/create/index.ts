@@ -8,7 +8,6 @@ export async function handler(ctx: Context) {
   const override = {
     where: {
       _id: ctx.params.collectionId,
-      databaseId: ctx.params.databaseId,
     },
   };
 
@@ -38,7 +37,6 @@ export async function handler(ctx: Context) {
 
   const index = new Index({
     collectionId: collection._id,
-    databaseId: collection.databaseId,
     key,
     options,
   });

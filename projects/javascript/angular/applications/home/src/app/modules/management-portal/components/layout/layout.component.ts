@@ -16,7 +16,7 @@ import {
 export class LayoutComponent {
   public get hasInfrastructureButtons() {
     return (
-      this.hasPermission('databases') ||
+      this.hasPermission('collections') ||
       this.hasPermission('game-servers') ||
       this.hasPermission('queues') ||
       this.hasPermission('releases')

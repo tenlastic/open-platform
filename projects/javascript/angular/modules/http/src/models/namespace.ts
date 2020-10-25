@@ -3,7 +3,7 @@ import { Model } from './model';
 export namespace INamespace {
   export enum Role {
     Articles = 'articles',
-    Databases = 'databases',
+    Collections = 'collections',
     GameServers = 'game-servers',
     GameInvitations = 'game-invitations',
     Games = 'games',

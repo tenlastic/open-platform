@@ -2,14 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  Collection,
-  CollectionService,
-  Database,
-  DatabaseService,
-  Record,
-  RecordService,
-} from '@tenlastic/ng-http';
+import { Collection, CollectionService, Record, RecordService } from '@tenlastic/ng-http';
 
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
@@ -23,12 +16,10 @@ export class RecordsFormPageComponent implements OnInit {
   public form: FormGroup;
 
   public data: Record;
-  private database: Database;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private collectionService: CollectionService,
-    private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
     private matSnackBar: MatSnackBar,
     private recordService: RecordService,
@@ -37,20 +28,13 @@ export class RecordsFormPageComponent implements OnInit {
 
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
-      const name = params.get('name');
+      const _id = params.get('_id');
 
-      const databaseName = params.get('databaseName');
-      this.database = await this.databaseService.findOne(databaseName);
+      const collectionId = params.get('collectionId');
+      this.collection = await this.collectionService.findOne(collectionId);
 
-      const collectionName = params.get('collectionName');
-      this.collection = await this.collectionService.findOne(this.database.name, collectionName);
-
-      if (name !== 'new') {
-        this.data = await this.recordService.findOne(
-          this.database.name,
-          this.collection.name,
-          name,
-        );
+      if (_id !== 'new') {
+        this.data = await this.recordService.findOne(this.collection._id, _id);
       }
 
       this.setupForm();
@@ -99,7 +83,6 @@ export class RecordsFormPageComponent implements OnInit {
 
     const values = {
       collectionId: this.collection._id,
-      databaseId: this.collection.databaseId,
       properties,
     };
 
@@ -112,7 +95,7 @@ export class RecordsFormPageComponent implements OnInit {
 
   private async create(data: Partial<Record>) {
     try {
-      await this.recordService.create(this.database.name, this.collection.name, data);
+      await this.recordService.create(this.collection._id, data);
       this.matSnackBar.open('Record created successfully.', null, { duration: SNACKBAR_DURATION });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {
@@ -175,7 +158,7 @@ export class RecordsFormPageComponent implements OnInit {
     data._id = this.data._id;
 
     try {
-      await this.recordService.update(this.database.name, this.collection.name, data);
+      await this.recordService.update(this.collection._id, data);
       this.matSnackBar.open('Record updated successfully.', null, { duration: SNACKBAR_DURATION });
       this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (e) {

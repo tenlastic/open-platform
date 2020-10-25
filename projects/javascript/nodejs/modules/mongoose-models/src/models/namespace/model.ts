@@ -28,7 +28,7 @@ NamespaceEvent.on(payload => {
 
 export enum NamespaceRole {
   Articles = 'articles',
-  Databases = 'databases',
+  Collections = 'collections',
   GameServers = 'game-servers',
   GameInvitations = 'game-invitations',
   Games = 'games',
@@ -63,7 +63,7 @@ export class NamespaceSchema {
   @arrayProp({ default: [], items: NamespaceKey })
   public keys: NamespaceKeyDocument[];
 
-  @prop({ match: /^[0-9a-z\-]{2,40}$/, required: true })
+  @prop({ required: true })
   public name: string;
 
   public updatedAt: Date;

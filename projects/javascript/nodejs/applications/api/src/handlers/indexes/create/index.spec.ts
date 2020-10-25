@@ -1,9 +1,4 @@
-import {
-  CollectionMock,
-  DatabaseMock,
-  NamespaceMock,
-  NamespaceUserMock,
-} from '@tenlastic/mongoose-models';
+import { CollectionMock, NamespaceMock, NamespaceUserMock } from '@tenlastic/mongoose-models';
 import { CreateCollectionIndex } from '@tenlastic/rabbitmq-models';
 import {
   Context,
@@ -38,7 +33,6 @@ describe('handlers/indexes/create', function() {
       const ctx = new ContextMock({
         params: {
           collectionId: new mongoose.Types.ObjectId(),
-          databaseId: new mongoose.Types.ObjectId(),
         },
         state: { user },
       });
@@ -54,12 +48,10 @@ describe('handlers/indexes/create', function() {
       it('throws an error', async function() {
         const namespaceUser = NamespaceUserMock.create({ _id: user._id });
         const namespace = await NamespaceMock.create({ users: [namespaceUser] });
-        const database = await DatabaseMock.create({ namespaceId: namespace._id });
-        const collection = await CollectionMock.create({ databaseId: database._id });
+        const collection = await CollectionMock.create({ namespaceId: namespace._id });
         const ctx = new ContextMock({
           params: {
             collectionId: collection._id,
-            databaseId: collection.databaseId,
           },
           state: { user: { _id: user._id } },
         });
@@ -75,15 +67,13 @@ describe('handlers/indexes/create', function() {
         it('throws an error', async function() {
           const namespaceUser = NamespaceUserMock.create({
             _id: user._id,
-            roles: ['databases'],
+            roles: ['collections'],
           });
           const namespace = await NamespaceMock.create({ users: [namespaceUser] });
-          const database = await DatabaseMock.create({ namespaceId: namespace._id });
-          const collection = await CollectionMock.create({ databaseId: database._id });
+          const collection = await CollectionMock.create({ namespaceId: namespace._id });
           const ctx = new ContextMock({
             params: {
               collectionId: collection._id,
-              databaseId: collection.databaseId,
             },
             state: { user },
           });
@@ -103,16 +93,14 @@ describe('handlers/indexes/create', function() {
 
           const namespaceUser = NamespaceUserMock.create({
             _id: user._id,
-            roles: ['databases'],
+            roles: ['collections'],
           });
           const namespace = await NamespaceMock.create({ users: [namespaceUser] });
-          const database = await DatabaseMock.create({ namespaceId: namespace._id });
-          const collection = await CollectionMock.create({ databaseId: database._id });
+          const collection = await CollectionMock.create({ namespaceId: namespace._id });
 
           const ctx = new ContextMock({
             params: {
               collectionId: collection._id,
-              databaseId: collection.databaseId,
             },
             request: {
               body: {

@@ -6,8 +6,6 @@ import * as mongoose from 'mongoose';
 import {
   CollectionDocument,
   CollectionMock,
-  DatabaseDocument,
-  DatabaseMock,
   RecordDocument,
   RecordSchema,
 } from '@tenlastic/mongoose-models';
@@ -17,14 +15,11 @@ const chance = new Chance();
 
 describe('handlers/records/update', function() {
   let collection: CollectionDocument;
-  let database: DatabaseDocument;
   let record: RecordDocument;
   let user: any;
 
   beforeEach(async function() {
-    database = await DatabaseMock.create();
     collection = await CollectionMock.create({
-      databaseId: database._id,
       permissions: {
         create: {},
         delete: {},
@@ -44,8 +39,7 @@ describe('handlers/records/update', function() {
 
     const Model = RecordSchema.getModelForClass(collection);
     record = await Model.create({
-      collectionId: collection.id,
-      databaseId: collection.databaseId,
+      collectionId: collection._id,
       userId: user._id,
     });
   });
@@ -55,8 +49,7 @@ describe('handlers/records/update', function() {
     const ctx = new ContextMock({
       params: {
         _id: record._id.toString(),
-        collectionName: collection.name,
-        databaseName: database.name,
+        collectionId: collection._id,
       },
       request: {
         body: { properties },
