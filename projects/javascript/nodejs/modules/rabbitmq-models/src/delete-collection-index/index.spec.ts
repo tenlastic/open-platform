@@ -42,7 +42,6 @@ describe('delete-collection-index', function() {
       const content: Partial<IndexDocument> = {
         _id: index._id,
         collectionId: collection._id,
-        databaseId: collection.databaseId,
       };
       await DeleteCollectionIndex.onMessage(channel as any, content, null);
     });
@@ -66,7 +65,6 @@ describe('delete-collection-index', function() {
       const content: Partial<IndexDocument> = {
         _id: mongoose.Types.ObjectId(),
         collectionId: chance.hash() as any,
-        databaseId: collection.databaseId,
       };
       await DeleteCollectionIndex.onMessage({} as any, content as any, null);
 

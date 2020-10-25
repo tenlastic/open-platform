@@ -36,7 +36,6 @@ describe('create-collection-index', function() {
       index = {
         _id: mongoose.Types.ObjectId(),
         collectionId: collection._id,
-        databaseId: collection.databaseId,
         key: { properties: 1 },
         options: { unique: true },
       };
@@ -66,7 +65,6 @@ describe('create-collection-index', function() {
       const content: Partial<IndexDocument> = {
         _id: mongoose.Types.ObjectId(),
         collectionId: chance.hash() as any,
-        databaseId: collection.databaseId,
         key: { properties: 1 },
         options: { unique: true },
       };
