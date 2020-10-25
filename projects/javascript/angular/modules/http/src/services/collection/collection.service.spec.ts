@@ -122,7 +122,7 @@ describe('CollectionService', () => {
         expect(res.name).toEqual(params.name);
       });
 
-      const req = httpMock.expectOne(`${service.basePath}/${params.name}`);
+      const req = httpMock.expectOne(`${service.basePath}/${params._id}`);
       expect(req.request.method).toBe('PUT');
       req.flush({ record: params });
     });
