@@ -4,6 +4,7 @@ import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
 import { CollectionMock } from '../model.mock';
+import { IndexMock } from './model.mock';
 import { Index } from './model';
 
 use(chaiAsPromised);
@@ -22,7 +23,7 @@ describe('models/collection/model', function() {
   describe('createMongoIndex()', function() {
     it('creates an index on the collection within MongoDB', async () => {
       const collection = await CollectionMock.create();
-      const index = new Index({
+      const index = await IndexMock.create({
         _id: mongoose.Types.ObjectId(),
         collectionId: collection._id,
         key: { properties: 1 },
@@ -41,7 +42,7 @@ describe('models/collection/model', function() {
 
   describe('deleteMongoIndex()', function() {
     it('deletes the index on the collection within MongoDB', async function() {
-      const index = new Index({
+      const index = await IndexMock.create({
         key: { properties: 1 },
         options: { unique: true },
       });
