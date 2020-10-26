@@ -116,7 +116,7 @@ export class AccessControl {
     const json = {
       key: typeof user === 'string' ? user : null,
       record: record ? this.toPlainObject(record, { virtuals: true }) : null,
-      user: typeof user !== 'string' ? this.toPlainObject(user, { virtuals: true }) : null,
+      user: typeof user !== 'string' && user ? this.toPlainObject(user, { virtuals: true }) : null,
     };
 
     for (const role of this.options.roles) {

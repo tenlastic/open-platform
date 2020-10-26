@@ -5,23 +5,11 @@ import { SharedModule } from '../../../../shared/shared.module';
 
 import { MediaDialogComponent } from './components';
 import { GamesFormPageComponent } from './pages/form/form-page.component';
-import { GamesListPageComponent } from './pages/list/list-page.component';
 
-export const ROUTES: Routes = [
-  { path: '', component: GamesListPageComponent },
-  {
-    path: ':gameId/articles',
-    loadChildren: () => import('../articles/articles.module').then(m => m.ArticleModule),
-  },
-  {
-    path: ':gameId/game-servers',
-    loadChildren: () => import('../game-servers/game-servers.module').then(m => m.GameServerModule),
-  },
-  { path: ':_id', component: GamesFormPageComponent },
-];
+export const ROUTES: Routes = [{ path: '', component: GamesFormPageComponent }];
 
 @NgModule({
-  declarations: [GamesFormPageComponent, GamesListPageComponent, MediaDialogComponent],
+  declarations: [GamesFormPageComponent, MediaDialogComponent],
   entryComponents: [MediaDialogComponent],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })

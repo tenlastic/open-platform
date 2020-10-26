@@ -16,13 +16,23 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { NamespaceDocument } from '../namespace';
+import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { UserDocument } from '../user';
 
 // Publish changes to Kafka.
 export const GameInvitationEvent = new EventEmitter<IDatabasePayload<GameInvitationDocument>>();
 GameInvitationEvent.on(payload => {
   kafka.publish(payload);
+});
+
+// Delete  Game Invitations if associated Namespace is deleted.
+NamespaceEvent.on(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await GameInvitation.find({ namespaceId: payload.fullDocument._id });
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
+  }
 });
 
 @index({ namespaceId: 1, userId: 1 }, { unique: true })

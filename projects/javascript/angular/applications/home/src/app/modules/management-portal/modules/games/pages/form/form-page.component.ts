@@ -29,16 +29,15 @@ export class GamesFormPageComponent implements OnInit {
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
-  public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
-      const _id = params.get('_id');
-
-      if (_id !== 'new') {
-        this.data = await this.gameService.findOne(_id);
-      }
-
-      this.setupForm();
+  public async ngOnInit() {
+    const games = await this.gameService.find({
+      where: {
+        namespaceId: this.selectedNamespaceService.namespaceId,
+      },
     });
+
+    this.data = games[0];
+    this.setupForm();
   }
 
   public async onFieldChanged($event, field: string, isArray: boolean = false) {
@@ -109,9 +108,10 @@ export class GamesFormPageComponent implements OnInit {
 
   private async create(data: Partial<Game>) {
     try {
-      const response = await this.gameService.create(data);
-      this.matSnackBar.open('Game created successfully.', null, { duration: SNACKBAR_DURATION });
-      this.router.navigate(['../', response._id], { relativeTo: this.activatedRoute });
+      this.data = await this.gameService.create(data);
+      this.matSnackBar.open('Game information updated successfully.', null, {
+        duration: SNACKBAR_DURATION,
+      });
     } catch (e) {
       this.error = 'That title is already taken.';
     }
@@ -135,7 +135,9 @@ export class GamesFormPageComponent implements OnInit {
 
     try {
       this.data = await this.gameService.update(data);
-      this.matSnackBar.open('Game updated successfully.', null, { duration: SNACKBAR_DURATION });
+      this.matSnackBar.open('Game information updated successfully.', null, {
+        duration: SNACKBAR_DURATION,
+      });
     } catch (e) {
       this.error = 'That title is already taken.';
     }

@@ -18,11 +18,21 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import { Namespace, NamespaceDocument } from '../namespace';
+import { NamespaceDocument, NamespaceEvent } from '../namespace';
 
 export const GameEvent = new EventEmitter<IDatabasePayload<GameDocument>>();
 GameEvent.on(payload => {
   kafka.publish(payload);
+});
+
+// Delete Games if associated Namespace is deleted.
+NamespaceEvent.on(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await Game.find({ namespaceId: payload.fullDocument._id });
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
+  }
 });
 
 @index({ namespaceId: 1 }, { unique: true })

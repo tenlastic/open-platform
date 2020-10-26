@@ -25,7 +25,7 @@ import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 
-import { NamespaceDocument } from '../namespace';
+import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { QueueDocument } from '../queue';
 import { User, UserDocument } from '../user';
 
@@ -38,6 +38,16 @@ export enum GameServerStatus {
 export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
 GameServerEvent.on(payload => {
   kafka.publish(payload);
+});
+
+// Delete Game Servers if associated Namespace is deleted.
+NamespaceEvent.on(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await GameServer.find({ namespaceId: payload.fullDocument._id });
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
+  }
 });
 
 const kc = new k8s.KubeConfig();

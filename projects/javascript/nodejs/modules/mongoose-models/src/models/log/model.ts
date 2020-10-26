@@ -17,11 +17,21 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { GameServer, GameServerDocument } from '../game-server';
+import { GameServerDocument, GameServerEvent } from '../game-server';
 
 export const LogEvent = new EventEmitter<IDatabasePayload<LogDocument>>();
 LogEvent.on(payload => {
   kafka.publish(payload);
+});
+
+// Delete Logs if associated Game Server is deleted.
+GameServerEvent.on(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await Log.find({ gameServerId: payload.fullDocument._id }).select('_id');
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
+  }
 });
 
 @index({ body: 'text' })

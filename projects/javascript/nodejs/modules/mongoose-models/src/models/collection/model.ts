@@ -11,13 +11,34 @@ import {
   prop,
 } from '@hasezoey/typegoose';
 import * as jsonSchema from '@tenlastic/json-schema';
+import {
+  EventEmitter,
+  IDatabasePayload,
+  changeStreamPlugin,
+} from '@tenlastic/mongoose-change-stream';
+import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { IOptions } from '@tenlastic/mongoose-permissions';
 import { jsonSchemaPropertiesValidator } from '@tenlastic/validations';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
 import { IndexSchema } from './index/model';
-import { NamespaceDocument } from '../namespace/model';
+import { NamespaceDocument, NamespaceEvent } from '../namespace/model';
+
+export const CollectionEvent = new EventEmitter<IDatabasePayload<CollectionDocument>>();
+CollectionEvent.on(payload => {
+  kafka.publish(payload);
+});
+
+// Delete Collections if associated Namespace is deleted.
+NamespaceEvent.on(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await Collection.find({ namespaceId: payload.fullDocument._id });
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
+  }
+});
 
 @index({ namespaceId: 1, name: 1 }, { unique: true })
 @modelOptions({
@@ -29,6 +50,10 @@ import { NamespaceDocument } from '../namespace/model';
     toJSON: { getters: true },
     toObject: { getters: true },
   },
+})
+@plugin(changeStreamPlugin, {
+  documentKeys: ['_id'],
+  eventEmitter: CollectionEvent,
 })
 @plugin(uniqueErrorPlugin)
 @pre('save', async function(this: CollectionDocument) {

@@ -16,13 +16,23 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { GameInvitation, GameInvitationDocument } from '../game-invitation';
+import { GameInvitationDocument } from '../game-invitation';
 import { GameServerDocument } from '../game-server';
-import { Namespace, NamespaceDocument } from '../namespace';
+import { NamespaceDocument, NamespaceEvent } from '../namespace';
 
 export const QueueEvent = new EventEmitter<IDatabasePayload<QueueDocument>>();
 QueueEvent.on(payload => {
   kafka.publish(payload);
+});
+
+// Delete Queues if associated Namespace is deleted.
+NamespaceEvent.on(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await Queue.find({ namespaceId: payload.fullDocument._id });
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
+  }
 });
 
 @index({ namespaceId: 1 })

@@ -16,11 +16,21 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { Namespace, NamespaceDocument } from '../namespace';
+import { NamespaceDocument, NamespaceEvent } from '../namespace';
 
 export const ArticleEvent = new EventEmitter<IDatabasePayload<ArticleDocument>>();
 ArticleEvent.on(payload => {
   kafka.publish(payload);
+});
+
+// Delete Articles if associated Namespace is deleted.
+NamespaceEvent.on(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await Article.find({ namespaceId: payload.fullDocument._id });
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
+  }
 });
 
 @index({ namespaceId: 1 })

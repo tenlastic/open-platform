@@ -12,22 +12,29 @@ export async function handler(ctx: Context) {
 
   const { field, fileId } = ctx.params;
 
-  // Get permissions for the Game
-  const populatedGame = await game
-    .populate(GamePermissions.accessControl.options.populate)
-    .execPopulate();
-  const permissions = GamePermissions.accessControl.getFieldPermissions(
-    'read',
-    populatedGame,
-    ctx.state.user,
-  );
-  if (!permissions.includes(field)) {
-    throw new PermissionError();
+  try {
+    // Get permissions for the Game
+    const populatedGame = await game
+      .populate(GamePermissions.accessControl.options.populate)
+      .execPopulate();
+    const permissions = GamePermissions.accessControl.getFieldPermissions(
+      'read',
+      populatedGame,
+      ctx.state.user,
+    );
+    if (!permissions.includes(field)) {
+      throw new PermissionError();
+    }
+  } catch (e) {
+    console.log(JSON.stringify(e.stack));
+    throw e;
   }
 
   const bucket = process.env.MINIO_BUCKET;
+  console.log('Field: ' + field);
+  console.log('Bucket: ' + bucket);
   const info = await minio.statObject(bucket, game.getMinioPath(field, fileId));
-  const stream = (await minio.getObject(bucket, game.getMinioPath(field, fileId))) as any;
+  const stream = await minio.getObject(bucket, game.getMinioPath(field, fileId));
 
   ctx.response.body = stream;
   ctx.response.type = info.metaData['content-type'];
