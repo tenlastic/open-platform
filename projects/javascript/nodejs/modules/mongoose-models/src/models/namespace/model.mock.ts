@@ -1,5 +1,6 @@
 import * as Chance from 'chance';
 
+import { NamespaceLimitsMock } from './limits';
 import { Namespace, NamespaceSchema } from './model';
 
 export class NamespaceMock {
@@ -11,6 +12,7 @@ export class NamespaceMock {
     const chance = new Chance();
 
     const defaults = {
+      limits: NamespaceLimitsMock.create(),
       name: chance.hash(),
     };
 
