@@ -1,3 +1,4 @@
+import { NamespaceLimitsMock } from '@tenlastic/mongoose-models';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 import * as Chance from 'chance';
@@ -18,6 +19,7 @@ describe('handlers/namespaces/create', function() {
     const ctx = new ContextMock({
       request: {
         body: {
+          limits: NamespaceLimitsMock.create(),
           name: chance.hash(),
         },
       },
