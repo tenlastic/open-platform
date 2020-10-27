@@ -25,6 +25,60 @@ components:
               - description
               - roles
               - value
+        limits:
+          type: object
+          properties:
+            collections:
+              type: object
+              properties:
+                count:
+                  type: integer
+                size:
+                  type: integer
+              required:
+                - count
+                - size
+            gameServers:
+              type: object
+              properties:
+                count:
+                  type: integer
+                cpu:
+                  type: integer
+                memory:
+                  type: integer
+              required:
+                - count
+                - cpu
+                - memory
+            games:
+              type: object
+              properties:
+                images:
+                  type: integer
+                size:
+                  type: integer
+                videos:
+                  type: integer
+              required:
+                - images
+                - size
+                - videos
+            releases:
+              type: object
+              properties:
+                count:
+                  type: integer
+                size:
+                  type: integer
+              required:
+                - count
+                - size
+          required:
+            - collections
+            - gameServers
+            - games
+            - releases
         name:
           type: string
         updatedAt:

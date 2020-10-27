@@ -12,10 +12,39 @@ export namespace INamespace {
     Releases = 'releases',
   }
 
+  export interface CollectionLimits {
+    count: number;
+    size: number;
+  }
+
+  export interface GameLimits {
+    images: number;
+    size: number;
+    videos: number;
+  }
+
+  export interface GameServerLimits {
+    count: number;
+    cpu: number;
+    memory: number;
+  }
+
   export interface Key {
     description: string;
     roles: string[];
     value: string;
+  }
+
+  export interface Limits {
+    collections: CollectionLimits;
+    gameServers: GameServerLimits;
+    games: GameLimits;
+    releases: ReleaseLimits;
+  }
+
+  export interface ReleaseLimits {
+    count: number;
+    size: number;
   }
 
   export interface User {
@@ -26,6 +55,7 @@ export namespace INamespace {
 
 export class Namespace extends Model {
   public keys: INamespace.Key[];
+  public limits: INamespace.Limits;
   public name: string;
   public users: INamespace.User[];
 

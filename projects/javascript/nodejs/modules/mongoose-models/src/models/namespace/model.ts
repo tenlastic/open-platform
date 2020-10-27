@@ -19,6 +19,7 @@ import * as mongoose from 'mongoose';
 
 import { UserDocument } from '../user';
 import { NamespaceKey, NamespaceKeyDocument } from './key';
+import { NamespaceLimitsDocument } from './limits';
 import { NamespaceUser, NamespaceUserDocument } from './user';
 
 export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocument>>();
@@ -62,6 +63,9 @@ export class NamespaceSchema {
 
   @arrayProp({ default: [], items: NamespaceKey })
   public keys: NamespaceKeyDocument[];
+
+  @prop({ required: true})
+  public limits: NamespaceLimitsDocument;
 
   @prop({ required: true })
   public name: string;

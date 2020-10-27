@@ -135,6 +135,7 @@ export class NamespacesFormPageComponent implements OnInit {
 
     const values: Partial<Namespace> = {
       keys,
+      limits: this.form.get('limits').value,
       name: this.form.get('name').value,
       users,
     };
@@ -186,6 +187,86 @@ export class NamespacesFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       keys: this.formBuilder.array(keys),
+      limits: this.formBuilder.group({
+        collections: this.formBuilder.group({
+          count: [
+            {
+              disabled: !this.identityService.user.roles.includes('Administrator'),
+              value: this.data.limits ? this.data.limits.collections.count : 0,
+            },
+            Validators.required,
+          ],
+          size: [
+            {
+              disabled: !this.identityService.user.roles.includes('Administrator'),
+              value: this.data.limits ? this.data.limits.collections.size : 0,
+            },
+            Validators.required,
+          ],
+        }),
+        gameServers: this.formBuilder.group({
+          count: [
+            {
+              disabled: !this.identityService.user.roles.includes('Administrator'),
+              value: this.data.limits ? this.data.limits.gameServers.count : 0,
+            },
+            Validators.required,
+          ],
+          cpu: [
+            {
+              disabled: !this.identityService.user.roles.includes('Administrator'),
+              value: this.data.limits ? this.data.limits.gameServers.cpu : 0,
+            },
+            Validators.required,
+          ],
+          memory: [
+            {
+              disabled: !this.identityService.user.roles.includes('Administrator'),
+              value: this.data.limits ? this.data.limits.gameServers.memory : 0,
+            },
+            Validators.required,
+          ],
+        }),
+        games: this.formBuilder.group({
+          images: [
+            {
+              disabled: !this.identityService.user.roles.includes('Administrator'),
+              value: this.data.limits ? this.data.limits.games.images : 0,
+            },
+            Validators.required,
+          ],
+          size: [
+            {
+              disabled: !this.identityService.user.roles.includes('Administrator'),
+              value: this.data.limits ? this.data.limits.games.size : 0,
+            },
+            Validators.required,
+          ],
+          videos: [
+            {
+              disabled: !this.identityService.user.roles.includes('Administrator'),
+              value: this.data.limits ? this.data.limits.games.videos : 0,
+            },
+            Validators.required,
+          ],
+        }),
+        releases: this.formBuilder.group({
+          count: [
+            {
+              disabled: !this.identityService.user.roles.includes('Administrator'),
+              value: this.data.limits ? this.data.limits.releases.count : 0,
+            },
+            Validators.required,
+          ],
+          size: [
+            {
+              disabled: !this.identityService.user.roles.includes('Administrator'),
+              value: this.data.limits ? this.data.limits.releases.size : 0,
+            },
+            Validators.required,
+          ],
+        }),
+      }),
       name: [this.data.name, Validators.required],
       users: this.formBuilder.array(users),
     });
