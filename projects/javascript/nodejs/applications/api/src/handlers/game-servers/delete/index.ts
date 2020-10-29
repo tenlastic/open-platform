@@ -1,21 +1,5 @@
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
+import { GameServerPermissions } from '@tenlastic/mongoose-models';
 
-import { GameServer, GameServerPermissions } from '@tenlastic/mongoose-models';
+import { deleteOne } from '../../../defaults';
 
-export async function handler(ctx: Context) {
-  const where = await GameServerPermissions.where(
-    { _id: ctx.params._id },
-    ctx.state.apiKey || ctx.state.user,
-  );
-  const record = await GameServer.findOne(where).populate(
-    GameServerPermissions.accessControl.options.populate,
-  );
-
-  if (!record) {
-    throw new RecordNotFoundError('Game Server');
-  }
-
-  const result = await GameServerPermissions.delete(record, ctx.state.apiKey || ctx.state.user);
-
-  ctx.response.body = { record: result };
-}
+export const handler = deleteOne(GameServerPermissions);

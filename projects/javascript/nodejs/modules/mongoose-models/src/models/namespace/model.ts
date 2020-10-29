@@ -27,6 +27,16 @@ NamespaceEvent.on(payload => {
   kafka.publish(payload);
 });
 
+export class NamespaceLimitError extends Error {
+  public path: string;
+
+  constructor(path: string) {
+    super(`Namespace limit reached: ${path}.`);
+
+    this.path = path;
+  }
+}
+
 export enum NamespaceRole {
   Articles = 'articles',
   Collections = 'collections',
@@ -64,7 +74,7 @@ export class NamespaceSchema {
   @arrayProp({ default: [], items: NamespaceKey })
   public keys: NamespaceKeyDocument[];
 
-  @prop({ required: true})
+  @prop({ required: true })
   public limits: NamespaceLimitsDocument;
 
   @prop({ required: true })

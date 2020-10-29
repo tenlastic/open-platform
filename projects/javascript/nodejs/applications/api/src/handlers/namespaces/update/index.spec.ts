@@ -37,7 +37,7 @@ describe('handlers/namespaces/update', function() {
     it('returns the updated record', async function() {
       const ctx = new ContextMock({
         params: {
-          id: record._id,
+          _id: record._id,
         },
         request: {
           body: {
@@ -68,7 +68,7 @@ describe('handlers/namespaces/update', function() {
     it('throws an error', async function() {
       const ctx = new ContextMock({
         params: {
-          id: record._id,
+          _id: record._id,
         },
         request: {
           body: {

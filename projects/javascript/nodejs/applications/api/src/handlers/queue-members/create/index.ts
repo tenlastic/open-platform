@@ -4,11 +4,10 @@ import { QueueMemberPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const override = { refreshTokenId: ctx.state.jwt.jti };
-  const result = await QueueMemberPermissions.create(
-    ctx.request.body,
-    override,
-    ctx.state.apiKey || ctx.state.user,
-  );
+  const user = ctx.state.apiKey || ctx.state.user;
 
-  ctx.response.body = { record: result };
+  const result = await QueueMemberPermissions.create(ctx.request.body, override, user);
+  const record = await QueueMemberPermissions.read(result, user);
+
+  ctx.response.body = { record };
 }

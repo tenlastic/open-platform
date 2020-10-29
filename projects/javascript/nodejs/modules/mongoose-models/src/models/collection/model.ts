@@ -30,6 +30,15 @@ CollectionEvent.on(payload => {
   kafka.publish(payload);
 });
 
+// Drop MongoDB collection on delete.
+CollectionEvent.on(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const collection = new Collection(payload.fullDocument);
+      return collection.dropCollection();
+  }
+});
+
 // Delete Collections if associated Namespace is deleted.
 NamespaceEvent.on(async payload => {
   switch (payload.operationType) {
@@ -94,7 +103,11 @@ export class CollectionSchema {
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
 
-  public getValidator(this: CollectionDocument) {
+  private get collectionName() {
+    return `collections.${this._id}`;
+  }
+
+  private get validator() {
     return {
       $jsonSchema: {
         additionalProperties: false,
@@ -128,22 +141,37 @@ export class CollectionSchema {
   }
 
   /**
-   * Creates the collection if it does not already exist.
+   * Drops collection from MongoDB.
+   */
+  public async dropCollection(this: CollectionDocument) {
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    const collectionExists = collections.map(c => c.name).includes(this.collectionName);
+
+    if (!collectionExists) {
+      return;
+    }
+
+    return mongoose.connection.db.dropCollection(this.collectionName);
+  }
+
+  /**
+   * Sets the validator on the MongoDB collection.
+   * Creates the collection first if it does not exist.
    */
   public async setValidator(this: CollectionDocument) {
     const collections = await mongoose.connection.db.listCollections().toArray();
-    const collectionExists = collections.map(c => c.name).includes(this.id);
+    const collectionExists = collections.map(c => c.name).includes(this.collectionName);
 
     if (collectionExists) {
       await mongoose.connection.db.command({
-        collMod: this.id,
-        validator: this.getValidator(),
+        collMod: this.collectionName,
+        validator: this.validator,
       });
     } else {
-      await mongoose.connection.createCollection(this.id, {
+      await mongoose.connection.createCollection(this.collectionName, {
         strict: true,
         validationLevel: 'strict',
-        validator: this.getValidator(),
+        validator: this.validator,
       });
     }
   }

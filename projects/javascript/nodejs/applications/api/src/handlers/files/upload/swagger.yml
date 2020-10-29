@@ -46,7 +46,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  records:
+                  tasks:
                     type: array
                     items:
-                      $ref: '#/components/schemas/File'
+                      $ref: '#/components/schemas/ReleaseTask'

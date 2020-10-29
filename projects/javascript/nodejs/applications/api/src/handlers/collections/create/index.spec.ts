@@ -1,8 +1,12 @@
 import {
+  CollectionMock,
+  NamespaceCollectionLimits,
+  NamespaceLimitError,
+  NamespaceLimits,
   NamespaceMock,
+  NamespaceUserMock,
   UserDocument,
   UserMock,
-  NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -21,33 +25,19 @@ describe('handlers/collections/create', function() {
     user = await UserMock.create();
   });
 
-  context('when permission is granted', function() {
-    it('creates a new record', async function() {
+  context('when too many collections exist', function() {
+    it('throws a NamespaceLimitError', async function() {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
         roles: ['collections'],
       });
-      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
-
-      const ctx = new ContextMock({
-        request: {
-          body: {
-            name: chance.hash(),
-            namespaceId: namespace._id,
-          },
-        },
-        state: { user },
+      const namespace = await NamespaceMock.create({
+        limits: new NamespaceLimits({
+          collections: new NamespaceCollectionLimits({ count: 1 }),
+        }),
+        users: [namespaceUser],
       });
-
-      await handler(ctx as any);
-
-      expect(ctx.response.body.record).to.exist;
-    });
-  });
-
-  context('when permission is denied', function() {
-    it('throws an error', async function() {
-      const namespace = await NamespaceMock.create();
+      await CollectionMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         request: {
@@ -61,7 +51,53 @@ describe('handlers/collections/create', function() {
 
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.be.rejectedWith(NamespaceLimitError);
+    });
+  });
+
+  context('when few enough collections exist', function() {
+    context('when permission is granted', function() {
+      it('creates a new record', async function() {
+        const namespaceUser = NamespaceUserMock.create({
+          _id: user._id,
+          roles: ['collections'],
+        });
+        const namespace = await NamespaceMock.create({ users: [namespaceUser] });
+
+        const ctx = new ContextMock({
+          request: {
+            body: {
+              name: chance.hash(),
+              namespaceId: namespace._id,
+            },
+          },
+          state: { user },
+        });
+
+        await handler(ctx as any);
+
+        expect(ctx.response.body.record).to.exist;
+      });
+    });
+
+    context('when permission is denied', function() {
+      it('throws an error', async function() {
+        const namespace = await NamespaceMock.create();
+
+        const ctx = new ContextMock({
+          request: {
+            body: {
+              name: chance.hash(),
+              namespaceId: namespace._id,
+            },
+          },
+          state: { user },
+        });
+
+        const promise = handler(ctx as any);
+
+        return expect(promise).to.be.rejected;
+      });
     });
   });
 });

@@ -7,5 +7,5 @@ export const router = new Router({
   prefix: '/collections/:collectionId/indexes',
 });
 
-router.delete('/:id', deleteHandler);
+router.delete('/:_id', deleteHandler);
 router.post('/', createHandler);

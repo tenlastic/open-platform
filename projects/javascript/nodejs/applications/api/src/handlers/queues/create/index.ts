@@ -1,13 +1,5 @@
-import { Context } from '@tenlastic/web-server';
-
 import { QueuePermissions } from '@tenlastic/mongoose-models';
 
-export async function handler(ctx: Context) {
-  const result = await QueuePermissions.create(
-    ctx.request.body,
-    {},
-    ctx.state.apiKey || ctx.state.user,
-  );
+import { create } from '../../../defaults';
 
-  ctx.response.body = { record: result };
-}
+export const handler = create(QueuePermissions);

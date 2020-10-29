@@ -4,13 +4,12 @@ import { Namespace, NamespacePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const { users } = ctx.request.body;
-  const override = { users: Namespace.getDefaultUsers(users, ctx.state.user) } as any;
+  const { user } = ctx.state;
 
-  const result = await NamespacePermissions.create(
-    ctx.request.body,
-    override,
-    ctx.state.apiKey || ctx.state.user,
-  );
+  const override = { users: Namespace.getDefaultUsers(users, user) } as any;
 
-  ctx.response.body = { record: result };
+  const result = await NamespacePermissions.create(ctx.request.body, override, user);
+  const record = await NamespacePermissions.read(result, user);
+
+  ctx.response.body = { record };
 }

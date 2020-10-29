@@ -1,4 +1,3 @@
-import { authenticationMiddleware } from '@tenlastic/web-server';
 import * as Router from 'koa-router';
 
 import { handler as countHandler } from './count';
@@ -11,8 +10,6 @@ import { handler as updateHandler } from './update';
 export const router = new Router({
   prefix: '/collections/:collectionId/records',
 });
-
-router.use(authenticationMiddleware);
 
 router.delete('/:_id', deleteHandler);
 router.get('/', findHandler);

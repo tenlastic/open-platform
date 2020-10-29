@@ -1,10 +1,10 @@
 import { DocumentType, ReturnModelType, getModelForClass, prop } from '@hasezoey/typegoose';
 
 export class NamespaceReleaseLimitsSchema {
-  @prop({ required: true })
+  @prop({ default: 0 })
   public count: number;
 
-  @prop({ required: true })
+  @prop({ default: 0 })
   public size: number;
 }
 

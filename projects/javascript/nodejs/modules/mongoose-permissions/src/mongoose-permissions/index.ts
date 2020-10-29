@@ -89,9 +89,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       });
     }
 
-    // Filter unauthorized attributes
-    const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
-    return filterRecord(record, readPermissions);
+    return record;
   }
 
   /**
@@ -120,9 +118,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       });
     }
 
-    // Filter unauthorized attributes
-    const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
-    return filterRecord(record, readPermissions);
+    return record;
   }
 
   /**
@@ -163,8 +159,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       });
     }
 
-    const promises = records.map(record => this.read(record, user));
-    return Promise.all(promises);
+    return records;
   }
 
   /**
@@ -249,9 +244,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       });
     }
 
-    // Remove unauthorized fields
-    const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
-    return filterRecord(record, readPermissions);
+    return record;
   }
 
   /**
@@ -296,6 +289,9 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     return substitutedQuery;
   }
 
+  /**
+   * Primarily used to convert ObjectId instances into regular strings.
+   */
   private toPlainObject(obj: any) {
     return obj ? JSON.parse(JSON.stringify(obj)) : obj;
   }

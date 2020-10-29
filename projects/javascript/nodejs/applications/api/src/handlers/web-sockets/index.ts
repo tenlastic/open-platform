@@ -8,4 +8,4 @@ export const router = new Router({ prefix: '/web-sockets' });
 
 router.get('/', findHandler);
 router.get('/count', countHandler);
-router.get('/:id', findOneHandler);
+router.get('/:_id', findOneHandler);

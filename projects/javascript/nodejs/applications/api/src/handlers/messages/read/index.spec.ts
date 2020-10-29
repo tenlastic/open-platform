@@ -33,7 +33,8 @@ describe('handlers/message/read', function() {
 
       await handler(ctx as any);
 
-      expect(ctx.response.body.record.readByUserIds).to.include(otherUser._id.toString());
+      const readByUserIds = ctx.response.body.record.readByUserIds.map(id => id.toString());
+      expect(readByUserIds).to.include(otherUser._id.toString());
     });
   });
 

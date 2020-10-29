@@ -5,6 +5,7 @@ import {
   FilePlatform,
   Release,
   ReleaseTaskDocument,
+  ReleaseTaskPermissions,
 } from '@tenlastic/mongoose-models';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import {
@@ -19,6 +20,8 @@ import * as mongoose from 'mongoose';
 import { Stream } from 'stream';
 
 export async function handler(ctx: Context) {
+  const user = ctx.state.apiKey || ctx.state.user;
+
   const release = await Release.findOne({ _id: ctx.params.releaseId });
   if (!release) {
     throw new RecordNotFoundError('Release');
@@ -108,26 +111,26 @@ export async function handler(ctx: Context) {
   // Build Docker images for server files.
   let buildJob: ReleaseTaskDocument;
   if (ctx.params.platform === 'server64') {
-    buildJob = await publishBuildMessage(
-      ctx.params.platform,
-      ctx.params.releaseId,
-      ctx.state.apiKey || ctx.state.user,
-    );
+    buildJob = await publishBuildMessage(ctx.params.platform, ctx.params.releaseId, user);
   }
 
   // Return tasks in response.
   const tasks = [];
   if (buildJob) {
-    tasks.push(buildJob);
+    const job = await ReleaseTaskPermissions.read(buildJob, user);
+    tasks.push(job);
   }
   if (copyJob) {
-    tasks.push(copyJob);
+    const job = await ReleaseTaskPermissions.read(copyJob, user);
+    tasks.push(job);
   }
   if (removeJob) {
-    tasks.push(removeJob);
+    const job = await ReleaseTaskPermissions.read(removeJob, user);
+    tasks.push(job);
   }
   if (unzipJob) {
-    tasks.push(unzipJob);
+    const job = await ReleaseTaskPermissions.read(unzipJob, user);
+    tasks.push(job);
   }
 
   ctx.response.body = { tasks };

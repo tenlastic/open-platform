@@ -1,13 +1,13 @@
 import { DocumentType, ReturnModelType, getModelForClass, prop } from '@hasezoey/typegoose';
 
 export class NamespaceGameServerLimitsSchema {
-  @prop({ required: true })
+  @prop({ default: 0 })
   public count: number;
 
-  @prop({ required: true })
+  @prop({ default: 0 })
   public cpu: number;
 
-  @prop({ required: true })
+  @prop({ default: 0 })
   public memory: number;
 }
 

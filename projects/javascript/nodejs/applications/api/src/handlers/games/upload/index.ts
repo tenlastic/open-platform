@@ -23,7 +23,7 @@ export async function handler(ctx: Context) {
   const permissions = GamePermissions.accessControl.getFieldPermissions(
     'update',
     populatedGame,
-    ctx.state.user,
+    ctx.state.apiKey || ctx.state.user,
   );
 
   // Parse files from request body.

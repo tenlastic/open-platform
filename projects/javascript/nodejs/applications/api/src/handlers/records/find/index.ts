@@ -5,6 +5,7 @@ import { Collection, RecordDocument, RecordSchema } from '@tenlastic/mongoose-mo
 
 export async function handler(ctx: Context) {
   const { collectionId } = ctx.params;
+  const user = ctx.state.apiKey || ctx.state.user;
 
   const collection = await Collection.findOne({ _id: collectionId });
   if (!collection) {
@@ -14,12 +15,12 @@ export async function handler(ctx: Context) {
   const Model = RecordSchema.getModelForClass(collection);
   const Permissions = new MongoosePermissions<RecordDocument>(Model, collection.permissions);
 
-  const override = { where: { collectionId: collection._id } };
-  const result = await Permissions.find(
+  const results = await Permissions.find(
     ctx.request.query,
-    override,
+    { where: { collectionId: collection._id } },
     ctx.state.apiKey || ctx.state.user,
   );
+  const records = await Promise.all(results.map(r => Permissions.read(r, user)));
 
-  ctx.response.body = { records: result };
+  ctx.response.body = { records };
 }

@@ -1,14 +1,5 @@
-import { Context } from '@tenlastic/web-server';
-
 import { ReleaseTaskPermissions } from '@tenlastic/mongoose-models';
 
-export async function handler(ctx: Context) {
-  const override = { releaseId: ctx.params.releaseId };
-  const result = await ReleaseTaskPermissions.count(
-    ctx.request.query.where,
-    override,
-    ctx.state.user,
-  );
+import { count } from '../../../defaults';
 
-  ctx.response.body = { count: result };
-}
+export const handler = count(ReleaseTaskPermissions);

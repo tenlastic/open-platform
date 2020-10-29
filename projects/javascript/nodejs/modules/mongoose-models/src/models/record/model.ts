@@ -17,7 +17,7 @@ export class RecordSchema {
 
   public updatedAt: Date;
 
-  @prop({ ref: 'UserSchema', required: true })
+  @prop({ ref: 'UserSchema' })
   public userId: Ref<UserDocument>;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', ref: 'CollectionSchema' })

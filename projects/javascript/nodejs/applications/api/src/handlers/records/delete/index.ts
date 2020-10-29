@@ -5,6 +5,7 @@ import { Collection, RecordDocument, RecordSchema } from '@tenlastic/mongoose-mo
 
 export async function handler(ctx: Context) {
   const { _id, collectionId } = ctx.params;
+  const user = ctx.state.apiKey || ctx.state.user;
 
   const collection = await Collection.findOne({ _id: collectionId });
   if (!collection) {
@@ -14,15 +15,13 @@ export async function handler(ctx: Context) {
   const Model = RecordSchema.getModelForClass(collection);
   const Permissions = new MongoosePermissions<RecordDocument>(Model, collection.permissions);
 
-  const query = { _id, collectionId };
-  const where = await Permissions.where(query, ctx.state.apiKey || ctx.state.user);
-  const record = await Model.findOne(where).populate(Permissions.accessControl.options.populate);
-
-  if (!record) {
+  const existing = await Permissions.findOne({}, { where: { _id, collectionId } }, user);
+  if (!existing) {
     throw new RecordNotFoundError('Record');
   }
 
-  const result = await Permissions.delete(record, ctx.state.apiKey || ctx.state.user);
+  const result = await Permissions.delete(existing, user);
+  const record = await Permissions.read(result, user);
 
-  ctx.response.body = { record: result };
+  ctx.response.body = { record };
 }

@@ -1,21 +1,5 @@
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
+import { NamespacePermissions } from '@tenlastic/mongoose-models';
 
-import { Namespace, NamespacePermissions } from '@tenlastic/mongoose-models';
+import { deleteOne } from '../../../defaults';
 
-export async function handler(ctx: Context) {
-  const where = await NamespacePermissions.where(
-    { _id: ctx.params.id },
-    ctx.state.apiKey || ctx.state.user,
-  );
-  const record = await Namespace.findOne(where).populate(
-    NamespacePermissions.accessControl.options.populate,
-  );
-
-  if (!record) {
-    throw new RecordNotFoundError('Namespace');
-  }
-
-  const result = await NamespacePermissions.delete(record, ctx.state.apiKey || ctx.state.user);
-
-  ctx.response.body = { record: result };
-}
+export const handler = deleteOne(NamespacePermissions);

@@ -1,13 +1,13 @@
 import { DocumentType, ReturnModelType, getModelForClass, prop } from '@hasezoey/typegoose';
 
 export class NamespaceGameLimitsSchema {
-  @prop({ required: true })
+  @prop({ default: 0 })
   public images: number;
 
-  @prop({ required: true })
+  @prop({ default: 0 })
   public size: number;
 
-  @prop({ required: true })
+  @prop({ default: 0 })
   public videos: number;
 }
 

@@ -9,7 +9,7 @@ export async function handler(ctx: Context) {
     const where = { groupId: ctx.params._id, toUserId: ctx.state.user._id };
     const groupInvitation = await GroupInvitation.findOne(where);
     if (!groupInvitation) {
-      throw new RecordNotFoundError('Group Invitation');
+      throw new RecordNotFoundError();
     }
   }
 

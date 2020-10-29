@@ -32,7 +32,8 @@ describe('handlers/groups/join', function() {
 
       await handler(ctx as any);
 
-      expect(ctx.response.body.record.userIds).to.include(otherUser._id.toString());
+      const userIds = ctx.response.body.record.userIds.map(u => u.toString());
+      expect(userIds).to.include(otherUser._id.toString());
     });
   });
 

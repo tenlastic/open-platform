@@ -1,9 +1,5 @@
-import { Context } from '@tenlastic/web-server';
-
 import { CollectionPermissions } from '@tenlastic/mongoose-models';
 
-export async function handler(ctx: Context) {
-  const result = await CollectionPermissions.count(ctx.request.query.where, {}, ctx.state.user);
+import { count } from '../../../defaults';
 
-  ctx.response.body = { count: result };
-}
+export const handler = count(CollectionPermissions);

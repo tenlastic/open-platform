@@ -115,8 +115,8 @@ export class AccessControl {
 
     const json = {
       key: typeof user === 'string' ? user : null,
-      record: record ? this.toPlainObject(record, { virtuals: true }) : null,
-      user: typeof user !== 'string' && user ? this.toPlainObject(user, { virtuals: true }) : null,
+      record: record ? this.toPlainObject(record) : null,
+      user: typeof user !== 'string' && user ? this.toPlainObject(user) : null,
     };
 
     for (const role of this.options.roles) {
@@ -130,8 +130,11 @@ export class AccessControl {
     return 'default';
   }
 
-  private toPlainObject(obj: any, options: { virtuals?: boolean } = {}) {
-    const json = obj && obj.toJSON ? obj.toJSON(options) : obj;
+  /**
+   * Primarily used to convert all ObjectId instances to regular strings.
+   */
+  private toPlainObject(obj: any) {
+    const json = obj && obj.toJSON ? obj.toJSON({ virtuals: true }) : obj;
     return JSON.parse(JSON.stringify(json));
   }
 }

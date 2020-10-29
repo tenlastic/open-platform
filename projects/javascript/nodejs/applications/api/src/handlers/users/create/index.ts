@@ -11,6 +11,7 @@ export async function handler(ctx: Context) {
 
   // Refresh the User's accessible fields.
   const result = await UserPermissions.findOne({}, { where: { _id: user._id } }, user);
+  const record = await UserPermissions.read(result, user);
 
-  ctx.response.body = { record: result };
+  ctx.response.body = { record };
 }
