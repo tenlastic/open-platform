@@ -6,6 +6,23 @@ import * as mongoose from 'mongoose';
 import { CollectionDocument } from '../collection/model';
 import { UserDocument } from '../user/model';
 
+let connection: mongoose.Connection;
+
+export function createRecordConnection(connectionString: string, databaseName: string) {
+  return new Promise((resolve, reject) => {
+    connection = mongoose.createConnection(connectionString, {
+      dbName: databaseName,
+      useCreateIndex: true,
+      useFindAndModify: false,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    connection.on('connected', resolve);
+    connection.on('error', reject);
+  });
+}
+
 export class RecordSchema {
   public _id: mongoose.Types.ObjectId;
 
@@ -45,7 +62,7 @@ export class RecordSchema {
     schema.plugin(uniqueErrorPlugin);
 
     const name = collection._id + new Date().getTime() + Math.floor(Math.random() * 1000000000);
-    return mongoose.model(name, schema) as mongoose.Model<RecordDocument, {}> &
+    return connection.model(name, schema) as mongoose.Model<RecordDocument, {}> &
       RecordSchema &
       typeof RecordSchema;
   }

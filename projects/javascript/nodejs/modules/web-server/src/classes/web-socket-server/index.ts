@@ -11,8 +11,14 @@ export interface MessageData {
   method: string;
   parameters: any;
 }
+export interface SubscribeDataParameters {
+  collection: string;
+  collectionId: string;
+  resumeToken: string;
+  where: any;
+}
 export type ConnectionCallback = (jwt: any, ws: WebSocket) => void | Promise<any>;
-export type MessageCallback = (data: any, jwt: any, ws: WebSocket) => void | Promise<any>;
+export type MessageCallback = (data: MessageData, jwt: any, ws: WebSocket) => void | Promise<any>;
 export type UpgradeCallback = (jwt: any) => void | Promise<any>;
 export type WebSocketCallback = 'connection' | 'message';
 
@@ -51,10 +57,10 @@ export class WebSocketServer {
       }
 
       ws.on('message', async data => {
-        data = JSON.parse(data.toString());
+        const json = JSON.parse(data.toString());
 
         for (const message of this.messageCallbacks) {
-          await message(data, jwt, ws);
+          await message(json, jwt, ws);
         }
       });
     });

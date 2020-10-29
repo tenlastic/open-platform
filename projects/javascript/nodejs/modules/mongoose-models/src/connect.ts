@@ -16,10 +16,6 @@ export function connect(options: ConnectionOptions) {
       useUnifiedTopology: true,
     },
     err => {
-      if (process.env.NODE_ENV === 'test') {
-        return;
-      }
-
       if (err) {
         console.error(err);
       } else {

@@ -1,5 +1,7 @@
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import {
+  Collection,
+  CollectionPermissions,
   GameInvitation,
   GameInvitationPermissions,
   GameServer,
@@ -16,6 +18,8 @@ import {
   QueueMember,
   QueueMemberPermissions,
   QueuePermissions,
+  RecordDocument,
+  RecordSchema,
   Release,
   ReleasePermissions,
   ReleaseTask,
@@ -29,13 +33,29 @@ import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import * as webServer from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
 
+export interface SubscribeData {
+  _id: string;
+  method: string;
+  parameters: SubscribeDataParameters;
+}
+export interface SubscribeDataParameters {
+  collection: string;
+  collectionId: string;
+  resumeToken: string;
+  where: any;
+}
+
 export const consumers = {};
 
-export async function subscribe(data: any, jwt: any, ws: webServer.WebSocket) {
+export async function subscribe(data: SubscribeData, jwt: any, ws: webServer.WebSocket) {
   let Model: mongoose.Model<mongoose.Document>;
   let Permissions: MongoosePermissions<any>;
 
   switch (data.parameters.collection) {
+    case 'collections':
+      Model = Collection;
+      Permissions = CollectionPermissions;
+      break;
     case 'game-invitations':
       Model = GameInvitation;
       Permissions = GameInvitationPermissions;
@@ -67,6 +87,11 @@ export async function subscribe(data: any, jwt: any, ws: webServer.WebSocket) {
     case 'queues':
       Model = Queue;
       Permissions = QueuePermissions;
+      break;
+    case 'records':
+      const collection = await Collection.findOne({ _id: data.parameters.collectionId });
+      Model = RecordSchema.getModelForClass(collection);
+      Permissions = new MongoosePermissions<RecordDocument>(Model as any, collection.permissions);
       break;
     case 'release-tasks':
       Model = ReleaseTask;

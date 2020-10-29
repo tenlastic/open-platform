@@ -38,6 +38,10 @@ before(async function() {
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: `api-test`,
   });
+  await mongooseModels.createRecordConnection(
+    process.env.MONGO_CONNECTION_STRING,
+    'api-records-test',
+  );
 
   await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 });
