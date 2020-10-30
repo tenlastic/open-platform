@@ -22,6 +22,7 @@ import {
   RefreshTokenPromptComponent,
   SidenavComponent,
   SocialComponent,
+  TextAreaDialogComponent,
   TitleComponent,
   ToggleSectionComponent,
 } from './components';
@@ -54,6 +55,7 @@ const components = [
   RefreshTokenPromptComponent,
   SidenavComponent,
   SocialComponent,
+  TextAreaDialogComponent,
   TitleComponent,
   ToggleSectionComponent,
 ];
@@ -84,6 +86,7 @@ const pipes = [
     MatchPromptComponent,
     PromptComponent,
     RefreshTokenPromptComponent,
+    TextAreaDialogComponent,
   ],
   exports: [...components, ...modules, ...pipes],
   imports: [...modules],

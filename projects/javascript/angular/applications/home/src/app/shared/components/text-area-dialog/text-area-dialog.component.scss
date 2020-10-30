@@ -1,5 +1,5 @@
 ::ng-deep {
-  app-input-dialog {
+  app-text-area-dialog {
     app-button {
       margin-left: 4px !important;
       margin-right: 4px !important;
@@ -22,4 +22,8 @@ div.mat-dialog-title {
 
 form {
   margin-top: 4px;
+}
+
+mat-form-field.mat-form-field {
+  width: 500px;
 }

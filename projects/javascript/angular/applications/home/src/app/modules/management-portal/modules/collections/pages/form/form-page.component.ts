@@ -1,6 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
-import { MatSnackBar } from '@angular/material';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  FormArray,
+  AbstractControl,
+  ValidationErrors,
+} from '@angular/forms';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Collection, CollectionService } from '@tenlastic/ng-http';
 
@@ -9,6 +16,7 @@ import {
   IdentityService,
   SelectedNamespaceService,
 } from '../../../../../../core/services';
+import { TextAreaDialogComponent } from '../../../../../../shared/components';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
@@ -26,6 +34,7 @@ export class CollectionsFormPageComponent implements OnInit {
     private collectionFormService: CollectionFormService,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
+    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private router: Router,
     private selectedNamespaceService: SelectedNamespaceService,
@@ -99,6 +108,64 @@ export class CollectionsFormPageComponent implements OnInit {
       return;
     }
 
+    const jsonSchema = this.getJsonSchema();
+    const permissions = this.getPermissions();
+
+    const values: Partial<Collection> = {
+      jsonSchema,
+      name: this.form.get('name').value,
+      namespaceId: this.selectedNamespaceService.namespaceId,
+      permissions,
+    };
+
+    if (this.data._id) {
+      this.update(values);
+    } else {
+      this.create(values);
+    }
+  }
+
+  public showImportCollectionPrompt() {
+    const jsonSchema = this.getJsonSchema();
+    const permissions = this.getPermissions();
+
+    const dialogRef = this.matDialog.open(TextAreaDialogComponent, {
+      data: {
+        error: 'Invalid JSON.',
+        label: 'Collection Schema',
+        title: 'Import / Export Collection',
+        validators: [this.jsonValidator],
+        value: JSON.stringify({ jsonSchema, name: this.data.name, permissions }),
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(async result => {
+      if (!result) {
+        return;
+      }
+
+      const data = JSON.parse(result);
+      this.updateForm(data);
+
+      this.matSnackBar.open('Collection imported successfully.', null, {
+        duration: SNACKBAR_DURATION,
+      });
+    });
+  }
+
+  private async create(data: Partial<Collection>) {
+    try {
+      await this.collectionService.create(data);
+      this.matSnackBar.open('Collection created successfully.', null, {
+        duration: SNACKBAR_DURATION,
+      });
+      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+    } catch (e) {
+      this.error = 'That name is already taken.';
+    }
+  }
+
+  private getJsonSchema() {
     const properties = this.form.get('properties').value.reduce((accumulator, property) => {
       accumulator[property.key] = this.collectionFormService.getJsonFromProperty(property);
       return accumulator;
@@ -114,6 +181,10 @@ export class CollectionsFormPageComponent implements OnInit {
       jsonSchema.required = required;
     }
 
+    return jsonSchema;
+  }
+
+  private getPermissions() {
     const permissions = this.collectionFormService.getPermissionsJsonFromRoles(
       this.form.get('properties').value,
       this.form.getRawValue().roles,
@@ -123,30 +194,17 @@ export class CollectionsFormPageComponent implements OnInit {
       return this.collectionFormService.getJsonFromRole(role, this.form.get('properties').value);
     });
 
-    const values: Partial<Collection> = {
-      jsonSchema,
-      name: this.form.get('name').value,
-      namespaceId: this.selectedNamespaceService.namespaceId,
-      permissions: { ...permissions, roles },
-    };
-
-    if (this.data._id) {
-      this.update(values);
-    } else {
-      this.create(values);
-    }
+    return { ...permissions, roles };
   }
 
-  private async create(data: Partial<Collection>) {
+  private jsonValidator(control: AbstractControl): ValidationErrors | null {
     try {
-      await this.collectionService.create(data);
-      this.matSnackBar.open('Collection created successfully.', null, {
-        duration: SNACKBAR_DURATION,
-      });
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+      JSON.parse(control.value);
     } catch (e) {
-      this.error = 'That name is already taken.';
+      return { jsonInvalid: true };
     }
+
+    return null;
   }
 
   private setupForm(): void {
@@ -218,5 +276,52 @@ export class CollectionsFormPageComponent implements OnInit {
     } catch (e) {
       this.error = 'That name is already taken.';
     }
+  }
+
+  private updateForm(data: Collection): void {
+    const properties = [];
+    if (data.jsonSchema && data.jsonSchema.properties) {
+      Object.entries(data.jsonSchema.properties).forEach(([key, property]) => {
+        const required = data.jsonSchema.required && data.jsonSchema.required.includes(key);
+
+        const formGroup = this.collectionFormService.getFormGroupFromProperty(
+          key,
+          property,
+          required,
+        );
+        properties.push(formGroup);
+      });
+    }
+
+    if (properties.length === 0) {
+      properties.push(this.collectionFormService.getDefaultPropertyFormGroup());
+    }
+
+    const roles = [];
+    if (data.permissions && data.permissions.roles && data.permissions.roles.length > 0) {
+      data.permissions.roles.forEach(role => {
+        const formGroup = this.collectionFormService.getFormGroupFromRole(data.permissions, role);
+        roles.push(formGroup);
+      });
+    }
+
+    if (roles.length === 0) {
+      const role = this.collectionFormService.getDefaultRoleFormGroup();
+      role.patchValue({ key: 'default' });
+
+      roles.push(role);
+    }
+
+    this.form = this.formBuilder.group({
+      name: [data.name, Validators.required],
+      properties: this.formBuilder.array(properties),
+      roles: this.formBuilder.array(roles),
+    });
+
+    const formArray = this.form.get('roles') as FormArray;
+    const defaultRole = formArray.at(formArray.length - 1);
+    defaultRole.get('key').disable();
+
+    this.form.valueChanges.subscribe(() => (this.error = null));
   }
 }

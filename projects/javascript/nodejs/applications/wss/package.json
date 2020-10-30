@@ -20,6 +20,7 @@
     "@tenlastic/logging": "0.0.131",
     "@tenlastic/mongoose-change-stream-kafka": "0.0.131",
     "@tenlastic/mongoose-models": "0.0.131",
+    "@tenlastic/mongoose-permissions": "0.0.131",
     "@tenlastic/web-server": "0.0.131",
     "koa-router": "7.4.0",
     "mongoose": "5.7.11",

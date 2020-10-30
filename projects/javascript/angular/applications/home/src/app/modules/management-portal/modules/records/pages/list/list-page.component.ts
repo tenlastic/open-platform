@@ -26,11 +26,12 @@ export class RecordsListPageComponent implements OnInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Record>;
 
+  public collection: Collection;
   public dataSource: MatTableDataSource<Record>;
-  public displayedColumns: string[] = ['_id', 'actions'];
+  public displayedColumns: string[];
+  public propertyColumns: string[];
   public search = '';
 
-  private collection: Collection;
   private subject: Subject<string> = new Subject();
 
   constructor(
@@ -47,6 +48,12 @@ export class RecordsListPageComponent implements OnInit {
     this.activatedRoute.paramMap.subscribe(async params => {
       const collectionId = params.get('collectionId');
       this.collection = await this.collectionService.findOne(collectionId);
+
+      this.propertyColumns = Object.entries(this.collection.jsonSchema.properties)
+        .map(([key, value]) => (value.type === 'array' || value.type === 'object' ? null : key))
+        .filter(p => p)
+        .slice(0, 4);
+      this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
 
       this.titleService.setTitle(`${TITLE} | Records`);
       this.fetchRecords();
