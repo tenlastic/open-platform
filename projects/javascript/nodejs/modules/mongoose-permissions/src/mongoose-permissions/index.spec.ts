@@ -146,25 +146,25 @@ describe('permissions', function() {
 
     context('when user is an admin', function() {
       it('returns the record', async function() {
-        record = await ExamplePermissions.read(record, admin);
+        const result = await ExamplePermissions.read(record, admin);
 
-        expect(record._id).to.exist;
-        expect(record.createdAt).to.exist;
-        expect(record.properties.age).to.exist;
-        expect(record.properties.name).to.exist;
-        expect(record.name).to.exist;
-        expect(record.updatedAt).to.exist;
+        expect(result._id).to.exist;
+        expect(result.createdAt).to.exist;
+        expect(result.properties.age).to.exist;
+        expect(result.properties.name).to.exist;
+        expect(result.name).to.exist;
+        expect(result.updatedAt).to.exist;
       });
     });
 
     context('when user is not an admin', function() {
       it('returns the record', async function() {
-        record = await ExamplePermissions.read(record, user);
+        const result = await ExamplePermissions.read(record, user);
 
-        expect(record._id).to.exist;
-        expect(record.createdAt).to.exist;
-        expect(record.name).to.not.exist;
-        expect(record.updatedAt).to.exist;
+        expect(result._id).to.exist;
+        expect(result.createdAt).to.exist;
+        expect(result.name).to.not.exist;
+        expect(result.updatedAt).to.exist;
       });
     });
   });
