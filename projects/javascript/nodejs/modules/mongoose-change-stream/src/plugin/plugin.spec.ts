@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as sinon from 'sinon';
 
-import { MONGO_DATABASE_NAME } from '../constants';
 import { Example, ExampleEvent, ExampleDocument } from './model';
 import { IDatabasePayload } from './plugin';
 
@@ -25,7 +24,7 @@ describe('plugin', function() {
       const args: IDatabasePayload<ExampleDocument> = spy.getCall(0).args[0];
       expect(args.documentKey._id.toString()).to.eql(record._id.toString());
       expect(args.fullDocument._id.toString()).to.eql(record._id.toString());
-      expect(args.ns).to.eql({ db: MONGO_DATABASE_NAME, coll: 'examples' });
+      expect(args.ns).to.eql({ db: 'mongoose-change-stream-test', coll: 'examples' });
       expect(args.operationType).to.eql('delete');
     });
   });
@@ -51,7 +50,7 @@ describe('plugin', function() {
       const args: IDatabasePayload<ExampleDocument> = spy.getCall(0).args[0];
       expect(args.documentKey._id.toString()).to.eql(record._id.toString());
       expect(args.fullDocument.toObject()).to.eql({ ...record.toObject(), name });
-      expect(args.ns).to.eql({ db: MONGO_DATABASE_NAME, coll: 'examples' });
+      expect(args.ns).to.eql({ db: 'mongoose-change-stream-test', coll: 'examples' });
       expect(args.operationType).to.eql('update');
       expect(args.updateDescription.removedFields).to.eql(['age']);
       expect(args.updateDescription.updatedFields).to.eql({
@@ -90,7 +89,7 @@ describe('plugin', function() {
       const args: IDatabasePayload<ExampleDocument> = spy.getCall(0).args[0];
       expect(args.documentKey._id.toString()).to.eql(record._id.toString());
       expect(args.fullDocument._id.toString()).to.eql(record._id.toString());
-      expect(args.ns).to.eql({ db: MONGO_DATABASE_NAME, coll: 'examples' });
+      expect(args.ns).to.eql({ db: 'mongoose-change-stream-test', coll: 'examples' });
       expect(args.operationType).to.eql('delete');
     });
   });
@@ -106,7 +105,7 @@ describe('plugin', function() {
         const args: IDatabasePayload<ExampleDocument> = spy.getCall(0).args[0];
         expect(args.documentKey._id.toString()).to.eql(record._id.toString());
         expect(args.fullDocument.toObject()).to.eql(record.toObject());
-        expect(args.ns).to.eql({ db: MONGO_DATABASE_NAME, coll: 'examples' });
+        expect(args.ns).to.eql({ db: 'mongoose-change-stream-test', coll: 'examples' });
         expect(args.operationType).to.eql('insert');
       });
     });
@@ -137,7 +136,7 @@ describe('plugin', function() {
           ...initialRecord.toObject(),
           ...record.toObject(),
         });
-        expect(args.ns).to.eql({ db: MONGO_DATABASE_NAME, coll: 'examples' });
+        expect(args.ns).to.eql({ db: 'mongoose-change-stream-test', coll: 'examples' });
         expect(args.operationType).to.eql('update');
         expect(args.updateDescription.removedFields).to.eql([]);
         expect(args.updateDescription.updatedFields).to.eql({

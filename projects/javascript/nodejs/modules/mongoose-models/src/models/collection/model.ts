@@ -36,6 +36,10 @@ CollectionEvent.on(async payload => {
     case 'delete':
       const collection = new Collection(payload.fullDocument);
       return collection.dropCollection();
+
+    case 'insert':
+    case 'update':
+      return collection.setValidator();
   }
 });
 
@@ -65,9 +69,6 @@ NamespaceEvent.on(async payload => {
   eventEmitter: CollectionEvent,
 })
 @plugin(uniqueErrorPlugin)
-@pre('save', async function(this: CollectionDocument) {
-  await this.setValidator();
-})
 export class CollectionSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
@@ -103,8 +104,8 @@ export class CollectionSchema {
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
 
-  private get collectionName() {
-    return `collections.${this._id}`;
+  public get collectionName() {
+    return `collections/${this._id}`;
   }
 
   private get validator() {

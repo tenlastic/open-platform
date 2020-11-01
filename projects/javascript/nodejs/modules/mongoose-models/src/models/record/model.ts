@@ -6,23 +6,6 @@ import * as mongoose from 'mongoose';
 import { CollectionDocument } from '../collection/model';
 import { UserDocument } from '../user/model';
 
-let connection: mongoose.Connection;
-
-export function createRecordConnection(connectionString: string, databaseName: string) {
-  return new Promise((resolve, reject) => {
-    connection = mongoose.createConnection(connectionString, {
-      dbName: databaseName,
-      useCreateIndex: true,
-      useFindAndModify: false,
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-
-    connection.on('connected', resolve);
-    connection.on('error', reject);
-  });
-}
-
 export class RecordSchema {
   public _id: mongoose.Types.ObjectId;
 
@@ -43,26 +26,30 @@ export class RecordSchema {
   @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'UserSchema' })
   public userDocument: UserDocument;
 
-  public static getModelForClass(collection: CollectionDocument) {
+  public static getModelForClass(this: RecordDocument, collection: CollectionDocument) {
+    // Build schema from Collection's properties.
     const Schema = buildSchema(RecordSchema);
-
-    const properties = jsonSchema.toMongoose(collection.jsonSchema);
     const schema = new mongoose.Schema(
-      { properties },
+      { properties: jsonSchema.toMongoose(collection.jsonSchema) },
       {
-        autoIndex: true,
-        collection: `collections.${collection._id}`,
+        autoIndex: false,
+        collection: collection.collectionName,
         minimize: false,
         timestamps: true,
       },
     );
     schema.add(Schema);
 
+    // Register schemas with Mongoose.
     collection.indexes.forEach(i => schema.index(i.key, i.options));
     schema.plugin(uniqueErrorPlugin);
 
-    const name = collection._id + new Date().getTime() + Math.floor(Math.random() * 1000000000);
-    return connection.model(name, schema) as mongoose.Model<RecordDocument, {}> &
+    // Remove cached Model from Mongoose.
+    try {
+      mongoose.connection.deleteModel(collection.collectionName);
+    } catch {}
+
+    return mongoose.model(collection.collectionName, schema) as mongoose.Model<RecordDocument, {}> &
       RecordSchema &
       typeof RecordSchema;
   }

@@ -4,7 +4,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
-import { connect, createRecordConnection, deleteAll } from './';
+import { connect, deleteAll } from './';
 
 let sandbox: sinon.SinonSandbox;
 
@@ -30,7 +30,6 @@ before(async function() {
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: 'mongoose-models-test',
   });
-  await createRecordConnection(process.env.MONGO_CONNECTION_STRING, 'mongoose-models-records-test');
 });
 
 beforeEach(async function() {

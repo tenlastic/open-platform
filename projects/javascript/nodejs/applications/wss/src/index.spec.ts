@@ -12,7 +12,6 @@ before(async function() {
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: `api-test`,
   });
-  await mongooseModels.createRecordConnection(process.env.MONGO_CONNECTION_STRING, 'api-records');
 });
 
 beforeEach(async function() {

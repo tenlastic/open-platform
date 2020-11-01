@@ -19,7 +19,6 @@ mongoose.connect({
   connectionString: process.env.MONGO_CONNECTION_STRING,
   databaseName: 'api',
 });
-mongoose.createRecordConnection(process.env.MONGO_CONNECTION_STRING, 'api-records');
 
 // Web Server.
 const router = new Router();

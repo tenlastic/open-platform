@@ -74,7 +74,6 @@ mongoose.connect({
   connectionString: process.env.MONGO_CONNECTION_STRING,
   databaseName: 'api',
 });
-mongoose.createRecordConnection(process.env.MONGO_CONNECTION_STRING, 'api-records');
 
 // RabbitMQ.
 rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
