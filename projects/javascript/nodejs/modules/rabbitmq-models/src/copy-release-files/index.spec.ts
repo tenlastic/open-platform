@@ -65,9 +65,10 @@ describe('copy-release-files', function() {
         platform,
         releaseId: previousRelease._id,
       });
+      const previousFileMinioKey = await previousFile.getMinioKey();
       await minio.putObject(
         process.env.MINIO_BUCKET,
-        previousFile.key,
+        previousFileMinioKey,
         fs.createReadStream(__filename),
       );
     });
@@ -109,7 +110,8 @@ describe('copy-release-files', function() {
       await CopyReleaseFiles.onMessage(channel as any, content, null);
 
       const file = await File.findOne({ releaseId: release._id });
-      const result = await minio.statObject(process.env.MINIO_BUCKET, file.key);
+      const minioKey = await file.getMinioKey();
+      const result = await minio.statObject(process.env.MINIO_BUCKET, minioKey);
       expect(result).to.exist;
     });
   });

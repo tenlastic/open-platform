@@ -38,7 +38,7 @@ describe('handlers/games/download', function() {
       // Upload test file to Minio.
       await minio.putObject(
         process.env.MINIO_BUCKET,
-        game.getMinioPath('background'),
+        game.getMinioKey('background'),
         fs.createReadStream(__filename),
       );
 

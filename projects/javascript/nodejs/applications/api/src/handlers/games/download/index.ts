@@ -26,8 +26,8 @@ export async function handler(ctx: Context) {
   }
 
   const bucket = process.env.MINIO_BUCKET;
-  const info = await minio.statObject(bucket, game.getMinioPath(field, fileId));
-  const stream = await minio.getObject(bucket, game.getMinioPath(field, fileId));
+  const info = await minio.statObject(bucket, game.getMinioKey(field, fileId));
+  const stream = await minio.getObject(bucket, game.getMinioKey(field, fileId));
 
   ctx.response.body = stream;
   ctx.response.type = info.metaData['content-type'];

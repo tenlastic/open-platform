@@ -67,7 +67,7 @@ async function fileHandler(
     throw new PermissionError();
   }
 
-  const path = game.getMinioPath(field);
+  const path = game.getMinioKey(field);
   await minio.putObject(process.env.MINIO_BUCKET, path, stream, { 'content-type': mimetype });
 
   return { field, path } as FieldPath;

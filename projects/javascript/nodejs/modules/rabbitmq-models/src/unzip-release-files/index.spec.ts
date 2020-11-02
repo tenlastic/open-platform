@@ -55,11 +55,13 @@ describe('workers/unzip', function() {
       // Upload zip to Minio.
       const zip = new JSZip();
       zip.file('index.spec.ts', fs.createReadStream(__filename));
+
       const stream = zip.generateNodeStream({
         compression: 'DEFLATE',
         compressionOptions: { level: 1 },
       });
-      await minio.putObject(process.env.MINIO_BUCKET, releaseTask.minioZipObjectName, stream);
+      const minioKey = await releaseTask.getMinioKey();
+      await minio.putObject(process.env.MINIO_BUCKET, minioKey, stream);
 
       // Calculate MD5 for zipped file.
       md5 = await new Promise((resolve, reject) => {
@@ -113,7 +115,8 @@ describe('workers/unzip', function() {
       await UnzipReleaseFiles.onMessage(channel as any, content, null);
 
       const file = await File.findOne({ releaseId: release._id });
-      const result = await minio.statObject(process.env.MINIO_BUCKET, file.key);
+      const minioKey = await file.getMinioKey();
+      const result = await minio.statObject(process.env.MINIO_BUCKET, minioKey);
       expect(result).to.exist;
     });
   });

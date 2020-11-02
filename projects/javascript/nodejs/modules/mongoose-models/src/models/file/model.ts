@@ -26,7 +26,8 @@ FileEvent.on(payload => {
 FileEvent.on(async payload => {
   switch (payload.operationType) {
     case 'delete':
-      return minio.removeObject(process.env.MINIO_BUCKET, payload.fullDocument.key);
+      const minioKey = await payload.fullDocument.getMinioKey();
+      return minio.removeObject(process.env.MINIO_BUCKET, minioKey);
   }
 });
 ReleaseEvent.on(async payload => {
@@ -83,12 +84,19 @@ export class FileSchema {
 
   public updatedAt: Date;
 
-  public get key() {
-    return `releases/${this.releaseId}/${this.platform}/${this.path}`;
-  }
-
   @prop({ foreignField: '_id', justOne: true, localField: 'releaseId', ref: 'ReleaseSchema' })
   public releaseDocument: ReleaseDocument;
+
+  public async getMinioKey(this: FileDocument) {
+    if (!this.populated('releaseDocument')) {
+      await this.populate('releaseDocument').execPopulate();
+    }
+
+    const { namespaceId } = this.releaseDocument;
+    const { path, platform, releaseId } = this;
+
+    return `namespaces/${namespaceId}/releases/${releaseId}/${platform}/${path}`;
+  }
 }
 
 export type FileDocument = DocumentType<FileSchema>;

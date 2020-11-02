@@ -62,9 +62,10 @@ describe('remove-release-files', function() {
         platform,
         releaseId: release._id,
       });
+      const keptFileMinioKey = await keptFile.getMinioKey();
       await minio.putObject(
         process.env.MINIO_BUCKET,
-        keptFile.key,
+        keptFileMinioKey,
         fs.createReadStream(__filename),
       );
 
@@ -74,9 +75,10 @@ describe('remove-release-files', function() {
         platform,
         releaseId: release._id,
       });
+      const removedFileMinioKey = await removedFile.getMinioKey();
       await minio.putObject(
         process.env.MINIO_BUCKET,
-        removedFile.key,
+        removedFileMinioKey,
         fs.createReadStream(__filename),
       );
     });

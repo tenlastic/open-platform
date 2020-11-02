@@ -84,8 +84,15 @@ export class ReleaseTaskSchema {
   @prop({ foreignField: '_id', justOne: true, localField: 'releaseId', ref: 'ReleaseSchema' })
   public releaseDocument: ReleaseDocument;
 
-  public get minioZipObjectName() {
-    return `releases/${this.releaseId}/archives/${this._id}.zip`;
+  public async getMinioKey(this: ReleaseTaskDocument) {
+    if (!this.populated('releaseDocument')) {
+      await this.populate('releaseDocument').execPopulate();
+    }
+
+    const { namespaceId } = this.releaseDocument;
+    const { _id, releaseId } = this;
+
+    return `namespaces/${namespaceId}/releases/${releaseId}/archives/${_id}.zip`;
   }
 }
 

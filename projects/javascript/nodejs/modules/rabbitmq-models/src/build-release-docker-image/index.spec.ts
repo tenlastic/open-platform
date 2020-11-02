@@ -70,16 +70,18 @@ describe('build-release-docker-image', function() {
 
         CMD ["./Linux_Core.x86_64", "-batchmode", "-logFile", "-nographics"]
       `;
-      await minio.putObject(process.env.MINIO_BUCKET, dockerFile.key, dockerFileContent);
+      const dockerFileMinioKey = await dockerFile.getMinioKey();
+      await minio.putObject(process.env.MINIO_BUCKET, dockerFileMinioKey, dockerFileContent);
 
       const indexFile = await FileMock.create({
         path: 'index.ts',
         platform,
         releaseId: release._id,
       });
+      const indexFileMinioKey = await indexFile.getMinioKey();
       await minio.putObject(
         process.env.MINIO_BUCKET,
-        indexFile.key,
+        indexFileMinioKey,
         fs.createReadStream(__filename),
       );
 
@@ -88,9 +90,10 @@ describe('build-release-docker-image', function() {
         platform,
         releaseId: release._id,
       });
+      const specFileMinioKey = await specFile.getMinioKey();
       await minio.putObject(
         process.env.MINIO_BUCKET,
-        specFile.key,
+        specFileMinioKey,
         fs.createReadStream(__filename),
       );
     });

@@ -69,7 +69,7 @@ describe('handlers/games/upload', function() {
 
       const result = await minio.statObject(
         process.env.MINIO_BUCKET,
-        game.getMinioPath('background'),
+        game.getMinioKey('background'),
       );
 
       expect(result).to.exist;

@@ -45,8 +45,11 @@ describe('handlers/files/download', function() {
         FileMock.create({ path: 'index.ts', platform, releaseId: release._id }),
         FileMock.create({ path: 'index.spec.ts', platform, releaseId: release._id }),
       ]);
-      await minio.putObject(bucket, files[0].key, fs.createReadStream(__filename));
-      await minio.putObject(bucket, files[1].key, fs.createReadStream(__filename));
+
+      const firstFileMinioKey = await files[0].getMinioKey();
+      const secondFileMinioKey = await files[1].getMinioKey();
+      await minio.putObject(bucket, firstFileMinioKey, fs.createReadStream(__filename));
+      await minio.putObject(bucket, secondFileMinioKey, fs.createReadStream(__filename));
 
       ctx = new ContextMock({
         params: {

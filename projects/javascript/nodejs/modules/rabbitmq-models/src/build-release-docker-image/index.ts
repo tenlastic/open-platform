@@ -49,7 +49,8 @@ async function onMessage(
 
       for (const file of files) {
         const absolutePath = path.join(dir.name, file.path);
-        await minio.fGetObject(process.env.MINIO_BUCKET, file.key, absolutePath);
+        const minioKey = await file.getMinioKey();
+        await minio.fGetObject(process.env.MINIO_BUCKET, minioKey, absolutePath);
 
         tmps.push(file.path);
       }

@@ -87,25 +87,25 @@ export class GameSchema {
   /**
    * Get the path for the property within Minio.
    */
-  public getMinioPath(field: string, _id?: string) {
+  public getMinioKey(field: string, _id?: string) {
     const id = _id || mongoose.Types.ObjectId().toHexString();
 
     switch (field) {
       case 'background':
-        return `games/${this._id}/background`;
+        return `namespaces/${this.namespaceId}/games/${this._id}/background`;
       case 'icon':
-        return `games/${this._id}/icon`;
+        return `namespaces/${this.namespaceId}/games/${this._id}/icon`;
       case 'images':
-        return `games/${this._id}/images/${id}`;
+        return `namespaces/${this.namespaceId}/games/${this._id}/images/${id}`;
       case 'videos':
-        return `games/${this._id}/videos/${id}`;
+        return `namespaces/${this.namespaceId}/games/${this._id}/videos/${id}`;
       default:
         return null;
     }
   }
 
   /**
-   * Get the path for the property within Minio.
+   * Get the URL for the property within Minio.
    */
   public getUrl(host: string, protocol: string, path: string) {
     const base = `${protocol}://${host}`;
