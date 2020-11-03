@@ -22,7 +22,6 @@ export async function handler(ctx: Context) {
   if (collection.namespaceDocument.limits.collections.size > 0) {
     const stats = await Model.collection.stats();
 
-    console.log(stats.size);
     if (stats.size >= collection.namespaceDocument.limits.collections.size) {
       throw new NamespaceLimitError('collections.size');
     }
