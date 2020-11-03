@@ -26,25 +26,25 @@ async function copyObject(
     throw new Error('Previous File not found.');
   }
 
+  const parameters = {
+    compressedBytes: previousFile.compressedBytes,
+    md5: previousFile.md5,
+    path: previousFile.path,
+    platform: previousFile.platform,
+    releaseId,
+    uncompressedBytes: previousFile.uncompressedBytes,
+  };
+  const currentFile = new File(parameters);
+
   // Copy the previous file to the new release.
   const bucket = process.env.MINIO_BUCKET;
-  await minio.copyObject(
-    bucket,
-    `releases/${releaseId}/${previousFile.platform}/${path}`,
-    `${bucket}/releases/${previousFile.releaseId}/${previousFile.platform}/${path}`,
-    null,
-  );
+  const currentFileKey = await currentFile.getMinioKey();
+  const previousFileKey = await previousFile.getMinioKey();
+  await minio.copyObject(bucket, currentFileKey, `${bucket}/${previousFileKey}`, null);
 
   return File.findOneAndUpdate(
     { path: previousFile.path, platform: previousFile.platform, releaseId },
-    {
-      compressedBytes: previousFile.compressedBytes,
-      md5: previousFile.md5,
-      path: previousFile.path,
-      platform: previousFile.platform,
-      releaseId,
-      uncompressedBytes: previousFile.uncompressedBytes,
-    },
+    parameters,
     { new: true, upsert: true },
   );
 }

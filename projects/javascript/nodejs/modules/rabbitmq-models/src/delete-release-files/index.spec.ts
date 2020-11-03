@@ -37,9 +37,11 @@ describe('remove-release-files', function() {
   });
 
   context('when successful', function() {
+    let keptFileMinioKey: string;
     let platform: FilePlatform;
     let release: ReleaseDocument;
     let releaseTask: ReleaseTaskDocument;
+    let removedFileMinioKey: string;
 
     beforeEach(async function() {
       const namespaceUser = NamespaceUserMock.create({
@@ -62,7 +64,7 @@ describe('remove-release-files', function() {
         platform,
         releaseId: release._id,
       });
-      const keptFileMinioKey = await keptFile.getMinioKey();
+      keptFileMinioKey = await keptFile.getMinioKey();
       await minio.putObject(
         process.env.MINIO_BUCKET,
         keptFileMinioKey,
@@ -75,7 +77,7 @@ describe('remove-release-files', function() {
         platform,
         releaseId: release._id,
       });
-      const removedFileMinioKey = await removedFile.getMinioKey();
+      removedFileMinioKey = await removedFile.getMinioKey();
       await minio.putObject(
         process.env.MINIO_BUCKET,
         removedFileMinioKey,
@@ -120,16 +122,10 @@ describe('remove-release-files', function() {
 
       await DeleteReleaseFiles.onMessage(channel as any, content, null);
 
-      const result = await minio.statObject(
-        process.env.MINIO_BUCKET,
-        `releases/${release._id}/${platform}/index.ts`,
-      );
+      const result = await minio.statObject(process.env.MINIO_BUCKET, keptFileMinioKey);
       expect(result).to.exist;
 
-      const promise = minio.statObject(
-        process.env.MINIO_BUCKET,
-        `releases/${release._id}/${platform}/index.spec.ts`,
-      );
+      const promise = minio.statObject(process.env.MINIO_BUCKET, removedFileMinioKey);
       return expect(promise).to.be.rejectedWith('Not Found');
     });
   });
