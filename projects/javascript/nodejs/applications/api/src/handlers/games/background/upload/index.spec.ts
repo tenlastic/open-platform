@@ -1,23 +1,26 @@
 import * as minio from '@tenlastic/minio';
+import {
+  GameDocument,
+  GameMock,
+  NamespaceDocument,
+  NamespaceGameLimitsMock,
+  NamespaceLimitsMock,
+  NamespaceMock,
+  NamespaceUserMock,
+  UserDocument,
+  UserMock,
+} from '@tenlastic/mongoose-models';
+import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as FormData from 'form-data';
-import * as fs from 'fs';
 
-import {
-  GameDocument,
-  GameMock,
-  NamespaceMock,
-  UserDocument,
-  UserMock,
-  NamespaceUserMock,
-} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 use(chaiAsPromised);
 
-describe('handlers/games/upload', function() {
+describe('handlers/games/background/upload', function() {
   let user: UserDocument;
 
   beforeEach(async function() {
@@ -28,19 +31,23 @@ describe('handlers/games/upload', function() {
     let ctx: ContextMock;
     let form: FormData;
     let game: GameDocument;
+    let namespace: NamespaceDocument;
 
     beforeEach(async function() {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
         roles: ['games'],
       });
-      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
+      namespace = await NamespaceMock.create({
+        limits: NamespaceLimitsMock.create({
+          games: NamespaceGameLimitsMock.create({ size: 50 * 1000 * 1000 }),
+        }),
+        users: [namespaceUser],
+      });
       game = await GameMock.create({ namespaceId: namespace._id });
 
-      const stream = fs.createReadStream(__filename);
-
       form = new FormData();
-      form.append('background', stream);
+      form.append('valid', 'valid', { contentType: 'image/jpeg', filename: 'valid.jpg' });
 
       ctx = new ContextMock({
         params: {
@@ -59,7 +66,7 @@ describe('handlers/games/upload', function() {
     it('creates a new record', async function() {
       await handler(ctx as any);
 
-      expect(ctx.response.body.background).to.eql(
+      expect(ctx.response.body.record.background).to.eql(
         `http://localhost:3000/games/${game._id}/background`,
       );
     });
@@ -73,6 +80,26 @@ describe('handlers/games/upload', function() {
       );
 
       expect(result).to.exist;
+    });
+
+    it('does not allow large files', async function() {
+      namespace.limits.games.size = 1;
+      namespace.markModified('limits');
+      await namespace.save();
+
+      const promise = handler(ctx as any);
+
+      return expect(promise).to.be.rejectedWith('Filesize must be smaller than 1B.');
+    });
+
+    it('does not allow invalid mimetypes', async function() {
+      form.append('invalid', 'invalid', { contentType: 'image/x-icon', filename: 'invalid.ico' });
+
+      const promise = handler(ctx as any);
+
+      return expect(promise).to.be.rejectedWith(
+        'Mimetype must be: image/gif, image/jpeg, image/png.',
+      );
     });
   });
 
@@ -90,7 +117,7 @@ describe('handlers/games/upload', function() {
 
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.be.rejectedWith(PermissionError);
     });
   });
 });

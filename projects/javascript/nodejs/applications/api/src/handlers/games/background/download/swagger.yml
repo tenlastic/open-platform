@@ -1,9 +1,9 @@
 paths:
-  /games/{_id}/{field}/{fileId}:
+  /games/{_id}/background:
     post:
-      summary: Download
+      summary: Download Background Image
       tags: [Games]
-      description: Returns a stream containing the requested file.
+      description: Returns a stream containing the background image.
       security:
         - AccessToken: []
       parameters:
@@ -12,15 +12,6 @@ paths:
           schema:
             type: string
           required: true
-        - in: path
-          name: field
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: fileId
-          schema:
-            type: string
       responses:
         200:
           description: OK

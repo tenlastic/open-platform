@@ -32,9 +32,10 @@ CollectionEvent.on(payload => {
 
 // Drop MongoDB collection on delete.
 CollectionEvent.on(async payload => {
+  const collection = new Collection(payload.fullDocument);
+
   switch (payload.operationType) {
     case 'delete':
-      const collection = new Collection(payload.fullDocument);
       return collection.dropCollection();
 
     case 'insert':

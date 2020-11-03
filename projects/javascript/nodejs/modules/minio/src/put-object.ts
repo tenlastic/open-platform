@@ -10,7 +10,7 @@ export async function putObject(
   stream: string | Stream | Buffer,
   metadata?: ItemBucketMetadata,
   timeout = TIMEOUT,
-) {
+): Promise<string> {
   let result: any;
 
   try {

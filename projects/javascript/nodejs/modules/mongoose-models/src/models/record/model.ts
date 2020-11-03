@@ -26,7 +26,7 @@ export class RecordSchema {
   @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'UserSchema' })
   public userDocument: UserDocument;
 
-  public static getModelForClass(this: RecordDocument, collection: CollectionDocument) {
+  public static getModelForClass(collection: CollectionDocument) {
     // Build schema from Collection's properties.
     const Schema = buildSchema(RecordSchema);
     const schema = new mongoose.Schema(

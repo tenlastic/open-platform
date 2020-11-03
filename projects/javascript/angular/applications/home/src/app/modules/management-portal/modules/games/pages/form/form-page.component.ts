@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatSnackBar } from '@angular/material';
-import { ActivatedRoute, Router } from '@angular/router';
 import { Game, GameService } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
@@ -19,13 +18,11 @@ export class GamesFormPageComponent implements OnInit {
   public form: FormGroup;
 
   constructor(
-    private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private router: Router,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
@@ -46,14 +43,8 @@ export class GamesFormPageComponent implements OnInit {
       return;
     }
 
-    const response = await this.gameService
-      .upload(this.data._id, { [field]: files[0] })
-      .toPromise();
-
-    this.data = await this.gameService.update({
-      ...this.data,
-      [field]: isArray ? this.data[field].concat(response.body[field]) : response.body[field],
-    });
+    const { body } = await this.gameService.upload(this.data._id, field, files).toPromise();
+    this.data = body.record;
   }
 
   public async remove(field: string, index = -1) {

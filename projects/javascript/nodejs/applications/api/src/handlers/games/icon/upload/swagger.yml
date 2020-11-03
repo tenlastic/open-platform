@@ -1,0 +1,26 @@
+paths:
+  /games/{_id}/icon:
+    post:
+      summary: Upload Background Image
+      tags: [Games]
+      description: Uploads the icon image for a Game.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content: multipart/form-data
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Game'

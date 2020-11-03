@@ -9,6 +9,7 @@ import {
   plugin,
   prop,
 } from '@hasezoey/typegoose';
+import * as minio from '@tenlastic/minio';
 import {
   EventEmitter,
   IDatabasePayload,
@@ -23,6 +24,19 @@ import { NamespaceDocument, NamespaceEvent } from '../namespace';
 export const GameEvent = new EventEmitter<IDatabasePayload<GameDocument>>();
 GameEvent.on(payload => {
   kafka.publish(payload);
+});
+
+// Delete unused images and videos on update.
+GameEvent.on(async payload => {
+  const game = payload.fullDocument;
+
+  switch (payload.operationType) {
+    case 'delete':
+      return game.removeMinioObjects();
+
+    case 'update':
+      return Promise.all([game.removeMinioImages(), game.removeMinioVideos()]);
+  }
 });
 
 // Delete Games if associated Namespace is deleted.
@@ -87,7 +101,7 @@ export class GameSchema {
   /**
    * Get the path for the property within Minio.
    */
-  public getMinioKey(field: string, _id?: string) {
+  public getMinioKey(field?: string, _id?: string) {
     const id = _id || mongoose.Types.ObjectId().toHexString();
 
     switch (field) {
@@ -100,7 +114,7 @@ export class GameSchema {
       case 'videos':
         return `namespaces/${this.namespaceId}/games/${this._id}/videos/${id}`;
       default:
-        return null;
+        return `namespaces/${this.namespaceId}/games/${this._id}`;
     }
   }
 
@@ -109,7 +123,52 @@ export class GameSchema {
    */
   public getUrl(host: string, protocol: string, path: string) {
     const base = `${protocol}://${host}`;
-    return `${base}/${path}`;
+    return `${base}/${path.replace(/namespaces\/[^\/]+\//, '')}`;
+  }
+
+  /**
+   * Removes unusued images from Minio.
+   */
+  public async removeMinioImages(this: GameDocument) {
+    const prefix = this.getMinioKey() + '/images';
+    const objects = await minio.listObjects(process.env.MINIO_BUCKET, prefix);
+
+    for (const object of objects) {
+      const _id = object.name.replace(`${prefix}/`, '');
+      const image = this.images.find(i => i.includes(`images/${_id}`));
+
+      if (!image) {
+        await minio.removeObject(process.env.MINIO_BUCKET, object.name);
+      }
+    }
+  }
+
+  /**
+   * Removes all objects from Minio.
+   */
+  public async removeMinioObjects(this: GameDocument) {
+    const prefix = this.getMinioKey();
+    const objects = await minio.listObjects(process.env.MINIO_BUCKET, prefix);
+
+    const promises = objects.map(o => minio.removeObject(process.env.MINIO_BUCKET, o.name));
+    return Promise.all(promises);
+  }
+
+  /**
+   * Removes unusued videos from Minio.
+   */
+  public async removeMinioVideos(this: GameDocument) {
+    const prefix = this.getMinioKey() + '/videos';
+    const objects = await minio.listObjects(process.env.MINIO_BUCKET, prefix);
+
+    for (const object of objects) {
+      const _id = object.name.replace(`${prefix}/`, '');
+      const video = this.videos.find(i => i.includes(`videos/${_id}`));
+
+      if (!video) {
+        await minio.removeObject(process.env.MINIO_BUCKET, object.name);
+      }
+    }
   }
 }
 
