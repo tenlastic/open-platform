@@ -22,7 +22,7 @@ export class EnvironmentServiceMock implements Environment {
   public queueApiBaseUrl = 'http://api.localhost/queues';
   public queueMemberApiBaseUrl = 'http://api.localhost/queue-members';
   public refreshTokenApiBaseUrl = 'http://api.localhost/refresh-tokens';
-  public releaseApiBaseUrl = 'http://api.localhost/releases';
+  public buildApiBaseUrl = 'http://api.localhost/builds';
   public userApiBaseUrl = 'http://api.localhost/users';
   public webSocketApiBaseUrl = 'http://api.localhost/web-sockets';
 }

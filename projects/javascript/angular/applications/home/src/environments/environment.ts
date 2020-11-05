@@ -20,7 +20,7 @@ export const environment = {
   queueApiBaseUrl: 'http://api.localhost/queues',
   queueMemberApiBaseUrl: 'http://api.localhost/queue-members',
   refreshTokenApiBaseUrl: 'http://api.localhost/refresh-tokens',
-  releaseApiBaseUrl: 'http://api.localhost/releases',
+  buildApiBaseUrl: 'http://api.localhost/builds',
   useHash: false,
   userApiBaseUrl: 'http://api.localhost/users',
   webSocketApiBaseUrl: 'http://api.localhost/web-sockets',

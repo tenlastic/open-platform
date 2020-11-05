@@ -20,7 +20,7 @@ export const environment = {
   queueApiBaseUrl: 'https://api.tenlastic.com/queues',
   queueMemberApiBaseUrl: 'https://api.tenlastic.com/queue-members',
   refreshTokenApiBaseUrl: 'http://api.tenlastic.com/refresh-tokens',
-  releaseApiBaseUrl: 'https://api.tenlastic.com/releases',
+  buildApiBaseUrl: 'https://api.tenlastic.com/builds',
   useHash: true,
   userApiBaseUrl: 'https://api.tenlastic.com/users',
   webSocketApiBaseUrl: 'https://api.tenlastic.com/web-sockets',

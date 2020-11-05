@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Queue, QueueService, Release, ReleaseService } from '@tenlastic/ng-http';
+import { Build, BuildService, Queue, QueueService } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
@@ -18,18 +18,18 @@ interface PropertyFormGroup {
   styleUrls: ['./form-page.component.scss'],
 })
 export class QueuesFormPageComponent implements OnInit {
+  public builds: Build[];
   public data: Queue;
   public error: string;
   public form: FormGroup;
-  public releases: Release[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private buildService: BuildService,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private queueService: QueueService,
-    private releaseService: ReleaseService,
     private router: Router,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
@@ -41,7 +41,7 @@ export class QueuesFormPageComponent implements OnInit {
         this.data = await this.queueService.findOne(_id);
       }
 
-      this.releases = await this.releaseService.find({
+      this.builds = await this.buildService.find({
         sort: '-publishedAt',
         where: { namespaceId: this.selectedNamespaceService.namespaceId },
       });
@@ -75,7 +75,7 @@ export class QueuesFormPageComponent implements OnInit {
         .markAsTouched();
       this.form
         .get('gameServerTemplate')
-        .get('releaseId')
+        .get('buildId')
         .markAsTouched();
 
       return;
@@ -92,9 +92,9 @@ export class QueuesFormPageComponent implements OnInit {
     const values: Partial<Queue> = {
       description: this.form.get('description').value,
       gameServerTemplate: {
+        buildId: this.form.get('gameServerTemplate').get('buildId').value,
         isPreemptible: this.form.get('gameServerTemplate').get('isPreemptible').value,
         metadata,
-        releaseId: this.form.get('gameServerTemplate').get('releaseId').value,
       },
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
@@ -165,15 +165,15 @@ export class QueuesFormPageComponent implements OnInit {
     let gameServerTemplateForm: FormGroup;
     if (this.data.gameServerTemplate) {
       gameServerTemplateForm = this.formBuilder.group({
+        buildId: [this.data.gameServerTemplate.buildId],
         isPreemptible: [this.data.gameServerTemplate.isPreemptible || false],
         metadata: this.formBuilder.array(properties),
-        releaseId: [this.data.gameServerTemplate.releaseId],
       });
     } else {
       gameServerTemplateForm = this.formBuilder.group({
+        buildId: [this.builds.length > 0 ? this.builds[0]._id : null],
         isPreemptible: [false],
         metadata: this.formBuilder.array(properties),
-        releaseId: [this.releases.length > 0 ? this.releases[0]._id : null],
       });
     }
 

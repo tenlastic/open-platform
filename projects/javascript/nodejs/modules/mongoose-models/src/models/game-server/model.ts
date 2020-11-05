@@ -92,7 +92,7 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
     !this.wasNew &&
     !this.wasModified.includes('isPersistent') &&
     !this.wasModified.includes('isPreemptible') &&
-    !this.wasModified.includes('releaseId')
+    !this.wasModified.includes('buildId')
   ) {
     return;
   }
@@ -114,6 +114,9 @@ export class GameServerSchema implements IOriginalDocument {
 
   @arrayProp({ itemsRef: User })
   public allowedUserIds: Array<Ref<UserDocument>>;
+
+  @prop({ required: true })
+  public buildId: mongoose.Types.ObjectId;
 
   public createdAt: Date;
 
@@ -143,9 +146,6 @@ export class GameServerSchema implements IOriginalDocument {
 
   @prop({ ref: 'QueueSchema' })
   public queueId: Ref<QueueDocument>;
-
-  @prop({ required: true })
-  public releaseId: mongoose.Types.ObjectId;
 
   @prop({ default: GameServerStatus.Waiting, enum: GameServerStatus })
   public status: GameServerStatus;
@@ -208,7 +208,7 @@ export class GameServerSchema implements IOriginalDocument {
     );
 
     const url = new URL(process.env.DOCKER_REGISTRY_URL);
-    const image = `${url.host}/${this.namespaceId}:${this.releaseId}`;
+    const image = `${url.host}/${this.namespaceId}:${this.buildId}`;
 
     const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
     const version = JSON.parse(packageDotJson).version;

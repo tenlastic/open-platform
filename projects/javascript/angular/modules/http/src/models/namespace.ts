@@ -3,13 +3,13 @@ import { Model } from './model';
 export namespace INamespace {
   export enum Role {
     Articles = 'articles',
+    Builds = 'builds',
     Collections = 'collections',
     GameServers = 'game-servers',
     GameInvitations = 'game-invitations',
     Games = 'games',
     Namespaces = 'namespaces',
     Queues = 'queues',
-    Releases = 'releases',
   }
 
   export interface CollectionLimits {
@@ -39,10 +39,10 @@ export namespace INamespace {
     collections: CollectionLimits;
     gameServers: GameServerLimits;
     games: GameLimits;
-    releases: ReleaseLimits;
+    builds: BuildLimits;
   }
 
-  export interface ReleaseLimits {
+  export interface BuildLimits {
     count: number;
     size: number;
   }

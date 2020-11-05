@@ -7,6 +7,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
     roles: {
       'namespace-administrator': [
         'allowedUserIds',
+        'buildId',
         'currentUserIds',
         'description',
         'isPersistent',
@@ -14,11 +15,11 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
         'metadata.*',
         'name',
         'namespaceId',
-        'releaseId',
         'status',
       ],
       'system-administrator': [
         'allowedUserIds',
+        'buildId',
         'currentUserIds',
         'description',
         'isPersistent',
@@ -26,7 +27,6 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
         'metadata.*',
         'name',
         'namespaceId',
-        'releaseId',
         'status',
       ],
     },
@@ -93,6 +93,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
     base: [
       '_id',
       'allowedUserIds',
+      'buildId',
       'createdAt',
       'currentUserIds',
       'description',
@@ -103,7 +104,6 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'namespaceId',
       'port',
       'queueId',
-      'releaseId',
       'status',
       'updatedAt',
     ],
@@ -141,6 +141,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
     roles: {
       'namespace-administrator': [
         'allowedUserIds',
+        'buildId',
         'currentUserIds',
         'description',
         'isPersistent',
@@ -148,11 +149,11 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
         'metadata.*',
         'name',
         'namespaceId',
-        'releaseId',
         'status',
       ],
       'system-administrator': [
         'allowedUserIds',
+        'buildId',
         'currentUserIds',
         'description',
         'isPersistent',
@@ -160,7 +161,6 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
         'metadata.*',
         'name',
         'namespaceId',
-        'releaseId',
         'status',
       ],
     },

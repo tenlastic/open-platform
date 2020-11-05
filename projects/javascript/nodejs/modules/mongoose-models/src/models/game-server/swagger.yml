@@ -37,7 +37,7 @@ components:
         queueId:
           type: string
           format: ^[a-f0-9]{24}$
-        releaseId:
+        buildId:
           type: string
           format: ^[a-f0-9]{24}$
         status:

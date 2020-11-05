@@ -2,6 +2,8 @@ import { Title } from '@angular/platform-browser';
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import {
+  Build,
+  BuildService,
   GameInvitation,
   GameInvitationService,
   GameServer,
@@ -17,8 +19,6 @@ import {
   QueueMember,
   QueueMemberService,
   QueueService,
-  Release,
-  ReleaseService,
   WebSocket,
   WebSocketService,
 } from '@tenlastic/ng-http';
@@ -38,6 +38,7 @@ import { TITLE } from './shared/constants';
 export class AppComponent implements OnInit {
   constructor(
     public backgroundService: BackgroundService,
+    private buildService: BuildService,
     private electronService: ElectronService,
     private gameInvitationService: GameInvitationService,
     private gameServerService: GameServerService,
@@ -48,7 +49,6 @@ export class AppComponent implements OnInit {
     private messageService: MessageService,
     private queueMemberService: QueueMemberService,
     private queueService: QueueService,
-    private releaseService: ReleaseService,
     private router: Router,
     private socketService: SocketService,
     private titleService: Title,
@@ -91,6 +91,7 @@ export class AppComponent implements OnInit {
   }
 
   private subscribe() {
+    this.socketService.subscribe('builds', Build, this.buildService);
     this.socketService.subscribe('game-invitations', GameInvitation, this.gameInvitationService);
     this.socketService.subscribe('game-servers', GameServer, this.gameServerService);
     this.socketService.subscribe('groups', Group, this.groupService);
@@ -98,7 +99,6 @@ export class AppComponent implements OnInit {
     this.socketService.subscribe('messages', Message, this.messageService);
     this.socketService.subscribe('queue-members', QueueMember, this.queueMemberService);
     this.socketService.subscribe('queues', Queue, this.queueService);
-    this.socketService.subscribe('releases', Release, this.releaseService);
     this.socketService.subscribe('web-sockets', WebSocket, this.webSocketService);
   }
 }

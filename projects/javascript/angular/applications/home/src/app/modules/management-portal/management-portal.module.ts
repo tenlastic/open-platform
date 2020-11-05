@@ -13,6 +13,10 @@ export const ROUTES: Routes = [
         loadChildren: () => import('./modules/articles/articles.module').then(m => m.ArticleModule),
       },
       {
+        path: 'builds',
+        loadChildren: () => import('./modules/builds/builds.module').then(m => m.BuildModule),
+      },
+      {
         path: 'collections',
         loadChildren: () =>
           import('./modules/collections/collections.module').then(m => m.CollectionModule),
@@ -46,10 +50,6 @@ export const ROUTES: Routes = [
         path: 'refresh-tokens',
         loadChildren: () =>
           import('./modules/refresh-tokens/refresh-tokens.module').then(m => m.RefreshTokenModule),
-      },
-      {
-        path: 'releases',
-        loadChildren: () => import('./modules/releases/releases.module').then(m => m.ReleaseModule),
       },
       {
         path: 'users',

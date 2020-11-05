@@ -20,10 +20,10 @@ import {
   QueuePermissions,
   RecordDocument,
   RecordSchema,
-  Release,
-  ReleasePermissions,
-  ReleaseTask,
-  ReleaseTaskPermissions,
+  Build,
+  BuildPermissions,
+  BuildTask,
+  BuildTaskPermissions,
   User,
   UserPermissions,
   WebSocket,
@@ -93,13 +93,13 @@ export async function subscribe(data: SubscribeData, jwt: any, ws: webServer.Web
       Model = RecordSchema.getModelForClass(collection);
       Permissions = new MongoosePermissions<RecordDocument>(Model as any, collection.permissions);
       break;
-    case 'release-tasks':
-      Model = ReleaseTask;
-      Permissions = ReleaseTaskPermissions;
+    case 'build-tasks':
+      Model = BuildTask;
+      Permissions = BuildTaskPermissions;
       break;
-    case 'releases':
-      Model = Release;
-      Permissions = ReleasePermissions;
+    case 'builds':
+      Model = Build;
+      Permissions = BuildPermissions;
       break;
     case 'users':
       Model = User;

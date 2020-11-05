@@ -3,9 +3,12 @@ import { DocumentType, ReturnModelType, getModelForClass, prop } from '@hasezoey
 import { NamespaceCollectionLimitsDocument } from './collection';
 import { NamespaceGameLimitsDocument } from './game';
 import { NamespaceGameServerLimitsDocument } from './game-server';
-import { NamespaceReleaseLimitsDocument } from './release';
+import { NamespaceBuildLimitsDocument } from './build';
 
 export class NamespaceLimitsSchema {
+  @prop({ required: true })
+  public builds: NamespaceBuildLimitsDocument;
+
   @prop({ required: true })
   public collections: NamespaceCollectionLimitsDocument;
 
@@ -14,9 +17,6 @@ export class NamespaceLimitsSchema {
 
   @prop({ required: true })
   public games: NamespaceGameLimitsDocument;
-
-  @prop({ required: true })
-  public releases: NamespaceReleaseLimitsDocument;
 }
 
 export type NamespaceLimitsDocument = DocumentType<NamespaceLimitsSchema>;

@@ -6,19 +6,19 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
   create: {
     roles: {
       'namespace-administrator': [
+        'buildId',
         'compressedBytes',
         'md5',
         'path',
         'platform',
-        'releaseId',
         'uncompressedBytes',
       ],
       'system-administrator': [
+        'buildId',
         'compressedBytes',
         'md5',
         'path',
         'platform',
-        'releaseId',
         'uncompressedBytes',
       ],
     },
@@ -33,11 +33,11 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
     base: {
       $or: [
         {
-          releaseId: {
+          buildId: {
             $in: {
-              // Find all published Releases.
+              // Find all published Builds.
               $query: {
-                model: 'ReleaseSchema',
+                model: 'BuildSchema',
                 select: '_id',
                 where: {
                   $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
@@ -47,11 +47,11 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
           },
         },
         {
-          releaseId: {
+          buildId: {
             $in: {
-              // Find all Releases within the returned Namespaces.
+              // Find all Builds within the returned Namespaces.
               $query: {
-                model: 'ReleaseSchema',
+                model: 'BuildSchema',
                 select: '_id',
                 where: {
                   namespaceId: {
@@ -65,7 +65,7 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
                             {
                               keys: {
                                 $elemMatch: {
-                                  roles: { $eq: 'releases' },
+                                  roles: { $eq: 'builds' },
                                   value: { $eq: { $ref: 'key' } },
                                 },
                               },
@@ -74,7 +74,7 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
                               users: {
                                 $elemMatch: {
                                   _id: { $eq: { $ref: 'user._id' } },
-                                  roles: { $eq: 'releases' },
+                                  roles: { $eq: 'builds' },
                                 },
                               },
                             },
@@ -96,7 +96,7 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
   },
   populate: [
     {
-      path: 'releaseDocument',
+      path: 'buildDocument',
       populate: {
         path: 'namespaceDocument',
       },
@@ -105,12 +105,12 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
   read: {
     base: [
       '_id',
+      'buildId',
       'compressedBytes',
       'createdAt',
       'md5',
       'path',
       'platform',
-      'releaseId',
       'uncompressedBytes',
       'updatedAt',
     ],
@@ -127,18 +127,18 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
       query: {
         $or: [
           {
-            'record.releaseDocument.namespaceDocument.keys': {
+            'record.buildDocument.namespaceDocument.keys': {
               $elemMatch: {
-                roles: { $eq: 'releases' },
+                roles: { $eq: 'builds' },
                 value: { $eq: { $ref: 'key' } },
               },
             },
           },
           {
-            'record.releaseDocument.namespaceDocument.users': {
+            'record.buildDocument.namespaceDocument.users': {
               $elemMatch: {
                 _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'releases' },
+                roles: { $eq: 'builds' },
               },
             },
           },
@@ -149,19 +149,19 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
   update: {
     roles: {
       'namespace-administrator': [
+        'buildId',
         'compressedBytes',
         'md5',
         'path',
         'platform',
-        'releaseId',
         'uncompressedBytes',
       ],
       'system-administrator': [
+        'buildId',
         'compressedBytes',
         'md5',
         'path',
         'platform',
-        'releaseId',
         'uncompressedBytes',
       ],
     },

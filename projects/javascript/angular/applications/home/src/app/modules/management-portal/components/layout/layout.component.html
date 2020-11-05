@@ -1,7 +1,8 @@
 <app-header-toolbar>
   <img src="/assets/images/logo.png" />
 
-  <app-button color="accent" routerLink="namespaces">
+  <app-button color="accent"
+              routerLink="namespaces">
     <mat-icon>layers</mat-icon>
     <span>
       {{
@@ -15,7 +16,9 @@
 
   <span class="space"></span>
 
-  <app-button *ngIf="!electronService.isElectron" color="primary" [href]="launcherUrl">
+  <app-button *ngIf="!electronService.isElectron"
+              color="primary"
+              [href]="launcherUrl">
     <span>Download Launcher</span>
   </app-button>
 </app-header-toolbar>
@@ -24,51 +27,43 @@
   <app-social>
     <app-sidenav>
       <div class="nav">
-        <app-button
-          color="accent"
-          layout="vertical"
-          routerLink="namespaces"
-          routerLinkActive="active"
-          text="left"
-          width="full"
-        >
+        <app-button color="accent"
+                    layout="vertical"
+                    routerLink="namespaces"
+                    routerLinkActive="active"
+                    text="left"
+                    width="full">
           <mat-icon>layers</mat-icon>
           <span>Namespaces</span>
         </app-button>
 
-        <app-button
-          color="accent"
-          layout="vertical"
-          routerLink="refresh-tokens"
-          routerLinkActive="active"
-          text="left"
-          width="full"
-        >
+        <app-button color="accent"
+                    layout="vertical"
+                    routerLink="refresh-tokens"
+                    routerLinkActive="active"
+                    text="left"
+                    width="full">
           <mat-icon>vpn_key</mat-icon>
           <span>Refresh Tokens</span>
         </app-button>
 
-        <app-button
-          color="accent"
-          [hidden]="!identityService?.user?.roles?.includes('Administrator')"
-          layout="vertical"
-          routerLink="users"
-          routerLinkActive="active"
-          text="left"
-          width="full"
-        >
+        <app-button color="accent"
+                    [hidden]="!identityService?.user?.roles?.includes('Administrator')"
+                    layout="vertical"
+                    routerLink="users"
+                    routerLinkActive="active"
+                    text="left"
+                    width="full">
           <mat-icon>person</mat-icon>
           <span>Users</span>
         </app-button>
 
-        <app-button
-          *ngIf="selectedNamespaceService.namespaceId && hasInfrastructureButtons"
-          color="accent"
-          layout="vertical"
-          text="left"
-          width="full"
-          (OnClick)="showInfrastructureButtons = !showInfrastructureButtons"
-        >
+        <app-button *ngIf="selectedNamespaceService.namespaceId && hasInfrastructureButtons"
+                    color="accent"
+                    layout="vertical"
+                    text="left"
+                    width="full"
+                    (OnClick)="showInfrastructureButtons = !showInfrastructureButtons">
           <span>Infrastructure</span>
           <mat-icon>
             {{ showInfrastructureButtons ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
@@ -76,67 +71,57 @@
         </app-button>
 
         <ng-container *ngIf="selectedNamespaceService.namespaceId && showInfrastructureButtons">
-          <app-button
-            *ngIf="hasPermission('collections')"
-            color="accent"
-            layout="vertical"
-            routerLink="collections"
-            routerLinkActive="active"
-            text="left"
-            width="full"
-          >
-            <mat-icon>sd_card</mat-icon>
+          <app-button *ngIf="hasPermission('builds')"
+                      color="accent"
+                      layout="vertical"
+                      routerLink="builds"
+                      routerLinkActive="active"
+                      text="left"
+                      width="full">
+            <mat-icon>unarchive</mat-icon>
+            <span>Builds</span>
+          </app-button>
+
+          <app-button *ngIf="hasPermission('collections')"
+                      color="accent"
+                      layout="vertical"
+                      routerLink="collections"
+                      routerLinkActive="active"
+                      text="left"
+                      width="full">
+            <mat-icon>category</mat-icon>
             <span>Collections</span>
           </app-button>
 
-          <app-button
-            *ngIf="hasPermission('game-servers')"
-            color="accent"
-            layout="vertical"
-            routerLink="game-servers"
-            routerLinkActive="active"
-            text="left"
-            width="full"
-          >
+          <app-button *ngIf="hasPermission('game-servers')"
+                      color="accent"
+                      layout="vertical"
+                      routerLink="game-servers"
+                      routerLinkActive="active"
+                      text="left"
+                      width="full">
             <mat-icon>dns</mat-icon>
             <span>Game Servers</span>
           </app-button>
 
-          <app-button
-            *ngIf="hasPermission('queues')"
-            color="accent"
-            layout="vertical"
-            routerLink="queues"
-            routerLinkActive="active"
-            text="left"
-            width="full"
-          >
+          <app-button *ngIf="hasPermission('queues')"
+                      color="accent"
+                      layout="vertical"
+                      routerLink="queues"
+                      routerLinkActive="active"
+                      text="left"
+                      width="full">
             <mat-icon>schedule</mat-icon>
             <span>Queues</span>
           </app-button>
-
-          <app-button
-            *ngIf="hasPermission('releases')"
-            color="accent"
-            layout="vertical"
-            routerLink="releases"
-            routerLinkActive="active"
-            text="left"
-            width="full"
-          >
-            <mat-icon>unarchive</mat-icon>
-            <span>Releases</span>
-          </app-button>
         </ng-container>
 
-        <app-button
-          *ngIf="selectedNamespaceService.namespaceId && hasLauncherButtons"
-          color="accent"
-          layout="vertical"
-          text="left"
-          width="full"
-          (OnClick)="showLauncherButtons = !showLauncherButtons"
-        >
+        <app-button *ngIf="selectedNamespaceService.namespaceId && hasLauncherButtons"
+                    color="accent"
+                    layout="vertical"
+                    text="left"
+                    width="full"
+                    (OnClick)="showLauncherButtons = !showLauncherButtons">
           <span>Launcher</span>
           <mat-icon>
             {{ showLauncherButtons ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
@@ -144,41 +129,35 @@
         </app-button>
 
         <ng-container *ngIf="selectedNamespaceService.namespaceId && showLauncherButtons">
-          <app-button
-            *ngIf="hasPermission('articles')"
-            color="accent"
-            layout="vertical"
-            routerLink="articles"
-            routerLinkActive="active"
-            text="left"
-            width="full"
-          >
+          <app-button *ngIf="hasPermission('articles')"
+                      color="accent"
+                      layout="vertical"
+                      routerLink="articles"
+                      routerLinkActive="active"
+                      text="left"
+                      width="full">
             <mat-icon>description</mat-icon>
             <span>Articles</span>
           </app-button>
 
-          <app-button
-            *ngIf="hasPermission('games')"
-            color="accent"
-            layout="vertical"
-            routerLink="games"
-            routerLinkActive="active"
-            text="left"
-            width="full"
-          >
+          <app-button *ngIf="hasPermission('games')"
+                      color="accent"
+                      layout="vertical"
+                      routerLink="games"
+                      routerLinkActive="active"
+                      text="left"
+                      width="full">
             <mat-icon>sports_esports</mat-icon>
             <span>Game Information</span>
           </app-button>
 
-          <app-button
-            *ngIf="hasPermission('game-invitations')"
-            color="accent"
-            layout="vertical"
-            routerLink="game-invitations"
-            routerLinkActive="active"
-            text="left"
-            width="full"
-          >
+          <app-button *ngIf="hasPermission('game-invitations')"
+                      color="accent"
+                      layout="vertical"
+                      routerLink="game-invitations"
+                      routerLinkActive="active"
+                      text="left"
+                      width="full">
             <mat-icon>person_add_alt_1</mat-icon>
             <span>Game Invitations</span>
           </app-button>

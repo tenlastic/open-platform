@@ -7,12 +7,12 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as minio from '@tenlastic/minio';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import {
-  BuildReleaseDockerImage,
-  CopyReleaseFiles,
+  BuildDockerImage,
+  CopyBuildFiles,
   CreateCollectionIndex,
   DeleteCollectionIndex,
-  DeleteReleaseFiles,
-  UnzipReleaseFiles,
+  DeleteBuildFiles,
+  UnzipBuildFiles,
 } from '@tenlastic/rabbitmq-models';
 import { WebServer } from '@tenlastic/web-server';
 import * as Router from 'koa-router';
@@ -57,12 +57,12 @@ mongoose.connect({
 (async () => {
   await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 
-  await BuildReleaseDockerImage.subscribe();
-  await CopyReleaseFiles.subscribe();
+  await BuildDockerImage.subscribe();
+  await CopyBuildFiles.subscribe();
   await CreateCollectionIndex.subscribe();
   await DeleteCollectionIndex.subscribe();
-  await DeleteReleaseFiles.subscribe();
-  await UnzipReleaseFiles.subscribe();
+  await DeleteBuildFiles.subscribe();
+  await UnzipBuildFiles.subscribe();
 })();
 
 // Web Server.

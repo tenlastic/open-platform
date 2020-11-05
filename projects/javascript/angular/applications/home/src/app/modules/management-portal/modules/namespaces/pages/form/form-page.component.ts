@@ -188,6 +188,22 @@ export class NamespacesFormPageComponent implements OnInit {
     this.form = this.formBuilder.group({
       keys: this.formBuilder.array(keys),
       limits: this.formBuilder.group({
+        builds: this.formBuilder.group({
+          count: [
+            {
+              disabled: !this.identityService.user.roles.includes('Administrator'),
+              value: this.data.limits ? this.data.limits.builds.count : 0,
+            },
+            Validators.required,
+          ],
+          size: [
+            {
+              disabled: !this.identityService.user.roles.includes('Administrator'),
+              value: this.data.limits ? this.data.limits.builds.size : 0,
+            },
+            Validators.required,
+          ],
+        }),
         collections: this.formBuilder.group({
           count: [
             {
@@ -246,22 +262,6 @@ export class NamespacesFormPageComponent implements OnInit {
             {
               disabled: !this.identityService.user.roles.includes('Administrator'),
               value: this.data.limits ? this.data.limits.games.videos : 0,
-            },
-            Validators.required,
-          ],
-        }),
-        releases: this.formBuilder.group({
-          count: [
-            {
-              disabled: !this.identityService.user.roles.includes('Administrator'),
-              value: this.data.limits ? this.data.limits.releases.count : 0,
-            },
-            Validators.required,
-          ],
-          size: [
-            {
-              disabled: !this.identityService.user.roles.includes('Administrator'),
-              value: this.data.limits ? this.data.limits.releases.size : 0,
             },
             Validators.required,
           ],

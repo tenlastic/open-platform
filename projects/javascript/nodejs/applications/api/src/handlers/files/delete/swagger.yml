@@ -1,5 +1,5 @@
 paths:
-  /releases/{releaseId}/platforms/{platform}/files/{_id}:
+  /builds/{buildId}/platforms/{platform}/files/{_id}:
     delete:
       summary: Delete
       tags: [Files]
@@ -8,7 +8,7 @@ paths:
         - AccessToken: []
       parameters:
         - in: path
-          name: releaseId
+          name: buildId
           schema:
             type: string
           required: true

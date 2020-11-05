@@ -17,7 +17,7 @@ import * as minio from '@tenlastic/minio';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { Release, ReleaseDocument, ReleaseEvent } from '../release';
+import { BuildDocument, BuildEvent } from '../build';
 
 export const FileEvent = new EventEmitter<IDatabasePayload<FileDocument>>();
 FileEvent.on(payload => {
@@ -30,10 +30,10 @@ FileEvent.on(async payload => {
       return minio.removeObject(process.env.MINIO_BUCKET, minioKey);
   }
 });
-ReleaseEvent.on(async payload => {
+BuildEvent.on(async payload => {
   switch (payload.operationType) {
     case 'delete':
-      const files = await File.find({ releaseId: payload.fullDocument._id });
+      const files = await File.find({ buildId: payload.fullDocument._id });
       const promises = files.map(f => f.remove());
       return Promise.all(promises);
   }
@@ -46,7 +46,7 @@ export enum FilePlatform {
   Windows64 = 'windows64',
 }
 
-@index({ path: 1, platform: 1, releaseId: 1 }, { unique: true })
+@index({ path: 1, platform: 1, buildId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,
@@ -62,6 +62,9 @@ export enum FilePlatform {
 export class FileSchema {
   public _id: mongoose.Types.ObjectId;
 
+  @prop({ ref: 'BuildSchema', required: true })
+  public buildId: Ref<BuildDocument>;
+
   @prop({ required: true })
   public compressedBytes: number;
 
@@ -76,26 +79,23 @@ export class FileSchema {
   @prop({ enum: FilePlatform, required: true })
   public platform: FilePlatform;
 
-  @prop({ ref: 'ReleaseSchema', required: true })
-  public releaseId: Ref<ReleaseDocument>;
-
   @prop({ required: true })
   public uncompressedBytes: number;
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'releaseId', ref: 'ReleaseSchema' })
-  public releaseDocument: ReleaseDocument;
+  @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })
+  public buildDocument: BuildDocument;
 
   public async getMinioKey(this: FileDocument) {
-    if (!this.populated('releaseDocument')) {
-      await this.populate('releaseDocument').execPopulate();
+    if (!this.populated('buildDocument')) {
+      await this.populate('buildDocument').execPopulate();
     }
 
-    const { namespaceId } = this.releaseDocument;
-    const { path, platform, releaseId } = this;
+    const { namespaceId } = this.buildDocument;
+    const { path, platform, buildId } = this;
 
-    return `namespaces/${namespaceId}/releases/${releaseId}/${platform}/${path}`;
+    return `namespaces/${namespaceId}/builds/${buildId}/${platform}/${path}`;
   }
 }
 

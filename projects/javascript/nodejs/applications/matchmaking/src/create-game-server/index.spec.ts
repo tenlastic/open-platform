@@ -28,7 +28,7 @@ describe('create-game-server', function() {
 
   context('when User is not in a match', function() {
     it('creates a GameServer', async function() {
-      const gameServerTemplate = new GameServer({ releaseId: mongoose.Types.ObjectId() });
+      const gameServerTemplate = new GameServer({ buildId: mongoose.Types.ObjectId() });
       const queue = await QueueMock.create({ gameServerTemplate });
       const queueMember = await QueueMemberMock.create();
 
@@ -45,7 +45,7 @@ describe('create-game-server', function() {
       const user = await UserMock.create();
       const otherUser = await UserMock.create();
 
-      const gameServerTemplate = new GameServer({ releaseId: mongoose.Types.ObjectId() });
+      const gameServerTemplate = new GameServer({ buildId: mongoose.Types.ObjectId() });
       const queue = await QueueMock.create({ gameServerTemplate });
 
       await GameServerMock.create({

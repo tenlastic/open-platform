@@ -10,8 +10,8 @@ import {
   NamespaceMock,
   UserDocument,
   UserMock,
-  ReleaseDocument,
-  ReleaseMock,
+  BuildDocument,
+  BuildMock,
   NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
 import { handler } from './';
@@ -28,22 +28,22 @@ describe('handlers/files/download', function() {
 
   context('when permission is granted', async function() {
     let ctx: ContextMock;
-    let release: ReleaseDocument;
+    let build: BuildDocument;
 
     beforeEach(async function() {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
-        roles: ['releases'],
+        roles: ['builds'],
       });
       const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       const platform = FileMock.getPlatform();
-      release = await ReleaseMock.create({ namespaceId: namespace._id });
+      build = await BuildMock.create({ namespaceId: namespace._id });
 
-      // Set up Release.
+      // Set up Build.
       const files = await Promise.all([
-        FileMock.create({ path: 'index.ts', platform, releaseId: release._id }),
-        FileMock.create({ path: 'index.spec.ts', platform, releaseId: release._id }),
+        FileMock.create({ path: 'index.ts', platform, buildId: build._id }),
+        FileMock.create({ path: 'index.spec.ts', platform, buildId: build._id }),
       ]);
 
       const firstFileMinioKey = await files[0].getMinioKey();
@@ -53,8 +53,8 @@ describe('handlers/files/download', function() {
 
       ctx = new ContextMock({
         params: {
+          buildId: build._id,
           platform,
-          releaseId: release._id,
         },
         request: {
           body: {
@@ -93,12 +93,12 @@ describe('handlers/files/download', function() {
   context('when permission is denied', function() {
     it('throws an error', async function() {
       const namespace = await NamespaceMock.create();
-      const release = await ReleaseMock.create({ namespaceId: namespace._id });
+      const build = await BuildMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         params: {
+          buildId: build._id,
           platform: FileMock.getPlatform(),
-          releaseId: release._id,
         },
         request: {
           body: {

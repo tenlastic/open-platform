@@ -28,6 +28,16 @@ components:
         limits:
           type: object
           properties:
+            builds:
+              type: object
+              properties:
+                count:
+                  type: integer
+                size:
+                  type: integer
+              required:
+                - count
+                - size
             collections:
               type: object
               properties:
@@ -64,21 +74,11 @@ components:
                 - images
                 - size
                 - videos
-            releases:
-              type: object
-              properties:
-                count:
-                  type: integer
-                size:
-                  type: integer
-              required:
-                - count
-                - size
           required:
             - collections
             - gameServers
             - games
-            - releases
+            - builds
         name:
           type: string
         updatedAt:

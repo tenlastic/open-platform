@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GameServer, GameServerService, Release, ReleaseService } from '@tenlastic/ng-http';
+import { GameServer, GameServerService, Build, BuildService } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
@@ -18,18 +18,18 @@ interface PropertyFormGroup {
   styleUrls: ['./form-page.component.scss'],
 })
 export class GameServersFormPageComponent implements OnInit {
+  public builds: Build[];
   public data: GameServer;
   public error: string;
   public form: FormGroup;
-  public releases: Release[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private buildService: BuildService,
     private formBuilder: FormBuilder,
     private gameServerService: GameServerService,
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
-    private releaseService: ReleaseService,
     private router: Router,
     private selectedNamespaceService: SelectedNamespaceService,
   ) {}
@@ -41,7 +41,7 @@ export class GameServersFormPageComponent implements OnInit {
         this.data = await this.gameServerService.findOne(_id);
       }
 
-      this.releases = await this.releaseService.find({
+      this.builds = await this.buildService.find({
         sort: '-publishedAt',
         where: { namespaceId: this.selectedNamespaceService.namespaceId },
       });
@@ -64,12 +64,12 @@ export class GameServersFormPageComponent implements OnInit {
 
   public async save() {
     if (this.form.invalid) {
+      this.form.get('buildId').markAsTouched();
       this.form.get('description').markAsTouched();
       this.form.get('isPersistent').markAsTouched();
       this.form.get('isPreemptible').markAsTouched();
       this.form.get('name').markAsTouched();
       this.form.get('namespaceId').markAsTouched();
-      this.form.get('releaseId').markAsTouched();
 
       return;
     }
@@ -80,13 +80,13 @@ export class GameServersFormPageComponent implements OnInit {
     }, {});
 
     const values: Partial<GameServer> = {
+      buildId: this.form.get('buildId').value,
       description: this.form.get('description').value,
       isPersistent: this.form.get('isPersistent').value,
       isPreemptible: this.form.get('isPreemptible').value,
       metadata,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
-      releaseId: this.form.get('releaseId').value,
     };
 
     if (this.data._id) {
@@ -152,13 +152,13 @@ export class GameServersFormPageComponent implements OnInit {
     }
 
     this.form = this.formBuilder.group({
+      buildId: [this.data.buildId || this.builds.length > 0 ? this.builds[0]._id : null],
       description: [this.data.description],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
       isPersistent: [this.data.isPersistent || false],
       isPreemptible: [this.data.isPreemptible || false],
       metadata: this.formBuilder.array(properties),
       name: [this.data.name, Validators.required],
-      releaseId: [this.data.releaseId || this.releases.length > 0 ? this.releases[0]._id : null],
     });
 
     this.form.valueChanges.subscribe(() => (this.error = null));

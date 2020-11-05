@@ -45,7 +45,7 @@ export enum NamespaceRole {
   Games = 'games',
   Namespaces = 'namespaces',
   Queues = 'queues',
-  Releases = 'releases',
+  Builds = 'builds',
 }
 
 @index({ name: 1 }, { unique: true })

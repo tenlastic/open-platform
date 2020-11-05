@@ -1,14 +1,14 @@
 paths:
-  /releases/{releaseId}/platforms/{platform}/files/download:
+  /builds/{buildId}/platforms/{platform}/files/download:
     post:
       summary: Download
       tags: [Files]
-      description: Returns a zip file containing all files of a Release.
+      description: Returns a zip file containing all files of a Build.
       security:
         - AccessToken: []
       parameters:
         - in: path
-          name: releaseId
+          name: buildId
           schema:
             type: string
           required: true

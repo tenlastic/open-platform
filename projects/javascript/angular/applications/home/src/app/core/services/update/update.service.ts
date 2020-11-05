@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import {
+  Build,
+  BuildService,
   File,
   FileService,
   Game,
   GameInvitationService,
   GameServer,
   LoginService,
-  Release,
-  ReleaseService,
 } from '@tenlastic/ng-http';
 import { ChildProcess } from 'child_process';
 import { Subject } from 'rxjs';
@@ -37,12 +37,12 @@ export interface UpdateServiceProgress {
 }
 
 export interface UpdateServiceStatus {
+  build?: Build;
   childProcess?: ChildProcess;
   game?: Game;
   isInstalled?: boolean;
   modifiedFiles?: File[];
   progress?: UpdateServiceProgress;
-  release?: Release;
   state?: UpdateServiceState;
   text?: string;
 }
@@ -73,12 +73,12 @@ export class UpdateService {
   private status = new Map<string, UpdateServiceStatus>();
 
   constructor(
+    private buildService: BuildService,
     private electronService: ElectronService,
     private fileService: FileService,
     private gameInvitationService: GameInvitationService,
     private identityService: IdentityService,
     private loginService: LoginService,
-    private releaseService: ReleaseService,
   ) {
     this.subscribeToServices();
 
@@ -111,25 +111,25 @@ export class UpdateService {
       return;
     }
 
-    // Get the latest Release from the server.
-    status.text = 'Retrieving latest release...';
-    const releases = await this.releaseService.find({
+    // Get the latest Build from the server.
+    status.text = 'Retrieving latest build...';
+    const builds = await this.buildService.find({
       sort: '-publishedAt',
       where: {
         $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
         namespaceId: game.namespaceId,
       },
     });
-    if (releases.length === 0) {
+    if (builds.length === 0) {
       status.state = UpdateServiceState.NotAvailable;
       return;
     }
 
-    // Find Files associated with latest Release.
+    // Find Files associated with latest Build.
     status.progress = null;
-    status.text = 'Retrieving release files...';
-    status.release = releases[0];
-    const remoteFiles = await this.fileService.find(status.release._id, this.platform, {
+    status.text = 'Retrieving build files...';
+    status.build = builds[0];
+    const remoteFiles = await this.fileService.find(status.build._id, this.platform, {
       limit: 10000,
     });
     if (remoteFiles.length === 0) {
@@ -147,7 +147,7 @@ export class UpdateService {
       return;
     }
 
-    // Delete files no longer listed in the Release.
+    // Delete files no longer listed in the Build.
     status.isInstalled = true;
     status.progress = null;
     status.text = 'Deleting stale files...';
@@ -199,7 +199,7 @@ export class UpdateService {
       return;
     }
 
-    const target = `${this.installPath}/${game._id}/${status.release.entrypoint}.exe`;
+    const target = `${this.installPath}/${game._id}/${status.build.entrypoint}.exe`;
 
     const env = {
       ...process.env,
@@ -286,7 +286,7 @@ export class UpdateService {
           body: { include },
           headers: { Authorization: `Bearer ${this.identityService.accessToken}` },
           json: true,
-          url: `${this.fileService.basePath}/${status.release._id}/platforms/${this.platform}/files/download`,
+          url: `${this.fileService.basePath}/${status.build._id}/platforms/${this.platform}/files/download`,
         })
         .on('data', data => {
           downloadedBytes += data.length;
@@ -351,17 +351,17 @@ export class UpdateService {
       const game = this.status.get(record.gameId).game;
       const status = this.getStatus(game);
 
-      if (!status.release) {
+      if (!status.build) {
         status.state = -1;
         this.checkForUpdates(game);
       }
     });
 
-    this.releaseService.onUpdate.subscribe(record => {
+    this.buildService.onUpdate.subscribe(record => {
       const game = this.status.get(record.gameId).game;
       const status = this.getStatus(game);
 
-      if (!status.release || record._id !== status.release._id) {
+      if (!status.build || record._id !== status.build._id) {
         status.state = -1;
         this.checkForUpdates(game);
       }

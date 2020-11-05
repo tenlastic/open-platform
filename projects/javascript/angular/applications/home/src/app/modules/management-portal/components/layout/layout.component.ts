@@ -16,10 +16,10 @@ import {
 export class LayoutComponent {
   public get hasInfrastructureButtons() {
     return (
+      this.hasPermission('builds') ||
       this.hasPermission('collections') ||
       this.hasPermission('game-servers') ||
-      this.hasPermission('queues') ||
-      this.hasPermission('releases')
+      this.hasPermission('queues')
     );
   }
   public get hasLauncherButtons() {

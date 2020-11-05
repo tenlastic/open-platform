@@ -18,7 +18,7 @@ export interface Environment {
   passwordResetApiBaseUrl: string;
   queueApiBaseUrl: string;
   refreshTokenApiBaseUrl: string;
-  releaseApiBaseUrl: string;
+  buildApiBaseUrl: string;
   userApiBaseUrl: string;
   webSocketApiBaseUrl: string;
 }
@@ -45,7 +45,7 @@ export class EnvironmentService implements Environment {
   public queueApiBaseUrl: string;
   public queueMemberApiBaseUrl: string;
   public refreshTokenApiBaseUrl: string;
-  public releaseApiBaseUrl: string;
+  public buildApiBaseUrl: string;
   public userApiBaseUrl: string;
   public webSocketApiBaseUrl: string;
 

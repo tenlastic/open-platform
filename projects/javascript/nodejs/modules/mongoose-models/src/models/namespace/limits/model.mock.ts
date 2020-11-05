@@ -2,7 +2,7 @@ import { NamespaceCollectionLimitsMock } from './collection';
 import { NamespaceGameLimitsMock } from './game';
 import { NamespaceGameServerLimitsMock } from './game-server';
 import { NamespaceLimits, NamespaceLimitsSchema } from './model';
-import { NamespaceReleaseLimitsMock } from './release';
+import { NamespaceBuildLimitsMock } from './build';
 
 export class NamespaceLimitsMock {
   /**
@@ -11,10 +11,10 @@ export class NamespaceLimitsMock {
    */
   public static create(params: Partial<NamespaceLimitsSchema> = {}) {
     const defaults = {
+      builds: NamespaceBuildLimitsMock.create(),
       collections: NamespaceCollectionLimitsMock.create(),
       gameServers: NamespaceGameServerLimitsMock.create(),
       games: NamespaceGameLimitsMock.create(),
-      releases: NamespaceReleaseLimitsMock.create(),
     };
 
     return new NamespaceLimits({ ...defaults, ...params });

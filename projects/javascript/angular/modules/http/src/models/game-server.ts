@@ -9,6 +9,7 @@ export enum GameServerStatus {
 
 export class GameServer extends Model {
   public allowedUserIds: string[];
+  public buildId: string;
   public currentUserIds: string[];
   public description: string;
   public isPersistent: boolean;
@@ -19,7 +20,6 @@ export class GameServer extends Model {
   public port: number;
   public queue: Queue;
   public queueId: string;
-  public releaseId: string;
   public status: GameServerStatus;
 
   constructor(params: Partial<GameServer> = {}) {

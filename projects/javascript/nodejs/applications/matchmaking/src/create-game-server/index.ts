@@ -16,6 +16,7 @@ export async function createGameServer(queue: QueueDocument, queueMembers: Queue
   try {
     const gameServer = await GameServer.create({
       allowedUserIds: userIds,
+      buildId: queue.gameServerTemplate.buildId,
       description: queue.description,
       isPersistent: false,
       isPreemptible: queue.gameServerTemplate.isPreemptible,
@@ -28,7 +29,6 @@ export async function createGameServer(queue: QueueDocument, queueMembers: Queue
       name: queue.name,
       namespaceId: queue.namespaceId,
       queueId: queue._id,
-      releaseId: queue.gameServerTemplate.releaseId,
     });
     console.log(`GameServer created successfully: ${gameServer._id}.`);
   } catch (e) {

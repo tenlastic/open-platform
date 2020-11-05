@@ -16,8 +16,8 @@ import {
   Queue,
   QueueMember,
   RefreshToken,
-  Release,
-  ReleaseTask,
+  Build,
+  BuildTask,
   User,
   WebSocket,
 } from './models';
@@ -41,8 +41,8 @@ export function deleteAll() {
     Queue.deleteMany({}),
     QueueMember.deleteMany({}),
     RefreshToken.deleteMany({}),
-    Release.deleteMany({}),
-    ReleaseTask.deleteMany({}),
+    Build.deleteMany({}),
+    BuildTask.deleteMany({}),
     User.deleteMany({}),
     WebSocket.deleteMany({}),
   ]);

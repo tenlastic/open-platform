@@ -1,4 +1,6 @@
 export * from './article';
+export * from './build';
+export * from './build-task';
 export * from './collection';
 export * from './file';
 export * from './friend';
@@ -16,7 +18,5 @@ export * from './queue';
 export * from './queue-member';
 export * from './record';
 export * from './refresh-token';
-export * from './release';
-export * from './release-task';
 export * from './user';
 export * from './web-socket';
