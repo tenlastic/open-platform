@@ -199,9 +199,8 @@ export class UpdateService {
       return;
     }
 
-    const target = `${this.installPath}/${game.namespaceId}/${
-      status.build.entrypoints[this.platform]
-    }.exe`;
+    const entrypoint = status.build.entrypoints[this.platform];
+    const target = `${this.installPath}/${game.namespaceId}/${entrypoint}`;
 
     const env = {
       ...process.env,
