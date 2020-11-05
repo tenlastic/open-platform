@@ -166,7 +166,7 @@ export class UpdateService {
       updatedFiles = remoteFiles.filter((rf, i) => {
         status.progress = { current: i, total: remoteFiles.length };
 
-        const localFile = localFilePaths[`${this.installPath}/${game._id}/${rf.path}`];
+        const localFile = localFilePaths[`${this.installPath}/${game.namespaceId}/${rf.path}`];
         return !localFile || localFile.md5 !== rf.md5;
       });
     }
@@ -185,12 +185,12 @@ export class UpdateService {
   }
 
   public getStatus(game: Game) {
-    if (!this.status.has(game._id)) {
-      this.status.set(game._id, { game });
+    if (!this.status.has(game.namespaceId)) {
+      this.status.set(game.namespaceId, { game });
       this.checkForUpdates(game);
     }
 
-    return this.status.get(game._id);
+    return this.status.get(game.namespaceId);
   }
 
   public play(game: Game, options: UpdateServicePlayOptions = {}) {
@@ -199,7 +199,9 @@ export class UpdateService {
       return;
     }
 
-    const target = `${this.installPath}/${game._id}/${status.build.entrypoint}.exe`;
+    const target = `${this.installPath}/${game.namespaceId}/${
+      status.build.entrypoints[this.platform]
+    }.exe`;
 
     const env = {
       ...process.env,
@@ -256,12 +258,12 @@ export class UpdateService {
     const { fs } = this.electronService;
 
     for (const localFile of localFiles) {
-      const localPath = localFile.path.replace(`${this.installPath}/${game._id}/`, '');
+      const localPath = localFile.path.replace(`${this.installPath}/${game.namespaceId}/`, '');
       const remotePaths = remoteFiles.map(rf => rf.path);
 
       if (!remotePaths.includes(localPath)) {
         await new Promise(resolve =>
-          fs.unlink(`${this.installPath}/${game._id}/${localPath}`, err => resolve()),
+          fs.unlink(`${this.installPath}/${game.namespaceId}/${localPath}`, err => resolve()),
         );
       }
     }
@@ -304,7 +306,7 @@ export class UpdateService {
             return;
           }
 
-          const target = `${this.installPath}/${game._id}/${entry.path}`;
+          const target = `${this.installPath}/${game.namespaceId}/${entry.path}`;
           const targetDirectory = target.substr(0, target.lastIndexOf('/'));
           if (!fs.existsSync(targetDirectory)) {
             fs.mkdirSync(targetDirectory, { recursive: true } as any);
@@ -320,7 +322,7 @@ export class UpdateService {
     const { crypto, fs, glob } = this.electronService;
     const status = this.getStatus(game);
 
-    const files = glob.sync(`${this.installPath}/${game._id}/**/*`, { nodir: true });
+    const files = glob.sync(`${this.installPath}/${game.namespaceId}/**/*`, { nodir: true });
 
     const localFiles: { md5: string; path: string }[] = [];
     for (let i = 0; i < files.length; i++) {
@@ -348,7 +350,7 @@ export class UpdateService {
 
   private subscribeToServices() {
     this.gameInvitationService.onCreate.subscribe(record => {
-      const game = this.status.get(record.gameId).game;
+      const game = this.status.get(record.namespaceId).game;
       const status = this.getStatus(game);
 
       if (!status.build) {
@@ -358,7 +360,7 @@ export class UpdateService {
     });
 
     this.buildService.onUpdate.subscribe(record => {
-      const game = this.status.get(record.gameId).game;
+      const game = this.status.get(record.namespaceId).game;
       const status = this.getStatus(game);
 
       if (!status.build || record._id !== status.build._id) {

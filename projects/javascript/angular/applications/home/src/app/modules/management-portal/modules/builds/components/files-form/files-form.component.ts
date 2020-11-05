@@ -11,6 +11,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { FormControl, Validators } from '@angular/forms';
 import {
   Build,
   BuildService,
@@ -42,8 +43,8 @@ export interface UpdatedFile {
   styleUrls: ['files-form.component.scss'],
 })
 export class FilesFormComponent implements OnDestroy, OnInit {
-  @Input() public platform: string;
   @Input() public build = new Build();
+  @Input() public platform: string;
   @Output() public OnSubmit = new EventEmitter<FileFormComponentData>();
   @ViewChild('selectFilesInput', { static: true }) public selectFilesInput: ElementRef;
 
@@ -63,14 +64,15 @@ export class FilesFormComponent implements OnDestroy, OnInit {
   public get modifiedFiles() {
     return this.stagedFiles.filter(f => f.status === 'modified');
   }
-  public tasks: BuildTask[] = [];
-  public previousFiles: any[] = [];
   public previousBuild: Build;
+  public previousFiles: any[] = [];
   public get removedFiles() {
     return this.stagedFiles.filter(f => f.status === 'removed');
   }
+  public stagedEntrypoint: FormControl;
   public stagedFiles: UpdatedFile[] = [];
   public status: string;
+  public tasks: BuildTask[] = [];
   public get unmodifiedFiles() {
     return this.stagedFiles.filter(f => f.status === 'unmodified');
   }
@@ -83,12 +85,12 @@ export class FilesFormComponent implements OnDestroy, OnInit {
   private isDestroyed = false;
 
   constructor(
+    private buildService: BuildService,
+    private buildTaskService: BuildTaskService,
     private changeDetectorRef: ChangeDetectorRef,
     private fileReaderService: FileReaderService,
     private fileService: FileService,
     public identityService: IdentityService,
-    private buildTaskService: BuildTaskService,
-    private buildService: BuildService,
   ) {}
 
   public async ngOnInit() {
@@ -110,6 +112,7 @@ export class FilesFormComponent implements OnDestroy, OnInit {
   }
 
   public cancel() {
+    this.stagedEntrypoint = null;
     this.selectFilesInput.nativeElement.value = [];
     this.stagedFiles = [];
   }
@@ -134,6 +137,10 @@ export class FilesFormComponent implements OnDestroy, OnInit {
       return;
     }
 
+    this.stagedEntrypoint = new FormControl(
+      this.previousBuild.entrypoints[this.platform] || '',
+      Validators.required,
+    );
     this.status = 'Calculating file changes...';
 
     this.stagedFiles = [];
@@ -173,6 +180,15 @@ export class FilesFormComponent implements OnDestroy, OnInit {
   }
 
   public async upload() {
+    if (this.stagedEntrypoint.invalid) {
+      this.stagedEntrypoint.markAsTouched();
+      return;
+    }
+
+    this.status = 'Saving entrypoint...';
+    this.build.entrypoints[this.platform] = this.stagedEntrypoint.value;
+    this.build = await this.buildService.update(this.build);
+
     this.status = 'Zipping files...';
 
     const zip = new JSZip();
@@ -229,7 +245,7 @@ export class FilesFormComponent implements OnDestroy, OnInit {
     this.status = null;
     this.uploadStatus = null;
 
-    this.setPreviousBuild(this.builds.find(r => r._id === this.build._id));
+    this.setPreviousBuild(this.build);
   }
 
   private getEventMessage(event: HttpEvent<any>, blob: Blob) {

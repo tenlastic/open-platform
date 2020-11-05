@@ -17,6 +17,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
+import { BuildEntrypointsDocument } from './entrypoints';
 
 export const BuildEvent = new EventEmitter<IDatabasePayload<BuildDocument>>();
 BuildEvent.on(payload => {
@@ -50,8 +51,8 @@ export class BuildSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ required: true })
-  public entrypoint: string;
+  @prop({ default: {} })
+  public entrypoints: BuildEntrypointsDocument;
 
   @prop({ ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;

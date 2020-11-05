@@ -15,17 +15,6 @@
       </mat-form-field>
     </div>
 
-    <div class="row">
-      <mat-form-field floatLabel="always"
-                      width="300">
-        <mat-label>Entrypoint</mat-label>
-        <input matInput
-               required
-               formControlName="entrypoint" />
-        <mat-error>Enter a valid entrypoint.</mat-error>
-      </mat-form-field>
-    </div>
-
     <div *ngIf="error"
          class="form-error">
       {{ error }}
@@ -40,8 +29,8 @@
       <app-toggle-section *ngFor="let platform of platforms"
                           [isVisible]="false"
                           [title]="platform.label">
-        <app-files-form [platform]="platform.value"
-                        [build]="data"></app-files-form>
+        <app-files-form [build]="data"
+                        [platform]="platform.value"></app-files-form>
       </app-toggle-section>
     </ng-container>
   </form>

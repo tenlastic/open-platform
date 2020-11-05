@@ -6,27 +6,54 @@
        (change)="onFilesChanged($event)" />
 
 <div class="row">
-  <mat-form-field class="inline-block"
-                  floatLabel="always">
-    <mat-label>Previous Build</mat-label>
-    <mat-select *ngIf="builds.length"
-                [(ngModel)]="previousBuild"
-                (selectionChange)="setPreviousBuild($event.value)">
-      <mat-option *ngFor="let build of builds"
-                  [value]="build">
-        {{ build.version }}
-      </mat-option>
-    </mat-select>
-    <input *ngIf="!builds.length"
-           disabled
-           matInput
-           value="No Previous Builds" />
-  </mat-form-field>
+  <div class="col-sm-3">
+    <mat-form-field floatLabel="always">
+      <mat-label>Previous Build</mat-label>
+      <mat-select *ngIf="builds.length"
+                  [(ngModel)]="previousBuild"
+                  (selectionChange)="setPreviousBuild($event.value)">
+        <mat-option *ngFor="let build of builds"
+                    [value]="build">
+          {{ build.version }}
+        </mat-option>
+      </mat-select>
+      <input *ngIf="!builds.length"
+             disabled
+             matInput
+             value="No Previous Builds" />
+    </mat-form-field>
+  </div>
+
+  <div class="col-sm-3 justify-right">
+    <mat-form-field *ngIf="previousFiles.length || stagedEntrypoint"
+                    floatLabel="always">
+      <mat-label>Entrypoint</mat-label>
+      <input *ngIf="previousFiles.length"
+             matInput
+             disabled
+             [value]="previousBuild.entrypoints[platform] || ''" />
+      <input *ngIf="!previousFiles.length"
+             matInput
+             [formControl]="stagedEntrypoint" />
+      <mat-error>Enter a valid entrypoint.</mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="col-sm-3 justify-right offset-sm-3">
+    <mat-form-field *ngIf="previousFiles.length && stagedEntrypoint"
+                    floatLabel="always">
+      <mat-label>Entrypoint</mat-label>
+      <input matInput
+             required
+             [formControl]="stagedEntrypoint" />
+      <mat-error>Enter a valid entrypoint.</mat-error>
+    </mat-form-field>
+  </div>
 </div>
 
 <div class="row">
   <div *ngIf="previousFiles.length"
-       class="col-sm-6">
+       class="col-sm-6 list">
     <mat-label>
       <span>Previous Files</span>
     </mat-label>
@@ -50,14 +77,16 @@
   </div>
 
   <div *ngIf="stagedFiles.length"
-       class="col-sm-6">
+       class="col-sm-6 list">
     <mat-label>
       <span>Staged Files</span>
     </mat-label>
 
     <mat-list>
       <mat-list-item *ngFor="let stagedFile of stagedFiles"
-                     [attr.status]="stagedFile.status">
+                     class="pointer"
+                     [attr.status]="stagedFile.status"
+                     (click)="stagedEntrypoint.setValue(stagedFile.path)">
         <span>{{ stagedFile.path }}</span>
         <span *ngIf="
             stagedFile.uncompressedBytes !== undefined && stagedFile.uncompressedBytes !== null
@@ -84,7 +113,7 @@
 <div *ngIf="finishedTasks.length || unfinishedTasks.length"
      class="row">
   <div *ngIf="unfinishedTasks.length"
-       class="col-sm-6">
+       class="col-sm-6 list">
     <mat-label>
       <span>Unfinished Tasks</span>
     </mat-label>
@@ -105,7 +134,7 @@
   </div>
 
   <div *ngIf="finishedTasks.length"
-       class="col-sm-6">
+       class="col-sm-6 list">
     <mat-label>
       <span>Finished Tasks</span>
     </mat-label>

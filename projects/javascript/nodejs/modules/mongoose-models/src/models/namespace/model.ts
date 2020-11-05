@@ -51,8 +51,8 @@ export enum NamespaceRole {
 @index({ name: 1 }, { unique: true })
 @index({ 'keys.roles': 1 })
 @index({ 'keys.value': 1 })
-@index({ 'users.roles': 1 })
 @index({ 'users._id': 1 })
+@index({ 'users.roles': 1 })
 @modelOptions({
   schemaOptions: {
     autoIndex: true,

@@ -12,7 +12,6 @@ export class BuildMock {
     const chance = new Chance();
 
     const defaults = {
-      entrypoint: './',
       namespaceId: mongoose.Types.ObjectId(),
       version: chance.hash(),
     };

@@ -44,7 +44,6 @@ export class BuildsFormPageComponent implements OnInit {
 
   public async save() {
     if (this.form.invalid) {
-      this.form.get('entrypoint').markAsTouched();
       this.form.get('namespaceId').markAsTouched();
       this.form.get('version').markAsTouched();
 
@@ -52,7 +51,6 @@ export class BuildsFormPageComponent implements OnInit {
     }
 
     const values: Partial<Build> = {
-      entrypoint: this.form.get('entrypoint').value,
       namespaceId: this.form.get('namespaceId').value,
       version: this.form.get('version').value,
     };
@@ -78,7 +76,6 @@ export class BuildsFormPageComponent implements OnInit {
     this.data = this.data || new Build();
 
     this.form = this.formBuilder.group({
-      entrypoint: [this.data.entrypoint, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
       version: [this.data.version, Validators.required],
     });

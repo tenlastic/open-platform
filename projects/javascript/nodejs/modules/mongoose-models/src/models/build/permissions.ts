@@ -5,8 +5,8 @@ import { Build, BuildDocument } from './model';
 export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
   create: {
     roles: {
-      'namespace-administrator': ['entrypoint', 'namespaceId', 'publishedAt', 'version'],
-      'system-administrator': ['entrypoint', 'namespaceId', 'publishedAt', 'version'],
+      'namespace-administrator': ['entrypoints.*', 'namespaceId', 'publishedAt', 'version'],
+      'system-administrator': ['entrypoints.*', 'namespaceId', 'publishedAt', 'version'],
     },
   },
   delete: {
@@ -58,7 +58,15 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {
-    base: ['_id', 'createdAt', 'entrypoint', 'namespaceId', 'publishedAt', 'version', 'updatedAt'],
+    base: [
+      '_id',
+      'createdAt',
+      'entrypoints.*',
+      'namespaceId',
+      'publishedAt',
+      'version',
+      'updatedAt',
+    ],
   },
   roles: [
     {
@@ -93,8 +101,8 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
   ],
   update: {
     roles: {
-      'namespace-administrator': ['entrypoint', 'namespaceId', 'publishedAt', 'version'],
-      'system-administrator': ['entrypoint', 'namespaceId', 'publishedAt', 'version'],
+      'namespace-administrator': ['entrypoints.*', 'namespaceId', 'publishedAt', 'version'],
+      'system-administrator': ['entrypoints.*', 'namespaceId', 'publishedAt', 'version'],
     },
   },
 });
