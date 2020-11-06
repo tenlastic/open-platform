@@ -20,7 +20,7 @@ components:
           type: string
         platform:
           type: string
-          enum: linux64, mac64, server64, windows64
+          enum: [linux64, mac64, server64, windows64]
         uncompressedBytes:
           type: integer
         updatedAt:

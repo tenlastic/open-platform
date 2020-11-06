@@ -11,7 +11,6 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
   delete: {
     base: false,
     roles: {
-      'namespace-administrator': true,
       'system-administrator': true,
     },
   },
@@ -51,7 +50,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     {
       name: 'system-administrator',
       query: {
-        'user.roles': { $eq: 'Administrator' },
+        'user.roles': { $eq: 'namespaces' },
       },
     },
     {

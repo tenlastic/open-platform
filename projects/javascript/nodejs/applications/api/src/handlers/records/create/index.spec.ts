@@ -51,7 +51,7 @@ describe('handlers/records/create', function() {
         update: {},
       },
     });
-    user = { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] };
+    user = { _id: mongoose.Types.ObjectId() };
   });
 
   context('when too many records exist', function() {

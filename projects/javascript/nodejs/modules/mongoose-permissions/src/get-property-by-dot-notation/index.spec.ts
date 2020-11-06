@@ -42,8 +42,8 @@ describe('get-property-by-dot-notation', function() {
     it('returns the value matching the given path', function() {
       const json = {
         users: [
-          { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] },
-          { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] },
+          { _id: mongoose.Types.ObjectId(), roles: ['users'] },
+          { _id: mongoose.Types.ObjectId(), roles: ['users'] },
         ],
       };
       const path = 'users._id';

@@ -52,6 +52,9 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
         },
       },
     },
+    roles: {
+      'system-administrator': {},
+    },
   },
   populate: [
     {
@@ -68,7 +71,7 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
     {
       name: 'system-administrator',
       query: {
-        'user.roles': { $eq: 'Administrator' },
+        'user.roles': { $eq: 'game-servers' },
       },
     },
     {

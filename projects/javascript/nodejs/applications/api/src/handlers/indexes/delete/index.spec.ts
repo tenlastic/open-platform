@@ -22,7 +22,7 @@ describe('handlers/indexes/delete', function() {
 
   beforeEach(async function() {
     sandbox = sinon.createSandbox();
-    user = { _id: new mongoose.Types.ObjectId(), roles: ['Administrator'] };
+    user = { _id: new mongoose.Types.ObjectId() };
   });
 
   afterEach(async function() {

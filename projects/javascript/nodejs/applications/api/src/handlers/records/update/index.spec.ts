@@ -47,7 +47,7 @@ describe('handlers/records/update', function() {
         },
       },
     });
-    user = { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] };
+    user = { _id: mongoose.Types.ObjectId() };
 
     const Model = RecordSchema.getModelForClass(collection);
     record = await Model.create({

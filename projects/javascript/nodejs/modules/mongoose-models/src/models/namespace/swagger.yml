@@ -18,7 +18,17 @@ components:
                 type: string
               roles:
                 type: array
-                items: string
+                items:
+                  type: string
+                  enum:
+                    - articles
+                    - builds
+                    - collections
+                    - game-servers
+                    - game-invitations
+                    - games
+                    - namespaces
+                    - queues
               value:
                 type: string
             required:
@@ -91,7 +101,17 @@ components:
             properties:
               roles:
                 type: array
-                items: string
+                items:
+                  type: string
+                  enum:
+                    - articles
+                    - builds
+                    - collections
+                    - game-servers
+                    - game-invitations
+                    - games
+                    - namespaces
+                    - queues
               userId:
                 type: string
                 format: ^[a-f0-9]{24}$

@@ -7,12 +7,14 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     roles: {
       'namespace-administrator': ['queueId', 'userId'],
       owner: ['queueId', 'userId'],
+      'system-administrator': ['queueId', 'userId'],
     },
   },
   delete: {
     roles: {
       'namespace-administrator': true,
       owner: true,
+      'system-administrator': true,
     },
   },
   find: {
@@ -87,6 +89,9 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
         },
       ],
     },
+    roles: {
+      'system-administrator': {},
+    },
   },
   populate: [
     {
@@ -101,6 +106,12 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     base: ['_id', 'createdAt', 'queueId', 'updatedAt', 'userId'],
   },
   roles: [
+    {
+      name: 'system-administrator',
+      query: {
+        'user.roles': { $eq: 'queues' },
+      },
+    },
     {
       name: 'namespace-administrator',
       query: {

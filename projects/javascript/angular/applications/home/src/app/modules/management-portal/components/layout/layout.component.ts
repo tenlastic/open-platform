@@ -41,7 +41,7 @@ export class LayoutComponent {
   ) {}
 
   public hasPermission(role: string) {
-    if (this.identityService.user.roles.includes('Administrator')) {
+    if (this.identityService.user.roles.includes(role)) {
       return true;
     }
 

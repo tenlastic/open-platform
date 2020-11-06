@@ -6,11 +6,13 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
   create: {
     roles: {
       'namespace-administrator': ['jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
+      'system-administrator': ['jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
     },
   },
   delete: {
     roles: {
       'namespace-administrator': true,
+      'system-administrator': true,
     },
   },
   find: {
@@ -45,6 +47,9 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
         },
       },
     },
+    roles: {
+      'system-administrator': {},
+    },
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {
@@ -60,6 +65,12 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
     ],
   },
   roles: [
+    {
+      name: 'system-administrator',
+      query: {
+        'user.roles': { $eq: 'collections' },
+      },
+    },
     {
       name: 'namespace-administrator',
       query: {
@@ -93,6 +104,7 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
         'namespaceId',
         'permissions.*',
       ],
+      'system-administrator': ['indexes', 'jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
     },
   },
 });

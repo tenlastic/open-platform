@@ -8,12 +8,14 @@ export const GameInvitationPermissions = new MongoosePermissions<GameInvitationD
     create: {
       roles: {
         'namespace-administrator': ['namespaceId', 'userId'],
+        'system-administrator': ['namespaceId', 'userId'],
       },
     },
     delete: {
       roles: {
         'namespace-administrator': true,
         recipient: true,
+        'system-administrator': true,
       },
     },
     find: {
@@ -55,12 +57,21 @@ export const GameInvitationPermissions = new MongoosePermissions<GameInvitationD
           },
         ],
       },
+      roles: {
+        'system-administrator': {},
+      },
     },
     populate: [{ path: 'namespaceDocument' }],
     read: {
       base: ['_id', 'createdAt', 'namespaceId', 'userId', 'updatedAt'],
     },
     roles: [
+      {
+        name: 'system-administrator',
+        query: {
+          'user.roles': { $eq: 'game-invitations' },
+        },
+      },
       {
         name: 'namespace-administrator',
         query: {

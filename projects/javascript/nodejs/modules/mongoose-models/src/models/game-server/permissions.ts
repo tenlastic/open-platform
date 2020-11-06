@@ -111,7 +111,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   roles: [
     {
       name: 'system-administrator',
-      query: { 'user.roles': { $eq: 'Administrator' } },
+      query: { 'user.roles': { $eq: 'game-servers' } },
     },
     {
       name: 'namespace-administrator',

@@ -83,7 +83,7 @@ export const BuildTaskPermissions = new MongoosePermissions<BuildTaskDocument>(B
     {
       name: 'system-administrator',
       query: {
-        'user.roles': { $eq: 'Administrator' },
+        'user.roles': { $eq: 'builds' },
       },
     },
     {

@@ -65,13 +65,15 @@ components:
       properties:
         base:
           type: array
-          items: string
+          items:
+            type: string
         roles:
           type: object
           properties:
             default:
               type: array
-              items: string
+              items:
+                type: string
     PopulateOptions:
       type: object
       properties:

@@ -191,14 +191,14 @@ export class NamespacesFormPageComponent implements OnInit {
         builds: this.formBuilder.group({
           count: [
             {
-              disabled: !this.identityService.user.roles.includes('Administrator'),
+              disabled: !this.identityService.user.roles.includes('namespaces'),
               value: this.data.limits ? this.data.limits.builds.count : 0,
             },
             Validators.required,
           ],
           size: [
             {
-              disabled: !this.identityService.user.roles.includes('Administrator'),
+              disabled: !this.identityService.user.roles.includes('namespaces'),
               value: this.data.limits ? this.data.limits.builds.size : 0,
             },
             Validators.required,
@@ -207,14 +207,14 @@ export class NamespacesFormPageComponent implements OnInit {
         collections: this.formBuilder.group({
           count: [
             {
-              disabled: !this.identityService.user.roles.includes('Administrator'),
+              disabled: !this.identityService.user.roles.includes('namespaces'),
               value: this.data.limits ? this.data.limits.collections.count : 0,
             },
             Validators.required,
           ],
           size: [
             {
-              disabled: !this.identityService.user.roles.includes('Administrator'),
+              disabled: !this.identityService.user.roles.includes('namespaces'),
               value: this.data.limits ? this.data.limits.collections.size : 0,
             },
             Validators.required,
@@ -223,21 +223,21 @@ export class NamespacesFormPageComponent implements OnInit {
         gameServers: this.formBuilder.group({
           count: [
             {
-              disabled: !this.identityService.user.roles.includes('Administrator'),
+              disabled: !this.identityService.user.roles.includes('namespaces'),
               value: this.data.limits ? this.data.limits.gameServers.count : 0,
             },
             Validators.required,
           ],
           cpu: [
             {
-              disabled: !this.identityService.user.roles.includes('Administrator'),
+              disabled: !this.identityService.user.roles.includes('namespaces'),
               value: this.data.limits ? this.data.limits.gameServers.cpu : 0,
             },
             Validators.required,
           ],
           memory: [
             {
-              disabled: !this.identityService.user.roles.includes('Administrator'),
+              disabled: !this.identityService.user.roles.includes('namespaces'),
               value: this.data.limits ? this.data.limits.gameServers.memory : 0,
             },
             Validators.required,
@@ -246,21 +246,21 @@ export class NamespacesFormPageComponent implements OnInit {
         games: this.formBuilder.group({
           images: [
             {
-              disabled: !this.identityService.user.roles.includes('Administrator'),
+              disabled: !this.identityService.user.roles.includes('namespaces'),
               value: this.data.limits ? this.data.limits.games.images : 0,
             },
             Validators.required,
           ],
           size: [
             {
-              disabled: !this.identityService.user.roles.includes('Administrator'),
+              disabled: !this.identityService.user.roles.includes('namespaces'),
               value: this.data.limits ? this.data.limits.games.size : 0,
             },
             Validators.required,
           ],
           videos: [
             {
-              disabled: !this.identityService.user.roles.includes('Administrator'),
+              disabled: !this.identityService.user.roles.includes('namespaces'),
               value: this.data.limits ? this.data.limits.games.videos : 0,
             },
             Validators.required,

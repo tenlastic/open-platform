@@ -34,6 +34,18 @@ UserEvent.on(payload => {
   kafka.publish(payload);
 });
 
+export enum UserRole {
+  Articles = 'articles',
+  Builds = 'builds',
+  Collections = 'collections',
+  GameServers = 'game-servers',
+  GameInvitations = 'game-invitations',
+  Games = 'games',
+  Namespaces = 'namespaces',
+  Queues = 'queues',
+  Users = 'users',
+}
+
 @index(
   { email: 1 },
   {
@@ -95,7 +107,7 @@ export class UserSchema {
   @prop({ required: true })
   public password: string;
 
-  @arrayProp({ default: [], enum: ['Administrator'], items: String })
+  @arrayProp({ default: [], enum: UserRole, items: String })
   public roles: string[];
 
   public updatedAt: Date;

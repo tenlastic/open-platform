@@ -72,7 +72,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
     {
       name: 'system-administrator',
       query: {
-        'user.roles': { $eq: 'Administrator' },
+        'user.roles': { $eq: 'builds' },
       },
     },
     {

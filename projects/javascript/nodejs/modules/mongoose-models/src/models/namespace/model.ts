@@ -39,13 +39,13 @@ export class NamespaceLimitError extends Error {
 
 export enum NamespaceRole {
   Articles = 'articles',
+  Builds = 'builds',
   Collections = 'collections',
   GameServers = 'game-servers',
   GameInvitations = 'game-invitations',
   Games = 'games',
   Namespaces = 'namespaces',
   Queues = 'queues',
-  Builds = 'builds',
 }
 
 @index({ name: 1 }, { unique: true })

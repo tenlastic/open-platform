@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { User, UserService } from '@tenlastic/ng-http';
+import { IUser, User, UserService } from '@tenlastic/ng-http';
 
 import { IdentityService } from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
@@ -16,6 +16,7 @@ export class UsersFormPageComponent implements OnInit {
   public error: string;
   public form: FormGroup;
   public loadingMessage: string;
+  public roles: any[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -29,6 +30,11 @@ export class UsersFormPageComponent implements OnInit {
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
       this.loadingMessage = 'Loading User...';
+
+      this.roles = Object.keys(IUser.Role).map(key => ({
+        label: key.replace(/([A-Z])/g, ' $1').trim(),
+        value: IUser.Role[key],
+      }));
 
       try {
         const _id = params.get('_id');

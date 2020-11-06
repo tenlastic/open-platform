@@ -200,7 +200,7 @@ export class GameServerSchema implements IOriginalDocument {
   }
 
   private async createDeploymentOrPod() {
-    const administrator = { roles: ['Administrator'] };
+    const administrator = { roles: ['game-servers'] };
     const accessToken = jwt.sign(
       { type: 'access', user: administrator },
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),

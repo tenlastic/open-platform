@@ -6,11 +6,13 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
   create: {
     roles: {
       'namespace-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
+      'system-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
     },
   },
   delete: {
     roles: {
       'namespace-administrator': true,
+      'system-administrator': true,
     },
   },
   find: {
@@ -50,6 +52,9 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
         },
       ],
     },
+    roles: {
+      'system-administrator': {},
+    },
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {
@@ -66,6 +71,12 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
     ],
   },
   roles: [
+    {
+      name: 'system-administrator',
+      query: {
+        'user.roles': { $eq: 'articles' },
+      },
+    },
     {
       name: 'namespace-administrator',
       query: {
@@ -93,6 +104,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
   update: {
     roles: {
       'namespace-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
+      'system-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
     },
   },
 });

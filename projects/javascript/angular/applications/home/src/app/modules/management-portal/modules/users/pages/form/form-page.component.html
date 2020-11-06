@@ -5,23 +5,28 @@
 
   <app-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</app-loading-message>
 
-  <form *ngIf="form" [formGroup]="form" autocomplete="off">
+  <form *ngIf="form"
+        [formGroup]="form"
+        autocomplete="off">
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Email Address</mat-label>
-        <input matInput type="email" formControlName="email" />
+        <input matInput
+               type="email"
+               formControlName="email" />
         <mat-error>Enter a valid email address.</mat-error>
       </mat-form-field>
     </div>
 
     <div class="row">
-      <mat-form-field
-        *ngIf="identityService.user.roles.includes('Administrator')"
-        floatLabel="always"
-      >
+      <mat-form-field *ngIf="identityService.user.roles.includes('users')"
+                      floatLabel="always">
         <mat-label>Roles</mat-label>
-        <mat-select placeholder="None" formControlName="roles" multiple>
-          <mat-option value="Administrator">Administrator</mat-option>
+        <mat-select placeholder="None"
+                    formControlName="roles"
+                    multiple>
+          <mat-option *ngFor="let role of roles"
+                      [value]="role.value">{{ role.label }}</mat-option>
         </mat-select>
       </mat-form-field>
     </div>
@@ -29,15 +34,18 @@
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Username</mat-label>
-        <input matInput formControlName="username" />
+        <input matInput
+               formControlName="username" />
         <mat-error>Enter a valid username.</mat-error>
       </mat-form-field>
     </div>
 
-    <div *ngIf="error" class="form-error">
+    <div *ngIf="error"
+         class="form-error">
       {{ error }}
     </div>
 
-    <app-button color="primary" (OnClick)="save()">Save</app-button>
+    <app-button color="primary"
+                (OnClick)="save()">Save</app-button>
   </form>
 </div>

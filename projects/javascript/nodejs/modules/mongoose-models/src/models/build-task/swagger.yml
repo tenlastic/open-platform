@@ -14,7 +14,7 @@ components:
           format: date-time
         platform:
           type: string
-          enum: linux64, mac64, server64, windows64
+          enum: [linux64, mac64, server64, windows64]
         updatedAt:
           type: string
           format: date-time

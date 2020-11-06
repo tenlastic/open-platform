@@ -119,7 +119,7 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
     {
       name: 'system-administrator',
       query: {
-        'user.roles': { $eq: 'Administrator' },
+        'user.roles': { $eq: 'builds' },
       },
     },
     {

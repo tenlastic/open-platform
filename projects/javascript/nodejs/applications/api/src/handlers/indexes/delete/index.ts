@@ -39,4 +39,5 @@ export async function handler(ctx: Context) {
   await DeleteCollectionIndex.publish(index as IndexDocument);
 
   ctx.response.status = 200;
+  ctx.response.body = {};
 }

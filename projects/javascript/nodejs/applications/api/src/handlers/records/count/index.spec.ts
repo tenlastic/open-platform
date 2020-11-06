@@ -29,7 +29,7 @@ describe('handlers/records/count', function() {
         update: {},
       },
     });
-    user = { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['collections'] };
   });
 
   it('returns the number of matching records', async function() {
