@@ -9,7 +9,8 @@ if [ -f ./settings.sh ]; then
   source ./settings.sh
 fi
 
-# Run migrations if script is present.
-# npm run --if-present migrations up
-
-ts-node-dev --interval 1000 --poll ./src/index.ts
+if [[ $* =~ "--watch" ]]; then
+  ts-node-dev --interval 1000 --poll ./src/index.ts
+else
+  ts-node ./src/index.ts
+fi

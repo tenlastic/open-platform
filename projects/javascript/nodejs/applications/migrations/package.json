@@ -3,25 +3,17 @@
     "node": "^10"
   },
   "license": "Apache-2.0",
-  "name": "@tenlastic/wss",
   "private": true,
   "version": "0.0.131",
   "scripts": {
     "build": "../../scripts/build.sh",
-    "docker:build": "../../scripts/docker-build.sh wss",
-    "docker:push": "../../scripts/docker-push.sh wss",
     "lint": "../../scripts/lint.sh",
-    "start": "../../scripts/start.sh --watch",
-    "version": "../../scripts/version.sh wss"
+    "start": "../../scripts/start.sh"
   },
   "dependencies": {
     "@hasezoey/typegoose": "6.0.0-27",
     "@tenlastic/logging": "0.0.131",
-    "@tenlastic/mongoose-change-stream-kafka": "0.0.131",
     "@tenlastic/mongoose-models": "0.0.131",
-    "@tenlastic/mongoose-permissions": "0.0.131",
-    "@tenlastic/web-server": "0.0.131",
-    "koa-router": "7.4.0",
     "mongoose": "5.7.11",
     "source-map-support": "0.5.12"
   },

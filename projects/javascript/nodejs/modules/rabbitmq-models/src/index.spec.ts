@@ -38,6 +38,7 @@ before(async function() {
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: `rabbitmq-models-test`,
   });
+  await mongooseModels.syncIndexes();
 
   await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 });

@@ -12,6 +12,7 @@ before(async function() {
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: `api-test`,
   });
+  await mongooseModels.syncIndexes();
 });
 
 beforeEach(async function() {

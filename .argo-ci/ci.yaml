@@ -59,6 +59,10 @@ spec:
             template: continuous-integration-angular
             when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
 
+        - - name: migrations
+            template: migrations
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
+
         - - name: terraform
             template: terraform
             when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
@@ -199,6 +203,26 @@ spec:
       inputs:
         parameters:
           - name: revision
+      retryStrategy:
+        limit: 2
+        retryPolicy: OnError
+
+    - name: migrations
+      container:
+        image: node:10
+        command: [sh]
+        args: [./.argo-ci/migrations.sh]
+        envFrom:
+          - secretRef:
+              name: continuous-deployment-environment-variables
+        resources:
+          requests:
+            memory: 4096M
+            cpu: 500m
+        volumeMounts:
+          - name: workspace
+            mountPath: /usr/src/
+        workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError

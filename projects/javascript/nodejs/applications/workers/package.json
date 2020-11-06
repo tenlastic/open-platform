@@ -11,7 +11,7 @@
     "docker:build": "../../scripts/docker-build.sh workers",
     "docker:push": "../../scripts/docker-push.sh workers",
     "lint": "../../scripts/lint.sh",
-    "start": "../../scripts/start.sh",
+    "start": "../../scripts/start.sh --watch",
     "version": "../../scripts/version.sh workers"
   },
   "dependencies": {
