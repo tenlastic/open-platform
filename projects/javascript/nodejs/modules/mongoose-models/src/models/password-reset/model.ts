@@ -31,7 +31,6 @@ PasswordResetEvent.on(payload => {
 @index({ userId: 1 })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'passwordresets',
     minimize: false,
     timestamps: true,

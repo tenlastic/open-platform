@@ -49,7 +49,6 @@ export enum FilePlatform {
 @index({ path: 1, platform: 1, buildId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'files',
     minimize: false,
     timestamps: true,

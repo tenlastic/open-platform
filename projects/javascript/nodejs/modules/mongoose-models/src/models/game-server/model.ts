@@ -70,7 +70,6 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 )
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'gameservers',
     minimize: false,
     timestamps: true,

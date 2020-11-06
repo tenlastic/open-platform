@@ -68,7 +68,6 @@ export enum UserRole {
 @index({ roles: 1 })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collation: {
       locale: 'en_US',
       strength: 1,

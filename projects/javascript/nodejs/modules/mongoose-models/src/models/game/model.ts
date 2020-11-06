@@ -53,7 +53,6 @@ NamespaceEvent.on(async payload => {
 @index({ subtitle: 1, title: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'games',
     minimize: false,
     timestamps: true,

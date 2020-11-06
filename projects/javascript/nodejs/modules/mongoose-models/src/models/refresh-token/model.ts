@@ -17,7 +17,6 @@ import { UserDocument } from '../user';
 @index({ userId: 1 })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'refreshtokens',
     minimize: false,
     timestamps: true,

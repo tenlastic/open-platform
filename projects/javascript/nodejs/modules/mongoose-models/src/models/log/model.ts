@@ -39,7 +39,6 @@ GameServerEvent.on(async payload => {
 @index({ gameServerId: 1 })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'logs',
     minimize: false,
     timestamps: true,

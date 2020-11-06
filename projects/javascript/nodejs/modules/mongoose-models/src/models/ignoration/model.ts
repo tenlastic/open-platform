@@ -26,7 +26,6 @@ IgnorationEvent.on(payload => {
 @index({ fromUserId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'ignorations',
     minimize: false,
     timestamps: true,

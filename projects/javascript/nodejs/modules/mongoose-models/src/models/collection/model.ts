@@ -57,7 +57,6 @@ NamespaceEvent.on(async payload => {
 @index({ namespaceId: 1, name: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'collections',
     minimize: false,
     timestamps: true,

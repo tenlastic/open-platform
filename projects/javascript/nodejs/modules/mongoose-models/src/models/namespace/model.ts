@@ -55,7 +55,6 @@ export enum NamespaceRole {
 @index({ 'users.roles': 1 })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'namespaces',
     minimize: false,
     timestamps: true,

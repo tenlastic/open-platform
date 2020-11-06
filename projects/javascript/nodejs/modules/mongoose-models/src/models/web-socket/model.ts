@@ -42,7 +42,6 @@ setInterval(async () => {
 @index({ refreshTokenId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'websockets',
     minimize: false,
     timestamps: true,

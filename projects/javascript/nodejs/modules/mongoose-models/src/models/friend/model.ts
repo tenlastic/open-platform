@@ -26,7 +26,6 @@ FriendEvent.on(payload => {
 @index({ fromUserId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'friends',
     minimize: false,
     timestamps: true,

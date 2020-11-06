@@ -38,7 +38,6 @@ NamespaceEvent.on(async payload => {
 @index({ namespaceId: 1, userId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'gameinvitations',
     minimize: false,
     timestamps: true,

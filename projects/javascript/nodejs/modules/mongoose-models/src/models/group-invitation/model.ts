@@ -40,7 +40,6 @@ setInterval(async () => {
 @index({ groupId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'groupinvitations',
     minimize: false,
     timestamps: true,

@@ -44,7 +44,6 @@ WebSocketEvent.on(async payload => {
 @index({ refreshTokenId: 1 })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'queuemembers',
     minimize: false,
     timestamps: true,

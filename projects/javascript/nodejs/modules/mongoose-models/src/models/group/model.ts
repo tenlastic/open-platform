@@ -36,7 +36,6 @@ setInterval(async () => {
 @index({ userIds: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'groups',
     minimize: false,
     timestamps: true,

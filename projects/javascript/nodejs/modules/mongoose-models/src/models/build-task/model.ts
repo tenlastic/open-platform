@@ -40,7 +40,6 @@ export enum BuildTaskAction {
 @index({ startedAt: 1 })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'buildtasks',
     minimize: false,
     timestamps: true,

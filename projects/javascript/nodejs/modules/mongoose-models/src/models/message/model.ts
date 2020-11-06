@@ -31,7 +31,6 @@ MessageEvent.on(payload => {
 @index({ toUserId: 1 })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'messages',
     minimize: false,
     timestamps: true,

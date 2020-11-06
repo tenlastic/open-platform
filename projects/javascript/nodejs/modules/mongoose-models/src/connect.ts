@@ -9,6 +9,9 @@ export function connect(options: ConnectionOptions) {
   return mongoose.connect(
     options.connectionString,
     {
+      config: {
+        autoIndex: false,
+      },
       dbName: options.databaseName,
       useCreateIndex: true,
       useFindAndModify: false,

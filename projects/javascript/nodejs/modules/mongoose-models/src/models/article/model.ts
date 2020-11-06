@@ -37,7 +37,6 @@ NamespaceEvent.on(async payload => {
 @index({ publishedAt: 1 })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'articles',
     minimize: false,
     timestamps: true,
