@@ -2,17 +2,64 @@
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  name: clusterworkflowtemplates.argoproj.io
+spec:
+  group: argoproj.io
+  names:
+    kind: ClusterWorkflowTemplate
+    listKind: ClusterWorkflowTemplateList
+    plural: clusterworkflowtemplates
+    shortNames:
+      - clusterwftmpl
+      - cwft
+    singular: clusterworkflowtemplate
+  scope: Cluster
+  version: v1alpha1
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
   name: cronworkflows.argoproj.io
 spec:
   group: argoproj.io
   names:
     kind: CronWorkflow
+    listKind: CronWorkflowList
     plural: cronworkflows
     shortNames:
-      - cronwf
       - cwf
+      - cronwf
+    singular: cronworkflow
   scope: Namespaced
   version: v1alpha1
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: workfloweventbindings.argoproj.io
+spec:
+  group: argoproj.io
+  names:
+    kind: WorkflowEventBinding
+    listKind: WorkflowEventBindingList
+    plural: workfloweventbindings
+    shortNames:
+      - wfeb
+    singular: workfloweventbinding
+  scope: Namespaced
+  version: v1alpha1
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -32,11 +79,18 @@ spec:
   group: argoproj.io
   names:
     kind: Workflow
+    listKind: WorkflowList
     plural: workflows
     shortNames:
       - wf
+    singular: workflow
   scope: Namespaced
+  subresources: {}
   version: v1alpha1
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -46,11 +100,17 @@ spec:
   group: argoproj.io
   names:
     kind: WorkflowTemplate
+    listKind: WorkflowTemplateList
     plural: workflowtemplates
     shortNames:
       - wftmpl
+    singular: workflowtemplate
   scope: Namespaced
   version: v1alpha1
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -75,27 +135,6 @@ rules:
       - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: workflow-role
-rules:
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-    verbs:
-      - get
-      - watch
-      - patch
-  - apiGroups:
-      - ""
-    resources:
-      - pods/log
-    verbs:
-      - get
-      - watch
----
-apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
@@ -111,6 +150,8 @@ rules:
       - workflowtemplates/finalizers
       - cronworkflows
       - cronworkflows/finalizers
+      - clusterworkflowtemplates
+      - clusterworkflowtemplates/finalizers
     verbs:
       - create
       - delete
@@ -137,6 +178,8 @@ rules:
       - workflowtemplates/finalizers
       - cronworkflows
       - cronworkflows/finalizers
+      - clusterworkflowtemplates
+      - clusterworkflowtemplates/finalizers
     verbs:
       - create
       - delete
@@ -163,6 +206,8 @@ rules:
       - workflowtemplates/finalizers
       - cronworkflows
       - cronworkflows/finalizers
+      - clusterworkflowtemplates
+      - clusterworkflowtemplates/finalizers
     verbs:
       - get
       - list
@@ -219,6 +264,8 @@ rules:
     resources:
       - workflowtemplates
       - workflowtemplates/finalizers
+      - clusterworkflowtemplates
+      - clusterworkflowtemplates/finalizers
     verbs:
       - get
       - list
@@ -248,6 +295,7 @@ rules:
       - events
     verbs:
       - create
+      - patch
   - apiGroups:
       - policy
     resources:
@@ -290,15 +338,26 @@ rules:
   - apiGroups:
       - ""
     resources:
+      - events
+    verbs:
+      - watch
+      - create
+      - patch
+  - apiGroups:
+      - ""
+    resources:
       - secrets
+      - serviceaccounts
     verbs:
       - get
   - apiGroups:
       - argoproj.io
     resources:
       - workflows
+      - workfloweventbindings
       - workflowtemplates
       - cronworkflows
+      - clusterworkflowtemplates
     verbs:
       - create
       - get
@@ -319,18 +378,6 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: argo
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: workflow-default-binding
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: workflow-role
-subjects:
-  - kind: ServiceAccount
-    name: default
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -382,7 +429,8 @@ metadata:
   name: argo-server
 spec:
   ports:
-    - port: 2746
+    - name: web
+      port: 2746
       targetPort: 2746
   selector:
     app: argo-server
@@ -393,7 +441,8 @@ metadata:
   name: workflow-controller-metrics
 spec:
   ports:
-    - port: 9090
+    - name: metrics
+      port: 9090
       protocol: TCP
       targetPort: 9090
   selector:
@@ -432,10 +481,11 @@ spec:
       containers:
         - args:
             - server
-          image: argoproj/argocli:v2.7.0
+          image: argoproj/argocli:v2.11.7
           name: argo-server
           ports:
             - containerPort: 2746
+              name: web
           readinessProbe:
             httpGet:
               path: /
@@ -443,7 +493,15 @@ spec:
               scheme: HTTP
             initialDelaySeconds: 10
             periodSeconds: 20
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+      nodeSelector:
+        kubernetes.io/os: linux
       serviceAccountName: argo-server
+      volumes:
+        - emptyDir: {}
+          name: tmp
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -471,9 +529,11 @@ spec:
             - --configmap
             - workflow-controller-configmap
             - --executor-image
-            - argoproj/argoexec:v2.7.0
+            - argoproj/argoexec:v2.11.7
           command:
             - workflow-controller
-          image: argoproj/workflow-controller:v2.7.0
+          image: argoproj/workflow-controller:v2.11.7
           name: workflow-controller
+      nodeSelector:
+        kubernetes.io/os: linux
       serviceAccountName: argo
