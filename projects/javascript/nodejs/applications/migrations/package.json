@@ -3,6 +3,7 @@
     "node": "^10"
   },
   "license": "Apache-2.0",
+  "name": "@tenlastic/migrations",
   "private": true,
   "version": "0.0.131",
   "scripts": {
