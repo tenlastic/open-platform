@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameServer, GameServerService, Build, BuildService } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { PromptComponent } from '../../../../../../shared/components';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 interface PropertyFormGroup {
@@ -29,6 +30,7 @@ export class GameServersFormPageComponent implements OnInit {
     private formBuilder: FormBuilder,
     private gameServerService: GameServerService,
     public identityService: IdentityService,
+    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private router: Router,
     private selectedNamespaceService: SelectedNamespaceService,
@@ -90,7 +92,30 @@ export class GameServersFormPageComponent implements OnInit {
     };
 
     if (this.data._id) {
-      this.update(values);
+      if (
+        this.form.get('buildId').dirty ||
+        this.form.get('isPersistent').dirty ||
+        this.form.get('isPreemptible').dirty ||
+        this.form.get('metadata').dirty
+      ) {
+        const dialogRef = this.matDialog.open(PromptComponent, {
+          data: {
+            buttons: [
+              { color: 'primary', label: 'No' },
+              { color: 'accent', label: 'Yes' },
+            ],
+            message: `These changes may require the Game Server to be restarted. Is this OK?`,
+          },
+        });
+
+        dialogRef.afterClosed().subscribe(async (result: string) => {
+          if (result === 'Yes') {
+            this.update(values);
+          }
+        });
+      } else {
+        this.update(values);
+      }
     } else {
       this.create(values);
     }

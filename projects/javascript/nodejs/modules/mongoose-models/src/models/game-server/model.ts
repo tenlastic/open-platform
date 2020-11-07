@@ -19,7 +19,7 @@ import {
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
-import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
+import { UniquenessError, plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
@@ -83,15 +83,13 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 @pre('remove', async function(this: GameServerDocument) {
   await this.deleteKubernetesResources();
 })
-@pre('save', async function(this: GameServerDocument) {
-  this.port = this.port || this.getRandomPort();
-})
 @post('save', async function(this: GameServerDocument) {
   if (
     !this.wasNew &&
+    !this.wasModified.includes('buildId') &&
     !this.wasModified.includes('isPersistent') &&
     !this.wasModified.includes('isPreemptible') &&
-    !this.wasModified.includes('buildId')
+    !this.wasModified.includes('metadata')
   ) {
     return;
   }
@@ -174,6 +172,13 @@ export class GameServerSchema implements IOriginalDocument {
   public _original: any;
   public wasModified: string[];
   public wasNew: boolean;
+
+  /**
+   * Returns a random port.
+   */
+  public getRandomPort(max = 65535, min = 60000) {
+    return Math.round(Math.random() * (max - min) + min);
+  }
 
   /**
    * Restarts a persistent Game Server.
@@ -547,12 +552,34 @@ export class GameServerSchema implements IOriginalDocument {
 
     await this.createDeploymentOrPod();
   }
-
-  private getRandomPort(max = 65535, min = 60000) {
-    return Math.round(Math.random() * (max - min) + min);
-  }
 }
 
 export type GameServerDocument = DocumentType<GameServerSchema>;
 export type GameServerModel = ReturnModelType<typeof GameServerSchema>;
 export const GameServer = getModelForClass(GameServerSchema);
+
+// Overload save() to automatically handle port conflicts.
+const save = GameServer.prototype.save;
+GameServer.prototype.save = async function(
+  this: GameServerDocument,
+  options: mongoose.SaveOptions,
+  callback: (err: any, product?: GameServerDocument) => void,
+) {
+  this.port = this.port || this.getRandomPort();
+
+  try {
+    const result = await save.call(this, options);
+    return callback ? callback(null, result) : result;
+  } catch (e) {
+    if (e instanceof UniquenessError && e.paths.includes('port')) {
+      this.port = this.getRandomPort();
+      return this.save(options, callback);
+    }
+
+    if (callback) {
+      return callback(e);
+    } else {
+      throw e;
+    }
+  }
+};
