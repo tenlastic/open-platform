@@ -115,6 +115,9 @@ export class GameServerSchema implements IOriginalDocument {
   @prop({ required: true })
   public buildId: mongoose.Types.ObjectId;
 
+  @prop({ required: true, validate: v => [0.1, 0.25, 0.5].includes(v) })
+  public cpu: number;
+
   public createdAt: Date;
 
   @arrayProp({ itemsRef: User })
@@ -128,6 +131,9 @@ export class GameServerSchema implements IOriginalDocument {
 
   @prop()
   public isPreemptible: boolean;
+
+  @prop({ required: true, validate: v => [0.1, 0.25, 0.5, 1, 2.5, 5].includes(v) })
+  public memory: number;
 
   @prop({ default: {} })
   public metadata: any;
@@ -262,8 +268,8 @@ export class GameServerSchema implements IOriginalDocument {
             ],
             resources: {
               requests: {
-                cpu: '500m',
-                memory: '500M',
+                cpu: `${this.cpu * 1000}m`,
+                memory: `${this.memory * 1000}M`,
               },
             },
           },

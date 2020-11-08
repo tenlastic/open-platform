@@ -27,6 +27,7 @@ export namespace INamespace {
     count: number;
     cpu: number;
     memory: number;
+    preemptible: boolean;
   }
 
   export interface Key {

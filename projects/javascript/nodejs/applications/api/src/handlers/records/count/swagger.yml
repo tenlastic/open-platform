@@ -2,7 +2,7 @@ paths:
   /collections/{collectionId}/records/count:
     get:
       summary: Count
-      tags: [Records]
+      tags: [CollectionRecords]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []
@@ -23,4 +23,4 @@ paths:
                   records:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Record'
+                      $ref: '#/components/schemas/CollectionRecord'

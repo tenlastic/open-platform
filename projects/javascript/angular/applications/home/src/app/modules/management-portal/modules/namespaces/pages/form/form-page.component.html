@@ -96,6 +96,25 @@
                         formArrayName="limits"
                         [isVisible]="false">
       <div class="row"
+           formGroupName="builds">
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Builds</mat-label>
+          <input matInput
+                 formControlName="count"
+                 step="1"
+                 type="number" />
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Maximum Build Size (B)</mat-label>
+          <input matInput
+                 formControlName="size"
+                 step="1"
+                 type="number" />
+        </mat-form-field>
+      </div>
+
+      <div class="row"
            formGroupName="collections">
         <mat-form-field floatLabel="always">
           <mat-label>Total Collections</mat-label>
@@ -166,24 +185,18 @@
                  step="1"
                  type="number" />
         </mat-form-field>
-      </div>
-
-      <div class="row"
-           formGroupName="builds">
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Builds</mat-label>
-          <input matInput
-                 formControlName="count"
-                 step="1"
-                 type="number" />
-        </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Maximum Build Size (B)</mat-label>
-          <input matInput
-                 formControlName="size"
-                 step="1"
-                 type="number" />
+          <mat-label>Only Preemptible</mat-label>
+          <input *ngIf="form.get('limits').get('gameServers').get('preemptible').disabled"
+                 disabled
+                 matInput
+                 [value]="form.get('limits').get('gameServers').get('preemptible').value ? 'Yes' : 'No'" />
+          <mat-select *ngIf="!form.get('limits').get('gameServers').get('preemptible').disabled"
+                      formControlName="preemptible">
+            <mat-option [value]="true">Yes</mat-option>
+            <mat-option [value]="false">No</mat-option>
+          </mat-select>
         </mat-form-field>
       </div>
     </app-toggle-section>

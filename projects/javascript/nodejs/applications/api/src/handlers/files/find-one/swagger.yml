@@ -2,7 +2,7 @@ paths:
   /builds/{buildId}/platforms/{platform}/files/{_id}:
     get:
       summary: Find One
-      tags: [Files]
+      tags: [BuildFiles]
       description: Finds a record by ID.
       security:
         - AccessToken: []
@@ -31,4 +31,4 @@ paths:
                 type: object
                 properties:
                   record:
-                    $ref: '#/components/schemas/File'
+                    $ref: '#/components/schemas/BuildFile'

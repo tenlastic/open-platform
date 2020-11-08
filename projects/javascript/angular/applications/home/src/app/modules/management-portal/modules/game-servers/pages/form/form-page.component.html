@@ -5,8 +5,7 @@
         [formGroup]="form"
         autocomplete="off">
     <div class="row">
-      <mat-form-field floatLabel="always"
-                      width="300">
+      <mat-form-field floatLabel="always">
         <mat-label>Build</mat-label>
         <mat-select formControlName="buildId">
           <mat-option *ngFor="let build of builds"
@@ -36,8 +35,7 @@
     </div>
 
     <div class="row">
-      <mat-form-field floatLabel="always"
-                      width="300">
+      <mat-form-field floatLabel="always">
         <mat-label>Is Persistent</mat-label>
         <mat-select formControlName="isPersistent">
           <mat-option [value]="true">Yes</mat-option>
@@ -47,12 +45,27 @@
     </div>
 
     <div class="row">
-      <mat-form-field floatLabel="always"
-                      width="300">
+      <mat-form-field floatLabel="always">
         <mat-label>Is Preemptible</mat-label>
         <mat-select formControlName="isPreemptible">
           <mat-option [value]="true">Yes</mat-option>
           <mat-option [value]="false">No</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>CPU</mat-label>
+        <mat-select formControlName="cpu">
+          <mat-option *ngFor="let cpu of cpus"
+                      [value]="cpu">{{ cpu }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Memory</mat-label>
+        <mat-select formControlName="memory">
+          <mat-option *ngFor="let memory of memories"
+                      [value]="memory">{{ memory }} GB</mat-option>
         </mat-select>
       </mat-form-field>
     </div>

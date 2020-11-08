@@ -2,7 +2,7 @@ paths:
   /collections/{collectionId}/records:
     get:
       summary: Find
-      tags: [Records]
+      tags: [CollectionRecords]
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []
@@ -23,4 +23,4 @@ paths:
                   records:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Record'
+                      $ref: '#/components/schemas/CollectionRecord'

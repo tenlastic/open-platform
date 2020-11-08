@@ -2,7 +2,7 @@ paths:
   /builds/{buildId}/platforms/{platform}/files/upload:
     post:
       summary: Upload
-      tags: [Files]
+      tags: [BuildFiles]
       description: Uploads files for a Build.
       security:
         - AccessToken: []

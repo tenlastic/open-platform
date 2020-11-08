@@ -13,6 +13,8 @@ export class GameServerMock {
 
     const defaults = {
       buildId: mongoose.Types.ObjectId(),
+      cpu: chance.pickone([0.1, 0.25, 0.5]),
+      memory: chance.pickone([0.1, 0.25, 0.5]),
       name: chance.hash(),
       namespaceId: mongoose.Types.ObjectId(),
     };

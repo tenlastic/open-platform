@@ -2,7 +2,7 @@ paths:
   /collections/{collectionId}/indexes:
     post:
       summary: Create
-      tags: [Indexes]
+      tags: [CollectionIndexes]
       description: Creates a new index on a Collection.
       security:
         - AccessToken: []

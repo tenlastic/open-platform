@@ -2,7 +2,7 @@ paths:
   /collections/{collectionId}/indexes/{_id}:
     delete:
       summary: Delete
-      tags: [Indexes]
+      tags: [CollectionIndexes]
       description: Deletes an existing index.
       security:
         - AccessToken: []

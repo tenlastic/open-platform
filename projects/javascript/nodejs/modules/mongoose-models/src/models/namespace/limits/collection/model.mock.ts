@@ -1,5 +1,3 @@
-import { Chance } from 'chance';
-
 import { NamespaceCollectionLimits, NamespaceCollectionLimitsSchema } from './model';
 
 export class NamespaceCollectionLimitsMock {
@@ -8,12 +6,7 @@ export class NamespaceCollectionLimitsMock {
    * @param {Object} params The parameters to initialize the record with.
    */
   public static create(params: Partial<NamespaceCollectionLimitsSchema> = {}) {
-    const chance = new Chance();
-
-    const defaults = {
-      count: chance.integer(),
-      size: chance.integer(),
-    };
+    const defaults = {};
 
     return new NamespaceCollectionLimits({ ...defaults, ...params });
   }

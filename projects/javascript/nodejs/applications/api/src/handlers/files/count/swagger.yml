@@ -2,7 +2,7 @@ paths:
   /builds/{buildId}/platforms/{platform}/files/count:
     get:
       summary: Count
-      tags: [Files]
+      tags: [BuildFiles]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []
@@ -28,4 +28,4 @@ paths:
                   records:
                     type: array
                     items:
-                      $ref: '#/components/schemas/File'
+                      $ref: '#/components/schemas/BuildFile'

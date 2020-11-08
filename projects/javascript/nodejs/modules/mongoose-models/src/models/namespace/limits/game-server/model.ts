@@ -9,6 +9,9 @@ export class NamespaceGameServerLimitsSchema {
 
   @prop({ default: 0 })
   public memory: number;
+
+  @prop({ default: false })
+  public preemptible: boolean;
 }
 
 export type NamespaceGameServerLimitsDocument = DocumentType<NamespaceGameServerLimitsSchema>;

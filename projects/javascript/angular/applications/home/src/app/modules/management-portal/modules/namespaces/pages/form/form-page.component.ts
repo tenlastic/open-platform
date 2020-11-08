@@ -192,14 +192,14 @@ export class NamespacesFormPageComponent implements OnInit {
           count: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: this.data.limits ? this.data.limits.builds.count : 0,
+              value: this.data.limits ? this.data.limits.builds.count || 0 : 0,
             },
             Validators.required,
           ],
           size: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: this.data.limits ? this.data.limits.builds.size : 0,
+              value: this.data.limits ? this.data.limits.builds.size || 0 : 0,
             },
             Validators.required,
           ],
@@ -208,14 +208,14 @@ export class NamespacesFormPageComponent implements OnInit {
           count: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: this.data.limits ? this.data.limits.collections.count : 0,
+              value: this.data.limits ? this.data.limits.collections.count || 0 : 0,
             },
             Validators.required,
           ],
           size: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: this.data.limits ? this.data.limits.collections.size : 0,
+              value: this.data.limits ? this.data.limits.collections.size || 0 : 0,
             },
             Validators.required,
           ],
@@ -224,21 +224,28 @@ export class NamespacesFormPageComponent implements OnInit {
           count: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: this.data.limits ? this.data.limits.gameServers.count : 0,
+              value: this.data.limits ? this.data.limits.gameServers.count || 0 : 0,
             },
             Validators.required,
           ],
           cpu: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: this.data.limits ? this.data.limits.gameServers.cpu : 0,
+              value: this.data.limits ? this.data.limits.gameServers.cpu || 0 : 0,
             },
             Validators.required,
           ],
           memory: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: this.data.limits ? this.data.limits.gameServers.memory : 0,
+              value: this.data.limits ? this.data.limits.gameServers.memory || 0 : 0,
+            },
+            Validators.required,
+          ],
+          preemptible: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: this.data.limits ? this.data.limits.gameServers.preemptible || false : false,
             },
             Validators.required,
           ],
@@ -247,21 +254,21 @@ export class NamespacesFormPageComponent implements OnInit {
           images: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: this.data.limits ? this.data.limits.games.images : 0,
+              value: this.data.limits ? this.data.limits.games.images || 0 : 0,
             },
             Validators.required,
           ],
           size: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: this.data.limits ? this.data.limits.games.size : 0,
+              value: this.data.limits ? this.data.limits.games.size || 0 : 0,
             },
             Validators.required,
           ],
           videos: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: this.data.limits ? this.data.limits.games.videos : 0,
+              value: this.data.limits ? this.data.limits.games.videos || 0 : 0,
             },
             Validators.required,
           ],

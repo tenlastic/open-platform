@@ -2,7 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GameServer, GameServerService, Build, BuildService } from '@tenlastic/ng-http';
+import {
+  Build,
+  BuildService,
+  GameServer,
+  GameServerService,
+  IGameServer,
+} from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -20,9 +26,11 @@ interface PropertyFormGroup {
 })
 export class GameServersFormPageComponent implements OnInit {
   public builds: Build[];
+  public cpus = IGameServer.Cpu;
   public data: GameServer;
   public error: string;
   public form: FormGroup;
+  public memories = IGameServer.Memory;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -67,9 +75,11 @@ export class GameServersFormPageComponent implements OnInit {
   public async save() {
     if (this.form.invalid) {
       this.form.get('buildId').markAsTouched();
+      this.form.get('cpu').markAsTouched();
       this.form.get('description').markAsTouched();
       this.form.get('isPersistent').markAsTouched();
       this.form.get('isPreemptible').markAsTouched();
+      this.form.get('memory').markAsTouched();
       this.form.get('name').markAsTouched();
       this.form.get('namespaceId').markAsTouched();
 
@@ -83,9 +93,11 @@ export class GameServersFormPageComponent implements OnInit {
 
     const values: Partial<GameServer> = {
       buildId: this.form.get('buildId').value,
+      cpu: this.form.get('cpu').value,
       description: this.form.get('description').value,
       isPersistent: this.form.get('isPersistent').value,
       isPreemptible: this.form.get('isPreemptible').value,
+      memory: this.form.get('memory').value,
       metadata,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
@@ -178,12 +190,14 @@ export class GameServersFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       buildId: [this.data.buildId || this.builds.length > 0 ? this.builds[0]._id : null],
+      cpu: [this.data.cpu || 0.5, Validators.required],
       description: [this.data.description],
-      namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
-      isPersistent: [this.data.isPersistent || false],
-      isPreemptible: [this.data.isPreemptible || false],
+      isPersistent: [this.data.isPersistent || true],
+      isPreemptible: [this.data.isPreemptible || true],
+      memory: [this.data.memory || 0.5, Validators.required],
       metadata: this.formBuilder.array(properties),
       name: [this.data.name, Validators.required],
+      namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
     });
 
     this.form.valueChanges.subscribe(() => (this.error = null));

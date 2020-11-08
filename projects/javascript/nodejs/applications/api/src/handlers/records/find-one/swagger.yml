@@ -2,7 +2,7 @@ paths:
   /collections/{collectionId}/records/{_id}:
     get:
       summary: Find One
-      tags: [Records]
+      tags: [CollectionRecords]
       description: Finds a record by ID.
       security:
         - AccessToken: []
@@ -26,4 +26,4 @@ paths:
                 type: object
                 properties:
                   record:
-                    $ref: '#/components/schemas/Record'
+                    $ref: '#/components/schemas/CollectionRecord'

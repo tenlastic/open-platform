@@ -1,6 +1,6 @@
 components:
   schemas:
-    File:
+    BuildFile:
       type: object
       properties:
         _id:

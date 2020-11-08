@@ -1,5 +1,3 @@
-import { Chance } from 'chance';
-
 import { NamespaceGameServerLimits, NamespaceGameServerLimitsSchema } from './model';
 
 export class NamespaceGameServerLimitsMock {
@@ -8,13 +6,7 @@ export class NamespaceGameServerLimitsMock {
    * @param {Object} params The parameters to initialize the record with.
    */
   public static create(params: Partial<NamespaceGameServerLimitsSchema> = {}) {
-    const chance = new Chance();
-
-    const defaults = {
-      count: chance.integer(),
-      cpu: chance.integer(),
-      memory: chance.integer(),
-    };
+    const defaults = {};
 
     return new NamespaceGameServerLimits({ ...defaults, ...params });
   }

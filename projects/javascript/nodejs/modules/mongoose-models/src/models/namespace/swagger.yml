@@ -67,10 +67,13 @@ components:
                   type: integer
                 memory:
                   type: integer
+                preemptible:
+                  type: boolean
               required:
                 - count
                 - cpu
                 - memory
+                - preemptible
             games:
               type: object
               properties:
