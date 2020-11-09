@@ -12,34 +12,13 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Record');
   }
 
-  const limits = existing.namespaceDocument.limits.gameServers;
-  if (limits.preemptible && isPreemptible === false) {
-    throw new NamespaceLimitError('gameServers.preemptible');
-  }
-
-  if ((limits.cpu > 0 && cpu) || (limits.memory > 0 && memory)) {
-    const results = await GameServer.aggregate([
-      { $match: { namespaceId: existing.namespaceDocument._id } },
-      {
-        $group: {
-          _id: null,
-          count: { $sum: 1 },
-          cpu: { $sum: '$cpu' },
-          memory: { $sum: '$memory' },
-        },
-      },
-    ]);
-
-    const cpuSum = results.length > 0 ? results[0].cpu : 0;
-    if (cpu && limits.cpu > 0 && cpuSum + (cpu - existing.cpu) > limits.cpu) {
-      throw new NamespaceLimitError('gameServers.cpu');
-    }
-
-    const memorySum = results.length > 0 ? results[0].memory : 0;
-    if (memory && limits.memory > 0 && memorySum + (memory - existing.memory) > limits.memory) {
-      throw new NamespaceLimitError('gameServers.memory');
-    }
-  }
+  await GameServer.checkNamespaceLimits(
+    0,
+    cpu - existing.cpu,
+    isPreemptible,
+    memory - existing.memory,
+    existing.namespaceId as any,
+  );
 
   const result = await GameServerPermissions.update(
     existing,

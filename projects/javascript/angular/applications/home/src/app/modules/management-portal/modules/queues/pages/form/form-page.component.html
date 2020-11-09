@@ -5,8 +5,7 @@
         [formGroup]="form"
         autocomplete="off">
     <div class="row">
-      <mat-form-field floatLabel="always"
-                      width="300">
+      <mat-form-field floatLabel="always">
         <mat-label>Name</mat-label>
         <input matInput
                required
@@ -16,8 +15,7 @@
     </div>
 
     <div class="row">
-      <mat-form-field floatLabel="always"
-                      width="300">
+      <mat-form-field floatLabel="always">
         <mat-label>Description</mat-label>
         <input matInput
                formControlName="description" />
@@ -26,8 +24,7 @@
     </div>
 
     <div class="row">
-      <mat-form-field floatLabel="always"
-                      width="300">
+      <mat-form-field floatLabel="always">
         <mat-label>Teams</mat-label>
         <input matInput
                required
@@ -40,8 +37,7 @@
     </div>
 
     <div class="row">
-      <mat-form-field floatLabel="always"
-                      width="300">
+      <mat-form-field floatLabel="always">
         <mat-label>Players Per Team</mat-label>
         <input matInput
                required
@@ -57,8 +53,7 @@
                         isVisible="true"
                         title="Game Server Template">
       <div class="row">
-        <mat-form-field floatLabel="always"
-                        width="300">
+        <mat-form-field floatLabel="always">
           <mat-label>Build</mat-label>
           <mat-select required
                       formControlName="buildId">
@@ -71,12 +66,27 @@
       </div>
 
       <div class="row">
-        <mat-form-field floatLabel="always"
-                        width="300">
+        <mat-form-field floatLabel="always">
           <mat-label>Is Preemptible</mat-label>
           <mat-select formControlName="isPreemptible">
             <mat-option [value]="true">Yes</mat-option>
             <mat-option [value]="false">No</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>CPU</mat-label>
+          <mat-select formControlName="cpu">
+            <mat-option *ngFor="let cpu of cpus"
+                        [value]="cpu">{{ cpu }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <mat-form-field floatLabel="always">
+          <mat-label>Memory</mat-label>
+          <mat-select formControlName="memory">
+            <mat-option *ngFor="let memory of memories"
+                        [value]="memory">{{ memory }} GB</mat-option>
           </mat-select>
         </mat-form-field>
       </div>

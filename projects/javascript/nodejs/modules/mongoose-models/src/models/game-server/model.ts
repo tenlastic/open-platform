@@ -25,7 +25,7 @@ import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 
-import { NamespaceDocument, NamespaceEvent } from '../namespace';
+import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 import { QueueDocument } from '../queue';
 import { User, UserDocument } from '../user';
 
@@ -178,6 +178,53 @@ export class GameServerSchema implements IOriginalDocument {
   public _original: any;
   public wasModified: string[];
   public wasNew: boolean;
+
+  public static async checkNamespaceLimits(
+    count: number,
+    cpu: number,
+    isPreemptible: boolean,
+    memory: number,
+    namespaceId: string | mongoose.Types.ObjectId,
+  ) {
+    const namespace = await Namespace.findOne({ _id: namespaceId });
+    if (!namespace) {
+      throw new Error('Record not found.');
+    }
+
+    const limits = namespace.limits.gameServers;
+    if (limits.preemptible && isPreemptible === false) {
+      throw new NamespaceLimitError('gameServers.preemptible');
+    }
+
+    if (limits.count > 0 || limits.cpu > 0 || limits.memory > 0) {
+      const results = await GameServer.aggregate([
+        { $match: { namespaceId: namespace._id } },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+            cpu: { $sum: '$cpu' },
+            memory: { $sum: '$memory' },
+          },
+        },
+      ]);
+
+      const countSum = results.length > 0 ? results[0].count : 1;
+      if (limits.count > 0 && countSum + count > limits.count) {
+        throw new NamespaceLimitError('gameServers.count');
+      }
+
+      const cpuSum = results.length > 0 ? results[0].cpu : 0;
+      if (limits.cpu > 0 && cpuSum + cpu > limits.cpu) {
+        throw new NamespaceLimitError('gameServers.cpu');
+      }
+
+      const memorySum = results.length > 0 ? results[0].memory : 0;
+      if (limits.memory > 0 && memorySum + memory > limits.memory) {
+        throw new NamespaceLimitError('gameServers.memory');
+      }
+    }
+  }
 
   /**
    * Returns a random port.

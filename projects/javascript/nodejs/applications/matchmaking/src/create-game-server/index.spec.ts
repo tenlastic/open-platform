@@ -1,19 +1,17 @@
 import {
   GameServer,
   GameServerMock,
+  NamespaceMock,
+  QueueMember,
   QueueMemberMock,
   QueueMock,
   UserMock,
-  QueueMember,
 } from '@tenlastic/mongoose-models';
-import * as Chance from 'chance';
 import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
 import { createGameServer } from './';
-
-const chance = new Chance();
 
 describe('create-game-server', function() {
   let sandbox: sinon.SinonSandbox;
@@ -28,14 +26,21 @@ describe('create-game-server', function() {
 
   context('when User is not in a match', function() {
     it('creates a GameServer', async function() {
-      const gameServerTemplate = new GameServer({ buildId: mongoose.Types.ObjectId() });
-      const queue = await QueueMock.create({ gameServerTemplate });
+      const namespace = await NamespaceMock.create();
+      const gameServerTemplate = new GameServer({
+        buildId: mongoose.Types.ObjectId(),
+        cpu: 0.25,
+        memory: 0.25,
+        namespaceId: namespace._id,
+      });
+      const queue = await QueueMock.create({ gameServerTemplate, namespaceId: namespace._id });
       const queueMember = await QueueMemberMock.create();
 
       const spy = sinon.spy(GameServer, 'find');
 
-      await createGameServer(queue, [queueMember]);
+      const result = await createGameServer(queue, [queueMember]);
 
+      expect(result).to.eql(true);
       expect(spy.called).to.eql(false);
     });
   });
@@ -45,8 +50,14 @@ describe('create-game-server', function() {
       const user = await UserMock.create();
       const otherUser = await UserMock.create();
 
-      const gameServerTemplate = new GameServer({ buildId: mongoose.Types.ObjectId() });
-      const queue = await QueueMock.create({ gameServerTemplate });
+      const namespace = await NamespaceMock.create();
+      const gameServerTemplate = new GameServer({
+        buildId: mongoose.Types.ObjectId(),
+        cpu: 0.25,
+        memory: 0.25,
+        namespaceId: namespace._id,
+      });
+      const queue = await QueueMock.create({ gameServerTemplate, namespaceId: namespace._id });
 
       await GameServerMock.create({
         allowedUserIds: [user],
@@ -61,11 +72,12 @@ describe('create-game-server', function() {
       const queueMember = await QueueMemberMock.create({ userId: user._id });
       const otherQueueMember = await QueueMemberMock.create({ userId: otherUser._id });
 
-      await createGameServer(queue, [queueMember, otherQueueMember]);
+      const result = await createGameServer(queue, [queueMember, otherQueueMember]);
 
       const queueMemberCount = await QueueMember.countDocuments({ _id: queueMember._id });
       const otherQueueMemberCount = await QueueMember.countDocuments({ _id: otherQueueMember._id });
 
+      expect(result).to.eql(false);
       expect(queueMemberCount).to.eql(0);
       expect(otherQueueMemberCount).to.eql(1);
     });

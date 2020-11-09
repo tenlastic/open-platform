@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Build, BuildService, Queue, QueueService } from '@tenlastic/ng-http';
+import { Build, BuildService, IGameServer, Queue, QueueService } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
@@ -19,9 +19,11 @@ interface PropertyFormGroup {
 })
 export class QueuesFormPageComponent implements OnInit {
   public builds: Build[];
+  public cpus = IGameServer.Cpu;
   public data: Queue;
   public error: string;
   public form: FormGroup;
+  public memories = IGameServer.Memory;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -93,7 +95,9 @@ export class QueuesFormPageComponent implements OnInit {
       description: this.form.get('description').value,
       gameServerTemplate: {
         buildId: this.form.get('gameServerTemplate').get('buildId').value,
+        cpu: this.form.get('gameServerTemplate').get('cpu').value,
         isPreemptible: this.form.get('gameServerTemplate').get('isPreemptible').value,
+        memory: this.form.get('gameServerTemplate').get('memory').value,
         metadata,
       },
       name: this.form.get('name').value,
@@ -166,13 +170,17 @@ export class QueuesFormPageComponent implements OnInit {
     if (this.data.gameServerTemplate) {
       gameServerTemplateForm = this.formBuilder.group({
         buildId: [this.data.gameServerTemplate.buildId],
+        cpu: [this.data.gameServerTemplate.cpu || this.cpus[0]],
         isPreemptible: [this.data.gameServerTemplate.isPreemptible || false],
+        memory: [this.data.gameServerTemplate.memory || this.memories[0]],
         metadata: this.formBuilder.array(properties),
       });
     } else {
       gameServerTemplateForm = this.formBuilder.group({
         buildId: [this.builds.length > 0 ? this.builds[0]._id : null],
+        cpu: [this.cpus[0]],
         isPreemptible: [false],
+        memory: [this.memories[0]],
         metadata: this.formBuilder.array(properties),
       });
     }

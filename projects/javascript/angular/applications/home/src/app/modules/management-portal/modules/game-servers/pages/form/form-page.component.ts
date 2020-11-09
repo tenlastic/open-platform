@@ -190,11 +190,11 @@ export class GameServersFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       buildId: [this.data.buildId || this.builds.length > 0 ? this.builds[0]._id : null],
-      cpu: [this.data.cpu || 0.5, Validators.required],
+      cpu: [this.data.cpu || this.cpus[0], Validators.required],
       description: [this.data.description],
       isPersistent: [this.data.isPersistent || true],
       isPreemptible: [this.data.isPreemptible || true],
-      memory: [this.data.memory || 0.5, Validators.required],
+      memory: [this.data.memory || this.memories[0], Validators.required],
       metadata: this.formBuilder.array(properties),
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],

@@ -17,7 +17,10 @@ export async function matchmake(payload: IDatabasePayload<Partial<QueueMemberDoc
     return;
   }
 
-  await createGameServer(queue, queueMembers);
+  const gameServerCreatedSuccessfully = await createGameServer(queue, queueMembers);
+  if (!gameServerCreatedSuccessfully) {
+    return;
+  }
 
   await Promise.all(queueMembers.map(qm => qm.remove()));
   console.log('QueueMembers removed successfully.');
