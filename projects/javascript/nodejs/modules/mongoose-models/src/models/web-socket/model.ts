@@ -20,8 +20,9 @@ import * as mongoose from 'mongoose';
 import { RefreshTokenDocument } from '../refresh-token/model';
 import { UserDocument } from '../user/model';
 
-// Publish changes to Kafka.
 export const WebSocketEvent = new EventEmitter<IDatabasePayload<WebSocketDocument>>();
+
+// Publish changes to Kafka.
 WebSocketEvent.on(payload => {
   kafka.publish(payload);
 });

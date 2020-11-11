@@ -20,6 +20,8 @@ import * as mongoose from 'mongoose';
 import { GameServerDocument, GameServerEvent } from '../game-server';
 
 export const LogEvent = new EventEmitter<IDatabasePayload<LogDocument>>();
+
+// Publish changes to Kafka.
 LogEvent.on(payload => {
   kafka.publish(payload);
 });

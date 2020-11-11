@@ -1,7 +1,13 @@
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import {
+  Build,
+  BuildPermissions,
+  BuildTask,
+  BuildTaskPermissions,
   Collection,
   CollectionPermissions,
+  File,
+  FilePermissions,
   GameInvitation,
   GameInvitationPermissions,
   GameServer,
@@ -20,10 +26,6 @@ import {
   QueuePermissions,
   RecordDocument,
   RecordSchema,
-  Build,
-  BuildPermissions,
-  BuildTask,
-  BuildTaskPermissions,
   User,
   UserPermissions,
   WebSocket,
@@ -52,9 +54,21 @@ export async function subscribe(data: SubscribeData, jwt: any, ws: webServer.Web
   let Permissions: MongoosePermissions<any>;
 
   switch (data.parameters.collection) {
+    case 'build-tasks':
+      Model = BuildTask;
+      Permissions = BuildTaskPermissions;
+      break;
+    case 'builds':
+      Model = Build;
+      Permissions = BuildPermissions;
+      break;
     case 'collections':
       Model = Collection;
       Permissions = CollectionPermissions;
+      break;
+    case 'files':
+      Model = File;
+      Permissions = FilePermissions;
       break;
     case 'game-invitations':
       Model = GameInvitation;
@@ -89,17 +103,9 @@ export async function subscribe(data: SubscribeData, jwt: any, ws: webServer.Web
       Permissions = QueuePermissions;
       break;
     case 'records':
-      const collection = await Collection.findOne({ _id: data.parameters.collectionId });
+      const collection = await Collection.findOne({ _id: data.parameters.where.collectionId });
       Model = RecordSchema.getModelForClass(collection);
       Permissions = new MongoosePermissions<RecordDocument>(Model as any, collection.permissions);
-      break;
-    case 'build-tasks':
-      Model = BuildTask;
-      Permissions = BuildTaskPermissions;
-      break;
-    case 'builds':
-      Model = Build;
-      Permissions = BuildPermissions;
       break;
     case 'users':
       Model = User;

@@ -21,6 +21,8 @@ import { GameServerDocument } from '../game-server';
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
 
 export const QueueEvent = new EventEmitter<IDatabasePayload<QueueDocument>>();
+
+// Publish changes to Kafka.
 QueueEvent.on(payload => {
   kafka.publish(payload);
 });

@@ -20,6 +20,8 @@ import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { BuildEntrypointsDocument } from './entrypoints';
 
 export const BuildEvent = new EventEmitter<IDatabasePayload<BuildDocument>>();
+
+// Publish changes to Kafka.
 BuildEvent.on(payload => {
   kafka.publish(payload);
 });

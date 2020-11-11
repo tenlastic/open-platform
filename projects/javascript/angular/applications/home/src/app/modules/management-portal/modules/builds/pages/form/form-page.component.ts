@@ -1,17 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Build, BuildTask, BuildService } from '@tenlastic/ng-http';
+import { Build, BuildTask, BuildService, BuildTaskService, File } from '@tenlastic/ng-http';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import {
+  IdentityService,
+  SelectedNamespaceService,
+  SocketService,
+} from '../../../../../../core/services';
 import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
-export class BuildsFormPageComponent implements OnInit {
+export class BuildsFormPageComponent implements OnDestroy, OnInit {
   public data: Build;
   public error: string;
   public form: FormGroup;
@@ -21,14 +25,18 @@ export class BuildsFormPageComponent implements OnInit {
     { label: 'Linux Server (x64)', value: 'server64' },
   ];
 
+  private buildTaskSubscriptionId: string;
+
   constructor(
     private activatedRoute: ActivatedRoute,
+    private buildTaskService: BuildTaskService,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private buildService: BuildService,
     private router: Router,
     private selectedNamespaceService: SelectedNamespaceService,
+    private socketService: SocketService,
   ) {}
 
   public ngOnInit() {
@@ -38,8 +46,19 @@ export class BuildsFormPageComponent implements OnInit {
         this.data = await this.buildService.findOne(_id);
       }
 
+      this.buildTaskSubscriptionId = this.socketService.subscribe(
+        'build-tasks',
+        BuildTask,
+        this.buildTaskService,
+        { buildId: { $eq: _id } },
+      );
+
       this.setupForm();
     });
+  }
+
+  public ngOnDestroy() {
+    this.socketService.unsubscribe(this.buildTaskSubscriptionId);
   }
 
   public async save() {

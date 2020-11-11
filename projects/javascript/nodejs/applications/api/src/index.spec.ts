@@ -2,7 +2,7 @@ import * as docker from '@tenlastic/docker-engine';
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as mongooseModels from '@tenlastic/mongoose-models';
-import { GameServer } from '@tenlastic/mongoose-models';
+import { GameServer, Namespace } from '@tenlastic/mongoose-models';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import * as rabbitmqModels from '@tenlastic/rabbitmq-models';
@@ -53,6 +53,8 @@ beforeEach(async function() {
   sandbox.stub(GameServer.prototype, 'createKubernetesResources').resolves();
   sandbox.stub(GameServer.prototype, 'deleteKubernetesResources').resolves();
   sandbox.stub(GameServer.prototype, 'updateKubernetesResources').resolves();
+  sandbox.stub(Namespace.prototype, 'createKubernetesResources').resolves();
+  sandbox.stub(Namespace.prototype, 'deleteKubernetesResources').resolves();
 
   await mongooseModels.deleteAll();
   await rabbitmqModels.deleteAll();

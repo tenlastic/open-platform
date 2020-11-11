@@ -16,11 +16,12 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { Group, GroupDocument } from '../group';
-import { User, UserDocument } from '../user';
+import { GroupDocument } from '../group';
+import { UserDocument } from '../user';
+
+export const GroupInvitationEvent = new EventEmitter<IDatabasePayload<GroupInvitationDocument>>();
 
 // Publish changes to Kafka.
-export const GroupInvitationEvent = new EventEmitter<IDatabasePayload<GroupInvitationDocument>>();
 GroupInvitationEvent.on(payload => {
   kafka.publish(payload);
 });

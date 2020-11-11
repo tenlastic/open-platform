@@ -19,6 +19,15 @@ import { Stream } from 'stream';
 
 const QUEUE = `${process.env.RABBITMQ_PREFIX}.unzip-build-files`;
 
+function getMd5FromStream(stream: Stream): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const hash = crypto.createHash('md5');
+    stream.on('error', err => reject(err));
+    stream.on('data', chunk => hash.update(chunk));
+    stream.on('end', () => resolve(hash.digest('hex')));
+  });
+}
+
 async function onMessage(
   channel: Channel,
   content: Partial<BuildTaskDocument>,
@@ -39,10 +48,12 @@ async function onMessage(
     const build = new Build(task.buildDocument);
 
     // Process the zip.
+    const promises = [];
     const zip = stream.pipe(unzipper.Parse({ forceStream: true }));
     for await (const entry of zip) {
       const { path, type } = entry;
       if (type === 'Directory') {
+        entry.autodrain();
         continue;
       }
 
@@ -52,9 +63,10 @@ async function onMessage(
         platform: content.platform as FilePlatform,
       });
 
-      const buffer: Buffer = await entry.buffer();
-      await saveFile(buffer, entry, record);
+      const promise = saveFile(entry, record);
+      promises.push(promise);
     }
+    await Promise.all(promises);
 
     // Remove Zip.
     const minioKey = await task.getMinioKey();
@@ -110,14 +122,13 @@ function purge() {
   return rabbitmq.purge(QUEUE);
 }
 
-async function saveFile(content: Buffer, entry: any, record: FileDocument) {
-  const md5 = crypto
-    .createHash('md5')
-    .update(content)
-    .digest('hex');
-
+async function saveFile(entry: any, record: FileDocument) {
   const minioKey = await record.getMinioKey();
-  await minio.putObject(process.env.MINIO_BUCKET, minioKey, content);
+
+  const hashPromise = getMd5FromStream(entry);
+  const minioPromise = minio.putObject(process.env.MINIO_BUCKET, minioKey, entry);
+
+  const [md5] = await Promise.all([hashPromise, minioPromise]);
 
   return File.findOneAndUpdate(
     { path: record.path, platform: record.platform, buildId: record.buildId },

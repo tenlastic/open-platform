@@ -16,14 +16,15 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { GameInvitation, GameInvitationDocument } from '../game-invitation';
-import { Queue, QueueDocument } from '../queue';
+import { GameInvitationDocument } from '../game-invitation';
+import { QueueDocument } from '../queue';
 import { RefreshTokenDocument } from '../refresh-token';
-import { User, UserDocument } from '../user';
+import { UserDocument } from '../user';
 import { WebSocketEvent } from '../web-socket';
 
-// Publish changes to Kafka.
 export const QueueMemberEvent = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
+
+// Publish changes to Kafka.
 QueueMemberEvent.on(payload => {
   kafka.publish(payload);
 });

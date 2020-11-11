@@ -22,6 +22,8 @@ import * as emails from '../../emails';
 import { UserDocument } from '../user/model';
 
 export const PasswordResetEvent = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
+
+// Publish changes to Kafka.
 PasswordResetEvent.on(payload => {
   kafka.publish(payload);
 });

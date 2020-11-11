@@ -22,9 +22,6 @@ import { BuildDocument } from '../build';
 import { BuildTaskFailure, BuildTaskFailureDocument } from './failure';
 
 export const BuildTaskEvent = new EventEmitter<IDatabasePayload<BuildTaskDocument>>();
-BuildTaskEvent.on(payload => {
-  kafka.publish(payload);
-});
 
 export enum BuildTaskAction {
   Build = 'build',
@@ -32,6 +29,11 @@ export enum BuildTaskAction {
   Remove = 'remove',
   Unzip = 'unzip',
 }
+
+// Publish changes to Kafka.
+BuildTaskEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 @index({ action: 1 })
 @index({ buildId: 1 })

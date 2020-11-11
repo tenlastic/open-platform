@@ -19,8 +19,9 @@ import * as mongoose from 'mongoose';
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { UserDocument } from '../user';
 
-// Publish changes to Kafka.
 export const GameInvitationEvent = new EventEmitter<IDatabasePayload<GameInvitationDocument>>();
+
+// Publish changes to Kafka.
 GameInvitationEvent.on(payload => {
   kafka.publish(payload);
 });

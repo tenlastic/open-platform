@@ -20,16 +20,20 @@ import * as mongoose from 'mongoose';
 import { BuildDocument, BuildEvent } from '../build';
 
 export const FileEvent = new EventEmitter<IDatabasePayload<FileDocument>>();
+
+export enum FilePlatform {
+  Linux64 = 'linux64',
+  Mac64 = 'mac64',
+  Server64 = 'server64',
+  Windows64 = 'windows64',
+}
+
+// Publish changes to Kafka.
 FileEvent.on(payload => {
   kafka.publish(payload);
 });
-FileEvent.on(async payload => {
-  switch (payload.operationType) {
-    case 'delete':
-      const minioKey = await payload.fullDocument.getMinioKey();
-      return minio.removeObject(process.env.MINIO_BUCKET, minioKey);
-  }
-});
+
+// Delete Files on Build deletion.
 BuildEvent.on(async payload => {
   switch (payload.operationType) {
     case 'delete':
@@ -39,12 +43,14 @@ BuildEvent.on(async payload => {
   }
 });
 
-export enum FilePlatform {
-  Linux64 = 'linux64',
-  Mac64 = 'mac64',
-  Server64 = 'server64',
-  Windows64 = 'windows64',
-}
+// Delete Minio objects with Mongoose deletion.
+FileEvent.on(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const minioKey = await payload.fullDocument.getMinioKey();
+      return minio.removeObject(process.env.MINIO_BUCKET, minioKey);
+  }
+});
 
 @index({ path: 1, platform: 1, buildId: 1 }, { unique: true })
 @modelOptions({

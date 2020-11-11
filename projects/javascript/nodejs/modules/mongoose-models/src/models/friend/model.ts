@@ -16,9 +16,11 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { User, UserDocument } from '../user';
+import { UserDocument } from '../user';
 
 export const FriendEvent = new EventEmitter<IDatabasePayload<FriendDocument>>();
+
+// Publish changes to Kafka.
 FriendEvent.on(payload => {
   kafka.publish(payload);
 });

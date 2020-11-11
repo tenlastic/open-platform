@@ -9,16 +9,22 @@ import { GameServerMock } from './model.mock';
 import { GameServer } from './model';
 
 const chance = new Chance();
-let createNamespaceStub: sinon.SinonStub;
 let createNamespacedDeploymentStub: sinon.SinonStub;
+let createNamespacedNetworkPolicyStub: sinon.SinonStub;
 let createNamespacedPodStub: sinon.SinonStub;
 let createNamespacedRoleBindingStub: sinon.SinonStub;
 let createNamespacedRoleStub: sinon.SinonStub;
 let createNamespacedSecretStub: sinon.SinonStub;
 let createNamespacedServiceStub: sinon.SinonStub;
 let createNamespacedServiceAccountStub: sinon.SinonStub;
-let deleteNamespaceStub: sinon.SinonStub;
+let deleteNamespacedDeploymentStub: sinon.SinonStub;
+let deleteNamespacedNetworkPolicyStub: sinon.SinonStub;
 let deleteNamespacedPodStub: sinon.SinonStub;
+let deleteNamespacedRoleStub: sinon.SinonStub;
+let deleteNamespacedRoleBindingStub: sinon.SinonStub;
+let deleteNamespacedSecretStub: sinon.SinonStub;
+let deleteNamespacedServiceAccountStub: sinon.SinonStub;
+let deleteNamespacedServiceStub: sinon.SinonStub;
 let listNamespacedPodStub: sinon.SinonStub;
 let patchNamespacedConfigMapStub: sinon.SinonStub;
 let patchNamespacedServiceStub: sinon.SinonStub;
@@ -30,9 +36,11 @@ use(chaiAsPromised);
 beforeEach(function() {
   sandbox = sinon.createSandbox();
 
-  createNamespaceStub = sandbox.stub(k8s.CoreV1Api.prototype, 'createNamespace').resolves();
   createNamespacedDeploymentStub = sandbox
     .stub(k8s.AppsV1Api.prototype, 'createNamespacedDeployment')
+    .resolves();
+  createNamespacedNetworkPolicyStub = sandbox
+    .stub(k8s.NetworkingV1Api.prototype, 'createNamespacedNetworkPolicy')
     .resolves();
   createNamespacedPodStub = sandbox.stub(k8s.CoreV1Api.prototype, 'createNamespacedPod').resolves();
   createNamespacedRoleStub = sandbox
@@ -57,8 +65,28 @@ beforeEach(function() {
     .stub(k8s.CoreV1Api.prototype, 'createNamespacedServiceAccount')
     .resolves();
 
-  deleteNamespaceStub = sandbox.stub(k8s.CoreV1Api.prototype, 'deleteNamespace').resolves();
+  deleteNamespacedDeploymentStub = sandbox
+    .stub(k8s.AppsV1Api.prototype, 'deleteNamespacedDeployment')
+    .resolves();
+  deleteNamespacedNetworkPolicyStub = sandbox
+    .stub(k8s.NetworkingV1Api.prototype, 'deleteNamespacedNetworkPolicy')
+    .resolves();
   deleteNamespacedPodStub = sandbox.stub(k8s.CoreV1Api.prototype, 'deleteNamespacedPod').resolves();
+  deleteNamespacedRoleStub = sandbox
+    .stub(k8s.RbacAuthorizationV1Api.prototype, 'deleteNamespacedRole')
+    .resolves();
+  deleteNamespacedRoleBindingStub = sandbox
+    .stub(k8s.RbacAuthorizationV1Api.prototype, 'deleteNamespacedRoleBinding')
+    .resolves();
+  deleteNamespacedSecretStub = sandbox
+    .stub(k8s.CoreV1Api.prototype, 'deleteNamespacedSecret')
+    .resolves();
+  deleteNamespacedServiceAccountStub = sandbox
+    .stub(k8s.CoreV1Api.prototype, 'deleteNamespacedServiceAccount')
+    .resolves();
+  deleteNamespacedServiceStub = sandbox
+    .stub(k8s.CoreV1Api.prototype, 'deleteNamespacedService')
+    .resolves();
 
   listNamespacedPodStub = sandbox.stub(k8s.CoreV1Api.prototype, 'listNamespacedPod').resolves({
     body: {
@@ -145,7 +173,7 @@ describe('models/game-server/model', function() {
       it(`creates Kubernetes resources`, async function() {
         await GameServerMock.create({ isPersistent: true });
 
-        expect(createNamespacedDeploymentStub.calledOnce).to.eql(true);
+        expect(createNamespacedDeploymentStub.calledTwice).to.eql(true);
         expect(createNamespacedServiceStub.calledOnce).to.eql(true);
 
         expect(patchNamespacedConfigMapStub.calledOnce).to.eql(true);
@@ -157,7 +185,7 @@ describe('models/game-server/model', function() {
       it(`creates Kubernetes resources`, async function() {
         await GameServerMock.create();
 
-        expect(createNamespacedPodStub.calledOnce).to.eql(true);
+        expect(createNamespacedPodStub.calledTwice).to.eql(true);
         expect(createNamespacedServiceStub.calledOnce).to.eql(true);
 
         expect(patchNamespacedConfigMapStub.calledOnce).to.eql(true);

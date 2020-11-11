@@ -67,13 +67,9 @@ describe('workers/unzip', function() {
       md5 = await new Promise((resolve, reject) => {
         const fileStream = fs.createReadStream(__filename);
         const hash = crypto.createHash('md5');
-        hash.setEncoding('hex');
-        fileStream.on('end', () => {
-          hash.end();
-          return resolve(hash.read() as string);
-        });
-        fileStream.on('error', reject);
-        fileStream.pipe(hash);
+        fileStream.on('error', err => reject(err));
+        fileStream.on('data', chunk => hash.update(chunk));
+        fileStream.on('end', () => resolve(hash.digest('hex')));
       });
     });
 

@@ -19,8 +19,9 @@ import * as mongoose from 'mongoose';
 
 import { User, UserDocument } from '../user';
 
-// Publish to Kafka.
 export const GroupEvent = new EventEmitter<IDatabasePayload<GroupDocument>>();
+
+// Publish to Kafka.
 GroupEvent.on(payload => {
   kafka.publish(payload);
 });

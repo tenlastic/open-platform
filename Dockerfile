@@ -43,6 +43,11 @@ RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add 
   apt-get install -y kubectl && \
   ln -s /usr/bin/kubectl /usr/local/bin/kubectl
 
+# Install argo.
+RUN wget https://github.com/argoproj/argo/releases/download/v$ARGO_VERSION/argo-linux-amd64 -O argo && \
+  chmod +x argo && \
+  mv argo /usr/local/bin/argo
+
 # Install helm.
 RUN curl -o helm-${HELM_VERSION}-linux-amd64.tgz https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz && \
   tar -zxvf helm-${HELM_VERSION}-linux-amd64.tgz && \
@@ -64,12 +69,7 @@ RUN wget https://github.com/bitnami-labs/sealed-secrets/releases/download/${KUBE
   chmod +x kubeseal && \
   mv kubeseal /usr/local/bin/kubeseal
 
-# Install Stern.
+# Install stern.
 RUN wget https://github.com/wercker/stern/releases/download/$STERN_VERSION/stern_linux_amd64 -O stern && \
   chmod +x stern && \
   mv stern /usr/local/bin/stern
-
-#Install Argo CLI.
-RUN wget https://github.com/argoproj/argo/releases/download/v$ARGO_VERSION/argo-linux-amd64 -O argo && \
-  chmod +x argo && \
-  mv argo /usr/local/bin/argo

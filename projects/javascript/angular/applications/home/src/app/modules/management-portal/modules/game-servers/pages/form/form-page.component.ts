@@ -189,7 +189,7 @@ export class GameServersFormPageComponent implements OnInit {
     }
 
     this.form = this.formBuilder.group({
-      buildId: [this.data.buildId || this.builds.length > 0 ? this.builds[0]._id : null],
+      buildId: [this.data.buildId || (this.builds.length > 0 ? this.builds[0]._id : null)],
       cpu: [this.data.cpu || this.cpus[0], Validators.required],
       description: [this.data.description],
       isPersistent: [this.data.isPersistent || true],

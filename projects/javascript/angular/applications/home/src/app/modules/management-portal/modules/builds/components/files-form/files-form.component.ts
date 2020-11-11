@@ -16,14 +16,18 @@ import {
   Build,
   BuildService,
   BuildTask,
+  BuildTaskQuery,
   BuildTaskService,
   FileService,
   IBuild,
 } from '@tenlastic/ng-http';
 import JSZip from 'jszip';
+import { Observable, Subscription } from 'rxjs';
 import { last, map, tap } from 'rxjs/operators';
 
 import { FileReaderService, IdentityService } from '../../../../../../core/services';
+import { Order, sortByOptions } from '@datorama/akita';
+import { MAT_SORT_HEADER_INTL_PROVIDER } from '@angular/material';
 
 export interface FileFormComponentData {
   platform: IBuild.Platform;
@@ -55,6 +59,8 @@ export class FilesFormComponent implements OnDestroy, OnInit {
     unzip: 'Unzip',
   };
 
+  public $tasks: Observable<BuildTask[]>;
+  public setTasks$ = new Subscription();
   public builds: Build[] = [];
   public error: string;
   public get finishedTasks() {
@@ -82,10 +88,9 @@ export class FilesFormComponent implements OnDestroy, OnInit {
   public uploadStatus: any;
   public zipStatus: any;
 
-  private isDestroyed = false;
-
   constructor(
     private buildService: BuildService,
+    private buildTaskQuery: BuildTaskQuery,
     private buildTaskService: BuildTaskService,
     private changeDetectorRef: ChangeDetectorRef,
     private fileReaderService: FileReaderService,
@@ -108,7 +113,7 @@ export class FilesFormComponent implements OnDestroy, OnInit {
   }
 
   public ngOnDestroy() {
-    this.isDestroyed = true;
+    this.setTasks$.unsubscribe();
   }
 
   public cancel() {
@@ -169,7 +174,10 @@ export class FilesFormComponent implements OnDestroy, OnInit {
     this.cancel();
     this.status = 'Retrieving files from previous Build...';
 
-    this.previousBuild = value;
+    const build = this.builds.find(b => b._id === value._id);
+    Object.assign(build, value);
+
+    this.previousBuild = build;
 
     this.previousFiles = await this.fileService.find(this.previousBuild._id, this.platform, {
       limit: 1000,
@@ -234,12 +242,8 @@ export class FilesFormComponent implements OnDestroy, OnInit {
     this.status = 'Waiting for background tasks...';
     this.uploadStatus = null;
 
-    this.tasks = await this.buildTaskService.find(this.build._id, {
-      where: { platform: { $eq: this.platform } },
-    });
-
     while (this.unfinishedTasks.length > 0) {
-      await new Promise(resolve => setTimeout(resolve, 15000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
     this.status = null;
@@ -264,19 +268,16 @@ export class FilesFormComponent implements OnDestroy, OnInit {
   }
 
   private async getBuildTasks() {
-    if (this.isDestroyed) {
-      return;
-    }
+    this.$tasks = this.buildTaskQuery.selectAll({
+      filterBy: t => t.buildId === this.build._id && t.platform === this.platform,
+      sortBy: 'createdAt',
+      sortByOrder: Order.DESC,
+    });
+    this.setTasks$ = this.$tasks.subscribe(t => (this.tasks = t));
 
-    try {
-      this.tasks = await this.buildTaskService.find(this.build._id, {
-        sort: '-createdAt',
-        where: { platform: this.platform },
-      });
-
-      await new Promise(resolve => setTimeout(resolve, 15000));
-    } catch {}
-
-    return this.getBuildTasks();
+    await this.buildTaskService.find(this.build._id, {
+      sort: '-createdAt',
+      where: { platform: this.platform },
+    });
   }
 }

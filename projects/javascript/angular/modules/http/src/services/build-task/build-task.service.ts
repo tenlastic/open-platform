@@ -10,6 +10,7 @@ export class BuildTaskService {
 
   public onCreate = new EventEmitter<BuildTask>();
   public onDelete = new EventEmitter<BuildTask>();
+  public onRead = new EventEmitter<BuildTask[]>();
   public onUpdate = new EventEmitter<BuildTask>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
@@ -36,6 +37,9 @@ export class BuildTaskService {
       parameters,
     );
 
-    return response.records.map(record => new BuildTask(record));
+    const records = response.records.map(record => new BuildTask(record));
+    this.onRead.emit(records);
+
+    return records;
   }
 }

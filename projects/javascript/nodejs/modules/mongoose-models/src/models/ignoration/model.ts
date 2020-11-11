@@ -19,6 +19,8 @@ import * as mongoose from 'mongoose';
 import { User, UserDocument } from '../user';
 
 export const IgnorationEvent = new EventEmitter<IDatabasePayload<IgnorationDocument>>();
+
+// Publish changes to Kafka.
 IgnorationEvent.on(payload => {
   kafka.publish(payload);
 });

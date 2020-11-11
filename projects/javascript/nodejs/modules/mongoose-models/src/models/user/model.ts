@@ -30,9 +30,6 @@ import { RefreshToken, RefreshTokenDocument } from '../refresh-token/model';
 import { UserPermissions } from './';
 
 const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
-UserEvent.on(payload => {
-  kafka.publish(payload);
-});
 
 export enum UserRole {
   Articles = 'articles',
@@ -45,6 +42,11 @@ export enum UserRole {
   Queues = 'queues',
   Users = 'users',
 }
+
+// Publish changes to Kafka.
+UserEvent.on(payload => {
+  kafka.publish(payload);
+});
 
 @index(
   { email: 1 },

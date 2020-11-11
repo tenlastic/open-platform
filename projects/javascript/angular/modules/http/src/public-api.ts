@@ -48,6 +48,8 @@ export * from './services/user/user.service';
 export * from './services/web-socket/web-socket.service';
 
 export * from './states/article';
+export * from './states/build';
+export * from './states/build-task';
 export * from './states/friend';
 export * from './states/game';
 export * from './states/game-invitation';
@@ -60,7 +62,6 @@ export * from './states/message';
 export * from './states/namespace';
 export * from './states/queue';
 export * from './states/queue-member';
-export * from './states/build';
 export * from './states/user';
 export * from './states/web-socket';
 

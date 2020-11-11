@@ -26,6 +26,8 @@ import { IndexSchema } from './index/model';
 import { NamespaceDocument, NamespaceEvent } from '../namespace/model';
 
 export const CollectionEvent = new EventEmitter<IDatabasePayload<CollectionDocument>>();
+
+// Publish changes to Kafka.
 CollectionEvent.on(payload => {
   kafka.publish(payload);
 });

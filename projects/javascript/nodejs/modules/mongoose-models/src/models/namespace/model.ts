@@ -6,8 +6,11 @@ import {
   index,
   modelOptions,
   plugin,
+  post,
+  pre,
   prop,
 } from '@hasezoey/typegoose';
+import * as k8s from '@kubernetes/client-node';
 import {
   EventEmitter,
   IDatabasePayload,
@@ -22,11 +25,6 @@ import { NamespaceKey, NamespaceKeyDocument } from './key';
 import { NamespaceLimitsDocument } from './limits';
 import { NamespaceUser, NamespaceUserDocument } from './user';
 
-export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocument>>();
-NamespaceEvent.on(payload => {
-  kafka.publish(payload);
-});
-
 export class NamespaceLimitError extends Error {
   public path: string;
 
@@ -36,6 +34,8 @@ export class NamespaceLimitError extends Error {
     this.path = path;
   }
 }
+
+export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocument>>();
 
 export enum NamespaceRole {
   Articles = 'articles',
@@ -47,6 +47,15 @@ export enum NamespaceRole {
   Namespaces = 'namespaces',
   Queues = 'queues',
 }
+
+// Publish changes to Kafka.
+NamespaceEvent.on(payload => {
+  kafka.publish(payload);
+});
+
+const kc = new k8s.KubeConfig();
+kc.loadFromDefault();
+const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 
 @index({ name: 1 }, { unique: true })
 @index({ 'keys.roles': 1 })
@@ -65,6 +74,16 @@ export enum NamespaceRole {
   eventEmitter: NamespaceEvent,
 })
 @plugin(uniqueErrorPlugin)
+@pre('remove', async function(this: NamespaceDocument) {
+  await this.deleteKubernetesResources();
+})
+@post('save', async function(this: NamespaceDocument) {
+  if (!this.wasNew) {
+    return;
+  }
+
+  await this.createKubernetesResources();
+})
 export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
 
@@ -83,6 +102,14 @@ export class NamespaceSchema {
 
   @arrayProp({ default: [], items: NamespaceUser })
   public users: NamespaceUserDocument[];
+
+  public _original: any;
+  public wasModified: string[];
+  public wasNew: boolean;
+
+  private get kubernetesNamespace() {
+    return `namespace-${this._id}`;
+  }
 
   public static getDefaultUsers(
     users: Array<Partial<NamespaceUserDocument>>,
@@ -116,6 +143,22 @@ export class NamespaceSchema {
     }
 
     return copy;
+  }
+
+  /**
+   * Creates a namespace within Kubernetes.
+   */
+  private async createKubernetesResources() {
+    await coreV1.createNamespace({ metadata: { name: this.kubernetesNamespace } });
+  }
+
+  /**
+   * Deletes a namespace within Kubernetes.
+   */
+  private async deleteKubernetesResources() {
+    try {
+      await coreV1.deleteNamespace(this.kubernetesNamespace);
+    } catch {}
   }
 }
 
