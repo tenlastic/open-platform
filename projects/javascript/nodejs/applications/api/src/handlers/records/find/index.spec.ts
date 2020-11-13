@@ -36,7 +36,7 @@ describe('handlers/records/find', function() {
   });
 
   it('returns the matching records', async function() {
-    const Model = RecordSchema.getModelForClass(collection);
+    const Model = RecordSchema.getModel(collection);
     await Model.create({
       collectionId: collection._id,
       userId: user._id,
@@ -56,7 +56,7 @@ describe('handlers/records/find', function() {
   });
 
   it('properly handles Dates', async function() {
-    const Model = RecordSchema.getModelForClass(collection);
+    const Model = RecordSchema.getModel(collection);
     await Model.create({
       collectionId: collection._id,
       properties: {

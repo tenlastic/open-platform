@@ -16,8 +16,8 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Collection');
   }
 
-  const Model = RecordSchema.getModelForClass(collection);
-  const Permissions = new MongoosePermissions<RecordDocument>(Model, collection.permissions);
+  const Model = RecordSchema.getModel(collection);
+  const Permissions = RecordSchema.getPermissions(Model, collection);
 
   if (collection.namespaceDocument.limits.collections.size > 0) {
     const stats = await Model.collection.stats();

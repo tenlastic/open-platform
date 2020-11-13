@@ -34,7 +34,7 @@ describe('handlers/records/delete', function() {
     });
     user = { _id: mongoose.Types.ObjectId() };
 
-    const Model = RecordSchema.getModelForClass(collection);
+    const Model = RecordSchema.getModel(collection);
     record = await Model.create({
       collectionId: collection._id,
       userId: user._id,

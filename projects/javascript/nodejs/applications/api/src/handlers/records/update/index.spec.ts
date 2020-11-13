@@ -49,7 +49,7 @@ describe('handlers/records/update', function() {
     });
     user = { _id: mongoose.Types.ObjectId() };
 
-    const Model = RecordSchema.getModelForClass(collection);
+    const Model = RecordSchema.getModel(collection);
     record = await Model.create({
       collectionId: collection._id,
       userId: user._id,
@@ -58,7 +58,7 @@ describe('handlers/records/update', function() {
 
   context('when too many records exist', function() {
     it('throws a NamespaceLimitError', async function() {
-      const Model = RecordSchema.getModelForClass(collection);
+      const Model = RecordSchema.getModel(collection);
       await Model.create({
         collectionId: collection._id,
         userId: user._id,

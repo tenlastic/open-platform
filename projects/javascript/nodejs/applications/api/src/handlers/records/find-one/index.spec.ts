@@ -30,7 +30,7 @@ describe('handlers/records/find-one', function() {
   });
 
   it('returns the matching record', async function() {
-    const Model = RecordSchema.getModelForClass(collection);
+    const Model = RecordSchema.getModel(collection);
     const record = await Model.create({
       collectionId: collection._id,
       userId: user._id,

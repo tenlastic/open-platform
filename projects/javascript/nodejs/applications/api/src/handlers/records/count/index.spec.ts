@@ -33,7 +33,7 @@ describe('handlers/records/count', function() {
   });
 
   it('returns the number of matching records', async function() {
-    const Model = RecordSchema.getModelForClass(collection);
+    const Model = RecordSchema.getModel(collection);
     await Model.create({
       collectionId: collection._id,
       userId: user._id,

@@ -104,8 +104,8 @@ export async function subscribe(data: SubscribeData, jwt: any, ws: webServer.Web
       break;
     case 'records':
       const collection = await Collection.findOne({ _id: data.parameters.where.collectionId });
-      Model = RecordSchema.getModelForClass(collection);
-      Permissions = new MongoosePermissions<RecordDocument>(Model as any, collection.permissions);
+      Model = RecordSchema.getModel(collection);
+      Permissions = RecordSchema.getPermissions(Model, collection);
       break;
     case 'users':
       Model = User;
