@@ -21,7 +21,8 @@ export async function watch(
   const topic = `${db}.${coll}`;
 
   const resumeToken = parameters.resumeToken ? parameters.resumeToken : mongoose.Types.ObjectId();
-  const groupId = `${user.username}-${resumeToken}`;
+  const username = typeof user === 'string' ? user : user.username;
+  const groupId = `${username}-${resumeToken}`;
 
   const consumer = connection.consumer({ groupId });
   await consumer.connect();

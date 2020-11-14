@@ -6,6 +6,10 @@ import * as WS from 'ws';
 export class WebSocket extends WS {
   public isAlive: boolean;
 }
+export interface AuthenticationData {
+  jwt?: any;
+  key?: string;
+}
 export interface MessageData {
   _id: string;
   method: string;
@@ -17,9 +21,13 @@ export interface SubscribeDataParameters {
   resumeToken: string;
   where: any;
 }
-export type ConnectionCallback = (jwt: any, ws: WebSocket) => void | Promise<any>;
-export type MessageCallback = (data: MessageData, jwt: any, ws: WebSocket) => void | Promise<any>;
-export type UpgradeCallback = (jwt: any) => void | Promise<any>;
+export type ConnectionCallback = (auth: AuthenticationData, ws: WebSocket) => void | Promise<any>;
+export type MessageCallback = (
+  auth: AuthenticationData,
+  data: MessageData,
+  ws: WebSocket,
+) => void | Promise<any>;
+export type UpgradeCallback = (auth: AuthenticationData) => void | Promise<any>;
 export type WebSocketCallback = 'connection' | 'message';
 
 export class WebSocketServer {
@@ -35,11 +43,11 @@ export class WebSocketServer {
       'upgrade',
       async (request: http.IncomingMessage, socket: Socket, head: Buffer) => {
         try {
-          const jwt = await this.onUpgradeRequest(request);
+          const auth = await this.onUpgradeRequest(request);
 
           // Approve connection request and pass user data to connection event.
           this.wss.handleUpgrade(request, socket, head, ws => {
-            this.wss.emit('connection', jwt, ws);
+            this.wss.emit('connection', auth, ws);
           });
         } catch (e) {
           console.error(e);
@@ -49,18 +57,18 @@ export class WebSocketServer {
     );
 
     this.wss = new WS.Server({ noServer: true });
-    this.wss.on('connection', async (jwt: any, ws: WebSocket) => {
+    this.wss.on('connection', async (auth: AuthenticationData, ws: WebSocket) => {
       this.startHeartbeat(ws);
 
       for (const connection of this.connectionCallbacks) {
-        await connection(jwt, ws);
+        await connection(auth, ws);
       }
 
       ws.on('message', async data => {
         const json = JSON.parse(data.toString());
 
         for (const message of this.messageCallbacks) {
-          await message(json, jwt, ws);
+          await message(auth, json, ws);
         }
       });
     });
@@ -81,22 +89,31 @@ export class WebSocketServer {
   private async onUpgradeRequest(request: http.IncomingMessage) {
     // Check to see if token is set.
     const urlSearchParams = new URLSearchParams(request.url.split('?')[1]);
-    const token = urlSearchParams.get('access_token');
-    if (!token) {
-      throw new Error('Access token not found.');
+
+    const accessToken = urlSearchParams.get('access_token');
+    const apiKey = urlSearchParams.get('api_key');
+    if (!accessToken && !apiKey) {
+      throw new Error('Missing required parameters: access_token or api_key.');
     }
 
-    // Verify it is a valid JWT.
-    const jwt = jsonwebtoken.verify(token, process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n'), {
-      algorithms: ['RS256'],
-    }) as any;
+    const auth: AuthenticationData = {};
+    if (accessToken) {
+      // Verify it is a valid JWT.
+      auth.jwt = jsonwebtoken.verify(
+        accessToken,
+        process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n'),
+        { algorithms: ['RS256'] },
+      );
+    } else {
+      auth.key = apiKey;
+    }
 
     // If any upgrade callbacks throw an error, kill the connection.
     for (const upgrade of this.upgradeCallbacks) {
-      await upgrade(jwt);
+      await upgrade(auth);
     }
 
-    return jwt;
+    return auth;
   }
 
   // Sends ping requests to connected clients.

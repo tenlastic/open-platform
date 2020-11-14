@@ -66,9 +66,7 @@ export class RecordSchema {
       mongoose.connection.deleteModel(collection.collectionName);
     } catch {}
 
-    return mongoose.model(collection.collectionName, schema) as mongoose.Model<RecordDocument, {}> &
-      RecordSchema &
-      typeof RecordSchema;
+    return mongoose.model(collection.collectionName, schema) as RecordModel;
   }
 
   public static getPermissions(Model: RecordModel, collection: CollectionDocument) {

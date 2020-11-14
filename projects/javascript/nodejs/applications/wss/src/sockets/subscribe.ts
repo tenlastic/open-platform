@@ -24,7 +24,7 @@ import {
   QueueMember,
   QueueMemberPermissions,
   QueuePermissions,
-  RecordDocument,
+  RecordModel,
   RecordSchema,
   User,
   UserPermissions,
@@ -49,7 +49,11 @@ export interface SubscribeDataParameters {
 
 export const consumers = {};
 
-export async function subscribe(data: SubscribeData, jwt: any, ws: webServer.WebSocket) {
+export async function subscribe(
+  auth: webServer.AuthenticationData,
+  data: SubscribeData,
+  ws: webServer.WebSocket,
+) {
   let Model: mongoose.Model<mongoose.Document>;
   let Permissions: MongoosePermissions<any>;
 
@@ -105,7 +109,7 @@ export async function subscribe(data: SubscribeData, jwt: any, ws: webServer.Web
     case 'records':
       const collection = await Collection.findOne({ _id: data.parameters.where.collectionId });
       Model = RecordSchema.getModel(collection);
-      Permissions = RecordSchema.getPermissions(Model, collection);
+      Permissions = RecordSchema.getPermissions(Model as RecordModel, collection);
       break;
     case 'users':
       Model = User;
@@ -117,8 +121,12 @@ export async function subscribe(data: SubscribeData, jwt: any, ws: webServer.Web
       break;
   }
 
-  consumers[data._id] = await kafka.watch(Model, Permissions, data.parameters, jwt.user, payload =>
-    ws.send(JSON.stringify({ _id: data._id, ...payload })),
+  consumers[data._id] = await kafka.watch(
+    Model,
+    Permissions,
+    data.parameters,
+    auth.key || auth.jwt.user,
+    payload => ws.send(JSON.stringify({ _id: data._id, ...payload })),
   );
 
   ws.on('close', () => consumers[data._id].disconnect());
