@@ -66,10 +66,7 @@ NamespaceEvent.on(async payload => {
     toObject: { getters: true },
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: CollectionEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: CollectionEvent })
 @plugin(uniqueErrorPlugin)
 export class CollectionSchema {
   public _id: mongoose.Types.ObjectId;

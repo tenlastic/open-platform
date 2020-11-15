@@ -60,10 +60,7 @@ FileEvent.on(async payload => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: FileEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: FileEvent })
 export class FileSchema {
   public _id: mongoose.Types.ObjectId;
 

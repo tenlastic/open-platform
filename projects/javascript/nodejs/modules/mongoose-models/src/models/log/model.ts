@@ -46,10 +46,7 @@ GameServerEvent.on(async payload => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: LogEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: LogEvent })
 @pre('save', function(this: LogDocument) {
   this.expiresAt = new Date(this.createdAt);
   this.expiresAt.setDate(this.createdAt.getDate() + 3);

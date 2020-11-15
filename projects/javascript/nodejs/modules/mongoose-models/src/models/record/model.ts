@@ -1,4 +1,12 @@
-import { DocumentType, Ref, ReturnModelType, buildSchema, prop } from '@hasezoey/typegoose';
+import {
+  DocumentType,
+  Ref,
+  ReturnModelType,
+  buildSchema,
+  modelOptions,
+  plugin,
+  prop,
+} from '@hasezoey/typegoose';
 import * as jsonSchema from '@tenlastic/json-schema';
 import {
   EventEmitter,
@@ -14,6 +22,21 @@ import { CollectionDocument } from '../collection/model';
 import { UserDocument } from '../user/model';
 import { RecordPermissions } from './permissions';
 
+export const RecordEvent = new EventEmitter<IDatabasePayload<RecordDocument>>();
+
+// Send changes to Kafka.
+RecordEvent.on(payload => {
+  kafka.publish(payload);
+});
+
+@modelOptions({
+  schemaOptions: {
+    minimize: false,
+    timestamps: true,
+  },
+})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: RecordEvent })
+@plugin(uniqueErrorPlugin)
 export class RecordSchema {
   public _id: mongoose.Types.ObjectId;
 
@@ -36,30 +59,12 @@ export class RecordSchema {
 
   public static getModel(collection: CollectionDocument) {
     // Build schema from Collection's properties.
-    const Schema = buildSchema(RecordSchema);
-    const schema = new mongoose.Schema(
-      { properties: jsonSchema.toMongoose(collection.jsonSchema) },
-      {
-        autoIndex: false,
-        collection: collection.collectionName,
-        minimize: false,
-        timestamps: true,
-      },
-    );
-    schema.add(Schema);
+    const schema = buildSchema(RecordSchema).clone();
+    schema.add({ properties: jsonSchema.toMongoose(collection.jsonSchema) });
+    schema.set('collection', collection.collectionName);
 
     // Register indexes with Mongoose.
     collection.indexes.forEach(i => schema.index(i.key, i.options));
-
-    // Send changes to Kafka.
-    const RecordEvent = new EventEmitter<IDatabasePayload<RecordDocument>>();
-    RecordEvent.on(payload => {
-      kafka.publish(payload);
-    });
-    schema.plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: RecordEvent });
-
-    // Handle uniqueness errors uniformly.
-    schema.plugin(uniqueErrorPlugin);
 
     // Remove cached Model from Mongoose.
     try {

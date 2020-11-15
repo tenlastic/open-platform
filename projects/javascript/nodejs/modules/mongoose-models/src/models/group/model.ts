@@ -42,10 +42,7 @@ setInterval(async () => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: GroupEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GroupEvent })
 export class GroupSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

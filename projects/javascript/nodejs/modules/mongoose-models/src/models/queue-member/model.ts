@@ -50,10 +50,7 @@ WebSocketEvent.on(async payload => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: QueueMemberEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: QueueMemberEvent })
 export class QueueMemberSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

@@ -60,10 +60,7 @@ NamespaceEvent.on(async payload => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: GameEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameEvent })
 @plugin(uniqueErrorPlugin)
 export class GameSchema {
   public _id: mongoose.Types.ObjectId;

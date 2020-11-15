@@ -69,10 +69,7 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: NamespaceEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: NamespaceEvent })
 @plugin(uniqueErrorPlugin)
 @pre('remove', async function(this: NamespaceDocument) {
   await this.deleteKubernetesResources();

@@ -38,10 +38,7 @@ MessageEvent.on(payload => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: MessageEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: MessageEvent })
 export class MessageSchema {
   public _id: mongoose.Types.ObjectId;
 

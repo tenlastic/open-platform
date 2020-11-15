@@ -44,10 +44,7 @@ NamespaceEvent.on(async payload => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: BuildEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: BuildEvent })
 export class BuildSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

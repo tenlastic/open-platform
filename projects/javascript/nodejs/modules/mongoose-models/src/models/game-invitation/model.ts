@@ -44,10 +44,7 @@ NamespaceEvent.on(async payload => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: GameInvitationEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameInvitationEvent })
 export class GameInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

@@ -47,10 +47,7 @@ BuildTaskEvent.on(payload => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: BuildTaskEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: BuildTaskEvent })
 export class BuildTaskSchema {
   public _id: mongoose.Types.ObjectId;
 

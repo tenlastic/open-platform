@@ -48,10 +48,7 @@ setInterval(async () => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: WebSocketEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: WebSocketEvent })
 @plugin(uniqueErrorPlugin)
 export class WebSocketSchema {
   public _id: mongoose.Types.ObjectId;

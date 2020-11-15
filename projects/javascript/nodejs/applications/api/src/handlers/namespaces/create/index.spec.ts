@@ -26,8 +26,6 @@ describe('handlers/namespaces/create', function() {
       state: { user },
     });
 
-    console.log(JSON.stringify(ctx));
-
     await handler(ctx as any);
 
     expect(ctx.response.body.record).to.exist;

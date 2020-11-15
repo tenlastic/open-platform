@@ -33,10 +33,7 @@ FriendEvent.on(payload => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['fromUserId', 'toUserId'],
-  eventEmitter: FriendEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['fromUserId', 'toUserId'], eventEmitter: FriendEvent })
 export class FriendSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

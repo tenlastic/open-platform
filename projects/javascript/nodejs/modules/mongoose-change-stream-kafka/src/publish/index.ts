@@ -10,7 +10,8 @@ import { createTopic } from '../create-topic';
 export async function publish<T extends Document>(msg: IDatabasePayload<T>) {
   const start = Date.now();
 
-  const { coll, db } = msg.ns;
+  const db = msg.ns.db;
+  const coll = msg.ns.coll.replace(/\//g, '.');
   const topic = `${db}.${coll}`;
 
   await createTopic(topic);

@@ -45,10 +45,7 @@ NamespaceEvent.on(async payload => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: QueueEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: QueueEvent })
 export class QueueSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

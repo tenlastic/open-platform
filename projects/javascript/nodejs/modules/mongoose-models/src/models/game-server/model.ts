@@ -77,10 +77,7 @@ const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: GameServerEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameServerEvent })
 @plugin(uniqueErrorPlugin)
 @pre('remove', async function(this: GameServerDocument) {
   await this.deleteKubernetesResources();

@@ -44,10 +44,7 @@ NamespaceEvent.on(async payload => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: ArticleEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: ArticleEvent })
 export class ArticleSchema {
   public _id: mongoose.Types.ObjectId;
 

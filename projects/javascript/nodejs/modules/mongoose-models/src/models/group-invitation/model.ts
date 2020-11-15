@@ -46,10 +46,7 @@ setInterval(async () => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: GroupInvitationEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GroupInvitationEvent })
 export class GroupInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

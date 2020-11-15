@@ -38,10 +38,7 @@ PasswordResetEvent.on(payload => {
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: PasswordResetEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: PasswordResetEvent })
 @plugin(uniqueErrorPlugin)
 @pre('save', async function(this: PasswordResetDocument) {
   if (this.isNew) {
