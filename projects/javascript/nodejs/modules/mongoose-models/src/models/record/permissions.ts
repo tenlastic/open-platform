@@ -1,18 +1,14 @@
 export const RecordPermissions = {
   create: {
-    roles: {
-      'namespace-administrator': ['collectionId', 'properties.*', 'userId'],
-      'system-administrator': ['collectionId', 'properties.*', 'userId'],
-    },
+    'namespace-administrator': ['collectionId', 'properties.*', 'userId'],
+    'system-administrator': ['collectionId', 'properties.*', 'userId'],
   },
   delete: {
-    roles: {
-      'namespace-administrator': true,
-      'system-administrator': true,
-    },
+    'namespace-administrator': true,
+    'system-administrator': true,
   },
   find: {
-    base: {
+    default: {
       collectionId: {
         $in: {
           // Find Collections within returned Namespace.
@@ -54,9 +50,7 @@ export const RecordPermissions = {
         },
       },
     },
-    roles: {
-      'system-administrator': {},
-    },
+    'system-administrator': {},
   },
   populate: [
     {
@@ -65,24 +59,22 @@ export const RecordPermissions = {
     },
   ],
   read: {
-    roles: {
-      'namespace-administrator': [
-        '_id',
-        'collectionId',
-        'createdAt',
-        'properties.*',
-        'updatedAt',
-        'userId',
-      ],
-      'system-administrator': [
-        '_id',
-        'collectionId',
-        'createdAt',
-        'properties.*',
-        'updatedAt',
-        'userId',
-      ],
-    },
+    'namespace-administrator': [
+      '_id',
+      'collectionId',
+      'createdAt',
+      'properties.*',
+      'updatedAt',
+      'userId',
+    ],
+    'system-administrator': [
+      '_id',
+      'collectionId',
+      'createdAt',
+      'properties.*',
+      'updatedAt',
+      'userId',
+    ],
   },
   roles: [
     {
@@ -116,9 +108,7 @@ export const RecordPermissions = {
     },
   ],
   update: {
-    roles: {
-      'namespace-administrator': ['collectionId', 'properties.*', 'userId'],
-      'system-administrator': ['collectionId', 'properties.*', 'userId'],
-    },
+    'namespace-administrator': ['collectionId', 'properties.*', 'userId'],
+    'system-administrator': ['collectionId', 'properties.*', 'userId'],
   },
 };

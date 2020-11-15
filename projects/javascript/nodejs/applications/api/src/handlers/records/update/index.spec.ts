@@ -36,14 +36,14 @@ describe('handlers/records/update', function() {
         create: {},
         delete: {},
         find: {
-          base: {},
+          default: {},
         },
         read: {
-          base: ['_id', 'createdAt', 'properties.email', 'properties.name', 'updatedAt'],
+          default: ['_id', 'createdAt', 'properties.email', 'properties.name', 'updatedAt'],
         },
         roles: [],
         update: {
-          base: ['properties.email', 'properties.name'],
+          default: ['properties.email', 'properties.name'],
         },
       },
     });

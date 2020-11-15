@@ -4,19 +4,15 @@ import { Collection, CollectionDocument } from './model';
 
 export const CollectionPermissions = new MongoosePermissions<CollectionDocument>(Collection, {
   create: {
-    roles: {
-      'namespace-administrator': ['jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
-      'system-administrator': ['jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
-    },
+    'namespace-administrator': ['jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
+    'system-administrator': ['jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
   },
   delete: {
-    roles: {
-      'namespace-administrator': true,
-      'system-administrator': true,
-    },
+    'namespace-administrator': true,
+    'system-administrator': true,
   },
   find: {
-    base: {
+    default: {
       namespaceId: {
         $in: {
           // Find Namespaces where the Key or User has administrator access.
@@ -47,13 +43,11 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
         },
       },
     },
-    roles: {
-      'system-administrator': {},
-    },
+    'system-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {
-    base: [
+    default: [
       '_id',
       'createdAt',
       'indexes',
@@ -96,15 +90,7 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
     },
   ],
   update: {
-    roles: {
-      'namespace-administrator': [
-        'indexes',
-        'jsonSchema.*',
-        'name',
-        'namespaceId',
-        'permissions.*',
-      ],
-      'system-administrator': ['indexes', 'jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
-    },
+    'namespace-administrator': ['indexes', 'jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
+    'system-administrator': ['indexes', 'jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
   },
 });

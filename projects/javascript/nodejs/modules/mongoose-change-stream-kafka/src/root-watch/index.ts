@@ -13,7 +13,7 @@ export async function rootWatch<
   where: any,
   onChange: (payload: IDatabasePayload<Partial<TDocument>>) => void,
 ) {
-  const coll = Model.collection.name.replace(/\//g, '.');
+  const coll = Model.collection.name;
   const db = Model.db.db.databaseName;
   const topic = `${db}.${coll}`;
 

@@ -4,33 +4,29 @@ import { File, FileDocument } from './model';
 
 export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
   create: {
-    roles: {
-      'namespace-administrator': [
-        'buildId',
-        'compressedBytes',
-        'md5',
-        'path',
-        'platform',
-        'uncompressedBytes',
-      ],
-      'system-administrator': [
-        'buildId',
-        'compressedBytes',
-        'md5',
-        'path',
-        'platform',
-        'uncompressedBytes',
-      ],
-    },
+    'namespace-administrator': [
+      'buildId',
+      'compressedBytes',
+      'md5',
+      'path',
+      'platform',
+      'uncompressedBytes',
+    ],
+    'system-administrator': [
+      'buildId',
+      'compressedBytes',
+      'md5',
+      'path',
+      'platform',
+      'uncompressedBytes',
+    ],
   },
   delete: {
-    roles: {
-      'namespace-administrator': true,
-      'system-administrator': true,
-    },
+    'namespace-administrator': true,
+    'system-administrator': true,
   },
   find: {
-    base: {
+    default: {
       $or: [
         {
           buildId: {
@@ -90,9 +86,7 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
         },
       ],
     },
-    roles: {
-      'system-administrator': {},
-    },
+    'system-administrator': {},
   },
   populate: [
     {
@@ -103,7 +97,7 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
     },
   ],
   read: {
-    base: [
+    default: [
       '_id',
       'buildId',
       'compressedBytes',
@@ -147,23 +141,21 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
     },
   ],
   update: {
-    roles: {
-      'namespace-administrator': [
-        'buildId',
-        'compressedBytes',
-        'md5',
-        'path',
-        'platform',
-        'uncompressedBytes',
-      ],
-      'system-administrator': [
-        'buildId',
-        'compressedBytes',
-        'md5',
-        'path',
-        'platform',
-        'uncompressedBytes',
-      ],
-    },
+    'namespace-administrator': [
+      'buildId',
+      'compressedBytes',
+      'md5',
+      'path',
+      'platform',
+      'uncompressedBytes',
+    ],
+    'system-administrator': [
+      'buildId',
+      'compressedBytes',
+      'md5',
+      'path',
+      'platform',
+      'uncompressedBytes',
+    ],
   },
 });

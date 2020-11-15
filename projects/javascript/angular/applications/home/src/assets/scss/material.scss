@@ -275,11 +275,6 @@ mat-progress-bar.mat-progress-bar {
 
 mat-pseudo-checkbox.mat-pseudo-checkbox {
   color: rgba(255, 255, 255, 0.5);
-
-  &::after {
-    top: 4px;
-    left: 2px;
-  }
 }
 
 mat-select .mat-select-placeholder {

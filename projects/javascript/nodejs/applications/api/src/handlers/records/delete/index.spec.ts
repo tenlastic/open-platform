@@ -20,13 +20,13 @@ describe('handlers/records/delete', function() {
       permissions: {
         create: {},
         delete: {
-          base: true,
+          default: true,
         },
         find: {
-          base: {},
+          default: {},
         },
         read: {
-          base: ['_id', 'createdAt', 'properties', 'updatedAt'],
+          default: ['_id', 'createdAt', 'properties', 'updatedAt'],
         },
         roles: [],
         update: {},

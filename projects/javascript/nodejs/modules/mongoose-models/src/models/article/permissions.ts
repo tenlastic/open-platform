@@ -4,19 +4,15 @@ import { Article, ArticleDocument } from './model';
 
 export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Article, {
   create: {
-    roles: {
-      'namespace-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
-      'system-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
-    },
+    'namespace-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
+    'system-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
   },
   delete: {
-    roles: {
-      'namespace-administrator': true,
-      'system-administrator': true,
-    },
+    'namespace-administrator': true,
+    'system-administrator': true,
   },
   find: {
-    base: {
+    default: {
       $or: [
         { $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }] },
         {
@@ -52,13 +48,11 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
         },
       ],
     },
-    roles: {
-      'system-administrator': {},
-    },
+    'system-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {
-    base: [
+    default: [
       '_id',
       'body',
       'caption',
@@ -102,9 +96,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
     },
   ],
   update: {
-    roles: {
-      'namespace-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
-      'system-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
-    },
+    'namespace-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
+    'system-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
   },
 });

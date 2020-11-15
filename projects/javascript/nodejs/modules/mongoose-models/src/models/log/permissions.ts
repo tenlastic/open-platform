@@ -4,13 +4,11 @@ import { Log, LogDocument } from './model';
 
 export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
   create: {
-    roles: {
-      'namespace-administrator': ['body', 'gameServerId', 'unix'],
-      'system-administrator': ['body', 'gameServerId', 'unix'],
-    },
+    'namespace-administrator': ['body', 'gameServerId', 'unix'],
+    'system-administrator': ['body', 'gameServerId', 'unix'],
   },
   find: {
-    base: {
+    default: {
       gameServerId: {
         $in: {
           // Find Game Servers within returned Namespaces.
@@ -52,9 +50,7 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
         },
       },
     },
-    roles: {
-      'system-administrator': {},
-    },
+    'system-administrator': {},
   },
   populate: [
     {
@@ -65,7 +61,7 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
     },
   ],
   read: {
-    base: ['_id', 'body', 'createdAt', 'gameServerId', 'unix', 'updatedAt'],
+    default: ['_id', 'body', 'createdAt', 'gameServerId', 'unix', 'updatedAt'],
   },
   roles: [
     {

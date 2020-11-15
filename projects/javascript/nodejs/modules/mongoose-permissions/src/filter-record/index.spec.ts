@@ -6,7 +6,7 @@ import { filterRecord } from './';
 
 describe('filter-record', function() {
   it('handles primitive values', function() {
-    const permissions = ExamplePermissions.accessControl.options.create.roles.admin;
+    const permissions = ExamplePermissions.accessControl.options.create.admin;
     const record = new Example({ name: 'name', userId: new mongoose.Types.ObjectId() });
 
     const result = filterRecord(record, permissions);
@@ -16,7 +16,7 @@ describe('filter-record', function() {
   });
 
   it('handles nested objects', function() {
-    const permissions = ExamplePermissions.accessControl.options.create.roles.admin;
+    const permissions = ExamplePermissions.accessControl.options.create.admin;
     const record = new Example({
       properties: {
         age: 21,

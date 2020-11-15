@@ -3,26 +3,27 @@ import { MongoosePermissions } from '../mongoose-permissions';
 
 export const ExamplePermissions = new MongoosePermissions<ExampleDocument>(Example, {
   create: {
-    roles: {
-      admin: ['properties.age', 'name', 'urls'],
-    },
+    admin: ['properties.age', 'name', 'urls'],
   },
   delete: {
-    roles: {
-      admin: true,
-    },
+    admin: true,
   },
   find: {
-    roles: {
-      admin: {},
-    },
+    admin: {},
   },
   populate: [{ path: 'parent' }],
   read: {
-    base: ['_id', 'createdAt', 'updatedAt'],
-    roles: {
-      admin: ['jsonSchema.*', 'properties.age', 'properties.name', 'name', 'urls'],
-    },
+    admin: [
+      '_id',
+      'createdAt',
+      'jsonSchema.*',
+      'properties.age',
+      'properties.name',
+      'name',
+      'updatedAt',
+      'urls',
+    ],
+    default: ['_id', 'createdAt', 'updatedAt'],
   },
   roles: [
     {
@@ -35,8 +36,6 @@ export const ExamplePermissions = new MongoosePermissions<ExampleDocument>(Examp
     },
   ],
   update: {
-    roles: {
-      admin: ['jsonSchema.*', 'properties.age', 'name', 'urls'],
-    },
+    admin: ['jsonSchema.*', 'properties.age', 'name', 'urls'],
   },
 });

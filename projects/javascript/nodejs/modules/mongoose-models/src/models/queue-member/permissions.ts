@@ -4,21 +4,17 @@ import { QueueMember, QueueMemberDocument } from './model';
 
 export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocument>(QueueMember, {
   create: {
-    roles: {
-      'namespace-administrator': ['queueId', 'userId'],
-      owner: ['queueId', 'userId'],
-      'system-administrator': ['queueId', 'userId'],
-    },
+    'namespace-administrator': ['queueId', 'userId'],
+    owner: ['queueId', 'userId'],
+    'system-administrator': ['queueId', 'userId'],
   },
   delete: {
-    roles: {
-      'namespace-administrator': true,
-      owner: true,
-      'system-administrator': true,
-    },
+    'namespace-administrator': true,
+    owner: true,
+    'system-administrator': true,
   },
   find: {
-    base: {
+    default: {
       $or: [
         {
           queueId: {
@@ -89,9 +85,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
         },
       ],
     },
-    roles: {
-      'system-administrator': {},
-    },
+    'system-administrator': {},
   },
   populate: [
     {
@@ -103,7 +97,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     },
   ],
   read: {
-    base: ['_id', 'createdAt', 'queueId', 'updatedAt', 'userId'],
+    default: ['_id', 'createdAt', 'queueId', 'updatedAt', 'userId'],
   },
   roles: [
     {

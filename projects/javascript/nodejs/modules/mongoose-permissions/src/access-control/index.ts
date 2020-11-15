@@ -1,28 +1,13 @@
 import { isJsonValid } from '../is-json-valid';
 
 export interface IOptions {
-  create?: {
-    base?: string[];
-    roles?: { [key: string]: string[] };
-  };
-  delete?: {
-    base?: boolean;
-    roles?: { [key: string]: boolean };
-  };
-  find?: {
-    base?: any;
-    roles?: { [key: string]: any };
-  };
+  create?: { [key: string]: string[] };
+  delete?: { [key: string]: boolean };
+  find?: { [key: string]: any };
   populate?: IPopulate[];
-  read?: {
-    base?: string[];
-    roles?: { [key: string]: string[] };
-  };
+  read?: { [key: string]: string[] };
   roles?: IRole[];
-  update?: {
-    base?: string[];
-    roles?: { [key: string]: string[] };
-  };
+  update?: { [key: string]: string[] };
 }
 
 export interface IPopulate {
@@ -51,13 +36,13 @@ export class AccessControl {
     }
 
     const role = this.getRole(record, user);
-    const roles = this.options.delete.roles || {};
+    const roles = this.options.delete || {};
 
     if (role in roles) {
       return roles[role];
     }
 
-    return this.options.delete.base || false;
+    return roles.default || false;
   }
 
   /**
@@ -68,17 +53,15 @@ export class AccessControl {
       return null;
     }
 
-    const query = this.options.find.base;
-
     const role = this.getRole(null, user);
-    const roles = this.options.find.roles;
+    const roles = this.options.find;
     const roleAttributes = roles ? roles[role] : undefined;
 
-    if (roleAttributes === null || (roleAttributes === undefined && !query)) {
+    if (roleAttributes === null || (roleAttributes === undefined && !roles.default)) {
       return null;
     }
 
-    return roleAttributes || query || {};
+    return roleAttributes || roles.default || {};
   }
 
   /**
@@ -88,19 +71,16 @@ export class AccessControl {
    * @param user The user accessing the record.
    */
   public getFieldPermissions(key: 'create' | 'read' | 'update', record: any, user: any) {
-    const options = this.options[key];
+    const roles = this.options[key];
 
-    if (!options) {
+    if (!roles) {
       return [];
     }
 
-    const attributes = options.base || [];
-
     const role = this.getRole(record, user);
-    const roles = options.roles;
-    const roleAttributes = roles && roles[role] ? roles[role] : [];
+    const roleAttributes = roles ? roles[role] : undefined;
 
-    return attributes.concat(roleAttributes);
+    return roleAttributes || roles.default || [];
   }
 
   /**

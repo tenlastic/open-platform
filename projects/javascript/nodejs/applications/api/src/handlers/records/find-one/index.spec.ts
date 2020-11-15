@@ -13,14 +13,14 @@ describe('handlers/records/find-one', function() {
     collection = await CollectionMock.create({
       permissions: {
         create: {
-          base: ['properties'],
+          default: ['properties'],
         },
         delete: {},
         find: {
-          base: {},
+          default: {},
         },
         read: {
-          base: ['_id', 'createdAt', 'properties', 'updatedAt'],
+          default: ['_id', 'createdAt', 'properties', 'updatedAt'],
         },
         roles: [],
         update: {},

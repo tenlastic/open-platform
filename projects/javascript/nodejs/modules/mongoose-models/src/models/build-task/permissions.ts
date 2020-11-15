@@ -4,13 +4,11 @@ import { BuildTask, BuildTaskDocument } from './model';
 
 export const BuildTaskPermissions = new MongoosePermissions<BuildTaskDocument>(BuildTask, {
   delete: {
-    roles: {
-      'namespace-administrator': true,
-      'system-administrator': true,
-    },
+    'namespace-administrator': true,
+    'system-administrator': true,
   },
   find: {
-    base: {
+    default: {
       buildId: {
         $in: {
           // Find all Builds within the returned Namespaces.
@@ -52,9 +50,7 @@ export const BuildTaskPermissions = new MongoosePermissions<BuildTaskDocument>(B
         },
       },
     },
-    roles: {
-      'system-administrator': {},
-    },
+    'system-administrator': {},
   },
   populate: [
     {
@@ -65,7 +61,7 @@ export const BuildTaskPermissions = new MongoosePermissions<BuildTaskDocument>(B
     },
   ],
   read: {
-    base: [
+    default: [
       '_id',
       'action',
       'buildId',

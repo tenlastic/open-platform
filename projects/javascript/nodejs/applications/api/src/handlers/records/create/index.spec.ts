@@ -38,14 +38,14 @@ describe('handlers/records/create', function() {
       namespaceId: namespace._id,
       permissions: {
         create: {
-          base: ['properties.email', 'properties.name'],
+          default: ['properties.email', 'properties.name'],
         },
         delete: {},
         find: {
-          base: {},
+          default: {},
         },
         read: {
-          base: ['_id', 'createdAt', 'properties.email', 'properties.name', 'updatedAt'],
+          default: ['_id', 'createdAt', 'properties.email', 'properties.name', 'updatedAt'],
         },
         roles: [],
         update: {},

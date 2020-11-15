@@ -6,19 +6,15 @@ export const GroupInvitationPermissions = new MongoosePermissions<GroupInvitatio
   GroupInvitation,
   {
     create: {
-      roles: {
-        leader: ['groupId', 'toUserId'],
-        'open-member': ['groupId', 'toUserId'],
-      },
+      leader: ['groupId', 'toUserId'],
+      'open-member': ['groupId', 'toUserId'],
     },
     delete: {
-      roles: {
-        recipient: true,
-        sender: true,
-      },
+      recipient: true,
+      sender: true,
     },
     find: {
-      base: {
+      default: {
         $or: [
           { fromUserId: { $eq: { $ref: 'user._id' } } },
           { toUserId: { $eq: { $ref: 'user._id' } } },
@@ -27,7 +23,7 @@ export const GroupInvitationPermissions = new MongoosePermissions<GroupInvitatio
     },
     populate: [{ path: 'groupDocument' }],
     read: {
-      base: ['_id', 'createdAt', 'fromUserId', 'groupId', 'toUserId', 'updatedAt'],
+      default: ['_id', 'createdAt', 'fromUserId', 'groupId', 'toUserId', 'updatedAt'],
     },
     roles: [
       {

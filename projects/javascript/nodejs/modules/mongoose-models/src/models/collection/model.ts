@@ -104,10 +104,46 @@ export class CollectionSchema {
   public namespaceDocument: NamespaceDocument;
 
   public get collectionName() {
-    return `collections/${this._id}`;
+    return `collections.${this._id}`;
   }
 
-  private get validator() {
+  /**
+   * Drops collection from MongoDB.
+   */
+  public async dropCollection(this: CollectionDocument) {
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    const collectionExists = collections.map(c => c.name).includes(this.collectionName);
+
+    if (!collectionExists) {
+      return;
+    }
+
+    return mongoose.connection.db.dropCollection(this.collectionName);
+  }
+
+  /**
+   * Sets the validator on the MongoDB collection.
+   * Creates the collection first if it does not exist.
+   */
+  public async setValidator(this: CollectionDocument) {
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    const collectionExists = collections.map(c => c.name).includes(this.collectionName);
+
+    if (collectionExists) {
+      await mongoose.connection.db.command({
+        collMod: this.collectionName,
+        validator: this.getValidator(),
+      });
+    } else {
+      await mongoose.connection.createCollection(this.collectionName, {
+        strict: true,
+        validationLevel: 'strict',
+        validator: this.getValidator(),
+      });
+    }
+  }
+
+  private getValidator() {
     return {
       $jsonSchema: {
         additionalProperties: false,
@@ -138,42 +174,6 @@ export class CollectionSchema {
         },
       },
     };
-  }
-
-  /**
-   * Drops collection from MongoDB.
-   */
-  public async dropCollection(this: CollectionDocument) {
-    const collections = await mongoose.connection.db.listCollections().toArray();
-    const collectionExists = collections.map(c => c.name).includes(this.collectionName);
-
-    if (!collectionExists) {
-      return;
-    }
-
-    return mongoose.connection.db.dropCollection(this.collectionName);
-  }
-
-  /**
-   * Sets the validator on the MongoDB collection.
-   * Creates the collection first if it does not exist.
-   */
-  public async setValidator(this: CollectionDocument) {
-    const collections = await mongoose.connection.db.listCollections().toArray();
-    const collectionExists = collections.map(c => c.name).includes(this.collectionName);
-
-    if (collectionExists) {
-      await mongoose.connection.db.command({
-        collMod: this.collectionName,
-        validator: this.validator,
-      });
-    } else {
-      await mongoose.connection.createCollection(this.collectionName, {
-        strict: true,
-        validationLevel: 'strict',
-        validator: this.validator,
-      });
-    }
   }
 }
 

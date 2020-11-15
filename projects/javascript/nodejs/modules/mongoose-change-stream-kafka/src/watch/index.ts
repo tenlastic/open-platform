@@ -16,7 +16,7 @@ export async function watch(
   user: any,
   onChange: (payload: any) => void,
 ) {
-  const coll = Model.collection.name.replace(/\//g, '.');
+  const coll = Model.collection.name;
   const db = Model.db.db.databaseName;
   const topic = `${db}.${coll}`;
 
@@ -60,7 +60,7 @@ export async function watch(
           return onChange(payload);
         }
       } catch (e) {
-        console.error(e);
+        console.error(e.stack);
       }
     },
   });

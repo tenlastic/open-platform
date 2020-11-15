@@ -15,12 +15,16 @@ export async function handler(ctx: Context) {
   const Model = RecordSchema.getModel(collection);
   const Permissions = RecordSchema.getPermissions(Model, collection);
 
-  const results = await Permissions.find(
-    ctx.request.query,
-    { where: { collectionId: collection._id } },
-    ctx.state.apiKey || ctx.state.user,
-  );
-  const records = await Promise.all(results.map(r => Permissions.read(r, user)));
+  try {
+    const results = await Permissions.find(
+      ctx.request.query,
+      { where: { collectionId: collection._id } },
+      ctx.state.apiKey || ctx.state.user,
+    );
+    const records = await Promise.all(results.map(r => Permissions.read(r, user)));
 
-  ctx.response.body = { records };
+    ctx.response.body = { records };
+  } catch (e) {
+    console.error(e.stack);
+  }
 }

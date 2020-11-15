@@ -115,29 +115,23 @@ export class CollectionFormService {
     const findCriteria = [];
     if (
       permissions.find &&
-      permissions.find.roles &&
-      permissions.find.roles[name] &&
-      Object.keys(permissions.find.roles[name]).length > 0
+      permissions.find[name] &&
+      Object.keys(permissions.find[name]).length > 0
     ) {
-      const operator = '$and' in permissions.find.roles[name] ? '$and' : '$or';
+      const operator = '$and' in permissions.find[name] ? '$and' : '$or';
 
-      permissions.find.roles[name][operator].forEach(criterion => {
+      permissions.find[name][operator].forEach(criterion => {
         const formGroup = this.getFormGroupFromCriterion(criterion);
         findCriteria.push(formGroup);
       });
     }
 
     return this.formBuilder.group({
-      create: [
-        permissions.create && permissions.create.roles ? permissions.create.roles[name] : null,
-      ],
-      delete:
-        permissions.delete && permissions.delete.roles ? permissions.delete.roles[name] : false,
+      create: [permissions.create && permissions.create ? permissions.create[name] : null],
+      delete: permissions.delete && permissions.delete ? permissions.delete[name] : false,
       find: this.formBuilder.array(findCriteria),
-      read: [permissions.read && permissions.read.roles ? permissions.read.roles[name] : null],
-      update: [
-        permissions.update && permissions.update.roles ? permissions.update.roles[name] : null,
-      ],
+      read: [permissions.read && permissions.read ? permissions.read[name] : null],
+      update: [permissions.update && permissions.update ? permissions.update[name] : null],
     });
   }
 
@@ -246,28 +240,22 @@ export class CollectionFormService {
   public getPermissionsJsonFromRoles(properties: PropertyFormGroup[], roles: RoleFormGroup[]) {
     return roles.reduce(
       (accumulator, role) => {
-        accumulator.create.roles[role.key] = role.permissions.create;
-        accumulator.delete.roles[role.key] = role.permissions.delete;
-        accumulator.read.roles[role.key] = role.permissions.read;
-        accumulator.update.roles[role.key] = role.permissions.update;
+        accumulator.create[role.key] = role.permissions.create;
+        accumulator.delete[role.key] = role.permissions.delete;
+        accumulator.read[role.key] = role.permissions.read;
+        accumulator.update[role.key] = role.permissions.update;
 
         if (role.permissions.find) {
           const criteria = role.permissions.find.map(criterion => {
             return this.getJsonFromCriterion(criterion, properties);
           });
 
-          accumulator.find.roles[role.key] = criteria.length > 0 ? { $and: criteria } : {};
+          accumulator.find[role.key] = criteria.length > 0 ? { $and: criteria } : {};
         }
 
         return accumulator;
       },
-      {
-        create: { roles: {} },
-        delete: { roles: {} },
-        find: { roles: {} },
-        read: { roles: {} },
-        update: { roles: {} },
-      },
+      { create: {}, delete: {}, find: {}, read: {}, update: {} },
     );
   }
 

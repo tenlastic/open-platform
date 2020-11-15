@@ -4,9 +4,9 @@ import { WebSocket, WebSocketDocument } from './model';
 
 export const WebSocketPermissions = new MongoosePermissions<WebSocketDocument>(WebSocket, {
   find: {
-    base: {},
+    default: {},
   },
   read: {
-    base: ['_id', 'createdAt', 'namespaceId', 'updatedAt', 'userId'],
+    default: ['_id', 'createdAt', 'namespaceId', 'updatedAt', 'userId'],
   },
 });

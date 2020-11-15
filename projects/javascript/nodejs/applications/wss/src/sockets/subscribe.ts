@@ -107,7 +107,7 @@ export async function subscribe(
       Permissions = QueuePermissions;
       break;
     case 'records':
-      const collection = await Collection.findOne({ _id: data.parameters.where.collectionId });
+      const collection = await Collection.findOne({ _id: data.parameters.where.collectionId.$eq });
       Model = RecordSchema.getModel(collection);
       Permissions = RecordSchema.getPermissions(Model as RecordModel, collection);
       break;

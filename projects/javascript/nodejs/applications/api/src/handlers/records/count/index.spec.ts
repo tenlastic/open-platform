@@ -16,14 +16,14 @@ describe('handlers/records/count', function() {
       },
       permissions: {
         create: {
-          base: ['properties'],
+          default: ['properties'],
         },
         delete: {},
         find: {
-          base: {},
+          default: {},
         },
         read: {
-          base: ['_id', 'createdAt', 'properties', 'updatedAt'],
+          default: ['_id', 'createdAt', 'properties', 'updatedAt'],
         },
         roles: [],
         update: {},

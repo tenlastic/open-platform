@@ -4,30 +4,26 @@ import { Game, GameDocument } from './model';
 
 export const GamePermissions = new MongoosePermissions<GameDocument>(Game, {
   create: {
-    roles: {
-      'namespace-administrator': [
-        'background',
-        'description',
-        'icon',
-        'images',
-        'namespaceId',
-        'subtitle',
-        'title',
-        'videos',
-      ],
-    },
+    'namespace-administrator': [
+      'background',
+      'description',
+      'icon',
+      'images',
+      'namespaceId',
+      'subtitle',
+      'title',
+      'videos',
+    ],
   },
   delete: {
-    roles: {
-      'namespace-administrator': true,
-    },
+    'namespace-administrator': true,
   },
   find: {
-    base: {},
+    default: {},
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {
-    base: [
+    default: [
       '_id',
       'background',
       'createdAt',
@@ -67,17 +63,15 @@ export const GamePermissions = new MongoosePermissions<GameDocument>(Game, {
     },
   ],
   update: {
-    roles: {
-      'namespace-administrator': [
-        'background',
-        'description',
-        'icon',
-        'images',
-        'namespaceId',
-        'subtitle',
-        'title',
-        'videos',
-      ],
-    },
+    'namespace-administrator': [
+      'background',
+      'description',
+      'icon',
+      'images',
+      'namespaceId',
+      'subtitle',
+      'title',
+      'videos',
+    ],
   },
 });

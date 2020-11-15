@@ -6,20 +6,16 @@ export const GameInvitationPermissions = new MongoosePermissions<GameInvitationD
   GameInvitation,
   {
     create: {
-      roles: {
-        'namespace-administrator': ['namespaceId', 'userId'],
-        'system-administrator': ['namespaceId', 'userId'],
-      },
+      'namespace-administrator': ['namespaceId', 'userId'],
+      'system-administrator': ['namespaceId', 'userId'],
     },
     delete: {
-      roles: {
-        'namespace-administrator': true,
-        recipient: true,
-        'system-administrator': true,
-      },
+      'namespace-administrator': true,
+      recipient: true,
+      'system-administrator': true,
     },
     find: {
-      base: {
+      default: {
         $or: [
           {
             namespaceId: {
@@ -57,13 +53,11 @@ export const GameInvitationPermissions = new MongoosePermissions<GameInvitationD
           },
         ],
       },
-      roles: {
-        'system-administrator': {},
-      },
+      'system-administrator': {},
     },
     populate: [{ path: 'namespaceDocument' }],
     read: {
-      base: ['_id', 'createdAt', 'namespaceId', 'userId', 'updatedAt'],
+      default: ['_id', 'createdAt', 'namespaceId', 'userId', 'updatedAt'],
     },
     roles: [
       {

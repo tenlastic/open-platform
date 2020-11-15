@@ -44,7 +44,7 @@ export class RecordsListPageComponent implements OnInit {
     private titleService: Title,
   ) {}
 
-  ngOnInit() {
+  public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
       const collectionId = params.get('collectionId');
       this.collection = await this.collectionService.findOne(collectionId);
