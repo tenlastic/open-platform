@@ -57,9 +57,9 @@ const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 
+@index({ 'keys.value': 1 }, { unique: true })
 @index({ name: 1 }, { unique: true })
 @index({ 'keys.roles': 1 })
-@index({ 'keys.value': 1 })
 @index({ 'users._id': 1 })
 @index({ 'users.roles': 1 })
 @modelOptions({
