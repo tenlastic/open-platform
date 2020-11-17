@@ -81,7 +81,7 @@
                         [value]="cpu">{{ cpu }}</mat-option>
           </mat-select>
         </mat-form-field>
-  
+
         <mat-form-field floatLabel="always">
           <mat-label>Memory</mat-label>
           <mat-select formControlName="memory">
@@ -115,7 +115,7 @@
       </div>
     </app-toggle-section>
 
-    <div *ngIf="error"
+    <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}
     </div>

@@ -14,7 +14,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
+import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -71,9 +71,7 @@ export class RefreshTokensListPageComponent implements OnInit {
         await this.refreshTokenService.delete(record._id);
         this.deleteRefreshToken(record);
 
-        this.matSnackBar.open('Refresh Token deleted successfully.', null, {
-          duration: SNACKBAR_DURATION,
-        });
+        this.matSnackBar.open('Refresh Token deleted successfully.');
       }
     });
   }

@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatSnackBar } from '@angular/material';
@@ -5,7 +6,6 @@ import { Game, GameService } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 import { MediaDialogComponent } from '../../components';
 
 @Component({
@@ -14,7 +14,7 @@ import { MediaDialogComponent } from '../../components';
 })
 export class GamesFormPageComponent implements OnInit {
   public data: Game;
-  public error: string;
+  public errors: string[] = [];
   public form: FormGroup;
 
   constructor(
@@ -86,10 +86,10 @@ export class GamesFormPageComponent implements OnInit {
       title: this.form.get('title').value,
     };
 
-    if (this.data._id) {
-      this.update(values);
-    } else {
-      this.create(values);
+    try {
+      await this.upsert(values);
+    } catch (e) {
+      this.handleHttpError(e, { namespaceId: 'Namespace', subtitle: 'Subtitle', title: 'Title' });
     }
   }
 
@@ -97,15 +97,16 @@ export class GamesFormPageComponent implements OnInit {
     this.matDialog.open(MediaDialogComponent, { autoFocus: false, data: { src, type } });
   }
 
-  private async create(data: Partial<Game>) {
-    try {
-      this.data = await this.gameService.create(data);
-      this.matSnackBar.open('Game information updated successfully.', null, {
-        duration: SNACKBAR_DURATION,
-      });
-    } catch (e) {
-      this.error = 'That title is already taken.';
-    }
+  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
+    this.errors = err.error.errors.map(e => {
+      if (e.name === 'UniquenessError') {
+        const combination = e.paths.length > 1 ? 'combination ' : '';
+        const paths = e.paths.map(p => pathMap[p]);
+        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
+      } else {
+        return e.message;
+      }
+    });
   }
 
   private setupForm(): void {
@@ -118,19 +119,17 @@ export class GamesFormPageComponent implements OnInit {
       title: [this.data.title, Validators.required],
     });
 
-    this.form.valueChanges.subscribe(() => (this.error = null));
+    this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async update(data: Partial<Game>) {
-    data._id = this.data._id;
-
-    try {
+  private async upsert(data: Partial<Game>) {
+    if (this.data._id) {
+      data._id = this.data._id;
       this.data = await this.gameService.update(data);
-      this.matSnackBar.open('Game information updated successfully.', null, {
-        duration: SNACKBAR_DURATION,
-      });
-    } catch (e) {
-      this.error = 'That title is already taken.';
+    } else {
+      this.data = await this.gameService.create(data);
     }
+
+    this.matSnackBar.open('Game Information saved successfully.');
   }
 }

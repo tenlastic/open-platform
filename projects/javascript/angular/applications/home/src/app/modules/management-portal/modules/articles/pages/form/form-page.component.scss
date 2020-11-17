@@ -9,11 +9,13 @@ div.col-sm-6 {
   }
 
   &:nth-of-type(2) {
+    margin-top: -8px;
     padding-left: 8px;
   }
 
   mat-form-field.mat-form-field {
     display: block;
+    width: auto;
   }
 
   & > mat-label {
@@ -24,15 +26,5 @@ div.col-sm-6 {
 form {
   app-button {
     margin-right: 8px;
-  }
-}
-
-mat-form-field {
-  &[width='300'] {
-    width: 300px;
-  }
-
-  &[width='600'] {
-    width: 600px;
   }
 }

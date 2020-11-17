@@ -14,7 +14,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
+import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -72,9 +72,7 @@ export class QueuesListPageComponent implements OnInit {
         await this.queueService.delete(record._id);
         this.deleteQueue(record);
 
-        this.matSnackBar.open('Queue deleted successfully.', null, {
-          duration: SNACKBAR_DURATION,
-        });
+        this.matSnackBar.open('Queue deleted successfully.');
       }
     });
   }

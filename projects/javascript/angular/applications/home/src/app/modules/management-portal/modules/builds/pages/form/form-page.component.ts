@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
@@ -9,7 +10,6 @@ import {
   SelectedNamespaceService,
   SocketService,
 } from '../../../../../../core/services';
-import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -17,7 +17,7 @@ import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 })
 export class BuildsFormPageComponent implements OnDestroy, OnInit {
   public data: Build;
-  public error: string;
+  public errors: string[] = [];
   public form: FormGroup;
   public tasks: BuildTask[];
   public platforms = [
@@ -63,9 +63,7 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
 
   public async save() {
     if (this.form.invalid) {
-      this.form.get('namespaceId').markAsTouched();
-      this.form.get('version').markAsTouched();
-
+      this.form.markAllAsTouched();
       return;
     }
 
@@ -74,21 +72,23 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
       version: this.form.get('version').value,
     };
 
-    if (this.data._id) {
-      this.update(values);
-    } else {
-      this.create(values);
+    try {
+      await this.upsert(values);
+    } catch (e) {
+      this.handleHttpError(e, { namespaceId: 'Namespace', version: 'Version' });
     }
   }
 
-  private async create(data: Partial<Build>) {
-    try {
-      const result = await this.buildService.create(data);
-      this.matSnackBar.open('Build created successfully.', null, { duration: SNACKBAR_DURATION });
-      this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
-    } catch (e) {
-      this.error = 'That version is already taken.';
-    }
+  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
+    this.errors = err.error.errors.map(e => {
+      if (e.name === 'UniquenessError') {
+        const combination = e.paths.length > 1 ? 'combination ' : '';
+        const paths = e.paths.map(p => pathMap[p]);
+        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
+      } else {
+        return e.message;
+      }
+    });
   }
 
   private setupForm(): void {
@@ -99,17 +99,18 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
       version: [this.data.version, Validators.required],
     });
 
-    this.form.valueChanges.subscribe(() => (this.error = null));
+    this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async update(data: Partial<Build>) {
-    data._id = this.data._id;
-
-    try {
+  private async upsert(data: Partial<Build>) {
+    if (this.data._id) {
+      data._id = this.data._id;
       await this.buildService.update(data);
-      this.matSnackBar.open('Build updated successfully.', null, { duration: SNACKBAR_DURATION });
-    } catch (e) {
-      this.error = 'That version is already taken.';
+    } else {
+      const result = await this.buildService.create(data);
+      this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
     }
+
+    this.matSnackBar.open('Build saved successfully.');
   }
 }

@@ -14,7 +14,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
+import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -76,9 +76,7 @@ export class NamespacesListPageComponent implements OnInit {
         await this.namespaceService.delete(record._id);
         this.deleteNamespace(record);
 
-        this.matSnackBar.open('Namespace deleted successfully.', null, {
-          duration: SNACKBAR_DURATION,
-        });
+        this.matSnackBar.open('Namespace deleted successfully.');
       }
     });
   }

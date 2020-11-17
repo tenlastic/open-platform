@@ -14,7 +14,7 @@
       </mat-form-field>
     </div>
 
-    <div *ngIf="error"
+    <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}
     </div>

@@ -1,3 +1,9 @@
+:host ::ng-deep {
+  app-toggle-section:last-of-type > .row:last-of-type {
+    margin-bottom: 0px;
+  }
+}
+
 app-toggle-section .row {
   margin-left: 0px;
   margin-top: 0px;
@@ -6,7 +12,6 @@ app-toggle-section .row {
 mat-form-field.mat-form-field {
   display: inline-block;
   margin-right: 16px;
-  width: 150px;
 }
 
 .remove-button {
@@ -14,7 +19,7 @@ mat-form-field.mat-form-field {
 }
 
 .row {
-  margin-left: 166px;
+  margin-left: 185.5px;
   margin-right: 0px;
 
   &:first-of-type {

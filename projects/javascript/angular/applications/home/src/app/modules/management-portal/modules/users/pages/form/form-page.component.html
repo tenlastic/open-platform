@@ -35,12 +35,14 @@
       <mat-form-field floatLabel="always">
         <mat-label>Username</mat-label>
         <input matInput
-               formControlName="username" />
-        <mat-error>Enter a valid username.</mat-error>
+               required
+               formControlName="username"
+               maxlength="20" />
+        <mat-error>Enter a valid alphanumeric username.</mat-error>
       </mat-form-field>
     </div>
 
-    <div *ngIf="error"
+    <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}
     </div>

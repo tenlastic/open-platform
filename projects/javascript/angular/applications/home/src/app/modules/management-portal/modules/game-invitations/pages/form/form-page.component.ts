@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
@@ -7,7 +8,6 @@ import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
-import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -15,7 +15,7 @@ import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 })
 export class GameInvitationsFormPageComponent implements OnInit {
   public data: GameInvitation;
-  public error: string;
+  public errors: string[] = [];
   public form: FormGroup;
   public isLoading = false;
   public users: User[] = [];
@@ -50,8 +50,7 @@ export class GameInvitationsFormPageComponent implements OnInit {
 
   public async save() {
     if (this.form.invalid) {
-      this.form.get('user').markAsTouched();
-
+      this.form.markAllAsTouched();
       return;
     }
 
@@ -62,19 +61,30 @@ export class GameInvitationsFormPageComponent implements OnInit {
       userId: user._id,
     };
 
-    this.create(values);
+    try {
+      await this.create(values);
+    } catch (e) {
+      this.handleHttpError(e, { namespaceId: 'Namespace', userId: 'User' });
+    }
+  }
+
+  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
+    this.errors = err.error.errors.map(e => {
+      if (e.name === 'UniquenessError') {
+        const combination = e.paths.length > 1 ? 'combination ' : '';
+        const paths = e.paths.map(p => pathMap[p]);
+        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
+      } else {
+        return e.message;
+      }
+    });
   }
 
   private async create(data: Partial<GameInvitation>) {
-    try {
-      await this.gameInvitationService.create(data);
-      this.matSnackBar.open('Game Invitation created successfully.', null, {
-        duration: SNACKBAR_DURATION,
-      });
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-    } catch (e) {
-      this.error = 'An error occurred creating Game Invitation.';
-    }
+    await this.gameInvitationService.create(data);
+
+    this.matSnackBar.open('Game Invitation saved successfully.');
+    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
   }
 
   private async findUsers(username: string) {
@@ -97,6 +107,6 @@ export class GameInvitationsFormPageComponent implements OnInit {
       user: [null, Validators.required],
     });
 
-    this.form.valueChanges.subscribe(() => (this.error = null));
+    this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 }

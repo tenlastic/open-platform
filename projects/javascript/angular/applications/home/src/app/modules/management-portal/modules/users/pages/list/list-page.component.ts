@@ -14,7 +14,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
+import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -80,9 +80,7 @@ export class UsersListPageComponent implements OnInit {
         await this.userService.delete(user._id);
         this.deleteUser(user);
 
-        this.matSnackBar.open('User deleted successfully.', null, {
-          duration: SNACKBAR_DURATION,
-        });
+        this.matSnackBar.open('User deleted successfully.');
       }
     });
   }

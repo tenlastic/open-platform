@@ -14,6 +14,7 @@ import {
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
@@ -45,6 +46,7 @@ NamespaceEvent.on(async payload => {
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: BuildEvent })
+@plugin(uniqueErrorPlugin)
 export class BuildSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

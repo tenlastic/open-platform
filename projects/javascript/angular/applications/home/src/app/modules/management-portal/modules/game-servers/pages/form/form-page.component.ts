@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatSnackBar } from '@angular/material';
@@ -12,7 +13,6 @@ import {
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 interface PropertyFormGroup {
   key?: string;
@@ -28,7 +28,7 @@ export class GameServersFormPageComponent implements OnInit {
   public builds: Build[];
   public cpus = IGameServer.Cpu;
   public data: GameServer;
-  public error: string;
+  public errors: string[] = [];
   public form: FormGroup;
   public memories = IGameServer.Memory;
 
@@ -74,15 +74,7 @@ export class GameServersFormPageComponent implements OnInit {
 
   public async save() {
     if (this.form.invalid) {
-      this.form.get('buildId').markAsTouched();
-      this.form.get('cpu').markAsTouched();
-      this.form.get('description').markAsTouched();
-      this.form.get('isPersistent').markAsTouched();
-      this.form.get('isPreemptible').markAsTouched();
-      this.form.get('memory').markAsTouched();
-      this.form.get('name').markAsTouched();
-      this.form.get('namespaceId').markAsTouched();
-
+      this.form.markAllAsTouched();
       return;
     }
 
@@ -103,45 +95,38 @@ export class GameServersFormPageComponent implements OnInit {
       namespaceId: this.form.get('namespaceId').value,
     };
 
-    if (this.data._id) {
-      if (
-        this.form.get('buildId').dirty ||
+    if (
+      this.data._id &&
+      (this.form.get('buildId').dirty ||
         this.form.get('isPersistent').dirty ||
         this.form.get('isPreemptible').dirty ||
-        this.form.get('metadata').dirty
-      ) {
-        const dialogRef = this.matDialog.open(PromptComponent, {
-          data: {
-            buttons: [
-              { color: 'primary', label: 'No' },
-              { color: 'accent', label: 'Yes' },
-            ],
-            message: `These changes may require the Game Server to be restarted. Is this OK?`,
-          },
-        });
-
-        dialogRef.afterClosed().subscribe(async (result: string) => {
-          if (result === 'Yes') {
-            this.update(values);
-          }
-        });
-      } else {
-        this.update(values);
-      }
-    } else {
-      this.create(values);
-    }
-  }
-
-  private async create(data: Partial<GameServer>) {
-    try {
-      await this.gameServerService.create(data);
-      this.matSnackBar.open('Game Server created successfully.', null, {
-        duration: SNACKBAR_DURATION,
+        this.form.get('metadata').dirty)
+    ) {
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message: `These changes may require the Game Server to be restarted. Is this OK?`,
+        },
       });
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-    } catch (e) {
-      this.error = 'That name is already taken.';
+
+      dialogRef.afterClosed().subscribe(async (result: string) => {
+        if (result === 'Yes') {
+          try {
+            await this.upsert(values);
+          } catch (e) {
+            this.handleHttpError(e);
+          }
+        }
+      });
+    } else {
+      try {
+        await this.upsert(values);
+      } catch (e) {
+        this.handleHttpError(e);
+      }
     }
   }
 
@@ -166,6 +151,18 @@ export class GameServersFormPageComponent implements OnInit {
     }
   }
 
+  private async handleHttpError(err: HttpErrorResponse, pathMap: any = {}) {
+    this.errors = err.error.errors.map(e => {
+      if (e.name === 'UniquenessError') {
+        const combination = e.paths.length > 1 ? 'combination ' : '';
+        const paths = e.paths.map(p => pathMap[p]);
+        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
+      } else {
+        return e.message;
+      }
+    });
+  }
+
   private setupForm(): void {
     this.data = this.data || new GameServer();
 
@@ -181,7 +178,7 @@ export class GameServersFormPageComponent implements OnInit {
 
         const formGroup = this.formBuilder.group({
           key: [key, [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
-          value: property,
+          value: [property, Validators.required],
           type,
         });
         properties.push(formGroup);
@@ -189,7 +186,10 @@ export class GameServersFormPageComponent implements OnInit {
     }
 
     this.form = this.formBuilder.group({
-      buildId: [this.data.buildId || (this.builds.length > 0 ? this.builds[0]._id : null)],
+      buildId: [
+        this.data.buildId || (this.builds.length > 0 ? this.builds[0]._id : null),
+        Validators.required,
+      ],
       cpu: [this.data.cpu || this.cpus[0], Validators.required],
       description: [this.data.description],
       isPersistent: [this.data.isPersistent || true],
@@ -200,20 +200,18 @@ export class GameServersFormPageComponent implements OnInit {
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
     });
 
-    this.form.valueChanges.subscribe(() => (this.error = null));
+    this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async update(data: Partial<GameServer>) {
-    data._id = this.data._id;
-
-    try {
+  private async upsert(data: Partial<GameServer>) {
+    if (this.data._id) {
+      data._id = this.data._id;
       await this.gameServerService.update(data);
-      this.matSnackBar.open('Game Server updated successfully.', null, {
-        duration: SNACKBAR_DURATION,
-      });
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-    } catch (e) {
-      this.error = 'That name is already taken.';
+    } else {
+      await this.gameServerService.create(data);
     }
+
+    this.matSnackBar.open('Game Server saved successfully.');
+    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
   }
 }

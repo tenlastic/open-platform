@@ -8,14 +8,13 @@ import {
   MatSnackBar,
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
 import { Article, ArticleService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
+import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -41,7 +40,6 @@ export class ArticlesListPageComponent implements OnInit {
 
   constructor(
     private articleService: ArticleService,
-    private activatedRoute: ActivatedRoute,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private snackBar: MatSnackBar,
@@ -50,12 +48,10 @@ export class ArticlesListPageComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
-      this.titleService.setTitle(`${TITLE} | Articles`);
-      this.fetchArticles();
+    this.titleService.setTitle(`${TITLE} | Articles`);
+    this.fetchArticles();
 
-      this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
-    });
+    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
   }
 
   public clearSearch() {
@@ -91,9 +87,7 @@ export class ArticlesListPageComponent implements OnInit {
         await this.articleService.delete(record._id);
         this.deleteArticle(record);
 
-        this.snackBar.open('Article deleted successfully.', null, {
-          duration: SNACKBAR_DURATION,
-        });
+        this.snackBar.open('Article deleted successfully.');
       }
     });
   }

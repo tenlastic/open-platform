@@ -5,7 +5,6 @@ import { ActivatedRoute } from '@angular/router';
 import { User, UserService } from '@tenlastic/ng-http';
 
 import { IdentityService } from '../../../../core/services';
-import { SNACKBAR_DURATION } from '../../../../shared/constants';
 
 @Component({
   styleUrls: ['./information-page.component.scss'],
@@ -61,7 +60,7 @@ export class InformationPageComponent implements OnInit {
   private async create(data: Partial<User>) {
     try {
       await this.userService.create(data);
-      this.matSnackbar.open('User created successfully.', null, { duration: SNACKBAR_DURATION });
+      this.matSnackbar.open('User created successfully.');
     } catch (e) {
       this.error = 'That email is already taken.';
     }
@@ -83,7 +82,7 @@ export class InformationPageComponent implements OnInit {
 
     try {
       await this.userService.update(data);
-      this.matSnackbar.open('User updated successfully.', null, { duration: SNACKBAR_DURATION });
+      this.matSnackbar.open('User updated successfully.');
     } catch (e) {
       this.error = 'That email is already taken.';
     }

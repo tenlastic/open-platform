@@ -6,12 +6,12 @@ info:
     ## Using the API
 
     ### API Key Authentication
-    Many API endpoints regarding Namespace resources require token-based authentication. 
+    Many API endpoints regarding Namespace resources accept token-based authentication. 
     Provide the API Key in the 'X-Api-Key' header. If an invalid token is given, you will 
     receive a 401 (Unauthorized) HTTP status with a JSON response containing an error message.
 
     ### User Authentication
-    Many API endpoints require JWT-based authentication. To authenticate to the API,
+    Many API endpoints accept JWT-based authentication. To authenticate to the API,
     provide the user's access token in the 'Authorization' header with the following
     format:
     ```
@@ -26,9 +26,9 @@ info:
 
     ### Errors
     All errors will return a 400 (Bad Request) HTTP status and a JSON response
-    containing an error message. An example error response would be:
+    containing the error messages. An example error response would be:
     ```json
-    {"error":"Query parameters must be valid JSON."}
+    {"errors":[{"message":"Missing required query parameters: name.","name":"RequiredFieldError"}]}
     ```
 
     ### GET Parameters

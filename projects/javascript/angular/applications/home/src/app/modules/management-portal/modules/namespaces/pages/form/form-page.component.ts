@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
@@ -5,7 +6,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { INamespace, Namespace, NamespaceService, UserService } from '@tenlastic/ng-http';
 
 import { IdentityService } from '../../../../../../core/services';
-import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -13,7 +13,7 @@ import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 })
 export class NamespacesFormPageComponent implements OnInit {
   public data: Namespace;
-  public error: string;
+  public errors: string[] = [];
   public form: FormGroup;
   public get keys(): FormArray {
     return this.form.get('keys') as FormArray;
@@ -84,9 +84,7 @@ export class NamespacesFormPageComponent implements OnInit {
     document.body.removeChild(selBox);
 
     // Let the user know the copy was successful.
-    this.snackBar.open('API key copied to clipboard.', null, {
-      duration: SNACKBAR_DURATION,
-    });
+    this.snackBar.open('API key copied to clipboard.');
   }
 
   public getKey() {
@@ -122,8 +120,7 @@ export class NamespacesFormPageComponent implements OnInit {
 
   public async save() {
     if (this.form.invalid) {
-      this.form.get('name').markAsTouched();
-
+      this.form.markAllAsTouched();
       return;
     }
 
@@ -140,23 +137,26 @@ export class NamespacesFormPageComponent implements OnInit {
       users,
     };
 
-    if (this.data._id) {
-      this.update(values);
-    } else {
-      this.create(values);
+    try {
+      await this.upsert(values);
+    } catch (e) {
+      this.handleHttpError(e, {
+        'keys.value': 'API Key',
+        name: 'Name',
+      });
     }
   }
 
-  private async create(data: Partial<Namespace>) {
-    try {
-      await this.namespaceService.create(data);
-      this.matSnackBar.open('Namespace created successfully.', null, {
-        duration: SNACKBAR_DURATION,
-      });
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-    } catch (e) {
-      this.error = 'That name is already taken.';
-    }
+  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
+    this.errors = err.error.errors.map(e => {
+      if (e.name === 'UniquenessError') {
+        const combination = e.paths.length > 1 ? 'combination ' : '';
+        const paths = e.paths.map(p => pathMap[p]);
+        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
+      } else {
+        return e.message;
+      }
+    });
   }
 
   private async setupForm() {
@@ -278,20 +278,18 @@ export class NamespacesFormPageComponent implements OnInit {
       users: this.formBuilder.array(users),
     });
 
-    this.form.valueChanges.subscribe(() => (this.error = null));
+    this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async update(data: Partial<Namespace>) {
-    data._id = this.data._id;
-
-    try {
+  private async upsert(data: Partial<Namespace>) {
+    if (this.data._id) {
+      data._id = this.data._id;
       await this.namespaceService.update(data);
-      this.matSnackBar.open('Namespace updated successfully.', null, {
-        duration: SNACKBAR_DURATION,
-      });
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-    } catch (e) {
-      this.error = 'That name is already taken.';
+    } else {
+      await this.namespaceService.create(data);
     }
+
+    this.matSnackBar.open('Namespace saved successfully.');
+    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
   }
 }

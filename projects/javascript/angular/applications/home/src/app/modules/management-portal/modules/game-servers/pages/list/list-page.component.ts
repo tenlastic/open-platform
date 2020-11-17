@@ -14,7 +14,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
+import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -72,9 +72,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
   public async restart(record: GameServer) {
     await this.gameServerService.restart(record._id);
-    this.matSnackBar.open('Game Server restarted successfully!', null, {
-      duration: SNACKBAR_DURATION,
-    });
+    this.matSnackBar.open('Game Server restarted successfully!');
   }
 
   public showDeletePrompt(record: GameServer) {
@@ -93,9 +91,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
         await this.gameServerService.delete(record._id);
         this.deleteGameServer(record);
 
-        this.matSnackBar.open('Game Server deleted successfully.', null, {
-          duration: SNACKBAR_DURATION,
-        });
+        this.matSnackBar.open('Game Server deleted successfully.');
       }
     });
   }

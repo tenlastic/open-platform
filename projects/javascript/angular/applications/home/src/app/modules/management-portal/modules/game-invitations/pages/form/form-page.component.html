@@ -10,7 +10,7 @@
         <input matInput
                [matAutocomplete]="auto"
                (keyup)="onUsernameChanged($event.target.value)"
-               formControlName="toUser" />
+               formControlName="user" />
         <mat-error>Enter a valid name.</mat-error>
 
         <mat-autocomplete #auto="matAutocomplete"
@@ -31,7 +31,7 @@
       </mat-form-field>
     </div>
 
-    <div *ngIf="error"
+    <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}
     </div>

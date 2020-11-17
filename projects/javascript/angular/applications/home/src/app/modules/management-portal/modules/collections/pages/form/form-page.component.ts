@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
@@ -17,7 +18,6 @@ import {
   SelectedNamespaceService,
 } from '../../../../../../core/services';
 import { TextAreaDialogComponent } from '../../../../../../shared/components';
-import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -25,7 +25,7 @@ import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 })
 export class CollectionsFormPageComponent implements OnInit {
   public data: Collection;
-  public error: string;
+  public errors: string[] = [];
   public form: FormGroup;
 
   constructor(
@@ -103,8 +103,7 @@ export class CollectionsFormPageComponent implements OnInit {
 
   public async save() {
     if (this.form.invalid) {
-      this.form.get('name').markAsTouched();
-
+      this.form.markAllAsTouched();
       return;
     }
 
@@ -118,10 +117,10 @@ export class CollectionsFormPageComponent implements OnInit {
       permissions,
     };
 
-    if (this.data._id) {
-      this.update(values);
-    } else {
-      this.create(values);
+    try {
+      await this.upsert(values);
+    } catch (e) {
+      this.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
     }
   }
 
@@ -147,22 +146,8 @@ export class CollectionsFormPageComponent implements OnInit {
       const data = JSON.parse(result);
       this.updateForm(data);
 
-      this.matSnackBar.open('Collection imported successfully.', null, {
-        duration: SNACKBAR_DURATION,
-      });
+      this.matSnackBar.open('Collection imported successfully.');
     });
-  }
-
-  private async create(data: Partial<Collection>) {
-    try {
-      await this.collectionService.create(data);
-      this.matSnackBar.open('Collection created successfully.', null, {
-        duration: SNACKBAR_DURATION,
-      });
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-    } catch (e) {
-      this.error = 'That name is already taken.';
-    }
   }
 
   private getJsonSchema() {
@@ -195,6 +180,18 @@ export class CollectionsFormPageComponent implements OnInit {
     });
 
     return { ...permissions, roles };
+  }
+
+  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
+    this.errors = err.error.errors.map(e => {
+      if (e.name === 'UniquenessError') {
+        const combination = e.paths.length > 1 ? 'combination ' : '';
+        const paths = e.paths.map(p => pathMap[p]);
+        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
+      } else {
+        return e.message;
+      }
+    });
   }
 
   private jsonValidator(control: AbstractControl): ValidationErrors | null {
@@ -261,21 +258,7 @@ export class CollectionsFormPageComponent implements OnInit {
     const defaultRole = formArray.at(formArray.length - 1);
     defaultRole.get('key').disable();
 
-    this.form.valueChanges.subscribe(() => (this.error = null));
-  }
-
-  private async update(data: Partial<Collection>) {
-    data._id = this.data._id;
-
-    try {
-      await this.collectionService.update(data);
-      this.matSnackBar.open('Collection updated successfully.', null, {
-        duration: SNACKBAR_DURATION,
-      });
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-    } catch (e) {
-      this.error = 'That name is already taken.';
-    }
+    this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
   private updateForm(data: Collection): void {
@@ -322,6 +305,18 @@ export class CollectionsFormPageComponent implements OnInit {
     const defaultRole = formArray.at(formArray.length - 1);
     defaultRole.get('key').disable();
 
-    this.form.valueChanges.subscribe(() => (this.error = null));
+    this.form.valueChanges.subscribe(() => (this.errors = []));
+  }
+
+  private async upsert(data: Partial<Collection>) {
+    if (this.data._id) {
+      data._id = this.data._id;
+      await this.collectionService.update(data);
+    } else {
+      await this.collectionService.create(data);
+    }
+
+    this.matSnackBar.open('Collection saved successfully.');
+    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
   }
 }

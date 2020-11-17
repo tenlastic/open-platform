@@ -28,15 +28,19 @@
                 floatLabel="always">
   <mat-label>Value</mat-label>
   <input matInput
+         required
          type="number"
          [formControl]="form.controls.value | asAny" />
+  <mat-error>Enter a valid value.</mat-error>
 </mat-form-field>
 
 <mat-form-field *ngIf="form.controls.type.value === 'string'"
                 floatLabel="always">
   <mat-label>Value</mat-label>
   <input matInput
+         required
          [formControl]="form.controls.value | asAny" />
+  <mat-error>Enter a valid value.</mat-error>
 </mat-form-field>
 
 <app-button color="accent"

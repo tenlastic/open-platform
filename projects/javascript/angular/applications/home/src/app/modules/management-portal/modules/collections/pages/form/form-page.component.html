@@ -63,7 +63,7 @@
       </div>
     </app-toggle-section>
 
-    <div *ngIf="error"
+    <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}
     </div>

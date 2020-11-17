@@ -1,20 +1,23 @@
 <mat-form-field floatLabel="always">
   <mat-label>Username</mat-label>
-  <input
-    matInput
-    [matAutocomplete]="auto"
-    (keyup)="onUsernameChanged($event.target.value)"
-    [formControl]="form.controls.user | asAny"
-  />
+  <input matInput
+         required
+         [matAutocomplete]="auto"
+         (keyup)="onUsernameChanged($event.target.value)"
+         [formControl]="form.controls.user | asAny" />
   <mat-error>Enter a valid name.</mat-error>
 
-  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayWith.bind(this)">
-    <mat-option *ngIf="isLoading" class="is-loading" disabled>
+  <mat-autocomplete #auto="matAutocomplete"
+                    [displayWith]="displayWith.bind(this)">
+    <mat-option *ngIf="isLoading"
+                class="is-loading"
+                disabled>
       <mat-spinner diameter="25"></mat-spinner>
     </mat-option>
 
     <ng-container *ngIf="!isLoading">
-      <mat-option *ngFor="let user of users" [value]="user">
+      <mat-option *ngFor="let user of users"
+                  [value]="user">
         <span>{{ user.username }}</span>
       </mat-option>
     </ng-container>
@@ -23,12 +26,17 @@
 
 <mat-form-field floatLabel="always">
   <mat-label>Roles</mat-label>
-  <mat-select placeholder="None" multiple [formControl]="form.controls.roles | asAny">
-    <mat-option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</mat-option>
+  <mat-select placeholder="None"
+              multiple
+              [formControl]="form.controls.roles | asAny">
+    <mat-option *ngFor="let role of roles"
+                [value]="role.value">{{ role.label }}</mat-option>
   </mat-select>
 </mat-form-field>
 
-<app-button color="accent" layout="left" (OnClick)="remove.emit()">
+<app-button color="accent"
+            layout="left"
+            (OnClick)="remove.emit()">
   <mat-icon>close</mat-icon>
   <span>Remove</span>
 </app-button>

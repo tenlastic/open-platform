@@ -15,6 +15,7 @@ export async function watch(
   parameters: WatchQuery,
   user: any,
   onChange: (payload: any) => void,
+  onError?: (e) => void,
 ) {
   const coll = Model.collection.name;
   const db = Model.db.db.databaseName;
@@ -60,7 +61,7 @@ export async function watch(
           return onChange(payload);
         }
       } catch (e) {
-        console.error(e.stack);
+        return onError ? onError(e) : null;
       }
     },
   });

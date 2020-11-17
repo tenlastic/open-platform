@@ -15,7 +15,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
+import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -27,7 +27,7 @@ export class RecordsListPageComponent implements OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<Record>;
 
   public collection: Collection;
-  public dataSource: MatTableDataSource<Record>;
+  public dataSource = new MatTableDataSource<Record>();
   public displayedColumns: string[];
   public propertyColumns: string[];
   public search = '';
@@ -87,9 +87,7 @@ export class RecordsListPageComponent implements OnInit {
         await this.recordService.delete(this.collection._id, record._id);
         this.deleteRecord(record);
 
-        this.matSnackBar.open('Record deleted successfully.', null, {
-          duration: SNACKBAR_DURATION,
-        });
+        this.matSnackBar.open('Record deleted successfully.');
       }
     });
   }

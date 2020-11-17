@@ -22,7 +22,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
+import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -35,7 +35,7 @@ export class GameInvitationsListPageComponent implements OnDestroy, OnInit {
 
   public $gameInvitations: Observable<GameInvitation[]>;
   public dataSource = new MatTableDataSource<GameInvitation>();
-  public displayedColumns: string[] = ['toUser', 'createdAt', 'actions'];
+  public displayedColumns: string[] = ['user', 'createdAt', 'actions'];
   public search = '';
 
   private fetchGameInvitationGame$ = new Subscription();
@@ -94,9 +94,7 @@ export class GameInvitationsListPageComponent implements OnDestroy, OnInit {
       if (result === 'Yes') {
         await this.gameInvitationService.delete(record._id);
 
-        this.matSnackBar.open('Game Invitation deleted successfully.', null, {
-          duration: SNACKBAR_DURATION,
-        });
+        this.matSnackBar.open('Game Invitation deleted successfully.');
       }
     });
   }

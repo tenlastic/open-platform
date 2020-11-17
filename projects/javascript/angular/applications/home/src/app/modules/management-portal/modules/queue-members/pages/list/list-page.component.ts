@@ -15,7 +15,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
+import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -80,9 +80,7 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
         await this.queueMemberService.delete(record._id);
         this.deleteQueueMember(record);
 
-        this.matSnackBar.open('Queue Member deleted successfully.', null, {
-          duration: SNACKBAR_DURATION,
-        });
+        this.matSnackBar.open('Queue Member deleted successfully.');
       }
     });
   }

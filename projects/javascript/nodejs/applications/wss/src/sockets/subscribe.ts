@@ -127,7 +127,19 @@ export async function subscribe(
     data.parameters,
     auth.key || auth.jwt.user,
     payload => ws.send(JSON.stringify({ _id: data._id, ...payload })),
+    err => {
+      console.error(err);
+
+      const { message, name } = err;
+      const errors = { errors: [{ message, name }] };
+      ws.send(JSON.stringify(errors));
+    },
   );
 
   ws.on('close', () => consumers[data._id].disconnect());
+}
+
+function getError(err: any) {
+  const { message, name } = err;
+  return { errors: [{ message, name }] };
 }
