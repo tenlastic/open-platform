@@ -44,6 +44,17 @@ export class GameInvitationsFormPageComponent implements OnInit {
     }
   }
 
+  public async onFocusOut() {
+    // Wait 100ms for autocomplete selection.
+    await new Promise(res => setTimeout(res, 100));
+
+    this.users = [];
+
+    if (!this.form.controls.user.value || !this.form.controls.user.value.username) {
+      this.form.controls.user.setValue(null);
+    }
+  }
+
   public onUsernameChanged(searchTextValue: string) {
     this.subject.next(searchTextValue);
   }

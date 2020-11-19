@@ -3,9 +3,10 @@
   <input matInput
          required
          [matAutocomplete]="auto"
+         (focusout)="onFocusOut($event)"
          (keyup)="onUsernameChanged($event.target.value)"
          [formControl]="form.controls.user | asAny" />
-  <mat-error>Enter a valid name.</mat-error>
+  <mat-error>Select a valid User.</mat-error>
 
   <mat-autocomplete #auto="matAutocomplete"
                     [displayWith]="displayWith.bind(this)">
