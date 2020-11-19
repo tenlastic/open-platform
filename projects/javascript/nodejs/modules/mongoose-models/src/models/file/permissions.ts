@@ -36,7 +36,23 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
                 model: 'BuildSchema',
                 select: '_id',
                 where: {
-                  $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
+                  $and: [
+                    {
+                      namespaceId: {
+                        $in: {
+                          $query: {
+                            model: 'GameInvitationSchema',
+                            select: 'namespaceId',
+                            where: {
+                              userId: { $eq: { $ref: 'user._id' } },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    { publishedAt: { $exists: true } },
+                    { publishedAt: { $ne: null } },
+                  ],
                 },
               },
             },

@@ -640,22 +640,22 @@ export class GameServerSchema implements IOriginalDocument {
   private async deleteKubernetesDeploymentsAndPods() {
     try {
       await appsV1.deleteNamespacedDeployment(
-        this.kubernetesNamespace,
         `${this.kubernetesResourceName}-application`,
+        this.kubernetesNamespace,
       );
       await appsV1.deleteNamespacedDeployment(
-        this.kubernetesNamespace,
         `${this.kubernetesResourceName}-sidecar`,
+        this.kubernetesNamespace,
       );
     } catch {}
     try {
       await coreV1.deleteNamespacedPod(
-        this.kubernetesNamespace,
         `${this.kubernetesResourceName}-application`,
+        this.kubernetesNamespace,
       );
       await coreV1.deleteNamespacedPod(
-        this.kubernetesNamespace,
         `${this.kubernetesResourceName}-sidecar`,
+        this.kubernetesNamespace,
       );
     } catch {}
   }
@@ -671,16 +671,16 @@ export class GameServerSchema implements IOriginalDocument {
      */
     try {
       await rbacAuthorizationV1.deleteNamespacedRole(
-        this.kubernetesNamespace,
         this.kubernetesResourceName,
+        this.kubernetesNamespace,
       );
       await coreV1.deleteNamespacedServiceAccount(
-        this.kubernetesNamespace,
         this.kubernetesResourceName,
+        this.kubernetesNamespace,
       );
       await rbacAuthorizationV1.deleteNamespacedRoleBinding(
-        this.kubernetesNamespace,
         this.kubernetesResourceName,
+        this.kubernetesNamespace,
       );
     } catch {}
 
@@ -691,8 +691,8 @@ export class GameServerSchema implements IOriginalDocument {
      */
     try {
       await coreV1.deleteNamespacedSecret(
-        this.kubernetesNamespace,
         'docker-registry-image-pull-secret',
+        this.kubernetesNamespace,
       );
     } catch {}
 
@@ -709,7 +709,7 @@ export class GameServerSchema implements IOriginalDocument {
      * =======================
      */
     try {
-      await coreV1.deleteNamespacedService(this.kubernetesNamespace, this.kubernetesResourceName);
+      await coreV1.deleteNamespacedService(this.kubernetesResourceName, this.kubernetesNamespace);
     } catch {}
 
     /**
@@ -719,8 +719,8 @@ export class GameServerSchema implements IOriginalDocument {
      */
     try {
       await networkingV1.deleteNamespacedNetworkPolicy(
-        this.kubernetesNamespace,
         this.kubernetesResourceName,
+        this.kubernetesNamespace,
       );
     } catch {}
 

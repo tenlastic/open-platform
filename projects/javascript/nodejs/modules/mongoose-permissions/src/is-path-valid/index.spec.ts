@@ -1,15 +1,15 @@
 import { expect } from 'chai';
 
-import { isValidPath } from './';
+import { isPathValid } from './';
 
-describe('is-valid-path', function() {
+describe('is-path-valid', function() {
   context('when matching the absolute path', function() {
     it('returns true', function() {
       const key = 'first';
       const path = ['user'];
       const permissions = ['user.first'];
 
-      const result = isValidPath(permissions, path, key);
+      const result = isPathValid(permissions, path, key);
 
       expect(result).to.eql(true);
     });
@@ -19,7 +19,7 @@ describe('is-valid-path', function() {
       const path = ['user'];
       const permissions = ['user.first'];
 
-      const result = isValidPath(permissions, path, key);
+      const result = isPathValid(permissions, path, key);
 
       expect(result).to.eql(false);
     });
@@ -31,7 +31,7 @@ describe('is-valid-path', function() {
       const path = ['user'];
       const permissions = ['user.*'];
 
-      const result = isValidPath(permissions, path, key);
+      const result = isPathValid(permissions, path, key);
 
       expect(result).to.eql(true);
     });
@@ -41,7 +41,7 @@ describe('is-valid-path', function() {
       const path = ['record'];
       const permissions = ['user.*'];
 
-      const result = isValidPath(permissions, path, key);
+      const result = isPathValid(permissions, path, key);
 
       expect(result).to.eql(false);
     });

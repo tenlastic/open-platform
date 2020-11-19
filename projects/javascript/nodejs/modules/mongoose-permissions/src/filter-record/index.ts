@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 
-import { isValidPath } from '../is-valid-path';
+import { isPathValid } from '../is-path-valid';
 
 /**
  * Removes any unauthorized attributes from a record. This directly modifies the record.
@@ -15,16 +15,16 @@ export function filterRecord<TDocument extends mongoose.Document>(
   const object = record.toObject ? record.toObject() : record;
 
   Object.entries(object).forEach(([key, value]) => {
-    const isPathValid = isValidPath(permissions, path, key);
+    const pathIsValid = isPathValid(permissions, path, key);
 
     if (value && value.constructor === Object) {
       const result = filterRecord(value as any, permissions, path.concat(key));
 
       // Remove empty objects.
-      if (!isPathValid && Object.keys(result).length === 0) {
+      if (!pathIsValid && Object.keys(result).length === 0) {
         delete object[key];
       }
-    } else if (!isPathValid) {
+    } else if (!pathIsValid) {
       delete object[key];
     }
   });

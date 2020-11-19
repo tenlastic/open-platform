@@ -18,23 +18,24 @@ export function isJsonValid(json: any, query: any, and = true) {
       return operations.map(o => isJsonValid(json, o, false)).includes(true);
     }
 
+    const map = { $elemMatch, $eq, $exists, $in, $ne };
+
+    if (
+      Object.keys(map).includes(key) === false &&
+      Object.keys(operations).some(o => Object.keys(map).includes(o)) === false
+    ) {
+      return $eq(json, key, operations);
+    }
+
     return Object.keys(operations).map(operator => {
       const value = operations[operator];
+      const operation = map[operator];
 
-      switch (operator) {
-        case '$elemMatch':
-          return $elemMatch(json, key, value);
-        case '$eq':
-          return $eq(json, key, value);
-        case '$exists':
-          return $exists(json, key, value);
-        case '$in':
-          return $in(json, key, value);
-        case '$ne':
-          return $ne(json, key, value);
-        default:
-          throw new Error(`Operation not supported: ${operator}.`);
+      if (!operation) {
+        throw new Error(`Operation not supported: ${operator}.`);
       }
+
+      return operation(json, key, value);
     });
   });
 
