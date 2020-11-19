@@ -12,6 +12,8 @@ spec:
   podGC:
     strategy: OnWorkflowSuccess
   serviceAccountName: argo
+  ttlStrategy:
+    secondsAfterSuccess: 1296000
   volumeClaimTemplates:
     - metadata:
         name: workspace

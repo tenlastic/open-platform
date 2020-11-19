@@ -1,8 +1,8 @@
 version: "3.7"
 services:
-  devtools:
+  development-cli:
     build:
-      context: ./
+      context: ./dockerfiles/development-cli/
     volumes:
       - ~/.config/gcloud/:/root/.config/gcloud/
       - ~/.kube/config/:/.kube/config/

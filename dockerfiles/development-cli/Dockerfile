@@ -55,7 +55,7 @@ RUN curl -o helm-${HELM_VERSION}-linux-amd64.tgz https://storage.googleapis.com/
   rm helm-${HELM_VERSION}-linux-amd64.tgz && \
   rm -rf linux-amd64
 
-# Install jq to parse JSON within bash scripts.
+# Install jq.
 RUN curl -o /usr/local/bin/jq http://stedolan.github.io/jq/download/linux64/jq && \
   chmod +x /usr/local/bin/jq
 

@@ -34,5 +34,5 @@ function build_and_push_docker_image {
   docker push "${URL}:latest"
 }
 
-build_and_push_docker_image ./ infrastructure-utilities
-build_and_push_docker_image ./projects/javascript/nodejs/dockerfiles/mongo-replica-set/ mongo-replica-set
+build_and_push_docker_image ./development-cli/ development-cli
+build_and_push_docker_image ./dockerfiles/mongo-replica-set/ mongo-replica-set

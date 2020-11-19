@@ -10,7 +10,7 @@
         <input matInput
                required
                [matAutocomplete]="auto"
-               (focusout)="onFocusOut($event)"
+               (focusout)="onFocusOut()"
                (keyup)="onUsernameChanged($event.target.value)"
                formControlName="user" />
         <mat-error>Select a valid User.</mat-error>
