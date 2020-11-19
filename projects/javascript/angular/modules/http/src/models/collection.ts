@@ -1,16 +1,6 @@
 import { Model } from './model';
 
 export namespace ICollection {
-  export interface BooleanPermissions {
-    base?: boolean;
-    roles?: any;
-  }
-
-  export interface DynamicPermissions {
-    base?: any;
-    roles?: any;
-  }
-
   export interface Index {
     key?: any;
     options?: IndexOptions;
@@ -33,13 +23,13 @@ export namespace ICollection {
   }
 
   export interface Permissions {
-    create?: StringPermissions;
-    delete?: BooleanPermissions;
-    find?: DynamicPermissions;
+    create?: { [key: string]: string[] };
+    delete?: { [key: string]: boolean };
+    find?: { [key: string]: any };
     populate?: PopulatePermissions[];
-    read?: StringPermissions;
+    read?: { [key: string]: string[] };
     roles?: RolePermissions[];
-    update?: StringPermissions;
+    update?: { [key: string]: string[] };
   }
 
   export interface PopulatePermissions {
@@ -50,11 +40,6 @@ export namespace ICollection {
   export interface RolePermissions {
     name?: string;
     query?: any;
-  }
-
-  export interface StringPermissions {
-    base?: string[];
-    roles?: any;
   }
 }
 
