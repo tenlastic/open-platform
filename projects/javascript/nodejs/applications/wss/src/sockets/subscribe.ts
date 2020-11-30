@@ -138,8 +138,3 @@ export async function subscribe(
 
   ws.on('close', () => consumers[data._id].disconnect());
 }
-
-function getError(err: any) {
-  const { message, name } = err;
-  return { errors: [{ message, name }] };
-}

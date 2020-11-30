@@ -26,13 +26,15 @@ GroupEvent.on(payload => {
   kafka.publish(payload);
 });
 
-// Delete Groups without Users.
-setInterval(async () => {
-  const groups = await Group.find({ userIds: [] });
-  for (const group of groups) {
-    await group.remove();
+GroupEvent.on(payload => {
+  if (payload.operationType === 'delete') {
+    return;
   }
-}, 15000);
+
+  if (payload.fullDocument.userIds.length === 0) {
+    return payload.fullDocument.remove();
+  }
+});
 
 @index({ userIds: 1 }, { unique: true })
 @modelOptions({

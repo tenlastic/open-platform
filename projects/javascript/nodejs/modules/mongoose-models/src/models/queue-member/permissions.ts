@@ -4,11 +4,13 @@ import { QueueMember, QueueMemberDocument } from './model';
 
 export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocument>(QueueMember, {
   create: {
-    'namespace-administrator': ['queueId', 'userId'],
+    'group-leader': ['groupId', 'queueId'],
+    'namespace-administrator': ['groupId', 'queueId', 'userId'],
     owner: ['queueId', 'userId'],
-    'system-administrator': ['queueId', 'userId'],
+    'system-administrator': ['groupId', 'queueId', 'userId'],
   },
   delete: {
+    'group-leader': true,
     'namespace-administrator': true,
     owner: true,
     'system-administrator': true,
@@ -83,21 +85,22 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
             },
           },
         },
+        {
+          userIds: { $eq: { $ref: 'user._id' } },
+        },
       ],
     },
     'system-administrator': {},
   },
   populate: [
-    {
-      path: 'gameInvitationDocuments',
-    },
+    { path: 'groupDocument' },
     {
       path: 'queueDocument',
       populate: [{ path: 'namespaceDocument' }],
     },
   ],
   read: {
-    default: ['_id', 'createdAt', 'queueId', 'updatedAt', 'userId'],
+    default: ['_id', 'createdAt', 'groupId', 'queueId', 'updatedAt', 'userId'],
   },
   roles: [
     {
@@ -130,11 +133,14 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
       },
     },
     {
+      name: 'group-leader',
+      query: {
+        'record.groupDocument.userIds.0': { $eq: { $ref: 'user._id' } },
+      },
+    },
+    {
       name: 'owner',
       query: {
-        'record.gameInvitationDocuments.namespaceId': {
-          $eq: { $ref: 'record.queueDocument.namespaceId' },
-        },
         'record.userId': { $eq: { $ref: 'user._id' } },
       },
     },

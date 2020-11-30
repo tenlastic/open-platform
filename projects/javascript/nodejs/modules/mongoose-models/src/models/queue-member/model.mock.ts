@@ -11,7 +11,6 @@ export class QueueMemberMock {
     const defaults = {
       queueId: mongoose.Types.ObjectId(),
       refreshTokenId: mongoose.Types.ObjectId(),
-      userId: mongoose.Types.ObjectId(),
     };
 
     return QueueMember.create({ ...defaults, ...params });

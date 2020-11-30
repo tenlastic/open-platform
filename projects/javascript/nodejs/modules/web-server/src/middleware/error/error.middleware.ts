@@ -15,6 +15,16 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
         ctx.response.body = getError(e);
         break;
 
+      case 'QueueMemberGameInvitationError':
+        ctx.response.status = status;
+        ctx.response.body = getQueueMemberGameInvitationError(e);
+        break;
+
+      case 'QueueMemberUniquenessError':
+        ctx.response.status = status;
+        ctx.response.body = getQueueMemberUniquenessError(e);
+        break;
+
       case 'UniquenessError':
         ctx.response.status = status;
         ctx.response.body = getUniquenessError(e);
@@ -33,9 +43,19 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
   }
 }
 
+function getQueueMemberUniquenessError(err: any) {
+  const { message, name, userIds } = err;
+  return { errors: [{ message, name, userIds }] };
+}
+
 function getError(err: any) {
   const { message, name } = err;
   return { errors: [{ message, name }] };
+}
+
+function getQueueMemberGameInvitationError(err: any) {
+  const { message, name, userIds } = err;
+  return { errors: [{ message, name, userIds }] };
 }
 
 function getUniquenessError(err: any) {

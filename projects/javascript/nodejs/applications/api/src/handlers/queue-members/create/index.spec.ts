@@ -31,9 +31,9 @@ describe('handlers/queue-members/create', function() {
         roles: ['queues'],
       });
       const namespace = await NamespaceMock.create({ users: [namespaceUser] });
-      const queue = await QueueMock.create({ namespaceId: namespace._id });
+      const queue = await QueueMock.create({ namespaceId: namespace._id, usersPerTeam: 1 });
 
-      await GameInvitationMock.create({ namespaceId: namespace._id, toUserId: user._id });
+      await GameInvitationMock.create({ namespaceId: namespace._id, userId: user._id });
 
       const ctx = new ContextMock({
         request: {

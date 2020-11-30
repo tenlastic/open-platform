@@ -1,29 +1,35 @@
 <app-sidenav>
   <div class="content">
-    <app-group-messages *ngIf="$activeGroup | async as group" [group]="group"></app-group-messages>
-    <app-messages *ngIf="$activeUser | async as user" [user]="user"></app-messages>
+    <app-group-messages *ngIf="$activeGroup | async as group"
+                        [group]="group"></app-group-messages>
+    <app-messages *ngIf="$activeUser | async as user"
+                  [user]="user"></app-messages>
     <ng-content></ng-content>
   </div>
 
-  <div *ngIf="identityService.user" class="nav">
-    <div *ngFor="let queueMember of $queueMembers | async" class="group-invitation queue">
+  <div *ngIf="identityService.user"
+       class="nav">
+    <div *ngFor="let queueMember of $queueMembers | async"
+         class="group-invitation queue">
       <div class="hover-off">
         <mat-icon>schedule</mat-icon>
         <div class="label">
           <div class="name">{{ queueMember.queue?.name }}</div>
-          <div class="status">Solo Queue</div>
+          <div class="status">{{ queueMember.groupId ? 'Group Queue' : 'Solo Queue' }}</div>
         </div>
       </div>
 
       <div class="hover-on">
-        <app-button color="primary" (OnClick)="leaveQueue(queueMember._id)">
+        <app-button color="primary"
+                    (OnClick)="leaveQueue(queueMember._id)">
           Leave Queue
         </app-button>
       </div>
     </div>
 
     <ng-container *ngIf="($group | async) === undefined">
-      <div *ngIf="$groupInvitation | async as groupInvitation" class="group-invitation">
+      <div *ngIf="$groupInvitation | async as groupInvitation"
+           class="group-invitation">
         <div class="hover-off">
           <mat-icon>person_add</mat-icon>
           <div class="label">
@@ -33,34 +39,32 @@
         </div>
 
         <div class="hover-on">
-          <app-button color="accent" (OnClick)="rejectGroupInvitation()">Reject</app-button>
-          <app-button color="primary" (OnClick)="acceptGroupInvitation()">Accept</app-button>
+          <app-button color="accent"
+                      (OnClick)="rejectGroupInvitation()">Reject</app-button>
+          <app-button color="primary"
+                      (OnClick)="acceptGroupInvitation()">Accept</app-button>
         </div>
       </div>
     </ng-container>
 
-    <app-button
-      *ngIf="($group | async) === undefined"
-      color="accent"
-      layout="vertical"
-      text="left"
-      width="full"
-      (OnClick)="newGroup()"
-    >
+    <app-button *ngIf="($group | async) === undefined"
+                color="accent"
+                layout="vertical"
+                text="left"
+                width="full"
+                (OnClick)="newGroup()">
       <mat-icon>group_add</mat-icon>
       <span>Start Group</span>
     </app-button>
 
-    <app-button
-      *ngIf="$group | async as group"
-      class="online"
-      color="accent"
-      layout="vertical"
-      text="left"
-      width="full"
-      [ngClass]="{ active: ($activeGroup | async)?._id === group._id }"
-      (OnClick)="setGroup(group)"
-    >
+    <app-button *ngIf="$group | async as group"
+                class="online"
+                color="accent"
+                layout="vertical"
+                text="left"
+                width="full"
+                [ngClass]="{ active: ($activeGroup | async)?._id === group._id }"
+                (OnClick)="setGroup(group)">
       <mat-icon>people</mat-icon>
       <div class="label">
         Group
@@ -68,35 +72,34 @@
           {{ group.userIds.length }} Member{{ group.userIds.length > 1 ? 's' : '' }}
         </div>
       </div>
-      <span *ngIf="$getUnreadGroupMessagesCount(group._id) | async" class="badge">
+      <span *ngIf="$getUnreadGroupMessagesCount(group._id) | async"
+            class="badge">
         {{ $getUnreadGroupMessagesCount(group._id) | async }}
       </span>
     </app-button>
 
-    <app-button color="accent" layout="vertical" text="left" width="full" (OnClick)="newMessage()">
+    <app-button color="accent"
+                layout="vertical"
+                text="left"
+                width="full"
+                (OnClick)="newMessage()">
       <mat-icon>add</mat-icon>
       <span>New Direct Message</span>
     </app-button>
 
-    <app-message-group
-      *ngIf="$group | async as group"
-      header="Group"
-      [isVisible]="true"
-      [showGroup]="false"
-      [users]="$groupUsersWithoutCurrentUser | async | truthy"
-    ></app-message-group>
+    <app-message-group *ngIf="$group | async as group"
+                       header="Group"
+                       [isVisible]="true"
+                       [showGroup]="false"
+                       [users]="$groupUsersWithoutCurrentUser | async | truthy"></app-message-group>
 
-    <app-message-group
-      *ngIf="($friends | async).length"
-      header="Friends"
-      [isVisible]="true"
-      [users]="$friends | async | select: 'toUser' | truthy"
-    ></app-message-group>
+    <app-message-group *ngIf="($friends | async).length"
+                       header="Friends"
+                       [isVisible]="true"
+                       [users]="$friends | async | select: 'toUser' | truthy"></app-message-group>
 
-    <app-message-group
-      *ngIf="conversations.length"
-      header="Other Conversations"
-      [users]="conversations | select: 'user' | truthy"
-    ></app-message-group>
+    <app-message-group *ngIf="conversations.length"
+                       header="Other Conversations"
+                       [users]="conversations | select: 'user' | truthy"></app-message-group>
   </div>
 </app-sidenav>

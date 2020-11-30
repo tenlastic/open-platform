@@ -1,51 +1,85 @@
 <div class="page">
   <app-title>Queues</app-title>
 
-  <table mat-table [dataSource]="$queues" matSort matSortActive="name" matSortDirection="asc">
+  <table mat-table
+         [dataSource]="$queues"
+         matSort
+         matSortActive="name"
+         matSortDirection="asc">
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Name</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.name }}</td>
     </ng-container>
 
     <ng-container matColumnDef="description">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Description</th>
-      <td mat-cell *matCellDef="let element">{{ element.description }}</td>
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Description</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.description }}</td>
     </ng-container>
 
     <ng-container matColumnDef="currentUsers">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Current Users</th>
-      <td mat-cell *matCellDef="let element">{{ currentUsers[element._id] || 0 }}</td>
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Current Users</th>
+      <td mat-cell
+          *matCellDef="let element">{{ currentUsers[element._id] || 0 }}</td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let element">
-        <app-button
-          *ngIf="$getQueueMember(element._id) | async as queueMember"
-          mat-button
-          color="accent"
-          (OnClick)="leaveSolo(queueMember._id)"
-        >
-          <span>Leave Queue</span>
+      <th mat-header-cell
+          *matHeaderCellDef></th>
+      <td mat-cell
+          *matCellDef="let element">
+        <app-button *ngIf="
+                      ($isGroupLeader() | async) && 
+                      $getGroupQueueMember(element._id) | async as queueMember
+                    "
+                    mat-button
+                    color="accent"
+                    (OnClick)="leaveQueue(queueMember._id)">
+          <span>Leave Group Queue</span>
         </app-button>
-        <app-button
-          *ngIf="($getQueueMember(element._id) | async) === undefined"
-          mat-button
-          color="primary"
-          (OnClick)="joinAsIndividual(element._id)"
-        >
+        <app-button *ngIf="$getSoloQueueMember(element._id) | async as queueMember"
+                    mat-button
+                    color="accent"
+                    (OnClick)="leaveQueue(queueMember._id)">
+          <span>Leave Solo Queue</span>
+        </app-button>
+        <app-button *ngIf="
+                      ($isGroupLeader() | async) &&
+                      ($isGroupSmallEnough(element) | async) &&
+                      ($getGroupQueueMember(element._id) | async) === undefined &&
+                      ($getSoloQueueMember(element._id) | async) === undefined
+                    "
+                    mat-button
+                    color="primary"
+                    (OnClick)="joinAsGroup(element._id)">
+          <span>Join as Group</span>
+        </app-button>
+        <app-button *ngIf="
+                      ($getGroupQueueMember(element._id) | async) === undefined &&
+                      ($getSoloQueueMember(element._id) | async) === undefined
+                    "
+                    mat-button
+                    color="primary"
+                    (OnClick)="joinAsIndividual(element._id)">
           <span>Join as Individual</span>
         </app-button>
       </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr mat-header-row
+        *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row
+        *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
 
-  <mat-paginator
-    [length]="($queues | async)?.length"
-    [pageSizeOptions]="[10, 25, 100]"
-    showFirstLastButtons
-  ></mat-paginator>
+  <mat-paginator [length]="($queues | async)?.length"
+                 [pageSizeOptions]="[10, 25, 100]"
+                 showFirstLastButtons></mat-paginator>
 </div>
