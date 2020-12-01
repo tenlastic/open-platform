@@ -14,6 +14,13 @@ export const ROUTES: Routes = [
       },
       {
         loadChildren: () =>
+          import('./pages/api-documentation/api-documentation.module').then(
+            m => m.ApiDocumentationModule,
+          ),
+        path: 'api-documentation',
+      },
+      {
+        loadChildren: () =>
           import('./pages/contact-us/contact-us.module').then(m => m.ContactUsModule),
         path: 'contact-us',
       },

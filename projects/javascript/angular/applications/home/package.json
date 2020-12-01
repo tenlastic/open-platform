@@ -29,6 +29,7 @@
     "electron-updater": "~4.2.0",
     "glob": "7.1.6",
     "request": "2.88.2",
+    "swagger-ui-dist": "3.37.2",
     "unzipper": "0.10.5"
   },
   "devDependencies": {

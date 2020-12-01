@@ -20,7 +20,5 @@ paths:
               schema:
                 type: object
                 properties:
-                  records:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/BuildTask'
+                  count:
+                    type: number
