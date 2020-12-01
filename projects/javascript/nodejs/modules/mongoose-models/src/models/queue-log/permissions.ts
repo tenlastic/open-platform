@@ -1,19 +1,19 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { Log, LogDocument } from './model';
+import { QueueLog, QueueLogDocument } from './model';
 
-export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
+export const QueueLogPermissions = new MongoosePermissions<QueueLogDocument>(QueueLog, {
   create: {
-    'namespace-administrator': ['body', 'gameServerId', 'unix'],
-    'system-administrator': ['body', 'gameServerId', 'unix'],
+    'namespace-administrator': ['body', 'queueId', 'unix'],
+    'system-administrator': ['body', 'queueId', 'unix'],
   },
   find: {
     default: {
-      gameServerId: {
+      queueId: {
         $in: {
           // Find Game Servers within returned Namespaces.
           $query: {
-            model: 'GameServerSchema',
+            model: 'QueueSchema',
             select: '_id',
             where: {
               namespaceId: {
@@ -27,7 +27,7 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
                         {
                           keys: {
                             $elemMatch: {
-                              roles: { $eq: 'game-servers' },
+                              roles: { $eq: 'queues' },
                               value: { $eq: { $ref: 'key' } },
                             },
                           },
@@ -36,7 +36,7 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
                           users: {
                             $elemMatch: {
                               _id: { $eq: { $ref: 'user._id' } },
-                              roles: { $eq: 'game-servers' },
+                              roles: { $eq: 'queues' },
                             },
                           },
                         },
@@ -54,20 +54,20 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
   },
   populate: [
     {
-      path: 'gameServerDocument',
+      path: 'queueDocument',
       populate: {
         path: 'namespaceDocument',
       },
     },
   ],
   read: {
-    default: ['_id', 'body', 'createdAt', 'gameServerId', 'unix', 'updatedAt'],
+    default: ['_id', 'body', 'createdAt', 'queueId', 'unix', 'updatedAt'],
   },
   roles: [
     {
       name: 'system-administrator',
       query: {
-        'user.roles': { $eq: 'game-servers' },
+        'user.roles': { $eq: 'queues' },
       },
     },
     {
@@ -75,18 +75,18 @@ export const LogPermissions = new MongoosePermissions<LogDocument>(Log, {
       query: {
         $or: [
           {
-            'record.gameServerDocument.namespaceDocument.keys': {
+            'record.queueDocument.namespaceDocument.keys': {
               $elemMatch: {
-                roles: { $eq: 'game-servers' },
+                roles: { $eq: 'queues' },
                 value: { $eq: { $ref: 'key' } },
               },
             },
           },
           {
-            'record.gameServerDocument.namespaceDocument.users': {
+            'record.queueDocument.namespaceDocument.users': {
               $elemMatch: {
                 _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'game-servers' },
+                roles: { $eq: 'queues' },
               },
             },
           },

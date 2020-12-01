@@ -1,6 +1,6 @@
 components:
   schemas:
-    Log:
+    GameServerLog:
       type: object
       properties:
         _id:

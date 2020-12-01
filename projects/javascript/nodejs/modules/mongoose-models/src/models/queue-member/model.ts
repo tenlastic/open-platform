@@ -171,6 +171,16 @@ export class QueueMemberSchema {
   @prop({ foreignField: '_id', justOne: false, localField: 'userIds', ref: 'UserSchema' })
   public userDocuments: UserDocument[];
 
+  public static async getUserIdCount($match: any = {}) {
+    const results = await QueueMember.aggregate([
+      { $match: QueueMember.find().cast(QueueMember, $match) },
+      { $unwind: '$userIds' },
+      { $count: 'count' },
+    ]);
+
+    return results && results[0] ? results[0].count : 0;
+  }
+
   private async checkGameInvitations(this: QueueMemberDocument) {
     if (!this.populated('queueDocument')) {
       await this.populate('queueDocument').execPopulate();

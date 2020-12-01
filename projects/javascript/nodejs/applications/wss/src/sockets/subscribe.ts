@@ -11,16 +11,18 @@ import {
   GameInvitation,
   GameInvitationPermissions,
   GameServer,
+  GameServerLog,
+  GameServerLogPermissions,
   GameServerPermissions,
   GroupInvitation,
   GroupInvitationPermissions,
   Group,
   GroupPermissions,
-  Log,
-  LogPermissions,
   Message,
   MessagePermissions,
   Queue,
+  QueueLog,
+  QueueLogPermissions,
   QueueMember,
   QueueMemberPermissions,
   QueuePermissions,
@@ -78,6 +80,10 @@ export async function subscribe(
       Model = GameInvitation;
       Permissions = GameInvitationPermissions;
       break;
+    case 'game-server-logs':
+      Model = GameServerLog;
+      Permissions = GameServerLogPermissions;
+      break;
     case 'game-servers':
       Model = GameServer;
       Permissions = GameServerPermissions;
@@ -90,13 +96,13 @@ export async function subscribe(
       Model = Group;
       Permissions = GroupPermissions;
       break;
-    case 'logs':
-      Model = Log;
-      Permissions = LogPermissions;
-      break;
     case 'messages':
       Model = Message;
       Permissions = MessagePermissions;
+      break;
+    case 'queue-logs':
+      Model = QueueLog;
+      Permissions = QueueLogPermissions;
       break;
     case 'queue-members':
       Model = QueueMember;

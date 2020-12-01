@@ -10,11 +10,7 @@ export async function handler(ctx: Context) {
     throw new PermissionError();
   }
 
-  const results = await QueueMember.aggregate([
-    { $match: QueueMember.find().cast(QueueMember, $match) },
-    { $unwind: '$userIds' },
-    { $count: 'count' },
-  ]);
+  const result = await QueueMember.getUserIdCount($match);
 
-  ctx.response.body = { count: results && results[0] ? results[0].count : 0 };
+  ctx.response.body = { count: result };
 }

@@ -82,8 +82,8 @@ const token = fs.readFileSync(kc.getCurrentUser().authProvider.config.tokenFile,
         request.post(
           {
             headers: { Authorization: `Bearer ${accessToken}` },
-            json: { body, gameServerId, unix: timestamp },
-            url: 'http://api.default:3000/logs',
+            json: { body, unix: timestamp },
+            url: `http://api.default:3000/game-servers/${gameServerId}/logs`,
           },
           (err, response) => {
             if (err) {

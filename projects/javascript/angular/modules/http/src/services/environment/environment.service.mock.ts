@@ -13,7 +13,6 @@ export class EnvironmentServiceMock implements Environment {
   public groupApiBaseUrl = 'http://api.localhost/groups';
   public groupInvitationApiBaseUrl = 'http://api.localhost/group-invitations';
   public ignorationApiBaseUrl = 'http://api.localhost/ignorations';
-  public logApiBaseUrl = 'http://api.localhost/logs';
   public loginApiBaseUrl = 'http://api.localhost/logins';
   public matchApiBaseUrl = 'http://api.localhost/matches';
   public messageApiBaseUrl = 'http://api.localhost/messages';

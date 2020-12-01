@@ -3,32 +3,32 @@ import { Chance } from 'chance';
 import { TestBed, getTestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
-import { Log } from '../../models/log';
+import { QueueLog } from '../../models/queue-log';
 import { ApiService } from '../api/api.service';
 import { EnvironmentService } from '../environment/environment.service';
 import { EnvironmentServiceMock } from '../environment/environment.service.mock';
-import { LogService } from './log.service';
+import { QueueLogService } from './queue-log.service';
 
-describe('LogService', () => {
+describe('QueueLogService', () => {
   const chance = new Chance();
 
   let httpMock: HttpTestingController;
   let injector: TestBed;
-  let service: LogService;
+  let service: QueueLogService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
         ApiService,
-        LogService,
+        QueueLogService,
         { provide: EnvironmentService, useClass: EnvironmentServiceMock },
       ],
     });
 
     injector = getTestBed();
     httpMock = injector.get(HttpTestingController);
-    service = injector.get(LogService);
+    service = injector.get(QueueLogService);
   });
 
   afterEach(() => {
@@ -38,39 +38,41 @@ describe('LogService', () => {
   describe('count()', () => {
     it('returns a count', () => {
       const _id = chance.hash();
+      const queueId = chance.hash();
       const params = {
         where: { _id },
       };
 
-      service.count(params).then(res => {
+      service.count(queueId, params).then(res => {
         expect(res).toBe(1);
       });
 
-      const req = httpMock.expectOne(r => r.url === `${service.basePath}/count`);
+      const req = httpMock.expectOne(r => r.url === `${service.basePath}/${queueId}/logs/count`);
       expect(req.request.method).toBe('GET');
       req.flush({ count: 1 });
     });
   });
 
   describe('create()', () => {
-    it('creates and returns a Log', () => {
+    it('creates and returns a QueueLog', () => {
+      const queueId = chance.hash();
       const params = {
-        gameServerId: chance.hash(),
+        queueId: chance.hash(),
         toUserId: chance.hash(),
       };
 
-      service.create(params).then(res => {
-        expect(res).toEqual(jasmine.any(Log));
+      service.create(queueId, params).then(res => {
+        expect(res).toEqual(jasmine.any(QueueLog));
         expect(res._id).toBeDefined();
-        expect(res.gameServerId).toEqual(params.gameServerId);
+        expect(res.queueId).toEqual(params.queueId);
       });
 
-      const req = httpMock.expectOne(service.basePath);
+      const req = httpMock.expectOne(`${service.basePath}/${queueId}/logs`);
       expect(req.request.method).toBe('POST');
       req.flush({
         record: {
           _id: chance.hash(),
-          gameServerId: params.gameServerId,
+          queueId: params.queueId,
           toUserId: params.toUserId,
         },
       });
@@ -78,19 +80,20 @@ describe('LogService', () => {
   });
 
   describe('find()', () => {
-    it('returns an array of Logs', () => {
+    it('returns an array of QueueLogs', () => {
       const _id = chance.hash();
+      const queueId = chance.hash();
       const params = {
         where: { _id },
       };
 
-      service.find(params).then(res => {
+      service.find(queueId, params).then(res => {
         expect(res.length).toBe(1);
-        expect(res[0]).toEqual(jasmine.any(Log));
+        expect(res[0]).toEqual(jasmine.any(QueueLog));
         expect(res[0]._id).toBe(_id);
       });
 
-      const req = httpMock.expectOne(r => r.url === service.basePath);
+      const req = httpMock.expectOne(r => r.url === `${service.basePath}/${queueId}/logs`);
       expect(req.request.method).toBe('GET');
       req.flush({
         records: [{ _id }],

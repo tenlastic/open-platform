@@ -1,14 +1,14 @@
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
-import { Log, LogSchema } from './model';
+import { GameServerLog, GameServerLogSchema } from './model';
 
-export class LogMock {
+export class GameServerLogMock {
   /**
    * Creates a record with randomized required parameters if not specified.
    * @param {Object} params The parameters to initialize the record with.
    */
-  public static async create(params: Partial<LogSchema> = {}) {
+  public static async create(params: Partial<GameServerLogSchema> = {}) {
     const chance = new Chance();
 
     const defaults = {
@@ -17,6 +17,6 @@ export class LogMock {
       unix: Date.now(),
     };
 
-    return Log.create({ ...defaults, ...params });
+    return GameServerLog.create({ ...defaults, ...params });
   }
 }

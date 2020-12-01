@@ -1,7 +1,6 @@
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
-import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
 import { connect, deleteAll } from './';

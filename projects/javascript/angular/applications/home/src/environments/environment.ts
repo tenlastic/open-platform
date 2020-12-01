@@ -10,7 +10,6 @@ export const environment = {
   groupInvitationApiBaseUrl: 'http://api.localhost/group-invitations',
   ignorationApiBaseUrl: 'http://api.localhost/ignorations',
   launcherUrl: 'https://minio.tenlastic.com/launcher/TenlasticLauncherSetup.exe',
-  logApiBaseUrl: 'http://api.localhost/logs',
   loginApiBaseUrl: 'http://api.localhost/logins',
   matchApiBaseUrl: 'http://api.localhost/matches',
   messageApiBaseUrl: 'http://api.localhost/messages',

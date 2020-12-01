@@ -10,7 +10,6 @@ export interface Environment {
   groupApiBaseUrl: string;
   groupInvitationApiBaseUrl: string;
   ignorationApiBaseUrl: string;
-  logApiBaseUrl: string;
   loginApiBaseUrl: string;
   matchApiBaseUrl: string;
   messageApiBaseUrl: string;
@@ -36,7 +35,6 @@ export class EnvironmentService implements Environment {
   public groupApiBaseUrl: string;
   public groupInvitationApiBaseUrl: string;
   public ignorationApiBaseUrl: string;
-  public logApiBaseUrl: string;
   public loginApiBaseUrl: string;
   public matchApiBaseUrl: string;
   public messageApiBaseUrl: string;

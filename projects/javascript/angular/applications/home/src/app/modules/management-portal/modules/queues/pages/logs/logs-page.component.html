@@ -1,0 +1,37 @@
+<div class="page">
+  <div class="row">
+    <div class="col-sm-6">
+      <app-title>Queue Logs</app-title>
+    </div>
+    <div class="col-sm-6">
+      <app-button *ngIf="$logs | async as logs"
+                  color="accent"
+                  (click)="toggleVisibility(logs)">
+        {{ isVisible ? 'Collapse' : 'Expand' }} All
+      </app-button>
+
+      <app-button color="primary"
+                  (click)="toggleIsLive()">
+        {{ isLive ? 'Stop' : 'Start' }} Live Tail
+      </app-button>
+    </div>
+  </div>
+
+  <div class="logs-container">
+    <ng-container *ngIf="($logs | async).length > 0">
+      <div *ngFor="let log of $logs | async"
+           class="log"
+           [ngClass]="visibility[log._id] ? 'expanded' : 'collapsed'"
+           (click)="visibility[log._id] = !visibility[log._id]">
+        <span class="timestamp">[{{ log.unix | date: 'M/d/yy, H:mm:ss' }}]</span>
+
+        <span *ngIf="getJson(log) as json">{{ json | json }}</span>
+        <span *ngIf="!getJson(log)">{{ log.body }}</span>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="($logs | async).length === 0">
+      <div class="log">No logs found.</div>
+    </ng-container>
+  </div>
+</div>

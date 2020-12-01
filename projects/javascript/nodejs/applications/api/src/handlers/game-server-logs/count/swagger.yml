@@ -1,0 +1,26 @@
+paths:
+  /game-servers/{gameServerId}/logs/count:
+    get:
+      summary: Count
+      tags: [GameServerLogs]
+      description: Returns the number of matching records for the query.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: gameServerId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GameServerLog'

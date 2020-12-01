@@ -17,20 +17,21 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { GameServerDocument, GameServerEvent } from '../game-server';
+import { QueueDocument, QueueEvent } from '../queue';
 
-export const LogEvent = new EventEmitter<IDatabasePayload<LogDocument>>();
+export const QueueLogEvent = new EventEmitter<IDatabasePayload<QueueLogDocument>>();
 
 // Publish changes to Kafka.
-LogEvent.on(payload => {
+QueueLogEvent.on(payload => {
   kafka.publish(payload);
 });
 
-// Delete Logs if associated Game Server is deleted.
-GameServerEvent.on(async payload => {
+// Delete QueueLogs if associated Game Server is deleted.
+QueueEvent.on(async payload => {
   switch (payload.operationType) {
     case 'delete':
-      const records = await Log.find({ gameServerId: payload.fullDocument._id }).select('_id');
+      const queueId = payload.fullDocument._id;
+      const records = await QueueLog.find({ queueId }).select('_id');
       const promises = records.map(r => r.remove());
       return Promise.all(promises);
   }
@@ -38,20 +39,20 @@ GameServerEvent.on(async payload => {
 
 @index({ body: 'text' })
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
-@index({ gameServerId: 1 })
+@index({ queueId: 1 })
 @modelOptions({
   schemaOptions: {
-    collection: 'logs',
+    collection: 'queuelogs',
     minimize: false,
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: LogEvent })
-@pre('save', function(this: LogDocument) {
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: QueueLogEvent })
+@pre('save', function(this: QueueLogDocument) {
   this.expiresAt = new Date(this.createdAt);
   this.expiresAt.setDate(this.createdAt.getDate() + 3);
 })
-export class LogSchema {
+export class QueueLogSchema {
   public _id: mongoose.Types.ObjectId;
 
   @prop({ required: true })
@@ -62,18 +63,18 @@ export class LogSchema {
   @prop()
   public expiresAt: Date;
 
-  @prop({ ref: 'GameServerSchema', required: true })
-  public gameServerId: Ref<GameServerDocument>;
+  @prop({ ref: 'QueueSchema', required: true })
+  public queueId: Ref<QueueDocument>;
 
   @prop({ required: true })
   public unix: number;
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'gameServerId', ref: 'GameServerSchema' })
-  public gameServerDocument: GameServerDocument[];
+  @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: 'QueueSchema' })
+  public queueDocument: QueueDocument[];
 }
 
-export type LogDocument = DocumentType<LogSchema>;
-export type LogModel = ReturnModelType<typeof LogSchema>;
-export const Log = getModelForClass(LogSchema);
+export type QueueLogDocument = DocumentType<QueueLogSchema>;
+export type QueueLogModel = ReturnModelType<typeof QueueLogSchema>;
+export const QueueLog = getModelForClass(QueueLogSchema);

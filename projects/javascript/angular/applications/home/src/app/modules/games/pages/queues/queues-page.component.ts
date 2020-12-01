@@ -123,14 +123,18 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
         }
       }
     }
+
+    await this.getCurrentUsers();
   }
 
   public async joinAsIndividual(queueId: string) {
     await this.queueMemberService.create({ queueId, userId: this.identityService.user._id });
+    await this.getCurrentUsers();
   }
 
   public async leaveQueue(queueMemberId: string) {
     await this.queueMemberService.delete(queueMemberId);
+    await this.getCurrentUsers();
   }
 
   private async getCurrentUsers() {
