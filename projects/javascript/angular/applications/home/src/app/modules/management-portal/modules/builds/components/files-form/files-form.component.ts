@@ -188,14 +188,16 @@ export class FilesFormComponent implements OnDestroy, OnInit {
   }
 
   public async upload() {
-    if (this.stagedEntrypoint.invalid) {
-      this.stagedEntrypoint.markAsTouched();
-      return;
-    }
+    if (this.platform !== 'server64') {
+      if (this.stagedEntrypoint.invalid) {
+        this.stagedEntrypoint.markAsTouched();
+        return;
+      }
 
-    this.status = 'Saving entrypoint...';
-    this.build.entrypoints[this.platform] = this.stagedEntrypoint.value;
-    this.build = await this.buildService.update(this.build);
+      this.status = 'Saving entrypoint...';
+      this.build.entrypoints[this.platform] = this.stagedEntrypoint.value;
+      this.build = await this.buildService.update(this.build);
+    }
 
     this.status = 'Zipping files...';
 

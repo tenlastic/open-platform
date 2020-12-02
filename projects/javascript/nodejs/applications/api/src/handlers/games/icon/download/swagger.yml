@@ -1,6 +1,6 @@
 paths:
   /games/{_id}/icon:
-    post:
+    get:
       summary: Download Icon Image
       tags: [Games]
       description: Returns a stream containing the icon image.

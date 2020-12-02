@@ -24,32 +24,34 @@
     </mat-form-field>
   </div>
 
-  <div class="col-sm-3 justify-right">
-    <mat-form-field *ngIf="previousFiles.length || stagedEntrypoint"
-                    floatLabel="always">
-      <mat-label>Entrypoint</mat-label>
-      <input *ngIf="previousFiles.length"
-             matInput
-             disabled
-             [value]="previousBuild.entrypoints[platform] || ''" />
-      <input *ngIf="!previousFiles.length"
-             matInput
-             required
-             [formControl]="stagedEntrypoint" />
-      <mat-error>Enter a valid entrypoint.</mat-error>
-    </mat-form-field>
-  </div>
+  <ng-container *ngIf="platform !== 'server64'">
+    <div class="col-sm-3 justify-right">
+      <mat-form-field *ngIf="previousFiles.length || stagedEntrypoint"
+                      floatLabel="always">
+        <mat-label>Entrypoint</mat-label>
+        <input *ngIf="previousFiles.length"
+               matInput
+               disabled
+               [value]="previousBuild.entrypoints[platform] || ''" />
+        <input *ngIf="!previousFiles.length"
+               matInput
+               required
+               [formControl]="stagedEntrypoint" />
+        <mat-error>Enter a valid entrypoint.</mat-error>
+      </mat-form-field>
+    </div>
 
-  <div class="col-sm-3 justify-right offset-sm-3">
-    <mat-form-field *ngIf="previousFiles.length && stagedEntrypoint"
-                    floatLabel="always">
-      <mat-label>Entrypoint</mat-label>
-      <input matInput
-             required
-             [formControl]="stagedEntrypoint" />
-      <mat-error>Enter a valid entrypoint.</mat-error>
-    </mat-form-field>
-  </div>
+    <div class="col-sm-3 justify-right offset-sm-3">
+      <mat-form-field *ngIf="previousFiles.length && stagedEntrypoint"
+                      floatLabel="always">
+        <mat-label>Entrypoint</mat-label>
+        <input matInput
+               required
+               [formControl]="stagedEntrypoint" />
+        <mat-error>Enter a valid entrypoint.</mat-error>
+      </mat-form-field>
+    </div>
+  </ng-container>
 </div>
 
 <div class="row">

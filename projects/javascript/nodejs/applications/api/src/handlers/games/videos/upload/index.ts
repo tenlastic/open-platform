@@ -33,8 +33,8 @@ export async function handler(ctx: Context) {
       paths.push(path);
 
       // Make sure the file is a video.
-      if (mimetype !== 'video/gif' && mimetype !== 'video/jpeg' && mimetype !== 'video/png') {
-        busboy.emit('error', new Error('Mimetype must be: video/gif, video/jpeg, video/png.'));
+      if (mimetype !== 'video/mp4') {
+        busboy.emit('error', new Error('Mimetype must be: video/mp4.'));
         return;
       }
 

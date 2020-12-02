@@ -1,7 +1,7 @@
 paths:
   /games/{gameId}/videos/{_id}:
-    post:
-      summary: Download Image
+    get:
+      summary: Download Video
       tags: [Games]
       description: Returns a stream containing the video.
       security:

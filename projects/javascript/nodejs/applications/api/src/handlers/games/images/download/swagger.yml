@@ -1,6 +1,6 @@
 paths:
   /games/{gameId}/images/{_id}:
-    post:
+    get:
       summary: Download Image
       tags: [Games]
       description: Returns a stream containing the image.

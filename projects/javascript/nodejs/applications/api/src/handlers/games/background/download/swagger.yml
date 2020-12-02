@@ -1,6 +1,6 @@
 paths:
   /games/{_id}/background:
-    post:
+    get:
       summary: Download Background Image
       tags: [Games]
       description: Returns a stream containing the background image.
