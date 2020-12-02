@@ -50,7 +50,7 @@ describe('handlers/games/videos/upload', function() {
       game = await GameMock.create({ namespaceId: namespace._id });
 
       form = new FormData();
-      form.append('valid', 'valid', { contentType: 'video/jpeg', filename: 'valid.jpg' });
+      form.append('valid', 'valid', { contentType: 'video/mp4', filename: 'valid.mp4' });
 
       ctx = new ContextMock({
         params: {
