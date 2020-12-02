@@ -101,9 +101,7 @@ describe('handlers/games/videos/upload', function() {
 
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejectedWith(
-        'Mimetype must be: video/gif, video/jpeg, video/png.',
-      );
+      return expect(promise).to.be.rejectedWith('Mimetype must be: video/mp4.');
     });
 
     it('does not allow too many videos', async function() {
