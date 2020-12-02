@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/matchmaking",
   "private": true,
-  "version": "0.0.131",
+  "version": "0.0.132",
   "scripts": {
     "build": "../../scripts/build.sh",
     "docker:build": "../../scripts/docker-build.sh matchmaking",
@@ -18,16 +18,16 @@
   },
   "dependencies": {
     "@hasezoey/typegoose": "6.0.0-27",
-    "@tenlastic/logging": "0.0.131",
-    "@tenlastic/mongoose-change-stream-kafka": "0.0.131",
-    "@tenlastic/mongoose-models": "0.0.131",
-    "@tenlastic/web-server": "0.0.131",
+    "@tenlastic/logging": "0.0.132",
+    "@tenlastic/mongoose-change-stream-kafka": "0.0.132",
+    "@tenlastic/mongoose-models": "0.0.132",
+    "@tenlastic/web-server": "0.0.132",
     "koa-router": "7.4.0",
     "mongoose": "5.7.11",
     "source-map-support": "0.5.12"
   },
   "devDependencies": {
-    "@tenlastic/mongoose-unique-error": "0.0.131",
+    "@tenlastic/mongoose-unique-error": "0.0.132",
     "cpx": "1.5.0",
     "merge-yaml-cli": "1.1.2",
     "mocha": "7.1.2",
