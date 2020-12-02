@@ -1,6 +1,7 @@
 export const environment = {
   apiBaseUrl: 'https://wss.tenlastic.com',
   articleApiBaseUrl: 'https://api.tenlastic.com/articles',
+  buildApiBaseUrl: 'https://api.tenlastic.com/builds',
   collectionApiBaseUrl: 'https://api.tenlastic.com/collections',
   friendApiBaseUrl: 'https://api.tenlastic.com/friends',
   gameApiBaseUrl: 'https://api.tenlastic.com/games',
@@ -19,7 +20,7 @@ export const environment = {
   queueApiBaseUrl: 'https://api.tenlastic.com/queues',
   queueMemberApiBaseUrl: 'https://api.tenlastic.com/queue-members',
   refreshTokenApiBaseUrl: 'http://api.tenlastic.com/refresh-tokens',
-  buildApiBaseUrl: 'https://api.tenlastic.com/builds',
+  swaggerUrl: 'http://api.tenlastic.com/swagger.yml',
   useHash: true,
   userApiBaseUrl: 'https://api.tenlastic.com/users',
   webSocketApiBaseUrl: 'https://api.tenlastic.com/web-sockets',

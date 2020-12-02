@@ -1,6 +1,7 @@
 export const environment = {
   apiBaseUrl: 'http://wss.localhost',
   articleApiBaseUrl: 'http://api.localhost/articles',
+  buildApiBaseUrl: 'http://api.localhost/builds',
   collectionApiBaseUrl: 'http://api.localhost/collections',
   friendApiBaseUrl: 'http://api.localhost/friends',
   gameApiBaseUrl: 'http://api.localhost/games',
@@ -19,7 +20,7 @@ export const environment = {
   queueApiBaseUrl: 'http://api.localhost/queues',
   queueMemberApiBaseUrl: 'http://api.localhost/queue-members',
   refreshTokenApiBaseUrl: 'http://api.localhost/refresh-tokens',
-  buildApiBaseUrl: 'http://api.localhost/builds',
+  swaggerUrl: 'http://api.localhost/swagger.yml',
   useHash: false,
   userApiBaseUrl: 'http://api.localhost/users',
   webSocketApiBaseUrl: 'http://api.localhost/web-sockets',

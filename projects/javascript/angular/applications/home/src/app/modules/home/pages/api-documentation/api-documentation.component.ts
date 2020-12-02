@@ -23,7 +23,7 @@ export class ApiDocumentationComponent implements OnInit {
       layout: 'BaseLayout',
       presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
       plugins: [SwaggerUIBundle.plugins.DownloadUrl],
-      url: 'http://api.localhost/swagger.yml',
+      url: environment.swaggerUrl,
     });
   }
 }
