@@ -4,7 +4,7 @@
   <form *ngIf="form"
         [formGroup]="form"
         autocomplete="off">
-    <div *ngFor="let key of form.controls | keys; let i = index">
+    <ng-container *ngFor="let key of form.controls | keys; let i = index">
       <app-toggle-section *ngIf="collection.jsonSchema.properties[key].type === 'array'"
                           [title]="key | camelCaseToTitleCase">
         <div class="row"
@@ -76,7 +76,7 @@
           <mat-error>Enter a valid {{ key }}.</mat-error>
         </mat-form-field>
       </div>
-    </div>
+    </ng-container>
 
     <div *ngFor="let error of errors"
          class="form-error">
