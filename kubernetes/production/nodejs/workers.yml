@@ -20,7 +20,7 @@ spec:
                     operator: Exists
       containers:
         - name: workers
-          image: tenlastic/workers:0.0.133
+          image: tenlastic/workers:0.0.134
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
