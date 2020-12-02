@@ -73,6 +73,11 @@ RUN wget https://github.com/bitnami-labs/sealed-secrets/releases/download/${KUBE
   chmod +x kubeseal && \
   mv kubeseal /usr/local/bin/kubeseal
 
+# Install mc (minio client).
+RUN wget https://dl.min.io/client/mc/release/linux-amd64/mc -O mc && \
+  chmod +x mc && \
+  mv mc /usr/local/bin/mc
+
 # Install stern.
 RUN wget https://github.com/wercker/stern/releases/download/$STERN_VERSION/stern_linux_amd64 -O stern && \
   chmod +x stern && \
