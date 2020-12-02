@@ -1,24 +1,19 @@
 paths:
-  /databases/{databaseId}/collections/{collectionId}/indexes/{id}:
+  /collections/{collectionId}/indexes/{_id}:
     delete:
       summary: Delete
-      tags: [Indexes]
+      tags: [CollectionIndexes]
       description: Deletes an existing index.
       security:
         - AccessToken: []
       parameters:
         - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
           name: collectionId
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: databaseId
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: id
           schema:
             type: string
           required: true

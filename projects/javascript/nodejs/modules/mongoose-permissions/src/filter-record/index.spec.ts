@@ -1,51 +1,32 @@
 import { expect } from 'chai';
+import * as mongoose from 'mongoose';
 
+import { Example, ExamplePermissions } from '../example-model';
 import { filterRecord } from './';
 
 describe('filter-record', function() {
   it('handles primitive values', function() {
-    const permissions = ['age', 'name'];
-    const record = { age: 5, name: 'name', state: 'NJ' };
+    const permissions = ExamplePermissions.accessControl.options.create.admin;
+    const record = new Example({ name: 'name', userId: new mongoose.Types.ObjectId() });
 
-    const result: any = filterRecord(record as any, permissions);
+    const result = filterRecord(record, permissions);
 
-    expect(result.age).to.eql(5);
     expect(result.name).to.eql('name');
-    expect(result.state).to.not.exist;
+    expect(result.userId).to.not.exist;
   });
 
   it('handles nested objects', function() {
-    const permissions = [
-      'jsonSchema.properties.age',
-      'jsonSchema.properties.name.*',
-      'jsonSchema.properties.state',
-      'jsonSchema.type',
-    ];
-    const record = {
-      jsonSchema: {
-        properties: {
-          age: {
-            type: 'string',
-          },
-          country: {
-            type: 'object',
-          },
-          name: {
-            properties: {},
-            type: 'object',
-          },
-          state: {},
-        },
-        type: 'object',
+    const permissions = ExamplePermissions.accessControl.options.create.admin;
+    const record = new Example({
+      properties: {
+        age: 21,
+        location: 'USA',
       },
-    };
+    });
 
-    const result: any = filterRecord(record as any, permissions);
+    const result = filterRecord(record, permissions);
 
-    expect(result.jsonSchema.properties.age).to.eql({});
-    expect(result.jsonSchema.properties.country).to.not.exist;
-    expect(result.jsonSchema.properties.name).to.eql({ properties: {}, type: 'object' });
-    expect(result.jsonSchema.properties.state).to.eql({});
-    expect(result.jsonSchema.type).to.eql('object');
+    expect(result.properties.age).to.eql(21);
+    expect(result.properties.location).to.not.exist;
   });
 });

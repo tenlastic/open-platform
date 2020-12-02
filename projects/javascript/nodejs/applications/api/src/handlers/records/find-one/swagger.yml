@@ -1,24 +1,19 @@
 paths:
-  /databases/{databaseName}/collections/{collectionName}/records/{id}:
+  /collections/{collectionId}/records/{_id}:
     get:
       summary: Find One
-      tags: [Records]
+      tags: [CollectionRecords]
       description: Finds a record by ID.
       security:
         - AccessToken: []
       parameters:
         - in: path
-          name: collectionName
+          name: _id
           schema:
             type: string
           required: true
         - in: path
-          name: databaseName
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: id
+          name: collectionId
           schema:
             type: string
           required: true
@@ -31,4 +26,4 @@ paths:
                 type: object
                 properties:
                   record:
-                    $ref: '#/components/schemas/Record'
+                    $ref: '#/components/schemas/CollectionRecord'

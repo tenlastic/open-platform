@@ -15,9 +15,13 @@ describe('middleware/jwt', function() {
   context('when the token is valid', function() {
     it(`sets the user state object to the token's user`, async function() {
       const user = { _id: chance.hash(), isActive: true };
-      const token = jwt.sign({ user }, process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'), {
-        algorithm: 'RS256',
-      });
+      const token = jwt.sign(
+        { type: 'access', user },
+        process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        {
+          algorithm: 'RS256',
+        },
+      );
 
       const ctx = new ContextMock({
         request: {

@@ -9,9 +9,8 @@ export class GameInvitationMock {
    */
   public static async create(params: Partial<GameInvitationSchema> = {}) {
     const defaults = {
-      fromUserId: mongoose.Types.ObjectId(),
-      gameId: mongoose.Types.ObjectId(),
-      toUserId: mongoose.Types.ObjectId(),
+      namespaceId: mongoose.Types.ObjectId(),
+      userId: mongoose.Types.ObjectId(),
     };
 
     return GameInvitation.create({ ...defaults, ...params });

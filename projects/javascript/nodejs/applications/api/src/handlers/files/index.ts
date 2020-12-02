@@ -7,7 +7,7 @@ import { handler as findHandler } from './find';
 import { handler as findOneHandler } from './find-one';
 import { handler as uploadHandler } from './upload';
 
-export const router = new Router({ prefix: '/releases/:releaseId/platforms/:platform/files' });
+export const router = new Router({ prefix: '/builds/:buildId/platforms/:platform/files' });
 
 router.delete('/:_id', deleteHandler);
 router.get('/', findHandler);

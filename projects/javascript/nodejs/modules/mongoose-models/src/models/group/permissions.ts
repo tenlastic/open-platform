@@ -4,18 +4,16 @@ import { Group, GroupDocument } from './model';
 
 export const GroupPermissions = new MongoosePermissions<GroupDocument>(Group, {
   create: {
-    base: ['isOpen'],
+    default: ['isOpen'],
   },
   delete: {
-    roles: {
-      leader: true,
-    },
+    leader: true,
   },
   find: {
-    base: {},
+    default: {},
   },
   read: {
-    base: ['_id', 'createdAt', 'isOpen', 'updatedAt', 'userCount', 'userIds'],
+    default: ['_id', 'createdAt', 'isOpen', 'updatedAt', 'userCount', 'userIds'],
   },
   roles: [
     {
@@ -32,8 +30,6 @@ export const GroupPermissions = new MongoosePermissions<GroupDocument>(Group, {
     },
   ],
   update: {
-    roles: {
-      leader: ['isOpen'],
-    },
+    leader: ['isOpen'],
   },
 });

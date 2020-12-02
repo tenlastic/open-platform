@@ -1,19 +1,14 @@
 paths:
-  /databases/{databaseName}/collections/{collectionName}/records:
+  /collections/{collectionId}/records:
     get:
       summary: Find
-      tags: [Records]
+      tags: [CollectionRecords]
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []
       parameters:
         - in: path
-          name: collectionName
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: databaseName
+          name: collectionId
           schema:
             type: string
           required: true
@@ -28,4 +23,4 @@ paths:
                   records:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Record'
+                      $ref: '#/components/schemas/CollectionRecord'

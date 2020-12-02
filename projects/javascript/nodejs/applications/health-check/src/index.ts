@@ -6,12 +6,14 @@ const INTERVAL = 5000;
 const accessToken = process.env.ACCESS_TOKEN;
 const gameServerId = process.env.GAME_SERVER_ID;
 const podNamespace = process.env.POD_NAMESPACE;
-const podName = process.env.POD_NAME;
+const podSelector = process.env.POD_SELECTOR;
 
 let gameServer = JSON.parse(process.env.GAME_SERVER_JSON);
 
-// Send logs synchronously to preserve order.
-async function healthCheck() {
+/**
+ * Checks the status of the pod and saves it to the Game Server's database.
+ */
+(async function main() {
   try {
     console.log('Fetching container state...');
 
@@ -19,10 +21,12 @@ async function healthCheck() {
     kc.loadFromDefault();
 
     const coreV1Api = kc.makeApiClient(k8s.CoreV1Api);
-    const { body } = await coreV1Api.readNamespacedPodStatus(podName, podNamespace);
 
-    console.log(`Pod Name: ${podName} - Pod Namespace: ${podNamespace}`);
-    console.log(JSON.stringify(body));
+    const pods = await coreV1Api.listNamespacedPod(podNamespace, null, null, null, podSelector);
+    const pod = pods.body.items[0];
+    const { body } = await coreV1Api.readNamespacedPodStatus(pod.metadata.name, podNamespace);
+
+    console.log(`Pod Name: ${pod.metadata.name} - Pod Namespace: ${podNamespace}`);
 
     const containerStatus = body.status.containerStatuses.find(cs => cs.name === 'application');
     console.log(`States: ${Object.keys(containerStatus.state)}`);
@@ -62,7 +66,6 @@ async function healthCheck() {
   } catch (e) {
     console.error(e);
   } finally {
-    setTimeout(healthCheck, INTERVAL);
+    setTimeout(main, INTERVAL);
   }
-}
-setTimeout(healthCheck, INTERVAL);
+})();

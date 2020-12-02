@@ -1,43 +1,235 @@
 <div class="page">
   <app-title>{{ data && data._id ? 'Edit' : 'Create' }} Namespace</app-title>
 
-  <form *ngIf="form" [formGroup]="form" autocomplete="off">
+  <form *ngIf="form"
+        [formGroup]="form"
+        autocomplete="off">
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Name</mat-label>
-        <input matInput formControlName="name" />
+        <input matInput
+               required
+               formControlName="name" />
         <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
     </div>
 
-    <app-toggle-section title="Access Control List">
-      <div
-        class="row"
-        formArrayName="accessControlList"
-        *ngFor="
-          let accessControlListItem of form['controls'].accessControlList['controls'];
+    <app-toggle-section title="Users"
+                        formArrayName="users">
+      <div class="row"
+           *ngFor="
+          let user of users.controls;
           let i = index
-        "
-      >
-        <app-access-control-list-field
-          [form]="accessControlListItem"
-          (remove)="removeAccessControlListItem(i)"
-        ></app-access-control-list-field>
+        ">
+        <app-namespace-user-field [form]="user"
+                                  [roles]="roles"
+                                  (remove)="removeUser(i)"></app-namespace-user-field>
       </div>
 
       <div class="row">
-        <app-button color="accent" layout="left" (OnClick)="addAccessControlListItem()">
+        <app-button color="accent"
+                    layout="left"
+                    (OnClick)="addUser()">
           <mat-icon>add</mat-icon>
-          <span>Add Access Control List Entry</span>
+          <span>Add User</span>
         </app-button>
       </div>
     </app-toggle-section>
 
-    <div *ngIf="error" class="form-error">
+    <app-toggle-section title="API Keys"
+                        formArrayName="keys"
+                        [isVisible]="false">
+      <div class="row"
+           *ngFor="
+          let key of keys.controls;
+          let i = index
+        "
+           [formGroupName]="i">
+        <mat-form-field floatLabel="always">
+          <mat-label>Value</mat-label>
+          <input matInput
+                 formControlName="value" />
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Description</mat-label>
+          <input matInput
+                 formControlName="description" />
+          <mat-error>Enter a valid name.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Roles</mat-label>
+          <mat-select placeholder="None"
+                      multiple
+                      formControlName="roles">
+            <mat-option *ngFor="let role of roles"
+                        [value]="role.value">{{ role.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <app-button color="accent"
+                    layout="left"
+                    (OnClick)="copyToClipboard(i)">
+          <mat-icon>content_paste</mat-icon>
+          <span>Copy to Clipboard</span>
+        </app-button>
+
+        <app-button color="accent"
+                    layout="left"
+                    (OnClick)="removeKey(i)">
+          <mat-icon>close</mat-icon>
+          <span>Remove</span>
+        </app-button>
+      </div>
+
+      <div class="row">
+        <app-button color="accent"
+                    layout="left"
+                    (OnClick)="addKey()">
+          <mat-icon>add</mat-icon>
+          <span>Add API Key</span>
+        </app-button>
+      </div>
+    </app-toggle-section>
+
+    <app-toggle-section title="Limits"
+                        formArrayName="limits"
+                        [isVisible]="false">
+      <div class="row"
+           formGroupName="builds">
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Builds</mat-label>
+          <input matInput
+                 required
+                 formControlName="count"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Maximum Build Size (B)</mat-label>
+          <input matInput
+                 required
+                 formControlName="size"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row"
+           formGroupName="collections">
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Collections</mat-label>
+          <input matInput
+                 required
+                 formControlName="count"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Maximum Collection Size (B)</mat-label>
+          <input matInput
+                 required
+                 formControlName="size"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row"
+           formGroupName="games">
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Game Images</mat-label>
+          <input matInput
+                 required
+                 formControlName="images"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Game Videos</mat-label>
+          <input matInput
+                 required
+                 formControlName="videos"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Maximum Game Image / Video Size (B)</mat-label>
+          <input matInput
+                 required
+                 formControlName="size"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row"
+           formGroupName="gameServers">
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Game Servers</mat-label>
+          <input matInput
+                 required
+                 formControlName="count"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Game Server CPU</mat-label>
+          <input matInput
+                 required
+                 formControlName="cpu"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Game Server Memory</mat-label>
+          <input matInput
+                 required
+                 formControlName="memory"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Only Preemptible</mat-label>
+          <input *ngIf="form.get('limits').get('gameServers').get('preemptible').disabled"
+                 disabled
+                 matInput
+                 [value]="form.get('limits').get('gameServers').get('preemptible').value ? 'Yes' : 'No'" />
+          <mat-select *ngIf="!form.get('limits').get('gameServers').get('preemptible').disabled"
+                      formControlName="preemptible">
+            <mat-option [value]="true">Yes</mat-option>
+            <mat-option [value]="false">No</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </app-toggle-section>
+
+    <div *ngFor="let error of errors"
+         class="form-error">
       {{ error }}
     </div>
 
-    <app-button color="primary" (click)="save()">Save</app-button>
-    <app-button color="accent" routerLink="../">Cancel</app-button>
+    <app-button color="primary"
+                (click)="save()">Save</app-button>
+    <app-button color="accent"
+                routerLink="../">Cancel</app-button>
   </form>
 </div>

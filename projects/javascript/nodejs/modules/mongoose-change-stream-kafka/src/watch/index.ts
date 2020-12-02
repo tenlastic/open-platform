@@ -15,13 +15,15 @@ export async function watch(
   parameters: WatchQuery,
   user: any,
   onChange: (payload: any) => void,
+  onError?: (e) => void,
 ) {
   const coll = Model.collection.name;
   const db = Model.db.db.databaseName;
   const topic = `${db}.${coll}`;
 
   const resumeToken = parameters.resumeToken ? parameters.resumeToken : mongoose.Types.ObjectId();
-  const groupId = `${user.username}-${resumeToken}`;
+  const username = typeof user === 'string' ? user : user.username;
+  const groupId = `${username}-${resumeToken}`;
 
   const consumer = connection.consumer({ groupId });
   await consumer.connect();
@@ -36,7 +38,8 @@ export async function watch(
         const where = await Permissions.where(parameters.where || {}, user);
 
         if (isJsonValid(json.fullDocument, where)) {
-          const fullDocument = await Permissions.read(json.fullDocument, user);
+          const document = new Model(json.fullDocument);
+          const fullDocument = await Permissions.read(document, user);
 
           let updateDescription;
           if (json.updateDescription) {
@@ -58,7 +61,7 @@ export async function watch(
           return onChange(payload);
         }
       } catch (e) {
-        console.error(e);
+        return onError ? onError(e) : null;
       }
     },
   });

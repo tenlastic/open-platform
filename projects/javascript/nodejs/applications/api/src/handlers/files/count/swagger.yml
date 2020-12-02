@@ -1,14 +1,14 @@
 paths:
-  /releases/{releaseId}//platforms/{platform}/files/count:
+  /builds/{buildId}/platforms/{platform}/files/count:
     get:
       summary: Count
-      tags: [Files]
+      tags: [BuildFiles]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []
       parameters:
         - in: path
-          name: releaseId
+          name: buildId
           schema:
             type: string
           required: true
@@ -25,7 +25,5 @@ paths:
               schema:
                 type: object
                 properties:
-                  records:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/File'
+                  count:
+                    type: number

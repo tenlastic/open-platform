@@ -1,6 +1,6 @@
 components:
   schemas:
-    Game:
+    GameServer:
       type: object
       properties:
         _id:
@@ -11,6 +11,12 @@ components:
           items:
             type: string
             format: ^[a-f0-9]{24}$
+        buildId:
+          type: string
+          format: ^[a-f0-9]{24}$
+        cpu:
+          type: number
+          enum: [0.1, 0.25, 0.5]
         createdAt:
           type: string
           format: date-time
@@ -21,31 +27,33 @@ components:
             format: ^[a-f0-9]{24}$
         description:
           type: string
-        gameId:
-          type: string
-          format: ^[a-f0-9]{24}$
         isPersistent:
           type: boolean
         isPreemptible:
           type: boolean
+        memory:
+          type: number
+          enum: [0.1, 0.25, 0.5, 1, 2.5, 5]
         metadata:
           type: object
         name:
           type: string
+        namespaceId:
+          type: string
+          format: ^[a-f0-9]{24}$
         port:
           type: string
         queueId:
           type: string
           format: ^[a-f0-9]{24}$
-        releaseId:
-          type: string
-          format: ^[a-f0-9]{24}$
         status:
           type: string
-          enum: running, terminated, waiting
+          enum: [running, terminated, waiting]
         updatedAt:
           type: string
           format: date-time
       required:
-        - gameId
+        - cpu
+        - memory
         - name
+        - namespaceId

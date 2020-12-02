@@ -17,6 +17,9 @@ components:
           type: array
           items:
             type: string
+        namespaceId:
+          type: string
+          format: ^[a-f0-9]{24}$
         subtitle:
           type: string
           format: ^.{2,40}$

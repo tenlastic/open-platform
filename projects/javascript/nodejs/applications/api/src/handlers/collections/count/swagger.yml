@@ -1,17 +1,11 @@
 paths:
-  /databases/{databaseName}/collections/count:
+  /collections/count:
     get:
       summary: Count
       tags: [Collections]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []
-      parameters:
-        - in: path
-          name: databaseName
-          schema:
-            type: string
-          required: true
       responses:
         200:
           description: OK
@@ -20,7 +14,5 @@ paths:
               schema:
                 type: object
                 properties:
-                  records:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Collection'
+                  count:
+                    type: number

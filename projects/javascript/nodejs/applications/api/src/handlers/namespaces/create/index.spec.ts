@@ -1,3 +1,4 @@
+import { NamespaceLimitsMock } from '@tenlastic/mongoose-models';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 import * as Chance from 'chance';
@@ -11,13 +12,14 @@ describe('handlers/namespaces/create', function() {
   let user: any;
 
   beforeEach(async function() {
-    user = { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['namespaces'] };
   });
 
   it('creates a new record', async function() {
     const ctx = new ContextMock({
       request: {
         body: {
+          limits: NamespaceLimitsMock.create(),
           name: chance.hash(),
         },
       },
@@ -28,8 +30,8 @@ describe('handlers/namespaces/create', function() {
 
     expect(ctx.response.body.record).to.exist;
 
-    const accessControlList = ctx.response.body.record.accessControlList[0];
-    expect(accessControlList.roles).to.eql(['Administrator']);
-    expect(accessControlList.userId.toString()).to.eql(user._id.toString());
+    const users = ctx.response.body.record.users[0];
+    expect(users._id.toString()).to.eql(user._id.toString());
+    expect(users.roles).to.eql(['namespaces']);
   });
 });

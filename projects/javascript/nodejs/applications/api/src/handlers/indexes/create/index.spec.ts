@@ -1,10 +1,4 @@
-import {
-  CollectionMock,
-  DatabaseMock,
-  NamespaceMock,
-  UserRolesMock,
-} from '@tenlastic/mongoose-models';
-import { PermissionError } from '@tenlastic/mongoose-permissions';
+import { CollectionMock, NamespaceMock, NamespaceUserMock } from '@tenlastic/mongoose-models';
 import { CreateCollectionIndex } from '@tenlastic/rabbitmq-models';
 import {
   Context,
@@ -27,7 +21,7 @@ describe('handlers/indexes/create', function() {
 
   beforeEach(async function() {
     sandbox = sinon.createSandbox();
-    user = { _id: new mongoose.Types.ObjectId(), roles: ['Administrator'] };
+    user = { _id: new mongoose.Types.ObjectId() };
   });
 
   afterEach(async function() {
@@ -39,7 +33,6 @@ describe('handlers/indexes/create', function() {
       const ctx = new ContextMock({
         params: {
           collectionId: new mongoose.Types.ObjectId(),
-          databaseId: new mongoose.Types.ObjectId(),
         },
         state: { user },
       });
@@ -53,35 +46,34 @@ describe('handlers/indexes/create', function() {
   context('when the collection is found', function() {
     context('when the user does not have permission', function() {
       it('throws an error', async function() {
-        const userRoles = UserRolesMock.create({ userId: user._id });
-        const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-        const database = await DatabaseMock.create({ namespaceId: namespace._id });
-        const collection = await CollectionMock.create({ databaseId: database._id });
+        const namespaceUser = NamespaceUserMock.create({ _id: user._id });
+        const namespace = await NamespaceMock.create({ users: [namespaceUser] });
+        const collection = await CollectionMock.create({ namespaceId: namespace._id });
         const ctx = new ContextMock({
           params: {
             collectionId: collection._id,
-            databaseId: collection.databaseId,
           },
           state: { user: { _id: user._id } },
         });
 
         const promise = handler(ctx as any);
 
-        return expect(promise).to.be.rejectedWith(PermissionError);
+        return expect(promise).to.be.rejectedWith(RecordNotFoundError);
       });
     });
 
     context('when the user has permission', function() {
       context('when required fields are not supplied', function() {
         it('throws an error', async function() {
-          const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-          const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-          const database = await DatabaseMock.create({ namespaceId: namespace._id });
-          const collection = await CollectionMock.create({ databaseId: database._id });
+          const namespaceUser = NamespaceUserMock.create({
+            _id: user._id,
+            roles: ['collections'],
+          });
+          const namespace = await NamespaceMock.create({ users: [namespaceUser] });
+          const collection = await CollectionMock.create({ namespaceId: namespace._id });
           const ctx = new ContextMock({
             params: {
               collectionId: collection._id,
-              databaseId: collection.databaseId,
             },
             state: { user },
           });
@@ -99,15 +91,16 @@ describe('handlers/indexes/create', function() {
         it('adds the request to RabbitMQ', async function() {
           const stub = sandbox.stub(CreateCollectionIndex, 'publish').resolves();
 
-          const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-          const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-          const database = await DatabaseMock.create({ namespaceId: namespace._id });
-          const collection = await CollectionMock.create({ databaseId: database._id });
+          const namespaceUser = NamespaceUserMock.create({
+            _id: user._id,
+            roles: ['collections'],
+          });
+          const namespace = await NamespaceMock.create({ users: [namespaceUser] });
+          const collection = await CollectionMock.create({ namespaceId: namespace._id });
 
           const ctx = new ContextMock({
             params: {
               collectionId: collection._id,
-              databaseId: collection.databaseId,
             },
             request: {
               body: {

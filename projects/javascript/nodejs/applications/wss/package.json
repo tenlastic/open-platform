@@ -11,8 +11,7 @@
     "docker:build": "../../scripts/docker-build.sh wss",
     "docker:push": "../../scripts/docker-push.sh wss",
     "lint": "../../scripts/lint.sh",
-    "migrations": "../../scripts/migrations.sh",
-    "start": "../../scripts/start.sh",
+    "start": "../../scripts/start.sh --watch",
     "version": "../../scripts/version.sh wss"
   },
   "dependencies": {
@@ -20,6 +19,7 @@
     "@tenlastic/logging": "0.0.131",
     "@tenlastic/mongoose-change-stream-kafka": "0.0.131",
     "@tenlastic/mongoose-models": "0.0.131",
+    "@tenlastic/mongoose-permissions": "0.0.131",
     "@tenlastic/web-server": "0.0.131",
     "koa-router": "7.4.0",
     "mongoose": "5.7.11",
@@ -28,7 +28,6 @@
   "devDependencies": {
     "cpx": "1.5.0",
     "merge-yaml-cli": "1.1.2",
-    "migrate-mongo": "6.0.0",
     "mocha": "7.1.2",
     "nyc": "15.0.0",
     "ts-node": "8.9.1",

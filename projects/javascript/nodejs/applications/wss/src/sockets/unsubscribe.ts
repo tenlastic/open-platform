@@ -1,8 +1,8 @@
-import * as webServer from '@tenlastic/web-server';
+import { AuthenticationData, WebSocket } from '@tenlastic/web-server';
 
 import { consumers } from './subscribe';
 
-export async function unsubscribe(data: any, jwt: any, ws: webServer.WebSocket) {
+export async function unsubscribe(auth: AuthenticationData, data: any, ws: WebSocket) {
   if (!consumers[data._id]) {
     return;
   }

@@ -83,6 +83,7 @@ export class SocialComponent implements OnDestroy, OnInit {
   public newMatchNotification$ = new Subscription();
   public newMessageNotification$ = new Subscription();
   public updateConversations$ = new Subscription();
+  public updateQueueMembers$ = new Subscription();
   public conversations: Conversation[] = [];
   public isConversationsVisible = true;
   public isFriendsVisible = true;
@@ -139,11 +140,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.$ignorations = this.ignorationQuery.selectAll();
     this.$ignorations = this.ignorationQuery.populateUsers(this.$ignorations);
     this.$messages = this.messageQuery.selectAll();
-    const $queueMembers = this.queueMemberQuery.selectAll({
-      filterBy: qm =>
-        this.electronService.isElectron && qm.userId === this.identityService.user._id,
-    });
-    this.$queueMembers = this.queueMemberQuery.populate($queueMembers);
+    this.$queueMembers = this.queueMemberQuery.selectAll({ filterBy: () => false });
     this.$users = this.userQuery.selectAll();
 
     await Promise.all([
@@ -202,6 +199,13 @@ export class SocialComponent implements OnDestroy, OnInit {
       return this.groupService.find({ where: { userIds: { $in: users.map(u => u._id) } } });
     });
 
+    this.newMessageNotification$ = this.messageService.onCreate.subscribe(message =>
+      this.newMessageNotification(message),
+    );
+    this.newMatchNotification$ = this.gameServerService.onCreate.subscribe(gameServer =>
+      this.newMatchNotification(gameServer),
+    );
+
     this.updateConversations$ = combineLatest([
       this.$friends,
       this.$messages,
@@ -242,13 +246,14 @@ export class SocialComponent implements OnDestroy, OnInit {
       }));
     });
 
-    this.newMessageNotification$ = this.messageService.onCreate.subscribe(message =>
-      this.newMessageNotification(message),
-    );
-
-    this.newMatchNotification$ = this.gameServerService.onCreate.subscribe(gameServer =>
-      this.newMatchNotification(gameServer),
-    );
+    this.updateQueueMembers$ = this.$group.subscribe(group => {
+      const $queueMembers = this.queueMemberQuery.selectAll({
+        filterBy: qm =>
+          this.electronService.isElectron &&
+          (qm.groupId === group._id || qm.userId === this.identityService.user._id),
+      });
+      this.$queueMembers = this.queueMemberQuery.populate($queueMembers);
+    });
   }
 
   public ngOnDestroy() {
@@ -262,6 +267,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.newMatchNotification$.unsubscribe();
     this.newMessageNotification$.unsubscribe();
     this.updateConversations$.unsubscribe();
+    this.updateQueueMembers$.unsubscribe();
   }
 
   public $getUnreadGroupMessagesCount(groupId: string) {
@@ -349,16 +355,22 @@ export class SocialComponent implements OnDestroy, OnInit {
       return;
     }
 
-    const game = new Game(this.gameQuery.getEntity(gameServer.gameId));
+    const games = await this.gameQuery
+      .selectAll({ filterBy: g => g.namespaceId === gameServer.namespaceId })
+      .pipe(first())
+      .toPromise();
+    const game = new Game(games[0]);
     const queue = this.queueQuery.getEntity(gameServer.queueId);
 
+    const gameText = `Game: ${game.fullTitle}`;
+    const queueText = `Queue: ${queue.name}${queue.description ? ' - ' + queue.description : ''}`;
     const dialogRef = this.matDialog.open(MatchPromptComponent, {
       data: {
         buttons: [
           { color: 'accent', label: 'Decline' },
           { color: 'primary', label: 'Accept' },
         ],
-        message: `Game: ${game.fullTitle}\nQueue: ${queue.name} - ${queue.description}`,
+        message: `${gameText}\n${queueText}`,
         title: 'Match Found',
       },
       disableClose: true,

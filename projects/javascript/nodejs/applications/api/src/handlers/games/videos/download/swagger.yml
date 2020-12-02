@@ -1,0 +1,27 @@
+paths:
+  /games/{gameId}/videos/{_id}:
+    post:
+      summary: Download Image
+      tags: [Games]
+      description: Returns a stream containing the video.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: gameId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary

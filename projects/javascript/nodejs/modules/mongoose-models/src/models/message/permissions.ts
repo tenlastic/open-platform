@@ -4,17 +4,13 @@ import { Message, MessageDocument } from './model';
 
 export const MessagePermissions = new MongoosePermissions<MessageDocument>(Message, {
   create: {
-    roles: {
-      sender: ['body', 'fromUserId', 'toGroupId', 'toUserId'],
-    },
+    sender: ['body', 'fromUserId', 'toGroupId', 'toUserId'],
   },
   delete: {
-    roles: {
-      sender: true,
-    },
+    sender: true,
   },
   find: {
-    base: {
+    default: {
       $or: [
         { fromUserId: { $eq: { $ref: 'user._id' } } },
         {
@@ -36,7 +32,7 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
     },
   },
   read: {
-    base: [
+    default: [
       '_id',
       'body',
       'createdAt',
@@ -62,8 +58,6 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
     },
   ],
   update: {
-    roles: {
-      sender: ['body'],
-    },
+    sender: ['body'],
   },
 });

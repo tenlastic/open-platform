@@ -1,19 +1,19 @@
 import {
-  BuildReleaseDockerImage,
-  CopyReleaseFiles,
+  BuildDockerImage,
+  CopyBuildFiles,
   CreateCollectionIndex,
   DeleteCollectionIndex,
-  DeleteReleaseFiles,
-  UnzipReleaseFiles,
+  DeleteBuildFiles,
+  UnzipBuildFiles,
 } from './';
 
 export function deleteAll() {
   return Promise.all([
-    BuildReleaseDockerImage.purge(),
-    CopyReleaseFiles.purge(),
+    BuildDockerImage.purge(),
+    CopyBuildFiles.purge(),
     CreateCollectionIndex.purge(),
     DeleteCollectionIndex.purge(),
-    DeleteReleaseFiles.purge(),
-    UnzipReleaseFiles.purge(),
+    DeleteBuildFiles.purge(),
+    UnzipBuildFiles.purge(),
   ]);
 }

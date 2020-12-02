@@ -1,5 +1,12 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { QueueMember, QueueMemberQuery, QueueMemberService } from '@tenlastic/ng-http';
@@ -31,6 +38,7 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
     private activatedRoute: ActivatedRoute,
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private queueMemberQuery: QueueMemberQuery,
     private queueMemberService: QueueMemberService,
     private titleService: Title,
@@ -71,6 +79,8 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
       if (result === 'Yes') {
         await this.queueMemberService.delete(record._id);
         this.deleteQueueMember(record);
+
+        this.matSnackBar.open('Queue Member deleted successfully.');
       }
     });
   }

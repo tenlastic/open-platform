@@ -1,19 +1,14 @@
 paths:
-  /databases/{databaseId}/collections/{collectionId}/indexes:
+  /collections/{collectionId}/indexes:
     post:
       summary: Create
-      tags: [Indexes]
+      tags: [CollectionIndexes]
       description: Creates a new index on a Collection.
       security:
         - AccessToken: []
       parameters:
         - in: path
           name: collectionId
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: databaseId
           schema:
             type: string
           required: true

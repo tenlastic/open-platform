@@ -55,12 +55,16 @@
             "aot": true,
             "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets"],
             "styles": [
+              "node_modules/swagger-ui-dist/swagger-ui.css",
               "applications/home/src/assets/scss/index.scss",
               {
                 "input": "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
               }
             ],
-            "scripts": [],
+            "scripts": [
+              "node_modules/swagger-ui-dist/swagger-ui-bundle.js",
+              "node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js"
+            ],
             "customWebpackConfig": {
               "path": "./applications/home/electron.webpack.js"
             },

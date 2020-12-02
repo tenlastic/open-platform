@@ -11,7 +11,7 @@
     "docker:build": "../../scripts/docker-build.sh matchmaking",
     "docker:push": "../../scripts/docker-push.sh matchmaking",
     "lint": "../../scripts/lint.sh",
-    "start": "../../scripts/start.sh",
+    "start": "../../scripts/start.sh --watch",
     "test": "../../scripts/test.sh",
     "test:watch": "../../scripts/test.sh --watch",
     "version": "../../scripts/version.sh matchmaking"

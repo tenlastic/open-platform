@@ -1,8 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatSnackBar } from '@angular/material';
 
-import { SNACKBAR_DURATION } from '../../constants';
-
 export interface RefreshTokenPromptComponentData {
   token: string;
 }
@@ -36,8 +34,6 @@ export class RefreshTokenPromptComponent {
     document.body.removeChild(selBox);
 
     // Let the user know the copy was successful.
-    this.snackBar.open('Refresh token copied to clipboard.', null, {
-      duration: SNACKBAR_DURATION,
-    });
+    this.snackBar.open('Refresh token copied to clipboard.');
   }
 }

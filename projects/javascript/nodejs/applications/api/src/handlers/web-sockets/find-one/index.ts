@@ -1,16 +1,5 @@
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
-
 import { WebSocketPermissions } from '@tenlastic/mongoose-models';
 
-export async function handler(ctx: Context) {
-  const query = {
-    where: { _id: ctx.params.id },
-  };
+import { findOne } from '../../../defaults';
 
-  const result = await WebSocketPermissions.findOne({}, query, ctx.state.user);
-  if (!result) {
-    throw new RecordNotFoundError('Web Socket');
-  }
-
-  ctx.response.body = { record: result };
-}
+export const handler = findOne(WebSocketPermissions);

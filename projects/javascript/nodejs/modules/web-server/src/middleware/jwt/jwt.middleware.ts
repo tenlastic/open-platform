@@ -1,4 +1,4 @@
-import * as jwt from 'jsonwebtoken';
+import * as jsonwebtoken from 'jsonwebtoken';
 
 import { Context, MiddlewareCallback } from '../..';
 
@@ -6,16 +6,27 @@ import { Context, MiddlewareCallback } from '../..';
  * Extracts the user's information from a JWT.
  */
 export async function jwtMiddleware(ctx: Context, next: MiddlewareCallback) {
+  let jwt: any;
+
   try {
     const authorization = ctx.request.headers.Authorization || ctx.request.headers.authorization;
     const token = authorization.replace('Bearer ', '');
-    const decoded: any = jwt.verify(token, process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n'), {
+    jwt = jsonwebtoken.verify(token, process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n'), {
       algorithms: ['RS256'],
     });
+  } catch {
+    await next();
+    return;
+  }
 
-    ctx.state.jwt = decoded;
-    ctx.state.user = decoded.user;
-  } catch {}
+  // Do not accept refresh tokens.
+  if (jwt.type !== 'access') {
+    await next();
+    return;
+  }
+
+  ctx.state.jwt = jwt;
+  ctx.state.user = jwt.user;
 
   await next();
 }

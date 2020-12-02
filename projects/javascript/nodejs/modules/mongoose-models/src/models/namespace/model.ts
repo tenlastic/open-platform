@@ -6,8 +6,11 @@ import {
   index,
   modelOptions,
   plugin,
+  post,
+  pre,
   prop,
 } from '@hasezoey/typegoose';
+import * as k8s from '@kubernetes/client-node';
 import {
   EventEmitter,
   IDatabasePayload,
@@ -18,68 +21,141 @@ import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
 import { UserDocument } from '../user';
-import { UserRolesDocument, UserRoles } from './user-roles';
+import { NamespaceKey, NamespaceKeyDocument } from './key';
+import { NamespaceLimitsDocument } from './limits';
+import { NamespaceUser, NamespaceUserDocument } from './user';
+
+export class NamespaceLimitError extends Error {
+  public path: string;
+
+  constructor(path: string) {
+    super(`Namespace limit reached: ${path}.`);
+
+    this.path = path;
+  }
+}
 
 export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocument>>();
+
+export enum NamespaceRole {
+  Articles = 'articles',
+  Builds = 'builds',
+  Collections = 'collections',
+  GameServers = 'game-servers',
+  GameInvitations = 'game-invitations',
+  Games = 'games',
+  Namespaces = 'namespaces',
+  Queues = 'queues',
+}
+
+// Publish changes to Kafka.
 NamespaceEvent.on(payload => {
   kafka.publish(payload);
 });
 
+const kc = new k8s.KubeConfig();
+kc.loadFromDefault();
+const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
+
+@index({ 'keys.value': 1 }, { unique: true })
 @index({ name: 1 }, { unique: true })
-@index({ 'accessControlList.roles': 1 })
-@index({ 'accessControlList.userIds': 1 })
+@index({ 'keys.roles': 1 })
+@index({ 'users._id': 1 })
+@index({ 'users.roles': 1 })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'namespaces',
     minimize: false,
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: NamespaceEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: NamespaceEvent })
 @plugin(uniqueErrorPlugin)
+@pre('remove', async function(this: NamespaceDocument) {
+  await this.deleteKubernetesResources();
+})
+@post('save', async function(this: NamespaceDocument) {
+  if (!this.wasNew) {
+    return;
+  }
+
+  await this.createKubernetesResources();
+})
 export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @arrayProp({ default: [], items: UserRoles })
-  public accessControlList: UserRolesDocument[];
-
   public createdAt: Date;
 
-  @prop({ match: /^[0-9a-z\-]{2,40}$/, required: true })
+  @arrayProp({ default: [], items: NamespaceKey })
+  public keys: NamespaceKeyDocument[];
+
+  @prop({ required: true })
+  public limits: NamespaceLimitsDocument;
+
+  @prop({ required: true })
   public name: string;
 
   public updatedAt: Date;
 
-  public static getDefaultAccessControlList(
-    accessControlList: Array<Partial<UserRolesDocument>>,
+  @arrayProp({ default: [], items: NamespaceUser })
+  public users: NamespaceUserDocument[];
+
+  public _original: any;
+  public wasModified: string[];
+  public wasNew: boolean;
+
+  private get kubernetesNamespace() {
+    return `namespace-${this._id}`;
+  }
+
+  public static getDefaultUsers(
+    users: Array<Partial<NamespaceUserDocument>>,
     user: Partial<UserDocument>,
   ) {
-    const copy = accessControlList ? accessControlList.concat() : [];
+    const copy = users ? users.concat() : [];
 
     if (copy.length === 0) {
-      const userRoles = new UserRoles({ roles: ['Administrator'], userId: user._id });
-      copy.push(userRoles);
+      const namespaceUser = new NamespaceUser({
+        _id: user._id,
+        roles: [NamespaceRole.Namespaces],
+      });
+      copy.push(namespaceUser);
 
       return copy;
     }
 
-    if (copy.find(acl => acl.roles.includes('Administrator'))) {
+    if (copy.find(u => u.roles.includes(NamespaceRole.Namespaces))) {
       return copy;
     }
 
-    const result = copy.find(acl => acl.userId.toString() === user._id.toString());
+    const result = copy.find(u => u._id.toString() === user._id.toString());
     if (result) {
-      result.roles.push('Administrator');
+      result.roles.push(NamespaceRole.Namespaces);
     } else {
-      const userRoles = new UserRoles({ roles: ['Administrator'], userId: user._id });
-      copy.push(userRoles);
+      const namespaceUser = new NamespaceUser({
+        _id: user._id,
+        roles: [NamespaceRole.Namespaces],
+      });
+      copy.push(namespaceUser);
     }
 
     return copy;
+  }
+
+  /**
+   * Creates a namespace within Kubernetes.
+   */
+  private async createKubernetesResources() {
+    await coreV1.createNamespace({ metadata: { name: this.kubernetesNamespace } });
+  }
+
+  /**
+   * Deletes a namespace within Kubernetes.
+   */
+  private async deleteKubernetesResources() {
+    try {
+      await coreV1.deleteNamespace(this.kubernetesNamespace);
+    } catch {}
   }
 }
 

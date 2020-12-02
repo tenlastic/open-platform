@@ -14,7 +14,5 @@ paths:
               schema:
                 type: object
                 properties:
-                  records:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/GroupInvitation'
+                  count:
+                    type: number

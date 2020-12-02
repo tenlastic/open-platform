@@ -1,14 +1,17 @@
-import { expect } from 'chai';
+import { expect, use } from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import * as jwt from 'jsonwebtoken';
+import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
 import * as emails from '../../emails';
-import { RefreshToken } from '../refresh-token/model';
+import { RefreshToken, RefreshTokenMock } from '../refresh-token';
 import { UserMock } from './model.mock';
 import { User, UserDocument } from './model';
 
 const chance = new Chance();
+use(chaiAsPromised);
 
 describe('models/user.model', function() {
   let sandbox: sinon.SinonSandbox;
@@ -84,9 +87,26 @@ describe('models/user.model', function() {
       const { refreshToken } = await user.logIn();
 
       const { jti } = jwt.decode(refreshToken) as any;
-      const count = await RefreshToken.countDocuments({ jti, userId: user._id });
+      const count = await RefreshToken.countDocuments({ _id: jti, userId: user._id });
 
       expect(count).to.eql(1);
+    });
+
+    it('updates an existing refreshToken', async function() {
+      const existingRefreshToken = await RefreshTokenMock.create({ userId: user._id });
+      const { refreshToken } = await user.logIn(existingRefreshToken._id);
+
+      const { jti } = jwt.decode(refreshToken) as any;
+      const count = await RefreshToken.countDocuments({ _id: jti, userId: user._id });
+
+      expect(count).to.eql(1);
+    });
+
+    it('throws an error', async function() {
+      const jti = new mongoose.Types.ObjectId().toHexString();
+      const promise = user.logIn(jti);
+
+      return expect(promise).to.be.rejectedWith(`Cannot read property '_id' of null`);
     });
   });
 });

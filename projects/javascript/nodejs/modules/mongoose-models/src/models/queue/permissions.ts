@@ -4,79 +4,94 @@ import { Queue, QueueDocument } from './model';
 
 export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
   create: {
-    roles: {
-      'namespace-administrator': [
-        '_id',
-        'createdAt',
-        'description',
-        'gameId',
-        'gameServerTemplate.*',
-        'name',
-        'usersPerTeam',
-        'teams',
-        'updatedAt',
-      ],
-    },
-  },
-  delete: {
-    roles: {
-      'namespace-administrator': true,
-    },
-  },
-  find: {
-    base: {
-      $or: [
-        {
-          gameId: {
-            $in: {
-              // Find all Games of which the User has been invited.
-              $query: {
-                model: 'GameInvitationSchema',
-                select: 'gameId',
-                where: {
-                  toUserId: { $eq: { $ref: 'user._id' } },
-                },
-              },
-            },
-          },
-        },
-        {
-          gameId: {
-            $in: {
-              // Find all Games within the returned Namespaces.
-              $query: {
-                model: 'GameSchema',
-                select: '_id',
-                where: {
-                  namespaceId: {
-                    $in: {
-                      // Find all Namespaces that the user is a member of.
-                      $query: {
-                        model: 'NamespaceSchema',
-                        select: '_id',
-                        where: {
-                          'accessControlList.userId': { $eq: { $ref: 'user._id' } },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
-  },
-  populate: [{ path: 'gameDocument', populate: { path: 'namespaceDocument' } }],
-  read: {
-    base: [
+    'namespace-administrator': [
       '_id',
       'createdAt',
       'description',
-      'gameId',
       'gameServerTemplate.*',
       'name',
+      'namespaceId',
+      'usersPerTeam',
+      'teams',
+      'updatedAt',
+    ],
+    'system-administrator': [
+      '_id',
+      'createdAt',
+      'description',
+      'gameServerTemplate.*',
+      'name',
+      'namespaceId',
+      'usersPerTeam',
+      'teams',
+      'updatedAt',
+    ],
+  },
+  delete: {
+    'namespace-administrator': true,
+    'system-administrator': true,
+  },
+  find: {
+    default: {
+      $or: [
+        {
+          namespaceId: {
+            $in: {
+              // Find all Namespaces of which the User has been invited.
+              $query: {
+                model: 'GameInvitationSchema',
+                select: 'namespaceId',
+                where: {
+                  userId: { $eq: { $ref: 'user._id' } },
+                },
+              },
+            },
+          },
+        },
+        {
+          namespaceId: {
+            $in: {
+              // Find Namespaces where the Key or User has administrator access.
+              $query: {
+                model: 'NamespaceSchema',
+                select: '_id',
+                where: {
+                  $or: [
+                    {
+                      keys: {
+                        $elemMatch: {
+                          roles: { $eq: 'queues' },
+                          value: { $eq: { $ref: 'key' } },
+                        },
+                      },
+                    },
+                    {
+                      users: {
+                        $elemMatch: {
+                          _id: { $eq: { $ref: 'user._id' } },
+                          roles: { $eq: 'queues' },
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    'system-administrator': {},
+  },
+  populate: [{ path: 'namespaceDocument' }],
+  read: {
+    default: [
+      '_id',
+      'createdAt',
+      'description',
+      'gameServerTemplate.*',
+      'name',
+      'namespaceId',
       'usersPerTeam',
       'teams',
       'updatedAt',
@@ -84,30 +99,57 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
   },
   roles: [
     {
+      name: 'system-administrator',
+      query: {
+        'user.roles': { $eq: 'queues' },
+      },
+    },
+    {
       name: 'namespace-administrator',
       query: {
-        'record.gameDocument.namespaceDocument.accessControlList': {
-          $elemMatch: {
-            roles: { $eq: 'Administrator' },
-            userId: { $eq: { $ref: 'user._id' } },
+        $or: [
+          {
+            'record.namespaceDocument.keys': {
+              $elemMatch: {
+                roles: { $eq: 'queues' },
+                value: { $eq: { $ref: 'key' } },
+              },
+            },
           },
-        },
+          {
+            'record.namespaceDocument.users': {
+              $elemMatch: {
+                _id: { $eq: { $ref: 'user._id' } },
+                roles: { $eq: 'queues' },
+              },
+            },
+          },
+        ],
       },
     },
   ],
   update: {
-    roles: {
-      'namespace-administrator': [
-        '_id',
-        'createdAt',
-        'description',
-        'gameId',
-        'gameServerTemplate.*',
-        'name',
-        'usersPerTeam',
-        'teams',
-        'updatedAt',
-      ],
-    },
+    'namespace-administrator': [
+      '_id',
+      'createdAt',
+      'description',
+      'gameServerTemplate.*',
+      'name',
+      'namespaceId',
+      'usersPerTeam',
+      'teams',
+      'updatedAt',
+    ],
+    'system-administrator': [
+      '_id',
+      'createdAt',
+      'description',
+      'gameServerTemplate.*',
+      'name',
+      'namespaceId',
+      'usersPerTeam',
+      'teams',
+      'updatedAt',
+    ],
   },
 });

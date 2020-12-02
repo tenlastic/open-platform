@@ -1,47 +1,45 @@
 <app-header-toolbar>
   <img src="/assets/images/logo.png" />
 
-  <app-button
-    color="accent"
-    routerLink="/"
-    routerLinkActive="active"
-    [routerLinkActiveOptions]="{ exact: true }"
-  >
+  <app-button color="accent"
+              routerLink="/"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }">
     <mat-icon>home</mat-icon>
     <span>Home</span>
   </app-button>
 
-  <app-button color="accent" [matMenuTriggerFor]="for_developers">
+  <app-button color="accent"
+              [matMenuTriggerFor]="for_developers">
     <mat-icon>code</mat-icon>
     <span>For Developers</span>
     <mat-icon>keyboard_arrow_down</mat-icon>
   </app-button>
-  <mat-menu #for_developers="matMenu" xPosition="before">
-    <app-button
-      color="accent"
-      href="https://api.tenlastic.com/index.html"
-      layout="vertical"
-      target="_blank"
-      text="left"
-      width="full"
-    >
+  <mat-menu #for_developers="matMenu"
+            xPosition="before">
+    <app-button color="accent"
+                layout="vertical"
+                routerLink="api-documentation"
+                target="_blank"
+                text="left"
+                width="full">
       <span>API Documentation</span>
     </app-button>
-    <app-button
-      color="accent"
-      href="https://github.com/tenlastic/open-platform"
-      layout="vertical"
-      target="_blank"
-      text="left"
-      width="full"
-    >
+    <app-button color="accent"
+                href="https://github.com/tenlastic/open-platform"
+                layout="vertical"
+                target="_blank"
+                text="left"
+                width="full">
       <span>Github Repository</span>
     </app-button>
   </mat-menu>
 
   <span class="space"></span>
 
-  <app-button *ngIf="!electronService.isElectron" color="primary" [href]="launcherUrl">
+  <app-button *ngIf="!electronService.isElectron"
+              color="primary"
+              [href]="launcherUrl">
     <span>Download Launcher</span>
   </app-button>
 </app-header-toolbar>

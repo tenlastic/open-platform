@@ -28,12 +28,7 @@ export class LogoutPageComponent implements OnInit {
   }
 
   private async logOut() {
-    const { refreshToken } = this.identityService;
-
-    if (refreshToken) {
-      this.identityService.accessToken = refreshToken;
-      await this.loginService.delete();
-    }
+    await this.loginService.delete();
 
     const { snapshot } = this.activatedRoute;
     if (snapshot.queryParamMap.has('redirectUrl')) {

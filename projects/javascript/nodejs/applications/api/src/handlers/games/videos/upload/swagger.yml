@@ -1,0 +1,26 @@
+paths:
+  /games/{_id}/videos:
+    post:
+      summary: Upload Images
+      tags: [Games]
+      description: Uploads videos for a Game.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content: multipart/form-data
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Game'

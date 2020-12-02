@@ -1,15 +1,15 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import {
-  Collection,
-  CollectionService,
-  Database,
-  DatabaseService,
-  Record,
-  RecordService,
-} from '@tenlastic/ng-http';
+import { Collection, CollectionService, Record, RecordService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -26,31 +26,34 @@ export class RecordsListPageComponent implements OnInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Record>;
 
-  public dataSource: MatTableDataSource<Record>;
-  public displayedColumns: string[] = ['_id', 'actions'];
+  public collection: Collection;
+  public dataSource = new MatTableDataSource<Record>();
+  public displayedColumns: string[];
+  public propertyColumns: string[];
   public search = '';
 
-  private collection: Collection;
-  private database: Database;
   private subject: Subject<string> = new Subject();
 
   constructor(
     public activatedRoute: ActivatedRoute,
     public collectionService: CollectionService,
-    public databaseService: DatabaseService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private recordService: RecordService,
     private titleService: Title,
   ) {}
 
-  ngOnInit() {
+  public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
-      const databaseName = params.get('databaseName');
-      this.database = await this.databaseService.findOne(databaseName);
+      const collectionId = params.get('collectionId');
+      this.collection = await this.collectionService.findOne(collectionId);
 
-      const collectionName = params.get('collectionName');
-      this.collection = await this.collectionService.findOne(this.database.name, collectionName);
+      this.propertyColumns = Object.entries(this.collection.jsonSchema.properties)
+        .map(([key, value]) => (value.type === 'array' || value.type === 'object' ? null : key))
+        .filter(p => p)
+        .slice(0, 4);
+      this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
 
       this.titleService.setTitle(`${TITLE} | Records`);
       this.fetchRecords();
@@ -81,8 +84,10 @@ export class RecordsListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.recordService.delete(this.database.name, this.collection.name, record._id);
+        await this.recordService.delete(this.collection._id, record._id);
         this.deleteRecord(record);
+
+        this.matSnackBar.open('Record deleted successfully.');
       }
     });
   }
@@ -92,7 +97,7 @@ export class RecordsListPageComponent implements OnInit {
   }
 
   private async fetchRecords() {
-    const records = await this.recordService.find(this.database.name, this.collection.name, {
+    const records = await this.recordService.find(this.collection._id, {
       sort: '_id',
     });
 

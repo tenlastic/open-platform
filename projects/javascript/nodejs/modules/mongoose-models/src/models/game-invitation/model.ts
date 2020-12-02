@@ -14,54 +14,56 @@ import {
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import { Game, GameDocument } from '../game';
-import { User, UserDocument } from '../user';
+import { NamespaceDocument, NamespaceEvent } from '../namespace';
+import { UserDocument } from '../user';
+
+export const GameInvitationEvent = new EventEmitter<IDatabasePayload<GameInvitationDocument>>();
 
 // Publish changes to Kafka.
-export const GameInvitationEvent = new EventEmitter<IDatabasePayload<GameInvitationDocument>>();
 GameInvitationEvent.on(payload => {
   kafka.publish(payload);
 });
 
-@index({ fromUserId: 1 })
-@index({ gameId: 1, toUserId: 1 }, { unique: true })
+// Delete  Game Invitations if associated Namespace is deleted.
+NamespaceEvent.on(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await GameInvitation.find({ namespaceId: payload.fullDocument._id });
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
+  }
+});
+
+@index({ namespaceId: 1, userId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'gameinvitations',
     minimize: false,
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: GameInvitationEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameInvitationEvent })
+@plugin(uniqueErrorPlugin)
 export class GameInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ ref: User, required: true })
-  public fromUserId: Ref<UserDocument>;
-
-  @prop({ ref: Game, required: true })
-  public gameId: Ref<GameDocument>;
-
-  @prop({ ref: User, required: true })
-  public toUserId: Ref<UserDocument>;
+  @prop({ ref: 'NamespaceSchema', required: true })
+  public namespaceId: Ref<NamespaceDocument>;
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: User })
-  public fromUserDocument: UserDocument;
+  @prop({ ref: 'UserSchema', required: true })
+  public userId: Ref<UserDocument>;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: Game })
-  public gameDocument: GameDocument;
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
+  public namespaceDocument: NamespaceDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: User })
-  public toUserDocument: UserDocument;
+  @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'UserSchema' })
+  public userDocument: UserDocument;
 }
 
 export type GameInvitationDocument = DocumentType<GameInvitationSchema>;

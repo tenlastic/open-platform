@@ -13,9 +13,13 @@ export const ROUTES: Routes = [
         loadChildren: () => import('./modules/articles/articles.module').then(m => m.ArticleModule),
       },
       {
-        path: 'databases',
+        path: 'builds',
+        loadChildren: () => import('./modules/builds/builds.module').then(m => m.BuildModule),
+      },
+      {
+        path: 'collections',
         loadChildren: () =>
-          import('./modules/databases/databases.module').then(m => m.DatabaseModule),
+          import('./modules/collections/collections.module').then(m => m.CollectionModule),
       },
       {
         path: 'game-invitations',
@@ -30,7 +34,7 @@ export const ROUTES: Routes = [
           import('./modules/game-servers/game-servers.module').then(m => m.GameServerModule),
       },
       {
-        path: 'games',
+        path: 'game-information',
         loadChildren: () => import('./modules/games/games.module').then(m => m.GameModule),
       },
       {
@@ -46,10 +50,6 @@ export const ROUTES: Routes = [
         path: 'refresh-tokens',
         loadChildren: () =>
           import('./modules/refresh-tokens/refresh-tokens.module').then(m => m.RefreshTokenModule),
-      },
-      {
-        path: 'releases',
-        loadChildren: () => import('./modules/releases/releases.module').then(m => m.ReleaseModule),
       },
       {
         path: 'users',

@@ -1,17 +1,17 @@
+import {
+  GameServerDocument,
+  GameServerMock,
+  NamespaceDocument,
+  NamespaceMock,
+  NamespaceUserMock,
+  UserDocument,
+  UserMock,
+} from '@tenlastic/mongoose-models';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 
-import {
-  GameServerDocument,
-  GameServerMock,
-  GameMock,
-  NamespaceMock,
-  UserDocument,
-  UserMock,
-  UserRolesMock,
-} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 const chance = new Chance();
@@ -25,13 +25,17 @@ describe('handlers/game-servers/update', function() {
   });
 
   context('when permission is granted', function() {
+    let namespace: NamespaceDocument;
     let record: GameServerDocument;
 
     beforeEach(async function() {
-      const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-      const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      record = await GameServerMock.create({ gameId: game._id });
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['game-servers'],
+      });
+
+      namespace = await NamespaceMock.create({ users: [namespaceUser] });
+      record = await GameServerMock.create({ namespaceId: namespace._id });
     });
 
     it('returns the record', async function() {
@@ -50,7 +54,71 @@ describe('handlers/game-servers/update', function() {
       await handler(ctx as any);
 
       expect(ctx.response.body.record).to.exist;
-      expect(ctx.response.body.record.name).to.eql(ctx.request.body.name);
+    });
+
+    it('enforces the gameServers.cpu Namespace limit', async function() {
+      namespace.limits.gameServers.cpu = 0.1;
+      namespace.markModified('limits');
+      await namespace.save();
+
+      const ctx = new ContextMock({
+        params: {
+          _id: record._id,
+        },
+        request: {
+          body: {
+            cpu: 0.2,
+          },
+        },
+        state: { user: user.toObject() },
+      });
+
+      const promise = handler(ctx as any);
+
+      return expect(promise).to.be.rejectedWith('Namespace limit reached: gameServers.cpu.');
+    });
+
+    it('enforces the gameServers.memory Namespace limit', async function() {
+      namespace.limits.gameServers.memory = 0.1;
+      namespace.markModified('limits');
+      await namespace.save();
+
+      const ctx = new ContextMock({
+        request: {
+          body: {
+            memory: 0.2,
+          },
+        },
+        state: { user: user.toObject() },
+      });
+
+      const promise = handler(ctx as any);
+
+      return expect(promise).to.be.rejectedWith('Namespace limit reached: gameServers.memory.');
+    });
+
+    it('enforces the gameServers.preemptible Namespace limit', async function() {
+      namespace.limits.gameServers.preemptible = true;
+      namespace.markModified('limits');
+      await namespace.save();
+
+      const ctx = new ContextMock({
+        params: {
+          _id: record._id,
+        },
+        request: {
+          body: {
+            isPreemptible: false,
+          },
+        },
+        state: { user: user.toObject() },
+      });
+
+      const promise = handler(ctx as any);
+
+      return expect(promise).to.be.rejectedWith(
+        'Namespace limit reached: gameServers.preemptible.',
+      );
     });
   });
 
@@ -58,7 +126,8 @@ describe('handlers/game-servers/update', function() {
     let record: GameServerDocument;
 
     beforeEach(async function() {
-      record = await GameServerMock.create();
+      const namespace = await NamespaceMock.create();
+      record = await GameServerMock.create({ namespaceId: namespace._id });
     });
 
     it('throws an error', async function() {

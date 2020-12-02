@@ -1,1 +1,1 @@
-export * from './access-control-list-field/access-control-list-field.component';
+export * from './namespace-user-field/namespace-user-field.component';

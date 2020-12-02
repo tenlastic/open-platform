@@ -1,9 +1,6 @@
-import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
 import { RefreshToken, RefreshTokenSchema } from './model';
-
-const chance = new Chance();
 
 export class RefreshTokenMock {
   /**
@@ -12,7 +9,6 @@ export class RefreshTokenMock {
    */
   public static async create(params: Partial<RefreshTokenSchema> = {}) {
     const defaults = {
-      jti: chance.hash(),
       userId: new mongoose.Types.ObjectId(),
     };
 

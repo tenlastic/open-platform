@@ -1,10 +1,9 @@
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
-import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
-import { deleteAll } from './';
+import { connect, deleteAll } from './';
 
 let sandbox: sinon.SinonSandbox;
 
@@ -26,12 +25,9 @@ before(async function() {
     await minio.makeBucket(bucket);
   }
 
-  await mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
-    dbName: `mongoose-models-test`,
-    useCreateIndex: true,
-    useFindAndModify: false,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+  await connect({
+    connectionString: process.env.MONGO_CONNECTION_STRING,
+    databaseName: 'mongoose-models-test',
   });
 });
 

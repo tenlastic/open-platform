@@ -1,22 +1,19 @@
-import { Context } from '@tenlastic/web-server';
-
-import { GameServerDocument, GameServerPermissions } from '@tenlastic/mongoose-models';
+import { GameServer, GameServerPermissions, Namespace } from '@tenlastic/mongoose-models';
+import { RecordNotFoundError, RequiredFieldError } from '@tenlastic/web-server';
+import { Context } from 'koa';
 
 export async function handler(ctx: Context) {
-  let result: GameServerDocument;
-  let portError: any;
+  const user = ctx.state.apiKey || ctx.state.user;
 
-  do {
-    try {
-      result = await GameServerPermissions.create(ctx.request.body, {}, ctx.state.user);
-    } catch (e) {
-      if (e.name === 'MongoError' && e.code === 11000 && e.keyPattern.port) {
-        portError = e;
-      } else {
-        throw e;
-      }
-    }
-  } while (portError);
+  const { cpu, isPreemptible, memory, namespaceId } = ctx.request.body;
+  if (!cpu || !memory || !namespaceId) {
+    throw new RequiredFieldError(['cpu', 'memory', 'namespaceId']);
+  }
 
-  ctx.response.body = { record: result };
+  await GameServer.checkNamespaceLimits(1, cpu, isPreemptible || false, memory, namespaceId);
+
+  const result = await GameServerPermissions.create(ctx.request.body, ctx.params, user);
+  const record = await GameServerPermissions.read(result, user);
+
+  ctx.response.body = { record };
 }

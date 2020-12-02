@@ -1,5 +1,5 @@
 import * as mongooseModels from '@tenlastic/mongoose-models';
-import { GameServer } from '@tenlastic/mongoose-models';
+import { GameServer, Namespace } from '@tenlastic/mongoose-models';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as sinon from 'sinon';
 
@@ -12,6 +12,7 @@ before(async function() {
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: `matchmaking-test`,
   });
+  await mongooseModels.syncIndexes();
 });
 
 beforeEach(async function() {
@@ -21,6 +22,8 @@ beforeEach(async function() {
   sandbox.stub(GameServer.prototype, 'createKubernetesResources').resolves();
   sandbox.stub(GameServer.prototype, 'deleteKubernetesResources').resolves();
   sandbox.stub(GameServer.prototype, 'updateKubernetesResources').resolves();
+  sandbox.stub(Namespace.prototype, 'createKubernetesResources').resolves();
+  sandbox.stub(Namespace.prototype, 'deleteKubernetesResources').resolves();
 
   await mongooseModels.deleteAll();
 });

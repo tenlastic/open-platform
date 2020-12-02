@@ -1,17 +1,5 @@
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
+import { GroupPermissions } from '@tenlastic/mongoose-models';
 
-import { Group, GroupPermissions } from '@tenlastic/mongoose-models';
+import { deleteOne } from '../../../defaults';
 
-export async function handler(ctx: Context) {
-  const where = await GroupPermissions.where({ _id: ctx.params._id }, ctx.state.user);
-  const record = await Group.findOne(where).populate(
-    GroupPermissions.accessControl.options.populate,
-  );
-  if (!record) {
-    throw new RecordNotFoundError('Group');
-  }
-
-  const result = await GroupPermissions.delete(record, ctx.state.user);
-
-  ctx.response.body = { record: result };
-}
+export const handler = deleteOne(GroupPermissions);

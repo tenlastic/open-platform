@@ -6,11 +6,10 @@ import * as Chance from 'chance';
 import {
   GameServerDocument,
   GameServerMock,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
-  UserRolesMock,
+  NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
@@ -28,10 +27,12 @@ describe('handlers/game-servers/restart', function() {
     let record: GameServerDocument;
 
     beforeEach(async function() {
-      const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-      const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      record = await GameServerMock.create({ gameId: game._id, isPersistent: true });
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['game-servers'],
+      });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
+      record = await GameServerMock.create({ namespaceId: namespace._id, isPersistent: true });
     });
 
     it('returns the record', async function() {

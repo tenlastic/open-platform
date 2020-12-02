@@ -1,40 +1,56 @@
+import {
+  GameInvitationMock,
+  GroupMock,
+  NamespaceDocument,
+  NamespaceMock,
+  NamespaceUserMock,
+  QueueMemberMock,
+  QueueMock,
+  UserDocument,
+  UserMock,
+} from '@tenlastic/mongoose-models';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
-import {
-  QueueMock,
-  GameMock,
-  GameInvitationMock,
-  NamespaceMock,
-  UserDocument,
-  UserMock,
-  UserRolesMock,
-  QueueMemberMock,
-} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/queue-members/count', function() {
-  let user: UserDocument;
+  let namespace: NamespaceDocument;
+  let users: UserDocument[];
 
   beforeEach(async function() {
-    user = await UserMock.create();
+    users = await Promise.all([
+      UserMock.create(),
+      UserMock.create(),
+      UserMock.create(),
+      UserMock.create(),
+    ]);
 
-    const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-    const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-    const game = await GameMock.create({ namespaceId: namespace._id });
-    const queue = await QueueMock.create({ gameId: game._id });
+    const namespaceUser = NamespaceUserMock.create({
+      _id: users[0]._id,
+      roles: ['queues'],
+    });
+    namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
-    await GameInvitationMock.create({ gameId: game._id, toUserId: user._id });
-    await QueueMemberMock.create({ queueId: queue._id, userId: user._id });
+    await Promise.all([
+      GameInvitationMock.create({ namespaceId: namespace._id, userId: users[0]._id }),
+      GameInvitationMock.create({ namespaceId: namespace._id, userId: users[1]._id }),
+      GameInvitationMock.create({ namespaceId: namespace._id, userId: users[2]._id }),
+      GameInvitationMock.create({ namespaceId: namespace._id, userId: users[3]._id }),
+    ]);
   });
 
   it('returns the number of matching records', async function() {
-    const ctx = new ContextMock({
-      state: { user: user.toObject() },
-    });
+    const group = await GroupMock.create({ userIds: [users[1]._id, users[2]._id] });
+    const queue = await QueueMock.create({ namespaceId: namespace._id, usersPerTeam: 2 });
+    await Promise.all([
+      QueueMemberMock.create({ queueId: queue._id, userId: users[0]._id }),
+      QueueMemberMock.create({ groupId: group._id, queueId: queue._id }),
+    ]);
+    const ctx = new ContextMock({ state: { user: users[0].toObject() } });
 
     await handler(ctx as any);
 
-    expect(ctx.response.body.count).to.eql(1);
+    expect(ctx.response.body.count).to.eql(3);
   });
 });

@@ -4,30 +4,26 @@ import { Game, GameDocument } from './model';
 
 export const GamePermissions = new MongoosePermissions<GameDocument>(Game, {
   create: {
-    roles: {
-      administrator: [
-        'background',
-        'description',
-        'icon',
-        'images',
-        'namespaceId',
-        'subtitle',
-        'title',
-        'videos',
-      ],
-    },
+    'namespace-administrator': [
+      'background',
+      'description',
+      'icon',
+      'images',
+      'namespaceId',
+      'subtitle',
+      'title',
+      'videos',
+    ],
   },
   delete: {
-    roles: {
-      administrator: true,
-    },
+    'namespace-administrator': true,
   },
   find: {
-    base: {},
+    default: {},
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {
-    base: [
+    default: [
       '_id',
       'background',
       'createdAt',
@@ -43,29 +39,39 @@ export const GamePermissions = new MongoosePermissions<GameDocument>(Game, {
   },
   roles: [
     {
-      name: 'administrator',
+      name: 'namespace-administrator',
       query: {
-        'record.namespaceDocument.accessControlList': {
-          $elemMatch: {
-            roles: { $eq: 'Administrator' },
-            userId: { $eq: { $ref: 'user._id' } },
+        $or: [
+          {
+            'record.namespaceDocument.keys': {
+              $elemMatch: {
+                roles: { $eq: 'games' },
+                value: { $eq: { $ref: 'key' } },
+              },
+            },
           },
-        },
+          {
+            'record.namespaceDocument.users': {
+              $elemMatch: {
+                _id: { $eq: { $ref: 'user._id' } },
+                roles: { $eq: 'games' },
+              },
+            },
+          },
+        ],
       },
     },
   ],
   update: {
-    roles: {
-      administrator: [
-        'background',
-        'description',
-        'icon',
-        'images',
-        'namespaceId',
-        'subtitle',
-        'title',
-        'videos',
-      ],
-    },
+    'namespace-administrator': [
+      'background',
+      'description',
+      'icon',
+      'images',
+      'namespaceId',
+      'subtitle',
+      'title',
+      'videos',
+    ],
   },
 });

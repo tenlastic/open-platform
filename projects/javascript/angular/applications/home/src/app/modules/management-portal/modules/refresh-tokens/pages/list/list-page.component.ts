@@ -1,5 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { RefreshToken, RefreshTokenService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
@@ -19,7 +26,7 @@ export class RefreshTokensListPageComponent implements OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<RefreshToken>;
 
   public dataSource: MatTableDataSource<RefreshToken>;
-  public displayedColumns: string[] = ['jti', 'description', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns: string[] = ['_id', 'createdAt', 'updatedAt', 'expiresAt', 'actions'];
   public search = '';
 
   private subject: Subject<string> = new Subject();
@@ -27,6 +34,7 @@ export class RefreshTokensListPageComponent implements OnInit {
   constructor(
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private refreshTokenService: RefreshTokenService,
     private titleService: Title,
   ) {}
@@ -60,8 +68,10 @@ export class RefreshTokensListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.refreshTokenService.delete(record.jti);
+        await this.refreshTokenService.delete(record._id);
         this.deleteRefreshToken(record);
+
+        this.matSnackBar.open('Refresh Token deleted successfully.');
       }
     });
   }
@@ -71,10 +81,7 @@ export class RefreshTokensListPageComponent implements OnInit {
   }
 
   private async fetchRefreshTokens() {
-    const records = await this.refreshTokenService.find({
-      sort: 'jti',
-      where: { expiresAt: { $exists: false } },
-    });
+    const records = await this.refreshTokenService.find({});
 
     this.dataSource = new MatTableDataSource<RefreshToken>(records);
     this.dataSource.paginator = this.paginator;
@@ -82,7 +89,7 @@ export class RefreshTokensListPageComponent implements OnInit {
   }
 
   private deleteRefreshToken(record: RefreshToken) {
-    const index = this.dataSource.data.findIndex(u => u.jti === record.jti);
+    const index = this.dataSource.data.findIndex(u => u._id === record._id);
     this.dataSource.data.splice(index, 1);
 
     this.dataSource.data = [].concat(this.dataSource.data);

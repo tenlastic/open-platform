@@ -1,5 +1,12 @@
 import { Connection } from 'mongoose';
 
+export interface SubqueryOptions {
+  isOne?: boolean;
+  model: string;
+  select: string | string[];
+  where: any;
+}
+
 /**
  * Substitute { $query } subdocuments within JSON with subquery results.
  */
@@ -25,7 +32,7 @@ export async function substituteSubqueryValues(mongoose: Connection, object: any
   }
 }
 
-async function executeQuery(mongoose: Connection, options: any) {
+async function executeQuery(mongoose: Connection, options: SubqueryOptions) {
   if (!options.model || !mongoose.modelNames().includes(options.model)) {
     throw new Error('Model not found.');
   }

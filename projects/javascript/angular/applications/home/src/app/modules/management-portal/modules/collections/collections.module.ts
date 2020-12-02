@@ -9,10 +9,10 @@ import { CollectionsFormPageComponent, CollectionsListPageComponent } from './pa
 export const ROUTES: Routes = [
   { path: '', component: CollectionsListPageComponent },
   {
-    path: ':collectionName/records',
+    path: ':collectionId/records',
     loadChildren: () => import('../records/records.module').then(m => m.RecordModule),
   },
-  { path: ':name', component: CollectionsFormPageComponent },
+  { path: ':_id', component: CollectionsFormPageComponent },
 ];
 
 @NgModule({

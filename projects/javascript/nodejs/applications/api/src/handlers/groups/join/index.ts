@@ -9,7 +9,7 @@ export async function handler(ctx: Context) {
     const where = { groupId: ctx.params._id, toUserId: ctx.state.user._id };
     const groupInvitation = await GroupInvitation.findOne(where);
     if (!groupInvitation) {
-      throw new RecordNotFoundError('Group Invitation');
+      throw new RecordNotFoundError();
     }
   }
 
@@ -17,7 +17,7 @@ export async function handler(ctx: Context) {
     { _id: ctx.params._id },
     { $addToSet: { userIds: ctx.state.user._id } },
   );
-  const filteredRecord = await GroupPermissions.read(record, ctx.state.user);
+  const filteredRecord = await GroupPermissions.read(record, ctx.state.apiKey || ctx.state.user);
 
   const groupInvitations = await GroupInvitation.find({ toUserId: ctx.state.user._id });
   for (const groupInvitation of groupInvitations) {

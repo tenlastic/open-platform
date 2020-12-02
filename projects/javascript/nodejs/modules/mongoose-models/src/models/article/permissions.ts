@@ -4,39 +4,43 @@ import { Article, ArticleDocument } from './model';
 
 export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Article, {
   create: {
-    roles: {
-      'namespace-administrator': ['body', 'caption', 'gameId', 'publishedAt', 'title', 'type'],
-    },
+    'namespace-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
+    'system-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
   },
   delete: {
-    roles: {
-      'namespace-administrator': true,
-    },
+    'namespace-administrator': true,
+    'system-administrator': true,
   },
   find: {
-    base: {
+    default: {
       $or: [
         { $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }] },
         {
-          gameId: {
+          namespaceId: {
             $in: {
-              // Find all Games within the returned Namespaces.
+              // Find Namespaces where the Key or User has administrator access.
               $query: {
-                model: 'GameSchema',
+                model: 'NamespaceSchema',
                 select: '_id',
                 where: {
-                  namespaceId: {
-                    $in: {
-                      // Find all Namespaces that the user is a member of.
-                      $query: {
-                        model: 'NamespaceSchema',
-                        select: '_id',
-                        where: {
-                          'accessControlList.userId': { $eq: { $ref: 'user._id' } },
+                  $or: [
+                    {
+                      keys: {
+                        $elemMatch: {
+                          roles: { $eq: 'articles' },
+                          value: { $eq: { $ref: 'key' } },
                         },
                       },
                     },
-                  },
+                    {
+                      users: {
+                        $elemMatch: {
+                          _id: { $eq: { $ref: 'user._id' } },
+                          roles: { $eq: 'articles' },
+                        },
+                      },
+                    },
+                  ],
                 },
               },
             },
@@ -44,15 +48,16 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
         },
       ],
     },
+    'system-administrator': {},
   },
-  populate: [{ path: 'gameDocument', populate: { path: 'namespaceDocument' } }],
+  populate: [{ path: 'namespaceDocument' }],
   read: {
-    base: [
+    default: [
       '_id',
       'body',
       'caption',
       'createdAt',
-      'gameId',
+      'namespaceId',
       'publishedAt',
       'title',
       'type',
@@ -61,20 +66,37 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
   },
   roles: [
     {
+      name: 'system-administrator',
+      query: {
+        'user.roles': { $eq: 'articles' },
+      },
+    },
+    {
       name: 'namespace-administrator',
       query: {
-        'record.gameDocument.namespaceDocument.accessControlList': {
-          $elemMatch: {
-            roles: { $eq: 'Administrator' },
-            userId: { $eq: { $ref: 'user._id' } },
+        $or: [
+          {
+            'record.namespaceDocument.keys': {
+              $elemMatch: {
+                roles: { $eq: 'articles' },
+                value: { $eq: { $ref: 'key' } },
+              },
+            },
           },
-        },
+          {
+            'record.namespaceDocument.users': {
+              $elemMatch: {
+                _id: { $eq: { $ref: 'user._id' } },
+                roles: { $eq: 'articles' },
+              },
+            },
+          },
+        ],
       },
     },
   ],
   update: {
-    roles: {
-      'namespace-administrator': ['body', 'caption', 'gameId', 'publishedAt', 'title', 'type'],
-    },
+    'namespace-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
+    'system-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
   },
 });

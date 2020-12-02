@@ -1,4 +1,4 @@
-import { isValidPath } from '../is-valid-path';
+import { isPathValid } from '../is-path-valid';
 
 /**
  * Removes any unauthorized attributes from an object.
@@ -8,16 +8,16 @@ import { isValidPath } from '../is-valid-path';
  */
 export function filterObject(object: any, permissions: string[], path: string[] = []) {
   return Object.entries(object).reduce((agg, [key, value]) => {
-    const isPathValid = isValidPath(permissions, path, key);
+    const pathIsValid = isPathValid(permissions, path, key);
 
     if (value && value.constructor === Object) {
       const result = filterObject(value, permissions, path.concat(key));
 
       // Do not include empty objects.
-      if (Object.keys(result).length > 0 || isPathValid) {
+      if (Object.keys(result).length > 0 || pathIsValid) {
         agg[key] = result;
       }
-    } else if (isPathValid) {
+    } else if (pathIsValid) {
       agg[key] = value;
     }
 

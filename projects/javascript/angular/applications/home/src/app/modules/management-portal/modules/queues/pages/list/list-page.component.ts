@@ -1,11 +1,18 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { Queue, QueueService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedGameService } from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -27,8 +34,9 @@ export class QueuesListPageComponent implements OnInit {
   constructor(
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private queueService: QueueService,
-    private selectedGameService: SelectedGameService,
+    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
@@ -63,6 +71,8 @@ export class QueuesListPageComponent implements OnInit {
       if (result === 'Yes') {
         await this.queueService.delete(record._id);
         this.deleteQueue(record);
+
+        this.matSnackBar.open('Queue deleted successfully.');
       }
     });
   }
@@ -74,7 +84,7 @@ export class QueuesListPageComponent implements OnInit {
   private async fetchQueues() {
     const records = await this.queueService.find({
       sort: 'name',
-      where: { gameId: this.selectedGameService.game._id },
+      where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
     this.dataSource = new MatTableDataSource<Queue>(records);

@@ -1,19 +1,14 @@
 paths:
-  /databases/{databaseName}/collections/{collectionName}/records:
+  /collections/{collectionId}/records:
     post:
       summary: Create
-      tags: [Records]
+      tags: [CollectionRecords]
       description: Creates a new record.
       security:
         - AccessToken: []
       parameters:
         - in: path
-          name: collectionName
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: databaseName
+          name: collectionId
           schema:
             type: string
           required: true
@@ -21,7 +16,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Record'
+              $ref: '#/components/schemas/CollectionRecord'
       responses:
         200:
           description: OK
@@ -31,4 +26,4 @@ paths:
                 type: object
                 properties:
                   record:
-                    $ref: '#/components/schemas/Record'
+                    $ref: '#/components/schemas/CollectionRecord'

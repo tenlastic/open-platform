@@ -1,13 +1,17 @@
 <div class="page">
   <app-title>{{ data && data._id ? 'Edit' : 'Create' }} Game Server</app-title>
 
-  <form *ngIf="form" [formGroup]="form" autocomplete="off">
+  <form *ngIf="form"
+        [formGroup]="form"
+        autocomplete="off">
     <div class="row">
-      <mat-form-field floatLabel="always" width="300">
-        <mat-label>Release</mat-label>
-        <mat-select formControlName="releaseId">
-          <mat-option *ngFor="let release of releases" [value]="release._id">
-            {{ release.version }}
+      <mat-form-field floatLabel="always">
+        <mat-label>Build</mat-label>
+        <mat-select required
+                    formControlName="buildId">
+          <mat-option *ngFor="let build of builds"
+                      [value]="build._id">
+            {{ build.version }}
           </mat-option>
         </mat-select>
       </mat-form-field>
@@ -16,7 +20,9 @@
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Name</mat-label>
-        <input matInput formControlName="name" />
+        <input matInput
+               required
+               formControlName="name" />
         <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
     </div>
@@ -24,13 +30,14 @@
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Description</mat-label>
-        <input matInput formControlName="description" />
+        <input matInput
+               formControlName="description" />
         <mat-error>Enter a valid description.</mat-error>
       </mat-form-field>
     </div>
 
     <div class="row">
-      <mat-form-field floatLabel="always" width="300">
+      <mat-form-field floatLabel="always">
         <mat-label>Is Persistent</mat-label>
         <mat-select formControlName="isPersistent">
           <mat-option [value]="true">Yes</mat-option>
@@ -40,37 +47,58 @@
     </div>
 
     <div class="row">
-      <mat-form-field floatLabel="always" width="300">
+      <mat-form-field floatLabel="always">
         <mat-label>Is Preemptible</mat-label>
         <mat-select formControlName="isPreemptible">
           <mat-option [value]="true">Yes</mat-option>
           <mat-option [value]="false">No</mat-option>
         </mat-select>
       </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>CPU</mat-label>
+        <mat-select formControlName="cpu">
+          <mat-option *ngFor="let cpu of cpus"
+                      [value]="cpu">{{ cpu }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Memory</mat-label>
+        <mat-select formControlName="memory">
+          <mat-option *ngFor="let memory of memories"
+                      [value]="memory">{{ memory }} GB</mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
 
-    <app-toggle-section isVisible="true" title="Metadata">
-      <div
-        class="row"
-        formArrayName="metadata"
-        *ngFor="let property of form['controls'].metadata['controls']; let i = index"
-      >
-        <app-metadata-field [form]="property" (remove)="removeProperty(i)"></app-metadata-field>
+    <app-toggle-section isVisible="true"
+                        title="Metadata">
+      <div class="row"
+           formArrayName="metadata"
+           *ngFor="let property of form['controls'].metadata['controls']; let i = index">
+        <app-metadata-field [form]="property"
+                            (remove)="removeProperty(i)"></app-metadata-field>
       </div>
 
       <div class="row">
-        <app-button color="accent" layout="left" (OnClick)="addProperty()">
+        <app-button color="accent"
+                    layout="left"
+                    (OnClick)="addProperty()">
           <mat-icon>add</mat-icon>
           <span>Add Property</span>
         </app-button>
       </div>
     </app-toggle-section>
 
-    <div *ngIf="error" class="form-error">
+    <div *ngFor="let error of errors"
+         class="form-error">
       {{ error }}
     </div>
 
-    <app-button color="primary" (click)="save()">Save</app-button>
-    <app-button color="accent" routerLink="../">Cancel</app-button>
+    <app-button color="primary"
+                (click)="save()">Save</app-button>
+    <app-button color="accent"
+                routerLink="../">Cancel</app-button>
   </form>
 </div>

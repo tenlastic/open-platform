@@ -27,12 +27,6 @@ form {
   }
 }
 
-mat-form-field {
-  &[width='300'] {
-    width: 300px;
-  }
-
-  &[width='600'] {
-    width: 600px;
-  }
+mat-form-field.mat-form-field {
+  margin-right: 16px;
 }

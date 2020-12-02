@@ -1,9 +1,5 @@
-import { Context } from '@tenlastic/web-server';
+import { UserPermissions } from '@tenlastic/mongoose-models';
 
-import { User, UserPermissions } from '@tenlastic/mongoose-models';
+import { count } from '../../../defaults';
 
-export async function handler(ctx: Context) {
-  const result = await UserPermissions.count(ctx.request.query.where, {}, ctx.state.user);
-
-  ctx.response.body = { count: result };
-}
+export const handler = count(UserPermissions);

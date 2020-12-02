@@ -1,0 +1,20 @@
+paths:
+  /builds:
+    get:
+      summary: Find
+      tags: [Builds]
+      description: Finds records matching the search criteria.
+      security:
+        - AccessToken: []
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Build'

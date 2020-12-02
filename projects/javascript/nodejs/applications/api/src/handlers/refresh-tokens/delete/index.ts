@@ -1,17 +1,5 @@
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
+import { RefreshTokenPermissions } from '@tenlastic/mongoose-models';
 
-import { RefreshToken, RefreshTokenPermissions } from '@tenlastic/mongoose-models';
+import { deleteOne } from '../../../defaults';
 
-export async function handler(ctx: Context) {
-  const where = await RefreshTokenPermissions.where({ jti: ctx.params.jti }, ctx.state.user);
-  const record = await RefreshToken.findOne(where).populate(
-    RefreshTokenPermissions.accessControl.options.populate,
-  );
-  if (!record) {
-    throw new RecordNotFoundError('RefreshToken');
-  }
-
-  const result = await RefreshTokenPermissions.delete(record, ctx.state.user);
-
-  ctx.response.body = { record: result };
-}
+export const handler = deleteOne(RefreshTokenPermissions);

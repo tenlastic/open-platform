@@ -1,12 +1,18 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
 import { Article, ArticleService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedGameService } from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -34,20 +40,18 @@ export class ArticlesListPageComponent implements OnInit {
 
   constructor(
     private articleService: ArticleService,
-    private activatedRoute: ActivatedRoute,
     public identityService: IdentityService,
     private matDialog: MatDialog,
-    private selectedGameService: SelectedGameService,
+    private snackBar: MatSnackBar,
+    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
   ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
-      this.titleService.setTitle(`${TITLE} | Articles`);
-      this.fetchArticles();
+    this.titleService.setTitle(`${TITLE} | Articles`);
+    this.fetchArticles();
 
-      this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
-    });
+    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
   }
 
   public clearSearch() {
@@ -82,6 +86,8 @@ export class ArticlesListPageComponent implements OnInit {
       if (result === 'Yes') {
         await this.articleService.delete(record._id);
         this.deleteArticle(record);
+
+        this.snackBar.open('Article deleted successfully.');
       }
     });
   }
@@ -101,7 +107,7 @@ export class ArticlesListPageComponent implements OnInit {
   private async fetchArticles() {
     const records = await this.articleService.find({
       sort: 'name',
-      where: { gameId: this.selectedGameService.game._id },
+      where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
     this.dataSource = new MatTableDataSource<Article>(records);

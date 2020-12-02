@@ -1,18 +1,32 @@
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
-
-import { GameServer, GameServerPermissions } from '@tenlastic/mongoose-models';
+import { GameServer, GameServerPermissions, NamespaceLimitError } from '@tenlastic/mongoose-models';
+import { RecordNotFoundError } from '@tenlastic/web-server';
+import { Context } from 'koa';
 
 export async function handler(ctx: Context) {
-  const where = await GameServerPermissions.where({ _id: ctx.params._id }, ctx.state.user);
-  const record = await GameServer.findOne(where).populate(
-    GameServerPermissions.accessControl.options.populate,
-  );
+  const user = ctx.state.apiKey || ctx.state.user;
 
-  if (!record) {
-    throw new RecordNotFoundError('Game Server');
+  const { cpu, isPreemptible, memory } = ctx.request.body;
+
+  const existing = await GameServerPermissions.findOne({}, { where: ctx.params }, user);
+  if (!existing) {
+    throw new RecordNotFoundError('Record');
   }
 
-  const result = await GameServerPermissions.update(record, ctx.request.body, {}, ctx.state.user);
+  await GameServer.checkNamespaceLimits(
+    0,
+    cpu - existing.cpu,
+    isPreemptible,
+    memory - existing.memory,
+    existing.namespaceId as any,
+  );
 
-  ctx.response.body = { record: result };
+  const result = await GameServerPermissions.update(
+    existing,
+    ctx.request.body,
+    ctx.params,
+    ctx.state.user,
+  );
+  const record = await GameServerPermissions.read(result, user);
+
+  ctx.response.body = { record };
 }

@@ -1,0 +1,32 @@
+{
+  "engines": {
+    "node": "^10"
+  },
+  "license": "Apache-2.0",
+  "name": "@tenlastic/migrations",
+  "private": true,
+  "version": "0.0.131",
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "lint": "../../scripts/lint.sh",
+    "start": "../../scripts/start.sh"
+  },
+  "dependencies": {
+    "@hasezoey/typegoose": "6.0.0-27",
+    "@tenlastic/logging": "0.0.131",
+    "@tenlastic/mongoose-models": "0.0.131",
+    "mongoose": "5.7.11",
+    "source-map-support": "0.5.12"
+  },
+  "devDependencies": {
+    "cpx": "1.5.0",
+    "merge-yaml-cli": "1.1.2",
+    "mocha": "7.1.2",
+    "nyc": "15.0.0",
+    "ts-node": "8.9.1",
+    "ts-node-dev": "1.0.0-pre.44",
+    "tslint": "5.18.0",
+    "typescript": "3.5.3",
+    "yml-sorter": "1.1.1"
+  }
+}

@@ -8,8 +8,7 @@ import {
 } from '@hasezoey/typegoose';
 import * as mongoose from 'mongoose';
 
-import { CollectionSchema } from '..';
-import { DatabaseSchema } from '../../database';
+import { CollectionDocument } from '..';
 
 export interface IndexKey {
   [s: string]: number;
@@ -29,11 +28,8 @@ export interface IndexOptions {
 export class IndexSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ ref: 'CollectionSchema' })
-  public collectionId: Ref<CollectionSchema>;
-
-  @prop({ ref: 'DatabaseSchema' })
-  public databaseId: Ref<DatabaseSchema>;
+  @prop({ ref: 'CollectionSchema', required: true })
+  public collectionId: Ref<CollectionDocument>;
 
   @prop({ required: true })
   public key: IndexKey;

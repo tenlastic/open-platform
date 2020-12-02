@@ -1,5 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTable, MatTableDataSource, MatDialog } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTable,
+  MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
+} from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { User, UserService, WebSocketService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
@@ -28,6 +35,7 @@ export class UsersListPageComponent implements OnInit {
   constructor(
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private titleService: Title,
     private userService: UserService,
     private webSocketService: WebSocketService,
@@ -36,7 +44,7 @@ export class UsersListPageComponent implements OnInit {
   ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Users`);
 
-    if (this.identityService.user.roles.includes('Administrator')) {
+    if (this.identityService.user.roles.includes('users')) {
       this.displayedColumns.push('actions');
     }
 
@@ -71,6 +79,8 @@ export class UsersListPageComponent implements OnInit {
       if (result === 'Yes') {
         await this.userService.delete(user._id);
         this.deleteUser(user);
+
+        this.matSnackBar.open('User deleted successfully.');
       }
     });
   }

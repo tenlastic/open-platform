@@ -7,13 +7,12 @@ import * as unzipper from 'unzipper';
 
 import {
   FileMock,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
-  ReleaseDocument,
-  ReleaseMock,
-  UserRolesMock,
+  BuildDocument,
+  BuildMock,
+  NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
@@ -29,28 +28,33 @@ describe('handlers/files/download', function() {
 
   context('when permission is granted', async function() {
     let ctx: ContextMock;
-    let release: ReleaseDocument;
+    let build: BuildDocument;
 
     beforeEach(async function() {
-      const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-      const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['builds'],
+      });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       const platform = FileMock.getPlatform();
-      release = await ReleaseMock.create({ gameId: game._id });
+      build = await BuildMock.create({ namespaceId: namespace._id });
 
-      // Set up Release.
+      // Set up Build.
       const files = await Promise.all([
-        FileMock.create({ path: 'index.ts', platform, releaseId: release._id }),
-        FileMock.create({ path: 'index.spec.ts', platform, releaseId: release._id }),
+        FileMock.create({ path: 'index.ts', platform, buildId: build._id }),
+        FileMock.create({ path: 'index.spec.ts', platform, buildId: build._id }),
       ]);
-      await minio.putObject(bucket, files[0].key, fs.createReadStream(__filename));
-      await minio.putObject(bucket, files[1].key, fs.createReadStream(__filename));
+
+      const firstFileMinioKey = await files[0].getMinioKey();
+      const secondFileMinioKey = await files[1].getMinioKey();
+      await minio.putObject(bucket, firstFileMinioKey, fs.createReadStream(__filename));
+      await minio.putObject(bucket, secondFileMinioKey, fs.createReadStream(__filename));
 
       ctx = new ContextMock({
         params: {
+          buildId: build._id,
           platform,
-          releaseId: release._id,
         },
         request: {
           body: {
@@ -89,13 +93,12 @@ describe('handlers/files/download', function() {
   context('when permission is denied', function() {
     it('throws an error', async function() {
       const namespace = await NamespaceMock.create();
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const release = await ReleaseMock.create({ gameId: game._id });
+      const build = await BuildMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         params: {
+          buildId: build._id,
           platform: FileMock.getPlatform(),
-          releaseId: release._id,
         },
         request: {
           body: {

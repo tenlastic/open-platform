@@ -1,18 +1,5 @@
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
+import { CollectionPermissions } from '@tenlastic/mongoose-models';
 
-import { CollectionPermissions, Database } from '@tenlastic/mongoose-models';
+import { findOne } from '../../../defaults';
 
-export async function handler(ctx: Context) {
-  const database = await Database.findOne({ name: ctx.params.databaseName });
-  if (!database) {
-    throw new RecordNotFoundError('Database');
-  }
-
-  const override = { where: { databaseId: database._id, name: ctx.params.name } };
-  const result = await CollectionPermissions.findOne({}, override, ctx.state.user);
-  if (!result) {
-    throw new RecordNotFoundError('Collection');
-  }
-
-  ctx.response.body = { record: result };
-}
+export const handler = findOne(CollectionPermissions);

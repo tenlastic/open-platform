@@ -59,7 +59,7 @@ describe('models/collection/model', function() {
       await collection.setValidator();
 
       const collections = await mongoose.connection.db
-        .listCollections({ name: collection.id })
+        .listCollections({ name: collection['collectionName'] })
         .toArray();
       const { $jsonSchema } = collections[0].options.validator;
       const { properties } = $jsonSchema.properties;

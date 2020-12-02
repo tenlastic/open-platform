@@ -19,6 +19,8 @@ import * as mongoose from 'mongoose';
 import { User, UserDocument } from '../user';
 
 export const IgnorationEvent = new EventEmitter<IDatabasePayload<IgnorationDocument>>();
+
+// Publish changes to Kafka.
 IgnorationEvent.on(payload => {
   kafka.publish(payload);
 });
@@ -26,7 +28,6 @@ IgnorationEvent.on(payload => {
 @index({ fromUserId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'ignorations',
     minimize: false,
     timestamps: true,
@@ -40,18 +41,18 @@ export class IgnorationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ ref: User, required: true })
+  @prop({ ref: 'UserSchema', required: true })
   public fromUserId: Ref<UserDocument>;
 
-  @prop({ ref: User, required: true })
+  @prop({ ref: 'UserSchema', required: true })
   public toUserId: Ref<UserDocument>;
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: User })
+  @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: 'UserSchema' })
   public fromUserIdDocument: UserDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: User })
+  @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: 'UserSchema' })
   public toUserIdDocument: UserDocument;
 }
 

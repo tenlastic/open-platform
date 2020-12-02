@@ -4,39 +4,81 @@ import { Namespace, NamespaceDocument } from './model';
 
 export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(Namespace, {
   create: {
-    roles: {
-      'system-administrator': ['accessControlList', 'name'],
-    },
+    'system-administrator': ['keys', 'limits', 'name', 'users'],
   },
   delete: {
-    base: false,
-    roles: {
-      administrator: true,
-      'system-administrator': true,
-    },
+    default: false,
+    'system-administrator': true,
   },
   find: {
-    base: { 'accessControlList.userId': { $eq: { $ref: 'user._id' } } },
+    default: {
+      $or: [
+        {
+          keys: {
+            $elemMatch: {
+              roles: { $eq: 'namespaces' },
+              value: { $eq: { $ref: 'key' } },
+            },
+          },
+        },
+        {
+          users: {
+            $elemMatch: {
+              _id: { $eq: { $ref: 'user._id' } },
+              roles: { $eq: 'namespaces' },
+            },
+          },
+        },
+      ],
+    },
+    'system-administrator': {},
   },
   read: {
-    base: ['_id', 'createdAt', 'accessControlList', 'name', 'updatedAt'],
+    default: ['_id', 'createdAt', 'name', 'updatedAt'],
+    'namespace-administrator': [
+      '_id',
+      'createdAt',
+      'keys',
+      'limits.*',
+      'name',
+      'updatedAt',
+      'users',
+    ],
+    'system-administrator': ['_id', 'createdAt', 'keys', 'limits.*', 'name', 'updatedAt', 'users'],
   },
   roles: [
     {
       name: 'system-administrator',
       query: {
-        'user.roles': { $eq: 'Administrator' },
+        'user.roles': { $eq: 'namespaces' },
       },
     },
     {
-      name: 'administrator',
-      query: { 'record.accessControlList.userId': { $eq: { $ref: 'user._id' } } },
+      name: 'namespace-administrator',
+      query: {
+        $or: [
+          {
+            'record.keys': {
+              $elemMatch: {
+                roles: { $eq: 'namespaces' },
+                value: { $eq: { $ref: 'key' } },
+              },
+            },
+          },
+          {
+            'record.users': {
+              $elemMatch: {
+                _id: { $eq: { $ref: 'user._id' } },
+                roles: { $eq: 'namespaces' },
+              },
+            },
+          },
+        ],
+      },
     },
   ],
   update: {
-    roles: {
-      administrator: ['accessControlList', 'name'],
-      'system-administrator': ['accessControlList', 'name'],
-    },
+    'namespace-administrator': ['keys', 'name', 'users'],
+    'system-administrator': ['keys', 'limits.*', 'name', 'users'],
   },
 });

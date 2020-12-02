@@ -1,5 +1,5 @@
 paths:
-  /databases/{databaseName}/collections/{name}:
+  /collections/{_id}:
     put:
       summary: Update
       tags: [Collections]
@@ -8,12 +8,7 @@ paths:
         - AccessToken: []
       parameters:
         - in: path
-          name: databaseName
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: name
+          name: _id
           schema:
             type: string
           required: true

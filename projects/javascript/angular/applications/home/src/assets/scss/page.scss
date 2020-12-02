@@ -1,8 +1,12 @@
 @import './theme.scss';
 
 div.form-error {
-  margin-bottom: 20px;
+  color: #f44336;
   text-align: left;
+
+  &:last-of-type {
+    margin-bottom: 20px;
+  }
 }
 
 form {

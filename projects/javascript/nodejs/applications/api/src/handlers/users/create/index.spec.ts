@@ -2,7 +2,7 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 
-import { User, UserMock, UserDocument } from '@tenlastic/mongoose-models';
+import { UserMock, UserDocument } from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
 const chance = new Chance();
@@ -11,7 +11,7 @@ describe('handlers/users/create', function() {
   let user: UserDocument;
 
   beforeEach(async function() {
-    user = await UserMock.create({ roles: ['Administrator'] });
+    user = await UserMock.create({ roles: ['users'] });
   });
 
   it('creates a new record', async function() {

@@ -39,7 +39,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    * @param override The system's where query.
    * @param user The user performing the query.
    */
-  public async count(where: any, override: any = {}, user: any) {
+  public async count(where: any, override: any, user: any) {
     const filteredWhere = await this.where(where, user);
 
     if (filteredWhere === null) {
@@ -89,9 +89,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       });
     }
 
-    // Filter unauthorized attributes
-    const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
-    return filterRecord(record, readPermissions);
+    return record;
   }
 
   /**
@@ -120,9 +118,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       });
     }
 
-    // Filter unauthorized attributes
-    const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
-    return filterRecord(record, readPermissions);
+    return record;
   }
 
   /**
@@ -163,8 +159,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       });
     }
 
-    const promises = records.map(record => this.read(record, user));
-    return Promise.all(promises);
+    return records;
   }
 
   /**
@@ -249,9 +244,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       });
     }
 
-    // Remove unauthorized fields
-    const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
-    return filterRecord(record, readPermissions);
+    return record;
   }
 
   /**
@@ -267,7 +260,10 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     }
 
     // Substitute calculated values into default find query.
-    const results = substituteReferenceValues(query, { user });
+    const results = substituteReferenceValues(query, {
+      key: typeof user === 'string' ? user : null,
+      user: typeof user !== 'string' ? user : null,
+    });
     const substitutedQuery = await substituteSubqueryValues(this.Model.db, results);
 
     // Combines the two queries if a user-defined where clause is specified.
@@ -293,6 +289,9 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     return substitutedQuery;
   }
 
+  /**
+   * Primarily used to convert ObjectId instances into regular strings.
+   */
   private toPlainObject(obj: any) {
     return obj ? JSON.parse(JSON.stringify(obj)) : obj;
   }

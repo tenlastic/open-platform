@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Order } from '@datorama/akita';
-import { Log, LogQuery, LogService } from '@tenlastic/ng-http';
-import { Observable, Subscription } from 'rxjs';
+import { GameServerLog, GameServerLogQuery, GameServerLogService } from '@tenlastic/ng-http';
+import { Observable } from 'rxjs';
 
 import { IdentityService, SocketService } from '../../../../../../core/services';
 
@@ -11,7 +11,7 @@ import { IdentityService, SocketService } from '../../../../../../core/services'
   styleUrls: ['./logs-page.component.scss'],
 })
 export class GameServersLogsPageComponent implements OnDestroy, OnInit {
-  public $logs: Observable<Log[]>;
+  public $logs: Observable<GameServerLog[]>;
   public isLive = false;
   public isVisible = false;
   public visibility = {};
@@ -22,8 +22,8 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     public identityService: IdentityService,
-    private logQuery: LogQuery,
-    private logService: LogService,
+    private gameServerLogQuery: GameServerLogQuery,
+    private gameServerLogService: GameServerLogService,
     private socketService: SocketService,
   ) {}
 
@@ -40,21 +40,26 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
   public fetchLogs() {
     const _id = this.activatedRoute.snapshot.paramMap.get('_id');
 
-    this.$logs = this.logQuery.selectAll({
+    this.$logs = this.gameServerLogQuery.selectAll({
       filterBy: log => log.gameServerId === _id,
       limitTo: 250,
       sortBy: 'unix',
       sortByOrder: Order.DESC,
     });
 
-    this.logService.find({ limit: 250, sort: '-unix', where: { gameServerId: _id } });
+    this.gameServerLogService.find(_id, { limit: 250, sort: '-unix' });
 
     if (this.isLive) {
-      this.socket = this.socketService.subscribe('logs', Log, this.logService);
+      this.socket = this.socketService.subscribe(
+        'game-server-logs',
+        GameServerLog,
+        this.gameServerLogService,
+        { gameServerId: _id },
+      );
     }
   }
 
-  public getJson(log: Log) {
+  public getJson(log: GameServerLog) {
     if (this.logJson[log._id]) {
       return this.logJson[log._id];
     }
@@ -77,7 +82,7 @@ export class GameServersLogsPageComponent implements OnDestroy, OnInit {
     }
   }
 
-  public toggleVisibility(logs: Log[]) {
+  public toggleVisibility(logs: GameServerLog[]) {
     this.isVisible = !this.isVisible;
 
     for (const log of logs) {

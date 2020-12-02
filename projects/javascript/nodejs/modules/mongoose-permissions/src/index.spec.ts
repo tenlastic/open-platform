@@ -1,11 +1,10 @@
 import * as mongoose from 'mongoose';
 
-import { MONGO_DATABASE_NAME } from './constants';
 import { Example } from './example-model';
 
 const connectionString = process.env.MONGO_CONNECTION_STRING;
 mongoose.connect(connectionString, {
-  dbName: MONGO_DATABASE_NAME,
+  dbName: 'mongoose-permissions-test',
   useCreateIndex: true,
   useFindAndModify: false,
   useNewUrlParser: true,

@@ -1,9 +1,5 @@
-import { Context } from '@tenlastic/web-server';
-
 import { GamePermissions } from '@tenlastic/mongoose-models';
 
-export async function handler(ctx: Context) {
-  const result = await GamePermissions.create(ctx.request.body, {}, ctx.state.user);
+import { create } from '../../../defaults';
 
-  ctx.response.body = { record: result };
-}
+export const handler = create(GamePermissions);

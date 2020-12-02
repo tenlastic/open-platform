@@ -1,0 +1,22 @@
+paths:
+  /games/{_id}/background:
+    post:
+      summary: Download Background Image
+      tags: [Games]
+      description: Returns a stream containing the background image.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary

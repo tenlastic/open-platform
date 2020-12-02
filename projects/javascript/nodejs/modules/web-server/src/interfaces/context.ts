@@ -5,6 +5,7 @@ export interface Request extends koa.Request {
 }
 
 export interface State {
+  apiKey?: string;
   jwt?: any;
   user?: any;
 }

@@ -1,12 +1,16 @@
 <div class="page">
-  <app-title>{{ data && data._id ? 'Edit' : 'Create' }} Game</app-title>
+  <app-title>Edit Game Information</app-title>
 
-  <form *ngIf="form" [formGroup]="form" autocomplete="off">
+  <form *ngIf="form"
+        [formGroup]="form"
+        autocomplete="off">
     <div class="row">
       <div class="col-sm-3">
         <mat-form-field floatLabel="always">
           <mat-label>Title</mat-label>
-          <input matInput required formControlName="title" />
+          <input matInput
+                 required
+                 formControlName="title" />
           <mat-error>Enter a valid title.</mat-error>
         </mat-form-field>
       </div>
@@ -14,7 +18,8 @@
       <div class="col-sm-3">
         <mat-form-field floatLabel="always">
           <mat-label>Subtitle</mat-label>
-          <input matInput formControlName="subtitle" />
+          <input matInput
+                 formControlName="subtitle" />
           <mat-error>Enter a valid subtitle.</mat-error>
         </mat-form-field>
       </div>
@@ -22,129 +27,141 @@
 
     <div class="row">
       <div class="col-sm-6">
-        <mat-form-field floatLabel="always" width="full">
+        <mat-form-field floatLabel="always"
+                        width="full">
           <mat-label>Description</mat-label>
-          <textarea
-            matInput
-            cdkTextareaAutosize
-            required
-            formControlName="description"
-            type="text"
-          ></textarea>
+          <textarea matInput
+                    cdkTextareaAutosize
+                    required
+                    formControlName="description"
+                    type="text"></textarea>
           <mat-error>Enter a valid description.</mat-error>
         </mat-form-field>
       </div>
-      <div *ngIf="form.get('description').value" class="col-sm-6">
-        <mat-label>Body (Preview)</mat-label>
+      <div *ngIf="form.get('description').value"
+           class="col-sm-6">
+        <mat-label>Description (Preview)</mat-label>
         <app-markdown [markdown]="form.get('description').value"></app-markdown>
       </div>
     </div>
 
-    <div *ngIf="error" class="form-error">
+    <div *ngFor="let error of errors"
+         class="form-error">
       {{ error }}
     </div>
 
-    <app-button color="primary" (click)="save()">Save</app-button>
-    <app-button color="accent" routerLink="../">Cancel</app-button>
+    <app-button color="primary"
+                (click)="save()">Save</app-button>
+    <app-button color="accent"
+                routerLink="../">Cancel</app-button>
 
-    <app-toggle-section *ngIf="data._id" isVisible="true" title="Background Image">
-      <img *ngIf="data.background" [src]="data.background" />
+    <app-toggle-section *ngIf="data._id"
+                        isVisible="true"
+                        title="Background Image">
+      <img *ngIf="data.background"
+           [src]="data.background" />
 
-      <input
-        #backgroundInput
-        accept=".jpg,.jpeg,.png"
-        hidden
-        type="file"
-        (change)="onFieldChanged($event, 'background')"
-      />
+      <input #backgroundInput
+             accept=".jpg,.jpeg,.png"
+             hidden
+             type="file"
+             (change)="onFieldChanged($event, 'background')" />
 
-      <app-button color="primary" (OnClick)="backgroundInput.click()">Browse</app-button>
-      <app-button *ngIf="data.background" color="accent" (OnClick)="remove('background')">
+      <app-button color="primary"
+                  (OnClick)="backgroundInput.click()">Browse</app-button>
+      <app-button *ngIf="data.background"
+                  color="accent"
+                  (OnClick)="remove('background')">
         Remove
       </app-button>
     </app-toggle-section>
 
-    <app-toggle-section *ngIf="data._id" isVisible="true" title="Icon Image">
-      <img *ngIf="data.icon" [src]="data.icon" />
+    <app-toggle-section *ngIf="data._id"
+                        isVisible="true"
+                        title="Icon Image">
+      <img *ngIf="data.icon"
+           [src]="data.icon" />
 
-      <input
-        #iconInput
-        accept=".jpg,.jpeg,.png"
-        hidden
-        type="file"
-        (change)="onFieldChanged($event, 'icon')"
-      />
+      <input #iconInput
+             accept=".jpg,.jpeg,.png"
+             hidden
+             type="file"
+             (change)="onFieldChanged($event, 'icon')" />
 
-      <app-button color="primary" (OnClick)="iconInput.click()">Browse</app-button>
-      <app-button *ngIf="data.icon" color="accent" (OnClick)="remove('icon')">Remove</app-button>
+      <app-button color="primary"
+                  (OnClick)="iconInput.click()">Browse</app-button>
+      <app-button *ngIf="data.icon"
+                  color="accent"
+                  (OnClick)="remove('icon')">Remove</app-button>
     </app-toggle-section>
 
-    <app-toggle-section *ngIf="data._id" isVisible="true" title="Images">
-      <mat-grid-list
-        *ngIf="data.images && data.images.length"
-        cols="4"
-        gutterSize="8"
-        rowHeight="1920:1080"
-      >
-        <mat-grid-tile
-          *ngFor="let image of data.images; let i = index"
-          [ngStyle]="{ 'background-image': 'url(' + image + ')' }"
-        >
-          <app-button color="accent" (OnClick)="view(image)">
+    <app-toggle-section *ngIf="data._id"
+                        isVisible="true"
+                        title="Images">
+      <mat-grid-list *ngIf="data.images && data.images.length"
+                     cols="4"
+                     gutterSize="8"
+                     rowHeight="1920:1080">
+        <mat-grid-tile *ngFor="let image of data.images; let i = index"
+                       [ngStyle]="{ 'background-image': 'url(' + image + ')' }">
+          <app-button color="accent"
+                      (OnClick)="view(image)">
             <mat-icon>fullscreen</mat-icon>
             <span>View</span>
           </app-button>
-          <app-button color="accent" (OnClick)="remove('images', i)">
+          <app-button color="accent"
+                      (OnClick)="remove('images', i)">
             <mat-icon>close</mat-icon>
             <span>Remove</span>
           </app-button>
         </mat-grid-tile>
       </mat-grid-list>
 
-      <input
-        #imagesInput
-        accept=".jpg,.jpeg,.png"
-        hidden
-        multiple="true"
-        type="file"
-        (change)="onFieldChanged($event, 'images', true)"
-      />
+      <input #imagesInput
+             accept=".jpg,.jpeg,.png"
+             hidden
+             multiple="true"
+             type="file"
+             (change)="onFieldChanged($event, 'images', true)" />
 
-      <app-button color="primary" (OnClick)="imagesInput.click()">Browse</app-button>
+      <app-button color="primary"
+                  (OnClick)="imagesInput.click()">Browse</app-button>
     </app-toggle-section>
 
-    <app-toggle-section *ngIf="data._id" isVisible="true" title="Videos">
-      <mat-grid-list
-        *ngIf="data.videos && data.videos.length"
-        cols="4"
-        gutterSize="8"
-        rowHeight="1920:1080"
-      >
+    <app-toggle-section *ngIf="data._id"
+                        isVisible="true"
+                        title="Videos">
+      <mat-grid-list *ngIf="data.videos && data.videos.length"
+                     cols="4"
+                     gutterSize="8"
+                     rowHeight="1920:1080">
         <mat-grid-tile *ngFor="let video of data.videos; let i = index">
           <video>
-            <source [src]="video" type="video/mp4" />
+            <source [src]="video"
+                    type="video/mp4" />
           </video>
-          <app-button color="accent" (OnClick)="view(video, 'video')">
+          <app-button color="accent"
+                      (OnClick)="view(video, 'video')">
             <mat-icon>fullscreen</mat-icon>
             <span>View</span>
           </app-button>
-          <app-button color="accent" (OnClick)="remove('videos', i)">
+          <app-button color="accent"
+                      (OnClick)="remove('videos', i)">
             <mat-icon>close</mat-icon>
             <span>Remove</span>
           </app-button>
         </mat-grid-tile>
       </mat-grid-list>
 
-      <input
-        #videosInput
-        accept=".mp4"
-        hidden
-        multiple="true"
-        type="file"
-        (change)="onFieldChanged($event, 'videos', true)"
-      />
+      <input #videosInput
+             accept=".mp4"
+             hidden
+             multiple="true"
+             type="file"
+             (change)="onFieldChanged($event, 'videos', true)" />
 
-      <app-button color="primary" (OnClick)="videosInput.click()">Browse</app-button>
+      <app-button color="primary"
+                  (OnClick)="videosInput.click()">Browse</app-button>
     </app-toggle-section>
   </form>
 </div>

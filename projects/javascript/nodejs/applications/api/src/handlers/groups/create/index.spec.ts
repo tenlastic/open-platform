@@ -1,13 +1,8 @@
-import { ContextMock } from '@tenlastic/web-server';
-import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
-
 import { UserDocument, UserMock } from '@tenlastic/mongoose-models';
-import { handler } from './';
+import { ContextMock } from '@tenlastic/web-server';
+import { expect } from 'chai';
 
-const chance = new Chance();
-use(chaiAsPromised);
+import { handler } from './';
 
 describe('handlers/groups/create', function() {
   let user: UserDocument;

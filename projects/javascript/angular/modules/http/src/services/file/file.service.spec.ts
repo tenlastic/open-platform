@@ -39,14 +39,14 @@ describe('FileService', () => {
     it('deletes the File and returns true', () => {
       const _id = chance.hash();
       const platform = chance.hash();
-      const releaseId = chance.hash();
+      const buildId = chance.hash();
 
-      service.delete(releaseId, platform, _id).then(res => {
+      service.delete(buildId, platform, _id).then(res => {
         expect(res).toBeTruthy();
       });
 
       const req = httpMock.expectOne(
-        `${service.basePath}/${releaseId}/platforms/${platform}/files/${_id}`,
+        `${service.basePath}/${buildId}/platforms/${platform}/files/${_id}`,
       );
       expect(req.request.method).toBe('DELETE');
     });
@@ -56,19 +56,19 @@ describe('FileService', () => {
     it('returns an array of Files', () => {
       const _id = chance.hash();
       const platform = chance.hash();
-      const releaseId = chance.hash();
+      const buildId = chance.hash();
       const params = {
         where: { _id },
       };
 
-      service.find(releaseId, platform, params).then(res => {
+      service.find(buildId, platform, params).then(res => {
         expect(res.length).toBe(1);
         expect(res[0]).toEqual(jasmine.any(File));
         expect(res[0]._id).toBe(_id);
       });
 
       const req = httpMock.expectOne(
-        r => r.url === `${service.basePath}/${releaseId}/platforms/${platform}/files`,
+        r => r.url === `${service.basePath}/${buildId}/platforms/${platform}/files`,
       );
       expect(req.request.method).toBe('GET');
       req.flush({
@@ -81,15 +81,15 @@ describe('FileService', () => {
     it('returns a File', () => {
       const _id = chance.hash();
       const platform = chance.hash();
-      const releaseId = chance.hash();
+      const buildId = chance.hash();
 
-      service.findOne(releaseId, platform, _id).then(res => {
+      service.findOne(buildId, platform, _id).then(res => {
         expect(res).toEqual(jasmine.any(File));
         expect(res._id).toBe(_id);
       });
 
       const req = httpMock.expectOne(
-        `${service.basePath}/${releaseId}/platforms/${platform}/files/${_id}`,
+        `${service.basePath}/${buildId}/platforms/${platform}/files/${_id}`,
       );
       expect(req.request.method).toBe('GET');
       req.flush({

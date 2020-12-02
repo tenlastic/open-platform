@@ -1,60 +1,102 @@
-import { DocumentType, Ref, ReturnModelType, buildSchema, prop } from '@hasezoey/typegoose';
+import {
+  DocumentType,
+  Ref,
+  ReturnModelType,
+  buildSchema,
+  modelOptions,
+  plugin,
+  prop,
+} from '@hasezoey/typegoose';
 import * as jsonSchema from '@tenlastic/json-schema';
+import {
+  EventEmitter,
+  IDatabasePayload,
+  changeStreamPlugin,
+} from '@tenlastic/mongoose-change-stream';
+import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import { IOptions, MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import { DatabaseDocument, DatabaseSchema } from '../database/model';
-import { CollectionDocument, CollectionSchema } from '../collection/model';
-import { UserDocument, UserSchema } from '../user/model';
+import { CollectionDocument } from '../collection/model';
+import { UserDocument } from '../user/model';
+import { RecordPermissions } from './permissions';
 
+export const RecordEvent = new EventEmitter<IDatabasePayload<RecordDocument>>();
+
+// Send changes to Kafka.
+RecordEvent.on(payload => {
+  kafka.publish(payload);
+});
+
+@modelOptions({
+  schemaOptions: {
+    minimize: false,
+    timestamps: true,
+  },
+})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: RecordEvent })
+@plugin(uniqueErrorPlugin)
 export class RecordSchema {
   public _id: mongoose.Types.ObjectId;
 
   @prop({ ref: 'CollectionSchema', required: true })
-  public collectionId: Ref<CollectionSchema>;
+  public collectionId: Ref<CollectionDocument>;
 
   public createdAt: Date;
   public properties: any;
 
-  @prop({ ref: 'DatabaseSchema', required: true })
-  public databaseId: Ref<DatabaseSchema>;
-
   public updatedAt: Date;
 
-  @prop({ ref: 'UserSchema', required: true })
-  public userId: Ref<UserSchema>;
+  @prop({ ref: 'UserSchema' })
+  public userId: Ref<UserDocument>;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', ref: 'CollectionSchema' })
   public collectionDocument: CollectionDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', ref: 'DatabaseSchema' })
-  public databaseDocument: DatabaseDocument;
-
   @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'UserSchema' })
   public userDocument: UserDocument;
 
-  public static getModelForClass(collection: CollectionDocument) {
-    const Schema = buildSchema(RecordSchema);
+  public static getModel(collection: CollectionDocument) {
+    // Build schema from Collection's properties.
+    const schema = buildSchema(RecordSchema).clone();
+    schema.add({ properties: jsonSchema.toMongoose(collection.jsonSchema) });
+    schema.set('collection', collection.collectionName);
 
-    const properties = jsonSchema.toMongoose(collection.jsonSchema);
-    const schema = new mongoose.Schema(
-      { properties },
-      {
-        autoIndex: true,
-        collection: `collections.${collection._id}`,
-        minimize: false,
-        timestamps: true,
-      },
-    );
-    schema.add(Schema);
-
+    // Register indexes with Mongoose.
     collection.indexes.forEach(i => schema.index(i.key, i.options));
-    schema.plugin(uniqueErrorPlugin);
 
-    const name = collection._id + new Date().getTime() + Math.floor(Math.random() * 1000000000);
-    return mongoose.model(name, schema) as mongoose.Model<RecordDocument, {}> &
-      RecordSchema &
-      typeof RecordSchema;
+    // Remove cached Model from Mongoose.
+    try {
+      mongoose.connection.deleteModel(collection.collectionName);
+    } catch {}
+
+    return mongoose.model(collection.collectionName, schema) as RecordModel;
+  }
+
+  public static getPermissions(Model: RecordModel, collection: CollectionDocument) {
+    const permissions = JSON.parse(JSON.stringify(RecordPermissions)) as IOptions;
+
+    Object.assign(permissions.create, collection.permissions.create);
+    Object.assign(permissions.delete, collection.permissions.delete);
+    Object.assign(permissions.read, collection.permissions.read);
+    Object.assign(permissions.update, collection.permissions.update);
+
+    if (collection.permissions.find) {
+      const find = JSON.parse(JSON.stringify(collection.permissions.find));
+      if (find.default) {
+        find.default = { $or: [permissions.find.default, find.default] };
+      }
+      Object.assign(permissions.find, find);
+    }
+    if (collection.permissions.populate) {
+      permissions.populate.push(...collection.permissions.populate);
+    }
+    if (collection.permissions.roles) {
+      permissions.roles.push(...collection.permissions.roles);
+    }
+
+    return new MongoosePermissions<RecordDocument>(Model, permissions);
   }
 }
 

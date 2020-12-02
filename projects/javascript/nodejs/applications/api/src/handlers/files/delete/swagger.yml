@@ -1,14 +1,14 @@
 paths:
-  /releases/{releaseId}/platforms/{platform}/files/{_id}:
+  /builds/{buildId}/platforms/{platform}/files/{_id}:
     delete:
       summary: Delete
-      tags: [Files]
+      tags: [BuildFiles]
       description: Deletes an existing record.
       security:
         - AccessToken: []
       parameters:
         - in: path
-          name: releaseId
+          name: buildId
           schema:
             type: string
           required: true
@@ -31,4 +31,4 @@ paths:
                 type: object
                 properties:
                   record:
-                    $ref: '#/components/schemas/File'
+                    $ref: '#/components/schemas/BuildFile'

@@ -1,17 +1,11 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  Collection,
-  CollectionService,
-  Database,
-  DatabaseService,
-  Record,
-  RecordService,
-} from '@tenlastic/ng-http';
+import { Collection, CollectionService, Record, RecordService } from '@tenlastic/ng-http';
 
-import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
+import { CamelCaseToTitleCasePipe } from '../../../../../../shared/pipes';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -19,16 +13,14 @@ import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 })
 export class RecordsFormPageComponent implements OnInit {
   public collection: Collection;
-  public error: string;
+  public errors: string[] = [];
   public form: FormGroup;
 
   public data: Record;
-  private database: Database;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private collectionService: CollectionService,
-    private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
     private matSnackBar: MatSnackBar,
     private recordService: RecordService,
@@ -37,20 +29,13 @@ export class RecordsFormPageComponent implements OnInit {
 
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
-      const name = params.get('name');
+      const _id = params.get('_id');
 
-      const databaseName = params.get('databaseName');
-      this.database = await this.databaseService.findOne(databaseName);
+      const collectionId = params.get('collectionId');
+      this.collection = await this.collectionService.findOne(collectionId);
 
-      const collectionName = params.get('collectionName');
-      this.collection = await this.collectionService.findOne(this.database.name, collectionName);
-
-      if (name !== 'new') {
-        this.data = await this.recordService.findOne(
-          this.database.name,
-          this.collection.name,
-          name,
-        );
+      if (_id !== 'new') {
+        this.data = await this.recordService.findOne(this.collection._id, _id);
       }
 
       this.setupForm();
@@ -82,8 +67,7 @@ export class RecordsFormPageComponent implements OnInit {
 
   public async save() {
     if (this.form.invalid) {
-      this.form.get('name').markAsTouched();
-
+      this.form.markAllAsTouched();
       return;
     }
 
@@ -99,25 +83,35 @@ export class RecordsFormPageComponent implements OnInit {
 
     const values = {
       collectionId: this.collection._id,
-      databaseId: this.collection.databaseId,
       properties,
     };
 
-    if (this.data._id) {
-      this.update(values);
-    } else {
-      this.create(values);
+    try {
+      await this.upsert(values);
+    } catch (e) {
+      const camelCaseToTitleCasePipe = new CamelCaseToTitleCasePipe();
+      const pathMap = Object.keys(this.collection.jsonSchema.properties).reduce(
+        (previous, current) => {
+          previous[current] = camelCaseToTitleCasePipe.transform(current);
+          return previous;
+        },
+        {},
+      );
+
+      this.handleHttpError(e, pathMap);
     }
   }
 
-  private async create(data: Partial<Record>) {
-    try {
-      await this.recordService.create(this.database.name, this.collection.name, data);
-      this.matSnackBar.open('Record created successfully.', null, { duration: SNACKBAR_DURATION });
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-    } catch (e) {
-      this.error = 'That name is already taken.';
-    }
+  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
+    this.errors = err.error.errors.map(e => {
+      if (e.name === 'UniquenessError') {
+        const combination = e.paths.length > 1 ? 'combination ' : '';
+        const paths = e.paths.map(p => pathMap[p]);
+        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
+      } else {
+        return e.message;
+      }
+    });
   }
 
   private getValue(type: string, value: any) {
@@ -168,18 +162,18 @@ export class RecordsFormPageComponent implements OnInit {
     Object.keys(arrays).forEach(key => (options[key] = arrays[key]));
     this.form = this.formBuilder.group(options);
 
-    this.form.valueChanges.subscribe(() => (this.error = null));
+    this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async update(data: Partial<Record>) {
-    data._id = this.data._id;
-
-    try {
-      await this.recordService.update(this.database.name, this.collection.name, data);
-      this.matSnackBar.open('Record updated successfully.', null, { duration: SNACKBAR_DURATION });
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-    } catch (e) {
-      this.error = 'That name is already taken.';
+  private async upsert(data: Partial<Record>) {
+    if (this.data._id) {
+      data._id = this.data._id;
+      await this.recordService.update(this.collection._id, data);
+    } else {
+      await this.recordService.create(this.collection._id, data);
     }
+
+    this.matSnackBar.open('Record saved successfully.');
+    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
   }
 }

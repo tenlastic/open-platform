@@ -78,14 +78,14 @@ export class GameService {
     return record;
   }
 
-  public upload(_id: string, parameters: GameServiceUploadOptions) {
+  public upload(_id: string, key: string, blobs: Blob[]) {
     const formData = new FormData();
 
-    Object.entries(parameters).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
+    for (const blob of blobs) {
+      formData.append(key, blob);
+    }
 
-    return this.apiService.request('post', `${this.basePath}/${_id}/upload`, formData, {
+    return this.apiService.request('post', `${this.basePath}/${_id}/${key}`, formData, {
       observe: 'events',
       reportProgress: true,
     }) as Observable<any>;

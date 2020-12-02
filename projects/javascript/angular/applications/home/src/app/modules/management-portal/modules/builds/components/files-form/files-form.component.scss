@@ -1,0 +1,163 @@
+@import '../../../../../../../assets/scss/page.scss';
+
+app-button {
+  margin-bottom: 8px;
+  margin-right: 8px;
+}
+
+mat-hint.mat-hint {
+  margin-bottom: 24px;
+}
+
+mat-list.mat-list {
+  background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 4px;
+  max-height: 250px;
+  padding-top: 0px;
+  overflow-y: auto;
+
+  mat-list-item.mat-list-item {
+    color: white;
+    font-size: 0.9rem;
+    height: auto;
+
+    &[status='modified'] {
+      background: rgba(128, 255, 128, 0.1);
+
+      &:hover {
+        background: rgba(128, 255, 128, 0.2);
+      }
+    }
+
+    &[status='removed'] {
+      background: rgba(255, 128, 128, 0.1);
+
+      &:hover {
+        background: rgba(255, 128, 128, 0.2);
+      }
+    }
+
+    &[status='unmodified'] {
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    ::ng-deep {
+      div.mat-list-item-content {
+        justify-content: space-between;
+        padding: 4px 8px;
+
+        span {
+          white-space: nowrap;
+
+          &:first-of-type {
+            margin-right: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+    }
+  }
+}
+
+mat-spinner.mat-spinner {
+  filter: drop-shadow(1px 1px 1px black);
+  margin-right: 4px;
+  margin-top: -3px;
+}
+
+button.mat-button[centered] {
+  margin-bottom: 0px;
+}
+
+mat-form-field.mat-form-field {
+  display: inline-block;
+  max-width: 300px;
+  padding-bottom: 0px;
+  width: 100%;
+}
+
+mat-select {
+  margin-top: -1px;
+}
+
+div.display-block {
+  display: block;
+}
+
+div.list {
+  vertical-align: top;
+
+  &:first-of-type {
+    padding-right: 8px;
+  }
+
+  &:nth-of-type(2) {
+    padding-left: 8px;
+  }
+
+  mat-label,
+  mat-hint {
+    color: white;
+    display: flex;
+    font-size: 0.75rem;
+    justify-content: space-between;
+  }
+
+  mat-label {
+    margin-bottom: 4px;
+    margin-top: -2px;
+  }
+}
+
+div.row {
+  margin: 8px 0px 0px;
+
+  div.col-sm-3 {
+    padding: 0px 8px;
+
+    &:first-of-type {
+      padding-left: 0px;
+    }
+
+    &:last-of-type {
+      padding-right: 0px;
+    }
+  }
+
+  div.col-sm-6 {
+    padding: 0px;
+  }
+
+  div.list {
+    &:first-of-type {
+      padding-right: 8px;
+    }
+
+    &:nth-of-type(2) {
+      padding-left: 8px;
+    }
+  }
+}
+
+.justify-right {
+  text-align: right;
+}
+
+.margin-right {
+  margin-right: 16px;
+}
+
+.margin-top {
+  margin-top: 16px;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+hr {
+  margin: 16px 0px !important;
+}

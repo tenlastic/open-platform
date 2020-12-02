@@ -1,11 +1,11 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { User, UserService } from '@tenlastic/ng-http';
+import { IUser, User, UserService } from '@tenlastic/ng-http';
 
 import { IdentityService } from '../../../../../../core/services';
-import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'form-page.component.html',
@@ -13,9 +13,10 @@ import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
 })
 export class UsersFormPageComponent implements OnInit {
   public data: User;
-  public error: string;
+  public errors: string[] = [];
   public form: FormGroup;
   public loadingMessage: string;
+  public roles: any[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -29,6 +30,11 @@ export class UsersFormPageComponent implements OnInit {
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
       this.loadingMessage = 'Loading User...';
+
+      this.roles = Object.keys(IUser.Role).map(key => ({
+        label: key.replace(/([A-Z])/g, ' $1').trim(),
+        value: IUser.Role[key],
+      }));
 
       try {
         const _id = params.get('_id');
@@ -48,10 +54,7 @@ export class UsersFormPageComponent implements OnInit {
 
   public async save() {
     if (this.form.invalid) {
-      this.form.get('email').markAsTouched();
-      this.form.get('roles').markAsTouched();
-      this.form.get('username').markAsTouched();
-
+      this.form.markAllAsTouched();
       return;
     }
 
@@ -61,44 +64,49 @@ export class UsersFormPageComponent implements OnInit {
       username: this.form.get('username').value,
     };
 
-    if (this.data._id) {
-      this.update(values);
-    } else {
-      this.create(values);
+    try {
+      await this.upsert(values);
+    } catch (e) {
+      this.handleHttpError(e, { email: 'Email Address', username: 'Username' });
     }
   }
 
-  private async create(data: Partial<User>) {
-    try {
-      await this.userService.create(data);
-      this.matSnackBar.open('User created successfully.', null, { duration: SNACKBAR_DURATION });
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-    } catch (e) {
-      this.error = 'That email is already taken.';
-    }
+  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
+    this.errors = err.error.errors.map(e => {
+      if (e.name === 'UniquenessError') {
+        const combination = e.paths.length > 1 ? 'combination ' : '';
+        const paths = e.paths.map(p => pathMap[p]);
+        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
+      } else {
+        return e.message;
+      }
+    });
   }
 
   private setupForm(): void {
     this.data = this.data || new User();
 
     this.form = this.formBuilder.group({
-      email: [this.data.email],
+      email: [this.data.email, Validators.email],
       roles: [this.data.roles],
-      username: [this.data.username, Validators.required],
+      username: [
+        this.data.username,
+        [Validators.required, Validators.pattern(/^[A-Za-z0-9]+$/), Validators.maxLength(20)],
+      ],
     });
 
-    this.form.valueChanges.subscribe(() => (this.error = null));
+    this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async update(data: Partial<User>) {
-    data._id = this.data._id;
-
-    try {
+  private async upsert(data: Partial<User>) {
+    if (this.data._id) {
+      data._id = this.data._id;
       await this.userService.update(data);
-      this.matSnackBar.open('User updated successfully.', null, { duration: SNACKBAR_DURATION });
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-    } catch (e) {
-      this.error = 'That email is already taken.';
+    } else {
+      await this.userService.create(data);
     }
+
+    this.matSnackBar.open('User saved successfully.');
+    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
   }
 }

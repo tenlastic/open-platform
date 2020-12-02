@@ -16,11 +16,12 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { Group, GroupDocument } from '../group';
-import { User, UserDocument } from '../user';
+import { GroupDocument } from '../group';
+import { UserDocument } from '../user';
+
+export const GroupInvitationEvent = new EventEmitter<IDatabasePayload<GroupInvitationDocument>>();
 
 // Publish changes to Kafka.
-export const GroupInvitationEvent = new EventEmitter<IDatabasePayload<GroupInvitationDocument>>();
 GroupInvitationEvent.on(payload => {
   kafka.publish(payload);
 });
@@ -40,38 +41,34 @@ setInterval(async () => {
 @index({ groupId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'groupinvitations',
     minimize: false,
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: GroupInvitationEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GroupInvitationEvent })
 export class GroupInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ ref: User, required: true })
+  @prop({ ref: 'UserSchema', required: true })
   public fromUserId: Ref<UserDocument>;
 
-  @prop({ ref: Group, required: true })
+  @prop({ ref: 'GroupSchema', required: true })
   public groupId: Ref<GroupDocument>;
 
-  @prop({ ref: User, required: true })
+  @prop({ ref: 'UserSchema', required: true })
   public toUserId: Ref<UserDocument>;
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: User })
+  @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: 'UserSchema' })
   public fromUserDocument: UserDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'groupId', ref: Group })
+  @prop({ foreignField: '_id', justOne: true, localField: 'groupId', ref: 'GroupSchema' })
   public groupDocument: GroupDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: User })
+  @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: 'UserSchema' })
   public toUserDocument: UserDocument;
 }
 

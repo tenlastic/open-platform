@@ -1,21 +1,20 @@
 import {
   FileMock,
   FilePlatform,
-  GameMock,
   NamespaceMock,
   UserDocument,
   UserMock,
-  ReleaseDocument,
-  ReleaseMock,
-  UserRolesMock,
-  ReleaseTask,
+  BuildDocument,
+  BuildMock,
+  NamespaceUserMock,
+  BuildTask,
 } from '@tenlastic/mongoose-models';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import {
-  BuildReleaseDockerImage,
-  CopyReleaseFiles,
-  DeleteReleaseFiles,
-  UnzipReleaseFiles,
+  BuildDockerImage,
+  CopyBuildFiles,
+  DeleteBuildFiles,
+  UnzipBuildFiles,
 } from '@tenlastic/rabbitmq-models';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -30,21 +29,21 @@ import { handler } from './';
 use(chaiAsPromised);
 
 describe('handlers/files/upload', function() {
-  let buildReleaseDockerImageSpy: sinon.SinonSpy;
-  let copyReleaseFilesSpy: sinon.SinonSpy;
-  let deleteReleaseFilesSpy: sinon.SinonSpy;
+  let buildBuildDockerImageSpy: sinon.SinonSpy;
+  let copyBuildFilesSpy: sinon.SinonSpy;
+  let deleteBuildFilesSpy: sinon.SinonSpy;
   let sandbox: sinon.SinonSandbox;
-  let unzipReleaseFilesSpy: sinon.SinonSpy;
+  let unzipBuildFilesSpy: sinon.SinonSpy;
   let user: UserDocument;
 
   beforeEach(async function() {
     sandbox = sinon.createSandbox();
     sandbox.stub(rabbitmq, 'publish').resolves();
 
-    buildReleaseDockerImageSpy = sandbox.spy(BuildReleaseDockerImage, 'publish');
-    copyReleaseFilesSpy = sandbox.spy(CopyReleaseFiles, 'publish');
-    deleteReleaseFilesSpy = sandbox.spy(DeleteReleaseFiles, 'publish');
-    unzipReleaseFilesSpy = sandbox.spy(UnzipReleaseFiles, 'publish');
+    buildBuildDockerImageSpy = sandbox.spy(BuildDockerImage, 'publish');
+    copyBuildFilesSpy = sandbox.spy(CopyBuildFiles, 'publish');
+    deleteBuildFilesSpy = sandbox.spy(DeleteBuildFiles, 'publish');
+    unzipBuildFilesSpy = sandbox.spy(UnzipBuildFiles, 'publish');
 
     user = await UserMock.create();
   });
@@ -57,17 +56,22 @@ describe('handlers/files/upload', function() {
     let ctx: ContextMock;
     let form: FormData;
     let platform: FilePlatform;
-    let previousRelease: ReleaseDocument;
-    let release: ReleaseDocument;
+    let previousBuild: BuildDocument;
+    let build: BuildDocument;
 
     beforeEach(async function() {
-      const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-      const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['builds'],
+      });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       platform = FileMock.getPlatform();
-      previousRelease = await ReleaseMock.create({ gameId: game._id, publishedAt: new Date() });
-      release = await ReleaseMock.create({ gameId: game._id });
+      previousBuild = await BuildMock.create({
+        namespaceId: namespace._id,
+        publishedAt: new Date(),
+      });
+      build = await BuildMock.create({ namespaceId: namespace._id });
 
       const zip = new JSZip();
       zip.file('index.spec.ts', fs.createReadStream(__filename));
@@ -79,15 +83,15 @@ describe('handlers/files/upload', function() {
 
       form = new FormData();
       form.append('modified[]', 'index.spec.ts');
-      form.append('previousReleaseId', previousRelease._id.toString());
+      form.append('previousBuildId', previousBuild._id.toString());
       form.append('removed[]', 'swagger.yml');
       form.append('unmodified[]', 'index.ts');
       form.append('zip', stream);
 
       ctx = new ContextMock({
         params: {
+          buildId: build._id,
           platform,
-          releaseId: release._id,
         },
         req: form,
         request: {
@@ -104,25 +108,23 @@ describe('handlers/files/upload', function() {
 
       expect(ctx.response.body.tasks.filter(j => j.action === 'build').length).to.eql(1);
 
-      const releaseTask = await ReleaseTask.findOne({ action: 'build' });
-      expect(releaseTask).to.exist;
+      const buildTask = await BuildTask.findOne({ action: 'build' });
+      expect(buildTask).to.exist;
 
-      expect(buildReleaseDockerImageSpy.called).to.eql(true);
+      expect(buildBuildDockerImageSpy.called).to.eql(true);
     });
 
-    it('copies unmodified files from the previous release', async function() {
+    it('copies unmodified files from the previous build', async function() {
       await handler(ctx as any);
 
       expect(ctx.response.body.tasks.filter(j => j.action === 'copy').length).to.eql(1);
 
-      const releaseTask = await ReleaseTask.findOne({ action: 'copy' });
-      expect(releaseTask).to.exist;
-      expect(releaseTask.metadata.previousReleaseId.toString()).to.eql(
-        previousRelease._id.toString(),
-      );
-      expect(releaseTask.metadata.unmodified).to.eql(['index.ts']);
+      const buildTask = await BuildTask.findOne({ action: 'copy' });
+      expect(buildTask).to.exist;
+      expect(buildTask.metadata.previousBuildId.toString()).to.eql(previousBuild._id.toString());
+      expect(buildTask.metadata.unmodified).to.eql(['index.ts']);
 
-      expect(copyReleaseFilesSpy.called).to.eql(true);
+      expect(copyBuildFilesSpy.called).to.eql(true);
     });
 
     it('deletes removed files from Minio', async function() {
@@ -130,11 +132,11 @@ describe('handlers/files/upload', function() {
 
       expect(ctx.response.body.tasks.filter(j => j.action === 'remove').length).to.eql(1);
 
-      const releaseTask = await ReleaseTask.findOne({ action: 'remove' });
-      expect(releaseTask).to.exist;
-      expect(releaseTask.metadata.removed).to.eql(['swagger.yml']);
+      const buildTask = await BuildTask.findOne({ action: 'remove' });
+      expect(buildTask).to.exist;
+      expect(buildTask.metadata.removed).to.eql(['swagger.yml']);
 
-      expect(deleteReleaseFilesSpy.called).to.eql(true);
+      expect(deleteBuildFilesSpy.called).to.eql(true);
     });
 
     it('uploads unzipped files to Minio', async function() {
@@ -142,23 +144,22 @@ describe('handlers/files/upload', function() {
 
       expect(ctx.response.body.tasks.filter(j => j.action === 'unzip').length).to.eql(1);
 
-      const releaseTask = await ReleaseTask.findOne({ action: 'unzip' });
-      expect(releaseTask).to.exist;
+      const buildTask = await BuildTask.findOne({ action: 'unzip' });
+      expect(buildTask).to.exist;
 
-      expect(unzipReleaseFilesSpy.called).to.eql(true);
+      expect(unzipBuildFilesSpy.called).to.eql(true);
     });
   });
 
   context('when permission is denied', function() {
     it('throws an error', async function() {
       const namespace = await NamespaceMock.create();
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const release = await ReleaseMock.create({ gameId: game._id });
+      const build = await BuildMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         params: {
+          buildId: build._id,
           platform: FileMock.getPlatform(),
-          releaseId: release._id,
         },
         state: { user: user.toObject() },
       });

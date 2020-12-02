@@ -55,15 +55,15 @@ describe('GameInvitationService', () => {
   describe('create()', () => {
     it('creates and returns a GameInvitation', () => {
       const params = {
-        gameId: chance.hash(),
-        toUserId: chance.hash(),
+        namespaceId: chance.hash(),
+        userId: chance.hash(),
       };
 
       service.create(params).then(res => {
         expect(res).toEqual(jasmine.any(GameInvitation));
         expect(res._id).toBeDefined();
-        expect(res.gameId).toEqual(params.gameId);
-        expect(res.toUserId).toEqual(params.toUserId);
+        expect(res.namespaceId).toEqual(params.namespaceId);
+        expect(res.userId).toEqual(params.userId);
       });
 
       const req = httpMock.expectOne(service.basePath);
@@ -71,8 +71,8 @@ describe('GameInvitationService', () => {
       req.flush({
         record: {
           _id: chance.hash(),
-          gameId: params.gameId,
-          toUserId: params.toUserId,
+          namespaceId: params.namespaceId,
+          userId: params.userId,
         },
       });
     });

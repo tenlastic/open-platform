@@ -5,8 +5,6 @@ import * as mongoose from 'mongoose';
 import {
   CollectionDocument,
   CollectionMock,
-  DatabaseDocument,
-  DatabaseMock,
   RecordDocument,
   RecordSchema,
 } from '@tenlastic/mongoose-models';
@@ -14,35 +12,31 @@ import { handler } from './';
 
 describe('handlers/records/delete', function() {
   let collection: CollectionDocument;
-  let database: DatabaseDocument;
   let record: RecordDocument;
   let user: any;
 
   beforeEach(async function() {
-    database = await DatabaseMock.create();
     collection = await CollectionMock.create({
-      databaseId: database._id,
       permissions: {
         create: {},
         delete: {
-          base: true,
+          default: true,
         },
         find: {
-          base: {},
+          default: {},
         },
         read: {
-          base: ['_id', 'createdAt', 'properties', 'updatedAt'],
+          default: ['_id', 'createdAt', 'properties', 'updatedAt'],
         },
         roles: [],
         update: {},
       },
     });
-    user = { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] };
+    user = { _id: mongoose.Types.ObjectId() };
 
-    const Model = RecordSchema.getModelForClass(collection);
+    const Model = RecordSchema.getModel(collection);
     record = await Model.create({
-      collectionId: collection.id,
-      databaseId: collection.databaseId,
+      collectionId: collection._id,
       userId: user._id,
     });
   });
@@ -51,8 +45,7 @@ describe('handlers/records/delete', function() {
     const ctx = new ContextMock({
       params: {
         _id: record._id.toString(),
-        collectionName: collection.name,
-        databaseName: database.name,
+        collectionId: collection._id,
       },
       state: { user },
     });

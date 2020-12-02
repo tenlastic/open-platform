@@ -514,5 +514,118 @@ describe('is-json-valid', function() {
         expect(result).to.eql(false);
       });
     });
+
+    describe('default', function() {
+      context('when the reference is an array', function() {
+        it('returns true', function() {
+          const json = {
+            user: {
+              roles: ['Admin'],
+            },
+          };
+          const query = {
+            'user.roles': 'Admin',
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function() {
+          const json = {
+            user: {
+              roles: ['Admin'],
+            },
+          };
+          const query = {
+            'user.roles': 'Owner',
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+      });
+
+      context('when the reference is an ObjectId', function() {
+        it('returns true', function() {
+          const json = {
+            user: {
+              _id: mongoose.Types.ObjectId(),
+            },
+          };
+          const query = {
+            'user._id': json.user._id.toHexString(),
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function() {
+          const json = {
+            user: {
+              _id: mongoose.Types.ObjectId(),
+            },
+          };
+          const query = {
+            'user._id': mongoose.Types.ObjectId(),
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+      });
+
+      context('when the reference is anything else', function() {
+        it('returns true', function() {
+          const json = {
+            user: {
+              _id: '123',
+            },
+          };
+          const query = {
+            'user._id': '123',
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+
+        it('returns true', function() {
+          const json = {
+            user: {
+              _id: '123',
+            },
+          };
+          const query = {
+            'user._id': '123',
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function() {
+          const json = {
+            user: {
+              _id: '123',
+            },
+          };
+          const query = {
+            'user._id': '1',
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+      });
+    });
   });
 });

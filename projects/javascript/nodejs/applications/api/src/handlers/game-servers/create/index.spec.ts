@@ -1,16 +1,18 @@
+import {
+  GameServerMock,
+  NamespaceGameServerLimitsMock,
+  NamespaceLimitsMock,
+  NamespaceMock,
+  NamespaceUserMock,
+  UserDocument,
+  UserMock,
+} from '@tenlastic/mongoose-models';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
-import {
-  GameMock,
-  NamespaceMock,
-  UserDocument,
-  UserMock,
-  UserRolesMock,
-} from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 const chance = new Chance();
@@ -25,41 +27,169 @@ describe('handlers/game-servers/create', function() {
 
   context('when permission is granted', function() {
     it('creates a new record', async function() {
-      const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-      const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['game-servers'],
+      });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       const ctx = new ContextMock({
         request: {
           body: {
-            gameId: game._id,
+            buildId: new mongoose.Types.ObjectId(),
+            cpu: 0.1,
+            memory: 0.1,
             name: chance.hash(),
-            releaseId: mongoose.Types.ObjectId(),
+            namespaceId: namespace._id,
           },
         },
-        state: { user },
+        state: { user: user.toObject() },
       });
 
       await handler(ctx as any);
 
       expect(ctx.response.body.record).to.exist;
     });
+
+    it('enforces the gameServers.count Namespace limit', async function() {
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['game-servers'],
+      });
+      const namespace = await NamespaceMock.create({
+        limits: NamespaceLimitsMock.create({
+          gameServers: NamespaceGameServerLimitsMock.create({ count: 1 }),
+        }),
+        users: [namespaceUser],
+      });
+      await GameServerMock.create({ namespaceId: namespace._id });
+
+      const ctx = new ContextMock({
+        request: {
+          body: {
+            buildId: new mongoose.Types.ObjectId(),
+            cpu: 0.1,
+            memory: 0.1,
+            name: chance.hash(),
+            namespaceId: namespace._id,
+          },
+        },
+        state: { user: user.toObject() },
+      });
+
+      const promise = handler(ctx as any);
+
+      return expect(promise).to.be.rejectedWith('Namespace limit reached: gameServers.count.');
+    });
+
+    it('enforces the gameServers.cpu Namespace limit', async function() {
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['game-servers'],
+      });
+      const namespace = await NamespaceMock.create({
+        limits: NamespaceLimitsMock.create({
+          gameServers: NamespaceGameServerLimitsMock.create({ cpu: 0.1 }),
+        }),
+        users: [namespaceUser],
+      });
+
+      const ctx = new ContextMock({
+        request: {
+          body: {
+            buildId: new mongoose.Types.ObjectId(),
+            cpu: 0.2,
+            memory: 0.1,
+            name: chance.hash(),
+            namespaceId: namespace._id,
+          },
+        },
+        state: { user: user.toObject() },
+      });
+
+      const promise = handler(ctx as any);
+
+      return expect(promise).to.be.rejectedWith('Namespace limit reached: gameServers.cpu.');
+    });
+
+    it('enforces the gameServers.memory Namespace limit', async function() {
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['game-servers'],
+      });
+      const namespace = await NamespaceMock.create({
+        limits: NamespaceLimitsMock.create({
+          gameServers: NamespaceGameServerLimitsMock.create({ memory: 0.1 }),
+        }),
+        users: [namespaceUser],
+      });
+
+      const ctx = new ContextMock({
+        request: {
+          body: {
+            buildId: new mongoose.Types.ObjectId(),
+            cpu: 0.1,
+            memory: 0.2,
+            name: chance.hash(),
+            namespaceId: namespace._id,
+          },
+        },
+        state: { user: user.toObject() },
+      });
+
+      const promise = handler(ctx as any);
+
+      return expect(promise).to.be.rejectedWith('Namespace limit reached: gameServers.memory.');
+    });
+
+    it('enforces the gameServers.preemptible Namespace limit', async function() {
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['game-servers'],
+      });
+      const namespace = await NamespaceMock.create({
+        limits: NamespaceLimitsMock.create({
+          gameServers: NamespaceGameServerLimitsMock.create({ preemptible: true }),
+        }),
+        users: [namespaceUser],
+      });
+
+      const ctx = new ContextMock({
+        request: {
+          body: {
+            buildId: new mongoose.Types.ObjectId(),
+            cpu: 0.2,
+            memory: 0.1,
+            name: chance.hash(),
+            namespaceId: namespace._id,
+          },
+        },
+        state: { user: user.toObject() },
+      });
+
+      const promise = handler(ctx as any);
+
+      return expect(promise).to.be.rejectedWith(
+        'Namespace limit reached: gameServers.preemptible.',
+      );
+    });
   });
 
   context('when permission is denied', function() {
     it('throws an error', async function() {
       const namespace = await NamespaceMock.create();
-      const game = await GameMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         request: {
           body: {
-            gameId: game._id,
+            buildId: new mongoose.Types.ObjectId(),
+            cpu: 0.1,
+            memory: 0.1,
             name: chance.hash(),
-            releaseId: mongoose.Types.ObjectId(),
+            namespaceId: namespace._id,
           },
         },
-        state: { user },
+        state: { user: user.toObject() },
       });
 
       const promise = handler(ctx as any);

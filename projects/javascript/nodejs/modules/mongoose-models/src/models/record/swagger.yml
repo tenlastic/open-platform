@@ -1,6 +1,6 @@
 components:
   schemas:
-    Record:
+    CollectionRecord:
       type: object
       properties:
         _id:

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import {
+  MAT_SNACK_BAR_DEFAULT_OPTIONS,
   MatAutocompleteModule,
   MatBadgeModule,
   MatButtonModule,
@@ -52,5 +53,6 @@ const modules = [
 @NgModule({
   exports: [modules],
   imports: [modules],
+  providers: [{ provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 2500 } }],
 })
 export class MaterialModule {}

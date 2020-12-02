@@ -1,10 +1,12 @@
-import { Context } from '@tenlastic/web-server';
-
 import { GroupPermissions } from '@tenlastic/mongoose-models';
+import { Context } from 'koa';
 
 export async function handler(ctx: Context) {
-  const override = { userIds: [ctx.state.user._id] };
-  const result = await GroupPermissions.create(ctx.request.body, override, ctx.state.user);
+  const override = { ...ctx.params, userIds: [ctx.state.user._id] };
+  const user = ctx.state.apiKey || ctx.state.user;
 
-  ctx.response.body = { record: result };
+  const result = await GroupPermissions.create(ctx.request.body, override, user);
+  const record = await GroupPermissions.read(result, user);
+
+  ctx.response.body = { record };
 }

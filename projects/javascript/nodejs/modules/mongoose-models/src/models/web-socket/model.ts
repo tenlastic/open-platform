@@ -17,10 +17,12 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
+import { RefreshTokenDocument } from '../refresh-token/model';
 import { UserDocument } from '../user/model';
 
-// Publish changes to Kafka.
 export const WebSocketEvent = new EventEmitter<IDatabasePayload<WebSocketDocument>>();
+
+// Publish changes to Kafka.
 WebSocketEvent.on(payload => {
   kafka.publish(payload);
 });
@@ -38,19 +40,15 @@ setInterval(async () => {
 }, HEARTBEAT);
 
 @index({ heartbeatAt: 1 })
-@index({ jti: 1 }, { unique: true })
+@index({ refreshTokenId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'websockets',
     minimize: false,
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: WebSocketEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: WebSocketEvent })
 @plugin(uniqueErrorPlugin)
 export class WebSocketSchema {
   public _id: mongoose.Types.ObjectId;
@@ -59,8 +57,8 @@ export class WebSocketSchema {
   @prop({ default: Date.now })
   public heartbeatAt: Date;
 
-  @prop({ required: true })
-  public jti: string;
+  @prop({ ref: 'RefreshTokenSchema', required: true })
+  public refreshTokenId: Ref<RefreshTokenDocument>;
 
   public updatedAt: Date;
 

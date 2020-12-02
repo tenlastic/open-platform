@@ -6,23 +6,118 @@ components:
         _id:
           type: string
           format: ^[a-f0-9]{24}$
-        accessControlList:
+        createdAt:
+          type: string
+          format: date-time
+        keys:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              roles:
+                type: array
+                items:
+                  type: string
+                  enum:
+                    - articles
+                    - builds
+                    - collections
+                    - game-servers
+                    - game-invitations
+                    - games
+                    - namespaces
+                    - queues
+              value:
+                type: string
+            required:
+              - description
+              - roles
+              - value
+        limits:
+          type: object
+          properties:
+            builds:
+              type: object
+              properties:
+                count:
+                  type: integer
+                size:
+                  type: integer
+              required:
+                - count
+                - size
+            collections:
+              type: object
+              properties:
+                count:
+                  type: integer
+                size:
+                  type: integer
+              required:
+                - count
+                - size
+            gameServers:
+              type: object
+              properties:
+                count:
+                  type: integer
+                cpu:
+                  type: integer
+                memory:
+                  type: integer
+                preemptible:
+                  type: boolean
+              required:
+                - count
+                - cpu
+                - memory
+                - preemptible
+            games:
+              type: object
+              properties:
+                images:
+                  type: integer
+                size:
+                  type: integer
+                videos:
+                  type: integer
+              required:
+                - images
+                - size
+                - videos
+          required:
+            - collections
+            - gameServers
+            - games
+            - builds
+        name:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        users:
           type: array
           items:
             type: object
             properties:
               roles:
                 type: array
-                items: string
+                items:
+                  type: string
+                  enum:
+                    - articles
+                    - builds
+                    - collections
+                    - game-servers
+                    - game-invitations
+                    - games
+                    - namespaces
+                    - queues
               userId:
                 type: string
                 format: ^[a-f0-9]{24}$
-        createdAt:
-          type: string
-          format: date-time
-        name:
-          type: string
-          format: ^[0-9a-z\-]{6,40}$
-        updatedAt:
-          type: string
-          format: date-time
+            required:
+              - roles
+              - userId

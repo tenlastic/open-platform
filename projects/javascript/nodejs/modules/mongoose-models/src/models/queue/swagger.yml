@@ -11,13 +11,13 @@ components:
           format: date-time
         description:
           type: string
-        gameId:
-          type: string
-          format: ^[a-f0-9]{24}$
         gameServerTemplate:
           $ref: '#/components/schemas/GameServer'
         name:
           type: string
+        namespaceId:
+          type: string
+          format: ^[a-f0-9]{24}$
         teams:
           type: integer
         updatedAt:

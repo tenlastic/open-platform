@@ -1,14 +1,14 @@
 paths:
-  /releases/{releaseId}/platforms/{platform}/files:
+  /builds/{buildId}/platforms/{platform}/files:
     get:
       summary: Find
-      tags: [Files]
+      tags: [BuildFiles]
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []
       parameters:
         - in: path
-          name: releaseId
+          name: buildId
           schema:
             type: string
           required: true
@@ -28,4 +28,4 @@ paths:
                   records:
                     type: array
                     items:
-                      $ref: '#/components/schemas/File'
+                      $ref: '#/components/schemas/BuildFile'

@@ -12,6 +12,8 @@ spec:
   podGC:
     strategy: OnWorkflowSuccess
   serviceAccountName: argo
+  ttlStrategy:
+    secondsAfterSuccess: 1296000
   volumeClaimTemplates:
     - metadata:
         name: workspace
@@ -58,6 +60,10 @@ spec:
         - - name: continuous-integration-angular
             template: continuous-integration-angular
             when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
+
+        - - name: migrations
+            template: migrations
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
 
         - - name: terraform
             template: terraform
@@ -199,6 +205,26 @@ spec:
       inputs:
         parameters:
           - name: revision
+      retryStrategy:
+        limit: 2
+        retryPolicy: OnError
+
+    - name: migrations
+      container:
+        image: node:10
+        command: [sh]
+        args: [./.argo-ci/migrations.sh]
+        envFrom:
+          - secretRef:
+              name: continuous-deployment-environment-variables
+        resources:
+          requests:
+            memory: 4096M
+            cpu: 500m
+        volumeMounts:
+          - name: workspace
+            mountPath: /usr/src/
+        workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError

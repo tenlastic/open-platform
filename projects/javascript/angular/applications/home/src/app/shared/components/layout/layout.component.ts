@@ -1,6 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
-import { Namespace, NamespaceService } from '@tenlastic/ng-http';
+import {
+  GameInvitation,
+  GameInvitationQuery,
+  GameInvitationService,
+  Namespace,
+  NamespaceService,
+} from '@tenlastic/ng-http';
+import { Observable } from 'rxjs';
 
 import { ElectronService, IdentityService, SocketService } from '../../../core/services';
 import { PromptComponent } from '../prompt/prompt.component';
@@ -11,12 +18,15 @@ import { PromptComponent } from '../prompt/prompt.component';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
+  public $gameInvitations: Observable<GameInvitation[]>;
   public namespaces: Namespace[] = [];
 
   private updateAvailable = false;
 
   constructor(
     public electronService: ElectronService,
+    public gameInvitationQuery: GameInvitationQuery,
+    public gameInvitationService: GameInvitationService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private namespaceService: NamespaceService,
@@ -25,6 +35,13 @@ export class LayoutComponent implements OnInit {
 
   public async ngOnInit() {
     this.namespaces = await this.namespaceService.find({});
+
+    if (this.identityService.user) {
+      this.$gameInvitations = this.gameInvitationQuery.selectAll({
+        filterBy: gi => gi.userId === this.identityService.user._id,
+      });
+      await this.gameInvitationService.find({ where: { userId: this.identityService.user._id } });
+    }
 
     if (!this.electronService.isElectron) {
       return;

@@ -8,11 +8,14 @@ export async function handler(ctx: Context) {
   const override = {
     where: {
       _id: ctx.params.collectionId,
-      databaseId: ctx.params.databaseId,
     },
   };
 
-  const collections = await CollectionPermissions.find({}, override, ctx.state.user);
+  const collections = await CollectionPermissions.find(
+    {},
+    override,
+    ctx.state.apiKey || ctx.state.user,
+  );
   if (collections.length === 0) {
     throw new RecordNotFoundError('Collection');
   }
@@ -34,7 +37,6 @@ export async function handler(ctx: Context) {
 
   const index = new Index({
     collectionId: collection._id,
-    databaseId: collection.databaseId,
     key,
     options,
   });

@@ -2,55 +2,44 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 
-import {
-  CollectionDocument,
-  CollectionMock,
-  DatabaseDocument,
-  DatabaseMock,
-  RecordSchema,
-} from '@tenlastic/mongoose-models';
+import { CollectionDocument, CollectionMock, RecordSchema } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
 describe('handlers/records/find-one', function() {
   let collection: CollectionDocument;
-  let database: DatabaseDocument;
   let user: any;
 
   beforeEach(async function() {
-    database = await DatabaseMock.create();
     collection = await CollectionMock.create({
-      databaseId: database._id,
       permissions: {
         create: {
-          base: ['properties'],
+          default: ['properties'],
         },
         delete: {},
         find: {
-          base: {},
+          default: {},
         },
         read: {
-          base: ['_id', 'createdAt', 'properties', 'updatedAt'],
+          default: ['_id', 'createdAt', 'properties', 'updatedAt'],
         },
         roles: [],
         update: {},
       },
     });
-    user = { _id: mongoose.Types.ObjectId(), roles: ['Administrator'] };
+    user = { _id: mongoose.Types.ObjectId() };
   });
 
   it('returns the matching record', async function() {
-    const Model = RecordSchema.getModelForClass(collection);
+    const Model = RecordSchema.getModel(collection);
     const record = await Model.create({
-      collectionId: collection.id,
-      databaseId: collection.databaseId,
+      collectionId: collection._id,
       userId: user._id,
     });
 
     const ctx = new ContextMock({
       params: {
         _id: record._id.toString(),
-        collectionName: collection.name,
-        databaseName: database.name,
+        collectionId: collection._id,
       },
       state: { user },
     });

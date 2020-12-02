@@ -3,8 +3,11 @@ import { Context } from '@tenlastic/web-server';
 import { QueueMemberPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
-  const override = { jti: ctx.state.jwt.jti };
-  const result = await QueueMemberPermissions.create(ctx.request.body, override, ctx.state.user);
+  const override = { refreshTokenId: ctx.state.jwt.jti };
+  const user = ctx.state.apiKey || ctx.state.user;
 
-  ctx.response.body = { record: result };
+  const result = await QueueMemberPermissions.create(ctx.request.body, override, user);
+  const record = await QueueMemberPermissions.read(result, user);
+
+  ctx.response.body = { record };
 }

@@ -1,7 +1,15 @@
 import { DOCUMENT } from '@angular/common';
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Game, GameQuery, GameService, GameStore } from '@tenlastic/ng-http';
+import {
+  Game,
+  GameInvitation,
+  GameInvitationQuery,
+  GameInvitationService,
+  GameQuery,
+  GameService,
+  GameStore,
+} from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -24,6 +32,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     return this.gameQuery.selectActive() as Observable<Game>;
   }
   public $games: Observable<Game[]>;
+  public $gameInvitations: Observable<GameInvitation[]>;
   public get $isReady() {
     return this.$activeGame.pipe(
       map(game => {
@@ -53,6 +62,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public showSidenav = false;
 
   private selectActiveGame$ = new Subscription();
+  private updateGames$ = new Subscription();
   private setBackground$ = new Subscription();
 
   constructor(
@@ -60,6 +70,8 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private backgroundService: BackgroundService,
     private changeDetectorRef: ChangeDetectorRef,
     public electronService: ElectronService,
+    private gameInvitationQuery: GameInvitationQuery,
+    private gameInvitationService: GameInvitationService,
     private gameQuery: GameQuery,
     private gameService: GameService,
     private gameStore: GameStore,
@@ -73,7 +85,15 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.document.body.style.backgroundImage = `url('${value}')`;
     });
 
-    await this.fetchGames();
+    this.$gameInvitations = this.gameInvitationQuery.selectAll({
+      filterBy: gi => gi.userId === this.identityService.user._id,
+    });
+    this.updateGames$ = this.$gameInvitations.subscribe(gi => {
+      const namespaceIds = gi.map(g => g.namespaceId);
+      return this.fetchGames(namespaceIds);
+    });
+
+    await this.gameInvitationService.find({ where: { userId: this.identityService.user._id } });
 
     if (!this.electronService.isElectron) {
       return;
@@ -96,6 +116,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public ngOnDestroy() {
     this.selectActiveGame$.unsubscribe();
     this.setBackground$.unsubscribe();
+    this.updateGames$.unsubscribe();
   }
 
   public getProgress(game: Game) {
@@ -120,11 +141,18 @@ export class LayoutComponent implements OnDestroy, OnInit {
     }
   }
 
-  private async fetchGames() {
-    this.$games = this.gameQuery.selectAll();
+  private async fetchGames(namespaceIds: string[]) {
+    if (namespaceIds.length === 0) {
+      this.router.navigate(['/']);
+      return;
+    }
 
+    this.$games = this.gameQuery.selectAll({ filterBy: g => namespaceIds.includes(g.namespaceId) });
+
+    this.selectActiveGame$.unsubscribe();
     this.selectActiveGame$ = this.$games.subscribe(games => {
-      if (games.length === 0 || this.gameQuery.getActiveId()) {
+      const activeGame = this.gameQuery.getActive() as Game;
+      if (games.length === 0 || (activeGame && namespaceIds.includes(activeGame.namespaceId))) {
         return;
       }
 
@@ -137,6 +165,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.router.navigate(['/games', game._id]);
     });
 
-    return this.gameService.find({});
+    return this.gameService.find({ where: { namespaceId: { $in: namespaceIds } } });
   }
 }

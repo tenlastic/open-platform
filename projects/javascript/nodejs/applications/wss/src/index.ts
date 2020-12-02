@@ -29,28 +29,38 @@ webServer.start();
 
 // Web Sockets.
 const webSocketServer = new WebSocketServer(webServer.server);
-webSocketServer.connection((jwt, ws) => {
+webSocketServer.connection((auth, ws) => {
+  if (!auth.jwt) {
+    return;
+  }
+
   let interval: NodeJS.Timeout;
   interval = setInterval(async () => {
-    await WebSocket.findOneAndUpdate({ jti: jwt.jti }, { heartbeatAt: new Date() });
+    await WebSocket.findOneAndUpdate({ refreshTokenId: auth.jwt.jti }, { heartbeatAt: new Date() });
   }, 10000);
 
-  ws.on('close', async () => await WebSocket.findOneAndDelete({ jti: jwt.jti }));
+  ws.on('close', async () => await WebSocket.findOneAndDelete({ refreshTokenId: auth.jwt.jti }));
   ws.on('close', () => clearInterval(interval));
-  ws.on('error', async () => await WebSocket.findOneAndDelete({ jti: jwt.jti }));
+  ws.on('error', async () => await WebSocket.findOneAndDelete({ refreshTokenId: auth.jwt.jti }));
   ws.on('error', () => clearInterval(interval));
 });
-webSocketServer.message((data, jwt, ws) => {
+webSocketServer.message((auth, data, ws) => {
   switch (data.method) {
     case 'ping':
-      sockets.ping(data, jwt, ws);
+      sockets.ping(auth, data, ws);
       break;
     case 'subscribe':
-      sockets.subscribe(data, jwt, ws);
+      sockets.subscribe(auth, data, ws);
       break;
     case 'unsubscribe':
-      sockets.unsubscribe(data, jwt, ws);
+      sockets.unsubscribe(auth, data, ws);
       break;
   }
 });
-webSocketServer.upgrade(jwt => WebSocket.create({ jti: jwt.jti, userId: jwt.user._id }));
+webSocketServer.upgrade(auth => {
+  if (!auth.jwt) {
+    return;
+  }
+
+  return WebSocket.create({ refreshTokenId: auth.jwt.jti, userId: auth.jwt.user._id });
+});

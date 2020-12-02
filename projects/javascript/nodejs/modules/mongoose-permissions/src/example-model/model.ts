@@ -31,7 +31,7 @@ export class ExampleSchema {
   public name: string;
 
   @prop({ ref: 'ExampleSchema' })
-  public parentId: Ref<ExampleSchema>;
+  public parentId: Ref<ExampleDocument>;
 
   public updatedAt: Date;
 
@@ -39,7 +39,7 @@ export class ExampleSchema {
   public urls: string[];
 
   @prop({ ref: 'ExampleSchema' })
-  public userId: Ref<ExampleSchema>;
+  public userId: Ref<ExampleDocument>;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'parentId', ref: 'ExampleSchema' })
   public parent: ExampleDocument;

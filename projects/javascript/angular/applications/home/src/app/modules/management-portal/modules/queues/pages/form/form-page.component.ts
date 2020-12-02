@@ -1,15 +1,11 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Queue, QueueService, Release, ReleaseService } from '@tenlastic/ng-http';
+import { Build, BuildService, IGameServer, Queue, QueueService } from '@tenlastic/ng-http';
 
-import {
-  IdentityService,
-  SelectedGameService,
-  SelectedNamespaceService,
-} from '../../../../../../core/services';
-import { SNACKBAR_DURATION } from '../../../../../../shared/constants';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 
 interface PropertyFormGroup {
   key?: string;
@@ -22,20 +18,21 @@ interface PropertyFormGroup {
   styleUrls: ['./form-page.component.scss'],
 })
 export class QueuesFormPageComponent implements OnInit {
+  public builds: Build[];
+  public cpus = IGameServer.Cpu;
   public data: Queue;
-  public error: string;
+  public errors: string[] = [];
   public form: FormGroup;
-  public releases: Release[];
+  public memories = IGameServer.Memory;
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private buildService: BuildService,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private queueService: QueueService,
-    private releaseService: ReleaseService,
     private router: Router,
-    private selectedGameService: SelectedGameService,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
@@ -46,10 +43,9 @@ export class QueuesFormPageComponent implements OnInit {
         this.data = await this.queueService.findOne(_id);
       }
 
-      const gameId = this.selectedGameService.game && this.selectedGameService.game._id;
-      this.releases = await this.releaseService.find({
+      this.builds = await this.buildService.find({
         sort: '-publishedAt',
-        where: { gameId },
+        where: { namespaceId: this.selectedNamespaceService.namespaceId },
       });
 
       this.setupForm();
@@ -70,20 +66,7 @@ export class QueuesFormPageComponent implements OnInit {
 
   public async save() {
     if (this.form.invalid) {
-      this.form.get('description').markAsTouched();
-      this.form.get('name').markAsTouched();
-      this.form.get('usersPerTeam').markAsTouched();
-      this.form.get('teams').markAsTouched();
-
-      this.form
-        .get('gameServerTemplate')
-        .get('isPreemptible')
-        .markAsTouched();
-      this.form
-        .get('gameServerTemplate')
-        .get('releaseId')
-        .markAsTouched();
-
+      this.form.markAllAsTouched();
       return;
     }
 
@@ -97,32 +80,36 @@ export class QueuesFormPageComponent implements OnInit {
 
     const values: Partial<Queue> = {
       description: this.form.get('description').value,
-      gameId: this.form.get('gameId').value,
       gameServerTemplate: {
+        buildId: this.form.get('gameServerTemplate').get('buildId').value,
+        cpu: this.form.get('gameServerTemplate').get('cpu').value,
         isPreemptible: this.form.get('gameServerTemplate').get('isPreemptible').value,
+        memory: this.form.get('gameServerTemplate').get('memory').value,
         metadata,
-        releaseId: this.form.get('gameServerTemplate').get('releaseId').value,
       },
       name: this.form.get('name').value,
+      namespaceId: this.form.get('namespaceId').value,
       usersPerTeam: this.form.get('usersPerTeam').value,
       teams: this.form.get('teams').value,
     };
 
-    if (this.data._id) {
-      this.update(values);
-    } else {
-      this.create(values);
+    try {
+      await this.upsert(values);
+    } catch (e) {
+      this.handleHttpError(e, { name: 'Name' });
     }
   }
 
-  private async create(data: Partial<Queue>) {
-    try {
-      await this.queueService.create(data);
-      this.matSnackBar.open('Queue created successfully.', null, { duration: SNACKBAR_DURATION });
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-    } catch (e) {
-      this.error = 'That name is already taken.';
-    }
+  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
+    this.errors = err.error.errors.map(e => {
+      if (e.name === 'UniquenessError') {
+        const combination = e.paths.length > 1 ? 'combination ' : '';
+        const paths = e.paths.map(p => pathMap[p]);
+        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
+      } else {
+        return e.message;
+      }
+    });
   }
 
   private getDefaultPropertyFormGroup() {
@@ -171,39 +158,43 @@ export class QueuesFormPageComponent implements OnInit {
     let gameServerTemplateForm: FormGroup;
     if (this.data.gameServerTemplate) {
       gameServerTemplateForm = this.formBuilder.group({
+        buildId: [this.data.gameServerTemplate.buildId, Validators.required],
+        cpu: [this.data.gameServerTemplate.cpu || this.cpus[0]],
         isPreemptible: [this.data.gameServerTemplate.isPreemptible || false],
+        memory: [this.data.gameServerTemplate.memory || this.memories[0]],
         metadata: this.formBuilder.array(properties),
-        releaseId: [this.data.gameServerTemplate.releaseId],
       });
     } else {
       gameServerTemplateForm = this.formBuilder.group({
+        buildId: [this.builds.length > 0 ? this.builds[0]._id : null, Validators.required],
+        cpu: [this.cpus[0]],
         isPreemptible: [false],
+        memory: [this.memories[0]],
         metadata: this.formBuilder.array(properties),
-        releaseId: [this.releases.length > 0 ? this.releases[0]._id : null],
       });
     }
 
     this.form = this.formBuilder.group({
       description: [this.data.description],
-      gameId: [this.selectedGameService.game._id],
       gameServerTemplate: gameServerTemplateForm,
       name: [this.data.name, Validators.required],
+      namespaceId: [this.selectedNamespaceService.namespaceId],
       usersPerTeam: [this.data.usersPerTeam || 1, Validators.required],
       teams: [this.data.teams || 2, Validators.required],
     });
 
-    this.form.valueChanges.subscribe(() => (this.error = null));
+    this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async update(data: Partial<Queue>) {
-    data._id = this.data._id;
-
-    try {
+  private async upsert(data: Partial<Queue>) {
+    if (this.data._id) {
+      data._id = this.data._id;
       await this.queueService.update(data);
-      this.matSnackBar.open('Queue updated successfully.', null, { duration: SNACKBAR_DURATION });
-      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-    } catch (e) {
-      this.error = 'That name is already taken.';
+    } else {
+      await this.queueService.create(data);
     }
+
+    this.matSnackBar.open('Queue saved successfully.');
+    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
   }
 }

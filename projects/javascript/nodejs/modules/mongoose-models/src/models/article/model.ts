@@ -16,27 +16,35 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { Game, GameDocument } from '../game';
+import { NamespaceDocument, NamespaceEvent } from '../namespace';
 
 export const ArticleEvent = new EventEmitter<IDatabasePayload<ArticleDocument>>();
+
+// Publish changes to Kafka.
 ArticleEvent.on(payload => {
   kafka.publish(payload);
 });
 
-@index({ gameId: 1 })
+// Delete Articles if associated Namespace is deleted.
+NamespaceEvent.on(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await Article.find({ namespaceId: payload.fullDocument._id });
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
+  }
+});
+
+@index({ namespaceId: 1 })
 @index({ publishedAt: 1 })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'articles',
     minimize: false,
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: ArticleEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: ArticleEvent })
 export class ArticleSchema {
   public _id: mongoose.Types.ObjectId;
 
@@ -48,8 +56,8 @@ export class ArticleSchema {
 
   public createdAt: Date;
 
-  @prop({ ref: Game, required: true })
-  public gameId: Ref<GameDocument>;
+  @prop({ ref: 'NamespaceSchema', required: true })
+  public namespaceId: Ref<NamespaceDocument>;
 
   @prop()
   public publishedAt: Date;
@@ -62,8 +70,8 @@ export class ArticleSchema {
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: Game })
-  public gameDocument: GameDocument;
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
+  public namespaceDocument: NamespaceDocument;
 }
 
 export type ArticleDocument = DocumentType<ArticleSchema>;

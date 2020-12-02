@@ -9,6 +9,9 @@ export function connect(options: ConnectionOptions) {
   return mongoose.connect(
     options.connectionString,
     {
+      config: {
+        autoIndex: false,
+      },
       dbName: options.databaseName,
       useCreateIndex: true,
       useFindAndModify: false,
@@ -16,10 +19,6 @@ export function connect(options: ConnectionOptions) {
       useUnifiedTopology: true,
     },
     err => {
-      if (process.env.NODE_ENV === 'test') {
-        return;
-      }
-
       if (err) {
         console.error(err);
       } else {

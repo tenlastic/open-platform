@@ -19,33 +19,32 @@ import * as mongoose from 'mongoose';
 
 import { User, UserDocument } from '../user';
 
-// Publish to Kafka.
 export const GroupEvent = new EventEmitter<IDatabasePayload<GroupDocument>>();
+
+// Publish to Kafka.
 GroupEvent.on(payload => {
   kafka.publish(payload);
 });
 
-// Delete Groups without Users.
-setInterval(async () => {
-  const groups = await Group.find({ userIds: [] });
-  for (const group of groups) {
-    await group.remove();
+GroupEvent.on(payload => {
+  if (payload.operationType === 'delete') {
+    return;
   }
-}, 15000);
+
+  if (payload.fullDocument.userIds.length === 0) {
+    return payload.fullDocument.remove();
+  }
+});
 
 @index({ userIds: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'groups',
     minimize: false,
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: GroupEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GroupEvent })
 export class GroupSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

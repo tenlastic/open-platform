@@ -4,25 +4,21 @@ import { RefreshToken, RefreshTokenDocument } from './model';
 
 export const RefreshTokenPermissions = new MongoosePermissions<RefreshTokenDocument>(RefreshToken, {
   create: {
-    base: ['description', 'expiresAt'],
+    default: ['description', 'expiresAt'],
   },
   delete: {
-    base: false,
-    roles: {
-      owner: true,
-    },
+    default: false,
+    owner: true,
   },
   find: {
-    base: { userId: { $eq: { $ref: 'user._id' } } },
+    default: { userId: { $eq: { $ref: 'user._id' } } },
   },
   read: {
-    base: ['createdAt', 'description', 'expiresAt', 'jti', 'updatedAt', 'userId'],
+    default: ['_id', 'createdAt', 'description', 'expiresAt', 'updatedAt', 'userId'],
   },
   roles: [{ name: 'owner', query: { 'record.userId': { $eq: { $ref: 'user._id' } } } }],
   update: {
-    base: [],
-    roles: {
-      owner: ['description'],
-    },
+    default: [],
+    owner: ['description'],
   },
 });

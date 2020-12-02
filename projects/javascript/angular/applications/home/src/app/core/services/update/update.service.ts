@@ -1,18 +1,16 @@
-import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {
+  Build,
+  BuildService,
   File,
   FileService,
   Game,
   GameInvitationService,
   GameServer,
   LoginService,
-  Release,
-  ReleaseService,
 } from '@tenlastic/ng-http';
 import { ChildProcess } from 'child_process';
 import { Subject } from 'rxjs';
-import { last, map, tap, retry } from 'rxjs/operators';
 
 import { ElectronService, IdentityService } from '../../services';
 
@@ -39,12 +37,12 @@ export interface UpdateServiceProgress {
 }
 
 export interface UpdateServiceStatus {
+  build?: Build;
   childProcess?: ChildProcess;
   game?: Game;
   isInstalled?: boolean;
   modifiedFiles?: File[];
   progress?: UpdateServiceProgress;
-  release?: Release;
   state?: UpdateServiceState;
   text?: string;
 }
@@ -75,12 +73,12 @@ export class UpdateService {
   private status = new Map<string, UpdateServiceStatus>();
 
   constructor(
+    private buildService: BuildService,
     private electronService: ElectronService,
     private fileService: FileService,
     private gameInvitationService: GameInvitationService,
     private identityService: IdentityService,
     private loginService: LoginService,
-    private releaseService: ReleaseService,
   ) {
     this.subscribeToServices();
 
@@ -104,8 +102,8 @@ export class UpdateService {
     status.text = 'Checking access permission...';
     const invitations = await this.gameInvitationService.find({
       where: {
-        gameId: game._id,
-        toUserId: this.identityService.user._id,
+        namespaceId: game.namespaceId,
+        userId: this.identityService.user._id,
       },
     });
     if (invitations.length === 0) {
@@ -113,25 +111,25 @@ export class UpdateService {
       return;
     }
 
-    // Get the latest Release from the server.
-    status.text = 'Retrieving latest release...';
-    const releases = await this.releaseService.find({
+    // Get the latest Build from the server.
+    status.text = 'Retrieving latest build...';
+    const builds = await this.buildService.find({
       sort: '-publishedAt',
       where: {
         $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
-        gameId: game._id,
+        namespaceId: game.namespaceId,
       },
     });
-    if (releases.length === 0) {
+    if (builds.length === 0) {
       status.state = UpdateServiceState.NotAvailable;
       return;
     }
 
-    // Find Files associated with latest Release.
+    // Find Files associated with latest Build.
     status.progress = null;
-    status.text = 'Retrieving release files...';
-    status.release = releases[0];
-    const remoteFiles = await this.fileService.find(status.release._id, this.platform, {
+    status.text = 'Retrieving build files...';
+    status.build = builds[0];
+    const remoteFiles = await this.fileService.find(status.build._id, this.platform, {
       limit: 10000,
     });
     if (remoteFiles.length === 0) {
@@ -149,7 +147,7 @@ export class UpdateService {
       return;
     }
 
-    // Delete files no longer listed in the Release.
+    // Delete files no longer listed in the Build.
     status.isInstalled = true;
     status.progress = null;
     status.text = 'Deleting stale files...';
@@ -168,7 +166,7 @@ export class UpdateService {
       updatedFiles = remoteFiles.filter((rf, i) => {
         status.progress = { current: i, total: remoteFiles.length };
 
-        const localFile = localFilePaths[`${this.installPath}/${game._id}/${rf.path}`];
+        const localFile = localFilePaths[`${this.installPath}/${game.namespaceId}/${rf.path}`];
         return !localFile || localFile.md5 !== rf.md5;
       });
     }
@@ -187,12 +185,12 @@ export class UpdateService {
   }
 
   public getStatus(game: Game) {
-    if (!this.status.has(game._id)) {
-      this.status.set(game._id, { game });
+    if (!this.status.has(game.namespaceId)) {
+      this.status.set(game.namespaceId, { game });
       this.checkForUpdates(game);
     }
 
-    return this.status.get(game._id);
+    return this.status.get(game.namespaceId);
   }
 
   public play(game: Game, options: UpdateServicePlayOptions = {}) {
@@ -201,7 +199,8 @@ export class UpdateService {
       return;
     }
 
-    const target = `${this.installPath}/${game._id}/${status.release.entrypoint}.exe`;
+    const entrypoint = status.build.entrypoints[this.platform];
+    const target = `${this.installPath}/${game.namespaceId}/${entrypoint}`;
 
     const env = {
       ...process.env,
@@ -258,12 +257,12 @@ export class UpdateService {
     const { fs } = this.electronService;
 
     for (const localFile of localFiles) {
-      const localPath = localFile.path.replace(`${this.installPath}/${game._id}/`, '');
+      const localPath = localFile.path.replace(`${this.installPath}/${game.namespaceId}/`, '');
       const remotePaths = remoteFiles.map(rf => rf.path);
 
       if (!remotePaths.includes(localPath)) {
         await new Promise(resolve =>
-          fs.unlink(`${this.installPath}/${game._id}/${localPath}`, err => resolve()),
+          fs.unlink(`${this.installPath}/${game.namespaceId}/${localPath}`, err => resolve()),
         );
       }
     }
@@ -288,7 +287,7 @@ export class UpdateService {
           body: { include },
           headers: { Authorization: `Bearer ${this.identityService.accessToken}` },
           json: true,
-          url: `${this.fileService.basePath}/${status.release._id}/platforms/${this.platform}/files/download`,
+          url: `${this.fileService.basePath}/${status.build._id}/platforms/${this.platform}/files/download`,
         })
         .on('data', data => {
           downloadedBytes += data.length;
@@ -306,7 +305,7 @@ export class UpdateService {
             return;
           }
 
-          const target = `${this.installPath}/${game._id}/${entry.path}`;
+          const target = `${this.installPath}/${game.namespaceId}/${entry.path}`;
           const targetDirectory = target.substr(0, target.lastIndexOf('/'));
           if (!fs.existsSync(targetDirectory)) {
             fs.mkdirSync(targetDirectory, { recursive: true } as any);
@@ -322,7 +321,7 @@ export class UpdateService {
     const { crypto, fs, glob } = this.electronService;
     const status = this.getStatus(game);
 
-    const files = glob.sync(`${this.installPath}/${game._id}/**/*`, { nodir: true });
+    const files = glob.sync(`${this.installPath}/${game.namespaceId}/**/*`, { nodir: true });
 
     const localFiles: { md5: string; path: string }[] = [];
     for (let i = 0; i < files.length; i++) {
@@ -350,20 +349,20 @@ export class UpdateService {
 
   private subscribeToServices() {
     this.gameInvitationService.onCreate.subscribe(record => {
-      const game = this.status.get(record.gameId).game;
+      const game = this.status.get(record.namespaceId).game;
       const status = this.getStatus(game);
 
-      if (!status.release) {
+      if (!status.build) {
         status.state = -1;
         this.checkForUpdates(game);
       }
     });
 
-    this.releaseService.onUpdate.subscribe(record => {
-      const game = this.status.get(record.gameId).game;
+    this.buildService.onUpdate.subscribe(record => {
+      const game = this.status.get(record.namespaceId).game;
       const status = this.getStatus(game);
 
-      if (!status.release || record._id !== status.release._id) {
+      if (!status.build || record._id !== status.build._id) {
         status.state = -1;
         this.checkForUpdates(game);
       }

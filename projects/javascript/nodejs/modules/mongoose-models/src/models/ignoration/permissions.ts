@@ -4,22 +4,16 @@ import { Ignoration, IgnorationDocument } from './model';
 
 export const IgnorationPermissions = new MongoosePermissions<IgnorationDocument>(Ignoration, {
   create: {
-    roles: {
-      owner: ['fromUserId', 'toUserId'],
-    },
+    owner: ['fromUserId', 'toUserId'],
   },
   delete: {
-    roles: {
-      owner: true,
-    },
+    owner: true,
   },
   find: {
-    base: {
-      fromUserId: { $eq: { $ref: 'user._id' } },
-    },
+    default: { fromUserId: { $eq: { $ref: 'user._id' } } },
   },
   read: {
-    base: ['_id', 'createdAt', 'fromUserId', 'toUserId', 'updatedAt'],
+    default: ['_id', 'createdAt', 'fromUserId', 'toUserId', 'updatedAt'],
   },
   roles: [
     {
@@ -30,8 +24,6 @@ export const IgnorationPermissions = new MongoosePermissions<IgnorationDocument>
     },
   ],
   update: {
-    roles: {
-      owner: ['fromUserId', 'toUserId'],
-    },
+    default: ['fromUserId', 'toUserId'],
   },
 });

@@ -17,10 +17,12 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { Group, GroupDocument } from '../group';
+import { GroupDocument } from '../group';
 import { User, UserDocument } from '../user';
 
 export const MessageEvent = new EventEmitter<IDatabasePayload<MessageDocument>>();
+
+// Publish changes to Kafka.
 MessageEvent.on(payload => {
   kafka.publish(payload);
 });
@@ -31,30 +33,26 @@ MessageEvent.on(payload => {
 @index({ toUserId: 1 })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'messages',
     minimize: false,
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: MessageEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: MessageEvent })
 export class MessageSchema {
   public _id: mongoose.Types.ObjectId;
 
   @prop({ maxlength: 512, required: true })
   public body: string;
 
-  @prop({ ref: User, required: true })
+  @prop({ ref: 'UserSchema', required: true })
   public fromUserId: Ref<UserDocument>;
 
   @arrayProp({ itemsRef: User })
   public readByUserIds: Array<Ref<UserDocument>>;
 
   @prop({
-    ref: Group,
+    ref: 'GroupSchema',
     required(this: MessageDocument) {
       return !this.toUserId;
     },
@@ -62,7 +60,7 @@ export class MessageSchema {
   public toGroupId: Ref<GroupDocument>;
 
   @prop({
-    ref: User,
+    ref: 'UserSchema',
     required(this: MessageDocument) {
       return !this.toGroupId;
     },
@@ -71,13 +69,13 @@ export class MessageSchema {
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: User })
+  @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: 'UserSchema' })
   public fromUserDocument: UserDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'toGroupId', ref: Group })
+  @prop({ foreignField: '_id', justOne: true, localField: 'toGroupId', ref: 'GroupSchema' })
   public toGroupDocument: GroupDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: User })
+  @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: 'UserSchema' })
   public toUserDocument: UserDocument;
 }
 

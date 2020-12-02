@@ -1,26 +1,30 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { Collection, Database, RecordDocument, RecordSchema } from '@tenlastic/mongoose-models';
+import { Collection, RecordDocument, RecordSchema } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
-  const { collectionName, databaseName } = ctx.params;
+  const { collectionId } = ctx.params;
+  const user = ctx.state.apiKey || ctx.state.user;
 
-  const database = await Database.findOne({ name: databaseName });
-  if (!database) {
-    throw new RecordNotFoundError('Database');
-  }
-
-  const collection = await Collection.findOne({ databaseId: database._id, name: collectionName });
+  const collection = await Collection.findOne({ _id: collectionId });
   if (!collection) {
     throw new RecordNotFoundError('Collection');
   }
 
-  const Model = RecordSchema.getModelForClass(collection);
-  const Permissions = new MongoosePermissions<RecordDocument>(Model, collection.permissions);
+  const Model = RecordSchema.getModel(collection);
+  const Permissions = RecordSchema.getPermissions(Model, collection);
 
-  const override = { where: { collectionId: collection._id, databaseId: database._id } };
-  const result = await Permissions.find(ctx.request.query, override, ctx.state.user);
+  try {
+    const results = await Permissions.find(
+      ctx.request.query,
+      { where: { collectionId: collection._id } },
+      ctx.state.apiKey || ctx.state.user,
+    );
+    const records = await Promise.all(results.map(r => Permissions.read(r, user)));
 
-  ctx.response.body = { records: result };
+    ctx.response.body = { records };
+  } catch (e) {
+    console.error(e.stack);
+  }
 }

@@ -96,45 +96,35 @@ describe('CollectionFormService', () => {
       it('returns an initialized FormGroup', () => {
         const permissions = {
           create: {
-            roles: {
-              default: [chance.hash()],
-            },
+            default: [chance.hash()],
           },
           delete: {
-            roles: {
-              default: true,
-            },
+            default: true,
           },
           find: {
-            roles: {
-              default: {
-                $and: [{ name: { $eq: 'test' } }],
-              },
+            default: {
+              $and: [{ name: { $eq: 'test' } }],
             },
           },
           read: {
-            roles: {
-              default: [chance.hash()],
-            },
+            default: [chance.hash()],
           },
           update: {
-            roles: {
-              default: [chance.hash()],
-            },
+            default: [chance.hash()],
           },
         };
         const role = { name: 'default' };
 
         const formGroup = service.getFormGroupFromPermissions(permissions, role);
 
-        expect(formGroup.get('create').value).toEqual(permissions.create.roles.default);
-        expect(formGroup.get('delete').value).toEqual(permissions.delete.roles.default);
+        expect(formGroup.get('create').value).toEqual(permissions.create.default);
+        expect(formGroup.get('delete').value).toEqual(permissions.delete.default);
         expect(formGroup.get('find.0.field').value).toEqual('name');
         expect(formGroup.get('find.0.operator').value).toEqual('$eq');
         expect(formGroup.get('find.0.type').value).toEqual('value');
         expect(formGroup.get('find.0.value.string').value).toEqual('test');
-        expect(formGroup.get('read').value).toEqual(permissions.read.roles.default);
-        expect(formGroup.get('update').value).toEqual(permissions.update.roles.default);
+        expect(formGroup.get('read').value).toEqual(permissions.read.default);
+        expect(formGroup.get('update').value).toEqual(permissions.update.default);
       });
     });
 
@@ -142,35 +132,27 @@ describe('CollectionFormService', () => {
       it('returns an initialized FormGroup', () => {
         const permissions = {
           create: {
-            roles: {
-              default: [chance.hash()],
-            },
+            default: [chance.hash()],
           },
           delete: {
-            roles: {
-              default: true,
-            },
+            default: true,
           },
           read: {
-            roles: {
-              default: [chance.hash()],
-            },
+            default: [chance.hash()],
           },
           update: {
-            roles: {
-              default: [chance.hash()],
-            },
+            default: [chance.hash()],
           },
         };
         const role = { name: 'default' };
 
         const formGroup = service.getFormGroupFromPermissions(permissions, role);
 
-        expect(formGroup.get('create').value).toEqual(permissions.create.roles.default);
-        expect(formGroup.get('delete').value).toEqual(permissions.delete.roles.default);
+        expect(formGroup.get('create').value).toEqual(permissions.create.default);
+        expect(formGroup.get('delete').value).toEqual(permissions.delete.default);
         expect(formGroup.get('find').value).toEqual([]);
-        expect(formGroup.get('read').value).toEqual(permissions.read.roles.default);
-        expect(formGroup.get('update').value).toEqual(permissions.update.roles.default);
+        expect(formGroup.get('read').value).toEqual(permissions.read.default);
+        expect(formGroup.get('update').value).toEqual(permissions.update.default);
       });
     });
   });
@@ -407,13 +389,13 @@ describe('CollectionFormService', () => {
 
       const json = service.getPermissionsJsonFromRoles([property], [role]) as any;
 
-      expect(json.create.roles.default).toEqual(role.permissions.create);
-      expect(json.delete.roles.default).toEqual(role.permissions.delete);
-      expect(json.find.roles.default).toEqual({
+      expect(json.create.default).toEqual(role.permissions.create);
+      expect(json.delete.default).toEqual(role.permissions.delete);
+      expect(json.find.default).toEqual({
         $and: [{ username: { $eq: { $ref: 'user.username' } } }],
       });
-      expect(json.read.roles.default).toEqual(role.permissions.read);
-      expect(json.update.roles.default).toEqual(role.permissions.update);
+      expect(json.read.default).toEqual(role.permissions.read);
+      expect(json.update.default).toEqual(role.permissions.update);
     });
   });
 

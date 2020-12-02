@@ -1,0 +1,25 @@
+<form [formGroup]="form">
+  <div *ngIf="data.title"
+       mat-dialog-title>{{ data.title }}</div>
+  <div mat-dialog-content>
+    <mat-form-field floatLabel="always">
+      <mat-label *ngIf="data.label">{{ data.label }}</mat-label>
+      <textarea cdkTextareaAutosize
+                matInput
+                formControlName="input"></textarea>
+      <mat-error>{{ data.error }}</mat-error>
+    </mat-form-field>
+  </div>
+
+  <div mat-dialog-actions>
+    <app-button color="accent"
+                (click)="dialogRef.close()">
+      Cancel
+    </app-button>
+
+    <app-button color="primary"
+                (click)="submit()">
+      Submit
+    </app-button>
+  </div>
+</form>

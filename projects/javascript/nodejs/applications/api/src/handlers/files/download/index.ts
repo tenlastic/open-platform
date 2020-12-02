@@ -2,21 +2,25 @@ import * as minio from '@tenlastic/minio';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as JSZip from 'jszip';
 
-import { Release, FilePermissions } from '@tenlastic/mongoose-models';
+import { Build, FilePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
-  const release = await Release.findOne({ _id: ctx.params.releaseId });
-  if (!release) {
-    throw new RecordNotFoundError('Release');
+  const build = await Build.findOne({ _id: ctx.params.buildId });
+  if (!build) {
+    throw new RecordNotFoundError('Build');
   }
 
   const { include } = ctx.request.body;
 
-  const query: any = { platform: ctx.params.platform, releaseId: release._id };
+  const query: any = { platform: ctx.params.platform, buildId: build._id };
   if (include && include.length > 0) {
     query.path = { $in: include };
   }
-  const files = await FilePermissions.find({}, { limit: 10000, where: query }, ctx.state.user);
+  const files = await FilePermissions.find(
+    {},
+    { limit: 10000, where: query },
+    ctx.state.apiKey || ctx.state.user,
+  );
 
   if (files.length === 0) {
     throw new RecordNotFoundError('Files');
@@ -24,7 +28,8 @@ export async function handler(ctx: Context) {
 
   const zip = new JSZip();
   for (const file of files) {
-    const stream = (await minio.getObject(process.env.MINIO_BUCKET, file.key)) as any;
+    const minioKey = await file.getMinioKey();
+    const stream = await minio.getObject(process.env.MINIO_BUCKET, minioKey);
     zip.file(file.path, stream);
   }
 

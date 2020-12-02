@@ -1,14 +1,14 @@
 paths:
-  /releases/{releaseId}/platforms/{platform}/files/upload:
+  /builds/{buildId}/platforms/{platform}/files/upload:
     post:
       summary: Upload
-      tags: [Files]
-      description: Uploads files for a Release.
+      tags: [BuildFiles]
+      description: Uploads files for a Build.
       security:
         - AccessToken: []
       parameters:
         - in: path
-          name: releaseId
+          name: buildId
           schema:
             type: string
           required: true
@@ -46,7 +46,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  records:
+                  tasks:
                     type: array
                     items:
-                      $ref: '#/components/schemas/File'
+                      $ref: '#/components/schemas/BuildTask'

@@ -27,8 +27,8 @@ export class RefreshTokenService {
     return { record, refreshToken: response.refreshToken };
   }
 
-  public async delete(jti: string): Promise<RefreshToken> {
-    const response = await this.apiService.request('delete', `${this.basePath}/${jti}`, null);
+  public async delete(_id: string): Promise<RefreshToken> {
+    const response = await this.apiService.request('delete', `${this.basePath}/${_id}`, null);
 
     const record = new RefreshToken(response.record);
     this.onDelete.emit(record);
@@ -42,8 +42,8 @@ export class RefreshTokenService {
     return response.records.map(record => new RefreshToken(record));
   }
 
-  public async findOne(jti: string): Promise<RefreshToken> {
-    const response = await this.apiService.request('get', `${this.basePath}/${jti}`, null);
+  public async findOne(_id: string): Promise<RefreshToken> {
+    const response = await this.apiService.request('get', `${this.basePath}/${_id}`, null);
 
     return new RefreshToken(response.record);
   }
@@ -51,7 +51,7 @@ export class RefreshTokenService {
   public async update(parameters: Partial<RefreshToken>): Promise<RefreshToken> {
     const response = await this.apiService.request(
       'put',
-      `${this.basePath}/${parameters.jti}`,
+      `${this.basePath}/${parameters._id}`,
       parameters,
     );
 

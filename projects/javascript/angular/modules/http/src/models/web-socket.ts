@@ -1,7 +1,7 @@
 import { Model } from './model';
 
 export class WebSocket extends Model {
-  public gameId: string;
+  public namespaceId: string;
   public userId: string;
 
   constructor(params?: Partial<WebSocket>) {

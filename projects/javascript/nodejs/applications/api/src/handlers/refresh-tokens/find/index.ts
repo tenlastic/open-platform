@@ -1,9 +1,5 @@
-import { Context } from '@tenlastic/web-server';
-
 import { RefreshTokenPermissions } from '@tenlastic/mongoose-models';
 
-export async function handler(ctx: Context) {
-  const result = await RefreshTokenPermissions.find(ctx.request.query, {}, ctx.state.user);
+import { find } from '../../../defaults';
 
-  ctx.response.body = { records: result };
-}
+export const handler = find(RefreshTokenPermissions);

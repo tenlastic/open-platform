@@ -1,11 +1,10 @@
 import {
   CollectionMock,
-  DatabaseMock,
   Index,
+  IndexMock,
   NamespaceMock,
-  UserRolesMock,
+  NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
-import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { DeleteCollectionIndex } from '@tenlastic/rabbitmq-models';
 import { Context, ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -23,7 +22,7 @@ describe('handlers/indexes/delete', function() {
 
   beforeEach(async function() {
     sandbox = sinon.createSandbox();
-    user = { _id: new mongoose.Types.ObjectId(), roles: ['Administrator'] };
+    user = { _id: new mongoose.Types.ObjectId() };
   });
 
   afterEach(async function() {
@@ -35,7 +34,6 @@ describe('handlers/indexes/delete', function() {
       const ctx = new ContextMock({
         params: {
           collectionId: new mongoose.Types.ObjectId(),
-          databaseId: new mongoose.Types.ObjectId(),
         },
         state: { user },
       });
@@ -49,36 +47,35 @@ describe('handlers/indexes/delete', function() {
   context('when the collection is found', function() {
     context('when the user does not have permission', function() {
       it('throws an error', async function() {
-        const userRoles = UserRolesMock.create({ userId: user._id });
-        const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-        const database = await DatabaseMock.create({ namespaceId: namespace._id });
-        const collection = await CollectionMock.create({ databaseId: database._id });
+        const namespaceUser = NamespaceUserMock.create({ _id: user._id });
+        const namespace = await NamespaceMock.create({ users: [namespaceUser] });
+        const collection = await CollectionMock.create({ namespaceId: namespace._id });
         const ctx = new ContextMock({
           params: {
             collectionId: collection._id,
-            databaseId: collection.databaseId,
           },
           state: { user: { _id: user._id, roles: [] } },
         });
 
         const promise = handler(ctx as any);
 
-        return expect(promise).to.be.rejectedWith(PermissionError);
+        return expect(promise).to.be.rejectedWith(RecordNotFoundError);
       });
     });
 
     context('when the user has permission', function() {
       context('when the collection does not contain the specified index', function() {
         it('throws an error', async function() {
-          const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-          const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-          const database = await DatabaseMock.create({ namespaceId: namespace._id });
+          const namespaceUser = NamespaceUserMock.create({
+            _id: user._id,
+            roles: ['collections'],
+          });
+          const namespace = await NamespaceMock.create({ users: [namespaceUser] });
           const index = new Index({ key: { properties: 1 } });
-          const collection = await CollectionMock.create({ databaseId: database._id });
+          const collection = await CollectionMock.create({ namespaceId: namespace._id });
           const ctx = new ContextMock({
             params: {
               collectionId: collection._id,
-              databaseId: collection.databaseId,
               id: index._id,
             },
             request: {
@@ -99,20 +96,21 @@ describe('handlers/indexes/delete', function() {
         it('adds the request to RabbitMQ', async function() {
           const stub = sinon.stub(DeleteCollectionIndex, 'publish').resolves();
 
-          const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-          const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-          const database = await DatabaseMock.create({ namespaceId: namespace._id });
-          const index = new Index({ key: { properties: 1 } });
+          const namespaceUser = NamespaceUserMock.create({
+            _id: user._id,
+            roles: ['collections'],
+          });
+          const namespace = await NamespaceMock.create({ users: [namespaceUser] });
+          const index = await IndexMock.create({ key: { properties: 1 } });
           const collection = await CollectionMock.create({
-            databaseId: database._id,
             indexes: [index],
+            namespaceId: namespace._id,
           });
 
           const ctx = new ContextMock({
             params: {
+              _id: index._id,
               collectionId: collection._id,
-              databaseId: collection.databaseId,
-              id: index._id,
             },
             request: {
               body: {

@@ -1,20 +1,18 @@
-import { Game } from './game';
 import { Model } from './model';
+import { Namespace } from './namespace';
 import { User } from './user';
 
 export class GameInvitation extends Model {
   public fromUser: User;
-  public fromUserId: string;
-  public game: Game;
-  public gameId: string;
-  public toUser: User;
-  public toUserId: string;
+  public namespace: Namespace;
+  public namespaceId: string;
+  public user: User;
+  public userId: string;
 
   constructor(params?: Partial<GameInvitation>) {
     super(params);
 
-    this.fromUser = this.fromUser ? new User(this.fromUser) : null;
-    this.game = this.game ? new Game(this.game) : null;
-    this.toUser = this.toUser ? new User(this.toUser) : null;
+    this.namespace = this.namespace ? new Namespace(this.namespace) : null;
+    this.user = this.user ? new User(this.user) : null;
   }
 }

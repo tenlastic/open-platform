@@ -12,9 +12,9 @@ import { GameServer, GameServerQuery, GameServerService } from '@tenlastic/ng-ht
 import { Observable, Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedGameService } from '../../../../../../core/services';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { SNACKBAR_DURATION, TITLE } from '../../../../../../shared/constants';
+import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -46,7 +46,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private selectedGameService: SelectedGameService,
+    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
@@ -72,9 +72,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
   public async restart(record: GameServer) {
     await this.gameServerService.restart(record._id);
-    this.matSnackBar.open('Game Server restarted successfully!', null, {
-      duration: SNACKBAR_DURATION,
-    });
+    this.matSnackBar.open('Game Server restarted successfully!');
   }
 
   public showDeletePrompt(record: GameServer) {
@@ -92,6 +90,8 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
       if (result === 'Yes') {
         await this.gameServerService.delete(record._id);
         this.deleteGameServer(record);
+
+        this.matSnackBar.open('Game Server deleted successfully.');
       }
     });
   }
@@ -102,12 +102,12 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
   private async fetchGameServers() {
     this.$gameServers = this.gameServerQuery.selectAll({
-      filterBy: gs => gs.gameId === this.selectedGameService.game._id,
+      filterBy: gs => gs.namespaceId === this.selectedNamespaceService.namespaceId,
     });
 
     await this.gameServerService.find({
       sort: 'name',
-      where: { gameId: this.selectedGameService.game._id },
+      where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
     this.updateDataSource$ = this.$gameServers.subscribe(

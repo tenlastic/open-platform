@@ -4,75 +4,93 @@ import { File, FileDocument } from './model';
 
 export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
   create: {
-    roles: {
-      'namespace-administrator': [
-        'compressedBytes',
-        'md5',
-        'path',
-        'platform',
-        'releaseId',
-        'uncompressedBytes',
-      ],
-      'system-administrator': [
-        'compressedBytes',
-        'md5',
-        'path',
-        'platform',
-        'releaseId',
-        'uncompressedBytes',
-      ],
-    },
+    'namespace-administrator': [
+      'buildId',
+      'compressedBytes',
+      'md5',
+      'path',
+      'platform',
+      'uncompressedBytes',
+    ],
+    'system-administrator': [
+      'buildId',
+      'compressedBytes',
+      'md5',
+      'path',
+      'platform',
+      'uncompressedBytes',
+    ],
   },
   delete: {
-    roles: {
-      'namespace-administrator': true,
-      'system-administrator': true,
-    },
+    'namespace-administrator': true,
+    'system-administrator': true,
   },
   find: {
-    base: {
+    default: {
       $or: [
         {
-          releaseId: {
+          buildId: {
             $in: {
-              // Find all published Releases.
+              // Find all published Builds.
               $query: {
-                model: 'ReleaseSchema',
+                model: 'BuildSchema',
                 select: '_id',
                 where: {
-                  $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
+                  $and: [
+                    {
+                      namespaceId: {
+                        $in: {
+                          $query: {
+                            model: 'GameInvitationSchema',
+                            select: 'namespaceId',
+                            where: {
+                              userId: { $eq: { $ref: 'user._id' } },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    { publishedAt: { $exists: true } },
+                    { publishedAt: { $ne: null } },
+                  ],
                 },
               },
             },
           },
         },
         {
-          releaseId: {
+          buildId: {
             $in: {
-              // Find all Releases within the returned Game.
+              // Find all Builds within the returned Namespaces.
               $query: {
-                model: 'ReleaseSchema',
+                model: 'BuildSchema',
                 select: '_id',
                 where: {
-                  gameId: {
+                  namespaceId: {
                     $in: {
-                      // Find all Games within the returned Namespaces.
+                      // Find Namespaces where the Key or User has administrator access.
                       $query: {
-                        model: 'GameSchema',
+                        model: 'NamespaceSchema',
                         select: '_id',
                         where: {
-                          namespaceId: {
-                            $in: {
-                              // Find all Namespaces that the user is a member of.
-                              $query: {
-                                model: 'NamespaceSchema',
-                                select: '_id',
-                                where: {
-                                  'accessControlList.userId': { $eq: { $ref: 'user._id' } },
+                          $or: [
+                            {
+                              keys: {
+                                $elemMatch: {
+                                  roles: { $eq: 'builds' },
+                                  value: { $eq: { $ref: 'key' } },
                                 },
                               },
                             },
-                          },
+                            {
+                              users: {
+                                $elemMatch: {
+                                  _id: { $eq: { $ref: 'user._id' } },
+                                  roles: { $eq: 'builds' },
+                                },
+                              },
+                            },
+                          ],
                         },
                       },
                     },
@@ -84,30 +102,25 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
         },
       ],
     },
-    roles: {
-      'system-administrator': {},
-    },
+    'system-administrator': {},
   },
   populate: [
     {
-      path: 'releaseDocument',
+      path: 'buildDocument',
       populate: {
-        path: 'gameDocument',
-        populate: {
-          path: 'namespaceDocument',
-        },
+        path: 'namespaceDocument',
       },
     },
   ],
   read: {
-    base: [
+    default: [
       '_id',
+      'buildId',
       'compressedBytes',
       'createdAt',
       'md5',
       'path',
       'platform',
-      'releaseId',
       'uncompressedBytes',
       'updatedAt',
     ],
@@ -116,39 +129,49 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
     {
       name: 'system-administrator',
       query: {
-        'user.roles': { $eq: 'Administrator' },
+        'user.roles': { $eq: 'builds' },
       },
     },
     {
       name: 'namespace-administrator',
       query: {
-        'record.releaseDocument.gameDocument.namespaceDocument.accessControlList': {
-          $elemMatch: {
-            roles: { $eq: 'Administrator' },
-            userId: { $eq: { $ref: 'user._id' } },
+        $or: [
+          {
+            'record.buildDocument.namespaceDocument.keys': {
+              $elemMatch: {
+                roles: { $eq: 'builds' },
+                value: { $eq: { $ref: 'key' } },
+              },
+            },
           },
-        },
+          {
+            'record.buildDocument.namespaceDocument.users': {
+              $elemMatch: {
+                _id: { $eq: { $ref: 'user._id' } },
+                roles: { $eq: 'builds' },
+              },
+            },
+          },
+        ],
       },
     },
   ],
   update: {
-    roles: {
-      'namespace-administrator': [
-        'compressedBytes',
-        'md5',
-        'path',
-        'platform',
-        'releaseId',
-        'uncompressedBytes',
-      ],
-      'system-administrator': [
-        'compressedBytes',
-        'md5',
-        'path',
-        'platform',
-        'releaseId',
-        'uncompressedBytes',
-      ],
-    },
+    'namespace-administrator': [
+      'buildId',
+      'compressedBytes',
+      'md5',
+      'path',
+      'platform',
+      'uncompressedBytes',
+    ],
+    'system-administrator': [
+      'buildId',
+      'compressedBytes',
+      'md5',
+      'path',
+      'platform',
+      'uncompressedBytes',
+    ],
   },
 });

@@ -1,6 +1,6 @@
 components:
   schemas:
-    GameInvitation:
+    QueueMember:
       type: object
       properties:
         _id:

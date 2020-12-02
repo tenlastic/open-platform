@@ -2,15 +2,15 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
+import * as mongoose from 'mongoose';
 
 import {
-  GameMock,
   GameInvitationMock,
   NamespaceMock,
   QueueMock,
   UserDocument,
   UserMock,
-  UserRolesMock,
+  NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
 import { handler } from './';
 
@@ -26,12 +26,14 @@ describe('handlers/queue-members/create', function() {
 
   context('when permission is granted', function() {
     it('creates a new record', async function() {
-      const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-      const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const queue = await QueueMock.create({ gameId: game._id });
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['queues'],
+      });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
+      const queue = await QueueMock.create({ namespaceId: namespace._id, usersPerTeam: 1 });
 
-      await GameInvitationMock.create({ gameId: game._id, toUserId: user._id });
+      await GameInvitationMock.create({ namespaceId: namespace._id, userId: user._id });
 
       const ctx = new ContextMock({
         request: {
@@ -40,7 +42,7 @@ describe('handlers/queue-members/create', function() {
             userId: user._id,
           },
         },
-        state: { jwt: { jti: chance.hash() }, user: user.toObject() },
+        state: { jwt: { jti: mongoose.Types.ObjectId().toHexString() }, user: user.toObject() },
       });
 
       await handler(ctx as any);
@@ -53,10 +55,12 @@ describe('handlers/queue-members/create', function() {
     it('throws an error', async function() {
       const otherUser = await UserMock.create();
 
-      const userRoles = UserRolesMock.create({ roles: ['Administrator'], userId: user._id });
-      const namespace = await NamespaceMock.create({ accessControlList: [userRoles] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
-      const queue = await QueueMock.create({ gameId: game._id });
+      const namespaceUser = NamespaceUserMock.create({
+        _id: user._id,
+        roles: ['queues'],
+      });
+      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
+      const queue = await QueueMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         request: {
@@ -65,7 +69,10 @@ describe('handlers/queue-members/create', function() {
             userId: user._id,
           },
         },
-        state: { jwt: { jti: chance.hash() }, user: otherUser.toObject() },
+        state: {
+          jwt: { jti: mongoose.Types.ObjectId().toHexString() },
+          user: otherUser.toObject(),
+        },
       });
 
       const promise = handler(ctx as any);

@@ -12,11 +12,11 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Message');
   }
 
-  const record = await Message.findOneAndUpdate(
+  const result = await Message.findOneAndUpdate(
     { _id: ctx.params._id },
     { $addToSet: { readByUserIds: ctx.state.user._id } },
   );
-  const filteredRecord = await MessagePermissions.read(record, ctx.state.user);
+  const record = await MessagePermissions.read(result, ctx.state.user);
 
-  ctx.response.body = { record: filteredRecord };
+  ctx.response.body = { record };
 }

@@ -19,9 +19,11 @@ import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
 import * as emails from '../../emails';
-import { UserSchema } from '../user/model';
+import { UserDocument } from '../user/model';
 
 export const PasswordResetEvent = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
+
+// Publish changes to Kafka.
 PasswordResetEvent.on(payload => {
   kafka.publish(payload);
 });
@@ -31,16 +33,12 @@ PasswordResetEvent.on(payload => {
 @index({ userId: 1 })
 @modelOptions({
   schemaOptions: {
-    autoIndex: true,
     collection: 'passwordresets',
     minimize: false,
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, {
-  documentKeys: ['_id'],
-  eventEmitter: PasswordResetEvent,
-})
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: PasswordResetEvent })
 @plugin(uniqueErrorPlugin)
 @pre('save', async function(this: PasswordResetDocument) {
   if (this.isNew) {
@@ -60,7 +58,7 @@ export class PasswordResetSchema {
   public updatedAt: Date;
 
   @prop({ ref: 'UserSchema', required: true })
-  public userId: Ref<UserSchema>;
+  public userId: Ref<UserDocument>;
 }
 
 export type PasswordResetDocument = DocumentType<PasswordResetSchema>;

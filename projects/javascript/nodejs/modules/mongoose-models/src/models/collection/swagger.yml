@@ -9,8 +9,6 @@ components:
         createdAt:
           type: string
           format: date-time
-        databaseId:
-          type: string
         indexes:
           type: array
           items:
@@ -24,6 +22,8 @@ components:
           type: object
         name:
           type: string
+        namespaceId:
+          type: string
         permissions:
           type: object
           properties:
@@ -32,23 +32,13 @@ components:
             delete:
               type: object
               properties:
-                base:
+                default:
                   type: boolean
-                roles:
-                  type: object
-                  properties:
-                    default:
-                      type: boolean
             find:
               type: object
               properties:
-                base:
+                default:
                   type: object
-                roles:
-                  type: object
-                  properties:
-                    default:
-                      type: object
             populate:
               type: array
               items:
@@ -63,20 +53,13 @@ components:
     AttributeRoles:
       type: object
       properties:
-        base:
+        default:
           type: array
-          items: string
-        roles:
-          type: object
-          properties:
-            default:
-              type: array
-              items: string
+          items:
+            type: string
     PopulateOptions:
       type: object
       properties:
-        model:
-          type: string
         path:
           type: string
         populate:
