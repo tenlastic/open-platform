@@ -140,6 +140,13 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   }
 
   public ngOnChanges(changes: SimpleChanges) {
+    if (
+      changes.game.previousValue &&
+      changes.game.previousValue._id === changes.game.currentValue._id
+    ) {
+      return;
+    }
+
     if (this.updateService) {
       this.status = this.updateService.getStatus(this.game);
       this.updateService.checkForUpdates(this.game);

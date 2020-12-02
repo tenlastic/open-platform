@@ -8,7 +8,8 @@
       <span>Home</span>
     </app-button>
 
-    <app-button color="accent"
+    <app-button *ngIf="($gameInvitations | async) && ($gameInvitations | async).length > 0"
+                color="accent"
                 routerLink="/games"
                 routerLinkActive="active">
       <mat-icon>sports_esports</mat-icon>
