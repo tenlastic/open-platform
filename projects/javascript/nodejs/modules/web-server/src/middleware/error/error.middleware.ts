@@ -10,6 +10,11 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
     const status = e.status || 400;
 
     switch (e.name) {
+      case 'HttpError':
+        ctx.response.status = status;
+        ctx.response.body = getHttpError(e);
+        break;
+
       case 'PermissionError':
         ctx.response.status = 401;
         ctx.response.body = getError(e);
@@ -44,17 +49,22 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
   }
 }
 
-function getQueueMemberUniquenessError(err: any) {
-  const { message, name, userIds } = err;
-  return { errors: [{ message, name, userIds }] };
-}
-
 function getError(err: any) {
   const { message, name } = err;
   return { errors: [{ message, name }] };
 }
 
+function getHttpError(err: any) {
+  const { body, message, name, statusCode } = err;
+  return { errors: [{ body, message, name, statusCode }] };
+}
+
 function getQueueMemberGameInvitationError(err: any) {
+  const { message, name, userIds } = err;
+  return { errors: [{ message, name, userIds }] };
+}
+
+function getQueueMemberUniquenessError(err: any) {
   const { message, name, userIds } = err;
   return { errors: [{ message, name, userIds }] };
 }
