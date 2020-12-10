@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/logs",
   "private": true,
-  "version": "0.0.135",
+  "version": "0.0.136",
   "scripts": {
     "build": "../../scripts/build.sh",
     "docker:build": "../../scripts/docker-build.sh logs",
