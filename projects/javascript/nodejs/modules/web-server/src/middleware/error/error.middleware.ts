@@ -36,6 +36,7 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
         break;
 
       default:
+        console.error(e.stack);
         ctx.response.status = status;
         ctx.response.body = getError(e);
         break;
