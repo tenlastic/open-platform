@@ -22,7 +22,14 @@ let gameServer = JSON.parse(process.env.GAME_SERVER_JSON);
 
     const coreV1Api = kc.makeApiClient(k8s.CoreV1Api);
 
-    const pods = await coreV1Api.listNamespacedPod(podNamespace, null, null, null, podSelector);
+    const pods = await coreV1Api.listNamespacedPod(
+      podNamespace,
+      null,
+      null,
+      null,
+      null,
+      podSelector,
+    );
     const pod = pods.body.items[0];
     const { body } = await coreV1Api.readNamespacedPodStatus(pod.metadata.name, podNamespace);
 

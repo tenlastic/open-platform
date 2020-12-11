@@ -27,7 +27,7 @@ const token = fs.readFileSync(kc.getCurrentUser().authProvider.config.tokenFile,
 (async function main() {
   let pods: { body: k8s.V1PodList; response: IncomingMessage };
   try {
-    pods = await coreV1Api.listNamespacedPod(podNamespace, null, null, null, podSelector);
+    pods = await coreV1Api.listNamespacedPod(podNamespace, null, null, null, null, podSelector);
   } catch (e) {
     console.error(`Error fetching pods: ${e.message}.`);
     setTimeout(main, INTERVAL);
