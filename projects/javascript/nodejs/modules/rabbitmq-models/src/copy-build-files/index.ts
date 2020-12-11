@@ -63,12 +63,7 @@ async function onMessage(
     task = await task.save();
 
     for (const path of task.metadata.unmodified) {
-      await copyObject(
-        path,
-        task.platform,
-        task.metadata.previousBuildId,
-        task.buildId as mongoose.Types.ObjectId,
-      );
+      await copyObject(path, task.platform, task.metadata.previousBuildId, task.buildId);
     }
 
     // Set Job status to Complete.
