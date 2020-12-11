@@ -63,7 +63,7 @@ export class GameServerLogSchema {
   @prop()
   public expiresAt: Date;
 
-  @prop({ ref: 'GameServerSchema', required: true })
+  @prop({ immutable: true, ref: 'GameServerSchema', required: true })
   public gameServerId: Ref<GameServerDocument>;
 
   @prop({ required: true })

@@ -5,6 +5,7 @@ import {
   getModelForClass,
   modelOptions,
   plugin,
+  pre,
   prop,
   index,
 } from '@hasezoey/typegoose';
@@ -18,6 +19,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { BuildDocument, BuildEvent } from '../build';
+import { NamespaceDocument } from '../namespace';
 
 export const FileEvent = new EventEmitter<IDatabasePayload<FileDocument>>();
 
@@ -52,7 +54,7 @@ FileEvent.on(async payload => {
   }
 });
 
-@index({ path: 1, platform: 1, buildId: 1 }, { unique: true })
+@index({ buildId: 1, path: 1, platform: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     collection: 'files',
@@ -61,10 +63,30 @@ FileEvent.on(async payload => {
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: FileEvent })
+@pre('findOneAndUpdate', async function(
+  this: mongoose.DocumentQuery<FileDocument, FileDocument, {}>,
+) {
+  let update = this.getUpdate();
+  if (update.$set || update.$setOnInsert) {
+    update = { ...update, ...update.$set, ...update.$setOnInsert };
+  }
+
+  const doc = new File(update);
+  await doc.populate('buildDocument').execPopulate();
+
+  this.getUpdate().$setOnInsert.namespaceId = doc.buildDocument.namespaceId;
+})
+@pre('save', async function(this: FileDocument) {
+  if (!this.populated('buildDocument')) {
+    await this.populate('buildDocument').execPopulate();
+  }
+
+  this.namespaceId = this.buildDocument.namespaceId;
+})
 export class FileSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ ref: 'BuildSchema', required: true })
+  @prop({ immutable: true, ref: 'BuildSchema', required: true })
   public buildId: Ref<BuildDocument>;
 
   @prop({ required: true })
@@ -74,6 +96,9 @@ export class FileSchema {
 
   @prop({ required: true })
   public md5: string;
+
+  @prop({ automatic: true, immutable: true, ref: 'NamespaceSchema' })
+  public namespaceId: Ref<NamespaceDocument>;
 
   @prop({ required: true })
   public path: string;
@@ -89,13 +114,20 @@ export class FileSchema {
   @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })
   public buildDocument: BuildDocument;
 
-  public async getMinioKey(this: FileDocument) {
-    if (!this.populated('buildDocument')) {
-      await this.populate('buildDocument').execPopulate();
-    }
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
+  public namespaceDocument: NamespaceDocument;
 
-    const { namespaceId } = this.buildDocument;
-    const { path, platform, buildId } = this;
+  public async getMinioKey(this: FileDocument) {
+    const { buildId, path, platform } = this;
+
+    let { namespaceId } = this;
+    if (!namespaceId) {
+      if (!this.populated('buildDocument')) {
+        await this.populate('buildDocument').execPopulate();
+      }
+
+      namespaceId = this.buildDocument.namespaceId;
+    }
 
     return `namespaces/${namespaceId}/builds/${buildId}/${platform}/${path}`;
   }

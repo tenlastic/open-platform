@@ -12,6 +12,7 @@ export class BuildTaskMock {
     const defaults = {
       action: this.getAction(),
       buildId: mongoose.Types.ObjectId(),
+      namespaceId: mongoose.Types.ObjectId(),
       platform: this.getPlatform(),
     };
 

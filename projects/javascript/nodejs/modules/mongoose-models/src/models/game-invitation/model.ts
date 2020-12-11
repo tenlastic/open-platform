@@ -51,7 +51,7 @@ export class GameInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ ref: 'NamespaceSchema', required: true })
+  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
   public updatedAt: Date;

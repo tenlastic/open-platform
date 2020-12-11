@@ -15,6 +15,7 @@ export class FileMock {
       buildId: mongoose.Types.ObjectId(),
       compressedBytes: chance.integer(),
       md5: chance.hash(),
+      namespaceId: mongoose.Types.ObjectId(),
       path: chance.hash(),
       platform: this.getPlatform(),
       uncompressedBytes: chance.integer(),

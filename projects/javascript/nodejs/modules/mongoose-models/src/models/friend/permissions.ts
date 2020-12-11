@@ -23,7 +23,4 @@ export const FriendPermissions = new MongoosePermissions<FriendDocument>(Friend,
       },
     },
   ],
-  update: {
-    owner: ['fromUserId', 'toUserId'],
-  },
 });

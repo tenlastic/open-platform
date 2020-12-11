@@ -23,7 +23,4 @@ export const IgnorationPermissions = new MongoosePermissions<IgnorationDocument>
       },
     },
   ],
-  update: {
-    default: ['fromUserId', 'toUserId'],
-  },
 });

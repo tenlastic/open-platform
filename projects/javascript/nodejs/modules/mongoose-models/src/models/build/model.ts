@@ -54,7 +54,7 @@ export class BuildSchema {
   @prop({ default: {} })
   public entrypoints: BuildEntrypointsDocument;
 
-  @prop({ ref: 'NamespaceSchema', required: true })
+  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
   @prop()

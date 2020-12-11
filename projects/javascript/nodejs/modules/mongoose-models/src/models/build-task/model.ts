@@ -7,6 +7,7 @@ import {
   index,
   modelOptions,
   plugin,
+  pre,
   prop,
 } from '@hasezoey/typegoose';
 import {
@@ -17,9 +18,10 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { FilePlatform } from '../file';
 import { BuildDocument } from '../build';
 import { BuildTaskFailure, BuildTaskFailureDocument } from './failure';
+import { FilePlatform } from '../file';
+import { NamespaceDocument } from '../namespace';
 
 export const BuildTaskEvent = new EventEmitter<IDatabasePayload<BuildTaskDocument>>();
 
@@ -48,13 +50,33 @@ BuildTaskEvent.on(payload => {
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: BuildTaskEvent })
+@pre('findOneAndUpdate', async function(
+  this: mongoose.DocumentQuery<BuildTaskDocument, BuildTaskDocument, {}>,
+) {
+  let update = this.getUpdate();
+  if (update.$set || update.$setOnInsert) {
+    update = { ...update, ...update.$set, ...update.$setOnInsert };
+  }
+
+  const doc = new BuildTask(update);
+  await doc.populate('buildDocument').execPopulate();
+
+  this.getUpdate().$setOnInsert.namespaceId = doc.buildDocument.namespaceId;
+})
+@pre('validate', async function(this: BuildTaskDocument) {
+  if (!this.populated('buildDocument')) {
+    await this.populate('buildDocument').execPopulate();
+  }
+
+  this.namespaceId = this.buildDocument.namespaceId;
+})
 export class BuildTaskSchema {
   public _id: mongoose.Types.ObjectId;
 
   @prop({ enum: BuildTaskAction, required: true })
   public action: BuildTaskAction;
 
-  @prop({ ref: 'BuildSchema', required: true })
+  @prop({ immutable: true, ref: 'BuildSchema', required: true })
   public buildId: Ref<BuildDocument>;
 
   @prop({ default: null })
@@ -71,6 +93,9 @@ export class BuildTaskSchema {
   @prop({ default: {} })
   public metadata: any;
 
+  @prop({ automatic: true, immutable: true, ref: 'NamespaceSchema' })
+  public namespaceId: Ref<NamespaceDocument>;
+
   @prop({ enum: FilePlatform, required: true })
   public platform: string;
 
@@ -82,13 +107,20 @@ export class BuildTaskSchema {
   @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })
   public buildDocument: BuildDocument;
 
-  public async getMinioKey(this: BuildTaskDocument) {
-    if (!this.populated('buildDocument')) {
-      await this.populate('buildDocument').execPopulate();
-    }
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
+  public namespaceDocument: NamespaceDocument;
 
-    const { namespaceId } = this.buildDocument;
+  public async getMinioKey(this: BuildTaskDocument) {
     const { _id, buildId } = this;
+
+    let { namespaceId } = this;
+    if (!namespaceId) {
+      if (!this.populated('buildDocument')) {
+        await this.populate('buildDocument').execPopulate();
+      }
+
+      namespaceId = this.buildDocument.namespaceId;
+    }
 
     return `namespaces/${namespaceId}/builds/${buildId}/archives/${_id}.zip`;
   }

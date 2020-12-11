@@ -90,7 +90,7 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
     },
   ],
   update: {
-    'namespace-administrator': ['indexes', 'jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
-    'system-administrator': ['indexes', 'jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
+    'namespace-administrator': ['indexes', 'jsonSchema.*', 'name', 'permissions.*'],
+    'system-administrator': ['indexes', 'jsonSchema.*', 'name', 'permissions.*'],
   },
 });

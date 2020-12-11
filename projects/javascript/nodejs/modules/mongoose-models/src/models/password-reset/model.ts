@@ -57,7 +57,7 @@ export class PasswordResetSchema {
 
   public updatedAt: Date;
 
-  @prop({ ref: 'UserSchema', required: true })
+  @prop({ immutable: true, ref: 'UserSchema', required: true })
   public userId: Ref<UserDocument>;
 }
 

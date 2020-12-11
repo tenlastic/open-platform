@@ -142,16 +142,16 @@ export class QueueMemberSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ ref: 'GroupSchema' })
+  @prop({ immutable: true, ref: 'GroupSchema' })
   public groupId: Ref<GroupDocument>;
 
-  @prop({ ref: 'QueueSchema', required: true })
+  @prop({ immutable: true, ref: 'QueueSchema', required: true })
   public queueId: Ref<QueueDocument>;
 
   @prop({ ref: 'RefreshTokenSchema', required: true })
   public refreshTokenId: Ref<RefreshTokenDocument>;
 
-  @prop({ ref: 'UserSchema' })
+  @prop({ immutable: true, ref: 'UserSchema' })
   public userId: Ref<UserDocument>;
 
   @arrayProp({ itemsRef: 'UserSchema' })

@@ -131,7 +131,7 @@ async function saveFile(entry: any, record: FileDocument) {
   const [md5] = await Promise.all([hashPromise, minioPromise]);
 
   return File.findOneAndUpdate(
-    { path: record.path, platform: record.platform, buildId: record.buildId },
+    { buildId: record.buildId, path: record.path, platform: record.platform },
     {
       buildId: record.buildId,
       compressedBytes: entry.vars.compressedSize,

@@ -152,7 +152,6 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'memory',
       'metadata.*',
       'name',
-      'namespaceId',
       'status',
     ],
     'system-administrator': [
@@ -166,7 +165,6 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'memory',
       'metadata.*',
       'name',
-      'namespaceId',
       'status',
     ],
   },

@@ -63,7 +63,7 @@ export class QueueLogSchema {
   @prop()
   public expiresAt: Date;
 
-  @prop({ ref: 'QueueSchema', required: true })
+  @prop({ immutable: true, ref: 'QueueSchema', required: true })
   public queueId: Ref<QueueDocument>;
 
   @prop({ required: true })

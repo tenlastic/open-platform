@@ -94,7 +94,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
     },
   ],
   update: {
-    'namespace-administrator': ['entrypoints.*', 'namespaceId', 'publishedAt', 'version'],
-    'system-administrator': ['entrypoints.*', 'namespaceId', 'publishedAt', 'version'],
+    'namespace-administrator': ['entrypoints.*', 'publishedAt', 'version'],
+    'system-administrator': ['entrypoints.*', 'publishedAt', 'version'],
   },
 });

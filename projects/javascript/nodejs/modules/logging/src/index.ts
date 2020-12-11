@@ -23,7 +23,11 @@ const format = winston.format((info: any) => {
 });
 
 const logger = winston.createLogger({
-  format: winston.format.combine(winston.format.json(), format()),
+  format: winston.format.combine(
+    winston.format.errors({ stack: true }),
+    winston.format.json(),
+    format(),
+  ),
   transports: [new winston.transports.Console()],
 });
 

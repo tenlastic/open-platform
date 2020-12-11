@@ -51,13 +51,13 @@ export class GroupInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ ref: 'UserSchema', required: true })
+  @prop({ immutable: true, ref: 'UserSchema', required: true })
   public fromUserId: Ref<UserDocument>;
 
-  @prop({ ref: 'GroupSchema', required: true })
+  @prop({ immutable: true, ref: 'GroupSchema', required: true })
   public groupId: Ref<GroupDocument>;
 
-  @prop({ ref: 'UserSchema', required: true })
+  @prop({ immutable: true, ref: 'UserSchema', required: true })
   public toUserId: Ref<UserDocument>;
 
   public updatedAt: Date;

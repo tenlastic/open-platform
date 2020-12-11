@@ -38,10 +38,10 @@ export class FriendSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ ref: 'UserSchema', required: true })
+  @prop({ immutable: true, ref: 'UserSchema', required: true })
   public fromUserId: Ref<UserDocument>;
 
-  @prop({ ref: 'UserSchema', required: true })
+  @prop({ immutable: true, ref: 'UserSchema', required: true })
   public toUserId: Ref<UserDocument>;
 
   public updatedAt: Date;

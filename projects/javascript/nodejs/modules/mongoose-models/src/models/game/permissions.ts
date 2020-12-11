@@ -68,7 +68,6 @@ export const GamePermissions = new MongoosePermissions<GameDocument>(Game, {
       'description',
       'icon',
       'images',
-      'namespaceId',
       'subtitle',
       'title',
       'videos',

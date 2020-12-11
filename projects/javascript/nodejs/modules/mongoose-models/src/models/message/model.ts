@@ -45,13 +45,14 @@ export class MessageSchema {
   @prop({ maxlength: 512, required: true })
   public body: string;
 
-  @prop({ ref: 'UserSchema', required: true })
+  @prop({ immutable: true, ref: 'UserSchema', required: true })
   public fromUserId: Ref<UserDocument>;
 
   @arrayProp({ itemsRef: User })
   public readByUserIds: Array<Ref<UserDocument>>;
 
   @prop({
+    immutable: true,
     ref: 'GroupSchema',
     required(this: MessageDocument) {
       return !this.toUserId;
@@ -60,6 +61,7 @@ export class MessageSchema {
   public toGroupId: Ref<GroupDocument>;
 
   @prop({
+    immutable: true,
     ref: 'UserSchema',
     required(this: MessageDocument) {
       return !this.toGroupId;

@@ -96,7 +96,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
     },
   ],
   update: {
-    'namespace-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
-    'system-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
+    'namespace-administrator': ['body', 'caption', 'publishedAt', 'title', 'type'],
+    'system-administrator': ['body', 'caption', 'publishedAt', 'title', 'type'],
   },
 });

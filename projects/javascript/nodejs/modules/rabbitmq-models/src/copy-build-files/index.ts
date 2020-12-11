@@ -21,7 +21,7 @@ async function copyObject(
 ) {
   path = path.replace(/[\.]+\//g, '');
 
-  const previousFile = await File.findOne({ path, platform, buildId: previousBuildId });
+  const previousFile = await File.findOne({ buildId: previousBuildId, path, platform });
   if (!previousFile) {
     throw new Error('Previous File not found.');
   }
@@ -30,6 +30,7 @@ async function copyObject(
     buildId,
     compressedBytes: previousFile.compressedBytes,
     md5: previousFile.md5,
+    namespaceId: previousFile.namespaceId,
     path: previousFile.path,
     platform: previousFile.platform,
     uncompressedBytes: previousFile.uncompressedBytes,
@@ -43,7 +44,7 @@ async function copyObject(
   await minio.copyObject(bucket, currentFileKey, `${bucket}/${previousFileKey}`, null);
 
   return File.findOneAndUpdate(
-    { path: previousFile.path, platform: previousFile.platform, buildId },
+    { buildId, path: previousFile.path, platform: previousFile.platform },
     parameters,
     { new: true, upsert: true },
   );

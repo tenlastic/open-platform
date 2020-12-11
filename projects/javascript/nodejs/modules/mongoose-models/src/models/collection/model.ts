@@ -87,7 +87,7 @@ export class CollectionSchema {
   @prop({ required: 'true' })
   public name: string;
 
-  @prop({ ref: 'NamespaceSchema', required: true })
+  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
   @prop({
