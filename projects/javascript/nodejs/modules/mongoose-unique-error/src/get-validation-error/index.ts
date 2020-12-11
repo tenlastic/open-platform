@@ -21,7 +21,7 @@ export class UniquenessError extends Error {
 
 export function getValidationError(err: MongoError, schema: Schema, doc: any) {
   // Get index name from the MongoError.
-  const indexName = err.message.match(/index: ([A-Za-z0-9\_]+) dup key/)[1];
+  const indexName = err.message.match(/index: ([A-Za-z0-9\_\.]+) dup key/)[1];
 
   // Get names of unique indexes defined within Mongoose schema.
   const uniqueIndexes = schema.indexes().filter(i => i[1] && i[1].unique);

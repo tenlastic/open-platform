@@ -57,7 +57,15 @@ const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 
-@index({ 'keys.value': 1 }, { unique: true })
+@index(
+  { 'keys.value': 1 },
+  {
+    partialFilterExpression: {
+      'keys.value': { $type: 'string' },
+    },
+    unique: true,
+  },
+)
 @index({ name: 1 }, { unique: true })
 @index({ 'keys.roles': 1 })
 @index({ 'users._id': 1 })
@@ -75,11 +83,7 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
   await this.deleteKubernetesResources();
 })
 @post('save', async function(this: NamespaceDocument) {
-  if (!this.wasNew) {
-    return;
-  }
-
-  await this.createKubernetesResources();
+  await this.upsertKubernetesResources();
 })
 export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
@@ -143,19 +147,25 @@ export class NamespaceSchema {
   }
 
   /**
-   * Creates a namespace within Kubernetes.
-   */
-  private async createKubernetesResources() {
-    await coreV1.createNamespace({ metadata: { name: this.kubernetesNamespace } });
-  }
-
-  /**
    * Deletes a namespace within Kubernetes.
    */
   private async deleteKubernetesResources() {
     try {
       await coreV1.deleteNamespace(this.kubernetesNamespace);
     } catch {}
+  }
+
+  /**
+   * Creates a namespace within Kubernetes if it does not exist.
+   */
+  private async upsertKubernetesResources() {
+    try {
+      await coreV1.readNamespace(this.kubernetesNamespace);
+    } catch (e) {
+      if (e instanceof k8s.HttpError && e.statusCode === 404) {
+        await coreV1.createNamespace({ metadata: { name: this.kubernetesNamespace } });
+      }
+    }
   }
 }
 

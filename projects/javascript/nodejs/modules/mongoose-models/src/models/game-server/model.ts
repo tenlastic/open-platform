@@ -648,6 +648,7 @@ export class GameServerSchema implements IOriginalDocument {
         this.kubernetesNamespace,
       );
     } catch {}
+
     try {
       await coreV1.deleteNamespacedPod(
         `${this.kubernetesResourceName}-application`,
