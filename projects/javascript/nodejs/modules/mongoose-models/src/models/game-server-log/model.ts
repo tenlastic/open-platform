@@ -1,6 +1,5 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   getModelForClass,
   index,
@@ -63,8 +62,8 @@ export class GameServerLogSchema {
   @prop()
   public expiresAt: Date;
 
-  @prop({ immutable: true, ref: 'GameServerSchema', required: true })
-  public gameServerId: Ref<GameServerDocument>;
+  @prop({ immutable: true, required: true })
+  public gameServerId: mongoose.Types.ObjectId;
 
   @prop({ required: true })
   public unix: number;

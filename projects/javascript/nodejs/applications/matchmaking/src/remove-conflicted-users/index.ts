@@ -1,12 +1,12 @@
-import { Ref } from '@hasezoey/typegoose';
-import { GameServer, QueueDocument, QueueMember, UserDocument } from '@tenlastic/mongoose-models';
+import { GameServer, QueueDocument, QueueMember } from '@tenlastic/mongoose-models';
+import * as mongoose from 'mongoose';
 
 /**
  * If a User is already in a match, remove them from other Queues.
  */
 export async function removeConflictedUsers(
   queue: QueueDocument,
-  userIds: Array<Ref<UserDocument>>,
+  userIds: mongoose.Types.ObjectId[],
 ) {
   // Find GameServers that are associated with a Queue and QueueMembers.
   const gameServers = await GameServer.find({

@@ -1,15 +1,13 @@
-import { Ref } from '@hasezoey/typegoose';
 import {
   NamespaceLimitError,
   Queue,
-  QueueDocument,
   QueueLog,
   QueueMember,
   QueueMemberDocument,
-  UserDocument,
 } from '@tenlastic/mongoose-models';
 import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
 import { UniquenessError } from '@tenlastic/mongoose-unique-error';
+import * as mongoose from 'mongoose';
 
 import { createGameServer } from '../create-game-server';
 import { getTeamAssignments } from '../get-team-assignments';
@@ -35,7 +33,7 @@ export async function matchmake(payload: IDatabasePayload<Partial<QueueMemberDoc
   }
 
   // Create the GameServer.
-  const flatTeamAssignments: Array<Ref<UserDocument>> = [].concat.apply([], teamAssignments);
+  const flatTeamAssignments: mongoose.Types.ObjectId[] = [].concat.apply([], teamAssignments);
   try {
     const gameServer = await createGameServer(queue, flatTeamAssignments);
     await createQueueLog(`GameServer created successfully: ${gameServer._id}.`, queueId);
@@ -65,7 +63,7 @@ export async function matchmake(payload: IDatabasePayload<Partial<QueueMemberDoc
   console.log('Users removed from other queues.');
 }
 
-async function createQueueLog(body: string, queueId: Ref<QueueDocument>) {
+async function createQueueLog(body: string, queueId: mongoose.Types.ObjectId) {
   console.log(body);
 
   try {

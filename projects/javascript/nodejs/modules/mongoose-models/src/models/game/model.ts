@@ -79,8 +79,8 @@ export class GameSchema {
   @arrayProp({ items: String })
   public images: string[];
 
-  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
-  public namespaceId: Ref<NamespaceDocument>;
+  @prop({ immutable: true, required: true })
+  public namespaceId: mongoose.Types.ObjectId;
 
   @prop({ match: /^.{2,40}$/ })
   public subtitle: string;

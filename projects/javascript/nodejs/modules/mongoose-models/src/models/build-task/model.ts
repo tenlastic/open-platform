@@ -1,6 +1,5 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   arrayProp,
   getModelForClass,
@@ -76,8 +75,8 @@ export class BuildTaskSchema {
   @prop({ enum: BuildTaskAction, required: true })
   public action: BuildTaskAction;
 
-  @prop({ immutable: true, ref: 'BuildSchema', required: true })
-  public buildId: Ref<BuildDocument>;
+  @prop({ immutable: true, required: true })
+  public buildId: mongoose.Types.ObjectId;
 
   @prop({ default: null })
   public completedAt: Date;
@@ -93,8 +92,8 @@ export class BuildTaskSchema {
   @prop({ default: {} })
   public metadata: any;
 
-  @prop({ automatic: true, immutable: true, ref: 'NamespaceSchema' })
-  public namespaceId: Ref<NamespaceDocument>;
+  @prop({ automatic: true, immutable: true })
+  public namespaceId: mongoose.Types.ObjectId;
 
   @prop({ enum: FilePlatform, required: true })
   public platform: string;

@@ -1,6 +1,5 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   arrayProp,
   getModelForClass,
@@ -45,29 +44,27 @@ export class MessageSchema {
   @prop({ maxlength: 512, required: true })
   public body: string;
 
-  @prop({ immutable: true, ref: 'UserSchema', required: true })
-  public fromUserId: Ref<UserDocument>;
+  @prop({ immutable: true, required: true })
+  public fromUserId: mongoose.Types.ObjectId;
 
-  @arrayProp({ itemsRef: User })
-  public readByUserIds: Array<Ref<UserDocument>>;
+  @arrayProp({ items: mongoose.Types.ObjectId })
+  public readByUserIds: mongoose.Types.ObjectId[];
 
   @prop({
     immutable: true,
-    ref: 'GroupSchema',
     required(this: MessageDocument) {
       return !this.toUserId;
     },
   })
-  public toGroupId: Ref<GroupDocument>;
+  public toGroupId: mongoose.Types.ObjectId;
 
   @prop({
     immutable: true,
-    ref: 'UserSchema',
     required(this: MessageDocument) {
       return !this.toGroupId;
     },
   })
-  public toUserId: Ref<UserDocument>;
+  public toUserId: mongoose.Types.ObjectId;
 
   public updatedAt: Date;
 

@@ -1,6 +1,5 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   getModelForClass,
   index,
@@ -63,8 +62,8 @@ export class QueueLogSchema {
   @prop()
   public expiresAt: Date;
 
-  @prop({ immutable: true, ref: 'QueueSchema', required: true })
-  public queueId: Ref<QueueDocument>;
+  @prop({ immutable: true, required: true })
+  public queueId: mongoose.Types.ObjectId;
 
   @prop({ required: true })
   public unix: number;

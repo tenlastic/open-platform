@@ -54,8 +54,8 @@ export class GroupSchema {
 
   public updatedAt: Date;
 
-  @arrayProp({ itemsRef: User })
-  public userIds: Array<Ref<UserDocument>>;
+  @arrayProp({ items: mongoose.Types.ObjectId })
+  public userIds: mongoose.Types.ObjectId[];
 
   public get userCount() {
     return this.userIds.length;
