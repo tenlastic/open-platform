@@ -490,7 +490,7 @@ export class GameServerSchema implements IOriginalDocument {
       rules: [
         {
           apiGroups: [''],
-          resources: ['pods/log', 'pods/status'],
+          resources: ['pods', 'pods/log', 'pods/status'],
           verbs: ['get', 'list', 'watch'],
         },
       ],
