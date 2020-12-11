@@ -22,7 +22,7 @@ beforeEach(async function() {
   sandbox.stub(GameServer.prototype, 'createKubernetesResources').resolves();
   sandbox.stub(GameServer.prototype, 'deleteKubernetesResources').resolves();
   sandbox.stub(GameServer.prototype, 'updateKubernetesResources').resolves();
-  sandbox.stub(Namespace.prototype, 'createKubernetesResources').resolves();
+  sandbox.stub(Namespace.prototype, 'upsertKubernetesResources').resolves();
   sandbox.stub(Namespace.prototype, 'deleteKubernetesResources').resolves();
 
   await mongooseModels.deleteAll();
