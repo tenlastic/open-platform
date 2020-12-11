@@ -1,4 +1,9 @@
-import { GameServer, QueueDocument, QueueMember } from '@tenlastic/mongoose-models';
+import {
+  GameServer,
+  QueueDocument,
+  QueueMember,
+  QueueMemberDocument,
+} from '@tenlastic/mongoose-models';
 import * as mongoose from 'mongoose';
 
 /**
@@ -7,7 +12,7 @@ import * as mongoose from 'mongoose';
 export async function removeConflictedUsers(
   queue: QueueDocument,
   userIds: mongoose.Types.ObjectId[],
-) {
+): Promise<QueueMemberDocument[]> {
   // Find GameServers that are associated with a Queue and QueueMembers.
   const gameServers = await GameServer.find({
     allowedUserIds: { $in: userIds },
