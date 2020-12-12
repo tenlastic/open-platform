@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/migrations",
   "private": true,
-  "version": "0.0.141",
+  "version": "0.0.142",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@hasezoey/typegoose": "6.0.0-27",
-    "@tenlastic/logging": "0.0.141",
-    "@tenlastic/mongoose-models": "0.0.141",
+    "@tenlastic/logging": "0.0.142",
+    "@tenlastic/mongoose-models": "0.0.142",
     "mongoose": "5.7.11",
     "source-map-support": "0.5.12"
   },
