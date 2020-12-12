@@ -1,13 +1,10 @@
-import { GameServer, GameServerDocument, QueueDocument } from '@tenlastic/mongoose-models';
+import { GameServer, QueueDocument } from '@tenlastic/mongoose-models';
 import * as mongoose from 'mongoose';
 
 /**
  * Create a GameServer.
  */
-export async function createGameServer(
-  queue: QueueDocument,
-  userIds: mongoose.Types.ObjectId[],
-): Promise<GameServerDocument> {
+export async function createGameServer(queue: QueueDocument, userIds: mongoose.Types.ObjectId[]) {
   const gameServerTemplate = {
     allowedUserIds: userIds,
     buildId: queue.gameServerTemplate.buildId,
