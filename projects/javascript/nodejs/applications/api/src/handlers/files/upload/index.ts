@@ -138,7 +138,7 @@ export async function handler(ctx: Context) {
 
 async function publishBuildMessage(platform: FilePlatform, buildId: string, user: any) {
   // If the user does not have permission to create Files for this Build, throw an error.
-  const targetFile = await new File({ buildId: mongoose.Types.ObjectId(buildId), platform })
+  const targetFile = await new File({ platform, buildId })
     .populate(FilePermissions.accessControl.options.populate)
     .execPopulate();
   const createPermissions = FilePermissions.accessControl.getFieldPermissions(
@@ -150,7 +150,10 @@ async function publishBuildMessage(platform: FilePlatform, buildId: string, user
     throw new PermissionError();
   }
 
-  return BuildDockerImage.publish(targetFile.platform, targetFile.buildId);
+  return BuildDockerImage.publish(
+    targetFile.platform,
+    targetFile.buildId as mongoose.Types.ObjectId,
+  );
 }
 
 async function publishCopyMessage(fields: any, platform: FilePlatform, buildId: string, user: any) {
@@ -160,7 +163,7 @@ async function publishCopyMessage(fields: any, platform: FilePlatform, buildId: 
   }
 
   // If the user does not have permission to create Files for this Build, throw an error.
-  const targetFile = await new File({ buildId: mongoose.Types.ObjectId(buildId), platform })
+  const targetFile = await new File({ platform, buildId })
     .populate(FilePermissions.accessControl.options.populate)
     .execPopulate();
   const createPermissions = FilePermissions.accessControl.getFieldPermissions(
@@ -173,7 +176,7 @@ async function publishCopyMessage(fields: any, platform: FilePlatform, buildId: 
   }
 
   // If the user does not have permission to read files from the previous Build, throw an error.
-  const previousFile = await new File({ buildId: mongoose.Types.ObjectId(buildId), platform })
+  const previousFile = await new File({ platform, buildId })
     .populate(FilePermissions.accessControl.options.populate)
     .execPopulate();
   const readPermissions = FilePermissions.accessControl.getFieldPermissions(
@@ -188,7 +191,7 @@ async function publishCopyMessage(fields: any, platform: FilePlatform, buildId: 
   return CopyBuildFiles.publish(
     targetFile.platform,
     fields.previousBuildId,
-    targetFile.buildId,
+    targetFile.buildId as mongoose.Types.ObjectId,
     fields.unmodified,
   );
 }
@@ -200,7 +203,7 @@ async function publishRemoveMessage(
   user: any,
 ) {
   // If the user does not have permission to delete Files for this Build, throw an error.
-  const targetFile = await new File({ buildId: mongoose.Types.ObjectId(buildId), platform })
+  const targetFile = await new File({ platform, buildId })
     .populate(FilePermissions.accessControl.options.populate)
     .execPopulate();
   const deletePermissions = FilePermissions.accessControl.delete(targetFile, user);
@@ -208,7 +211,11 @@ async function publishRemoveMessage(
     throw new PermissionError();
   }
 
-  return DeleteBuildFiles.publish(targetFile.platform, targetFile.buildId, fields.removed);
+  return DeleteBuildFiles.publish(
+    targetFile.platform,
+    targetFile.buildId as mongoose.Types.ObjectId,
+    fields.removed,
+  );
 }
 
 async function publishUnzipMessage(
@@ -218,7 +225,7 @@ async function publishUnzipMessage(
   user: any,
 ) {
   // If the user does not have permission to create Files for this Build, throw an error.
-  const targetFile = await new File({ buildId: mongoose.Types.ObjectId(buildId), platform })
+  const targetFile = await new File({ platform, buildId })
     .populate(FilePermissions.accessControl.options.populate)
     .execPopulate();
   const createPermissions = FilePermissions.accessControl.getFieldPermissions(
@@ -230,5 +237,9 @@ async function publishUnzipMessage(
     throw new PermissionError();
   }
 
-  return UnzipBuildFiles.publish(targetFile.platform, targetFile.buildId, stream);
+  return UnzipBuildFiles.publish(
+    targetFile.platform,
+    targetFile.buildId as mongoose.Types.ObjectId,
+    stream,
+  );
 }
