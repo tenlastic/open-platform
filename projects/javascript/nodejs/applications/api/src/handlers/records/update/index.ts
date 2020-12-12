@@ -1,10 +1,4 @@
-import {
-  Collection,
-  NamespaceLimitError,
-  RecordDocument,
-  RecordSchema,
-} from '@tenlastic/mongoose-models';
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { Collection, NamespaceLimitError, RecordSchema } from '@tenlastic/mongoose-models';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
@@ -19,11 +13,12 @@ export async function handler(ctx: Context) {
   const Model = RecordSchema.getModel(collection);
   const Permissions = RecordSchema.getPermissions(Model, collection);
 
-  if (collection.namespaceDocument.limits.collections.size > 0) {
+  const limits = collection.namespaceDocument.limits.collections;
+  if (limits.size > 0) {
     const stats = await Model.collection.stats();
 
-    if (stats.size >= collection.namespaceDocument.limits.collections.size) {
-      throw new NamespaceLimitError('collections.size');
+    if (stats.size >= limits.size) {
+      throw new NamespaceLimitError('collections.size', limits.size);
     }
   }
 

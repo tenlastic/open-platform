@@ -58,8 +58,24 @@
     <app-toggle-section *ngIf="data._id"
                         isVisible="true"
                         title="Background Image">
-      <img *ngIf="data.background"
-           [src]="data.background" />
+      <mat-grid-list *ngIf="data.background || pending['background'].length"
+                     cols="4"
+                     gutterSize="8"
+                     rowHeight="1920:1080">
+        <mat-grid-tile *ngIf="data.background"
+                       [ngStyle]="{ 'background-image': 'url(' + data.background + ')' }">
+          <app-button color="accent"
+                      (OnClick)="view(data.background)">
+            <mat-icon>fullscreen</mat-icon>
+            <span>View</span>
+          </app-button>
+        </mat-grid-tile>
+
+        <mat-grid-tile *ngIf="!data.background"
+                       class="pending">
+          <mat-spinner [diameter]="30"></mat-spinner>
+        </mat-grid-tile>
+      </mat-grid-list>
 
       <input #backgroundInput
              accept=".jpg,.jpeg,.png"
@@ -67,26 +83,46 @@
              type="file"
              (change)="onFieldChanged($event, 'background')" />
 
+      <div *ngFor="let error of uploadErrors['background']"
+           class="form-error">
+        {{ error }}
+      </div>
+
       <app-button color="primary"
                   (OnClick)="backgroundInput.click()">Browse</app-button>
       <app-button *ngIf="data.background"
                   color="accent"
-                  (OnClick)="remove('background')">
-        Remove
-      </app-button>
+                  (OnClick)="remove('background')">Remove</app-button>
     </app-toggle-section>
 
     <app-toggle-section *ngIf="data._id"
                         isVisible="true"
                         title="Icon Image">
-      <img *ngIf="data.icon"
-           [src]="data.icon" />
+      <mat-grid-list *ngIf="data.icon || pending['icon'].length"
+                     cols="4"
+                     gutterSize="8"
+                     rowHeight="1920:1080">
+        <mat-grid-tile *ngIf="data.icon"
+                       class="icon"
+                       [ngStyle]="{ 'background-image': 'url(' + data.icon + ')' }">
+        </mat-grid-tile>
+
+        <mat-grid-tile *ngIf="!data.icon"
+                       class="pending">
+          <mat-spinner [diameter]="30"></mat-spinner>
+        </mat-grid-tile>
+      </mat-grid-list>
 
       <input #iconInput
              accept=".jpg,.jpeg,.png"
              hidden
              type="file"
              (change)="onFieldChanged($event, 'icon')" />
+
+      <div *ngFor="let error of uploadErrors['icon']"
+           class="form-error">
+        {{ error }}
+      </div>
 
       <app-button color="primary"
                   (OnClick)="iconInput.click()">Browse</app-button>
@@ -98,7 +134,7 @@
     <app-toggle-section *ngIf="data._id"
                         isVisible="true"
                         title="Images">
-      <mat-grid-list *ngIf="data.images && data.images.length"
+      <mat-grid-list *ngIf="data.images && data.images.length || pending['images'].length"
                      cols="4"
                      gutterSize="8"
                      rowHeight="1920:1080">
@@ -115,6 +151,11 @@
             <span>Remove</span>
           </app-button>
         </mat-grid-tile>
+
+        <mat-grid-tile *ngFor="let image of pending['images']"
+                       class="pending">
+          <mat-spinner [diameter]="30"></mat-spinner>
+        </mat-grid-tile>
       </mat-grid-list>
 
       <input #imagesInput
@@ -124,6 +165,11 @@
              type="file"
              (change)="onFieldChanged($event, 'images', true)" />
 
+      <div *ngFor="let error of uploadErrors['images']"
+           class="form-error">
+        {{ error }}
+      </div>
+
       <app-button color="primary"
                   (OnClick)="imagesInput.click()">Browse</app-button>
     </app-toggle-section>
@@ -131,7 +177,7 @@
     <app-toggle-section *ngIf="data._id"
                         isVisible="true"
                         title="Videos">
-      <mat-grid-list *ngIf="data.videos && data.videos.length"
+      <mat-grid-list *ngIf="data.videos && data.videos.length || pending['videos'].length"
                      cols="4"
                      gutterSize="8"
                      rowHeight="1920:1080">
@@ -151,6 +197,11 @@
             <span>Remove</span>
           </app-button>
         </mat-grid-tile>
+
+        <mat-grid-tile *ngFor="let image of pending['videos']"
+                       class="pending">
+          <mat-spinner [diameter]="30"></mat-spinner>
+        </mat-grid-tile>
       </mat-grid-list>
 
       <input #videosInput
@@ -159,6 +210,11 @@
              multiple="true"
              type="file"
              (change)="onFieldChanged($event, 'videos', true)" />
+
+      <div *ngFor="let error of uploadErrors['videos']"
+           class="form-error">
+        {{ error }}
+      </div>
 
       <app-button color="primary"
                   (OnClick)="videosInput.click()">Browse</app-button>

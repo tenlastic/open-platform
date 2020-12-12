@@ -16,6 +16,18 @@ export class GamesFormPageComponent implements OnInit {
   public data: Game;
   public errors: string[] = [];
   public form: FormGroup;
+  public pending = {
+    background: [],
+    icon: [],
+    images: [],
+    videos: [],
+  };
+  public uploadErrors = {
+    background: [],
+    icon: [],
+    images: [],
+    videos: [],
+  };
 
   constructor(
     private formBuilder: FormBuilder,
@@ -37,14 +49,26 @@ export class GamesFormPageComponent implements OnInit {
     this.setupForm();
   }
 
-  public async onFieldChanged($event, field: string, isArray: boolean = false) {
+  public async onFieldChanged($event, field: string) {
     const files: any[] = Array.from($event.target.files);
     if (!files.length) {
       return;
     }
 
-    const { body } = await this.gameService.upload(this.data._id, field, files).toPromise();
-    this.data = body.record;
+    this.pending[field].push(...files);
+    this.uploadErrors[field] = [];
+
+    try {
+      const { body } = await this.gameService.upload(this.data._id, field, files).toPromise();
+      this.data = body.record;
+    } catch (e) {
+      this.uploadErrors[field] = this.handleUploadHttpError(e);
+    } finally {
+      for (const file of files) {
+        const index = this.pending[field].indexOf(file);
+        this.pending[field].splice(index, 1);
+      }
+    }
   }
 
   public async remove(field: string, index = -1) {
@@ -61,11 +85,14 @@ export class GamesFormPageComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
         if (index >= 0) {
-          const value = this.data[field].filter((f, i) => i !== index);
-          this.data = await this.gameService.update({ ...this.data, [field]: value });
+          this.data[field] = this.data[field].filter((f, i) => i !== index);
+          this.data = await this.gameService.update(this.data);
         } else {
-          this.data = await this.gameService.update({ ...this.data, [field]: null });
+          this.data[field] = null;
+          this.data = await this.gameService.update(this.data);
         }
+
+        this.uploadErrors[field] = [];
       }
     });
   }
@@ -107,6 +134,10 @@ export class GamesFormPageComponent implements OnInit {
         return e.message;
       }
     });
+  }
+
+  private handleUploadHttpError(err: HttpErrorResponse) {
+    return err.error.errors.map(e => e.message);
   }
 
   private setupForm(): void {

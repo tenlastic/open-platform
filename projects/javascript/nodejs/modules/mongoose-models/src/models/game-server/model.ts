@@ -192,7 +192,7 @@ export class GameServerSchema implements IOriginalDocument {
 
     const limits = namespace.limits.gameServers;
     if (limits.preemptible && isPreemptible === false) {
-      throw new NamespaceLimitError('gameServers.preemptible');
+      throw new NamespaceLimitError('gameServers.preemptible', limits.preemptible);
     }
 
     if (limits.count > 0 || limits.cpu > 0 || limits.memory > 0) {
@@ -210,17 +210,17 @@ export class GameServerSchema implements IOriginalDocument {
 
       const countSum = results.length > 0 ? results[0].count : 0;
       if (limits.count > 0 && countSum + count > limits.count) {
-        throw new NamespaceLimitError('gameServers.count');
+        throw new NamespaceLimitError('gameServers.count', limits.count);
       }
 
       const cpuSum = results.length > 0 ? results[0].cpu : 0;
       if (limits.cpu > 0 && cpuSum + cpu > limits.cpu) {
-        throw new NamespaceLimitError('gameServers.cpu');
+        throw new NamespaceLimitError('gameServers.cpu', limits.cpu);
       }
 
       const memorySum = results.length > 0 ? results[0].memory : 0;
       if (limits.memory > 0 && memorySum + memory > limits.memory) {
-        throw new NamespaceLimitError('gameServers.memory');
+        throw new NamespaceLimitError('gameServers.memory', limits.memory);
       }
     }
   }

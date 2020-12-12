@@ -2,17 +2,13 @@
 
 app-toggle-section {
   ::ng-deep {
-    img {
-      display: block;
-      filter: drop-shadow(3px 3px 3px black);
-      margin-bottom: 16px;
-      max-height: 175px;
-      max-width: 300px;
-    }
-
     app-button {
       margin-bottom: 8px;
       margin-right: 8px;
+    }
+
+    mat-spinner.mat-spinner {
+      align-self: center;
     }
   }
 }
@@ -86,6 +82,16 @@ mat-grid-list.mat-grid-list {
       object-fit: cover;
       position: absolute;
       width: 100%;
+    }
+
+    &.icon {
+      background-repeat: no-repeat;
+      background-size: contain;
+    }
+
+    &.pending {
+      background-color: rgba(0, 0, 0, 0.2);
+      box-shadow: 3px 3px 3px black;
     }
   }
 }

@@ -1,9 +1,8 @@
 import * as minio from '@tenlastic/minio';
+import { Game, GamePermissions, NamespaceLimitError } from '@tenlastic/mongoose-models';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
-
-import { Game, GamePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const user = ctx.state.apiKey || ctx.state.user;
@@ -20,7 +19,8 @@ export async function handler(ctx: Context) {
     throw new PermissionError();
   }
 
-  const fileSize = game.namespaceDocument.limits.games.size || 50 * 1000 * 1000;
+  const limits = game.namespaceDocument.limits.games;
+  const fileSize = limits.size || Infinity;
   const path = game.getMinioKey('icon');
 
   // Parse files from request body.
@@ -40,7 +40,7 @@ export async function handler(ctx: Context) {
 
       // Make sure the file is a valid size.
       stream.on('limit', () =>
-        busboy.emit('error', new Error(`Filesize must be smaller than ${fileSize}B.`)),
+        busboy.emit('error', new NamespaceLimitError('games.size', limits.size)),
       );
 
       minio.putObject(process.env.MINIO_BUCKET, path, stream, { 'content-type': mimetype });

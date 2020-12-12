@@ -1,4 +1,4 @@
-import { GameServer, GameServerPermissions, NamespaceLimitError } from '@tenlastic/mongoose-models';
+import { GameServer, GameServerPermissions } from '@tenlastic/mongoose-models';
 import { RecordNotFoundError } from '@tenlastic/web-server';
 import { Context } from 'koa';
 

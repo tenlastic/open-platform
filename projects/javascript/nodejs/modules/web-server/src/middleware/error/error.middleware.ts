@@ -10,6 +10,11 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
     const status = e.status || 400;
 
     switch (e.name) {
+      case 'NamespaceLimitError':
+        ctx.response.status = status;
+        ctx.response.body = getNamespaceLimitError(e);
+        break;
+
       case 'PermissionError':
         ctx.response.status = 401;
         ctx.response.body = getError(e);
@@ -47,6 +52,11 @@ export async function errorMiddleware(ctx: Context, next: MiddlewareCallback) {
 function getError(err: any) {
   const { message, name } = err;
   return { errors: [{ message, name }] };
+}
+
+function getNamespaceLimitError(err: any) {
+  const { message, name, path, value } = err;
+  return { errors: [{ message, name, path, value }] };
 }
 
 function getQueueMemberGameInvitationError(err: any) {

@@ -93,7 +93,7 @@ describe('handlers/games/videos/upload', function() {
 
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejectedWith('Filesize must be smaller than 1B.');
+      return expect(promise).to.be.rejectedWith('Namespace limit reached: games.size. Value: 1.');
     });
 
     it('does not allow invalid mimetypes', async function() {

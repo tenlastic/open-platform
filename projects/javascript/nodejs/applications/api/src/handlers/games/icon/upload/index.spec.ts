@@ -4,6 +4,7 @@ import {
   GameMock,
   NamespaceDocument,
   NamespaceGameLimitsMock,
+  NamespaceLimitError,
   NamespaceLimitsMock,
   NamespaceMock,
   NamespaceUserMock,
@@ -84,7 +85,7 @@ describe('handlers/games/icon/upload', function() {
 
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejectedWith('Filesize must be smaller than 1B.');
+      return expect(promise).to.be.rejectedWith(NamespaceLimitError);
     });
 
     it('does not allow invalid mimetypes', async function() {

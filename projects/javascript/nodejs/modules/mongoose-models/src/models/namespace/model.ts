@@ -27,12 +27,14 @@ import { NamespaceUser, NamespaceUserDocument } from './user';
 
 export class NamespaceLimitError extends Error {
   public path: string;
+  public value: any;
 
-  constructor(path: string) {
-    super(`Namespace limit reached: ${path}.`);
+  constructor(path: string, value: any) {
+    super(`Namespace limit reached: ${path}. Value: ${value}.`);
 
     this.name = 'NamespaceLimitError';
     this.path = path;
+    this.value = value;
   }
 }
 
