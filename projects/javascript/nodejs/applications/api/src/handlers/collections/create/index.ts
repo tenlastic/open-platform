@@ -12,8 +12,10 @@ export async function handler(ctx: Context) {
 
   const count = await Collection.countDocuments({ namespaceId });
   const namespace = await Namespace.findOne({ _id: namespaceId });
-  if (namespace.limits.collections.count > 0 && count >= namespace.limits.collections.count) {
-    throw new NamespaceLimitError('collections.count');
+
+  const limits = namespace.limits.collections;
+  if (limits.count > 0 && count >= limits.count) {
+    throw new NamespaceLimitError('collections.count', limits.count);
   }
 
   const result = await CollectionPermissions.create(ctx.request.body, ctx.params, user);
