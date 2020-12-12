@@ -57,13 +57,13 @@ export class WebSocketSchema {
   @prop({ default: Date.now })
   public heartbeatAt: Date;
 
-  @prop({ immutable: true, required: true })
-  public refreshTokenId: mongoose.Types.ObjectId;
+  @prop({ immutable: true, ref: 'RefreshTokenSchema', required: true })
+  public refreshTokenId: Ref<RefreshTokenDocument>;
 
   public updatedAt: Date;
 
-  @prop({ immutable: true, required: true })
-  public userId: mongoose.Types.ObjectId;
+  @prop({ immutable: true, ref: 'UserSchema', required: true })
+  public userId: Ref<UserDocument>;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'UserSchema' })
   public userDocument: UserDocument;

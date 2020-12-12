@@ -1,11 +1,13 @@
 import {
   DocumentType,
+  Ref,
   ReturnModelType,
   arrayProp,
   getModelForClass,
   index,
   modelOptions,
   plugin,
+  pre,
   prop,
 } from '@hasezoey/typegoose';
 import * as jsonSchema from '@tenlastic/json-schema';
@@ -85,8 +87,8 @@ export class CollectionSchema {
   @prop({ required: 'true' })
   public name: string;
 
-  @prop({ immutable: true, required: true })
-  public namespaceId: mongoose.Types.ObjectId;
+  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  public namespaceId: Ref<NamespaceDocument>;
 
   @prop({
     _id: false,

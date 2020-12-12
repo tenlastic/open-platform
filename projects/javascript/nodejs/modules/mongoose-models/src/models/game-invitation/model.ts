@@ -51,13 +51,13 @@ export class GameInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ immutable: true, required: true })
-  public namespaceId: mongoose.Types.ObjectId;
+  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  public namespaceId: Ref<NamespaceDocument>;
 
   public updatedAt: Date;
 
-  @prop({ immutable: true, required: true })
-  public userId: mongoose.Types.ObjectId;
+  @prop({ ref: 'UserSchema', required: true })
+  public userId: Ref<UserDocument>;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;

@@ -1,5 +1,6 @@
 import {
   DocumentType,
+  Ref,
   ReturnModelType,
   getModelForClass,
   modelOptions,
@@ -85,8 +86,8 @@ FileEvent.on(async payload => {
 export class FileSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ immutable: true, required: true })
-  public buildId: mongoose.Types.ObjectId;
+  @prop({ immutable: true, ref: 'BuildSchema', required: true })
+  public buildId: Ref<BuildDocument>;
 
   @prop({ required: true })
   public compressedBytes: number;
@@ -96,8 +97,8 @@ export class FileSchema {
   @prop({ required: true })
   public md5: string;
 
-  @prop({ automatic: true, immutable: true })
-  public namespaceId: mongoose.Types.ObjectId;
+  @prop({ automatic: true, immutable: true, ref: 'NamespaceSchema' })
+  public namespaceId: Ref<NamespaceDocument>;
 
   @prop({ required: true })
   public path: string;

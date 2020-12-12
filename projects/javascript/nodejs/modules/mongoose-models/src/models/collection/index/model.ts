@@ -1,11 +1,14 @@
 import {
   DocumentType,
+  Ref,
   ReturnModelType,
   getModelForClass,
   modelOptions,
   prop,
 } from '@hasezoey/typegoose';
 import * as mongoose from 'mongoose';
+
+import { CollectionDocument } from '..';
 
 export interface IndexKey {
   [s: string]: number;
@@ -25,8 +28,8 @@ export interface IndexOptions {
 export class IndexSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ required: true })
-  public collectionId: mongoose.Types.ObjectId;
+  @prop({ ref: 'CollectionSchema', required: true })
+  public collectionId: Ref<CollectionDocument>;
 
   @prop({ required: true })
   public key: IndexKey;

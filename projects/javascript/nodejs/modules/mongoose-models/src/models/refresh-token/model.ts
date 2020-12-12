@@ -35,8 +35,8 @@ export class RefreshTokenSchema {
 
   public updatedAt: Date;
 
-  @prop({ immutable: true, required: true })
-  public userId: mongoose.Types.ObjectId;
+  @prop({ immutable: true, ref: 'UserSchema', required: true })
+  public userId: Ref<UserDocument>;
 }
 
 export type RefreshTokenDocument = DocumentType<RefreshTokenSchema>;

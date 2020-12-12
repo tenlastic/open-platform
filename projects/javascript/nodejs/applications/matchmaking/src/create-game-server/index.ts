@@ -1,10 +1,10 @@
-import { GameServer, QueueDocument } from '@tenlastic/mongoose-models';
-import * as mongoose from 'mongoose';
+import { Ref } from '@hasezoey/typegoose';
+import { GameServer, QueueDocument, UserDocument } from '@tenlastic/mongoose-models';
 
 /**
  * Create a GameServer.
  */
-export async function createGameServer(queue: QueueDocument, userIds: mongoose.Types.ObjectId[]) {
+export async function createGameServer(queue: QueueDocument, userIds: Array<Ref<UserDocument>>) {
   const gameServerTemplate = {
     allowedUserIds: userIds,
     buildId: queue.gameServerTemplate.buildId,

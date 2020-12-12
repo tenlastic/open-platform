@@ -108,8 +108,8 @@ const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 export class GameServerSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
 
-  @arrayProp({ items: mongoose.Types.ObjectId })
-  public allowedUserIds: mongoose.Types.ObjectId[];
+  @arrayProp({ itemsRef: User })
+  public allowedUserIds: Array<Ref<UserDocument>>;
 
   @prop({ required: true })
   public buildId: mongoose.Types.ObjectId;
@@ -119,8 +119,8 @@ export class GameServerSchema implements IOriginalDocument {
 
   public createdAt: Date;
 
-  @arrayProp({ items: mongoose.Types.ObjectId })
-  public currentUserIds: mongoose.Types.ObjectId[];
+  @arrayProp({ itemsRef: User })
+  public currentUserIds: Array<Ref<UserDocument>>;
 
   @prop()
   public description: string;
@@ -140,14 +140,14 @@ export class GameServerSchema implements IOriginalDocument {
   @prop({ required: true })
   public name: string;
 
-  @prop({ immutable: true, required: true })
-  public namespaceId: mongoose.Types.ObjectId;
+  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  public namespaceId: Ref<NamespaceDocument>;
 
   @prop()
   public port: number;
 
-  @prop({ immutable: true })
-  public queueId: mongoose.Types.ObjectId;
+  @prop({ ref: 'QueueSchema' })
+  public queueId: Ref<QueueDocument>;
 
   @prop({ default: GameServerStatus.Waiting, enum: GameServerStatus })
   public status: GameServerStatus;

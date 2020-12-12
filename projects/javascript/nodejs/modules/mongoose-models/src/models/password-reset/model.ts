@@ -1,5 +1,6 @@
 import {
   DocumentType,
+  Ref,
   ReturnModelType,
   getModelForClass,
   index,
@@ -18,6 +19,7 @@ import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
 import * as emails from '../../emails';
+import { UserDocument } from '../user/model';
 
 export const PasswordResetEvent = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
 
@@ -55,8 +57,8 @@ export class PasswordResetSchema {
 
   public updatedAt: Date;
 
-  @prop({ immutable: true, required: true })
-  public userId: mongoose.Types.ObjectId;
+  @prop({ immutable: true, ref: 'UserSchema', required: true })
+  public userId: Ref<UserDocument>;
 }
 
 export type PasswordResetDocument = DocumentType<PasswordResetSchema>;

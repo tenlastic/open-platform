@@ -1,9 +1,9 @@
-import { QueueDocument, QueueMemberDocument } from '@tenlastic/mongoose-models';
-import * as mongoose from 'mongoose';
+import { Ref } from '@hasezoey/typegoose';
+import { QueueDocument, QueueMemberDocument, UserDocument } from '@tenlastic/mongoose-models';
 
 export function getTeamAssignments(queue: QueueDocument, queueMembers: QueueMemberDocument[]) {
-  const complete: mongoose.Types.ObjectId[][] = [];
-  const incomplete: mongoose.Types.ObjectId[][] = [];
+  const complete: Array<Array<Ref<UserDocument>>> = [];
+  const incomplete: Array<Array<Ref<UserDocument>>> = [];
 
   for (const queueMember of queueMembers) {
     for (let i = 0, length = incomplete.length; i < length + 1; i++) {

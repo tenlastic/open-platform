@@ -1,5 +1,6 @@
 import {
   DocumentType,
+  Ref,
   ReturnModelType,
   getModelForClass,
   index,
@@ -53,8 +54,8 @@ export class BuildSchema {
   @prop({ default: {} })
   public entrypoints: BuildEntrypointsDocument;
 
-  @prop({ immutable: true, required: true })
-  public namespaceId: mongoose.Types.ObjectId;
+  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  public namespaceId: Ref<NamespaceDocument>;
 
   @prop()
   public publishedAt: Date;

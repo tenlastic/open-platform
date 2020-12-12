@@ -1,5 +1,6 @@
 import {
   DocumentType,
+  Ref,
   ReturnModelType,
   getModelForClass,
   index,
@@ -58,8 +59,8 @@ export class QueueSchema {
   @prop({ required: true })
   public name: string;
 
-  @prop({ immutable: true, required: true })
-  public namespaceId: mongoose.Types.ObjectId;
+  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  public namespaceId: Ref<NamespaceDocument>;
 
   @prop({ required: true })
   public usersPerTeam: number;

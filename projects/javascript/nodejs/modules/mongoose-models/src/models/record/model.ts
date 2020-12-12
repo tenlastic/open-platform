@@ -1,5 +1,6 @@
 import {
   DocumentType,
+  Ref,
   ReturnModelType,
   buildSchema,
   modelOptions,
@@ -39,16 +40,16 @@ RecordEvent.on(payload => {
 export class RecordSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ required: true })
-  public collectionId: mongoose.Types.ObjectId;
+  @prop({ ref: 'CollectionSchema', required: true })
+  public collectionId: Ref<CollectionDocument>;
 
   public createdAt: Date;
   public properties: any;
 
   public updatedAt: Date;
 
-  @prop()
-  public userId: mongoose.Types.ObjectId;
+  @prop({ ref: 'UserSchema' })
+  public userId: Ref<UserDocument>;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', ref: 'CollectionSchema' })
   public collectionDocument: CollectionDocument;

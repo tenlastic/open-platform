@@ -1,5 +1,6 @@
 import {
   DocumentType,
+  Ref,
   ReturnModelType,
   getModelForClass,
   index,
@@ -37,11 +38,11 @@ export class FriendSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ immutable: true, required: true })
-  public fromUserId: mongoose.Types.ObjectId;
+  @prop({ immutable: true, ref: 'UserSchema', required: true })
+  public fromUserId: Ref<UserDocument>;
 
-  @prop({ immutable: true, required: true })
-  public toUserId: mongoose.Types.ObjectId;
+  @prop({ immutable: true, ref: 'UserSchema', required: true })
+  public toUserId: Ref<UserDocument>;
 
   public updatedAt: Date;
 

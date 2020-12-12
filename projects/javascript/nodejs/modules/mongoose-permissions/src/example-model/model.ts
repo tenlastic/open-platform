@@ -1,5 +1,6 @@
 import {
   DocumentType,
+  Ref,
   arrayProp,
   getModelForClass,
   modelOptions,
@@ -29,16 +30,16 @@ export class ExampleSchema {
   @prop()
   public name: string;
 
-  @prop()
-  public parentId: mongoose.Types.ObjectId;
+  @prop({ ref: 'ExampleSchema' })
+  public parentId: Ref<ExampleDocument>;
 
   public updatedAt: Date;
 
   @arrayProp({ items: String })
   public urls: string[];
 
-  @prop()
-  public userId: mongoose.Types.ObjectId;
+  @prop({ ref: 'ExampleSchema' })
+  public userId: Ref<ExampleDocument>;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'parentId', ref: 'ExampleSchema' })
   public parent: ExampleDocument;
