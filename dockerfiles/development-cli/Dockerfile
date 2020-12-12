@@ -1,6 +1,7 @@
 FROM ubuntu:18.04
 
 ENV ARGO_VERSION 2.7.0
+ENV DOCKER_VERSION 18.06.3-ce
 ENV FLUX_VERSION 1.16.0
 ENV HELM_VERSION v2.16.0
 ENV KUBECONFIG /.kube/config
@@ -23,9 +24,18 @@ RUN apt-get install -y \
   unzip \
   wget
 
+# Install docker.
+RUN curl -L -o /tmp/docker.tgz https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz && \
+  tar -xz -C /tmp -f /tmp/docker.tgz && \
+  mv /tmp/docker/* /usr/bin
+
 # Install git and git-lfs.
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
   apt-get install -y git git-lfs
+
+# Install node and npm.
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+  apt install nodejs
 
 # Install gcloud.
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \

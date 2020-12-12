@@ -48,7 +48,7 @@ const token = fs.readFileSync(kc.getCurrentUser().authProvider.config.tokenFile,
   try {
     logs = await getMostRecentLogs();
   } catch (e) {
-    console.error(`Could not fetch most recent Logs: ${e.message}.`);
+    console.error(e);
     setTimeout(main, INTERVAL);
     return;
   }
@@ -113,14 +113,16 @@ function getMostRecentLogs(): Promise<any[]> {
     request.get(
       {
         headers: { Authorization: `Bearer ${accessToken}` },
+        json: true,
         qs: { query: JSON.stringify(query) },
-        url: 'http://api.default:3000/logs',
+        url: `http://api.default:3000/game-servers/${gameServerId}/logs`,
       },
       (err, response) => {
         if (err) {
           return reject(err);
         } else if (response.statusCode !== 200) {
-          return reject(`Received error status code: ${response.statusCode}.`);
+          const error = new Error(`Received error status code: ${response.statusCode}.`);
+          return reject(error);
         }
 
         return resolve(response.body.records);

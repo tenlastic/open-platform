@@ -208,7 +208,7 @@ export class GameServerSchema implements IOriginalDocument {
         },
       ]);
 
-      const countSum = results.length > 0 ? results[0].count : 1;
+      const countSum = results.length > 0 ? results[0].count : 0;
       if (limits.count > 0 && countSum + count > limits.count) {
         throw new NamespaceLimitError('gameServers.count');
       }
@@ -273,6 +273,30 @@ export class GameServerSchema implements IOriginalDocument {
     const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
     const version = JSON.parse(packageDotJson).version;
 
+    const affinity = {
+      nodeAffinity: {
+        requiredDuringSchedulingIgnoredDuringExecution: {
+          nodeSelectorTerms: [
+            {
+              matchExpressions: [
+                {
+                  key: 'cloud.google.com/gke-preemptible',
+                  operator: this.isPreemptible ? 'Exists' : 'DoesNotExist',
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
+    const env = [
+      { name: 'ACCESS_TOKEN', value: accessToken },
+      { name: 'GAME_SERVER_ID', value: this._id.toHexString() },
+      { name: 'GAME_SERVER_JSON', value: JSON.stringify(this) },
+      { name: 'POD_NAMESPACE', value: this.kubernetesNamespace },
+      { name: 'POD_SELECTOR', value: `app=${this.kubernetesResourceName},role=application` },
+    ];
+
     const applicationPodManifest: k8s.V1PodTemplateSpec = {
       metadata: {
         labels: {
@@ -282,47 +306,20 @@ export class GameServerSchema implements IOriginalDocument {
         name: `${this.kubernetesResourceName}-application`,
       },
       spec: {
-        affinity: {
-          nodeAffinity: {
-            requiredDuringSchedulingIgnoredDuringExecution: {
-              nodeSelectorTerms: [
-                {
-                  matchExpressions: [
-                    {
-                      key: 'cloud.google.com/gke-preemptible',
-                      operator: this.isPreemptible ? 'Exists' : 'DoesNotExist',
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        },
+        affinity,
         automountServiceAccountToken: false,
         containers: [
           {
             env: [
-              {
-                name: 'GAME_SERVER_ID',
-                value: this._id.toHexString(),
-              },
-              {
-                name: 'GAME_SERVER_JSON',
-                value: JSON.stringify(this),
-              },
+              { name: 'GAME_SERVER_ID', value: this._id.toHexString() },
+              { name: 'GAME_SERVER_JSON', value: JSON.stringify(this) },
             ],
             image,
             name: 'application',
-            ports: [
-              {
-                containerPort: 7777,
-              },
-            ],
+            ports: [{ containerPort: 7777 }],
             resources: {
-              requests: {
-                cpu: `${this.cpu * 1000}m`,
-                memory: `${this.memory * 1000}M`,
-              },
+              limits: { cpu: `${this.cpu * 1000}m`, memory: `${this.memory * 1000}M` },
+              requests: { cpu: `${this.cpu * 1000}m`, memory: `${this.memory * 1000}M` },
             },
           },
         ],
@@ -332,97 +329,76 @@ export class GameServerSchema implements IOriginalDocument {
         restartPolicy: this.isPersistent ? 'Always' : 'Never',
       },
     };
-    const sidecarPodManifest: k8s.V1PodTemplateSpec = {
-      metadata: {
-        labels: {
-          app: this.kubernetesResourceName,
-          role: 'sidecar',
+
+    // If application is running locally, create debug containers.
+    // If application is running in production, create production containers.
+    let sidecarPodManifest: k8s.V1PodTemplateSpec;
+    if (process.env.PWD.includes('/usr/src/app/projects/')) {
+      sidecarPodManifest = {
+        metadata: {
+          labels: {
+            app: this.kubernetesResourceName,
+            role: 'sidecar',
+          },
+          name: `${this.kubernetesResourceName}-sidecar`,
         },
-        name: `${this.kubernetesResourceName}-sidecar`,
-      },
-      spec: {
-        affinity: {
-          nodeAffinity: {
-            requiredDuringSchedulingIgnoredDuringExecution: {
-              nodeSelectorTerms: [
-                {
-                  matchExpressions: [
-                    {
-                      key: 'cloud.google.com/gke-preemptible',
-                      operator: this.isPreemptible ? 'Exists' : 'DoesNotExist',
-                    },
-                  ],
-                },
-              ],
+        spec: {
+          affinity,
+          containers: [
+            {
+              command: ['npm', 'run', 'start'],
+              env,
+              image: 'node:10',
+              name: 'health-check',
+              resources: { requests: { cpu: '50m', memory: '64M' } },
+              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
+              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/health-check/',
             },
-          },
+            {
+              command: ['npm', 'run', 'start'],
+              env,
+              image: 'node:10',
+              name: 'logs',
+              resources: { requests: { cpu: '50m', memory: '64M' } },
+              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
+              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/logs/',
+            },
+          ],
+          restartPolicy: 'Always',
+          serviceAccountName: this.kubernetesResourceName,
+          volumes: [{ hostPath: { path: '/c/open-platform/' }, name: 'app' }],
         },
-        containers: [
-          {
-            env: [
-              {
-                name: 'ACCESS_TOKEN',
-                value: accessToken,
-              },
-              {
-                name: 'GAME_SERVER_ID',
-                value: this._id.toHexString(),
-              },
-              {
-                name: 'GAME_SERVER_JSON',
-                value: JSON.stringify(this),
-              },
-              {
-                name: 'POD_NAMESPACE',
-                value: this.kubernetesNamespace,
-              },
-              {
-                name: 'POD_SELECTOR',
-                value: `app=${this.kubernetesResourceName},role=application`,
-              },
-            ],
-            image: `tenlastic/health-check:${version}`,
-            name: 'health-check',
-            resources: {
-              requests: {
-                cpu: '50m',
-                memory: '64M',
-              },
-            },
+      };
+    } else {
+      sidecarPodManifest = {
+        metadata: {
+          labels: {
+            app: this.kubernetesResourceName,
+            role: 'sidecar',
           },
-          {
-            env: [
-              {
-                name: 'ACCESS_TOKEN',
-                value: accessToken,
-              },
-              {
-                name: 'GAME_SERVER_ID',
-                value: this._id.toHexString(),
-              },
-              {
-                name: 'POD_NAMESPACE',
-                value: this.kubernetesNamespace,
-              },
-              {
-                name: 'POD_SELECTOR',
-                value: `app=${this.kubernetesResourceName},role=application`,
-              },
-            ],
-            image: `tenlastic/logs:${version}`,
-            name: 'logs',
-            resources: {
-              requests: {
-                cpu: '50m',
-                memory: '64M',
-              },
+          name: `${this.kubernetesResourceName}-sidecar`,
+        },
+        spec: {
+          affinity,
+          containers: [
+            {
+              env,
+              image: `tenlastic/health-check:${version}`,
+              name: 'health-check',
+              resources: { requests: { cpu: '50m', memory: '64M' } },
             },
-          },
-        ],
-        restartPolicy: 'Always',
-        serviceAccountName: this.kubernetesResourceName,
-      },
-    };
+            {
+              env,
+              image: `tenlastic/logs:${version}`,
+              name: 'logs',
+              resources: { requests: { cpu: '50m', memory: '64M' } },
+            },
+          ],
+          restartPolicy: 'Always',
+          serviceAccountName: this.kubernetesResourceName,
+        },
+      };
+    }
 
     /**
      * =======================

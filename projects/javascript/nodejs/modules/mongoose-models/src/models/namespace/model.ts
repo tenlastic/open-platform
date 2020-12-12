@@ -31,6 +31,7 @@ export class NamespaceLimitError extends Error {
   constructor(path: string) {
     super(`Namespace limit reached: ${path}.`);
 
+    this.name = 'NamespaceLimitError';
     this.path = path;
   }
 }

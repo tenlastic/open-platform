@@ -72,7 +72,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
   public async restart(record: GameServer) {
     await this.gameServerService.restart(record._id);
-    this.matSnackBar.open('Game Server restarted successfully!');
+    this.matSnackBar.open('Game Server is restarting...');
   }
 
   public showDeletePrompt(record: GameServer) {
@@ -89,8 +89,6 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
         await this.gameServerService.delete(record._id);
-        this.deleteGameServer(record);
-
         this.matSnackBar.open('Game Server deleted successfully.');
       }
     });
@@ -116,13 +114,5 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  private deleteGameServer(record: GameServer) {
-    const index = this.dataSource.data.findIndex(u => u._id === record._id);
-    this.dataSource.data.splice(index, 1);
-
-    this.dataSource.data = [].concat(this.dataSource.data);
-    this.table.renderRows();
   }
 }
