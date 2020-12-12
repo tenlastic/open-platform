@@ -333,7 +333,7 @@ export class GameServerSchema implements IOriginalDocument {
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
     let sidecarPodManifest: k8s.V1PodTemplateSpec;
-    if (process.env.PWD.includes('/usr/src/app/projects/')) {
+    if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
       sidecarPodManifest = {
         metadata: {
           labels: {
