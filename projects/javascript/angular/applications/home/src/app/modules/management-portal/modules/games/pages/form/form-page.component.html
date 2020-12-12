@@ -163,7 +163,7 @@
              hidden
              multiple="true"
              type="file"
-             (change)="onFieldChanged($event, 'images', true)" />
+             (change)="onFieldChanged($event, 'images')" />
 
       <div *ngFor="let error of uploadErrors['images']"
            class="form-error">
@@ -209,7 +209,7 @@
              hidden
              multiple="true"
              type="file"
-             (change)="onFieldChanged($event, 'videos', true)" />
+             (change)="onFieldChanged($event, 'videos')" />
 
       <div *ngFor="let error of uploadErrors['videos']"
            class="form-error">
