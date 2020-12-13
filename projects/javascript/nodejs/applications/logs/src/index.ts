@@ -66,39 +66,7 @@ const token = fs.readFileSync(kc.getCurrentUser().authProvider.config.tokenFile,
       },
       url: `${server}/api/v1/namespaces/${podNamespace}/pods/${pod.metadata.name}/log`,
     })
-    .on('data', async data => {
-      const string = data.toString();
-      const lines = split(string);
-
-      console.log(`Received lines: ${lines.length}.`);
-
-      for (const line of lines) {
-        const body = getBody(line);
-        const microseconds = getMicroseconds(line);
-        const unix = getUnix(line);
-
-        const timestamp = parseFloat(`${unix}.${microseconds}`);
-
-        request.post(
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-            json: { body, unix: timestamp },
-            url: `http://api.default:3000/game-servers/${gameServerId}/logs`,
-          },
-          (err, response) => {
-            if (err) {
-              console.error(err);
-              return;
-            }
-
-            if (response.statusCode !== 200) {
-              console.error(`Received error status code: ${response.statusCode}.`);
-              return;
-            }
-          },
-        );
-      }
-    })
+    .on('data', saveLogs)
     .on('end', () => setTimeout(main, INTERVAL))
     .on('error', e => {
       console.error(e);
@@ -121,7 +89,7 @@ function getMostRecentLogs(): Promise<any[]> {
         if (err) {
           return reject(err);
         } else if (response.statusCode !== 200) {
-          const error = new Error(`Received error status code: ${response.statusCode}.`);
+          const error = new Error(`Error reading logs: ${JSON.stringify(response.body)}.`);
           return reject(error);
         }
 
@@ -129,4 +97,41 @@ function getMostRecentLogs(): Promise<any[]> {
       },
     );
   });
+}
+
+async function saveLogs(data) {
+  const string = data.toString();
+  const lines = split(string);
+
+  for (const line of lines) {
+    const body = getBody(line);
+    const microseconds = getMicroseconds(line);
+    const unix = getUnix(line);
+
+    const timestamp = parseFloat(`${unix}.${microseconds}`);
+    const json = { body, unix: timestamp };
+
+    console.log(json);
+
+    request.post(
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        json,
+        url: `http://api.default:3000/game-servers/${gameServerId}/logs`,
+      },
+      (err, response) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+
+        if (response.statusCode !== 200) {
+          console.error(
+            `Request: ${JSON.stringify(json)}. Response: ${JSON.stringify(response.body)}.`,
+          );
+          return;
+        }
+      },
+    );
+  }
 }
