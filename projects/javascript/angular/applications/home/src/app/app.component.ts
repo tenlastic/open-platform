@@ -19,6 +19,8 @@ import {
   QueueMember,
   QueueMemberService,
   QueueService,
+  Pipeline,
+  PipelineService,
   WebSocket,
   WebSocketService,
 } from '@tenlastic/ng-http';
@@ -49,6 +51,7 @@ export class AppComponent implements OnInit {
     private messageService: MessageService,
     private queueMemberService: QueueMemberService,
     private queueService: QueueService,
+    private pipelineService: PipelineService,
     private router: Router,
     private socketService: SocketService,
     private titleService: Title,
@@ -99,6 +102,7 @@ export class AppComponent implements OnInit {
     this.socketService.subscribe('messages', Message, this.messageService);
     this.socketService.subscribe('queue-members', QueueMember, this.queueMemberService);
     this.socketService.subscribe('queues', Queue, this.queueService);
+    this.socketService.subscribe('pipelines', Pipeline, this.pipelineService);
     this.socketService.subscribe('web-sockets', WebSocket, this.webSocketService);
   }
 }

@@ -19,6 +19,7 @@ export class LayoutComponent {
       this.hasPermission('builds') ||
       this.hasPermission('collections') ||
       this.hasPermission('game-servers') ||
+      this.hasPermission('pipelines') ||
       this.hasPermission('queues')
     );
   }

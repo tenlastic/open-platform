@@ -14,6 +14,8 @@ export * from './ignoration';
 export * from './message';
 export * from './namespace';
 export * from './password-reset';
+export * from './pipeline';
+export * from './pipeline-template';
 export * from './queue';
 export * from './queue-log';
 export * from './queue-member';

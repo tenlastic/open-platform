@@ -100,8 +100,19 @@
                       routerLinkActive="active"
                       text="left"
                       width="full">
-            <mat-icon>dns</mat-icon>
+            <mat-icon>computer</mat-icon>
             <span>Game Servers</span>
+          </app-button>
+
+          <app-button *ngIf="hasPermission('pipelines')"
+                      color="accent"
+                      layout="vertical"
+                      routerLink="pipelines"
+                      routerLinkActive="active"
+                      text="left"
+                      width="full">
+            <mat-icon>rule</mat-icon>
+            <span>Pipelines</span>
           </app-button>
 
           <app-button *ngIf="hasPermission('queues')"

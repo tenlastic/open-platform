@@ -26,6 +26,10 @@ import {
   QueueMember,
   QueueMemberPermissions,
   QueuePermissions,
+  Pipeline,
+  PipelinePermissions,
+  PipelineTemplate,
+  PipelineTemplatePermissions,
   RecordModel,
   RecordSchema,
   User,
@@ -99,6 +103,14 @@ export async function subscribe(
     case 'messages':
       Model = Message;
       Permissions = MessagePermissions;
+      break;
+    case 'pipelines':
+      Model = Pipeline;
+      Permissions = PipelinePermissions;
+      break;
+    case 'pipeline-templates':
+      Model = PipelineTemplate;
+      Permissions = PipelineTemplatePermissions;
       break;
     case 'queue-logs':
       Model = QueueLog;

@@ -1,0 +1,78 @@
+<div class="page">
+  <app-title>{{ data && data._id ? 'Edit' : 'Create' }} Pipeline</app-title>
+
+  <form *ngIf="form"
+        [formGroup]="form"
+        autocomplete="off">
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Name</mat-label>
+        <input matInput
+               required
+               formControlName="name" />
+        <mat-error>Enter a valid name.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <app-toggle-section isVisible="true"
+                        title="Steps">
+      <div class="row"
+           formArrayName="steps"
+           *ngFor="let step of form['controls'].steps['controls']; let i = index">
+        <mat-form-field floatLabel="always">
+          <mat-label>Name</mat-label>
+          <input matInput
+                 required
+                 [formControl]="step.controls.name | asAny" />
+          <mat-error>Enter a valid name.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Template</mat-label>
+          <input matInput
+                 required
+                 [formControl]="step.controls.template | asAny" />
+          <mat-error>Enter a valid template.</mat-error>
+        </mat-form-field>
+
+        <app-button color="accent"
+                    layout="left"
+                    (OnClick)="removeStep(i)">
+          <mat-icon>remove</mat-icon>
+          <span>Remove Step</span>
+        </app-button>
+      </div>
+
+      <div class="row">
+        <app-button color="accent"
+                    layout="left"
+                    (OnClick)="addStep()">
+          <mat-icon>add</mat-icon>
+          <span>Add Step</span>
+        </app-button>
+      </div>
+    </app-toggle-section>
+
+    <app-toggle-section isVisible="true"
+                        title="Templates">
+      <div class="row">
+        <app-button color="accent"
+                    layout="left"
+                    (OnClick)="addTemplate()">
+          <mat-icon>add</mat-icon>
+          <span>Add Template</span>
+        </app-button>
+      </div>
+    </app-toggle-section>
+
+    <div *ngFor="let error of errors"
+         class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button color="primary"
+                (OnClick)="save()">Save</app-button>
+    <app-button color="accent"
+                routerLink="../">Cancel</app-button>
+  </form>
+</div>

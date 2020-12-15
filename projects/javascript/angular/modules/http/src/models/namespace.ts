@@ -9,6 +9,7 @@ export namespace INamespace {
     GameInvitations = 'game-invitations',
     Games = 'games',
     Namespaces = 'namespaces',
+    Pipelines = 'pipelines',
     Queues = 'queues',
   }
 

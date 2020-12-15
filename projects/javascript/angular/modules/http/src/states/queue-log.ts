@@ -10,7 +10,7 @@ import { QueueQuery } from './queue';
 export interface QueueLogState extends EntityState<QueueLog> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'queuelogs' })
+@StoreConfig({ idKey: '_id', name: 'queue-logs' })
 export class QueueLogStore extends EntityStore<QueueLogState, QueueLog> {
   constructor(private queueLogService: QueueLogService) {
     super();

@@ -9,6 +9,7 @@ export namespace IUser {
     GameInvitations = 'game-invitations',
     Games = 'games',
     Namespaces = 'namespaces',
+    Pipelines = 'pipelines',
     Queues = 'queues',
     Users = 'users',
   }
