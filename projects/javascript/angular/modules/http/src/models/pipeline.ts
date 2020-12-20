@@ -54,6 +54,7 @@ export namespace IPipeline {
 export class Pipeline extends Model {
   public _id: string;
   public createdAt: Date;
+  public isPreemptible: boolean;
   public name: string;
   public namespaceId: string;
   public pipelineTemplateId: string;

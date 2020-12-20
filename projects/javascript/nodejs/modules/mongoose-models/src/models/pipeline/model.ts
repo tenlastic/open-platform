@@ -21,7 +21,7 @@ import * as mongoose from 'mongoose';
 
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { PipelineTemplateDocument } from '../pipeline-template';
-import { PipelineSpecDocument } from './spec';
+import { PipelineSpecDocument, PipelineSpecTemplate } from './spec';
 
 export const PipelineEvent = new EventEmitter<IDatabasePayload<PipelineDocument>>();
 
@@ -145,8 +145,9 @@ export class PipelineSchema {
     };
 
     const templates = this.spec.templates.map(t => {
-      const template = t.toObject();
-      template.script.volumeMounts = [{ mountPath: '/usr/src/', name: 'workspace' }];
+      const template = new PipelineSpecTemplate(t).toObject();
+      template.script.volumeMounts = [{ mountPath: '/usr/src/workspace/', name: 'workspace' }];
+      return template;
     });
 
     await customObjects.createNamespacedCustomObject(
@@ -166,9 +167,7 @@ export class PipelineSchema {
           automountServiceAccountToken: false,
           dnsPolicy: 'Default',
           entrypoint: 'pipeline',
-          podGC: {
-            strategy: 'OnPodComplete',
-          },
+          serviceAccountName: 'argo',
           templates: [
             {
               name: 'pipeline',

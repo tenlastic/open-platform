@@ -72,8 +72,10 @@ export class AppComponent implements OnInit {
     this.identityService.OnAccessTokenSet.subscribe(() => this.socketService.connect());
 
     // Connect to websockets.
-    this.socketService.OnOpen.subscribe(() => this.subscribe());
-    this.socketService.connect();
+    try {
+      this.socketService.OnOpen.subscribe(() => this.subscribe());
+      this.socketService.connect();
+    } catch {}
 
     // Load previous url if set.
     const url = localStorage.getItem('url');

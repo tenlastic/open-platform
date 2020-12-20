@@ -1,0 +1,48 @@
+@import '../../../../../../../assets/scss/page.scss';
+
+:host ::ng-deep {
+  & > app-toggle-section {
+    & > div.row:nth-of-type(2) {
+      flex-direction: column !important;
+    }
+  }
+}
+
+app-toggle-section .row {
+  margin-left: 0px;
+  margin-top: 0px;
+}
+
+div.image {
+  display: flex;
+  flex-direction: column;
+
+  div.row {
+    margin-bottom: 16px;
+  }
+}
+
+div.row {
+  align-items: baseline;
+  width: 100%;
+}
+
+div.row.sidecar {
+  margin-top: 16px;
+
+  &:first-of-type {
+    margin-top: 0px;
+  }
+}
+
+mat-form-field.mat-form-field {
+  margin-right: 16px;
+}
+
+div.sub-section {
+  flex: 1 1 auto;
+}
+
+mat-form-field.source {
+  width: 376px;
+}

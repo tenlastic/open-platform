@@ -8,53 +8,69 @@
       <mat-form-field floatLabel="always">
         <mat-label>Name</mat-label>
         <input matInput
+               placeholder="Hello World"
                required
                formControlName="name" />
         <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
     </div>
 
-    <app-toggle-section isVisible="true"
-                        title="Steps">
-      <div class="row"
-           formArrayName="steps"
-           *ngFor="let step of form['controls'].steps['controls']; let i = index">
-        <mat-form-field floatLabel="always">
-          <mat-label>Name</mat-label>
-          <input matInput
-                 required
-                 [formControl]="step.controls.name | asAny" />
-          <mat-error>Enter a valid name.</mat-error>
-        </mat-form-field>
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Is Preemptible</mat-label>
+        <mat-select formControlName="isPreemptible">
+          <mat-option [value]="true">Yes</mat-option>
+          <mat-option [value]="false">No</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Template</mat-label>
-          <input matInput
-                 required
-                 [formControl]="step.controls.template | asAny" />
-          <mat-error>Enter a valid template.</mat-error>
-        </mat-form-field>
+    <app-toggle-section title="Templates">
+      <div class="row template"
+           formArrayName="templates"
+           *ngFor="let template of form['controls'].templates['controls']; let i = index">
+        <div class="name">
+          <mat-form-field floatLabel="always">
+            <mat-label>Name</mat-label>
+            <input matInput
+                   placeholder="Echo"
+                   required
+                   [formControl]="template.controls.name | asAny" />
+            <mat-error>Enter a valid name.</mat-error>
+          </mat-form-field>
 
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="removeStep(i)">
-          <mat-icon>remove</mat-icon>
-          <span>Remove Step</span>
-        </app-button>
+          <div class="row">
+            <app-button *ngIf="i > 0"
+                        color="accent"
+                        layout="left"
+                        matTooltip="Move Template Up"
+                        (OnClick)="moveTemplate(i, -1)">
+              <mat-icon>arrow_upward</mat-icon>
+            </app-button>
+
+            <app-button *ngIf="i < form['controls'].templates['controls'].length - 1"
+                        color="accent"
+                        layout="left"
+                        (OnClick)="moveTemplate(i, 1)"
+                        matTooltip="Move Template Down">
+              <mat-icon>arrow_downward</mat-icon>
+            </app-button>
+
+            <app-button color="accent"
+                        layout="left"
+                        (OnClick)="removeTemplate(i)"
+                        matTooltip="Remove Template">
+              <mat-icon>remove</mat-icon>
+            </app-button>
+          </div>
+        </div>
+
+        <div class="script-sidecars">
+          <app-pipeline-script-form [formGroup]="template.controls.script"></app-pipeline-script-form>
+          <app-pipeline-sidecars-form [formArray]="template.controls.sidecars"></app-pipeline-sidecars-form>
+        </div>
       </div>
 
-      <div class="row">
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="addStep()">
-          <mat-icon>add</mat-icon>
-          <span>Add Step</span>
-        </app-button>
-      </div>
-    </app-toggle-section>
-
-    <app-toggle-section isVisible="true"
-                        title="Templates">
       <div class="row">
         <app-button color="accent"
                     layout="left"

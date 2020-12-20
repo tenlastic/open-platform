@@ -46,7 +46,9 @@
            formArrayName="roles"
            *ngFor="let role of form['controls'].roles['controls']; let i = index">
         <app-role-field [form]="role"
+                        [index]="i"
                         [isDefault]="i === form['controls'].roles['controls'].length - 1"
+                        [length]="form['controls'].roles['controls'].length"
                         [properties]="form['controls'].properties | asAny"
                         (moveDown)="moveRoleDown(i)"
                         (moveUp)="moveRoleUp(i)"

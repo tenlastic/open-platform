@@ -8,7 +8,7 @@ import {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class PipelineSpecTemplateSidecarEnvSchema {
-  @prop({ required: true })
+  @prop({ required: true, validate: v => /[A-Z0-9_]+/.test(v) })
   public name: string;
 
   @prop({ required: true })

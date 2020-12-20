@@ -1,0 +1,38 @@
+<app-toggle-section title="Environment Variables">
+  <div class="row environment-variable"
+       *ngFor="let env of formArray.controls; let i = index">
+    <mat-form-field floatLabel="always">
+      <mat-label>Name</mat-label>
+      <input matInput
+             placeholder="MESSAGE"
+             required
+             [formControl]="env.controls.name | asAny" />
+      <mat-error>Enter a valid name.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field floatLabel="always">
+      <mat-label>Value</mat-label>
+      <input matInput
+             placeholder="Hello World!"
+             required
+             [formControl]="env.controls.value | asAny" />
+      <mat-error>Enter a valid value.</mat-error>
+    </mat-form-field>
+
+    <app-button color="accent"
+                layout="left"
+                matTooltip="Remove Environment Variable"
+                (OnClick)="removeEnvironmentVariable(i)">
+      <mat-icon>remove</mat-icon>
+    </app-button>
+  </div>
+
+  <div class="row">
+    <app-button color="accent"
+                layout="left"
+                (OnClick)="addEnvironmentVariable()">
+      <mat-icon>add</mat-icon>
+      <span>Add Environment Variable</span>
+    </app-button>
+  </div>
+</app-toggle-section>
