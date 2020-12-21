@@ -1,0 +1,122 @@
+components:
+  schemas:
+    Workflow:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[a-f0-9]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        namespaceId:
+          type: string
+          format: ^[a-f0-9]{24}$
+        spec:
+          type: object
+          properties:
+            tasks:
+              type: array
+              items:
+                type: object
+                properties:
+                  dependencies:
+                    type: array
+                    items:
+                      type: string
+                  name:
+                    type: string
+                  template:
+                    type: string
+                required:
+                  - name
+                  - template
+            templates:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  retryStrategy:
+                    type: object
+                    properties:
+                      limit:
+                        type: integer
+                      retryPolicy:
+                        type: string
+                        enum: [OnError, OnFailure]
+                    required:
+                      - limit
+                      - retryPolicy
+                  script:
+                    type: object
+                    properties:
+                      args:
+                        type: array
+                        items:
+                          type: string
+                      command:
+                        type: array
+                        items:
+                          type: string
+                      env:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            value:
+                              type: string
+                      image:
+                        type: string
+                      source:
+                        type: string
+                      workingDir:
+                        type: string
+                      workspace:
+                        type: boolean
+                    required:
+                      - image
+                      - source
+                  sidecars:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        args:
+                          type: array
+                          items:
+                            type: string
+                        command:
+                          type: array
+                          items:
+                            type: string
+                        env:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              value:
+                                type: string
+                        image:
+                          type: string
+                        name:
+                          type: string
+                        workingDir:
+                          type: string
+                      required:
+                        - image
+                        - name
+                required:
+                  - name
+                  - script
+          required:
+            - steps
+            - templates
+        updatedAt:
+          type: string
+          format: date-time

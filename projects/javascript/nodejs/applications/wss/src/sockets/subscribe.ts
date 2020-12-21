@@ -26,16 +26,14 @@ import {
   QueueMember,
   QueueMemberPermissions,
   QueuePermissions,
-  Pipeline,
-  PipelinePermissions,
-  PipelineTemplate,
-  PipelineTemplatePermissions,
   RecordModel,
   RecordSchema,
   User,
   UserPermissions,
   WebSocket,
   WebSocketPermissions,
+  Workflow,
+  WorkflowPermissions,
 } from '@tenlastic/mongoose-models';
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import * as webServer from '@tenlastic/web-server';
@@ -104,14 +102,6 @@ export async function subscribe(
       Model = Message;
       Permissions = MessagePermissions;
       break;
-    case 'pipelines':
-      Model = Pipeline;
-      Permissions = PipelinePermissions;
-      break;
-    case 'pipeline-templates':
-      Model = PipelineTemplate;
-      Permissions = PipelineTemplatePermissions;
-      break;
     case 'queue-logs':
       Model = QueueLog;
       Permissions = QueueLogPermissions;
@@ -136,6 +126,10 @@ export async function subscribe(
     case 'web-sockets':
       Model = WebSocket;
       Permissions = WebSocketPermissions;
+      break;
+    case 'workflows':
+      Model = Workflow;
+      Permissions = WorkflowPermissions;
       break;
   }
 

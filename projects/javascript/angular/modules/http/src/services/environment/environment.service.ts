@@ -15,13 +15,12 @@ export interface Environment {
   messageApiBaseUrl: string;
   namespaceApiBaseUrl: string;
   passwordResetApiBaseUrl: string;
-  pipelineApiBaseUrl: string;
-  pipelineTemplateApiBaseUrl: string;
   queueApiBaseUrl: string;
   refreshTokenApiBaseUrl: string;
   buildApiBaseUrl: string;
   userApiBaseUrl: string;
   webSocketApiBaseUrl: string;
+  workflowApiBaseUrl: string;
 }
 
 export const EnvironmentServiceConfig = new InjectionToken<Environment>('EnvironmentServiceConfig');
@@ -42,14 +41,13 @@ export class EnvironmentService implements Environment {
   public messageApiBaseUrl: string;
   public namespaceApiBaseUrl: string;
   public passwordResetApiBaseUrl: string;
-  public pipelineApiBaseUrl: string;
-  public pipelineTemplateApiBaseUrl: string;
   public queueApiBaseUrl: string;
   public queueMemberApiBaseUrl: string;
   public refreshTokenApiBaseUrl: string;
   public buildApiBaseUrl: string;
   public userApiBaseUrl: string;
   public webSocketApiBaseUrl: string;
+  public workflowApiBaseUrl: string;
 
   constructor(@Inject(EnvironmentServiceConfig) environment: Environment) {
     Object.assign(this, environment);

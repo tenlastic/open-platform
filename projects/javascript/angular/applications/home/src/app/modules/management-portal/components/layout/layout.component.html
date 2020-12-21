@@ -104,17 +104,6 @@
             <span>Game Servers</span>
           </app-button>
 
-          <app-button *ngIf="hasPermission('pipelines')"
-                      color="accent"
-                      layout="vertical"
-                      routerLink="pipelines"
-                      routerLinkActive="active"
-                      text="left"
-                      width="full">
-            <mat-icon>rule</mat-icon>
-            <span>Pipelines</span>
-          </app-button>
-
           <app-button *ngIf="hasPermission('queues')"
                       color="accent"
                       layout="vertical"
@@ -124,6 +113,17 @@
                       width="full">
             <mat-icon>schedule</mat-icon>
             <span>Queues</span>
+          </app-button>
+
+          <app-button *ngIf="hasPermission('workflows')"
+                      color="accent"
+                      layout="vertical"
+                      routerLink="workflows"
+                      routerLinkActive="active"
+                      text="left"
+                      width="full">
+            <mat-icon>rule</mat-icon>
+            <span>Workflows</span>
           </app-button>
         </ng-container>
 

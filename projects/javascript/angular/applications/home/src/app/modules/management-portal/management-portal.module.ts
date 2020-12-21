@@ -43,11 +43,6 @@ export const ROUTES: Routes = [
           import('./modules/namespaces/namespaces.module').then(m => m.NamespaceModule),
       },
       {
-        path: 'pipelines',
-        loadChildren: () =>
-          import('./modules/pipelines/pipelines.module').then(m => m.PipelinesModule),
-      },
-      {
         path: 'queues',
         loadChildren: () => import('./modules/queues/queues.module').then(m => m.QueueModule),
       },
@@ -59,6 +54,11 @@ export const ROUTES: Routes = [
       {
         path: 'users',
         loadChildren: () => import('./modules/users/users.module').then(m => m.UserModule),
+      },
+      {
+        path: 'workflows',
+        loadChildren: () =>
+          import('./modules/workflows/workflows.module').then(m => m.WorkflowsModule),
       },
     ],
     component: LayoutComponent,

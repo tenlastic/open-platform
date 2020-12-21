@@ -1,0 +1,94 @@
+<div class="page">
+  <app-title>{{ data && data._id ? 'Edit' : 'Create' }} Workflow</app-title>
+
+  <form *ngIf="form"
+        [formGroup]="form"
+        autocomplete="off">
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Name</mat-label>
+        <input matInput
+               placeholder="Hello World"
+               required
+               formControlName="name" />
+        <mat-error>Enter a valid name.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Is Preemptible</mat-label>
+        <mat-select formControlName="isPreemptible">
+          <mat-option [value]="true">Yes</mat-option>
+          <mat-option [value]="false">No</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <app-toggle-section title="Templates">
+      <div class="row template"
+           formArrayName="templates"
+           *ngFor="let template of form['controls'].templates['controls']; let i = index">
+        <div class="name">
+          <mat-form-field floatLabel="always">
+            <mat-label>Name</mat-label>
+            <input matInput
+                   placeholder="Echo"
+                   required
+                   [formControl]="template.controls.name | asAny" />
+            <mat-error>Enter a valid name.</mat-error>
+          </mat-form-field>
+
+          <div class="row">
+            <app-button *ngIf="i > 0"
+                        color="accent"
+                        layout="left"
+                        matTooltip="Move Template Up"
+                        (OnClick)="moveTemplate(i, -1)">
+              <mat-icon>arrow_upward</mat-icon>
+            </app-button>
+
+            <app-button *ngIf="i < form['controls'].templates['controls'].length - 1"
+                        color="accent"
+                        layout="left"
+                        (OnClick)="moveTemplate(i, 1)"
+                        matTooltip="Move Template Down">
+              <mat-icon>arrow_downward</mat-icon>
+            </app-button>
+
+            <app-button color="accent"
+                        layout="left"
+                        (OnClick)="removeTemplate(i)"
+                        matTooltip="Remove Template">
+              <mat-icon>remove</mat-icon>
+            </app-button>
+          </div>
+        </div>
+
+        <div class="script-sidecars">
+          <app-workflow-script-form [formGroup]="template.controls.script"></app-workflow-script-form>
+          <app-workflow-sidecars-form [formArray]="template.controls.sidecars"></app-workflow-sidecars-form>
+        </div>
+      </div>
+
+      <div class="row">
+        <app-button color="accent"
+                    layout="left"
+                    (OnClick)="addTemplate()">
+          <mat-icon>add</mat-icon>
+          <span>Add Template</span>
+        </app-button>
+      </div>
+    </app-toggle-section>
+
+    <div *ngFor="let error of errors"
+         class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button color="primary"
+                (OnClick)="save()">Save</app-button>
+    <app-button color="accent"
+                routerLink="../">Cancel</app-button>
+  </form>
+</div>

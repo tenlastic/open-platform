@@ -28,8 +28,6 @@ import { router as loginsRouter } from './handlers/logins';
 import { router as messagesRouter } from './handlers/messages';
 import { router as namespacesRouter } from './handlers/namespaces';
 import { router as passwordResetsRouter } from './handlers/password-resets';
-import { router as pipelinesRouter } from './handlers/pipelines';
-import { router as pipelineTemplatesRouter } from './handlers/pipeline-templates';
 import { router as publicKeysRouter } from './handlers/public-keys';
 import { router as queuesRouter } from './handlers/queues';
 import { router as queueLogsRouter } from './handlers/queue-logs';
@@ -38,6 +36,7 @@ import { router as recordsRouter } from './handlers/records';
 import { router as refreshTokensRouter } from './handlers/refresh-tokens';
 import { router as usersRouter } from './handlers/users';
 import { router as webSocketsRouter } from './handlers/web-sockets';
+import { router as workflowsRouter } from './handlers/workflows';
 
 // Docker Engine.
 docker.init({
@@ -102,8 +101,6 @@ webServer.use(loginsRouter.routes());
 webServer.use(messagesRouter.routes());
 webServer.use(namespacesRouter.routes());
 webServer.use(passwordResetsRouter.routes());
-webServer.use(pipelineTemplatesRouter.routes());
-webServer.use(pipelinesRouter.routes());
 webServer.use(publicKeysRouter.routes());
 webServer.use(queuesRouter.routes());
 webServer.use(queueLogsRouter.routes());
@@ -112,5 +109,6 @@ webServer.use(recordsRouter.routes());
 webServer.use(refreshTokensRouter.routes());
 webServer.use(usersRouter.routes());
 webServer.use(webSocketsRouter.routes());
+webServer.use(workflowsRouter.routes());
 webServer.serve(path.resolve(__dirname, 'public'), '/', 'index.html');
 webServer.start();

@@ -18,12 +18,11 @@ export class EnvironmentServiceMock implements Environment {
   public messageApiBaseUrl = 'http://api.localhost/messages';
   public namespaceApiBaseUrl = 'http://api.localhost/namespaces';
   public passwordResetApiBaseUrl = 'http://api.localhost/password-resets';
-  public pipelineApiBaseUrl = 'http://api.localhost/pipelines';
-  public pipelineTemplateApiBaseUrl = 'http://api.localhost/pipeline-templates';
   public queueApiBaseUrl = 'http://api.localhost/queues';
   public queueMemberApiBaseUrl = 'http://api.localhost/queue-members';
   public refreshTokenApiBaseUrl = 'http://api.localhost/refresh-tokens';
   public buildApiBaseUrl = 'http://api.localhost/builds';
   public userApiBaseUrl = 'http://api.localhost/users';
   public webSocketApiBaseUrl = 'http://api.localhost/web-sockets';
+  public workflowApiBaseUrl = 'http://api.localhost/workflows';
 }

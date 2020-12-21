@@ -15,14 +15,13 @@ import {
   Message,
   Namespace,
   PasswordReset,
-  Pipeline,
-  PipelineTemplate,
   Queue,
   QueueLog,
   QueueMember,
   RefreshToken,
   User,
   WebSocket,
+  Workflow,
 } from './models';
 
 export function syncIndexes() {
@@ -43,13 +42,12 @@ export function syncIndexes() {
     Message.syncIndexes({ background: true }),
     Namespace.syncIndexes({ background: true }),
     PasswordReset.syncIndexes({ background: true }),
-    Pipeline.syncIndexes({ background: true }),
-    PipelineTemplate.syncIndexes({ background: true }),
     Queue.syncIndexes({ background: true }),
     QueueLog.syncIndexes({ background: true }),
     QueueMember.syncIndexes({ background: true }),
     RefreshToken.syncIndexes({ background: true }),
     User.syncIndexes({ background: true }),
     WebSocket.syncIndexes({ background: true }),
+    Workflow.syncIndexes({ background: true }),
   ]);
 }

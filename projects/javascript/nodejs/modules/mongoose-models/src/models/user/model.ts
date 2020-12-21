@@ -39,9 +39,9 @@ export enum UserRole {
   GameInvitations = 'game-invitations',
   Games = 'games',
   Namespaces = 'namespaces',
-  Pipelines = 'pipelines',
   Queues = 'queues',
   Users = 'users',
+  Workflows = 'workflows',
 }
 
 // Publish changes to Kafka.

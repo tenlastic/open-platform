@@ -15,14 +15,13 @@ import {
   Message,
   Namespace,
   PasswordReset,
-  Pipeline,
-  PipelineTemplate,
   Queue,
   QueueLog,
   QueueMember,
   RefreshToken,
   User,
   WebSocket,
+  Workflow,
 } from './models';
 
 export function deleteAll() {
@@ -43,13 +42,12 @@ export function deleteAll() {
     Message.deleteMany({}),
     Namespace.deleteMany({}),
     PasswordReset.deleteMany({}),
-    Pipeline.deleteMany({}),
-    PipelineTemplate.deleteMany({}),
     Queue.deleteMany({}),
     QueueLog.deleteMany({}),
     QueueMember.deleteMany({}),
     RefreshToken.deleteMany({}),
     User.deleteMany({}),
     WebSocket.deleteMany({}),
+    Workflow.deleteMany({}),
   ]);
 }
