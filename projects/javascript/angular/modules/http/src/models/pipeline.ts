@@ -34,11 +34,12 @@ export namespace IPipeline {
   }
 
   export interface Spec {
-    steps?: Step[];
+    tasks?: Task[];
     templates?: Template[];
   }
 
-  export interface Step {
+  export interface Task {
+    dependencies?: string[];
     name: string;
     template: string;
   }

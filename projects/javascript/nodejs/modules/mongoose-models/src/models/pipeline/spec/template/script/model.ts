@@ -28,6 +28,9 @@ export class PipelineSpecTemplateScriptSchema {
 
   @prop({ default: '/usr/src/app/' })
   public workingDir: string;
+
+  @prop()
+  public workspace: boolean;
 }
 
 export type PipelineSpecTemplateScriptDocument = DocumentType<PipelineSpecTemplateScriptSchema>;

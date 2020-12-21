@@ -1,8 +1,8 @@
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { ENTER } from '@angular/cdk/keycodes';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatChipInputEvent, MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IPipeline, Pipeline, PipelineService } from '@tenlastic/ng-http';
 
@@ -71,7 +71,16 @@ export class PipelinesFormPageComponent implements OnInit {
     }
 
     const raw = this.form.getRawValue();
-    const steps = raw.templates.map(t => ({ name: t.name, template: t.name }));
+    const tasks = raw.templates.map((t, i) => {
+      const task: any = { name: t.name, template: t.name };
+
+      if (i > 0) {
+        const previousTemplate = raw.templates[i - 1];
+        task.dependencies = [previousTemplate.name];
+      }
+
+      return task;
+    });
     const templates = raw.templates.map(t => {
       const sidecars = t.sidecars.map(s => {
         const sidecar: IPipeline.Sidecar = {
@@ -118,7 +127,7 @@ export class PipelinesFormPageComponent implements OnInit {
       name: raw.name,
       namespaceId: raw.namespaceId,
       spec: {
-        steps,
+        tasks,
         templates,
       },
     };
@@ -168,17 +177,6 @@ export class PipelinesFormPageComponent implements OnInit {
   private setupForm(): void {
     this.data = this.data || new Pipeline();
 
-    const steps = [];
-    if (this.data.spec && this.data.spec.steps) {
-      this.data.spec.steps.forEach(s => {
-        const step = this.formBuilder.group({
-          name: [s.name, Validators.required],
-          template: [s.template, Validators.required],
-        });
-        steps.push(step);
-      });
-    }
-
     const templates = [];
     if (this.data.spec && this.data.spec.templates) {
       this.data.spec.templates.forEach(t => {
@@ -227,7 +225,6 @@ export class PipelinesFormPageComponent implements OnInit {
       isPreemptible: [this.data.isPreemptible || true],
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
-      steps: this.formBuilder.array(steps),
       templates: this.formBuilder.array(templates),
     });
 

@@ -42,7 +42,10 @@ NamespaceEvent.on(async payload => {
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
+const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
+const networkingV1 = kc.makeApiClient(k8s.NetworkingV1Api);
+const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
 @index({ namespaceId: 1 })
 @modelOptions({
@@ -112,6 +115,23 @@ export class PipelineSchema {
    * Deletes an Argo Workflow within Kubernetes.
    */
   private async deleteKubernetesResources() {
+    /**
+     * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    try {
+      await networkingV1.deleteNamespacedNetworkPolicy(
+        this.kubernetesResourceName,
+        this.kubernetesNamespace,
+      );
+    } catch {}
+
+    /**
+     * =======================
+     * WORKFLOW
+     * =======================
+     */
     try {
       await customObjects.deleteNamespacedCustomObject(
         'argoproj.io',
@@ -127,6 +147,43 @@ export class PipelineSchema {
    * Creates an Argo Workflow within Kubernetes if it does not exist.
    */
   private async createKubernetesResources() {
+    /**
+     * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    await networkingV1.createNamespacedNetworkPolicy(this.kubernetesNamespace, {
+      metadata: {
+        name: this.kubernetesResourceName,
+      },
+      spec: {
+        egress: [
+          {
+            to: [
+              {
+                ipBlock: {
+                  cidr: '0.0.0.0/0',
+                  except: ['10.0.0.0/8', '172.0.0.0/8', '192.0.0.0/8'],
+                },
+              },
+            ],
+          },
+        ],
+        podSelector: {
+          matchLabels: {
+            app: this.kubernetesResourceName,
+            role: 'application',
+          },
+        },
+        policyTypes: ['Egress'],
+      },
+    });
+
+    /**
+     * =======================
+     * WORKFLOW
+     * =======================
+     */
     const affinity = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
@@ -146,7 +203,19 @@ export class PipelineSchema {
 
     const templates = this.spec.templates.map(t => {
       const template = new PipelineSpecTemplate(t).toObject();
-      template.script.volumeMounts = [{ mountPath: '/usr/src/workspace/', name: 'workspace' }];
+
+      template.artifactLocation = { archiveLogs: false };
+      template.metadata = {
+        labels: {
+          app: this.kubernetesResourceName,
+          role: 'application',
+        },
+      };
+
+      if (template.script.workspace) {
+        template.script.volumeMounts = [{ mountPath: '/usr/src/workspace/', name: 'workspace' }];
+      }
+
       return template;
     });
 
@@ -164,14 +233,12 @@ export class PipelineSchema {
         spec: {
           activeDeadlineSeconds: 60 * 60,
           affinity,
-          automountServiceAccountToken: false,
           dnsPolicy: 'Default',
           entrypoint: 'pipeline',
-          serviceAccountName: 'argo',
           templates: [
             {
+              dag: { tasks: this.spec.tasks },
               name: 'pipeline',
-              steps: this.spec.steps.map(s => [s]),
             },
             ...templates,
           ],

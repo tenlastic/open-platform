@@ -15,11 +15,15 @@ components:
         spec:
           type: object
           properties:
-            steps:
+            tasks:
               type: array
               items:
                 type: object
                 properties:
+                  dependencies:
+                    type: array
+                    items:
+                      type: string
                   name:
                     type: string
                   template:
@@ -71,6 +75,8 @@ components:
                         type: string
                       workingDir:
                         type: string
+                      workspace:
+                        type: boolean
                     required:
                       - image
                       - source

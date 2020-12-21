@@ -1,13 +1,13 @@
 import * as Chance from 'chance';
 
-import { PipelineSpecStep, PipelineSpecStepSchema } from './model';
+import { PipelineSpecTask, PipelineSpecTaskSchema } from './model';
 
-export class PipelineSpecStepMock {
+export class PipelineSpecTaskMock {
   /**
    * Creates a record with randomized required parameters if not specified.
    * @param {Object} params The parameters to initialize the record with.
    */
-  public static create(params: Partial<PipelineSpecStepSchema> = {}) {
+  public static create(params: Partial<PipelineSpecTaskSchema> = {}) {
     const chance = new Chance();
 
     const defaults = {
@@ -15,6 +15,6 @@ export class PipelineSpecStepMock {
       template: chance.hash(),
     };
 
-    return new PipelineSpecStep({ ...defaults, ...params });
+    return new PipelineSpecTask({ ...defaults, ...params });
   }
 }

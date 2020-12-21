@@ -6,13 +6,13 @@ import {
   modelOptions,
 } from '@hasezoey/typegoose';
 
-import { PipelineSpecStep, PipelineSpecStepSchema } from './step';
+import { PipelineSpecTask, PipelineSpecTaskSchema } from './task';
 import { PipelineSpecTemplate, PipelineSpecTemplateDocument } from './template';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class PipelineSpecSchema {
-  @arrayProp({ items: PipelineSpecStep, required: true })
-  public steps: PipelineSpecStepSchema[];
+  @arrayProp({ items: PipelineSpecTask, required: true })
+  public tasks: PipelineSpecTaskSchema[];
 
   @arrayProp({ items: PipelineSpecTemplate, required: true })
   public templates: PipelineSpecTemplateDocument[];

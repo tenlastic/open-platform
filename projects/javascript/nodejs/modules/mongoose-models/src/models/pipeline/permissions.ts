@@ -67,6 +67,7 @@ export const PipelinePermissions = new MongoosePermissions<PipelineDocument>(Pip
       'namespaceId',
       'pipelineTemplateId',
       'spec.*',
+      'status.*',
       'updatedAt',
     ],
   },
