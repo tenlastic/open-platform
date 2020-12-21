@@ -32,6 +32,13 @@ spec:
             backend:
               serviceName: argo-server
               servicePort: 2746
+    - host: argo-ci.tenlastic.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: argo-ci
+              servicePort: 8001
     - host: docker-registry.tenlastic.com
       http:
         paths:
