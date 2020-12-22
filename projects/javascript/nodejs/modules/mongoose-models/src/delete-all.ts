@@ -1,5 +1,7 @@
 import {
   Article,
+  Build,
+  BuildTask,
   Collection,
   File,
   Friend,
@@ -17,10 +19,9 @@ import {
   QueueLog,
   QueueMember,
   RefreshToken,
-  Build,
-  BuildTask,
   User,
   WebSocket,
+  Workflow,
 } from './models';
 
 export function deleteAll() {
@@ -47,5 +48,6 @@ export function deleteAll() {
     RefreshToken.deleteMany({}),
     User.deleteMany({}),
     WebSocket.deleteMany({}),
+    Workflow.deleteMany({}),
   ]);
 }

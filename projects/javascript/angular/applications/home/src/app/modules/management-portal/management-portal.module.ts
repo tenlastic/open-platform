@@ -55,6 +55,11 @@ export const ROUTES: Routes = [
         path: 'users',
         loadChildren: () => import('./modules/users/users.module').then(m => m.UserModule),
       },
+      {
+        path: 'workflows',
+        loadChildren: () =>
+          import('./modules/workflows/workflows.module').then(m => m.WorkflowsModule),
+      },
     ],
     component: LayoutComponent,
     path: '',

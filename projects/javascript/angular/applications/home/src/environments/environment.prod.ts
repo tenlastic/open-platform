@@ -16,6 +16,8 @@ export const environment = {
   messageApiBaseUrl: 'https://api.tenlastic.com/messages',
   namespaceApiBaseUrl: 'https://api.tenlastic.com/namespaces',
   passwordResetApiBaseUrl: 'https://api.tenlastic.com/password-resets',
+  workflowApiBaseUrl: 'https://api.tenlastic.com/workflows',
+  workflowTemplateApiBaseUrl: 'https://api.tenlastic.com/workflow-templates',
   production: true,
   queueApiBaseUrl: 'https://api.tenlastic.com/queues',
   queueMemberApiBaseUrl: 'https://api.tenlastic.com/queue-members',

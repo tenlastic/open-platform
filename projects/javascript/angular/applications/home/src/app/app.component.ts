@@ -19,6 +19,8 @@ import {
   QueueMember,
   QueueMemberService,
   QueueService,
+  Workflow,
+  WorkflowService,
   WebSocket,
   WebSocketService,
 } from '@tenlastic/ng-http';
@@ -49,6 +51,7 @@ export class AppComponent implements OnInit {
     private messageService: MessageService,
     private queueMemberService: QueueMemberService,
     private queueService: QueueService,
+    private workflowService: WorkflowService,
     private router: Router,
     private socketService: SocketService,
     private titleService: Title,
@@ -69,8 +72,10 @@ export class AppComponent implements OnInit {
     this.identityService.OnAccessTokenSet.subscribe(() => this.socketService.connect());
 
     // Connect to websockets.
-    this.socketService.OnOpen.subscribe(() => this.subscribe());
-    this.socketService.connect();
+    try {
+      this.socketService.OnOpen.subscribe(() => this.subscribe());
+      this.socketService.connect();
+    } catch {}
 
     // Load previous url if set.
     const url = localStorage.getItem('url');
@@ -99,6 +104,7 @@ export class AppComponent implements OnInit {
     this.socketService.subscribe('messages', Message, this.messageService);
     this.socketService.subscribe('queue-members', QueueMember, this.queueMemberService);
     this.socketService.subscribe('queues', Queue, this.queueService);
+    this.socketService.subscribe('workflows', Workflow, this.workflowService);
     this.socketService.subscribe('web-sockets', WebSocket, this.webSocketService);
   }
 }

@@ -41,6 +41,7 @@ export enum UserRole {
   Namespaces = 'namespaces',
   Queues = 'queues',
   Users = 'users',
+  Workflows = 'workflows',
 }
 
 // Publish changes to Kafka.

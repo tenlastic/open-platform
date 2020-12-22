@@ -102,6 +102,50 @@ div.mat-tooltip {
   white-space: pre;
 }
 
+input.mat-chip-input {
+  margin-bottom: -2px !important;
+  margin-top: 0px !important;
+}
+
+mat-chip.mat-chip.mat-standard-chip {
+  background-color: rgba(0, 0, 0, 0.25);
+  border-radius: 0px;
+  box-shadow: 3px 3px 5px black;
+  color: white;
+
+  &:focus::after,
+  &:hover::after {
+    opacity: 0;
+  }
+
+  &.mat-chip-with-trailing-icon {
+    height: auto;
+    line-height: 16px;
+    min-height: initial;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-right: 4px;
+    padding-left: 8px;
+  }
+
+  mat-icon.mat-chip-remove {
+    color: #ffff00;
+    opacity: 1;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      opacity: 1 !important;
+    }
+  }
+}
+
+mat-chip-list.mat-chip-list {
+  div.mat-chip-list-wrapper {
+    margin-bottom: 4px;
+    margin-top: -4px;
+  }
+}
+
 mat-datepicker-content.mat-datepicker-content {
   background: black;
   color: white;
@@ -175,6 +219,12 @@ mat-form-field.mat-form-field {
       color: white;
       line-height: 24px;
       text-overflow: ellipsis;
+
+      &::placeholder {
+        color: white;
+        font-weight: 300;
+        opacity: 0.5;
+      }
     }
 
     label.mat-form-field-label {
@@ -193,6 +243,12 @@ mat-form-field.mat-form-field {
   textarea {
     line-height: normal;
     overflow-y: hidden;
+
+    &::placeholder {
+      color: white;
+      font-weight: 300;
+      opacity: 0.5;
+    }
   }
 }
 

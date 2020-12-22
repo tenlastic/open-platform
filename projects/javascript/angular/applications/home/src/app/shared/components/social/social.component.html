@@ -89,13 +89,11 @@
 
     <app-message-group *ngIf="$group | async as group"
                        header="Group"
-                       [isVisible]="true"
                        [showGroup]="false"
                        [users]="$groupUsersWithoutCurrentUser | async | truthy"></app-message-group>
 
     <app-message-group *ngIf="($friends | async).length"
                        header="Friends"
-                       [isVisible]="true"
                        [users]="$friends | async | select: 'toUser' | truthy"></app-message-group>
 
     <app-message-group *ngIf="conversations.length"

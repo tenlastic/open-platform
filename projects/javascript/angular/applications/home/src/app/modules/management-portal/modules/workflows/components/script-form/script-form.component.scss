@@ -1,0 +1,45 @@
+@import '../../../../../../../assets/scss/page.scss';
+
+:host ::ng-deep {
+  & > app-toggle-section {
+    & > div.row:nth-of-type(2) {
+      flex-direction: column !important;
+    }
+  }
+
+  app-workflow-environment-variables-form {
+    app-toggle-section > div.row:last-of-type {
+      border-bottom: none;
+      padding-bottom: 0px;
+    }
+  }
+}
+
+app-toggle-section .row {
+  margin-left: 0px;
+  margin-top: 0px;
+}
+
+div.row {
+  align-items: baseline;
+}
+
+mat-form-field.mat-form-field {
+  margin-right: 16px;
+}
+
+app-toggle-section div.row {
+  width: 100%;
+
+  app-button {
+    margin: 0px 0px 8px;
+  }
+}
+
+div.sub-section {
+  flex: 1 1 auto;
+}
+
+mat-form-field.source {
+  width: 376px;
+}

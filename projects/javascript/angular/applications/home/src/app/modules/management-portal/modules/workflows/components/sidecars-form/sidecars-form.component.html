@@ -1,0 +1,101 @@
+<app-toggle-section [isVisible]="false"
+                    title="Sidecars">
+  <div *ngFor="let sidecar of formArray.controls; let i = index"
+       class="row sidecar">
+    <div class="image">
+      <mat-form-field floatLabel="always">
+        <mat-label>Docker Image</mat-label>
+        <input matInput
+               placeholder="mongo:latest"
+               required
+               [formControl]="sidecar.controls.image | asAny" />
+        <mat-error>Enter a valid image.</mat-error>
+      </mat-form-field>
+
+      <div class="row">
+        <app-button *ngIf="i > 0"
+                    color="accent"
+                    layout="left"
+                    matTooltip="Move Sidecar Up"
+                    (OnClick)="moveFormArrayElement(i, -1)">
+          <mat-icon>arrow_upward</mat-icon>
+        </app-button>
+
+        <app-button *ngIf="i < formArray['controls'].length - 1"
+                    color="accent"
+                    layout="left"
+                    (OnClick)="moveFormArrayElement(i, 1)"
+                    matTooltip="Move Sidecar Down">
+          <mat-icon>arrow_downward</mat-icon>
+        </app-button>
+
+        <app-button color="accent"
+                    layout="left"
+                    (OnClick)="removeSidecar(i)"
+                    matTooltip="Remove Sidecar">
+          <mat-icon>remove</mat-icon>
+        </app-button>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="row">
+        <mat-form-field class="source"
+                        floatLabel="always">
+          <mat-label>Command</mat-label>
+
+          <mat-chip-list #chipList>
+            <mat-chip *ngFor="let command of sidecar.controls.command.value; let commandIndex = index"
+                      [removable]="true"
+                      [selectable]="false"
+                      (removed)="removeStringFromFormArray(sidecar.controls.command, commandIndex)">
+              {{command}}
+              <mat-icon matChipRemove>close</mat-icon>
+            </mat-chip>
+          </mat-chip-list>
+
+          <input placeholder="mongod"
+                 [matChipInputFor]="chipList"
+                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                 [matChipInputAddOnBlur]="true"
+                 (matChipInputTokenEnd)="addStringToFormArray($event, sidecar.controls.command)">
+        </mat-form-field>
+      </div>
+
+      <div class="row">
+        <mat-form-field class="source"
+                        floatLabel="always">
+          <mat-label>Arguments</mat-label>
+
+          <mat-chip-list #chipList>
+            <mat-chip *ngFor="let args of sidecar.controls.args.value; let argsIndex = index"
+                      [removable]="true"
+                      [selectable]="false"
+                      (removed)="removeStringFromFormArray(sidecar.controls.args, argsIndex)">
+              {{args}}
+              <mat-icon matChipRemove>close</mat-icon>
+            </mat-chip>
+          </mat-chip-list>
+
+          <input placeholder="--noauth"
+                 [matChipInputFor]="chipList"
+                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                 [matChipInputAddOnBlur]="true"
+                 (matChipInputTokenEnd)="addStringToFormArray($event, sidecar.controls.args)">
+        </mat-form-field>
+      </div>
+
+      <app-workflow-environment-variables-form [formArray]="sidecar['controls'].env">
+      </app-workflow-environment-variables-form>
+    </div>
+  </div>
+
+  <div class="row">
+    <app-button color="accent"
+                layout="left"
+                (OnClick)="addSidecar()">
+      <mat-icon>add</mat-icon>
+      <span>Add Sidecar</span>
+    </app-button>
+  </div>
+</app-toggle-section>

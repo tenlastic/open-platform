@@ -7,6 +7,7 @@ import { Namespace, NamespaceRole } from './model';
 
 let createNamespaceStub: sinon.SinonStub;
 let deleteNamespaceStub: sinon.SinonStub;
+let readNamespaceStub: sinon.SinonStub;
 let sandbox: sinon.SinonSandbox;
 
 beforeEach(function() {
@@ -14,6 +15,7 @@ beforeEach(function() {
 
   createNamespaceStub = sandbox.stub(k8s.CoreV1Api.prototype, 'createNamespace').resolves();
   deleteNamespaceStub = sandbox.stub(k8s.CoreV1Api.prototype, 'deleteNamespace').resolves();
+  readNamespaceStub = sandbox.stub(k8s.CoreV1Api.prototype, 'readNamespace').resolves();
 });
 
 afterEach(function() {

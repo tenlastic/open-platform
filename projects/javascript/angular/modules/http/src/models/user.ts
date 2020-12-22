@@ -11,6 +11,7 @@ export namespace IUser {
     Namespaces = 'namespaces',
     Queues = 'queues',
     Users = 'users',
+    Workflows = 'workflows',
   }
 }
 

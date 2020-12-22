@@ -24,4 +24,5 @@ export class EnvironmentServiceMock implements Environment {
   public buildApiBaseUrl = 'http://api.localhost/builds';
   public userApiBaseUrl = 'http://api.localhost/users';
   public webSocketApiBaseUrl = 'http://api.localhost/web-sockets';
+  public workflowApiBaseUrl = 'http://api.localhost/workflows';
 }

@@ -128,6 +128,14 @@ metadata:
   name: argo-role
 rules:
   - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+      - get
+      - update
+  - apiGroups:
       - ""
     resources:
       - secrets
@@ -146,6 +154,8 @@ rules:
     resources:
       - workflows
       - workflows/finalizers
+      - workfloweventbindings
+      - workfloweventbindings/finalizers
       - workflowtemplates
       - workflowtemplates/finalizers
       - cronworkflows
@@ -174,6 +184,8 @@ rules:
     resources:
       - workflows
       - workflows/finalizers
+      - workfloweventbindings
+      - workfloweventbindings/finalizers
       - workflowtemplates
       - workflowtemplates/finalizers
       - cronworkflows
@@ -202,6 +214,8 @@ rules:
     resources:
       - workflows
       - workflows/finalizers
+      - workfloweventbindings
+      - workfloweventbindings/finalizers
       - workflowtemplates
       - workflowtemplates/finalizers
       - cronworkflows
@@ -246,6 +260,7 @@ rules:
     verbs:
       - create
       - delete
+      - get
   - apiGroups:
       - argoproj.io
     resources:
@@ -324,6 +339,7 @@ rules:
       - secrets
     verbs:
       - get
+      - create
   - apiGroups:
       - ""
     resources:
@@ -346,10 +362,10 @@ rules:
   - apiGroups:
       - ""
     resources:
-      - secrets
       - serviceaccounts
     verbs:
       - get
+      - list
   - apiGroups:
       - argoproj.io
     resources:
@@ -390,7 +406,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: argo
-    namespace: default
+    namespace: argo
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -403,25 +419,12 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: argo-server
-    namespace: default
+    namespace: argo
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: workflow-controller-configmap
-data:
-  config: |
-    artifactRepository:
-      s3:
-        bucket: argo
-        endpoint: minio:9000
-        insecure: true
-        accessKeySecret:
-          name: minio
-          key: accesskey
-        secretKeySecret:
-          name: minio
-          key: secretkey
 ---
 apiVersion: v1
 kind: Service
@@ -453,7 +456,6 @@ kind: Deployment
 metadata:
   name: argo-server
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: argo-server
@@ -462,26 +464,10 @@ spec:
       labels:
         app: argo-server
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: cloud.google.com/gke-preemptible
-                    operator: DoesNotExist
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                      - argo-server
-              topologyKey: kubernetes.io/hostname
       containers:
         - args:
             - server
-          image: argoproj/argocli:v2.11.7
+          image: argoproj/argocli:latest
           name: argo-server
           ports:
             - containerPort: 2746
@@ -493,11 +479,17 @@ spec:
               scheme: HTTP
             initialDelaySeconds: 10
             periodSeconds: 20
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
           volumeMounts:
             - mountPath: /tmp
               name: tmp
       nodeSelector:
         kubernetes.io/os: linux
+      securityContext:
+        runAsNonRoot: true
       serviceAccountName: argo-server
       volumes:
         - emptyDir: {}
@@ -508,7 +500,6 @@ kind: Deployment
 metadata:
   name: workflow-controller
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: workflow-controller
@@ -517,23 +508,28 @@ spec:
       labels:
         app: workflow-controller
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: cloud.google.com/gke-preemptible
-                    operator: DoesNotExist
       containers:
         - args:
             - --configmap
             - workflow-controller-configmap
             - --executor-image
-            - argoproj/argoexec:v2.11.7
+            - argoproj/argoexec:latest
           command:
             - workflow-controller
-          image: argoproj/workflow-controller:v2.11.7
+          env:
+            - name: LEADER_ELECTION_IDENTITY
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+          image: argoproj/workflow-controller:latest
           name: workflow-controller
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
       nodeSelector:
         kubernetes.io/os: linux
+      securityContext:
+        runAsNonRoot: true
       serviceAccountName: argo

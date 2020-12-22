@@ -21,3 +21,4 @@ export * from './record';
 export * from './refresh-token';
 export * from './user';
 export * from './web-socket';
+export * from './workflow';

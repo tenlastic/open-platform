@@ -49,6 +49,7 @@ export enum NamespaceRole {
   Games = 'games',
   Namespaces = 'namespaces',
   Queues = 'queues',
+  Workflows = 'workflows',
 }
 
 // Publish changes to Kafka.

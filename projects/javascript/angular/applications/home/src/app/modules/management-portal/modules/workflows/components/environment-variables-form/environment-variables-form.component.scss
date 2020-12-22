@@ -1,0 +1,33 @@
+@import '../../../../../../../assets/scss/page.scss';
+
+:host ::ng-deep {
+  & > app-toggle-section {
+    & > div.row:nth-of-type(2) {
+      flex-direction: column !important;
+    }
+  }
+}
+
+app-toggle-section .row {
+  margin-left: 0px;
+  margin-top: 0px;
+}
+
+div.row {
+  align-items: baseline;
+}
+
+mat-form-field.mat-form-field {
+  margin-right: 16px;
+}
+
+div.row.environment-variable {
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+div.row:not(.environment-variable) {
+  app-button {
+    margin: 0px 0px 8px;
+  }
+}

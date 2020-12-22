@@ -56,7 +56,6 @@
                 routerLink="../">Cancel</app-button>
 
     <app-toggle-section *ngIf="data._id"
-                        isVisible="true"
                         title="Background Image">
       <mat-grid-list *ngIf="data.background || pending['background'].length"
                      cols="4"
@@ -96,7 +95,6 @@
     </app-toggle-section>
 
     <app-toggle-section *ngIf="data._id"
-                        isVisible="true"
                         title="Icon Image">
       <mat-grid-list *ngIf="data.icon || pending['icon'].length"
                      cols="4"
@@ -132,7 +130,6 @@
     </app-toggle-section>
 
     <app-toggle-section *ngIf="data._id"
-                        isVisible="true"
                         title="Images">
       <mat-grid-list *ngIf="data.images && data.images.length || pending['images'].length"
                      cols="4"
@@ -175,7 +172,6 @@
     </app-toggle-section>
 
     <app-toggle-section *ngIf="data._id"
-                        isVisible="true"
                         title="Videos">
       <mat-grid-list *ngIf="data.videos && data.videos.length || pending['videos'].length"
                      cols="4"

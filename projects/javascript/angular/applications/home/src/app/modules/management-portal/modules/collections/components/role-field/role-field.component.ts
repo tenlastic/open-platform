@@ -10,7 +10,9 @@ import { CollectionFormService } from '../../../../../../core/services';
 })
 export class RoleFieldComponent {
   @Input() public form: FormGroup;
+  @Input() public index: number;
   @Input() public isDefault: boolean;
+  @Input() public length: number;
   @Input() public properties: FormArray;
   @Output() public moveDown = new EventEmitter();
   @Output() public moveUp = new EventEmitter();

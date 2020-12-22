@@ -10,7 +10,7 @@ spec:
       - name: revision
   entrypoint: pipeline
   podGC:
-    strategy: OnWorkflowSuccess
+    strategy: OnPodSuccess
   serviceAccountName: argo
   ttlStrategy:
     secondsAfterSuccess: 1296000

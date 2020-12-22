@@ -21,6 +21,7 @@ import {
   RefreshToken,
   User,
   WebSocket,
+  Workflow,
 } from './models';
 
 export function syncIndexes() {
@@ -47,5 +48,6 @@ export function syncIndexes() {
     RefreshToken.syncIndexes({ background: true }),
     User.syncIndexes({ background: true }),
     WebSocket.syncIndexes({ background: true }),
+    Workflow.syncIndexes({ background: true }),
   ]);
 }

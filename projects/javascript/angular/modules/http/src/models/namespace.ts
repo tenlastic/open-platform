@@ -10,6 +10,7 @@ export namespace INamespace {
     Games = 'games',
     Namespaces = 'namespaces',
     Queues = 'queues',
+    Workflows = 'workflows',
   }
 
   export interface CollectionLimits {

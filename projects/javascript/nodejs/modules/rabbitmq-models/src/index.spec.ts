@@ -45,13 +45,7 @@ before(async function() {
 
 beforeEach(async function() {
   sandbox = sinon.createSandbox();
-
-  // Do not create Game Server resources within Kubernetes.
-  sandbox.stub(GameServer.prototype, 'createKubernetesResources').resolves();
-  sandbox.stub(GameServer.prototype, 'deleteKubernetesResources').resolves();
-  sandbox.stub(GameServer.prototype, 'updateKubernetesResources').resolves();
-  sandbox.stub(Namespace.prototype, 'upsertKubernetesResources').resolves();
-  sandbox.stub(Namespace.prototype, 'deleteKubernetesResources').resolves();
+  mongooseModels.stub(sandbox);
 
   await mongooseModels.deleteAll();
   await deleteAll();

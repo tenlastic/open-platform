@@ -36,6 +36,7 @@ import { router as recordsRouter } from './handlers/records';
 import { router as refreshTokensRouter } from './handlers/refresh-tokens';
 import { router as usersRouter } from './handlers/users';
 import { router as webSocketsRouter } from './handlers/web-sockets';
+import { router as workflowsRouter } from './handlers/workflows';
 
 // Docker Engine.
 docker.init({
@@ -108,5 +109,6 @@ webServer.use(recordsRouter.routes());
 webServer.use(refreshTokensRouter.routes());
 webServer.use(usersRouter.routes());
 webServer.use(webSocketsRouter.routes());
+webServer.use(workflowsRouter.routes());
 webServer.serve(path.resolve(__dirname, 'public'), '/', 'index.html');
 webServer.start();

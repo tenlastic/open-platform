@@ -11,7 +11,7 @@ import { UserQuery } from './user';
 export interface QueueMemberState extends EntityState<QueueMember> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'queuemembers' })
+@StoreConfig({ idKey: '_id', name: 'queue-members' })
 export class QueueMemberStore extends EntityStore<QueueMemberState, QueueMember> {
   constructor(private queueMemberService: QueueMemberService) {
     super();

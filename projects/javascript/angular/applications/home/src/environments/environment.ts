@@ -16,6 +16,8 @@ export const environment = {
   messageApiBaseUrl: 'http://api.localhost/messages',
   namespaceApiBaseUrl: 'http://api.localhost/namespaces',
   passwordResetApiBaseUrl: 'http://api.localhost/password-resets',
+  workflowApiBaseUrl: 'http://api.localhost/workflows',
+  workflowTemplateApiBaseUrl: 'http://api.localhost/workflow-templates',
   production: false,
   queueApiBaseUrl: 'http://api.localhost/queues',
   queueMemberApiBaseUrl: 'http://api.localhost/queue-members',

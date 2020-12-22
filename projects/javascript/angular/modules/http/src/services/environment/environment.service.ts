@@ -20,6 +20,7 @@ export interface Environment {
   buildApiBaseUrl: string;
   userApiBaseUrl: string;
   webSocketApiBaseUrl: string;
+  workflowApiBaseUrl: string;
 }
 
 export const EnvironmentServiceConfig = new InjectionToken<Environment>('EnvironmentServiceConfig');
@@ -46,6 +47,7 @@ export class EnvironmentService implements Environment {
   public buildApiBaseUrl: string;
   public userApiBaseUrl: string;
   public webSocketApiBaseUrl: string;
+  public workflowApiBaseUrl: string;
 
   constructor(@Inject(EnvironmentServiceConfig) environment: Environment) {
     Object.assign(this, environment);
