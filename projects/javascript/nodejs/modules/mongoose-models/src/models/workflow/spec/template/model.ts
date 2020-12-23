@@ -7,12 +7,16 @@ import {
   prop,
 } from '@hasezoey/typegoose';
 
+import { WorkflowSpecTemplateInputsDocument } from './inputs';
 import { WorkflowSpecTemplateRetryStrategyDocument } from './retry-strategy';
 import { WorkflowSpecTemplateScriptDocument } from './script';
 import { WorkflowSpecTemplateSidecar, WorkflowSpecTemplateSidecarDocument } from './sidecar';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateSchema {
+  @prop()
+  public inputs: WorkflowSpecTemplateInputsDocument;
+
   @prop({ required: true })
   public name: string;
 

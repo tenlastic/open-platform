@@ -15,11 +15,35 @@ components:
         spec:
           type: object
           properties:
+            arguments:
+              type: object
+              properties:
+                parameters:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      value:
+                        type: string
             tasks:
               type: array
               items:
                 type: object
                 properties:
+                  arguments:
+                    type: object
+                    properties:
+                      parameters:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            value:
+                              type: string
                   dependencies:
                     type: array
                     items:
@@ -36,6 +60,18 @@ components:
               items:
                 type: object
                 properties:
+                  inputs:
+                    type: object
+                    properties:
+                      parameters:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            value:
+                              type: string
                   name:
                     type: string
                   retryStrategy:
