@@ -107,6 +107,7 @@ export class WorkflowsFormPageComponent implements OnInit {
           image: t.script.image,
           source: t.script.source,
           workingDir: t.script.workingDir,
+          workspace: true,
         },
         sidecars,
       };
@@ -148,7 +149,7 @@ export class WorkflowsFormPageComponent implements OnInit {
         env: this.formBuilder.array([]),
         image: ['', Validators.required],
         source: ['', Validators.required],
-        workingDir: ['/usr/src/workspace/'],
+        workingDir: ['/ws/'],
       }),
       sidecars: this.formBuilder.array([]),
     });

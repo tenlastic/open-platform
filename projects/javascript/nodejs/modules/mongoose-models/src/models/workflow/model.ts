@@ -116,6 +116,26 @@ export class WorkflowSchema {
     } catch {}
 
     /**
+     * ======================
+     * ROLE + SERVICE ACCOUNT
+     * ======================
+     */
+    try {
+      await rbacAuthorizationV1.deleteNamespacedRole(
+        this.kubernetesResourceName,
+        this.kubernetesNamespace,
+      );
+      await coreV1.deleteNamespacedServiceAccount(
+        this.kubernetesResourceName,
+        this.kubernetesNamespace,
+      );
+      await rbacAuthorizationV1.deleteNamespacedRoleBinding(
+        this.kubernetesResourceName,
+        this.kubernetesNamespace,
+      );
+    } catch {}
+
+    /**
      * =======================
      * WORKFLOW
      * =======================
@@ -165,6 +185,51 @@ export class WorkflowSchema {
         },
         policyTypes: ['Egress'],
       },
+    });
+
+    /**
+     * ======================
+     * ROLE + SERVICE ACCOUNT
+     * ======================
+     */
+    await rbacAuthorizationV1.createNamespacedRole(this.kubernetesNamespace, {
+      metadata: {
+        name: this.kubernetesResourceName,
+      },
+      rules: [
+        {
+          apiGroups: [''],
+          resources: ['pods'],
+          verbs: ['get', 'watch'],
+        },
+        {
+          apiGroups: [''],
+          resources: ['pods/logs'],
+          verbs: ['get', 'watch'],
+        },
+      ],
+    });
+    await coreV1.createNamespacedServiceAccount(this.kubernetesNamespace, {
+      metadata: {
+        name: this.kubernetesResourceName,
+      },
+    });
+    await rbacAuthorizationV1.createNamespacedRoleBinding(this.kubernetesNamespace, {
+      metadata: {
+        name: this.kubernetesResourceName,
+      },
+      roleRef: {
+        apiGroup: 'rbac.authorization.k8s.io',
+        kind: 'Role',
+        name: this.kubernetesResourceName,
+      },
+      subjects: [
+        {
+          kind: 'ServiceAccount',
+          name: this.kubernetesResourceName,
+          namespace: this.kubernetesNamespace,
+        },
+      ],
     });
 
     /**
@@ -221,9 +286,12 @@ export class WorkflowSchema {
         spec: {
           activeDeadlineSeconds: 60 * 60,
           affinity,
+          automountServiceAccountToken: false,
           dnsPolicy: 'Default',
           entrypoint: 'entrypoint',
+          executor: { serviceAccountName: this.kubernetesResourceName },
           podGC: { strategy: 'OnPodCompletion' },
+          serviceAccountName: this.kubernetesResourceName,
           templates: [
             {
               dag: { tasks: this.spec.tasks },
