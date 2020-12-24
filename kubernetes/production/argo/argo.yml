@@ -423,7 +423,6 @@ data:
         secretKeySecret:
           name: minio
           key: secretkey
-    containerRuntimeExecutor: pns
 ---
 apiVersion: v1
 kind: Service
