@@ -204,7 +204,7 @@ export class WorkflowSchema {
         },
         {
           apiGroups: [''],
-          resources: ['pods/logs'],
+          resources: ['pods/log'],
           verbs: ['get', 'watch'],
         },
       ],
