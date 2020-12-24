@@ -423,7 +423,7 @@ data:
         secretKeySecret:
           name: minio
           key: secretkey
-    containerRuntimeExecutor: k8sapi
+    containerRuntimeExecutor: pns
 ---
 apiVersion: v1
 kind: Service
