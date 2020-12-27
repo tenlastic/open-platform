@@ -6,6 +6,9 @@ metadata:
     app: docker-registry-ui
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: docker-registry-ui
   template:
     metadata:
       labels:

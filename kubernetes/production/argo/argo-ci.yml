@@ -6,6 +6,9 @@ metadata:
     app: argo-ci
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app: argo-ci
   template:
     metadata:
       labels:

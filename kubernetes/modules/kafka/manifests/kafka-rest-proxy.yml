@@ -19,6 +19,9 @@ metadata:
   name: kafka-rest-proxy
   namespace: kafka
 spec:
+  selector:
+    matchLabels:
+      app: kafka-rest-proxy
   template:
     metadata:
       labels:

@@ -6,6 +6,9 @@ metadata:
     app: api
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: api
   template:
     metadata:
       labels:

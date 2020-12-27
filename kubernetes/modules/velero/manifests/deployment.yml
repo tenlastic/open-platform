@@ -20,6 +20,9 @@ metadata:
   name: velero
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app: velero
   template:
     metadata:
       labels:

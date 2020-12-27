@@ -19,7 +19,9 @@ metadata:
   name: kafka-topics-ui
   namespace: kafka
 spec:
-  template:
+  selector:
+    matchLabels:
+      app: kafka-topics-ui
     metadata:
       labels:
         app: kafka-topics-ui

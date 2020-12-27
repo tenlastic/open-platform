@@ -6,6 +6,9 @@ metadata:
     app: workers
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app: workers
   template:
     metadata:
       labels:

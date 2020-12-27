@@ -6,6 +6,9 @@ metadata:
     app: home-ui
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app: home-ui
   template:
     metadata:
       labels:

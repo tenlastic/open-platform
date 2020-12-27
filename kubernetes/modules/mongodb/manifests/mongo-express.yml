@@ -19,6 +19,9 @@ metadata:
   name: mongo-express
   namespace: mongodb
 spec:
+  selector:
+    matchLabels:
+      app: mongo-express
   template:
     metadata:
       labels:

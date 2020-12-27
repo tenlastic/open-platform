@@ -19,6 +19,9 @@ metadata:
   name: kafka-manager
   namespace: kafka
 spec:
+  selector:
+    matchLabels:
+      app: kafka-manager
   template:
     metadata:
       labels:

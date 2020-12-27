@@ -6,6 +6,9 @@ metadata:
     app: mongoku
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app: mongoku
   template:
     metadata:
       labels:

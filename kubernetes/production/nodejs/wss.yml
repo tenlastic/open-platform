@@ -6,6 +6,9 @@ metadata:
     app: wss
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app: wss
   template:
     metadata:
       labels:

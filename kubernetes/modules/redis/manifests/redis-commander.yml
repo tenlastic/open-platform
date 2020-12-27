@@ -19,6 +19,9 @@ metadata:
   name: redis-commander
   namespace: redis
 spec:
+  selector:
+    matchLabels:
+      app: redis-commander
   template:
     metadata:
       labels:

@@ -6,6 +6,9 @@ metadata:
     app: matchmaking
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: matchmaking
   template:
     metadata:
       labels:

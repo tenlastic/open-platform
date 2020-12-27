@@ -74,6 +74,9 @@ metadata:
     app: matchmaking
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app: matchmaking
   template:
     metadata:
       labels:
