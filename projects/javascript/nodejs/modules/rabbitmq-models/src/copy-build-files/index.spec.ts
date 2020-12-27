@@ -132,9 +132,9 @@ describe('copy-build-files', function() {
       expect(requeueStub.calledOnce).to.eql(true);
 
       const updatedJob = await BuildTask.findOne({ _id: buildTask._id });
+      console.log(JSON.stringify(updatedJob));
       expect(updatedJob.failedAt).to.exist;
       expect(updatedJob.failures.length).to.eql(1);
-      expect(updatedJob.failures[0].createdAt).to.exist;
       expect(updatedJob.failures[0].message).to.eql('task.metadata.unmodified is not iterable');
     });
   });
