@@ -91,7 +91,7 @@ spec:
                     operator: Exists
       containers:
         - name: matchmaking
-          image: tenlastic/matchmaking:0.0.149
+          image: tenlastic/matchmaking:0.0.150
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
