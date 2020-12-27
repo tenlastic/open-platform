@@ -8,7 +8,7 @@ spec:
   replicas: 3
   selector:
     matchLabels:
-      app: docker-registy-ui
+      app: docker-registry-ui
   template:
     metadata:
       labels:
