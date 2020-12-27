@@ -6,12 +6,12 @@ import {
   modelOptions,
 } from '@hasezoey/typegoose';
 
-import { WorkflowSpecTemplateDagTask, WorkflowSpecTemplateDagTaskDocument } from './task';
+import { WorkflowSpecTemplateDagTaskSchema } from './task';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateDagSchema {
-  @arrayProp({ items: WorkflowSpecTemplateDagTask, required: true })
-  public tasks: WorkflowSpecTemplateDagTaskDocument[];
+  @arrayProp({ items: WorkflowSpecTemplateDagTaskSchema, required: true })
+  public tasks: WorkflowSpecTemplateDagTaskSchema[];
 }
 
 export type WorkflowSpecTemplateDagDocument = DocumentType<WorkflowSpecTemplateDagSchema>;

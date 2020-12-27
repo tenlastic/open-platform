@@ -18,7 +18,7 @@ import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
-import { BuildEntrypointsDocument } from './entrypoints';
+import { BuildEntrypointsSchema } from './entrypoints';
 
 export const BuildEvent = new EventEmitter<IDatabasePayload<BuildDocument>>();
 
@@ -52,7 +52,7 @@ export class BuildSchema {
   public createdAt: Date;
 
   @prop({ default: {} })
-  public entrypoints: BuildEntrypointsDocument;
+  public entrypoints: BuildEntrypointsSchema;
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;

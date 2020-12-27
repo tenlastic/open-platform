@@ -14,7 +14,7 @@ export class NamespaceKeySchema {
   @prop({ required: true })
   public description: string;
 
-  @arrayProp({ default: [], enum: NamespaceRole, items: String })
+  @arrayProp({ enum: NamespaceRole, items: String })
   public roles: string[];
 
   @prop({ required: true })

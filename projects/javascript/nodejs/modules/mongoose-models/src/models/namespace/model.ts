@@ -21,9 +21,9 @@ import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
 import { UserDocument } from '../user';
-import { NamespaceKey, NamespaceKeyDocument } from './key';
-import { NamespaceLimitsDocument } from './limits';
-import { NamespaceUser, NamespaceUserDocument } from './user';
+import { NamespaceKeySchema } from './key';
+import { NamespaceLimitsSchema } from './limits';
+import { NamespaceUser, NamespaceUserDocument, NamespaceUserSchema } from './user';
 
 export class NamespaceLimitError extends Error {
   public path: string;
@@ -94,19 +94,19 @@ export class NamespaceSchema {
 
   public createdAt: Date;
 
-  @arrayProp({ default: [], items: NamespaceKey })
-  public keys: NamespaceKeyDocument[];
+  @arrayProp({ items: NamespaceKeySchema })
+  public keys: NamespaceKeySchema[];
 
   @prop({ required: true })
-  public limits: NamespaceLimitsDocument;
+  public limits: NamespaceLimitsSchema;
 
   @prop({ required: true })
   public name: string;
 
   public updatedAt: Date;
 
-  @arrayProp({ default: [], items: NamespaceUser })
-  public users: NamespaceUserDocument[];
+  @arrayProp({ items: NamespaceUserSchema })
+  public users: NamespaceUserSchema[];
 
   public _original: any;
   public wasModified: string[];

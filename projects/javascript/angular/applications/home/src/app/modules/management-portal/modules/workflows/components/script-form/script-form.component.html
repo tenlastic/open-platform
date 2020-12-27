@@ -16,11 +16,11 @@
           <mat-label>Command</mat-label>
 
           <mat-chip-list #chipList>
-            <mat-chip *ngFor="let command of command.value; let commandIndex = index"
+            <mat-chip *ngFor="let commandValue of command.value; let commandIndex = index"
                       [removable]="true"
                       [selectable]="false"
                       (removed)="removeStringFromFormArray(command, commandIndex)">
-              {{command}}
+              {{commandValue}}
               <mat-icon matChipRemove>close</mat-icon>
             </mat-chip>
           </mat-chip-list>

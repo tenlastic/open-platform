@@ -15,7 +15,7 @@ export class NamespaceUserSchema {
   @prop({ required: true })
   public _id: mongoose.Types.ObjectId;
 
-  @arrayProp({ default: [], enum: NamespaceRole, items: String })
+  @arrayProp({ enum: NamespaceRole, items: String })
   public roles: string[];
 }
 

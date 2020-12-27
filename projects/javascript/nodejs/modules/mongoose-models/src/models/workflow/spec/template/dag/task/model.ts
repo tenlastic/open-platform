@@ -7,12 +7,12 @@ import {
   prop,
 } from '@hasezoey/typegoose';
 
-import { WorkflowSpecArgumentsDocument } from '../../../arguments';
+import { WorkflowSpecArgumentsSchema } from '../../../arguments';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateDagTaskSchema {
   @prop()
-  public arguments: WorkflowSpecArgumentsDocument;
+  public arguments: WorkflowSpecArgumentsSchema;
 
   @arrayProp({ default: undefined, items: String })
   public dependencies: string[];

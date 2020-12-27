@@ -1,22 +1,22 @@
 import { DocumentType, ReturnModelType, getModelForClass, prop } from '@hasezoey/typegoose';
 
-import { NamespaceCollectionLimitsDocument } from './collection';
-import { NamespaceGameLimitsDocument } from './game';
-import { NamespaceGameServerLimitsDocument } from './game-server';
-import { NamespaceBuildLimitsDocument } from './build';
+import { NamespaceCollectionLimitsSchema } from './collection';
+import { NamespaceGameLimitsSchema } from './game';
+import { NamespaceGameServerLimitsSchema } from './game-server';
+import { NamespaceBuildLimitsSchema } from './build';
 
 export class NamespaceLimitsSchema {
   @prop({ required: true })
-  public builds: NamespaceBuildLimitsDocument;
+  public builds: NamespaceBuildLimitsSchema;
 
   @prop({ required: true })
-  public collections: NamespaceCollectionLimitsDocument;
+  public collections: NamespaceCollectionLimitsSchema;
 
   @prop({ required: true })
-  public gameServers: NamespaceGameServerLimitsDocument;
+  public gameServers: NamespaceGameServerLimitsSchema;
 
   @prop({ required: true })
-  public games: NamespaceGameLimitsDocument;
+  public games: NamespaceGameLimitsSchema;
 }
 
 export type NamespaceLimitsDocument = DocumentType<NamespaceLimitsSchema>;

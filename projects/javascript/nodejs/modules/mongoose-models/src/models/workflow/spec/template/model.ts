@@ -7,31 +7,31 @@ import {
   prop,
 } from '@hasezoey/typegoose';
 
-import { WorkflowSpecTemplateDagDocument } from './dag';
-import { WorkflowSpecTemplateInputsDocument } from './inputs';
-import { WorkflowSpecTemplateRetryStrategyDocument } from './retry-strategy';
-import { WorkflowSpecTemplateScriptDocument } from './script';
-import { WorkflowSpecTemplateSidecar, WorkflowSpecTemplateSidecarDocument } from './sidecar';
+import { WorkflowSpecTemplateDagSchema } from './dag';
+import { WorkflowSpecTemplateInputsSchema } from './inputs';
+import { WorkflowSpecTemplateRetryStrategySchema } from './retry-strategy';
+import { WorkflowSpecTemplateScriptSchema } from './script';
+import { WorkflowSpecTemplateSidecar, WorkflowSpecTemplateSidecarSchema } from './sidecar';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateSchema {
   @prop()
-  public dag: WorkflowSpecTemplateDagDocument;
+  public dag: WorkflowSpecTemplateDagSchema;
 
   @prop()
-  public inputs: WorkflowSpecTemplateInputsDocument;
+  public inputs: WorkflowSpecTemplateInputsSchema;
 
   @prop({ required: true })
   public name: string;
 
   @prop()
-  public retryStrategy: WorkflowSpecTemplateRetryStrategyDocument;
+  public retryStrategy: WorkflowSpecTemplateRetryStrategySchema;
 
   @prop()
-  public script: WorkflowSpecTemplateScriptDocument;
+  public script: WorkflowSpecTemplateScriptSchema;
 
-  @arrayProp({ items: WorkflowSpecTemplateSidecar })
-  public sidecars: WorkflowSpecTemplateSidecarDocument;
+  @arrayProp({ items: WorkflowSpecTemplateSidecarSchema })
+  public sidecars: WorkflowSpecTemplateSidecarSchema[];
 }
 
 export type WorkflowSpecTemplateDocument = DocumentType<WorkflowSpecTemplateSchema>;

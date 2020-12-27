@@ -20,7 +20,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
-import { WorkflowSpecDocument, WorkflowSpecTemplate } from './spec';
+import { WorkflowSpecSchema, WorkflowSpecTemplate } from './spec';
 
 export const WorkflowEvent = new EventEmitter<IDatabasePayload<WorkflowDocument>>();
 
@@ -79,7 +79,7 @@ export class WorkflowSchema {
   public namespaceId: Ref<NamespaceDocument>;
 
   @prop({ immutable: true, required: true })
-  public spec: WorkflowSpecDocument;
+  public spec: WorkflowSpecSchema;
 
   @prop()
   public updatedAt: Date;
@@ -284,9 +284,7 @@ export class WorkflowSchema {
       {
         apiVersion: 'argoproj.io/v1alpha1',
         kind: 'Workflow',
-        metadata: {
-          name: this.kubernetesResourceName,
-        },
+        metadata: { name: this.kubernetesResourceName },
         spec: {
           activeDeadlineSeconds: 60 * 60,
           affinity,
@@ -297,9 +295,7 @@ export class WorkflowSchema {
           podGC: { strategy: 'OnPodCompletion' },
           serviceAccountName: this.kubernetesResourceName,
           templates,
-          ttlStrategy: {
-            secondsAfterSuccess: 60 * 60,
-          },
+          ttlStrategy: { secondsAfterSuccess: 60 * 60 },
           volumeClaimTemplates: [
             {
               metadata: { name: 'workspace' },

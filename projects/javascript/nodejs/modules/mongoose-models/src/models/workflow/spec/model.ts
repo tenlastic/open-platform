@@ -7,19 +7,19 @@ import {
   prop,
 } from '@hasezoey/typegoose';
 
-import { WorkflowSpecArgumentsDocument } from './arguments';
-import { WorkflowSpecTemplate, WorkflowSpecTemplateDocument } from './template';
+import { WorkflowSpecArgumentsSchema } from './arguments';
+import { WorkflowSpecTemplateSchema } from './template';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecSchema {
   @prop()
-  public arguments: WorkflowSpecArgumentsDocument;
+  public arguments: WorkflowSpecArgumentsSchema;
 
   @prop({ required: true })
   public entrypoint: string;
 
-  @arrayProp({ items: WorkflowSpecTemplate, required: true })
-  public templates: WorkflowSpecTemplateDocument[];
+  @arrayProp({ items: WorkflowSpecTemplateSchema, required: true })
+  public templates: WorkflowSpecTemplateSchema[];
 }
 
 export type WorkflowSpecDocument = DocumentType<WorkflowSpecSchema>;

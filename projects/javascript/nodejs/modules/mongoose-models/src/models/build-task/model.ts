@@ -19,7 +19,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { BuildDocument } from '../build';
-import { BuildTaskFailure, BuildTaskFailureDocument } from './failure';
+import { BuildTaskFailureSchema } from './failure';
 import { FilePlatform } from '../file';
 import { NamespaceDocument } from '../namespace';
 
@@ -87,8 +87,8 @@ export class BuildTaskSchema {
   @prop({ default: null })
   public failedAt: Date;
 
-  @arrayProp({ default: [], items: BuildTaskFailure })
-  public failures: BuildTaskFailureDocument[];
+  @arrayProp({ items: BuildTaskFailureSchema })
+  public failures: BuildTaskFailureSchema[];
 
   @prop({ default: {} })
   public metadata: any;

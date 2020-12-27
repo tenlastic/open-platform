@@ -106,7 +106,7 @@ export class UserSchema {
   @prop({ required: true })
   public password: string;
 
-  @arrayProp({ default: [], enum: UserRole, items: String })
+  @arrayProp({ enum: UserRole, items: String })
   public roles: string[];
 
   public updatedAt: Date;
