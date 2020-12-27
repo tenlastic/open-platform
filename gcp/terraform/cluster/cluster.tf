@@ -6,8 +6,18 @@ resource "google_container_cluster" "primary" {
   node_version             = "1.15.12-gke.20"
   remove_default_node_pool = true
 
+  addons_config {
+    network_policy_config {
+      disabled = false
+    }
+  }
+
   ip_allocation_policy {
     use_ip_aliases = true
+  }
+
+  network_policy {
+    enabled = true
   }
 }
 
