@@ -1,6 +1,10 @@
 import { Model } from './model';
 
 export namespace IWorkflow {
+  export interface Dag {
+    tasks: Task[];
+  }
+
   export interface Env {
     name: string;
     value: string;
@@ -35,7 +39,7 @@ export namespace IWorkflow {
   }
 
   export interface Spec {
-    tasks?: Task[];
+    entrypoint: string;
     templates?: Template[];
   }
 
@@ -46,6 +50,7 @@ export namespace IWorkflow {
   }
 
   export interface Template {
+    dag?: Dag;
     name: string;
     retryStrategy?: RetryStrategy;
     script: Script;
@@ -59,7 +64,6 @@ export class Workflow extends Model {
   public isPreemptible: boolean;
   public name: string;
   public namespaceId: string;
-  public workflowTemplateId: string;
   public spec: IWorkflow.Spec;
   public updatedAt: Date;
 

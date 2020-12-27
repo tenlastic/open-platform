@@ -8,7 +8,6 @@ import {
 } from '@hasezoey/typegoose';
 
 import { WorkflowSpecArgumentsDocument } from './arguments';
-import { WorkflowSpecTask, WorkflowSpecTaskSchema } from './task';
 import { WorkflowSpecTemplate, WorkflowSpecTemplateDocument } from './template';
 
 @modelOptions({ schemaOptions: { _id: false } })
@@ -16,8 +15,8 @@ export class WorkflowSpecSchema {
   @prop()
   public arguments: WorkflowSpecArgumentsDocument;
 
-  @arrayProp({ items: WorkflowSpecTask, required: true })
-  public tasks: WorkflowSpecTaskSchema[];
+  @prop({ required: true })
+  public entrypoint: string;
 
   @arrayProp({ items: WorkflowSpecTemplate, required: true })
   public templates: WorkflowSpecTemplateDocument[];

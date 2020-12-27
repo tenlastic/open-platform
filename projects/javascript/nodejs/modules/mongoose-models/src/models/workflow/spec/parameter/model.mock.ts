@@ -1,13 +1,13 @@
 import * as Chance from 'chance';
 
-import { WorkflowSpecArgumentsParameter, WorkflowSpecArgumentsParameterSchema } from './model';
+import { WorkflowSpecParameter, WorkflowSpecParameterSchema } from './model';
 
-export class WorkflowSpecArgumentsParameterMock {
+export class WorkflowSpecParameterMock {
   /**
    * Creates a record with randomized required parameters if not specified.
    * @param {Object} params The parameters to initialize the record with.
    */
-  public static create(params: Partial<WorkflowSpecArgumentsParameterSchema> = {}) {
+  public static create(params: Partial<WorkflowSpecParameterSchema> = {}) {
     const chance = new Chance();
 
     const defaults = {
@@ -15,6 +15,6 @@ export class WorkflowSpecArgumentsParameterMock {
       value: chance.hash(),
     };
 
-    return new WorkflowSpecArgumentsParameter({ ...defaults, ...params });
+    return new WorkflowSpecParameter({ ...defaults, ...params });
   }
 }

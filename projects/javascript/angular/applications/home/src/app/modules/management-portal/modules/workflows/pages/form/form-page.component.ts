@@ -128,8 +128,14 @@ export class WorkflowsFormPageComponent implements OnInit {
       name: raw.name,
       namespaceId: raw.namespaceId,
       spec: {
-        tasks,
-        templates,
+        entrypoint: 'entrypoint',
+        templates: [
+          {
+            dag: { tasks },
+            name: 'entrypoint',
+          },
+          ...templates,
+        ],
       },
     };
 

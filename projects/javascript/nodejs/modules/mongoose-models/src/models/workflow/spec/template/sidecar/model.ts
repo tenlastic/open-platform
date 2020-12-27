@@ -7,7 +7,7 @@ import {
   arrayProp,
 } from '@hasezoey/typegoose';
 
-import { WorkflowSpecTemplateSidecarEnv, WorkflowSpecTemplateSidecarEnvDocument } from './env';
+import { WorkflowSpecEnv, WorkflowSpecEnvDocument } from '../../env';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateSidecarSchema {
@@ -17,8 +17,8 @@ export class WorkflowSpecTemplateSidecarSchema {
   @arrayProp({ default: undefined, items: String })
   public command: string[];
 
-  @arrayProp({ default: undefined, items: WorkflowSpecTemplateSidecarEnv })
-  public env: WorkflowSpecTemplateSidecarEnvDocument[];
+  @arrayProp({ default: undefined, items: WorkflowSpecEnv })
+  public env: WorkflowSpecEnvDocument[];
 
   @prop({ required: true })
   public image: string;

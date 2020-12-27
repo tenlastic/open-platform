@@ -27,39 +27,44 @@ components:
                         type: string
                       value:
                         type: string
-            tasks:
-              type: array
-              items:
-                type: object
-                properties:
-                  arguments:
-                    type: object
-                    properties:
-                      parameters:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            name:
-                              type: string
-                            value:
-                              type: string
-                  dependencies:
-                    type: array
-                    items:
-                      type: string
-                  name:
-                    type: string
-                  template:
-                    type: string
-                required:
-                  - name
-                  - template
+            entrypoint:
+              type: string
             templates:
               type: array
               items:
                 type: object
                 properties:
+                  dag:
+                    type: object
+                    properties:
+                      tasks:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            arguments:
+                              type: object
+                              properties:
+                                parameters:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      name:
+                                        type: string
+                                      value:
+                                        type: string
+                            dependencies:
+                              type: array
+                              items:
+                                type: string
+                            name:
+                              type: string
+                            template:
+                              type: string
+                          required:
+                            - name
+                            - template
                   inputs:
                     type: object
                     properties:
@@ -151,7 +156,7 @@ components:
                   - name
                   - script
           required:
-            - steps
+            - entrypoint
             - templates
         updatedAt:
           type: string

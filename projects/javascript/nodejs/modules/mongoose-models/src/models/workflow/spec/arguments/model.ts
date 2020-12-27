@@ -6,15 +6,12 @@ import {
   modelOptions,
 } from '@hasezoey/typegoose';
 
-import {
-  WorkflowSpecArgumentsParameter,
-  WorkflowSpecArgumentsParameterDocument,
-} from './parameter';
+import { WorkflowSpecParameter, WorkflowSpecParameterDocument } from '../parameter';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecArgumentsSchema {
-  @arrayProp({ items: WorkflowSpecArgumentsParameter })
-  public parameters: WorkflowSpecArgumentsParameterDocument[];
+  @arrayProp({ items: WorkflowSpecParameter })
+  public parameters: WorkflowSpecParameterDocument[];
 }
 
 export type WorkflowSpecArgumentsDocument = DocumentType<WorkflowSpecArgumentsSchema>;

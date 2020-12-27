@@ -1,6 +1,6 @@
-import { WorkflowSpec, WorkflowSpecSchema } from './model';
+import * as Chance from 'chance';
 
-import { WorkflowSpecTaskMock } from './task';
+import { WorkflowSpec, WorkflowSpecSchema } from './model';
 import { WorkflowSpecTemplateMock } from './template';
 
 export class WorkflowSpecMock {
@@ -9,8 +9,10 @@ export class WorkflowSpecMock {
    * @param {Object} params The parameters to initialize the record with.
    */
   public static create(params: Partial<WorkflowSpecSchema> = {}) {
+    const chance = new Chance();
+
     const defaults = {
-      tasks: [WorkflowSpecTaskMock.create()],
+      entrypoint: chance.hash(),
       templates: [WorkflowSpecTemplateMock.create()],
     };
 

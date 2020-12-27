@@ -1,7 +1,6 @@
 import * as Chance from 'chance';
 
 import { WorkflowSpecTemplate, WorkflowSpecTemplateSchema } from './model';
-import { WorkflowSpecTemplateScriptMock } from './script';
 
 export class WorkflowSpecTemplateMock {
   /**
@@ -13,7 +12,6 @@ export class WorkflowSpecTemplateMock {
 
     const defaults = {
       name: chance.hash(),
-      script: WorkflowSpecTemplateScriptMock.create(),
     };
 
     return new WorkflowSpecTemplate({ ...defaults, ...params });

@@ -257,6 +257,10 @@ export class WorkflowSchema {
     const templates = this.spec.templates.map(t => {
       const template = new WorkflowSpecTemplate(t).toObject();
 
+      if (!template.script) {
+        return template;
+      }
+
       template.artifactLocation = { archiveLogs: false };
       template.metadata = {
         labels: {
@@ -266,7 +270,7 @@ export class WorkflowSchema {
       };
 
       if (template.script.workspace) {
-        template.script.volumeMounts = [{ mountPath: '/usr/src/workspace/', name: 'workspace' }];
+        template.script.volumeMounts = [{ mountPath: '/ws/', name: 'workspace' }];
       }
 
       return template;
@@ -288,17 +292,11 @@ export class WorkflowSchema {
           affinity,
           automountServiceAccountToken: false,
           dnsPolicy: 'Default',
-          entrypoint: 'entrypoint',
+          entrypoint: this.spec.entrypoint,
           executor: { serviceAccountName: this.kubernetesResourceName },
           podGC: { strategy: 'OnPodCompletion' },
           serviceAccountName: this.kubernetesResourceName,
-          templates: [
-            {
-              dag: { tasks: this.spec.tasks },
-              name: 'entrypoint',
-            },
-            ...templates,
-          ],
+          templates,
           ttlStrategy: {
             secondsAfterSuccess: 60 * 60,
           },

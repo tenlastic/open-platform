@@ -7,6 +7,7 @@ import {
   prop,
 } from '@hasezoey/typegoose';
 
+import { WorkflowSpecTemplateDagDocument } from './dag';
 import { WorkflowSpecTemplateInputsDocument } from './inputs';
 import { WorkflowSpecTemplateRetryStrategyDocument } from './retry-strategy';
 import { WorkflowSpecTemplateScriptDocument } from './script';
@@ -14,6 +15,9 @@ import { WorkflowSpecTemplateSidecar, WorkflowSpecTemplateSidecarDocument } from
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateSchema {
+  @prop()
+  public dag: WorkflowSpecTemplateDagDocument;
+
   @prop()
   public inputs: WorkflowSpecTemplateInputsDocument;
 
@@ -23,7 +27,7 @@ export class WorkflowSpecTemplateSchema {
   @prop()
   public retryStrategy: WorkflowSpecTemplateRetryStrategyDocument;
 
-  @prop({ required: true })
+  @prop()
   public script: WorkflowSpecTemplateScriptDocument;
 
   @arrayProp({ items: WorkflowSpecTemplateSidecar })
