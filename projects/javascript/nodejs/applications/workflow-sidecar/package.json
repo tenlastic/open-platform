@@ -11,9 +11,7 @@
     "docker:build": "../../scripts/docker-build.sh workflow-sidecar",
     "docker:push": "../../scripts/docker-push.sh workflow-sidecar",
     "lint": "../../scripts/lint.sh",
-    "start": "../../scripts/start.sh --watch",
-    "test": "../../scripts/test.sh",
-    "test:watch": "../../scripts/test.sh --watch"
+    "start": "../../scripts/start.sh --watch"
   },
   "dependencies": {
     "@kubernetes/client-node": "0.11.2",
