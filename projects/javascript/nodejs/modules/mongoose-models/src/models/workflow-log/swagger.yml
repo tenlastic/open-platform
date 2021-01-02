@@ -1,0 +1,24 @@
+components:
+  schemas:
+    WorkflowLog:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[a-f0-9]{24}$
+        body:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        nodeId:
+          type: string
+        unix:
+          type: number
+          format: double
+        updatedAt:
+          type: string
+          format: date-time
+        workflowId:
+          type: string
+          format: ^[a-f0-9]{24}$

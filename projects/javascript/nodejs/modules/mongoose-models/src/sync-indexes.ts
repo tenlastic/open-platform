@@ -22,6 +22,7 @@ import {
   User,
   WebSocket,
   Workflow,
+  WorkflowLog,
 } from './models';
 
 export function syncIndexes() {
@@ -49,5 +50,6 @@ export function syncIndexes() {
     User.syncIndexes({ background: true }),
     WebSocket.syncIndexes({ background: true }),
     Workflow.syncIndexes({ background: true }),
+    WorkflowLog.syncIndexes({ background: true }),
   ]);
 }

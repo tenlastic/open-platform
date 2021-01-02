@@ -22,6 +22,7 @@ export * from './models/refresh-token';
 export * from './models/user';
 export * from './models/web-socket';
 export * from './models/workflow';
+export * from './models/workflow-log';
 
 export * from './services/api/api.service';
 export * from './services/article/article.service';
@@ -50,6 +51,7 @@ export * from './services/refresh-token/refresh-token.service';
 export * from './services/user/user.service';
 export * from './services/web-socket/web-socket.service';
 export * from './services/workflow/workflow.service';
+export * from './services/workflow-log/workflow-log.service';
 
 export * from './states/article';
 export * from './states/build';
@@ -70,5 +72,6 @@ export * from './states/queue-member';
 export * from './states/user';
 export * from './states/web-socket';
 export * from './states/workflow';
+export * from './states/workflow-log';
 
 export * from './module';

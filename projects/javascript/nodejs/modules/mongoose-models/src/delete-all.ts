@@ -22,6 +22,7 @@ import {
   User,
   WebSocket,
   Workflow,
+  WorkflowLog,
 } from './models';
 
 export function deleteAll() {
@@ -49,5 +50,6 @@ export function deleteAll() {
     User.deleteMany({}),
     WebSocket.deleteMany({}),
     Workflow.deleteMany({}),
+    WorkflowLog.deleteMany({}),
   ]);
 }

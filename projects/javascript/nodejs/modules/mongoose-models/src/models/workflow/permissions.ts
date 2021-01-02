@@ -102,4 +102,8 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
       },
     },
   ],
+  update: {
+    'namespace-administrator': ['status.*'],
+    'system-administrator': ['status.*'],
+  },
 });

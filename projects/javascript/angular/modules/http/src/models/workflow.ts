@@ -10,6 +10,20 @@ export namespace IWorkflow {
     value: string;
   }
 
+  export interface Node {
+    children?: string[];
+    displayName?: string;
+    finishedAt?: Date;
+    id?: string;
+    message?: string;
+    name?: string;
+    outboundNodes?: string[];
+    phase?: string;
+    startedAt?: Date;
+    templatename?: string;
+    type?: string;
+  }
+
   export interface RetryStrategy {
     limit: number;
     retryPolicy: RetryStrategyRetryPolicy;
@@ -43,6 +57,14 @@ export namespace IWorkflow {
     templates?: Template[];
   }
 
+  export interface Status {
+    finishedAt?: Date;
+    message?: string;
+    nodes?: Node[];
+    phase?: string;
+    startedAt?: Date;
+  }
+
   export interface Task {
     dependencies?: string[];
     name: string;
@@ -65,9 +87,43 @@ export class Workflow extends Model {
   public name: string;
   public namespaceId: string;
   public spec: IWorkflow.Spec;
+  public status: IWorkflow.Status;
   public updatedAt: Date;
 
   constructor(params: Partial<Workflow> = {}) {
     super(params);
+  }
+
+  public getNestedStatusNodes() {
+    const nodes = JSON.parse(JSON.stringify(this.status.nodes));
+
+    for (const node of nodes) {
+      if (node.children) {
+        for (const childId of node.children) {
+          const child = nodes.find(n => n.id === childId);
+          child.parent = node.id;
+        }
+      }
+    }
+
+    return this.getChildren(nodes);
+  }
+
+  private getChildren(data, parent?) {
+    return data.reduce((previous, current) => {
+      const obj = Object.assign({}, current);
+
+      if (parent === current.parent) {
+        const children = this.getChildren(data, current.id);
+
+        if (children.length) {
+          obj.children = children;
+        }
+
+        previous.push(obj);
+      }
+
+      return previous;
+    }, []);
   }
 }

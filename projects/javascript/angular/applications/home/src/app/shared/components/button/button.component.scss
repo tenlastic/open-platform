@@ -43,6 +43,11 @@
     margin-right: 0px;
   }
 
+  &[layout='right'] {
+    margin-left: auto;
+    margin-right: 0px;
+  }
+
   &[layout='vertical'] {
     display: block;
   }

@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@kubernetes/client-node": "0.11.2",
+    "@tenlastic/kubernetes": "0.0.150",
     "request": "2.88.0",
     "request-promise-native": "1.0.7"
   },

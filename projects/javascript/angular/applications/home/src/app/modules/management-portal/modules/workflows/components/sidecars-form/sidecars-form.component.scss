@@ -13,6 +13,10 @@ app-toggle-section .row {
   margin-top: 0px;
 }
 
+app-toggle-section > div.row:last-of-type {
+  margin-bottom: 4px;
+}
+
 div.image {
   display: flex;
   flex-direction: column;

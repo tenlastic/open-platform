@@ -8,12 +8,17 @@ import {
   MatSnackBar,
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { Queue, QueueService } from '@tenlastic/ng-http';
+import { Order } from '@datorama/akita';
+import { Queue, QueueLog, QueueLogQuery, QueueLogService, QueueService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import {
+  IdentityService,
+  SelectedNamespaceService,
+  SocketService,
+} from '../../../../../../core/services';
+import { LogsDialogComponent, PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
@@ -35,8 +40,11 @@ export class QueuesListPageComponent implements OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private queueLogQuery: QueueLogQuery,
+    private queueLogService: QueueLogService,
     private queueService: QueueService,
     private selectedNamespaceService: SelectedNamespaceService,
+    private socketService: SocketService,
     private titleService: Title,
   ) {}
 
@@ -74,6 +82,25 @@ export class QueuesListPageComponent implements OnInit {
 
         this.matSnackBar.open('Queue deleted successfully.');
       }
+    });
+  }
+
+  public showLogsDialog(record: Queue) {
+    this.matDialog.open(LogsDialogComponent, {
+      autoFocus: false,
+      data: {
+        $logs: this.queueLogQuery.selectAll({
+          filterBy: log => log.queueId === record._id,
+          limitTo: 250,
+          sortBy: 'unix',
+          sortByOrder: Order.DESC,
+        }),
+        find: () => this.queueLogService.find(record._id, { limit: 250, sort: '-unix' }),
+        subscribe: () =>
+          this.socketService.subscribe('queue-logs', QueueLog, this.queueLogService, {
+            queueId: record._id,
+          }),
+      },
     });
   }
 

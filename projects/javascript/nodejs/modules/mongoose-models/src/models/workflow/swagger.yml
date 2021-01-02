@@ -158,6 +158,18 @@ components:
           required:
             - entrypoint
             - templates
+        status:
+          type: object
+          properties:
+            finishedAt:
+              type: string
+              format: date-time
+            phase:
+              type: string
+              enum: [Error]
+            startedAt:
+              type: string
+              format: date-time
         updatedAt:
           type: string
           format: date-time

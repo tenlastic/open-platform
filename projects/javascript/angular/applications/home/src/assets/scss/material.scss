@@ -209,6 +209,27 @@ mat-dialog-container.mat-dialog-container {
 mat-form-field.mat-form-field {
   display: block;
 
+  &.disabled {
+    pointer-events: none;
+
+    div.mat-form-field-underline {
+      background-image: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.42) 0,
+        rgba(0, 0, 0, 0.42) 33%,
+        transparent 0
+      );
+      background-repeat: repeat-x;
+      background-size: 4px 100%;
+    }
+
+    mat-chip-list.mat-chip-list {
+      div.mat-chip-list-wrapper {
+        margin-bottom: 0px;
+      }
+    }
+  }
+
   &.mat-form-field-appearance-legacy {
     div.mat-form-field-underline {
       background-color: white;
@@ -234,6 +255,10 @@ mat-form-field.mat-form-field {
 
   &.mat-form-field-invalid {
     padding-bottom: 16px;
+  }
+
+  .mat-input-element:disabled {
+    color: white;
   }
 
   mat-error.mat-error {
@@ -334,8 +359,20 @@ mat-pseudo-checkbox.mat-pseudo-checkbox {
   color: rgba(255, 255, 255, 0.5);
 }
 
-mat-select .mat-select-placeholder {
-  color: rgba(255, 255, 255, 0.5);
+mat-select.mat-select {
+  &.mat-select-disabled {
+    div.mat-select-arrow {
+      color: white !important;
+    }
+
+    div.mat-select-value {
+      color: white !important;
+    }
+  }
+
+  .mat-select-placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
 }
 
 mat-sidenav.mat-sidenav {
@@ -366,6 +403,27 @@ mat-toolbar.mat-toolbar-single-row {
   height: 36px;
   padding: 0px;
   overflow-y: hidden;
+}
+
+mat-tree.mat-tree {
+  background: transparent;
+
+  .hidden {
+    display: none;
+  }
+
+  div.mat-tree-node,
+  li.mat-tree-node {
+    color: white;
+    padding: 0px 16px;
+  }
+
+  li,
+  ul {
+    margin-top: 0;
+    margin-bottom: 0;
+    list-style-type: none;
+  }
 }
 
 snack-bar-container.mat-snack-bar-container {

@@ -8,12 +8,24 @@ import {
   MatSnackBar,
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { GameServer, GameServerQuery, GameServerService } from '@tenlastic/ng-http';
+import { Order } from '@datorama/akita';
+import {
+  GameServer,
+  GameServerLog,
+  GameServerLogQuery,
+  GameServerLogService,
+  GameServerQuery,
+  GameServerService,
+} from '@tenlastic/ng-http';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import {
+  IdentityService,
+  SelectedNamespaceService,
+  SocketService,
+} from '../../../../../../core/services';
+import { LogsDialogComponent, PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
@@ -41,12 +53,15 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   private subject: Subject<string> = new Subject();
 
   constructor(
+    private gameServerLogQuery: GameServerLogQuery,
+    private gameServerLogService: GameServerLogService,
     private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private selectedNamespaceService: SelectedNamespaceService,
+    private socketService: SocketService,
     private titleService: Title,
   ) {}
 
@@ -91,6 +106,28 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
         await this.gameServerService.delete(record._id);
         this.matSnackBar.open('Game Server deleted successfully.');
       }
+    });
+  }
+
+  public showLogsDialog(record: GameServer) {
+    this.matDialog.open(LogsDialogComponent, {
+      autoFocus: false,
+      data: {
+        $logs: this.gameServerLogQuery.selectAll({
+          filterBy: log => log.gameServerId === record._id,
+          limitTo: 250,
+          sortBy: 'unix',
+          sortByOrder: Order.DESC,
+        }),
+        find: () => this.gameServerLogService.find(record._id, { limit: 250, sort: '-unix' }),
+        subscribe: () =>
+          this.socketService.subscribe(
+            'game-server-logs',
+            GameServerLog,
+            this.gameServerLogService,
+            { gameServerId: record._id },
+          ),
+      },
     });
   }
 

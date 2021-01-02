@@ -1,4 +1,5 @@
-<app-toggle-section title="Environment Variables">
+<app-toggle-section title="Environment Variables"
+                    [canToggle]="false">
   <div class="row environment-variable"
        *ngFor="let env of formArray.controls; let i = index">
     <mat-form-field floatLabel="always">
@@ -19,7 +20,8 @@
       <mat-error>Enter a valid value.</mat-error>
     </mat-form-field>
 
-    <app-button color="accent"
+    <app-button *ngIf="!env.disabled"
+                color="accent"
                 layout="left"
                 matTooltip="Remove Environment Variable"
                 (OnClick)="removeEnvironmentVariable(i)">
@@ -27,7 +29,12 @@
     </app-button>
   </div>
 
-  <div class="row">
+  <div *ngIf="formArray.disabled"
+       class="row">
+    No environment variables.
+  </div>
+  <div *ngIf="!formArray.disabled"
+       class="row">
     <app-button color="accent"
                 layout="left"
                 (OnClick)="addEnvironmentVariable()">

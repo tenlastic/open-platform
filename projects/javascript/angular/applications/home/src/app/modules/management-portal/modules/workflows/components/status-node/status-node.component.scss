@@ -1,0 +1,25 @@
+:host {
+  align-items: center;
+  display: flex;
+}
+
+div.node-info {
+  padding: 0px 16px 2px;
+}
+
+div.node-phase {
+  font-size: 0.75rem;
+}
+
+[phase='Error'],
+[phase='Failed'] {
+  color: #ff7777;
+}
+
+[phase='Pending'] {
+  color: #7777ff;
+}
+
+[phase='Succeeded'] {
+  color: #77ff77;
+}

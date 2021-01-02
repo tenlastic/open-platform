@@ -24,6 +24,7 @@ import {
   MatTableModule,
   MatToolbarModule,
   MatTooltipModule,
+  MatTreeModule,
 } from '@angular/material';
 
 const modules = [
@@ -50,6 +51,7 @@ const modules = [
   MatTableModule,
   MatToolbarModule,
   MatTooltipModule,
+  MatTreeModule,
 ];
 
 @NgModule({

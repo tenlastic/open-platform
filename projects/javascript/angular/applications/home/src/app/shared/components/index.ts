@@ -5,6 +5,7 @@ export * from './header-toolbar/header-toolbar.component';
 export * from './input-dialog/input-dialog.component';
 export * from './layout/layout.component';
 export * from './loading-message/loading-message.component';
+export * from './logs-dialog/logs-dialog.component';
 export * from './markdown/markdown.component';
 export * from './match-prompt/match-prompt.component';
 export * from './message-group/message-group.component';

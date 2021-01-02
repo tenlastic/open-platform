@@ -58,7 +58,8 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
     this.updateQueueMembers$ = this.$group.subscribe(group => {
       const $queueMembers = this.queueMemberQuery.selectAll({
-        filterBy: qm => qm.groupId === group._id || qm.userId === this.identityService.user._id,
+        filterBy: qm =>
+          (group._id && qm.groupId === group._id) || qm.userId === this.identityService.user._id,
       });
       this.$queueMembers = this.queueMemberQuery.populate($queueMembers);
 

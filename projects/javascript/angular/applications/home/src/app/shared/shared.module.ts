@@ -13,6 +13,7 @@ import {
   InputDialogComponent,
   LayoutComponent,
   LoadingMessageComponent,
+  LogsDialogComponent,
   MarkdownComponent,
   MatchPromptComponent,
   MessageGroupComponent,
@@ -46,6 +47,7 @@ const components = [
   InputDialogComponent,
   LayoutComponent,
   LoadingMessageComponent,
+  LogsDialogComponent,
   MarkdownComponent,
   MatchPromptComponent,
   MessageGroupComponent,
@@ -83,6 +85,7 @@ const pipes = [
   declarations: [...components, ...pipes],
   entryComponents: [
     InputDialogComponent,
+    LogsDialogComponent,
     MatchPromptComponent,
     PromptComponent,
     RefreshTokenPromptComponent,

@@ -2,6 +2,10 @@
 
 :host ::ng-deep {
   & > app-toggle-section {
+    & > div.row:last-of-type {
+      border-bottom: none;
+    }
+
     & > div.row:nth-of-type(2) {
       flex-direction: column !important;
     }

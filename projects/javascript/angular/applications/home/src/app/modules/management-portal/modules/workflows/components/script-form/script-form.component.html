@@ -1,4 +1,5 @@
-<app-toggle-section title="Script">
+<app-toggle-section title="Script"
+                    [canToggle]="false">
   <div class="row">
     <mat-form-field floatLabel="always">
       <mat-label>Docker Image</mat-label>
@@ -12,7 +13,8 @@
     <div class="sub-section">
       <div class="row">
         <mat-form-field class="source"
-                        floatLabel="always">
+                        floatLabel="always"
+                        [ngClass]="{ disabled: formGroup.controls.command.disabled }">
           <mat-label>Command</mat-label>
 
           <mat-chip-list #chipList>
@@ -21,11 +23,13 @@
                       [selectable]="false"
                       (removed)="removeStringFromFormArray(command, commandIndex)">
               {{commandValue}}
-              <mat-icon matChipRemove>close</mat-icon>
+              <mat-icon *ngIf="!command.disabled"
+                        matChipRemove>close</mat-icon>
             </mat-chip>
           </mat-chip-list>
 
-          <input placeholder="/bin/sh"
+          <input *ngIf="!command.disabled"
+                 placeholder="/bin/sh"
                  [matChipInputFor]="chipList"
                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                  [matChipInputAddOnBlur]="true"

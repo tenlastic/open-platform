@@ -72,7 +72,7 @@
       <td mat-cell
           *matCellDef="let element">
         <app-button color="accent"
-                    [routerLink]="[element._id, 'logs']">
+                    (OnClick)="showLogsDialog(element)">
           <mat-icon>subject</mat-icon>
           <span>Logs</span>
         </app-button>

@@ -1,11 +1,14 @@
 <div class="row">
   <h3>{{ title }}</h3>
-  <app-button color="accent" (OnClick)="toggle()">
+  <app-button *ngIf="canToggle"
+              color="accent"
+              (OnClick)="toggle()">
     <mat-icon>{{ isVisible ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}</mat-icon>
     <span>{{ isVisible ? 'Hide' : 'Show' }}</span>
   </app-button>
 </div>
 
-<div *ngIf="isVisible" class="row">
+<div *ngIf="isVisible"
+     class="row">
   <ng-content></ng-content>
 </div>

@@ -6,6 +6,7 @@ import { Component, Input } from '@angular/core';
   templateUrl: 'toggle-section.component.html',
 })
 export class ToggleSectionComponent {
+  @Input() public canToggle = true;
   @Input() public isVisible = true;
   @Input() public title: string;
 

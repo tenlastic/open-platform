@@ -1,5 +1,5 @@
-<app-toggle-section [isVisible]="false"
-                    title="Sidecars">
+<app-toggle-section title="Sidecars"
+                    [canToggle]="false">
   <div *ngFor="let sidecar of formArray.controls; let i = index"
        class="row sidecar">
     <div class="image">
@@ -12,7 +12,8 @@
         <mat-error>Enter a valid image.</mat-error>
       </mat-form-field>
 
-      <div class="row">
+      <div *ngIf="!formArray.disabled"
+           class="row">
         <app-button *ngIf="i > 0"
                     color="accent"
                     layout="left"
@@ -41,56 +42,71 @@
     <div class="sub-section">
       <div class="row">
         <mat-form-field class="source"
-                        floatLabel="always">
+                        floatLabel="always"
+                        [ngClass]="{ disabled: sidecar.controls.command.disabled }">
           <mat-label>Command</mat-label>
 
           <mat-chip-list #chipList>
-            <mat-chip *ngFor="let command of sidecar.controls.command.value; let commandIndex = index"
+            <mat-chip *ngFor="let commandValue of sidecar.controls.command.value; let commandIndex = index"
                       [removable]="true"
                       [selectable]="false"
                       (removed)="removeStringFromFormArray(sidecar.controls.command, commandIndex)">
-              {{command}}
-              <mat-icon matChipRemove>close</mat-icon>
+              {{commandValue}}
+              <mat-icon *ngIf="!sidecar.controls.command.disabled"
+                        matChipRemove>close</mat-icon>
             </mat-chip>
           </mat-chip-list>
 
-          <input placeholder="mongod"
+          <input *ngIf="!sidecar.controls.command.disabled"
+                 placeholder="/bin/sh"
                  [matChipInputFor]="chipList"
                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                  [matChipInputAddOnBlur]="true"
                  (matChipInputTokenEnd)="addStringToFormArray($event, sidecar.controls.command)">
+
+          <mat-error>Enter a valid command.</mat-error>
         </mat-form-field>
       </div>
 
       <div class="row">
         <mat-form-field class="source"
-                        floatLabel="always">
-          <mat-label>Arguments</mat-label>
+                        floatLabel="always"
+                        [ngClass]="{ disabled: sidecar.controls.args.disabled }">
+          <mat-label>Args</mat-label>
 
           <mat-chip-list #chipList>
-            <mat-chip *ngFor="let args of sidecar.controls.args.value; let argsIndex = index"
+            <mat-chip *ngFor="let argsValue of sidecar.controls.args.value; let argsIndex = index"
                       [removable]="true"
                       [selectable]="false"
                       (removed)="removeStringFromFormArray(sidecar.controls.args, argsIndex)">
-              {{args}}
-              <mat-icon matChipRemove>close</mat-icon>
+              {{argsValue}}
+              <mat-icon *ngIf="!sidecar.controls.args.disabled"
+                        matChipRemove>close</mat-icon>
             </mat-chip>
           </mat-chip-list>
 
-          <input placeholder="--noauth"
+          <input *ngIf="!sidecar.controls.args.disabled"
+                 placeholder="/bin/sh"
                  [matChipInputFor]="chipList"
                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                  [matChipInputAddOnBlur]="true"
                  (matChipInputTokenEnd)="addStringToFormArray($event, sidecar.controls.args)">
+
+          <mat-error>Enter valid arguments.</mat-error>
         </mat-form-field>
       </div>
 
-      <app-workflow-environment-variables-form [formArray]="sidecar['controls'].env">
+      <app-workflow-environment-variables-form [formArray]="sidecar.controls.env">
       </app-workflow-environment-variables-form>
     </div>
   </div>
 
-  <div class="row">
+  <div *ngIf="formArray.disabled"
+       class="row">
+    No sidecars.
+  </div>
+  <div *ngIf="!formArray.disabled"
+       class="row">
     <app-button color="accent"
                 layout="left"
                 (OnClick)="addSidecar()">

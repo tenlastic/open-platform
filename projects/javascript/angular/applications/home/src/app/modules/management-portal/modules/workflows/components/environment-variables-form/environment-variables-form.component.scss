@@ -26,8 +26,6 @@ div.row.environment-variable {
   flex-wrap: nowrap;
 }
 
-div.row:not(.environment-variable) {
-  app-button {
-    margin: 0px 0px 8px;
-  }
+div.row:last-of-type {
+  margin-bottom: 4px;
 }

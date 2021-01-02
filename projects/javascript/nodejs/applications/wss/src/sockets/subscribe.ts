@@ -33,6 +33,8 @@ import {
   WebSocket,
   WebSocketPermissions,
   Workflow,
+  WorkflowLog,
+  WorkflowLogPermissions,
   WorkflowPermissions,
 } from '@tenlastic/mongoose-models';
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
@@ -130,6 +132,10 @@ export async function subscribe(
     case 'workflows':
       Model = Workflow;
       Permissions = WorkflowPermissions;
+      break;
+    case 'workflow-logs':
+      Model = WorkflowLog;
+      Permissions = WorkflowLogPermissions;
       break;
   }
 

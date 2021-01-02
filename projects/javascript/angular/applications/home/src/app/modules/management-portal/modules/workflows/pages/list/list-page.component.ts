@@ -27,7 +27,7 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
 
   public $workflows: Observable<Workflow[]>;
   public dataSource = new MatTableDataSource<Workflow>();
-  public displayedColumns: string[] = ['name', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns: string[] = ['name', 'status', 'createdAt', 'updatedAt', 'actions'];
   public search = '';
 
   private updateDataSource$ = new Subscription();

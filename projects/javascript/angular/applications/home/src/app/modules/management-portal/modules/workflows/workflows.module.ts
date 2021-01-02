@@ -7,6 +7,7 @@ import {
   WorkflowEnvironmentVariablesFormComponent,
   WorkflowScriptFormComponent,
   WorkflowSidecarsFormComponent,
+  WorkflowStatusNodeComponent,
 } from './components';
 import { WorkflowsFormPageComponent } from './pages/form/form-page.component';
 import { WorkflowsListPageComponent } from './pages/list/list-page.component';
@@ -21,6 +22,7 @@ export const ROUTES: Routes = [
     WorkflowEnvironmentVariablesFormComponent,
     WorkflowScriptFormComponent,
     WorkflowSidecarsFormComponent,
+    WorkflowStatusNodeComponent,
 
     WorkflowsFormPageComponent,
     WorkflowsListPageComponent,
