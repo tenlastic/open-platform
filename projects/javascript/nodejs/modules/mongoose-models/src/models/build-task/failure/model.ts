@@ -5,7 +5,6 @@ import {
   modelOptions,
   prop,
 } from '@hasezoey/typegoose';
-import * as mongoose from 'mongoose';
 
 @modelOptions({
   schemaOptions: {
@@ -15,13 +14,11 @@ import * as mongoose from 'mongoose';
   },
 })
 export class BuildTaskFailureSchema {
-  public _id: mongoose.Types.ObjectId;
+  @prop()
   public createdAt: Date;
 
   @prop({ required: true })
   public message: string;
-
-  public updatedAt: Date;
 }
 
 export type BuildTaskFailureDocument = DocumentType<BuildTaskFailureSchema>;

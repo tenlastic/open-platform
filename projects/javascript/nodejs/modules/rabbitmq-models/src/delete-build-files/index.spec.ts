@@ -23,7 +23,7 @@ import { DeleteBuildFiles } from './';
 
 use(chaiAsPromised);
 
-describe('remove-build-files', function() {
+describe('delete-build-files', function() {
   let sandbox: sinon.SinonSandbox;
   let user: UserDocument;
 

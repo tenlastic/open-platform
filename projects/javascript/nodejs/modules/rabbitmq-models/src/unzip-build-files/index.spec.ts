@@ -24,7 +24,7 @@ import { UnzipBuildFiles } from './';
 
 use(chaiAsPromised);
 
-describe('workers/unzip', function() {
+describe('unzip-build-files', function() {
   let sandbox: sinon.SinonSandbox;
   let user: UserDocument;
 
