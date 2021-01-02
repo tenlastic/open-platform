@@ -1,6 +1,9 @@
 import {
   CollectionMock,
+  NamespaceBuildLimitsMock,
   NamespaceCollectionLimits,
+  NamespaceGameLimitsMock,
+  NamespaceGameServerLimitsMock,
   NamespaceLimitError,
   NamespaceLimits,
   NamespaceMock,
@@ -33,7 +36,10 @@ describe('handlers/collections/create', function() {
       });
       const namespace = await NamespaceMock.create({
         limits: new NamespaceLimits({
+          builds: new NamespaceBuildLimitsMock(),
           collections: new NamespaceCollectionLimits({ count: 1 }),
+          gameServers: new NamespaceGameServerLimitsMock(),
+          games: new NamespaceGameLimitsMock(),
         }),
         users: [namespaceUser],
       });

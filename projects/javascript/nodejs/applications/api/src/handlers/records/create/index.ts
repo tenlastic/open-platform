@@ -1,10 +1,4 @@
-import {
-  Collection,
-  NamespaceLimitError,
-  RecordDocument,
-  RecordSchema,
-} from '@tenlastic/mongoose-models';
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { Collection, NamespaceLimitError, RecordSchema } from '@tenlastic/mongoose-models';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
