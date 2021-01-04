@@ -9,7 +9,7 @@
     "type": "git",
     "url": "ssh://git@github.com/tenlastic/open-platform.git"
   },
-  "version": "0.0.151",
+  "version": "0.0.152",
   "publishConfig": {
     "access": "public"
   },
@@ -22,17 +22,17 @@
   },
   "dependencies": {
     "@hasezoey/typegoose": "6.0.0-27",
-    "@tenlastic/docker-engine": "0.0.151",
-    "@tenlastic/minio": "0.0.151",
-    "@tenlastic/mongoose-models": "0.0.151",
-    "@tenlastic/rabbitmq": "0.0.151",
+    "@tenlastic/docker-engine": "0.0.152",
+    "@tenlastic/minio": "0.0.152",
+    "@tenlastic/mongoose-models": "0.0.152",
+    "@tenlastic/rabbitmq": "0.0.152",
     "amqplib": "0.5.5",
     "mongoose": "5.7.11",
     "tmp": "0.1.0",
     "unzipper": "0.10.11"
   },
   "devDependencies": {
-    "@tenlastic/mongoose-change-stream-kafka": "0.0.151",
+    "@tenlastic/mongoose-change-stream-kafka": "0.0.152",
     "mocha": "7.1.2",
     "nyc": "12.0.2",
     "ts-node": "8.9.1",
