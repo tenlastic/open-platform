@@ -59,7 +59,7 @@ const workflowNamespace = process.env.WORKFLOW_NAMESPACE;
 async function updateWorkflow(object: any) {
   const { status } = object;
 
-  const nodes: any[] = Object.values(status.nodes);
+  const nodes: any[] = Object.values(status.nodes || {});
   for (const node of nodes) {
     if (node.type !== 'Pod' && node.type !== 'Retry') {
       continue;

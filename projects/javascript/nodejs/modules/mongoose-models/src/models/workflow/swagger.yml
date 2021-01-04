@@ -112,6 +112,13 @@ components:
                               type: string
                       image:
                         type: string
+                      resources:
+                        type: object
+                        properties:
+                          cpu:
+                            type: number
+                          memory:
+                            type: number
                       source:
                         type: string
                       workingDir:
@@ -147,8 +154,13 @@ components:
                           type: string
                         name:
                           type: string
-                        workingDir:
-                          type: string
+                        resources:
+                          type: object
+                          properties:
+                            cpu:
+                              type: number
+                            memory:
+                              type: number
                       required:
                         - image
                         - name

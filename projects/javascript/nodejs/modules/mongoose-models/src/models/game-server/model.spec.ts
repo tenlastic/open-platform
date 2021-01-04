@@ -128,7 +128,9 @@ describe('models/game-server/model', function() {
 
       const promise = GameServer.checkNamespaceLimits(1, 0.1, true, 0.1, namespace._id);
 
-      expect(promise).to.be.rejectedWith('Namespace limit reached: gameServers.count. Value: 1.');
+      return expect(promise).to.be.rejectedWith(
+        'Namespace limit reached: gameServers.count. Value: 1.',
+      );
     });
 
     it('enforces the gameServers.cpu Namespace limit', async function() {
@@ -140,7 +142,9 @@ describe('models/game-server/model', function() {
 
       const promise = GameServer.checkNamespaceLimits(0, 0.2, true, 0.1, namespace._id);
 
-      expect(promise).to.be.rejectedWith('Namespace limit reached: gameServers.cpu. Value: 0.1.');
+      return expect(promise).to.be.rejectedWith(
+        'Namespace limit reached: gameServers.cpu. Value: 0.1.',
+      );
     });
 
     it('enforces the gameServers.memory Namespace limit', async function() {
@@ -152,7 +156,7 @@ describe('models/game-server/model', function() {
 
       const promise = GameServer.checkNamespaceLimits(0, 0.1, true, 0.2, namespace._id);
 
-      expect(promise).to.be.rejectedWith(
+      return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: gameServers.memory. Value: 0.1.',
       );
     });
@@ -166,7 +170,7 @@ describe('models/game-server/model', function() {
 
       const promise = GameServer.checkNamespaceLimits(0, 0.1, false, 0.1, namespace._id);
 
-      expect(promise).to.be.rejectedWith(
+      return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: gameServers.preemptible. Value: true.',
       );
     });

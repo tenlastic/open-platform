@@ -1,5 +1,24 @@
-import { WorkflowPermissions } from '@tenlastic/mongoose-models';
+import { Workflow, WorkflowPermissions } from '@tenlastic/mongoose-models';
+import { Context } from 'koa';
 
-import { create } from '../../../defaults';
+export async function handler(ctx: Context) {
+  const user = ctx.state.apiKey || ctx.state.user;
 
-export const handler = create(WorkflowPermissions);
+  await new Workflow(ctx.request.body).validate();
+
+  const { isPreemptible, namespaceId, spec } = ctx.request.body;
+  const { parallelism, templates } = spec;
+
+  await Workflow.checkNamespaceLimits(
+    1,
+    isPreemptible || false,
+    namespaceId,
+    parallelism,
+    templates,
+  );
+
+  const result = await WorkflowPermissions.create(ctx.request.body, ctx.params, user);
+  const record = await WorkflowPermissions.read(result, user);
+
+  ctx.response.body = { record };
+}

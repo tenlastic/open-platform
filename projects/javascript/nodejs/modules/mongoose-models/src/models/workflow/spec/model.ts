@@ -18,6 +18,9 @@ export class WorkflowSpecSchema {
   @prop({ required: true })
   public entrypoint: string;
 
+  @prop()
+  public parallelism: number;
+
   @arrayProp({ items: WorkflowSpecTemplateSchema, required: true })
   public templates: WorkflowSpecTemplateSchema[];
 }

@@ -298,6 +298,58 @@ export class NamespacesFormPageComponent implements OnInit {
             Validators.required,
           ],
         }),
+        workflows: this.formBuilder.group({
+          count: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value:
+                this.data.limits && this.data.limits.workflows
+                  ? this.data.limits.workflows.count || 0
+                  : 0,
+            },
+            Validators.required,
+          ],
+          cpu: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value:
+                this.data.limits && this.data.limits.workflows
+                  ? this.data.limits.workflows.cpu || 0
+                  : 0,
+            },
+            Validators.required,
+          ],
+          memory: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value:
+                this.data.limits && this.data.limits.workflows
+                  ? this.data.limits.workflows.memory || 0
+                  : 0,
+            },
+            Validators.required,
+          ],
+          parallelism: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value:
+                this.data.limits && this.data.limits.workflows
+                  ? this.data.limits.workflows.parallelism || 0
+                  : 0,
+            },
+            Validators.required,
+          ],
+          preemptible: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value:
+                this.data.limits && this.data.limits.workflows
+                  ? this.data.limits.workflows.preemptible || false
+                  : false,
+            },
+            Validators.required,
+          ],
+        }),
       }),
       name: [this.data.name, Validators.required],
       users: this.formBuilder.array(users),

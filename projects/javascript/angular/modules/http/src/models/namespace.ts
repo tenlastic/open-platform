@@ -13,6 +13,11 @@ export namespace INamespace {
     Workflows = 'workflows',
   }
 
+  export interface BuildLimits {
+    count: number;
+    size: number;
+  }
+
   export interface CollectionLimits {
     count: number;
     size: number;
@@ -38,20 +43,24 @@ export namespace INamespace {
   }
 
   export interface Limits {
+    builds: BuildLimits;
     collections: CollectionLimits;
     gameServers: GameServerLimits;
     games: GameLimits;
-    builds: BuildLimits;
-  }
-
-  export interface BuildLimits {
-    count: number;
-    size: number;
+    workflows: WorkflowLimits;
   }
 
   export interface User {
     _id: string;
     roles: string[];
+  }
+
+  export interface WorkflowLimits {
+    count: number;
+    cpu: number;
+    memory: number;
+    parallelism: number;
+    preemptible: boolean;
   }
 }
 

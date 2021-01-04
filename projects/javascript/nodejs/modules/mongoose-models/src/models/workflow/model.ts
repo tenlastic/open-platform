@@ -22,8 +22,19 @@ import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 
-import { NamespaceDocument, NamespaceEvent } from '../namespace';
-import { WorkflowSpecSchema, WorkflowSpecTemplate } from './spec';
+import {
+  Namespace,
+  NamespaceDocument,
+  NamespaceEvent,
+  NamespaceLimitError,
+  NamespaceWorkflowLimitsSchema,
+} from '../namespace';
+import {
+  WorkflowSpecSchema,
+  WorkflowSpecTemplate,
+  WorkflowSpecTemplateResourcesSchema,
+  WorkflowSpecTemplateSchema,
+} from './spec';
 import { WorkflowStatusSchema } from './status';
 
 export const WorkflowEvent = new EventEmitter<IDatabasePayload<WorkflowDocument>>();
@@ -107,108 +118,73 @@ export class WorkflowSchema {
     return `workflow-${this._id}`;
   }
 
-  /**
-   * Deletes an Argo Workflow within Kubernetes.
-   */
-  private async deleteKubernetesResources(this: WorkflowDocument) {
-    /**
-     * ======================
-     * NETWORK POLICY
-     * ======================
-     */
-    try {
-      await networkingV1.deleteNamespacedNetworkPolicy(
-        this.kubernetesResourceName,
-        this.kubernetesNamespace,
-      );
-    } catch {}
+  public static async checkNamespaceLimits(
+    count: number,
+    isPreemptible: boolean,
+    namespaceId: string | mongoose.Types.ObjectId,
+    parallelism: number,
+    templates: WorkflowSpecTemplateSchema[],
+  ) {
+    const namespace = await Namespace.findOne({ _id: namespaceId });
+    if (!namespace) {
+      throw new Error('Record not found.');
+    }
 
-    /**
-     * ======================
-     * WORKFLOW
-     * ======================
-     */
-    try {
-      await this.deleteWorkflow();
-    } catch {}
+    const limits = namespace.limits.workflows;
 
-    /**
-     * ======================
-     * WORKFLOW SIDECARS
-     * ======================
-     */
-    try {
-      await this.deleteSidecars();
-    } catch {}
-  }
+    const cpuSums = templates.map(t => {
+      let sum = 0;
 
-  /**
-   * Deletes the sidecars and associated resources from Kubernetes.
-   */
-  private async deleteSidecars(this: WorkflowDocument) {
-    /**
-     * ======================
-     * ROLE + SERVICE ACCOUNT
-     * ======================
-     */
-    await rbacAuthorizationV1.deleteNamespacedRole(
-      `${this.kubernetesResourceName}-sidecar`,
-      this.kubernetesNamespace,
-    );
-    await coreV1.deleteNamespacedServiceAccount(
-      `${this.kubernetesResourceName}-sidecar`,
-      this.kubernetesNamespace,
-    );
-    await rbacAuthorizationV1.deleteNamespacedRoleBinding(
-      `${this.kubernetesResourceName}-sidecar`,
-      this.kubernetesNamespace,
-    );
+      if (t.script && t.script.resources && t.script.resources.cpu) {
+        sum += t.script.resources.cpu;
+      }
+      if (t.sidecars) {
+        t.sidecars.forEach(s => (sum += s.resources && s.resources.cpu ? s.resources.cpu : 0));
+      }
 
-    /**
-     * ======================
-     * DEPLOYMENT
-     * ======================
-     */
-    await appsV1.deleteNamespacedDeployment(
-      `${this.kubernetesResourceName}-sidecar`,
-      this.kubernetesNamespace,
-    );
-  }
+      return sum;
+    });
+    if (limits.cpu > 0 && Math.max(...cpuSums) > limits.cpu) {
+      throw new NamespaceLimitError('workflows.cpu', limits.cpu);
+    }
 
-  /**
-   * Deletes the workflow and associated resources from Kubernetes.
-   */
-  private async deleteWorkflow(this: WorkflowDocument) {
-    /**
-     * ======================
-     * ROLE + SERVICE ACCOUNT
-     * ======================
-     */
-    await rbacAuthorizationV1.deleteNamespacedRole(
-      `${this.kubernetesResourceName}-application`,
-      this.kubernetesNamespace,
-    );
-    await coreV1.deleteNamespacedServiceAccount(
-      `${this.kubernetesResourceName}-application`,
-      this.kubernetesNamespace,
-    );
-    await rbacAuthorizationV1.deleteNamespacedRoleBinding(
-      `${this.kubernetesResourceName}-application`,
-      this.kubernetesNamespace,
-    );
+    const memorySums = templates.map(t => {
+      let sum = 0;
 
-    /**
-     * ======================
-     * WORKFLOW
-     * ======================
-     */
-    await customObjects.deleteNamespacedCustomObject(
-      'argoproj.io',
-      'v1alpha1',
-      this.kubernetesNamespace,
-      'workflows',
-      this.kubernetesResourceName,
-    );
+      if (t.script && t.script.resources && t.script.resources.memory) {
+        sum += t.script.resources.memory;
+      }
+      if (t.sidecars) {
+        t.sidecars.forEach(
+          s => (sum += s.resources && s.resources.memory ? s.resources.memory : 0),
+        );
+      }
+
+      return sum;
+    });
+    if (limits.memory > 0 && Math.max(...memorySums) > limits.memory) {
+      throw new NamespaceLimitError('workflows.memory', limits.memory);
+    }
+
+    if (limits.parallelism && parallelism > limits.parallelism) {
+      throw new NamespaceLimitError('workflows.parallelism', limits.parallelism);
+    }
+
+    if (limits.preemptible && isPreemptible === false) {
+      throw new NamespaceLimitError('workflows.preemptible', limits.preemptible);
+    }
+
+    if (limits.count > 0) {
+      const results = await Workflow.aggregate([
+        { $match: { namespaceId: namespace._id, 'status.finishedAt': { $exists: false } } },
+        { $group: { _id: null, count: { $sum: 1 } } },
+      ]);
+
+      const countSum = results.length > 0 ? results[0].count : 0;
+      if (countSum + count > limits.count) {
+        throw new NamespaceLimitError('workflows.count', limits.count);
+      }
+    }
   }
 
   /**
@@ -429,6 +405,10 @@ export class WorkflowSchema {
    * Creates the workflow and associated resources from Kubernetes.
    */
   private async createWorkflow(this: WorkflowDocument) {
+    if (!this.populated('namespaceDocument')) {
+      await this.populate('namespaceDocument').execPopulate();
+    }
+
     /**
      * ======================
      * ROLE + SERVICE ACCOUNT
@@ -496,27 +476,9 @@ export class WorkflowSchema {
       },
     };
 
-    const templates = this.spec.templates.map(t => {
-      const template = new WorkflowSpecTemplate(t).toObject();
-
-      if (!template.script) {
-        return template;
-      }
-
-      template.artifactLocation = { archiveLogs: false };
-      template.metadata = {
-        labels: {
-          app: this.kubernetesResourceName,
-          role: 'application',
-        },
-      };
-
-      if (template.script.workspace) {
-        template.script.volumeMounts = [{ mountPath: '/ws/', name: 'workspace' }];
-      }
-
-      return template;
-    });
+    const templates = this.spec.templates.map(t =>
+      this.getTemplateManifest(this.namespaceDocument.limits.workflows, t),
+    );
 
     await customObjects.createNamespacedCustomObject(
       'argoproj.io',
@@ -534,6 +496,10 @@ export class WorkflowSchema {
           dnsPolicy: 'Default',
           entrypoint: this.spec.entrypoint,
           executor: { serviceAccountName: `${this.kubernetesResourceName}-application` },
+          parallelism:
+            this.spec.parallelism ||
+            this.namespaceDocument.limits.workflows.parallelism ||
+            Infinity,
           serviceAccountName: `${this.kubernetesResourceName}-application`,
           templates,
           volumeClaimTemplates: [
@@ -552,6 +518,193 @@ export class WorkflowSchema {
         },
       },
     );
+  }
+
+  /**
+   * Deletes an Argo Workflow within Kubernetes.
+   */
+  private async deleteKubernetesResources(this: WorkflowDocument) {
+    /**
+     * ======================
+     * NETWORK POLICY
+     * ======================
+     */
+    try {
+      await networkingV1.deleteNamespacedNetworkPolicy(
+        this.kubernetesResourceName,
+        this.kubernetesNamespace,
+      );
+    } catch {}
+
+    /**
+     * ======================
+     * WORKFLOW
+     * ======================
+     */
+    try {
+      await this.deleteWorkflow();
+    } catch {}
+
+    /**
+     * ======================
+     * WORKFLOW SIDECARS
+     * ======================
+     */
+    try {
+      await this.deleteSidecars();
+    } catch {}
+  }
+
+  /**
+   * Deletes the sidecars and associated resources from Kubernetes.
+   */
+  private async deleteSidecars(this: WorkflowDocument) {
+    /**
+     * ======================
+     * ROLE + SERVICE ACCOUNT
+     * ======================
+     */
+    await rbacAuthorizationV1.deleteNamespacedRole(
+      `${this.kubernetesResourceName}-sidecar`,
+      this.kubernetesNamespace,
+    );
+    await coreV1.deleteNamespacedServiceAccount(
+      `${this.kubernetesResourceName}-sidecar`,
+      this.kubernetesNamespace,
+    );
+    await rbacAuthorizationV1.deleteNamespacedRoleBinding(
+      `${this.kubernetesResourceName}-sidecar`,
+      this.kubernetesNamespace,
+    );
+
+    /**
+     * ======================
+     * DEPLOYMENT
+     * ======================
+     */
+    await appsV1.deleteNamespacedDeployment(
+      `${this.kubernetesResourceName}-sidecar`,
+      this.kubernetesNamespace,
+    );
+  }
+
+  /**
+   * Deletes the workflow and associated resources from Kubernetes.
+   */
+  private async deleteWorkflow(this: WorkflowDocument) {
+    /**
+     * ======================
+     * ROLE + SERVICE ACCOUNT
+     * ======================
+     */
+    await rbacAuthorizationV1.deleteNamespacedRole(
+      `${this.kubernetesResourceName}-application`,
+      this.kubernetesNamespace,
+    );
+    await coreV1.deleteNamespacedServiceAccount(
+      `${this.kubernetesResourceName}-application`,
+      this.kubernetesNamespace,
+    );
+    await rbacAuthorizationV1.deleteNamespacedRoleBinding(
+      `${this.kubernetesResourceName}-application`,
+      this.kubernetesNamespace,
+    );
+
+    /**
+     * ======================
+     * WORKFLOW
+     * ======================
+     */
+    await customObjects.deleteNamespacedCustomObject(
+      'argoproj.io',
+      'v1alpha1',
+      this.kubernetesNamespace,
+      'workflows',
+      this.kubernetesResourceName,
+    );
+  }
+
+  /**
+   * Gets the manigest for resources.
+   */
+  private getResourcesManifest(
+    this: WorkflowDocument,
+    resources: WorkflowSpecTemplateResourcesSchema,
+  ) {
+    const r: any = {};
+
+    if (resources.cpu) {
+      r.cpu = resources.cpu.toString();
+    }
+    if (resources.memory) {
+      r.memory = resources.memory.toString();
+    }
+
+    return r;
+  }
+
+  /**
+   * Gets the manifest for a template.
+   */
+  private getTemplateManifest(
+    this: WorkflowDocument,
+    limits: NamespaceWorkflowLimitsSchema,
+    template: WorkflowSpecTemplateSchema,
+  ) {
+    const t = new WorkflowSpecTemplate(template).toObject();
+    if (!t.script) {
+      return t;
+    }
+
+    t.artifactLocation = { archiveLogs: false };
+    t.metadata = {
+      labels: {
+        app: this.kubernetesResourceName,
+        role: 'application',
+      },
+    };
+
+    const sidecars = t.sidecars ? t.sidecars.length : 0;
+    const resources: any = {
+      cpu: limits.cpu ? limits.cpu / (sidecars + 1) : undefined,
+      memory: limits.memory ? limits.memory / (sidecars + 1) : undefined,
+    };
+
+    if (t.script.resources) {
+      t.script.resources = {
+        limits: this.getResourcesManifest(t.script.resources),
+        requests: this.getResourcesManifest(t.script.resources),
+      };
+    } else if (limits.cpu || limits.memory) {
+      t.script.resources = {
+        limits: this.getResourcesManifest(resources),
+        requests: this.getResourcesManifest(resources),
+      };
+    }
+
+    if (t.script.workspace) {
+      t.script.volumeMounts = [{ mountPath: '/ws/', name: 'workspace' }];
+    }
+
+    if (t.sidecars) {
+      t.sidecars = t.sidecars.map(s => {
+        if (s.resources) {
+          s.resources = {
+            limits: this.getResourcesManifest(s.resources),
+            requests: this.getResourcesManifest(s.resources),
+          };
+        } else if (limits.cpu || limits.memory) {
+          s.resources = {
+            limits: this.getResourcesManifest(resources),
+            requests: this.getResourcesManifest(resources),
+          };
+        }
+
+        return s;
+      });
+    }
+
+    return t;
   }
 }
 

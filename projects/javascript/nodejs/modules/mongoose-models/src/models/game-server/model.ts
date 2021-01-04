@@ -114,7 +114,7 @@ export class GameServerSchema implements IOriginalDocument {
   @prop({ required: true })
   public buildId: mongoose.Types.ObjectId;
 
-  @prop({ required: true, validate: v => [0.1, 0.25, 0.5].includes(v) })
+  @prop({ required: true })
   public cpu: number;
 
   public createdAt: Date;
@@ -131,7 +131,7 @@ export class GameServerSchema implements IOriginalDocument {
   @prop()
   public isPreemptible: boolean;
 
-  @prop({ required: true, validate: v => [0.1, 0.25, 0.5, 1, 2.5, 5].includes(v) })
+  @prop({ required: true })
   public memory: number;
 
   @prop({ default: {} })
@@ -318,8 +318,8 @@ export class GameServerSchema implements IOriginalDocument {
             name: 'application',
             ports: [{ containerPort: 7777 }],
             resources: {
-              limits: { cpu: `${this.cpu * 1000}m`, memory: `${this.memory * 1000}M` },
-              requests: { cpu: `${this.cpu * 1000}m`, memory: `${this.memory * 1000}M` },
+              limits: { cpu: this.cpu.toString(), memory: this.memory.toString() },
+              requests: { cpu: this.cpu.toString(), memory: this.memory.toString() },
             },
           },
         ],

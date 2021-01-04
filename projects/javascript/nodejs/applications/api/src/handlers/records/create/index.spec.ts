@@ -1,12 +1,9 @@
 import {
   CollectionDocument,
   CollectionMock,
-  NamespaceBuildLimitsMock,
-  NamespaceCollectionLimits,
-  NamespaceGameLimitsMock,
-  NamespaceGameServerLimitsMock,
+  NamespaceCollectionLimitsMock,
   NamespaceLimitError,
-  NamespaceLimits,
+  NamespaceLimitsMock,
   NamespaceMock,
 } from '@tenlastic/mongoose-models';
 import { ContextMock } from '@tenlastic/web-server';
@@ -26,11 +23,8 @@ describe('handlers/records/create', function() {
 
   beforeEach(async function() {
     const namespace = await NamespaceMock.create({
-      limits: new NamespaceLimits({
-        builds: new NamespaceBuildLimitsMock(),
-        collections: new NamespaceCollectionLimits({ size: 1 }),
-        gameServers: new NamespaceGameServerLimitsMock(),
-        games: new NamespaceGameLimitsMock(),
+      limits: NamespaceLimitsMock.create({
+        collections: NamespaceCollectionLimitsMock.create({ size: 1 }),
       }),
     });
     collection = await CollectionMock.create({

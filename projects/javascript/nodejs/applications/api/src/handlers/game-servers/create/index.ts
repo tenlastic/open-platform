@@ -1,5 +1,5 @@
-import { GameServer, GameServerPermissions, Namespace } from '@tenlastic/mongoose-models';
-import { RecordNotFoundError, RequiredFieldError } from '@tenlastic/web-server';
+import { GameServer, GameServerPermissions } from '@tenlastic/mongoose-models';
+import { RequiredFieldError } from '@tenlastic/web-server';
 import { Context } from 'koa';
 
 export async function handler(ctx: Context) {

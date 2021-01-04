@@ -4,24 +4,28 @@
              [diameter]="20"></mat-spinner>
 
 <div class="node-info">
-     <div class="node-name">{{ node.displayName }}</div>
+     <div *ngIf="node.type === 'DAG'"
+          class="node-name">Directed Acyclic Graph (DAG)</div>
+     <div *ngIf="node.type !== 'DAG'"
+          class="node-name">{{ node.displayName }}</div>
+
      <div *ngIf="node.phase === 'Error'"
           class="node-phase"
           phase="Error">
           Errored at {{ node.finishedAt | date:'h:mm:ss a on MMM d, y' }}
-          <ng-container *ngIf="node.message">(Reason: {{ node.message }})</ng-container>
+          <ng-container *ngIf="node.message">({{ node.message }})</ng-container>
      </div>
      <div *ngIf="node.phase === 'Failed'"
           class="node-phase"
           phase="Failed">
           Failed at {{ node.finishedAt | date:'h:mm:ss a on MMM d, y' }}
-          <ng-container *ngIf="node.message">(Reason: {{ node.message }})</ng-container>
+          <ng-container *ngIf="node.message">({{ node.message }})</ng-container>
      </div>
      <div *ngIf="node.phase === 'Pending'"
           class="node-phase"
           phase="Pending">
           Pending
-          <ng-container *ngIf="node.message">(Message: {{ node.message }})</ng-container>
+          <ng-container *ngIf="node.message">({{ node.message }})</ng-container>
      </div>
      <div *ngIf="node.phase === 'Running'"
           class="node-phase"

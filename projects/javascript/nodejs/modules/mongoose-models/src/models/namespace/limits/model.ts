@@ -1,9 +1,10 @@
 import { DocumentType, ReturnModelType, getModelForClass, prop } from '@hasezoey/typegoose';
 
+import { NamespaceBuildLimitsSchema } from './build';
 import { NamespaceCollectionLimitsSchema } from './collection';
 import { NamespaceGameLimitsSchema } from './game';
 import { NamespaceGameServerLimitsSchema } from './game-server';
-import { NamespaceBuildLimitsSchema } from './build';
+import { NamespaceWorkflowLimitsSchema } from './workflow';
 
 export class NamespaceLimitsSchema {
   @prop({ required: true })
@@ -17,6 +18,9 @@ export class NamespaceLimitsSchema {
 
   @prop({ required: true })
   public games: NamespaceGameLimitsSchema;
+
+  @prop({ required: true })
+  public workflows: NamespaceWorkflowLimitsSchema;
 }
 
 export type NamespaceLimitsDocument = DocumentType<NamespaceLimitsSchema>;

@@ -1,12 +1,9 @@
 import {
   CollectionDocument,
   CollectionMock,
-  NamespaceBuildLimitsMock,
-  NamespaceCollectionLimits,
-  NamespaceGameLimitsMock,
-  NamespaceGameServerLimitsMock,
+  NamespaceCollectionLimitsMock,
   NamespaceLimitError,
-  NamespaceLimits,
+  NamespaceLimitsMock,
   NamespaceMock,
   RecordDocument,
   RecordSchema,
@@ -29,11 +26,8 @@ describe('handlers/records/update', function() {
 
   beforeEach(async function() {
     const namespace = await NamespaceMock.create({
-      limits: new NamespaceLimits({
-        builds: new NamespaceBuildLimitsMock(),
-        collections: new NamespaceCollectionLimits({ size: 150 }),
-        gameServers: new NamespaceGameServerLimitsMock(),
-        games: new NamespaceGameLimitsMock(),
+      limits: NamespaceLimitsMock.create({
+        collections: NamespaceCollectionLimitsMock.create({ size: 150 }),
       }),
     });
     collection = await CollectionMock.create({
