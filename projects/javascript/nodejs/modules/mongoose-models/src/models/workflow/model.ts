@@ -175,13 +175,12 @@ export class WorkflowSchema {
     }
 
     if (limits.count > 0) {
-      const results = await Workflow.aggregate([
-        { $match: { namespaceId: namespace._id, 'status.finishedAt': { $exists: false } } },
-        { $group: { _id: null, count: { $sum: 1 } } },
-      ]);
+      const results = await Workflow.countDocuments({
+        namespaceId: namespace._id,
+        'status.finishedAt': { $exists: false },
+      });
 
-      const countSum = results.length > 0 ? results[0].count : 0;
-      if (countSum + count > limits.count) {
+      if (results + count > limits.count) {
         throw new NamespaceLimitError('workflows.count', limits.count);
       }
     }

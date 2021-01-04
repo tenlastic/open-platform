@@ -10,7 +10,8 @@ export class WorkflowMock {
    * @param {Object} params The parameters to initialize the record with.
    */
   public static async create(params: Partial<WorkflowSchema> = {}) {
-    return this.new(params);
+    const record = await this.new(params);
+    return record.save();
   }
 
   /**
