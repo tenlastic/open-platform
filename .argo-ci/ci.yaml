@@ -97,7 +97,10 @@ spec:
         image: alpine/git:latest
         command: [sh]
         source: |
-          tail /root/.ssh/id_rsa
+          # Add Host Key for Github.
+          mkdir -p /root/.ssh/
+          ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
+          cp /tmp/secrets/cd-ssh-keys/id_rsa /root/.ssh/id_rsa
 
           # Use SSH instead of HTTPS.
           git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
@@ -110,7 +113,7 @@ spec:
           git reset --hard {{inputs.parameters.revision}}
         volumeMounts:
           - name: cd-ssh-keys
-            mountPath: /root/.ssh/
+            mountPath: /tmp/secrets/cd-ssh-keys/
             readonly: true
           - name: workspace
             mountPath: /usr/src/
@@ -337,7 +340,7 @@ spec:
             cpu: 500m
         volumeMounts:
           - name: cd-ssh-keys
-            mountPath: /root/.ssh/
+            mountPath: /tmp/secrets/cd-ssh-keys/
             readonly: true
           - name: node-modules
             mountPath: /usr/src/app/projects/javascript/node_modules/
