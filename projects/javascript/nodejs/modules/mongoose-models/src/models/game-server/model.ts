@@ -348,7 +348,7 @@ export class GameServerSchema implements IOriginalDocument {
             {
               command: ['npm', 'run', 'start'],
               env,
-              image: 'node:10',
+              image: 'node:12',
               name: 'health-check',
               resources: { requests: { cpu: '50m', memory: '64M' } },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
@@ -357,7 +357,7 @@ export class GameServerSchema implements IOriginalDocument {
             {
               command: ['npm', 'run', 'start'],
               env,
-              image: 'node:10',
+              image: 'node:12',
               name: 'logs',
               resources: { requests: { cpu: '50m', memory: '64M' } },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],

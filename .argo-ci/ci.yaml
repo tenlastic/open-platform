@@ -129,7 +129,7 @@ spec:
 
     - name: continuous-integration-angular
       container:
-        image: node:10
+        image: node:12
         command: [sh]
         args: [./.argo-ci/continuous-integration-angular.sh]
         envFrom:
@@ -151,7 +151,7 @@ spec:
 
     - name: continuous-integration-nodejs
       container:
-        image: node:10
+        image: node:12
         command: [sh]
         args: [./.argo-ci/continuous-integration-nodejs.sh]
         envFrom:
@@ -163,7 +163,7 @@ spec:
             cpu: 500m
         volumeMounts:
           - name: node-modules
-            mountPath: /usr/src/projects/javascripts/node_modules/
+            mountPath: /usr/src/app/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -213,7 +213,7 @@ spec:
         source: git branch --contains {{inputs.parameters.revision}} --remotes | tail +2 | cut -c 3-
         volumeMounts:
           - name: node-modules
-            mountPath: /usr/src/projects/javascripts/node_modules/
+            mountPath: /usr/src/app/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -226,7 +226,7 @@ spec:
 
     - name: migrations
       container:
-        image: node:10
+        image: node:12
         command: [sh]
         args: [./.argo-ci/migrations.sh]
         envFrom:
@@ -238,7 +238,7 @@ spec:
             cpu: 500m
         volumeMounts:
           - name: node-modules
-            mountPath: /usr/src/projects/javascripts/node_modules/
+            mountPath: /usr/src/app/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -248,7 +248,7 @@ spec:
 
     - name: publish-docker-images
       container:
-        image: node:10
+        image: node:12
         command: [sh]
         args: [./.argo-ci/publish-docker-images.sh]
         env:
@@ -263,7 +263,7 @@ spec:
             cpu: 500m
         volumeMounts:
           - name: node-modules
-            mountPath: /usr/src/projects/javascripts/node_modules/
+            mountPath: /usr/src/app/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -294,7 +294,7 @@ spec:
             cpu: 500m
         volumeMounts:
           - name: node-modules
-            mountPath: /usr/src/projects/javascripts/node_modules/
+            mountPath: /usr/src/app/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -315,7 +315,7 @@ spec:
               name: cd-environment-variables
         volumeMounts:
           - name: node-modules
-            mountPath: /usr/src/projects/javascripts/node_modules/
+            mountPath: /usr/src/app/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -333,10 +333,20 @@ spec:
         retryPolicy: OnFailure
 
     - name: publish-npm-modules
-      container:
-        image: node:10
+      script:
+        image: node:12
         command: [sh]
-        args: [./.argo-ci/publish-npm-modules.sh]
+        source: |
+          # Set up SSH keys.
+          mkdir -p /root/.ssh/
+          echo 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==' > ~/.ssh/known_hosts
+          cp /tmp/secrets/cd-ssh-keys/id_rsa /root/.ssh/id_rsa
+
+          # Use SSH instead of HTTPS.
+          git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
+          git config --global gc.auto 0 || true
+
+          ./.argo-ci/publish-npm-modules.sh
         envFrom:
           - secretRef:
               name: cd-environment-variables
@@ -346,10 +356,10 @@ spec:
             cpu: 500m
         volumeMounts:
           - name: cd-ssh-keys
-            mountPath: /root/.ssh/
-            readOnly: true
+            mountPath: /tmp/secrets/cd-ssh-keys/
+            readonly: true
           - name: node-modules
-            mountPath: /usr/src/projects/javascripts/node_modules/
+            mountPath: /usr/src/app/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -368,7 +378,7 @@ spec:
           esac
         volumeMounts:
           - name: node-modules
-            mountPath: /usr/src/projects/javascripts/node_modules/
+            mountPath: /usr/src/app/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -386,7 +396,7 @@ spec:
               name: cd-environment-variables
         volumeMounts:
           - name: node-modules
-            mountPath: /usr/src/projects/javascripts/node_modules/
+            mountPath: /usr/src/app/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
