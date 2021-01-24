@@ -110,8 +110,6 @@ spec:
           - name: cd-ssh-keys
             mountPath: /root/.ssh/
             readonly: true
-          - name: node-modules
-            mountPath: /usr/src/app/projects/javascript/node_modules/
           - name: workspace
             mountPath: /usr/src/
       inputs:
@@ -207,8 +205,6 @@ spec:
         command: [sh]
         source: git branch --contains {{inputs.parameters.revision}} --remotes | tail +2 | cut -c 3-
         volumeMounts:
-          - name: node-modules
-            mountPath: /usr/src/app/projects/javascript/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -309,8 +305,6 @@ spec:
           - secretRef:
               name: cd-environment-variables
         volumeMounts:
-          - name: node-modules
-            mountPath: /usr/src/app/projects/javascript/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -362,8 +356,6 @@ spec:
             *) echo "false";; 
           esac
         volumeMounts:
-          - name: node-modules
-            mountPath: /usr/src/app/projects/javascript/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -380,8 +372,6 @@ spec:
           - secretRef:
               name: cd-environment-variables
         volumeMounts:
-          - name: node-modules
-            mountPath: /usr/src/app/projects/javascript/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
