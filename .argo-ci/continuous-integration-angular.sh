@@ -6,7 +6,7 @@ ROOT=$(pwd)
 # Run lint and build steps.
 cd "${ROOT}/projects/javascript/"
 npm i -g lerna
-lerna bootstrap --ci --hoist --include-dependencies --strict --scope @tenlastic/*-ui --scope @tenlastic/ng-* --scope angular --since
+lerna bootstrap --ci --hoist --include-dependencies --strict
 lerna run lint --ci --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
 lerna run build --ci --concurrency 1 --include-dependencies --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
 

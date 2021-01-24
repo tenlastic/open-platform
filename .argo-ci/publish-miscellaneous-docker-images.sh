@@ -36,3 +36,4 @@ function build_and_push_docker_image {
 
 build_and_push_docker_image ./dockerfiles/development-cli/ development-cli
 build_and_push_docker_image ./dockerfiles/mongo-replica-set/ mongo-replica-set
+build_and_push_docker_image ./dockerfiles/node-chrome-lerna/ node-chrome-lerna
