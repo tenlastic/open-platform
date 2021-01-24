@@ -1,5 +1,5 @@
 paths:
-  /builds/{buildId}:
+  /builds/{buildId}/tasks:
     get:
       summary: Find
       tags: [BuildTasks]

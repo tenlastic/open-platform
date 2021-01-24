@@ -7,13 +7,19 @@ import { MatSnackBar, MatTreeNestedDataSource } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IWorkflow, Workflow, WorkflowQuery, WorkflowService } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
-import { first, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 
 interface StatusNode {
-  name: string;
   children?: StatusNode[];
+  displayName?: string;
+  finishedAt?: Date;
+  message?: string;
+  name?: string;
+  phase?: string;
+  startedAt?: Date;
+  type?: string;
 }
 
 @Component({

@@ -1,9 +1,10 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 ENV ARGO_VERSION 2.7.0
 ENV DOCKER_VERSION 18.06.3-ce
 ENV FLUX_VERSION 1.16.0
-ENV HELM_VERSION v2.16.0
+ENV HELM_2_VERSION v2.16.0
+ENV HELM_3_VERSION v3.3.1
 ENV KUBECONFIG /.kube/config
 ENV KUBESEAL_VERSION v0.9.5
 ENV STERN_VERSION 1.11.0
@@ -14,33 +15,32 @@ WORKDIR /home/
 
 # Run package update and install some basics.
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y \
-  apt-transport-https \
-  ca-certificates \
-  curl \
-  gnupg2 \
-  software-properties-common \
-  python-dev \
-  unzip \
-  wget
+RUN apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common python-dev unzip wget
 
 # Install docker.
 RUN curl -L -o /tmp/docker.tgz https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz && \
   tar -xz -C /tmp -f /tmp/docker.tgz && \
   mv /tmp/docker/* /usr/bin
 
-# Install git and git-lfs.
-RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
-  apt-get install -y git git-lfs
-
-# Install node and npm.
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
-  apt install nodejs
-
 # Install gcloud.
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
   curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && \
   apt-get update && apt-get install -y google-cloud-sdk
+
+# Install git and git-lfs.
+RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
+  apt-get install -y git git-lfs
+
+# Install kubectl.
+RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
+  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list  && \
+  apt-get update  && \
+  apt-get install -y kubectl && \
+  ln -s /usr/bin/kubectl /usr/local/bin/kubectl
+
+# Install node and npm.
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash && \
+  apt-get install nodejs
 
 # Install terraform
 RUN curl -o terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
@@ -50,23 +50,23 @@ RUN curl -o terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_V
   mv terraform /usr/local/bin/terraform && \
   rm terraform.zip
 
-# Install kubectl.
-RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
-  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list  && \
-  apt-get update  && \
-  apt-get install -y kubectl && \
-  ln -s /usr/bin/kubectl /usr/local/bin/kubectl
-
 # Install argo.
 RUN wget https://github.com/argoproj/argo/releases/download/v$ARGO_VERSION/argo-linux-amd64 -O argo && \
   chmod +x argo && \
   mv argo /usr/local/bin/argo
 
-# Install helm.
-RUN curl -o helm-${HELM_VERSION}-linux-amd64.tgz https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz && \
-  tar -zxvf helm-${HELM_VERSION}-linux-amd64.tgz && \
+# Install helm 2.
+RUN wget -O helm-${HELM_2_VERSION}-linux-amd64.tgz https://get.helm.sh/helm-${HELM_2_VERSION}-linux-amd64.tar.gz && \
+  tar -zxvf helm-${HELM_2_VERSION}-linux-amd64.tgz && \
+  mv linux-amd64/helm /usr/local/bin/helm-2 && \
+  rm helm-${HELM_2_VERSION}-linux-amd64.tgz && \
+  rm -rf linux-amd64
+
+# Install helm 3.
+RUN wget -O helm-${HELM_3_VERSION}-linux-amd64.tgz https://get.helm.sh/helm-${HELM_3_VERSION}-linux-amd64.tar.gz && \
+  tar -zxvf helm-${HELM_3_VERSION}-linux-amd64.tgz && \
   mv linux-amd64/helm /usr/local/bin/helm && \
-  rm helm-${HELM_VERSION}-linux-amd64.tgz && \
+  rm helm-${HELM_3_VERSION}-linux-amd64.tgz && \
   rm -rf linux-amd64
 
 # Install jq.

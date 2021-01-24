@@ -30,11 +30,7 @@ export async function handler(ctx: Context) {
   const file = await new File({ buildId: build._id })
     .populate(FilePermissions.accessControl.options.populate)
     .execPopulate();
-  const permissions = FilePermissions.accessControl.getFieldPermissions(
-    'create',
-    file,
-    ctx.state.user,
-  );
+  const permissions = FilePermissions.accessControl.getFieldPermissions('create', file, user);
   if (permissions.length === 0) {
     throw new PermissionError();
   }
@@ -51,12 +47,7 @@ export async function handler(ctx: Context) {
       }
 
       fields['zip'] = stream;
-      promise = publishUnzipMessage(
-        ctx.params.platform,
-        ctx.params.buildId,
-        stream,
-        ctx.state.user,
-      );
+      promise = publishUnzipMessage(ctx.params.platform, ctx.params.buildId, stream, user);
     });
     busboy.on('field', (key, value) => {
       try {
@@ -65,11 +56,7 @@ export async function handler(ctx: Context) {
 
       if (key.includes('[]')) {
         key = key.replace('[]', '');
-
-        if (!fields[key]) {
-          fields[key] = [];
-        }
-
+        fields[key] = fields[key] || [];
         fields[key].push(value);
       } else {
         fields[key] = value;
@@ -83,23 +70,13 @@ export async function handler(ctx: Context) {
   // Copy files from previous Build.
   let copyJob: BuildTaskDocument;
   if (fields.previousBuildId && fields.unmodified && fields.unmodified.length) {
-    copyJob = await publishCopyMessage(
-      fields,
-      ctx.params.platform,
-      ctx.params.buildId,
-      ctx.state.user,
-    );
+    copyJob = await publishCopyMessage(fields, ctx.params.platform, ctx.params.buildId, user);
   }
 
   // Remove files from current Build.
   let removeJob: BuildTaskDocument;
   if (fields.removed && fields.removed.length) {
-    removeJob = await publishRemoveMessage(
-      fields,
-      ctx.params.platform,
-      ctx.params.buildId,
-      ctx.state.user,
-    );
+    removeJob = await publishRemoveMessage(fields, ctx.params.platform, ctx.params.buildId, user);
   }
 
   // Upload zip to Minio.

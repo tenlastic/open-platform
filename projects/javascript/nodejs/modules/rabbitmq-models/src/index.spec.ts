@@ -1,7 +1,6 @@
 import * as docker from '@tenlastic/docker-engine';
 import * as minio from '@tenlastic/minio';
 import * as mongooseModels from '@tenlastic/mongoose-models';
-import { GameServer, Namespace } from '@tenlastic/mongoose-models';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import * as sinon from 'sinon';

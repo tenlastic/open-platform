@@ -23,8 +23,10 @@
       "@tenlastic/validations": ["./modules/validations/src"],
       "@tenlastic/web-server": ["./modules/web-server/src"]
     },
+    "skipLibCheck": true,
     "sourceMap": true,
-    "target": "es2015"
+    "target": "es2015",
+    "types": ["mocha"]
   },
   "exclude": ["./node_modules/*"]
 }

@@ -16,16 +16,21 @@ spec:
     spec:
       containers:
         - name: workers
-          image: node:10
+          image: node:12
           command: ["npm", "run", "start"]
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
           volumeMounts:
-            - name: app
+            - name: node-modules
+              mountPath: /usr/src/app/projects/javascript/node_modules/
+            - name: workspace
               mountPath: /usr/src/app/
           workingDir: /usr/src/app/projects/javascript/nodejs/applications/workers/
       volumes:
-        - name: app
+        - name: node-modules
+          persistentVolumeClaim:
+            claimName: node-modules
+        - name: workspace
           hostPath:
-            path: /c/open-platform/
+            path: /run/desktop/mnt/host/c/open-platform/

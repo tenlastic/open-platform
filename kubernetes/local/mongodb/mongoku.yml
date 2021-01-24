@@ -19,7 +19,7 @@ spec:
           image: huggingface/mongoku:latest
           env:
             - name: MONGOKU_DEFAULT_HOST
-              value: mongodb://mongodb-mongodb-replicaset-0.mongodb-mongodb-replicaset,mongodb-mongodb-replicaset-1.mongodb-mongodb-replicaset,mongodb-mongodb-replicaset-2.mongodb-mongodb-replicaset:27017/admin?replicaSet=rs0
+              value: mongodb://root:password@mongodb-0.mongodb-headless,mongodb-1.mongodb-headless,mongodb-2.mongodb-headless:27017/admin?replicaSet=rs0
           ports:
             - containerPort: 3100
 ---

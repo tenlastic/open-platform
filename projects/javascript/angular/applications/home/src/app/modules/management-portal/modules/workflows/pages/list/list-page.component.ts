@@ -44,7 +44,7 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public async ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Workflow s`);
+    this.titleService.setTitle(`${TITLE} | Workflows`);
     this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
 
     await this.fetchWorkflows();

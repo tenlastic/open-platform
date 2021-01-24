@@ -4,7 +4,7 @@ import { Namespace, NamespaceDocument } from './model';
 
 export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(Namespace, {
   create: {
-    'system-administrator': ['keys', 'limits', 'name', 'users'],
+    'system-administrator': ['keys', 'limits.*', 'name', 'users'],
   },
   delete: {
     default: false,

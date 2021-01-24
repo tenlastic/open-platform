@@ -1,0 +1,11 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: node-modules
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: hostpath
+  resources:
+    requests:
+      storage: 10G

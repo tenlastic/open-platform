@@ -12,7 +12,7 @@ git config user.name $GITHUB_USER_NAME
 
 # Build Applications.
 npm i -g lerna
-lerna bootstrap --ci
+lerna bootstrap --ci --hoist --strict
 lerna run build --ci
 
 # Publish Node Modules to NPM.

@@ -1,11 +1,12 @@
 import * as kubernetes from '@tenlastic/kubernetes';
+import { EventEmitter } from 'events';
 import * as requestPromiseNative from 'request-promise-native';
 
 const accessToken = process.env.ACCESS_TOKEN;
 const workflowId = process.env.WORKFLOW_ID;
 const workflowNamespace = process.env.WORKFLOW_NAMESPACE;
 
-export async function getLogs(pod: string) {
+export async function getLogs(pod: string): Promise<EventEmitter> {
   const mostRecentLog = await getMostRecentLogCreatedAt(pod);
 
   const emitter = kubernetes.getPodLog(

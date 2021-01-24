@@ -1,27 +1,9 @@
-# Source: docker-registry/templates/secret.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: docker-registry-secret
-  labels:
-    app: docker-registry
-    chart: docker-registry-1.9.2
-    heritage: Tiller
-    release: docker-registry
-type: Opaque
-data:
-  haSharedSecret: "UHk2U1RRYkYxZTE5S2xDVA=="
----
-# Source: docker-registry/templates/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: docker-registry-config
   labels:
     app: docker-registry
-    chart: docker-registry-1.9.2
-    heritage: Tiller
-    release: docker-registry
 data:
   config.yml: |-
     health:
@@ -42,37 +24,12 @@ data:
         blobdescriptor: inmemory
     version: 0.1
 ---
-# Source: docker-registry/templates/service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: docker-registry
-  labels:
-    app: docker-registry
-    chart: docker-registry-1.9.2
-    release: docker-registry
-    heritage: Tiller
-spec:
-  type: ClusterIP
-  ports:
-    - port: 5000
-      protocol: TCP
-      name: registry
-      targetPort: 5000
-  selector:
-    app: docker-registry
-    release: docker-registry
----
-# Source: docker-registry/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: docker-registry
   labels:
     app: docker-registry
-    chart: docker-registry-1.9.2
-    release: docker-registry
-    heritage: Tiller
 spec:
   selector:
     matchLabels:
@@ -109,8 +66,6 @@ spec:
             httpGet:
               path: /
               port: 5000
-          resources: {}
-
           env:
             - name: REGISTRY_HTTP_SECRET
               valueFrom:
@@ -130,3 +85,29 @@ spec:
         - name: docker-registry-config
           configMap:
             name: docker-registry-config
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: docker-registry-secret
+  labels:
+    app: docker-registry
+type: Opaque
+data:
+  haSharedSecret: "UHk2U1RRYkYxZTE5S2xDVA=="
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docker-registry
+  labels:
+    app: docker-registry
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5000
+      protocol: TCP
+      name: registry
+      targetPort: 5000
+  selector:
+    app: docker-registry

@@ -1,16 +1,5 @@
 ## Local Development
 
-#### Enable Kubernetes within Docker for Desktop
-
-#### Install Nginx Ingress Controller
-
-Follow the directions for "Docker for Mac" on the [Nginx website](https://kubernetes.github.io/ingress-nginx/deploy).
-
-```
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/mandatory.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/provider/cloud-generic.yaml
-```
-
 #### Configure Hosts File
 
 Add the following lines to your `hosts` file to properly route to your local Kubernetes cluster.
@@ -24,42 +13,25 @@ Add the following lines to your `hosts` file to properly route to your local Kub
 127.0.0.1 mongo.localhost
 127.0.0.1 rabbitmq.localhost
 127.0.0.1 registry.localhost
-127.0.0.1 sandbox.localhost
 127.0.0.1 www.localhost
 ```
 
-#### Install Sealed Secrets
+#### Deploy Resources to Local Kubernetes Cluster
 
-Install Sealed Secrets on your local Kubernetes cluster:
-
-```
-kubectl apply -f ./local/sealed-secrets/sealed-secrets.yml
-```
-
-Obtain a copy of the master key for Sealed Secrets and upload it to your cluster:
+Install the Helm Operator followed by the rest of the resources:
 
 ```
-kubectl apply -f sealed-secrets.secret.yml
-kubectl delete pod -n kube-system -l name=sealed-secrets-controller
+kubectl apply -f ./local/helm-operator/
+kubectl apply -f ./local/
+```
+
+#### Exec into the Workspace Pod
+
+```
+kubectl exec -it workspace -- /bin/bash
 ```
 
 ## Production
-
-#### Install CLI Tools
-
-```bash
-# Install Argo CLI.
-./scripts/install/argo.sh
-
-# Install Helm CLI.
-./scripts/install/helm.sh
-
-# Install Kustomize CLI.
-./scripts/install/kustomize.sh
-
-# Install Velero CLI.
-./scripts/install/velero.sh
-```
 
 #### Setup Production Infrastructure
 

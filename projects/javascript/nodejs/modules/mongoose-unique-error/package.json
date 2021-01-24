@@ -17,12 +17,12 @@
     "build": "../../scripts/build.sh",
     "build:watch": "watch ../../scripts/build.sh ./src",
     "lint": "../../scripts/lint.sh",
-    "test": "../../scripts/test.sh --code-coverage",
+    "test": "../../scripts/test.sh",
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
     "@hasezoey/typegoose": "6.0.0-27",
-    "mongoose": "5.7.5"
+    "mongoose": "5.7.11"
   },
   "devDependencies": {
     "mocha": "7.1.2",

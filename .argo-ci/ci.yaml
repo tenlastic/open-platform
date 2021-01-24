@@ -16,6 +16,13 @@ spec:
     secondsAfterSuccess: 1296000
   volumeClaimTemplates:
     - metadata:
+        name: node-modules
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+    - metadata:
         name: workspace
       spec:
         accessModes: ["ReadWriteOnce"]
@@ -23,9 +30,9 @@ spec:
           requests:
             storage: 10Gi
   volumes:
-    - name: continuous-deployment-ssh-keys
+    - name: cd-ssh-keys
       secret:
-        secretName: continuous-deployment-ssh-keys
+        secretName: cd-ssh-keys
         defaultMode: 0600
   templates:
     - name: pipeline
@@ -93,7 +100,7 @@ spec:
           # Set up SSH keys.
           mkdir -p /root/.ssh/
           echo 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==' > ~/.ssh/known_hosts
-          cp /tmp/secrets/continuous-deployment-ssh-keys/id_rsa /root/.ssh/id_rsa
+          cp /tmp/secrets/cd-ssh-keys/id_rsa /root/.ssh/id_rsa
 
           # Use SSH instead of HTTPS.
           git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
@@ -105,9 +112,11 @@ spec:
           git fetch --all
           git reset --hard {{inputs.parameters.revision}}
         volumeMounts:
-          - name: continuous-deployment-ssh-keys
-            mountPath: /tmp/secrets/continuous-deployment-ssh-keys/
+          - name: cd-ssh-keys
+            mountPath: /tmp/secrets/cd-ssh-keys/
             readonly: true
+          - name: node-modules
+            mountPath: /usr/src/projects/javascript/node_modules/
           - name: workspace
             mountPath: /usr/src/
       inputs:
@@ -125,12 +134,14 @@ spec:
         args: [./.argo-ci/continuous-integration-angular.sh]
         envFrom:
           - secretRef:
-              name: continuous-integration-environment-variables
+              name: ci-environment-variables
         resources:
           requests:
             memory: 4096M
             cpu: 500m
         volumeMounts:
+          - name: node-modules
+            mountPath: /usr/src/projects/javascript/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -145,12 +156,14 @@ spec:
         args: [./.argo-ci/continuous-integration-nodejs.sh]
         envFrom:
           - secretRef:
-              name: continuous-integration-environment-variables
+              name: ci-environment-variables
         resources:
           requests:
             memory: 4096M
             cpu: 500m
         volumeMounts:
+          - name: node-modules
+            mountPath: /usr/src/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -199,6 +212,8 @@ spec:
         command: [sh]
         source: git branch --contains {{inputs.parameters.revision}} --remotes | tail +2 | cut -c 3-
         volumeMounts:
+          - name: node-modules
+            mountPath: /usr/src/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -216,12 +231,14 @@ spec:
         args: [./.argo-ci/migrations.sh]
         envFrom:
           - secretRef:
-              name: continuous-deployment-environment-variables
+              name: cd-environment-variables
         resources:
           requests:
             memory: 4096M
             cpu: 500m
         volumeMounts:
+          - name: node-modules
+            mountPath: /usr/src/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -239,12 +256,14 @@ spec:
             value: 127.0.0.1
         envFrom:
           - secretRef:
-              name: continuous-deployment-environment-variables
+              name: cd-environment-variables
         resources:
           requests:
             memory: 4096M
             cpu: 500m
         volumeMounts:
+          - name: node-modules
+            mountPath: /usr/src/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -268,12 +287,14 @@ spec:
         args: [./.argo-ci/publish-electron-applications.sh]
         envFrom:
           - secretRef:
-              name: continuous-deployment-environment-variables
+              name: cd-environment-variables
         resources:
           requests:
             memory: 4096M
             cpu: 500m
         volumeMounts:
+          - name: node-modules
+            mountPath: /usr/src/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -291,8 +312,10 @@ spec:
             value: 127.0.0.1
         envFrom:
           - secretRef:
-              name: continuous-deployment-environment-variables
+              name: cd-environment-variables
         volumeMounts:
+          - name: node-modules
+            mountPath: /usr/src/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -316,15 +339,17 @@ spec:
         args: [./.argo-ci/publish-npm-modules.sh]
         envFrom:
           - secretRef:
-              name: continuous-deployment-environment-variables
+              name: cd-environment-variables
         resources:
           requests:
             memory: 4096M
             cpu: 500m
         volumeMounts:
-          - name: continuous-deployment-ssh-keys
+          - name: cd-ssh-keys
             mountPath: /root/.ssh/
             readOnly: true
+          - name: node-modules
+            mountPath: /usr/src/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -342,6 +367,8 @@ spec:
             *) echo "false";; 
           esac
         volumeMounts:
+          - name: node-modules
+            mountPath: /usr/src/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -356,8 +383,10 @@ spec:
         args: [./.argo-ci/terraform.sh]
         envFrom:
           - secretRef:
-              name: continuous-deployment-environment-variables
+              name: cd-environment-variables
         volumeMounts:
+          - name: node-modules
+            mountPath: /usr/src/projects/javascripts/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/

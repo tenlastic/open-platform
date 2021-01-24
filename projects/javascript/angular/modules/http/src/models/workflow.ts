@@ -106,7 +106,18 @@ export class Workflow extends Model {
       }
     }
 
-    return this.getChildren(nodes);
+    const children = this.getChildren(nodes);
+
+    return [
+      {
+        children,
+        finishedAt: this.status.finishedAt,
+        message: this.status.message,
+        phase: this.status.phase,
+        startedAt: this.status.startedAt,
+        type: 'Workflow',
+      },
+    ];
   }
 
   private getChildren(data, parent?) {

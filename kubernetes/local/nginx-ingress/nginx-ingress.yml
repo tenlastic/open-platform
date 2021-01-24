@@ -1,0 +1,12 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: nginx-ingress
+  annotations:
+    fluxcd.io/automated: "true"
+spec:
+  releaseName: nginx-ingress
+  chart:
+    repository: https://helm.nginx.com/stable
+    name: nginx-ingress
+    version: 0.7.1

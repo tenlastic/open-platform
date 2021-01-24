@@ -366,7 +366,7 @@ export class GameServerSchema implements IOriginalDocument {
           ],
           restartPolicy: 'Always',
           serviceAccountName: this.kubernetesResourceName,
-          volumes: [{ hostPath: { path: '/c/open-platform/' }, name: 'app' }],
+          volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
         },
       };
     } else {

@@ -16,18 +16,23 @@ spec:
     spec:
       containers:
         - name: home-ui
-          image: node:10
+          image: node:12
           command: ["npm", "run", "start"]
           ports:
             - containerPort: 3000
           volumeMounts:
-            - name: app
+            - name: node-modules
+              mountPath: /usr/src/app/projects/javascript/node_modules/
+            - name: workspace
               mountPath: /usr/src/app/
           workingDir: /usr/src/app/projects/javascript/angular/applications/home/
       volumes:
-        - name: app
+        - name: node-modules
+          persistentVolumeClaim:
+            claimName: node-modules
+        - name: workspace
           hostPath:
-            path: /c/open-platform/
+            path: /run/desktop/mnt/host/c/open-platform/
 ---
 apiVersion: v1
 kind: Service

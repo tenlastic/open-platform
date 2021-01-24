@@ -351,7 +351,7 @@ export class WorkflowSchema {
           ],
           restartPolicy: 'Always',
           serviceAccountName: `${this.kubernetesResourceName}-sidecar`,
-          volumes: [{ hostPath: { path: '/c/open-platform/' }, name: 'app' }],
+          volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
         },
       };
     } else {

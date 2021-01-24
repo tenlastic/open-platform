@@ -4,10 +4,14 @@
              [diameter]="20"></mat-spinner>
 
 <div class="node-info">
-     <div *ngIf="node.type === 'DAG'"
-          class="node-name">Directed Acyclic Graph (DAG)</div>
-     <div *ngIf="node.type !== 'DAG'"
-          class="node-name">{{ node.displayName }}</div>
+     <ng-container [ngSwitch]="node.type">
+          <div *ngSwitchCase="'DAG'"
+               class="node-name">Directed Acyclic Graph (DAG)</div>
+          <div *ngSwitchCase="'Workflow'"
+               class="node-name">Workflow</div>
+          <div *ngSwitchDefault
+               class="node-name">{{ node.displayName }}</div>
+     </ng-container>
 
      <div *ngIf="node.phase === 'Error'"
           class="node-phase"
