@@ -13,7 +13,7 @@ function build_and_push_docker_image {
   IMAGE_ID=$(docker images ${REPOSITORY}:latest --format "{{.ID}}")
   URL="tenlastic/${REPOSITORY}"
 
-  # Authenticate to Github Package Registry.
+  # Authenticate to Docker Hub.
   docker login \
     -u "${DOCKER_HUB_USERNAME}" \
     -p "${DOCKER_HUB_PASSWORD}"

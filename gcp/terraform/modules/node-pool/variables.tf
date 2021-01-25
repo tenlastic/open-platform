@@ -2,6 +2,10 @@ variable "cluster_name" {
   type = "string"
 }
 
+variable "labels" {
+  type = "map"
+}
+
 variable "location" {
   default = "us-central1-a"
   type    = "string"

@@ -29,6 +29,10 @@ module "default_pool" {
   machine_type   = "n1-standard-2"
   max_node_count = 3
   min_node_count = 1
+
+  labels = {
+    "tenlastic.com/high-priority" = "true"
+  }
 }
 
 module "preemptible_pool" {
@@ -40,4 +44,8 @@ module "preemptible_pool" {
   min_node_count = 1
   name           = "preemptible-pool"
   preemptible    = true
+
+  labels = {
+    "tenlastic.com/low-priority" = "true"
+  }
 }
