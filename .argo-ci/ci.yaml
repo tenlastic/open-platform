@@ -16,13 +16,6 @@ spec:
     secondsAfterSuccess: 1296000
   volumeClaimTemplates:
     - metadata:
-        name: node-modules
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        resources:
-          requests:
-            storage: 10Gi
-    - metadata:
         name: workspace
       spec:
         accessModes: ["ReadWriteOnce"]
@@ -127,7 +120,7 @@ spec:
 
     - name: continuous-integration-angular
       container:
-        image: node:12
+        image: tenlastic/node-chrome-lerna:latest
         command: [sh]
         args: [./.argo-ci/continuous-integration-angular.sh]
         envFrom:
@@ -138,8 +131,6 @@ spec:
             memory: 4096M
             cpu: 500m
         volumeMounts:
-          - name: node-modules
-            mountPath: /usr/src/app/projects/javascript/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -149,7 +140,7 @@ spec:
 
     - name: continuous-integration-nodejs
       container:
-        image: node:12
+        image: tenlastic/node-chrome-lerna:latest
         command: [sh]
         args: [./.argo-ci/continuous-integration-nodejs.sh]
         envFrom:
@@ -160,8 +151,6 @@ spec:
             memory: 4096M
             cpu: 500m
         volumeMounts:
-          - name: node-modules
-            mountPath: /usr/src/app/projects/javascript/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -222,7 +211,7 @@ spec:
 
     - name: migrations
       container:
-        image: node:12
+        image: tenlastic/node-chrome-lerna:latest
         command: [sh]
         args: [./.argo-ci/migrations.sh]
         envFrom:
@@ -233,8 +222,6 @@ spec:
             memory: 4096M
             cpu: 500m
         volumeMounts:
-          - name: node-modules
-            mountPath: /usr/src/app/projects/javascript/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -244,7 +231,7 @@ spec:
 
     - name: publish-docker-images
       container:
-        image: node:12
+        image: tenlastic/node-chrome-lerna:latest
         command: [sh]
         args: [./.argo-ci/publish-docker-images.sh]
         env:
@@ -258,8 +245,6 @@ spec:
             memory: 4096M
             cpu: 500m
         volumeMounts:
-          - name: node-modules
-            mountPath: /usr/src/app/projects/javascript/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -289,8 +274,6 @@ spec:
             memory: 4096M
             cpu: 500m
         volumeMounts:
-          - name: node-modules
-            mountPath: /usr/src/app/projects/javascript/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/
@@ -328,7 +311,7 @@ spec:
 
     - name: publish-npm-modules
       container:
-        image: node:12
+        image: tenlastic/node-chrome-lerna:latest
         command: [sh]
         args: [./.argo-ci/publish-npm-modules.sh]
         envFrom:
@@ -342,8 +325,6 @@ spec:
           - name: cd-ssh-keys
             mountPath: /tmp/secrets/cd-ssh-keys/
             readonly: true
-          - name: node-modules
-            mountPath: /usr/src/app/projects/javascript/node_modules/
           - name: workspace
             mountPath: /usr/src/
         workingDir: /usr/src/app/

@@ -163,7 +163,6 @@ service:
   ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
   ##
   # loadBalancerIP:
-
   ## Load Balancer sources
   ## https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
   ##
@@ -220,7 +219,7 @@ master:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
           - matchExpressions:
-              - key: cloud.google.com/gke-preemptible
+              - key: tenlastic.com/low-priority
                 operator: Exists
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -249,7 +248,7 @@ slave:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
           - matchExpressions:
-              - key: cloud.google.com/gke-preemptible
+              - key: tenlastic.com/low-priority
                 operator: Exists
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:

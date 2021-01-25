@@ -18,7 +18,7 @@
     "electron:start": "npm-run-all -p start electron:serve",
     "electron:windows": "npm run electron:build && electron-builder build --win",
     "lint": "ng lint home",
-    "start": "ng serve --disable-host-check --host 0.0.0.0 --poll 1000 --port 3000 home",
+    "start": "ng serve --disable-host-check --host 0.0.0.0 --poll 1000 --port 80 home",
     "test": "ng test --code-coverage --watch false home",
     "test:watch": "ng test home",
     "version": "../../scripts/version.sh home-ui"

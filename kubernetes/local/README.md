@@ -21,6 +21,13 @@ Default Location per Platform:
 - Mac: /private/etc/hosts
 - Windows: C:/windows/system32/drivers/etc/hosts
 
+#### Apply Labels
+
+```
+kubectl label node $(kubectl get nodes -o jsonpath={..metadata.name}) tenlastic.com/high-priority=true
+kubectl label node $(kubectl get nodes -o jsonpath={..metadata.name}) tenlastic.com/low-priority=true
+```
+
 #### Deploy Resources to Local Kubernetes Cluster
 
 ```

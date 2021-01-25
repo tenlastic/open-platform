@@ -280,8 +280,10 @@ export class GameServerSchema implements IOriginalDocument {
             {
               matchExpressions: [
                 {
-                  key: 'cloud.google.com/gke-preemptible',
-                  operator: this.isPreemptible ? 'Exists' : 'DoesNotExist',
+                  key: this.isPreemptible
+                    ? 'tenlastic.com/low-priority'
+                    : 'tenlastic.com/high-priority',
+                  operator: 'Exists',
                 },
               ],
             },

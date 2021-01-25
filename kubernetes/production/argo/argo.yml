@@ -468,8 +468,8 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: cloud.google.com/gke-preemptible
-                    operator: DoesNotExist
+                  - key: tenlastic.com/high-priority
+                    operator: Exists
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
@@ -523,8 +523,8 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: cloud.google.com/gke-preemptible
-                    operator: DoesNotExist
+                  - key: tenlastic.com/high-priority
+                    operator: Exists
       containers:
         - args:
             - --configmap

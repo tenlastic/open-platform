@@ -262,7 +262,7 @@ resources:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
           - matchExpressions:
-              - key: cloud.google.com/gke-preemptible
+              - key: tenlastic.com/low-priority
                 operator: Exists
   ## Additional deployment annotations
   podAnnotations: {}
@@ -283,7 +283,7 @@ resources:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
           - matchExpressions:
-              - key: cloud.google.com/gke-preemptible
+              - key: tenlastic.com/low-priority
                 operator: Exists
   ## Additional deployment annotations
   podAnnotations: {}
@@ -318,7 +318,7 @@ resources:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
           - matchExpressions:
-              - key: cloud.google.com/gke-preemptible
+              - key: tenlastic.com/low-priority
                 operator: Exists
   ## Additional deployment annotations
   podAnnotations: {}

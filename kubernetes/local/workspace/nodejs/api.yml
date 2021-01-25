@@ -14,21 +14,28 @@ spec:
       labels:
         app: api
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: tenlastic.com/low-priority
-                    operator: Exists
       containers:
         - name: api
-          image: tenlastic/api:latest
+          image: node:12
+          command: ["npm", "run", "start"]
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
           ports:
             - containerPort: 3000
+          volumeMounts:
+            - name: node-modules
+              mountPath: /usr/src/app/projects/javascript/node_modules/
+            - name: workspace
+              mountPath: /usr/src/app/
+          workingDir: /usr/src/app/projects/javascript/nodejs/applications/api/
+      volumes:
+        - name: node-modules
+          persistentVolumeClaim:
+            claimName: node-modules
+        - name: workspace
+          hostPath:
+            path: /run/desktop/mnt/host/c/open-platform/
 ---
 apiVersion: v1
 kind: Service

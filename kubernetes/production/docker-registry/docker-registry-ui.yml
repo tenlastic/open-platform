@@ -30,7 +30,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: cloud.google.com/gke-preemptible
+                  - key: tenlastic.com/low-priority
                     operator: Exists
 ---
 apiVersion: v1

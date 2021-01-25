@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrations
+  labels:
+    app: migrations
+spec:
+  template:
+    metadata:
+      name: migrations
+      labels:
+        app: migrations
+    spec:
+      containers:
+        - name: migrations
+          image: node:12
+          command: ["npm", "run", "start"]
+          envFrom:
+            - secretRef:
+                name: nodejs-environment-variables
+          volumeMounts:
+            - name: node-modules
+              mountPath: /usr/src/app/projects/javascript/node_modules/
+            - name: workspace
+              mountPath: /usr/src/app/
+          workingDir: /usr/src/app/projects/javascript/nodejs/applications/migrations/
+      restartPolicy: OnFailure
+      volumes:
+        - name: node-modules
+          persistentVolumeClaim:
+            claimName: node-modules
+        - name: workspace
+          hostPath:
+            path: /run/desktop/mnt/host/c/open-platform/

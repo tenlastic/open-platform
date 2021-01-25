@@ -2,7 +2,7 @@ exporter:
   enabled: true
   tag: v0.34.0
 nodeSelector:
-  cloud.google.com/gke-preemptible: 'true'
+  tenlastic.com/low-priority: "true"
 replicas: 3
 tag: 5.0
 redis:

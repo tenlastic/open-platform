@@ -14,25 +14,21 @@ spec:
       labels:
         app: home-ui
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
       containers:
         - name: home-ui
-          image: node:12
-          command: ["npm", "run", "start"]
+          image: tenlastic/home-ui:latest
           ports:
-            - containerPort: 3000
-          volumeMounts:
-            - name: node-modules
-              mountPath: /usr/src/app/projects/javascript/node_modules/
-            - name: workspace
-              mountPath: /usr/src/app/
-          workingDir: /usr/src/app/projects/javascript/angular/applications/home/
-      volumes:
-        - name: node-modules
-          persistentVolumeClaim:
-            claimName: node-modules
-        - name: workspace
-          hostPath:
-            path: /run/desktop/mnt/host/c/open-platform/
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
 ---
 apiVersion: v1
 kind: Service
@@ -43,7 +39,7 @@ metadata:
     service: home-ui
 spec:
   ports:
-    - port: 3000
+    - port: 80
       name: http
   selector:
     app: home-ui

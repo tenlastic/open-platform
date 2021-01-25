@@ -17,7 +17,7 @@ image:
   tag: 2.7.1
   pullPolicy: IfNotPresent
 # imagePullSecrets:
-    # - name: docker
+# - name: docker
 service:
   name: registry
   type: ClusterIP
@@ -50,10 +50,10 @@ resources:
   #  cpu: 100m
   #  memory: 128Mi
   requests:
-   cpu: 50m
-   memory: 64Mi
+    cpu: 50m
+    memory: 64Mi
 persistence:
-  accessMode: 'ReadWriteOnce'
+  accessMode: "ReadWriteOnce"
   enabled: false
   size: 10Gi
   storageClass: standard-expandable
@@ -66,12 +66,12 @@ storage: s3
 secrets:
   haSharedSecret: ""
   htpasswd: ""
-# Secrets for Azure
-#   azure:
-#     accountName: ""
-#     accountKey: ""
-#     container: ""
-# Secrets for S3 access and secret keys
+  # Secrets for Azure
+  #   azure:
+  #     accountName: ""
+  #     accountKey: ""
+  #     container: ""
+  # Secrets for S3 access and secret keys
   s3:
     accessKey: AKIAIOSFODNN7EXAMPLE
     secretKey: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
@@ -127,7 +127,7 @@ affinity:
     requiredDuringSchedulingIgnoredDuringExecution:
       nodeSelectorTerms:
         - matchExpressions:
-            - key: cloud.google.com/gke-preemptible
+            - key: tenlastic.com/low-priority
               operator: Exists
   podAntiAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
