@@ -35,12 +35,18 @@ spec:
             periodSeconds: 30
           ports:
             - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
         - name: dind
           image: docker:19.03.8-dind
           command:
             - "dockerd"
             - "--host"
             - "tcp://0.0.0.0:2375"
+          resources:
+            requests:
+              cpu: 50m
           securityContext:
             privileged: true
           volumeMounts:

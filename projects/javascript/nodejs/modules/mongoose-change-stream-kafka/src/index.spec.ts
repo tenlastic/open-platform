@@ -12,5 +12,5 @@ before(async function() {
     useUnifiedTopology: true,
   });
 
-  await connect(process.env.KAFKA_CONNECTION_STRING.split(','));
+  await connect(process.env.KAFKA_CONNECTION_STRING);
 });

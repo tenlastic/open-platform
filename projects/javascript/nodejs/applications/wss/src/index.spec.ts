@@ -6,7 +6,7 @@ import * as sinon from 'sinon';
 let sandbox: sinon.SinonSandbox;
 
 before(async function() {
-  await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
+  await kafka.connect(process.env.KAFKA_CONNECTION_STRING);
 
   await mongooseModels.connect({
     connectionString: process.env.MONGO_CONNECTION_STRING,

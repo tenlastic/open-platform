@@ -4,16 +4,26 @@ metadata:
   name: docker-registry-ui
   labels:
     app: docker-registry-ui
+    release: docker-registry
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: docker-registry-ui
+      release: docker-registry
   template:
     metadata:
       labels:
         app: docker-registry-ui
+        release: docker-registry
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
       containers:
         - name: docker-registry-ui
           image: joxit/docker-registry-ui:static
@@ -32,7 +42,7 @@ metadata:
   name: docker-registry-ui
   labels:
     app: docker-registry-ui
-    service: docker-registry-ui
+    release: docker-registry
 spec:
   ports:
     - port: 80

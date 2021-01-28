@@ -24,4 +24,7 @@ spec:
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
+          resources:
+            requests:
+              cpu: 50m
       restartPolicy: OnFailure

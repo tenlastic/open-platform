@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api
+  name: wss
   labels:
-    app: api
+    app: wss
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: api
+      app: wss
   template:
     metadata:
       labels:
-        app: api
+        app: wss
     spec:
       affinity:
         nodeAffinity:
@@ -22,24 +22,33 @@ spec:
                   - key: tenlastic.com/low-priority
                     operator: Exists
       containers:
-        - name: api
-          image: tenlastic/api:latest
+        - name: wss
+          image: tenlastic/wss:latest
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 30
           ports:
             - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: api
+  name: wss
   labels:
-    app: api
-    service: api
+    app: wss
+    service: wss
 spec:
   ports:
     - port: 3000
       name: http
   selector:
-    app: api
+    app: wss

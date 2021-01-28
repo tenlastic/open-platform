@@ -4,24 +4,37 @@ metadata:
   name: mongoku
   labels:
     app: mongoku
+    release: mongodb
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: mongoku
+      release: mongodb
   template:
     metadata:
       labels:
         app: mongoku
+        release: mongodb
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
       containers:
         - name: mongoku
           image: huggingface/mongoku:latest
-          env:
-            - name: MONGOKU_DEFAULT_HOST
-              value: mongodb://root:password@mongodb-0.mongodb-headless,mongodb-1.mongodb-headless,mongodb-2.mongodb-headless:27017/admin?replicaSet=rs0
+          envFrom:
+            - secretRef:
+                name: mongoku-environment-variables
           ports:
             - containerPort: 3100
+          resources:
+            requests:
+              cpu: 50m
 ---
 apiVersion: v1
 kind: Service
@@ -29,7 +42,7 @@ metadata:
   name: mongoku
   labels:
     app: mongoku
-    service: mongoku
+    release: mongodb
 spec:
   ports:
     - port: 3100

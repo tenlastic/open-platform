@@ -8,7 +8,7 @@ import { connect, deleteAll } from './';
 let sandbox: sinon.SinonSandbox;
 
 before(async function() {
-  await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
+  await kafka.connect(process.env.KAFKA_CONNECTION_STRING);
 
   const minioConnectionUrl = new URL(process.env.MINIO_CONNECTION_STRING);
   minio.connect({

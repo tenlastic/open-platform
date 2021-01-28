@@ -35,6 +35,9 @@ spec:
             periodSeconds: 30
           ports:
             - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
 ---
 apiVersion: v1
 kind: Service

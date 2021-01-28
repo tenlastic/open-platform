@@ -1,15 +1,15 @@
 apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
 metadata:
-  name: kafka
+  name: zookeeper
   annotations:
     fluxcd.io/automated: "true"
 spec:
-  releaseName: kafka
+  releaseName: zookeeper
   chart:
     repository: https://charts.bitnami.com/bitnami
-    name: kafka
-    version: 12.6.2
+    name: zookeeper
+    version: 6.3.4
   values:
     affinity:
       nodeAffinity:
@@ -27,25 +27,20 @@ spec:
                   - key: app
                     operator: In
                     values:
-                      - mongodb
+                      - zookeeper
               topologyKey: kubernetes.io/hostname
+    allowAnonymousLogin: false
     auth:
-      clientProtocol: sasl
-      interBrokerProtocol: sasl
-      jaas:
-        clientUsers: username
-        existingSecret: kafka
-        interBrokerUser: username
-        zookeeperUser: username
-    externalZookeeper:
-      servers: zookeeper-0.zookeeper-headless:2181
+      clientUser: username
+      enabled: true
+      existingSecret: zookeeper
+      serverUsers: username
     image:
-      tag: 2.7.0
+      tag: 3.6.2
+    logLevel: INFO
     persistence:
       size: 8Gi
       storageClass: standard-expandable
     podLabels:
-      release: kafka
+      release: zookeeper
     replicaCount: 1
-    zookeeper:
-      enabled: false

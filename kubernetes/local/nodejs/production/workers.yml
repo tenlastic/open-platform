@@ -27,19 +27,31 @@ spec:
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 30
           ports:
             - containerPort: 3000
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: workers
-  labels:
-    app: workers
-    service: workers
-spec:
-  ports:
-    - port: 3000
-      name: http
-  selector:
-    app: workers
+          resources:
+            requests:
+              cpu: 50m
+        - name: dind
+          image: docker:19.03.8-dind
+          command:
+            - "dockerd"
+            - "--host"
+            - "tcp://0.0.0.0:2375"
+          resources:
+            requests:
+              cpu: 50m
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: dind
+              mountPath: /var/lib/docker
+      volumes:
+        - name: dind
+          emptyDir: {}

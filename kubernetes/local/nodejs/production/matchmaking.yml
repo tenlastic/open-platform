@@ -73,7 +73,7 @@ metadata:
   labels:
     app: matchmaking
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: matchmaking
@@ -91,7 +91,7 @@ spec:
                     operator: Exists
       containers:
         - name: matchmaking
-          image: tenlastic/matchmaking:0.0.154
+          image: tenlastic/matchmaking:latest
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables

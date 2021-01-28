@@ -26,7 +26,7 @@ docker.init({
 
 // Kafka.
 (async () => {
-  await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
+  await kafka.connect(process.env.KAFKA_CONNECTION_STRING);
 })();
 
 // Minio.

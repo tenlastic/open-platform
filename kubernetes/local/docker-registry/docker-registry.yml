@@ -4,8 +4,13 @@ metadata:
   name: docker-registry-config
   labels:
     app: docker-registry
+    release: docker-registry
 data:
   config.yml: |-
+    auth:
+      htpasswd:
+        realm: Registry Realm
+        path: /auth/htpasswd
     health:
       storagedriver:
         enabled: true
@@ -14,8 +19,8 @@ data:
     http:
       addr: :5000
       headers:
-        X-Content-Type-Options:
-        - nosniff
+        X-Content-Type-Options: [nosniff]
+      relativeurls: true
     log:
       fields:
         service: registry
@@ -30,71 +35,99 @@ metadata:
   name: docker-registry
   labels:
     app: docker-registry
+    release: docker-registry
 spec:
+  minReadySeconds: 5
+  replicas: 1
   selector:
     matchLabels:
       app: docker-registry
-      release: docker-registry
-  replicas: 1
-  minReadySeconds: 5
   template:
     metadata:
       labels:
         app: docker-registry
-        release: docker-registry
-      annotations:
-        checksum/config: 451ff2535bad2cd0b891a9fcebd61bc78e1cd383deb5909eeee0616806d32390
     spec:
-      securityContext:
-        fsGroup: 1000
-        runAsUser: 1000
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/high-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - docker-registry
+                topologyKey: kubernetes.io/hostname
       containers:
         - name: docker-registry
-          image: "registry:2.7.1"
-          imagePullPolicy: IfNotPresent
+          image: registry:2.7.1
           command:
             - /bin/registry
             - serve
             - /etc/docker/registry/config.yml
-          ports:
-            - containerPort: 5000
+          env:
+            - name: REGISTRY_HTTP_HOST
+              value: http://registry:5000
+            - name: REGISTRY_HTTP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: docker-registry
+                  key: haSharedSecret
+            - name: REGISTRY_STORAGE_S3_ACCESSKEY
+              valueFrom:
+                secretKeyRef:
+                  name: docker-registry
+                  key: s3AccessKey
+            - name: REGISTRY_STORAGE_S3_BUCKET
+              value: docker-registry
+            - name: REGISTRY_STORAGE_S3_REGION
+              value: us-east-1
+            - name: REGISTRY_STORAGE_S3_REGIONENDPOINT
+              value: http://minio:9000
+            - name: REGISTRY_STORAGE_S3_SECRETKEY
+              valueFrom:
+                secretKeyRef:
+                  name: docker-registry
+                  key: s3SecretKey
           livenessProbe:
             httpGet:
               path: /
               port: 5000
+          ports:
+            - containerPort: 5000
           readinessProbe:
             httpGet:
               path: /
               port: 5000
-          env:
-            - name: REGISTRY_HTTP_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: docker-registry-secret
-                  key: haSharedSecret
-            - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
-              value: "/var/lib/registry"
+          resources:
+            requests:
+              cpu: 50m
           volumeMounts:
-            - name: data
-              mountPath: /var/lib/registry/
-            - name: "docker-registry-config"
-              mountPath: "/etc/docker/registry"
+            - name: auth
+              mountPath: /auth
+              readOnly: true
+            - name: docker-registry-config
+              mountPath: /etc/docker/registry/
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
       volumes:
-        - name: data
-          emptyDir: {}
+        - name: auth
+          secret:
+            secretName: docker-registry
+            items:
+              - key: htpasswd
+                path: htpasswd
         - name: docker-registry-config
           configMap:
             name: docker-registry-config
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: docker-registry-secret
-  labels:
-    app: docker-registry
-type: Opaque
-data:
-  haSharedSecret: "UHk2U1RRYkYxZTE5S2xDVA=="
 ---
 apiVersion: v1
 kind: Service
@@ -102,12 +135,12 @@ metadata:
   name: docker-registry
   labels:
     app: docker-registry
+    release: docker-registry
 spec:
   type: ClusterIP
   ports:
-    - port: 5000
+    - name: registry
+      port: 5000
       protocol: TCP
-      name: registry
-      targetPort: 5000
   selector:
     app: docker-registry

@@ -4,22 +4,32 @@ metadata:
   name: kafdrop
   labels:
     app: kafdrop
+    release: kafka
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: kafdrop
+      release: kafka
   template:
     metadata:
       labels:
         app: kafdrop
+        release: kafka
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
       containers:
         - name: kafdrop
           image: obsidiandynamics/kafdrop:latest
-          env:
-            - name: KAFKA_BROKERCONNECT
-              value: kafka-0.kafka-headless:9092
+          envFrom:
+            - secretRef:
+                name: kafdrop-environment-variables
           ports:
             - containerPort: 9000
           resources:
@@ -32,7 +42,7 @@ metadata:
   name: kafdrop
   labels:
     app: kafdrop
-    service: kafdrop
+    release: kafka
 spec:
   ports:
     - port: 9000

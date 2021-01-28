@@ -1,9 +1,8 @@
 resource "google_container_cluster" "primary" {
   initial_node_count       = 1
   location                 = "${var.zone}"
-  min_master_version       = "1.16.15-gke.7300"
+  min_master_version       = "1.17.14-gke.400"
   name                     = "primary"
-  node_version             = "1.16.15-gke.7300"
   remove_default_node_pool = true
 
   addons_config {

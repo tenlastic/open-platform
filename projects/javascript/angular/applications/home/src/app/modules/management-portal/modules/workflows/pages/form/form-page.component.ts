@@ -240,6 +240,7 @@ export class WorkflowsFormPageComponent implements OnInit {
   private getTemplatesFormArray(templates: IWorkflow.Template[]) {
     const formArray = this.formBuilder.array([]);
     if (!templates) {
+      formArray.push(this.getDefaultTemplateFormGroup());
       return formArray;
     }
 
@@ -292,12 +293,7 @@ export class WorkflowsFormPageComponent implements OnInit {
       this.$data = this.workflowQuery.selectAll({ filterBy: w => w._id === this.data._id }).pipe(
         map(workflows => {
           const workflow = new Workflow(workflows[0]);
-          if (!workflow.status) {
-            workflow.status = {
-              nodes: [{ displayName: `workflow-${workflow._id}`, id: null, phase: 'Pending' }],
-              phase: 'Pending',
-            };
-          }
+          workflow.status = workflow.status || { nodes: [], phase: 'Pending' };
           this.dataSource.data = workflow.getNestedStatusNodes();
           return workflow;
         }),

@@ -15,7 +15,7 @@ import { matchmake } from './matchmake';
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: 'api',
   });
-  await kafka.connect(process.env.KAFKA_CONNECTION_STRING.split(','));
+  await kafka.connect(process.env.KAFKA_CONNECTION_STRING);
 
   await kafka.rootWatch<QueueMemberDocument, QueueMemberModel>(
     QueueMember,

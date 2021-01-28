@@ -11,8 +11,37 @@ spec:
     name: rabbitmq
     version: 8.7.2
   values:
-    auth:
-      password: password
-      username: username
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/high-priority
+                  operator: Exists
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - rabbitmq
+              topologyKey: kubernetes.io/hostname
+    extraConfiguration: load_definitions = /app/definitions.json
     image:
       tag: 3.8.10
+    loadDefinition:
+      enabled: true
+      existingSecret: rabbitmq-load-definitions
+    persistence:
+      size: 8Gi
+      storageClass: standard-expandable
+    podLabels:
+      release: rabbitmq
+    replicaCount: 1
+    resources:
+      requests:
+        memory: 50M
+        cpu: 50m

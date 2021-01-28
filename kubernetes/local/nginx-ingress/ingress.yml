@@ -10,6 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     nginx.ingress.kubernetes.io/server-snippet: |
       rewrite /discord https://discord.gg/AXSfWq permanent;
+    nginx.org/websocket-services: "wss"
 spec:
   rules:
     - host: api.localhost

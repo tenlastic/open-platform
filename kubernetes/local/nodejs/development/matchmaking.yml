@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: matchmaking-role
+  name: matchmaking
 rules:
   - apiGroups:
       - apps
@@ -60,7 +60,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: matchmaking-role
+  name: matchmaking
 subjects:
   - kind: ServiceAccount
     name: matchmaking
@@ -73,7 +73,7 @@ metadata:
   labels:
     app: matchmaking
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: matchmaking
@@ -82,28 +82,24 @@ spec:
       labels:
         app: matchmaking
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: tenlastic.com/low-priority
-                    operator: Exists
       containers:
         - name: matchmaking
-          image: tenlastic/matchmaking:0.0.154
+          image: node:12
+          command: ["npm", "run", "start"]
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 3000
-            initialDelaySeconds: 30
-            periodSeconds: 30
-          ports:
-            - containerPort: 3000
-          resources:
-            requests:
-              cpu: 50m
+          volumeMounts:
+            - name: node-modules
+              mountPath: /usr/src/app/projects/javascript/node_modules/
+            - name: workspace
+              mountPath: /usr/src/app/
+          workingDir: /usr/src/app/projects/javascript/nodejs/applications/matchmaking/
       serviceAccountName: matchmaking
+      volumes:
+        - name: node-modules
+          persistentVolumeClaim:
+            claimName: node-modules
+        - name: workspace
+          hostPath:
+            path: /run/desktop/mnt/host/c/open-platform/

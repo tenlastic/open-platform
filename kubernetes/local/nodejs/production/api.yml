@@ -1,12 +1,36 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: matchmaking-role
+  name: api-role
 rules:
   - apiGroups:
       - apps
     resources:
       - deployments
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - workflows
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - networkpolicies
     verbs:
       - create
       - delete
@@ -51,36 +75,36 @@ rules:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: matchmaking
+  name: api
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: matchmaking-binding
+  name: api-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: matchmaking-role
+  name: api-role
 subjects:
   - kind: ServiceAccount
-    name: matchmaking
+    name: api
     namespace: default
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: matchmaking
+  name: api
   labels:
-    app: matchmaking
+    app: api
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: matchmaking
+      app: api
   template:
     metadata:
       labels:
-        app: matchmaking
+        app: api
     spec:
       affinity:
         nodeAffinity:
@@ -90,14 +114,14 @@ spec:
                   - key: tenlastic.com/low-priority
                     operator: Exists
       containers:
-        - name: matchmaking
-          image: tenlastic/matchmaking:0.0.154
+        - name: api
+          image: tenlastic/api:latest
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
           livenessProbe:
             httpGet:
-              path: /
+              path: /articles
               port: 3000
             initialDelaySeconds: 30
             periodSeconds: 30
@@ -106,4 +130,18 @@ spec:
           resources:
             requests:
               cpu: 50m
-      serviceAccountName: matchmaking
+      serviceAccountName: api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  labels:
+    app: api
+    service: api
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: api
