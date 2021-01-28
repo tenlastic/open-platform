@@ -1,15 +1,15 @@
 variable "display_name" {
-  type = "string"
+  type = string
 }
 
 variable "name" {
-  type = "string"
+  type = string
 }
 
 variable "project" {
-  type = "string"
+  type = string
 }
 
 variable "role" {
-  type = "string"
+  type = string
 }

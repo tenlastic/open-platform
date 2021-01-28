@@ -8,7 +8,7 @@ ENV HELM_3_VERSION v3.3.1
 ENV KUBECONFIG /.kube/config
 ENV KUBESEAL_VERSION v0.9.5
 ENV STERN_VERSION 1.11.0
-ENV TERRAFORM_VERSION 0.11.13
+ENV TERRAFORM_VERSION 0.14.5
 
 USER root
 WORKDIR /home/
@@ -44,7 +44,6 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash && \
 
 # Install terraform
 RUN curl -o terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-  ls -alh && \
   unzip terraform.zip && \
   chmod +x terraform && \
   mv terraform /usr/local/bin/terraform && \

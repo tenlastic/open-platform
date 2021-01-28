@@ -1,6 +1,6 @@
 resource "google_container_cluster" "primary" {
   initial_node_count       = 1
-  location                 = "${var.zone}"
+  location                 = var.zone
   min_master_version       = "1.17.14-gke.400"
   name                     = "primary"
   remove_default_node_pool = true
@@ -12,7 +12,8 @@ resource "google_container_cluster" "primary" {
   }
 
   ip_allocation_policy {
-    use_ip_aliases = true
+    cluster_ipv4_cidr_block  = "10.0.0.0/14"
+    services_ipv4_cidr_block = "10.4.0.0/20"
   }
 
   network_policy {
@@ -24,7 +25,7 @@ resource "google_container_cluster" "primary" {
 module "default_pool" {
   source = "../modules/node-pool"
 
-  cluster_name   = "${google_container_cluster.primary.name}"
+  cluster_name   = google_container_cluster.primary.name
   machine_type   = "n1-standard-2"
   max_node_count = 3
   min_node_count = 1
@@ -37,7 +38,7 @@ module "default_pool" {
 module "preemptible_pool" {
   source = "../modules/node-pool"
 
-  cluster_name   = "${google_container_cluster.primary.name}"
+  cluster_name   = google_container_cluster.primary.name
   machine_type   = "n1-standard-2"
   max_node_count = 7
   min_node_count = 1

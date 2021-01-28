@@ -9,17 +9,17 @@ resource "google_dns_managed_zone" "tenlastic" {
 }
 
 resource "google_dns_record_set" "production" {
-  managed_zone = "${google_dns_managed_zone.tenlastic.name}"
+  managed_zone = google_dns_managed_zone.tenlastic.name
   name         = "*.${google_dns_managed_zone.tenlastic.dns_name}"
-  rrdatas      = ["${google_compute_address.istio.address}"]
+  rrdatas      = [google_compute_address.istio.address]
   ttl          = 300
   type         = "A"
 }
 
 resource "google_dns_record_set" "staging" {
-  managed_zone = "${google_dns_managed_zone.tenlastic.name}"
+  managed_zone = google_dns_managed_zone.tenlastic.name
   name         = "*.staging.${google_dns_managed_zone.tenlastic.dns_name}"
-  rrdatas      = ["${google_compute_address.istio.address}"]
+  rrdatas      = [google_compute_address.istio.address]
   ttl          = 300
   type         = "A"
 }
@@ -29,6 +29,6 @@ module "dns_admin" {
 
   display_name = "DNS Service Account"
   name = "dns-admin"
-  project = "${var.project}"
+  project = var.project
   role = "roles/dns.admin"
 }

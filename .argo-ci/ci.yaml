@@ -351,7 +351,7 @@ spec:
 
     - name: terraform
       container:
-        image: hashicorp/terraform:0.11.13
+        image: hashicorp/terraform:0.14.5
         command: [sh]
         args: [./.argo-ci/terraform.sh]
         envFrom:

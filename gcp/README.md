@@ -3,9 +3,6 @@
 #### Deploy Infrastructure
 
 ```bash
-# Start a Gcloud Docker container.
-docker-compose run gcloud
-
 # Log in to GCloud CLI.
 gcloud auth login
 gcloud config set project [PROJECT]

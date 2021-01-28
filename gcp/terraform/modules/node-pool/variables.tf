@@ -1,37 +1,37 @@
 variable "cluster_name" {
-  type = "string"
+  type = string
 }
 
 variable "labels" {
-  type = "map"
+  type = map
 }
 
 variable "location" {
   default = "us-central1-a"
-  type    = "string"
+  type    = string
 }
 
 variable "machine_type" {
   default = "n1-standard-1"
-  type    = "string"
+  type    = string
 }
 
 variable "max_node_count" {
   default = 1
-  type    = "string"
+  type    = string
 }
 
 variable "min_node_count" {
   default = 1
-  type    = "string"
+  type    = string
 }
 
 variable "name" {
   default = "default-pool"
-  type    = "string"
+  type    = string
 }
 
 variable "preemptible" {
   default = false
-  type    = "string"
+  type    = string
 }
