@@ -1,0 +1,28 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: flux
+spec:
+  releaseName: flux
+  chart:
+    repository: https://charts.fluxcd.io
+    name: flux
+    version: 1.6.0
+  values:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/low-priority
+                  operator: Exists
+    helmOperator:
+      create: false
+    git:
+      path: kubernetes/overlays/production/
+      readonly: true
+      url: https://github.com/tenlastic/open-platform
+    manifestGeneration: true
+    replicaCount: 3
+    syncGarbageCollection:
+      enabled: true

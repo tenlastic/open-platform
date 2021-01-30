@@ -21,6 +21,7 @@ resources:
   - ./ci-cd/ci-environment-variables.sealedsecret.yaml
   - ./docker-registry/docker-registry-image-pull-secret.sealedsecret.yaml
   - ./docker-registry/docker-registry.sealedsecret.yaml
+  - ./flux/flux.yaml
   - ./kafka/kafdrop.sealedsecret.yaml
   - ./kafka/kafka.sealedsecret.yaml
   - ./kafka/zookeeper.sealedsecret.yaml

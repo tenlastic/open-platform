@@ -46,7 +46,6 @@ resources:
   - ./docker-registry/docker-registry-image-pull-secret.secret.example.yaml
   - ./docker-registry/docker-registry.secret.example.yaml
   - ./global/docker-for-desktop-binding.clusterrolebinding.yaml
-  - ./helm-operator/helm-operator.yaml
   - ./kafka/kafdrop.secret.example.yaml
   - ./kafka/kafka.secret.example.yaml
   - ./kafka/zookeeper.secret.example.yaml

@@ -58,6 +58,11 @@ RUN wget https://github.com/argoproj/argo/releases/download/v$ARGO_VERSION/argo-
   chmod +x argo && \
   mv argo /usr/local/bin/argo
 
+# Install fluxctl.
+RUN wget -O fluxctl https://github.com/fluxcd/flux/releases/download/${FLUX_VERSION}/fluxctl_linux_amd64 && \
+  chmod +x fluxctl && \
+  mv fluxctl /usr/local/bin/fluxctl
+
 # Install helm 2.
 RUN wget -O helm-${HELM_2_VERSION}-linux-amd64.tgz https://get.helm.sh/helm-${HELM_2_VERSION}-linux-amd64.tar.gz && \
   tar -zxvf helm-${HELM_2_VERSION}-linux-amd64.tgz && \
@@ -75,11 +80,6 @@ RUN wget -O helm-${HELM_3_VERSION}-linux-amd64.tgz https://get.helm.sh/helm-${HE
 # Install jq.
 RUN curl -o /usr/local/bin/jq http://stedolan.github.io/jq/download/linux64/jq && \
   chmod +x /usr/local/bin/jq
-
-# Install fluxctl.
-RUN wget -O fluxctl https://github.com/fluxcd/flux/releases/download/${FLUX_VERSION}/fluxctl_linux_amd64 && \
-  chmod +x fluxctl && \
-  mv fluxctl /usr/local/bin/fluxctl
 
 # Install kubeseal.
 RUN wget https://github.com/bitnami-labs/sealed-secrets/releases/download/${KUBESEAL_VERSION}/kubeseal-linux-amd64 -O kubeseal && \
