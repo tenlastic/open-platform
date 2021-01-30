@@ -1,4 +1,4 @@
-secret.yml
-*.secret.yml
+secret.yaml
+*.secret.yaml
 
 bin/

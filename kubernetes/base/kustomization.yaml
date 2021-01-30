@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./angular/home-ui.yaml
+  - ./argo/argo.yaml
+  - ./docker-registry/docker-registry-ui.yaml
+  - ./docker-registry/docker-registry.yaml
+  - ./global/standard-expandable.storageclass.yaml
+  - ./kafka/kafdrop.yaml
+  - ./kafka/kafka.yaml
+  - ./kafka/zookeeper.yaml
+  - ./minio/minio.yaml
+  - ./mongodb/mongodb.yaml
+  - ./mongodb/mongoku.yaml
+  - ./nginx-ingress/nginx-ingress.yaml
+  - ./nodejs/api.yaml
+  - ./nodejs/matchmaking.yaml
+  - ./nodejs/workers.yaml
+  - ./nodejs/wss.yaml
+  - ./rabbitmq/rabbitmq.yaml

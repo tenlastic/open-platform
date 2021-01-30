@@ -1,0 +1,45 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+bases:
+  - ../local/
+kind: Kustomization
+patches:
+  - path: ./angular/home-ui.json
+    target:
+      group: apps
+      kind: Deployment
+      name: home-ui
+      version: v1
+  - path: ./nodejs/api.json
+    target:
+      group: apps
+      kind: Deployment
+      name: api
+      version: v1
+  - path: ./nodejs/matchmaking.json
+    target:
+      group: apps
+      kind: Deployment
+      name: matchmaking
+      version: v1
+  - path: ./nodejs/migrations.json
+    target:
+      group: batch
+      kind: Job
+      name: migrations
+      version: v1
+  - path: ./nodejs/workers.json
+    target:
+      group: apps
+      kind: Deployment
+      name: workers
+      version: v1
+  - path: ./nodejs/wss.json
+    target:
+      group: apps
+      kind: Deployment
+      name: wss
+      version: v1
+resources:
+  - ./workspace/environment-variables.secret.example.yaml
+  - ./workspace/node-modules.pvc.yaml
+  - ./workspace/workspace.pod.yaml

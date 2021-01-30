@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argo-ci
+  labels:
+    app: argo-ci
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: argo-ci
+  template:
+    metadata:
+      labels:
+        app: argo-ci
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+      containers:
+        - name: argo-ci
+          image: argoproj/argoci:v1.0.0-alpha1
+          env:
+            - name: IN_CLUSTER
+              value: "true"
+            - name: WORKFLOWS_NAMESPACE
+              value: default
+            - name: NAMESPACE
+              value: default
+            - name: ARGO_CI_IMAGE
+              value: argoproj/argoci:v1.0.0-alpha1
+          ports:
+            - containerPort: 8001
+          resources:
+            requests:
+              cpu: 50m
+      serviceAccountName: argo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argo-ci
+  labels:
+    app: argo-ci
+    service: argo-ci
+spec:
+  ports:
+    - port: 8001
+      name: http
+  selector:
+    app: argo-ci

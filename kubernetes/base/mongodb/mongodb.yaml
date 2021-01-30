@@ -1,0 +1,45 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: mongodb
+  annotations:
+    fluxcd.io/automated: "true"
+spec:
+  releaseName: mongodb
+  chart:
+    repository: https://charts.bitnami.com/bitnami
+    name: mongodb
+    version: 10.4.1
+  values:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/high-priority
+                  operator: Exists
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - mongodb
+              topologyKey: kubernetes.io/hostname
+    architecture: replicaset
+    auth:
+      existingSecret: mongodb
+    image:
+      tag: 4.4.3
+    persistence:
+      size: 8Gi
+      storageClass: standard-expandable
+    podLabels:
+      release: mongodb
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 100m

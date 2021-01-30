@@ -1,0 +1,46 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: rabbitmq
+  annotations:
+    fluxcd.io/automated: "true"
+spec:
+  releaseName: rabbitmq
+  chart:
+    repository: https://charts.bitnami.com/bitnami
+    name: rabbitmq
+    version: 8.7.2
+  values:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/high-priority
+                  operator: Exists
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - rabbitmq
+              topologyKey: kubernetes.io/hostname
+    extraConfiguration: load_definitions = /app/definitions.json
+    image:
+      tag: 3.8.10
+    loadDefinition:
+      enabled: true
+      existingSecret: rabbitmq-load-definitions
+    persistence:
+      size: 8Gi
+      storageClass: standard-expandable
+    podLabels:
+      release: rabbitmq
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 100m

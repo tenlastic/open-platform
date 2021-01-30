@@ -1,0 +1,12 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: kafka
+spec:
+  values:
+    externalZookeeper:
+      servers: zookeeper-0.zookeeper-headless:2181
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 100m

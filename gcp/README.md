@@ -3,9 +3,11 @@
 #### Deploy Infrastructure
 
 ```bash
+export PROJECT="production-303220"
+
 # Log in to GCloud CLI.
 gcloud auth login
-gcloud config set project [PROJECT]
+gcloud config set project "${PROJECT}"
 
 # Enable required services.
 gcloud services enable cloudbilling.googleapis.com
@@ -13,40 +15,40 @@ gcloud services enable cloudresourcemanager.googleapis.com
 gcloud services enable compute.googleapis.com
 gcloud services enable container.googleapis.com
 gcloud services enable deploymentmanager.googleapis.com
+gcloud services enable dns.googleapis.com
 gcloud services enable iam.googleapis.com
 
-# Grant the Google APIs service account with the Owner role.
-./scripts/google-apis-service-account.sh
+# Get the default Service Account's email address.
+export SERVICE_ACCOUNT=$(
+  gcloud projects get-iam-policy "${PROJECT}" \
+    | grep -m 1 -o '[0-9]*@cloudservices.gserviceaccount.com'
+)
+
+# Grant the Owner role to the default Service Account.
+gcloud projects add-iam-policy-binding "${PROJECT}" \
+  --member "serviceAccount:${SERVICE_ACCOUNT}" \
+  --role "roles/owner"
+
+# Remove default Editor role from default Service Account.
+gcloud projects remove-iam-policy-binding "${PROJECT}" \
+  --member "serviceAccount:${SERVICE_ACCOUNT}" \
+  --role "roles/editor"
 
 # Deploy service account and storage bucket for Terraform.
-gcloud deployment-manager deployments create "terraform-resources" \
-  --template "./deployment-manager/terraform-resources.jinja"
+gcloud deployment-manager deployments create "terraform" \
+  --template "./deployment-manager/terraform.jinja"
 
-# Create service account for Terraform.
-./scripts/get-service-account-key.sh terraform
-```
+# Download Service Account credentials for Terraform.
+gcloud iam service-accounts keys create "./service-accounts/terraform.json" \
+  --iam-account "terraform@${PROJECT}.iam.gserviceaccount.com"
 
-```bash
-# Start a Terraform Docker container.
-docker-compose run terraform
-
-# Load Google credentials for Terraform.
+# Deploy Terraform resources.
 export GOOGLE_CREDENTIALS=$(cat ./service-accounts/terraform.json)
-
-# Deploy IAM profiles.
-cd ./terraform/custom-roles/
-terraform init -backend-config="./backend.example.tfvars"
+cd ./terraform/
+terraform init
 terraform apply -auto-approve
-cd ../../../
+cd ../
 
-# Deploy Kubernetes cluster.
-cd ./terraform/cluster/
-terraform init -backend-config="./backend.example.tfvars"
-terraform apply -auto-approve
-cd ../../../
-```
-
-```bash
 # Connect to cluster.
 gcloud container clusters get-credentials primary \
   --zone "us-central1-a"

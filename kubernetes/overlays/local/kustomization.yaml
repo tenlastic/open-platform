@@ -1,0 +1,61 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+bases:
+  - ../../base/
+images:
+  - name: tenlastic/api
+    newName: tenlastic/api
+    newTag: latest
+  - name: tenlastic/home-ui
+    newName: tenlastic/home-ui
+    newTag: latest
+  - name: tenlastic/matchmaking
+    newName: tenlastic/matchmaking
+    newTag: latest
+  - name: tenlastic/workers
+    newName: tenlastic/workers
+    newTag: latest
+  - name: tenlastic/wss
+    newName: tenlastic/wss
+    newTag: latest
+kind: Kustomization
+patches:
+  - path: ./docker-registry/docker-registry.json
+    target:
+      group: apps
+      kind: Deployment
+      name: docker-registry
+      version: v1
+patchesStrategicMerge:
+  - ./angular/home-ui.yaml
+  - ./argo/argo.yaml
+  - ./docker-registry/docker-registry-ui.yaml
+  - ./global/standard-expandable.storageclass.yaml
+  - ./kafka/kafdrop.yaml
+  - ./kafka/kafka.yaml
+  - ./kafka/zookeeper.yaml
+  - ./minio/minio.yaml
+  - ./mongodb/mongodb.yaml
+  - ./mongodb/mongoku.yaml
+  - ./nginx-ingress/nginx-ingress.yaml
+  - ./nodejs/api.yaml
+  - ./nodejs/matchmaking.yaml
+  - ./nodejs/workers.yaml
+  - ./nodejs/wss.yaml
+  - ./rabbitmq/rabbitmq.yaml
+resources:
+  - ./docker-registry/docker-registry-image-pull-secret.secret.example.yaml
+  - ./docker-registry/docker-registry.secret.example.yaml
+  - ./global/docker-for-desktop-binding.clusterrolebinding.yaml
+  - ./helm-operator/helm-operator.yaml
+  - ./kafka/kafdrop.secret.example.yaml
+  - ./kafka/kafka.secret.example.yaml
+  - ./kafka/zookeeper.secret.example.yaml
+  - ./minio/minio.secret.example.yaml
+  - ./mongodb/mongodb.secret.example.yaml
+  - ./mongodb/mongoku.secret.example.yaml
+  - ./nginx-ingress/basic-authentication.ingress.yaml
+  - ./nginx-ingress/basic-authentication.secret.example.yaml
+  - ./nginx-ingress/default.ingress.yaml
+  - ./nodejs/environment-variables.secret.example.yaml
+  - ./nodejs/migrations.yaml
+  - ./rabbitmq/rabbitmq.secret.example.yaml

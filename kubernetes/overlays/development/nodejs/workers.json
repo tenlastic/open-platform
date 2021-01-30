@@ -1,0 +1,51 @@
+[
+  {
+    "op": "add",
+    "path": "/spec/template/spec/volumes",
+    "value": [
+      {
+        "name": "node-modules",
+        "persistentVolumeClaim": {
+          "claimName": "node-modules"
+        }
+      },
+      {
+        "hostPath": {
+          "path": "/run/desktop/mnt/host/c/open-platform/"
+        },
+        "name": "workspace"
+      }
+    ]
+  },
+  {
+    "op": "remove",
+    "path": "/spec/template/spec/containers/1"
+  },
+  {
+    "op": "replace",
+    "path": "/spec/template/spec/containers/0",
+    "value": {
+      "command": ["npm", "run", "start"],
+      "envFrom": [
+        {
+          "secretRef": {
+            "name": "nodejs-environment-variables"
+          }
+        }
+      ],
+      "image": "node:12",
+      "name": "workers",
+      "volumeMounts": [
+        {
+          "mountPath": "/usr/src/app/projects/javascript/node_modules/",
+          "name": "node-modules"
+        },
+        {
+          "mountPath": "/usr/src/app/",
+          "name": "workspace"
+        }
+      ],
+      "workingDir": "/usr/src/app/projects/javascript/nodejs/applications/workers/"
+    }
+  }
+]

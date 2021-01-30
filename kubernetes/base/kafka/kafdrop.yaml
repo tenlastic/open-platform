@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafdrop
+  labels:
+    app: kafdrop
+    release: kafka
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kafdrop
+      release: kafka
+  template:
+    metadata:
+      labels:
+        app: kafdrop
+        release: kafka
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+      containers:
+        - name: kafdrop
+          image: obsidiandynamics/kafdrop:latest
+          envFrom:
+            - secretRef:
+                name: kafdrop
+          ports:
+            - containerPort: 9000
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafdrop
+  labels:
+    app: kafdrop
+    release: kafka
+spec:
+  ports:
+    - port: 9000
+      name: http
+  selector:
+    app: kafdrop

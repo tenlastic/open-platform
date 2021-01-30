@@ -15,7 +15,8 @@ import * as mongoose from '@tenlastic/mongoose-models';
     console.log('Indexes synced successfully!');
 
     process.exit();
-  } catch {
+  } catch (e) {
+    console.error(e);
     process.exit(1);
   }
 })();

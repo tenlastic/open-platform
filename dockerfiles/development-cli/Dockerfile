@@ -33,10 +33,14 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
 
 # Install kubectl.
 RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
-  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list  && \
-  apt-get update  && \
+  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list && \
+  apt-get update && \
   apt-get install -y kubectl && \
   ln -s /usr/bin/kubectl /usr/local/bin/kubectl
+
+# Install kustomize.
+RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash && \
+  mv /home/kubernetes/kustomize /bin/kustomize
 
 # Install node and npm.
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash && \

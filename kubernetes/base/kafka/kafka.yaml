@@ -1,0 +1,54 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: kafka
+  annotations:
+    fluxcd.io/automated: "true"
+spec:
+  releaseName: kafka
+  chart:
+    repository: https://charts.bitnami.com/bitnami
+    name: kafka
+    version: 12.6.2
+  values:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/high-priority
+                  operator: Exists
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - kafka
+              topologyKey: kubernetes.io/hostname
+    auth:
+      clientProtocol: sasl
+      interBrokerProtocol: sasl
+      jaas:
+        clientUsers: admin
+        existingSecret: kafka
+        interBrokerUser: admin
+        zookeeperUser: admin
+    externalZookeeper:
+      servers: zookeeper-0.zookeeper-headless:2181,zookeeper-1.zookeeper-headless:2181,zookeeper-2.zookeeper-headless:2181
+    image:
+      tag: 2.7.0
+    persistence:
+      size: 8Gi
+      storageClass: standard-expandable
+    podLabels:
+      release: kafka
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 100m
+    zookeeper:
+      enabled: false

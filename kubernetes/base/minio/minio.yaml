@@ -1,0 +1,56 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: minio
+  annotations:
+    fluxcd.io/automated: "true"
+spec:
+  releaseName: minio
+  chart:
+    repository: https://helm.min.io
+    name: minio
+    version: 8.0.9
+  values:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/high-priority
+                  operator: Exists
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - minio
+              topologyKey: kubernetes.io/hostname
+    buckets:
+      - name: api
+        policy: none
+        purge: "false"
+      - name: argo
+        policy: none
+        purge: "false"
+      - name: docker-registry
+        policy: none
+        purge: "false"
+      - name: launcher
+        policy: download
+        purge: "false"
+    drivesPerNode: 2
+    existingSecret: minio
+    mode: distributed
+    persistence:
+      size: 8Gi
+      storageClass: standard-expandable
+    podLabels:
+      release: minio
+    replicas: 3
+    resources:
+      requests:
+        cpu: 100m

@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+bases:
+  - ../../base/
+kind: Kustomization
+patches:
+  - path: ./docker-registry/docker-registry.json
+    target:
+      group: apps
+      kind: Deployment
+      name: docker-registry
+      version: v1
+resources:
+  - ./argo/argo-ci.sealedsecret.yaml
+  - ./argo/argo-ci.yaml
+  - ./cert-manager/cert-manager-credentials.sealedsecret.yaml
+  - ./cert-manager/cert-manager.yaml
+  - ./cert-manager/letsencrypt-production.clusterissuer.yaml
+  - ./cert-manager/letsencrypt-staging.clusterissuer.yaml
+  - ./ci-cd/cd-environment-variables.sealedsecret.yaml
+  - ./ci-cd/cd-ssh-keys.sealedsecret.yaml
+  - ./ci-cd/ci-environment-variables.sealedsecret.yaml
+  - ./docker-registry/docker-registry-image-pull-secret.sealedsecret.yaml
+  - ./docker-registry/docker-registry.sealedsecret.yaml
+  - ./kafka/kafdrop.sealedsecret.yaml
+  - ./kafka/kafka.sealedsecret.yaml
+  - ./kafka/zookeeper.sealedsecret.yaml
+  - ./minio/minio.sealedsecret.yaml
+  - ./mongodb/mongodb.sealedsecret.yaml
+  - ./mongodb/mongoku.sealedsecret.yaml
+  - ./nginx-ingress/basic-authentication.ingress.yaml
+  - ./nginx-ingress/basic-authentication.sealedsecret.yaml
+  - ./nginx-ingress/default.ingress.yaml
+  - ./nodejs/environment-variables.sealedsecret.yaml
+  - ./rabbitmq/rabbitmq.sealedsecret.yaml
+  - ./sealed-secrets/sealed-secrets.yaml
