@@ -13,7 +13,7 @@ resources:
   - ./minio/minio.yaml
   - ./mongodb/mongodb.yaml
   - ./mongodb/mongoku.yaml
-  - ./nginx-ingress/nginx-ingress.yaml
+  - ./ingress-nginx/ingress-nginx.yaml
   - ./nodejs/api.yaml
   - ./nodejs/matchmaking.yaml
   - ./nodejs/workers.yaml

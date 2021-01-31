@@ -1,15 +1,12 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: basic-authentication
+  name: default
   annotations:
     certmanager.k8s.io/cluster-issuer: letsencrypt-production
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
     kubernetes.io/ingress.allow-http: "false"
-    nginx.ingress.kubernetes.io/auth-realm: Authentication Required
-    nginx.ingress.kubernetes.io/auth-secret: nginx-basic-auth
-    nginx.ingress.kubernetes.io/auth-type: basic
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_set_header  X-Forwarded-Proto https;
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
@@ -18,61 +15,92 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "3"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/server-snippet: |
+      rewrite /discord https://discord.gg/AXSfWq permanent;
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.org/websocket-services: wss
 spec:
   tls:
     - hosts:
         - "*.tenlastic.com"
-      secretName: letsencrypt-production
+      secretName: default-tls
   rules:
-    - host: argo.tenlastic.com
+    - host: api.tenlastic.com
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: argo-server
+                name: api
                 port:
-                  number: 2746
+                  number: 3000
     - host: argo-ci.tenlastic.com
       http:
         paths:
-          - path: /
+          - path: /api/webhook/github
             pathType: Prefix
             backend:
               service:
                 name: argo-ci
                 port:
                   number: 8001
-    - host: docker-registry.tenlastic.com
+    - host: cdn.tenlastic.com
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: docker-registry-ui
+                name: api
                 port:
-                  number: 80
-    - host: kafka.tenlastic.com
+                  number: 3000
+    - host: minio.tenlastic.com
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: kafdrop
+                name: minio
                 port:
                   number: 9000
-    - host: mongo.tenlastic.com
+    - host: rabbitmq.tenlastic.com
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: mongoku
+                name: rabbitmq
                 port:
-                  number: 3100
+                  number: 15672
+    - host: registry.tenlastic.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: docker-registry
+                port:
+                  number: 5000
+    - host: wss.tenlastic.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: wss
+                port:
+                  number: 3000
+    - host: www.tenlastic.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: home-ui
+                port:
+                  number: 80

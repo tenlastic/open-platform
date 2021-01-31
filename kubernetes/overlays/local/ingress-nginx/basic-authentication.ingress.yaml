@@ -8,7 +8,6 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "3"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
-    nginx.org/websocket-services: wss
 spec:
   rules:
     - host: argo.localhost

@@ -1,15 +1,15 @@
 apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
 metadata:
-  name: nginx-ingress
+  name: ingress-nginx
   annotations:
     fluxcd.io/automated: "true"
 spec:
-  releaseName: nginx-ingress
+  releaseName: ingress-nginx
   chart:
-    repository: https://helm.nginx.com/stable
-    name: nginx-ingress
-    version: 0.7.1
+    repository: https://kubernetes.github.io/ingress-nginx
+    name: ingress-nginx
+    version: 3.22.0
   values:
     controller:
       affinity:
@@ -28,11 +28,9 @@ spec:
                     - key: release
                       operator: In
                       values:
-                        - nginx-ingress
+                        - ingress-ginx
                 topologyKey: kubernetes.io/hostname
       replicaCount: 3
       resources:
         requests:
           cpu: 50m
-      service:
-        loadBalancerIP: 23.251.159.210

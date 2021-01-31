@@ -40,7 +40,7 @@ RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add 
 
 # Install kustomize.
 RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash && \
-  mv /home/kubernetes/kustomize /bin/kustomize
+  mv kustomize /bin/kustomize
 
 # Install node and npm.
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash && \

@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: api-role
+  name: api
 rules:
   - apiGroups:
       - apps
@@ -84,7 +84,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: api-role
+  name: api
 subjects:
   - kind: ServiceAccount
     name: api

@@ -1,4 +1,4 @@
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: letsencrypt-production
@@ -10,8 +10,8 @@ spec:
     server: https://acme-v02.api.letsencrypt.org/directory
     solvers:
       - dns01:
-          clouddns:
-            project: staging-238505
+          cloudDNS:
+            project: production-303220
             serviceAccountSecretRef:
               name: cert-manager-credentials
               key: dns-admin.json
