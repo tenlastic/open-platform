@@ -4,4 +4,7 @@ metadata:
   name: zookeeper
 spec:
   values:
+    auth:
+      clientUser: username
+      serverUsers: username
     replicaCount: 1

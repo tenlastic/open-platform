@@ -1,4 +1,4 @@
-FROM node:12
+FROM ubuntu:20.10
 
 ENV ARGO_VERSION 2.7.0
 ENV DOCKER_VERSION 18.06.3-ce
@@ -28,22 +28,18 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.c
   apt-get update && apt-get install -y google-cloud-sdk
 
 # Install git and git-lfs.
-RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
-  apt-get install -y git git-lfs
+RUN apt-get install -y git git-lfs
 
 # Install kubectl.
-RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
-  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list && \
-  apt-get update && \
-  apt-get install -y kubectl && \
-  ln -s /usr/bin/kubectl /usr/local/bin/kubectl
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+  install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
 # Install kustomize.
 RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash && \
   mv kustomize /bin/kustomize
 
 # Install node and npm.
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash && \
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
   apt-get install nodejs
 
 # Install terraform

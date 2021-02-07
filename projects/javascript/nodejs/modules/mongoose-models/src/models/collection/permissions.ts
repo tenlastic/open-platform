@@ -50,7 +50,7 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
     default: [
       '_id',
       'createdAt',
-      'indexes',
+      'indexes.*',
       'jsonSchema.*',
       'name',
       'namespaceId',
@@ -90,7 +90,7 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
     },
   ],
   update: {
-    'namespace-administrator': ['indexes', 'jsonSchema.*', 'name', 'permissions.*'],
-    'system-administrator': ['indexes', 'jsonSchema.*', 'name', 'permissions.*'],
+    'namespace-administrator': ['indexes.*', 'jsonSchema.*', 'name', 'permissions.*'],
+    'system-administrator': ['indexes.*', 'jsonSchema.*', 'name', 'permissions.*'],
   },
 });

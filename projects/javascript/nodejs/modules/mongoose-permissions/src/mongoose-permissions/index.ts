@@ -3,7 +3,6 @@ import * as mongoose from 'mongoose';
 
 import { AccessControl, IOptions } from '../access-control';
 import { filterObject } from '../filter-object';
-import { filterRecord } from '../filter-record';
 import { substituteReferenceValues } from '../substitute-reference-values';
 import { substituteSubqueryValues } from '../substitute-subquery-values';
 
@@ -180,14 +179,15 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    * @param record The record to filter attributes from.
    * @param user The user accessing the record.
    */
-  public async read(record: TDocument, user: any) {
+  public async read(record: TDocument, user: any): Promise<Partial<TDocument>> {
     const readPermissions = this.accessControl.getFieldPermissions('read', record, user);
 
     if (readPermissions.length === 0) {
       throw new PermissionError();
     }
 
-    return filterRecord(record, readPermissions);
+    const object = record.toObject();
+    return filterObject(object, readPermissions);
   }
 
   /**

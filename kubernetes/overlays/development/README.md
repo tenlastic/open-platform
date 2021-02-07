@@ -35,7 +35,7 @@ kubectl apply -f ./workspace/
 kubectl wait --for=condition=Ready pod/workspace
 
 # Install Node Modules.
-kubectl exec -it workspace -- /bin/bash -c 'cd ./projects/javascript/ && lerna bootstrap --hoist --strict'
+kubectl exec -it -c workspace workspace -- /bin/bash -c 'cd ./projects/javascript/ && lerna bootstrap --hoist --strict'
 
 # Create remaining resources.
 kustomize build ./ | kubectl apply -f -

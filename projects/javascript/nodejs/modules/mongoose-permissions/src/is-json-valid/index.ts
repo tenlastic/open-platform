@@ -100,7 +100,7 @@ function $in(json: any, key: string, value: any[]) {
   }
 
   if (reference.constructor === Array) {
-    return reference.includes(...value);
+    return reference.some(r => value.includes(r));
   } else if (reference instanceof mongoose.Types.ObjectId) {
     return Boolean(value.find(v => reference.equals(v)));
   } else {

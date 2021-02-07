@@ -4,7 +4,7 @@ import { Namespace, NamespaceDocument } from './model';
 
 export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(Namespace, {
   create: {
-    'system-administrator': ['keys', 'limits.*', 'name', 'users'],
+    'system-administrator': ['keys.*', 'limits.*', 'name', 'users.*'],
   },
   delete: {
     default: false,
@@ -38,13 +38,21 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     'namespace-administrator': [
       '_id',
       'createdAt',
-      'keys',
+      'keys.*',
       'limits.*',
       'name',
       'updatedAt',
-      'users',
+      'users.*',
     ],
-    'system-administrator': ['_id', 'createdAt', 'keys', 'limits.*', 'name', 'updatedAt', 'users'],
+    'system-administrator': [
+      '_id',
+      'createdAt',
+      'keys.*',
+      'limits.*',
+      'name',
+      'updatedAt',
+      'users.*',
+    ],
   },
   roles: [
     {
@@ -78,7 +86,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     },
   ],
   update: {
-    'namespace-administrator': ['keys', 'name', 'users'],
-    'system-administrator': ['keys', 'limits.*', 'name', 'users'],
+    'namespace-administrator': ['keys.*', 'name', 'users.*'],
+    'system-administrator': ['keys.*', 'limits.*', 'name', 'users.*'],
   },
 });

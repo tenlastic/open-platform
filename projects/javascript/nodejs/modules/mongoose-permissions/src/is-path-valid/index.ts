@@ -3,7 +3,13 @@ export function isPathValid(permissions: string[], path: string[], key: string) 
     if (current.includes('.*')) {
       previous.push(current.replace('.*', ''));
     }
-    previous.push(current);
+
+    const split = current.split('.');
+    for (let i = 1; i <= split.length; i++) {
+      const permutation = split.slice(0, i).join('.');
+      previous.push(permutation);
+    }
+
     return previous;
   }, []);
 

@@ -48,4 +48,28 @@ describe('filter-object', function() {
     expect(result.jsonSchema.properties.state).to.eql({});
     expect(result.jsonSchema.type).to.eql('object');
   });
+
+  it('handles arrays', function() {
+    const permissions = ['templates.key', 'templates.templates.*', 'values'];
+    const record = {
+      keys: [1, 2, 3],
+      templates: [
+        { key: 0, value: 0 },
+        { key: 1, value: 1 },
+        { templates: [{ key: 2, value: 2 }] },
+      ],
+      values: [1, 2, 3],
+    };
+
+    const result: any = filterObject(record, permissions);
+
+    expect(result.keys).to.not.exist;
+    expect(result.templates[0].key).to.eql(0);
+    expect(result.templates[0].value).to.not.exist;
+    expect(result.templates[1].key).to.eql(1);
+    expect(result.templates[1].value).to.not.exist;
+    expect(result.templates[2].templates[0].key).to.eql(2);
+    expect(result.templates[2].templates[0].value).to.eql(2);
+    expect(result.values).to.eql(record.values);
+  });
 });
