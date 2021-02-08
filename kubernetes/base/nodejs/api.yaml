@@ -28,6 +28,18 @@ rules:
       - update
       - watch
   - apiGroups:
+      - helm.fluxcd.io
+    resources:
+      - helmreleases
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
       - networking.k8s.io
     resources:
       - networkpolicies
@@ -58,6 +70,7 @@ rules:
       - configmaps
       - namespaces
       - pods
+      - pods/exec
       - pods/log
       - pods/status
       - secrets

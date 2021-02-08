@@ -225,8 +225,8 @@ export class WorkflowsFormPageComponent implements OnInit {
 
     for (const sidecar of sidecars) {
       const formGroup = this.formBuilder.group({
-        args: this.formBuilder.array(sidecar.args),
-        command: this.formBuilder.array(sidecar.command),
+        args: this.formBuilder.array(sidecar.args || []),
+        command: this.formBuilder.array(sidecar.command || []),
         env: this.getEnvFormArray(sidecar.env),
         image: [sidecar.image, Validators.required],
         name: [sidecar.name],

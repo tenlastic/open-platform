@@ -112,7 +112,7 @@ export class NamespaceSchema {
   public wasModified: string[];
   public wasNew: boolean;
 
-  private get kubernetesNamespace() {
+  public get kubernetesNamespace() {
     return `namespace-${this._id}`;
   }
 

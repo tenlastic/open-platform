@@ -25,21 +25,6 @@ afterEach(function() {
 
 describe('models/workflow/model', function() {
   describe('checkNamespaceLimits()', function() {
-    it('enforces the workflows.count Namespace limit', async function() {
-      const namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({
-          workflows: NamespaceWorkflowLimitsMock.create({ count: 1 }),
-        }),
-      });
-      await WorkflowMock.create({ namespaceId: namespace._id });
-
-      const promise = Workflow.checkNamespaceLimits(1, false, namespace._id, 0, []);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: workflows.count. Value: 1.',
-      );
-    });
-
     it('enforces the workflows.cpu Namespace limit', async function() {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
@@ -53,7 +38,7 @@ describe('models/workflow/model', function() {
           sidecars: [{ resources: { cpu: 0.1 } }],
         },
       ];
-      const promise = Workflow.checkNamespaceLimits(0, false, namespace._id, 0, templates as any);
+      const promise = Workflow.checkNamespaceLimits(false, namespace._id, 0, templates as any);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: workflows.cpu. Value: 0.1.',
@@ -73,7 +58,7 @@ describe('models/workflow/model', function() {
           sidecars: [{ resources: { memory: 0.1 } }],
         },
       ];
-      const promise = Workflow.checkNamespaceLimits(0, false, namespace._id, 0, templates as any);
+      const promise = Workflow.checkNamespaceLimits(false, namespace._id, 0, templates as any);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: workflows.memory. Value: 0.1.',
@@ -87,7 +72,7 @@ describe('models/workflow/model', function() {
         }),
       });
 
-      const promise = Workflow.checkNamespaceLimits(0, false, namespace._id, 2, []);
+      const promise = Workflow.checkNamespaceLimits(false, namespace._id, 2, []);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: workflows.parallelism. Value: 1.',
@@ -101,7 +86,7 @@ describe('models/workflow/model', function() {
         }),
       });
 
-      const promise = Workflow.checkNamespaceLimits(0, false, namespace._id, 0, []);
+      const promise = Workflow.checkNamespaceLimits(false, namespace._id, 0, []);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: workflows.preemptible. Value: true.',

@@ -9,13 +9,7 @@ export async function handler(ctx: Context) {
   const { isPreemptible, namespaceId, spec } = ctx.request.body;
   const { parallelism, templates } = spec;
 
-  await Workflow.checkNamespaceLimits(
-    1,
-    isPreemptible || false,
-    namespaceId,
-    parallelism,
-    templates,
-  );
+  await Workflow.checkNamespaceLimits(isPreemptible || false, namespaceId, parallelism, templates);
 
   const result = await WorkflowPermissions.create(ctx.request.body, ctx.params, user);
   const record = await WorkflowPermissions.read(result, user);

@@ -22,6 +22,7 @@ import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 
+import { retryOnError } from '../../helpers';
 import {
   Namespace,
   NamespaceDocument,
@@ -42,6 +43,19 @@ export const WorkflowEvent = new EventEmitter<IDatabasePayload<WorkflowDocument>
 // Publish changes to Kafka.
 WorkflowEvent.on(payload => {
   kafka.publish(payload);
+});
+
+// Create Argo Workflow Controller when Namespace is created or updated.
+NamespaceEvent.on(async payload => {
+  switch (payload.operationType) {
+    case 'insert':
+    case 'update':
+      // Use a retry incase Namespace takes a second to be created.
+      const { kubernetesNamespace, limits } = payload.fullDocument;
+      return retryOnError(1000, 3, () =>
+        WorkflowSchema.upsertArgoHelmRelease(kubernetesNamespace, limits.workflows.count),
+      );
+  }
 });
 
 // Delete Workflows if associated Namespace is deleted.
@@ -119,7 +133,6 @@ export class WorkflowSchema {
   }
 
   public static async checkNamespaceLimits(
-    count: number,
     isPreemptible: boolean,
     namespaceId: string | mongoose.Types.ObjectId,
     parallelism: number,
@@ -173,17 +186,87 @@ export class WorkflowSchema {
     if (limits.preemptible && isPreemptible === false) {
       throw new NamespaceLimitError('workflows.preemptible', limits.preemptible);
     }
+  }
 
-    if (limits.count > 0) {
-      const results = await Workflow.countDocuments({
-        namespaceId: namespace._id,
-        'status.finishedAt': { $exists: false },
-      });
+  /**
+   * Deletes the HelmRelease for the Argo Workflow Controller.
+   */
+  public static async deleteArgoHelmRelease(kubernetesNamespace: string) {
+    try {
+      await customObjects.deleteNamespacedCustomObject(
+        'helm.fluxcd.io',
+        'v1',
+        kubernetesNamespace,
+        'helmreleases',
+        'argo',
+      );
+    } catch {}
+  }
 
-      if (results + count > limits.count) {
-        throw new NamespaceLimitError('workflows.count', limits.count);
-      }
-    }
+  /**
+   * Creates the HelmRelease for the Argo Workflow Controller.
+   */
+  public static async upsertArgoHelmRelease(kubernetesNamespace: string, parallelism: number) {
+    await this.deleteArgoHelmRelease(kubernetesNamespace);
+
+    await customObjects.createNamespacedCustomObject(
+      'helm.fluxcd.io',
+      'v1',
+      kubernetesNamespace,
+      'helmreleases',
+      {
+        apiVersion: 'helm.fluxcd.io/v1',
+        kind: 'HelmRelease',
+        metadata: {
+          annotations: {
+            'fluxcd.io/automated': 'true',
+          },
+          kubernetesNamespace,
+          name: 'argo',
+        },
+        spec: {
+          chart: {
+            name: 'argo',
+            repository: 'https://argoproj.github.io/argo-helm',
+            version: '0.15.2',
+          },
+          releaseName: `${kubernetesNamespace}-argo`,
+          values: {
+            controller: {
+              affinity: {
+                nodeAffinity: {
+                  requiredDuringSchedulingIgnoredDuringExecution: {
+                    nodeSelectorTerms: [
+                      {
+                        matchExpressions: [
+                          {
+                            key: 'tenlastic.com/low-priority',
+                            operator: 'Exists',
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+              containerRuntimeExecutor: 'k8sapi',
+              parallelism,
+              replicas: 1,
+              resources: {
+                requests: {
+                  cpu: '50m',
+                },
+              },
+            },
+            installCRD: false,
+            server: {
+              enabled: false,
+            },
+            singleNamespace: true,
+          },
+        },
+      },
+    );
   }
 
   /**
@@ -424,6 +507,11 @@ export class WorkflowSchema {
           apiGroups: [''],
           resources: ['pods'],
           verbs: ['get', 'patch', 'watch'],
+        },
+        {
+          apiGroups: [''],
+          resources: ['pods/exec'],
+          verbs: ['create'],
         },
         {
           apiGroups: [''],
