@@ -1,15 +1,16 @@
 import { SinonSandbox } from 'sinon';
 
-import { GameServer, Namespace, Workflow, WorkflowSchema } from './models';
+import * as kubernetes from './kubernetes';
 
 export function stub(sandbox: SinonSandbox) {
-  sandbox.stub(GameServer.prototype, 'createKubernetesResources').resolves();
-  sandbox.stub(GameServer.prototype, 'deleteKubernetesResources').resolves();
-  sandbox.stub(GameServer.prototype, 'updateKubernetesResources').resolves();
-  sandbox.stub(Namespace.prototype, 'deleteKubernetesResources').resolves();
-  sandbox.stub(Namespace.prototype, 'upsertKubernetesResources').resolves();
-  sandbox.stub(WorkflowSchema, 'deleteArgoHelmRelease').resolves();
-  sandbox.stub(WorkflowSchema, 'upsertArgoHelmRelease').resolves();
-  sandbox.stub(Workflow.prototype, 'createKubernetesResources').resolves();
-  sandbox.stub(Workflow.prototype, 'deleteKubernetesResources').resolves();
+  sandbox.stub(kubernetes.GameServer, 'create').resolves();
+  sandbox.stub(kubernetes.GameServer, 'delete').resolves();
+  sandbox.stub(kubernetes.GameServerSidecar, 'create').resolves();
+  sandbox.stub(kubernetes.GameServerSidecar, 'delete').resolves();
+  sandbox.stub(kubernetes.Namespace, 'create').resolves();
+  sandbox.stub(kubernetes.Namespace, 'delete').resolves();
+  sandbox.stub(kubernetes.Workflow, 'create').resolves();
+  sandbox.stub(kubernetes.Workflow, 'delete').resolves();
+  sandbox.stub(kubernetes.WorkflowSidecar, 'create').resolves();
+  sandbox.stub(kubernetes.WorkflowSidecar, 'delete').resolves();
 }

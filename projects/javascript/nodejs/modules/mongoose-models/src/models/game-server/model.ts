@@ -8,10 +8,8 @@ import {
   modelOptions,
   plugin,
   post,
-  pre,
   prop,
 } from '@hasezoey/typegoose';
-import * as k8s from '@kubernetes/client-node';
 import {
   EventEmitter,
   IDatabasePayload,
@@ -19,12 +17,10 @@ import {
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
-import { UniquenessError, plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
-import * as fs from 'fs';
-import * as jwt from 'jsonwebtoken';
+import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
-import * as path from 'path';
 
+import * as kubernetes from '../../kubernetes';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 import { QueueDocument } from '../queue';
 import { User, UserDocument } from '../user';
@@ -52,13 +48,6 @@ NamespaceEvent.on(async payload => {
   }
 });
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
-const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
-const networkingV1 = kc.makeApiClient(k8s.NetworkingV1Api);
-const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
-
 @index({ namespaceId: 1 })
 @index({ port: 1 }, { unique: true })
 @index(
@@ -79,8 +68,9 @@ const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameServerEvent })
 @plugin(uniqueErrorPlugin)
-@pre('remove', async function(this: GameServerDocument) {
-  await this.deleteKubernetesResources();
+@post('remove', async function(this: GameServerDocument) {
+  await kubernetes.GameServer.delete(this);
+  await kubernetes.GameServerSidecar.delete(this);
 })
 @post('save', async function(this: GameServerDocument) {
   if (
@@ -94,15 +84,17 @@ const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
   }
 
   if (this.wasNew) {
-    // Delete created resources if entire stack is not successful.
     try {
-      await this.createKubernetesResources();
+      await kubernetes.GameServer.create(this);
+      await kubernetes.GameServerSidecar.create(this);
     } catch (e) {
-      await this.deleteKubernetesResources();
+      await kubernetes.GameServer.delete(this);
+      await kubernetes.GameServerSidecar.delete(this);
       throw e;
     }
   } else {
-    await this.updateKubernetesResources();
+    await kubernetes.GameServer.delete(this);
+    await kubernetes.GameServer.create(this);
   }
 })
 export class GameServerSchema implements IOriginalDocument {
@@ -166,15 +158,13 @@ export class GameServerSchema implements IOriginalDocument {
   @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: 'QueueSchema' })
   public queueDocument: QueueDocument;
 
-  private get kubernetesNamespace() {
-    return `namespace-${this.namespaceId}`;
-  }
-
-  private get kubernetesResourceName() {
+  public _original: any;
+  public get kubernetesName() {
     return `game-server-${this._id}`;
   }
-
-  public _original: any;
+  public get kubernetesNamespace() {
+    return `namespace-${this.namespaceId}`;
+  }
   public wasModified: string[];
   public wasNew: boolean;
 
@@ -233,530 +223,14 @@ export class GameServerSchema implements IOriginalDocument {
   }
 
   /**
-   * Restarts a persistent Game Server.
+   * Restarts a Game Server.
    */
-  public async restart() {
-    if (!this.isPersistent) {
-      throw new Error('Game Server must be persistent to be restarted.');
-    }
-
-    const pods = await coreV1.listNamespacedPod(
-      this.kubernetesNamespace,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      `app=${this.kubernetesResourceName},role=application`,
-    );
-
-    const promises = pods.body.items.map(item =>
-      coreV1.deleteNamespacedPod(item.metadata.name, this.kubernetesNamespace),
-    );
-    return Promise.all(promises);
-  }
-
-  /**
-   * Creates the Deployments and/or Pods for the Game Server
-   * within Kubernetes.
-   */
-  private async createDeploymentsAndPods() {
-    const administrator = { roles: ['game-servers'] };
-    const accessToken = jwt.sign(
-      { type: 'access', user: administrator },
-      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      { algorithm: 'RS256' },
-    );
-
-    const url = new URL(process.env.DOCKER_REGISTRY_URL);
-    const image = `${url.host}/${this.namespaceId}:${this.buildId}`;
-
-    const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
-    const version = JSON.parse(packageDotJson).version;
-
-    const affinity = {
-      nodeAffinity: {
-        requiredDuringSchedulingIgnoredDuringExecution: {
-          nodeSelectorTerms: [
-            {
-              matchExpressions: [
-                {
-                  key: this.isPreemptible
-                    ? 'tenlastic.com/low-priority'
-                    : 'tenlastic.com/high-priority',
-                  operator: 'Exists',
-                },
-              ],
-            },
-          ],
-        },
-      },
-    };
-    const env = [
-      { name: 'ACCESS_TOKEN', value: accessToken },
-      { name: 'GAME_SERVER_ID', value: this._id.toHexString() },
-      { name: 'GAME_SERVER_JSON', value: JSON.stringify(this) },
-      { name: 'POD_NAMESPACE', value: this.kubernetesNamespace },
-      { name: 'POD_SELECTOR', value: `app=${this.kubernetesResourceName},role=application` },
-    ];
-
-    const applicationPodManifest: k8s.V1PodTemplateSpec = {
-      metadata: {
-        labels: {
-          app: this.kubernetesResourceName,
-          role: 'application',
-        },
-        name: `${this.kubernetesResourceName}-application`,
-      },
-      spec: {
-        affinity,
-        automountServiceAccountToken: false,
-        containers: [
-          {
-            env: [
-              { name: 'GAME_SERVER_ID', value: this._id.toHexString() },
-              { name: 'GAME_SERVER_JSON', value: JSON.stringify(this) },
-            ],
-            image,
-            name: 'application',
-            ports: [{ containerPort: 7777 }],
-            resources: {
-              limits: { cpu: this.cpu.toString(), memory: this.memory.toString() },
-              requests: { cpu: this.cpu.toString(), memory: this.memory.toString() },
-            },
-          },
-        ],
-        dnsPolicy: 'Default',
-        enableServiceLinks: false,
-        imagePullSecrets: [{ name: 'docker-registry-image-pull-secret' }],
-        restartPolicy: this.isPersistent ? 'Always' : 'Never',
-      },
-    };
-
-    // If application is running locally, create debug containers.
-    // If application is running in production, create production containers.
-    let sidecarPodManifest: k8s.V1PodTemplateSpec;
-    if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
-      sidecarPodManifest = {
-        metadata: {
-          labels: {
-            app: this.kubernetesResourceName,
-            role: 'sidecar',
-          },
-          name: `${this.kubernetesResourceName}-sidecar`,
-        },
-        spec: {
-          affinity,
-          containers: [
-            {
-              command: ['npm', 'run', 'start'],
-              env,
-              image: 'node:12',
-              name: 'health-check',
-              resources: { requests: { cpu: '50m', memory: '64M' } },
-              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/health-check/',
-            },
-            {
-              command: ['npm', 'run', 'start'],
-              env,
-              image: 'node:12',
-              name: 'logs',
-              resources: { requests: { cpu: '50m', memory: '64M' } },
-              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/logs/',
-            },
-          ],
-          restartPolicy: 'Always',
-          serviceAccountName: this.kubernetesResourceName,
-          volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
-        },
-      };
-    } else {
-      sidecarPodManifest = {
-        metadata: {
-          labels: {
-            app: this.kubernetesResourceName,
-            role: 'sidecar',
-          },
-          name: `${this.kubernetesResourceName}-sidecar`,
-        },
-        spec: {
-          affinity,
-          containers: [
-            {
-              env,
-              image: `tenlastic/health-check:${version}`,
-              name: 'health-check',
-              resources: { requests: { cpu: '50m', memory: '64M' } },
-            },
-            {
-              env,
-              image: `tenlastic/logs:${version}`,
-              name: 'logs',
-              resources: { requests: { cpu: '50m', memory: '64M' } },
-            },
-          ],
-          restartPolicy: 'Always',
-          serviceAccountName: this.kubernetesResourceName,
-        },
-      };
-    }
-
-    /**
-     * =======================
-     * DEPLOYMENT / POD + SERVICE
-     * =======================
-     */
-    if (this.isPersistent) {
-      await appsV1.createNamespacedDeployment(this.kubernetesNamespace, {
-        metadata: {
-          labels: {
-            app: this.kubernetesResourceName,
-            role: 'application',
-          },
-          name: `${this.kubernetesResourceName}-application`,
-        },
-        spec: {
-          replicas: 1,
-          selector: {
-            matchLabels: {
-              app: this.kubernetesResourceName,
-              role: 'application',
-            },
-          },
-          template: applicationPodManifest,
-        },
-      });
-      await appsV1.createNamespacedDeployment(this.kubernetesNamespace, {
-        metadata: {
-          labels: {
-            app: this.kubernetesResourceName,
-            role: 'sidecar',
-          },
-          name: `${this.kubernetesResourceName}-sidecar`,
-        },
-        spec: {
-          replicas: 1,
-          selector: {
-            matchLabels: {
-              app: this.kubernetesResourceName,
-              role: 'sidecar',
-            },
-          },
-          template: sidecarPodManifest,
-        },
-      });
-    } else {
-      await coreV1.createNamespacedPod(this.kubernetesNamespace, applicationPodManifest);
-      await coreV1.createNamespacedPod(this.kubernetesNamespace, sidecarPodManifest);
-    }
-  }
-
-  /**
-   * Creates a deployment and service within Kubernetes for the Game Server.
-   */
-  private async createKubernetesResources() {
-    /**
-     * ======================
-     * ROLE + SERVICE ACCOUNT
-     * ======================
-     */
-    await rbacAuthorizationV1.createNamespacedRole(this.kubernetesNamespace, {
-      metadata: {
-        name: this.kubernetesResourceName,
-      },
-      rules: [
-        {
-          apiGroups: [''],
-          resources: ['pods', 'pods/log', 'pods/status'],
-          verbs: ['get', 'list', 'watch'],
-        },
-      ],
-    });
-    await coreV1.createNamespacedServiceAccount(this.kubernetesNamespace, {
-      metadata: {
-        name: this.kubernetesResourceName,
-      },
-    });
-    await rbacAuthorizationV1.createNamespacedRoleBinding(this.kubernetesNamespace, {
-      metadata: {
-        name: this.kubernetesResourceName,
-      },
-      roleRef: {
-        apiGroup: 'rbac.authorization.k8s.io',
-        kind: 'Role',
-        name: this.kubernetesResourceName,
-      },
-      subjects: [
-        {
-          kind: 'ServiceAccount',
-          name: this.kubernetesResourceName,
-          namespace: this.kubernetesNamespace,
-        },
-      ],
-    });
-
-    /**
-     * =======================
-     * IMAGE PULL SECRET
-     * =======================
-     */
-    const secret = await coreV1.readNamespacedSecret(
-      'docker-registry-image-pull-secret',
-      'default',
-    );
-    await coreV1.createNamespacedSecret(this.kubernetesNamespace, {
-      data: secret.body.data,
-      metadata: { name: secret.body.metadata.name },
-      type: secret.body.type,
-    });
-
-    /**
-     * =======================
-     * PODS + SERVICE
-     * =======================
-     */
-    await this.createDeploymentsAndPods();
-    await coreV1.createNamespacedService(this.kubernetesNamespace, {
-      metadata: {
-        labels: {
-          app: this.kubernetesResourceName,
-        },
-        name: this.kubernetesResourceName,
-      },
-      spec: {
-        ports: [
-          {
-            name: 'tcp',
-            port: 7777,
-          },
-        ],
-        selector: {
-          app: this.kubernetesResourceName,
-          role: 'application',
-        },
-      },
-    });
-
-    /**
-     * =======================
-     * NETWORK POLICY
-     * =======================
-     */
-    await networkingV1.createNamespacedNetworkPolicy(this.kubernetesNamespace, {
-      metadata: {
-        name: this.kubernetesResourceName,
-      },
-      spec: {
-        egress: [
-          {
-            to: [
-              {
-                ipBlock: {
-                  cidr: '0.0.0.0/0',
-                  except: ['10.0.0.0/8', '172.0.0.0/8', '192.0.0.0/8'],
-                },
-              },
-            ],
-          },
-        ],
-        podSelector: {
-          matchLabels: {
-            app: this.kubernetesResourceName,
-            role: 'application',
-          },
-        },
-        policyTypes: ['Egress'],
-      },
-    });
-
-    /**
-     * =======================
-     * NGINX
-     * =======================
-     */
-    await coreV1.patchNamespacedConfigMap(
-      'nginx-ingress-tcp',
-      'default',
-      {
-        data: {
-          [this.port]: `${this.kubernetesNamespace}/${this.kubernetesResourceName}:7777`,
-        },
-      },
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
-    );
-    await coreV1.patchNamespacedService(
-      'nginx-ingress-controller',
-      'default',
-      {
-        spec: {
-          ports: [
-            {
-              name: this.kubernetesResourceName,
-              port: this.port,
-              protocol: 'TCP',
-              targetPort: this.port,
-            },
-          ],
-        },
-      },
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
-    );
-  }
-
-  /**
-   * Deletes the Deployment or Pods associated with this Game Server.
-   */
-  private async deleteKubernetesDeploymentsAndPods() {
-    try {
-      await appsV1.deleteNamespacedDeployment(
-        `${this.kubernetesResourceName}-application`,
-        this.kubernetesNamespace,
-      );
-      await appsV1.deleteNamespacedDeployment(
-        `${this.kubernetesResourceName}-sidecar`,
-        this.kubernetesNamespace,
-      );
-    } catch {}
-
-    try {
-      await coreV1.deleteNamespacedPod(
-        `${this.kubernetesResourceName}-application`,
-        this.kubernetesNamespace,
-      );
-      await coreV1.deleteNamespacedPod(
-        `${this.kubernetesResourceName}-sidecar`,
-        this.kubernetesNamespace,
-      );
-    } catch {}
-  }
-
-  /**
-   * Deletes the associated deployment and service within Kubernetes.
-   */
-  private async deleteKubernetesResources() {
-    /**
-     * ======================
-     * ROLE + SERVICE ACCOUNT
-     * ======================
-     */
-    try {
-      await rbacAuthorizationV1.deleteNamespacedRole(
-        this.kubernetesResourceName,
-        this.kubernetesNamespace,
-      );
-      await coreV1.deleteNamespacedServiceAccount(
-        this.kubernetesResourceName,
-        this.kubernetesNamespace,
-      );
-      await rbacAuthorizationV1.deleteNamespacedRoleBinding(
-        this.kubernetesResourceName,
-        this.kubernetesNamespace,
-      );
-    } catch {}
-
-    /**
-     * =======================
-     * IMAGE PULL SECRET
-     * =======================
-     */
-    try {
-      await coreV1.deleteNamespacedSecret(
-        'docker-registry-image-pull-secret',
-        this.kubernetesNamespace,
-      );
-    } catch {}
-
-    /**
-     * =======================
-     * DEPLOYMENT / POD
-     * =======================
-     */
-    await this.deleteKubernetesDeploymentsAndPods();
-
-    /**
-     * =======================
-     * SERVICE
-     * =======================
-     */
-    try {
-      await coreV1.deleteNamespacedService(this.kubernetesResourceName, this.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * =======================
-     * NETWORK POLICY
-     * =======================
-     */
-    try {
-      await networkingV1.deleteNamespacedNetworkPolicy(
-        this.kubernetesResourceName,
-        this.kubernetesNamespace,
-      );
-    } catch {}
-
-    /**
-     * =======================
-     * NGINX
-     * =======================
-     */
-    try {
-      await coreV1.patchNamespacedConfigMap(
-        'tcp-services',
-        'default',
-        [{ op: 'remove', path: `/data/${this.port}` }],
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        { headers: { 'Content-Type': 'application/json-patch+json' } },
-      );
-    } catch {}
-  }
-
-  /**
-   * Updates the associated deployment and service within Kubernetes.
-   */
-  private async updateKubernetesResources() {
-    await this.deleteKubernetesDeploymentsAndPods();
-    await this.createDeploymentsAndPods();
+  public async restart(this: GameServerDocument) {
+    await kubernetes.GameServer.delete(this);
+    await kubernetes.GameServer.create(this);
   }
 }
 
 export type GameServerDocument = DocumentType<GameServerSchema>;
 export type GameServerModel = ReturnModelType<typeof GameServerSchema>;
 export const GameServer = getModelForClass(GameServerSchema);
-
-// Overload save() to automatically handle port conflicts.
-const save = GameServer.prototype.save;
-GameServer.prototype.save = async function(
-  this: GameServerDocument,
-  options: mongoose.SaveOptions,
-  callback: (err: any, product?: GameServerDocument) => void,
-) {
-  this.port = this.port || this.getRandomPort();
-
-  try {
-    const result = await save.call(this, options);
-    return callback ? callback(null, result) : result;
-  } catch (e) {
-    if (e instanceof UniquenessError && e.paths.includes('port')) {
-      this.port = this.getRandomPort();
-      return this.save(options, callback);
-    }
-
-    if (callback) {
-      return callback(e);
-    } else {
-      throw e;
-    }
-  }
-};

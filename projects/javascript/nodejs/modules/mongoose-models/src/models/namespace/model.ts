@@ -7,10 +7,8 @@ import {
   modelOptions,
   plugin,
   post,
-  pre,
   prop,
 } from '@hasezoey/typegoose';
-import * as k8s from '@kubernetes/client-node';
 import {
   EventEmitter,
   IDatabasePayload,
@@ -20,6 +18,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
+import * as kubernetes from '../../kubernetes';
 import { UserDocument } from '../user';
 import { NamespaceKeySchema } from './key';
 import { NamespaceLimitsSchema } from './limits';
@@ -57,10 +56,6 @@ NamespaceEvent.on(payload => {
   kafka.publish(payload);
 });
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
-
 @index(
   { 'keys.value': 1 },
   {
@@ -83,11 +78,11 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: NamespaceEvent })
 @plugin(uniqueErrorPlugin)
-@pre('remove', async function(this: NamespaceDocument) {
-  await this.deleteKubernetesResources();
+@post('remove', async function(this: NamespaceDocument) {
+  await kubernetes.Namespace.delete(this);
 })
 @post('save', async function(this: NamespaceDocument) {
-  await this.upsertKubernetesResources();
+  await kubernetes.Namespace.create(this);
 })
 export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
@@ -148,28 +143,6 @@ export class NamespaceSchema {
     }
 
     return copy;
-  }
-
-  /**
-   * Deletes a namespace within Kubernetes.
-   */
-  private async deleteKubernetesResources() {
-    try {
-      await coreV1.deleteNamespace(this.kubernetesNamespace);
-    } catch {}
-  }
-
-  /**
-   * Creates a namespace within Kubernetes if it does not exist.
-   */
-  private async upsertKubernetesResources() {
-    try {
-      await coreV1.readNamespace(this.kubernetesNamespace);
-    } catch (e) {
-      if (e instanceof k8s.HttpError && e.statusCode === 404) {
-        await coreV1.createNamespace({ metadata: { name: this.kubernetesNamespace } });
-      }
-    }
   }
 }
 
