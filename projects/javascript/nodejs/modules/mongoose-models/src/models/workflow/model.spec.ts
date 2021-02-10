@@ -1,13 +1,10 @@
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
 import * as sinon from 'sinon';
 
 import { NamespaceLimitsMock, NamespaceMock, NamespaceWorkflowLimitsMock } from '../namespace';
-import { WorkflowMock } from './model.mock';
-import { Workflow } from './model';
+import { Workflow, WorkflowSchema } from './model';
 
-const chance = new Chance();
 let sandbox: sinon.SinonSandbox;
 
 use(chaiAsPromised);
@@ -15,6 +12,8 @@ use(chaiAsPromised);
 beforeEach(function() {
   sandbox = sinon.createSandbox();
 
+  sandbox.stub(WorkflowSchema, 'deleteArgoHelmRelease').resolves();
+  sandbox.stub(WorkflowSchema, 'upsertArgoHelmRelease').resolves();
   sandbox.stub(Workflow.prototype, 'createKubernetesResources').resolves();
   sandbox.stub(Workflow.prototype, 'deleteKubernetesResources').resolves();
 });

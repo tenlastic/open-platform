@@ -19,20 +19,6 @@ spec:
               - matchExpressions:
                   - key: tenlastic.com/high-priority
                     operator: Exists
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app
-                      operator: In
-                      values:
-                        - argo-workflow-controller
-                topologyKey: kubernetes.io/hostname
-      podLabels:
-        app: argo-workflow-controller
-        release: argo
       replicas: 1
       resources:
         requests:
@@ -45,9 +31,6 @@ spec:
               - matchExpressions:
                   - key: tenlastic.com/low-priority
                     operator: Exists
-      podLabels:
-        app: argo-server
-        release: argo
       replicas: 3
       resources:
         requests:
