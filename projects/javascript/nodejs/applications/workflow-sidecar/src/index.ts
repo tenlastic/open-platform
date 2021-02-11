@@ -6,7 +6,7 @@ import * as state from './state';
 const INTERVAL = 5000;
 
 const accessToken = process.env.ACCESS_TOKEN;
-const workflowId = process.env.WORKFLOW_ID;
+const workflowEndpoint = process.env.WORKFLOW_ENDPOINT;
 const workflowName = process.env.WORKFLOW_NAME;
 const workflowNamespace = process.env.WORKFLOW_NAMESPACE;
 
@@ -76,7 +76,7 @@ async function updateWorkflow(object: any) {
   await requestPromiseNative.put({
     headers: { Authorization: `Bearer ${accessToken}` },
     json: { status: { ...status, finishedAt, nodes } },
-    url: `http://api.default:3000/workflows/${workflowId}`,
+    url: workflowEndpoint,
   });
 
   console.log('Workflow updated successfully.');

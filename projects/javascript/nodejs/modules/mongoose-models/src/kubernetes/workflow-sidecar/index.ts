@@ -91,7 +91,7 @@ export const WorkflowSidecar = {
     };
     const env = [
       { name: 'ACCESS_TOKEN', value: accessToken },
-      { name: 'WORKFLOW_ID', value: workflow._id.toHexString() },
+      { name: 'WORKFLOW_ENDPOINT', value: `http://api.default:3000/workflows/${workflow._id}` },
       { name: 'WORKFLOW_NAME', value: workflow.kubernetesName },
       { name: 'WORKFLOW_NAMESPACE', value: workflow.kubernetesNamespace },
     ];
