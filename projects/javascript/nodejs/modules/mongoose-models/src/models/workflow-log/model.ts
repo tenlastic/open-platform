@@ -2,9 +2,9 @@ import {
   DocumentType,
   Ref,
   ReturnModelType,
-  getModelForClass,
+  addModelToTypegoose,
+  buildSchema,
   index,
-  modelOptions,
   plugin,
   pre,
   prop,
@@ -17,6 +17,7 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
+import { LogBase } from '../../bases';
 import { WorkflowDocument, WorkflowEvent } from '../workflow';
 
 export const WorkflowLogEvent = new EventEmitter<IDatabasePayload<WorkflowLogDocument>>();
@@ -39,45 +40,29 @@ WorkflowEvent.on(async payload => {
 
 @index({ body: 'text' })
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+@index({ nodeId: 1 })
 @index({ workflowId: 1 })
-@modelOptions({
-  schemaOptions: {
-    collection: 'workflowlogs',
-    minimize: false,
-    timestamps: true,
-  },
-})
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: WorkflowLogEvent })
 @pre('save', function(this: WorkflowLogDocument) {
   this.expiresAt = new Date(this.createdAt);
   this.expiresAt.setDate(this.createdAt.getDate() + 3);
 })
-export class WorkflowLogSchema {
-  public _id: mongoose.Types.ObjectId;
-
-  @prop({ required: true })
-  public body: string;
-
-  public createdAt: Date;
-
-  @prop()
-  public expiresAt: Date;
-
-  @prop({ required: true })
+export class WorkflowLogSchema extends LogBase {
+  @prop({ immutable: true, required: true })
   public nodeId: string;
-
-  @prop({ required: true })
-  public unix: number;
-
-  public updatedAt: Date;
 
   @prop({ immutable: true, ref: 'WorkflowSchema', required: true })
   public workflowId: Ref<WorkflowDocument>;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'workflowId', ref: 'WorkflowSchema' })
-  public workflowDocument: WorkflowDocument[];
+  public workflowDocument: WorkflowDocument;
 }
 
 export type WorkflowLogDocument = DocumentType<WorkflowLogSchema>;
 export type WorkflowLogModel = ReturnModelType<typeof WorkflowLogSchema>;
-export const WorkflowLog = getModelForClass(WorkflowLogSchema);
+
+const schema = buildSchema(WorkflowLogSchema).set('collection', 'workflowlogs');
+export const WorkflowLog = addModelToTypegoose(
+  mongoose.model('WorkflowLogSchema', schema),
+  WorkflowLogSchema,
+);

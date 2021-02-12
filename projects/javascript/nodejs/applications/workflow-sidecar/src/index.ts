@@ -3,8 +3,6 @@ import * as requestPromiseNative from 'request-promise-native';
 
 import * as state from './state';
 
-const INTERVAL = 5000;
-
 const accessToken = process.env.ACCESS_TOKEN;
 const workflowEndpoint = process.env.WORKFLOW_ENDPOINT;
 const workflowName = process.env.WORKFLOW_NAME;
@@ -38,11 +36,8 @@ const workflowNamespace = process.env.WORKFLOW_NAMESPACE;
       { fieldSelector: `metadata.name=${workflowName}` },
       (type, object) => updateWorkflow(object),
       err => {
-        if (err) {
-          console.error(err);
-        }
-
-        setTimeout(main, INTERVAL);
+        console.error(err);
+        process.exit(err ? 1 : 0);
       },
     );
   } catch (e) {
@@ -52,7 +47,7 @@ const workflowNamespace = process.env.WORKFLOW_NAMESPACE;
       console.error(e);
     }
 
-    setTimeout(main, INTERVAL);
+    process.exit(1);
   }
 })();
 
@@ -69,7 +64,7 @@ async function updateWorkflow(object: any) {
   }
 
   let finishedAt: string;
-  if (status.finishedAt && Object.values(state.state).every(v => v.isFinished && v.isLogged)) {
+  if (status.finishedAt && Object.values(state.state).every(v => v.isFinished)) {
     finishedAt = status.finishedAt;
   }
 

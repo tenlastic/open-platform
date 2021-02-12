@@ -1,13 +1,11 @@
 import * as k8s from '@kubernetes/client-node';
 
+import { NamespaceDocument, NamespaceWorkflowLimitsSchema, WorkflowDocument } from '../../models';
 import {
-  NamespaceDocument,
-  NamespaceWorkflowLimitsSchema,
-  WorkflowDocument,
   WorkflowSpecTemplate,
   WorkflowSpecTemplateResourcesSchema,
   WorkflowSpecTemplateSchema,
-} from '../../models';
+} from '../../bases';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -150,8 +148,14 @@ export const Workflow = {
             workflow.spec.parallelism ||
             workflow.namespaceDocument.limits.workflows.parallelism ||
             Infinity,
+          podGC: {
+            strategy: 'OnPodCompletion',
+          },
           serviceAccountName: `${workflow.kubernetesName}-application`,
           templates,
+          ttlStrategy: {
+            secondsAfterCompletion: 30,
+          },
           volumeClaimTemplates: [
             {
               metadata: { name: 'workspace' },
@@ -246,6 +250,10 @@ function getTemplateManifest(
 
   t.artifactLocation = { archiveLogs: false };
   t.metadata = {
+    annotations: {
+      'tenlastic.com/nodeId': `{{ tasks.${template.name}.id }}`,
+      'tenlastic.com/workflowId': workflow._id.toString(),
+    },
     labels: {
       app: workflow.kubernetesName,
       role: 'application',

@@ -1,6 +1,7 @@
 export * from './article';
 export * from './build';
 export * from './build-task';
+export * from './build-workflow';
 export * from './collection';
 export * from './file';
 export * from './friend';

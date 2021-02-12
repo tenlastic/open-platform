@@ -61,7 +61,7 @@ export const QueueLogPermissions = new MongoosePermissions<QueueLogDocument>(Que
     },
   ],
   read: {
-    default: ['_id', 'body', 'createdAt', 'queueId', 'unix', 'updatedAt'],
+    default: ['_id', 'body', 'createdAt', 'expiresAt', 'queueId', 'unix', 'updatedAt'],
   },
   roles: [
     {

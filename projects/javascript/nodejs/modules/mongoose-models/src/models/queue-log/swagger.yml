@@ -11,6 +11,9 @@ components:
         createdAt:
           type: string
           format: date-time
+        expiresAt:
+          type: string
+          format: date-time
         queueId:
           type: string
           format: ^[a-f0-9]{24}$

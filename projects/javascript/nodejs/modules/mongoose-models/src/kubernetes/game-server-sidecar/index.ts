@@ -89,10 +89,15 @@ export const GameServerSidecar = {
     };
     const env = [
       { name: 'ACCESS_TOKEN', value: accessToken },
-      { name: 'GAME_SERVER_ID', value: gameServer._id.toHexString() },
-      { name: 'GAME_SERVER_JSON', value: JSON.stringify(gameServer) },
-      { name: 'POD_NAMESPACE', value: gameServer.kubernetesNamespace },
-      { name: 'POD_SELECTOR', value: `app=${gameServer.kubernetesName},role=application` },
+      {
+        name: 'LOG_ENDPOINT',
+        value: `http://api.default:3000/game-servers/${gameServer._id}/logs`,
+      },
+      {
+        name: 'LOG_POD_LABEL_SELECTOR',
+        value: `app=${gameServer.kubernetesName},role=application`,
+      },
+      { name: 'LOG_POD_NAMESPACE', value: gameServer.kubernetesNamespace },
     ];
 
     // If application is running locally, create debug containers.
@@ -126,10 +131,9 @@ export const GameServerSidecar = {
               name: 'logs',
               resources: { requests: { cpu: '50m', memory: '64M' } },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/logs/',
+              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/log-sidecar/',
             },
           ],
-          restartPolicy: 'Always',
           serviceAccountName: gameServer.kubernetesName,
           volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
         },
@@ -154,12 +158,11 @@ export const GameServerSidecar = {
             },
             {
               env,
-              image: `tenlastic/logs:${version}`,
-              name: 'logs',
+              image: `tenlastic/log-sidecar:${version}`,
+              name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '64M' } },
             },
           ],
-          restartPolicy: 'Always',
           serviceAccountName: gameServer.kubernetesName,
         },
       };

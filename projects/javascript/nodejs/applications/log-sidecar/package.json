@@ -3,13 +3,13 @@
     "node": "^10"
   },
   "license": "Apache-2.0",
-  "name": "@tenlastic/logs",
+  "name": "@tenlastic/log-sidecar",
   "private": true,
   "version": "0.0.154",
   "scripts": {
     "build": "../../scripts/build.sh",
-    "docker:build": "../../scripts/docker-build.sh logs",
-    "docker:push": "../../scripts/docker-push.sh logs",
+    "docker:build": "../../scripts/docker-build.sh log-sidecar",
+    "docker:push": "../../scripts/docker-push.sh log-sidecar",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh --watch"
   },

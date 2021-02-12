@@ -61,7 +61,7 @@ export const WorkflowLogPermissions = new MongoosePermissions<WorkflowLogDocumen
     },
   ],
   read: {
-    default: ['_id', 'body', 'createdAt', 'nodeId', 'unix', 'updatedAt', 'workflowId'],
+    default: ['_id', 'body', 'createdAt', 'expiresAt', 'nodeId', 'unix', 'updatedAt', 'workflowId'],
   },
   roles: [
     {

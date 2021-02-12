@@ -2,9 +2,9 @@ import {
   DocumentType,
   Ref,
   ReturnModelType,
-  getModelForClass,
+  addModelToTypegoose,
+  buildSchema,
   index,
-  modelOptions,
   plugin,
   pre,
   prop,
@@ -17,6 +17,7 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
+import { LogBase } from '../../bases';
 import { QueueDocument, QueueEvent } from '../queue';
 
 export const QueueLogEvent = new EventEmitter<IDatabasePayload<QueueLogDocument>>();
@@ -40,41 +41,24 @@ QueueEvent.on(async payload => {
 @index({ body: 'text' })
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ queueId: 1 })
-@modelOptions({
-  schemaOptions: {
-    collection: 'queuelogs',
-    minimize: false,
-    timestamps: true,
-  },
-})
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: QueueLogEvent })
 @pre('save', function(this: QueueLogDocument) {
   this.expiresAt = new Date(this.createdAt);
   this.expiresAt.setDate(this.createdAt.getDate() + 3);
 })
-export class QueueLogSchema {
-  public _id: mongoose.Types.ObjectId;
-
-  @prop({ required: true })
-  public body: string;
-
-  public createdAt: Date;
-
-  @prop()
-  public expiresAt: Date;
-
+export class QueueLogSchema extends LogBase {
   @prop({ immutable: true, ref: 'QueueSchema', required: true })
   public queueId: Ref<QueueDocument>;
 
-  @prop({ required: true })
-  public unix: number;
-
-  public updatedAt: Date;
-
   @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: 'QueueSchema' })
-  public queueDocument: QueueDocument[];
+  public queueDocument: QueueDocument;
 }
 
 export type QueueLogDocument = DocumentType<QueueLogSchema>;
 export type QueueLogModel = ReturnModelType<typeof QueueLogSchema>;
-export const QueueLog = getModelForClass(QueueLogSchema);
+
+const schema = buildSchema(QueueLogSchema).set('collection', 'queuelogs');
+export const QueueLog = addModelToTypegoose(
+  mongoose.model('QueueLogSchema', schema),
+  QueueLogSchema,
+);

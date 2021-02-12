@@ -2,9 +2,9 @@ import {
   DocumentType,
   Ref,
   ReturnModelType,
-  getModelForClass,
+  addModelToTypegoose,
+  buildSchema,
   index,
-  modelOptions,
   plugin,
   pre,
   prop,
@@ -17,6 +17,7 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
+import { LogBase } from '../../bases';
 import { GameServerDocument, GameServerEvent } from '../game-server';
 
 export const GameServerLogEvent = new EventEmitter<IDatabasePayload<GameServerLogDocument>>();
@@ -40,41 +41,24 @@ GameServerEvent.on(async payload => {
 @index({ body: 'text' })
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ gameServerId: 1 })
-@modelOptions({
-  schemaOptions: {
-    collection: 'gameserverlogs',
-    minimize: false,
-    timestamps: true,
-  },
-})
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameServerLogEvent })
-@pre('save', function(this: GameServerLogDocument) {
+@pre('save', async function(this: GameServerLogDocument) {
   this.expiresAt = new Date(this.createdAt);
   this.expiresAt.setDate(this.createdAt.getDate() + 3);
 })
-export class GameServerLogSchema {
-  public _id: mongoose.Types.ObjectId;
-
-  @prop({ required: true })
-  public body: string;
-
-  public createdAt: Date;
-
-  @prop()
-  public expiresAt: Date;
-
+export class GameServerLogSchema extends LogBase {
   @prop({ immutable: true, ref: 'GameServerSchema', required: true })
   public gameServerId: Ref<GameServerDocument>;
 
-  @prop({ required: true })
-  public unix: number;
-
-  public updatedAt: Date;
-
   @prop({ foreignField: '_id', justOne: true, localField: 'gameServerId', ref: 'GameServerSchema' })
-  public gameServerDocument: GameServerDocument[];
+  public gameServerDocument: GameServerDocument;
 }
 
 export type GameServerLogDocument = DocumentType<GameServerLogSchema>;
 export type GameServerLogModel = ReturnModelType<typeof GameServerLogSchema>;
-export const GameServerLog = getModelForClass(GameServerLogSchema);
+
+const schema = buildSchema(GameServerLogSchema).set('collection', 'gameserverlogs');
+export const GameServerLog = addModelToTypegoose(
+  mongoose.model('GameServerLogSchema', schema),
+  GameServerLogSchema,
+);

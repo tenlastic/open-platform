@@ -114,6 +114,9 @@ export const GameServer = {
 
     const applicationPodManifest: k8s.V1PodTemplateSpec = {
       metadata: {
+        annotations: {
+          'tenlastic.com/gameServerId': gameServer._id.toString(),
+        },
         labels: {
           app: gameServer.kubernetesName,
           role: 'application',

@@ -63,7 +63,7 @@ export const GameServerLogPermissions = new MongoosePermissions<GameServerLogDoc
       },
     ],
     read: {
-      default: ['_id', 'body', 'createdAt', 'gameServerId', 'unix', 'updatedAt'],
+      default: ['_id', 'body', 'createdAt', 'expiresAt', 'gameServerId', 'unix', 'updatedAt'],
     },
     roles: [
       {

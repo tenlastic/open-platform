@@ -53,7 +53,6 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
   },
   find: {
     default: {
-      buildId: { $exists: false },
       namespaceId: {
         $in: {
           // Find Namespaces where the Key or User has administrator access.
@@ -84,15 +83,12 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
         },
       },
     },
-    'system-administrator': {
-      buildId: { $exists: false },
-    },
+    'system-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {
     default: [
       '_id',
-      'buildId',
       'createdAt',
       'isPreemptible',
       'name',
@@ -110,7 +106,7 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
       },
     },
     {
-      name: 'namespace-workflows-administrator',
+      name: 'namespace-administrator',
       query: {
         $or: [
           {
@@ -130,34 +126,11 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
             },
           },
         ],
-      },
-    },
-    {
-      name: 'namespace-builds-administrator',
-      query: {
-        $or: [
-          {
-            'record.namespaceDocument.keys': {
-              $elemMatch: {
-                roles: { $eq: 'builds' },
-                value: { $eq: { $ref: 'key' } },
-              },
-            },
-          },
-          {
-            'record.namespaceDocument.users': {
-              $elemMatch: {
-                _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'builds' },
-              },
-            },
-          },
-        ],
-        buildId: { $exists: true },
       },
     },
   ],
   update: {
+    'namespace-administrator': ['status.*'],
     'system-administrator': ['status.*'],
   },
 });

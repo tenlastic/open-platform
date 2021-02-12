@@ -1,13 +1,11 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
-  getModelForClass,
+  addModelToTypegoose,
   index,
-  modelOptions,
   plugin,
   post,
-  prop,
+  buildSchema,
 } from '@hasezoey/typegoose';
 import {
   EventEmitter,
@@ -18,9 +16,8 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import * as kubernetes from '../../kubernetes';
-import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
-import { WorkflowSpecSchema, WorkflowSpecTemplateSchema } from './spec';
-import { WorkflowStatusSchema } from './status';
+import { WorkflowBase, WorkflowSpecTemplateSchema } from '../../bases';
+import { Namespace, NamespaceEvent, NamespaceLimitError } from '../namespace';
 
 export const WorkflowEvent = new EventEmitter<IDatabasePayload<WorkflowDocument>>();
 
@@ -40,13 +37,6 @@ NamespaceEvent.on(async payload => {
 });
 
 @index({ namespaceId: 1 })
-@modelOptions({
-  schemaOptions: {
-    collection: 'workflows',
-    minimize: false,
-    timestamps: true,
-  },
-})
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: WorkflowEvent })
 @post('remove', async function(this: WorkflowDocument) {
   await kubernetes.Workflow.delete(this);
@@ -65,41 +55,13 @@ NamespaceEvent.on(async payload => {
     await kubernetes.WorkflowSidecar.delete(this);
   }
 })
-export class WorkflowSchema {
-  public _id: mongoose.Types.ObjectId;
-
-  public createdAt: Date;
-
-  @prop({ immutable: true })
-  public isPreemptible: boolean;
-
-  @prop({ immutable: true, required: true })
-  public name: string;
-
-  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
-  public namespaceId: Ref<NamespaceDocument>;
-
-  @prop({ immutable: true, required: true })
-  public spec: WorkflowSpecSchema;
-
-  @prop()
-  public status: WorkflowStatusSchema;
-
-  @prop()
-  public updatedAt: Date;
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
-  public namespaceDocument: NamespaceDocument;
-
-  public _original: any;
+export class WorkflowSchema extends WorkflowBase {
   public get kubernetesName() {
     return `workflow-${this._id}`;
   }
   public get kubernetesNamespace() {
     return `namespace-${this.namespaceId}`;
   }
-  public wasModified: string[];
-  public wasNew: boolean;
 
   public static async checkNamespaceLimits(
     isPreemptible: boolean,
@@ -160,4 +122,9 @@ export class WorkflowSchema {
 
 export type WorkflowDocument = DocumentType<WorkflowSchema>;
 export type WorkflowModel = ReturnModelType<typeof WorkflowSchema>;
-export const Workflow = getModelForClass(WorkflowSchema);
+
+const schema = buildSchema(WorkflowSchema).set('collection', 'workflows');
+export const Workflow = addModelToTypegoose(
+  mongoose.model('WorkflowSchema', schema),
+  WorkflowSchema,
+);

@@ -1,27 +1,24 @@
 components:
   schemas:
-    WorkflowLog:
+    BuildWorkflow:
       type: object
       properties:
         _id:
           type: string
           format: ^[a-f0-9]{24}$
-        body:
+        buildId:
           type: string
+          format: ^[a-f0-9]{24}$
         createdAt:
           type: string
           format: date-time
-        expiresAt:
+        namespaceId:
           type: string
-          format: date-time
-        nodeId:
-          type: string
-        unix:
-          type: number
-          format: double
+          format: ^[a-f0-9]{24}$
+        spec:
+          $ref: '#/components/schemas/WorkflowSpec'
+        status:
+          $ref: '#/components/schemas/WorkflowStatus'
         updatedAt:
           type: string
           format: date-time
-        workflowId:
-          type: string
-          format: ^[a-f0-9]{24}$
