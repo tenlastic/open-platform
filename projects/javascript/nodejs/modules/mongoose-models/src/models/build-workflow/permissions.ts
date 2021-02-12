@@ -7,31 +7,42 @@ export const BuildWorkflowPermissions = new MongoosePermissions<BuildWorkflowDoc
   {
     find: {
       default: {
-        namespaceId: {
+        buildId: {
           $in: {
-            // Find Namespaces where the Key or User has administrator access.
+            // Find Builds in returned Namespaces.
             $query: {
-              model: 'NamespaceSchema',
+              model: 'BuildSchema',
               select: '_id',
               where: {
-                $or: [
-                  {
-                    'record.namespaceDocument.keys': {
-                      $elemMatch: {
-                        roles: { $eq: 'builds' },
-                        value: { $eq: { $ref: 'key' } },
+                namespaceId: {
+                  $in: {
+                    // Find Namespaces where the Key or User has administrator access.
+                    $query: {
+                      model: 'NamespaceSchema',
+                      select: '_id',
+                      where: {
+                        $or: [
+                          {
+                            'record.namespaceDocument.keys': {
+                              $elemMatch: {
+                                roles: { $eq: 'builds' },
+                                value: { $eq: { $ref: 'key' } },
+                              },
+                            },
+                          },
+                          {
+                            'record.namespaceDocument.users': {
+                              $elemMatch: {
+                                _id: { $eq: { $ref: 'user._id' } },
+                                roles: { $eq: 'builds' },
+                              },
+                            },
+                          },
+                        ],
                       },
                     },
                   },
-                  {
-                    'record.namespaceDocument.users': {
-                      $elemMatch: {
-                        _id: { $eq: { $ref: 'user._id' } },
-                        roles: { $eq: 'builds' },
-                      },
-                    },
-                  },
-                ],
+                },
               },
             },
           },
@@ -40,7 +51,12 @@ export const BuildWorkflowPermissions = new MongoosePermissions<BuildWorkflowDoc
       'system-administrator': {},
       'user-administrator': {},
     },
-    populate: [{ path: 'namespaceDocument' }],
+    populate: [
+      {
+        path: 'buildDocument',
+        populate: [{ path: 'namespaceDocument' }],
+      },
+    ],
     read: {
       default: [
         '_id',
@@ -73,7 +89,7 @@ export const BuildWorkflowPermissions = new MongoosePermissions<BuildWorkflowDoc
         query: {
           $or: [
             {
-              'record.namespaceDocument.keys': {
+              'record.buildDocument.namespaceDocument.keys': {
                 $elemMatch: {
                   roles: { $eq: 'builds' },
                   value: { $eq: { $ref: 'key' } },
@@ -81,7 +97,7 @@ export const BuildWorkflowPermissions = new MongoosePermissions<BuildWorkflowDoc
               },
             },
             {
-              'record.namespaceDocument.users': {
+              'record.buildDocument.namespaceDocument.users': {
                 $elemMatch: {
                   _id: { $eq: { $ref: 'user._id' } },
                   roles: { $eq: 'builds' },

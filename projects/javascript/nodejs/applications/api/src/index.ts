@@ -12,6 +12,7 @@ import * as path from 'path';
 
 import { router as articlesRouter } from './handlers/articles';
 import { router as buildTasksRouter } from './handlers/build-tasks';
+import { router as buildWorkflowsRouter } from './handlers/build-workflows';
 import { router as buildsRouter } from './handlers/builds';
 import { router as collectionsRouter } from './handlers/collections';
 import { router as filesRouter } from './handlers/files';
@@ -86,6 +87,7 @@ const webServer = new WebServer();
 webServer.use(articlesRouter.routes());
 webServer.use(articlesRouter.routes());
 webServer.use(buildTasksRouter.routes());
+webServer.use(buildWorkflowsRouter.routes());
 webServer.use(buildsRouter.routes());
 webServer.use(collectionsRouter.routes());
 webServer.use(filesRouter.routes());
