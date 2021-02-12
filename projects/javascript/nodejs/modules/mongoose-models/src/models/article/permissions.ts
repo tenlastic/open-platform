@@ -5,11 +5,11 @@ import { Article, ArticleDocument } from './model';
 export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Article, {
   create: {
     'namespace-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
-    'system-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
+    'user-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
   },
   delete: {
     'namespace-administrator': true,
-    'system-administrator': true,
+    'user-administrator': true,
   },
   find: {
     default: {
@@ -48,7 +48,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
         },
       ],
     },
-    'system-administrator': {},
+    'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {
@@ -66,7 +66,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
   },
   roles: [
     {
-      name: 'system-administrator',
+      name: 'user-administrator',
       query: {
         'user.roles': { $eq: 'articles' },
       },
@@ -97,6 +97,6 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
   ],
   update: {
     'namespace-administrator': ['body', 'caption', 'publishedAt', 'title', 'type'],
-    'system-administrator': ['body', 'caption', 'publishedAt', 'title', 'type'],
+    'user-administrator': ['body', 'caption', 'publishedAt', 'title', 'type'],
   },
 });

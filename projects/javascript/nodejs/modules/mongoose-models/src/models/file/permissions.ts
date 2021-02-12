@@ -12,7 +12,7 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
       'platform',
       'uncompressedBytes',
     ],
-    'system-administrator': [
+    'user-administrator': [
       'buildId',
       'compressedBytes',
       'md5',
@@ -23,7 +23,7 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
   },
   delete: {
     'namespace-administrator': true,
-    'system-administrator': true,
+    'user-administrator': true,
   },
   find: {
     default: {
@@ -102,7 +102,7 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
         },
       ],
     },
-    'system-administrator': {},
+    'user-administrator': {},
   },
   populate: [
     {
@@ -127,7 +127,7 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
   },
   roles: [
     {
-      name: 'system-administrator',
+      name: 'user-administrator',
       query: {
         'user.roles': { $eq: 'builds' },
       },
@@ -165,7 +165,7 @@ export const FilePermissions = new MongoosePermissions<FileDocument>(File, {
       'platform',
       'uncompressedBytes',
     ],
-    'system-administrator': [
+    'user-administrator': [
       'buildId',
       'compressedBytes',
       'md5',

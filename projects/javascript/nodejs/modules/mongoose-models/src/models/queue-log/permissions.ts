@@ -4,7 +4,6 @@ import { QueueLog, QueueLogDocument } from './model';
 
 export const QueueLogPermissions = new MongoosePermissions<QueueLogDocument>(QueueLog, {
   create: {
-    'namespace-administrator': ['body', 'queueId', 'unix'],
     'system-administrator': ['body', 'queueId', 'unix'],
   },
   find: {
@@ -51,6 +50,7 @@ export const QueueLogPermissions = new MongoosePermissions<QueueLogDocument>(Que
       },
     },
     'system-administrator': {},
+    'user-administrator': {},
   },
   populate: [
     {
@@ -66,6 +66,13 @@ export const QueueLogPermissions = new MongoosePermissions<QueueLogDocument>(Que
   roles: [
     {
       name: 'system-administrator',
+      query: {
+        'user.roles': { $eq: 'queues' },
+        'user.system': { $eq: true },
+      },
+    },
+    {
+      name: 'user-administrator',
       query: {
         'user.roles': { $eq: 'queues' },
       },

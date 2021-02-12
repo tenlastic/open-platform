@@ -38,6 +38,7 @@ export const BuildWorkflowPermissions = new MongoosePermissions<BuildWorkflowDoc
         },
       },
       'system-administrator': {},
+      'user-administrator': {},
     },
     populate: [{ path: 'namespaceDocument' }],
     read: {
@@ -56,6 +57,13 @@ export const BuildWorkflowPermissions = new MongoosePermissions<BuildWorkflowDoc
     roles: [
       {
         name: 'system-administrator',
+        query: {
+          'user.roles': { $eq: 'builds' },
+          'user.system': { $eq: true },
+        },
+      },
+      {
+        name: 'user-administrator',
         query: {
           'user.roles': { $eq: 'builds' },
         },
@@ -85,7 +93,6 @@ export const BuildWorkflowPermissions = new MongoosePermissions<BuildWorkflowDoc
       },
     ],
     update: {
-      'namespace-administrator': ['status.*'],
       'system-administrator': ['status.*'],
     },
   },

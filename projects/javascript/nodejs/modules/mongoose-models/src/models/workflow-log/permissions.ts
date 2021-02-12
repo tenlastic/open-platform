@@ -4,7 +4,6 @@ import { WorkflowLog, WorkflowLogDocument } from './model';
 
 export const WorkflowLogPermissions = new MongoosePermissions<WorkflowLogDocument>(WorkflowLog, {
   create: {
-    'namespace-administrator': ['body', 'nodeId', 'unix', 'workflowId'],
     'system-administrator': ['body', 'nodeId', 'unix', 'workflowId'],
   },
   find: {
@@ -51,6 +50,7 @@ export const WorkflowLogPermissions = new MongoosePermissions<WorkflowLogDocumen
       },
     },
     'system-administrator': {},
+    'user-administrator': {},
   },
   populate: [
     {
@@ -66,6 +66,13 @@ export const WorkflowLogPermissions = new MongoosePermissions<WorkflowLogDocumen
   roles: [
     {
       name: 'system-administrator',
+      query: {
+        'user.roles': { $eq: 'workflows' },
+        'user.system': { $eq: true },
+      },
+    },
+    {
+      name: 'user-administrator',
       query: {
         'user.roles': { $eq: 'workflows' },
       },

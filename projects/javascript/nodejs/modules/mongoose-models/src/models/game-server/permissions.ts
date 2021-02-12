@@ -18,7 +18,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'namespaceId',
       'status',
     ],
-    'system-administrator': [
+    'user-administrator': [
       'allowedUserIds',
       'buildId',
       'cpu',
@@ -35,7 +35,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   },
   delete: {
     'namespace-administrator': true,
-    'system-administrator': true,
+    'user-administrator': true,
   },
   find: {
     default: {
@@ -87,7 +87,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
         },
       ],
     },
-    'system-administrator': {},
+    'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {
@@ -113,7 +113,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   },
   roles: [
     {
-      name: 'system-administrator',
+      name: 'user-administrator',
       query: { 'user.roles': { $eq: 'game-servers' } },
     },
     {
@@ -154,7 +154,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'name',
       'status',
     ],
-    'system-administrator': [
+    'user-administrator': [
       'allowedUserIds',
       'buildId',
       'cpu',

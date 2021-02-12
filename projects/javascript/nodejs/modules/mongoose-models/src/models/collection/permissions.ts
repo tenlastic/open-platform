@@ -5,11 +5,11 @@ import { Collection, CollectionDocument } from './model';
 export const CollectionPermissions = new MongoosePermissions<CollectionDocument>(Collection, {
   create: {
     'namespace-administrator': ['jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
-    'system-administrator': ['jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
+    'user-administrator': ['jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
   },
   delete: {
     'namespace-administrator': true,
-    'system-administrator': true,
+    'user-administrator': true,
   },
   find: {
     default: {
@@ -43,7 +43,7 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
         },
       },
     },
-    'system-administrator': {},
+    'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {
@@ -60,7 +60,7 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
   },
   roles: [
     {
-      name: 'system-administrator',
+      name: 'user-administrator',
       query: {
         'user.roles': { $eq: 'collections' },
       },
@@ -91,6 +91,6 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
   ],
   update: {
     'namespace-administrator': ['indexes.*', 'jsonSchema.*', 'name', 'permissions.*'],
-    'system-administrator': ['indexes.*', 'jsonSchema.*', 'name', 'permissions.*'],
+    'user-administrator': ['indexes.*', 'jsonSchema.*', 'name', 'permissions.*'],
   },
 });

@@ -5,11 +5,11 @@ import { Build, BuildDocument } from './model';
 export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
   create: {
     'namespace-administrator': ['entrypoints.*', 'namespaceId', 'publishedAt', 'version'],
-    'system-administrator': ['entrypoints.*', 'namespaceId', 'publishedAt', 'version'],
+    'user-administrator': ['entrypoints.*', 'namespaceId', 'publishedAt', 'version'],
   },
   delete: {
     'namespace-administrator': true,
-    'system-administrator': true,
+    'user-administrator': true,
   },
   find: {
     default: {
@@ -48,7 +48,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
         },
       ],
     },
-    'system-administrator': {},
+    'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {
@@ -64,7 +64,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
   },
   roles: [
     {
-      name: 'system-administrator',
+      name: 'user-administrator',
       query: {
         'user.roles': { $eq: 'builds' },
       },
@@ -95,6 +95,6 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
   ],
   update: {
     'namespace-administrator': ['entrypoints.*', 'publishedAt', 'version'],
-    'system-administrator': ['entrypoints.*', 'publishedAt', 'version'],
+    'user-administrator': ['entrypoints.*', 'publishedAt', 'version'],
   },
 });

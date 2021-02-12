@@ -7,12 +7,12 @@ export const GameInvitationPermissions = new MongoosePermissions<GameInvitationD
   {
     create: {
       'namespace-administrator': ['namespaceId', 'userId'],
-      'system-administrator': ['namespaceId', 'userId'],
+      'user-administrator': ['namespaceId', 'userId'],
     },
     delete: {
       'namespace-administrator': true,
       recipient: true,
-      'system-administrator': true,
+      'user-administrator': true,
     },
     find: {
       default: {
@@ -53,7 +53,7 @@ export const GameInvitationPermissions = new MongoosePermissions<GameInvitationD
           },
         ],
       },
-      'system-administrator': {},
+      'user-administrator': {},
     },
     populate: [{ path: 'namespaceDocument' }],
     read: {
@@ -61,7 +61,7 @@ export const GameInvitationPermissions = new MongoosePermissions<GameInvitationD
     },
     roles: [
       {
-        name: 'system-administrator',
+        name: 'user-administrator',
         query: {
           'user.roles': { $eq: 'game-invitations' },
         },

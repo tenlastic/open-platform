@@ -64,7 +64,7 @@ export const WorkflowSidecar = {
      * DEPLOYMENT
      * ======================
      */
-    const administrator = { roles: ['workflows'] };
+    const administrator = { roles: ['workflows'], system: true };
     const accessToken = jwt.sign(
       { type: 'access', user: administrator },
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),

@@ -25,7 +25,7 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
       'spec.templates.script.workspace',
       'spec.templates.sidecars.*',
     ],
-    'system-administrator': [
+    'user-administrator': [
       'isPreemptible',
       'name',
       'namespaceId',
@@ -49,7 +49,7 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
   },
   delete: {
     'namespace-administrator': true,
-    'system-administrator': true,
+    'user-administrator': true,
   },
   find: {
     default: {
@@ -84,6 +84,7 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
       },
     },
     'system-administrator': {},
+    'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {
@@ -101,6 +102,13 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
   roles: [
     {
       name: 'system-administrator',
+      query: {
+        'user.roles': { $eq: 'workflows' },
+        'user.system': { $eq: true },
+      },
+    },
+    {
+      name: 'user-administrator',
       query: {
         'user.roles': { $eq: 'workflows' },
       },
@@ -130,7 +138,6 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
     },
   ],
   update: {
-    'namespace-administrator': ['status.*'],
     'system-administrator': ['status.*'],
   },
 });

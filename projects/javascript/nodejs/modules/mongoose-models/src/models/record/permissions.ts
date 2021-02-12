@@ -1,11 +1,11 @@
 export const RecordPermissions = {
   create: {
     'namespace-administrator': ['collectionId', 'properties.*', 'userId'],
-    'system-administrator': ['collectionId', 'properties.*', 'userId'],
+    'user-administrator': ['collectionId', 'properties.*', 'userId'],
   },
   delete: {
     'namespace-administrator': true,
-    'system-administrator': true,
+    'user-administrator': true,
   },
   find: {
     default: {
@@ -50,7 +50,7 @@ export const RecordPermissions = {
         },
       },
     },
-    'system-administrator': {},
+    'user-administrator': {},
   },
   populate: [
     {
@@ -67,7 +67,7 @@ export const RecordPermissions = {
       'updatedAt',
       'userId',
     ],
-    'system-administrator': [
+    'user-administrator': [
       '_id',
       'collectionId',
       'createdAt',
@@ -78,7 +78,7 @@ export const RecordPermissions = {
   },
   roles: [
     {
-      name: 'system-administrator',
+      name: 'user-administrator',
       query: {
         'user.roles': { $eq: 'collections' },
       },
@@ -109,6 +109,6 @@ export const RecordPermissions = {
   ],
   update: {
     'namespace-administrator': ['collectionId', 'properties.*', 'userId'],
-    'system-administrator': ['collectionId', 'properties.*', 'userId'],
+    'user-administrator': ['collectionId', 'properties.*', 'userId'],
   },
 };

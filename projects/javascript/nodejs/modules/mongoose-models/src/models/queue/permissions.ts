@@ -15,7 +15,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
       'teams',
       'updatedAt',
     ],
-    'system-administrator': [
+    'user-administrator': [
       '_id',
       'createdAt',
       'description',
@@ -29,7 +29,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
   },
   delete: {
     'namespace-administrator': true,
-    'system-administrator': true,
+    'user-administrator': true,
   },
   find: {
     default: {
@@ -81,7 +81,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
         },
       ],
     },
-    'system-administrator': {},
+    'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
   read: {
@@ -99,7 +99,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
   },
   roles: [
     {
-      name: 'system-administrator',
+      name: 'user-administrator',
       query: {
         'user.roles': { $eq: 'queues' },
       },
@@ -139,7 +139,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
       'teams',
       'updatedAt',
     ],
-    'system-administrator': [
+    'user-administrator': [
       '_id',
       'createdAt',
       'description',

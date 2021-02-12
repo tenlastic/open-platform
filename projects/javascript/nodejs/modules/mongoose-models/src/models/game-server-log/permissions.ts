@@ -6,7 +6,6 @@ export const GameServerLogPermissions = new MongoosePermissions<GameServerLogDoc
   GameServerLog,
   {
     create: {
-      'namespace-administrator': ['body', 'gameServerId', 'unix'],
       'system-administrator': ['body', 'gameServerId', 'unix'],
     },
     find: {
@@ -53,6 +52,7 @@ export const GameServerLogPermissions = new MongoosePermissions<GameServerLogDoc
         },
       },
       'system-administrator': {},
+      'user-administrator': {},
     },
     populate: [
       {
@@ -68,6 +68,13 @@ export const GameServerLogPermissions = new MongoosePermissions<GameServerLogDoc
     roles: [
       {
         name: 'system-administrator',
+        query: {
+          'user.roles': { $eq: 'game-servers' },
+          'user.system': { $eq: true },
+        },
+      },
+      {
+        name: 'user-administrator',
         query: {
           'user.roles': { $eq: 'game-servers' },
         },

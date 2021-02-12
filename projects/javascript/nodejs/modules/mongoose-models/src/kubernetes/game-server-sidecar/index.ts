@@ -59,7 +59,7 @@ export const GameServerSidecar = {
      * DEPLOYMENT
      * ======================
      */
-    const administrator = { roles: ['game-servers'] };
+    const administrator = { roles: ['game-servers'], system: true };
     const accessToken = jwt.sign(
       { type: 'access', user: administrator },
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),

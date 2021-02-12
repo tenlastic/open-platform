@@ -4,11 +4,11 @@ import { Namespace, NamespaceDocument } from './model';
 
 export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(Namespace, {
   create: {
-    'system-administrator': ['keys.*', 'limits.*', 'name', 'users.*'],
+    'user-administrator': ['keys.*', 'limits.*', 'name', 'users.*'],
   },
   delete: {
     default: false,
-    'system-administrator': true,
+    'user-administrator': true,
   },
   find: {
     default: {
@@ -31,7 +31,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
         },
       ],
     },
-    'system-administrator': {},
+    'user-administrator': {},
   },
   read: {
     default: ['_id', 'createdAt', 'name', 'updatedAt'],
@@ -44,7 +44,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
       'updatedAt',
       'users.*',
     ],
-    'system-administrator': [
+    'user-administrator': [
       '_id',
       'createdAt',
       'keys.*',
@@ -56,7 +56,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
   },
   roles: [
     {
-      name: 'system-administrator',
+      name: 'user-administrator',
       query: {
         'user.roles': { $eq: 'namespaces' },
       },
@@ -87,6 +87,6 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
   ],
   update: {
     'namespace-administrator': ['keys.*', 'name', 'users.*'],
-    'system-administrator': ['keys.*', 'limits.*', 'name', 'users.*'],
+    'user-administrator': ['keys.*', 'limits.*', 'name', 'users.*'],
   },
 });
