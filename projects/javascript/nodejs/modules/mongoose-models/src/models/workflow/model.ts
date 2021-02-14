@@ -1,11 +1,13 @@
 import {
   DocumentType,
+  Ref,
   ReturnModelType,
   addModelToTypegoose,
+  buildSchema,
   index,
   plugin,
   post,
-  buildSchema,
+  prop,
 } from '@hasezoey/typegoose';
 import {
   EventEmitter,
@@ -16,8 +18,9 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import * as kubernetes from '../../kubernetes';
-import { WorkflowBase, WorkflowSpecTemplateSchema } from '../../bases';
-import { Namespace, NamespaceEvent, NamespaceLimitError } from '../namespace';
+import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
+import { WorkflowSpecSchema, WorkflowSpecTemplateSchema } from './spec';
+import { WorkflowStatusSchema } from './status';
 
 export const WorkflowEvent = new EventEmitter<IDatabasePayload<WorkflowDocument>>();
 
@@ -40,7 +43,7 @@ NamespaceEvent.on(async payload => {
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: WorkflowEvent })
 @post('remove', async function(this: WorkflowDocument) {
   await kubernetes.Workflow.delete(this);
-  await kubernetes.WorkflowSidecar.delete(this);
+  await kubernetes.WorkflowSidecar.delete(this.kubernetesName, this.kubernetesNamespace);
 })
 @post('save', async function(this: WorkflowDocument) {
   if (!this.populated('namespaceDocument')) {
@@ -49,19 +52,56 @@ NamespaceEvent.on(async payload => {
 
   if (this.wasNew) {
     await kubernetes.Workflow.create(this.namespaceDocument, this);
-    await kubernetes.WorkflowSidecar.create(this);
+    await kubernetes.WorkflowSidecar.create(
+      this._id,
+      this.kubernetesEndpoint,
+      this.isPreemptible,
+      this.kubernetesName,
+      this.kubernetesNamespace,
+    );
   } else if (this.status && this.status.finishedAt) {
     await kubernetes.Workflow.delete(this);
-    await kubernetes.WorkflowSidecar.delete(this);
+    await kubernetes.WorkflowSidecar.delete(this.kubernetesName, this.kubernetesNamespace);
   }
 })
-export class WorkflowSchema extends WorkflowBase {
+export class WorkflowSchema {
+  public _id: mongoose.Types.ObjectId;
+
+  public createdAt: Date;
+
+  @prop({ immutable: true })
+  public isPreemptible: boolean;
+
+  @prop({ immutable: true, required: true })
+  public name: string;
+
+  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  public namespaceId: Ref<NamespaceDocument>;
+
+  @prop({ immutable: true, required: true })
+  public spec: WorkflowSpecSchema;
+
+  @prop()
+  public status: WorkflowStatusSchema;
+
+  public updatedAt: Date;
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
+  public namespaceDocument: NamespaceDocument;
+
+  public _original: any;
+  public get kubernetesEndpoint() {
+    return `http://api.default:3000/workflows/${this._id}`;
+  }
   public get kubernetesName() {
     return `workflow-${this._id}`;
   }
   public get kubernetesNamespace() {
-    return `namespace-${this.namespaceId}`;
+    const namespace = new Namespace({ _id: this.namespaceId });
+    return `namespace-${namespace.kubernetesNamespace}`;
   }
+  public wasModified: string[];
+  public wasNew: boolean;
 
   public static async checkNamespaceLimits(
     isPreemptible: boolean,

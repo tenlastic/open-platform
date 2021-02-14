@@ -1,6 +1,7 @@
 import * as k8s from '@kubernetes/client-node';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
+import * as mongoose from 'mongoose';
 import * as path from 'path';
 
 import { WorkflowDocument } from '../../models';
@@ -13,15 +14,21 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
 export const WorkflowSidecar = {
-  create: async (workflow: WorkflowDocument) => {
+  create: async (
+    _id: mongoose.Types.ObjectId,
+    endpoint: string,
+    isPreemptible: boolean,
+    name: string,
+    namespace: string,
+  ) => {
     /**
      * ======================
      * ROLE + SERVICE ACCOUNT
      * ======================
      */
-    await rbacAuthorizationV1.createNamespacedRole(workflow.kubernetesNamespace, {
+    await rbacAuthorizationV1.createNamespacedRole(namespace, {
       metadata: {
-        name: `${workflow.kubernetesName}-sidecar`,
+        name: `${name}-sidecar`,
       },
       rules: [
         {
@@ -36,25 +43,25 @@ export const WorkflowSidecar = {
         },
       ],
     });
-    await coreV1.createNamespacedServiceAccount(workflow.kubernetesNamespace, {
+    await coreV1.createNamespacedServiceAccount(namespace, {
       metadata: {
-        name: `${workflow.kubernetesName}-sidecar`,
+        name: `${name}-sidecar`,
       },
     });
-    await rbacAuthorizationV1.createNamespacedRoleBinding(workflow.kubernetesNamespace, {
+    await rbacAuthorizationV1.createNamespacedRoleBinding(namespace, {
       metadata: {
-        name: `${workflow.kubernetesName}-sidecar`,
+        name: `${name}-sidecar`,
       },
       roleRef: {
         apiGroup: 'rbac.authorization.k8s.io',
         kind: 'Role',
-        name: `${workflow.kubernetesName}-sidecar`,
+        name: `${name}-sidecar`,
       },
       subjects: [
         {
           kind: 'ServiceAccount',
-          name: `${workflow.kubernetesName}-sidecar`,
-          namespace: workflow.kubernetesNamespace,
+          name: `${name}-sidecar`,
+          namespace,
         },
       ],
     });
@@ -64,7 +71,7 @@ export const WorkflowSidecar = {
      * DEPLOYMENT
      * ======================
      */
-    const administrator = { roles: ['workflows'], system: true };
+    const administrator = { roles: ['builds', 'workflows'], system: true };
     const accessToken = jwt.sign(
       { type: 'access', user: administrator },
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
@@ -78,9 +85,7 @@ export const WorkflowSidecar = {
             {
               matchExpressions: [
                 {
-                  key: workflow.isPreemptible
-                    ? 'tenlastic.com/low-priority'
-                    : 'tenlastic.com/high-priority',
+                  key: isPreemptible ? 'tenlastic.com/low-priority' : 'tenlastic.com/high-priority',
                   operator: 'Exists',
                 },
               ],
@@ -91,12 +96,12 @@ export const WorkflowSidecar = {
     };
     const env = [
       { name: 'ACCESS_TOKEN', value: accessToken },
-      { name: 'LOG_ENDPOINT', value: `http://api.default:3000/workflows/${workflow._id}/logs` },
-      { name: 'LOG_POD_LABEL_SELECTOR', value: `app=${workflow.kubernetesName},role=application` },
-      { name: 'LOG_POD_NAMESPACE', value: workflow.kubernetesNamespace },
-      { name: 'WORKFLOW_ENDPOINT', value: `http://api.default:3000/workflows/${workflow._id}` },
-      { name: 'WORKFLOW_NAME', value: workflow.kubernetesName },
-      { name: 'WORKFLOW_NAMESPACE', value: workflow.kubernetesNamespace },
+      { name: 'LOG_ENDPOINT', value: `${endpoint}/logs` },
+      { name: 'LOG_POD_LABEL_SELECTOR', value: `app=${name},role=application` },
+      { name: 'LOG_POD_NAMESPACE', value: namespace },
+      { name: 'WORKFLOW_ENDPOINT', value: endpoint },
+      { name: 'WORKFLOW_NAME', value: name },
+      { name: 'WORKFLOW_NAMESPACE', value: namespace },
     ];
 
     const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
@@ -109,10 +114,10 @@ export const WorkflowSidecar = {
       manifest = {
         metadata: {
           labels: {
-            app: workflow.kubernetesName,
+            app: name,
             role: 'sidecar',
           },
-          name: `${workflow.kubernetesName}-sidecar`,
+          name: `${name}-sidecar`,
         },
         spec: {
           affinity,
@@ -126,7 +131,6 @@ export const WorkflowSidecar = {
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
               workingDir: '/usr/src/app/projects/javascript/nodejs/applications/log-sidecar/',
             },
-            ,
             {
               command: ['npm', 'run', 'start'],
               env,
@@ -137,7 +141,7 @@ export const WorkflowSidecar = {
               workingDir: '/usr/src/app/projects/javascript/nodejs/applications/workflow-sidecar/',
             },
           ],
-          serviceAccountName: `${workflow.kubernetesName}-sidecar`,
+          serviceAccountName: `${name}-sidecar`,
           volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
         },
       };
@@ -145,10 +149,10 @@ export const WorkflowSidecar = {
       manifest = {
         metadata: {
           labels: {
-            app: workflow.kubernetesName,
+            app: name,
             role: 'sidecar',
           },
-          name: `${workflow.kubernetesName}-sidecar`,
+          name: `${name}-sidecar`,
         },
         spec: {
           affinity,
@@ -166,24 +170,24 @@ export const WorkflowSidecar = {
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },
           ],
-          serviceAccountName: `${workflow.kubernetesName}-sidecar`,
+          serviceAccountName: `${name}-sidecar`,
         },
       };
     }
 
-    await appsV1.createNamespacedDeployment(workflow.kubernetesNamespace, {
+    await appsV1.createNamespacedDeployment(namespace, {
       metadata: {
         labels: {
-          app: workflow.kubernetesName,
+          app: name,
           role: 'sidecar',
         },
-        name: `${workflow.kubernetesName}-sidecar`,
+        name: `${name}-sidecar`,
       },
       spec: {
         replicas: 1,
         selector: {
           matchLabels: {
-            app: workflow.kubernetesName,
+            app: name,
             role: 'sidecar',
           },
         },
@@ -191,25 +195,16 @@ export const WorkflowSidecar = {
       },
     });
   },
-  delete: async (workflow: WorkflowDocument) => {
+  delete: async (name: string, namespace: string) => {
     /**
      * ======================
      * RBAC
      * ======================
      */
     try {
-      await rbacAuthorizationV1.deleteNamespacedRole(
-        `${workflow.kubernetesName}-sidecar`,
-        workflow.kubernetesNamespace,
-      );
-      await coreV1.deleteNamespacedServiceAccount(
-        `${workflow.kubernetesName}-sidecar`,
-        workflow.kubernetesNamespace,
-      );
-      await rbacAuthorizationV1.deleteNamespacedRoleBinding(
-        `${workflow.kubernetesName}-sidecar`,
-        workflow.kubernetesNamespace,
-      );
+      await rbacAuthorizationV1.deleteNamespacedRole(`${name}-sidecar`, namespace);
+      await coreV1.deleteNamespacedServiceAccount(`${name}-sidecar`, namespace);
+      await rbacAuthorizationV1.deleteNamespacedRoleBinding(`${name}-sidecar`, namespace);
     } catch {}
 
     /**
@@ -218,10 +213,7 @@ export const WorkflowSidecar = {
      * ======================
      */
     try {
-      await appsV1.deleteNamespacedDeployment(
-        `${workflow.kubernetesName}-sidecar`,
-        workflow.kubernetesNamespace,
-      );
+      await appsV1.deleteNamespacedDeployment(`${name}-sidecar`, namespace);
     } catch {}
   },
 };

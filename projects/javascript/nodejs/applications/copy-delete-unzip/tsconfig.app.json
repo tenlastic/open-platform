@@ -10,7 +10,5 @@
   "include": ["./src"],
   "references": [
     { "path": "../../modules/minio/tsconfig.app.json" },
-    { "path": "../../modules/mongoose-models/tsconfig.app.json" },
-    { "path": "../../modules/mongoose-change-stream-kafka/tsconfig.app.json" }
   ]
 }

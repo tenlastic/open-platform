@@ -92,12 +92,7 @@ components:
                   env:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                        value:
-                          type: string
+                      $ref: '#/components/schemas/WorkflowSpecEnv'
                   image:
                     type: string
                   resources:
@@ -132,12 +127,7 @@ components:
                     env:
                       type: array
                       items:
-                        type: object
-                        properties:
-                          name:
-                            type: string
-                          value:
-                            type: string
+                        $ref: '#/components/schemas/WorkflowSpecEnv'
                     image:
                       type: string
                     name:

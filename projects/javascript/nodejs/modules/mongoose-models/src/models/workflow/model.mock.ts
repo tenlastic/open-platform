@@ -1,8 +1,8 @@
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
-import { WorkflowSpecMock } from '../../bases';
 import { Workflow, WorkflowSchema } from './model';
+import { WorkflowSpecMock } from './spec';
 
 export class WorkflowMock {
   /**

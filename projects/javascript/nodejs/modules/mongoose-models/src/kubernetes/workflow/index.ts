@@ -1,16 +1,17 @@
 import * as k8s from '@kubernetes/client-node';
 
-import { NamespaceDocument, NamespaceWorkflowLimitsSchema, WorkflowDocument } from '../../models';
 import {
+  NamespaceDocument,
+  NamespaceWorkflowLimitsSchema,
+  WorkflowDocument,
   WorkflowSpecTemplate,
   WorkflowSpecTemplateResourcesSchema,
   WorkflowSpecTemplateSchema,
-} from '../../bases';
+} from '../../models';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
-const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
 const networkingV1 = kc.makeApiClient(k8s.NetworkingV1Api);
@@ -220,7 +221,7 @@ export const Workflow = {
 };
 
 /**
- * Gets the manigest for resources.
+ * Gets the manifest for resources.
  */
 function getResourcesManifest(resources: WorkflowSpecTemplateResourcesSchema) {
   const r: any = {};

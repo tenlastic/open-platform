@@ -3,6 +3,7 @@ import {
   Ref,
   ReturnModelType,
   addModelToTypegoose,
+  arrayProp,
   buildSchema,
   index,
   plugin,
@@ -19,9 +20,10 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import * as kubernetes from '../../kubernetes';
-import { WorkflowBase } from '../../bases';
-import { NamespaceEvent } from '../namespace';
 import { BuildDocument } from '../build';
+import { FilePlatform } from '../file';
+import { Namespace, NamespaceDocument, NamespaceEvent } from '../namespace';
+import { WorkflowStatusSchema } from '../workflow';
 
 export const BuildWorkflowEvent = new EventEmitter<IDatabasePayload<BuildWorkflowDocument>>();
 
@@ -51,34 +53,79 @@ NamespaceEvent.on(async payload => {
   this.namespaceId = this.buildDocument.namespaceId;
 })
 @post('remove', async function(this: BuildWorkflowDocument) {
-  await kubernetes.Workflow.delete(this);
-  await kubernetes.WorkflowSidecar.delete(this);
+  await kubernetes.BuildWorkflow.delete(this);
+  await kubernetes.WorkflowSidecar.delete(this.kubernetesName, this.kubernetesNamespace);
 })
 @post('save', async function(this: BuildWorkflowDocument) {
   if (!this.populated('namespaceDocument')) {
     await this.populate('namespaceDocument').execPopulate();
   }
 
+  const isPreemptible = this.namespaceDocument.limits.workflows.preemptible;
+
   if (this.wasNew) {
-    await kubernetes.Workflow.create(this.namespaceDocument, this);
-    await kubernetes.WorkflowSidecar.create(this);
+    await kubernetes.BuildWorkflow.create(this, this.namespaceDocument);
+    await kubernetes.WorkflowSidecar.create(
+      this.id,
+      this.kubernetesEndpoint,
+      isPreemptible,
+      this.kubernetesName,
+      this.kubernetesNamespace,
+    );
   } else if (this.status && this.status.finishedAt) {
-    await kubernetes.Workflow.delete(this);
-    await kubernetes.WorkflowSidecar.delete(this);
+    await kubernetes.BuildWorkflow.delete(this);
+    await kubernetes.WorkflowSidecar.delete(this.kubernetesName, this.kubernetesNamespace);
   }
 })
-export class BuildWorkflowSchema extends WorkflowBase {
+export class BuildWorkflowSchema {
+  public _id: mongoose.Types.ObjectId;
+
   @prop({ immutable: true, ref: 'BuildSchema', required: true })
   public buildId: Ref<BuildDocument>;
+
+  public createdAt: Date;
+
+  @arrayProp({ items: String })
+  public deleted: string[];
+
+  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  public namespaceId: Ref<NamespaceDocument>;
+
+  @prop({ enum: FilePlatform, required: true })
+  public platform: string;
+
+  @prop({ immutable: true, ref: 'BuildSchema', required: true })
+  public previousBuildId: Ref<BuildDocument>;
+
+  @prop()
+  public status: WorkflowStatusSchema;
+
+  @arrayProp({ items: String })
+  public unmodified: string[];
+
+  public updatedAt: Date;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })
   public buildDocument: BuildDocument;
 
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
+  public namespaceDocument: NamespaceDocument;
+
+  public _original: any;
+  public get kubernetesEndpoint() {
+    return `http://api.default:3000/builds/${this.buildId}/workflows/${this._id}`;
+  }
   public get kubernetesName() {
-    return `workflow-${this._id}`;
+    return `build-workflow-${this._id}`;
   }
   public get kubernetesNamespace() {
-    return `namespace-${this.namespaceId}`;
+    const namespace = new Namespace({ _id: this.namespaceId });
+    return `namespace-${namespace.kubernetesNamespace}`;
+  }
+  public wasModified: string[];
+  public wasNew: boolean;
+  public get zip() {
+    return `/namespaces/${this.namespaceId}/builds/${this.buildId}/archives/${this._id}.zip`;
   }
 }
 

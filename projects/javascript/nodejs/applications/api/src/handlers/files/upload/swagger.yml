@@ -3,7 +3,7 @@ paths:
     post:
       summary: Upload
       tags: [BuildFiles]
-      description: Uploads files for a Build.
+      description: Uploads files for a Build. Make sure zip is the last field.
       security:
         - AccessToken: []
       parameters:
@@ -23,11 +23,7 @@ paths:
             schema:
               type: object
               properties:
-                modified:
-                  type: array
-                  items:
-                    type: string
-                removed:
+                deleted:
                   type: array
                   items:
                     type: string
