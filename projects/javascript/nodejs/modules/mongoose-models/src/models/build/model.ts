@@ -2,10 +2,12 @@ import {
   DocumentType,
   Ref,
   ReturnModelType,
+  arrayProp,
   getModelForClass,
   index,
   modelOptions,
   plugin,
+  post,
   prop,
 } from '@hasezoey/typegoose';
 import {
@@ -17,10 +19,18 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import { NamespaceDocument, NamespaceEvent } from '../namespace';
-import { BuildEntrypointsSchema } from './entrypoints';
+import * as kubernetes from '../../kubernetes';
+import { Namespace, NamespaceDocument, NamespaceEvent } from '../namespace';
+import { WorkflowStatusSchema } from '../workflow';
+import { BuildFileSchema } from './file';
+import { BuildReferenceSchema } from './reference';
 
 export const BuildEvent = new EventEmitter<IDatabasePayload<BuildDocument>>();
+
+export enum BuildPlatform {
+  Server64 = 'server64',
+  Windows64 = 'windows64',
+}
 
 // Publish changes to Kafka.
 BuildEvent.on(payload => {
@@ -37,7 +47,7 @@ NamespaceEvent.on(async payload => {
   }
 });
 
-@index({ namespaceId: 1, version: 1 }, { unique: true })
+@index({ namespaceId: 1, platform: 1, version: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     collection: 'builds',
@@ -47,18 +57,49 @@ NamespaceEvent.on(async payload => {
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: BuildEvent })
 @plugin(uniqueErrorPlugin)
+@post('remove', async function(this: BuildDocument) {
+  const namespace = new Namespace({ _id: this.namespaceId });
+  await kubernetes.Build.delete(this, namespace);
+  await kubernetes.BuildSidecar.delete(this, namespace);
+})
+@post('save', async function(this: BuildDocument) {
+  const namespace = new Namespace({ _id: this.namespaceId });
+  if (this.wasNew) {
+    await kubernetes.Build.create(this, namespace);
+    await kubernetes.BuildSidecar.create(this, namespace);
+  } else if (this.status && this.status.finishedAt) {
+    await kubernetes.Build.delete(this, namespace);
+    await kubernetes.BuildSidecar.delete(this, namespace);
+  }
+})
 export class BuildSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ default: {} })
-  public entrypoints: BuildEntrypointsSchema;
+  @prop({
+    required(this: BuildDocument) {
+      return this.platform !== BuildPlatform.Server64;
+    },
+  })
+  public entrypoint: string;
+
+  @arrayProp({ items: BuildFileSchema })
+  public files: BuildFileSchema[];
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
+  @prop({ enum: BuildPlatform, required: true })
+  public platform: BuildPlatform;
+
   @prop()
   public publishedAt: Date;
+
+  @prop()
+  public reference: BuildReferenceSchema;
+
+  @prop()
+  public status: WorkflowStatusSchema;
 
   @prop({ required: true })
   public version: string;
@@ -67,6 +108,10 @@ export class BuildSchema {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
+
+  public _original: any;
+  public wasModified: string[];
+  public wasNew: boolean;
 }
 
 export type BuildDocument = DocumentType<BuildSchema>;

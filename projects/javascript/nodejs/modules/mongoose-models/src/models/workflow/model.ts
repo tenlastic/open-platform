@@ -2,9 +2,9 @@ import {
   DocumentType,
   Ref,
   ReturnModelType,
-  addModelToTypegoose,
-  buildSchema,
+  getModelForClass,
   index,
+  modelOptions,
   plugin,
   post,
   prop,
@@ -40,28 +40,27 @@ NamespaceEvent.on(async payload => {
 });
 
 @index({ namespaceId: 1 })
+@modelOptions({
+  schemaOptions: {
+    collection: 'workflows',
+    minimize: false,
+    timestamps: true,
+  },
+})
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: WorkflowEvent })
 @post('remove', async function(this: WorkflowDocument) {
-  await kubernetes.Workflow.delete(this);
-  await kubernetes.WorkflowSidecar.delete(this.kubernetesName, this.kubernetesNamespace);
+  const namespace = new Namespace({ _id: this.namespaceId });
+  await kubernetes.Workflow.delete(namespace, this);
+  await kubernetes.WorkflowSidecar.delete(namespace, this);
 })
 @post('save', async function(this: WorkflowDocument) {
-  if (!this.populated('namespaceDocument')) {
-    await this.populate('namespaceDocument').execPopulate();
-  }
-
+  const namespace = new Namespace({ _id: this.namespaceId });
   if (this.wasNew) {
-    await kubernetes.Workflow.create(this.namespaceDocument, this);
-    await kubernetes.WorkflowSidecar.create(
-      this._id,
-      this.kubernetesEndpoint,
-      this.isPreemptible,
-      this.kubernetesName,
-      this.kubernetesNamespace,
-    );
+    await kubernetes.Workflow.create(namespace, this);
+    await kubernetes.WorkflowSidecar.create(namespace, this);
   } else if (this.status && this.status.finishedAt) {
-    await kubernetes.Workflow.delete(this);
-    await kubernetes.WorkflowSidecar.delete(this.kubernetesName, this.kubernetesNamespace);
+    await kubernetes.Workflow.delete(namespace, this);
+    await kubernetes.WorkflowSidecar.delete(namespace, this);
   }
 })
 export class WorkflowSchema {
@@ -90,16 +89,6 @@ export class WorkflowSchema {
   public namespaceDocument: NamespaceDocument;
 
   public _original: any;
-  public get kubernetesEndpoint() {
-    return `http://api.default:3000/workflows/${this._id}`;
-  }
-  public get kubernetesName() {
-    return `workflow-${this._id}`;
-  }
-  public get kubernetesNamespace() {
-    const namespace = new Namespace({ _id: this.namespaceId });
-    return `namespace-${namespace.kubernetesNamespace}`;
-  }
   public wasModified: string[];
   public wasNew: boolean;
 
@@ -162,9 +151,4 @@ export class WorkflowSchema {
 
 export type WorkflowDocument = DocumentType<WorkflowSchema>;
 export type WorkflowModel = ReturnModelType<typeof WorkflowSchema>;
-
-const schema = buildSchema(WorkflowSchema).set('collection', 'workflows');
-export const Workflow = addModelToTypegoose(
-  mongoose.model('WorkflowSchema', schema),
-  WorkflowSchema,
-);
+export const Workflow = getModelForClass(WorkflowSchema);

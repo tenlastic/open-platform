@@ -1,7 +1,7 @@
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
-import { Build, BuildSchema } from './model';
+import { Build, BuildPlatform, BuildSchema } from './model';
 
 export class BuildMock {
   /**
@@ -12,10 +12,22 @@ export class BuildMock {
     const chance = new Chance();
 
     const defaults = {
+      entrypoint: chance.hash(),
       namespaceId: mongoose.Types.ObjectId(),
+      platform: this.getPlatform(),
       version: chance.hash(),
     };
 
     return Build.create({ ...defaults, ...params });
+  }
+
+  /**
+   * Gets a random BuildPlatform.
+   */
+  public static getPlatform() {
+    const values = Object.values(BuildPlatform);
+    const index = Math.floor(Math.random() * values.length);
+
+    return values[index];
   }
 }

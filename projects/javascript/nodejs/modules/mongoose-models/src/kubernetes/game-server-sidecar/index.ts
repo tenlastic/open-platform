@@ -3,7 +3,8 @@ import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
-import { GameServerDocument } from '../../models';
+import { GameServerDocument, NamespaceDocument } from '../../models';
+import { GameServer } from '../game-server';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -13,16 +14,17 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
 export const GameServerSidecar = {
-  create: async (gameServer: GameServerDocument) => {
+  create: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
+    const gameServerName = GameServer.getName(gameServer);
+    const name = GameServerSidecar.getName(gameServer);
+
     /**
      * ======================
      * RBAC
      * ======================
      */
-    await rbacAuthorizationV1.createNamespacedRole(gameServer.kubernetesNamespace, {
-      metadata: {
-        name: gameServer.kubernetesName,
-      },
+    await rbacAuthorizationV1.createNamespacedRole(namespace.kubernetesNamespace, {
+      metadata: { name },
       rules: [
         {
           apiGroups: [''],
@@ -31,25 +33,23 @@ export const GameServerSidecar = {
         },
       ],
     });
-    await coreV1.createNamespacedServiceAccount(gameServer.kubernetesNamespace, {
+    await coreV1.createNamespacedServiceAccount(namespace.kubernetesNamespace, {
       metadata: {
-        name: gameServer.kubernetesName,
+        name,
       },
     });
-    await rbacAuthorizationV1.createNamespacedRoleBinding(gameServer.kubernetesNamespace, {
-      metadata: {
-        name: gameServer.kubernetesName,
-      },
+    await rbacAuthorizationV1.createNamespacedRoleBinding(namespace.kubernetesNamespace, {
+      metadata: { name },
       roleRef: {
         apiGroup: 'rbac.authorization.k8s.io',
         kind: 'Role',
-        name: gameServer.kubernetesName,
+        name,
       },
       subjects: [
         {
           kind: 'ServiceAccount',
-          name: gameServer.kubernetesName,
-          namespace: gameServer.kubernetesNamespace,
+          name,
+          namespace: namespace.kubernetesNamespace,
         },
       ],
     });
@@ -95,9 +95,9 @@ export const GameServerSidecar = {
       },
       {
         name: 'LOG_POD_LABEL_SELECTOR',
-        value: `app=${gameServer.kubernetesName},role=application`,
+        value: `app=${gameServerName},role=application`,
       },
-      { name: 'LOG_POD_NAMESPACE', value: gameServer.kubernetesNamespace },
+      { name: 'LOG_POD_NAMESPACE', value: namespace.kubernetesNamespace },
     ];
 
     // If application is running locally, create debug containers.
@@ -107,10 +107,10 @@ export const GameServerSidecar = {
       manifest = {
         metadata: {
           labels: {
-            app: gameServer.kubernetesName,
+            app: gameServerName,
             role: 'sidecar',
           },
-          name: `${gameServer.kubernetesName}-sidecar`,
+          name,
         },
         spec: {
           affinity,
@@ -134,7 +134,7 @@ export const GameServerSidecar = {
               workingDir: '/usr/src/app/projects/javascript/nodejs/applications/log-sidecar/',
             },
           ],
-          serviceAccountName: gameServer.kubernetesName,
+          serviceAccountName: name,
           volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
         },
       };
@@ -142,10 +142,10 @@ export const GameServerSidecar = {
       manifest = {
         metadata: {
           labels: {
-            app: gameServer.kubernetesName,
+            app: gameServerName,
             role: 'sidecar',
           },
-          name: `${gameServer.kubernetesName}-sidecar`,
+          name,
         },
         spec: {
           affinity,
@@ -163,24 +163,24 @@ export const GameServerSidecar = {
               resources: { requests: { cpu: '50m', memory: '64M' } },
             },
           ],
-          serviceAccountName: gameServer.kubernetesName,
+          serviceAccountName: name,
         },
       };
     }
 
-    await appsV1.createNamespacedDeployment(gameServer.kubernetesNamespace, {
+    await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
       metadata: {
         labels: {
-          app: gameServer.kubernetesName,
+          app: gameServerName,
           role: 'sidecar',
         },
-        name: `${gameServer.kubernetesName}-sidecar`,
+        name,
       },
       spec: {
         replicas: 1,
         selector: {
           matchLabels: {
-            app: gameServer.kubernetesName,
+            app: gameServerName,
             role: 'sidecar',
           },
         },
@@ -188,25 +188,18 @@ export const GameServerSidecar = {
       },
     });
   },
-  delete: async (gameServer: GameServerDocument) => {
+  delete: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
+    const name = GameServerSidecar.getName(gameServer);
+
     /**
      * ======================
      * RBAC
      * ======================
      */
     try {
-      await rbacAuthorizationV1.deleteNamespacedRole(
-        gameServer.kubernetesName,
-        gameServer.kubernetesNamespace,
-      );
-      await coreV1.deleteNamespacedServiceAccount(
-        gameServer.kubernetesName,
-        gameServer.kubernetesNamespace,
-      );
-      await rbacAuthorizationV1.deleteNamespacedRoleBinding(
-        gameServer.kubernetesName,
-        gameServer.kubernetesNamespace,
-      );
+      await rbacAuthorizationV1.deleteNamespacedRole(name, namespace.kubernetesNamespace);
+      await coreV1.deleteNamespacedServiceAccount(name, namespace.kubernetesNamespace);
+      await rbacAuthorizationV1.deleteNamespacedRoleBinding(name, namespace.kubernetesNamespace);
     } catch {}
 
     /**
@@ -215,10 +208,10 @@ export const GameServerSidecar = {
      * ======================
      */
     try {
-      await appsV1.deleteNamespacedDeployment(
-        `${gameServer.kubernetesName}-sidecar`,
-        gameServer.kubernetesNamespace,
-      );
+      await appsV1.deleteNamespacedDeployment(name, namespace.kubernetesNamespace);
     } catch {}
+  },
+  getName(gameServer: GameServerDocument) {
+    return `game-server-${gameServer._id}-sidecar`;
   },
 };

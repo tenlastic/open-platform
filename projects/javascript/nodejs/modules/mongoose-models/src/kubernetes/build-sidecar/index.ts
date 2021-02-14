@@ -3,8 +3,8 @@ import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
-import { NamespaceDocument, WorkflowDocument } from '../../models';
-import { Workflow } from '../workflow';
+import { BuildDocument, NamespaceDocument } from '../../models';
+import { Build } from '../build';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -13,10 +13,10 @@ const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
-export const WorkflowSidecar = {
-  create: async (namespace: NamespaceDocument, workflow: WorkflowDocument) => {
-    const name = WorkflowSidecar.getName(workflow);
-    const workflowName = Workflow.getName(workflow);
+export const BuildSidecar = {
+  create: async (build: BuildDocument, namespace: NamespaceDocument) => {
+    const buildName = Build.getName(build);
+    const name = BuildSidecar.getName(build);
 
     /**
      * ======================
@@ -62,7 +62,7 @@ export const WorkflowSidecar = {
      * DEPLOYMENT
      * ======================
      */
-    const administrator = { roles: ['workflows'], system: true };
+    const administrator = { roles: ['builds'], system: true };
     const accessToken = jwt.sign(
       { type: 'access', user: administrator },
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
@@ -76,7 +76,7 @@ export const WorkflowSidecar = {
             {
               matchExpressions: [
                 {
-                  key: workflow.isPreemptible
+                  key: namespace.limits.workflows.preemptible
                     ? 'tenlastic.com/low-priority'
                     : 'tenlastic.com/high-priority',
                   operator: 'Exists',
@@ -89,11 +89,11 @@ export const WorkflowSidecar = {
     };
     const env = [
       { name: 'ACCESS_TOKEN', value: accessToken },
-      { name: 'LOG_ENDPOINT', value: `http://api.default:3000/workflows/${workflow._id}/logs` },
-      { name: 'LOG_POD_LABEL_SELECTOR', value: `app=${workflowName},role=application` },
+      { name: 'LOG_ENDPOINT', value: `http://api.default:3000/builds/${build._id}/logs` },
+      { name: 'LOG_POD_LABEL_SELECTOR', value: `app=${buildName},role=application` },
       { name: 'LOG_POD_NAMESPACE', value: namespace.kubernetesNamespace },
-      { name: 'WORKFLOW_ENDPOINT', value: `http://api.default:3000/workflows/${workflow._id}` },
-      { name: 'WORKFLOW_NAME', value: workflowName },
+      { name: 'WORKFLOW_ENDPOINT', value: `http://api.default:3000/builds/${build._id}` },
+      { name: 'WORKFLOW_NAME', value: buildName },
       { name: 'WORKFLOW_NAMESPACE', value: namespace.kubernetesNamespace },
     ];
 
@@ -107,7 +107,7 @@ export const WorkflowSidecar = {
       manifest = {
         metadata: {
           labels: {
-            app: workflowName,
+            app: buildName,
             role: 'sidecar',
           },
           name,
@@ -143,7 +143,7 @@ export const WorkflowSidecar = {
       manifest = {
         metadata: {
           labels: {
-            app: workflowName,
+            app: buildName,
             role: 'sidecar',
           },
           name,
@@ -172,7 +172,7 @@ export const WorkflowSidecar = {
     await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
       metadata: {
         labels: {
-          app: workflowName,
+          app: buildName,
           role: 'sidecar',
         },
         name,
@@ -181,7 +181,7 @@ export const WorkflowSidecar = {
         replicas: 1,
         selector: {
           matchLabels: {
-            app: workflowName,
+            app: buildName,
             role: 'sidecar',
           },
         },
@@ -189,8 +189,8 @@ export const WorkflowSidecar = {
       },
     });
   },
-  delete: async (namespace: NamespaceDocument, workflow: WorkflowDocument) => {
-    const name = WorkflowSidecar.getName(workflow);
+  delete: async (build: BuildDocument, namespace: NamespaceDocument) => {
+    const name = BuildSidecar.getName(build);
 
     /**
      * ======================
@@ -212,7 +212,7 @@ export const WorkflowSidecar = {
       await appsV1.deleteNamespacedDeployment(name, namespace.kubernetesNamespace);
     } catch {}
   },
-  getName(workflow: WorkflowDocument) {
-    return `workflow-${workflow._id}-sidecar`;
+  getName(build: BuildDocument) {
+    return `build-${build._id}-sidecar`;
   },
 };

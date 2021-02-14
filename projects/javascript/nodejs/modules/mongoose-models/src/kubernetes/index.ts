@@ -1,4 +1,5 @@
-export * from './build-workflow';
+export * from './build';
+export * from './build-sidecar';
 export * from './game-server';
 export * from './game-server-sidecar';
 export * from './namespace';

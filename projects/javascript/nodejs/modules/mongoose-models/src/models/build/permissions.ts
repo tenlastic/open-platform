@@ -4,8 +4,22 @@ import { Build, BuildDocument } from './model';
 
 export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
   create: {
-    'namespace-administrator': ['entrypoints.*', 'namespaceId', 'publishedAt', 'version'],
-    'user-administrator': ['entrypoints.*', 'namespaceId', 'publishedAt', 'version'],
+    'namespace-administrator': [
+      'entrypoint',
+      'namespaceId',
+      'platform',
+      'publishedAt',
+      'reference.*',
+      'version',
+    ],
+    'user-administrator': [
+      'entrypoint',
+      'namespaceId',
+      'platform',
+      'publishedAt',
+      'reference.*',
+      'version',
+    ],
   },
   delete: {
     'namespace-administrator': true,
@@ -48,6 +62,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
         },
       ],
     },
+    'system-administrator': {},
     'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
@@ -55,14 +70,25 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
     default: [
       '_id',
       'createdAt',
-      'entrypoints.*',
+      'entrypoint',
+      'files.*',
       'namespaceId',
+      'platform',
       'publishedAt',
+      'reference.*',
+      'status.*',
       'version',
       'updatedAt',
     ],
   },
   roles: [
+    {
+      name: 'system-administrator',
+      query: {
+        'user.roles': { $eq: 'builds' },
+        'user.system': { $eq: true },
+      },
+    },
     {
       name: 'user-administrator',
       query: {
@@ -94,7 +120,8 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
     },
   ],
   update: {
-    'namespace-administrator': ['entrypoints.*', 'publishedAt', 'version'],
-    'user-administrator': ['entrypoints.*', 'publishedAt', 'version'],
+    'namespace-administrator': ['entrypoint', 'publishedAt', 'version'],
+    'system-administrator': ['files.*', 'status.*'],
+    'user-administrator': ['entrypoint', 'publishedAt', 'version'],
   },
 });

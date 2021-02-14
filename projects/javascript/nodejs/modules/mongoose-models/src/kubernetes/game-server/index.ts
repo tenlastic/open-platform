@@ -1,6 +1,6 @@
 import * as k8s from '@kubernetes/client-node';
 
-import { GameServerDocument } from '../../models';
+import { GameServerDocument, NamespaceDocument } from '../../models';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -10,7 +10,9 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const networkingV1 = kc.makeApiClient(k8s.NetworkingV1Api);
 
 export const GameServer = {
-  create: async (gameServer: GameServerDocument) => {
+  create: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
+    const name = GameServer.getName(gameServer);
+
     /**
      * =======================
      * IMAGE PULL SECRET
@@ -20,9 +22,9 @@ export const GameServer = {
       'docker-registry-image-pull-secret',
       'default',
     );
-    await coreV1.createNamespacedSecret(gameServer.kubernetesNamespace, {
+    await coreV1.createNamespacedSecret(namespace.kubernetesNamespace, {
       data: secret.body.data,
-      metadata: { name: secret.body.metadata.name },
+      metadata: { name },
       type: secret.body.type,
     });
 
@@ -31,10 +33,8 @@ export const GameServer = {
      * NETWORK POLICY
      * =======================
      */
-    await networkingV1.createNamespacedNetworkPolicy(gameServer.kubernetesNamespace, {
-      metadata: {
-        name: gameServer.kubernetesName,
-      },
+    await networkingV1.createNamespacedNetworkPolicy(namespace.kubernetesNamespace, {
+      metadata: { name },
       spec: {
         egress: [
           {
@@ -50,7 +50,7 @@ export const GameServer = {
         ],
         podSelector: {
           matchLabels: {
-            app: gameServer.kubernetesName,
+            app: name,
             role: 'application',
           },
         },
@@ -63,12 +63,13 @@ export const GameServer = {
      * SERVICE
      * =======================
      */
-    await coreV1.createNamespacedService(gameServer.kubernetesNamespace, {
+    await coreV1.createNamespacedService(namespace.kubernetesNamespace, {
       metadata: {
         labels: {
-          app: gameServer.kubernetesName,
+          app: name,
+          role: 'application',
         },
-        name: gameServer.kubernetesName,
+        name,
       },
       spec: {
         ports: [
@@ -78,7 +79,7 @@ export const GameServer = {
           },
         ],
         selector: {
-          app: gameServer.kubernetesName,
+          app: name,
           role: 'application',
         },
         type: 'NodePort',
@@ -112,16 +113,16 @@ export const GameServer = {
       },
     };
 
-    const applicationPodManifest: k8s.V1PodTemplateSpec = {
+    const manifest: k8s.V1PodTemplateSpec = {
       metadata: {
         annotations: {
           'tenlastic.com/gameServerId': gameServer._id.toString(),
         },
         labels: {
-          app: gameServer.kubernetesName,
+          app: name,
           role: 'application',
         },
-        name: `${gameServer.kubernetesName}-application`,
+        name,
       },
       spec: {
         affinity,
@@ -133,7 +134,7 @@ export const GameServer = {
               { name: 'GAME_SERVER_JSON', value: JSON.stringify(gameServer) },
             ],
             image,
-            name: 'application',
+            name: 'main',
             ports: [{ containerPort: 7777 }],
             resources: {
               limits: {
@@ -155,40 +156,39 @@ export const GameServer = {
     };
 
     if (gameServer.isPersistent) {
-      await appsV1.createNamespacedDeployment(gameServer.kubernetesNamespace, {
+      await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
         metadata: {
           labels: {
-            app: gameServer.kubernetesName,
+            app: name,
             role: 'application',
           },
-          name: `${gameServer.kubernetesName}-application`,
+          name,
         },
         spec: {
           replicas: 1,
           selector: {
             matchLabels: {
-              app: gameServer.kubernetesName,
+              app: name,
               role: 'application',
             },
           },
-          template: applicationPodManifest,
+          template: manifest,
         },
       });
     } else {
-      await coreV1.createNamespacedPod(gameServer.kubernetesNamespace, applicationPodManifest);
+      await coreV1.createNamespacedPod(namespace.kubernetesNamespace, manifest);
     }
   },
-  delete: async (gameServer: GameServerDocument) => {
+  delete: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
+    const name = GameServer.getName(gameServer);
+
     /**
      * =======================
      * IMAGE PULL SECRET
      * =======================
      */
     try {
-      await coreV1.deleteNamespacedSecret(
-        'docker-registry-image-pull-secret',
-        gameServer.kubernetesNamespace,
-      );
+      await coreV1.deleteNamespacedSecret(name, namespace.kubernetesNamespace);
     } catch {}
 
     /**
@@ -197,10 +197,7 @@ export const GameServer = {
      * =======================
      */
     try {
-      await networkingV1.deleteNamespacedNetworkPolicy(
-        gameServer.kubernetesName,
-        gameServer.kubernetesNamespace,
-      );
+      await networkingV1.deleteNamespacedNetworkPolicy(name, namespace.kubernetesNamespace);
     } catch {}
 
     /**
@@ -209,10 +206,7 @@ export const GameServer = {
      * =======================
      */
     try {
-      await coreV1.deleteNamespacedService(
-        gameServer.kubernetesName,
-        gameServer.kubernetesNamespace,
-      );
+      await coreV1.deleteNamespacedService(name, namespace.kubernetesNamespace);
     } catch {}
 
     /**
@@ -221,17 +215,14 @@ export const GameServer = {
      * =======================
      */
     try {
-      await appsV1.deleteNamespacedDeployment(
-        `${gameServer.kubernetesName}-application`,
-        gameServer.kubernetesNamespace,
-      );
+      await appsV1.deleteNamespacedDeployment(name, namespace.kubernetesNamespace);
     } catch {}
 
     try {
-      await coreV1.deleteNamespacedPod(
-        `${gameServer.kubernetesName}-application`,
-        gameServer.kubernetesNamespace,
-      );
+      await coreV1.deleteNamespacedPod(name, namespace.kubernetesNamespace);
     } catch {}
+  },
+  getName(gameServer: GameServerDocument) {
+    return `game-server-${gameServer._id}`;
   },
 };

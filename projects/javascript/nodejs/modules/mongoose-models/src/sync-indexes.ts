@@ -1,10 +1,8 @@
 import {
   Article,
   Build,
-  BuildTask,
-  BuildWorkflow,
+  BuildLog,
   Collection,
-  File,
   Friend,
   Game,
   GameInvitation,
@@ -30,10 +28,8 @@ export function syncIndexes() {
   return Promise.all([
     Article.syncIndexes({ background: true }),
     Build.syncIndexes({ background: true }),
-    BuildTask.syncIndexes({ background: true }),
-    BuildWorkflow.syncIndexes({ background: true }),
+    BuildLog.syncIndexes({ background: true }),
     Collection.syncIndexes({ background: true }),
-    File.syncIndexes({ background: true }),
     Friend.syncIndexes({ background: true }),
     Game.syncIndexes({ background: true }),
     GameInvitation.syncIndexes({ background: true }),

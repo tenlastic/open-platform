@@ -1,10 +1,8 @@
 import {
   Article,
   Build,
-  BuildTask,
-  BuildWorkflow,
+  BuildLog,
   Collection,
-  File,
   Friend,
   Game,
   GameInvitation,
@@ -30,10 +28,8 @@ export function deleteAll() {
   return Promise.all([
     Article.deleteMany({}),
     Build.deleteMany({}),
-    BuildTask.deleteMany({}),
-    BuildWorkflow.deleteMany({}),
+    BuildLog.deleteMany({}),
     Collection.deleteMany({}),
-    File.deleteMany({}),
     Friend.deleteMany({}),
     Game.deleteMany({}),
     GameInvitation.deleteMany({}),

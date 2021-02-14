@@ -3,6 +3,10 @@ import { SinonSandbox } from 'sinon';
 import * as kubernetes from './kubernetes';
 
 export function stub(sandbox: SinonSandbox) {
+  sandbox.stub(kubernetes.Build, 'create').resolves();
+  sandbox.stub(kubernetes.Build, 'delete').resolves();
+  sandbox.stub(kubernetes.BuildSidecar, 'create').resolves();
+  sandbox.stub(kubernetes.BuildSidecar, 'delete').resolves();
   sandbox.stub(kubernetes.GameServer, 'create').resolves();
   sandbox.stub(kubernetes.GameServer, 'delete').resolves();
   sandbox.stub(kubernetes.GameServerSidecar, 'create').resolves();

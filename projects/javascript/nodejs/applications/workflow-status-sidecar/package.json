@@ -1,0 +1,33 @@
+{
+  "engines": {
+    "node": "^10"
+  },
+  "license": "Apache-2.0",
+  "name": "@tenlastic/workflow-status-sidecar",
+  "private": true,
+  "version": "0.0.154",
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "docker:build": "../../scripts/docker-build.sh workflow-status-sidecar",
+    "docker:push": "../../scripts/docker-push.sh workflow-status-sidecar",
+    "lint": "../../scripts/lint.sh",
+    "start": "../../scripts/start.sh --watch"
+  },
+  "dependencies": {
+    "@kubernetes/client-node": "0.11.2",
+    "@tenlastic/kubernetes": "0.0.154",
+    "request": "2.88.0",
+    "request-promise-native": "1.0.7"
+  },
+  "devDependencies": {
+    "cpx": "1.5.0",
+    "merge-yaml-cli": "1.1.2",
+    "mocha": "7.1.2",
+    "nyc": "15.0.0",
+    "ts-node": "8.9.1",
+    "ts-node-dev": "1.0.0-pre.44",
+    "tslint": "5.18.0",
+    "typescript": "3.5.3",
+    "yml-sorter": "1.1.1"
+  }
+}

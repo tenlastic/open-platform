@@ -19,15 +19,15 @@ const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
 export const Workflow = {
   create: async (namespace: NamespaceDocument, workflow: WorkflowDocument) => {
+    const name = Workflow.getName(workflow);
+
     /**
      * ======================
      * NETWORK POLICY
      * ======================
      */
-    await networkingV1.createNamespacedNetworkPolicy(workflow.kubernetesNamespace, {
-      metadata: {
-        name: workflow.kubernetesName,
-      },
+    await networkingV1.createNamespacedNetworkPolicy(namespace.kubernetesNamespace, {
+      metadata: { name },
       spec: {
         egress: [
           {
@@ -43,7 +43,7 @@ export const Workflow = {
         ],
         podSelector: {
           matchLabels: {
-            app: workflow.kubernetesName,
+            app: name,
             role: 'application',
           },
         },
@@ -56,10 +56,8 @@ export const Workflow = {
      * RBAC
      * ======================
      */
-    await rbacAuthorizationV1.createNamespacedRole(workflow.kubernetesNamespace, {
-      metadata: {
-        name: `${workflow.kubernetesName}-application`,
-      },
+    await rbacAuthorizationV1.createNamespacedRole(namespace.kubernetesNamespace, {
+      metadata: { name },
       rules: [
         {
           apiGroups: [''],
@@ -78,25 +76,21 @@ export const Workflow = {
         },
       ],
     });
-    await coreV1.createNamespacedServiceAccount(workflow.kubernetesNamespace, {
-      metadata: {
-        name: `${workflow.kubernetesName}-application`,
-      },
+    await coreV1.createNamespacedServiceAccount(namespace.kubernetesNamespace, {
+      metadata: { name },
     });
-    await rbacAuthorizationV1.createNamespacedRoleBinding(workflow.kubernetesNamespace, {
-      metadata: {
-        name: `${workflow.kubernetesName}-application`,
-      },
+    await rbacAuthorizationV1.createNamespacedRoleBinding(namespace.kubernetesNamespace, {
+      metadata: { name },
       roleRef: {
         apiGroup: 'rbac.authorization.k8s.io',
         kind: 'Role',
-        name: `${workflow.kubernetesName}-application`,
+        name,
       },
       subjects: [
         {
           kind: 'ServiceAccount',
-          name: `${workflow.kubernetesName}-application`,
-          namespace: workflow.kubernetesNamespace,
+          name,
+          namespace: namespace.kubernetesNamespace,
         },
       ],
     });
@@ -132,19 +126,19 @@ export const Workflow = {
     await customObjects.createNamespacedCustomObject(
       'argoproj.io',
       'v1alpha1',
-      workflow.kubernetesNamespace,
+      namespace.kubernetesNamespace,
       'workflows',
       {
         apiVersion: 'argoproj.io/v1alpha1',
         kind: 'Workflow',
-        metadata: { name: workflow.kubernetesName },
+        metadata: { name },
         spec: {
           activeDeadlineSeconds: 60 * 60,
           affinity,
           automountServiceAccountToken: false,
           dnsPolicy: 'Default',
           entrypoint: workflow.spec.entrypoint,
-          executor: { serviceAccountName: `${workflow.kubernetesName}-application` },
+          executor: { serviceAccountName: name },
           parallelism:
             workflow.spec.parallelism ||
             workflow.namespaceDocument.limits.workflows.parallelism ||
@@ -152,7 +146,7 @@ export const Workflow = {
           podGC: {
             strategy: 'OnPodCompletion',
           },
-          serviceAccountName: `${workflow.kubernetesName}-application`,
+          serviceAccountName: name,
           templates,
           ttlStrategy: {
             secondsAfterCompletion: 30,
@@ -174,17 +168,16 @@ export const Workflow = {
       },
     );
   },
-  delete: async (workflow: WorkflowDocument) => {
+  delete: async (namespace: NamespaceDocument, workflow: WorkflowDocument) => {
+    const name = Workflow.getName(workflow);
+
     /**
      * ======================
      * NETWORK POLICY
      * ======================
      */
     try {
-      await networkingV1.deleteNamespacedNetworkPolicy(
-        workflow.kubernetesName,
-        workflow.kubernetesNamespace,
-      );
+      await networkingV1.deleteNamespacedNetworkPolicy(name, namespace.kubernetesNamespace);
     } catch {}
 
     /**
@@ -192,18 +185,9 @@ export const Workflow = {
      * RBAC
      * ======================
      */
-    await rbacAuthorizationV1.deleteNamespacedRole(
-      `${workflow.kubernetesName}-application`,
-      workflow.kubernetesNamespace,
-    );
-    await coreV1.deleteNamespacedServiceAccount(
-      `${workflow.kubernetesName}-application`,
-      workflow.kubernetesNamespace,
-    );
-    await rbacAuthorizationV1.deleteNamespacedRoleBinding(
-      `${workflow.kubernetesName}-application`,
-      workflow.kubernetesNamespace,
-    );
+    await rbacAuthorizationV1.deleteNamespacedRole(name, namespace.kubernetesNamespace);
+    await coreV1.deleteNamespacedServiceAccount(name, namespace.kubernetesNamespace);
+    await rbacAuthorizationV1.deleteNamespacedRoleBinding(name, namespace.kubernetesNamespace);
 
     /**
      * ======================
@@ -213,10 +197,13 @@ export const Workflow = {
     await customObjects.deleteNamespacedCustomObject(
       'argoproj.io',
       'v1alpha1',
-      workflow.kubernetesNamespace,
+      namespace.kubernetesNamespace,
       'workflows',
-      workflow.kubernetesName,
+      name,
     );
+  },
+  getName(workflow: WorkflowDocument) {
+    return `workflow-${workflow._id}`;
   },
 };
 
@@ -256,7 +243,7 @@ function getTemplateManifest(
       'tenlastic.com/workflowId': workflow._id.toString(),
     },
     labels: {
-      app: workflow.kubernetesName,
+      app: name,
       role: 'application',
     },
   };

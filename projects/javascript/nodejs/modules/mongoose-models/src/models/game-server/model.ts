@@ -69,8 +69,9 @@ NamespaceEvent.on(async payload => {
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameServerEvent })
 @plugin(uniqueErrorPlugin)
 @post('remove', async function(this: GameServerDocument) {
-  await kubernetes.GameServer.delete(this);
-  await kubernetes.GameServerSidecar.delete(this);
+  const namespace = new Namespace({ _id: this.namespaceId });
+  await kubernetes.GameServer.delete(this, namespace);
+  await kubernetes.GameServerSidecar.delete(this, namespace);
 })
 @post('save', async function(this: GameServerDocument) {
   if (
@@ -83,18 +84,19 @@ NamespaceEvent.on(async payload => {
     return;
   }
 
+  const namespace = new Namespace({ _id: this.namespaceId });
   if (this.wasNew) {
     try {
-      await kubernetes.GameServer.create(this);
-      await kubernetes.GameServerSidecar.create(this);
+      await kubernetes.GameServer.create(this, namespace);
+      await kubernetes.GameServerSidecar.create(this, namespace);
     } catch (e) {
-      await kubernetes.GameServer.delete(this);
-      await kubernetes.GameServerSidecar.delete(this);
+      await kubernetes.GameServer.delete(this, namespace);
+      await kubernetes.GameServerSidecar.delete(this, namespace);
       throw e;
     }
   } else {
-    await kubernetes.GameServer.delete(this);
-    await kubernetes.GameServer.create(this);
+    await kubernetes.GameServer.delete(this, namespace);
+    await kubernetes.GameServer.create(this, namespace);
   }
 })
 export class GameServerSchema implements IOriginalDocument {
@@ -159,12 +161,6 @@ export class GameServerSchema implements IOriginalDocument {
   public queueDocument: QueueDocument;
 
   public _original: any;
-  public get kubernetesName() {
-    return `game-server-${this._id}`;
-  }
-  public get kubernetesNamespace() {
-    return `namespace-${this.namespaceId}`;
-  }
   public wasModified: string[];
   public wasNew: boolean;
 
@@ -226,8 +222,9 @@ export class GameServerSchema implements IOriginalDocument {
    * Restarts a Game Server.
    */
   public async restart(this: GameServerDocument) {
-    await kubernetes.GameServer.delete(this);
-    await kubernetes.GameServer.create(this);
+    const namespace = new Namespace({ _id: this.namespaceId });
+    await kubernetes.GameServer.delete(this, namespace);
+    await kubernetes.GameServer.create(this, namespace);
   }
 }
 
