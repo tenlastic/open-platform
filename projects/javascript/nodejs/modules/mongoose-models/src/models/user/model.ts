@@ -16,16 +16,12 @@ import {
 } from '@tenlastic/mongoose-change-stream';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
-import {
-  alphanumericValidator,
-  emailValidator,
-  stringLengthValidator,
-} from '@tenlastic/validations';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
 import * as emails from '../../emails';
+import { alphanumericValidator, emailValidator, stringLengthValidator } from '../../validators';
 import { RefreshToken, RefreshTokenDocument } from '../refresh-token/model';
 import { UserPermissions } from './';
 

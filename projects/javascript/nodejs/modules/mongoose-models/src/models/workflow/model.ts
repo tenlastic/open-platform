@@ -6,7 +6,6 @@ import {
   index,
   modelOptions,
   plugin,
-  post,
   prop,
 } from '@hasezoey/typegoose';
 import {
@@ -17,7 +16,6 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import * as kubernetes from '../../kubernetes';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 import { WorkflowSpecSchema, WorkflowSpecTemplateSchema } from './spec';
 import { WorkflowStatusSchema } from './status';
@@ -48,21 +46,6 @@ NamespaceEvent.on(async payload => {
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: WorkflowEvent })
-@post('remove', async function(this: WorkflowDocument) {
-  const namespace = new Namespace({ _id: this.namespaceId });
-  await kubernetes.Workflow.delete(namespace, this);
-  await kubernetes.WorkflowSidecar.delete(namespace, this);
-})
-@post('save', async function(this: WorkflowDocument) {
-  const namespace = new Namespace({ _id: this.namespaceId });
-  if (this.wasNew) {
-    await kubernetes.Workflow.create(namespace, this);
-    await kubernetes.WorkflowSidecar.create(namespace, this);
-  } else if (this.status && this.status.finishedAt) {
-    await kubernetes.Workflow.delete(namespace, this);
-    await kubernetes.WorkflowSidecar.delete(namespace, this);
-  }
-})
 export class WorkflowSchema {
   public _id: mongoose.Types.ObjectId;
 

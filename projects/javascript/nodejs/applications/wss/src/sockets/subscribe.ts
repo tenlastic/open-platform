@@ -1,13 +1,11 @@
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import {
   Build,
+  BuildLog,
+  BuildLogPermissions,
   BuildPermissions,
-  BuildTask,
-  BuildTaskPermissions,
   Collection,
   CollectionPermissions,
-  File,
-  FilePermissions,
   GameInvitation,
   GameInvitationPermissions,
   GameServer,
@@ -64,9 +62,9 @@ export async function subscribe(
   let Permissions: MongoosePermissions<any>;
 
   switch (data.parameters.collection) {
-    case 'build-tasks':
-      Model = BuildTask;
-      Permissions = BuildTaskPermissions;
+    case 'build-logs':
+      Model = BuildLog;
+      Permissions = BuildLogPermissions;
       break;
     case 'builds':
       Model = Build;
@@ -75,10 +73,6 @@ export async function subscribe(
     case 'collections':
       Model = Collection;
       Permissions = CollectionPermissions;
-      break;
-    case 'files':
-      Model = File;
-      Permissions = FilePermissions;
       break;
     case 'game-invitations':
       Model = GameInvitation;

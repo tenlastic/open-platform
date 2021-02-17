@@ -3,8 +3,13 @@ import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
-import { GameServerDocument, NamespaceDocument } from '../../models';
-import { GameServer } from '../game-server';
+import {
+  GameServerDocument,
+  GameServerEvent,
+  GameServerRestartEvent,
+} from '../../models/game-server';
+import { NamespaceDocument } from '../../models/namespace';
+import { KubernetesGameServer } from '../game-server';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -13,10 +18,35 @@ const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
-export const GameServerSidecar = {
+GameServerEvent.on(async payload => {
+  const gameServer = payload.fullDocument;
+
+  if (!gameServer.populated('namespaceDocument')) {
+    await gameServer.populate('namespaceDocument').execPopulate();
+  }
+
+  if (payload.operationType === 'delete') {
+    await KubernetesGameServerSidecar.delete(gameServer, gameServer.namespaceDocument);
+  } else if (payload.operationType === 'insert') {
+    await KubernetesGameServerSidecar.create(gameServer, gameServer.namespaceDocument);
+  } else if (payload.operationType === 'update') {
+    await KubernetesGameServerSidecar.delete(gameServer, gameServer.namespaceDocument);
+    await KubernetesGameServerSidecar.create(gameServer, gameServer.namespaceDocument);
+  }
+});
+GameServerRestartEvent.on(async gameServer => {
+  if (!gameServer.populated('namespaceDocument')) {
+    await gameServer.populate('namespaceDocument').execPopulate();
+  }
+
+  await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
+  await KubernetesGameServer.create(gameServer, gameServer.namespaceDocument);
+});
+
+export const KubernetesGameServerSidecar = {
   create: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
-    const gameServerName = GameServer.getName(gameServer);
-    const name = GameServerSidecar.getName(gameServer);
+    const gameServerName = KubernetesGameServer.getName(gameServer);
+    const name = KubernetesGameServerSidecar.getName(gameServer);
 
     /**
      * ======================
@@ -119,10 +149,11 @@ export const GameServerSidecar = {
               command: ['npm', 'run', 'start'],
               env,
               image: 'node:12',
-              name: 'health-check',
+              name: 'game-server-status-sidecar',
               resources: { requests: { cpu: '50m', memory: '64M' } },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/health-check/',
+              workingDir:
+                '/usr/src/app/projects/javascript/nodejs/applications/game-server-status-sidecar/',
             },
             {
               command: ['npm', 'run', 'start'],
@@ -152,8 +183,8 @@ export const GameServerSidecar = {
           containers: [
             {
               env,
-              image: `tenlastic/health-check:${version}`,
-              name: 'health-check',
+              image: `tenlastic/game-server-status-sidecar:${version}`,
+              name: 'game-server-status-sidecar',
               resources: { requests: { cpu: '50m', memory: '64M' } },
             },
             {
@@ -189,7 +220,7 @@ export const GameServerSidecar = {
     });
   },
   delete: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
-    const name = GameServerSidecar.getName(gameServer);
+    const name = KubernetesGameServerSidecar.getName(gameServer);
 
     /**
      * ======================

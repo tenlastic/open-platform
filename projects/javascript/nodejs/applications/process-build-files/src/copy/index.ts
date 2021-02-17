@@ -1,39 +1,26 @@
 import * as minio from '@tenlastic/minio';
-import { File } from '@tenlastic/mongoose-models';
+import { BuildDocument, BuildFile } from '@tenlastic/mongoose-models';
 
-export async function copy(
-  buildId: string,
-  path: string,
-  platform: string,
-  previousBuildId: string,
-) {
+export async function copy(build: BuildDocument, path: string, referenceBuild: BuildDocument) {
   path = path.replace(/[\.]+\//g, '');
 
-  const previousFile = await File.findOne({ buildId: previousBuildId, path, platform });
-  if (!previousFile) {
-    throw new Error('Previous File not found.');
+  const referenceFile = referenceBuild.files.find(f => f.path === path);
+  if (!referenceFile) {
+    throw new Error(`Reference Build File not found: ${path}.`);
   }
 
   const parameters = {
-    buildId,
-    compressedBytes: previousFile.compressedBytes,
-    md5: previousFile.md5,
-    namespaceId: previousFile.namespaceId,
-    path: previousFile.path,
-    platform: previousFile.platform,
-    uncompressedBytes: previousFile.uncompressedBytes,
+    compressedBytes: referenceFile.compressedBytes,
+    md5: referenceFile.md5,
+    path: referenceFile.path,
+    uncompressedBytes: referenceFile.uncompressedBytes,
   };
-  const currentFile = new File(parameters);
 
-  // Copy the previous file to the new build.
+  // Copy the reference Build File to the new Build.
   const bucket = process.env.MINIO_BUCKET;
-  const currentFileKey = await currentFile.getMinioKey();
-  const previousFileKey = await previousFile.getMinioKey();
-  await minio.copyObject(bucket, currentFileKey, `${bucket}/${previousFileKey}`, null);
+  const fileKey = build.getFilePath(path);
+  const referenceFileKey = referenceBuild.getFilePath(path);
+  await minio.copyObject(bucket, fileKey, `${bucket}/${referenceFileKey}`, null);
 
-  return File.findOneAndUpdate(
-    { buildId, path: previousFile.path, platform: previousFile.platform },
-    parameters,
-    { new: true, upsert: true },
-  );
+  return new BuildFile(parameters);
 }

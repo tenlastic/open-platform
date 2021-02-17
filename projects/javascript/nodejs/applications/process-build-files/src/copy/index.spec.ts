@@ -1,10 +1,10 @@
 import * as minio from '@tenlastic/minio';
 import {
   BuildDocument,
+  BuildFile,
+  BuildFileMock,
   BuildMock,
-  File,
-  FileMock,
-  FilePlatform,
+  BuildPlatform,
   NamespaceMock,
   NamespaceUserMock,
   UserDocument,
@@ -20,8 +20,8 @@ use(chaiAsPromised);
 
 describe('copy', function() {
   let build: BuildDocument;
-  let platform: FilePlatform;
-  let previousBuild: BuildDocument;
+  let platform: BuildPlatform;
+  let referenceBuild: BuildDocument;
   let user: UserDocument;
 
   beforeEach(async function() {
@@ -34,38 +34,26 @@ describe('copy', function() {
     const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
     build = await BuildMock.create({ namespaceId: namespace._id });
-    platform = FileMock.getPlatform();
-    previousBuild = await BuildMock.create({
+    platform = BuildMock.getPlatform();
+
+    // Set up reference Build.
+    referenceBuild = await BuildMock.create({
+      files: [BuildFileMock.create({ path: 'index.spec.ts' })],
       namespaceId: namespace._id,
       publishedAt: new Date(),
     });
-
-    // Set up Previous Build.
-    const previousFile = await FileMock.create({
-      buildId: previousBuild._id,
-      path: 'index.spec.ts',
-      platform,
-    });
-    const previousFileMinioKey = await previousFile.getMinioKey();
+    const referenceBuildMinioKey = referenceBuild.getFilePath('index.spec.ts');
     await minio.putObject(
       process.env.MINIO_BUCKET,
-      previousFileMinioKey,
+      referenceBuildMinioKey,
       fs.createReadStream(__filename),
     );
   });
 
-  it('creates file records', async function() {
-    await copy(build._id, 'index.spec.ts', platform, previousBuild._id);
-
-    const file = await File.findOne({ buildId: build._id });
-    expect(file.path).to.eql('index.spec.ts');
-  });
-
   it('copies files within Minio', async function() {
-    await copy(build._id, 'index.spec.ts', platform, previousBuild._id);
+    const buildFile = await copy(build, 'index.spec.ts', referenceBuild);
 
-    const file = await File.findOne({ buildId: build._id });
-    const minioKey = await file.getMinioKey();
+    const minioKey = build.getFilePath(buildFile.path);
     const result = await minio.statObject(process.env.MINIO_BUCKET, minioKey);
     expect(result).to.exist;
   });

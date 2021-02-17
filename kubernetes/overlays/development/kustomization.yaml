@@ -27,12 +27,6 @@ patches:
       kind: Job
       name: migrations
       version: v1
-  - path: ./nodejs/workers.json
-    target:
-      group: apps
-      kind: Deployment
-      name: workers
-      version: v1
   - path: ./nodejs/wss.json
     target:
       group: apps

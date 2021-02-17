@@ -3,8 +3,9 @@ import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
-import { BuildDocument, NamespaceDocument } from '../../models';
-import { Build } from '../build';
+import { BuildDocument, BuildEvent } from '../../models/build';
+import { NamespaceDocument } from '../../models/namespace';
+import { KubernetesBuild } from '../build';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -13,10 +14,26 @@ const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
-export const BuildSidecar = {
+BuildEvent.on(async payload => {
+  const build = payload.fullDocument;
+
+  if (!build.populated('namespaceDocument')) {
+    await build.populate('namespaceDocument').execPopulate();
+  }
+
+  if (payload.operationType === 'delete') {
+    await KubernetesBuildSidecar.delete(build, build.namespaceDocument);
+  } else if (payload.operationType === 'insert') {
+    await KubernetesBuildSidecar.create(build, build.namespaceDocument);
+  } else if (payload.operationType === 'update' && build.status && build.status.finishedAt) {
+    await KubernetesBuildSidecar.delete(build, build.namespaceDocument);
+  }
+});
+
+export const KubernetesBuildSidecar = {
   create: async (build: BuildDocument, namespace: NamespaceDocument) => {
-    const buildName = Build.getName(build);
-    const name = BuildSidecar.getName(build);
+    const buildName = KubernetesBuild.getName(build);
+    const name = KubernetesBuildSidecar.getName(build);
 
     /**
      * ======================
@@ -190,7 +207,7 @@ export const BuildSidecar = {
     });
   },
   delete: async (build: BuildDocument, namespace: NamespaceDocument) => {
-    const name = BuildSidecar.getName(build);
+    const name = KubernetesBuildSidecar.getName(build);
 
     /**
      * ======================

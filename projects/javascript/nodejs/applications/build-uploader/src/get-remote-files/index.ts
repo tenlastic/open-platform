@@ -1,16 +1,14 @@
 import * as requestPromiseNative from 'request-promise-native';
 
-export async function getRemoteFiles(
-  apiKey: string,
-  buildId: string,
-  host: string,
-  platform: string,
-) {
+export async function getRemoteFiles(apiKey: string, host: string, platform: string) {
   const response = await requestPromiseNative.get({
     headers: { 'X-Api-Key': apiKey },
     json: true,
-    url: `${host}/builds/${buildId}/platforms/${platform}/files`,
+    qs: {
+      query: JSON.stringify({ sort: '-publishedAt', where: { publishedAt: { $exists: true } } }),
+    },
+    url: `${host}/builds`,
   });
 
-  return response.records;
+  return response.records.length ? response.records[0].files : [];
 }

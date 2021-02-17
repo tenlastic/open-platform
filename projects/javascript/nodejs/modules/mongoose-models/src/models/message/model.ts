@@ -18,7 +18,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { GroupDocument } from '../group';
-import { User, UserDocument } from '../user';
+import { UserDocument } from '../user';
 
 export const MessageEvent = new EventEmitter<IDatabasePayload<MessageDocument>>();
 
@@ -48,7 +48,7 @@ export class MessageSchema {
   @prop({ immutable: true, ref: 'UserSchema', required: true })
   public fromUserId: Ref<UserDocument>;
 
-  @arrayProp({ itemsRef: User })
+  @arrayProp({ itemsRef: 'UserSchema' })
   public readByUserIds: Array<Ref<UserDocument>>;
 
   @prop({

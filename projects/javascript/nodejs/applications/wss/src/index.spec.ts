@@ -1,5 +1,4 @@
 import * as mongooseModels from '@tenlastic/mongoose-models';
-import { GameServer, Namespace } from '@tenlastic/mongoose-models';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as sinon from 'sinon';
 

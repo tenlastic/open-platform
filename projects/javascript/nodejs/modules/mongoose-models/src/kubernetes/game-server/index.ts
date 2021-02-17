@@ -1,6 +1,11 @@
 import * as k8s from '@kubernetes/client-node';
 
-import { GameServerDocument, NamespaceDocument } from '../../models';
+import {
+  GameServerDocument,
+  GameServerEvent,
+  GameServerRestartEvent,
+} from '../../models/game-server';
+import { NamespaceDocument } from '../../models/namespace';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -9,9 +14,34 @@ const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const networkingV1 = kc.makeApiClient(k8s.NetworkingV1Api);
 
-export const GameServer = {
+GameServerEvent.on(async payload => {
+  const gameServer = payload.fullDocument;
+
+  if (!gameServer.populated('namespaceDocument')) {
+    await gameServer.populate('namespaceDocument').execPopulate();
+  }
+
+  if (payload.operationType === 'delete') {
+    await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
+  } else if (payload.operationType === 'insert') {
+    await KubernetesGameServer.create(gameServer, gameServer.namespaceDocument);
+  } else if (payload.operationType === 'update') {
+    await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
+    await KubernetesGameServer.create(gameServer, gameServer.namespaceDocument);
+  }
+});
+GameServerRestartEvent.on(async gameServer => {
+  if (!gameServer.populated('namespaceDocument')) {
+    await gameServer.populate('namespaceDocument').execPopulate();
+  }
+
+  await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
+  await KubernetesGameServer.create(gameServer, gameServer.namespaceDocument);
+});
+
+export const KubernetesGameServer = {
   create: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
-    const name = GameServer.getName(gameServer);
+    const name = KubernetesGameServer.getName(gameServer);
 
     /**
      * =======================
@@ -180,7 +210,7 @@ export const GameServer = {
     }
   },
   delete: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
-    const name = GameServer.getName(gameServer);
+    const name = KubernetesGameServer.getName(gameServer);
 
     /**
      * =======================

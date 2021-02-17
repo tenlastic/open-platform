@@ -9,7 +9,6 @@ Add the following lines to your `hosts` file to properly route to your local Kub
 127.0.0.1 kafka.localhost
 127.0.0.1 minio.localhost
 127.0.0.1 mongo.localhost
-127.0.0.1 rabbitmq.localhost
 127.0.0.1 registry.localhost
 127.0.0.1 www.localhost
 ```

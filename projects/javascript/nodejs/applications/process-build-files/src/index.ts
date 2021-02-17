@@ -1,6 +1,6 @@
 import 'source-map-support/register';
 
-import { File, FilePlatform } from '@tenlastic/mongoose-models';
+import { Build } from '@tenlastic/mongoose-models';
 import * as minio from '@tenlastic/minio';
 import * as requestPromiseNative from 'request-promise-native';
 
@@ -9,12 +9,7 @@ import { unzip } from './unzip';
 
 const accessToken = process.env.ACCESS_TOKEN;
 const buildId = process.env.BUILD_ID;
-const deleted: string[] = JSON.parse(process.env.DELETED);
 const minioConnectionString = process.env.MINIO_CONNECTION_STRING;
-const platform = process.env.PLATFORM;
-const previousBuildId = process.env.PREVIOUS_BUILD_ID;
-const unmodified: string[] = JSON.parse(process.env.UNMODIFIED);
-const zip = process.env.ZIP;
 
 (async () => {
   const minioConnectionUrl = new URL(minioConnectionString);
@@ -26,32 +21,46 @@ const zip = process.env.ZIP;
     useSSL: minioConnectionUrl.protocol === 'https:',
   });
 
-  // Copy unmodified Files from previous Build.
-  const copyPromises = unmodified.map(u => copy(buildId, u, platform, previousBuildId));
-  await Promise.all(copyPromises);
-
-  // Delete removed Files from Build.
-  const deletePromises = deleted.map(async d => {
-    const path = d.replace(/[\.]+\//g, '');
-
-    const response = await requestPromiseNative.get({
-      headers: { Authorization: `Bearer: ${accessToken}` },
-      json: true,
-      qs: { query: JSON.stringify({ where: { path } }) },
-      url: `http://api.default:3000/builds/${buildId}/platforms/${platform}/files`,
-    });
-    const file = response.records[0];
-
-    return requestPromiseNative.delete({
-      headers: { Authorization: `Bearer: ${accessToken}` },
-      json: true,
-      url: `http://api.default:3000/builds/${buildId}/platforms/${platform}/files/${file._id}`,
-    });
+  const builds = await requestPromiseNative.get({
+    headers: { Authorization: `Bearer: ${accessToken}` },
+    json: true,
+    qs: { query: JSON.stringify({ where: { _id: buildId } }) },
+    url: `http://api.default:3000/builds`,
   });
-  await Promise.all(deletePromises);
+  if (builds.records.length === 0) {
+    throw new Error(`Build ${buildId} not found.`);
+  }
+
+  // Copy unmodified Files from previous Build.
+  const build = new Build(builds.records[0]);
+  if (build.reference) {
+    const referenceBuilds = await requestPromiseNative.get({
+      headers: { Authorization: `Bearer: ${accessToken}` },
+      json: true,
+      qs: { query: JSON.stringify({ where: { _id: buildId } }) },
+      url: `http://api.default:3000/builds`,
+    });
+    if (referenceBuilds.records.length === 0) {
+      throw new Error(`Reference Build ${buildId} not found.`);
+    }
+
+    const referenceBuild = new Build(referenceBuilds.records[0]);
+    const copyPromises = build.reference.files.map(f => copy(build, f, referenceBuild));
+    build.files = await Promise.all(copyPromises);
+  }
 
   // Unzip modified Files.
-  const stream = await minio.getObject(process.env.MINIO_BUCKET, zip);
-  await unzip(buildId, platform as FilePlatform, stream);
-  await minio.removeObject(process.env.MINIO_BUCKET, zip);
+  const stream = await minio.getObject(process.env.MINIO_BUCKET, build.getZipPath());
+  const files = await unzip(build, stream);
+  build.files = [].concat(build.files || [], files);
+
+  // Update the Build.
+  await requestPromiseNative.put({
+    body: build.toObject(),
+    headers: { Authorization: `Bearer: ${accessToken}` },
+    json: true,
+    url: `http://api.default:3000/builds/${buildId}`,
+  });
+
+  await minio.removeObject(process.env.MINIO_BUCKET, build.getZipPath());
 })();

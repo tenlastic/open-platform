@@ -2,10 +2,15 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 
+export interface LocalFile {
+  md5: string;
+  path: string;
+}
+
 export async function getLocalFiles(absoluteDirectory: string) {
   const paths = getAllFiles(absoluteDirectory);
 
-  const files = [];
+  const files: LocalFile[] = [];
   for (const p of paths) {
     const stream = fs.createReadStream(p);
     const md5 = await getMd5FromStream(stream);
@@ -34,7 +39,7 @@ function getAllFiles(absoluteDirectory: string, arrayOfFiles = []) {
   return arrayOfFiles;
 }
 
-function getMd5FromStream(stream: fs.ReadStream) {
+function getMd5FromStream(stream: fs.ReadStream): Promise<string> {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('md5');
     stream.on('error', err => reject(err));

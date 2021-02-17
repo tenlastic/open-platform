@@ -1,6 +1,5 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   getModelForClass,
   modelOptions,
@@ -8,50 +7,27 @@ import {
 } from '@hasezoey/typegoose';
 import * as mongoose from 'mongoose';
 
-import { CollectionDocument } from '..';
-
-export interface IndexKey {
+export interface CollectionIndexKey {
   [s: string]: number;
 }
 
-export interface IndexOptions {
+export interface CollectionIndexOptions {
   expireAfterSeconds?: number;
   partialFilterExpression?: any;
   unique?: boolean;
 }
 
-@modelOptions({
-  schemaOptions: {
-    minimize: false,
-  },
-})
-export class IndexSchema {
+@modelOptions({ schemaOptions: { minimize: false } })
+export class CollectionIndexSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ ref: 'CollectionSchema', required: true })
-  public collectionId: Ref<CollectionDocument>;
-
   @prop({ required: true })
-  public key: IndexKey;
+  public key: CollectionIndexKey;
 
   @prop({ default: {} })
-  public options?: IndexOptions;
-
-  public async createMongoIndex() {
-    return mongoose.connection.db.collection(this.collectionId.toString()).createIndex(this.key, {
-      ...this.options,
-      background: true,
-      name: this._id.toHexString(),
-    });
-  }
-
-  public deleteMongoIndex() {
-    return mongoose.connection.db
-      .collection(this.collectionId.toString())
-      .dropIndex(this._id.toHexString());
-  }
+  public options?: CollectionIndexOptions;
 }
 
-export type IndexDocument = DocumentType<IndexSchema>;
-export type IndexModel = ReturnModelType<typeof IndexSchema>;
-export const Index = getModelForClass(IndexSchema);
+export type CollectionIndexDocument = DocumentType<CollectionIndexSchema>;
+export type CollectionIndexModel = ReturnModelType<typeof CollectionIndexSchema>;
+export const CollectionIndex = getModelForClass(CollectionIndexSchema);

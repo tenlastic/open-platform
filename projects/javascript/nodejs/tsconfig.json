@@ -7,9 +7,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "paths": {
-      "@tenlastic/docker-engine": ["./modules/docker-engine/src"],
       "@tenlastic/json-schema": ["./modules/json-schema/src"],
-      "@tenlastic/kubernetes": ["./modules/kubernetes/src"],
       "@tenlastic/logging": ["./modules/logging/src"],
       "@tenlastic/mailgun": ["./modules/mailgun/src"],
       "@tenlastic/minio": ["./modules/minio/src"],
@@ -18,9 +16,6 @@
       "@tenlastic/mongoose-models": ["./modules/mongoose-models/src"],
       "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],
       "@tenlastic/mongoose-unique-error": ["./modules/mongoose-unique-error/src"],
-      "@tenlastic/rabbitmq": ["./modules/rabbitmq/src"],
-      "@tenlastic/rabbitmq-models": ["./modules/rabbitmq-models/src"],
-      "@tenlastic/validations": ["./modules/validations/src"],
       "@tenlastic/web-server": ["./modules/web-server/src"]
     },
     "skipLibCheck": true,

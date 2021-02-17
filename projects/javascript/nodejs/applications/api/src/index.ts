@@ -1,21 +1,17 @@
 import 'source-map-support/register';
 
-import * as docker from '@tenlastic/docker-engine';
 import '@tenlastic/logging';
 import * as mongoose from '@tenlastic/mongoose-models';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
-import * as rabbitmq from '@tenlastic/rabbitmq';
 import { WebServer } from '@tenlastic/web-server';
 import * as path from 'path';
 
 import { router as articlesRouter } from './handlers/articles';
-import { router as buildTasksRouter } from './handlers/build-tasks';
-import { router as buildWorkflowsRouter } from './handlers/build-workflows';
+import { router as buildLogsRouter } from './handlers/build-logs';
 import { router as buildsRouter } from './handlers/builds';
 import { router as collectionsRouter } from './handlers/collections';
-import { router as filesRouter } from './handlers/files';
 import { router as friendsRouter } from './handlers/friends';
 import { router as gameInvitationsRouter } from './handlers/game-invitations';
 import { router as gameServersRouter } from './handlers/game-servers';
@@ -24,7 +20,6 @@ import { router as gamesRouter } from './handlers/games';
 import { router as groupsRouter } from './handlers/groups';
 import { router as groupInvitationsRouter } from './handlers/group-invitations';
 import { router as ignorationsRouter } from './handlers/ignorations';
-import { router as indexesRouter } from './handlers/indexes';
 import { router as loginsRouter } from './handlers/logins';
 import { router as messagesRouter } from './handlers/messages';
 import { router as namespacesRouter } from './handlers/namespaces';
@@ -39,13 +34,6 @@ import { router as usersRouter } from './handlers/users';
 import { router as webSocketsRouter } from './handlers/web-sockets';
 import { router as workflowsRouter } from './handlers/workflows';
 import { router as workflowLogsRouter } from './handlers/workflow-logs';
-
-// Docker Engine.
-docker.init({
-  certPath: process.env.DOCKER_CERT_PATH,
-  registryUrl: process.env.DOCKER_REGISTRY_URL,
-  url: process.env.DOCKER_ENGINE_URL,
-});
 
 // Kafka.
 (async () => {
@@ -79,18 +67,12 @@ mongoose.connect({
   databaseName: 'api',
 });
 
-// RabbitMQ.
-rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
-
 // Web Server.
 const webServer = new WebServer();
 webServer.use(articlesRouter.routes());
-webServer.use(articlesRouter.routes());
-webServer.use(buildTasksRouter.routes());
-webServer.use(buildWorkflowsRouter.routes());
+webServer.use(buildLogsRouter.routes());
 webServer.use(buildsRouter.routes());
 webServer.use(collectionsRouter.routes());
-webServer.use(filesRouter.routes());
 webServer.use(friendsRouter.routes());
 webServer.use(gameInvitationsRouter.routes());
 webServer.use(gameServersRouter.routes());
@@ -99,7 +81,6 @@ webServer.use(gamesRouter.routes());
 webServer.use(groupsRouter.routes());
 webServer.use(groupInvitationsRouter.routes());
 webServer.use(ignorationsRouter.routes());
-webServer.use(indexesRouter.routes());
 webServer.use(loginsRouter.routes());
 webServer.use(messagesRouter.routes());
 webServer.use(namespacesRouter.routes());

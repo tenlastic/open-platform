@@ -3,8 +3,9 @@ import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
-import { NamespaceDocument, WorkflowDocument } from '../../models';
-import { Workflow } from '../workflow';
+import { NamespaceDocument } from '../../models/namespace';
+import { WorkflowDocument, WorkflowEvent } from '../../models/workflow';
+import { KubernetesWorkflow } from '../workflow';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -13,10 +14,24 @@ const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
-export const WorkflowSidecar = {
+WorkflowEvent.on(async payload => {
+  const workflow = payload.fullDocument;
+
+  if (!workflow.populated('namespaceDocument')) {
+    await workflow.populate('namespaceDocument').execPopulate();
+  }
+
+  if (payload.operationType === 'delete') {
+    await KubernetesWorkflowSidecar.delete(workflow.namespaceDocument, workflow);
+  } else if (payload.operationType === 'insert') {
+    await KubernetesWorkflowSidecar.create(workflow.namespaceDocument, workflow);
+  }
+});
+
+export const KubernetesWorkflowSidecar = {
   create: async (namespace: NamespaceDocument, workflow: WorkflowDocument) => {
-    const name = WorkflowSidecar.getName(workflow);
-    const workflowName = Workflow.getName(workflow);
+    const name = KubernetesWorkflowSidecar.getName(workflow);
+    const workflowName = KubernetesWorkflow.getName(workflow);
 
     /**
      * ======================
@@ -190,7 +205,7 @@ export const WorkflowSidecar = {
     });
   },
   delete: async (namespace: NamespaceDocument, workflow: WorkflowDocument) => {
-    const name = WorkflowSidecar.getName(workflow);
+    const name = KubernetesWorkflowSidecar.getName(workflow);
 
     /**
      * ======================

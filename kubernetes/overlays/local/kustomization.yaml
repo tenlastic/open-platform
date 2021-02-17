@@ -11,9 +11,6 @@ images:
   - name: tenlastic/matchmaking
     newName: tenlastic/matchmaking
     newTag: latest
-  - name: tenlastic/workers
-    newName: tenlastic/workers
-    newTag: latest
   - name: tenlastic/wss
     newName: tenlastic/wss
     newTag: latest
@@ -39,9 +36,7 @@ patchesStrategicMerge:
   - ./ingress-nginx/ingress-nginx.yaml
   - ./nodejs/api.yaml
   - ./nodejs/matchmaking.yaml
-  - ./nodejs/workers.yaml
   - ./nodejs/wss.yaml
-  - ./rabbitmq/rabbitmq.yaml
 resources:
   - ./docker-registry/docker-registry-image-pull-secret.secret.example.yaml
   - ./docker-registry/docker-registry.secret.example.yaml
@@ -57,4 +52,3 @@ resources:
   - ./ingress-nginx/default.ingress.yaml
   - ./nodejs/environment-variables.secret.example.yaml
   - ./nodejs/migrations.yaml
-  - ./rabbitmq/rabbitmq.secret.example.yaml

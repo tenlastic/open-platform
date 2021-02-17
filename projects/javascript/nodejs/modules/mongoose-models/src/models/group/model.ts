@@ -17,7 +17,7 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { User, UserDocument } from '../user';
+import { UserDocument } from '../user';
 
 export const GroupEvent = new EventEmitter<IDatabasePayload<GroupDocument>>();
 
@@ -54,7 +54,7 @@ export class GroupSchema {
 
   public updatedAt: Date;
 
-  @arrayProp({ itemsRef: User })
+  @arrayProp({ itemsRef: 'UserSchema' })
   public userIds: Array<Ref<UserDocument>>;
 
   public get userCount() {

@@ -1,13 +1,13 @@
 import * as k8s from '@kubernetes/client-node';
 
+import { NamespaceDocument, NamespaceWorkflowLimitsSchema } from '../../models/namespace';
 import {
-  NamespaceDocument,
-  NamespaceWorkflowLimitsSchema,
   WorkflowDocument,
+  WorkflowEvent,
   WorkflowSpecTemplate,
   WorkflowSpecTemplateResourcesSchema,
   WorkflowSpecTemplateSchema,
-} from '../../models';
+} from '../../models/workflow';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -17,9 +17,23 @@ const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
 const networkingV1 = kc.makeApiClient(k8s.NetworkingV1Api);
 const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
-export const Workflow = {
+WorkflowEvent.on(async payload => {
+  const workflow = payload.fullDocument;
+
+  if (!workflow.populated('namespaceDocument')) {
+    await workflow.populate('namespaceDocument').execPopulate();
+  }
+
+  if (payload.operationType === 'delete') {
+    await KubernetesWorkflow.delete(workflow.namespaceDocument, workflow);
+  } else if (payload.operationType === 'insert') {
+    await KubernetesWorkflow.create(workflow.namespaceDocument, workflow);
+  }
+});
+
+export const KubernetesWorkflow = {
   create: async (namespace: NamespaceDocument, workflow: WorkflowDocument) => {
-    const name = Workflow.getName(workflow);
+    const name = KubernetesWorkflow.getName(workflow);
 
     /**
      * ======================
@@ -169,7 +183,7 @@ export const Workflow = {
     );
   },
   delete: async (namespace: NamespaceDocument, workflow: WorkflowDocument) => {
-    const name = Workflow.getName(workflow);
+    const name = KubernetesWorkflow.getName(workflow);
 
     /**
      * ======================

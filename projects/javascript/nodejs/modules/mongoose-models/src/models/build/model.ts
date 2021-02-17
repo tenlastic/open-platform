@@ -7,20 +7,19 @@ import {
   index,
   modelOptions,
   plugin,
-  post,
   prop,
 } from '@hasezoey/typegoose';
 import {
   EventEmitter,
   IDatabasePayload,
+  IOriginalDocument,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import * as kubernetes from '../../kubernetes';
-import { Namespace, NamespaceDocument, NamespaceEvent } from '../namespace';
+import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { WorkflowStatusSchema } from '../workflow';
 import { BuildFileSchema } from './file';
 import { BuildReferenceSchema } from './reference';
@@ -57,22 +56,7 @@ NamespaceEvent.on(async payload => {
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: BuildEvent })
 @plugin(uniqueErrorPlugin)
-@post('remove', async function(this: BuildDocument) {
-  const namespace = new Namespace({ _id: this.namespaceId });
-  await kubernetes.Build.delete(this, namespace);
-  await kubernetes.BuildSidecar.delete(this, namespace);
-})
-@post('save', async function(this: BuildDocument) {
-  const namespace = new Namespace({ _id: this.namespaceId });
-  if (this.wasNew) {
-    await kubernetes.Build.create(this, namespace);
-    await kubernetes.BuildSidecar.create(this, namespace);
-  } else if (this.status && this.status.finishedAt) {
-    await kubernetes.Build.delete(this, namespace);
-    await kubernetes.BuildSidecar.delete(this, namespace);
-  }
-})
-export class BuildSchema {
+export class BuildSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
@@ -112,6 +96,14 @@ export class BuildSchema {
   public _original: any;
   public wasModified: string[];
   public wasNew: boolean;
+
+  public getFilePath(path: string) {
+    return `namespaces/${this.namespaceId}/builds/${this._id}/${path}`;
+  }
+
+  public getZipPath() {
+    return `namespaces/${this.namespaceId}/builds/${this._id}/archive.zip`;
+  }
 }
 
 export type BuildDocument = DocumentType<BuildSchema>;

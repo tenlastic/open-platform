@@ -16,6 +16,4 @@ resources:
   - ./ingress-nginx/ingress-nginx.yaml
   - ./nodejs/api.yaml
   - ./nodejs/matchmaking.yaml
-  - ./nodejs/workers.yaml
   - ./nodejs/wss.yaml
-  - ./rabbitmq/rabbitmq.yaml

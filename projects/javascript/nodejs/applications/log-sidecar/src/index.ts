@@ -1,6 +1,7 @@
 import * as k8s from '@kubernetes/client-node';
-import * as kubernetes from '@tenlastic/kubernetes';
 import * as requestPromiseNative from 'request-promise-native';
+
+import { getPodLog } from './get-pod-log';
 
 const accessToken = process.env.ACCESS_TOKEN;
 const endpoint = process.env.LOG_ENDPOINT;
@@ -60,7 +61,7 @@ async function getLogs(pod: k8s.V1Pod) {
 
     const mostRecentLog = await getMostRecentLogCreatedAt(annotations, pod.metadata.name);
 
-    const emitter = kubernetes.getPodLog(
+    const emitter = getPodLog(
       podNamespace,
       pod.metadata.name,
       pod.spec.containers[0].name,

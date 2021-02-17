@@ -1,10 +1,10 @@
 import * as minio from '@tenlastic/minio';
-import { File, FileDocument, FilePlatform } from '@tenlastic/mongoose-models';
+import { BuildDocument, BuildFile, BuildFileDocument } from '@tenlastic/mongoose-models';
 import * as crypto from 'crypto';
 import { Stream } from 'stream';
 import * as unzipper from 'unzipper';
 
-export async function unzip(buildId: string, platform: FilePlatform, stream: Stream) {
+export async function unzip(build: BuildDocument, stream: Stream) {
   const promises = [];
 
   const zip = stream.pipe(unzipper.Parse({ forceStream: true }));
@@ -17,18 +17,12 @@ export async function unzip(buildId: string, platform: FilePlatform, stream: Str
       continue;
     }
 
-    const record = new File({
-      buildId,
-      path: path.replace(/[\.]+\//g, ''),
-      platform,
-    });
-
-    const promise = saveFile(entry, record);
+    const promise = saveFile(build, entry, path);
     promises.push(promise);
   }
 
   // Wait for all Files to be unzipped.
-  await Promise.all(promises);
+  return Promise.all<BuildFileDocument>(promises);
 }
 
 function getMd5FromStream(stream: Stream): Promise<string> {
@@ -40,24 +34,16 @@ function getMd5FromStream(stream: Stream): Promise<string> {
   });
 }
 
-async function saveFile(entry: any, record: FileDocument) {
-  const minioKey = await record.getMinioKey();
-
+async function saveFile(build: BuildDocument, entry: any, path: string) {
   const hashPromise = getMd5FromStream(entry);
-  const minioPromise = minio.putObject(process.env.MINIO_BUCKET, minioKey, entry);
+  const minioPromise = minio.putObject(process.env.MINIO_BUCKET, build.getFilePath(path), entry);
 
   const [md5] = await Promise.all([hashPromise, minioPromise]);
 
-  return File.findOneAndUpdate(
-    { buildId: record.buildId, path: record.path, platform: record.platform },
-    {
-      buildId: record.buildId,
-      compressedBytes: entry.vars.compressedSize,
-      md5,
-      path: record.path,
-      platform: record.platform,
-      uncompressedBytes: entry.vars.uncompressedSize,
-    },
-    { new: true, upsert: true },
-  );
+  return new BuildFile({
+    compressedBytes: entry.vars.compressedSize,
+    md5,
+    path,
+    uncompressedBytes: entry.vars.uncompressedSize,
+  });
 }

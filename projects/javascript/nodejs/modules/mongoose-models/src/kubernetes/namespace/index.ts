@@ -1,6 +1,6 @@
 import * as k8s from '@kubernetes/client-node';
 
-import { NamespaceDocument } from '../../models';
+import { NamespaceDocument, NamespaceEvent } from '../../models/namespace';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -8,7 +8,17 @@ kc.loadFromDefault();
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
 
-export const Namespace = {
+NamespaceEvent.on(async payload => {
+  const namespace = payload.fullDocument;
+
+  if (payload.operationType === 'delete') {
+    await KubernetesNamespace.delete(namespace);
+  } else if (payload.operationType === 'insert') {
+    await KubernetesNamespace.create(namespace);
+  }
+});
+
+export const KubernetesNamespace = {
   create: async (namespace: NamespaceDocument) => {
     /**
      * ========================

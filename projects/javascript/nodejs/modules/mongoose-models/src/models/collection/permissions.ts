@@ -4,8 +4,14 @@ import { Collection, CollectionDocument } from './model';
 
 export const CollectionPermissions = new MongoosePermissions<CollectionDocument>(Collection, {
   create: {
-    'namespace-administrator': ['jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
-    'user-administrator': ['jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
+    'namespace-administrator': [
+      'indexes.*',
+      'jsonSchema.*',
+      'name',
+      'namespaceId',
+      'permissions.*',
+    ],
+    'user-administrator': ['indexes.*', 'jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
   },
   delete: {
     'namespace-administrator': true,

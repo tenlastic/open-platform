@@ -1,0 +1,29 @@
+paths:
+  /builds/{buildId}/logs:
+    post:
+      summary: Create
+      tags: [BuildLogs]
+      description: Creates a new record.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: buildId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BuildLog'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/BuildLog'

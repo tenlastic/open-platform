@@ -56,8 +56,6 @@ spec:
         - minio
         - server
         - /data
-    - name: rabbitmq
-      image: rabbitmq
   volumes:
     - name: node-modules
       persistentVolumeClaim:

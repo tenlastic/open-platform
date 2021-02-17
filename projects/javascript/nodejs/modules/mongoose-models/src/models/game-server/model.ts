@@ -7,7 +7,6 @@ import {
   index,
   modelOptions,
   plugin,
-  post,
   prop,
 } from '@hasezoey/typegoose';
 import {
@@ -20,10 +19,9 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import * as kubernetes from '../../kubernetes';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 import { QueueDocument } from '../queue';
-import { User, UserDocument } from '../user';
+import { UserDocument } from '../user';
 
 export enum GameServerStatus {
   Running = 'running',
@@ -32,6 +30,7 @@ export enum GameServerStatus {
 }
 
 export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
+export const GameServerRestartEvent = new EventEmitter<GameServerDocument>();
 
 // Publish changes to Kafka.
 GameServerEvent.on(payload => {
@@ -68,41 +67,10 @@ NamespaceEvent.on(async payload => {
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameServerEvent })
 @plugin(uniqueErrorPlugin)
-@post('remove', async function(this: GameServerDocument) {
-  const namespace = new Namespace({ _id: this.namespaceId });
-  await kubernetes.GameServer.delete(this, namespace);
-  await kubernetes.GameServerSidecar.delete(this, namespace);
-})
-@post('save', async function(this: GameServerDocument) {
-  if (
-    !this.wasNew &&
-    !this.wasModified.includes('buildId') &&
-    !this.wasModified.includes('isPersistent') &&
-    !this.wasModified.includes('isPreemptible') &&
-    !this.wasModified.includes('metadata')
-  ) {
-    return;
-  }
-
-  const namespace = new Namespace({ _id: this.namespaceId });
-  if (this.wasNew) {
-    try {
-      await kubernetes.GameServer.create(this, namespace);
-      await kubernetes.GameServerSidecar.create(this, namespace);
-    } catch (e) {
-      await kubernetes.GameServer.delete(this, namespace);
-      await kubernetes.GameServerSidecar.delete(this, namespace);
-      throw e;
-    }
-  } else {
-    await kubernetes.GameServer.delete(this, namespace);
-    await kubernetes.GameServer.create(this, namespace);
-  }
-})
 export class GameServerSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
 
-  @arrayProp({ itemsRef: User })
+  @arrayProp({ itemsRef: 'UserSchema' })
   public allowedUserIds: Array<Ref<UserDocument>>;
 
   @prop({ required: true })
@@ -113,7 +81,7 @@ export class GameServerSchema implements IOriginalDocument {
 
   public createdAt: Date;
 
-  @arrayProp({ itemsRef: User })
+  @arrayProp({ itemsRef: 'UserSchema' })
   public currentUserIds: Array<Ref<UserDocument>>;
 
   @prop()
@@ -222,9 +190,7 @@ export class GameServerSchema implements IOriginalDocument {
    * Restarts a Game Server.
    */
   public async restart(this: GameServerDocument) {
-    const namespace = new Namespace({ _id: this.namespaceId });
-    await kubernetes.GameServer.delete(this, namespace);
-    await kubernetes.GameServer.create(this, namespace);
+    GameServerRestartEvent.emit(this);
   }
 }
 

@@ -2,8 +2,7 @@ import * as minio from '@tenlastic/minio';
 import {
   BuildDocument,
   BuildMock,
-  File,
-  FilePlatform,
+  BuildPlatform,
   NamespaceMock,
   NamespaceUserMock,
   UserDocument,
@@ -22,9 +21,8 @@ use(chaiAsPromised);
 
 describe('unzip', function() {
   let build: BuildDocument;
-  let key: string;
   let md5: string;
-  let platform: FilePlatform;
+  let platform: BuildPlatform;
   let user: UserDocument;
 
   beforeEach(async function() {
@@ -37,10 +35,7 @@ describe('unzip', function() {
     const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
     build = await BuildMock.create({ namespaceId: namespace._id });
-    platform = FilePlatform.Server64;
-
-    const random = new mongoose.Types.ObjectId();
-    key = `namespaces/${namespace._id}/builds/${build._id}/archives/${random}.zip`;
+    platform = BuildPlatform.Server64;
 
     // Upload zip to Minio.
     const zip = new JSZip();
@@ -50,7 +45,7 @@ describe('unzip', function() {
       compression: 'DEFLATE',
       compressionOptions: { level: 1 },
     });
-    await minio.putObject(process.env.MINIO_BUCKET, key, stream);
+    await minio.putObject(process.env.MINIO_BUCKET, build.getZipPath(), stream);
 
     // Calculate MD5 for zipped file.
     md5 = await new Promise((resolve, reject) => {
@@ -62,23 +57,12 @@ describe('unzip', function() {
     });
   });
 
-  it('creates file records', async function() {
-    const stream = await minio.getObject(process.env.MINIO_BUCKET, key);
-
-    await unzip(build._id, platform, stream);
-
-    const file = await File.findOne({ buildId: build._id });
-    expect(file.md5).to.eql(md5);
-    expect(file.path).to.eql('index.spec.ts');
-  });
-
   it('uploads unzipped files to Minio', async function() {
-    const stream = await minio.getObject(process.env.MINIO_BUCKET, key);
+    const stream = await minio.getObject(process.env.MINIO_BUCKET, build.getZipPath());
 
-    await unzip(build._id, platform, stream);
+    const files = await unzip(build, stream);
 
-    const file = await File.findOne({ buildId: build._id });
-    const minioKey = await file.getMinioKey();
+    const minioKey = build.getFilePath(files[0].path);
     const result = await minio.statObject(process.env.MINIO_BUCKET, minioKey);
     expect(result).to.exist;
   });

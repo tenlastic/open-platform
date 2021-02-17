@@ -61,17 +61,19 @@ export class RecordSchema {
     // Build schema from Collection's properties.
     const schema = buildSchema(RecordSchema).clone();
     schema.add({ properties: jsonSchema.toMongoose(collection.jsonSchema) });
-    schema.set('collection', collection.collectionName);
+    schema.set('collection', collection.mongoName);
 
     // Register indexes with Mongoose.
-    collection.indexes.forEach(i => schema.index(i.key, i.options));
+    collection.indexes.forEach(i => {
+      schema.index(i.key, { ...i.options, name: i._id.toHexString() });
+    });
 
     // Remove cached Model from Mongoose.
     try {
-      mongoose.connection.deleteModel(collection.collectionName);
+      mongoose.connection.deleteModel(collection.mongoName);
     } catch {}
 
-    return mongoose.model(collection.collectionName, schema) as RecordModel;
+    return mongoose.model(collection.mongoName, schema) as RecordModel;
   }
 
   public static getPermissions(Model: RecordModel, collection: CollectionDocument) {

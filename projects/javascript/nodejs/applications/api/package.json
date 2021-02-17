@@ -21,7 +21,6 @@
   "dependencies": {
     "@hasezoey/typegoose": "6.0.0-27",
     "@kubernetes/client-node": "0.11.2",
-    "@tenlastic/docker-engine": "0.0.154",
     "@tenlastic/json-schema": "0.0.154",
     "@tenlastic/logging": "0.0.154",
     "@tenlastic/mailgun": "0.0.154",
@@ -31,9 +30,6 @@
     "@tenlastic/mongoose-models": "0.0.154",
     "@tenlastic/mongoose-permissions": "0.0.154",
     "@tenlastic/mongoose-unique-error": "0.0.154",
-    "@tenlastic/rabbitmq": "0.0.154",
-    "@tenlastic/rabbitmq-models": "0.0.154",
-    "@tenlastic/validations": "0.0.154",
     "@tenlastic/web-server": "0.0.154",
     "amqplib": "0.5.5",
     "bcryptjs": "2.4.3",

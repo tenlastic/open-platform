@@ -18,7 +18,6 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import * as kubernetes from '../../kubernetes';
 import { UserDocument } from '../user';
 import { NamespaceKeySchema } from './key';
 import { NamespaceLimitsSchema } from './limits';
@@ -78,12 +77,6 @@ NamespaceEvent.on(payload => {
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: NamespaceEvent })
 @plugin(uniqueErrorPlugin)
-@post('remove', async function(this: NamespaceDocument) {
-  await kubernetes.Namespace.delete(this);
-})
-@post('save', async function(this: NamespaceDocument) {
-  await kubernetes.Namespace.create(this);
-})
 export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
 

@@ -1,4 +1,5 @@
 export * from './bases';
+export * from './kubernetes';
 export * from './models';
 
 export * from './connect';

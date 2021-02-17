@@ -3,7 +3,8 @@ import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
-import { BuildDocument, NamespaceDocument } from '../../models';
+import { BuildDocument, BuildEvent } from '../../models/build';
+import { NamespaceDocument } from '../../models/namespace';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -12,9 +13,25 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
 const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
-export const Build = {
+BuildEvent.on(async payload => {
+  const build = payload.fullDocument;
+
+  if (!build.populated('namespaceDocument')) {
+    await build.populate('namespaceDocument').execPopulate();
+  }
+
+  if (payload.operationType === 'delete') {
+    await KubernetesBuild.delete(build, build.namespaceDocument);
+  } else if (payload.operationType === 'insert') {
+    await KubernetesBuild.create(build, build.namespaceDocument);
+  } else if (payload.operationType === 'update' && build.status && build.status.finishedAt) {
+    await KubernetesBuild.delete(build, build.namespaceDocument);
+  }
+});
+
+export const KubernetesBuild = {
   create: async (build: BuildDocument, namespace: NamespaceDocument) => {
-    const name = Build.getName(build);
+    const name = KubernetesBuild.getName(build);
 
     /**
      * ======================
@@ -194,7 +211,7 @@ export const Build = {
     }
   },
   delete: async (build: BuildDocument, namespace: NamespaceDocument) => {
-    const name = Build.getName(build);
+    const name = KubernetesBuild.getName(build);
 
     /**
      * ======================

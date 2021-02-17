@@ -18,6 +18,8 @@
   "dependencies": {
     "@hasezoey/typegoose": "6.0.0-27",
     "@tenlastic/minio": "0.0.154",
+    "@tenlastic/mongoose-change-stream-kafka": "0.0.154",
+    "@tenlastic/mongoose-models": "0.0.154",
     "mongoose": "5.7.11",
     "request": "2.88.0",
     "request-promise-native": "1.0.7",

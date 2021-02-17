@@ -187,8 +187,6 @@ spec:
             - minio
             - server
             - /data
-        - name: rabbitmq
-          image: rabbitmq
       retryStrategy:
         limit: 2
         retryPolicy: OnError
