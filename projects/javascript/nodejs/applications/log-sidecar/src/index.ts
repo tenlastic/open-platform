@@ -23,6 +23,7 @@ const coreV1Api = kc.makeApiClient(k8s.CoreV1Api);
       null,
       podLabelSelector,
     );
+    console.log(podNamespace, podLabelSelector);
 
     for (const pod of pods.body.items) {
       getLogs(pod);

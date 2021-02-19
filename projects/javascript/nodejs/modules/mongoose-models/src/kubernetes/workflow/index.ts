@@ -257,7 +257,7 @@ function getTemplateManifest(
       'tenlastic.com/workflowId': workflow._id.toString(),
     },
     labels: {
-      app: name,
+      app: KubernetesWorkflow.getName(workflow),
       role: 'application',
     },
   };

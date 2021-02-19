@@ -11,7 +11,7 @@ export async function handler(ctx: Context) {
     const busboy = new Busboy({ headers: ctx.request.headers });
 
     busboy.on('error', reject);
-    busboy.on('file', async (field, stream) => {
+    busboy.on('file', (field, stream) => {
       if (field === 'zip') {
         minio.putObject(process.env.MINIO_BUCKET, build.getZipPath(), stream);
       } else {
@@ -33,7 +33,8 @@ export async function handler(ctx: Context) {
     const record = await BuildPermissions.read(result, user);
 
     ctx.response.body = { record };
-  } catch {
+  } catch (e) {
     minio.removeObject(process.env.MINIO_BUCKET, build.getZipPath());
+    throw e;
   }
 }

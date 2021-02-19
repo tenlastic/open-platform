@@ -3,17 +3,17 @@
 import SparkMd5 from 'spark-md5';
 
 addEventListener('message', async ({ data }) => {
-  const { files, previousFiles } = data;
+  const { files, referenceFiles } = data;
 
   const stagedFiles = [];
 
   for (const file of files) {
     const content = await fileToArrayBuffer(file);
     const path = file.webkitRelativePath.substring(file.webkitRelativePath.indexOf('/') + 1);
-    const previousFile = previousFiles.find(p => p.path === path);
+    const referenceFile = referenceFiles.find(p => p.path === path);
 
     const md5 = arrayBufferToMd5(content);
-    const status = !previousFile || previousFile.md5 !== md5 ? 'modified' : 'unmodified';
+    const status = !referenceFile || referenceFile.md5 !== md5 ? 'modified' : 'unmodified';
 
     const f = { arrayBuffer: content, md5, path, uncompressedBytes: file.size, status };
     stagedFiles.push(f);
@@ -21,7 +21,7 @@ addEventListener('message', async ({ data }) => {
     postMessage({ file: f });
   }
 
-  const removedFiles = previousFiles
+  const removedFiles = referenceFiles
     .filter(pf => !stagedFiles.map(sf => sf.path).includes(pf.path))
     .map(pf => ({
       md5: pf.md5,

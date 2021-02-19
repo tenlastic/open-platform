@@ -28,13 +28,11 @@
       "volumeMounts": [
         {
           "mountPath": "/usr/src/app/projects/javascript/node_modules/",
-          "name": "node-modules",
-          "readOnly": true
+          "name": "node-modules"
         },
         {
           "mountPath": "/usr/src/app/",
-          "name": "workspace",
-          "readOnly": true
+          "name": "workspace"
         }
       ],
       "workingDir": "/usr/src/app/projects/javascript/angular/applications/home/"

@@ -1,9 +1,9 @@
 paths:
-  /builds/{_id}:
+  /build/{_id}:
     get:
       summary: Find One
       tags: [Builds]
-      description: Returns a zip file containing Build files.
+      description: Finds a record by ID.
       security:
         - AccessToken: []
       parameters:
@@ -12,19 +12,13 @@ paths:
           schema:
             type: string
           required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                files:
-                  type: string
       responses:
         200:
           description: OK
           content:
-            application/octet-stream:
+            application/json:
               schema:
-                type: string
-                format: binary
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Build'

@@ -1,0 +1,30 @@
+paths:
+  /builds/{_id}/files:
+    get:
+      summary: Download
+      tags: [Builds]
+      description: Returns a zip file containing Build files.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary

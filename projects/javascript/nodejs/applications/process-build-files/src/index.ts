@@ -24,8 +24,7 @@ const minioConnectionString = process.env.MINIO_CONNECTION_STRING;
   const builds = await requestPromiseNative.get({
     headers: { Authorization: `Bearer: ${accessToken}` },
     json: true,
-    qs: { query: JSON.stringify({ where: { _id: buildId } }) },
-    url: `http://api.default:3000/builds`,
+    url: `http://api.default:3000/builds/${buildId}`,
   });
   if (builds.records.length === 0) {
     throw new Error(`Build ${buildId} not found.`);
@@ -56,7 +55,7 @@ const minioConnectionString = process.env.MINIO_CONNECTION_STRING;
 
   // Update the Build.
   await requestPromiseNative.put({
-    body: build.toObject(),
+    body: { files: build.files },
     headers: { Authorization: `Bearer: ${accessToken}` },
     json: true,
     url: `http://api.default:3000/builds/${buildId}`,

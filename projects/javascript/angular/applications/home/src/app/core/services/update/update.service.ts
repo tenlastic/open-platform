@@ -2,11 +2,10 @@ import { Injectable } from '@angular/core';
 import {
   Build,
   BuildService,
-  File,
-  FileService,
   Game,
   GameInvitationService,
   GameServer,
+  IBuild,
   LoginService,
 } from '@tenlastic/ng-http';
 import { ChildProcess } from 'child_process';
@@ -41,7 +40,7 @@ export interface UpdateServiceStatus {
   childProcess?: ChildProcess;
   game?: Game;
   isInstalled?: boolean;
-  modifiedFiles?: File[];
+  modifiedFiles?: IBuild.File[];
   progress?: UpdateServiceProgress;
   state?: UpdateServiceState;
   text?: string;
@@ -75,7 +74,6 @@ export class UpdateService {
   constructor(
     private buildService: BuildService,
     private electronService: ElectronService,
-    private fileService: FileService,
     private gameInvitationService: GameInvitationService,
     private identityService: IdentityService,
     private loginService: LoginService,
@@ -118,6 +116,7 @@ export class UpdateService {
       where: {
         $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
         namespaceId: game.namespaceId,
+        platform: this.platform,
       },
     });
     if (builds.length === 0) {
@@ -129,9 +128,7 @@ export class UpdateService {
     status.progress = null;
     status.text = 'Retrieving build files...';
     status.build = builds[0];
-    const remoteFiles = await this.fileService.find(status.build._id, this.platform, {
-      limit: 10000,
-    });
+    const remoteFiles = status.build.files;
     if (remoteFiles.length === 0) {
       status.state = UpdateServiceState.NotAvailable;
       return;
@@ -199,9 +196,6 @@ export class UpdateService {
       return;
     }
 
-    const entrypoint = status.build.entrypoints[this.platform];
-    const target = `${this.installPath}/${game.namespaceId}/${entrypoint}`;
-
     const env = {
       ...process.env,
       ACCESS_TOKEN: this.identityService.accessToken,
@@ -210,6 +204,7 @@ export class UpdateService {
       GROUP_ID: options.groupId,
       REFRESH_TOKEN: this.identityService.refreshToken,
     };
+    const target = `${this.installPath}/${game.namespaceId}/${status.build.entrypoint}`;
 
     status.childProcess = this.electronService.childProcess.execFile(target, null, { env });
     status.childProcess.on('close', () => (status.childProcess = null));
@@ -232,7 +227,7 @@ export class UpdateService {
     status.text = 'Downloading and installing update...';
 
     try {
-      await this.download(game);
+      await this.download(status.build, game);
     } catch (e) {
       console.error(e);
     }
@@ -252,7 +247,7 @@ export class UpdateService {
   private async deleteRemovedFiles(
     game: Game,
     localFiles: { md5: string; path: string }[],
-    remoteFiles: File[],
+    remoteFiles: IBuild.File[],
   ) {
     const { fs } = this.electronService;
 
@@ -261,14 +256,14 @@ export class UpdateService {
       const remotePaths = remoteFiles.map(rf => rf.path);
 
       if (!remotePaths.includes(localPath)) {
-        await new Promise(resolve =>
+        await new Promise<void>(resolve =>
           fs.unlink(`${this.installPath}/${game.namespaceId}/${localPath}`, err => resolve()),
         );
       }
     }
   }
 
-  private async download(game: Game) {
+  private async download(build: Build, game: Game) {
     const status = this.getStatus(game);
 
     let downloadedBytes = 0;
@@ -278,16 +273,17 @@ export class UpdateService {
       0,
     );
 
-    const include = status.modifiedFiles.map(f => f.path);
+    const modifiedFilePaths = status.modifiedFiles.map(f => f.path);
+    const files = build.files.map(f => (modifiedFilePaths.includes(f.path) ? 1 : 0));
     const { fs, request, unzipper } = this.electronService;
 
     return new Promise((resolve, reject) => {
       request
         .post({
-          body: { include },
           headers: { Authorization: `Bearer ${this.identityService.accessToken}` },
           json: true,
-          url: `${this.fileService.basePath}/${status.build._id}/platforms/${this.platform}/files/download`,
+          qs: { query: JSON.stringify({ files: files.join('') }) },
+          url: `${this.buildService.basePath}/${status.build._id}`,
         })
         .on('data', data => {
           downloadedBytes += data.length;

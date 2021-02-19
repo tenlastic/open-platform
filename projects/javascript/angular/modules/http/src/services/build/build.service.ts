@@ -1,4 +1,7 @@
+import { HttpEventType } from '@angular/common/http';
 import { EventEmitter, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { Build } from '../../models/build';
 import { ApiService, RestParameters } from '../api/api.service';
@@ -17,13 +20,27 @@ export class BuildService {
     this.basePath = this.environmentService.buildApiBaseUrl;
   }
 
-  public async create(parameters: Partial<Build>): Promise<Build> {
-    const response = await this.apiService.request('post', `${this.basePath}`, parameters);
+  public create(parameters: Partial<Build>, zip: Blob) {
+    const formData = new FormData();
 
-    const record = new Build(response.record);
-    this.onCreate.emit(record);
+    formData.append('build', JSON.stringify(parameters));
+    formData.append('zip', zip);
 
-    return record;
+    const observable = this.apiService.request('post', this.basePath, formData, {
+      observe: 'events',
+      reportProgress: true,
+    }) as Observable<any>;
+    observable.pipe(
+      map(event => {
+        if (event.type === HttpEventType.Response) {
+          this.onCreate.emit(event.body.record);
+        }
+
+        return event;
+      }),
+    );
+
+    return observable;
   }
 
   public async delete(_id: string): Promise<Build> {
@@ -33,6 +50,14 @@ export class BuildService {
     this.onDelete.emit(record);
 
     return record;
+  }
+
+  public download(_id: string) {
+    return this.apiService.request('get', `${this.basePath}/${_id}`, null, {
+      observe: 'events',
+      reportProgress: true,
+      responseType: 'blob',
+    }) as Observable<any>;
   }
 
   public async find(parameters: RestParameters): Promise<Build[]> {

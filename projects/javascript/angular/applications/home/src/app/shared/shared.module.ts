@@ -26,6 +26,7 @@ import {
   TextAreaDialogComponent,
   TitleComponent,
   ToggleSectionComponent,
+  WorkflowStatusNodeComponent,
 } from './components';
 import {
   AsAnyPipe,
@@ -60,6 +61,7 @@ const components = [
   TextAreaDialogComponent,
   TitleComponent,
   ToggleSectionComponent,
+  WorkflowStatusNodeComponent,
 ];
 const modules = [
   CommonModule,

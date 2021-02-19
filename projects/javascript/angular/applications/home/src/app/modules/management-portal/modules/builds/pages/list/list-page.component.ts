@@ -28,6 +28,7 @@ export class BuildsListPageComponent implements OnInit {
   public dataSource: MatTableDataSource<Build>;
   public displayedColumns: string[] = [
     'version',
+    'status',
     'publishedAt',
     'createdAt',
     'updatedAt',

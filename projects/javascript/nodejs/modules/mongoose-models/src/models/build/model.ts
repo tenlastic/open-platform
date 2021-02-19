@@ -73,7 +73,7 @@ export class BuildSchema implements IOriginalDocument {
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
-  @prop({ enum: BuildPlatform, required: true })
+  @prop({ enum: BuildPlatform, immutable: true, required: true })
   public platform: BuildPlatform;
 
   @prop()

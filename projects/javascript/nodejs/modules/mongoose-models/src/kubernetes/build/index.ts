@@ -24,8 +24,6 @@ BuildEvent.on(async payload => {
     await KubernetesBuild.delete(build, build.namespaceDocument);
   } else if (payload.operationType === 'insert') {
     await KubernetesBuild.create(build, build.namespaceDocument);
-  } else if (payload.operationType === 'update' && build.status && build.status.finishedAt) {
-    await KubernetesBuild.delete(build, build.namespaceDocument);
   }
 });
 
@@ -84,7 +82,7 @@ export const KubernetesBuild = {
      * WORKFLOW
      * ======================
      */
-    const administrator = { roles: ['game-servers'], system: true };
+    const administrator = { roles: ['builds'], system: true };
     const accessToken = jwt.sign(
       { type: 'access', user: administrator },
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
@@ -139,11 +137,12 @@ export const KubernetesBuild = {
                 dag: {
                   tasks: [
                     {
-                      name: 'process-build-files',
-                      template: 'process-build-files',
+                      name: 'copy-and-unzip-files',
+                      template: 'copy-and-unzip-files',
                     },
                   ],
                 },
+                metadata: getMetadata(build, 'entrypoint'),
                 name: 'entrypoint',
               },
               {
@@ -154,9 +153,10 @@ export const KubernetesBuild = {
                   resources: { requests: { cpu: '100m', memory: '100M' } },
                   volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
                   workingDir:
-                    '/usr/src/app/projects/javascript/nodejs/applications/process-build-files/',
+                    '/usr/src/app/projects/javascript/nodejs/applications/copy-and-unzip-files/',
                 },
-                name: 'process-build-files',
+                metadata: getMetadata(build, 'copy-and-unzip-files'),
+                name: 'copy-and-unzip-files',
               },
             ],
             ttlStrategy: { secondsAfterCompletion: 30 },
@@ -187,21 +187,23 @@ export const KubernetesBuild = {
                 dag: {
                   tasks: [
                     {
-                      name: 'process-build-files',
-                      template: 'process-build-files',
+                      name: 'copy-and-unzip-files',
+                      template: 'copy-and-unzip-files',
                     },
                   ],
                 },
+                metadata: getMetadata(build, 'entrypoint'),
                 name: 'entrypoint',
               },
               {
                 container: {
                   env,
-                  image: `tenlastic/process-build-files:${version}`,
+                  image: `tenlastic/copy-and-unzip-files:${version}`,
                   resources: { requests: { cpu: '100m', memory: '100M' } },
                   workingDir: '/usr/src/app/',
                 },
-                name: 'process-build-files',
+                metadata: getMetadata(build, 'copy-and-unzip-files'),
+                name: 'copy-and-unzip-files',
               },
             ],
             ttlStrategy: { secondsAfterCompletion: 30 },
@@ -218,24 +220,41 @@ export const KubernetesBuild = {
      * RBAC
      * ======================
      */
-    await rbacAuthorizationV1.deleteNamespacedRole(name, namespace.kubernetesNamespace);
-    await coreV1.deleteNamespacedServiceAccount(name, namespace.kubernetesNamespace);
-    await rbacAuthorizationV1.deleteNamespacedRoleBinding(name, namespace.kubernetesNamespace);
+    try {
+      await rbacAuthorizationV1.deleteNamespacedRole(name, namespace.kubernetesNamespace);
+      await coreV1.deleteNamespacedServiceAccount(name, namespace.kubernetesNamespace);
+      await rbacAuthorizationV1.deleteNamespacedRoleBinding(name, namespace.kubernetesNamespace);
+    } catch {}
 
     /**
      * ======================
      * WORKFLOW
      * ======================
      */
-    await customObjects.deleteNamespacedCustomObject(
-      'argoproj.io',
-      'v1alpha1',
-      namespace.kubernetesNamespace,
-      'workflows',
-      name,
-    );
+    try {
+      await customObjects.deleteNamespacedCustomObject(
+        'argoproj.io',
+        'v1alpha1',
+        namespace.kubernetesNamespace,
+        'workflows',
+        name,
+      );
+    } catch {}
   },
   getName(build: BuildDocument) {
     return `build-${build._id}`;
   },
 };
+
+function getMetadata(build: BuildDocument, template: string) {
+  return {
+    annotations: {
+      'tenlastic.com/buildId': build._id.toString(),
+      'tenlastic.com/nodeId': `{{ tasks.${template}.id }}`,
+    },
+    labels: {
+      app: KubernetesBuild.getName(build),
+      role: 'application',
+    },
+  };
+}

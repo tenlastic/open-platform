@@ -9,15 +9,15 @@ import {
   WorkflowLogService,
 } from '@tenlastic/ng-http';
 
-import { SocketService } from '../../../../../../core/services';
-import { LogsDialogComponent } from '../../../../../../shared/components';
+import { SocketService } from '../../../core/services';
+import { LogsDialogComponent } from '../logs-dialog/logs-dialog.component';
 
 type WorkflowStatusNodeWithParent = IWorkflow.Node & { parent: string };
 
 @Component({
-  templateUrl: 'status-node.component.html',
+  templateUrl: 'workflow-status-node.component.html',
   selector: 'app-workflow-status-node',
-  styleUrls: ['./status-node.component.scss'],
+  styleUrls: ['./workflow-status-node.component.scss'],
 })
 export class WorkflowStatusNodeComponent {
   @Input() public node: WorkflowStatusNodeWithParent;

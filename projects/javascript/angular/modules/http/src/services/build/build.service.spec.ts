@@ -35,27 +35,6 @@ describe('BuildService', () => {
     httpMock.verify();
   });
 
-  describe('create()', () => {
-    it('creates and returns a Build', () => {
-      const params = { version: chance.hash() };
-
-      service.create(params).then(res => {
-        expect(res).toEqual(jasmine.any(Build));
-        expect(res._id).toBeDefined();
-        expect(res.version).toEqual(params.version);
-      });
-
-      const req = httpMock.expectOne(`${service.basePath}`);
-      expect(req.request.method).toBe('POST');
-      req.flush({
-        record: {
-          _id: chance.hash(),
-          version: params.version,
-        },
-      });
-    });
-  });
-
   describe('delete()', () => {
     it('deletes the user and returns true', () => {
       const _id = chance.hash();
@@ -86,23 +65,6 @@ describe('BuildService', () => {
       expect(req.request.method).toBe('GET');
       req.flush({
         records: [{ _id }],
-      });
-    });
-  });
-
-  describe('findOne()', () => {
-    it('returns a Build', () => {
-      const _id = chance.hash();
-
-      service.findOne(_id).then(res => {
-        expect(res).toEqual(jasmine.any(Build));
-        expect(res._id).toBe(_id);
-      });
-
-      const req = httpMock.expectOne(`${service.basePath}/${_id}`);
-      expect(req.request.method).toBe('GET');
-      req.flush({
-        record: { _id },
       });
     });
   });
