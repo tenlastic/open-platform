@@ -3,13 +3,13 @@
     "node": "^10"
   },
   "license": "Apache-2.0",
-  "name": "@tenlastic/process-build-files",
+  "name": "@tenlastic/build",
   "private": true,
   "version": "0.0.154",
   "scripts": {
     "build": "../../scripts/build.sh",
-    "docker:build": "../../scripts/docker-build.sh process-build-files",
-    "docker:push": "../../scripts/docker-push.sh process-build-files",
+    "docker:build": "../../scripts/docker-build.sh build",
+    "docker:push": "../../scripts/docker-push.sh build",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh",
     "test": "../../scripts/test.sh",

@@ -152,6 +152,6 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
     },
   ],
   update: {
-    'system-administrator': ['status.*'],
+    'system-administrator': ['finishedAt', 'status.*'],
   },
 });

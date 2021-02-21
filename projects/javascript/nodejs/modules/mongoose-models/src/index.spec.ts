@@ -2,6 +2,7 @@ import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as sinon from 'sinon';
+import { URL } from 'url';
 
 import { connect, deleteAll, stub } from './';
 

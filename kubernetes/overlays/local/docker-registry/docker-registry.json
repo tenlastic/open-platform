@@ -9,7 +9,7 @@
     "path": "/spec/template/spec/containers/0/env/-",
     "value": {
       "name": "REGISTRY_HTTP_HOST",
-      "value": "http://docker-registry.localhost"
+      "value": "http://docker-registry.default:5000"
     }
   }
 ]

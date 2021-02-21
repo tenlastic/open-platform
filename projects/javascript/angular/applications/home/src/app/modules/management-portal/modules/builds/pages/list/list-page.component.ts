@@ -27,6 +27,7 @@ export class BuildsListPageComponent implements OnInit {
 
   public dataSource: MatTableDataSource<Build>;
   public displayedColumns: string[] = [
+    'platform',
     'version',
     'status',
     'publishedAt',
@@ -57,6 +58,15 @@ export class BuildsListPageComponent implements OnInit {
   public clearSearch() {
     this.search = '';
     this.applyFilter('');
+  }
+
+  public getPlatform(platform: string) {
+    const map = {
+      server64: 'Linux Server (x64)',
+      windows64: 'Windows Client (x64)',
+    };
+
+    return map[platform];
   }
 
   public onKeyUp(searchTextValue: string) {

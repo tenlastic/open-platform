@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { GameServerLog } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
@@ -7,7 +7,7 @@ import { IdentityService, SocketService } from '../../../core/services';
 
 export interface LogsDialogComponentData {
   $logs: Observable<any[]>;
-  find(): any[];
+  find(): Promise<any[]>;
   subscribe(): string;
 }
 
@@ -17,6 +17,8 @@ export interface LogsDialogComponentData {
   templateUrl: 'logs-dialog.component.html',
 })
 export class LogsDialogComponent implements OnDestroy, OnInit {
+  @ViewChild('container', { static: true }) private container: ElementRef;
+
   public isLive = false;
   public isVisible = false;
   public visibility = {};
@@ -31,9 +33,11 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     private socketService: SocketService,
   ) {}
 
-  public ngOnInit() {
+  public async ngOnInit() {
     this.matDialogRef.addPanelClass('app-logs-dialog');
-    this.data.find();
+
+    await this.data.find();
+    this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
   }
 
   public ngOnDestroy() {

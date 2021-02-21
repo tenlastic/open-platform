@@ -95,6 +95,10 @@ export class SocketService {
   }
 
   public unsubscribe(_id: string) {
+    if (!this.socket) {
+      return;
+    }
+
     const data = { _id, method: 'unsubscribe' };
     this.socket.send(JSON.stringify(data));
   }

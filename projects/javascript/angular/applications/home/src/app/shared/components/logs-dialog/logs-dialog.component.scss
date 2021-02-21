@@ -51,6 +51,7 @@ div.log {
 
   &.expanded span {
     white-space: pre-wrap;
+    word-break: break-word;
   }
 
   span.timestamp {
@@ -62,8 +63,10 @@ div.log {
 }
 
 div.logs-container {
+  display: flex;
   flex: 1 1 auto;
-  overflow: auto;
+  flex-direction: column-reverse;
+  overflow: hidden auto;
 }
 
 div.page {

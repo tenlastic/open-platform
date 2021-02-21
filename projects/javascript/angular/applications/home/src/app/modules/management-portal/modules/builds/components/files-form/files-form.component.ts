@@ -8,7 +8,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Build, BuildQuery, BuildService } from '@tenlastic/ng-http';
+import { Build, BuildQuery, BuildService, IBuild } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
@@ -32,28 +32,28 @@ export class FilesFormComponent implements OnInit {
   @ViewChild('selectFilesInput', { static: true }) public selectFilesInput: ElementRef;
 
   public builds: Build[] = [];
+  public files: UpdatedFile[] = [];
+  public get isNew() {
+    return !this.build._id;
+  }
   public get modifiedFiles() {
-    return this.stagedFiles.filter(f => f.status === 'modified');
+    return this.form.get('files').value.filter(f => f.status === 'modified');
   }
   public referenceBuild: Build;
-  public get removedFiles() {
-    return this.stagedFiles.filter(f => f.status === 'removed');
+  public get referenceFiles() {
+    return this.form.get('reference').get('files').value;
   }
-  public stagedFiles: UpdatedFile[] = [];
+  public removedFiles: IBuild.File[] = [];
   public status: string;
   public get unmodifiedFiles() {
-    return this.stagedFiles.filter(f => f.status === 'unmodified');
+    return this.form.get('files').value.filter(f => f.status === 'unmodified');
   }
 
   constructor(private buildService: BuildService) {}
 
   public async ngOnInit() {
-    const referenceId = this.form.get('reference').get('_id').value;
-
-    if (referenceId) {
-      const build = await this.buildService.findOne(referenceId);
-      this.setReferenceBuild(build);
-    } else if (!this.build._id) {
+    if (this.isNew) {
+      await this.getReferenceBuilds();
       this.form.get('platform').valueChanges.subscribe(() => this.getReferenceBuilds());
     }
 
@@ -66,14 +66,10 @@ export class FilesFormComponent implements OnInit {
       });
   }
 
-  public cancel() {
-    this.form.get('entrypoint').setValue(null);
-    this.selectFilesInput.nativeElement.value = [];
-    this.stagedFiles = [];
-  }
-
   public setEntrypoint(value: string) {
-    this.form.get('entrypoint').setValue(value);
+    if (this.form.get('entrypoint').enabled) {
+      this.form.get('entrypoint').setValue(value);
+    }
   }
 
   public async onFilesChanged($event) {
@@ -82,17 +78,30 @@ export class FilesFormComponent implements OnInit {
       return;
     }
 
-    this.form
-      .get('entrypoint')
-      .setValue((this.referenceBuild && this.referenceBuild.entrypoint) || '');
+    if (this.referenceBuild && this.referenceBuild.entrypoint) {
+      this.form.get('entrypoint').setValue(this.referenceBuild.entrypoint);
+    }
+
     this.status = 'Calculating file changes...';
 
-    this.stagedFiles = [];
+    this.form.get('files').setValue([]);
     await new Promise<void>(resolve => {
       const worker = new Worker('../../../../../../workers/file-reader.worker', { type: 'module' });
       worker.onmessage = ({ data }) => {
         if (data.file) {
-          this.stagedFiles.push(data.file);
+          if (this.referenceBuild) {
+            const referenceFile = this.referenceBuild.files.find(f => f.path === data.file.path);
+
+            if (referenceFile) {
+              data.file.status = data.file.md5 === referenceFile.md5 ? 'unmodified' : 'modified';
+            } else {
+              data.file.status = 'modified';
+            }
+          } else {
+            data.file.status = 'modified';
+          }
+
+          this.form.get('files').value.push(data.file);
         }
 
         if (data.isDone) {
@@ -105,29 +114,65 @@ export class FilesFormComponent implements OnInit {
       });
     });
 
-    this.stagedFiles = this.stagedFiles.sort((a, b) =>
-      a.path < b.path ? -1 : a.path > b.path ? 1 : 0,
-    );
+    this.removedFiles = [];
+    if (this.referenceBuild) {
+      for (const referenceFile of this.referenceBuild.files) {
+        const file = this.form.get('files').value.find(f => f.path === referenceFile.path);
 
-    this.form.get('files').setValue(this.stagedFiles);
+        if (!file) {
+          this.removedFiles.push(referenceFile);
+        }
+      }
+    }
+
+    const sorted = this.form.get('files').value.sort((a, b) => this.sort(a.path, b.path));
+    this.form.get('files').setValue(sorted);
+
     this.status = null;
   }
 
   public setReferenceBuild(build: Build) {
-    if (!build) {
-      return;
-    }
-
     this.referenceBuild = build;
     this.form
       .get('reference')
       .get('_id')
-      .setValue(build._id);
+      .setValue(this.referenceBuild ? this.referenceBuild._id : null, { emitEvent: false });
+    this.form
+      .get('reference')
+      .get('files')
+      .setValue(this.referenceBuild ? this.referenceBuild.files.map(f => f.path) : [], {
+        emitEvent: false,
+      });
+
+    for (const file of this.form.get('files').value) {
+      if (this.referenceBuild) {
+        const referenceFile = this.referenceBuild.files.find(f => f.path === file.path);
+
+        if (referenceFile) {
+          file.status = file.md5 === referenceFile.md5 ? 'unmodified' : 'modified';
+        } else {
+          file.status = 'modified';
+        }
+      } else {
+        file.status = 'modified';
+      }
+    }
+
+    this.removedFiles = [];
+    if (this.referenceBuild) {
+      for (const referenceFile of this.referenceBuild.files) {
+        const file = this.form.get('files').value.find(f => f.path === referenceFile.path);
+
+        if (!file) {
+          this.removedFiles.push(referenceFile);
+        }
+      }
+    }
   }
 
   private async getReferenceBuilds() {
     this.builds = await this.buildService.find({
-      sort: '-publishedAt',
+      sort: '-publishedAt -createdAt',
       where: {
         namespaceId: this.form.get('namespaceId').value,
         platform: this.form.get('platform').value,
@@ -136,5 +181,18 @@ export class FilesFormComponent implements OnInit {
 
     const build = this.builds.find(r => r.publishedAt);
     this.setReferenceBuild(build || this.builds[0]);
+  }
+
+  private sort(a: string, b: string) {
+    const aSplit = a.split('/').length;
+    const bSplit = b.split('/').length;
+
+    if (aSplit < bSplit) {
+      return -1;
+    } else if (aSplit > bSplit) {
+      return 1;
+    } else {
+      return a < b ? -1 : a > b ? 1 : 0;
+    }
   }
 }

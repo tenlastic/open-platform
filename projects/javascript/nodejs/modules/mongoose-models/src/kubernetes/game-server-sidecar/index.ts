@@ -64,9 +64,7 @@ export const KubernetesGameServerSidecar = {
       ],
     });
     await coreV1.createNamespacedServiceAccount(namespace.kubernetesNamespace, {
-      metadata: {
-        name,
-      },
+      metadata: { name },
     });
     await rbacAuthorizationV1.createNamespacedRoleBinding(namespace.kubernetesNamespace, {
       metadata: { name },
@@ -119,6 +117,7 @@ export const KubernetesGameServerSidecar = {
     };
     const env = [
       { name: 'ACCESS_TOKEN', value: accessToken },
+      { name: 'LOG_CONTAINER', value: 'main' },
       {
         name: 'LOG_ENDPOINT',
         value: `http://api.default:3000/game-servers/${gameServer._id}/logs`,

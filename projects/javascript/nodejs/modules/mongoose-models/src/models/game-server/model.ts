@@ -48,7 +48,6 @@ NamespaceEvent.on(async payload => {
 });
 
 @index({ namespaceId: 1 })
-@index({ port: 1 }, { unique: true })
 @index(
   { allowedUserIds: 1, namespaceId: 1 },
   {

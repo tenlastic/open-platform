@@ -1,6 +1,7 @@
 import * as http from 'http';
 import * as jsonwebtoken from 'jsonwebtoken';
 import { Socket } from 'net';
+import { URLSearchParams } from 'url';
 import * as WS from 'ws';
 
 export class WebSocket extends WS {

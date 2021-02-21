@@ -2,6 +2,7 @@ import * as k8s from '@kubernetes/client-node';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
+import { URL } from 'url';
 
 import { BuildDocument, BuildEvent } from '../../models/build';
 import { NamespaceDocument } from '../../models/namespace';
@@ -32,14 +33,27 @@ export const KubernetesBuild = {
     const name = KubernetesBuild.getName(build);
 
     /**
+     * =======================
+     * IMAGE PULL SECRET
+     * =======================
+     */
+    const secret = await coreV1.readNamespacedSecret(
+      'docker-registry-image-pull-secret',
+      'default',
+    );
+    await coreV1.createNamespacedSecret(namespace.kubernetesNamespace, {
+      data: { 'config.json': secret.body.data['.dockerconfigjson'] },
+      metadata: { name },
+      type: 'Opaque',
+    });
+
+    /**
      * ======================
      * RBAC
      * ======================
      */
     await rbacAuthorizationV1.createNamespacedRole(namespace.kubernetesNamespace, {
-      metadata: {
-        name,
-      },
+      metadata: { name },
       rules: [
         {
           apiGroups: [''],
@@ -110,121 +124,227 @@ export const KubernetesBuild = {
     const env = [
       { name: 'ACCESS_TOKEN', value: accessToken },
       { name: 'BUILD_ID', value: build._id.toString() },
+      { name: 'MINIO_BUCKET', value: process.env.MINIO_BUCKET },
       { name: 'MINIO_CONNECTION_STRING', value: process.env.MINIO_CONNECTION_STRING },
     ];
+    const metadata = {
+      annotations: {
+        'tenlastic.com/buildId': build._id.toString(),
+        'tenlastic.com/nodeId': `{{pod.name}}`,
+      },
+      labels: {
+        app: KubernetesBuild.getName(build),
+        role: 'application',
+      },
+    };
 
     const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
     const version = JSON.parse(packageDotJson).version;
 
+    let manifest: any;
     if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
-      await customObjects.createNamespacedCustomObject(
-        'argoproj.io',
-        'v1alpha1',
-        namespace.kubernetesNamespace,
-        'workflows',
-        {
-          apiVersion: 'argoproj.io/v1alpha1',
-          kind: 'Workflow',
-          metadata: { name },
-          spec: {
-            activeDeadlineSeconds: 60 * 60,
-            affinity,
-            entrypoint: 'entrypoint',
-            podGC: { strategy: 'OnPodCompletion' },
-            serviceAccountName: name,
-            templates: [
-              {
-                dag: {
-                  tasks: [
-                    {
-                      name: 'copy-and-unzip-files',
-                      template: 'copy-and-unzip-files',
-                    },
-                  ],
-                },
-                metadata: getMetadata(build, 'entrypoint'),
-                name: 'entrypoint',
+      const workingDir = '/usr/src/app/projects/javascript/nodejs/applications';
+      manifest = {
+        apiVersion: 'argoproj.io/v1alpha1',
+        kind: 'Workflow',
+        metadata: { name },
+        spec: {
+          activeDeadlineSeconds: 60 * 60,
+          affinity,
+          entrypoint: 'entrypoint',
+          serviceAccountName: name,
+          templates: [
+            {
+              dag: {
+                tasks: [
+                  {
+                    name: 'copy-and-unzip-files',
+                    template: 'copy-and-unzip-files',
+                  },
+                ],
               },
-              {
-                container: {
-                  command: ['npm', 'run', 'start'],
-                  env,
-                  image: 'node:12',
-                  resources: { requests: { cpu: '100m', memory: '100M' } },
-                  volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-                  workingDir:
-                    '/usr/src/app/projects/javascript/nodejs/applications/copy-and-unzip-files/',
-                },
-                metadata: getMetadata(build, 'copy-and-unzip-files'),
-                name: 'copy-and-unzip-files',
+              metadata,
+              name: 'entrypoint',
+            },
+            {
+              container: {
+                command: ['npm', 'run', 'start'],
+                env,
+                image: 'node:12',
+                resources: { requests: { cpu: '100m', memory: '100M' } },
+                volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
+                workingDir: `${workingDir}/build/`,
               },
-            ],
-            ttlStrategy: { secondsAfterCompletion: 30 },
-            volumes: [
-              { hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' },
-            ],
-          },
+              metadata,
+              name: 'copy-and-unzip-files',
+            },
+          ],
+          ttlStrategy: { secondsAfterCompletion: 30 },
+          volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
         },
-      );
+      };
     } else {
-      await customObjects.createNamespacedCustomObject(
-        'argoproj.io',
-        'v1alpha1',
-        namespace.kubernetesNamespace,
-        'workflows',
+      manifest = {
+        apiVersion: 'argoproj.io/v1alpha1',
+        kind: 'Workflow',
+        metadata: { name },
+        spec: {
+          activeDeadlineSeconds: 60 * 60,
+          affinity,
+          entrypoint: 'entrypoint',
+          serviceAccountName: name,
+          templates: [
+            {
+              dag: {
+                tasks: [
+                  {
+                    name: 'copy-and-unzip-files',
+                    template: 'copy-and-unzip-files',
+                  },
+                ],
+              },
+              metadata,
+              name: 'entrypoint',
+            },
+            {
+              container: {
+                env,
+                image: `tenlastic/build:${version}`,
+                resources: { requests: { cpu: '100m', memory: '100M' } },
+                workingDir: '/usr/src/app/',
+              },
+              metadata,
+              name: 'copy-and-unzip-files',
+              volumeMounts: [],
+            },
+          ],
+          ttlStrategy: { secondsAfterCompletion: 30 },
+        },
+      };
+    }
+
+    if (build.platform === 'server64') {
+      manifest.spec.templates[0].dag.tasks.push({
+        dependencies: ['copy-and-unzip-files'],
+        name: 'build-docker-image',
+        template: 'build-docker-image',
+      });
+
+      manifest.spec.templates[1].container.volumeMounts.push({
+        mountPath: '/workspace/',
+        name: 'workspace',
+      });
+
+      const url = new URL(process.env.DOCKER_REGISTRY_URL);
+      const image = `${url.host}/${build.namespaceId}:${build._id}`;
+      const args = url.protocol === 'http:' ? ['--insecure', '--skip-tls-verify'] : [];
+      manifest.spec.templates.push({
+        container: {
+          args: [
+            `--dockerfile=${build.entrypoint}`,
+            '--context=dir:///workspace/',
+            `--destination=${image}`,
+            ...args,
+          ],
+          image: `gcr.io/kaniko-project/executor:v1.5.0`,
+          resources: { requests: { cpu: '100m', memory: '100M' } },
+          volumeMounts: [
+            { mountPath: '/kaniko/.docker/', name: 'kaniko', readOnly: true },
+            { mountPath: '/workspace/', name: 'workspace' },
+          ],
+        },
+        metadata,
+        name: 'build-docker-image',
+        volumes: [
+          {
+            name: 'kaniko',
+            secret: { secretName: name },
+          },
+        ],
+      });
+
+      manifest.spec.volumeClaimTemplates = [
         {
-          apiVersion: 'argoproj.io/v1alpha1',
-          kind: 'Workflow',
-          metadata: { name },
+          metadata: {
+            name: 'workspace',
+          },
           spec: {
-            activeDeadlineSeconds: 60 * 60,
-            affinity,
-            entrypoint: 'entrypoint',
-            podGC: { strategy: 'OnPodCompletion' },
-            serviceAccountName: name,
-            templates: [
-              {
-                dag: {
-                  tasks: [
-                    {
-                      name: 'copy-and-unzip-files',
-                      template: 'copy-and-unzip-files',
-                    },
-                  ],
-                },
-                metadata: getMetadata(build, 'entrypoint'),
-                name: 'entrypoint',
+            accessModes: ['ReadWriteOnce'],
+            resources: {
+              requests: {
+                storage: '10Gi',
               },
-              {
-                container: {
-                  env,
-                  image: `tenlastic/copy-and-unzip-files:${version}`,
-                  resources: { requests: { cpu: '100m', memory: '100M' } },
-                  workingDir: '/usr/src/app/',
-                },
-                metadata: getMetadata(build, 'copy-and-unzip-files'),
-                name: 'copy-and-unzip-files',
-              },
-            ],
-            ttlStrategy: { secondsAfterCompletion: 30 },
+            },
           },
         },
-      );
+      ];
     }
-  },
-  delete: async (build: BuildDocument, namespace: NamespaceDocument) => {
-    const name = KubernetesBuild.getName(build);
+
+    const response: any = await customObjects.createNamespacedCustomObject(
+      'argoproj.io',
+      'v1alpha1',
+      namespace.kubernetesNamespace,
+      'workflows',
+      manifest,
+    );
 
     /**
      * ======================
-     * RBAC
+     * OWNER REFERENCES
      * ======================
      */
-    try {
-      await rbacAuthorizationV1.deleteNamespacedRole(name, namespace.kubernetesNamespace);
-      await coreV1.deleteNamespacedServiceAccount(name, namespace.kubernetesNamespace);
-      await rbacAuthorizationV1.deleteNamespacedRoleBinding(name, namespace.kubernetesNamespace);
-    } catch {}
+    const ownerReferences = [
+      {
+        apiVersion: 'argoproj.io/v1alpha1',
+        controller: true,
+        kind: 'Workflow',
+        name,
+        uid: response.body.metadata.uid,
+      },
+    ];
+    await coreV1.patchNamespacedSecret(
+      name,
+      namespace.kubernetesNamespace,
+      { metadata: { ownerReferences } },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+    );
+    await rbacAuthorizationV1.patchNamespacedRole(
+      name,
+      namespace.kubernetesNamespace,
+      { metadata: { ownerReferences } },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+    );
+    await coreV1.patchNamespacedServiceAccount(
+      name,
+      namespace.kubernetesNamespace,
+      { metadata: { ownerReferences } },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+    );
+    await rbacAuthorizationV1.patchNamespacedRoleBinding(
+      name,
+      namespace.kubernetesNamespace,
+      { metadata: { ownerReferences } },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+    );
+  },
+  delete: async (build: BuildDocument, namespace: NamespaceDocument) => {
+    const name = KubernetesBuild.getName(build);
 
     /**
      * ======================
@@ -245,16 +365,3 @@ export const KubernetesBuild = {
     return `build-${build._id}`;
   },
 };
-
-function getMetadata(build: BuildDocument, template: string) {
-  return {
-    annotations: {
-      'tenlastic.com/buildId': build._id.toString(),
-      'tenlastic.com/nodeId': `{{ tasks.${template}.id }}`,
-    },
-    labels: {
-      app: KubernetesBuild.getName(build),
-      role: 'application',
-    },
-  };
-}

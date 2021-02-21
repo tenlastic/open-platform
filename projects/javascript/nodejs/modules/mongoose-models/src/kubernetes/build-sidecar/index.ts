@@ -12,6 +12,7 @@ kc.loadFromDefault();
 
 const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
+const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
 const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
 BuildEvent.on(async payload => {
@@ -21,12 +22,8 @@ BuildEvent.on(async payload => {
     await build.populate('namespaceDocument').execPopulate();
   }
 
-  if (payload.operationType === 'delete') {
-    await KubernetesBuildSidecar.delete(build, build.namespaceDocument);
-  } else if (payload.operationType === 'insert') {
+  if (payload.operationType === 'insert') {
     await KubernetesBuildSidecar.create(build, build.namespaceDocument);
-  } else if (payload.operationType === 'update' && build.status && build.status.finishedAt) {
-    await KubernetesBuildSidecar.delete(build, build.namespaceDocument);
   }
 });
 
@@ -35,13 +32,24 @@ export const KubernetesBuildSidecar = {
     const buildName = KubernetesBuild.getName(build);
     const name = KubernetesBuildSidecar.getName(build);
 
+    const uid = await getBuildUid(build, namespace.kubernetesNamespace);
+    const ownerReferences = [
+      {
+        apiVersion: 'argoproj.io/v1alpha1',
+        controller: true,
+        kind: 'Workflow',
+        name: buildName,
+        uid,
+      },
+    ];
+
     /**
      * ======================
      * ROLE + SERVICE ACCOUNT
      * ======================
      */
     await rbacAuthorizationV1.createNamespacedRole(namespace.kubernetesNamespace, {
-      metadata: { name },
+      metadata: { name, ownerReferences },
       rules: [
         {
           apiGroups: [''],
@@ -56,10 +64,10 @@ export const KubernetesBuildSidecar = {
       ],
     });
     await coreV1.createNamespacedServiceAccount(namespace.kubernetesNamespace, {
-      metadata: { name },
+      metadata: { name, ownerReferences },
     });
     await rbacAuthorizationV1.createNamespacedRoleBinding(namespace.kubernetesNamespace, {
-      metadata: { name },
+      metadata: { name, ownerReferences },
       roleRef: {
         apiGroup: 'rbac.authorization.k8s.io',
         kind: 'Role',
@@ -106,6 +114,7 @@ export const KubernetesBuildSidecar = {
     };
     const env = [
       { name: 'ACCESS_TOKEN', value: accessToken },
+      { name: 'LOG_CONTAINER', value: 'main' },
       { name: 'LOG_ENDPOINT', value: `http://api.default:3000/builds/${build._id}/logs` },
       { name: 'LOG_POD_LABEL_SELECTOR', value: `app=${buildName},role=application` },
       { name: 'LOG_POD_NAMESPACE', value: namespace.kubernetesNamespace },
@@ -193,6 +202,7 @@ export const KubernetesBuildSidecar = {
           role: 'sidecar',
         },
         name,
+        ownerReferences,
       },
       spec: {
         replicas: 1,
@@ -206,30 +216,24 @@ export const KubernetesBuildSidecar = {
       },
     });
   },
-  delete: async (build: BuildDocument, namespace: NamespaceDocument) => {
-    const name = KubernetesBuildSidecar.getName(build);
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    try {
-      await rbacAuthorizationV1.deleteNamespacedRole(name, namespace.kubernetesNamespace);
-      await coreV1.deleteNamespacedServiceAccount(name, namespace.kubernetesNamespace);
-      await rbacAuthorizationV1.deleteNamespacedRoleBinding(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * ======================
-     * DEPLOYMENT
-     * ======================
-     */
-    try {
-      await appsV1.deleteNamespacedDeployment(name, namespace.kubernetesNamespace);
-    } catch {}
-  },
   getName(build: BuildDocument) {
     return `build-${build._id}-sidecar`;
   },
 };
+
+async function getBuildUid(build: BuildDocument, namespace: string): Promise<string> {
+  try {
+    const response: any = await customObjects.getNamespacedCustomObject(
+      'argoproj.io',
+      'v1alpha1',
+      namespace,
+      'workflows',
+      KubernetesBuild.getName(build),
+    );
+
+    return response.body.metadata.uid;
+  } catch {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return getBuildUid(build, namespace);
+  }
+}

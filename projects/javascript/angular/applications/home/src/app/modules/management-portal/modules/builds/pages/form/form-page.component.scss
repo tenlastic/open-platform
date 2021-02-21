@@ -31,6 +31,16 @@ form {
   }
 }
 
+li.visible {
+  > div {
+    display: none;
+  }
+
+  > ul {
+    padding-inline-start: 0px;
+  }
+}
+
 mat-form-field {
   &[width='300'] {
     width: 300px;

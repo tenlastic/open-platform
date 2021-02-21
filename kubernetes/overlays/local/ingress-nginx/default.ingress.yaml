@@ -40,6 +40,16 @@ spec:
                 name: argo-ci
                 port:
                   number: 8001
+    - host: docker-registry.localhost
+      http:
+        paths:
+          - path: /v2/
+            pathType: Prefix
+            backend:
+              service:
+                name: docker-registry
+                port:
+                  number: 5000
     - host: minio.localhost
       http:
         paths:
@@ -50,16 +60,6 @@ spec:
                 name: minio
                 port:
                   number: 9000
-    - host: registry.localhost
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: docker-registry
-                port:
-                  number: 5000
     - host: wss.localhost
       http:
         paths:

@@ -18,4 +18,3 @@ export * from './social/social.component';
 export * from './text-area-dialog/text-area-dialog.component';
 export * from './title/title.component';
 export * from './toggle-section/toggle-section.component';
-export * from './workflow-status-node/workflow-status-node.component';

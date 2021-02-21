@@ -4,14 +4,16 @@ import * as requestPromiseNative from 'request-promise-native';
 import { getPodLog } from './get-pod-log';
 
 const accessToken = process.env.ACCESS_TOKEN;
+const container = process.env.LOG_CONTAINER;
 const endpoint = process.env.LOG_ENDPOINT;
 const podNamespace = process.env.LOG_POD_NAMESPACE;
 const podLabelSelector = process.env.LOG_POD_LABEL_SELECTOR;
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
-
 const coreV1Api = kc.makeApiClient(k8s.CoreV1Api);
+
+const activePodNames: string[] = [];
 
 (async function main() {
   try {
@@ -26,6 +28,7 @@ const coreV1Api = kc.makeApiClient(k8s.CoreV1Api);
     console.log(podNamespace, podLabelSelector);
 
     for (const pod of pods.body.items) {
+      activePodNames.push(pod.metadata.name);
       getLogs(pod);
     }
 
@@ -35,7 +38,8 @@ const coreV1Api = kc.makeApiClient(k8s.CoreV1Api);
       `/api/v1/namespaces/${podNamespace}/pods`,
       { labelSelector: podLabelSelector },
       (type, object) => {
-        if (type === 'ADDED') {
+        if (!activePodNames.includes(object.metadata.name)) {
+          activePodNames.push(object.metadata.name);
           getLogs(object);
         }
       },
@@ -51,27 +55,25 @@ const coreV1Api = kc.makeApiClient(k8s.CoreV1Api);
 })();
 
 async function getLogs(pod: k8s.V1Pod) {
+  console.log(`Watching logs for pod: ${pod.metadata.name}.`);
   try {
     const annotations = Object.keys(pod.metadata.annotations)
       .filter(a => a.startsWith('tenlastic.com/'))
       .reduce((previous, current) => {
         const key = current.replace('tenlastic.com/', '');
-        previous[key] = annotations[key];
+        previous[key] = pod.metadata.annotations[current];
         return previous;
       }, {});
 
-    const mostRecentLog = await getMostRecentLogCreatedAt(annotations, pod.metadata.name);
+    const mostRecentLog = await getMostRecentLogCreatedAt(annotations);
 
-    const emitter = getPodLog(
-      podNamespace,
-      pod.metadata.name,
-      pod.spec.containers[0].name,
-      mostRecentLog ? mostRecentLog : new Date(0).toISOString(),
-    );
+    const emitter = getPodLog(podNamespace, pod.metadata.name, container, mostRecentLog);
     emitter.on('data', data => saveLogs(annotations, data));
     emitter.on('error', e => {
       console.error(e);
-      process.exit(1);
+
+      const index = activePodNames.findIndex(name => name === pod.metadata.name);
+      activePodNames.splice(index, 1);
     });
   } catch (e) {
     console.error(e);
@@ -79,7 +81,7 @@ async function getLogs(pod: k8s.V1Pod) {
   }
 }
 
-async function getMostRecentLogCreatedAt(annotations: any, pod: string): Promise<any> {
+async function getMostRecentLogCreatedAt(annotations: any): Promise<any> {
   const query = { sort: '-createdAt', where: annotations };
 
   const response = await requestPromiseNative.get({
@@ -89,10 +91,12 @@ async function getMostRecentLogCreatedAt(annotations: any, pod: string): Promise
     url: endpoint,
   });
 
-  return response.records[0] ? response.records[0].createdAt : null;
+  return response.records[0] ? response.records[0].createdAt : new Date(0).toISOString();
 }
 
 async function saveLogs(annotations: any, data: any) {
+  console.log(data);
+
   try {
     await requestPromiseNative.post({
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -100,6 +104,6 @@ async function saveLogs(annotations: any, data: any) {
       url: endpoint,
     });
   } catch (e) {
-    console.error(e);
+    console.error(e.message);
   }
 }

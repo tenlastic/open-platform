@@ -34,6 +34,13 @@
          matSort
          matSortActive="publishedAt"
          matSortDirection="desc">
+    <ng-container matColumnDef="platform">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Platform</th>
+      <td mat-cell
+          *matCellDef="let element">{{ getPlatform(element.platform) }}</td>
+    </ng-container>
     <ng-container matColumnDef="version">
       <th mat-header-cell
           *matHeaderCellDef

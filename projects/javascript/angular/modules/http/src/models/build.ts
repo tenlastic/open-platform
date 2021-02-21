@@ -9,6 +9,20 @@ export namespace IBuild {
     uncompressedBytes: number;
   }
 
+  export interface Node {
+    children?: string[];
+    displayName?: string;
+    finishedAt?: Date;
+    id?: string;
+    message?: string;
+    name?: string;
+    outboundNodes?: string[];
+    phase?: string;
+    startedAt?: Date;
+    templatename?: string;
+    type?: string;
+  }
+
   export enum Platform {
     Server64 = 'server64',
     Windows64 = 'windows64',

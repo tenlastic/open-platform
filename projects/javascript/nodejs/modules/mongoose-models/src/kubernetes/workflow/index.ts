@@ -137,7 +137,7 @@ export const KubernetesWorkflow = {
       getTemplateManifest(namespace.limits.workflows, t, workflow),
     );
 
-    await customObjects.createNamespacedCustomObject(
+    const response: any = await customObjects.createNamespacedCustomObject(
       'argoproj.io',
       'v1alpha1',
       namespace.kubernetesNamespace,
@@ -181,27 +181,64 @@ export const KubernetesWorkflow = {
         },
       },
     );
+
+    /**
+     * ======================
+     * OWNER REFERENCES
+     * ======================
+     */
+    const ownerReferences = [
+      {
+        apiVersion: 'argoproj.io/v1alpha1',
+        controller: true,
+        kind: 'Workflow',
+        name,
+        uid: response.body.metadata.uid,
+      },
+    ];
+    await networkingV1.patchNamespacedNetworkPolicy(
+      name,
+      namespace.kubernetesNamespace,
+      { metadata: { ownerReferences } },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+    );
+    await rbacAuthorizationV1.patchNamespacedRole(
+      name,
+      namespace.kubernetesNamespace,
+      { metadata: { ownerReferences } },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+    );
+    await coreV1.patchNamespacedServiceAccount(
+      name,
+      namespace.kubernetesNamespace,
+      { metadata: { ownerReferences } },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+    );
+    await rbacAuthorizationV1.patchNamespacedRoleBinding(
+      name,
+      namespace.kubernetesNamespace,
+      { metadata: { ownerReferences } },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+    );
   },
   delete: async (namespace: NamespaceDocument, workflow: WorkflowDocument) => {
     const name = KubernetesWorkflow.getName(workflow);
-
-    /**
-     * ======================
-     * NETWORK POLICY
-     * ======================
-     */
-    try {
-      await networkingV1.deleteNamespacedNetworkPolicy(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    await rbacAuthorizationV1.deleteNamespacedRole(name, namespace.kubernetesNamespace);
-    await coreV1.deleteNamespacedServiceAccount(name, namespace.kubernetesNamespace);
-    await rbacAuthorizationV1.deleteNamespacedRoleBinding(name, namespace.kubernetesNamespace);
 
     /**
      * ======================

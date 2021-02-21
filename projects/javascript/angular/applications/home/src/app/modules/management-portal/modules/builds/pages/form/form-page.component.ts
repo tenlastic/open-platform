@@ -1,13 +1,13 @@
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { HttpErrorResponse, HttpEvent, HttpEventType } from '@angular/common/http';
+import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar, MatTreeNestedDataSource } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Build, BuildQuery, BuildService } from '@tenlastic/ng-http';
 import JSZip from 'jszip';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { EMPTY, Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 import {
   FileReaderService,
@@ -17,19 +17,26 @@ import {
 } from '../../../../../../core/services';
 import { UpdatedFile } from '../../components';
 
+enum Status {
+  Ready,
+  Uploading,
+  Zipping,
+}
+
 interface Progress {
   current: number;
   total: number;
 }
 
 interface StatusNode {
-  children: StatusNode[];
-}
-
-enum Status {
-  Ready,
-  Uploading,
-  Zipping,
+  children?: StatusNode[];
+  displayName?: string;
+  finishedAt?: Date;
+  message?: string;
+  name?: string;
+  phase?: string;
+  startedAt?: Date;
+  type?: string;
 }
 
 @Component({
@@ -102,10 +109,12 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
       return;
     }
 
+    const referenceId = this.form.get('reference').get('_id').value;
     const values: Partial<Build> = {
       entrypoint: this.form.get('entrypoint').value,
       namespaceId: this.form.get('namespaceId').value,
       platform: this.form.get('platform').value,
+      reference: referenceId ? this.form.get('reference').value : undefined,
       version: this.form.get('version').value,
     };
 
@@ -121,6 +130,10 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
     }
   }
 
+  public showStatusNode(node: StatusNode) {
+    return ['Pod', 'Retry', 'Workflow'].includes(node.type);
+  }
+
   private async create(data: Partial<Build>) {
     const files: UpdatedFile[] = this.form.get('files').value;
 
@@ -132,6 +145,7 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
 
     const modifiedFiles = files.filter(u => u.status === 'modified');
 
+    // Zip files.
     this.form.disable();
     this.progress = { current: 0, total: modifiedFiles.length };
     this.status = Status.Zipping;
@@ -141,7 +155,6 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
       const fileBlob = this.fileReaderService.arrayBufferToBlob(file.arrayBuffer);
       zip.file(file.path, fileBlob);
     }
-
     const zipBlob = await zip.generateAsync(
       {
         compression: 'DEFLATE',
@@ -156,26 +169,34 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
       },
     );
 
+    // Upload files.
     this.progress = { current: 0, total: zipBlob.size };
     this.status = Status.Uploading;
+    const result = await new Promise<Build>((resolve, reject) => {
+      this.buildService
+        .create(data, zipBlob)
+        .pipe(
+          catchError((err: HttpErrorResponse) => {
+            reject(err);
+            return EMPTY;
+          }),
+        )
+        .subscribe(event => {
+          const file = new File([zipBlob], 'file');
 
-    const result = await new Promise<Build>(resolve => {
-      this.buildService.create(data, zipBlob).subscribe(event => {
-        const file = new File([zipBlob], 'file');
+          switch (event.type) {
+            case HttpEventType.Sent:
+              this.progress = { current: 0, total: file.size };
+              return;
 
-        switch (event.type) {
-          case HttpEventType.Sent:
-            this.progress = { current: 0, total: file.size };
-            return;
+            case HttpEventType.UploadProgress:
+              this.progress = { current: event.loaded, total: event.total };
+              return;
 
-          case HttpEventType.UploadProgress:
-            this.progress = { current: event.loaded, total: event.total };
-            return;
-
-          case HttpEventType.Response:
-            return resolve(event.body.record);
-        }
-      });
+            case HttpEventType.Response:
+              return resolve(event.body.record);
+          }
+        });
     });
 
     this.data = new Build(result);
@@ -194,6 +215,10 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
         return e.message;
       }
     });
+
+    this.form.enable({ emitEvent: false });
+    this.progress = null;
+    this.status = Status.Ready;
   }
 
   private setupForm(): void {
@@ -204,20 +229,11 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
       files: [this.data.files || [], Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
       platform: [this.data.platform, Validators.required],
-      reference: this.formBuilder.group({
-        _id: [this.data.reference && this.data.reference._id],
-        files: [this.data.reference && this.data.reference.files],
-      }),
+      reference: this.formBuilder.group({ _id: [null], files: [[]] }),
       version: [this.data.version, Validators.required],
     });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
-
-    this.form.get('platform').valueChanges.subscribe(value => {
-      const entrypoint = this.form.get('entrypoint');
-      entrypoint.setValidators(value === 'server64' ? [] : [Validators.required]);
-      entrypoint.updateValueAndValidity();
-    });
 
     if (this.data._id) {
       this.form.get('entrypoint').disable({ emitEvent: false });

@@ -1,6 +1,8 @@
 import * as minio from '@tenlastic/minio';
 import { BuildDocument, BuildFile } from '@tenlastic/mongoose-models';
 
+const minioBucket = process.env.MINIO_BUCKET;
+
 export async function copy(build: BuildDocument, path: string, referenceBuild: BuildDocument) {
   path = path.replace(/[\.]+\//g, '');
 
@@ -8,6 +10,8 @@ export async function copy(build: BuildDocument, path: string, referenceBuild: B
   if (!referenceFile) {
     throw new Error(`Reference Build File not found: ${path}.`);
   }
+
+  console.log(`Copying file: ${path}.`);
 
   const parameters = {
     compressedBytes: referenceFile.compressedBytes,
@@ -17,10 +21,9 @@ export async function copy(build: BuildDocument, path: string, referenceBuild: B
   };
 
   // Copy the reference Build File to the new Build.
-  const bucket = process.env.MINIO_BUCKET;
   const fileKey = build.getFilePath(path);
   const referenceFileKey = referenceBuild.getFilePath(path);
-  await minio.copyObject(bucket, fileKey, `${bucket}/${referenceFileKey}`, null);
+  await minio.copyObject(minioBucket, fileKey, `${minioBucket}/${referenceFileKey}`, null);
 
   return new BuildFile(parameters);
 }

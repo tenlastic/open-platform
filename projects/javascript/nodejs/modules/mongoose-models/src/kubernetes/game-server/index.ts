@@ -1,4 +1,5 @@
 import * as k8s from '@kubernetes/client-node';
+import { URL } from 'url';
 
 import {
   GameServerDocument,

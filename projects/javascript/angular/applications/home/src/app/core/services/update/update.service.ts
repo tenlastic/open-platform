@@ -355,6 +355,10 @@ export class UpdateService {
     });
 
     this.buildService.onUpdate.subscribe(record => {
+      if (!this.status.get(record.namespaceId)) {
+        return;
+      }
+
       const game = this.status.get(record.namespaceId).game;
       const status = this.getStatus(game);
 

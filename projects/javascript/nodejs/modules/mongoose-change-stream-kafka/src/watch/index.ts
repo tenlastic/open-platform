@@ -38,7 +38,9 @@ export async function watch(
         const where = await Permissions.where(parameters.where || {}, user);
 
         if (isJsonValid(json.fullDocument, where)) {
-          const document = new Model(json.fullDocument);
+          const document = await new Model(json.fullDocument)
+            .populate(Permissions.accessControl.options.populate || [])
+            .execPopulate();
           const fullDocument = await Permissions.read(document, user);
 
           let updateDescription;

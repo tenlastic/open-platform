@@ -6,7 +6,7 @@ app-button {
 }
 
 mat-hint.mat-hint {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 mat-list.mat-list {
@@ -64,7 +64,7 @@ mat-list.mat-list {
 
 mat-spinner.mat-spinner {
   filter: drop-shadow(1px 1px 1px black);
-  margin-right: 4px;
+  margin-right: 8px;
   margin-top: -3px;
 }
 
@@ -89,14 +89,6 @@ div.display-block {
 
 div.list {
   vertical-align: top;
-
-  &:first-of-type {
-    padding-right: 8px;
-  }
-
-  &:nth-of-type(2) {
-    padding-left: 8px;
-  }
 
   mat-label,
   mat-hint {
@@ -129,9 +121,7 @@ div.row {
 
   div.col-sm-6 {
     padding: 0px;
-  }
 
-  div.list {
     &:first-of-type {
       padding-right: 8px;
     }
@@ -144,6 +134,10 @@ div.row {
 
 .justify-right {
   text-align: right;
+}
+
+.margin-bottom {
+  margin-bottom: 8px;
 }
 
 .margin-right {

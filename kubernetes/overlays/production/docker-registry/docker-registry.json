@@ -4,7 +4,7 @@
     "path": "/spec/template/spec/containers/0/env/-",
     "value": {
       "name": "REGISTRY_HTTP_HOST",
-      "value": "https://registry.tenlastic.com"
+      "value": "https://docker-registry.tenlastic.com"
     }
   }
 ]

@@ -9,9 +9,9 @@ import { KubernetesWorkflow } from '../workflow';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
-
 const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
+const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
 const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
 WorkflowEvent.on(async payload => {
@@ -21,9 +21,7 @@ WorkflowEvent.on(async payload => {
     await workflow.populate('namespaceDocument').execPopulate();
   }
 
-  if (payload.operationType === 'delete') {
-    await KubernetesWorkflowSidecar.delete(workflow.namespaceDocument, workflow);
-  } else if (payload.operationType === 'insert') {
+  if (payload.operationType === 'insert') {
     await KubernetesWorkflowSidecar.create(workflow.namespaceDocument, workflow);
   }
 });
@@ -33,13 +31,24 @@ export const KubernetesWorkflowSidecar = {
     const name = KubernetesWorkflowSidecar.getName(workflow);
     const workflowName = KubernetesWorkflow.getName(workflow);
 
+    const uid = await getWorkflowUid(namespace.kubernetesNamespace, workflow);
+    const ownerReferences = [
+      {
+        apiVersion: 'argoproj.io/v1alpha1',
+        controller: true,
+        kind: 'Workflow',
+        name: workflowName,
+        uid,
+      },
+    ];
+
     /**
      * ======================
      * ROLE + SERVICE ACCOUNT
      * ======================
      */
     await rbacAuthorizationV1.createNamespacedRole(namespace.kubernetesNamespace, {
-      metadata: { name },
+      metadata: { name, ownerReferences },
       rules: [
         {
           apiGroups: [''],
@@ -54,10 +63,10 @@ export const KubernetesWorkflowSidecar = {
       ],
     });
     await coreV1.createNamespacedServiceAccount(namespace.kubernetesNamespace, {
-      metadata: { name },
+      metadata: { name, ownerReferences },
     });
     await rbacAuthorizationV1.createNamespacedRoleBinding(namespace.kubernetesNamespace, {
-      metadata: { name },
+      metadata: { name, ownerReferences },
       roleRef: {
         apiGroup: 'rbac.authorization.k8s.io',
         kind: 'Role',
@@ -104,6 +113,7 @@ export const KubernetesWorkflowSidecar = {
     };
     const env = [
       { name: 'ACCESS_TOKEN', value: accessToken },
+      { name: 'LOG_CONTAINER', value: `main` },
       { name: 'LOG_ENDPOINT', value: `http://api.default:3000/workflows/${workflow._id}/logs` },
       { name: 'LOG_POD_LABEL_SELECTOR', value: `app=${workflowName},role=application` },
       { name: 'LOG_POD_NAMESPACE', value: namespace.kubernetesNamespace },
@@ -191,6 +201,7 @@ export const KubernetesWorkflowSidecar = {
           role: 'sidecar',
         },
         name,
+        ownerReferences,
       },
       spec: {
         replicas: 1,
@@ -204,30 +215,24 @@ export const KubernetesWorkflowSidecar = {
       },
     });
   },
-  delete: async (namespace: NamespaceDocument, workflow: WorkflowDocument) => {
-    const name = KubernetesWorkflowSidecar.getName(workflow);
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    try {
-      await rbacAuthorizationV1.deleteNamespacedRole(name, namespace.kubernetesNamespace);
-      await coreV1.deleteNamespacedServiceAccount(name, namespace.kubernetesNamespace);
-      await rbacAuthorizationV1.deleteNamespacedRoleBinding(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * ======================
-     * DEPLOYMENT
-     * ======================
-     */
-    try {
-      await appsV1.deleteNamespacedDeployment(name, namespace.kubernetesNamespace);
-    } catch {}
-  },
   getName(workflow: WorkflowDocument) {
     return `workflow-${workflow._id}-sidecar`;
   },
 };
+
+async function getWorkflowUid(namespace: string, workflow: WorkflowDocument): Promise<string> {
+  try {
+    const response: any = await customObjects.getNamespacedCustomObject(
+      'argoproj.io',
+      'v1alpha1',
+      namespace,
+      'workflows',
+      KubernetesWorkflow.getName(workflow),
+    );
+
+    return response.body.metadata.uid;
+  } catch {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return getWorkflowUid(namespace, workflow);
+  }
+}

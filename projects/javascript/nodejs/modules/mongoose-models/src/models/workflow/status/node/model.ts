@@ -13,6 +13,7 @@ export enum WorkflowStatusNodeType {
   DAG = 'DAG',
   Pod = 'Pod',
   Retry = 'Retry',
+  Skipped = 'Skipped',
 }
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })

@@ -1,0 +1,16 @@
+[
+  {
+    "op": "add",
+    "path": "/metadata/ownerReferences",
+    "value":
+      [
+        {
+          "apiVersion": "core/v1",
+          "controller": true,
+          "kind": "Pod",
+          "name": "namespace-602d1d2e8e216d0057a14225-argo-workflow-controlleqsjc7",
+          "uid": "d5db9cb1-3518-4648-bda3-12e968799821",
+        },
+      ],
+  },
+]

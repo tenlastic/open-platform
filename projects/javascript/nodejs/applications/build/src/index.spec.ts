@@ -2,6 +2,7 @@ import * as minio from '@tenlastic/minio';
 import * as mongooseModels from '@tenlastic/mongoose-models';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as sinon from 'sinon';
+import { URL } from 'url';
 
 let sandbox: sinon.SinonSandbox;
 

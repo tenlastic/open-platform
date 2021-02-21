@@ -7,8 +7,10 @@ import {
   index,
   modelOptions,
   plugin,
+  post,
   prop,
 } from '@hasezoey/typegoose';
+import * as minio from '@tenlastic/minio';
 import {
   EventEmitter,
   IDatabasePayload,
@@ -56,19 +58,23 @@ NamespaceEvent.on(async payload => {
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: BuildEvent })
 @plugin(uniqueErrorPlugin)
+@post('remove', async function(this: BuildDocument) {
+  for (const file of this.files) {
+    await minio.removeObject(process.env.MINIO_BUCKET, this.getFilePath(file.path));
+  }
+})
 export class BuildSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({
-    required(this: BuildDocument) {
-      return this.platform !== BuildPlatform.Server64;
-    },
-  })
+  @prop({ required: true })
   public entrypoint: string;
 
   @arrayProp({ items: BuildFileSchema })
   public files: BuildFileSchema[];
+
+  @prop()
+  public finishedAt: Date;
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;

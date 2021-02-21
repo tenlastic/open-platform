@@ -7,6 +7,7 @@ import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import { WebServer } from '@tenlastic/web-server';
 import * as path from 'path';
+import { URL } from 'url';
 
 import { router as articlesRouter } from './handlers/articles';
 import { router as buildLogsRouter } from './handlers/build-logs';

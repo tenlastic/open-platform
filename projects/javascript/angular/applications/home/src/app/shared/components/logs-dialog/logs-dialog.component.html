@@ -16,7 +16,8 @@
   </div>
 </div>
 
-<div class="logs-container">
+<div #container
+     class="logs-container">
   <ng-container *ngIf="(data.$logs | async).length > 0">
     <div *ngFor="let log of data.$logs | async"
          class="log"

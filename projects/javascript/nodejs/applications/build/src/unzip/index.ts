@@ -4,6 +4,8 @@ import * as crypto from 'crypto';
 import { Stream } from 'stream';
 import * as unzipper from 'unzipper';
 
+const minioBucket = process.env.MINIO_BUCKET;
+
 export async function unzip(build: BuildDocument, stream: Stream) {
   const promises = [];
 
@@ -16,6 +18,8 @@ export async function unzip(build: BuildDocument, stream: Stream) {
       entry.autodrain();
       continue;
     }
+
+    console.log(`Unzipping file: ${path}.`);
 
     const promise = saveFile(build, entry, path);
     promises.push(promise);
@@ -36,7 +40,7 @@ function getMd5FromStream(stream: Stream): Promise<string> {
 
 async function saveFile(build: BuildDocument, entry: any, path: string) {
   const hashPromise = getMd5FromStream(entry);
-  const minioPromise = minio.putObject(process.env.MINIO_BUCKET, build.getFilePath(path), entry);
+  const minioPromise = minio.putObject(minioBucket, build.getFilePath(path), entry);
 
   const [md5] = await Promise.all([hashPromise, minioPromise]);
 

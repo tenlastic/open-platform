@@ -1,8 +1,6 @@
 import * as k8s from '@kubernetes/client-node';
 import * as requestPromiseNative from 'request-promise-native';
 
-import * as state from './state';
-
 const accessToken = process.env.ACCESS_TOKEN;
 const workflowEndpoint = process.env.WORKFLOW_ENDPOINT;
 const workflowName = process.env.WORKFLOW_NAME;
@@ -53,26 +51,11 @@ const workflowNamespace = process.env.WORKFLOW_NAMESPACE;
 
 async function updateWorkflow(object: any) {
   const { status } = object;
-
-  const nodes: any[] = Object.values(status.nodes || {});
-  for (const node of nodes) {
-    if (node.type !== 'Pod' && node.type !== 'Retry') {
-      continue;
-    }
-
-    await state.setPhase(node.id, node.phase);
-  }
-
-  let finishedAt: string;
-  if (status.finishedAt && Object.values(state.state).every(v => v.isFinished)) {
-    finishedAt = status.finishedAt;
-  }
+  const nodes = Object.values(status.nodes || {});
 
   await requestPromiseNative.put({
     headers: { Authorization: `Bearer ${accessToken}` },
-    json: { status: { ...status, finishedAt, nodes } },
+    json: { status: { ...status, nodes } },
     url: workflowEndpoint,
   });
-
-  console.log('Workflow updated successfully.');
 }
