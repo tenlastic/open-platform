@@ -53,6 +53,10 @@ spec:
                 - name: revision
                   value: "{{inputs.parameters.revision}}"
 
+        - - name: bootstrap
+            template: bootstrap
+            when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
+
         - - name: continuous-integration-nodejs
             template: continuous-integration-nodejs
             when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
@@ -73,17 +77,62 @@ spec:
             template: publish-npm-modules
             when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
 
-        - - name: publish-docker-images
+        - - name: get-docker-images
+            template: get-docker-images
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
+
+        - - arguments:
+              parameters:
+                - name: context
+                  value: "{{item.location}}"
+                - name: dockerfile
+                  value: ../../Dockerfile
+                - name: image
+                  value: "{{item.name}}"
+                - name: tag
+                  value: "{{item.version}}"
+            name: publish-miscellaneous-docker-images
             template: publish-docker-images
             when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
+            withParam: "{{steps.get-docker-images.outputs.result}}"
 
         - - name: publish-electron-applications
             template: publish-electron-applications
             when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
 
-        - - name: publish-miscellaneous-docker-images
-            template: publish-miscellaneous-docker-images
+        - - arguments:
+              parameters:
+                - name: context
+                  value: "{{item.context}}"
+                - name: dockerfile
+                  value: Dockerfile
+                - name: image
+                  value: "{{item.image}}"
+                - name: tag
+                  value: "{{steps.publish-npm-modules.outputs.result}}"
+            name: publish-miscellaneous-docker-images
+            template: publish-docker-image
             when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
+            withItems:
+              - context: /workspace/dockerfiles/development-cli/
+                image: development-cli
+              - context: /workspace/dockerfiles/mongo-replica-set/
+                image: mongo-replica-set
+              - context: /workspace/dockerfiles/node-chrome-lerna/
+                image: node-chrome-lerna
+
+    - name: bootstrap
+      script:
+        image: tenlastic/node-chrome-lerna:latest
+        command: [sh]
+        source: lerna bootstrap --ci --hoist --include-dependencies --strict
+        volumeMounts:
+          - name: workspace
+            mountPath: /usr/src/
+        workingDir: /usr/src/app/projects/javascript/
+      retryStrategy:
+        limit: 2
+        retryPolicy: OnError
 
     - name: checkout
       script:
@@ -119,10 +168,13 @@ spec:
         retryPolicy: OnFailure
 
     - name: continuous-integration-angular
-      container:
+      script:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
-        args: [./.argo-ci/continuous-integration-angular.sh]
+        source: |
+          lerna run lint --ci --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
+          lerna run build --ci --concurrency 1 --include-dependencies --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
+          lerna run test --ci --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
         envFrom:
           - secretRef:
               name: ci-environment-variables
@@ -133,16 +185,19 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
-        workingDir: /usr/src/app/
+        workingDir: /usr/src/app/projects/javascript/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
 
     - name: continuous-integration-nodejs
-      container:
+      script:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
-        args: [./.argo-ci/continuous-integration-nodejs.sh]
+        source: |
+          lerna run lint --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since 
+          lerna run build --ci --include-dependencies --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since
+          lerna run test --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since
         envFrom:
           - secretRef:
               name: ci-environment-variables
@@ -153,16 +208,8 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
-        workingDir: /usr/src/app/
+        workingDir: /usr/src/app/projects/javascript/
       sidecars:
-        - name: dind
-          image: docker:19.03.8-dind
-          command:
-            - "dockerd"
-            - "--host"
-            - "tcp://0.0.0.0:2375"
-          securityContext:
-            privileged: true
         - name: docker-registry
           image: registry:latest
           command:
@@ -207,34 +254,29 @@ spec:
         limit: 2
         retryPolicy: OnError
 
-    - name: migrations
-      container:
+    - name: get-docker-images
+      script:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
-        args: [./.argo-ci/migrations.sh]
-        envFrom:
-          - secretRef:
-              name: cd-environment-variables
-        resources:
-          requests:
-            memory: 4096M
-            cpu: 500m
+        source: |
+          npm i -g json
+          lerna list --all --ignore @tenlastic/ng-* --json --scope @tenlastic/* | \
+            json -0 -c 'this.private === true' -e 'this.name = this.name.replace("@tenlastic/","")'
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
-        workingDir: /usr/src/app/
+        workingDir: /usr/src/app/projects/javascript/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
 
-    - name: publish-docker-images
-      container:
+    - name: migrations
+      script:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
-        args: [./.argo-ci/publish-docker-images.sh]
-        env:
-          - name: DOCKER_HOST
-            value: 127.0.0.1
+        source: |
+          lerna run build --ci --include-dependencies --scope @tenlastic/migrations --scope nodejs
+          npm run start
         envFrom:
           - secretRef:
               name: cd-environment-variables
@@ -245,25 +287,56 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
-        workingDir: /usr/src/app/
-      sidecars:
-        - name: dind
-          image: docker:19.03.8-dind
-          command:
-            - "dockerd"
-            - "--host"
-            - "tcp://0.0.0.0:2375"
-          securityContext:
-            privileged: true
+        workingDir: /usr/src/app/projects/javascript/nodejs/applications/migrations/
+      retryStrategy:
+        limit: 2
+        retryPolicy: OnError
+
+    - name: publish-docker-image
+      container:
+        image: gcr.io/kaniko-project/executor:v1.5.0
+        args:
+          - --dockerfile="{{inputs.parameters.dockerfile}}"
+          - --context="dir://{{inputs.parameters.context}}"
+          - --destination="tenlastic/{{inputs.parameters.image}}:{{inputs.parameters.tag}}"
+          - --destination="tenlastic/{{inputs.parameters.image}}:latest"
+          - --destination="docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:{{inputs.parameters.tag}}"
+          - --destination="docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:latest"
+          - --destination="docker-registry.tenlastic.com/{{inputs.parameters.image}}:{{inputs.parameters.tag}}"
+          - --destination="docker-registry.tenlastic.com/{{inputs.parameters.image}}:latest"
+        resources:
+          requests:
+            memory: 500M
+            cpu: 500m
+        volumeMounts:
+          - name: kaniko
+            mountPath: /kaniko/.docker/
+          - name: workspace
+            mountPath: /workspace/
+      inputs:
+        parameters:
+          - name: context
+          - name: dockerfile
+          - name: image
+          - name: tag
       retryStrategy:
         limit: 2
         retryPolicy: OnFailure
+      volumes:
+        - name: kaniko
+          secret:
+            items:
+              - key: KANIKO
+                path: config.json
+            secretName: cd-environment-variables
 
     - name: publish-electron-applications
-      container:
+      script:
         image: electronuserland/builder:wine
         command: [sh]
-        args: [./.argo-ci/publish-electron-applications.sh]
+        source: |
+          lerna run electron:install --ci
+          lerna run electron:windows --ci -- -- --publish always --win
         envFrom:
           - secretRef:
               name: cd-environment-variables
@@ -274,44 +347,41 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
-        workingDir: /usr/src/app/
-      retryStrategy:
-        limit: 2
-        retryPolicy: OnFailure
-
-    - name: publish-miscellaneous-docker-images
-      container:
-        image: docker:19.03.8
-        command: [sh]
-        args: [./.argo-ci/publish-miscellaneous-docker-images.sh]
-        env:
-          - name: DOCKER_HOST
-            value: 127.0.0.1
-        envFrom:
-          - secretRef:
-              name: cd-environment-variables
-        volumeMounts:
-          - name: workspace
-            mountPath: /usr/src/
-        workingDir: /usr/src/app/
-      sidecars:
-        - name: dind
-          image: docker:19.03.8-dind
-          command:
-            - "dockerd"
-            - "--host"
-            - "tcp://0.0.0.0:2375"
-          securityContext:
-            privileged: true
+        workingDir: /usr/src/app/projects/javascript/
       retryStrategy:
         limit: 2
         retryPolicy: OnFailure
 
     - name: publish-npm-modules
-      container:
+      script:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
-        args: [./.argo-ci/publish-npm-modules.sh]
+        source: |
+          # Add Host Key for Github.
+          mkdir -p /root/.ssh/
+          ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
+          cp /tmp/secrets/cd-ssh-keys/id_rsa /root/.ssh/id_rsa
+
+          # Update Git Credentials.
+          git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
+          git config --global gc.auto 0 || true
+          git config user.email $GITHUB_USER_EMAIL
+          git config user.name $GITHUB_USER_NAME
+
+          # Build Applications.
+          lerna run build --ci
+
+          # Publish Node Modules to NPM.
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          npm config set unsafe-perm true
+          lerna publish --ci --exact --message "javascript-v%v [skip ci]" --tag-version-prefix javascript-v --yes patch
+          npm config set unsafe-perm true
+
+          # Publish Node Modules to Github.
+          echo "@tenlastic:registry=https://npm.pkg.github.com" > ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> ~/.npmrc
+
+          lerna publish --ci --registry https://npm.pkg.github.com --yes from-package
         envFrom:
           - secretRef:
               name: cd-environment-variables
@@ -325,7 +395,7 @@ spec:
             readonly: true
           - name: workspace
             mountPath: /usr/src/
-        workingDir: /usr/src/app/
+        workingDir: /usr/src/app/projects/javascript/
       retryStrategy:
         limit: 2
         retryPolicy: OnFailure
@@ -348,17 +418,19 @@ spec:
         retryPolicy: OnFailure
 
     - name: terraform
-      container:
+      script:
         image: hashicorp/terraform:0.14.5
         command: [sh]
-        args: [./.argo-ci/terraform.sh]
+        source: |
+          terraform init
+          terraform apply -auto-approve
         envFrom:
           - secretRef:
               name: cd-environment-variables
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
-        workingDir: /usr/src/app/
+        workingDir: /usr/src/app/gcp/terraform/
       retryStrategy:
         limit: 2
         retryPolicy: OnFailure

@@ -8,8 +8,6 @@
   "version": "0.0.154",
   "scripts": {
     "build": "../../scripts/build.sh",
-    "docker:build": "../../scripts/docker-build.sh api",
-    "docker:push": "../../scripts/docker-push.sh api",
     "lint": "../../scripts/lint.sh",
     "prebuild": "./scripts/documentation.sh",
     "prestart": "./scripts/documentation.sh",
