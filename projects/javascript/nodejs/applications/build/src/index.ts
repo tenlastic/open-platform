@@ -66,6 +66,7 @@ minio.connect({
     // If building a server, download files for Docker.
     if (build.platform === 'server64') {
       for (const file of build.files) {
+        console.log(`Downloading file: ${file.path}.`);
         await minio.fGetObject(
           minioBucket,
           build.getFilePath(file.path),

@@ -146,7 +146,7 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
     const modifiedFiles = files.filter(u => u.status === 'modified');
 
     // Zip files.
-    this.form.disable();
+    this.form.disable({ emitEvent: false });
     this.progress = { current: 0, total: modifiedFiles.length };
     this.status = Status.Zipping;
 
@@ -200,7 +200,7 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
     });
 
     this.data = new Build(result);
-    this.form.enable();
+    this.form.enable({ emitEvent: false });
     this.progress = null;
     this.status = Status.Ready;
   }
