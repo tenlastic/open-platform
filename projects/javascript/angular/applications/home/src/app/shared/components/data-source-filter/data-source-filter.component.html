@@ -1,0 +1,19 @@
+<mat-form-field floatLabel="always">
+  <mat-label>
+    <ng-content></ng-content>
+  </mat-label>
+
+  <input matInput
+         autocomplete="off"
+         type="text"
+         (keyup)="setValue($event.target.value)"
+         [(ngModel)]="value" />
+
+  <app-button *ngIf="value"
+              color="accent"
+              matSuffix
+              mat-icon-button
+              (click)="clear()">
+    <mat-icon>close</mat-icon>
+  </app-button>
+</mat-form-field>

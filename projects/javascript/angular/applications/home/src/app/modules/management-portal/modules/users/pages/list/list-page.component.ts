@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import {
   MatPaginator,
   MatSort,
@@ -8,9 +8,15 @@ import {
   MatSnackBar,
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { User, UserService, WebSocketService } from '@tenlastic/ng-http';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import {
+  User,
+  UserQuery,
+  UserService,
+  WebSocket,
+  WebSocketQuery,
+  WebSocketService,
+} from '@tenlastic/ng-http';
+import { combineLatest, Observable, Subscription } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -20,28 +26,32 @@ import { TITLE } from '../../../../../../shared/constants';
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class UsersListPageComponent implements OnInit {
+export class UsersListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<User>;
 
-  public dataSource: MatTableDataSource<any>;
+  public $users: Observable<User[]>;
+  public dataSource = new MatTableDataSource<User>();
   public displayedColumns: string[] = ['webSocket', 'username', 'createdAt', 'updatedAt'];
-  public search = '';
+  public webSockets: { [key: string]: WebSocket } = {};
 
-  private subject: Subject<string> = new Subject();
-  private users: User[] = [];
+  private fetchWebSockets$ = new Subscription();
+  private updateDataSource$ = new Subscription();
+  private updateWebSockets$ = new Subscription();
 
   constructor(
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private titleService: Title,
+    private userQuery: UserQuery,
     private userService: UserService,
+    private webSocketQuery: WebSocketQuery,
     private webSocketService: WebSocketService,
   ) {}
 
-  ngOnInit() {
+  public ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Users`);
 
     if (this.identityService.user.roles.includes('users')) {
@@ -49,19 +59,12 @@ export class UsersListPageComponent implements OnInit {
     }
 
     this.fetchUsers();
-
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
-
-    this.subscribeToServices();
   }
 
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
-  }
-
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
+  public ngOnDestroy() {
+    this.fetchWebSockets$.unsubscribe();
+    this.updateDataSource$.unsubscribe();
+    this.updateWebSockets$.unsubscribe();
   }
 
   public showDeletePrompt(user: User) {
@@ -78,50 +81,29 @@ export class UsersListPageComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
         await this.userService.delete(user._id);
-        this.deleteUser(user);
-
         this.matSnackBar.open('User deleted successfully.');
       }
     });
   }
 
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-  }
-
   private async fetchUsers() {
-    this.users = await this.userService.find({ sort: 'username' });
+    this.$users = this.userQuery.selectAll();
 
-    const webSockets = await this.webSocketService.find({
-      where: { userId: { $in: this.users.map(u => u._id) } },
-    });
-    webSockets.forEach(c => {
-      const user = this.users.find(u => u._id === c.userId) as any;
-      user.webSocket = c;
+    await this.userService.find({ sort: 'username' });
+
+    this.fetchWebSockets$ = this.$users.subscribe(users =>
+      this.webSocketService.find({ where: { userId: { $in: users.map(u => u._id) } } }),
+    );
+    this.updateDataSource$ = this.$users.subscribe(users => (this.dataSource.data = users));
+    this.updateWebSockets$ = this.webSocketQuery.selectAll().subscribe(webSockets => {
+      this.webSockets = {};
+
+      for (const webSocket of webSockets) {
+        this.webSockets[webSocket.userId] = webSocket;
+      }
     });
 
-    this.dataSource = new MatTableDataSource<any>(this.users);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  private deleteUser(user: User) {
-    const index = this.dataSource.data.findIndex(u => u._id === user._id);
-    this.dataSource.data.splice(index, 1);
-
-    this.dataSource.data = [].concat(this.dataSource.data);
-    this.table.renderRows();
-  }
-
-  private subscribeToServices() {
-    this.webSocketService.onCreate.subscribe(c => {
-      const user = this.users.find(u => u._id === c.userId) as any;
-      user.webSocket = c;
-    });
-
-    this.webSocketService.onDelete.subscribe(c => {
-      const user = this.users.find(u => u._id === c.userId) as any;
-      user.webSocket = null;
-    });
   }
 }

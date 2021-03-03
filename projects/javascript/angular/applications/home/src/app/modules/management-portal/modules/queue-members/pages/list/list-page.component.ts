@@ -10,8 +10,7 @@ import {
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { QueueMember, QueueMemberQuery, QueueMemberService } from '@tenlastic/ng-http';
-import { Observable, Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -29,10 +28,8 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
   public $queueMembers: Observable<QueueMember[]>;
   public dataSource = new MatTableDataSource<QueueMember>();
   public displayedColumns: string[] = ['username', 'createdAt', 'actions'];
-  public search = '';
 
   private updateDataSource$ = new Subscription();
-  private subject: Subject<string> = new Subject();
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -47,21 +44,10 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
   public ngOnInit() {
     this.titleService.setTitle(`${TITLE} | QueueMembers`);
     this.fetchQueueMembers();
-
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
   }
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
-  }
-
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
-  }
-
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
   }
 
   public showDeletePrompt(record: QueueMember) {
@@ -83,10 +69,6 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
         this.matSnackBar.open('Queue Member deleted successfully.');
       }
     });
-  }
-
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   private async fetchQueueMembers() {

@@ -28,11 +28,5 @@ form {
 }
 
 mat-form-field {
-  &[width='300'] {
-    width: 300px;
-  }
-
-  &[width='600'] {
-    width: 600px;
-  }
+  margin-right: 16px;
 }

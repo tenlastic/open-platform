@@ -1,4 +1,5 @@
 export * from './button/button.component';
+export * from './data-source-filter/data-source-filter.component';
 export * from './form-message/form-message.component';
 export * from './group-messages/group-messages.component';
 export * from './header-toolbar/header-toolbar.component';

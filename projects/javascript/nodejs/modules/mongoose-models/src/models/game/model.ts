@@ -51,7 +51,7 @@ NamespaceEvent.on(async payload => {
   }
 });
 
-@index({ namespaceId: 1 }, { unique: true })
+@index({ namespaceId: 1 })
 @index({ subtitle: 1, title: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {

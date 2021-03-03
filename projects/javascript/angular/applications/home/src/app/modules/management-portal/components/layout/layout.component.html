@@ -6,9 +6,9 @@
     <mat-icon>layers</mat-icon>
     <span>
       {{
-        selectedNamespaceService.namespace
-          ? selectedNamespaceService.namespace.name
-          : 'Select Namespace'
+      selectedNamespaceService.namespace
+      ? selectedNamespaceService.namespace.name
+      : 'Select Namespace'
       }}
     </span>
     <mat-icon>keyboard_arrow_down</mat-icon>
@@ -154,12 +154,12 @@
           <app-button *ngIf="hasPermission('games')"
                       color="accent"
                       layout="vertical"
-                      routerLink="game-information"
+                      routerLink="games"
                       routerLinkActive="active"
                       text="left"
                       width="full">
             <mat-icon>sports_esports</mat-icon>
-            <span>Game Information</span>
+            <span>Games</span>
           </app-button>
 
           <app-button *ngIf="hasPermission('game-invitations')"

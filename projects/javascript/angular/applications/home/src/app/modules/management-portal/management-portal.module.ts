@@ -34,7 +34,7 @@ export const ROUTES: Routes = [
           import('./modules/game-servers/game-servers.module').then(m => m.GameServerModule),
       },
       {
-        path: 'game-information',
+        path: 'games',
         loadChildren: () => import('./modules/games/games.module').then(m => m.GameModule),
       },
       {

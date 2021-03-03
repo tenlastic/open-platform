@@ -131,8 +131,8 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
 
   public ngOnInit() {
     if (this.updateService) {
-      this.status = this.updateService.getStatus(this.game);
-      this.updateService.checkForUpdates(this.game);
+      this.status = this.updateService.getStatus(this.game._id);
+      this.updateService.checkForUpdates(this.game._id);
     }
 
     const { changeDetectorRef } = this;
@@ -148,8 +148,8 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
     }
 
     if (this.updateService) {
-      this.status = this.updateService.getStatus(this.game);
-      this.updateService.checkForUpdates(this.game);
+      this.status = this.updateService.getStatus(this.game._id);
+      this.updateService.checkForUpdates(this.game._id);
     }
   }
 
@@ -159,11 +159,11 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
 
   public click() {
     if (this.status.state === UpdateServiceState.Ready && this.status.childProcess) {
-      this.updateService.stop(this.game);
+      this.updateService.stop(this.game._id);
     } else if (this.status.state === UpdateServiceState.Ready && !this.status.childProcess) {
       this.router.navigate(['game-servers'], { relativeTo: this.activatedRoute });
     } else {
-      this.updateService.update(this.game);
+      this.updateService.update(this.game._id);
     }
   }
 }

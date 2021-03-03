@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import {
   MatPaginator,
   MatSort,
@@ -8,9 +8,8 @@ import {
   MatSnackBar,
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { RefreshToken, RefreshTokenService } from '@tenlastic/ng-http';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { RefreshToken, RefreshTokenQuery, RefreshTokenService } from '@tenlastic/ng-http';
+import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -20,39 +19,34 @@ import { TITLE } from '../../../../../../shared/constants';
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class RefreshTokensListPageComponent implements OnInit {
+export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<RefreshToken>;
 
-  public dataSource: MatTableDataSource<RefreshToken>;
+  public $refreshTokens: Observable<RefreshToken[]>;
+  public dataSource = new MatTableDataSource<RefreshToken>();
   public displayedColumns: string[] = ['_id', 'createdAt', 'updatedAt', 'expiresAt', 'actions'];
-  public search = '';
 
-  private subject: Subject<string> = new Subject();
+  private updateDataSource$ = new Subscription();
 
   constructor(
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private refreshTokenQuery: RefreshTokenQuery,
     private refreshTokenService: RefreshTokenService,
     private titleService: Title,
   ) {}
 
   public async ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Refresh Tokens`);
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
 
     await this.fetchRefreshTokens();
   }
 
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
-  }
-
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
+  public ngOnDestroy() {
+    this.updateDataSource$.unsubscribe();
   }
 
   public showDeletePrompt(record: RefreshToken) {
@@ -76,14 +70,15 @@ export class RefreshTokensListPageComponent implements OnInit {
     });
   }
 
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-  }
-
   private async fetchRefreshTokens() {
-    const records = await this.refreshTokenService.find({});
+    this.$refreshTokens = this.refreshTokenQuery.selectAll();
 
-    this.dataSource = new MatTableDataSource<RefreshToken>(records);
+    await this.refreshTokenService.find({});
+
+    this.updateDataSource$ = this.$refreshTokens.subscribe(
+      refreshTokens => (this.dataSource.data = refreshTokens),
+    );
+
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }

@@ -1,4 +1,5 @@
 import { Model } from './model';
+import { Game } from './game';
 import { IWorkflow } from './workflow';
 
 export namespace IBuild {
@@ -39,6 +40,8 @@ export class Build extends Model {
   public createdAt: Date;
   public entrypoint: string;
   public files: IBuild.File[];
+  public game: Game;
+  public gameId: string;
   public namespaceId: string;
   public platform: IBuild.Platform;
   public publishedAt: Date;
@@ -50,6 +53,7 @@ export class Build extends Model {
   constructor(params: Partial<Build> = {}) {
     super(params);
 
+    this.game = this.game ? new Game(this.game) : null;
     this.publishedAt = params.publishedAt ? new Date(params.publishedAt) : null;
   }
 

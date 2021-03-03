@@ -10,8 +10,6 @@ import {
 import { Title } from '@angular/platform-browser';
 import { Order } from '@datorama/akita';
 import { Queue, QueueLog, QueueLogQuery, QueueLogService, QueueService } from '@tenlastic/ng-http';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
 
 import {
   IdentityService,
@@ -32,9 +30,6 @@ export class QueuesListPageComponent implements OnInit {
 
   public dataSource: MatTableDataSource<Queue>;
   public displayedColumns: string[] = ['name', 'description', 'createdAt', 'updatedAt', 'actions'];
-  public search = '';
-
-  private subject: Subject<string> = new Subject();
 
   constructor(
     public identityService: IdentityService,
@@ -51,17 +46,6 @@ export class QueuesListPageComponent implements OnInit {
   ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Queues`);
     this.fetchQueues();
-
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
-  }
-
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
-  }
-
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
   }
 
   public showDeletePrompt(record: Queue) {
@@ -102,10 +86,6 @@ export class QueuesListPageComponent implements OnInit {
           }),
       },
     });
-  }
-
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   private async fetchQueues() {

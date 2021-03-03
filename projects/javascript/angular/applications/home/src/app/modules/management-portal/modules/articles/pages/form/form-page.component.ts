@@ -3,7 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Article, ArticleService } from '@tenlastic/ng-http';
+import { Article, ArticleService, Game, GameQuery, GameService } from '@tenlastic/ng-http';
+import { Observable } from 'rxjs';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 
@@ -12,6 +13,7 @@ import { IdentityService, SelectedNamespaceService } from '../../../../../../cor
   styleUrls: ['./form-page.component.scss'],
 })
 export class ArticlesFormPageComponent implements OnInit {
+  public $games: Observable<Game[]>;
   public data: Article;
   public errors: string[] = [];
   public form: FormGroup;
@@ -24,6 +26,8 @@ export class ArticlesFormPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private articleService: ArticleService,
     private formBuilder: FormBuilder,
+    private gameQuery: GameQuery,
+    private gameService: GameService,
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private router: Router,
@@ -36,6 +40,11 @@ export class ArticlesFormPageComponent implements OnInit {
       if (_id !== 'new') {
         this.data = await this.articleService.findOne(_id);
       }
+
+      this.$games = this.gameQuery.selectAll({
+        filterBy: g => g.namespaceId === this.selectedNamespaceService.namespaceId,
+      });
+      this.gameService.find({ where: { namespaceId: this.selectedNamespaceService.namespaceId } });
 
       this.setupForm();
     });
@@ -50,6 +59,7 @@ export class ArticlesFormPageComponent implements OnInit {
     const values: Partial<Article> = {
       body: this.form.get('body').value,
       caption: this.form.get('caption').value,
+      gameId: this.form.get('gameId').value,
       namespaceId: this.form.get('namespaceId').value,
       title: this.form.get('title').value,
       type: this.form.get('type').value,
@@ -80,6 +90,7 @@ export class ArticlesFormPageComponent implements OnInit {
     this.form = this.formBuilder.group({
       body: [this.data.body, Validators.required],
       caption: [this.data.caption],
+      gameId: [this.data.gameId, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
       title: [this.data.title, Validators.required],
       type: [this.data.type || this.types[0].value, Validators.required],

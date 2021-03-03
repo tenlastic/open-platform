@@ -17,6 +17,8 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
+import { namespaceValidator } from '../../validators';
+import { GameDocument, GameEvent } from '../game';
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { UserDocument } from '../user';
 
@@ -27,7 +29,17 @@ GameInvitationEvent.on(payload => {
   kafka.publish(payload);
 });
 
-// Delete  Game Invitations if associated Namespace is deleted.
+// Delete Game Invitations if associated Game is deleted.
+GameEvent.on(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await GameInvitation.find({ gameId: payload.fullDocument._id });
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
+  }
+});
+
+// Delete Game Invitations if associated Namespace is deleted.
 NamespaceEvent.on(async payload => {
   switch (payload.operationType) {
     case 'delete':
@@ -37,7 +49,7 @@ NamespaceEvent.on(async payload => {
   }
 });
 
-@index({ namespaceId: 1, userId: 1 }, { unique: true })
+@index({ gameId: 1, namespaceId: 1, userId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     collection: 'gameinvitations',
@@ -51,13 +63,23 @@ export class GameInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  @prop({
+    ref: 'GameSchema',
+    required: true,
+    validate: namespaceValidator('gameDocument', 'gameId'),
+  })
+  public gameId: Ref<GameDocument>;
+
+  @prop({ ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
   public updatedAt: Date;
 
   @prop({ ref: 'UserSchema', required: true })
   public userId: Ref<UserDocument>;
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: 'GameSchema' })
+  public gameDocument: GameDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;

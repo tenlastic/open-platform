@@ -21,6 +21,9 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
+import { namespaceValidator } from '../../validators';
+import { GameDocument, GameEvent } from '../game';
+import { GameInvitationDocument } from '../game-invitation';
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { WorkflowStatusSchema } from '../workflow';
 import { BuildFileSchema } from './file';
@@ -38,6 +41,16 @@ BuildEvent.on(payload => {
   kafka.publish(payload);
 });
 
+// Delete Builds if associated Game is deleted.
+GameEvent.on(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await Build.find({ gameId: payload.fullDocument._id });
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
+  }
+});
+
 // Delete Builds if associated Namespace is deleted.
 NamespaceEvent.on(async payload => {
   switch (payload.operationType) {
@@ -48,14 +61,15 @@ NamespaceEvent.on(async payload => {
   }
 });
 
-@index({ namespaceId: 1, platform: 1, version: 1 }, { unique: true })
-@modelOptions({
-  schemaOptions: {
-    collection: 'builds',
-    minimize: false,
-    timestamps: true,
+@index(
+  { gameId: 1, namespaceId: 1, platform: 1, version: 1 },
+  {
+    partialFilterExpression: { gameId: { $type: 'objectId' } },
+    unique: true,
   },
-})
+)
+@index({ namespaceId: 1, platform: 1, version: 1 }, { unique: true })
+@modelOptions({ schemaOptions: { collection: 'builds', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: BuildEvent })
 @plugin(uniqueErrorPlugin)
 @post('remove', async function(this: BuildDocument) {
@@ -72,6 +86,9 @@ export class BuildSchema implements IOriginalDocument {
 
   @arrayProp({ items: BuildFileSchema })
   public files: BuildFileSchema[];
+
+  @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
+  public gameId: Ref<GameDocument>;
 
   @prop()
   public finishedAt: Date;
@@ -95,6 +112,12 @@ export class BuildSchema implements IOriginalDocument {
   public version: string;
 
   public updatedAt: Date;
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: 'GameSchema' })
+  public gameDocument: GameDocument;
+
+  @prop({ foreignField: 'gameId', localField: 'gameId', ref: 'GameInvitationSchema' })
+  public gameInvitationDocuments: GameInvitationDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;

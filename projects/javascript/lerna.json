@@ -1,4 +1,11 @@
 {
+  "command": {
+    "bootstrap": {
+      "hoist": true,
+      "nohoist": ["**/electron*", "**/electron*/**"],
+      "strict": true
+    }
+  },
   "npmClient": "npm",
   "packages": [
     "angular/",

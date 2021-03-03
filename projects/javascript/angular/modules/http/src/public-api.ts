@@ -67,6 +67,7 @@ export * from './states/namespace';
 export * from './states/queue';
 export * from './states/queue-log';
 export * from './states/queue-member';
+export * from './states/refresh-token';
 export * from './states/user';
 export * from './states/web-socket';
 export * from './states/workflow';

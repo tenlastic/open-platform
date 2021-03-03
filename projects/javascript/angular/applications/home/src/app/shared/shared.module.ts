@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../material.module';
 import {
   ButtonComponent,
+  DataSourceFilterComponent,
   FormMessageComponent,
   GroupMessagesComponent,
   HeaderToolbarComponent,
@@ -41,6 +42,7 @@ import {
 
 const components = [
   ButtonComponent,
+  DataSourceFilterComponent,
   FormMessageComponent,
   GroupMessagesComponent,
   HeaderToolbarComponent,

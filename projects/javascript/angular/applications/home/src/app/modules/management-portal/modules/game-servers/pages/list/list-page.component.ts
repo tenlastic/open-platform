@@ -17,8 +17,7 @@ import {
   GameServerQuery,
   GameServerService,
 } from '@tenlastic/ng-http';
-import { Observable, Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
 
 import {
   IdentityService,
@@ -47,10 +46,8 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     'createdAt',
     'actions',
   ];
-  public search = '';
 
   private updateDataSource$ = new Subscription();
-  private subject: Subject<string> = new Subject();
 
   constructor(
     private gameServerLogQuery: GameServerLogQuery,
@@ -67,22 +64,12 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Game Servers`);
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
 
     await this.fetchGameServers();
   }
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
-  }
-
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
-  }
-
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
   }
 
   public async restart(record: GameServer) {
@@ -129,10 +116,6 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
           ),
       },
     });
-  }
-
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   private async fetchGameServers() {

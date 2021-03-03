@@ -4,7 +4,7 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar, MatTreeNestedDataSource } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Build, BuildQuery, BuildService } from '@tenlastic/ng-http';
+import { Build, BuildQuery, BuildService, Game, GameQuery, GameService } from '@tenlastic/ng-http';
 import JSZip from 'jszip';
 import { EMPTY, Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -45,6 +45,7 @@ interface StatusNode {
 })
 export class BuildsFormPageComponent implements OnDestroy, OnInit {
   public $data: Observable<Build>;
+  public $games: Observable<Game[]>;
   public Status = Status;
   public data: Build;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
@@ -67,6 +68,8 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
     private changeDetectorRef: ChangeDetectorRef,
     private fileReaderService: FileReaderService,
     private formBuilder: FormBuilder,
+    private gameQuery: GameQuery,
+    private gameService: GameService,
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private router: Router,
@@ -91,6 +94,11 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
         );
       }
 
+      this.$games = this.gameQuery.selectAll({
+        filterBy: g => g.namespaceId === this.selectedNamespaceService.namespaceId,
+      });
+      this.gameService.find({ where: { namespaceId: this.selectedNamespaceService.namespaceId } });
+
       this.setupForm();
     });
   }
@@ -110,11 +118,15 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
     }
 
     const referenceId = this.form.get('reference').get('_id').value;
+    const unmodifiedFiles = this.form.get('files').value.filter(f => f.status === 'unmodified');
+    const reference = { _id: referenceId, files: unmodifiedFiles.map(uf => uf.path) };
+
     const values: Partial<Build> = {
       entrypoint: this.form.get('entrypoint').value,
+      gameId: this.form.get('gameId').value || null,
       namespaceId: this.form.get('namespaceId').value,
       platform: this.form.get('platform').value,
-      reference: referenceId ? this.form.get('reference').value : undefined,
+      reference: reference._id ? reference : undefined,
       version: this.form.get('version').value,
     };
 
@@ -158,7 +170,7 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
     const zipBlob = await zip.generateAsync(
       {
         compression: 'DEFLATE',
-        compressionOptions: { level: 5 },
+        compressionOptions: { level: 3 },
         type: 'blob',
       },
       metadata => {
@@ -227,6 +239,7 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
     this.form = this.formBuilder.group({
       entrypoint: [this.data.entrypoint, Validators.required],
       files: [this.data.files || [], Validators.required],
+      gameId: [this.data.gameId],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
       platform: [this.data.platform, Validators.required],
       reference: this.formBuilder.group({ _id: [null], files: [[]] }),

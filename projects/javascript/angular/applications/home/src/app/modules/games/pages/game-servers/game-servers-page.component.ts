@@ -22,7 +22,7 @@ export class GameServersPageComponent implements OnInit {
   public $group: Observable<Group>;
   public displayedColumns = ['name', 'description', 'status', 'currentUsers', 'actions'];
   public get status() {
-    return this.updateService.getStatus(this.gameQuery.getActive() as Game);
+    return this.updateService.getStatus(this.gameQuery.getActiveId());
   }
 
   constructor(
@@ -53,13 +53,13 @@ export class GameServersPageComponent implements OnInit {
 
   public async joinAsGroup(gameServer: GameServer) {
     const group = await this.$group.pipe(take(1)).toPromise();
-    this.updateService.play(this.gameQuery.getActive() as Game, {
+    this.updateService.play(this.gameQuery.getActiveId(), {
       gameServer,
       groupId: group._id,
     });
   }
 
   public joinAsIndividual(gameServer: GameServer) {
-    this.updateService.play(this.gameQuery.getActive() as Game, { gameServer });
+    this.updateService.play(this.gameQuery.getActiveId(), { gameServer });
   }
 }

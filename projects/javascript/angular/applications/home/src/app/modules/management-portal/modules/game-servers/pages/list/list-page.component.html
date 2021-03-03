@@ -3,23 +3,11 @@
 
   <div class="row">
     <div class="col-sm-3">
-      <mat-form-field floatLabel="always">
-        <mat-label>Filter Game Servers</mat-label>
-        <input matInput
-               type="text"
-               autocomplete="off"
-               [(ngModel)]="search"
-               (keyup)="onKeyUp($event.target.value)" />
-        <button mat-button
-                *ngIf="search"
-                matSuffix
-                mat-icon-button
-                aria-label="Clear"
-                (click)="clearSearch()">
-          <mat-icon>close</mat-icon>
-        </button>
-      </mat-form-field>
+      <app-data-source-filter [dataSource]="dataSource">
+        Filter Game Servers
+      </app-data-source-filter>
     </div>
+
     <div class="offset-sm-6 col-sm-3">
       <app-button color="accent"
                   [routerLink]="['new']">

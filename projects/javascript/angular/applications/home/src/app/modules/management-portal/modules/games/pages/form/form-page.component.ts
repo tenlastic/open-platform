@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatSnackBar } from '@angular/material';
+import { ActivatedRoute } from '@angular/router';
 import { Game, GameService } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
@@ -30,6 +31,7 @@ export class GamesFormPageComponent implements OnInit {
   };
 
   constructor(
+    private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private gameService: GameService,
     public identityService: IdentityService,
@@ -39,14 +41,14 @@ export class GamesFormPageComponent implements OnInit {
   ) {}
 
   public async ngOnInit() {
-    const games = await this.gameService.find({
-      where: {
-        namespaceId: this.selectedNamespaceService.namespaceId,
-      },
-    });
+    this.activatedRoute.paramMap.subscribe(async params => {
+      const _id = params.get('_id');
+      if (_id !== 'new') {
+        this.data = await this.gameService.findOne(_id);
+      }
 
-    this.data = games[0];
-    this.setupForm();
+      this.setupForm();
+    });
   }
 
   public async onFieldChanged($event, field: string) {
@@ -161,6 +163,6 @@ export class GamesFormPageComponent implements OnInit {
       this.data = await this.gameService.create(data);
     }
 
-    this.matSnackBar.open('Game Information saved successfully.');
+    this.matSnackBar.open('Game saved successfully.');
   }
 }

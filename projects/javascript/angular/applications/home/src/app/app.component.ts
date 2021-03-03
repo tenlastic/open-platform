@@ -2,12 +2,17 @@ import { Title } from '@angular/platform-browser';
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import {
+  ArticleQuery,
   Build,
+  BuildQuery,
   BuildService,
   GameInvitation,
+  GameInvitationQuery,
   GameInvitationService,
+  GameQuery,
   GameServer,
   GameServerService,
+  GameService,
   Group,
   GroupInvitation,
   GroupInvitationService,
@@ -19,10 +24,12 @@ import {
   QueueMember,
   QueueMemberService,
   QueueService,
-  Workflow,
-  WorkflowService,
+  UserQuery,
+  UserService,
   WebSocket,
   WebSocketService,
+  Workflow,
+  WorkflowService,
 } from '@tenlastic/ng-http';
 
 import {
@@ -39,11 +46,16 @@ import { TITLE } from './shared/constants';
 })
 export class AppComponent implements OnInit {
   constructor(
+    private articleQuery: ArticleQuery,
     public backgroundService: BackgroundService,
+    private buildQuery: BuildQuery,
     private buildService: BuildService,
     private electronService: ElectronService,
+    private gameInvitationQuery: GameInvitationQuery,
     private gameInvitationService: GameInvitationService,
+    private gameQuery: GameQuery,
     private gameServerService: GameServerService,
+    private gameService: GameService,
     private groupService: GroupService,
     private groupInvitationService: GroupInvitationService,
     private identityService: IdentityService,
@@ -55,6 +67,8 @@ export class AppComponent implements OnInit {
     private router: Router,
     private socketService: SocketService,
     private titleService: Title,
+    private userQuery: UserQuery,
+    private userService: UserService,
     private webSocketService: WebSocketService,
   ) {}
 
@@ -87,6 +101,35 @@ export class AppComponent implements OnInit {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         localStorage.setItem('url', event.url);
+      }
+    });
+
+    this.fetchMissingRecords();
+  }
+
+  public fetchMissingRecords() {
+    this.articleQuery.selectAll().subscribe(records => {
+      const ids = records.map(r => r.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
+      if (ids.length > 0) {
+        this.gameService.find({ where: { _id: { $in: ids } } });
+      }
+    });
+    this.buildQuery.selectAll().subscribe(records => {
+      const ids = records.map(f => f.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
+      if (ids.length > 0) {
+        this.gameService.find({ where: { _id: { $in: ids } } });
+      }
+    });
+    this.gameInvitationQuery.selectAll().subscribe(records => {
+      const ids = records.map(f => f.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
+      if (ids.length > 0) {
+        this.gameService.find({ where: { _id: { $in: ids } } });
+      }
+    });
+    this.gameInvitationQuery.selectAll().subscribe(records => {
+      const ids = records.map(f => f.userId).filter(userId => !this.userQuery.hasEntity(userId));
+      if (ids.length > 0) {
+        this.userService.find({ where: { _id: { $in: ids } } });
       }
     });
   }

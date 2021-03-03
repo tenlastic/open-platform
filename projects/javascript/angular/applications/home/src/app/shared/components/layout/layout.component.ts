@@ -40,7 +40,7 @@ export class LayoutComponent implements OnInit {
       this.$gameInvitations = this.gameInvitationQuery.selectAll({
         filterBy: gi => gi.userId === this.identityService.user._id,
       });
-      await this.gameInvitationService.find({ where: { userId: this.identityService.user._id } });
+      this.gameInvitationService.find({ where: { userId: this.identityService.user._id } });
     }
 
     if (!this.electronService.isElectron) {

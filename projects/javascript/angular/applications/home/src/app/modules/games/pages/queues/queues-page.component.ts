@@ -57,6 +57,10 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     await this.queueService.find({ where: { namespaceId: game.namespaceId } });
 
     this.updateQueueMembers$ = this.$group.subscribe(group => {
+      if (!group) {
+        return;
+      }
+
       const $queueMembers = this.queueMemberQuery.selectAll({
         filterBy: qm =>
           (group._id && qm.groupId === group._id) || qm.userId === this.identityService.user._id,

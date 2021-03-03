@@ -9,8 +9,7 @@ import {
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { Workflow, WorkflowQuery, WorkflowService } from '@tenlastic/ng-http';
-import { Observable, Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -28,10 +27,8 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
   public $workflows: Observable<Workflow[]>;
   public dataSource = new MatTableDataSource<Workflow>();
   public displayedColumns: string[] = ['name', 'status', 'createdAt', 'updatedAt', 'actions'];
-  public search = '';
 
   private updateDataSource$ = new Subscription();
-  private subject: Subject<string> = new Subject();
 
   constructor(
     public identityService: IdentityService,
@@ -45,22 +42,11 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Workflows`);
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
-
     await this.fetchWorkflows();
   }
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
-  }
-
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
-  }
-
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
   }
 
   public showDeletePrompt(record: Workflow) {
@@ -80,10 +66,6 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
         this.matSnackBar.open('Workflow  deleted successfully.');
       }
     });
-  }
-
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   private async fetchWorkflows() {

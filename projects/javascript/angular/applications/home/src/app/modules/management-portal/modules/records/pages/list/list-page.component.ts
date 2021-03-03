@@ -10,8 +10,6 @@ import {
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { Collection, CollectionService, Record, RecordService } from '@tenlastic/ng-http';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -30,9 +28,6 @@ export class RecordsListPageComponent implements OnInit {
   public dataSource = new MatTableDataSource<Record>();
   public displayedColumns: string[];
   public propertyColumns: string[];
-  public search = '';
-
-  private subject: Subject<string> = new Subject();
 
   constructor(
     public activatedRoute: ActivatedRoute,
@@ -57,18 +52,7 @@ export class RecordsListPageComponent implements OnInit {
 
       this.titleService.setTitle(`${TITLE} | Records`);
       this.fetchRecords();
-
-      this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
     });
-  }
-
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
-  }
-
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
   }
 
   public showDeletePrompt(record: Record) {
@@ -90,10 +74,6 @@ export class RecordsListPageComponent implements OnInit {
         this.matSnackBar.open('Record deleted successfully.');
       }
     });
-  }
-
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   private async fetchRecords() {

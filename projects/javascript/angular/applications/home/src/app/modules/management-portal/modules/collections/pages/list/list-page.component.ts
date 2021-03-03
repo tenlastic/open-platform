@@ -9,8 +9,6 @@ import {
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { Collection, CollectionService } from '@tenlastic/ng-http';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -27,9 +25,6 @@ export class CollectionsListPageComponent implements OnInit {
 
   public dataSource: MatTableDataSource<Collection>;
   public displayedColumns: string[] = ['name', 'createdAt', 'updatedAt', 'actions'];
-  public search = '';
-
-  private subject: Subject<string> = new Subject();
 
   constructor(
     private collectionService: CollectionService,
@@ -43,17 +38,6 @@ export class CollectionsListPageComponent implements OnInit {
   ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Collections`);
     this.fetchCollections();
-
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
-  }
-
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
-  }
-
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
   }
 
   public showDeletePrompt(record: Collection) {
@@ -75,10 +59,6 @@ export class CollectionsListPageComponent implements OnInit {
         this.matSnackBar.open('Collection deleted successfully.');
       }
     });
-  }
-
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   private async fetchCollections() {

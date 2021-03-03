@@ -8,17 +8,8 @@ import {
   MatSnackBar,
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import {
-  GameInvitation,
-  GameInvitationQuery,
-  GameInvitationService,
-  NamespaceQuery,
-  NamespaceService,
-  UserQuery,
-  UserService,
-} from '@tenlastic/ng-http';
-import { Observable, Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { GameInvitation, GameInvitationQuery, GameInvitationService } from '@tenlastic/ng-http';
+import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -35,13 +26,9 @@ export class GameInvitationsListPageComponent implements OnDestroy, OnInit {
 
   public $gameInvitations: Observable<GameInvitation[]>;
   public dataSource = new MatTableDataSource<GameInvitation>();
-  public displayedColumns: string[] = ['user', 'createdAt', 'actions'];
-  public search = '';
+  public displayedColumns: string[] = ['game', 'user', 'createdAt', 'actions'];
 
-  private fetchGameInvitationGame$ = new Subscription();
-  private fetchGameInvitationToUser$ = new Subscription();
   private updateDataSource$ = new Subscription();
-  private subject: Subject<string> = new Subject();
 
   constructor(
     private gameInvitationQuery: GameInvitationQuery,
@@ -49,34 +36,17 @@ export class GameInvitationsListPageComponent implements OnDestroy, OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private namespaceQuery: NamespaceQuery,
-    private namespaceService: NamespaceService,
     private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
-    private userQuery: UserQuery,
-    private userService: UserService,
   ) {}
 
   public ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Game Invitations`);
     this.fetchGameInvitations();
-
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
   }
 
   public ngOnDestroy() {
-    this.fetchGameInvitationGame$.unsubscribe();
-    this.fetchGameInvitationToUser$.unsubscribe();
     this.updateDataSource$.unsubscribe();
-  }
-
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
-  }
-
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
   }
 
   public showDeletePrompt(record: GameInvitation) {
@@ -93,14 +63,9 @@ export class GameInvitationsListPageComponent implements OnDestroy, OnInit {
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
         await this.gameInvitationService.delete(record._id);
-
         this.matSnackBar.open('Game Invitation deleted successfully.');
       }
     });
-  }
-
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   private async fetchGameInvitations() {
@@ -115,24 +80,6 @@ export class GameInvitationsListPageComponent implements OnDestroy, OnInit {
       where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
-    this.fetchGameInvitationGame$ = this.$gameInvitations.subscribe(gameInvitations => {
-      const missingNamespaceIds = gameInvitations
-        .map(f => f.namespaceId)
-        .filter(namespaceId => !this.namespaceQuery.hasEntity(namespaceId));
-
-      if (missingNamespaceIds.length > 0) {
-        this.namespaceService.find({ where: { _id: { $in: missingNamespaceIds } } });
-      }
-    });
-    this.fetchGameInvitationToUser$ = this.$gameInvitations.subscribe(gameInvitations => {
-      const missingUserIds = gameInvitations
-        .map(f => f.userId)
-        .filter(userId => !this.userQuery.hasEntity(userId));
-
-      if (missingUserIds.length > 0) {
-        this.userService.find({ where: { _id: { $in: missingUserIds } } });
-      }
-    });
     this.updateDataSource$ = this.$gameInvitations.subscribe(
       gameInvitations => (this.dataSource.data = gameInvitations),
     );

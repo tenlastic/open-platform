@@ -1,14 +1,14 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import {
-  MatDialog,
   MatPaginator,
-  MatSnackBar,
   MatSort,
   MatTable,
   MatTableDataSource,
+  MatDialog,
+  MatSnackBar,
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { Article, ArticleQuery, ArticleService } from '@tenlastic/ng-http';
+import { Game, GameQuery, GameService } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
@@ -19,20 +19,20 @@ import { TITLE } from '../../../../../../shared/constants';
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class ArticlesListPageComponent implements OnDestroy, OnInit {
+export class GamesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<Article>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<Game>;
 
-  public $articles: Observable<Article[]>;
-  public dataSource = new MatTableDataSource<Article>();
-  public displayedColumns: string[] = ['game', 'title', 'publishedAt', 'createdAt', 'actions'];
+  public $games: Observable<Game[]>;
+  public dataSource = new MatTableDataSource<Game>();
+  public displayedColumns: string[] = ['title', 'subtitle', 'createdAt', 'updatedAt', 'actions'];
 
   private updateDataSource$ = new Subscription();
 
   constructor(
-    private articleQuery: ArticleQuery,
-    private articleService: ArticleService,
+    private gameQuery: GameQuery,
+    private gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
@@ -40,56 +40,46 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
     private titleService: Title,
   ) {}
 
-  public ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Articles`);
-    this.fetchArticles();
+  public async ngOnInit() {
+    this.titleService.setTitle(`${TITLE} | Games`);
+
+    await this.fetchGames();
   }
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
   }
 
-  public async publish(article: Article) {
-    return this.articleService.update({ ...article, publishedAt: new Date() });
-  }
-
-  public showDeletePrompt(record: Article) {
+  public showDeletePrompt(record: Game) {
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
           { color: 'primary', label: 'No' },
           { color: 'accent', label: 'Yes' },
         ],
-        message: `Are you sure you want to delete this Article?`,
+        message: `Are you sure you want to delete this Game?`,
       },
     });
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.articleService.delete(record._id);
-        this.matSnackBar.open('Article deleted successfully.');
+        await this.gameService.delete(record._id);
+        this.matSnackBar.open('Game deleted successfully.');
       }
     });
   }
 
-  public async unpublish(article: Article) {
-    return this.articleService.update({ ...article, publishedAt: null });
-  }
-
-  private async fetchArticles() {
-    const $articles = this.articleQuery.selectAll({
-      filterBy: article => article.namespaceId === this.selectedNamespaceService.namespaceId,
+  private async fetchGames() {
+    this.$games = this.gameQuery.selectAll({
+      filterBy: gs => gs.namespaceId === this.selectedNamespaceService.namespaceId,
     });
-    this.$articles = this.articleQuery.populate($articles);
 
-    await this.articleService.find({
-      sort: '-createdAt',
+    await this.gameService.find({
+      sort: 'name',
       where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
-    this.updateDataSource$ = this.$articles.subscribe(
-      articles => (this.dataSource.data = articles),
-    );
+    this.updateDataSource$ = this.$games.subscribe(games => (this.dataSource.data = games));
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;

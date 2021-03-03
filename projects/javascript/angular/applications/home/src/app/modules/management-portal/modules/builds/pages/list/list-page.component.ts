@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import {
   MatPaginator,
   MatSort,
@@ -8,9 +8,8 @@ import {
   MatSnackBar,
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { Build, BuildService } from '@tenlastic/ng-http';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Build, BuildQuery, BuildService } from '@tenlastic/ng-http';
+import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -20,44 +19,41 @@ import { TITLE } from '../../../../../../shared/constants';
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class BuildsListPageComponent implements OnInit {
+export class BuildsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Build>;
 
-  public dataSource: MatTableDataSource<Build>;
+  public $builds: Observable<Build[]>;
+  public dataSource = new MatTableDataSource<Build>();
   public displayedColumns: string[] = [
+    'game',
     'platform',
     'version',
     'status',
     'publishedAt',
-    'createdAt',
-    'updatedAt',
     'actions',
   ];
-  public search = '';
 
-  private subject: Subject<string> = new Subject();
+  private updateDataSource$ = new Subscription();
 
   constructor(
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private buildQuery: BuildQuery,
     private buildService: BuildService,
     private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
-  ngOnInit() {
+  public ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Builds`);
     this.fetchBuilds();
-
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
   }
 
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
+  public ngOnDestroy() {
+    this.updateDataSource$.unsubscribe();
   }
 
   public getPlatform(platform: string) {
@@ -69,16 +65,8 @@ export class BuildsListPageComponent implements OnInit {
     return map[platform];
   }
 
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
-  }
-
   public async publish(article: Build) {
-    const result = await this.buildService.update({
-      ...article,
-      publishedAt: new Date(),
-    });
-    article.publishedAt = result.publishedAt;
+    return this.buildService.update({ ...article, publishedAt: new Date() });
   }
 
   public showDeletePrompt(record: Build) {
@@ -95,41 +83,29 @@ export class BuildsListPageComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
         await this.buildService.delete(record._id);
-        this.deleteBuild(record);
-
         this.matSnackBar.open('Build deleted successfully.');
       }
     });
   }
 
   public async unpublish(article: Build) {
-    const result = await this.buildService.update({
-      ...article,
-      publishedAt: null,
-    });
-    article.publishedAt = result.publishedAt;
-  }
-
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+    return this.buildService.update({ ...article, publishedAt: null });
   }
 
   private async fetchBuilds() {
-    const records = await this.buildService.find({
-      sort: 'name',
+    const $builds = this.buildQuery.selectAll({
+      filterBy: build => build.namespaceId === this.selectedNamespaceService.namespaceId,
+    });
+    this.$builds = this.buildQuery.populate($builds);
+
+    await this.buildService.find({
+      sort: '-createdAt',
       where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
-    this.dataSource = new MatTableDataSource<Build>(records);
+    this.updateDataSource$ = this.$builds.subscribe(builds => (this.dataSource.data = builds));
+
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  private deleteBuild(record: Build) {
-    const index = this.dataSource.data.findIndex(u => u._id === record._id);
-    this.dataSource.data.splice(index, 1);
-
-    this.dataSource.data = [].concat(this.dataSource.data);
-    this.table.renderRows();
   }
 }

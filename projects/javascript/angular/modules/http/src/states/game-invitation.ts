@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { EntityState, EntityStore, QueryEntity, StoreConfig } from '@datorama/akita';
-import { Observable, combineLatest } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { GameInvitation } from '../models/game-invitation';
 import { GameInvitationService } from '../services/game-invitation/game-invitation.service';
+import { GameQuery } from './game';
 import { NamespaceQuery } from './namespace';
 import { UserQuery } from './user';
 
@@ -26,6 +27,7 @@ export class GameInvitationStore extends EntityStore<GameInvitationState, GameIn
 @Injectable({ providedIn: 'root' })
 export class GameInvitationQuery extends QueryEntity<GameInvitationState, GameInvitation> {
   constructor(
+    private gameQuery: GameQuery,
     private namespaceQuery: NamespaceQuery,
     protected store: GameInvitationStore,
     private userQuery: UserQuery,
@@ -36,13 +38,15 @@ export class GameInvitationQuery extends QueryEntity<GameInvitationState, GameIn
   public populate($input: Observable<GameInvitation[]>) {
     return combineLatest([
       $input,
+      this.gameQuery.selectAll({ asObject: true }),
       this.namespaceQuery.selectAll({ asObject: true }),
       this.userQuery.selectAll({ asObject: true }),
     ]).pipe(
-      map(([gameInvitations, namespaces, users]) => {
+      map(([gameInvitations, games, namespaces, users]) => {
         return gameInvitations.map(gameInvitation => {
           return new GameInvitation({
             ...gameInvitation,
+            game: games[gameInvitation.gameId],
             namespace: namespaces[gameInvitation.namespaceId],
             user: users[gameInvitation.userId],
           });
