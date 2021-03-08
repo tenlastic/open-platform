@@ -11,6 +11,7 @@ import {
   GameInvitationService,
   GameQuery,
   GameServer,
+  GameServerQuery,
   GameServerService,
   GameService,
   Group,
@@ -54,6 +55,7 @@ export class AppComponent implements OnInit {
     private gameInvitationQuery: GameInvitationQuery,
     private gameInvitationService: GameInvitationService,
     private gameQuery: GameQuery,
+    private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
     private gameService: GameService,
     private groupService: GroupService,
@@ -130,6 +132,12 @@ export class AppComponent implements OnInit {
       const ids = records.map(f => f.userId).filter(userId => !this.userQuery.hasEntity(userId));
       if (ids.length > 0) {
         this.userService.find({ where: { _id: { $in: ids } } });
+      }
+    });
+    this.gameServerQuery.selectAll().subscribe(records => {
+      const ids = records.map(f => f.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
+      if (ids.length > 0) {
+        this.gameService.find({ where: { _id: { $in: ids } } });
       }
     });
   }

@@ -23,12 +23,10 @@ import { BuildDocument, BuildEvent } from '../build';
 export const BuildLogEvent = new EventEmitter<IDatabasePayload<BuildLogDocument>>();
 
 // Publish changes to Kafka.
-BuildLogEvent.on(payload => {
-  kafka.publish(payload);
-});
+BuildLogEvent.sync(kafka.publish);
 
 // Delete BuildLogs if associated Game Server is deleted.
-BuildEvent.on(async payload => {
+BuildEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const buildId = payload.fullDocument._id;

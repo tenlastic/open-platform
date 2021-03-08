@@ -31,12 +31,10 @@ import { CollectionIndexSchema } from './index/index';
 export const CollectionEvent = new EventEmitter<IDatabasePayload<CollectionDocument>>();
 
 // Publish changes to Kafka.
-CollectionEvent.on(payload => {
-  kafka.publish(payload);
-});
+CollectionEvent.sync(kafka.publish);
 
 // Delete Collections if associated Namespace is deleted.
-NamespaceEvent.on(async payload => {
+NamespaceEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Collection.find({ namespaceId: payload.fullDocument._id });

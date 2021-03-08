@@ -3,59 +3,32 @@
  * Source: https://basarat.gitbooks.io/typescript/docs/tips/typed-event.html
  */
 
-type Listener<T> = (event: T) => void | Promise<any>;
+export type AsyncListener<T> = (event: T) => Promise<any>;
+export type SyncListener<T> = (event: T) => void;
 
-export interface Disposable {
-  dispose(): any;
+interface Listener<T> {
+  async: boolean;
+  listener: AsyncListener<T> | SyncListener<T>;
 }
 
 export class EventEmitter<T> {
   private listeners: Array<Listener<T>> = [];
-  private listenersOnce: Array<Listener<T>> = [];
 
   public emit = async (event?: T) => {
-    /** Update any general listeners */
     for (const listener of this.listeners) {
-      await listener(event);
-    }
-
-    /** Clear the `once` queue */
-    for (const listener of this.listenersOnce) {
-      const index = this.listeners.findIndex(l => l === listener);
-
-      if (index >= 0) {
-        this.listeners.splice(index, 1);
+      if (listener.async) {
+        await listener.listener(event);
+      } else {
+        listener.listener(event);
       }
     }
   };
 
-  public off = (listener: Listener<T>) => {
-    const listenersIndex = this.listeners.indexOf(listener);
-    const listenersOnceIndex = this.listenersOnce.indexOf(listener);
-
-    if (listenersIndex >= 0) {
-      this.listeners.splice(listenersIndex, 1);
-    }
-
-    if (listenersOnceIndex >= 0) {
-      this.listenersOnce.splice(listenersOnceIndex, 1);
-    }
+  public async = (listener: AsyncListener<T>) => {
+    this.listeners.push({ async: true, listener });
   };
 
-  public on = (listener: Listener<T>): Disposable => {
-    this.listeners.push(listener);
-
-    return {
-      dispose: () => this.off(listener),
-    };
-  };
-
-  public once = (listener: Listener<T>): void => {
-    this.listeners.push(listener);
-    this.listenersOnce.push(listener);
-  };
-
-  public pipe = (te: EventEmitter<T>): Disposable => {
-    return this.on(e => te.emit(e));
+  public sync = (listener: SyncListener<T>) => {
+    this.listeners.push({ async: false, listener });
   };
 }

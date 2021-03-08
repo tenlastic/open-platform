@@ -1,7 +1,9 @@
 import * as k8s from '@kubernetes/client-node';
 import { URL } from 'url';
 
+import { Build, BuildEvent } from '../../models/build';
 import {
+  GameServer,
   GameServerDocument,
   GameServerEvent,
   GameServerRestartEvent,
@@ -15,33 +17,74 @@ const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const networkingV1 = kc.makeApiClient(k8s.NetworkingV1Api);
 
-GameServerEvent.on(async payload => {
+BuildEvent.sync(async payload => {
+  if (
+    payload.operationType === 'delete' ||
+    (payload.operationType === 'insert' && payload.fullDocument.publishedAt) ||
+    (payload.operationType === 'update' && 'publishedAt' in payload.updateDescription.updatedFields)
+  ) {
+    const { gameId, namespaceId } = payload.fullDocument;
+
+    const build = await Build.findOne({
+      gameId,
+      namespaceId,
+      publishedAt: { $exists: true, $ne: null },
+    }).sort('-publishedAt');
+    const gameServers = await GameServer.find({
+      $or: [{ buildId: { $exists: false } }, { buildId: null }],
+      gameId,
+      namespaceId,
+    }).populate('namespaceDocument');
+
+    for (const gameServer of gameServers) {
+      await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
+
+      if (build) {
+        await KubernetesGameServer.create(build._id, gameServer, gameServer.namespaceDocument);
+      }
+    }
+  }
+});
+GameServerEvent.sync(async payload => {
   const gameServer = payload.fullDocument;
 
   if (!gameServer.populated('namespaceDocument')) {
     await gameServer.populate('namespaceDocument').execPopulate();
   }
 
+  const buildId = gameServer.buildId ? gameServer.buildId : await getBuildId(gameServer);
+  if (!buildId) {
+    await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
+    return;
+  }
+
   if (payload.operationType === 'delete') {
     await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
   } else if (payload.operationType === 'insert') {
-    await KubernetesGameServer.create(gameServer, gameServer.namespaceDocument);
-  } else if (payload.operationType === 'update') {
+    await KubernetesGameServer.create(buildId, gameServer, gameServer.namespaceDocument);
+  } else if (
+    payload.operationType === 'update' &&
+    GameServer.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
+  ) {
     await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
-    await KubernetesGameServer.create(gameServer, gameServer.namespaceDocument);
+    await KubernetesGameServer.create(buildId, gameServer, gameServer.namespaceDocument);
   }
 });
-GameServerRestartEvent.on(async gameServer => {
+GameServerRestartEvent.sync(async gameServer => {
   if (!gameServer.populated('namespaceDocument')) {
     await gameServer.populate('namespaceDocument').execPopulate();
   }
 
   await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
-  await KubernetesGameServer.create(gameServer, gameServer.namespaceDocument);
+
+  const buildId = gameServer.buildId ? gameServer.buildId : await getBuildId(gameServer);
+  if (buildId) {
+    await KubernetesGameServer.create(buildId.toString(), gameServer, gameServer.namespaceDocument);
+  }
 });
 
 export const KubernetesGameServer = {
-  create: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
+  create: async (buildId: string, gameServer: GameServerDocument, namespace: NamespaceDocument) => {
     const name = KubernetesGameServer.getName(gameServer);
 
     /**
@@ -113,7 +156,6 @@ export const KubernetesGameServer = {
           app: name,
           role: 'application',
         },
-        type: 'NodePort',
       },
     });
 
@@ -123,7 +165,7 @@ export const KubernetesGameServer = {
      * =======================
      */
     const url = new URL(process.env.DOCKER_REGISTRY_URL);
-    const image = `${url.host}/${gameServer.namespaceId}:${gameServer.buildId}`;
+    const image = `${url.host}/${gameServer.namespaceId}:${buildId}`;
 
     const affinity = {
       nodeAffinity: {
@@ -143,6 +185,10 @@ export const KubernetesGameServer = {
         },
       },
     };
+
+    const max = 32767;
+    const min = 30000;
+    const hostPort = Math.round(Math.random() * (max - min) + min);
 
     const manifest: k8s.V1PodTemplateSpec = {
       metadata: {
@@ -166,7 +212,10 @@ export const KubernetesGameServer = {
             ],
             image,
             name: 'main',
-            ports: [{ containerPort: 7777 }],
+            ports: [
+              { containerPort: 7777, hostPort, protocol: 'TCP' },
+              { containerPort: 7777, hostPort, protocol: 'UDP' },
+            ],
             resources: {
               limits: {
                 cpu: gameServer.cpu.toString(),
@@ -181,7 +230,7 @@ export const KubernetesGameServer = {
         ],
         dnsPolicy: 'Default',
         enableServiceLinks: false,
-        imagePullSecrets: [{ name: 'docker-registry-image-pull-secret' }],
+        imagePullSecrets: [{ name }],
         restartPolicy: gameServer.isPersistent ? 'Always' : 'Never',
       },
     };
@@ -208,6 +257,34 @@ export const KubernetesGameServer = {
       });
     } else {
       await coreV1.createNamespacedPod(namespace.kubernetesNamespace, manifest);
+    }
+
+    /**
+     * =======================
+     * DEVELOPMENT SERVICE
+     * =======================
+     */
+    if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
+      await coreV1.createNamespacedService(namespace.kubernetesNamespace, {
+        metadata: {
+          labels: {
+            app: name,
+            role: 'application',
+          },
+          name: `${name}-node-port`,
+        },
+        spec: {
+          ports: [
+            { name: 'tcp', nodePort: hostPort, port: 7777, protocol: 'TCP' },
+            { name: 'udp', nodePort: hostPort, port: 7777, protocol: 'UDP' },
+          ],
+          selector: {
+            app: name,
+            role: 'application',
+          },
+          type: 'NodePort',
+        },
+      });
     }
   },
   delete: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
@@ -252,8 +329,27 @@ export const KubernetesGameServer = {
     try {
       await coreV1.deleteNamespacedPod(name, namespace.kubernetesNamespace);
     } catch {}
+
+    /**
+     * =======================
+     * DEVELOPMENT SERVICE
+     * =======================
+     */
+    try {
+      await coreV1.deleteNamespacedService(`${name}-node-port`, namespace.kubernetesNamespace);
+    } catch {}
   },
   getName(gameServer: GameServerDocument) {
     return `game-server-${gameServer._id}`;
   },
 };
+
+async function getBuildId(gameServer: Partial<GameServerDocument>) {
+  const build = await Build.findOne({
+    gameId: gameServer.gameId,
+    namespaceId: gameServer.namespaceId,
+    publishedAt: { $exists: true, $ne: null },
+  }).sort('-publishedAt');
+
+  return build ? build._id : null;
+}

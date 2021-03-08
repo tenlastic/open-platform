@@ -21,12 +21,11 @@ import { UserDocument } from '../user';
 
 export const GroupEvent = new EventEmitter<IDatabasePayload<GroupDocument>>();
 
-// Publish to Kafka.
-GroupEvent.on(payload => {
-  kafka.publish(payload);
-});
+// Publish changes to Kafka.
+GroupEvent.sync(kafka.publish);
 
-GroupEvent.on(payload => {
+// Delete the group if empty.
+GroupEvent.sync(payload => {
   if (payload.operationType === 'delete') {
     return;
   }

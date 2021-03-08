@@ -23,12 +23,10 @@ import { QueueDocument, QueueEvent } from '../queue';
 export const QueueLogEvent = new EventEmitter<IDatabasePayload<QueueLogDocument>>();
 
 // Publish changes to Kafka.
-QueueLogEvent.on(payload => {
-  kafka.publish(payload);
-});
+QueueLogEvent.sync(kafka.publish);
 
 // Delete QueueLogs if associated Game Server is deleted.
-QueueEvent.on(async payload => {
+QueueEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const queueId = payload.fullDocument._id;

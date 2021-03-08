@@ -30,7 +30,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
   find: {
     default: {
       $or: [
-        { $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }] },
+        { publishedAt: { $exists: true, $ne: null } },
         {
           namespaceId: {
             $in: {

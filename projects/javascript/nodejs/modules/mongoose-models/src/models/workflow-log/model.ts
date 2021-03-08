@@ -23,12 +23,10 @@ import { WorkflowDocument, WorkflowEvent } from '../workflow';
 export const WorkflowLogEvent = new EventEmitter<IDatabasePayload<WorkflowLogDocument>>();
 
 // Publish changes to Kafka.
-WorkflowLogEvent.on(payload => {
-  kafka.publish(payload);
-});
+WorkflowLogEvent.sync(kafka.publish);
 
 // Delete WorkflowLogs if associated Game Server is deleted.
-WorkflowEvent.on(async payload => {
+WorkflowEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const workflowId = payload.fullDocument._id;

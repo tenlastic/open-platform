@@ -22,6 +22,14 @@
          matSort
          matSortActive="name"
          matSortDirection="asc">
+    <ng-container matColumnDef="game">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Game</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.game?.fullTitle }}</td>
+    </ng-container>
+
     <ng-container matColumnDef="queue">
       <th mat-header-cell
           *matHeaderCellDef
@@ -51,7 +59,7 @@
           *matHeaderCellDef
           mat-sort-header>Status</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.status | titlecase }}</td>
+          *matCellDef="let element">{{ element.status }}</td>
     </ng-container>
 
     <ng-container matColumnDef="isPersistent">

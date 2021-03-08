@@ -159,17 +159,17 @@ export class QueuesFormPageComponent implements OnInit {
     if (this.data.gameServerTemplate) {
       gameServerTemplateForm = this.formBuilder.group({
         buildId: [this.data.gameServerTemplate.buildId, Validators.required],
-        cpu: [this.data.gameServerTemplate.cpu || this.cpus[0]],
+        cpu: [this.data.gameServerTemplate.cpu || this.cpus[0].value],
         isPreemptible: [this.data.gameServerTemplate.isPreemptible || false],
-        memory: [this.data.gameServerTemplate.memory || this.memories[0]],
+        memory: [this.data.gameServerTemplate.memory || this.memories[0].value],
         metadata: this.formBuilder.array(properties),
       });
     } else {
       gameServerTemplateForm = this.formBuilder.group({
         buildId: [this.builds.length > 0 ? this.builds[0]._id : null, Validators.required],
-        cpu: [this.cpus[0]],
+        cpu: [this.cpus[0].value],
         isPreemptible: [false],
-        memory: [this.memories[0]],
+        memory: [this.memories[0].value],
         metadata: this.formBuilder.array(properties),
       });
     }

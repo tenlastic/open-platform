@@ -23,9 +23,7 @@ import { UserDocument } from '../user/model';
 export const WebSocketEvent = new EventEmitter<IDatabasePayload<WebSocketDocument>>();
 
 // Publish changes to Kafka.
-WebSocketEvent.on(payload => {
-  kafka.publish(payload);
-});
+WebSocketEvent.sync(kafka.publish);
 
 // Delete stale WebSockets.
 const HEARTBEAT = 15000;

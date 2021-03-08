@@ -51,9 +51,7 @@ export enum NamespaceRole {
 }
 
 // Publish changes to Kafka.
-NamespaceEvent.on(payload => {
-  kafka.publish(payload);
-});
+NamespaceEvent.sync(kafka.publish);
 
 @index(
   { 'keys.value': 1 },

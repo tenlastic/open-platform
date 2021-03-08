@@ -27,6 +27,18 @@ components:
             format: ^[a-f0-9]{24}$
         description:
           type: string
+        endpoints:
+          type: object
+          properties:
+            tcp:
+              type: string
+            udp:
+              type: string
+            websocket:
+              type: string
+        gameId:
+          type: string
+          format: ^[a-f0-9]{24}$
         isPersistent:
           type: boolean
         isPreemptible:

@@ -73,13 +73,13 @@ describe('BuildService', () => {
     it('updates and returns a Build', () => {
       const params = {
         _id: chance.hash(),
-        version: chance.hash(),
+        name: chance.hash(),
       };
 
       service.update(params).then(res => {
         expect(res).toEqual(jasmine.any(Build));
         expect(res._id).toEqual(params._id);
-        expect(res.version).toEqual(params.version);
+        expect(res.name).toEqual(params.name);
       });
 
       const req = httpMock.expectOne(`${service.basePath}/${params._id}`);

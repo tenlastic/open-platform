@@ -18,15 +18,16 @@
       </mat-form-field>
 
       <mat-form-field floatLabel="always">
-        <mat-label>Version</mat-label>
+        <mat-label>Name</mat-label>
         <input matInput
                required
-               formControlName="version" />
-        <mat-error>Enter a valid version.</mat-error>
+               formControlName="name" />
+        <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
     </div>
 
-    <div class="row">
+    <div *ngIf="($games | async).length"
+         class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Game</mat-label>
         <mat-select formControlName="gameId"

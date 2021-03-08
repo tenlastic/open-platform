@@ -23,9 +23,7 @@ import { UserDocument } from '../user';
 export const MessageEvent = new EventEmitter<IDatabasePayload<MessageDocument>>();
 
 // Publish changes to Kafka.
-MessageEvent.on(payload => {
-  kafka.publish(payload);
-});
+MessageEvent.sync(kafka.publish);
 
 @index({ fromUserId: 1 })
 @index({ readByUserIds: 1 })

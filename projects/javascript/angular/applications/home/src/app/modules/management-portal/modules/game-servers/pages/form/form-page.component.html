@@ -6,33 +6,46 @@
         autocomplete="off">
     <div class="row">
       <mat-form-field floatLabel="always">
-        <mat-label>Build</mat-label>
-        <mat-select required
-                    formControlName="buildId">
-          <mat-option *ngFor="let build of builds"
-                      [value]="build._id">
-            {{ build.version }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    <div class="row">
-      <mat-form-field floatLabel="always">
         <mat-label>Name</mat-label>
         <input matInput
                required
                formControlName="name" />
         <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
-    </div>
 
-    <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Description</mat-label>
         <input matInput
                formControlName="description" />
         <mat-error>Enter a valid description.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Build</mat-label>
+        <mat-select formControlName="buildId"
+                    placeholder="Latest Published Build">
+          <mat-option>Latest Published Build</mat-option>
+          <mat-option *ngFor="let build of builds"
+                      [value]="build._id">
+            {{ build.name }}
+            <ng-container *ngIf="!build.publishedAt">(Unpublished)</ng-container>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field *ngIf="games.length"
+                      floatLabel="always">
+        <mat-label>Game</mat-label>
+        <mat-select formControlName="gameId"
+                    placeholder="No Game">
+          <mat-option>No Game</mat-option>
+          <mat-option *ngFor="let game of games"
+                      [value]="game._id">
+            {{ game.fullTitle }}
+          </mat-option>
+        </mat-select>
       </mat-form-field>
     </div>
 
@@ -59,7 +72,7 @@
         <mat-label>CPU</mat-label>
         <mat-select formControlName="cpu">
           <mat-option *ngFor="let cpu of cpus"
-                      [value]="cpu">{{ cpu }}</mat-option>
+                      [value]="cpu.value">{{ cpu.label }}</mat-option>
         </mat-select>
       </mat-form-field>
 
@@ -67,7 +80,7 @@
         <mat-label>Memory</mat-label>
         <mat-select formControlName="memory">
           <mat-option *ngFor="let memory of memories"
-                      [value]="memory">{{ memory }} GB</mat-option>
+                      [value]="memory.value">{{ memory.label }}</mat-option>
         </mat-select>
       </mat-form-field>
     </div>
@@ -87,6 +100,37 @@
           <mat-icon>add</mat-icon>
           <span>Add Property</span>
         </app-button>
+      </div>
+    </app-toggle-section>
+
+    <app-toggle-section *ngIf="data._id"
+                        title="Endpoints">
+      <ng-container *ngIf="data.endpoints">
+        <mat-form-field floatLabel="always">
+          <mat-label>TCP</mat-label>
+          <input disabled
+                 matInput
+                 [value]="data.endpoints.tcp" />
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>UDP</mat-label>
+          <input disabled
+                 matInput
+                 [value]="data.endpoints.udp" />
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Websocket</mat-label>
+          <input disabled
+                 matInput
+                 [value]="data.endpoints.websocket" />
+        </mat-form-field>
+      </ng-container>
+
+      <div *ngIf="!data.endpoints"
+           class="loading">
+        <mat-spinner diameter="20"></mat-spinner> Waiting for endpoints to become active...
       </div>
     </app-toggle-section>
 

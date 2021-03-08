@@ -24,10 +24,8 @@ import { RecordPermissions } from './permissions';
 
 export const RecordEvent = new EventEmitter<IDatabasePayload<RecordDocument>>();
 
-// Send changes to Kafka.
-RecordEvent.on(payload => {
-  kafka.publish(payload);
-});
+// Publish changes to Kafka.
+RecordEvent.sync(kafka.publish);
 
 @modelOptions({
   schemaOptions: {

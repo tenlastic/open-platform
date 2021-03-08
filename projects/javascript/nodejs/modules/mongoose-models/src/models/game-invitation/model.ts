@@ -25,12 +25,10 @@ import { UserDocument } from '../user';
 export const GameInvitationEvent = new EventEmitter<IDatabasePayload<GameInvitationDocument>>();
 
 // Publish changes to Kafka.
-GameInvitationEvent.on(payload => {
-  kafka.publish(payload);
-});
+GameInvitationEvent.sync(kafka.publish);
 
 // Delete Game Invitations if associated Game is deleted.
-GameEvent.on(async payload => {
+GameEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const records = await GameInvitation.find({ gameId: payload.fullDocument._id });
@@ -40,7 +38,7 @@ GameEvent.on(async payload => {
 });
 
 // Delete Game Invitations if associated Namespace is deleted.
-NamespaceEvent.on(async payload => {
+NamespaceEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const records = await GameInvitation.find({ namespaceId: payload.fullDocument._id });

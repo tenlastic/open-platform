@@ -23,12 +23,10 @@ import { GameServerDocument, GameServerEvent } from '../game-server';
 export const GameServerLogEvent = new EventEmitter<IDatabasePayload<GameServerLogDocument>>();
 
 // Publish changes to Kafka.
-GameServerLogEvent.on(payload => {
-  kafka.publish(payload);
-});
+GameServerLogEvent.sync(kafka.publish);
 
 // Delete GameServerLogs if associated Game Server is deleted.
-GameServerEvent.on(async payload => {
+GameServerEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const gameServerId = payload.fullDocument._id;

@@ -21,9 +21,7 @@ import { UserDocument } from '../user';
 export const FriendEvent = new EventEmitter<IDatabasePayload<FriendDocument>>();
 
 // Publish changes to Kafka.
-FriendEvent.on(payload => {
-  kafka.publish(payload);
-});
+FriendEvent.sync(kafka.publish);
 
 @index({ fromUserId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({

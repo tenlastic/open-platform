@@ -3,11 +3,7 @@ import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
-import {
-  GameServerDocument,
-  GameServerEvent,
-  GameServerRestartEvent,
-} from '../../models/game-server';
+import { GameServerDocument, GameServerEvent } from '../../models/game-server';
 import { NamespaceDocument } from '../../models/namespace';
 import { KubernetesGameServer } from '../game-server';
 
@@ -18,7 +14,7 @@ const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
-GameServerEvent.on(async payload => {
+GameServerEvent.sync(async payload => {
   const gameServer = payload.fullDocument;
 
   if (!gameServer.populated('namespaceDocument')) {
@@ -29,18 +25,7 @@ GameServerEvent.on(async payload => {
     await KubernetesGameServerSidecar.delete(gameServer, gameServer.namespaceDocument);
   } else if (payload.operationType === 'insert') {
     await KubernetesGameServerSidecar.create(gameServer, gameServer.namespaceDocument);
-  } else if (payload.operationType === 'update') {
-    await KubernetesGameServerSidecar.delete(gameServer, gameServer.namespaceDocument);
-    await KubernetesGameServerSidecar.create(gameServer, gameServer.namespaceDocument);
   }
-});
-GameServerRestartEvent.on(async gameServer => {
-  if (!gameServer.populated('namespaceDocument')) {
-    await gameServer.populate('namespaceDocument').execPopulate();
-  }
-
-  await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
-  await KubernetesGameServer.create(gameServer, gameServer.namespaceDocument);
 });
 
 export const KubernetesGameServerSidecar = {
@@ -53,6 +38,16 @@ export const KubernetesGameServerSidecar = {
      * RBAC
      * ======================
      */
+    await rbacAuthorizationV1.createClusterRole({
+      metadata: { name },
+      rules: [
+        {
+          apiGroups: [''],
+          resources: ['nodes'],
+          verbs: ['get'],
+        },
+      ],
+    });
     await rbacAuthorizationV1.createNamespacedRole(namespace.kubernetesNamespace, {
       metadata: { name },
       rules: [
@@ -61,10 +56,30 @@ export const KubernetesGameServerSidecar = {
           resources: ['pods', 'pods/log', 'pods/status'],
           verbs: ['get', 'list', 'watch'],
         },
+        {
+          apiGroups: [''],
+          resources: ['nodes'],
+          verbs: ['get'],
+        },
       ],
     });
     await coreV1.createNamespacedServiceAccount(namespace.kubernetesNamespace, {
       metadata: { name },
+    });
+    await rbacAuthorizationV1.createClusterRoleBinding({
+      metadata: { name },
+      roleRef: {
+        apiGroup: 'rbac.authorization.k8s.io',
+        kind: 'ClusterRole',
+        name,
+      },
+      subjects: [
+        {
+          kind: 'ServiceAccount',
+          name,
+          namespace: namespace.kubernetesNamespace,
+        },
+      ],
     });
     await rbacAuthorizationV1.createNamespacedRoleBinding(namespace.kubernetesNamespace, {
       metadata: { name },
@@ -117,6 +132,16 @@ export const KubernetesGameServerSidecar = {
     };
     const env = [
       { name: 'ACCESS_TOKEN', value: accessToken },
+      { name: 'GAME_SERVER_CONTAINER', value: 'main' },
+      {
+        name: 'GAME_SERVER_ENDPOINT',
+        value: `http://api.default:3000/game-servers/${gameServer._id}`,
+      },
+      {
+        name: 'GAME_SERVER_POD_LABEL_SELECTOR',
+        value: `app=${gameServerName},role=application`,
+      },
+      { name: 'GAME_SERVER_POD_NAMESPACE', value: namespace.kubernetesNamespace },
       { name: 'LOG_CONTAINER', value: 'main' },
       {
         name: 'LOG_ENDPOINT',
@@ -148,18 +173,18 @@ export const KubernetesGameServerSidecar = {
               command: ['npm', 'run', 'start'],
               env,
               image: 'node:12',
-              name: 'game-server-status-sidecar',
-              resources: { requests: { cpu: '50m', memory: '64M' } },
+              name: 'game-server-sidecar',
+              resources: { requests: { cpu: '50m', memory: '50M' } },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
               workingDir:
-                '/usr/src/app/projects/javascript/nodejs/applications/game-server-status-sidecar/',
+                '/usr/src/app/projects/javascript/nodejs/applications/game-server-sidecar/',
             },
             {
               command: ['npm', 'run', 'start'],
               env,
               image: 'node:12',
-              name: 'logs',
-              resources: { requests: { cpu: '50m', memory: '64M' } },
+              name: 'log-sidecar',
+              resources: { requests: { cpu: '50m', memory: '50M' } },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
               workingDir: '/usr/src/app/projects/javascript/nodejs/applications/log-sidecar/',
             },
@@ -182,15 +207,15 @@ export const KubernetesGameServerSidecar = {
           containers: [
             {
               env,
-              image: `tenlastic/game-server-status-sidecar:${version}`,
-              name: 'game-server-status-sidecar',
-              resources: { requests: { cpu: '50m', memory: '64M' } },
+              image: `tenlastic/game-server-sidecar:${version}`,
+              name: 'game-server-sidecar',
+              resources: { requests: { cpu: '50m', memory: '50M' } },
             },
             {
               env,
               image: `tenlastic/log-sidecar:${version}`,
               name: 'log-sidecar',
-              resources: { requests: { cpu: '50m', memory: '64M' } },
+              resources: { requests: { cpu: '50m', memory: '50M' } },
             },
           ],
           serviceAccountName: name,
@@ -227,8 +252,10 @@ export const KubernetesGameServerSidecar = {
      * ======================
      */
     try {
+      await rbacAuthorizationV1.deleteClusterRole(name);
       await rbacAuthorizationV1.deleteNamespacedRole(name, namespace.kubernetesNamespace);
       await coreV1.deleteNamespacedServiceAccount(name, namespace.kubernetesNamespace);
+      await rbacAuthorizationV1.deleteClusterRoleBinding(name);
       await rbacAuthorizationV1.deleteNamespacedRoleBinding(name, namespace.kubernetesNamespace);
     } catch {}
 

@@ -23,12 +23,10 @@ import { NamespaceDocument, NamespaceEvent } from '../namespace';
 export const ArticleEvent = new EventEmitter<IDatabasePayload<ArticleDocument>>();
 
 // Publish changes to Kafka.
-ArticleEvent.on(payload => {
-  kafka.publish(payload);
-});
+ArticleEvent.sync(kafka.publish);
 
 // Delete Articles if associated Game is deleted.
-GameEvent.on(async payload => {
+GameEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Article.find({ gameId: payload.fullDocument._id });
@@ -38,7 +36,7 @@ GameEvent.on(async payload => {
 });
 
 // Delete Articles if associated Namespace is deleted.
-NamespaceEvent.on(async payload => {
+NamespaceEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Article.find({ namespaceId: payload.fullDocument._id });

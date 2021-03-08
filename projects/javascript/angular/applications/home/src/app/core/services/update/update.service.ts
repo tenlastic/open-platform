@@ -110,9 +110,9 @@ export class UpdateService {
     const builds = await this.buildService.find({
       sort: '-publishedAt',
       where: {
-        $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
         gameId,
         platform: this.platform,
+        publishedAt: { $exists: true, $ne: null },
       },
     });
     if (builds.length === 0) {

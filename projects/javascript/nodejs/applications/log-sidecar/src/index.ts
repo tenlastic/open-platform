@@ -11,36 +11,20 @@ const podLabelSelector = process.env.LOG_POD_LABEL_SELECTOR;
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
-const coreV1Api = kc.makeApiClient(k8s.CoreV1Api);
 
 const activePodNames: string[] = [];
 
 (async function main() {
   try {
-    const pods = await coreV1Api.listNamespacedPod(
-      podNamespace,
-      null,
-      null,
-      null,
-      null,
-      podLabelSelector,
-    );
-    console.log(podNamespace, podLabelSelector);
-
-    for (const pod of pods.body.items) {
-      activePodNames.push(pod.metadata.name);
-      getLogs(pod);
-    }
-
     // Watch for new Pods.
     const watch = new k8s.Watch(kc);
     watch.watch(
       `/api/v1/namespaces/${podNamespace}/pods`,
       { labelSelector: podLabelSelector },
-      (type, object) => {
-        if (!activePodNames.includes(object.metadata.name)) {
-          activePodNames.push(object.metadata.name);
-          getLogs(object);
+      (type, pod: k8s.V1Pod) => {
+        if (!activePodNames.includes(pod.metadata.name)) {
+          activePodNames.push(pod.metadata.name);
+          getLogs(pod);
         }
       },
       err => {
@@ -56,6 +40,7 @@ const activePodNames: string[] = [];
 
 async function getLogs(pod: k8s.V1Pod) {
   console.log(`Watching logs for pod: ${pod.metadata.name}.`);
+
   try {
     const annotations = Object.keys(pod.metadata.annotations)
       .filter(a => a.startsWith('tenlastic.com/'))

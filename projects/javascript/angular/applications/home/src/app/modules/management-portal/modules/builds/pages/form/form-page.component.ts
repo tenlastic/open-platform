@@ -1,6 +1,6 @@
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar, MatTreeNestedDataSource } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -13,7 +13,6 @@ import {
   FileReaderService,
   IdentityService,
   SelectedNamespaceService,
-  SocketService,
 } from '../../../../../../core/services';
 import { UpdatedFile } from '../../components';
 
@@ -43,7 +42,7 @@ interface StatusNode {
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
-export class BuildsFormPageComponent implements OnDestroy, OnInit {
+export class BuildsFormPageComponent implements OnInit {
   public $data: Observable<Build>;
   public $games: Observable<Game[]>;
   public Status = Status;
@@ -59,8 +58,6 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
   public status = Status.Ready;
   public treeControl = new NestedTreeControl<StatusNode>(node => node.children);
 
-  private buildSubscriptionId: string;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private buildQuery: BuildQuery,
@@ -74,7 +71,6 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
     private matSnackBar: MatSnackBar,
     private router: Router,
     private selectedNamespaceService: SelectedNamespaceService,
-    private socketService: SocketService,
   ) {}
 
   public ngOnInit() {
@@ -83,15 +79,6 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
       if (_id !== 'new') {
         this.data = await this.buildService.findOne(_id);
         this.dataSource.data = this.data.getNestedStatusNodes();
-
-        this.buildSubscriptionId = this.socketService.subscribe(
-          'builds',
-          Build,
-          this.buildService,
-          {
-            _id: { $eq: _id },
-          },
-        );
       }
 
       this.$games = this.gameQuery.selectAll({
@@ -101,10 +88,6 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
 
       this.setupForm();
     });
-  }
-
-  public ngOnDestroy() {
-    this.socketService.unsubscribe(this.buildSubscriptionId);
   }
 
   public hasChild(_: number, node: StatusNode) {
@@ -124,10 +107,10 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
     const values: Partial<Build> = {
       entrypoint: this.form.get('entrypoint').value,
       gameId: this.form.get('gameId').value || null,
+      name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
       platform: this.form.get('platform').value,
       reference: reference._id ? reference : undefined,
-      version: this.form.get('version').value,
     };
 
     try {
@@ -135,9 +118,9 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
     } catch (e) {
       this.handleHttpError(e, {
         entrypoint: 'Entrypoint',
+        name: 'Name',
         namespaceId: 'Namespace',
         platform: 'Platform',
-        version: 'Version',
       });
     }
   }
@@ -240,10 +223,10 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
       entrypoint: [this.data.entrypoint, Validators.required],
       files: [this.data.files || [], Validators.required],
       gameId: [this.data.gameId],
+      name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
       platform: [this.data.platform, Validators.required],
       reference: this.formBuilder.group({ _id: [null], files: [[]] }),
-      version: [this.data.version, Validators.required],
     });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
@@ -254,7 +237,7 @@ export class BuildsFormPageComponent implements OnDestroy, OnInit {
       this.form.get('platform').disable({ emitEvent: false });
       this.form.get('reference').disable({ emitEvent: false });
 
-      this.$data = this.buildQuery.selectAll({ filterBy: w => w._id === this.data._id }).pipe(
+      this.$data = this.buildQuery.selectAll({ filterBy: b => b._id === this.data._id }).pipe(
         map(builds => {
           const build = new Build(builds[0]);
           build.status = build.status || { nodes: [], phase: 'Pending' };

@@ -14,7 +14,7 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
 const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
-WorkflowEvent.on(async payload => {
+WorkflowEvent.sync(async payload => {
   const workflow = payload.fullDocument;
 
   if (!workflow.populated('namespaceDocument')) {

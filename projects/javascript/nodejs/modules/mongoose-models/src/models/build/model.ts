@@ -37,12 +37,10 @@ export enum BuildPlatform {
 }
 
 // Publish changes to Kafka.
-BuildEvent.on(payload => {
-  kafka.publish(payload);
-});
+BuildEvent.sync(kafka.publish);
 
 // Delete Builds if associated Game is deleted.
-GameEvent.on(async payload => {
+GameEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Build.find({ gameId: payload.fullDocument._id });
@@ -52,7 +50,7 @@ GameEvent.on(async payload => {
 });
 
 // Delete Builds if associated Namespace is deleted.
-NamespaceEvent.on(async payload => {
+NamespaceEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Build.find({ namespaceId: payload.fullDocument._id });
@@ -62,13 +60,13 @@ NamespaceEvent.on(async payload => {
 });
 
 @index(
-  { gameId: 1, namespaceId: 1, platform: 1, version: 1 },
+  { gameId: 1, name: 1, namespaceId: 1, platform: 1 },
   {
     partialFilterExpression: { gameId: { $type: 'objectId' } },
     unique: true,
   },
 )
-@index({ namespaceId: 1, platform: 1, version: 1 }, { unique: true })
+@index({ name: 1, namespaceId: 1, platform: 1 }, { unique: true })
 @modelOptions({ schemaOptions: { collection: 'builds', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: BuildEvent })
 @plugin(uniqueErrorPlugin)
@@ -93,6 +91,9 @@ export class BuildSchema implements IOriginalDocument {
   @prop()
   public finishedAt: Date;
 
+  @prop({ required: true })
+  public name: string;
+
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
@@ -107,9 +108,6 @@ export class BuildSchema implements IOriginalDocument {
 
   @prop()
   public status: WorkflowStatusSchema;
-
-  @prop({ required: true })
-  public version: string;
 
   public updatedAt: Date;
 

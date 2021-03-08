@@ -28,8 +28,8 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
   public dataSource = new MatTableDataSource<Build>();
   public displayedColumns: string[] = [
     'game',
+    'name',
     'platform',
-    'version',
     'status',
     'publishedAt',
     'actions',

@@ -15,7 +15,7 @@ const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
 const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
 
-BuildEvent.on(async payload => {
+BuildEvent.sync(async payload => {
   const build = payload.fullDocument;
 
   if (!build.populated('namespaceDocument')) {

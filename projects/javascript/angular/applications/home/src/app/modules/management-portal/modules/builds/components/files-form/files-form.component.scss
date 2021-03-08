@@ -57,6 +57,11 @@ mat-list.mat-list {
             text-overflow: ellipsis;
           }
         }
+
+        span:only-of-type {
+          text-align: center;
+          width: 100%;
+        }
       }
     }
   }

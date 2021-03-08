@@ -51,12 +51,10 @@ export class QueueMemberUniquenessError extends Error {
 export const QueueMemberEvent = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
 
 // Publish changes to Kafka.
-QueueMemberEvent.on(payload => {
-  kafka.publish(payload);
-});
+QueueMemberEvent.sync(kafka.publish);
 
 // Delete QueueMember when associated Group is deleted or updated.
-GroupEvent.on(async payload => {
+GroupEvent.sync(async payload => {
   if (payload.operationType === 'insert') {
     return;
   }
@@ -66,7 +64,7 @@ GroupEvent.on(async payload => {
 });
 
 // Delete QueueMember when associated WebSocket is deleted.
-WebSocketEvent.on(async payload => {
+WebSocketEvent.sync(async payload => {
   if (payload.operationType !== 'delete') {
     return;
   }

@@ -23,12 +23,10 @@ import { WorkflowStatusSchema } from './status';
 export const WorkflowEvent = new EventEmitter<IDatabasePayload<WorkflowDocument>>();
 
 // Publish changes to Kafka.
-WorkflowEvent.on(payload => {
-  kafka.publish(payload);
-});
+WorkflowEvent.sync(kafka.publish);
 
 // Delete Workflows if associated Namespace is deleted.
-NamespaceEvent.on(async payload => {
+NamespaceEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Workflow.find({ namespaceId: payload.fullDocument._id });

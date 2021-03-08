@@ -32,9 +32,9 @@ export class BuildMock {
 
     const defaults = {
       entrypoint: chance.hash(),
+      name: chance.hash(),
       namespaceId: mongoose.Types.ObjectId(),
       platform: this.getPlatform(),
-      version: chance.hash(),
     };
 
     return new Build({ ...defaults, ...params });

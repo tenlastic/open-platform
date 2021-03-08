@@ -19,26 +19,30 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
+import { namespaceValidator } from '../../validators';
+import { BuildDocument } from '../build';
+import { GameDocument } from '../game';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 import { QueueDocument } from '../queue';
 import { UserDocument } from '../user';
+import { GameServerEndpointsSchema } from './endpoints';
 
 export enum GameServerStatus {
-  Running = 'running',
-  Terminated = 'terminated',
-  Waiting = 'waiting',
+  Failed = 'Failed',
+  Pending = 'Pending',
+  Running = 'Running',
+  Succeeded = 'Succeeded',
+  Unknown = 'Unknown',
 }
 
 export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
 export const GameServerRestartEvent = new EventEmitter<GameServerDocument>();
 
 // Publish changes to Kafka.
-GameServerEvent.on(payload => {
-  kafka.publish(payload);
-});
+GameServerEvent.sync(kafka.publish);
 
 // Delete Game Servers if associated Namespace is deleted.
-NamespaceEvent.on(async payload => {
+NamespaceEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const records = await GameServer.find({ namespaceId: payload.fullDocument._id });
@@ -51,19 +55,11 @@ NamespaceEvent.on(async payload => {
 @index(
   { allowedUserIds: 1, namespaceId: 1 },
   {
-    partialFilterExpression: {
-      queueId: { $exists: true },
-    },
+    partialFilterExpression: { queueId: { $exists: true } },
     unique: true,
   },
 )
-@modelOptions({
-  schemaOptions: {
-    collection: 'gameservers',
-    minimize: false,
-    timestamps: true,
-  },
-})
+@modelOptions({ schemaOptions: { collection: 'gameservers', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameServerEvent })
 @plugin(uniqueErrorPlugin)
 export class GameServerSchema implements IOriginalDocument {
@@ -72,8 +68,8 @@ export class GameServerSchema implements IOriginalDocument {
   @arrayProp({ itemsRef: 'UserSchema' })
   public allowedUserIds: Array<Ref<UserDocument>>;
 
-  @prop({ required: true })
-  public buildId: mongoose.Types.ObjectId;
+  @prop({ ref: 'BuildSchema' })
+  public buildId: Ref<BuildDocument>;
 
   @prop({ required: true })
   public cpu: number;
@@ -85,6 +81,12 @@ export class GameServerSchema implements IOriginalDocument {
 
   @prop()
   public description: string;
+
+  @prop()
+  public endpoints: GameServerEndpointsSchema;
+
+  @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
+  public gameId: Ref<GameDocument>;
 
   @prop()
   public isPersistent: boolean;
@@ -110,7 +112,7 @@ export class GameServerSchema implements IOriginalDocument {
   @prop({ ref: 'QueueSchema' })
   public queueId: Ref<QueueDocument>;
 
-  @prop({ default: GameServerStatus.Waiting, enum: GameServerStatus })
+  @prop({ default: GameServerStatus.Pending, enum: GameServerStatus })
   public status: GameServerStatus;
 
   public updatedAt: Date;
@@ -120,6 +122,9 @@ export class GameServerSchema implements IOriginalDocument {
 
   @prop({ foreignField: '_id', justOne: false, localField: 'currentUserIds', ref: 'UserSchema' })
   public currentUserDocuments: UserDocument[];
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: 'GameSchema' })
+  public gameDocument: GameDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
@@ -179,10 +184,19 @@ export class GameServerSchema implements IOriginalDocument {
   }
 
   /**
-   * Returns a random port.
+   * Returns true if a restart is required on an update.
    */
-  public getRandomPort(max = 65535, min = 60000) {
-    return Math.round(Math.random() * (max - min) + min);
+  public static isRestartRequired(fields: string[]) {
+    const immutableFields = [
+      'buildId',
+      'cpu',
+      'isPersistent',
+      'isPreemptible',
+      'memory',
+      'metadata',
+    ];
+
+    return immutableFields.some(i => fields.includes(i));
   }
 
   /**

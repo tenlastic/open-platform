@@ -24,12 +24,10 @@ import { NamespaceDocument, NamespaceEvent } from '../namespace';
 export const GameEvent = new EventEmitter<IDatabasePayload<GameDocument>>();
 
 // Publish changes to Kafka.
-GameEvent.on(payload => {
-  kafka.publish(payload);
-});
+GameEvent.sync(kafka.publish);
 
 // Delete unused images and videos on update.
-GameEvent.on(async payload => {
+GameEvent.sync(async payload => {
   const game = payload.fullDocument;
 
   switch (payload.operationType) {
@@ -42,7 +40,7 @@ GameEvent.on(async payload => {
 });
 
 // Delete Games if associated Namespace is deleted.
-NamespaceEvent.on(async payload => {
+NamespaceEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Game.find({ namespaceId: payload.fullDocument._id });

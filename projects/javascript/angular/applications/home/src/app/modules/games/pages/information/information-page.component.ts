@@ -59,8 +59,8 @@ export class InformationPageComponent implements OnInit {
       this.articles = await this.articleService.find({
         sort: '-publishedAt',
         where: {
-          $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
           namespaceId: this.game.namespaceId,
+          publishedAt: { $exists: true, $ne: null },
         },
       });
 

@@ -58,7 +58,7 @@
                       formControlName="buildId">
             <mat-option *ngFor="let build of builds"
                         [value]="build._id">
-              {{ build.version }}
+              {{ build.name }}
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -77,7 +77,7 @@
           <mat-label>CPU</mat-label>
           <mat-select formControlName="cpu">
             <mat-option *ngFor="let cpu of cpus"
-                        [value]="cpu">{{ cpu }}</mat-option>
+                        [value]="cpu.value">{{ cpu.label }}</mat-option>
           </mat-select>
         </mat-form-field>
 
@@ -85,7 +85,7 @@
           <mat-label>Memory</mat-label>
           <mat-select formControlName="memory">
             <mat-option *ngFor="let memory of memories"
-                        [value]="memory">{{ memory }} GB</mat-option>
+                        [value]="memory.value">{{ memory.label }}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>

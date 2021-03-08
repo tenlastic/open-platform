@@ -34,9 +34,9 @@ const platform = process.env.PLATFORM;
       formData: {
         build: JSON.stringify({
           entrypoint,
+          name: new Date().toString(),
           namespaceId,
           platform,
-          version: new Date().toString(),
         }),
         zip: zipStream,
       },

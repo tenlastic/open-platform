@@ -24,9 +24,7 @@ import { UserDocument } from '../user/model';
 export const PasswordResetEvent = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
 
 // Publish changes to Kafka.
-PasswordResetEvent.on(payload => {
-  kafka.publish(payload);
-});
+PasswordResetEvent.sync(kafka.publish);
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ hash: 1 }, { unique: true })

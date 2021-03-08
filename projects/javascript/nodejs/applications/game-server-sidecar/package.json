@@ -3,7 +3,7 @@
     "node": "^10"
   },
   "license": "Apache-2.0",
-  "name": "@tenlastic/game-server-status-sidecar",
+  "name": "@tenlastic/game-server-sidecar",
   "private": true,
   "version": "0.0.154",
   "scripts": {

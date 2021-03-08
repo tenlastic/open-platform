@@ -41,9 +41,7 @@ export enum UserRole {
 }
 
 // Publish changes to Kafka.
-UserEvent.on(payload => {
-  kafka.publish(payload);
-});
+UserEvent.sync(kafka.publish);
 
 @index(
   { email: 1 },

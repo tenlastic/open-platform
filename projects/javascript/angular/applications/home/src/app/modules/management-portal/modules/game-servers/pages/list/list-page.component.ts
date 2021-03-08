@@ -39,6 +39,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   public $gameServers: Observable<GameServer[]>;
   public dataSource = new MatTableDataSource<GameServer>();
   public displayedColumns: string[] = [
+    'game',
     'name',
     'description',
     'status',
@@ -106,7 +107,12 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
           sortBy: 'unix',
           sortByOrder: Order.DESC,
         }),
-        find: () => this.gameServerLogService.find(record._id, { limit: 250, sort: '-unix' }),
+        find: () =>
+          this.gameServerLogService.find(record._id, {
+            limit: 250,
+            sort: '-unix',
+            where: { gameServerId: record._id },
+          }),
         subscribe: () =>
           this.socketService.subscribe(
             'game-server-logs',
@@ -119,9 +125,10 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   }
 
   private async fetchGameServers() {
-    this.$gameServers = this.gameServerQuery.selectAll({
+    const $gameServers = this.gameServerQuery.selectAll({
       filterBy: gs => gs.namespaceId === this.selectedNamespaceService.namespaceId,
     });
+    this.$gameServers = this.gameServerQuery.populate($gameServers);
 
     await this.gameServerService.find({
       sort: 'name',

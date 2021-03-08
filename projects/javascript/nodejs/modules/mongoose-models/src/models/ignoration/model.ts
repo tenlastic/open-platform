@@ -21,9 +21,7 @@ import { User, UserDocument } from '../user';
 export const IgnorationEvent = new EventEmitter<IDatabasePayload<IgnorationDocument>>();
 
 // Publish changes to Kafka.
-IgnorationEvent.on(payload => {
-  kafka.publish(payload);
-});
+IgnorationEvent.sync(kafka.publish);
 
 @index({ fromUserId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({

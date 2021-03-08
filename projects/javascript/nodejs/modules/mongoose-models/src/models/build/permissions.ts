@@ -7,20 +7,20 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
     'namespace-administrator': [
       'entrypoint',
       'gameId',
+      'name',
       'namespaceId',
       'platform',
       'publishedAt',
       'reference.*',
-      'version',
     ],
     'user-administrator': [
       'entrypoint',
       'gameId',
+      'name',
       'namespaceId',
       'platform',
       'publishedAt',
       'reference.*',
-      'version',
     ],
   },
   delete: {
@@ -30,7 +30,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
   find: {
     default: {
       $or: [
-        { $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }] },
+        { publishedAt: { $exists: true, $ne: null } },
         {
           namespaceId: {
             $in: {
@@ -75,10 +75,10 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
       'entrypoint',
       'files.*',
       'gameId',
+      'name',
       'namespaceId',
       'platform',
       'publishedAt',
-      'version',
       'updatedAt',
     ],
     'namespace-administrator': [
@@ -87,12 +87,12 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
       'entrypoint',
       'files.*',
       'gameId',
+      'name',
       'namespaceId',
       'platform',
       'publishedAt',
       'reference.*',
       'status.*',
-      'version',
       'updatedAt',
     ],
     'system-administrator': [
@@ -101,12 +101,12 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
       'entrypoint',
       'files.*',
       'gameId',
+      'name',
       'namespaceId',
       'platform',
       'publishedAt',
       'reference.*',
       'status.*',
-      'version',
       'updatedAt',
     ],
     'user-administrator': [
@@ -115,12 +115,12 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
       'entrypoint',
       'files.*',
       'gameId',
+      'name',
       'namespaceId',
       'platform',
       'publishedAt',
       'reference.*',
       'status.*',
-      'version',
       'updatedAt',
     ],
   },
@@ -163,8 +163,8 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
     },
   ],
   update: {
-    'namespace-administrator': ['entrypoint', 'gameId', 'publishedAt', 'version'],
+    'namespace-administrator': ['entrypoint', 'gameId', 'name', 'publishedAt'],
     'system-administrator': ['files.*', 'status.*'],
-    'user-administrator': ['entrypoint', 'gameId', 'publishedAt', 'version'],
+    'user-administrator': ['entrypoint', 'gameId', 'name', 'publishedAt'],
   },
 });

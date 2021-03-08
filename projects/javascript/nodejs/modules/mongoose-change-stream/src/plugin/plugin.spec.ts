@@ -17,7 +17,7 @@ describe('plugin', function() {
         await new Promise(resolve => setTimeout(resolve, 0));
         return spy(value);
       };
-      ExampleEvent.once(stub);
+      ExampleEvent.async(stub);
 
       await Example.findOneAndDelete({ _id: record._id });
 
@@ -38,7 +38,7 @@ describe('plugin', function() {
         await new Promise(resolve => setTimeout(resolve, 0));
         return spy(value);
       };
-      ExampleEvent.once(stub);
+      ExampleEvent.async(stub);
 
       // Find the record without including the age to make sure age is included in payload.
       const name = chance.hash();
@@ -82,7 +82,7 @@ describe('plugin', function() {
         await new Promise(resolve => setTimeout(resolve, 0));
         return spy(value);
       };
-      ExampleEvent.once(stub);
+      ExampleEvent.async(stub);
 
       await record.remove();
 
@@ -98,7 +98,7 @@ describe('plugin', function() {
     context('when the document is new', function() {
       it('emits an event', async function() {
         const spy = sinon.spy();
-        ExampleEvent.once(spy);
+        ExampleEvent.async(spy);
 
         const record = await Example.create({ name: chance.hash() });
 
@@ -119,7 +119,7 @@ describe('plugin', function() {
           await new Promise(resolve => setTimeout(resolve, 0));
           return spy(value);
         };
-        ExampleEvent.once(stub);
+        ExampleEvent.async(stub);
 
         // Find the record without including the age to make sure age is included in payload.
         const record = await Example.findOne({ _id: initialRecord._id }).select([

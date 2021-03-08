@@ -17,7 +17,7 @@
           <mat-option>No Reference Build</mat-option>
           <mat-option *ngFor="let build of builds"
                       [value]="build._id">
-            {{ build.version }}
+            {{ build.name }}
           </mat-option>
         </mat-select>
       </mat-form-field>

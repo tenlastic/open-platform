@@ -42,12 +42,12 @@ export class Build extends Model {
   public files: IBuild.File[];
   public game: Game;
   public gameId: string;
+  public name: string;
   public namespaceId: string;
   public platform: IBuild.Platform;
   public publishedAt: Date;
   public reference: IBuild.Reference;
   public status: IWorkflow.Status;
-  public version: string;
   public updatedAt: Date;
 
   constructor(params: Partial<Build> = {}) {

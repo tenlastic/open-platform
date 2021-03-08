@@ -23,12 +23,10 @@ import { NamespaceDocument, NamespaceEvent } from '../namespace';
 export const QueueEvent = new EventEmitter<IDatabasePayload<QueueDocument>>();
 
 // Publish changes to Kafka.
-QueueEvent.on(payload => {
-  kafka.publish(payload);
-});
+QueueEvent.sync(kafka.publish);
 
 // Delete Queues if associated Namespace is deleted.
-NamespaceEvent.on(async payload => {
+NamespaceEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Queue.find({ namespaceId: payload.fullDocument._id });

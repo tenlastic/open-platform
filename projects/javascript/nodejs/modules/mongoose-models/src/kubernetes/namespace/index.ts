@@ -8,7 +8,7 @@ kc.loadFromDefault();
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
 
-NamespaceEvent.on(async payload => {
+NamespaceEvent.sync(async payload => {
   const namespace = payload.fullDocument;
 
   if (payload.operationType === 'delete') {
