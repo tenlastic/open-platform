@@ -16,7 +16,6 @@ import {
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
-import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
 import { namespaceValidator } from '../../validators';
@@ -51,22 +50,17 @@ NamespaceEvent.sync(async payload => {
   }
 });
 
+@index({ authorizedUserIds: 1 })
+@index({ currentUserIds: 1 })
 @index({ namespaceId: 1 })
-@index(
-  { allowedUserIds: 1, namespaceId: 1 },
-  {
-    partialFilterExpression: { queueId: { $exists: true } },
-    unique: true,
-  },
-)
+@index({ queueId: 1 })
 @modelOptions({ schemaOptions: { collection: 'gameservers', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameServerEvent })
-@plugin(uniqueErrorPlugin)
 export class GameServerSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
 
   @arrayProp({ itemsRef: 'UserSchema' })
-  public allowedUserIds: Array<Ref<UserDocument>>;
+  public authorizedUserIds: Array<Ref<UserDocument>>;
 
   @prop({ ref: 'BuildSchema' })
   public buildId: Ref<BuildDocument>;
@@ -117,8 +111,8 @@ export class GameServerSchema implements IOriginalDocument {
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: false, localField: 'allowedUserIds', ref: 'UserSchema' })
-  public allowedUserDocuments: UserDocument[];
+  @prop({ foreignField: '_id', justOne: false, localField: 'authorizedUserIds', ref: 'UserSchema' })
+  public authorizedUserDocuments: UserDocument[];
 
   @prop({ foreignField: '_id', justOne: false, localField: 'currentUserIds', ref: 'UserSchema' })
   public currentUserDocuments: UserDocument[];

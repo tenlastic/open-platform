@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 import { EntityState, EntityStore, QueryEntity, StoreConfig } from '@datorama/akita';
+import { combineLatest, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { Queue } from '../models/queue';
 import { QueueService } from '../services/queue/queue.service';
+import { GameQuery } from './game';
 
 export interface QueueState extends EntityState<Queue> {}
 
@@ -21,7 +24,20 @@ export class QueueStore extends EntityStore<QueueState, Queue> {
 
 @Injectable({ providedIn: 'root' })
 export class QueueQuery extends QueryEntity<QueueState, Queue> {
-  constructor(protected store: QueueStore) {
+  constructor(protected gameQuery: GameQuery, protected store: QueueStore) {
     super(store);
+  }
+
+  public populate($input: Observable<Queue[]>) {
+    return combineLatest([$input, this.gameQuery.selectAll({ asObject: true })]).pipe(
+      map(([queues, games]) => {
+        return queues.map(queue => {
+          return new Queue({
+            ...queue,
+            game: games[queue.gameId],
+          });
+        });
+      }),
+    );
   }
 }

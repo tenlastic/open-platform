@@ -31,7 +31,7 @@ export namespace IGameServer {
 }
 
 export class GameServer extends Model {
-  public allowedUserIds: string[];
+  public authorizedUserIds: string[];
   public buildId: string;
   public cpu: number;
   public currentUserIds: string[];

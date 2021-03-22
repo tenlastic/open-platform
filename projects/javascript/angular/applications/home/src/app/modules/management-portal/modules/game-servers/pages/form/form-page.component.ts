@@ -64,7 +64,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
         where: { namespaceId: this.selectedNamespaceService.namespaceId, platform: 'server64' },
       });
       this.games = await this.gameService.find({
-        sort: '-publishedAt',
+        sort: 'title',
         where: { namespaceId: this.selectedNamespaceService.namespaceId },
       });
 
@@ -206,8 +206,8 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
       description: [this.data.description],
       gameId: [this.data.gameId],
-      isPersistent: [this.data.isPersistent || true],
-      isPreemptible: [this.data.isPreemptible || true],
+      isPersistent: [this.data.isPersistent === false ? false : true],
+      isPreemptible: [this.data.isPreemptible === false ? false : true],
       memory: [this.data.memory || this.memories[0].value, Validators.required],
       metadata: this.formBuilder.array(properties),
       name: [this.data.name, Validators.required],

@@ -8,9 +8,6 @@ images:
   - name: tenlastic/home-ui
     newName: tenlastic/home-ui
     newTag: latest
-  - name: tenlastic/matchmaking
-    newName: tenlastic/matchmaking
-    newTag: latest
   - name: tenlastic/wss
     newName: tenlastic/wss
     newTag: latest
@@ -35,7 +32,6 @@ patchesStrategicMerge:
   - ./mongodb/mongoku.yaml
   - ./ingress-nginx/ingress-nginx.yaml
   - ./nodejs/api.yaml
-  - ./nodejs/matchmaking.yaml
   - ./nodejs/wss.yaml
 resources:
   - ./docker-registry/docker-registry-image-pull-secret.secret.example.yaml

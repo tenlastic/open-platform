@@ -12,9 +12,7 @@
                formControlName="name" />
         <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
-    </div>
 
-    <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Description</mat-label>
         <input matInput
@@ -34,9 +32,7 @@
                type="number" />
         <mat-error>Enter a valid amount of teams.</mat-error>
       </mat-form-field>
-    </div>
 
-    <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Players Per Team</mat-label>
         <input matInput
@@ -46,6 +42,21 @@
                step="1"
                type="number" />
         <mat-error>Enter a valid amount of players per team.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field *ngIf="games.length"
+                      floatLabel="always">
+        <mat-label>Game</mat-label>
+        <mat-select formControlName="gameId"
+                    placeholder="No Game">
+          <mat-option>No Game</mat-option>
+          <mat-option *ngFor="let game of games"
+                      [value]="game._id">
+            {{ game.fullTitle }}
+          </mat-option>
+        </mat-select>
       </mat-form-field>
     </div>
 

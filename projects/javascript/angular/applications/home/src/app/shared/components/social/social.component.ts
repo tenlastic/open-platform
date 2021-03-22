@@ -350,7 +350,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     if (
       !this.electronService.isElectron ||
       !gameServer.queueId ||
-      !gameServer.allowedUserIds.includes(this.identityService.user._id)
+      !gameServer.authorizedUserIds.includes(this.identityService.user._id)
     ) {
       return;
     }

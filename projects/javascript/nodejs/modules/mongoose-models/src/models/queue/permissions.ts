@@ -8,6 +8,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
       '_id',
       'createdAt',
       'description',
+      'gameId',
       'gameServerTemplate.*',
       'name',
       'namespaceId',
@@ -19,6 +20,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
       '_id',
       'createdAt',
       'description',
+      'gameId',
       'gameServerTemplate.*',
       'name',
       'namespaceId',
@@ -81,6 +83,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
         },
       ],
     },
+    'system-administrator': {},
     'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
@@ -89,6 +92,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
       '_id',
       'createdAt',
       'description',
+      'gameId',
       'gameServerTemplate.*',
       'name',
       'namespaceId',
@@ -98,6 +102,13 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
     ],
   },
   roles: [
+    {
+      name: 'system-administrator',
+      query: {
+        'user.roles': { $eq: 'queues' },
+        'user.system': { $eq: true },
+      },
+    },
     {
       name: 'user-administrator',
       query: {
@@ -133,6 +144,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
       '_id',
       'createdAt',
       'description',
+      'gameId',
       'gameServerTemplate.*',
       'name',
       'usersPerTeam',
@@ -143,6 +155,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
       '_id',
       'createdAt',
       'description',
+      'gameId',
       'gameServerTemplate.*',
       'name',
       'usersPerTeam',

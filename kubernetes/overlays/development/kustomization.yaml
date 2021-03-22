@@ -15,12 +15,6 @@ patches:
       kind: Deployment
       name: api
       version: v1
-  - path: ./nodejs/matchmaking.json
-    target:
-      group: apps
-      kind: Deployment
-      name: matchmaking
-      version: v1
   - path: ./nodejs/migrations.json
     target:
       group: batch

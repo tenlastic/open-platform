@@ -65,7 +65,6 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Game Servers`);
-
     await this.fetchGameServers();
   }
 
@@ -107,12 +106,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
           sortBy: 'unix',
           sortByOrder: Order.DESC,
         }),
-        find: () =>
-          this.gameServerLogService.find(record._id, {
-            limit: 250,
-            sort: '-unix',
-            where: { gameServerId: record._id },
-          }),
+        find: () => this.gameServerLogService.find(record._id, { limit: 250, sort: '-unix' }),
         subscribe: () =>
           this.socketService.subscribe(
             'game-server-logs',

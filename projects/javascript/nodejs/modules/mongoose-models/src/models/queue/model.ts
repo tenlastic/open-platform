@@ -16,6 +16,8 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
+import { namespaceValidator } from '../../validators';
+import { GameDocument } from '../game';
 import { GameInvitationDocument } from '../game-invitation';
 import { GameServerDocument } from '../game-server';
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
@@ -35,14 +37,9 @@ NamespaceEvent.sync(async payload => {
   }
 });
 
+@index({ gameId: 1 })
 @index({ namespaceId: 1 })
-@modelOptions({
-  schemaOptions: {
-    collection: 'queues',
-    minimize: false,
-    timestamps: true,
-  },
-})
+@modelOptions({ schemaOptions: { collection: 'queues', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: QueueEvent })
 export class QueueSchema {
   public _id: mongoose.Types.ObjectId;
@@ -50,6 +47,9 @@ export class QueueSchema {
 
   @prop()
   public description: string;
+
+  @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
+  public gameId: Ref<GameDocument>;
 
   @prop({ _id: false, required: true })
   public gameServerTemplate: GameServerDocument;
@@ -61,12 +61,15 @@ export class QueueSchema {
   public namespaceId: Ref<NamespaceDocument>;
 
   @prop({ required: true })
-  public usersPerTeam: number;
-
-  @prop({ required: true })
   public teams: number;
 
   public updatedAt: Date;
+
+  @prop({ required: true })
+  public usersPerTeam: number;
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: 'GameSchema' })
+  public gameDocument: GameDocument;
 
   @prop({
     foreignField: 'namespaceId',

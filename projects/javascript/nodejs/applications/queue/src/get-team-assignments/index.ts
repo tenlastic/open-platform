@@ -1,9 +1,18 @@
-import { Ref } from '@hasezoey/typegoose';
-import { QueueDocument, QueueMemberDocument, UserDocument } from '@tenlastic/mongoose-models';
+export interface Queue {
+  teams: number;
+  usersPerTeam: number;
+}
 
-export function getTeamAssignments(queue: QueueDocument, queueMembers: QueueMemberDocument[]) {
-  const complete: Array<Array<Ref<UserDocument>>> = [];
-  const incomplete: Array<Array<Ref<UserDocument>>> = [];
+export interface QueueMember {
+  userIds: string[];
+}
+
+/**
+ * Matches QueueMembers together.
+ */
+export function getTeamAssignments(queue: Queue, queueMembers: QueueMember[]) {
+  const complete: string[][] = [];
+  const incomplete: string[][] = [];
 
   for (const queueMember of queueMembers) {
     for (let i = 0, length = incomplete.length; i < length + 1; i++) {
@@ -32,5 +41,5 @@ export function getTeamAssignments(queue: QueueDocument, queueMembers: QueueMemb
     }
   }
 
-  return complete;
+  return complete.flat();
 }

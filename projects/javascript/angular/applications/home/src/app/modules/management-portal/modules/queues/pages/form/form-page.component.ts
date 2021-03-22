@@ -3,7 +3,15 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Build, BuildService, IGameServer, Queue, QueueService } from '@tenlastic/ng-http';
+import {
+  Build,
+  BuildService,
+  Game,
+  GameService,
+  IGameServer,
+  Queue,
+  QueueService,
+} from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 
@@ -23,12 +31,14 @@ export class QueuesFormPageComponent implements OnInit {
   public data: Queue;
   public errors: string[] = [];
   public form: FormGroup;
+  public games: Game[];
   public memories = IGameServer.Memory;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private buildService: BuildService,
     private formBuilder: FormBuilder,
+    private gameService: GameService,
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private queueService: QueueService,
@@ -45,6 +55,10 @@ export class QueuesFormPageComponent implements OnInit {
 
       this.builds = await this.buildService.find({
         sort: '-publishedAt',
+        where: { namespaceId: this.selectedNamespaceService.namespaceId },
+      });
+      this.games = await this.gameService.find({
+        sort: 'title',
         where: { namespaceId: this.selectedNamespaceService.namespaceId },
       });
 
@@ -80,6 +94,7 @@ export class QueuesFormPageComponent implements OnInit {
 
     const values: Partial<Queue> = {
       description: this.form.get('description').value,
+      gameId: this.form.get('gameId').value,
       gameServerTemplate: {
         buildId: this.form.get('gameServerTemplate').get('buildId').value,
         cpu: this.form.get('gameServerTemplate').get('cpu').value,
@@ -168,7 +183,7 @@ export class QueuesFormPageComponent implements OnInit {
       gameServerTemplateForm = this.formBuilder.group({
         buildId: [this.builds.length > 0 ? this.builds[0]._id : null, Validators.required],
         cpu: [this.cpus[0].value],
-        isPreemptible: [false],
+        isPreemptible: [true],
         memory: [this.memories[0].value],
         metadata: this.formBuilder.array(properties),
       });
@@ -176,6 +191,7 @@ export class QueuesFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       description: [this.data.description],
+      gameId: [this.data.gameId],
       gameServerTemplate: gameServerTemplateForm,
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId],

@@ -64,8 +64,6 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
         await this.queueMemberService.delete(record._id);
-        this.deleteQueueMember(record);
-
         this.matSnackBar.open('Queue Member deleted successfully.');
       }
     });
@@ -90,13 +88,5 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  private deleteQueueMember(record: QueueMember) {
-    const index = this.dataSource.data.findIndex(u => u._id === record._id);
-    this.dataSource.data.splice(index, 1);
-
-    this.dataSource.data = [].concat(this.dataSource.data);
-    this.table.renderRows();
   }
 }

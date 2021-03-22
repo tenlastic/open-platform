@@ -22,6 +22,7 @@ import { MongoError } from 'mongodb';
 import * as mongoose from 'mongoose';
 
 import { GameInvitation } from '../game-invitation';
+import { GameServerEvent } from '../game-server';
 import { GroupDocument, GroupEvent } from '../group';
 import { QueueDocument } from '../queue';
 import { RefreshTokenDocument } from '../refresh-token';

@@ -5,7 +5,7 @@ import { GameServer, GameServerDocument } from './model';
 export const GameServerPermissions = new MongoosePermissions<GameServerDocument>(GameServer, {
   create: {
     'namespace-administrator': [
-      'allowedUserIds',
+      'authorizedUserIds',
       'buildId',
       'cpu',
       'currentUserIds',
@@ -18,8 +18,24 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'name',
       'namespaceId',
     ],
+    'system-administrator': [
+      'authorizedUserIds',
+      'buildId',
+      'cpu',
+      'currentUserIds',
+      'description',
+      'endpoints.*',
+      'gameId',
+      'isPersistent',
+      'isPreemptible',
+      'memory',
+      'metadata.*',
+      'name',
+      'queueId',
+      'status',
+    ],
     'user-administrator': [
-      'allowedUserIds',
+      'authorizedUserIds',
       'buildId',
       'cpu',
       'currentUserIds',
@@ -95,7 +111,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   read: {
     default: [
       '_id',
-      'allowedUserIds',
+      'authorizedUserIds',
       'buildId',
       'cpu',
       'createdAt',
@@ -153,7 +169,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   ],
   update: {
     'namespace-administrator': [
-      'allowedUserIds',
+      'authorizedUserIds',
       'buildId',
       'cpu',
       'currentUserIds',
@@ -165,9 +181,24 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'metadata.*',
       'name',
     ],
-    'system-administrator': ['endpoints.*', 'status'],
+    'system-administrator': [
+      'authorizedUserIds',
+      'buildId',
+      'cpu',
+      'currentUserIds',
+      'description',
+      'endpoints.*',
+      'gameId',
+      'isPersistent',
+      'isPreemptible',
+      'memory',
+      'metadata.*',
+      'name',
+      'queueId',
+      'status',
+    ],
     'user-administrator': [
-      'allowedUserIds',
+      'authorizedUserIds',
       'buildId',
       'cpu',
       'currentUserIds',

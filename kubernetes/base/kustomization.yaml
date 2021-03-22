@@ -15,5 +15,4 @@ resources:
   - ./mongodb/mongoku.yaml
   - ./ingress-nginx/ingress-nginx.yaml
   - ./nodejs/api.yaml
-  - ./nodejs/matchmaking.yaml
   - ./nodejs/wss.yaml
