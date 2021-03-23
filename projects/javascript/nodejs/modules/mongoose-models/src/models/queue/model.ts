@@ -20,7 +20,7 @@ import { namespaceValidator } from '../../validators';
 import { GameDocument } from '../game';
 import { GameInvitationDocument } from '../game-invitation';
 import { GameServerDocument } from '../game-server';
-import { NamespaceDocument, NamespaceEvent } from '../namespace';
+import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 
 export const QueueEvent = new EventEmitter<IDatabasePayload<QueueDocument>>();
 
@@ -81,6 +81,32 @@ export class QueueSchema {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
+
+  /**
+   * Throws an error if a NamespaceLimit is exceeded.
+   */
+  public static async checkNamespaceLimits(
+    count: number,
+    namespaceId: string | mongoose.Types.ObjectId,
+  ) {
+    const namespace = await Namespace.findOne({ _id: namespaceId });
+    if (!namespace) {
+      throw new Error('Record not found.');
+    }
+
+    const limits = namespace.limits.queues;
+    if (limits.count > 0) {
+      const results = await Queue.aggregate([
+        { $match: { namespaceId: namespace._id } },
+        { $group: { _id: null, count: { $sum: 1 } } },
+      ]);
+
+      const countSum = results.length > 0 ? results[0].count : 0;
+      if (limits.count > 0 && countSum + count > limits.count) {
+        throw new NamespaceLimitError('queues.count', limits.count);
+      }
+    }
+  }
 }
 
 export type QueueDocument = DocumentType<QueueSchema>;

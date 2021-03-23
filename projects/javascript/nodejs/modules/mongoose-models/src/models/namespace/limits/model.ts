@@ -4,6 +4,7 @@ import { NamespaceBuildLimitsSchema } from './build';
 import { NamespaceCollectionLimitsSchema } from './collection';
 import { NamespaceGameLimitsSchema } from './game';
 import { NamespaceGameServerLimitsSchema } from './game-server';
+import { NamespaceQueueLimitsSchema } from './queue';
 import { NamespaceWorkflowLimitsSchema } from './workflow';
 
 export class NamespaceLimitsSchema {
@@ -18,6 +19,9 @@ export class NamespaceLimitsSchema {
 
   @prop({ required: true })
   public games: NamespaceGameLimitsSchema;
+
+  @prop({ required: true })
+  public queues: NamespaceQueueLimitsSchema;
 
   @prop({ required: true })
   public workflows: NamespaceWorkflowLimitsSchema;

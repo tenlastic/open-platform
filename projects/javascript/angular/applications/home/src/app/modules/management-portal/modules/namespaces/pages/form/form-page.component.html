@@ -232,6 +232,19 @@
       </div>
 
       <div class="row"
+           formGroupName="queues">
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Queues</mat-label>
+          <input matInput
+                 required
+                 formControlName="count"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row"
            formGroupName="workflows">
         <mat-form-field floatLabel="always">
           <mat-label>Parallel Workflows</mat-label>

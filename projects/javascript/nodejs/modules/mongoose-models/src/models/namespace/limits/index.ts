@@ -5,4 +5,5 @@ export * from './build';
 export * from './collection';
 export * from './game';
 export * from './game-server';
+export * from './queue';
 export * from './workflow';

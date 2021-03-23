@@ -86,14 +86,43 @@ components:
                 videos:
                   type: integer
               required:
+                - count
                 - images
                 - size
                 - videos
+            queues:
+              type: object
+              properties:
+                count:
+                  type: integer
+              required:
+                - count
+            workflows:
+              type: object
+              properties:
+                count:
+                  type: integer
+                cpu:
+                  type: integer
+                memory:
+                  type: integer
+                parallelism:
+                  type: integer
+                preemptible:
+                  type: boolean
+              required:
+                - count
+                - cpu
+                - memory
+                - parallelism
+                - preemptible
           required:
+            - builds
             - collections
             - gameServers
             - games
-            - builds
+            - queues
+            - workflows
         name:
           type: string
         updatedAt:

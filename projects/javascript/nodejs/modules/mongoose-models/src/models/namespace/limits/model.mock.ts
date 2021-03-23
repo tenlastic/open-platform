@@ -3,6 +3,7 @@ import { NamespaceCollectionLimitsMock } from './collection';
 import { NamespaceGameLimitsMock } from './game';
 import { NamespaceGameServerLimitsMock } from './game-server';
 import { NamespaceLimits, NamespaceLimitsSchema } from './model';
+import { NamespaceQueueLimitsMock } from './queue';
 import { NamespaceWorkflowLimitsMock } from './workflow';
 
 export class NamespaceLimitsMock {
@@ -16,6 +17,7 @@ export class NamespaceLimitsMock {
       collections: NamespaceCollectionLimitsMock.create(),
       gameServers: NamespaceGameServerLimitsMock.create(),
       games: NamespaceGameLimitsMock.create(),
+      queues: NamespaceQueueLimitsMock.create(),
       workflows: NamespaceWorkflowLimitsMock.create(),
     };
 

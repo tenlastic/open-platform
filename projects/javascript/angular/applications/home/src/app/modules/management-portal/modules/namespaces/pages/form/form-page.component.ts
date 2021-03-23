@@ -281,6 +281,15 @@ export class NamespacesFormPageComponent implements OnInit {
             Validators.required,
           ],
         }),
+        queues: this.formBuilder.group({
+          count: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: (limits && limits.queues && limits.queues.count) || 0,
+            },
+            Validators.required,
+          ],
+        }),
         workflows: this.formBuilder.group({
           count: [
             {

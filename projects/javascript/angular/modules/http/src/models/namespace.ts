@@ -48,12 +48,17 @@ export namespace INamespace {
     collections: CollectionLimits;
     gameServers: GameServerLimits;
     games: GameLimits;
+    queues: QueueLimits;
     workflows: WorkflowLimits;
   }
 
   export interface User {
     _id: string;
     roles: string[];
+  }
+
+  export interface QueueLimits {
+    count: number;
   }
 
   export interface WorkflowLimits {
