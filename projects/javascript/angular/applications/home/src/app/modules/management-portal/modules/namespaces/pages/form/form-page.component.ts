@@ -185,6 +185,7 @@ export class NamespacesFormPageComponent implements OnInit {
       }
     }
 
+    const { limits } = this.data;
     this.form = this.formBuilder.group({
       keys: this.formBuilder.array(keys),
       limits: this.formBuilder.group({
@@ -192,18 +193,14 @@ export class NamespacesFormPageComponent implements OnInit {
           count: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.builds
-                  ? this.data.limits.builds.count || 0
-                  : 0,
+              value: (limits && limits.builds && limits.builds.count) || 0,
             },
             Validators.required,
           ],
           size: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.builds ? this.data.limits.builds.size || 0 : 0,
+              value: (limits && limits.builds && limits.builds.size) || 0,
             },
             Validators.required,
           ],
@@ -212,20 +209,14 @@ export class NamespacesFormPageComponent implements OnInit {
           count: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.collections
-                  ? this.data.limits.collections.count || 0
-                  : 0,
+              value: (limits && limits.collections && limits.collections.count) || 0,
             },
             Validators.required,
           ],
           size: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.collections
-                  ? this.data.limits.collections.size || 0
-                  : 0,
+              value: (limits && limits.collections && limits.collections.size) || 0,
             },
             Validators.required,
           ],
@@ -234,66 +225,58 @@ export class NamespacesFormPageComponent implements OnInit {
           count: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.gameServers
-                  ? this.data.limits.gameServers.count || 0
-                  : 0,
+              value: (limits && limits.gameServers && limits.gameServers.count) || 0,
             },
             Validators.required,
           ],
           cpu: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.gameServers
-                  ? this.data.limits.gameServers.cpu || 0
-                  : 0,
+              value: (limits && limits.gameServers && limits.gameServers.cpu) || 0,
             },
             Validators.required,
           ],
           memory: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.gameServers
-                  ? this.data.limits.gameServers.memory || 0
-                  : 0,
+              value: (limits && limits.gameServers && limits.gameServers.memory) || 0,
             },
             Validators.required,
           ],
           preemptible: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.gameServers
-                  ? this.data.limits.gameServers.preemptible || false
-                  : false,
+              value: (limits && limits.gameServers && limits.gameServers.preemptible) || false,
             },
             Validators.required,
           ],
         }),
         games: this.formBuilder.group({
+          count: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: (limits && limits.games && limits.games.count) || 0,
+            },
+            Validators.required,
+          ],
           images: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.games ? this.data.limits.games.images || 0 : 0,
+              value: (limits && limits.games && limits.games.images) || 0,
             },
             Validators.required,
           ],
           size: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.games ? this.data.limits.games.size || 0 : 0,
+              value: (limits && limits.games && limits.games.size) || 0,
             },
             Validators.required,
           ],
           videos: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.games ? this.data.limits.games.videos || 0 : 0,
+              value: (limits && limits.games && limits.games.videos) || 0,
             },
             Validators.required,
           ],
@@ -302,50 +285,35 @@ export class NamespacesFormPageComponent implements OnInit {
           count: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.workflows
-                  ? this.data.limits.workflows.count || 0
-                  : 0,
+              value: (limits && limits.workflows && limits.workflows.count) || 0,
             },
             Validators.required,
           ],
           cpu: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.workflows
-                  ? this.data.limits.workflows.cpu || 0
-                  : 0,
+              value: (limits && limits.workflows && limits.workflows.cpu) || 0,
             },
             Validators.required,
           ],
           memory: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.workflows
-                  ? this.data.limits.workflows.memory || 0
-                  : 0,
+              value: (limits && limits.workflows && limits.workflows.memory) || 0,
             },
             Validators.required,
           ],
           parallelism: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.workflows
-                  ? this.data.limits.workflows.parallelism || 0
-                  : 0,
+              value: (limits && limits.workflows && limits.workflows.parallelism) || 0,
             },
             Validators.required,
           ],
           preemptible: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value:
-                this.data.limits && this.data.limits.workflows
-                  ? this.data.limits.workflows.preemptible || false
-                  : false,
+              value: (limits && limits.workflows && limits.workflows.preemptible) || false,
             },
             Validators.required,
           ],

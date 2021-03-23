@@ -77,6 +77,8 @@ components:
             games:
               type: object
               properties:
+                count:
+                  type: integer
                 images:
                   type: integer
                 size:

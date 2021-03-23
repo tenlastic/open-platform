@@ -145,7 +145,17 @@
       <div class="row"
            formGroupName="games">
         <mat-form-field floatLabel="always">
-          <mat-label>Total Game Images</mat-label>
+          <mat-label>Total Games</mat-label>
+          <input matInput
+                 required
+                 formControlName="count"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Maximum Images Per Game</mat-label>
           <input matInput
                  required
                  formControlName="images"
@@ -155,7 +165,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Total Game Videos</mat-label>
+          <mat-label>Maximum Videos Per Game</mat-label>
           <input matInput
                  required
                  formControlName="videos"
@@ -234,7 +244,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>CPU per Workflow Template</mat-label>
+          <mat-label>CPU Per Workflow Template</mat-label>
           <input matInput
                  required
                  formControlName="cpu"
@@ -244,7 +254,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Memory per Workflow Template</mat-label>
+          <mat-label>Memory Per Workflow Template</mat-label>
           <input matInput
                  required
                  formControlName="memory"

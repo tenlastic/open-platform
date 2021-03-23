@@ -19,7 +19,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import { NamespaceDocument, NamespaceEvent } from '../namespace';
+import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 
 export const GameEvent = new EventEmitter<IDatabasePayload<GameDocument>>();
 
@@ -93,6 +93,32 @@ export class GameSchema {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
+
+  /**
+   * Throws an error if a NamespaceLimit is exceeded.
+   */
+  public static async checkNamespaceLimits(
+    count: number,
+    namespaceId: string | mongoose.Types.ObjectId,
+  ) {
+    const namespace = await Namespace.findOne({ _id: namespaceId });
+    if (!namespace) {
+      throw new Error('Record not found.');
+    }
+
+    const limits = namespace.limits.games;
+    if (limits.count > 0) {
+      const results = await Game.aggregate([
+        { $match: { namespaceId: namespace._id } },
+        { $group: { _id: null, count: { $sum: 1 } } },
+      ]);
+
+      const countSum = results.length > 0 ? results[0].count : 0;
+      if (limits.count > 0 && countSum + count > limits.count) {
+        throw new NamespaceLimitError('games.count', limits.count);
+      }
+    }
+  }
 
   /**
    * Get the path for the property within Minio.

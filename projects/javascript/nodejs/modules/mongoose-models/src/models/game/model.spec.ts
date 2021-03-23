@@ -1,10 +1,27 @@
 import * as minio from '@tenlastic/minio';
 import { expect } from 'chai';
 import * as fs from 'fs';
+import { NamespaceGameLimitsMock, NamespaceLimitsMock, NamespaceMock } from '../namespace';
 
 import { GameMock } from './model.mock';
+import { Game } from './model';
 
 describe('models/game.model', function() {
+  describe('checkNamespaceLimits()', function() {
+    it('enforces the games.count Namespace limit', async function() {
+      const namespace = await NamespaceMock.create({
+        limits: NamespaceLimitsMock.create({
+          games: NamespaceGameLimitsMock.create({ count: 1 }),
+        }),
+      });
+      await GameMock.create({ namespaceId: namespace._id });
+
+      const promise = Game.checkNamespaceLimits(1, namespace._id);
+
+      return expect(promise).to.be.rejectedWith('Namespace limit reached: games.count. Value: 1.');
+    });
+  });
+
   describe('removeMinioImages()', function() {
     it('removes unused minio images', async function() {
       const game = await GameMock.create();
