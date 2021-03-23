@@ -62,7 +62,11 @@ export class GameServerSchema implements IOriginalDocument {
   @arrayProp({ itemsRef: 'UserSchema' })
   public authorizedUserIds: Array<Ref<UserDocument>>;
 
-  @prop({ ref: 'BuildSchema' })
+  @prop({
+    ref: 'BuildSchema',
+    required: true,
+    validate: namespaceValidator('buildDocument', 'buildId'),
+  })
   public buildId: Ref<BuildDocument>;
 
   @prop({ required: true })
@@ -113,6 +117,9 @@ export class GameServerSchema implements IOriginalDocument {
 
   @prop({ foreignField: '_id', justOne: false, localField: 'authorizedUserIds', ref: 'UserSchema' })
   public authorizedUserDocuments: UserDocument[];
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })
+  public buildDocument: BuildDocument;
 
   @prop({ foreignField: '_id', justOne: false, localField: 'currentUserIds', ref: 'UserSchema' })
   public currentUserDocuments: UserDocument[];

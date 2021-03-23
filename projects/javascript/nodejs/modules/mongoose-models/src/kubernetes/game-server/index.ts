@@ -1,7 +1,6 @@
 import * as k8s from '@kubernetes/client-node';
 import { URL } from 'url';
 
-import { Build, BuildEvent } from '../../models/build';
 import {
   GameServer,
   GameServerDocument,
@@ -17,34 +16,6 @@ const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
 const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
 const networkingV1 = kc.makeApiClient(k8s.NetworkingV1Api);
 
-BuildEvent.sync(async payload => {
-  if (
-    payload.operationType === 'delete' ||
-    (payload.operationType === 'insert' && payload.fullDocument.publishedAt) ||
-    (payload.operationType === 'update' && 'publishedAt' in payload.updateDescription.updatedFields)
-  ) {
-    const { gameId, namespaceId } = payload.fullDocument;
-
-    const build = await Build.findOne({
-      gameId,
-      namespaceId,
-      publishedAt: { $exists: true, $ne: null },
-    }).sort('-publishedAt');
-    const gameServers = await GameServer.find({
-      $or: [{ buildId: { $exists: false } }, { buildId: null }],
-      gameId,
-      namespaceId,
-    }).populate('namespaceDocument');
-
-    for (const gameServer of gameServers) {
-      await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
-
-      if (build) {
-        await KubernetesGameServer.create(build._id, gameServer, gameServer.namespaceDocument);
-      }
-    }
-  }
-});
 GameServerEvent.sync(async payload => {
   const gameServer = payload.fullDocument;
 
@@ -52,22 +23,16 @@ GameServerEvent.sync(async payload => {
     await gameServer.populate('namespaceDocument').execPopulate();
   }
 
-  const buildId = gameServer.buildId ? gameServer.buildId : await getBuildId(gameServer);
-  if (!buildId) {
-    await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
-    return;
-  }
-
   if (payload.operationType === 'delete') {
     await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
   } else if (payload.operationType === 'insert') {
-    await KubernetesGameServer.create(buildId, gameServer, gameServer.namespaceDocument);
+    await KubernetesGameServer.create(gameServer, gameServer.namespaceDocument);
   } else if (
     payload.operationType === 'update' &&
     GameServer.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
   ) {
     await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
-    await KubernetesGameServer.create(buildId, gameServer, gameServer.namespaceDocument);
+    await KubernetesGameServer.create(gameServer, gameServer.namespaceDocument);
   }
 });
 GameServerRestartEvent.sync(async gameServer => {
@@ -76,15 +41,11 @@ GameServerRestartEvent.sync(async gameServer => {
   }
 
   await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
-
-  const buildId = gameServer.buildId ? gameServer.buildId : await getBuildId(gameServer);
-  if (buildId) {
-    await KubernetesGameServer.create(buildId.toString(), gameServer, gameServer.namespaceDocument);
-  }
+  await KubernetesGameServer.create(gameServer, gameServer.namespaceDocument);
 });
 
 export const KubernetesGameServer = {
-  create: async (buildId: string, gameServer: GameServerDocument, namespace: NamespaceDocument) => {
+  create: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
     const name = KubernetesGameServer.getName(gameServer);
 
     /**
@@ -165,7 +126,7 @@ export const KubernetesGameServer = {
      * =======================
      */
     const url = new URL(process.env.DOCKER_REGISTRY_URL);
-    const image = `${url.host}/${gameServer.namespaceId}:${buildId}`;
+    const image = `${url.host}/${gameServer.namespaceId}:${gameServer.buildId}`;
 
     const affinity = {
       nodeAffinity: {
@@ -343,13 +304,3 @@ export const KubernetesGameServer = {
     return `game-server-${gameServer._id}`;
   },
 };
-
-async function getBuildId(gameServer: Partial<GameServerDocument>) {
-  const build = await Build.findOne({
-    gameId: gameServer.gameId,
-    namespaceId: gameServer.namespaceId,
-    publishedAt: { $exists: true, $ne: null },
-  }).sort('-publishedAt');
-
-  return build ? build._id : null;
-}

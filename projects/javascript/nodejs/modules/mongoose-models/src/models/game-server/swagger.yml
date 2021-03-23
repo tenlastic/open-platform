@@ -65,6 +65,7 @@ components:
           type: string
           format: date-time
       required:
+        - buildId
         - cpu
         - memory
         - name

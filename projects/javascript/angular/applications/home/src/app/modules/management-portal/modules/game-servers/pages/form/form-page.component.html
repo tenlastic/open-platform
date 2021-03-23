@@ -25,8 +25,8 @@
       <mat-form-field floatLabel="always">
         <mat-label>Build</mat-label>
         <mat-select formControlName="buildId"
-                    placeholder="Latest Published Build">
-          <mat-option>Latest Published Build</mat-option>
+                    placeholder="No Builds Found"
+                    required>
           <mat-option *ngFor="let build of builds"
                       [value]="build._id">
             {{ build.name }}

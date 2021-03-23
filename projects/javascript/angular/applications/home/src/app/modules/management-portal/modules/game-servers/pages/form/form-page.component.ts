@@ -100,7 +100,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     }, {});
 
     const values: Partial<GameServer> = {
-      buildId: this.form.get('buildId').value || null,
+      buildId: this.form.get('buildId').value,
       cpu: this.form.get('cpu').value,
       description: this.form.get('description').value,
       gameId: this.form.get('gameId').value,
@@ -202,7 +202,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     }
 
     this.form = this.formBuilder.group({
-      buildId: [this.data.buildId],
+      buildId: [this.data.buildId || (this.builds[0] && this.builds[0]._id), Validators.required],
       cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
       description: [this.data.description],
       gameId: [this.data.gameId],

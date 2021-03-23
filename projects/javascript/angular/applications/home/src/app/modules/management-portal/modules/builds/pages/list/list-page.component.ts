@@ -8,7 +8,14 @@ import {
   MatSnackBar,
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { Build, BuildQuery, BuildService } from '@tenlastic/ng-http';
+import {
+  Build,
+  BuildQuery,
+  BuildService,
+  GameServerService,
+  IBuild,
+  QueueService,
+} from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
@@ -38,11 +45,13 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
   private updateDataSource$ = new Subscription();
 
   constructor(
+    private buildQuery: BuildQuery,
+    private buildService: BuildService,
+    private gameServerService: GameServerService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private buildQuery: BuildQuery,
-    private buildService: BuildService,
+    private queueService: QueueService,
     private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
@@ -65,8 +74,50 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     return map[platform];
   }
 
-  public async publish(article: Build) {
-    return this.buildService.update({ ...article, publishedAt: new Date() });
+  public async publish(build: Build) {
+    await this.buildService.update({ ...build, publishedAt: new Date() });
+
+    if (build.platform === IBuild.Platform.Server64 && build.reference) {
+      const referenceBuild = await this.buildService.findOne(build.reference._id);
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message:
+            `Would you like to update Game Servers and Queues using the Reference Build ` +
+            `(${referenceBuild.name}) to use this Build?`,
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(async result => {
+        if (result === 'Yes') {
+          // Update Game Servers.
+          const gameServers = await this.gameServerService.find({
+            where: { buildId: build.reference._id, isPersistent: true },
+          });
+          for (const gameServer of gameServers) {
+            await this.gameServerService.update({ ...gameServer, buildId: build._id });
+          }
+
+          // Update Queues.
+          const queues = await this.queueService.find({
+            where: { 'gameServerTemplate.buildId': build.reference._id },
+          });
+          for (const queue of queues) {
+            await this.queueService.update({
+              ...queue,
+              gameServerTemplate: { ...queue.gameServerTemplate, buildId: build._id },
+            });
+          }
+
+          this.matSnackBar.open(
+            `${gameServers.length} Game Server(s) and ${queues.length} Queue(s) updated successfully...`,
+          );
+        }
+      });
+    }
   }
 
   public showDeletePrompt(record: Build) {
@@ -88,8 +139,8 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     });
   }
 
-  public async unpublish(article: Build) {
-    return this.buildService.update({ ...article, publishedAt: null });
+  public async unpublish(build: Build) {
+    return this.buildService.update({ ...build, publishedAt: null });
   }
 
   private async fetchBuilds() {

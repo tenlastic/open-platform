@@ -194,10 +194,11 @@ export class BuildsFormPageComponent implements OnInit {
         });
     });
 
-    this.data = new Build(result);
     this.form.enable({ emitEvent: false });
     this.progress = null;
     this.status = Status.Ready;
+
+    return new Build(result);
   }
 
   private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
@@ -252,9 +253,9 @@ export class BuildsFormPageComponent implements OnInit {
   private async upsert(data: Partial<Build>) {
     if (this.data._id) {
       data._id = this.data._id;
-      await this.buildService.update(data);
+      this.data = await this.buildService.update(data);
     } else {
-      await this.create(data);
+      this.data = await this.create(data);
       this.router.navigate(['../', this.data._id], { relativeTo: this.activatedRoute });
     }
 
