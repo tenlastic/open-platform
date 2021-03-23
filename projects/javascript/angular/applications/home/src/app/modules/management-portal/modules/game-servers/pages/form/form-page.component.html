@@ -86,21 +86,7 @@
     </div>
 
     <app-toggle-section title="Metadata">
-      <div class="row"
-           formArrayName="metadata"
-           *ngFor="let property of form['controls'].metadata['controls']; let i = index">
-        <app-metadata-field [form]="property"
-                            (remove)="removeProperty(i)"></app-metadata-field>
-      </div>
-
-      <div class="row">
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="addProperty()">
-          <mat-icon>add</mat-icon>
-          <span>Add Property</span>
-        </app-button>
-      </div>
+      <app-metadata-fields [formArray]="form['controls'].metadata"></app-metadata-fields>
     </app-toggle-section>
 
     <app-toggle-section *ngIf="data._id"

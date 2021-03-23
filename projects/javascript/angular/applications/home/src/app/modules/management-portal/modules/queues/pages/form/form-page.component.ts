@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -66,31 +66,24 @@ export class QueuesFormPageComponent implements OnInit {
     });
   }
 
-  public addProperty() {
-    const property = this.getDefaultPropertyFormGroup();
-    const formArray = this.form.get('gameServerTemplate').get('metadata') as FormArray;
-
-    formArray.push(property);
-  }
-
-  public removeProperty(index: number) {
-    const formArray = this.form.get('gameServerTemplate').get('metadata') as FormArray;
-    formArray.removeAt(index);
-  }
-
   public async save() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const metadata = this.form
+    const gameServerMetadata = this.form
       .get('gameServerTemplate')
       .get('metadata')
       .value.reduce((accumulator, property) => {
         accumulator[property.key] = this.getJsonFromProperty(property);
         return accumulator;
       }, {});
+
+    const metadata = this.form.get('metadata').value.reduce((accumulator, property) => {
+      accumulator[property.key] = this.getJsonFromProperty(property);
+      return accumulator;
+    }, {});
 
     const values: Partial<Queue> = {
       description: this.form.get('description').value,
@@ -100,8 +93,9 @@ export class QueuesFormPageComponent implements OnInit {
         cpu: this.form.get('gameServerTemplate').get('cpu').value,
         isPreemptible: this.form.get('gameServerTemplate').get('isPreemptible').value,
         memory: this.form.get('gameServerTemplate').get('memory').value,
-        metadata,
+        metadata: gameServerMetadata,
       },
+      metadata,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
       usersPerTeam: this.form.get('usersPerTeam').value,
@@ -127,14 +121,6 @@ export class QueuesFormPageComponent implements OnInit {
     });
   }
 
-  private getDefaultPropertyFormGroup() {
-    return this.formBuilder.group({
-      key: ['', [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
-      value: false,
-      type: 'boolean',
-    });
-  }
-
   private getJsonFromProperty(property: PropertyFormGroup): any {
     switch (property.type) {
       case 'boolean':
@@ -148,26 +134,29 @@ export class QueuesFormPageComponent implements OnInit {
     }
   }
 
+  private getMetadataFormGroups(metadata: any[]) {
+    return Object.entries(metadata).map(([key, property]) => {
+      let type = 'boolean';
+      if (typeof property === 'string' || property instanceof String) {
+        type = 'string';
+      } else if (typeof property === 'number') {
+        type = 'number';
+      }
+
+      return this.formBuilder.group({
+        key: [key, [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
+        value: property,
+        type,
+      });
+    });
+  }
+
   private setupForm(): void {
     this.data = this.data || new Queue();
 
-    const properties = [];
+    const gameServerMetadata = [];
     if (this.data.gameServerTemplate && this.data.gameServerTemplate.metadata) {
-      Object.entries(this.data.gameServerTemplate.metadata).forEach(([key, property]) => {
-        let type = 'boolean';
-        if (typeof property === 'string' || property instanceof String) {
-          type = 'string';
-        } else if (typeof property === 'number') {
-          type = 'number';
-        }
-
-        const formGroup = this.formBuilder.group({
-          key: [key, [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
-          value: property,
-          type,
-        });
-        properties.push(formGroup);
-      });
+      gameServerMetadata.push(...this.getMetadataFormGroups(this.data.gameServerTemplate.metadata));
     }
 
     let gameServerTemplateForm: FormGroup;
@@ -177,7 +166,7 @@ export class QueuesFormPageComponent implements OnInit {
         cpu: [this.data.gameServerTemplate.cpu || this.cpus[0].value],
         isPreemptible: [this.data.gameServerTemplate.isPreemptible || false],
         memory: [this.data.gameServerTemplate.memory || this.memories[0].value],
-        metadata: this.formBuilder.array(properties),
+        metadata: this.formBuilder.array(gameServerMetadata),
       });
     } else {
       gameServerTemplateForm = this.formBuilder.group({
@@ -185,14 +174,20 @@ export class QueuesFormPageComponent implements OnInit {
         cpu: [this.cpus[0].value],
         isPreemptible: [true],
         memory: [this.memories[0].value],
-        metadata: this.formBuilder.array(properties),
+        metadata: this.formBuilder.array(gameServerMetadata),
       });
+    }
+
+    const metadata = [];
+    if (this.data && this.data.metadata) {
+      metadata.push(...this.getMetadataFormGroups(this.data.metadata));
     }
 
     this.form = this.formBuilder.group({
       description: [this.data.description],
       gameId: [this.data.gameId],
       gameServerTemplate: gameServerTemplateForm,
+      metadata: this.formBuilder.array(metadata),
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId],
       usersPerTeam: [this.data.usersPerTeam || 1, Validators.required],

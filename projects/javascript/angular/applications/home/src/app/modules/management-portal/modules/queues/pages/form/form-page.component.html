@@ -60,6 +60,11 @@
       </mat-form-field>
     </div>
 
+    <app-toggle-section title="Queue Metadata"
+                        [isVisible]="false">
+      <app-metadata-fields [formArray]="form['controls'].metadata"></app-metadata-fields>
+    </app-toggle-section>
+
     <app-toggle-section formGroupName="gameServerTemplate"
                         title="Game Server Template">
       <div class="row">
@@ -103,25 +108,9 @@
     </app-toggle-section>
 
     <app-toggle-section formGroupName="gameServerTemplate"
-                        title="Game Server Metadata">
-      <div class="row"
-           formArrayName="metadata"
-           *ngFor="
-          let property of form['controls'].gameServerTemplate['controls'].metadata['controls'];
-          let i = index
-        ">
-        <app-metadata-field [form]="property"
-                            (remove)="removeProperty(i)"></app-metadata-field>
-      </div>
-
-      <div class="row">
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="addProperty()">
-          <mat-icon>add</mat-icon>
-          <span>Add Property</span>
-        </app-button>
-      </div>
+                        title="Game Server Metadata"
+                        [isVisible]="false">
+      <app-metadata-fields [formArray]="form['controls'].gameServerTemplate['controls'].metadata"></app-metadata-fields>
     </app-toggle-section>
 
     <div *ngFor="let error of errors"

@@ -12,6 +12,7 @@ export * from './match-prompt/match-prompt.component';
 export * from './message-group/message-group.component';
 export * from './messages/messages.component';
 export * from './metadata-field/metadata-field.component';
+export * from './metadata-fields/metadata-fields.component';
 export * from './prompt/prompt.component';
 export * from './refresh-token-prompt/refresh-token-prompt.component';
 export * from './sidenav/sidenav.component';

@@ -54,6 +54,9 @@ export class QueueSchema {
   @prop({ _id: false, required: true })
   public gameServerTemplate: GameServerDocument;
 
+  @prop({ default: {} })
+  public metadata: any;
+
   @prop({ required: true })
   public name: string;
 

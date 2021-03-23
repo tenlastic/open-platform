@@ -1,0 +1,14 @@
+<div class="row"
+     *ngFor="let property of formArray['controls']; let i = index">
+  <app-metadata-field [form]="property"
+                      (remove)="removeProperty(i)"></app-metadata-field>
+</div>
+
+<div class="row">
+  <app-button color="accent"
+              layout="left"
+              (OnClick)="addProperty()">
+    <mat-icon>add</mat-icon>
+    <span>Add Property</span>
+  </app-button>
+</div>

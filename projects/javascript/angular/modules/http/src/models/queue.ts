@@ -9,6 +9,7 @@ export class Queue extends Model {
   public game: Game;
   public gameId: string;
   public gameServerTemplate: Partial<GameServer>;
+  public metadata: any;
   public name: string;
   public namespaceId: string;
   public usersPerTeam: number;

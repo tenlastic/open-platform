@@ -76,18 +76,6 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     this.updateGameServer$.unsubscribe();
   }
 
-  public addProperty() {
-    const property = this.getDefaultPropertyFormGroup();
-    const formArray = this.form.get('metadata') as FormArray;
-
-    formArray.push(property);
-  }
-
-  public removeProperty(index: number) {
-    const formArray = this.form.get('metadata') as FormArray;
-    formArray.removeAt(index);
-  }
-
   public async save() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -140,14 +128,6 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
         this.handleHttpError(e);
       }
     }
-  }
-
-  private getDefaultPropertyFormGroup() {
-    return this.formBuilder.group({
-      key: ['', [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
-      value: false,
-      type: 'boolean',
-    });
   }
 
   private getDirtyFields() {

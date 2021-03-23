@@ -16,6 +16,8 @@ components:
           format: ^[a-f0-9]{24}$
         gameServerTemplate:
           $ref: '#/components/schemas/GameServer'
+        metadata:
+          type: object
         name:
           type: string
         namespaceId:
