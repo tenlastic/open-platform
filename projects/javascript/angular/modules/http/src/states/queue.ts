@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 
 import { Queue } from '../models/queue';
 import { QueueService } from '../services/queue/queue.service';
+import { BuildQuery } from './build';
 import { GameQuery } from './game';
 
 export interface QueueState extends EntityState<Queue> {}
@@ -24,16 +25,25 @@ export class QueueStore extends EntityStore<QueueState, Queue> {
 
 @Injectable({ providedIn: 'root' })
 export class QueueQuery extends QueryEntity<QueueState, Queue> {
-  constructor(protected gameQuery: GameQuery, protected store: QueueStore) {
+  constructor(
+    protected buildQuery: BuildQuery,
+    protected gameQuery: GameQuery,
+    protected store: QueueStore,
+  ) {
     super(store);
   }
 
   public populate($input: Observable<Queue[]>) {
-    return combineLatest([$input, this.gameQuery.selectAll({ asObject: true })]).pipe(
-      map(([queues, games]) => {
+    return combineLatest([
+      $input,
+      this.buildQuery.selectAll({ asObject: true }),
+      this.gameQuery.selectAll({ asObject: true }),
+    ]).pipe(
+      map(([queues, builds, games]) => {
         return queues.map(queue => {
           return new Queue({
             ...queue,
+            build: builds[queue.buildId],
             game: games[queue.gameId],
           });
         });

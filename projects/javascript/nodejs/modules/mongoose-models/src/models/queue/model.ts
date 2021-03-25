@@ -17,6 +17,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { namespaceValidator } from '../../validators';
+import { BuildDocument } from '../build';
 import { GameDocument } from '../game';
 import { GameInvitationDocument } from '../game-invitation';
 import { GameServerDocument } from '../game-server';
@@ -43,6 +44,10 @@ NamespaceEvent.sync(async payload => {
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: QueueEvent })
 export class QueueSchema {
   public _id: mongoose.Types.ObjectId;
+
+  @prop({ ref: 'BuildSchema', validate: namespaceValidator('buildDocument', 'buildId') })
+  public buildId: Ref<BuildDocument>;
+
   public createdAt: Date;
 
   @prop()
@@ -53,6 +58,9 @@ export class QueueSchema {
 
   @prop({ _id: false, required: true })
   public gameServerTemplate: GameServerDocument;
+
+  @prop()
+  public isPreemptible: boolean;
 
   @prop({ default: {} })
   public metadata: any;
@@ -70,6 +78,9 @@ export class QueueSchema {
 
   @prop({ required: true })
   public usersPerTeam: number;
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })
+  public buildDocument: BuildDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: 'GameSchema' })
   public gameDocument: GameDocument;
@@ -109,6 +120,14 @@ export class QueueSchema {
         throw new NamespaceLimitError('queues.count', limits.count);
       }
     }
+  }
+
+  /**
+   * Returns true if a restart is required on an update.
+   */
+  public static isRestartRequired(fields: string[]) {
+    const immutableFields = ['buildId'];
+    return immutableFields.some(i => fields.includes(i));
   }
 }
 

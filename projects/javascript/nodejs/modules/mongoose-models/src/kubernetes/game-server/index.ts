@@ -189,7 +189,6 @@ export const KubernetesGameServer = {
             },
           },
         ],
-        dnsPolicy: 'Default',
         enableServiceLinks: false,
         imagePullSecrets: [{ name }],
         restartPolicy: gameServer.isPersistent ? 'Always' : 'Never',

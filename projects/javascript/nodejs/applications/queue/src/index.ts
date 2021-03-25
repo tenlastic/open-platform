@@ -8,21 +8,14 @@ import { removeConflictedUsers } from './remove-conflicted-users';
 const INTERVAL = 5000;
 
 const accessToken = process.env.ACCESS_TOKEN;
-const queueId = process.env.QUEUE_ID;
+const queue = JSON.parse(process.env.QUEUE_JSON);
 
 (async function main() {
   try {
-    const queueResponse = await requestPromiseNative.get({
-      headers: { Authorization: `Bearer ${accessToken}` },
-      json: true,
-      url: `http://api.default:3000/queues/${queueId}`,
-    });
-    const queue = queueResponse.record;
-
     const queueMemberResponse = await requestPromiseNative.get({
       headers: { Authorization: `Bearer ${accessToken}` },
       json: true,
-      qs: JSON.stringify({ where: { queueId } }),
+      qs: { query: JSON.stringify({ where: { queueId: queue._id } }) },
       url: `http://api.default:3000/queue-members`,
     });
     let queueMembers = queueMemberResponse.records;

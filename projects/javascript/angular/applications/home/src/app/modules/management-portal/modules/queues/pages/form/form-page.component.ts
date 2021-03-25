@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   Build,
@@ -14,6 +14,7 @@ import {
 } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { PromptComponent } from '../../../../../../shared/components';
 
 interface PropertyFormGroup {
   key?: string;
@@ -40,6 +41,7 @@ export class QueuesFormPageComponent implements OnInit {
     private formBuilder: FormBuilder,
     private gameService: GameService,
     public identityService: IdentityService,
+    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private queueService: QueueService,
     private router: Router,
@@ -86,6 +88,7 @@ export class QueuesFormPageComponent implements OnInit {
     }, {});
 
     const values: Partial<Queue> = {
+      buildId: this.form.get('buildId').value,
       description: this.form.get('description').value,
       gameId: this.form.get('gameId').value,
       gameServerTemplate: {
@@ -102,23 +105,38 @@ export class QueuesFormPageComponent implements OnInit {
       teams: this.form.get('teams').value,
     };
 
-    try {
-      await this.upsert(values);
-    } catch (e) {
-      this.handleHttpError(e, { name: 'Name' });
+    const dirtyFields = this.getDirtyFields();
+    if (this.data._id && Queue.isRestartRequired(dirtyFields)) {
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message: `These changes require the Queue to be restarted. Is this OK?`,
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(async (result: string) => {
+        if (result === 'Yes') {
+          try {
+            await this.upsert(values);
+          } catch (e) {
+            this.handleHttpError(e, { name: 'Name' });
+          }
+        }
+      });
+    } else {
+      try {
+        await this.upsert(values);
+      } catch (e) {
+        this.handleHttpError(e, { name: 'Name' });
+      }
     }
   }
 
-  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map(e => {
-      if (e.name === 'UniquenessError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map(p => pathMap[p]);
-        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
-    });
+  private getDirtyFields() {
+    return Object.keys(this.form.controls).filter(key => this.form.get(key).dirty);
   }
 
   private getJsonFromProperty(property: PropertyFormGroup): any {
@@ -148,6 +166,18 @@ export class QueuesFormPageComponent implements OnInit {
         value: property,
         type,
       });
+    });
+  }
+
+  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
+    this.errors = err.error.errors.map(e => {
+      if (e.name === 'UniquenessError') {
+        const combination = e.paths.length > 1 ? 'combination ' : '';
+        const paths = e.paths.map(p => pathMap[p]);
+        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
+      } else {
+        return e.message;
+      }
     });
   }
 
@@ -184,6 +214,7 @@ export class QueuesFormPageComponent implements OnInit {
     }
 
     this.form = this.formBuilder.group({
+      buildId: [this.data.buildId],
       description: [this.data.description],
       gameId: [this.data.gameId],
       gameServerTemplate: gameServerTemplateForm,

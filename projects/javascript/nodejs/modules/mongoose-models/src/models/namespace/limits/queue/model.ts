@@ -3,6 +3,9 @@ import { DocumentType, ReturnModelType, getModelForClass, prop } from '@hasezoey
 export class NamespaceQueueLimitsSchema {
   @prop({ default: 0 })
   public count: number;
+
+  @prop({ default: false })
+  public preemptible: boolean;
 }
 
 export type NamespaceQueueLimitsDocument = DocumentType<NamespaceQueueLimitsSchema>;

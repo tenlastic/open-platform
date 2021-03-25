@@ -103,11 +103,19 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
 
           // Update Queues.
           const queues = await this.queueService.find({
-            where: { 'gameServerTemplate.buildId': build.reference._id },
+            where: { buildId: build.reference._id },
           });
           for (const queue of queues) {
+            await this.queueService.update({ _id: queue._id, buildId: build._id });
+          }
+
+          // Update Queue Game Server templates.
+          const gameServerTemplates = await this.queueService.find({
+            where: { 'gameServerTemplate.buildId': build.reference._id },
+          });
+          for (const queue of gameServerTemplates) {
             await this.queueService.update({
-              ...queue,
+              _id: queue._id,
               gameServerTemplate: { ...queue.gameServerTemplate, buildId: build._id },
             });
           }

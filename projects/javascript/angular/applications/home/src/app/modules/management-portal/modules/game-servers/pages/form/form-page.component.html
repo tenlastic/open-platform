@@ -40,7 +40,7 @@
         <mat-label>Game</mat-label>
         <mat-select formControlName="gameId"
                     placeholder="No Game">
-          <mat-option>No Game</mat-option>
+          <mat-option [value]="null">No Game</mat-option>
           <mat-option *ngFor="let game of games"
                       [value]="game._id">
             {{ game.fullTitle }}

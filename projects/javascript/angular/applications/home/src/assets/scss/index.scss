@@ -8,6 +8,15 @@
   text-shadow: 2px 3px 3px #000000;
 }
 
+a {
+  color: #ffff55;
+  text-decoration: none;
+
+  &:hover {
+    color: white;
+  }
+}
+
 app-toggle-section:last-of-type > .row:last-of-type {
   border-bottom: 1px solid rgba(255, 255, 255, 0.25);
   margin-bottom: 20px;

@@ -2,16 +2,16 @@ import * as k8s from '@kubernetes/client-node';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
+import { URL } from 'url';
 
 import { NamespaceDocument } from '../../models/namespace';
-import { QueueDocument, QueueEvent } from '../../models/queue';
+import { Queue, QueueDocument, QueueEvent } from '../../models/queue';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
 const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
-const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
-const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
+const networkingV1 = kc.makeApiClient(k8s.NetworkingV1Api);
 
 QueueEvent.sync(async payload => {
   const queue = payload.fullDocument;
@@ -24,7 +24,10 @@ QueueEvent.sync(async payload => {
     await KubernetesQueue.delete(queue.namespaceDocument, queue);
   } else if (payload.operationType === 'insert') {
     await KubernetesQueue.create(queue.namespaceDocument, queue);
-  } else if (payload.operationType === 'update') {
+  } else if (
+    payload.operationType === 'update' &&
+    Queue.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
+  ) {
     await KubernetesQueue.delete(queue.namespaceDocument, queue);
     await KubernetesQueue.create(queue.namespaceDocument, queue);
   }
@@ -35,51 +38,47 @@ export const KubernetesQueue = {
     const name = KubernetesQueue.getName(queue);
 
     /**
-     * ======================
-     * RBAC
-     * ======================
+     * =======================
+     * NETWORK POLICY
+     * =======================
      */
-    await rbacAuthorizationV1.createNamespacedRole(namespace.kubernetesNamespace, {
+    await networkingV1.createNamespacedNetworkPolicy(namespace.kubernetesNamespace, {
       metadata: { name },
-      rules: [
-        {
-          apiGroups: [''],
-          resources: ['pods', 'pods/log', 'pods/status'],
-          verbs: ['get', 'list', 'watch'],
+      spec: {
+        egress: [
+          {
+            to: [
+              {
+                ipBlock: {
+                  cidr: '0.0.0.0/0',
+                  except: ['10.0.0.0/8', '172.0.0.0/8', '192.0.0.0/8'],
+                },
+              },
+              {
+                podSelector: {
+                  matchLabels: {
+                    app: 'api',
+                  },
+                },
+              },
+            ],
+          },
+        ],
+        podSelector: {
+          matchLabels: {
+            app: name,
+            role: 'application',
+          },
         },
-      ],
-    });
-    await coreV1.createNamespacedServiceAccount(namespace.kubernetesNamespace, {
-      metadata: { name },
-    });
-    await rbacAuthorizationV1.createNamespacedRoleBinding(namespace.kubernetesNamespace, {
-      metadata: { name },
-      roleRef: {
-        apiGroup: 'rbac.authorization.k8s.io',
-        kind: 'Role',
-        name,
+        policyTypes: ['Egress'],
       },
-      subjects: [
-        {
-          kind: 'ServiceAccount',
-          name,
-          namespace: namespace.kubernetesNamespace,
-        },
-      ],
     });
 
     /**
      * ======================
-     * DEPLOYMENT
+     * STATEFUL SET
      * ======================
      */
-    const administrator = { roles: ['game-servers', 'queues'], system: true };
-    const accessToken = jwt.sign(
-      { type: 'access', user: administrator },
-      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      { algorithm: 'RS256' },
-    );
-
     const affinity = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
@@ -87,7 +86,9 @@ export const KubernetesQueue = {
             {
               matchExpressions: [
                 {
-                  key: 'tenlastic.com/low-priority',
+                  key: queue.isPreemptible
+                    ? 'tenlastic.com/low-priority'
+                    : 'tenlastic.com/high-priority',
                   operator: 'Exists',
                 },
               ],
@@ -97,31 +98,53 @@ export const KubernetesQueue = {
       },
     };
     const env = [
-      { name: 'ACCESS_TOKEN', value: accessToken },
-      { name: 'QUEUE_ID', value: queue._id.toString() },
-      { name: 'LOG_CONTAINER', value: 'main' },
-      {
-        name: 'LOG_ENDPOINT',
-        value: `http://api.default:3000/queues/${queue._id}/logs`,
-      },
-      {
-        name: 'LOG_POD_LABEL_SELECTOR',
-        value: `app=${name}`,
-      },
-      { name: 'LOG_POD_NAMESPACE', value: namespace.kubernetesNamespace },
+      { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
+      { name: 'QUEUE_JSON', value: JSON.stringify(queue) },
     ];
 
-    const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
-    const version = JSON.parse(packageDotJson).version;
+    // Add an access token if the Queue does not use a custom Build.
+    if (!queue.buildId) {
+      const administrator = { roles: ['game-servers', 'queues'], system: true };
+      const accessToken = jwt.sign(
+        { type: 'access', user: administrator },
+        process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        { algorithm: 'RS256' },
+      );
 
+      env.push({ name: 'ACCESS_TOKEN', value: accessToken });
+    }
+
+    const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/');
     let manifest: k8s.V1PodTemplateSpec;
-    if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
+    if (isDevelopment && queue.buildId) {
+      const url = new URL(process.env.DOCKER_REGISTRY_URL);
+      const image = `${url.host}/${queue.namespaceId}:${queue.buildId}`;
+
       manifest = {
         metadata: {
-          annotations: {
-            'tenlastic.com/queueId': queue._id.toString(),
-          },
-          labels: { app: name },
+          annotations: { 'tenlastic.com/queueId': queue._id.toString() },
+          labels: { app: name, role: 'application' },
+          name,
+        },
+        spec: {
+          affinity,
+          automountServiceAccountToken: false,
+          containers: [
+            {
+              env,
+              image,
+              name: 'main',
+              resources: { requests: { cpu: '100m', memory: '100M' } },
+            },
+          ],
+          enableServiceLinks: false,
+        },
+      };
+    } else if (isDevelopment && !queue.buildId) {
+      manifest = {
+        metadata: {
+          annotations: { 'tenlastic.com/queueId': queue._id.toString() },
+          labels: { app: name, role: 'application' },
           name,
         },
         spec: {
@@ -132,31 +155,46 @@ export const KubernetesQueue = {
               env,
               image: `node:12`,
               name: 'main',
-              resources: { requests: { cpu: '50m', memory: '50M' } },
+              resources: { requests: { cpu: '100m', memory: '100M' } },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
               workingDir: '/usr/src/app/projects/javascript/nodejs/applications/queue/',
             },
-            {
-              command: ['npm', 'run', 'start'],
-              env,
-              image: 'node:12',
-              name: 'log-sidecar',
-              resources: { requests: { cpu: '50m', memory: '50M' } },
-              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/log-sidecar/',
-            },
           ],
-          serviceAccountName: name,
           volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
         },
       };
-    } else {
+    } else if (queue.buildId) {
+      const url = new URL(process.env.DOCKER_REGISTRY_URL);
+      const image = `${url.host}/${queue.namespaceId}:${queue.buildId}`;
+
       manifest = {
         metadata: {
-          annotations: {
-            'tenlastic.com/queueId': queue._id.toString(),
-          },
-          labels: { app: name },
+          annotations: { 'tenlastic.com/queueId': queue._id.toString() },
+          labels: { app: name, role: 'application' },
+          name,
+        },
+        spec: {
+          affinity,
+          automountServiceAccountToken: false,
+          containers: [
+            {
+              env,
+              image,
+              name: 'main',
+              resources: { requests: { cpu: '100m', memory: '100M' } },
+            },
+          ],
+          enableServiceLinks: false,
+        },
+      };
+    } else {
+      const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
+      const version = JSON.parse(packageDotJson).version;
+
+      manifest = {
+        metadata: {
+          annotations: { 'tenlastic.com/queueId': queue._id.toString() },
+          labels: { app: name, role: 'application' },
           name,
         },
         spec: {
@@ -166,29 +204,22 @@ export const KubernetesQueue = {
               env,
               image: `tenlastic/queue:${version}`,
               name: 'main',
-              resources: { requests: { cpu: '50m', memory: '50M' } },
-            },
-            {
-              env,
-              image: `tenlastic/log-sidecar:${version}`,
-              name: 'log-sidecar',
-              resources: { requests: { cpu: '50m', memory: '50M' } },
+              resources: { requests: { cpu: '100m', memory: '100M' } },
             },
           ],
-          serviceAccountName: name,
         },
       };
     }
 
     await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
       metadata: {
-        labels: { app: name },
+        labels: { app: name, role: 'application' },
         name,
       },
       spec: {
         replicas: 1,
         selector: {
-          matchLabels: { app: name },
+          matchLabels: { app: name, role: 'application' },
         },
         template: manifest,
       },
@@ -198,21 +229,17 @@ export const KubernetesQueue = {
     const name = KubernetesQueue.getName(queue);
 
     /**
-     * ======================
-     * RBAC
-     * ======================
+     * =======================
+     * NETWORK POLICY
+     * =======================
      */
     try {
-      await rbacAuthorizationV1.deleteClusterRole(name);
-      await rbacAuthorizationV1.deleteNamespacedRole(name, namespace.kubernetesNamespace);
-      await coreV1.deleteNamespacedServiceAccount(name, namespace.kubernetesNamespace);
-      await rbacAuthorizationV1.deleteClusterRoleBinding(name);
-      await rbacAuthorizationV1.deleteNamespacedRoleBinding(name, namespace.kubernetesNamespace);
+      await networkingV1.deleteNamespacedNetworkPolicy(name, namespace.kubernetesNamespace);
     } catch {}
 
     /**
      * ======================
-     * DEPLOYMENT
+     * STATEFUL SET
      * ======================
      */
     try {

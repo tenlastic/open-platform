@@ -22,9 +22,8 @@ import { MongoError } from 'mongodb';
 import * as mongoose from 'mongoose';
 
 import { GameInvitation } from '../game-invitation';
-import { GameServerEvent } from '../game-server';
 import { GroupDocument, GroupEvent } from '../group';
-import { QueueDocument } from '../queue';
+import { Queue, QueueDocument, QueueEvent } from '../queue';
 import { RefreshTokenDocument } from '../refresh-token';
 import { UserDocument } from '../user';
 import { WebSocketEvent } from '../web-socket';
@@ -62,6 +61,18 @@ GroupEvent.sync(async payload => {
 
   const queueMembers = await QueueMember.find({ groupId: payload.fullDocument._id });
   return Promise.all(queueMembers.map(qm => qm.remove()));
+});
+
+// Delete QueueMember when associated Queue is deleted or restarted.
+QueueEvent.sync(async payload => {
+  const isRestarted =
+    payload.operationType === 'update' &&
+    Queue.isRestartRequired(Object.keys(payload.updateDescription.updatedFields));
+
+  if (payload.operationType === 'delete' || isRestarted) {
+    const queueMembers = await QueueMember.find({ queueId: payload.fullDocument._id });
+    return Promise.all(queueMembers.map(qm => qm.remove()));
+  }
 });
 
 // Delete QueueMember when associated WebSocket is deleted.
