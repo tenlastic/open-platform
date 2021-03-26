@@ -5,6 +5,8 @@ import {
   KubernetesBuildSidecar,
   KubernetesGameServer,
   KubernetesGameServerSidecar,
+  KubernetesQueue,
+  KubernetesQueueSidecar,
   KubernetesNamespace,
   KubernetesWorkflow,
   KubernetesWorkflowSidecar,
@@ -20,6 +22,10 @@ export function stub(sandbox: SinonSandbox) {
   sandbox.stub(KubernetesGameServerSidecar, 'delete').resolves();
   sandbox.stub(KubernetesNamespace, 'create').resolves();
   sandbox.stub(KubernetesNamespace, 'delete').resolves();
+  sandbox.stub(KubernetesQueue, 'create').resolves();
+  sandbox.stub(KubernetesQueue, 'delete').resolves();
+  sandbox.stub(KubernetesQueueSidecar, 'create').resolves();
+  sandbox.stub(KubernetesQueueSidecar, 'delete').resolves();
   sandbox.stub(KubernetesWorkflow, 'create').resolves();
   sandbox.stub(KubernetesWorkflow, 'delete').resolves();
   sandbox.stub(KubernetesWorkflowSidecar, 'create').resolves();

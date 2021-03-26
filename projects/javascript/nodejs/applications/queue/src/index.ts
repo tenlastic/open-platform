@@ -1,44 +1,40 @@
 import 'source-map-support/register';
 
-import * as requestPromiseNative from 'request-promise-native';
-
 import { createGameServer } from './create-game-server';
-import { removeConflictedUsers } from './remove-conflicted-users';
+import * as redis from './redis';
+import { queueMemberStore } from './stores';
+import { WebSocket } from './websocket';
 
-const INTERVAL = 5000;
-
-const accessToken = process.env.ACCESS_TOKEN;
 const queue = JSON.parse(process.env.QUEUE_JSON);
 
-(async function main() {
+(async () => {
+  await redis.start();
+
+  const webSocket = new WebSocket();
+  webSocket.emitter.on('open', () => {
+    webSocket.subscribe('queue-members', queueMemberStore, { queueId: queue._id });
+  });
+  webSocket.connect();
+
+  // Wait for changes from web socket to catch up.
+  setTimeout(main, 15000);
+})();
+
+async function main() {
   try {
-    const queueMemberResponse = await requestPromiseNative.get({
-      headers: { Authorization: `Bearer ${accessToken}` },
-      json: true,
-      qs: { query: JSON.stringify({ where: { queueId: queue._id } }) },
-      url: `http://api.default:3000/queue-members`,
-    });
-    let queueMembers = queueMemberResponse.records;
-    console.log(`Processing ${queueMembers.length} QueueMembers...`);
+    const result = await createGameServer(queue);
 
-    // Remove Queue Members already in a match.
-    queueMembers = await removeConflictedUsers(queue, queueMembers);
-    console.log(`Processing ${queueMembers.length} unmatched QueueMembers .`);
+    console.log(`GameServer created successfully: ${result._id}.`);
+    console.log(`${queueMemberStore.items.length} QueueMembers remaining.`);
 
-    while (queueMembers.length > 0) {
-      const result = await createGameServer(queue, queueMembers);
-      queueMembers = result.queueMembers;
-
-      console.log(`GameServer created successfully: ${result.gameServer._id}.`);
-      console.log(`Processing ${queueMembers.length} unmatched QueueMembers .`);
-    }
+    return main();
   } catch (e) {
-    if (e.body && e.body.errors) {
-      e.body.errors.forEach(error => console.error(error.message));
+    if (e.name === 'StatusCodeError') {
+      e.error.errors.forEach(error => console.error(error.message));
     } else {
       console.error(e.message);
     }
-  } finally {
-    setTimeout(main, INTERVAL);
+
+    setTimeout(main, 15000);
   }
-})();
+}

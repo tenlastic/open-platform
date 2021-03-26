@@ -63,7 +63,7 @@ export const KubernetesNamespace = {
                       {
                         matchExpressions: [
                           {
-                            key: 'tenlastic.com/high-priority',
+                            key: 'tenlastic.com/low-priority',
                             operator: 'Exists',
                           },
                         ],

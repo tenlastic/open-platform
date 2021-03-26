@@ -18,9 +18,9 @@ export namespace IGameServer {
   ];
 
   export enum Status {
-    Running = 'running',
-    Terminated = 'terminated',
-    Waiting = 'waiting',
+    Running = 'Running',
+    Terminated = 'Terminated',
+    Waiting = 'Waiting',
   }
 
   export interface Endpoints {

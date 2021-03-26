@@ -250,7 +250,7 @@ export class SocialComponent implements OnDestroy, OnInit {
       const $queueMembers = this.queueMemberQuery.selectAll({
         filterBy: qm =>
           this.electronService.isElectron &&
-          (qm.groupId === group._id || qm.userId === this.identityService.user._id),
+          ((group && group._id === qm.groupId) || qm.userId === this.identityService.user._id),
       });
       this.$queueMembers = this.queueMemberQuery.populate($queueMembers);
     });

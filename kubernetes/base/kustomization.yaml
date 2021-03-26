@@ -5,6 +5,7 @@ resources:
   - ./argo/argo.yaml
   - ./docker-registry/docker-registry-ui.yaml
   - ./docker-registry/docker-registry.yaml
+  - ./global/default.namespace.yaml
   - ./global/standard-expandable.storageclass.yaml
   - ./helm-operator/helm-operator.yaml
   - ./kafka/kafdrop.yaml

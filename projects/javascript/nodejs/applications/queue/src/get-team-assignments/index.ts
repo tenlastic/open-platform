@@ -1,16 +1,9 @@
-export interface Queue {
-  teams: number;
-  usersPerTeam: number;
-}
-
-export interface QueueMember {
-  userIds: string[];
-}
+import { QueueModel, QueueMemberModel } from '../models';
 
 /**
  * Matches QueueMembers together.
  */
-export function getTeamAssignments(queue: Queue, queueMembers: QueueMember[]) {
+export function getTeamAssignments(queue: QueueModel, queueMembers: QueueMemberModel[]) {
   const complete: string[][] = [];
   const incomplete: string[][] = [];
 

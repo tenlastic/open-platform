@@ -1,7 +1,8 @@
 import { expect } from 'chai';
-import * as requestPromiseNative from 'request-promise-native';
 import * as sinon from 'sinon';
 
+import { gameServerService, queueMemberService } from '../services';
+import { queueMemberStore } from '../stores';
 import { createGameServer } from './';
 
 describe('create-game-server', function() {
@@ -30,24 +31,19 @@ describe('create-game-server', function() {
       teams: 2,
       usersPerTeam: 1,
     };
-    const queueMembers = [
-      { _id: '1', userIds: ['1'] },
-      { _id: '2', userIds: ['2'] },
-      { _id: '3', userIds: ['3'] },
-    ];
+    queueMemberStore.insert({ _id: '1', userIds: ['1'] });
+    queueMemberStore.insert({ _id: '2', userIds: ['2'] });
+    queueMemberStore.insert({ _id: '3', userIds: ['3'] });
 
-    const gameServerSpy = sandbox.stub(requestPromiseNative, 'post').resolves({
-      record: { _id: '1' },
-    });
-    const queueMemberSpy = sandbox.stub(requestPromiseNative, 'delete').resolves();
+    const createGameServerSpy = sandbox.stub(gameServerService, 'create').resolves({ _id: '1' });
+    const findGameServersSpy = sandbox.stub(gameServerService, 'find').resolves([]);
+    const queueMemberSpy = sandbox.stub(queueMemberService, 'delete').resolves();
 
-    const result = await createGameServer(queue, queueMembers);
+    const result = await createGameServer(queue);
 
-    expect(result).to.eql({
-      gameServer: { _id: '1' },
-      queueMembers: [{ _id: '3', userIds: ['3'] }],
-    });
-    expect(gameServerSpy.calledOnce).to.eql(true);
+    expect(result).to.eql({ _id: '1' });
+    expect(createGameServerSpy.calledOnce).to.eql(true);
+    expect(findGameServersSpy.calledOnce).to.eql(true);
     expect(queueMemberSpy.calledTwice).to.eql(true);
   });
 });

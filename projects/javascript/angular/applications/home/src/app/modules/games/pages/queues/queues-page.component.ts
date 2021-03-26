@@ -49,7 +49,9 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     this.$group = this.groupQuery
       .selectAll({ filterBy: g => g.userIds.includes(this.identityService.user._id) })
       .pipe(map(groups => groups[0]));
-    this.$queueMembers = this.queueMemberQuery.selectAll({ filterBy: () => false });
+    this.$queueMembers = this.queueMemberQuery.selectAll({
+      filterBy: qm => qm.userId === this.identityService.user._id,
+    });
     this.$queues = this.queueQuery.selectAll({
       filterBy: gs => gs.namespaceId === game.namespaceId,
     });
@@ -63,7 +65,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
       const $queueMembers = this.queueMemberQuery.selectAll({
         filterBy: qm =>
-          (group._id && qm.groupId === group._id) || qm.userId === this.identityService.user._id,
+          (group && qm.groupId === group._id) || qm.userId === this.identityService.user._id,
       });
       this.$queueMembers = this.queueMemberQuery.populate($queueMembers);
 
@@ -87,7 +89,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   public $getGroupQueueMember(queueId: string) {
     return combineLatest([this.$group, this.$queueMembers]).pipe(
       map(([group, queueMembers]) =>
-        queueMembers.find(qm => qm.groupId === group._id && qm.queueId === queueId),
+        queueMembers.find(qm => group && qm.groupId === group._id && qm.queueId === queueId),
       ),
     );
   }
@@ -109,7 +111,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   }
 
   public $isGroupSmallEnough(queue: Queue) {
-    return this.$group.pipe(map(group => group.userIds.length <= queue.usersPerTeam));
+    return this.$group.pipe(map(group => group && group.userIds.length <= queue.usersPerTeam));
   }
 
   public async joinAsGroup(queueId: string) {

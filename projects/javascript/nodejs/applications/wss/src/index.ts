@@ -30,7 +30,7 @@ webServer.start();
 // Web Sockets.
 const webSocketServer = new WebSocketServer(webServer.server);
 webSocketServer.connection((auth, ws) => {
-  if (!auth.jwt) {
+  if (!auth.jwt || !auth.jwt.jti || !auth.jwt.user) {
     return;
   }
 
@@ -58,7 +58,7 @@ webSocketServer.message((auth, data, ws) => {
   }
 });
 webSocketServer.upgrade(auth => {
-  if (!auth.jwt) {
+  if (!auth.jwt || !auth.jwt.jti || !auth.jwt.user) {
     return;
   }
 

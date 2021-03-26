@@ -15,9 +15,12 @@
     "version": "../../scripts/version.sh queue"
   },
   "dependencies": {
+    "redis": "3.0.2",
     "request": "2.88.0",
     "request-promise-native": "1.0.7",
-    "source-map-support": "0.5.12"
+    "source-map-support": "0.5.12",
+    "uuid": "8.3.0",
+    "websocket": "1.0.33"
   },
   "devDependencies": {
     "mocha": "7.1.2",
