@@ -4,6 +4,12 @@ export class NamespaceQueueLimitsSchema {
   @prop({ default: 0 })
   public count: number;
 
+  @prop({ default: 0 })
+  public cpu: number;
+
+  @prop({ default: 0 })
+  public memory: number;
+
   @prop({ default: false })
   public preemptible: boolean;
 }

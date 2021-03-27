@@ -101,15 +101,18 @@ export const KubernetesQueueSidecar = {
     const env = [
       { name: 'ACCESS_TOKEN', value: accessToken },
       { name: 'LOG_CONTAINER', value: 'main' },
-      {
-        name: 'LOG_ENDPOINT',
-        value: `http://api.default:3000/queues/${queue._id}/logs`,
-      },
+      { name: 'LOG_ENDPOINT', value: `http://api.default:3000/queues/${queue._id}/logs` },
       {
         name: 'LOG_POD_LABEL_SELECTOR',
-        value: `app=${queueName},role=application`,
+        value: `tenlastic.com/app=${queueName},tenlastic.com/role=application`,
       },
       { name: 'LOG_POD_NAMESPACE', value: namespace.kubernetesNamespace },
+      { name: 'QUEUE_ENDPOINT', value: `http://api.default:3000/queues/${queue._id}` },
+      {
+        name: 'QUEUE_POD_LABEL_SELECTOR',
+        value: `tenlastic.com/app=${queueName},tenlastic.com/role in (application,redis)`,
+      },
+      { name: 'QUEUE_POD_NAMESPACE', value: namespace.kubernetesNamespace },
     ];
 
     // If application is running locally, create debug containers.
@@ -119,8 +122,8 @@ export const KubernetesQueueSidecar = {
       manifest = {
         metadata: {
           labels: {
-            app: queueName,
-            role: 'sidecar',
+            'tenlastic.com/app': queueName,
+            'tenlastic.com/role': 'sidecar',
           },
           name,
         },
@@ -136,6 +139,15 @@ export const KubernetesQueueSidecar = {
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
               workingDir: '/usr/src/app/projects/javascript/nodejs/applications/log-sidecar/',
             },
+            {
+              command: ['npm', 'run', 'start'],
+              env,
+              image: 'node:12',
+              name: 'queue-sidecar',
+              resources: { requests: { cpu: '50m', memory: '50M' } },
+              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
+              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/queue-sidecar/',
+            },
           ],
           serviceAccountName: name,
           volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
@@ -145,8 +157,8 @@ export const KubernetesQueueSidecar = {
       manifest = {
         metadata: {
           labels: {
-            app: queueName,
-            role: 'sidecar',
+            'tenlastic.com/app': queueName,
+            'tenlastic.com/role': 'sidecar',
           },
           name,
         },
@@ -159,6 +171,12 @@ export const KubernetesQueueSidecar = {
               name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },
+            {
+              env,
+              image: `tenlastic/queue-sidecar:${version}`,
+              name: 'queue-sidecar',
+              resources: { requests: { cpu: '50m', memory: '50M' } },
+            },
           ],
           serviceAccountName: name,
         },
@@ -168,8 +186,8 @@ export const KubernetesQueueSidecar = {
     await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
       metadata: {
         labels: {
-          app: queueName,
-          role: 'sidecar',
+          'tenlastic.com/app': queueName,
+          'tenlastic.com/role': 'sidecar',
         },
         name,
       },
@@ -177,8 +195,8 @@ export const KubernetesQueueSidecar = {
         replicas: 1,
         selector: {
           matchLabels: {
-            app: queueName,
-            role: 'sidecar',
+            'tenlastic.com/app': queueName,
+            'tenlastic.com/role': 'sidecar',
           },
         },
         template: manifest,

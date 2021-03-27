@@ -289,6 +289,27 @@ export class NamespacesFormPageComponent implements OnInit {
             },
             Validators.required,
           ],
+          cpu: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: (limits && limits.queues && limits.queues.cpu) || 0,
+            },
+            Validators.required,
+          ],
+          memory: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: (limits && limits.queues && limits.queues.memory) || 0,
+            },
+            Validators.required,
+          ],
+          preemptible: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: (limits && limits.queues && limits.queues.preemptible) || false,
+            },
+            Validators.required,
+          ],
         }),
         workflows: this.formBuilder.group({
           count: [

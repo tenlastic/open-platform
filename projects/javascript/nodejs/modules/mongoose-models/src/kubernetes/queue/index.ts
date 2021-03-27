@@ -89,8 +89,8 @@ export const KubernetesQueue = {
                 // Allow traffic within Stateful Set.
                 podSelector: {
                   matchLabels: {
-                    app: name,
-                    role: 'application',
+                    'tenlastic.com/app': name,
+                    'tenlastic.com/role': 'application',
                   },
                 },
               },
@@ -107,8 +107,8 @@ export const KubernetesQueue = {
         ],
         podSelector: {
           matchLabels: {
-            app: name,
-            role: 'application',
+            'tenlastic.com/app': name,
+            'tenlastic.com/role': 'application',
           },
         },
         policyTypes: ['Egress'],
@@ -139,6 +139,16 @@ export const KubernetesQueue = {
       },
     };
     const password = chance.hash({ length: 128 });
+    const resources = {
+      limits: {
+        cpu: queue.cpu.toString(),
+        memory: queue.memory.toString(),
+      },
+      requests: {
+        cpu: queue.cpu.toString(),
+        memory: queue.memory.toString(),
+      },
+    };
 
     await customObjects.createNamespacedCustomObject(
       'helm.fluxcd.io',
@@ -169,14 +179,15 @@ export const KubernetesQueue = {
               persistence: {
                 storageClass: 'standard-expandable',
               },
-              resources: {
-                limits: { cpu: '100m', memory: '250M' },
-                requests: { cpu: '100m', memory: '250M' },
+              podLabels: {
+                'tenlastic.com/app': name,
+                'tenlastic.com/role': 'redis',
               },
+              resources,
               statefulset: {
                 labels: {
-                  app: name,
-                  role: 'redis',
+                  'tenlastic.com/app': name,
+                  'tenlastic.com/role': 'redis',
                 },
               },
             },
@@ -223,20 +234,13 @@ export const KubernetesQueue = {
       manifest = {
         metadata: {
           annotations: { 'tenlastic.com/queueId': queue._id.toString() },
-          labels: { app: name, role: 'application' },
+          labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
           name,
         },
         spec: {
           affinity,
           automountServiceAccountToken: false,
-          containers: [
-            {
-              env,
-              image,
-              name: 'main',
-              resources: { requests: { cpu: '100m', memory: '100M' } },
-            },
-          ],
+          containers: [{ env, image, name: 'main', resources }],
           enableServiceLinks: false,
         },
       };
@@ -244,7 +248,7 @@ export const KubernetesQueue = {
       manifest = {
         metadata: {
           annotations: { 'tenlastic.com/queueId': queue._id.toString() },
-          labels: { app: name, role: 'application' },
+          labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
           name,
         },
         spec: {
@@ -255,7 +259,7 @@ export const KubernetesQueue = {
               env,
               image: `node:12`,
               name: 'main',
-              resources: { requests: { cpu: '100m', memory: '100M' } },
+              resources,
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
               workingDir: '/usr/src/app/projects/javascript/nodejs/applications/queue/',
             },
@@ -270,20 +274,13 @@ export const KubernetesQueue = {
       manifest = {
         metadata: {
           annotations: { 'tenlastic.com/queueId': queue._id.toString() },
-          labels: { app: name, role: 'application' },
+          labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
           name,
         },
         spec: {
           affinity,
           automountServiceAccountToken: false,
-          containers: [
-            {
-              env,
-              image,
-              name: 'main',
-              resources: { requests: { cpu: '100m', memory: '100M' } },
-            },
-          ],
+          containers: [{ env, image, name: 'main', resources }],
           enableServiceLinks: false,
         },
       };
@@ -294,32 +291,25 @@ export const KubernetesQueue = {
       manifest = {
         metadata: {
           annotations: { 'tenlastic.com/queueId': queue._id.toString() },
-          labels: { app: name, role: 'application' },
+          labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
           name,
         },
         spec: {
           affinity,
-          containers: [
-            {
-              env,
-              image: `tenlastic/queue:${version}`,
-              name: 'main',
-              resources: { requests: { cpu: '100m', memory: '100M' } },
-            },
-          ],
+          containers: [{ env, image: `tenlastic/queue:${version}`, name: 'main', resources }],
         },
       };
     }
 
     await appsV1.createNamespacedStatefulSet(namespace.kubernetesNamespace, {
       metadata: {
-        labels: { app: name, role: 'application' },
+        labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
         name,
       },
       spec: {
         replicas: 1,
         selector: {
-          matchLabels: { app: name, role: 'application' },
+          matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
         },
         serviceName: name,
         template: manifest,

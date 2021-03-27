@@ -85,8 +85,8 @@ export const KubernetesGameServer = {
         ],
         podSelector: {
           matchLabels: {
-            app: name,
-            role: 'application',
+            'tenlastic.com/app': name,
+            'tenlastic.com/role': 'application',
           },
         },
         policyTypes: ['Egress'],
@@ -101,8 +101,8 @@ export const KubernetesGameServer = {
     await coreV1.createNamespacedService(namespace.kubernetesNamespace, {
       metadata: {
         labels: {
-          app: name,
-          role: 'application',
+          'tenlastic.com/app': name,
+          'tenlastic.com/role': 'application',
         },
         name,
       },
@@ -114,8 +114,8 @@ export const KubernetesGameServer = {
           },
         ],
         selector: {
-          app: name,
-          role: 'application',
+          'tenlastic.com/app': name,
+          'tenlastic.com/role': 'application',
         },
       },
     });
@@ -157,8 +157,8 @@ export const KubernetesGameServer = {
           'tenlastic.com/gameServerId': gameServer._id.toString(),
         },
         labels: {
-          app: name,
-          role: 'application',
+          'tenlastic.com/app': name,
+          'tenlastic.com/role': 'application',
         },
         name,
       },
@@ -199,8 +199,8 @@ export const KubernetesGameServer = {
       await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
         metadata: {
           labels: {
-            app: name,
-            role: 'application',
+            'tenlastic.com/app': name,
+            'tenlastic.com/role': 'application',
           },
           name,
         },
@@ -208,8 +208,8 @@ export const KubernetesGameServer = {
           replicas: 1,
           selector: {
             matchLabels: {
-              app: name,
-              role: 'application',
+              'tenlastic.com/app': name,
+              'tenlastic.com/role': 'application',
             },
           },
           template: manifest,
@@ -228,8 +228,8 @@ export const KubernetesGameServer = {
       await coreV1.createNamespacedService(namespace.kubernetesNamespace, {
         metadata: {
           labels: {
-            app: name,
-            role: 'application',
+            'tenlastic.com/app': name,
+            'tenlastic.com/role': 'application',
           },
           name: `${name}-node-port`,
         },
@@ -239,8 +239,8 @@ export const KubernetesGameServer = {
             { name: 'udp', nodePort: hostPort, port: 7777, protocol: 'UDP' },
           ],
           selector: {
-            app: name,
-            role: 'application',
+            'tenlastic.com/app': name,
+            'tenlastic.com/role': 'application',
           },
           type: 'NodePort',
         },

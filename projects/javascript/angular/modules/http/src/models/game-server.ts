@@ -17,16 +17,20 @@ export namespace IGameServer {
     { label: '5 GB', value: 500 * 1000 * 1000 },
   ];
 
-  export enum Status {
-    Running = 'Running',
-    Terminated = 'Terminated',
-    Waiting = 'Waiting',
-  }
-
   export interface Endpoints {
     tcp?: string;
     udp?: string;
     websocket?: string;
+  }
+
+  export interface Status {
+    nodes?: StatusNode;
+    phase: string;
+  }
+
+  export interface StatusNode {
+    name: string;
+    phase: string;
   }
 }
 

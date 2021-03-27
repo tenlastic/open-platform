@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -12,6 +12,8 @@ import {
   GameServerService,
   GameService,
   IGameServer,
+  Queue,
+  QueueService,
 } from '@tenlastic/ng-http';
 import { Subscription } from 'rxjs';
 
@@ -37,6 +39,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public form: FormGroup;
   public games: Game[];
   public memories = IGameServer.Memory;
+  public queue: Queue;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -48,6 +51,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private queueService: QueueService,
     private router: Router,
     private selectedNamespaceService: SelectedNamespaceService,
   ) {}
@@ -60,6 +64,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       }
 
       this.builds = await this.buildService.find({
+        select: '-files',
         sort: '-publishedAt',
         where: { namespaceId: this.selectedNamespaceService.namespaceId, platform: 'server64' },
       });
@@ -67,6 +72,10 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
         sort: 'title',
         where: { namespaceId: this.selectedNamespaceService.namespaceId },
       });
+
+      if (this.data && this.data.queueId) {
+        this.queue = await this.queueService.findOne(this.data.queueId);
+      }
 
       this.setupForm();
     });
@@ -202,6 +211,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
         .subscribe(gameServers => {
           const gameServer = new GameServer(gameServers[0]);
           this.data.endpoints = gameServer.endpoints;
+          this.data.status = gameServer.status;
         });
     }
   }

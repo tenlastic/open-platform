@@ -59,8 +59,21 @@ components:
           type: string
           format: ^[a-f0-9]{24}$
         status:
-          type: string
-          enum: [running, terminated, waiting]
+          type: object
+          properties:
+            nodes:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  phase:
+                    type: string
+                    enum: [Error, Failed, Pending, Running, Succeeded]
+            phase:
+              type: string
+              enum: [Error, Failed, Pending, Running, Succeeded]
         updatedAt:
           type: string
           format: date-time

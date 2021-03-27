@@ -1,0 +1,14 @@
+:host {
+  display: block;
+  font-size: 14px;
+
+  span {
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+
+  a::after {
+    color: white;
+    content: ' > ';
+  }
+}

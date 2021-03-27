@@ -115,7 +115,10 @@ export const KubernetesWorkflowSidecar = {
       { name: 'ACCESS_TOKEN', value: accessToken },
       { name: 'LOG_CONTAINER', value: `main` },
       { name: 'LOG_ENDPOINT', value: `http://api.default:3000/workflows/${workflow._id}/logs` },
-      { name: 'LOG_POD_LABEL_SELECTOR', value: `app=${workflowName},role=application` },
+      {
+        name: 'LOG_POD_LABEL_SELECTOR',
+        value: `tenlastic.com/app=${workflowName},tenlastic.com/role=application`,
+      },
       { name: 'LOG_POD_NAMESPACE', value: namespace.kubernetesNamespace },
       { name: 'WORKFLOW_ENDPOINT', value: `http://api.default:3000/workflows/${workflow._id}` },
       { name: 'WORKFLOW_NAME', value: workflowName },
@@ -132,8 +135,8 @@ export const KubernetesWorkflowSidecar = {
       manifest = {
         metadata: {
           labels: {
-            app: workflowName,
-            role: 'sidecar',
+            'tenlastic.com/app': workflowName,
+            'tenlastic.com/role': 'sidecar',
           },
           name,
         },
@@ -168,8 +171,8 @@ export const KubernetesWorkflowSidecar = {
       manifest = {
         metadata: {
           labels: {
-            app: workflowName,
-            role: 'sidecar',
+            'tenlastic.com/app': workflowName,
+            'tenlastic.com/role': 'sidecar',
           },
           name,
         },
@@ -197,8 +200,8 @@ export const KubernetesWorkflowSidecar = {
     await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
       metadata: {
         labels: {
-          app: workflowName,
-          role: 'sidecar',
+          'tenlastic.com/app': workflowName,
+          'tenlastic.com/role': 'sidecar',
         },
         name,
         ownerReferences,
@@ -207,8 +210,8 @@ export const KubernetesWorkflowSidecar = {
         replicas: 1,
         selector: {
           matchLabels: {
-            app: workflowName,
-            role: 'sidecar',
+            'tenlastic.com/app': workflowName,
+            'tenlastic.com/role': 'sidecar',
           },
         },
         template: manifest,

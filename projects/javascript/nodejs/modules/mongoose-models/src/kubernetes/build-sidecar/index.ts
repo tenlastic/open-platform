@@ -116,7 +116,10 @@ export const KubernetesBuildSidecar = {
       { name: 'ACCESS_TOKEN', value: accessToken },
       { name: 'LOG_CONTAINER', value: 'main' },
       { name: 'LOG_ENDPOINT', value: `http://api.default:3000/builds/${build._id}/logs` },
-      { name: 'LOG_POD_LABEL_SELECTOR', value: `app=${buildName},role=application` },
+      {
+        name: 'LOG_POD_LABEL_SELECTOR',
+        value: `tenlastic.com/app=${buildName},tenlastic.com/role=application`,
+      },
       { name: 'LOG_POD_NAMESPACE', value: namespace.kubernetesNamespace },
       { name: 'WORKFLOW_ENDPOINT', value: `http://api.default:3000/builds/${build._id}` },
       { name: 'WORKFLOW_NAME', value: buildName },
@@ -133,8 +136,8 @@ export const KubernetesBuildSidecar = {
       manifest = {
         metadata: {
           labels: {
-            app: buildName,
-            role: 'sidecar',
+            'tenlastic.com/app': buildName,
+            'tenlastic.com/role': 'sidecar',
           },
           name,
         },
@@ -169,8 +172,8 @@ export const KubernetesBuildSidecar = {
       manifest = {
         metadata: {
           labels: {
-            app: buildName,
-            role: 'sidecar',
+            'tenlastic.com/app': buildName,
+            'tenlastic.com/role': 'sidecar',
           },
           name,
         },
@@ -198,8 +201,8 @@ export const KubernetesBuildSidecar = {
     await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
       metadata: {
         labels: {
-          app: buildName,
-          role: 'sidecar',
+          'tenlastic.com/app': buildName,
+          'tenlastic.com/role': 'sidecar',
         },
         name,
         ownerReferences,
@@ -208,8 +211,8 @@ export const KubernetesBuildSidecar = {
         replicas: 1,
         selector: {
           matchLabels: {
-            app: buildName,
-            role: 'sidecar',
+            'tenlastic.com/app': buildName,
+            'tenlastic.com/role': 'sidecar',
           },
         },
         template: manifest,

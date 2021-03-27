@@ -158,6 +158,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     this.$builds = this.buildQuery.populate($builds);
 
     await this.buildService.find({
+      select: '-files',
       sort: '-createdAt',
       where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });

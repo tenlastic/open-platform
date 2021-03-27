@@ -22,9 +22,10 @@ import { namespaceValidator } from '../../validators';
 import { BuildDocument } from '../build';
 import { GameDocument } from '../game';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
-import { QueueDocument } from '../queue';
+import { QueueDocument, QueueEvent } from '../queue';
 import { UserDocument } from '../user';
 import { GameServerEndpointsSchema } from './endpoints';
+import { GameServerStatusSchema } from './status';
 
 export enum GameServerStatus {
   Failed = 'Failed',
@@ -50,6 +51,16 @@ NamespaceEvent.sync(async payload => {
   }
 });
 
+// Delete Game Servers if associated Queue is deleted.
+QueueEvent.sync(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await GameServer.find({ queueId: payload.fullDocument._id });
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
+  }
+});
+
 @index({ authorizedUserIds: 1 })
 @index({ currentUserIds: 1 })
 @index({ namespaceId: 1 })
@@ -69,7 +80,7 @@ export class GameServerSchema implements IOriginalDocument {
   })
   public buildId: Ref<BuildDocument>;
 
-  @prop({ required: true })
+  @prop({ min: 0, required: true })
   public cpu: number;
 
   public createdAt: Date;
@@ -92,7 +103,7 @@ export class GameServerSchema implements IOriginalDocument {
   @prop()
   public isPreemptible: boolean;
 
-  @prop({ required: true })
+  @prop({ min: 0, required: true })
   public memory: number;
 
   @prop({ default: {} })
@@ -110,8 +121,8 @@ export class GameServerSchema implements IOriginalDocument {
   @prop({ ref: 'QueueSchema' })
   public queueId: Ref<QueueDocument>;
 
-  @prop({ default: GameServerStatus.Pending, enum: GameServerStatus })
-  public status: GameServerStatus;
+  @prop({ default: { phase: 'Pending' } })
+  public status: GameServerStatusSchema;
 
   public updatedAt: Date;
 

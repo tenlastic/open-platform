@@ -22,6 +22,7 @@ import { GameDocument } from '../game';
 import { GameInvitationDocument } from '../game-invitation';
 import { GameServerDocument } from '../game-server';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
+import { QueueStatusSchema } from './status';
 
 export const QueueEvent = new EventEmitter<IDatabasePayload<QueueDocument>>();
 
@@ -48,6 +49,9 @@ export class QueueSchema {
   @prop({ ref: 'BuildSchema', validate: namespaceValidator('buildDocument', 'buildId') })
   public buildId: Ref<BuildDocument>;
 
+  @prop({ min: 0, required: true })
+  public cpu: number;
+
   public createdAt: Date;
 
   @prop()
@@ -62,6 +66,9 @@ export class QueueSchema {
   @prop()
   public isPreemptible: boolean;
 
+  @prop({ min: 0, required: true })
+  public memory: number;
+
   @prop({ default: {} })
   public metadata: any;
 
@@ -70,6 +77,9 @@ export class QueueSchema {
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
+
+  @prop({ default: { phase: 'Pending' } })
+  public status: QueueStatusSchema;
 
   @prop({ required: true })
   public teams: number;
@@ -101,6 +111,9 @@ export class QueueSchema {
    */
   public static async checkNamespaceLimits(
     count: number,
+    cpu: number,
+    isPreemptible: boolean,
+    memory: number,
     namespaceId: string | mongoose.Types.ObjectId,
   ) {
     const namespace = await Namespace.findOne({ _id: namespaceId });
@@ -109,15 +122,36 @@ export class QueueSchema {
     }
 
     const limits = namespace.limits.queues;
-    if (limits.count > 0) {
+    if (limits.preemptible && isPreemptible === false) {
+      throw new NamespaceLimitError('queues.preemptible', limits.preemptible);
+    }
+
+    if (limits.count > 0 || limits.cpu > 0 || limits.memory > 0) {
       const results = await Queue.aggregate([
         { $match: { namespaceId: namespace._id } },
-        { $group: { _id: null, count: { $sum: 1 } } },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+            cpu: { $sum: '$cpu' },
+            memory: { $sum: '$memory' },
+          },
+        },
       ]);
 
       const countSum = results.length > 0 ? results[0].count : 0;
       if (limits.count > 0 && countSum + count > limits.count) {
         throw new NamespaceLimitError('queues.count', limits.count);
+      }
+
+      const cpuSum = results.length > 0 ? results[0].cpu : 0;
+      if (limits.cpu > 0 && cpuSum + cpu > limits.cpu) {
+        throw new NamespaceLimitError('queues.cpu', limits.cpu);
+      }
+
+      const memorySum = results.length > 0 ? results[0].memory : 0;
+      if (limits.memory > 0 && memorySum + memory > limits.memory) {
+        throw new NamespaceLimitError('queues.memory', limits.memory);
       }
     }
   }

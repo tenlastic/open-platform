@@ -139,7 +139,7 @@ export const KubernetesGameServerSidecar = {
       },
       {
         name: 'GAME_SERVER_POD_LABEL_SELECTOR',
-        value: `app=${gameServerName},role=application`,
+        value: `tenlastic.com/app=${gameServerName},tenlastic.com/role=application`,
       },
       { name: 'GAME_SERVER_POD_NAMESPACE', value: namespace.kubernetesNamespace },
       { name: 'LOG_CONTAINER', value: 'main' },
@@ -149,7 +149,7 @@ export const KubernetesGameServerSidecar = {
       },
       {
         name: 'LOG_POD_LABEL_SELECTOR',
-        value: `app=${gameServerName},role=application`,
+        value: `tenlastic.com/app=${gameServerName},tenlastic.com/role=application`,
       },
       { name: 'LOG_POD_NAMESPACE', value: namespace.kubernetesNamespace },
     ];
@@ -161,8 +161,8 @@ export const KubernetesGameServerSidecar = {
       manifest = {
         metadata: {
           labels: {
-            app: gameServerName,
-            role: 'sidecar',
+            'tenlastic.com/app': gameServerName,
+            'tenlastic.com/role': 'sidecar',
           },
           name,
         },
@@ -197,8 +197,8 @@ export const KubernetesGameServerSidecar = {
       manifest = {
         metadata: {
           labels: {
-            app: gameServerName,
-            role: 'sidecar',
+            'tenlastic.com/app': gameServerName,
+            'tenlastic.com/role': 'sidecar',
           },
           name,
         },
@@ -226,8 +226,8 @@ export const KubernetesGameServerSidecar = {
     await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
       metadata: {
         labels: {
-          app: gameServerName,
-          role: 'sidecar',
+          'tenlastic.com/app': gameServerName,
+          'tenlastic.com/role': 'sidecar',
         },
         name,
       },
@@ -235,8 +235,8 @@ export const KubernetesGameServerSidecar = {
         replicas: 1,
         selector: {
           matchLabels: {
-            app: gameServerName,
-            role: 'sidecar',
+            'tenlastic.com/app': gameServerName,
+            'tenlastic.com/role': 'sidecar',
           },
         },
         template: manifest,

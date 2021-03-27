@@ -13,6 +13,7 @@ const coreV1Api = kc.makeApiClient(k8s.CoreV1Api);
 
 let activePodName: string;
 let activePodStatus: string;
+const pods: { [key: string]: k8s.V1Pod } = {};
 
 /**
  * Checks the status of the pod and saves it to the Game Server's database.
@@ -21,21 +22,39 @@ let activePodStatus: string;
   try {
     console.log('Fetching container state...');
 
+    // Get initial Pods.
+    const listNamespacedPodResponse = await coreV1Api.listNamespacedPod(
+      podNamespace,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      podLabelSelector,
+    );
+    for (const pod of listNamespacedPodResponse.body.items) {
+      pods[pod.metadata.name] = pod;
+    }
+
+    // Watch Pods for changes.
     const watch = new k8s.Watch(kc);
     watch.watch(
       `/api/v1/namespaces/${podNamespace}/pods`,
       { labelSelector: podLabelSelector },
       async (type, pod: k8s.V1Pod) => {
-        console.log(type);
-        console.log(JSON.stringify(pod));
+        // Update Pods.
+        if (type === 'ADDED' || type === 'MODIFIED') {
+          pods[pod.metadata.name] = pod;
+        } else if (type === 'DELETED') {
+          delete pods[pod.metadata.name];
+        }
+
+        // Update active Pod.
         if (type === 'ADDED') {
           activePodName = pod.metadata.name;
         }
-
         if (activePodName !== pod.metadata.name || activePodStatus === pod.status.phase) {
           return;
         }
-
         activePodStatus = pod.status.phase;
 
         try {
@@ -64,6 +83,7 @@ async function getPodIp(pod: k8s.V1Pod) {
 }
 
 async function updateGameServer(pod: k8s.V1Pod) {
+  // Endpoints.
   let endpoints = null;
   if (pod.spec.nodeName) {
     const ip = await getPodIp(pod);
@@ -77,7 +97,23 @@ async function updateGameServer(pod: k8s.V1Pod) {
     };
   }
 
-  const ownerReference = pod.metadata.ownerReferences[0];
+  // Nodes.
+  const nodes = Object.entries(pods).map(([key, value]) => ({
+    name: value.metadata.name,
+    phase: value.status.phase,
+  }));
+
+  // Phase.
+  let phase = 'Pending';
+  if (nodes.every(n => n.phase === 'Running')) {
+    phase = 'Running';
+  } else if (nodes.some(n => n.phase === 'Error')) {
+    phase = 'Error';
+  } else if (nodes.some(n => n.phase === 'Failed')) {
+    phase = 'Failed';
+  }
+
+  const ownerReference = pod.metadata.ownerReferences && pod.metadata.ownerReferences[0];
   const isDeployment = ownerReference && ownerReference.kind === 'ReplicaSet';
 
   if (isDeployment || ['Pending', 'Running'].includes(pod.status.phase)) {
@@ -85,7 +121,7 @@ async function updateGameServer(pod: k8s.V1Pod) {
 
     await requestPromiseNative.put({
       headers: { Authorization: `Bearer ${accessToken}` },
-      json: { endpoints, status: pod.status.phase },
+      json: { endpoints, status: { nodes, phase } },
       url: endpoint,
     });
 

@@ -1,4 +1,5 @@
 <div class="page">
+  <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
   <app-title>Game Servers</app-title>
 
   <div class="row">
@@ -8,7 +9,8 @@
       </app-data-source-filter>
     </div>
 
-    <div class="offset-sm-6 col-sm-3">
+    <div *ngIf="!queue"
+         class="offset-sm-6 col-sm-3">
       <app-button color="accent"
                   [routerLink]="['new']">
         <mat-icon>add</mat-icon>
@@ -29,14 +31,6 @@
       <td mat-cell
           *matCellDef="let element">{{ element.game?.fullTitle }}
       </td>
-    </ng-container>
-
-    <ng-container matColumnDef="queue">
-      <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Queue</th>
-      <td mat-cell
-          *matCellDef="let element">{{ element.queueId ? 'Yes' : 'No' }}</td>
     </ng-container>
 
     <ng-container matColumnDef="name">
@@ -60,15 +54,7 @@
           *matHeaderCellDef
           mat-sort-header>Status</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.status }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="isPersistent">
-      <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Persistent</th>
-      <td mat-cell
-          *matCellDef="let element">{{ element.isPersistent ? 'Yes' : 'No' }}</td>
+          *matCellDef="let element">{{ element.status?.phase }}</td>
     </ng-container>
 
     <ng-container matColumnDef="createdAt">

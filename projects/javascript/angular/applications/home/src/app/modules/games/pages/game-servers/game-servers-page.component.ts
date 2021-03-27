@@ -37,7 +37,11 @@ export class GameServersPageComponent implements OnInit {
   public async ngOnInit() {
     const game = this.gameQuery.getActive() as Game;
     this.$gameServers = this.gameServerQuery.selectAll({
-      filterBy: gs => gs.namespaceId === game.namespaceId && !gs.queueId,
+      filterBy: gs =>
+        gs.namespaceId === game.namespaceId &&
+        !gs.queueId &&
+        gs.status &&
+        gs.status.phase === 'Running',
     });
     this.$group = this.groupQuery
       .selectAll({ filterBy: g => g.userIds.includes(this.identityService.user._id) })

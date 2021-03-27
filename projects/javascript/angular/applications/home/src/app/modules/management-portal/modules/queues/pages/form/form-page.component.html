@@ -23,30 +23,6 @@
 
     <div class="row">
       <mat-form-field floatLabel="always">
-        <mat-label>Teams</mat-label>
-        <input matInput
-               required
-               formControlName="teams"
-               min="1"
-               step="1"
-               type="number" />
-        <mat-error>Enter a valid amount of teams.</mat-error>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>Players Per Team</mat-label>
-        <input matInput
-               required
-               formControlName="usersPerTeam"
-               min="1"
-               step="1"
-               type="number" />
-        <mat-error>Enter a valid amount of players per team.</mat-error>
-      </mat-form-field>
-    </div>
-
-    <div class="row">
-      <mat-form-field floatLabel="always">
         <mat-label>Build</mat-label>
         <mat-select formControlName="buildId"
                     placeholder="No Build">
@@ -70,6 +46,56 @@
             {{ game.fullTitle }}
           </mat-option>
         </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Is Preemptible</mat-label>
+        <mat-select formControlName="isPreemptible">
+          <mat-option [value]="true">Yes</mat-option>
+          <mat-option [value]="false">No</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>CPU</mat-label>
+        <mat-select formControlName="cpu">
+          <mat-option *ngFor="let cpu of cpus"
+                      [value]="cpu.value">{{ cpu.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Memory</mat-label>
+        <mat-select formControlName="memory">
+          <mat-option *ngFor="let memory of memories"
+                      [value]="memory.value">{{ memory.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Teams</mat-label>
+        <input matInput
+               required
+               formControlName="teams"
+               min="1"
+               step="1"
+               type="number" />
+        <mat-error>Enter a valid amount of teams.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Players Per Team</mat-label>
+        <input matInput
+               required
+               formControlName="usersPerTeam"
+               min="1"
+               step="1"
+               type="number" />
+        <mat-error>Enter a valid amount of players per team.</mat-error>
       </mat-form-field>
     </div>
 
@@ -125,6 +151,18 @@
                         title="Game Server Metadata"
                         [isVisible]="false">
       <app-metadata-fields [formArray]="form['controls'].gameServerTemplate['controls'].metadata"></app-metadata-fields>
+    </app-toggle-section>
+
+    <app-toggle-section *ngIf="data._id"
+                        title="Status">
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Phase</mat-label>
+          <input matInput
+                 disabled
+                 [value]="data.status?.phase || 'Pending'" />
+        </mat-form-field>
+      </div>
     </app-toggle-section>
 
     <div *ngFor="let error of errors"

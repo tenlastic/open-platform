@@ -38,14 +38,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
 
   public $queues: Observable<Queue[]>;
   public dataSource = new MatTableDataSource<Queue>();
-  public displayedColumns: string[] = [
-    'game',
-    'name',
-    'description',
-    'createdAt',
-    'updatedAt',
-    'actions',
-  ];
+  public displayedColumns: string[] = ['game', 'name', 'description', 'status', 'actions'];
 
   private updateDataSource$ = new Subscription();
 

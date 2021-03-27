@@ -172,6 +172,7 @@ export class FilesFormComponent implements OnInit {
 
   private async getReferenceBuilds() {
     this.builds = await this.buildService.find({
+      select: '-files',
       sort: '-publishedAt -createdAt',
       where: {
         namespaceId: this.form.get('namespaceId').value,

@@ -52,13 +52,16 @@ export namespace INamespace {
     workflows: WorkflowLimits;
   }
 
+  export interface QueueLimits {
+    count: number;
+    cpu: number;
+    memory: number;
+    preemptible: boolean;
+  }
+
   export interface User {
     _id: string;
     roles: string[];
-  }
-
-  export interface QueueLimits {
-    count: number;
   }
 
   export interface WorkflowLimits {

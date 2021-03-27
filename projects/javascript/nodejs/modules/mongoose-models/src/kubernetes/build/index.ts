@@ -133,8 +133,8 @@ export const KubernetesBuild = {
         'tenlastic.com/nodeId': `{{pod.name}}`,
       },
       labels: {
-        app: KubernetesBuild.getName(build),
-        role: 'application',
+        'tenlastic.com/app': name,
+        'tenlastic.com/role': 'application',
       },
     };
 

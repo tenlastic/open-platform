@@ -9,11 +9,20 @@ import {
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { QueueMember, QueueMemberQuery, QueueMemberService } from '@tenlastic/ng-http';
+import {
+  Queue,
+  QueueMember,
+  QueueMemberQuery,
+  QueueMemberService,
+  QueueService,
+} from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import {
+  BreadcrumbsComponentBreadcrumb,
+  PromptComponent,
+} from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
@@ -26,10 +35,12 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<QueueMember>;
 
   public $queueMembers: Observable<QueueMember[]>;
+  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public dataSource = new MatTableDataSource<QueueMember>();
   public displayedColumns: string[] = ['username', 'createdAt', 'actions'];
-
+  
   private updateDataSource$ = new Subscription();
+  private queue: Queue;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -38,12 +49,21 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
     private matSnackBar: MatSnackBar,
     private queueMemberQuery: QueueMemberQuery,
     private queueMemberService: QueueMemberService,
+    private queueService: QueueService,
     private titleService: Title,
   ) {}
 
-  public ngOnInit() {
+  public async ngOnInit() {
     this.titleService.setTitle(`${TITLE} | QueueMembers`);
-    this.fetchQueueMembers();
+
+    await this.fetchQueue();
+    await this.fetchQueueMembers();
+
+    this.breadcrumbs = [
+      { label: 'Queues', link: '../../' },
+      { label: this.queue.name, link: '../' },
+      { label: 'Queue Members' },
+    ];
   }
 
   public ngOnDestroy() {
@@ -69,8 +89,13 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
     });
   }
 
+  private async fetchQueue() {
+    const queueId = this.activatedRoute.snapshot.paramMap.get('queueId');
+    this.queue = await this.queueService.findOne(queueId);
+  }
+
   private async fetchQueueMembers() {
-    const queueId = this.activatedRoute.snapshot.paramMap.get('_id');
+    const queueId = this.activatedRoute.snapshot.paramMap.get('queueId');
 
     const $queueMembers = this.queueMemberQuery.selectAll({
       filterBy: qm => qm.queueId === queueId,

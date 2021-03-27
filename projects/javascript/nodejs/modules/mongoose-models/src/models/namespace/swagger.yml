@@ -95,6 +95,10 @@ components:
               properties:
                 count:
                   type: integer
+                cpu:
+                  type: integer
+                memory:
+                  type: integer
               required:
                 - count
             workflows:

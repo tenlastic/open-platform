@@ -24,6 +24,7 @@ import {
   Queue,
   QueueMember,
   QueueMemberService,
+  QueueQuery,
   QueueService,
   UserQuery,
   UserService,
@@ -64,14 +65,15 @@ export class AppComponent implements OnInit {
     private loginService: LoginService,
     private messageService: MessageService,
     private queueMemberService: QueueMemberService,
+    private queueQuery: QueueQuery,
     private queueService: QueueService,
-    private workflowService: WorkflowService,
     private router: Router,
     private socketService: SocketService,
     private titleService: Title,
     private userQuery: UserQuery,
     private userService: UserService,
     private webSocketService: WebSocketService,
+    private workflowService: WorkflowService,
   ) {}
 
   public ngOnInit() {
@@ -117,27 +119,35 @@ export class AppComponent implements OnInit {
       }
     });
     this.buildQuery.selectAll().subscribe(records => {
-      const ids = records.map(f => f.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
+      const ids = records.map(r => r.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
       if (ids.length > 0) {
         this.gameService.find({ where: { _id: { $in: ids } } });
       }
     });
     this.gameInvitationQuery.selectAll().subscribe(records => {
-      const ids = records.map(f => f.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
+      const ids = records.map(r => r.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
       if (ids.length > 0) {
         this.gameService.find({ where: { _id: { $in: ids } } });
       }
     });
     this.gameInvitationQuery.selectAll().subscribe(records => {
-      const ids = records.map(f => f.userId).filter(userId => !this.userQuery.hasEntity(userId));
+      const ids = records.map(r => r.userId).filter(userId => !this.userQuery.hasEntity(userId));
       if (ids.length > 0) {
         this.userService.find({ where: { _id: { $in: ids } } });
       }
     });
     this.gameServerQuery.selectAll().subscribe(records => {
-      const ids = records.map(f => f.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
+      const ids = records.map(r => r.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
       if (ids.length > 0) {
         this.gameService.find({ where: { _id: { $in: ids } } });
+      }
+    });
+    this.gameServerQuery.selectAll().subscribe(records => {
+      const ids = records
+        .map(r => r.queueId)
+        .filter(queueId => !this.queueQuery.hasEntity(queueId));
+      if (ids.length > 0) {
+        this.queueService.find({ where: { _id: { $in: ids } } });
       }
     });
   }

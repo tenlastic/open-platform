@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,8 +10,10 @@ import {
   GameService,
   IGameServer,
   Queue,
+  QueueQuery,
   QueueService,
 } from '@tenlastic/ng-http';
+import { Subscription } from 'rxjs';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -26,7 +28,7 @@ interface PropertyFormGroup {
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
-export class QueuesFormPageComponent implements OnInit {
+export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public builds: Build[];
   public cpus = IGameServer.Cpu;
   public data: Queue;
@@ -34,6 +36,8 @@ export class QueuesFormPageComponent implements OnInit {
   public form: FormGroup;
   public games: Game[];
   public memories = IGameServer.Memory;
+
+  private updateQueue$ = new Subscription();
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -43,6 +47,7 @@ export class QueuesFormPageComponent implements OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private queueQuery: QueueQuery,
     private queueService: QueueService,
     private router: Router,
     public selectedNamespaceService: SelectedNamespaceService,
@@ -56,6 +61,7 @@ export class QueuesFormPageComponent implements OnInit {
       }
 
       this.builds = await this.buildService.find({
+        select: '-files',
         sort: '-publishedAt',
         where: { namespaceId: this.selectedNamespaceService.namespaceId },
       });
@@ -66,6 +72,10 @@ export class QueuesFormPageComponent implements OnInit {
 
       this.setupForm();
     });
+  }
+
+  public ngOnDestroy() {
+    this.updateQueue$.unsubscribe();
   }
 
   public async save() {
@@ -89,6 +99,7 @@ export class QueuesFormPageComponent implements OnInit {
 
     const values: Partial<Queue> = {
       buildId: this.form.get('buildId').value,
+      cpu: this.form.get('cpu').value,
       description: this.form.get('description').value,
       gameId: this.form.get('gameId').value,
       gameServerTemplate: {
@@ -98,6 +109,8 @@ export class QueuesFormPageComponent implements OnInit {
         memory: this.form.get('gameServerTemplate').get('memory').value,
         metadata: gameServerMetadata,
       },
+      isPreemptible: this.form.get('isPreemptible').value,
+      memory: this.form.get('memory').value,
       metadata,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
@@ -215,9 +228,12 @@ export class QueuesFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       buildId: [this.data.buildId],
+      cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
       description: [this.data.description],
       gameId: [this.data.gameId],
       gameServerTemplate: gameServerTemplateForm,
+      isPreemptible: [this.data.isPreemptible === false ? false : true],
+      memory: [this.data.memory || this.memories[0].value, Validators.required],
       metadata: this.formBuilder.array(metadata),
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId],
@@ -226,6 +242,15 @@ export class QueuesFormPageComponent implements OnInit {
     });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+
+    if (this.data._id) {
+      this.updateQueue$ = this.queueQuery
+        .selectAll({ filterBy: q => q._id === this.data._id })
+        .subscribe(queues => {
+          const queue = new Queue(queues[0]);
+          this.data.status = queue.status;
+        });
+    }
   }
 
   private async upsert(data: Partial<Queue>) {

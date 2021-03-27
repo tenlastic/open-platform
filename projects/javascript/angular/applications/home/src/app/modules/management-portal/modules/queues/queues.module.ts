@@ -12,7 +12,11 @@ export const ROUTES: Routes = [
   { path: ':_id', component: QueuesFormPageComponent },
   { path: ':_id/logs', component: QueuesLogsPageComponent },
   {
-    path: ':_id/members',
+    path: ':queueId/game-servers',
+    loadChildren: () => import('../game-servers/game-servers.module').then(m => m.GameServerModule),
+  },
+  {
+    path: ':queueId/members',
     loadChildren: () =>
       import('../queue-members/queue-members.module').then(m => m.QueueMemberModule),
   },

@@ -242,6 +242,39 @@
                  type="number" />
           <mat-error>Enter a valid value.</mat-error>
         </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Queue CPU</mat-label>
+          <input matInput
+                 required
+                 formControlName="cpu"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Queue Memory</mat-label>
+          <input matInput
+                 required
+                 formControlName="memory"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Only Preemptible Queues</mat-label>
+          <input *ngIf="form.get('limits').get('queues').get('preemptible').disabled"
+                 disabled
+                 matInput
+                 [value]="form.get('limits').get('queues').get('preemptible').value ? 'Yes' : 'No'" />
+          <mat-select *ngIf="!form.get('limits').get('queues').get('preemptible').disabled"
+                      formControlName="preemptible">
+            <mat-option [value]="true">Yes</mat-option>
+            <mat-option [value]="false">No</mat-option>
+          </mat-select>
+        </mat-form-field>
       </div>
 
       <div class="row"

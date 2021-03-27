@@ -47,15 +47,13 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
-    </div>
 
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Is Persistent</mat-label>
-        <mat-select formControlName="isPersistent">
-          <mat-option [value]="true">Yes</mat-option>
-          <mat-option [value]="false">No</mat-option>
-        </mat-select>
+      <mat-form-field *ngIf="data?.queueId"
+                      floatLabel="always">
+        <mat-label>Queue</mat-label>
+        <input matInput
+               disabled
+               [value]="queue" />
       </mat-form-field>
     </div>
 
@@ -90,33 +88,37 @@
     </app-toggle-section>
 
     <app-toggle-section *ngIf="data._id"
-                        title="Endpoints">
-      <ng-container *ngIf="data.endpoints">
+                        title="Status">
+      <div class="row">
         <mat-form-field floatLabel="always">
-          <mat-label>TCP</mat-label>
+          <mat-label>Phase</mat-label>
+          <input matInput
+                 disabled
+                 [value]="data.status?.phase || 'Pending'" />
+        </mat-form-field>
+      </div>
+
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>TCP Endpoint</mat-label>
           <input disabled
                  matInput
-                 [value]="data.endpoints.tcp" />
+                 [value]="data.endpoints?.tcp || 'Pending'" />
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>UDP</mat-label>
+          <mat-label>UDP Endpoint</mat-label>
           <input disabled
                  matInput
-                 [value]="data.endpoints.udp" />
+                 [value]="data.endpoints?.udp || 'Pending'" />
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Websocket</mat-label>
+          <mat-label>Websocket Endpoint</mat-label>
           <input disabled
                  matInput
-                 [value]="data.endpoints.websocket" />
+                 [value]="data.endpoints?.websocket || 'Pending'" />
         </mat-form-field>
-      </ng-container>
-
-      <div *ngIf="!data.endpoints"
-           class="loading">
-        <mat-spinner diameter="20"></mat-spinner> Waiting for endpoints to become active...
       </div>
     </app-toggle-section>
 

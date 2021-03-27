@@ -57,8 +57,8 @@ export const KubernetesWorkflow = {
         ],
         podSelector: {
           matchLabels: {
-            app: name,
-            role: 'application',
+            'tenlastic.com/app': name,
+            'tenlastic.com/role': 'application',
           },
         },
         policyTypes: ['Egress'],
@@ -294,8 +294,8 @@ function getTemplateManifest(
       'tenlastic.com/workflowId': workflow._id.toString(),
     },
     labels: {
-      app: KubernetesWorkflow.getName(workflow),
-      role: 'application',
+      'tenlastic.com/app': KubernetesWorkflow.getName(workflow),
+      'tenlastic.com/role': 'application',
     },
   };
 
