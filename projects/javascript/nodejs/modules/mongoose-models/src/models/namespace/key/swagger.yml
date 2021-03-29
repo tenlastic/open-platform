@@ -1,0 +1,26 @@
+components:
+  schemas:
+    NamespaceKey:
+      type: object
+      properties:
+        description:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+              - articles
+              - builds
+              - collections
+              - game-servers
+              - game-invitations
+              - games
+              - namespaces
+              - queues
+        value:
+          type: string
+      required:
+        - description
+        - roles
+        - value

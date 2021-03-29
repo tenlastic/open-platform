@@ -8,7 +8,7 @@ import {
   BuildService,
   Game,
   GameService,
-  IGameServer,
+  IQueue,
   Queue,
   QueueQuery,
   QueueService,
@@ -30,12 +30,12 @@ interface PropertyFormGroup {
 })
 export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public builds: Build[];
-  public cpus = IGameServer.Cpu;
+  public cpus = IQueue.Cpu;
   public data: Queue;
   public errors: string[] = [];
   public form: FormGroup;
   public games: Game[];
-  public memories = IGameServer.Memory;
+  public memories = IQueue.Memory;
 
   private updateQueue$ = new Subscription();
 
@@ -126,7 +126,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
           ],
-          message: `These changes require the Queue to be restarted. Is this OK?`,
+          message: `These changes require the Queue to be reset. Is this OK?`,
         },
       });
 

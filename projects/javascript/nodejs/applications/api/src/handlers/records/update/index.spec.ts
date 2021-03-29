@@ -1,9 +1,6 @@
 import {
   CollectionDocument,
   CollectionMock,
-  NamespaceCollectionLimitsMock,
-  NamespaceLimitError,
-  NamespaceLimitsMock,
   NamespaceMock,
   RecordDocument,
   RecordSchema,
@@ -25,11 +22,7 @@ describe('handlers/records/update', function() {
   let user: any;
 
   beforeEach(async function() {
-    const namespace = await NamespaceMock.create({
-      limits: NamespaceLimitsMock.create({
-        collections: NamespaceCollectionLimitsMock.create({ size: 150 }),
-      }),
-    });
+    const namespace = await NamespaceMock.create();
     collection = await CollectionMock.create({
       namespaceId: namespace._id,
       permissions: {
@@ -52,53 +45,28 @@ describe('handlers/records/update', function() {
     const Model = RecordSchema.getModel(collection);
     record = await Model.create({
       collectionId: collection._id,
+      databaseId: collection.databaseId,
       userId: user._id,
     });
   });
 
-  context('when too many records exist', function() {
-    it('throws a NamespaceLimitError', async function() {
-      const Model = RecordSchema.getModel(collection);
-      await Model.create({
+  it('returns the matching record', async function() {
+    const properties = { email: chance.email(), name: chance.name() };
+    const ctx = new ContextMock({
+      params: {
+        _id: record._id.toString(),
         collectionId: collection._id,
-        userId: user._id,
-      });
-
-      const properties = { email: chance.email(), name: chance.name() };
-      const ctx = new ContextMock({
-        params: {
-          collectionId: collection._id,
-        },
-        request: {
-          body: { properties },
-        },
-        state: { user },
-      });
-
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(NamespaceLimitError);
+        databaseId: collection.databaseId,
+      },
+      request: {
+        body: { properties },
+      },
+      state: { user },
     });
-  });
 
-  context('when few enough records exist', function() {
-    it('returns the matching record', async function() {
-      const properties = { email: chance.email(), name: chance.name() };
-      const ctx = new ContextMock({
-        params: {
-          _id: record._id.toString(),
-          collectionId: collection._id,
-        },
-        request: {
-          body: { properties },
-        },
-        state: { user },
-      });
+    await handler(ctx as any);
 
-      await handler(ctx as any);
-
-      expect(ctx.response.body.record).to.exist;
-      expect(ctx.response.body.record.properties).to.eql(properties);
-    });
+    expect(ctx.response.body.record).to.exist;
+    expect(ctx.response.body.record.properties).to.eql(properties);
   });
 });

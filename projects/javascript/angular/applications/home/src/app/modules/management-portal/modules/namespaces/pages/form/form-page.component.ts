@@ -205,18 +205,32 @@ export class NamespacesFormPageComponent implements OnInit {
             Validators.required,
           ],
         }),
-        collections: this.formBuilder.group({
+        databases: this.formBuilder.group({
           count: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.collections && limits.collections.count) || 0,
+              value: (limits && limits.databases && limits.databases.count) || 0,
             },
             Validators.required,
           ],
-          size: [
+          cpu: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.collections && limits.collections.size) || 0,
+              value: (limits && limits.databases && limits.databases.cpu) || 0,
+            },
+            Validators.required,
+          ],
+          memory: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: (limits && limits.databases && limits.databases.memory) || 0,
+            },
+            Validators.required,
+          ],
+          preemptible: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: (limits && limits.databases && limits.databases.preemptible) || false,
             },
             Validators.required,
           ],

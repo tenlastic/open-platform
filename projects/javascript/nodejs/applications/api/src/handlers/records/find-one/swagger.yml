@@ -1,5 +1,5 @@
 paths:
-  /collections/{collectionId}/records/{_id}:
+  /databases/{databaseId}/collections/{collectionId}/records/{_id}:
     get:
       summary: Find One
       tags: [CollectionRecords]
@@ -14,6 +14,11 @@ paths:
           required: true
         - in: path
           name: collectionId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: databaseId
           schema:
             type: string
           required: true

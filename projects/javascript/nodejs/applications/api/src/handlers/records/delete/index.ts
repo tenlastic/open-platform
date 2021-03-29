@@ -1,13 +1,15 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { Collection, CollectionPermissions, RecordSchema } from '@tenlastic/mongoose-models';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { Collection, RecordDocument, RecordSchema } from '@tenlastic/mongoose-models';
-
 export async function handler(ctx: Context) {
-  const { _id, collectionId } = ctx.params;
+  const { _id, collectionId, databaseId } = ctx.params;
   const user = ctx.state.apiKey || ctx.state.user;
 
-  const collection = await Collection.findOne({ _id: collectionId });
+  const collection = await CollectionPermissions.findOne(
+    {},
+    { where: { _id: collectionId, databaseId } },
+    user,
+  );
   if (!collection) {
     throw new RecordNotFoundError('Collection');
   }
@@ -15,7 +17,11 @@ export async function handler(ctx: Context) {
   const Model = RecordSchema.getModel(collection);
   const Permissions = RecordSchema.getPermissions(Model, collection);
 
-  const existing = await Permissions.findOne({}, { where: { _id, collectionId } }, user);
+  const existing = await Permissions.findOne(
+    {},
+    { where: { _id, collectionId, databaseId } },
+    user,
+  );
   if (!existing) {
     throw new RecordNotFoundError('Record');
   }

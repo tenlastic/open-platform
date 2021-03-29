@@ -23,8 +23,9 @@ import { IOptions } from '@tenlastic/mongoose-permissions';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import { jsonSchemaPropertiesValidator } from '../../validators';
-import { NamespaceDocument, NamespaceEvent } from '../namespace';
+import { jsonSchemaPropertiesValidator, namespaceValidator } from '../../validators';
+import { DatabaseDocument, DatabaseEvent } from '../database';
+import { NamespaceDocument } from '../namespace';
 import { RecordSchema } from '../record';
 import { CollectionIndexSchema } from './index/index';
 
@@ -33,11 +34,11 @@ export const CollectionEvent = new EventEmitter<IDatabasePayload<CollectionDocum
 // Publish changes to Kafka.
 CollectionEvent.sync(kafka.publish);
 
-// Delete Collections if associated Namespace is deleted.
-NamespaceEvent.sync(async payload => {
+// Delete Collections if associated Database is deleted.
+DatabaseEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
-      const records = await Collection.find({ namespaceId: payload.fullDocument._id });
+      const records = await Collection.find({ databaseId: payload.fullDocument._id });
       const promises = records.map(r => r.remove());
       return Promise.all(promises);
   }
@@ -60,7 +61,9 @@ NamespaceEvent.sync(async payload => {
   await Record.syncIndexes({ background: true });
 })
 @post('remove', async function(this: CollectionDocument) {
-  await this.dropCollection();
+  try {
+    await this.dropCollection();
+  } catch {}
 })
 @post('save', async function(this: CollectionDocument) {
   await this.setValidator();
@@ -68,6 +71,14 @@ NamespaceEvent.sync(async payload => {
 export class CollectionSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
+
+  @prop({
+    immutable: true,
+    ref: 'NamespaceSchema',
+    required: true,
+    validate: namespaceValidator('databaseDocument', 'databaseId'),
+  })
+  public databaseId: Ref<DatabaseDocument>;
 
   @arrayProp({ items: CollectionIndexSchema })
   public indexes: CollectionIndexSchema[];
@@ -96,6 +107,9 @@ export class CollectionSchema implements IOriginalDocument {
   public permissions: IOptions;
 
   public updatedAt: Date;
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', ref: 'DatabaseSchema' })
+  public databaseDocument: DatabaseDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
@@ -143,6 +157,9 @@ export class CollectionSchema implements IOriginalDocument {
     }
   }
 
+  /**
+   * Gets the MongoDB validator schema.
+   */
   private getValidator() {
     return {
       $jsonSchema: {
@@ -160,6 +177,9 @@ export class CollectionSchema implements IOriginalDocument {
           },
           createdAt: {
             bsonType: 'date',
+          },
+          databaseId: {
+            bsonType: 'objectId',
           },
           namespaceId: {
             bsonType: 'objectId',

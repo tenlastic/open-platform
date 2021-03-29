@@ -12,121 +12,9 @@ components:
         keys:
           type: array
           items:
-            type: object
-            properties:
-              description:
-                type: string
-              roles:
-                type: array
-                items:
-                  type: string
-                  enum:
-                    - articles
-                    - builds
-                    - collections
-                    - game-servers
-                    - game-invitations
-                    - games
-                    - namespaces
-                    - queues
-              value:
-                type: string
-            required:
-              - description
-              - roles
-              - value
+            $ref: '#/components/schemas/NamespaceKey'
         limits:
-          type: object
-          properties:
-            builds:
-              type: object
-              properties:
-                count:
-                  type: integer
-                size:
-                  type: integer
-              required:
-                - count
-                - size
-            collections:
-              type: object
-              properties:
-                count:
-                  type: integer
-                size:
-                  type: integer
-              required:
-                - count
-                - size
-            gameServers:
-              type: object
-              properties:
-                count:
-                  type: integer
-                cpu:
-                  type: integer
-                memory:
-                  type: integer
-                preemptible:
-                  type: boolean
-              required:
-                - count
-                - cpu
-                - memory
-                - preemptible
-            games:
-              type: object
-              properties:
-                count:
-                  type: integer
-                images:
-                  type: integer
-                size:
-                  type: integer
-                videos:
-                  type: integer
-              required:
-                - count
-                - images
-                - size
-                - videos
-            queues:
-              type: object
-              properties:
-                count:
-                  type: integer
-                cpu:
-                  type: integer
-                memory:
-                  type: integer
-              required:
-                - count
-            workflows:
-              type: object
-              properties:
-                count:
-                  type: integer
-                cpu:
-                  type: integer
-                memory:
-                  type: integer
-                parallelism:
-                  type: integer
-                preemptible:
-                  type: boolean
-              required:
-                - count
-                - cpu
-                - memory
-                - parallelism
-                - preemptible
-          required:
-            - builds
-            - collections
-            - gameServers
-            - games
-            - queues
-            - workflows
+          $ref: '#/components/schemas/NamespaceLimits'
         name:
           type: string
         updatedAt:
@@ -135,24 +23,4 @@ components:
         users:
           type: array
           items:
-            type: object
-            properties:
-              roles:
-                type: array
-                items:
-                  type: string
-                  enum:
-                    - articles
-                    - builds
-                    - collections
-                    - game-servers
-                    - game-invitations
-                    - games
-                    - namespaces
-                    - queues
-              userId:
-                type: string
-                format: ^[a-f0-9]{24}$
-            required:
-              - roles
-              - userId
+            $ref: '#/components/schemas/NamespaceUser'

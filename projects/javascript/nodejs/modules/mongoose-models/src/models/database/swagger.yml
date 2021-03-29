@@ -1,0 +1,43 @@
+components:
+  schemas:
+    Database:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[a-f0-9]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        gameId:
+          type: string
+          format: ^[a-f0-9]{24}$
+        name:
+          type: string
+        namespaceId:
+          type: string
+          format: ^[a-f0-9]{24}$
+        status:
+          type: object
+          properties:
+            nodes:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  phase:
+                    type: string
+                    enum: [Error, Failed, Pending, Running, Succeeded]
+            phase:
+              type: string
+              enum: [Error, Failed, Pending, Running, Succeeded]
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - cpu
+        - memory
+        - name
+        - namespaceId

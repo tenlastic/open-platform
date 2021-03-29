@@ -2,6 +2,7 @@ export * from './article';
 export * from './build';
 export * from './build-log';
 export * from './collection';
+export * from './database';
 export * from './friend';
 export * from './game';
 export * from './game-invitation';

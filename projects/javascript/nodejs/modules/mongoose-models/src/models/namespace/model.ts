@@ -41,7 +41,7 @@ export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocumen
 export enum NamespaceRole {
   Articles = 'articles',
   Builds = 'builds',
-  Collections = 'collections',
+  Databases = 'databases',
   GameServers = 'game-servers',
   GameInvitations = 'game-invitations',
   Games = 'games',

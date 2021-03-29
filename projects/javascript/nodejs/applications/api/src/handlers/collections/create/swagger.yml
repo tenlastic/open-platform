@@ -1,11 +1,17 @@
 paths:
-  /collections:
+  /databases/{databaseId}/collections:
     post:
       summary: Create
       tags: [Collections]
       description: Creates a new record.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: databaseId
+          schema:
+            type: string
+          required: true
       requestBody:
         content:
           application/json:

@@ -6,6 +6,8 @@ import {
   BuildPermissions,
   Collection,
   CollectionPermissions,
+  Database,
+  DatabasePermissions,
   GameInvitation,
   GameInvitationPermissions,
   GameServer,
@@ -46,7 +48,6 @@ export interface SubscribeData {
 }
 export interface SubscribeDataParameters {
   collection: string;
-  collectionId: string;
   resumeToken: string;
   where: any;
 }
@@ -73,6 +74,10 @@ export async function subscribe(
     case 'collections':
       Model = Collection;
       Permissions = CollectionPermissions;
+      break;
+    case 'databases':
+      Model = Database;
+      Permissions = DatabasePermissions;
       break;
     case 'game-invitations':
       Model = GameInvitation;

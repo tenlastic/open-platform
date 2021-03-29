@@ -1,7 +1,7 @@
 import { Model } from './model';
+import { Build } from './build';
 import { Game } from './game';
 import { GameServer } from './game-server';
-import { Build } from './build';
 
 export namespace IQueue {
   export const Cpu = [

@@ -121,7 +121,7 @@ async function updateGameServer(pod: k8s.V1Pod) {
 
     await requestPromiseNative.put({
       headers: { Authorization: `Bearer ${accessToken}` },
-      json: { endpoints, status: { nodes, phase } },
+      json: { status: { endpoints, nodes, phase } },
       url: endpoint,
     });
 

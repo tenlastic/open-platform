@@ -1,4 +1,5 @@
 <div class="page">
+  <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
   <app-title>{{ data && data._id ? 'Edit' : 'Create' }} Record</app-title>
 
   <form *ngIf="form"

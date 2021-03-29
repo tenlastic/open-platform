@@ -2,7 +2,7 @@ export const environment = {
   apiBaseUrl: 'http://wss.localhost',
   articleApiBaseUrl: 'http://api.localhost/articles',
   buildApiBaseUrl: 'http://api.localhost/builds',
-  collectionApiBaseUrl: 'http://api.localhost/collections',
+  databaseApiBaseUrl: 'http://api.localhost/databases',
   friendApiBaseUrl: 'http://api.localhost/friends',
   gameApiBaseUrl: 'http://api.localhost/games',
   gameInvitationApiBaseUrl: 'http://api.localhost/game-invitations',

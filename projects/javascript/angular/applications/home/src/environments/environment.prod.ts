@@ -2,7 +2,7 @@ export const environment = {
   apiBaseUrl: 'https://wss.tenlastic.com',
   articleApiBaseUrl: 'https://api.tenlastic.com/articles',
   buildApiBaseUrl: 'https://api.tenlastic.com/builds',
-  collectionApiBaseUrl: 'https://api.tenlastic.com/collections',
+  databaseApiBaseUrl: 'https://api.tenlastic.com/databases',
   friendApiBaseUrl: 'https://api.tenlastic.com/friends',
   gameApiBaseUrl: 'https://api.tenlastic.com/games',
   gameInvitationApiBaseUrl: 'https://api.tenlastic.com/game-invitations',

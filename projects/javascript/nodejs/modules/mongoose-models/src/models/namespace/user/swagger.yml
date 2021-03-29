@@ -1,0 +1,24 @@
+components:
+  schemas:
+    NamespaceUser:
+      type: object
+      properties:
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+              - articles
+              - builds
+              - collections
+              - game-servers
+              - game-invitations
+              - games
+              - namespaces
+              - queues
+        userId:
+          type: string
+          format: ^[a-f0-9]{24}$
+      required:
+        - roles
+        - userId

@@ -1,5 +1,5 @@
 paths:
-  /collections/{collectionId}/records:
+  /databases/{databaseId}/collections/{collectionId}/records:
     post:
       summary: Create
       tags: [CollectionRecords]
@@ -9,6 +9,11 @@ paths:
       parameters:
         - in: path
           name: collectionId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: databaseId
           schema:
             type: string
           required: true

@@ -8,7 +8,7 @@ import { handler as findOneHandler } from './find-one';
 import { handler as updateHandler } from './update';
 
 export const router = new Router({
-  prefix: '/collections/:collectionId/records',
+  prefix: '/databases/:databaseId/collections/:collectionId/records',
 });
 
 router.delete('/:_id', deleteHandler);

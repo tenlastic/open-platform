@@ -24,6 +24,7 @@ export namespace IGameServer {
   }
 
   export interface Status {
+    endpoints?: Endpoints;
     nodes?: StatusNode;
     phase: string;
   }
@@ -40,7 +41,6 @@ export class GameServer extends Model {
   public cpu: number;
   public currentUserIds: string[];
   public description: string;
-  public endpoints: IGameServer.Endpoints;
   public game: Game;
   public gameId: string;
   public isPersistent: boolean;

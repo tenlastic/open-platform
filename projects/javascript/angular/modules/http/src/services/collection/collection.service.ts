@@ -13,11 +13,15 @@ export class CollectionService {
   public onUpdate = new EventEmitter<Collection>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
-    this.basePath = this.environmentService.collectionApiBaseUrl;
+    this.basePath = this.environmentService.databaseApiBaseUrl;
   }
 
-  public async create(parameters: Partial<Collection>): Promise<Collection> {
-    const response = await this.apiService.request('post', `${this.basePath}`, parameters);
+  public async create(databaseId: string, parameters: Partial<Collection>): Promise<Collection> {
+    const response = await this.apiService.request(
+      'post',
+      `${this.basePath}/${databaseId}/collections`,
+      parameters,
+    );
 
     const record = new Collection(response.record);
     this.onCreate.emit(record);
@@ -25,8 +29,11 @@ export class CollectionService {
     return record;
   }
 
-  public async delete(_id: string): Promise<Collection> {
-    const response = await this.apiService.request('delete', `${this.basePath}/${_id}`);
+  public async delete(databaseId: string, _id: string): Promise<Collection> {
+    const response = await this.apiService.request(
+      'delete',
+      `${this.basePath}/${databaseId}/collections/${_id}`,
+    );
 
     const record = new Collection(response.record);
     this.onDelete.emit(record);
@@ -34,22 +41,29 @@ export class CollectionService {
     return record;
   }
 
-  public async find(parameters: RestParameters): Promise<Collection[]> {
-    const response = await this.apiService.request('get', `${this.basePath}`, parameters);
+  public async find(databaseId: string, parameters: RestParameters): Promise<Collection[]> {
+    const response = await this.apiService.request(
+      'get',
+      `${this.basePath}/${databaseId}/collections`,
+      parameters,
+    );
 
     return response.records.map(record => new Collection(record));
   }
 
-  public async findOne(_id: string): Promise<Collection> {
-    const response = await this.apiService.request('get', `${this.basePath}/${_id}`);
+  public async findOne(databaseId: string, _id: string): Promise<Collection> {
+    const response = await this.apiService.request(
+      'get',
+      `${this.basePath}/${databaseId}/collections/${_id}`,
+    );
 
     return new Collection(response.record);
   }
 
-  public async update(parameters: Partial<Collection>): Promise<Collection> {
+  public async update(databaseId: string, parameters: Partial<Collection>): Promise<Collection> {
     const response = await this.apiService.request(
       'put',
-      `${this.basePath}/${parameters._id}`,
+      `${this.basePath}/${databaseId}/collections/${parameters._id}`,
       parameters,
     );
 

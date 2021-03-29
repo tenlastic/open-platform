@@ -29,19 +29,21 @@ describe('handlers/records/count', function() {
         update: {},
       },
     });
-    user = { _id: mongoose.Types.ObjectId(), roles: ['collections'] };
+    user = { _id: mongoose.Types.ObjectId(), roles: ['databases'] };
   });
 
   it('returns the number of matching records', async function() {
     const Model = RecordSchema.getModel(collection);
     await Model.create({
       collectionId: collection._id,
+      databaseId: collection.databaseId,
       userId: user._id,
     });
 
     const ctx = new ContextMock({
       params: {
         collectionId: collection._id,
+        databaseId: collection.databaseId,
       },
       state: { user },
     });

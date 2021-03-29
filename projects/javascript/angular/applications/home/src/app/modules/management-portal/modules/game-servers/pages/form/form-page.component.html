@@ -103,21 +103,21 @@
           <mat-label>TCP Endpoint</mat-label>
           <input disabled
                  matInput
-                 [value]="data.endpoints?.tcp || 'Pending'" />
+                 [value]="data.status?.endpoints?.tcp || 'Pending'" />
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
           <mat-label>UDP Endpoint</mat-label>
           <input disabled
                  matInput
-                 [value]="data.endpoints?.udp || 'Pending'" />
+                 [value]="data.status?.endpoints?.udp || 'Pending'" />
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
           <mat-label>Websocket Endpoint</mat-label>
           <input disabled
                  matInput
-                 [value]="data.endpoints?.websocket || 'Pending'" />
+                 [value]="data.status?.endpoints?.websocket || 'Pending'" />
         </mat-form-field>
       </div>
     </app-toggle-section>

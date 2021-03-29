@@ -39,12 +39,14 @@ describe('handlers/records/find', function() {
     const Model = RecordSchema.getModel(collection);
     await Model.create({
       collectionId: collection._id,
+      databaseId: collection.databaseId,
       userId: user._id,
     });
 
     const ctx = new ContextMock({
       params: {
         collectionId: collection._id,
+        databaseId: collection.databaseId,
       },
       state: { user },
     });
@@ -59,6 +61,7 @@ describe('handlers/records/find', function() {
     const Model = RecordSchema.getModel(collection);
     await Model.create({
       collectionId: collection._id,
+      databaseId: collection.databaseId,
       properties: {
         insertedAt: new Date().toISOString(),
       },
@@ -69,6 +72,7 @@ describe('handlers/records/find', function() {
     const ctx = new ContextMock({
       params: {
         collectionId: collection._id,
+        databaseId: collection.databaseId,
       },
       request: {
         query: {

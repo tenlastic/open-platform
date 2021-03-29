@@ -17,9 +17,9 @@ export const ROUTES: Routes = [
         loadChildren: () => import('./modules/builds/builds.module').then(m => m.BuildModule),
       },
       {
-        path: 'collections',
+        path: 'databases',
         loadChildren: () =>
-          import('./modules/collections/collections.module').then(m => m.CollectionModule),
+          import('./modules/databases/databases.module').then(m => m.DatabaseModule),
       },
       {
         path: 'game-invitations',

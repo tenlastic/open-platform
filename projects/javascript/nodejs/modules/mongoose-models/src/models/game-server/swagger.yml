@@ -27,15 +27,6 @@ components:
             format: ^[a-f0-9]{24}$
         description:
           type: string
-        endpoints:
-          type: object
-          properties:
-            tcp:
-              type: string
-            udp:
-              type: string
-            websocket:
-              type: string
         gameId:
           type: string
           format: ^[a-f0-9]{24}$
@@ -59,21 +50,7 @@ components:
           type: string
           format: ^[a-f0-9]{24}$
         status:
-          type: object
-          properties:
-            nodes:
-              type: array
-              items:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  phase:
-                    type: string
-                    enum: [Error, Failed, Pending, Running, Succeeded]
-            phase:
-              type: string
-              enum: [Error, Failed, Pending, Running, Succeeded]
+          $ref: '#/components/schemas/GameServerStatus'
         updatedAt:
           type: string
           format: date-time

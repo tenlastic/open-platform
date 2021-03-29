@@ -30,7 +30,7 @@ const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
 export enum UserRole {
   Articles = 'articles',
   Builds = 'builds',
-  Collections = 'collections',
+  Databases = 'databases',
   GameServers = 'game-servers',
   GameInvitations = 'game-invitations',
   Games = 'games',

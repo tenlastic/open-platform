@@ -1,7 +1,7 @@
 import { DocumentType, ReturnModelType, getModelForClass, prop } from '@hasezoey/typegoose';
 
 import { NamespaceBuildLimitsSchema } from './build';
-import { NamespaceCollectionLimitsSchema } from './collection';
+import { NamespaceDatabaseLimitsSchema } from './database';
 import { NamespaceGameLimitsSchema } from './game';
 import { NamespaceGameServerLimitsSchema } from './game-server';
 import { NamespaceQueueLimitsSchema } from './queue';
@@ -12,7 +12,7 @@ export class NamespaceLimitsSchema {
   public builds: NamespaceBuildLimitsSchema;
 
   @prop({ required: true })
-  public collections: NamespaceCollectionLimitsSchema;
+  public databases: NamespaceDatabaseLimitsSchema;
 
   @prop({ required: true })
   public gameServers: NamespaceGameServerLimitsSchema;

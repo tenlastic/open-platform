@@ -24,7 +24,6 @@ import { GameDocument } from '../game';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 import { QueueDocument, QueueEvent } from '../queue';
 import { UserDocument } from '../user';
-import { GameServerEndpointsSchema } from './endpoints';
 import { GameServerStatusSchema } from './status';
 
 export enum GameServerStatus {
@@ -62,7 +61,9 @@ QueueEvent.sync(async payload => {
 });
 
 @index({ authorizedUserIds: 1 })
+@index({ buildId: 1 })
 @index({ currentUserIds: 1 })
+@index({ gameId: 1 })
 @index({ namespaceId: 1 })
 @index({ queueId: 1 })
 @modelOptions({ schemaOptions: { collection: 'gameservers', minimize: false, timestamps: true } })
@@ -90,9 +91,6 @@ export class GameServerSchema implements IOriginalDocument {
 
   @prop()
   public description: string;
-
-  @prop()
-  public endpoints: GameServerEndpointsSchema;
 
   @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
   public gameId: Ref<GameDocument>;

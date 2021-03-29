@@ -120,9 +120,9 @@
       </div>
 
       <div class="row"
-           formGroupName="collections">
+           formGroupName="databases">
         <mat-form-field floatLabel="always">
-          <mat-label>Total Collections</mat-label>
+          <mat-label>Total Databases</mat-label>
           <input matInput
                  required
                  formControlName="count"
@@ -132,13 +132,36 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Maximum Collection Size (B)</mat-label>
+          <mat-label>Total Database CPU</mat-label>
           <input matInput
                  required
-                 formControlName="size"
+                 formControlName="cpu"
                  step="1"
                  type="number" />
           <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Database Memory</mat-label>
+          <input matInput
+                 required
+                 formControlName="memory"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Only Preemptible Databases</mat-label>
+          <input *ngIf="form.get('limits').get('databases').get('preemptible').disabled"
+                 disabled
+                 matInput
+                 [value]="form.get('limits').get('databases').get('preemptible').value ? 'Yes' : 'No'" />
+          <mat-select *ngIf="!form.get('limits').get('databases').get('preemptible').disabled"
+                      formControlName="preemptible">
+            <mat-option [value]="true">Yes</mat-option>
+            <mat-option [value]="false">No</mat-option>
+          </mat-select>
         </mat-form-field>
       </div>
 

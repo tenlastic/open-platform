@@ -9,10 +9,18 @@ import {
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { Collection, CollectionService, Record, RecordService } from '@tenlastic/ng-http';
+import {
+  Collection,
+  CollectionService,
+  DatabaseService,
+  Record,
+  RecordService,
+} from '@tenlastic/ng-http';
 
-import { IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import {
+  BreadcrumbsComponentBreadcrumb,
+  PromptComponent,
+} from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
@@ -24,15 +32,19 @@ export class RecordsListPageComponent implements OnInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Record>;
 
+  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public collection: Collection;
   public dataSource = new MatTableDataSource<Record>();
   public displayedColumns: string[];
   public propertyColumns: string[];
 
+  private collectionId: string;
+  private databaseId: string;
+
   constructor(
-    public activatedRoute: ActivatedRoute,
-    public collectionService: CollectionService,
-    public identityService: IdentityService,
+    private activatedRoute: ActivatedRoute,
+    private collectionService: CollectionService,
+    private databaseService: DatabaseService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private recordService: RecordService,
@@ -41,8 +53,10 @@ export class RecordsListPageComponent implements OnInit {
 
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
-      const collectionId = params.get('collectionId');
-      this.collection = await this.collectionService.findOne(collectionId);
+      this.collectionId = params.get('collectionId');
+      this.databaseId = params.get('databaseId');
+
+      this.collection = await this.collectionService.findOne(this.databaseId, this.collectionId);
 
       this.propertyColumns = Object.entries(this.collection.jsonSchema.properties)
         .map(([key, value]) => (value.type === 'array' || value.type === 'object' ? null : key))
@@ -51,7 +65,16 @@ export class RecordsListPageComponent implements OnInit {
       this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
 
       this.titleService.setTitle(`${TITLE} | Records`);
-      this.fetchRecords();
+      await this.fetchRecords();
+
+      const database = await this.databaseService.findOne(this.databaseId);
+      this.breadcrumbs = [
+        { label: 'Databases', link: '../../../../' },
+        { label: database.name, link: '../../../' },
+        { label: 'Collections', link: '../../' },
+        { label: this.collection.name, link: '../' },
+        { label: 'Records' },
+      ];
     });
   }
 
@@ -68,7 +91,7 @@ export class RecordsListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.recordService.delete(this.collection._id, record._id);
+        await this.recordService.delete(this.databaseId, this.collectionId, record._id);
         this.deleteRecord(record);
 
         this.matSnackBar.open('Record deleted successfully.');
@@ -77,7 +100,7 @@ export class RecordsListPageComponent implements OnInit {
   }
 
   private async fetchRecords() {
-    const records = await this.recordService.find(this.collection._id, {
+    const records = await this.recordService.find(this.databaseId, this.collectionId, {
       sort: '_id',
     });
 

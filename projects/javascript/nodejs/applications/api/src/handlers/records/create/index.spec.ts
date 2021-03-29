@@ -1,11 +1,4 @@
-import {
-  CollectionDocument,
-  CollectionMock,
-  NamespaceCollectionLimitsMock,
-  NamespaceLimitError,
-  NamespaceLimitsMock,
-  NamespaceMock,
-} from '@tenlastic/mongoose-models';
+import { CollectionDocument, CollectionMock, NamespaceMock } from '@tenlastic/mongoose-models';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -22,11 +15,7 @@ describe('handlers/records/create', function() {
   let user: any;
 
   beforeEach(async function() {
-    const namespace = await NamespaceMock.create({
-      limits: NamespaceLimitsMock.create({
-        collections: NamespaceCollectionLimitsMock.create({ size: 1 }),
-      }),
-    });
+    const namespace = await NamespaceMock.create();
     collection = await CollectionMock.create({
       jsonSchema: {
         properties: {
@@ -54,44 +43,23 @@ describe('handlers/records/create', function() {
     user = { _id: mongoose.Types.ObjectId() };
   });
 
-  context('when too many records exist', function() {
-    it('throws a NamespaceLimitError', async function() {
-      const properties = { email: chance.email(), name: chance.name() };
-      const ctx = new ContextMock({
-        params: {
-          collectionId: collection._id,
-        },
-        request: {
-          body: { properties },
-        },
-        state: { user },
-      });
-
-      await handler(ctx as any);
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(NamespaceLimitError);
+  it('creates a new record', async function() {
+    const properties = { email: chance.email(), name: chance.name() };
+    const ctx = new ContextMock({
+      params: {
+        collectionId: collection._id,
+        databaseId: collection.databaseId,
+      },
+      request: {
+        body: { properties },
+      },
+      state: { user },
     });
-  });
 
-  context('when few enough records exist', function() {
-    it('creates a new record', async function() {
-      const properties = { email: chance.email(), name: chance.name() };
-      const ctx = new ContextMock({
-        params: {
-          collectionId: collection._id,
-        },
-        request: {
-          body: { properties },
-        },
-        state: { user },
-      });
+    await handler(ctx as any);
 
-      await handler(ctx as any);
-
-      expect(ctx.response.body.record).to.exist;
-      expect(ctx.response.body.record.properties.email).to.eql(properties.email);
-      expect(ctx.response.body.record.properties.name).to.eql(properties.name);
-    });
+    expect(ctx.response.body.record).to.exist;
+    expect(ctx.response.body.record.properties.email).to.eql(properties.email);
+    expect(ctx.response.body.record.properties.name).to.eql(properties.name);
   });
 });

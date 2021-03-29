@@ -82,15 +82,15 @@
             <span>Builds</span>
           </app-button>
 
-          <app-button *ngIf="hasPermission('collections')"
+          <app-button *ngIf="hasPermission('databases')"
                       color="accent"
                       layout="vertical"
-                      routerLink="collections"
+                      routerLink="databases"
                       routerLinkActive="active"
                       text="left"
                       width="full">
-            <mat-icon>category</mat-icon>
-            <span>Collections</span>
+            <mat-icon>dns</mat-icon>
+            <span>Databases</span>
           </app-button>
 
           <app-button *ngIf="hasPermission('game-servers')"

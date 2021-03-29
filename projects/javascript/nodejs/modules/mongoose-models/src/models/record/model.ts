@@ -17,9 +17,12 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { IOptions, MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
+import { namespaceValidator } from '../../validators';
 
-import { CollectionDocument } from '../collection/model';
-import { UserDocument } from '../user/model';
+import { CollectionDocument } from '../collection';
+import { DatabaseDocument } from '../database';
+import { NamespaceDocument } from '../namespace';
+import { UserDocument } from '../user';
 import { RecordPermissions } from './permissions';
 
 export const RecordEvent = new EventEmitter<IDatabasePayload<RecordDocument>>();
@@ -38,12 +41,26 @@ RecordEvent.sync(kafka.publish);
 export class RecordSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ ref: 'CollectionSchema', required: true })
+  @prop({
+    ref: 'CollectionSchema',
+    required: true,
+    validate: namespaceValidator('collectionDocument', 'collectionId'),
+  })
   public collectionId: Ref<CollectionDocument>;
 
   public createdAt: Date;
-  public properties: any;
 
+  @prop({
+    ref: 'DatabaseSchema',
+    required: true,
+    validate: namespaceValidator('databaseDocument', 'databaseId'),
+  })
+  public databaseId: Ref<DatabaseDocument>;
+
+  @prop({ ref: 'NamespaceSchema', required: true })
+  public namespaceId: Ref<NamespaceDocument>;
+
+  public properties: any;
   public updatedAt: Date;
 
   @prop({ ref: 'UserSchema' })
@@ -51,6 +68,12 @@ export class RecordSchema {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', ref: 'CollectionSchema' })
   public collectionDocument: CollectionDocument;
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', ref: 'DatabaseSchema' })
+  public databaseDocument: DatabaseDocument;
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
+  public namespaceDocument: NamespaceDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'UserSchema' })
   public userDocument: UserDocument;

@@ -7,6 +7,7 @@ import {
   prop,
 } from '@hasezoey/typegoose';
 
+import { GameServerStatusEndpointsSchema } from './endpoints';
 import { GameServerStatusNodeSchema } from './node';
 
 export enum GameServerStatusPhase {
@@ -19,6 +20,9 @@ export enum GameServerStatusPhase {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class GameServerStatusSchema {
+  @prop()
+  public endpoints: GameServerStatusEndpointsSchema;
+
   @arrayProp({ items: GameServerStatusNodeSchema })
   public nodes: GameServerStatusNodeSchema[];
 

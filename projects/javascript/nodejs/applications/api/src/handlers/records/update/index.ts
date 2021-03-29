@@ -1,11 +1,15 @@
-import { Collection, NamespaceLimitError, RecordSchema } from '@tenlastic/mongoose-models';
+import { Collection, CollectionPermissions, RecordSchema } from '@tenlastic/mongoose-models';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
-  const { _id, collectionId } = ctx.params;
+  const { _id, collectionId, databaseId } = ctx.params;
   const user = ctx.state.apiKey || ctx.state.user;
 
-  const collection = await Collection.findOne({ _id: collectionId }).populate('namespaceDocument');
+  const collection = await CollectionPermissions.findOne(
+    {},
+    { where: { _id: collectionId, databaseId } },
+    user,
+  );
   if (!collection) {
     throw new RecordNotFoundError('Collection');
   }
@@ -13,16 +17,11 @@ export async function handler(ctx: Context) {
   const Model = RecordSchema.getModel(collection);
   const Permissions = RecordSchema.getPermissions(Model, collection);
 
-  const limits = collection.namespaceDocument.limits.collections;
-  if (limits.size > 0) {
-    const stats = await Model.collection.stats();
-
-    if (stats.size >= limits.size) {
-      throw new NamespaceLimitError('collections.size', limits.size);
-    }
-  }
-
-  const existing = await Permissions.findOne({}, { where: { _id, collectionId } }, user);
+  const existing = await Permissions.findOne(
+    {},
+    { where: { _id, collectionId, databaseId } },
+    user,
+  );
   if (!existing) {
     throw new RecordNotFoundError('Record');
   }

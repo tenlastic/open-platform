@@ -33,6 +33,7 @@ describe('handlers/records/find-one', function() {
     const Model = RecordSchema.getModel(collection);
     const record = await Model.create({
       collectionId: collection._id,
+      databaseId: collection.databaseId,
       userId: user._id,
     });
 
@@ -40,6 +41,7 @@ describe('handlers/records/find-one', function() {
       params: {
         _id: record._id.toString(),
         collectionId: collection._id,
+        databaseId: collection.databaseId,
       },
       state: { user },
     });
