@@ -13,7 +13,8 @@ components:
             properties:
               children:
                 type: array
-                items: string
+                items:
+                  type: string
               displayName:
                 type: string
               finishedAt:
@@ -27,7 +28,8 @@ components:
                 type: string
               outboundNodes:
                 type: array
-                items: string
+                items:
+                  type: string
               phase:
                 type: string
               startedAt:

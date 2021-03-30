@@ -70,4 +70,4 @@ components:
         path:
           type: string
         populate:
-          $ref: '#/components/schemas/PopulateOptions'
+          $ref: '#/components/schemas/CollectionPopulateOptions'

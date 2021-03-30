@@ -12,14 +12,11 @@ paths:
           schema:
             type: string
           required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                files:
-                  type: string
+        - in: query
+          name: files
+          schema:
+            type: string
+          description: A string indicating if the file at the same index should be included (1) or excluded (0).
       responses:
         200:
           description: OK

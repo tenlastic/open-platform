@@ -5,7 +5,7 @@ set -e
 merge-yaml \
   -i swagger.yml \
   ../../modules/mongoose-models/src/**/swagger.yml \
-  ./src/**/swagger.yml \
+  ./src/handlers/**/swagger.yml \
   -o ./src/public/swagger.yml
 
 # Alphabetize Output.
