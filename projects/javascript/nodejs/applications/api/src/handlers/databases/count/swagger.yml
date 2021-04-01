@@ -1,5 +1,5 @@
 paths:
-  /database/count:
+  /databases/count:
     get:
       summary: Count
       tags: [Databases]

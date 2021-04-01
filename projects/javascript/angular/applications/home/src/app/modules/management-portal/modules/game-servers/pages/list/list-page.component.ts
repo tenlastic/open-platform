@@ -54,9 +54,9 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     'createdAt',
     'actions',
   ];
+  public queue: Queue;
 
   private updateDataSource$ = new Subscription();
-  private queue: Queue;
 
   constructor(
     private activatedRoute: ActivatedRoute,

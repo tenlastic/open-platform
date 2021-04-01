@@ -1,5 +1,4 @@
 import { FriendPermissions } from '@tenlastic/mongoose-models';
-
-import { find } from '../../../defaults';
+import { find } from '@tenlastic/web-server';
 
 export const handler = find(FriendPermissions);

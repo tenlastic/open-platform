@@ -1,5 +1,9 @@
-import { QueueModel, QueueMemberModel } from '../models';
-import { gameServerService, queueMemberService } from '../services';
+import {
+  gameServerService,
+  QueueModel,
+  QueueMemberModel,
+  queueMemberService,
+} from '@tenlastic/http';
 
 /**
  * If a User is already in a match, remove them from other Queues.

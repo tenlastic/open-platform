@@ -1,8 +1,8 @@
+import { gameServerService, queueMemberService, queueMemberStore } from '@tenlastic/http';
+
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
-import { gameServerService, queueMemberService } from '../services';
-import { queueMemberStore } from '../stores';
 import { createGameServer } from './';
 
 describe('create-game-server', function() {

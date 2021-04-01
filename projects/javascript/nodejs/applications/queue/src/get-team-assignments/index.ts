@@ -1,4 +1,4 @@
-import { QueueModel, QueueMemberModel } from '../models';
+import { QueueModel, QueueMemberModel } from '@tenlastic/http';
 
 /**
  * Matches QueueMembers together.

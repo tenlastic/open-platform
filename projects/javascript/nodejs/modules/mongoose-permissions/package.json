@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": "^10"
+    "node": "^12"
   },
   "license": "Apache-2.0",
   "main": "dist/index.js",

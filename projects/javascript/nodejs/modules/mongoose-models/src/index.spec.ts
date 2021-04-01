@@ -4,7 +4,7 @@ import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as sinon from 'sinon';
 import { URL } from 'url';
 
-import { connect, deleteAll, stub } from './';
+import { connect, deleteAll } from './';
 
 let sandbox: sinon.SinonSandbox;
 
@@ -35,7 +35,6 @@ before(async function() {
 beforeEach(async function() {
   sandbox = sinon.createSandbox();
   sandbox.stub(mailgun, 'send').resolves();
-  stub(sandbox);
 
   await deleteAll();
 });

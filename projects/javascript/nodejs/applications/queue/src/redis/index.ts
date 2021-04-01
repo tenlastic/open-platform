@@ -1,7 +1,6 @@
+import { queueMemberStore } from '@tenlastic/http';
 import * as redis from 'redis';
 import { promisify } from 'util';
-
-import { queueMemberStore } from '../stores';
 
 const podName = process.env.POD_NAME;
 const redisConnectionString = process.env.REDIS_CONNECTION_STRING;

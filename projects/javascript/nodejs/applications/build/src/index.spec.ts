@@ -1,10 +1,7 @@
 import * as minio from '@tenlastic/minio';
 import * as mongooseModels from '@tenlastic/mongoose-models';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
-import * as sinon from 'sinon';
 import { URL } from 'url';
-
-let sandbox: sinon.SinonSandbox;
 
 before(async function() {
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING);
@@ -32,12 +29,5 @@ before(async function() {
 });
 
 beforeEach(async function() {
-  sandbox = sinon.createSandbox();
-  mongooseModels.stub(sandbox);
-
   await mongooseModels.deleteAll();
-});
-
-afterEach(function() {
-  sandbox.restore();
 });

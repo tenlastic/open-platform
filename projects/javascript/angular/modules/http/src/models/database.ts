@@ -8,8 +8,6 @@ export namespace IDatabase {
     { label: '0.5', value: 0.5 },
   ];
   export const Memory = [
-    { label: '100 MB', value: 100 * 1000 * 1000 },
-    { label: '250 MB', value: 250 * 1000 * 1000 },
     { label: '500 MB', value: 500 * 1000 * 1000 },
     { label: '1 GB', value: 100 * 1000 * 1000 },
     { label: '2.5 GB', value: 250 * 1000 * 1000 },

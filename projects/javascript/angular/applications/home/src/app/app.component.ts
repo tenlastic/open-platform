@@ -6,6 +6,8 @@ import {
   Build,
   BuildQuery,
   BuildService,
+  Database,
+  DatabaseService,
   GameInvitation,
   GameInvitationQuery,
   GameInvitationService,
@@ -52,6 +54,7 @@ export class AppComponent implements OnInit {
     public backgroundService: BackgroundService,
     private buildQuery: BuildQuery,
     private buildService: BuildService,
+    private databaseService: DatabaseService,
     private electronService: ElectronService,
     private gameInvitationQuery: GameInvitationQuery,
     private gameInvitationService: GameInvitationService,
@@ -158,6 +161,7 @@ export class AppComponent implements OnInit {
 
   private subscribe() {
     this.socketService.subscribe('builds', Build, this.buildService);
+    this.socketService.subscribe('databases', Database, this.databaseService);
     this.socketService.subscribe('game-invitations', GameInvitation, this.gameInvitationService);
     this.socketService.subscribe('game-servers', GameServer, this.gameServerService);
     this.socketService.subscribe('groups', Group, this.groupService);

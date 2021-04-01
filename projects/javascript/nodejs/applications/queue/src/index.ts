@@ -1,23 +1,32 @@
 import 'source-map-support/register';
 
+import { queueMemberStore, setAccessToken, WebSocket } from '@tenlastic/http';
+
 import { createGameServer } from './create-game-server';
 import * as redis from './redis';
-import { queueMemberStore } from './stores';
-import { WebSocket } from './websocket';
 
+const accessToken = process.env.ACCESS_TOKEN;
 const queue = JSON.parse(process.env.QUEUE_JSON);
+const wssUrl = process.env.WSS_URL;
 
 (async () => {
-  await redis.start();
+  try {
+    setAccessToken(accessToken);
 
-  const webSocket = new WebSocket();
-  webSocket.emitter.on('open', () => {
-    webSocket.subscribe('queue-members', queueMemberStore, { queueId: queue._id });
-  });
-  webSocket.connect();
+    await redis.start();
 
-  // Wait for changes from web socket to catch up.
-  setTimeout(main, 15000);
+    const webSocket = new WebSocket();
+    webSocket.emitter.on('open', () => {
+      webSocket.subscribe('queue-members', queue._id, queueMemberStore, { queueId: queue._id });
+    });
+    webSocket.connect(wssUrl);
+
+    // Wait for changes from web socket to catch up.
+    setTimeout(main, 15000);
+  } catch (e) {
+    console.error(e.message);
+    process.exit(1);
+  }
 })();
 
 async function main() {
@@ -25,7 +34,7 @@ async function main() {
     const result = await createGameServer(queue);
 
     console.log(`GameServer created successfully: ${result._id}.`);
-    console.log(`${queueMemberStore.items.length} QueueMembers remaining.`);
+    console.log(`${queueMemberStore.array.length} QueueMembers remaining.`);
 
     return main();
   } catch (e) {

@@ -1,7 +1,7 @@
+import { gameServerService, queueMemberService } from '@tenlastic/http';
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
-import { gameServerService, queueMemberService } from '../services';
 import { removeConflictedUsers } from './';
 
 describe('remove-conflicted-users', function() {

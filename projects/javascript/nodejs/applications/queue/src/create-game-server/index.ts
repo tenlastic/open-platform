@@ -1,15 +1,21 @@
+import {
+  GameServerModel,
+  gameServerService,
+  QueueModel,
+  QueueMemberModel,
+  queueMemberService,
+  queueMemberStore,
+} from '@tenlastic/http';
+
 import { getTeamAssignments } from '../get-team-assignments';
-import { GameServerModel, QueueModel, QueueMemberModel } from '../models';
 import { removeConflictedUsers } from '../remove-conflicted-users';
-import { gameServerService, queueMemberService } from '../services';
-import { queueMemberStore } from '../stores';
 
 /**
  * Creates a GameServer if enough QueueMembers exist.
  */
 export async function createGameServer(queue: QueueModel): Promise<GameServerModel> {
   // Assign QueueMembers to teams.
-  const queueMembers = queueMemberStore.items;
+  const queueMembers = queueMemberStore.array;
   const teamAssignments = getTeamAssignments(queue, queueMembers);
 
   // Throw an error if not enough teams were found.

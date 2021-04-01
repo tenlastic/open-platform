@@ -7,5 +7,10 @@
     "rootDir": "./src"
   },
   "exclude": ["./src/**/*.spec.ts"],
-  "include": ["./src"]
+  "include": ["./src"],
+  "references": [
+    { "path": "../mongoose-change-stream-kafka/tsconfig.app.json" },
+    { "path": "../mongoose-models/tsconfig.app.json" },
+    { "path": "../mongoose-permissions/tsconfig.app.json" },
+  ]
 }

@@ -53,7 +53,6 @@
     "@types/winston": "2.4.4",
     "@types/ws": "7.2.1",
     "@types/yargs": "13.0.0",
-    "@types/websocket": "1.0.2",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
     "chai-http": "4.3.0",

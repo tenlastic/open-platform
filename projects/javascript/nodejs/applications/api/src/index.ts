@@ -1,8 +1,9 @@
 import 'source-map-support/register';
 
 import '@tenlastic/logging';
-import * as mongoose from '@tenlastic/mongoose-models';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import * as mongooseModels from '@tenlastic/mongoose-models';
+import '@tenlastic/mongoose-models-kubernetes';
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import { WebServer } from '@tenlastic/web-server';
@@ -37,66 +38,69 @@ import { router as webSocketsRouter } from './handlers/web-sockets';
 import { router as workflowsRouter } from './handlers/workflows';
 import { router as workflowLogsRouter } from './handlers/workflow-logs';
 
-// Kafka.
 (async () => {
-  await kafka.connect(process.env.KAFKA_CONNECTION_STRING);
-})();
+  try {
+    // Kafka.
+    await kafka.connect(process.env.KAFKA_CONNECTION_STRING);
 
-// Mailgun.
-mailgun.setCredentials(process.env.MAILGUN_DOMAIN, process.env.MAILGUN_SECRET);
+    // Mailgun.
+    mailgun.setCredentials(process.env.MAILGUN_DOMAIN, process.env.MAILGUN_SECRET);
 
-// Minio.
-(async () => {
-  const minioConnectionUrl = new URL(process.env.MINIO_CONNECTION_STRING);
-  minio.connect({
-    accessKey: minioConnectionUrl.username,
-    endPoint: minioConnectionUrl.hostname,
-    port: Number(minioConnectionUrl.port || '443'),
-    secretKey: minioConnectionUrl.password,
-    useSSL: minioConnectionUrl.protocol === 'https:',
-  });
+    // Minio.
+    const minioConnectionUrl = new URL(process.env.MINIO_CONNECTION_STRING);
+    minio.connect({
+      accessKey: minioConnectionUrl.username,
+      endPoint: minioConnectionUrl.hostname,
+      port: Number(minioConnectionUrl.port || '443'),
+      secretKey: minioConnectionUrl.password,
+      useSSL: minioConnectionUrl.protocol === 'https:',
+    });
 
-  const bucket = process.env.MINIO_BUCKET;
-  const bucketExists = await minio.bucketExists(bucket);
-  if (!bucketExists) {
-    await minio.makeBucket(bucket);
+    const bucket = process.env.MINIO_BUCKET;
+    const bucketExists = await minio.bucketExists(bucket);
+    if (!bucketExists) {
+      await minio.makeBucket(bucket);
+    }
+
+    // MongoDB.
+    await mongooseModels.connect({
+      connectionString: process.env.MONGO_CONNECTION_STRING,
+      databaseName: 'api',
+    });
+
+    // Web Server.
+    const webServer = new WebServer();
+    webServer.use(articlesRouter.routes());
+    webServer.use(buildLogsRouter.routes());
+    webServer.use(buildsRouter.routes());
+    webServer.use(collectionsRouter.routes());
+    webServer.use(databasesRouter.routes());
+    webServer.use(friendsRouter.routes());
+    webServer.use(gameInvitationsRouter.routes());
+    webServer.use(gameServersRouter.routes());
+    webServer.use(gameServerLogsRouter.routes());
+    webServer.use(gamesRouter.routes());
+    webServer.use(groupsRouter.routes());
+    webServer.use(groupInvitationsRouter.routes());
+    webServer.use(ignorationsRouter.routes());
+    webServer.use(loginsRouter.routes());
+    webServer.use(messagesRouter.routes());
+    webServer.use(namespacesRouter.routes());
+    webServer.use(passwordResetsRouter.routes());
+    webServer.use(publicKeysRouter.routes());
+    webServer.use(queuesRouter.routes());
+    webServer.use(queueLogsRouter.routes());
+    webServer.use(queueMembersRouter.routes());
+    webServer.use(recordsRouter.routes());
+    webServer.use(refreshTokensRouter.routes());
+    webServer.use(usersRouter.routes());
+    webServer.use(webSocketsRouter.routes());
+    webServer.use(workflowsRouter.routes());
+    webServer.use(workflowLogsRouter.routes());
+    webServer.serve(path.resolve(__dirname, 'public'), '/', 'index.html');
+    webServer.start();
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
   }
 })();
-
-// MongoDB.
-mongoose.connect({
-  connectionString: process.env.MONGO_CONNECTION_STRING,
-  databaseName: 'api',
-});
-
-// Web Server.
-const webServer = new WebServer();
-webServer.use(articlesRouter.routes());
-webServer.use(buildLogsRouter.routes());
-webServer.use(buildsRouter.routes());
-webServer.use(collectionsRouter.routes());
-webServer.use(databasesRouter.routes());
-webServer.use(friendsRouter.routes());
-webServer.use(gameInvitationsRouter.routes());
-webServer.use(gameServersRouter.routes());
-webServer.use(gameServerLogsRouter.routes());
-webServer.use(gamesRouter.routes());
-webServer.use(groupsRouter.routes());
-webServer.use(groupInvitationsRouter.routes());
-webServer.use(ignorationsRouter.routes());
-webServer.use(loginsRouter.routes());
-webServer.use(messagesRouter.routes());
-webServer.use(namespacesRouter.routes());
-webServer.use(passwordResetsRouter.routes());
-webServer.use(publicKeysRouter.routes());
-webServer.use(queuesRouter.routes());
-webServer.use(queueLogsRouter.routes());
-webServer.use(queueMembersRouter.routes());
-webServer.use(recordsRouter.routes());
-webServer.use(refreshTokensRouter.routes());
-webServer.use(usersRouter.routes());
-webServer.use(webSocketsRouter.routes());
-webServer.use(workflowsRouter.routes());
-webServer.use(workflowLogsRouter.routes());
-webServer.serve(path.resolve(__dirname, 'public'), '/', 'index.html');
-webServer.start();

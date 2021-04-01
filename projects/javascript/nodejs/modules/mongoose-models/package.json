@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": "^10"
+    "node": "^12"
   },
   "license": "Apache-2.0",
   "main": "dist/index.js",
@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "@hasezoey/typegoose": "6.0.0-27",
-    "@kubernetes/client-node": "0.11.2",
     "@tenlastic/json-schema": "0.0.154",
     "@tenlastic/mailgun": "0.0.154",
     "@tenlastic/minio": "0.0.154",
