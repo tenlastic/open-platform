@@ -28,7 +28,9 @@
     "koa-bodyparser": "4.2.1",
     "koa-mount": "4.0.0",
     "koa-router": "7.4.0",
-    "koa-static": "5.0.0"
+    "koa-static": "5.0.0",
+    "request": "2.88.0",
+    "request-promise-native": "1.0.7"
   },
   "devDependencies": {
     "@tenlastic/mongoose-change-stream-kafka": "0.0.154",

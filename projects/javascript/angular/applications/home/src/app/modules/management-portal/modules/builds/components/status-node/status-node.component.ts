@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material';
 import { Order } from '@datorama/akita';
 import { IBuild, Build, BuildLog, BuildLogQuery, BuildLogService } from '@tenlastic/ng-http';
 
+import { environment } from '../../../../../../../environments/environment';
 import { SocketService } from '../../../../../../core/services';
 import { LogsDialogComponent } from '../../../../../../shared/components';
 
@@ -55,11 +56,13 @@ export class BuildStatusNodeComponent {
             sort: '-unix',
             where: { nodeId: this.node.id },
           }),
-        subscribe: () =>
-          this.socketService.subscribe('build-logs', BuildLog, this.buildLogService, {
+        subscribe: () => {
+          const socket = this.socketService.connect(environment.apiBaseUrl);
+          return socket.subscribe('build-logs', BuildLog, this.buildLogService, {
             nodeId: this.node.id,
             buildId: this.build._id,
-          }),
+          });
+        },
       },
     });
   }

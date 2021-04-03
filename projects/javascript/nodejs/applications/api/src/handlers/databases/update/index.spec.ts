@@ -56,8 +56,8 @@ describe('handlers/databases/update', function() {
       expect(ctx.response.body.record).to.exist;
     });
 
-    it('enforces the databases.cpu Namespace limit', async function() {
-      namespace.limits.databases.cpu = 0.1;
+    it('enforces the Namespace limits', async function() {
+      namespace.limits.databases.cpu = 1;
       namespace.markModified('limits');
       await namespace.save();
 
@@ -67,7 +67,7 @@ describe('handlers/databases/update', function() {
         },
         request: {
           body: {
-            cpu: 0.2,
+            cpu: 2,
           },
         },
         state: { user: user.toObject() },
@@ -76,52 +76,7 @@ describe('handlers/databases/update', function() {
       const promise = handler(ctx as any);
 
       return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: databases.cpu. Value: 0.1.',
-      );
-    });
-
-    it('enforces the databases.memory Namespace limit', async function() {
-      namespace.limits.databases.memory = 0.1;
-      namespace.markModified('limits');
-      await namespace.save();
-
-      const ctx = new ContextMock({
-        request: {
-          body: {
-            memory: 0.2,
-          },
-        },
-        state: { user: user.toObject() },
-      });
-
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: databases.memory. Value: 0.1.',
-      );
-    });
-
-    it('enforces the databases.preemptible Namespace limit', async function() {
-      namespace.limits.databases.preemptible = true;
-      namespace.markModified('limits');
-      await namespace.save();
-
-      const ctx = new ContextMock({
-        params: {
-          _id: record._id,
-        },
-        request: {
-          body: {
-            isPreemptible: false,
-          },
-        },
-        state: { user: user.toObject() },
-      });
-
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: databases.preemptible. Value: true.',
+        'Namespace limit reached: databases.cpu. Value: 1.',
       );
     });
   });

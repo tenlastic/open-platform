@@ -10,25 +10,19 @@ components:
               type: integer
             size:
               type: integer
-          required:
-            - count
-            - size
         databases:
           type: object
           properties:
-            count:
-              type: integer
             cpu:
               type: integer
             memory:
               type: integer
             preemptible:
               type: boolean
-          required:
-            - count
-            - cpu
-            - memory
-            - preemptible
+            replicas:
+              type: number
+            storage:
+              type: number
         gameServers:
           type: object
           properties:
@@ -40,11 +34,6 @@ components:
               type: integer
             preemptible:
               type: boolean
-          required:
-            - count
-            - cpu
-            - memory
-            - preemptible
         games:
           type: object
           properties:
@@ -56,11 +45,6 @@ components:
               type: integer
             videos:
               type: integer
-          required:
-            - count
-            - images
-            - size
-            - videos
         queues:
           type: object
           properties:
@@ -72,11 +56,6 @@ components:
               type: integer
             preemptible:
               type: boolean
-          required:
-            - count
-            - cpu
-            - memory
-            - preemptible
         workflows:
           type: object
           properties:
@@ -90,12 +69,6 @@ components:
               type: integer
             preemptible:
               type: boolean
-          required:
-            - count
-            - cpu
-            - memory
-            - parallelism
-            - preemptible
       required:
         - builds
         - collections

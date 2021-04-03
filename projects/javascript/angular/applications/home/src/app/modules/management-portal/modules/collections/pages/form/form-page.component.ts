@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -12,10 +12,13 @@ import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Collection, CollectionService, DatabaseService } from '@tenlastic/ng-http';
 
+import { environment } from '../../../../../../../environments/environment';
 import {
   CollectionFormService,
   IdentityService,
   SelectedNamespaceService,
+  Socket,
+  SocketService,
 } from '../../../../../../core/services';
 import {
   BreadcrumbsComponentBreadcrumb,
@@ -26,13 +29,14 @@ import {
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
-export class CollectionsFormPageComponent implements OnInit {
+export class CollectionsFormPageComponent implements OnDestroy, OnInit {
   public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public data: Collection;
   public errors: string[] = [];
   public form: FormGroup;
 
   private databaseId: string;
+  private socket: Socket;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -45,6 +49,7 @@ export class CollectionsFormPageComponent implements OnInit {
     private matSnackBar: MatSnackBar,
     private router: Router,
     private selectedNamespaceService: SelectedNamespaceService,
+    private socketService: SocketService,
   ) {}
 
   public ngOnInit() {
@@ -65,7 +70,16 @@ export class CollectionsFormPageComponent implements OnInit {
         { label: 'Collections', link: '../' },
         { label: this.data._id ? 'Edit Collection' : 'Create Collection' },
       ];
+
+      const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
+      this.socket = this.socketService.connect(url);
+      this.socket.onopen = () =>
+        this.socket.subscribe('collections', Collection, this.collectionService);
     });
+  }
+
+  public ngOnDestroy() {
+    this.socket.close();
   }
 
   public addProperty() {

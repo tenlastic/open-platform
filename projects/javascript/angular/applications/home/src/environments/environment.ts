@@ -22,7 +22,7 @@ export const environment = {
   queueApiBaseUrl: 'http://api.localhost/queues',
   queueMemberApiBaseUrl: 'http://api.localhost/queue-members',
   refreshTokenApiBaseUrl: 'http://api.localhost/refresh-tokens',
-  swaggerUrl: 'http://api.localhost/swagger.yml',
+  swaggerUrl: 'http://api.localhost/swagger.json',
   useHash: false,
   userApiBaseUrl: 'http://api.localhost/users',
   webSocketApiBaseUrl: 'http://api.localhost/web-sockets',

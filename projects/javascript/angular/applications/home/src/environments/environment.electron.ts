@@ -22,7 +22,7 @@ export const environment = {
   queueApiBaseUrl: 'https://api.tenlastic.com/queues',
   queueMemberApiBaseUrl: 'https://api.tenlastic.com/queue-members',
   refreshTokenApiBaseUrl: 'https://api.tenlastic.com/refresh-tokens',
-  swaggerUrl: 'https://api.tenlastic.com/swagger.yml',
+  swaggerUrl: 'https://api.tenlastic.com/swagger.json',
   useHash: true,
   userApiBaseUrl: 'https://api.tenlastic.com/users',
   webSocketApiBaseUrl: 'https://api.tenlastic.com/web-sockets',

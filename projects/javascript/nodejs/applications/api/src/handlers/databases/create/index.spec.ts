@@ -36,10 +36,12 @@ describe('handlers/databases/create', function() {
       const ctx = new ContextMock({
         request: {
           body: {
-            cpu: 0.1,
-            memory: 0.1,
+            cpu: 1,
+            memory: 1,
             name: chance.hash(),
             namespaceId: namespace._id,
+            replicas: 1,
+            storage: 1,
           },
         },
         state: { user: user.toObject() },
@@ -50,14 +52,14 @@ describe('handlers/databases/create', function() {
       expect(ctx.response.body.record).to.exist;
     });
 
-    it('enforces the databases.count Namespace limit', async function() {
+    it('enforces the Namespace limits', async function() {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
         roles: ['databases'],
       });
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
-          databases: NamespaceDatabaseLimitsMock.create({ count: 1 }),
+          databases: NamespaceDatabaseLimitsMock.create({ cpu: 1 }),
         }),
         users: [namespaceUser],
       });
@@ -66,10 +68,12 @@ describe('handlers/databases/create', function() {
       const ctx = new ContextMock({
         request: {
           body: {
-            cpu: 0.1,
-            memory: 0.1,
+            cpu: 1,
+            memory: 1,
             name: chance.hash(),
             namespaceId: namespace._id,
+            replicas: 2,
+            storage: 1,
           },
         },
         state: { user: user.toObject() },
@@ -78,100 +82,7 @@ describe('handlers/databases/create', function() {
       const promise = handler(ctx as any);
 
       return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: databases.count. Value: 1.',
-      );
-    });
-
-    it('enforces the databases.cpu Namespace limit', async function() {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['databases'],
-      });
-      const namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({
-          databases: NamespaceDatabaseLimitsMock.create({ cpu: 0.1 }),
-        }),
-        users: [namespaceUser],
-      });
-
-      const ctx = new ContextMock({
-        request: {
-          body: {
-            cpu: 0.2,
-            memory: 0.1,
-            name: chance.hash(),
-            namespaceId: namespace._id,
-          },
-        },
-        state: { user: user.toObject() },
-      });
-
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: databases.cpu. Value: 0.1.',
-      );
-    });
-
-    it('enforces the databases.memory Namespace limit', async function() {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['databases'],
-      });
-      const namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({
-          databases: NamespaceDatabaseLimitsMock.create({ memory: 0.1 }),
-        }),
-        users: [namespaceUser],
-      });
-
-      const ctx = new ContextMock({
-        request: {
-          body: {
-            cpu: 0.1,
-            memory: 0.2,
-            name: chance.hash(),
-            namespaceId: namespace._id,
-          },
-        },
-        state: { user: user.toObject() },
-      });
-
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: databases.memory. Value: 0.1.',
-      );
-    });
-
-    it('enforces the databases.preemptible Namespace limit', async function() {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['databases'],
-      });
-      const namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({
-          databases: NamespaceDatabaseLimitsMock.create({ preemptible: true }),
-        }),
-        users: [namespaceUser],
-      });
-
-      const ctx = new ContextMock({
-        request: {
-          body: {
-            cpu: 0.2,
-            memory: 0.1,
-            name: chance.hash(),
-            namespaceId: namespace._id,
-          },
-        },
-        state: { user: user.toObject() },
-      });
-
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: databases.preemptible. Value: true.',
+        'Namespace limit reached: databases.cpu. Value: 1.',
       );
     });
   });
@@ -183,10 +94,12 @@ describe('handlers/databases/create', function() {
       const ctx = new ContextMock({
         request: {
           body: {
-            cpu: 0.1,
-            memory: 0.1,
+            cpu: 1,
+            memory: 1,
             name: chance.hash(),
             namespaceId: namespace._id,
+            replicas: 1,
+            storage: 1,
           },
         },
         state: { user: user.toObject() },

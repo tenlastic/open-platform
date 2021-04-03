@@ -206,13 +206,6 @@ export class NamespacesFormPageComponent implements OnInit {
           ],
         }),
         databases: this.formBuilder.group({
-          count: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.databases && limits.databases.count) || 0,
-            },
-            Validators.required,
-          ],
           cpu: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
@@ -231,6 +224,20 @@ export class NamespacesFormPageComponent implements OnInit {
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
               value: (limits && limits.databases && limits.databases.preemptible) || false,
+            },
+            Validators.required,
+          ],
+          replicas: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: (limits && limits.databases && limits.databases.replicas) || 0,
+            },
+            Validators.required,
+          ],
+          storage: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: (limits && limits.databases && limits.databases.storage) || 0,
             },
             Validators.required,
           ],

@@ -2,7 +2,7 @@ paths:
   /databases/{databaseId}/collections/{collectionId}/records/{_id}:
     put:
       summary: Update
-      tags: [CollectionRecords]
+      tags: [DatabaseCollectionRecords]
       description: Updates an existing record.
       security:
         - AccessToken: []

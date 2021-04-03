@@ -1,6 +1,7 @@
 import * as http from 'http';
 import * as jsonwebtoken from 'jsonwebtoken';
 import { Socket } from 'net';
+import * as requestPromiseNative from 'request-promise-native';
 import { URLSearchParams } from 'url';
 import * as WS from 'ws';
 
@@ -27,12 +28,15 @@ export type WebSocketCallback = 'connection' | 'message';
 
 export class WebSocketServer {
   private connectionCallbacks: ConnectionCallback[] = [];
+  private jwtPublicKey: string;
   private messageCallbacks: MessageCallback[] = [];
   private server: http.Server;
   private upgradeCallbacks: UpgradeCallback[] = [];
   private wss: WS.Server;
 
   constructor(server: http.Server) {
+    this.jwtPublicKey = process.env.JWT_PUBLIC_KEY;
+
     this.server = server;
     this.server.on(
       'upgrade',
@@ -93,12 +97,17 @@ export class WebSocketServer {
 
     const auth: AuthenticationData = {};
     if (accessToken) {
+      // If the public key is not specified via environment variables, fetch it from the API.
+      if (!this.jwtPublicKey) {
+        const response = await requestPromiseNative.get({ json: true, url: process.env.JWK_URL });
+        const x5c = response.keys[0].x5c[0];
+        this.jwtPublicKey = `-----BEGIN PUBLIC KEY-----\n${x5c}\n-----END PUBLIC KEY-----`;
+      }
+
       // Verify it is a valid JWT.
-      auth.jwt = jsonwebtoken.verify(
-        accessToken,
-        process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n'),
-        { algorithms: ['RS256'] },
-      );
+      auth.jwt = jsonwebtoken.verify(accessToken, this.jwtPublicKey.replace(/\\n/g, '\n'), {
+        algorithms: ['RS256'],
+      });
     } else {
       auth.key = apiKey;
     }

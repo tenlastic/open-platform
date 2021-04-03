@@ -36,10 +36,12 @@ import {
   WorkflowService,
 } from '@tenlastic/ng-http';
 
+import { environment } from '../environments/environment';
 import {
   BackgroundService,
   ElectronService,
   IdentityService,
+  Socket,
   SocketService,
 } from './core/services';
 import { TITLE } from './shared/constants';
@@ -49,6 +51,8 @@ import { TITLE } from './shared/constants';
   templateUrl: './app.component.html',
 })
 export class AppComponent implements OnInit {
+  private socket: Socket;
+
   constructor(
     private articleQuery: ArticleQuery,
     public backgroundService: BackgroundService,
@@ -86,16 +90,20 @@ export class AppComponent implements OnInit {
     this.loginService.onLogout.subscribe(() => this.navigateToLogin());
 
     // Handle websockets when logging in and out.
-    this.loginService.onLogin.subscribe(() => this.socketService.connect());
-    this.loginService.onLogout.subscribe(() => this.socketService.close());
+    this.loginService.onLogin.subscribe(() => {
+      this.socket = this.socketService.connect(environment.apiBaseUrl);
+    });
+    this.loginService.onLogout.subscribe(() => this.socket && this.socket.close());
 
     // Handle websockets when access token is set.
-    this.identityService.OnAccessTokenSet.subscribe(() => this.socketService.connect());
+    this.identityService.OnAccessTokenSet.subscribe(() => {
+      this.socket = this.socketService.connect(environment.apiBaseUrl);
+    });
 
     // Connect to websockets.
     try {
       this.socketService.OnOpen.subscribe(() => this.subscribe());
-      this.socketService.connect();
+      this.socket = this.socketService.connect(environment.apiBaseUrl);
     } catch {}
 
     // Load previous url if set.
@@ -160,16 +168,16 @@ export class AppComponent implements OnInit {
   }
 
   private subscribe() {
-    this.socketService.subscribe('builds', Build, this.buildService);
-    this.socketService.subscribe('databases', Database, this.databaseService);
-    this.socketService.subscribe('game-invitations', GameInvitation, this.gameInvitationService);
-    this.socketService.subscribe('game-servers', GameServer, this.gameServerService);
-    this.socketService.subscribe('groups', Group, this.groupService);
-    this.socketService.subscribe('group-invitations', GroupInvitation, this.groupInvitationService);
-    this.socketService.subscribe('messages', Message, this.messageService);
-    this.socketService.subscribe('queue-members', QueueMember, this.queueMemberService);
-    this.socketService.subscribe('queues', Queue, this.queueService);
-    this.socketService.subscribe('workflows', Workflow, this.workflowService);
-    this.socketService.subscribe('web-sockets', WebSocket, this.webSocketService);
+    this.socket.subscribe('builds', Build, this.buildService);
+    this.socket.subscribe('databases', Database, this.databaseService);
+    this.socket.subscribe('game-invitations', GameInvitation, this.gameInvitationService);
+    this.socket.subscribe('game-servers', GameServer, this.gameServerService);
+    this.socket.subscribe('groups', Group, this.groupService);
+    this.socket.subscribe('group-invitations', GroupInvitation, this.groupInvitationService);
+    this.socket.subscribe('messages', Message, this.messageService);
+    this.socket.subscribe('queue-members', QueueMember, this.queueMemberService);
+    this.socket.subscribe('queues', Queue, this.queueService);
+    this.socket.subscribe('workflows', Workflow, this.workflowService);
+    this.socket.subscribe('web-sockets', WebSocket, this.webSocketService);
   }
 }

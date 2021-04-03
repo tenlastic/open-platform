@@ -2,7 +2,7 @@ paths:
   /databases/{databaseId}/collections/{collectionId}/records:
     get:
       summary: Find
-      tags: [CollectionRecords]
+      tags: [DatabaseCollectionRecords]
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []

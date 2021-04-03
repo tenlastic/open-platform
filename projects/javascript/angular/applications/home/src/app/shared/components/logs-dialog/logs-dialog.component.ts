@@ -3,6 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { GameServerLog } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
 
+import { environment } from '../../../../environments/environment';
 import { IdentityService, SocketService } from '../../../core/services';
 
 export interface LogsDialogComponentData {
@@ -42,7 +43,8 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     if (this.socket) {
-      this.socketService.unsubscribe(this.socket);
+      const socket = this.socketService.connect(environment.apiBaseUrl);
+      socket.unsubscribe(this.socket);
     }
   }
 
@@ -67,7 +69,8 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
       this.data.find();
       this.socket = this.data.subscribe();
     } else {
-      this.socketService.unsubscribe(this.socket);
+      const socket = this.socketService.connect(environment.apiBaseUrl);
+      socket.unsubscribe(this.socket);
     }
   }
 

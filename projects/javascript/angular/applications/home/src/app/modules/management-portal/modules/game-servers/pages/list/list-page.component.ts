@@ -22,6 +22,7 @@ import {
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
+import { environment } from '../../../../../../../environments/environment';
 import {
   IdentityService,
   SelectedNamespaceService,
@@ -127,13 +128,12 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
           sortByOrder: Order.DESC,
         }),
         find: () => this.gameServerLogService.find(record._id, { limit: 250, sort: '-unix' }),
-        subscribe: () =>
-          this.socketService.subscribe(
-            'game-server-logs',
-            GameServerLog,
-            this.gameServerLogService,
-            { gameServerId: record._id },
-          ),
+        subscribe: () => {
+          const socket = this.socketService.connect(environment.apiBaseUrl);
+          return socket.subscribe('game-server-logs', GameServerLog, this.gameServerLogService, {
+            gameServerId: record._id,
+          });
+        },
       },
     });
   }

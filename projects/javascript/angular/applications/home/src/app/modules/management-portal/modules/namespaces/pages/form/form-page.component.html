@@ -122,16 +122,6 @@
       <div class="row"
            formGroupName="databases">
         <mat-form-field floatLabel="always">
-          <mat-label>Total Databases</mat-label>
-          <input matInput
-                 required
-                 formControlName="count"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
           <mat-label>Total Database CPU</mat-label>
           <input matInput
                  required
@@ -142,7 +132,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Total Database Memory</mat-label>
+          <mat-label>Total Database Memory (B)</mat-label>
           <input matInput
                  required
                  formControlName="memory"
@@ -162,6 +152,26 @@
             <mat-option [value]="true">Yes</mat-option>
             <mat-option [value]="false">No</mat-option>
           </mat-select>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Database Replicas</mat-label>
+          <input matInput
+                 required
+                 formControlName="replicas"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Database Storage (B)</mat-label>
+          <input matInput
+                 required
+                 formControlName="storage"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
         </mat-form-field>
       </div>
 
@@ -231,7 +241,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Total Game Server Memory</mat-label>
+          <mat-label>Total Game Server Memory (B)</mat-label>
           <input matInput
                  required
                  formControlName="memory"
@@ -277,7 +287,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Total Queue Memory</mat-label>
+          <mat-label>Total Queue Memory (B)</mat-label>
           <input matInput
                  required
                  formControlName="memory"
@@ -323,7 +333,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Memory Per Workflow Template</mat-label>
+          <mat-label>Memory Per Workflow Template (B)</mat-label>
           <input matInput
                  required
                  formControlName="memory"

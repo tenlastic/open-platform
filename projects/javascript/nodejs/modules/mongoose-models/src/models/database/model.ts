@@ -66,8 +66,14 @@ export class DatabaseSchema {
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
+  @prop({ min: 1, required: true })
+  public replicas: number;
+
   @prop({ default: { phase: 'Pending' } })
   public status: DatabaseStatusSchema;
+
+  @prop({ min: 0, required: true })
+  public storage: number;
 
   public updatedAt: Date;
 
@@ -81,11 +87,13 @@ export class DatabaseSchema {
    * Throws an error if a NamespaceLimit is exceeded.
    */
   public static async checkNamespaceLimits(
-    count: number,
+    _id: string | mongoose.Types.ObjectId,
     cpu: number,
     isPreemptible: boolean,
     memory: number,
-    namespaceId: string | mongoose.Types.ObjectId,
+    namespaceId: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>,
+    replicas: number,
+    storage: number,
   ) {
     const namespace = await Namespace.findOne({ _id: namespaceId });
     if (!namespace) {
@@ -93,37 +101,53 @@ export class DatabaseSchema {
     }
 
     const limits = namespace.limits.databases;
+
+    // Preemptible.
     if (limits.preemptible && isPreemptible === false) {
       throw new NamespaceLimitError('databases.preemptible', limits.preemptible);
     }
 
-    if (limits.count > 0 || limits.cpu > 0 || limits.memory > 0) {
-      const results = await Database.aggregate([
-        { $match: { namespaceId: namespace._id } },
-        {
-          $group: {
-            _id: null,
-            count: { $sum: 1 },
-            cpu: { $sum: '$cpu' },
-            memory: { $sum: '$memory' },
-          },
+    // Skip MongoDB query if no limits are set.
+    if (!limits.cpu && !limits.memory && !limits.replicas && !limits.storage) {
+      return;
+    }
+
+    // Aggregate the sum of existing records.
+    const results = await Database.aggregate([
+      { $match: { _id: { $ne: _id }, namespaceId: namespace._id } },
+      {
+        $group: {
+          _id: null,
+          cpu: { $sum: { $multiply: ['$cpu', '$replicas'] } },
+          memory: { $sum: { $multiply: ['$memory', '$replicas'] } },
+          replicas: { $sum: '$replicas' },
+          storage: { $sum: { $multiply: ['$storage', '$replicas'] } },
         },
-      ]);
+      },
+    ]);
 
-      const countSum = results.length > 0 ? results[0].count : 0;
-      if (limits.count > 0 && countSum + count > limits.count) {
-        throw new NamespaceLimitError('databases.count', limits.count);
-      }
+    // CPU.
+    const cpuSum = results.length ? results[0].cpu : 0;
+    if (limits.cpu && cpuSum + cpu * replicas > limits.cpu) {
+      throw new NamespaceLimitError('databases.cpu', limits.cpu);
+    }
 
-      const cpuSum = results.length > 0 ? results[0].cpu : 0;
-      if (limits.cpu > 0 && cpuSum + cpu > limits.cpu) {
-        throw new NamespaceLimitError('databases.cpu', limits.cpu);
-      }
+    // Memory.
+    const memorySum = results.length ? results[0].memory : 0;
+    if (limits.memory && memorySum + memory * replicas > limits.memory) {
+      throw new NamespaceLimitError('databases.memory', limits.memory);
+    }
 
-      const memorySum = results.length > 0 ? results[0].memory : 0;
-      if (limits.memory > 0 && memorySum + memory > limits.memory) {
-        throw new NamespaceLimitError('databases.memory', limits.memory);
-      }
+    // Replicas.
+    const replicasSum = results.length ? results[0].replicas : 0;
+    if (limits.replicas && replicasSum + replicas > limits.replicas) {
+      throw new NamespaceLimitError('databases.replicas', limits.replicas);
+    }
+
+    // Storage.
+    const storageSum = results.length ? results[0].storage : 0;
+    if (limits.storage && storageSum + storage * replicas > limits.storage) {
+      throw new NamespaceLimitError('databases.storage', limits.storage);
     }
   }
 

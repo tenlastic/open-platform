@@ -68,20 +68,44 @@ export const KubernetesDatabaseSidecar = {
 
     /**
      * ======================
-     * DEPLOYMENT
+     * SECRET
      * ======================
      */
-    const administrator = { roles: ['databases'], system: true };
+    const administrator = { roles: ['databases', 'namespaces'], system: true };
     const accessToken = jwt.sign(
       { type: 'access', user: administrator },
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
       { algorithm: 'RS256' },
     );
 
-    const packageDotJson = fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8');
-    const version = JSON.parse(packageDotJson).version;
+    const roles = ['application', 'kafka', 'mongodb', 'zookeeper'];
+    const appSelector = `tenlastic.com/app=${databaseName}`;
+    const roleSelector = `tenlastic.com/role in (${roles.join(',')})`;
+    await coreV1.createNamespacedSecret(namespace.kubernetesNamespace, {
+      metadata: {
+        labels: {
+          'tenlastic.com/app': databaseName,
+          'tenlastic.com/role': 'sidecar',
+        },
+        name,
+      },
+      stringData: {
+        ACCESS_TOKEN: accessToken,
+        API_URL: 'http://api.default:3000',
+        DATABASE_ENDPOINT: `http://api.default:3000/databases/${database._id}`,
+        DATABASE_JSON: JSON.stringify(database),
+        DATABASE_POD_LABEL_SELECTOR: `${appSelector},${roleSelector}`,
+        DATABASE_POD_NAMESPACE: namespace.kubernetesNamespace,
+        WSS_URL: 'ws://wss.default:3000',
+      },
+    });
 
-    const affinity = {
+    /**
+     * ======================
+     * DEPLOYMENT
+     * ======================
+     */
+    const affinity: k8s.V1Affinity = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
           nodeSelectorTerms: [
@@ -97,15 +121,16 @@ export const KubernetesDatabaseSidecar = {
         },
       },
     };
-    const roles = ['application', 'kafka', 'mongodb', 'zookeeper'];
-    const env = [
-      { name: 'ACCESS_TOKEN', value: accessToken },
-      { name: 'DATABASE_ENDPOINT', value: `http://api.default:3000/databases/${database._id}` },
+    const env: k8s.V1EnvVar[] = [
       {
-        name: 'DATABASE_POD_LABEL_SELECTOR',
-        value: `tenlastic.com/app=${databaseName},tenlastic.com/role in (${roles.join(',')})`,
+        name: 'MONGO_CONNECTION_STRING',
+        valueFrom: {
+          secretKeyRef: {
+            key: 'MONGO_CONNECTION_STRING',
+            name: databaseName,
+          },
+        },
       },
-      { name: 'DATABASE_POD_NAMESPACE', value: namespace.kubernetesNamespace },
     ];
 
     // If application is running locally, create debug containers.
@@ -126,6 +151,7 @@ export const KubernetesDatabaseSidecar = {
             {
               command: ['npm', 'run', 'start'],
               env,
+              envFrom: [{ secretRef: { name } }],
               image: 'node:12',
               name: 'database-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
@@ -138,6 +164,9 @@ export const KubernetesDatabaseSidecar = {
         },
       };
     } else {
+      const packageDotJson = fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8');
+      const version = JSON.parse(packageDotJson).version;
+
       manifest = {
         metadata: {
           labels: {
@@ -151,6 +180,7 @@ export const KubernetesDatabaseSidecar = {
           containers: [
             {
               env,
+              envFrom: [{ secretRef: { name } }],
               image: `tenlastic/database-sidecar:${version}`,
               name: 'database-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
@@ -193,6 +223,15 @@ export const KubernetesDatabaseSidecar = {
       await rbacAuthorizationV1.deleteNamespacedRole(name, namespace.kubernetesNamespace);
       await coreV1.deleteNamespacedServiceAccount(name, namespace.kubernetesNamespace);
       await rbacAuthorizationV1.deleteNamespacedRoleBinding(name, namespace.kubernetesNamespace);
+    } catch {}
+
+    /**
+     * =======================
+     * SECRET
+     * =======================
+     */
+    try {
+      await coreV1.deleteNamespacedSecret(name, namespace.kubernetesNamespace);
     } catch {}
 
     /**

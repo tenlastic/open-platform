@@ -10,6 +10,7 @@ export class CollectionService {
 
   public onCreate = new EventEmitter<Collection>();
   public onDelete = new EventEmitter<Collection>();
+  public onRead = new EventEmitter<Collection[]>();
   public onUpdate = new EventEmitter<Collection>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
@@ -48,7 +49,10 @@ export class CollectionService {
       parameters,
     );
 
-    return response.records.map(record => new Collection(record));
+    const records = response.records.map(record => new Collection(record));
+    this.onRead.emit(records);
+
+    return records;
   }
 
   public async findOne(databaseId: string, _id: string): Promise<Collection> {
@@ -57,7 +61,10 @@ export class CollectionService {
       `${this.basePath}/${databaseId}/collections/${_id}`,
     );
 
-    return new Collection(response.record);
+    const record = new Collection(response.record);
+    this.onRead.emit([record]);
+
+    return record;
   }
 
   public async update(databaseId: string, parameters: Partial<Collection>): Promise<Collection> {

@@ -82,6 +82,7 @@
     "tslint": "5.18.0",
     "tslint-microsoft-contrib": "6.2.0",
     "typescript": "3.5.3",
-    "watch": "1.0.2"
+    "watch": "1.0.2",
+    "yamljs": "0.3.0"
   }
 }

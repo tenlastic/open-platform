@@ -2,9 +2,6 @@ import { DocumentType, ReturnModelType, getModelForClass, prop } from '@hasezoey
 
 export class NamespaceDatabaseLimitsSchema {
   @prop({ default: 0 })
-  public count: number;
-
-  @prop({ default: 0 })
   public cpu: number;
 
   @prop({ default: 0 })
@@ -12,6 +9,12 @@ export class NamespaceDatabaseLimitsSchema {
 
   @prop({ default: false })
   public preemptible: boolean;
+
+  @prop({ default: 0 })
+  public replicas: number;
+
+  @prop({ default: 0 })
+  public storage: number;
 }
 
 export type NamespaceDatabaseLimitsDocument = DocumentType<NamespaceDatabaseLimitsSchema>;

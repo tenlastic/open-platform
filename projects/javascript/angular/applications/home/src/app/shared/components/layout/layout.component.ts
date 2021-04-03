@@ -9,7 +9,8 @@ import {
 } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
 
-import { ElectronService, IdentityService, SocketService } from '../../../core/services';
+import { environment } from '../../../../environments/environment';
+import { ElectronService, IdentityService, Socket, SocketService } from '../../../core/services';
 import { PromptComponent } from '../prompt/prompt.component';
 
 @Component({
@@ -20,6 +21,7 @@ import { PromptComponent } from '../prompt/prompt.component';
 export class LayoutComponent implements OnInit {
   public $gameInvitations: Observable<GameInvitation[]>;
   public namespaces: Namespace[] = [];
+  public socket: Socket;
 
   private updateAvailable = false;
 
@@ -30,11 +32,12 @@ export class LayoutComponent implements OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private namespaceService: NamespaceService,
-    public socketService: SocketService,
+    private socketService: SocketService,
   ) {}
 
   public async ngOnInit() {
     this.namespaces = await this.namespaceService.find({});
+    this.socket = this.socketService.connect(environment.apiBaseUrl);
 
     if (this.identityService.user) {
       this.$gameInvitations = this.gameInvitationQuery.selectAll({

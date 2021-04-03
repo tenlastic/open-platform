@@ -23,6 +23,8 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public memories = IDatabase.Memory;
+  public replicas = IDatabase.Replicas;
+  public storages = IDatabase.Storage;
 
   private updateDatabase$ = new Subscription();
 
@@ -71,6 +73,8 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
       memory: this.form.get('memory').value,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
+      replicas: this.form.get('replicas').value,
+      storage: this.form.get('storage').value,
     };
 
     const dirtyFields = this.getDirtyFields();
@@ -129,11 +133,19 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
       memory: [this.data.memory || this.memories[0].value, Validators.required],
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId],
+      replicas: [this.data.replicas || this.replicas[0].value, Validators.required],
+      storage: [this.data.storage || this.storages[0].value, Validators.required],
     });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
     if (this.data._id) {
+      this.form.get('cpu').disable({ emitEvent: false });
+      this.form.get('isPreemptible').disable({ emitEvent: false });
+      this.form.get('memory').disable({ emitEvent: false });
+      this.form.get('replicas').disable({ emitEvent: false });
+      this.form.get('storage').disable({ emitEvent: false });
+
       this.updateDatabase$ = this.databaseQuery
         .selectAll({ filterBy: q => q._id === this.data._id })
         .subscribe(databases => {

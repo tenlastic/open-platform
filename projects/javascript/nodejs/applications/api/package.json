@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@hasezoey/typegoose": "6.0.0-27",
-    "@kubernetes/client-node": "0.11.2",
+    "@kubernetes/client-node": "0.14.0",
     "@tenlastic/json-schema": "0.0.154",
     "@tenlastic/logging": "0.0.154",
     "@tenlastic/mailgun": "0.0.154",
@@ -52,6 +52,7 @@
     "ts-node-dev": "1.0.0-pre.44",
     "tslint": "5.18.0",
     "typescript": "3.5.3",
+    "yamljs": "0.3.0",
     "yml-sorter": "1.1.1"
   }
 }

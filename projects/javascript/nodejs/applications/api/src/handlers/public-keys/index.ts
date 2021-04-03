@@ -1,7 +1,7 @@
 import * as Router from 'koa-router';
 
-import { handler as jwtHandler } from './jwt';
+import { handler as jwksHandler } from './jwks';
 
 export const router = new Router({ prefix: '/public-keys' });
 
-router.get('/jwt', jwtHandler);
+router.get('/jwks', jwksHandler);

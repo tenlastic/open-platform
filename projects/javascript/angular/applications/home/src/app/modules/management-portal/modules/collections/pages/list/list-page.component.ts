@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import {
   MatPaginator,
   MatSort,
@@ -9,9 +9,21 @@ import {
 } from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { Collection, CollectionService, DatabaseService } from '@tenlastic/ng-http';
+import {
+  Collection,
+  CollectionQuery,
+  CollectionService,
+  DatabaseService,
+} from '@tenlastic/ng-http';
+import { Observable, Subscription } from 'rxjs';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { environment } from '../../../../../../../environments/environment';
+import {
+  IdentityService,
+  SelectedNamespaceService,
+  Socket,
+  SocketService,
+} from '../../../../../../core/services';
 import {
   BreadcrumbsComponentBreadcrumb,
   PromptComponent,
@@ -22,42 +34,55 @@ import { TITLE } from '../../../../../../shared/constants';
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class CollectionsListPageComponent implements OnInit {
+export class CollectionsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Collection>;
 
+  public $collections: Observable<Collection[]>;
   public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
-  public dataSource: MatTableDataSource<Collection>;
+  public dataSource = new MatTableDataSource<Collection>();
   public displayedColumns: string[] = ['name', 'createdAt', 'updatedAt', 'actions'];
 
-  private databaseId: string;
+  private updateDataSource$ = new Subscription();
+  private get databaseId() {
+    return this.activatedRoute.snapshot.paramMap.get('databaseId');
+  }
+  private socket: Socket;
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private collectionQuery: CollectionQuery,
     private collectionService: CollectionService,
     private databaseService: DatabaseService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private selectedNamespaceService: SelectedNamespaceService,
+    private socketService: SocketService,
     private titleService: Title,
   ) {}
 
-  public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
-      this.databaseId = params.get('databaseId');
+  public async ngOnInit() {
+    this.titleService.setTitle(`${TITLE} | Collections`);
+    await this.fetchCollections();
 
-      this.titleService.setTitle(`${TITLE} | Collections`);
-      this.fetchCollections();
+    const database = await this.databaseService.findOne(this.databaseId);
+    this.breadcrumbs = [
+      { label: 'Databases', link: '../../../' },
+      { label: database.name, link: '../../' },
+      { label: 'Collections' },
+    ];
 
-      const database = await this.databaseService.findOne(this.databaseId);
-      this.breadcrumbs = [
-        { label: 'Databases', link: '../../' },
-        { label: database.name, link: '../' },
-        { label: 'Collections' },
-      ];
-    });
+    const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
+    this.socket = this.socketService.connect(url);
+    this.socket.onopen = () =>
+      this.socket.subscribe('collections', Collection, this.collectionService);
+  }
+
+  public ngOnDestroy() {
+    this.updateDataSource$.unsubscribe();
+    this.socket.close();
   }
 
   public showDeletePrompt(record: Collection) {
@@ -74,29 +99,28 @@ export class CollectionsListPageComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
         await this.collectionService.delete(this.databaseId, record._id);
-        this.deleteCollection(record);
-
         this.matSnackBar.open('Collection deleted successfully.');
       }
     });
   }
 
   private async fetchCollections() {
-    const records = await this.collectionService.find(this.databaseId, {
+    this.$collections = this.collectionQuery.selectAll({
+      filterBy: gs =>
+        gs.databaseId === this.databaseId &&
+        gs.namespaceId === this.selectedNamespaceService.namespaceId,
+    });
+
+    await this.collectionService.find(this.databaseId, {
       sort: 'name',
       where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
-    this.dataSource = new MatTableDataSource<Collection>(records);
+    this.updateDataSource$ = this.$collections.subscribe(
+      collections => (this.dataSource.data = collections),
+    );
+
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  private deleteCollection(record: Collection) {
-    const index = this.dataSource.data.findIndex(u => u._id === record._id);
-    this.dataSource.data.splice(index, 1);
-
-    this.dataSource.data = [].concat(this.dataSource.data);
-    this.table.renderRows();
   }
 }

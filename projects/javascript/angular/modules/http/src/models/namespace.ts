@@ -19,10 +19,11 @@ export namespace INamespace {
   }
 
   export interface DatabaseLimits {
-    count: number;
     cpu: number;
     memory: number;
     preemptible: boolean;
+    replicas: number;
+    storage: number;
   }
 
   export interface GameLimits {

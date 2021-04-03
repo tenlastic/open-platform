@@ -25,6 +25,16 @@
       </mat-form-field>
 
       <mat-form-field floatLabel="always">
+        <mat-label>Replicas</mat-label>
+        <mat-select formControlName="replicas">
+          <mat-option *ngFor="let replica of replicas"
+                      [value]="replica.value">{{ replica.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
         <mat-label>CPU</mat-label>
         <mat-select formControlName="cpu">
           <mat-option *ngFor="let cpu of cpus"
@@ -37,6 +47,14 @@
         <mat-select formControlName="memory">
           <mat-option *ngFor="let memory of memories"
                       [value]="memory.value">{{ memory.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Storage</mat-label>
+        <mat-select formControlName="storage">
+          <mat-option *ngFor="let storage of storages"
+                      [value]="storage.value">{{ storage.label }}</mat-option>
         </mat-select>
       </mat-form-field>
     </div>

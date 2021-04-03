@@ -2,7 +2,7 @@ paths:
   /databases/{databaseId}/collections/{collectionId}/records/count:
     get:
       summary: Count
-      tags: [CollectionRecords]
+      tags: [DatabaseCollectionRecords]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []

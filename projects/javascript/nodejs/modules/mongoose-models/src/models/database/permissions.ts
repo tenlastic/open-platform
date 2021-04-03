@@ -3,7 +3,16 @@ import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import { Database, DatabaseDocument } from './model';
 
 const administrator = {
-  create: ['cpu', 'gameId', 'isPreemptible', 'memory', 'name', 'namespaceId'],
+  create: [
+    'cpu',
+    'gameId',
+    'isPreemptible',
+    'memory',
+    'name',
+    'namespaceId',
+    'replicas',
+    'storage',
+  ],
   read: [
     '_id',
     'cpu',
@@ -13,10 +22,12 @@ const administrator = {
     'memory',
     'name',
     'namespaceId',
+    'replicas',
     'status.*',
+    'storage',
     'updatedAt',
   ],
-  update: ['cpu', 'gameId', 'isPreemptible', 'memory', 'name'],
+  update: ['gameId', 'name'],
 };
 
 export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Database, {
@@ -123,7 +134,7 @@ export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Dat
   ],
   update: {
     'namespace-administrator': administrator.update,
-    'system-administrator': ['cpu', 'gameId', 'isPreemptible', 'memory', 'name', 'status.*'],
+    'system-administrator': ['gameId', 'name', 'status.*'],
     'user-administrator': administrator.update,
   },
 });

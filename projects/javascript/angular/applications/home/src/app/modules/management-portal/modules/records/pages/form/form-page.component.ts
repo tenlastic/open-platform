@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,14 +11,16 @@ import {
   RecordService,
 } from '@tenlastic/ng-http';
 
+import { environment } from '../../../../../../../environments/environment';
 import { BreadcrumbsComponentBreadcrumb } from '../../../../../../shared/components';
 import { CamelCaseToTitleCasePipe } from '../../../../../../shared/pipes';
+import { Socket, SocketService } from '../../../../../../core/services';
 
 @Component({
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
-export class RecordsFormPageComponent implements OnInit {
+export class RecordsFormPageComponent implements OnDestroy, OnInit {
   public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public collection: Collection;
   public data: Record;
@@ -27,6 +29,7 @@ export class RecordsFormPageComponent implements OnInit {
 
   private collectionId: string;
   private databaseId: string;
+  private socket: Socket;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -36,6 +39,7 @@ export class RecordsFormPageComponent implements OnInit {
     private matSnackBar: MatSnackBar,
     private recordService: RecordService,
     private router: Router,
+    private socketService: SocketService,
   ) {}
 
   public ngOnInit() {
@@ -61,7 +65,20 @@ export class RecordsFormPageComponent implements OnInit {
         { label: 'Records', link: '../' },
         { label: this.data._id ? 'Edit Record' : 'Create Record' },
       ];
+
+      const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
+      this.socket = this.socketService.connect(url);
+      this.socket.onopen = () => {
+        this.socket.subscribe('collections', Collection, this.collectionService);
+        this.socket.subscribe('records', Record, this.recordService, {
+          collectionId: this.collectionId,
+        });
+      };
     });
+  }
+
+  public ngOnDestroy() {
+    this.socket.close();
   }
 
   public addArrayItem(key: string) {

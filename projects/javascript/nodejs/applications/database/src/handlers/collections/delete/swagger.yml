@@ -2,7 +2,7 @@ paths:
   /databases/{databaseId}/collections/{_id}:
     delete:
       summary: Delete
-      tags: [Collections]
+      tags: [DatabaseCollections]
       description: Deletes an existing record.
       security:
         - AccessToken: []

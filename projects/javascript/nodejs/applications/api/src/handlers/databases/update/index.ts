@@ -5,19 +5,19 @@ import { Context } from 'koa';
 export async function handler(ctx: Context) {
   const user = ctx.state.apiKey || ctx.state.user;
 
-  const { cpu, isPreemptible, memory } = ctx.request.body;
-
   const existing = await DatabasePermissions.findOne({}, { where: ctx.params }, user);
   if (!existing) {
     throw new RecordNotFoundError('Record');
   }
 
   await Database.checkNamespaceLimits(
-    0,
-    cpu - existing.cpu,
-    isPreemptible,
-    memory - existing.memory,
-    existing.namespaceId as any,
+    existing._id,
+    ctx.request.body.cpu || existing.cpu,
+    ctx.request.body.isPreemptible || existing.isPreemptible,
+    ctx.request.body.memory || existing.memory,
+    existing.namespaceId,
+    ctx.request.body.replicas || existing.replicas,
+    ctx.request.body.storage || existing.storage,
   );
 
   const result = await DatabasePermissions.update(

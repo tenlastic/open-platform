@@ -1,7 +1,6 @@
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as mongooseModels from '@tenlastic/mongoose-models';
-import * as mongooseModelsKubernetes from '@tenlastic/mongoose-models-kubernetes';
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as sinon from 'sinon';
 import { URL } from 'url';
@@ -35,9 +34,6 @@ before(async function() {
 
 beforeEach(async function() {
   sandbox = sinon.createSandbox();
-  mongooseModelsKubernetes.stub(sandbox);
-
-  // Do not send Mailgun emails.
   sandbox.stub(mailgun, 'send').resolves();
 
   await mongooseModels.deleteAll();

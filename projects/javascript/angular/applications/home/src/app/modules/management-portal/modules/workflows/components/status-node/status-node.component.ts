@@ -9,6 +9,7 @@ import {
   WorkflowLogService,
 } from '@tenlastic/ng-http';
 
+import { environment } from '../../../../../../../environments/environment';
 import { SocketService } from '../../../../../../core/services';
 import { LogsDialogComponent } from '../../../../../../shared/components';
 
@@ -53,11 +54,13 @@ export class WorkflowStatusNodeComponent {
             sort: '-unix',
             where: { nodeId: this.node.id },
           }),
-        subscribe: () =>
-          this.socketService.subscribe('workflow-logs', WorkflowLog, this.workflowLogService, {
+        subscribe: () => {
+          const socket = this.socketService.connect(environment.apiBaseUrl);
+          return socket.subscribe('workflow-logs', WorkflowLog, this.workflowLogService, {
             nodeId: this.node.id,
             workflowId: this.workflow._id,
-          }),
+          });
+        },
       },
     });
   }

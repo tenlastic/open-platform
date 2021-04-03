@@ -9,9 +9,19 @@ export namespace IDatabase {
   ];
   export const Memory = [
     { label: '500 MB', value: 500 * 1000 * 1000 },
-    { label: '1 GB', value: 100 * 1000 * 1000 },
-    { label: '2.5 GB', value: 250 * 1000 * 1000 },
-    { label: '5 GB', value: 500 * 1000 * 1000 },
+    { label: '1 GB', value: 1000 * 1000 * 1000 },
+    { label: '2.5 GB', value: 2500 * 1000 * 1000 },
+    { label: '5 GB', value: 5000 * 1000 * 1000 },
+  ];
+  export const Replicas = [
+    { label: '1', value: 1 },
+    { label: '3', value: 3 },
+    { label: '5', value: 5 },
+  ];
+  export const Storage = [
+    { label: '5 GB', value: 5 * 1000 * 1000 * 1000 },
+    { label: '10 GB', value: 10 * 1000 * 1000 * 1000 },
+    { label: '20 GB', value: 20 * 1000 * 1000 * 1000 },
   ];
 
   export interface Status {
@@ -35,7 +45,9 @@ export class Database extends Model {
   public memory: number;
   public name: string;
   public namespaceId: string;
+  public replicas: number;
   public status: IDatabase.Status;
+  public storage: number;
   public updatedAt: Date;
 
   constructor(params: Partial<Database> = {}) {

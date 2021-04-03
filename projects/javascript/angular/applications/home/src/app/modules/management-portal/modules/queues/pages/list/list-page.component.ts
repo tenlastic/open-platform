@@ -19,6 +19,7 @@ import {
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
+import { environment } from '../../../../../../../environments/environment';
 import {
   IdentityService,
   SelectedNamespaceService,
@@ -94,10 +95,12 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
           sortByOrder: Order.DESC,
         }),
         find: () => this.queueLogService.find(record._id, { limit: 250, sort: '-unix' }),
-        subscribe: () =>
-          this.socketService.subscribe('queue-logs', QueueLog, this.queueLogService, {
+        subscribe: () => {
+          const socket = this.socketService.connect(environment.apiBaseUrl);
+          return socket.subscribe('queue-logs', QueueLog, this.queueLogService, {
             queueId: record._id,
-          }),
+          });
+        },
       },
     });
   }

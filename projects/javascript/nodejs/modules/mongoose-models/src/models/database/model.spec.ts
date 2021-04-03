@@ -6,46 +6,31 @@ import { Database } from './model';
 
 describe('models/database/model', function() {
   describe('checkNamespaceLimits()', function() {
-    it('enforces the databases.count Namespace limit', async function() {
-      const namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({
-          databases: NamespaceDatabaseLimitsMock.create({ count: 1 }),
-        }),
-      });
-      await DatabaseMock.create({ namespaceId: namespace._id });
-
-      const promise = Database.checkNamespaceLimits(1, 0.1, true, 0.1, namespace._id);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: databases.count. Value: 1.',
-      );
-    });
-
     it('enforces the databases.cpu Namespace limit', async function() {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
-          databases: NamespaceDatabaseLimitsMock.create({ cpu: 0.1 }),
+          databases: NamespaceDatabaseLimitsMock.create({ cpu: 1 }),
         }),
       });
 
-      const promise = Database.checkNamespaceLimits(0, 0.2, true, 0.1, namespace._id);
+      const promise = Database.checkNamespaceLimits(null, 2, true, 1, namespace._id, 1, 1);
 
       return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: databases.cpu. Value: 0.1.',
+        'Namespace limit reached: databases.cpu. Value: 1.',
       );
     });
 
     it('enforces the databases.memory Namespace limit', async function() {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
-          databases: NamespaceDatabaseLimitsMock.create({ memory: 0.1 }),
+          databases: NamespaceDatabaseLimitsMock.create({ memory: 1 }),
         }),
       });
 
-      const promise = Database.checkNamespaceLimits(0, 0.1, true, 0.2, namespace._id);
+      const promise = Database.checkNamespaceLimits(null, 1, true, 2, namespace._id, 1, 1);
 
       return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: databases.memory. Value: 0.1.',
+        'Namespace limit reached: databases.memory. Value: 1.',
       );
     });
 
@@ -56,10 +41,38 @@ describe('models/database/model', function() {
         }),
       });
 
-      const promise = Database.checkNamespaceLimits(0, 0.1, false, 0.1, namespace._id);
+      const promise = Database.checkNamespaceLimits(null, 1, false, 1, namespace._id, 1, 1);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: databases.preemptible. Value: true.',
+      );
+    });
+
+    it('enforces the databases.replicas Namespace limit', async function() {
+      const namespace = await NamespaceMock.create({
+        limits: NamespaceLimitsMock.create({
+          databases: NamespaceDatabaseLimitsMock.create({ replicas: 1 }),
+        }),
+      });
+
+      const promise = Database.checkNamespaceLimits(null, 1, true, 1, namespace._id, 2, 1);
+
+      return expect(promise).to.be.rejectedWith(
+        'Namespace limit reached: databases.replicas. Value: 1.',
+      );
+    });
+
+    it('enforces the databases.storage Namespace limit', async function() {
+      const namespace = await NamespaceMock.create({
+        limits: NamespaceLimitsMock.create({
+          databases: NamespaceDatabaseLimitsMock.create({ storage: 1 }),
+        }),
+      });
+
+      const promise = Database.checkNamespaceLimits(null, 1, true, 1, namespace._id, 1, 2);
+
+      return expect(promise).to.be.rejectedWith(
+        'Namespace limit reached: databases.storage. Value: 1.',
       );
     });
   });

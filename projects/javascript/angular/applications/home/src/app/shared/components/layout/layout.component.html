@@ -32,7 +32,7 @@
               routerLink="/account"
               routerLinkActive="active">
     <mat-icon>
-      {{ socketService.socket?.readyState === 1 ? 'person' : 'person_outline' }}
+      {{ socket?.readyState === 1 ? 'person' : 'person_outline' }}
     </mat-icon>
     <span>{{ identityService.user.username }}</span>
   </app-button>
