@@ -30,7 +30,21 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
   find: {
     default: {
       $or: [
-        { publishedAt: { $exists: true, $ne: null } },
+        {
+          gameId: {
+            $in: {
+              // Find User's Game Invitations.
+              $query: {
+                model: 'GameInvitationSchema',
+                select: 'gameId',
+                where: {
+                  userId: { $eq: { $ref: 'user._id' } },
+                },
+              },
+            },
+          },
+          publishedAt: { $exists: true, $ne: null },
+        },
         {
           namespaceId: {
             $in: {
