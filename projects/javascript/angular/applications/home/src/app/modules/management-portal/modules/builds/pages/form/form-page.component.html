@@ -6,6 +6,14 @@
         autocomplete="off">
     <div class="row">
       <mat-form-field floatLabel="always">
+        <mat-label>Name</mat-label>
+        <input matInput
+               required
+               formControlName="name" />
+        <mat-error>Enter a valid name.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
         <mat-label>Platform</mat-label>
         <mat-select required
                     formControlName="platform">
@@ -15,14 +23,6 @@
           </mat-option>
         </mat-select>
         <mat-error>Select a platform.</mat-error>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>Name</mat-label>
-        <input matInput
-               required
-               formControlName="name" />
-        <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
     </div>
 

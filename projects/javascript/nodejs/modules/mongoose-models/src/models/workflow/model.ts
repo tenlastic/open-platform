@@ -47,6 +47,9 @@ NamespaceEvent.sync(async payload => {
 export class WorkflowSchema {
   public _id: mongoose.Types.ObjectId;
 
+  @prop({ min: 0, required: true })
+  public cpu: number;
+
   public createdAt: Date;
 
   @prop()
@@ -54,6 +57,9 @@ export class WorkflowSchema {
 
   @prop({ immutable: true })
   public isPreemptible: boolean;
+
+  @prop({ min: 0, required: true })
+  public memory: number;
 
   @prop({ immutable: true, required: true })
   public name: string;
@@ -67,6 +73,9 @@ export class WorkflowSchema {
   @prop()
   public status: WorkflowStatusSchema;
 
+  @prop({ min: 0, required: true })
+  public storage: number;
+
   public updatedAt: Date;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
@@ -76,11 +85,16 @@ export class WorkflowSchema {
   public wasModified: string[];
   public wasNew: boolean;
 
+  /**
+   * Throws an error if a NamespaceLimit is exceeded.
+   */
   public static async checkNamespaceLimits(
+    cpu: number,
     isPreemptible: boolean,
-    namespaceId: string | mongoose.Types.ObjectId,
+    memory: number,
+    namespaceId: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>,
     parallelism: number,
-    templates: WorkflowSpecTemplateSchema[],
+    storage: number,
   ) {
     const namespace = await Namespace.findOne({ _id: namespaceId });
     if (!namespace) {
@@ -89,46 +103,29 @@ export class WorkflowSchema {
 
     const limits = namespace.limits.workflows;
 
-    const cpuSums = templates.map(t => {
-      let sum = 0;
-
-      if (t.script && t.script.resources && t.script.resources.cpu) {
-        sum += t.script.resources.cpu;
-      }
-      if (t.sidecars) {
-        t.sidecars.forEach(s => (sum += s.resources && s.resources.cpu ? s.resources.cpu : 0));
-      }
-
-      return sum;
-    });
-    if (limits.cpu > 0 && Math.max(...cpuSums) > limits.cpu) {
+    // CPU.
+    if (limits.cpu && cpu > limits.cpu) {
       throw new NamespaceLimitError('workflows.cpu', limits.cpu);
     }
 
-    const memorySums = templates.map(t => {
-      let sum = 0;
-
-      if (t.script && t.script.resources && t.script.resources.memory) {
-        sum += t.script.resources.memory;
-      }
-      if (t.sidecars) {
-        t.sidecars.forEach(
-          s => (sum += s.resources && s.resources.memory ? s.resources.memory : 0),
-        );
-      }
-
-      return sum;
-    });
-    if (limits.memory > 0 && Math.max(...memorySums) > limits.memory) {
+    // Memory.
+    if (limits.memory && memory > limits.memory) {
       throw new NamespaceLimitError('workflows.memory', limits.memory);
     }
 
+    // Parallelism.
     if (limits.parallelism && parallelism > limits.parallelism) {
       throw new NamespaceLimitError('workflows.parallelism', limits.parallelism);
     }
 
+    // Preemptible.
     if (limits.preemptible && isPreemptible === false) {
       throw new NamespaceLimitError('workflows.preemptible', limits.preemptible);
+    }
+
+    // Storage.
+    if (limits.storage && storage > limits.storage) {
+      throw new NamespaceLimitError('workflows.storage', limits.storage);
     }
   }
 }

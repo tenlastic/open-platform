@@ -1,47 +1,33 @@
 import { expect } from 'chai';
-import { NamespaceQueueLimitsMock, NamespaceLimitsMock, NamespaceMock } from '../namespace';
 
-import { QueueMock } from './model.mock';
+import { NamespaceQueueLimitsMock, NamespaceLimitsMock, NamespaceMock } from '../namespace';
 import { Queue } from './model';
 
 describe('models/queue/model', function() {
   describe('checkNamespaceLimits()', function() {
-    it('enforces the queues.count Namespace limit', async function() {
-      const namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({
-          queues: NamespaceQueueLimitsMock.create({ count: 1 }),
-        }),
-      });
-      await QueueMock.create({ namespaceId: namespace._id });
-
-      const promise = Queue.checkNamespaceLimits(1, 0.1, true, 0.1, namespace._id);
-
-      return expect(promise).to.be.rejectedWith('Namespace limit reached: queues.count. Value: 1.');
-    });
-
     it('enforces the queues.cpu Namespace limit', async function() {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
-          queues: NamespaceQueueLimitsMock.create({ cpu: 0.1 }),
+          queues: NamespaceQueueLimitsMock.create({ cpu: 1 }),
         }),
       });
 
-      const promise = Queue.checkNamespaceLimits(0, 0.2, true, 0.1, namespace._id);
+      const promise = Queue.checkNamespaceLimits(null, 2, true, 1, namespace._id, 1);
 
-      return expect(promise).to.be.rejectedWith('Namespace limit reached: queues.cpu. Value: 0.1.');
+      return expect(promise).to.be.rejectedWith('Namespace limit reached: queues.cpu. Value: 1.');
     });
 
     it('enforces the queues.memory Namespace limit', async function() {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
-          queues: NamespaceQueueLimitsMock.create({ memory: 0.1 }),
+          queues: NamespaceQueueLimitsMock.create({ memory: 1 }),
         }),
       });
 
-      const promise = Queue.checkNamespaceLimits(0, 0.1, true, 0.2, namespace._id);
+      const promise = Queue.checkNamespaceLimits(null, 1, true, 2, namespace._id, 1);
 
       return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: queues.memory. Value: 0.1.',
+        'Namespace limit reached: queues.memory. Value: 1.',
       );
     });
 
@@ -52,10 +38,24 @@ describe('models/queue/model', function() {
         }),
       });
 
-      const promise = Queue.checkNamespaceLimits(0, 0.1, false, 0.1, namespace._id);
+      const promise = Queue.checkNamespaceLimits(null, 1, false, 1, namespace._id, 1);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: queues.preemptible. Value: true.',
+      );
+    });
+
+    it('enforces the queues.replicas Namespace limit', async function() {
+      const namespace = await NamespaceMock.create({
+        limits: NamespaceLimitsMock.create({
+          queues: NamespaceQueueLimitsMock.create({ replicas: 1 }),
+        }),
+      });
+
+      const promise = Queue.checkNamespaceLimits(null, 1, true, 1, namespace._id, 2);
+
+      return expect(promise).to.be.rejectedWith(
+        'Namespace limit reached: queues.replicas. Value: 1.',
       );
     });
   });

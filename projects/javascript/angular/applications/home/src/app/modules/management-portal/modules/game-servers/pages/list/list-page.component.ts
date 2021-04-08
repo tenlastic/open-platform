@@ -58,6 +58,9 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   public queue: Queue;
 
   private updateDataSource$ = new Subscription();
+  private get queueId() {
+    return this.activatedRoute.snapshot.paramMap.get('queueId');
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -160,9 +163,8 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   }
 
   private async fetchQueue() {
-    const queueId = this.activatedRoute.snapshot.paramMap.get('queueId');
-    if (queueId) {
-      this.queue = await this.queueService.findOne(queueId);
+    if (this.queueId) {
+      this.queue = await this.queueService.findOne(this.queueId);
     }
   }
 }

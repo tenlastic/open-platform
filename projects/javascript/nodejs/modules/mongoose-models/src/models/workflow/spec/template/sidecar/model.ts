@@ -8,7 +8,6 @@ import {
 } from '@hasezoey/typegoose';
 
 import { WorkflowSpecEnvSchema } from '../../env';
-import { WorkflowSpecTemplateResourcesSchema } from '../resources';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateSidecarSchema {
@@ -26,9 +25,6 @@ export class WorkflowSpecTemplateSidecarSchema {
 
   @prop({ required: true })
   public name: string;
-
-  @prop()
-  public resources: WorkflowSpecTemplateResourcesSchema;
 }
 
 export type WorkflowSpecTemplateSidecarDocument = DocumentType<WorkflowSpecTemplateSidecarSchema>;

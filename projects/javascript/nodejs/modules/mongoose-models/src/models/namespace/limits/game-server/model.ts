@@ -2,9 +2,6 @@ import { DocumentType, ReturnModelType, getModelForClass, prop } from '@hasezoey
 
 export class NamespaceGameServerLimitsSchema {
   @prop({ default: 0 })
-  public count: number;
-
-  @prop({ default: 0 })
   public cpu: number;
 
   @prop({ default: 0 })

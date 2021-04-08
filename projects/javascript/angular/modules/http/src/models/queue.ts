@@ -17,6 +17,11 @@ export namespace IQueue {
     { label: '2.5 GB', value: 250 * 1000 * 1000 },
     { label: '5 GB', value: 500 * 1000 * 1000 },
   ];
+  export const Replicas = [
+    { label: '1', value: 1 },
+    { label: '2', value: 2 },
+    { label: '3', value: 3 },
+  ];
 
   export interface Status {
     nodes?: StatusNode;
@@ -44,6 +49,7 @@ export class Queue extends Model {
   public metadata: any;
   public name: string;
   public namespaceId: string;
+  public replicas: number;
   public status: IQueue.Status;
   public teams: number;
   public updatedAt: Date;
@@ -57,7 +63,7 @@ export class Queue extends Model {
   }
 
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'isPreemptible', 'memory', 'metadata'];
+    const immutableFields = ['buildId', 'cpu', 'isPreemptible', 'memory', 'metadata', 'replicas'];
     return immutableFields.some(i => fields.includes(i));
   }
 }

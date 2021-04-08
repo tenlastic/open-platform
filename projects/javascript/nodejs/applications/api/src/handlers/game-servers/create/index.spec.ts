@@ -37,8 +37,8 @@ describe('handlers/game-servers/create', function() {
         request: {
           body: {
             buildId: new mongoose.Types.ObjectId(),
-            cpu: 0.1,
-            memory: 0.1,
+            cpu: 1,
+            memory: 1,
             name: chance.hash(),
             namespaceId: namespace._id,
           },
@@ -51,14 +51,14 @@ describe('handlers/game-servers/create', function() {
       expect(ctx.response.body.record).to.exist;
     });
 
-    it('enforces the gameServers.count Namespace limit', async function() {
+    it('enforces the Namespace limits', async function() {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
         roles: ['game-servers'],
       });
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
-          gameServers: NamespaceGameServerLimitsMock.create({ count: 1 }),
+          gameServers: NamespaceGameServerLimitsMock.create({ cpu: 1 }),
         }),
         users: [namespaceUser],
       });
@@ -68,8 +68,8 @@ describe('handlers/game-servers/create', function() {
         request: {
           body: {
             buildId: new mongoose.Types.ObjectId(),
-            cpu: 0.1,
-            memory: 0.1,
+            cpu: 2,
+            memory: 1,
             name: chance.hash(),
             namespaceId: namespace._id,
           },
@@ -80,103 +80,7 @@ describe('handlers/game-servers/create', function() {
       const promise = handler(ctx as any);
 
       return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: gameServers.count. Value: 1.',
-      );
-    });
-
-    it('enforces the gameServers.cpu Namespace limit', async function() {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['game-servers'],
-      });
-      const namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({
-          gameServers: NamespaceGameServerLimitsMock.create({ cpu: 0.1 }),
-        }),
-        users: [namespaceUser],
-      });
-
-      const ctx = new ContextMock({
-        request: {
-          body: {
-            buildId: new mongoose.Types.ObjectId(),
-            cpu: 0.2,
-            memory: 0.1,
-            name: chance.hash(),
-            namespaceId: namespace._id,
-          },
-        },
-        state: { user: user.toObject() },
-      });
-
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: gameServers.cpu. Value: 0.1.',
-      );
-    });
-
-    it('enforces the gameServers.memory Namespace limit', async function() {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['game-servers'],
-      });
-      const namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({
-          gameServers: NamespaceGameServerLimitsMock.create({ memory: 0.1 }),
-        }),
-        users: [namespaceUser],
-      });
-
-      const ctx = new ContextMock({
-        request: {
-          body: {
-            buildId: new mongoose.Types.ObjectId(),
-            cpu: 0.1,
-            memory: 0.2,
-            name: chance.hash(),
-            namespaceId: namespace._id,
-          },
-        },
-        state: { user: user.toObject() },
-      });
-
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: gameServers.memory. Value: 0.1.',
-      );
-    });
-
-    it('enforces the gameServers.preemptible Namespace limit', async function() {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['game-servers'],
-      });
-      const namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({
-          gameServers: NamespaceGameServerLimitsMock.create({ preemptible: true }),
-        }),
-        users: [namespaceUser],
-      });
-
-      const ctx = new ContextMock({
-        request: {
-          body: {
-            buildId: new mongoose.Types.ObjectId(),
-            cpu: 0.2,
-            memory: 0.1,
-            name: chance.hash(),
-            namespaceId: namespace._id,
-          },
-        },
-        state: { user: user.toObject() },
-      });
-
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: gameServers.preemptible. Value: true.',
+        'Namespace limit reached: gameServers.cpu. Value: 1.',
       );
     });
   });
@@ -189,8 +93,8 @@ describe('handlers/game-servers/create', function() {
         request: {
           body: {
             buildId: new mongoose.Types.ObjectId(),
-            cpu: 0.1,
-            memory: 0.1,
+            cpu: 1,
+            memory: 1,
             name: chance.hash(),
             namespaceId: namespace._id,
           },

@@ -11,7 +11,7 @@ import { WorkflowSpecTemplateDagSchema } from './dag';
 import { WorkflowSpecTemplateInputsSchema } from './inputs';
 import { WorkflowSpecTemplateRetryStrategySchema } from './retry-strategy';
 import { WorkflowSpecTemplateScriptSchema } from './script';
-import { WorkflowSpecTemplateSidecar, WorkflowSpecTemplateSidecarSchema } from './sidecar';
+import { WorkflowSpecTemplateSidecarSchema } from './sidecar';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateSchema {

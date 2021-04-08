@@ -18,7 +18,7 @@ export class WorkflowSpecSchema {
   @prop({ required: true })
   public entrypoint: string;
 
-  @prop()
+  @prop({ min: 0, required: true })
   public parallelism: number;
 
   @arrayProp({ items: WorkflowSpecTemplateSchema, required: true })

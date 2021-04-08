@@ -8,7 +8,6 @@ import {
 } from '@hasezoey/typegoose';
 
 import { WorkflowSpecEnvSchema } from '../../env';
-import { WorkflowSpecTemplateResourcesSchema } from '../resources';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateScriptSchema {
@@ -23,9 +22,6 @@ export class WorkflowSpecTemplateScriptSchema {
 
   @prop({ required: true })
   public image: string;
-
-  @prop()
-  public resources: WorkflowSpecTemplateResourcesSchema;
 
   @prop({ required: true })
   public source: string;

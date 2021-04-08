@@ -2,9 +2,6 @@ import { DocumentType, ReturnModelType, getModelForClass, prop } from '@hasezoey
 
 export class NamespaceQueueLimitsSchema {
   @prop({ default: 0 })
-  public count: number;
-
-  @prop({ default: 0 })
   public cpu: number;
 
   @prop({ default: 0 })
@@ -12,6 +9,9 @@ export class NamespaceQueueLimitsSchema {
 
   @prop({ default: false })
   public preemptible: boolean;
+
+  @prop({ default: 0 })
+  public replicas: number;
 }
 
 export type NamespaceQueueLimitsDocument = DocumentType<NamespaceQueueLimitsSchema>;

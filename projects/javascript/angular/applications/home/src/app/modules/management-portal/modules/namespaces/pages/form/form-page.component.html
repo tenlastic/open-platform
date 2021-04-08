@@ -221,16 +221,6 @@
       <div class="row"
            formGroupName="gameServers">
         <mat-form-field floatLabel="always">
-          <mat-label>Total Game Servers</mat-label>
-          <input matInput
-                 required
-                 formControlName="count"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
           <mat-label>Total Game Server CPU</mat-label>
           <input matInput
                  required
@@ -267,16 +257,6 @@
       <div class="row"
            formGroupName="queues">
         <mat-form-field floatLabel="always">
-          <mat-label>Total Queues</mat-label>
-          <input matInput
-                 required
-                 formControlName="count"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
           <mat-label>Total Queue CPU</mat-label>
           <input matInput
                  required
@@ -308,6 +288,16 @@
             <mat-option [value]="false">No</mat-option>
           </mat-select>
         </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Queue Replicas</mat-label>
+          <input matInput
+                 required
+                 formControlName="replicas"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
       </div>
 
       <div class="row"
@@ -323,7 +313,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>CPU Per Workflow Template</mat-label>
+          <mat-label>Maximum CPU Per Workflow</mat-label>
           <input matInput
                  required
                  formControlName="cpu"
@@ -333,7 +323,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Memory Per Workflow Template (B)</mat-label>
+          <mat-label>Maximum Memory Per Workflow (B)</mat-label>
           <input matInput
                  required
                  formControlName="memory"
@@ -363,6 +353,16 @@
             <mat-option [value]="true">Yes</mat-option>
             <mat-option [value]="false">No</mat-option>
           </mat-select>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Maximum Storage Per Workflow</mat-label>
+          <input matInput
+                 required
+                 formControlName="storage"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
         </mat-form-field>
       </div>
     </app-toggle-section>

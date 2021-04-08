@@ -36,6 +36,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public form: FormGroup;
   public games: Game[];
   public memories = IQueue.Memory;
+  public replicas = IQueue.Replicas;
 
   private updateQueue$ = new Subscription();
 
@@ -114,6 +115,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       metadata,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
+      replicas: this.form.get('replicas').value,
       usersPerTeam: this.form.get('usersPerTeam').value,
       teams: this.form.get('teams').value,
     };
@@ -126,7 +128,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
           ],
-          message: `These changes require the Queue to be reset. Is this OK?`,
+          message: `These changes require the Queue to be restarted. Is this OK?`,
         },
       });
 
@@ -237,6 +239,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       metadata: this.formBuilder.array(metadata),
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId],
+      replicas: [this.data.replicas || this.replicas[0].value, Validators.required],
       usersPerTeam: [this.data.usersPerTeam || 1, Validators.required],
       teams: [this.data.teams || 2, Validators.required],
     });
@@ -244,6 +247,8 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
     if (this.data._id) {
+      this.form.get('replicas').disable({ emitEvent: false });
+
       this.updateQueue$ = this.queueQuery
         .selectAll({ filterBy: q => q._id === this.data._id })
         .subscribe(queues => {

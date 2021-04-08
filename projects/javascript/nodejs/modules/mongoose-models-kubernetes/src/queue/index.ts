@@ -308,7 +308,7 @@ export const KubernetesQueue = {
         name,
       },
       spec: {
-        replicas: 1,
+        replicas: queue.replicas,
         selector: {
           matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
         },

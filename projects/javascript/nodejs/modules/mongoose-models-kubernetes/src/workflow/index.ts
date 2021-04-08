@@ -1,11 +1,9 @@
 import * as k8s from '@kubernetes/client-node';
 import {
   NamespaceDocument,
-  NamespaceWorkflowLimitsSchema,
   WorkflowDocument,
   WorkflowEvent,
   WorkflowSpecTemplate,
-  WorkflowSpecTemplateResourcesSchema,
   WorkflowSpecTemplateSchema,
 } from '@tenlastic/mongoose-models';
 
@@ -133,9 +131,7 @@ export const KubernetesWorkflow = {
       },
     };
 
-    const templates = workflow.spec.templates.map(t =>
-      getTemplateManifest(namespace.limits.workflows, t, workflow),
-    );
+    const templates = workflow.spec.templates.map(t => getTemplateManifest(t, workflow));
 
     const response: any = await customObjects.createNamespacedCustomObject(
       'argoproj.io',
@@ -153,17 +149,11 @@ export const KubernetesWorkflow = {
           dnsPolicy: 'Default',
           entrypoint: workflow.spec.entrypoint,
           executor: { serviceAccountName: name },
-          parallelism:
-            workflow.spec.parallelism ||
-            workflow.namespaceDocument.limits.workflows.parallelism ||
-            Infinity,
-          podGC: {
-            strategy: 'OnPodCompletion',
-          },
+          parallelism: workflow.spec.parallelism,
           serviceAccountName: name,
           templates,
           ttlStrategy: {
-            secondsAfterCompletion: 30,
+            secondsAfterCompletion: 300,
           },
           volumeClaimTemplates: [
             {
@@ -172,7 +162,7 @@ export const KubernetesWorkflow = {
                 accessModes: ['ReadWriteOnce'],
                 resources: {
                   requests: {
-                    storage: '10Gi',
+                    storage: `${workflow.storage}`,
                   },
                 },
               },
@@ -187,6 +177,7 @@ export const KubernetesWorkflow = {
      * OWNER REFERENCES
      * ======================
      */
+    const headers = { 'Content-Type': 'application/strategic-merge-patch+json' };
     const ownerReferences = [
       {
         apiVersion: 'argoproj.io/v1alpha1',
@@ -204,7 +195,7 @@ export const KubernetesWorkflow = {
       undefined,
       undefined,
       undefined,
-      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+      { headers },
     );
     await rbacAuthorizationV1.patchNamespacedRole(
       name,
@@ -214,7 +205,7 @@ export const KubernetesWorkflow = {
       undefined,
       undefined,
       undefined,
-      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+      { headers },
     );
     await coreV1.patchNamespacedServiceAccount(
       name,
@@ -224,7 +215,7 @@ export const KubernetesWorkflow = {
       undefined,
       undefined,
       undefined,
-      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+      { headers },
     );
     await rbacAuthorizationV1.patchNamespacedRoleBinding(
       name,
@@ -234,7 +225,7 @@ export const KubernetesWorkflow = {
       undefined,
       undefined,
       undefined,
-      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+      { headers },
     );
   },
   delete: async (namespace: NamespaceDocument, workflow: WorkflowDocument) => {
@@ -245,13 +236,15 @@ export const KubernetesWorkflow = {
      * WORKFLOW
      * ======================
      */
-    await customObjects.deleteNamespacedCustomObject(
-      'argoproj.io',
-      'v1alpha1',
-      namespace.kubernetesNamespace,
-      'workflows',
-      name,
-    );
+    try {
+      await customObjects.deleteNamespacedCustomObject(
+        'argoproj.io',
+        'v1alpha1',
+        namespace.kubernetesNamespace,
+        'workflows',
+        name,
+      );
+    } catch {}
   },
   getName(workflow: WorkflowDocument) {
     return `workflow-${workflow._id}`;
@@ -259,29 +252,9 @@ export const KubernetesWorkflow = {
 };
 
 /**
- * Gets the manifest for resources.
- */
-function getResourcesManifest(resources: WorkflowSpecTemplateResourcesSchema) {
-  const r: any = {};
-
-  if (resources.cpu) {
-    r.cpu = resources.cpu.toString();
-  }
-  if (resources.memory) {
-    r.memory = resources.memory.toString();
-  }
-
-  return r;
-}
-
-/**
  * Gets the manifest for a template.
  */
-function getTemplateManifest(
-  limits: NamespaceWorkflowLimitsSchema,
-  template: WorkflowSpecTemplateSchema,
-  workflow: WorkflowDocument,
-) {
+function getTemplateManifest(template: WorkflowSpecTemplateSchema, workflow: WorkflowDocument) {
   const t = new WorkflowSpecTemplate(template).toObject();
   if (!t.script) {
     return t;
@@ -290,7 +263,7 @@ function getTemplateManifest(
   t.artifactLocation = { archiveLogs: false };
   t.metadata = {
     annotations: {
-      'tenlastic.com/nodeId': `{{ tasks.${template.name}.id }}`,
+      'tenlastic.com/nodeId': `{{pod.name}}`,
       'tenlastic.com/workflowId': workflow._id.toString(),
     },
     labels: {
@@ -300,41 +273,19 @@ function getTemplateManifest(
   };
 
   const sidecars = t.sidecars ? t.sidecars.length : 0;
-  const resources: any = {
-    cpu: limits.cpu ? limits.cpu / (sidecars + 1) : undefined,
-    memory: limits.memory ? limits.memory / (sidecars + 1) : undefined,
-  };
+  const cpu = workflow.cpu / (1 + sidecars);
+  const memory = workflow.memory / (1 + sidecars);
+  const resources = { cpu: `${cpu}`, memory: `${memory}` };
 
-  if (t.script.resources) {
-    t.script.resources = {
-      limits: getResourcesManifest(t.script.resources),
-      requests: getResourcesManifest(t.script.resources),
-    };
-  } else if (limits.cpu || limits.memory) {
-    t.script.resources = {
-      limits: getResourcesManifest(resources),
-      requests: getResourcesManifest(resources),
-    };
-  }
+  t.script.resources = { limits: resources, requests: resources };
 
   if (t.script.workspace) {
-    t.script.volumeMounts = [{ mountPath: '/ws/', name: 'workspace' }];
+    t.script.volumeMounts = [{ mountPath: '/workspace/', name: 'workspace' }];
   }
 
   if (t.sidecars) {
     t.sidecars = t.sidecars.map(s => {
-      if (s.resources) {
-        s.resources = {
-          limits: getResourcesManifest(s.resources),
-          requests: getResourcesManifest(s.resources),
-        };
-      } else if (limits.cpu || limits.memory) {
-        s.resources = {
-          limits: getResourcesManifest(resources),
-          requests: getResourcesManifest(resources),
-        };
-      }
-
+      s.resources = { limits: resources, requests: resources };
       return s;
     });
   }

@@ -5,7 +5,7 @@ import { Context } from 'koa';
 export async function handler(ctx: Context) {
   const user = ctx.state.apiKey || ctx.state.user;
 
-  const { cpu, isPreemptible, memory } = ctx.request.body;
+  const { cpu, isPreemptible, memory, replicas } = ctx.request.body;
 
   const existing = await QueuePermissions.findOne({}, { where: ctx.params }, user);
   if (!existing) {
@@ -13,11 +13,12 @@ export async function handler(ctx: Context) {
   }
 
   await Queue.checkNamespaceLimits(
-    0,
-    cpu - existing.cpu,
-    isPreemptible,
-    memory - existing.memory,
+    existing._id,
+    cpu || existing.cpu,
+    isPreemptible || existing.isPreemptible,
+    memory || existing.memory,
     existing.namespaceId as any,
+    replicas || existing.replicas,
   );
 
   const result = await QueuePermissions.update(

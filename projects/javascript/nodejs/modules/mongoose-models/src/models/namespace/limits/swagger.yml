@@ -26,8 +26,6 @@ components:
         gameServers:
           type: object
           properties:
-            count:
-              type: integer
             cpu:
               type: integer
             memory:
@@ -48,14 +46,14 @@ components:
         queues:
           type: object
           properties:
-            count:
-              type: integer
             cpu:
               type: integer
             memory:
               type: integer
             preemptible:
               type: boolean
+            replicas:
+              type: integer
         workflows:
           type: object
           properties:
@@ -69,6 +67,8 @@ components:
               type: integer
             preemptible:
               type: boolean
+            storage:
+              type: integer
       required:
         - builds
         - collections

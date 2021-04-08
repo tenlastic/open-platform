@@ -14,13 +14,12 @@ export async function start() {
   // Fetch existing QueueMembers from Redis.
   const zrange = promisify(client.zrange).bind(client);
   const queueMembers = await zrange(podName, 0, -1);
-  if (queueMembers) {
-    console.log(`Retrieved ${queueMembers.length} existing QueueMembers.`);
+  console.log(`Retrieved ${queueMembers.length} existing QueueMembers.`);
 
-    for (const queueMember of queueMembers) {
-      const json = JSON.parse(queueMember);
-      queueMemberStore.insert(json);
-    }
+  // Add existing QueueMembers to the store.
+  for (const queueMember of queueMembers) {
+    const json = JSON.parse(queueMember);
+    queueMemberStore.add(json);
   }
 
   // Sync QueueMembers with Redis.

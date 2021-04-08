@@ -243,13 +243,6 @@ export class NamespacesFormPageComponent implements OnInit {
           ],
         }),
         gameServers: this.formBuilder.group({
-          count: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.gameServers && limits.gameServers.count) || 0,
-            },
-            Validators.required,
-          ],
           cpu: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
@@ -303,13 +296,6 @@ export class NamespacesFormPageComponent implements OnInit {
           ],
         }),
         queues: this.formBuilder.group({
-          count: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.queues && limits.queues.count) || 0,
-            },
-            Validators.required,
-          ],
           cpu: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
@@ -328,6 +314,13 @@ export class NamespacesFormPageComponent implements OnInit {
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
               value: (limits && limits.queues && limits.queues.preemptible) || false,
+            },
+            Validators.required,
+          ],
+          replicas: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: (limits && limits.queues && limits.queues.replicas) || 0,
             },
             Validators.required,
           ],
@@ -365,6 +358,13 @@ export class NamespacesFormPageComponent implements OnInit {
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
               value: (limits && limits.workflows && limits.workflows.preemptible) || false,
+            },
+            Validators.required,
+          ],
+          storage: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: (limits && limits.workflows && limits.workflows.storage) || 0,
             },
             Validators.required,
           ],

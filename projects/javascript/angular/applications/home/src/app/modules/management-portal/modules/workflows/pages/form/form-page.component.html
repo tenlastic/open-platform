@@ -23,6 +23,40 @@
           <mat-option [value]="false">No</mat-option>
         </mat-select>
       </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Parallel Tasks</mat-label>
+        <mat-select formControlName="parallelism">
+          <mat-option *ngFor="let parallelism of parallelisms"
+                      [value]="parallelism.value">{{ parallelism.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>CPU</mat-label>
+        <mat-select formControlName="cpu">
+          <mat-option *ngFor="let cpu of cpus"
+                      [value]="cpu.value">{{ cpu.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Memory</mat-label>
+        <mat-select formControlName="memory">
+          <mat-option *ngFor="let memory of memories"
+                      [value]="memory.value">{{ memory.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Storage</mat-label>
+        <mat-select formControlName="storage">
+          <mat-option *ngFor="let storage of storages"
+                      [value]="storage.value">{{ storage.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
 
     <app-toggle-section title="Templates"

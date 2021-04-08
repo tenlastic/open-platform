@@ -16,7 +16,6 @@ components:
           format: ^[a-f0-9]{24}$
         cpu:
           type: number
-          enum: [0.1, 0.25, 0.5]
         createdAt:
           type: string
           format: date-time
@@ -36,7 +35,6 @@ components:
           type: boolean
         memory:
           type: number
-          enum: [0.1, 0.25, 0.5, 1, 2.5, 5]
         metadata:
           type: object
         name:

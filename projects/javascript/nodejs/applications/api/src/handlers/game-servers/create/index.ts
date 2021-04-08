@@ -10,7 +10,7 @@ export async function handler(ctx: Context) {
     throw new RequiredFieldError(['cpu', 'memory', 'namespaceId']);
   }
 
-  await GameServer.checkNamespaceLimits(1, cpu, isPreemptible || false, memory, namespaceId);
+  await GameServer.checkNamespaceLimits(null, cpu, isPreemptible || false, memory, namespaceId);
 
   const result = await GameServerPermissions.create(ctx.request.body, ctx.params, user);
   const record = await GameServerPermissions.read(result, user);

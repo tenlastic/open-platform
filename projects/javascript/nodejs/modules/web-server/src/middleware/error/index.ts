@@ -30,6 +30,11 @@ export async function errorMiddleware(ctx: Context, next: () => Promise<void>) {
         ctx.response.body = getQueueMemberUniquenessError(e);
         break;
 
+      case 'RecordNotFoundError':
+        ctx.response.status = 404;
+        ctx.response.body = getError(e);
+        break;
+
       case 'UniquenessError':
         ctx.response.status = status;
         ctx.response.body = getUniquenessError(e);
@@ -77,10 +82,12 @@ function getUniquenessError(err: any) {
 }
 
 function getValidationError(err: any) {
-  const errors = Object.keys(err.errors).map(key => {
-    const { kind, message, name, path, value } = err.errors[key];
-    return { kind, message, name, path, value };
-  });
+  const errors = Object.keys(err.errors)
+    .filter(key => err.errors[key].name === 'ValidatorError')
+    .map(key => {
+      const { kind, message, name, path, value } = err.errors[key];
+      return { kind, message: message.replace(`\`${path}\``, `"${key}"`), name, path: key, value };
+    });
 
   return { errors };
 }

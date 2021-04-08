@@ -12,11 +12,12 @@ export class QueueMock {
     const chance = new Chance();
 
     const defaults = {
-      cpu: chance.pickone([0.1, 0.25, 0.5]),
+      cpu: chance.pickone([1, 3, 5]),
       gameServerTemplate: {},
-      memory: chance.pickone([0.1, 0.25, 0.5]),
+      memory: chance.pickone([1, 3, 5]),
       name: chance.hash(),
       namespaceId: mongoose.Types.ObjectId(),
+      replicas: chance.pickone([1, 3, 5]),
       teams: chance.integer(),
       usersPerTeam: chance.integer(),
     };

@@ -34,7 +34,6 @@ export namespace INamespace {
   }
 
   export interface GameServerLimits {
-    count: number;
     cpu: number;
     memory: number;
     preemptible: boolean;
@@ -56,10 +55,10 @@ export namespace INamespace {
   }
 
   export interface QueueLimits {
-    count: number;
     cpu: number;
     memory: number;
     preemptible: boolean;
+    replicas: number;
   }
 
   export interface User {
@@ -73,6 +72,7 @@ export namespace INamespace {
     memory: number;
     parallelism: number;
     preemptible: boolean;
+    storage: number;
   }
 }
 

@@ -23,6 +23,32 @@
 
     <div class="row">
       <mat-form-field floatLabel="always">
+        <mat-label>Is Preemptible</mat-label>
+        <mat-select formControlName="isPreemptible">
+          <mat-option [value]="true">Yes</mat-option>
+          <mat-option [value]="false">No</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>CPU</mat-label>
+        <mat-select formControlName="cpu">
+          <mat-option *ngFor="let cpu of cpus"
+                      [value]="cpu.value">{{ cpu.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Memory</mat-label>
+        <mat-select formControlName="memory">
+          <mat-option *ngFor="let memory of memories"
+                      [value]="memory.value">{{ memory.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
         <mat-label>Build</mat-label>
         <mat-select formControlName="buildId"
                     placeholder="No Builds Found"
@@ -54,32 +80,6 @@
         <input matInput
                disabled
                [value]="queue" />
-      </mat-form-field>
-    </div>
-
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Is Preemptible</mat-label>
-        <mat-select formControlName="isPreemptible">
-          <mat-option [value]="true">Yes</mat-option>
-          <mat-option [value]="false">No</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>CPU</mat-label>
-        <mat-select formControlName="cpu">
-          <mat-option *ngFor="let cpu of cpus"
-                      [value]="cpu.value">{{ cpu.label }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>Memory</mat-label>
-        <mat-select formControlName="memory">
-          <mat-option *ngFor="let memory of memories"
-                      [value]="memory.value">{{ memory.label }}</mat-option>
-        </mat-select>
       </mat-form-field>
     </div>
 

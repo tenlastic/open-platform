@@ -78,6 +78,9 @@ export class QueueSchema {
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
+  @prop({ min: 1, required: true })
+  public replicas: number;
+
   @prop({ default: { phase: 'Pending' } })
   public status: QueueStatusSchema;
 
@@ -110,11 +113,12 @@ export class QueueSchema {
    * Throws an error if a NamespaceLimit is exceeded.
    */
   public static async checkNamespaceLimits(
-    count: number,
+    _id: string | mongoose.Types.ObjectId,
     cpu: number,
     isPreemptible: boolean,
     memory: number,
-    namespaceId: string | mongoose.Types.ObjectId,
+    namespaceId: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>,
+    replicas: number,
   ) {
     const namespace = await Namespace.findOne({ _id: namespaceId });
     if (!namespace) {
@@ -122,37 +126,46 @@ export class QueueSchema {
     }
 
     const limits = namespace.limits.queues;
+
+    // Preemptible.
     if (limits.preemptible && isPreemptible === false) {
       throw new NamespaceLimitError('queues.preemptible', limits.preemptible);
     }
 
-    if (limits.count > 0 || limits.cpu > 0 || limits.memory > 0) {
-      const results = await Queue.aggregate([
-        { $match: { namespaceId: namespace._id } },
-        {
-          $group: {
-            _id: null,
-            count: { $sum: 1 },
-            cpu: { $sum: '$cpu' },
-            memory: { $sum: '$memory' },
-          },
+    // Skip MongoDB query if no limits are set.
+    if (!limits.cpu && !limits.memory && !limits.replicas) {
+      return;
+    }
+
+    // Aggregate the sum of existing records.
+    const results = await Queue.aggregate([
+      { $match: { _id: { $ne: _id }, namespaceId: namespace._id } },
+      {
+        $group: {
+          _id: null,
+          cpu: { $sum: { $multiply: ['$cpu', '$replicas'] } },
+          memory: { $sum: { $multiply: ['$memory', '$replicas'] } },
+          replicas: { $sum: '$replicas' },
         },
-      ]);
+      },
+    ]);
 
-      const countSum = results.length > 0 ? results[0].count : 0;
-      if (limits.count > 0 && countSum + count > limits.count) {
-        throw new NamespaceLimitError('queues.count', limits.count);
-      }
+    // CPU.
+    const cpuSum = results.length ? results[0].cpu : 0;
+    if (limits.cpu && cpuSum + cpu * replicas > limits.cpu) {
+      throw new NamespaceLimitError('queues.cpu', limits.cpu);
+    }
 
-      const cpuSum = results.length > 0 ? results[0].cpu : 0;
-      if (limits.cpu > 0 && cpuSum + cpu > limits.cpu) {
-        throw new NamespaceLimitError('queues.cpu', limits.cpu);
-      }
+    // Memory.
+    const memorySum = results.length ? results[0].memory : 0;
+    if (limits.memory && memorySum + memory * replicas > limits.memory) {
+      throw new NamespaceLimitError('queues.memory', limits.memory);
+    }
 
-      const memorySum = results.length > 0 ? results[0].memory : 0;
-      if (limits.memory > 0 && memorySum + memory > limits.memory) {
-        throw new NamespaceLimitError('queues.memory', limits.memory);
-      }
+    // Replicas.
+    const replicasSum = results.length ? results[0].replicas : 0;
+    if (limits.replicas && replicasSum + replicas > limits.replicas) {
+      throw new NamespaceLimitError('queues.replicas', limits.replicas);
     }
   }
 
@@ -160,7 +173,7 @@ export class QueueSchema {
    * Returns true if a restart is required on an update.
    */
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'isPreemptible', 'memory', 'metadata'];
+    const immutableFields = ['buildId', 'cpu', 'isPreemptible', 'memory', 'metadata', 'replicas'];
     return immutableFields.some(i => fields.includes(i));
   }
 }

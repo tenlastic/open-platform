@@ -13,10 +13,10 @@ export async function handler(ctx: Context) {
   }
 
   await GameServer.checkNamespaceLimits(
-    0,
-    cpu - existing.cpu,
-    isPreemptible,
-    memory - existing.memory,
+    existing._id,
+    cpu || existing.cpu,
+    isPreemptible || existing.isPreemptible,
+    memory || existing.memory,
     existing.namespaceId as any,
   );
 

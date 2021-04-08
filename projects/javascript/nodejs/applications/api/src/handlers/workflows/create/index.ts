@@ -1,4 +1,5 @@
 import { Workflow, WorkflowPermissions } from '@tenlastic/mongoose-models';
+import { RequiredFieldError } from '@tenlastic/web-server';
 import { Context } from 'koa';
 
 export async function handler(ctx: Context) {
@@ -6,10 +7,19 @@ export async function handler(ctx: Context) {
 
   await new Workflow(ctx.request.body).validate();
 
-  const { isPreemptible, namespaceId, spec } = ctx.request.body;
-  const { parallelism, templates } = spec;
+  const { cpu, isPreemptible, memory, namespaceId, spec, storage } = ctx.request.body;
+  if (!cpu || !memory || !namespaceId || !spec || !storage) {
+    throw new RequiredFieldError(['cpu', 'memory', 'namespaceId', 'spec', 'storage']);
+  }
 
-  await Workflow.checkNamespaceLimits(isPreemptible || false, namespaceId, parallelism, templates);
+  await Workflow.checkNamespaceLimits(
+    cpu,
+    isPreemptible || false,
+    memory,
+    namespaceId,
+    spec.parallelism,
+    storage,
+  );
 
   const result = await WorkflowPermissions.create(ctx.request.body, ctx.params, user);
   const record = await WorkflowPermissions.read(result, user);

@@ -226,7 +226,7 @@ export class BuildsFormPageComponent implements OnInit {
       gameId: [this.data.gameId],
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
-      platform: [this.data.platform, Validators.required],
+      platform: [this.data.platform || this.platforms[0].value, Validators.required],
       reference: this.formBuilder.group({ _id: [null], files: [[]] }),
     });
 

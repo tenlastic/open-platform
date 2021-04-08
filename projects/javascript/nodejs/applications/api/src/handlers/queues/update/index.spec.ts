@@ -56,8 +56,8 @@ describe('handlers/queues/update', function() {
       expect(ctx.response.body.record).to.exist;
     });
 
-    it('enforces the queues.cpu Namespace limit', async function() {
-      namespace.limits.queues.cpu = 0.1;
+    it('enforces the Namespace limits', async function() {
+      namespace.limits.queues.cpu = 1;
       namespace.markModified('limits');
       await namespace.save();
 
@@ -67,7 +67,7 @@ describe('handlers/queues/update', function() {
         },
         request: {
           body: {
-            cpu: 0.2,
+            cpu: 2,
           },
         },
         state: { user: user.toObject() },
@@ -75,52 +75,7 @@ describe('handlers/queues/update', function() {
 
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejectedWith('Namespace limit reached: queues.cpu. Value: 0.1.');
-    });
-
-    it('enforces the queues.memory Namespace limit', async function() {
-      namespace.limits.queues.memory = 0.1;
-      namespace.markModified('limits');
-      await namespace.save();
-
-      const ctx = new ContextMock({
-        request: {
-          body: {
-            memory: 0.2,
-          },
-        },
-        state: { user: user.toObject() },
-      });
-
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: queues.memory. Value: 0.1.',
-      );
-    });
-
-    it('enforces the queues.preemptible Namespace limit', async function() {
-      namespace.limits.queues.preemptible = true;
-      namespace.markModified('limits');
-      await namespace.save();
-
-      const ctx = new ContextMock({
-        params: {
-          _id: record._id,
-        },
-        request: {
-          body: {
-            isPreemptible: false,
-          },
-        },
-        state: { user: user.toObject() },
-      });
-
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: queues.preemptible. Value: true.',
-      );
+      return expect(promise).to.be.rejectedWith('Namespace limit reached: queues.cpu. Value: 1.');
     });
   });
 

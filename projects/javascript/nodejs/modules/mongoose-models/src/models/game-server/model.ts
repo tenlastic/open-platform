@@ -146,12 +146,15 @@ export class GameServerSchema implements IOriginalDocument {
   public wasModified: string[];
   public wasNew: boolean;
 
+  /**
+   * Throws an error if a NamespaceLimit is exceeded.
+   */
   public static async checkNamespaceLimits(
-    count: number,
+    _id: string | mongoose.Types.ObjectId,
     cpu: number,
     isPreemptible: boolean,
     memory: number,
-    namespaceId: string | mongoose.Types.ObjectId,
+    namespaceId: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>,
   ) {
     const namespace = await Namespace.findOne({ _id: namespaceId });
     if (!namespace) {
@@ -159,37 +162,39 @@ export class GameServerSchema implements IOriginalDocument {
     }
 
     const limits = namespace.limits.gameServers;
+
+    // Preemptible.
     if (limits.preemptible && isPreemptible === false) {
       throw new NamespaceLimitError('gameServers.preemptible', limits.preemptible);
     }
 
-    if (limits.count > 0 || limits.cpu > 0 || limits.memory > 0) {
-      const results = await GameServer.aggregate([
-        { $match: { namespaceId: namespace._id } },
-        {
-          $group: {
-            _id: null,
-            count: { $sum: 1 },
-            cpu: { $sum: '$cpu' },
-            memory: { $sum: '$memory' },
-          },
+    // Skip MongoDB query if no limits are set.
+    if (!limits.cpu && !limits.memory) {
+      return;
+    }
+
+    // Aggregate the sum of existing records.
+    const results = await GameServer.aggregate([
+      { $match: { _id: { $ne: _id }, namespaceId: namespace._id } },
+      {
+        $group: {
+          _id: null,
+          cpu: { $sum: '$cpu' },
+          memory: { $sum: '$memory' },
         },
-      ]);
+      },
+    ]);
 
-      const countSum = results.length > 0 ? results[0].count : 0;
-      if (limits.count > 0 && countSum + count > limits.count) {
-        throw new NamespaceLimitError('gameServers.count', limits.count);
-      }
+    // CPU.
+    const cpuSum = results.length ? results[0].cpu : 0;
+    if (limits.cpu && cpuSum + cpu > limits.cpu) {
+      throw new NamespaceLimitError('gameServers.cpu', limits.cpu);
+    }
 
-      const cpuSum = results.length > 0 ? results[0].cpu : 0;
-      if (limits.cpu > 0 && cpuSum + cpu > limits.cpu) {
-        throw new NamespaceLimitError('gameServers.cpu', limits.cpu);
-      }
-
-      const memorySum = results.length > 0 ? results[0].memory : 0;
-      if (limits.memory > 0 && memorySum + memory > limits.memory) {
-        throw new NamespaceLimitError('gameServers.memory', limits.memory);
-      }
+    // Memory.
+    const memorySum = results.length ? results[0].memory : 0;
+    if (limits.memory && memorySum + memory > limits.memory) {
+      throw new NamespaceLimitError('gameServers.memory', limits.memory);
     }
   }
 
