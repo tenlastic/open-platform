@@ -65,6 +65,13 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Collections`);
+
+    const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
+    this.socket = this.socketService.connect(url);
+    this.socket.addEventListener('open', () =>
+      this.socket.subscribe('collections', Collection, this.collectionService),
+    );
+
     await this.fetchCollections();
 
     const database = await this.databaseService.findOne(this.databaseId);
@@ -73,11 +80,6 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
       { label: database.name, link: '../../' },
       { label: 'Collections' },
     ];
-
-    const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
-    this.socket = this.socketService.connect(url);
-    this.socket.onopen = () =>
-      this.socket.subscribe('collections', Collection, this.collectionService);
   }
 
   public ngOnDestroy() {

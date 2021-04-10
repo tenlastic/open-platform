@@ -65,6 +65,8 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public async ngOnInit() {
+    this.titleService.setTitle(`${TITLE} | Records`);
+
     this.collection = await this.collectionService.findOne(this.databaseId, this.collectionId);
 
     this.propertyColumns = Object.entries(this.collection.jsonSchema.properties)
@@ -73,7 +75,15 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
       .slice(0, 4);
     this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
 
-    this.titleService.setTitle(`${TITLE} | Records`);
+    const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
+    this.socket = this.socketService.connect(url);
+    this.socket.addEventListener('open', () => {
+      this.socket.subscribe('collections', Collection, this.collectionService);
+      this.socket.subscribe('records', Record, this.recordService, {
+        collectionId: this.collectionId,
+      });
+    });
+
     await this.fetchRecords();
 
     const database = await this.databaseService.findOne(this.databaseId);
@@ -84,15 +94,6 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
       { label: this.collection.name, link: '../' },
       { label: 'Records' },
     ];
-
-    const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
-    this.socket = this.socketService.connect(url);
-    this.socket.onopen = () => {
-      this.socket.subscribe('collections', Collection, this.collectionService);
-      this.socket.subscribe('records', Record, this.recordService, {
-        collectionId: this.collectionId,
-      });
-    };
   }
 
   public ngOnDestroy() {

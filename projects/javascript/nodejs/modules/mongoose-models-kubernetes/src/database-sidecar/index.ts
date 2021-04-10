@@ -1,67 +1,67 @@
 import * as k8s from '@kubernetes/client-node';
-import { DatabaseDocument, DatabaseEvent, NamespaceDocument } from '@tenlastic/mongoose-models';
+import { DatabaseDocument, DatabaseEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
+import { deploymentApiV1, roleStackApiV1, secretApiV1 } from '../apis';
 import { KubernetesDatabase } from '../database';
-
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-
-const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
-const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
-const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
+import { KubernetesNamespace } from '../namespace';
 
 DatabaseEvent.sync(async payload => {
-  const database = payload.fullDocument;
-
-  if (!database.populated('namespaceDocument')) {
-    await database.populate('namespaceDocument').execPopulate();
-  }
-
   if (payload.operationType === 'delete') {
-    await KubernetesDatabaseSidecar.delete(database, database.namespaceDocument);
+    await KubernetesDatabaseSidecar.delete(payload.fullDocument);
   } else if (payload.operationType === 'insert') {
-    await KubernetesDatabaseSidecar.create(database, database.namespaceDocument);
+    await KubernetesDatabaseSidecar.upsert(payload.fullDocument);
   }
 });
 
 export const KubernetesDatabaseSidecar = {
-  create: async (database: DatabaseDocument, namespace: NamespaceDocument) => {
-    const databaseName = KubernetesDatabase.getName(database);
+  delete: async (database: DatabaseDocument) => {
     const name = KubernetesDatabaseSidecar.getName(database);
+    const namespace = KubernetesNamespace.getName(database.namespaceId);
 
     /**
      * ======================
      * RBAC
      * ======================
      */
-    await rbacAuthorizationV1.createNamespacedRole(namespace.kubernetesNamespace, {
+    await roleStackApiV1.delete(name, namespace);
+
+    /**
+     * =======================
+     * SECRET
+     * =======================
+     */
+    await secretApiV1.delete(name, namespace);
+
+    /**
+     * ======================
+     * DEPLOYMENT
+     * ======================
+     */
+    await deploymentApiV1.delete(name, namespace);
+  },
+  getName(database: DatabaseDocument) {
+    return `database-${database._id}-sidecar`;
+  },
+  upsert: async (database: DatabaseDocument) => {
+    const databaseName = KubernetesDatabase.getName(database);
+    const name = KubernetesDatabaseSidecar.getName(database);
+    const namespace = KubernetesNamespace.getName(database.namespaceId);
+
+    /**
+     * ======================
+     * RBAC
+     * ======================
+     */
+    await roleStackApiV1.createOrReplace(namespace, {
       metadata: { name },
       rules: [
         {
           apiGroups: [''],
           resources: ['pods', 'pods/log', 'pods/status'],
           verbs: ['get', 'list', 'watch'],
-        },
-      ],
-    });
-    await coreV1.createNamespacedServiceAccount(namespace.kubernetesNamespace, {
-      metadata: { name },
-    });
-    await rbacAuthorizationV1.createNamespacedRoleBinding(namespace.kubernetesNamespace, {
-      metadata: { name },
-      roleRef: {
-        apiGroup: 'rbac.authorization.k8s.io',
-        kind: 'Role',
-        name,
-      },
-      subjects: [
-        {
-          kind: 'ServiceAccount',
-          name,
-          namespace: namespace.kubernetesNamespace,
         },
       ],
     });
@@ -81,7 +81,7 @@ export const KubernetesDatabaseSidecar = {
     const roles = ['application', 'kafka', 'mongodb', 'zookeeper'];
     const appSelector = `tenlastic.com/app=${databaseName}`;
     const roleSelector = `tenlastic.com/role in (${roles.join(',')})`;
-    await coreV1.createNamespacedSecret(namespace.kubernetesNamespace, {
+    await secretApiV1.createOrReplace(namespace, {
       metadata: {
         labels: {
           'tenlastic.com/app': databaseName,
@@ -95,7 +95,7 @@ export const KubernetesDatabaseSidecar = {
         DATABASE_ENDPOINT: `http://api.default:3000/databases/${database._id}`,
         DATABASE_JSON: JSON.stringify(database),
         DATABASE_POD_LABEL_SELECTOR: `${appSelector},${roleSelector}`,
-        DATABASE_POD_NAMESPACE: namespace.kubernetesNamespace,
+        DATABASE_POD_NAMESPACE: namespace,
         WSS_URL: 'ws://wss.default:3000',
       },
     });
@@ -191,7 +191,7 @@ export const KubernetesDatabaseSidecar = {
       };
     }
 
-    await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
+    await deploymentApiV1.createOrReplace(namespace, {
       metadata: {
         labels: {
           'tenlastic.com/app': databaseName,
@@ -210,40 +210,5 @@ export const KubernetesDatabaseSidecar = {
         template: manifest,
       },
     });
-  },
-  delete: async (database: DatabaseDocument, namespace: NamespaceDocument) => {
-    const name = KubernetesDatabaseSidecar.getName(database);
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    try {
-      await rbacAuthorizationV1.deleteNamespacedRole(name, namespace.kubernetesNamespace);
-      await coreV1.deleteNamespacedServiceAccount(name, namespace.kubernetesNamespace);
-      await rbacAuthorizationV1.deleteNamespacedRoleBinding(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * =======================
-     * SECRET
-     * =======================
-     */
-    try {
-      await coreV1.deleteNamespacedSecret(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * ======================
-     * DEPLOYMENT
-     * ======================
-     */
-    try {
-      await appsV1.deleteNamespacedDeployment(name, namespace.kubernetesNamespace);
-    } catch {}
-  },
-  getName(database: DatabaseDocument) {
-    return `database-${database._id}-sidecar`;
   },
 };

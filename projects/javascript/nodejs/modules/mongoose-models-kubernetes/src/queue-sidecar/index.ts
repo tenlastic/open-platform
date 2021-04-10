@@ -1,43 +1,61 @@
 import * as k8s from '@kubernetes/client-node';
-import { NamespaceDocument, QueueDocument, QueueEvent } from '@tenlastic/mongoose-models';
+import { QueueDocument, QueueEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
+import { deploymentApiV1, roleStackApiV1, secretApiV1 } from '../apis';
+import { KubernetesNamespace } from '../namespace';
 import { KubernetesQueue } from '../queue';
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-
-const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
-const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
-const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
-
 QueueEvent.sync(async payload => {
-  const queue = payload.fullDocument;
-
-  if (!queue.populated('namespaceDocument')) {
-    await queue.populate('namespaceDocument').execPopulate();
-  }
-
   if (payload.operationType === 'delete') {
-    await KubernetesQueueSidecar.delete(queue, queue.namespaceDocument);
-  } else if (payload.operationType === 'insert') {
-    await KubernetesQueueSidecar.create(queue, queue.namespaceDocument);
+    await KubernetesQueueSidecar.delete(payload.fullDocument);
+  } else {
+    await KubernetesQueueSidecar.upsert(payload.fullDocument);
   }
 });
 
 export const KubernetesQueueSidecar = {
-  create: async (queue: QueueDocument, namespace: NamespaceDocument) => {
-    const queueName = KubernetesQueue.getName(queue);
+  delete: async (queue: QueueDocument) => {
     const name = KubernetesQueueSidecar.getName(queue);
+    const namespace = KubernetesNamespace.getName(queue.namespaceId);
 
     /**
      * ======================
      * RBAC
      * ======================
      */
-    await rbacAuthorizationV1.createNamespacedRole(namespace.kubernetesNamespace, {
+    await roleStackApiV1.delete(name, namespace);
+
+    /**
+     * ======================
+     * SECRET
+     * ======================
+     */
+    await secretApiV1.delete(name, namespace);
+
+    /**
+     * ======================
+     * DEPLOYMENT
+     * ======================
+     */
+    await deploymentApiV1.delete(name, namespace);
+  },
+  getName(queue: QueueDocument) {
+    return `queue-${queue._id}-sidecar`;
+  },
+  upsert: async (queue: QueueDocument) => {
+    const queueName = KubernetesQueue.getName(queue);
+    const name = KubernetesQueueSidecar.getName(queue);
+    const namespace = KubernetesNamespace.getName(queue.namespaceId);
+
+    /**
+     * ======================
+     * RBAC
+     * ======================
+     */
+    await roleStackApiV1.createOrReplace(namespace, {
       metadata: { name },
       rules: [
         {
@@ -47,28 +65,10 @@ export const KubernetesQueueSidecar = {
         },
       ],
     });
-    await coreV1.createNamespacedServiceAccount(namespace.kubernetesNamespace, {
-      metadata: { name },
-    });
-    await rbacAuthorizationV1.createNamespacedRoleBinding(namespace.kubernetesNamespace, {
-      metadata: { name },
-      roleRef: {
-        apiGroup: 'rbac.authorization.k8s.io',
-        kind: 'Role',
-        name,
-      },
-      subjects: [
-        {
-          kind: 'ServiceAccount',
-          name,
-          namespace: namespace.kubernetesNamespace,
-        },
-      ],
-    });
 
     /**
      * ======================
-     * DEPLOYMENT
+     * SECRET
      * ======================
      */
     const administrator = { roles: ['queues'], system: true };
@@ -77,10 +77,32 @@ export const KubernetesQueueSidecar = {
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
       { algorithm: 'RS256' },
     );
+    const appSelector = `tenlastic.com/app=${queueName}`;
+    await secretApiV1.createOrReplace(namespace, {
+      metadata: {
+        labels: {
+          'tenlastic.com/app': queueName,
+          'tenlastic.com/role': 'sidecar',
+        },
+        name,
+      },
+      stringData: {
+        ACCESS_TOKEN: accessToken,
+        LOG_CONTAINER: 'main',
+        LOG_ENDPOINT: `http://api.default:3000/queues/${queue._id}/logs`,
+        LOG_POD_LABEL_SELECTOR: `${appSelector},tenlastic.com/role=application`,
+        LOG_POD_NAMESPACE: namespace,
+        QUEUE_ENDPOINT: `http://api.default:3000/queues/${queue._id}`,
+        QUEUE_POD_LABEL_SELECTOR: `${appSelector},tenlastic.com/role in (application,redis)`,
+        QUEUE_POD_NAMESPACE: namespace,
+      },
+    });
 
-    const packageDotJson = fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8');
-    const version = JSON.parse(packageDotJson).version;
-
+    /**
+     * ======================
+     * DEPLOYMENT
+     * ======================
+     */
     const affinity = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
@@ -97,22 +119,6 @@ export const KubernetesQueueSidecar = {
         },
       },
     };
-    const env = [
-      { name: 'ACCESS_TOKEN', value: accessToken },
-      { name: 'LOG_CONTAINER', value: 'main' },
-      { name: 'LOG_ENDPOINT', value: `http://api.default:3000/queues/${queue._id}/logs` },
-      {
-        name: 'LOG_POD_LABEL_SELECTOR',
-        value: `tenlastic.com/app=${queueName},tenlastic.com/role=application`,
-      },
-      { name: 'LOG_POD_NAMESPACE', value: namespace.kubernetesNamespace },
-      { name: 'QUEUE_ENDPOINT', value: `http://api.default:3000/queues/${queue._id}` },
-      {
-        name: 'QUEUE_POD_LABEL_SELECTOR',
-        value: `tenlastic.com/app=${queueName},tenlastic.com/role in (application,redis)`,
-      },
-      { name: 'QUEUE_POD_NAMESPACE', value: namespace.kubernetesNamespace },
-    ];
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
@@ -131,7 +137,7 @@ export const KubernetesQueueSidecar = {
           containers: [
             {
               command: ['npm', 'run', 'start'],
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: 'node:12',
               name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
@@ -140,7 +146,7 @@ export const KubernetesQueueSidecar = {
             },
             {
               command: ['npm', 'run', 'start'],
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: 'node:12',
               name: 'queue-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
@@ -153,6 +159,9 @@ export const KubernetesQueueSidecar = {
         },
       };
     } else {
+      const packageDotJson = fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8');
+      const version = JSON.parse(packageDotJson).version;
+
       manifest = {
         metadata: {
           labels: {
@@ -165,13 +174,13 @@ export const KubernetesQueueSidecar = {
           affinity,
           containers: [
             {
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: `tenlastic/log-sidecar:${version}`,
               name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },
             {
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: `tenlastic/queue-sidecar:${version}`,
               name: 'queue-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
@@ -182,7 +191,7 @@ export const KubernetesQueueSidecar = {
       };
     }
 
-    await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
+    await deploymentApiV1.createOrReplace(namespace, {
       metadata: {
         labels: {
           'tenlastic.com/app': queueName,
@@ -201,31 +210,5 @@ export const KubernetesQueueSidecar = {
         template: manifest,
       },
     });
-  },
-  delete: async (queue: QueueDocument, namespace: NamespaceDocument) => {
-    const name = KubernetesQueueSidecar.getName(queue);
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    try {
-      await rbacAuthorizationV1.deleteNamespacedRole(name, namespace.kubernetesNamespace);
-      await coreV1.deleteNamespacedServiceAccount(name, namespace.kubernetesNamespace);
-      await rbacAuthorizationV1.deleteNamespacedRoleBinding(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * ======================
-     * DEPLOYMENT
-     * ======================
-     */
-    try {
-      await appsV1.deleteNamespacedDeployment(name, namespace.kubernetesNamespace);
-    } catch {}
-  },
-  getName(queue: QueueDocument) {
-    return `queue-${queue._id}-sidecar`;
   },
 };

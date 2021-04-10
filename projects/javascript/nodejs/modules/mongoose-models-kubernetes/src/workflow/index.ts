@@ -1,44 +1,53 @@
-import * as k8s from '@kubernetes/client-node';
 import {
-  NamespaceDocument,
   WorkflowDocument,
   WorkflowEvent,
   WorkflowSpecTemplate,
   WorkflowSpecTemplateSchema,
 } from '@tenlastic/mongoose-models';
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-
-const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
-const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
-const networkingV1 = kc.makeApiClient(k8s.NetworkingV1Api);
-const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
+import {
+  networkPolicyApiV1,
+  roleApiV1,
+  roleBindingApiV1,
+  roleStackApiV1,
+  serviceAccountApiV1,
+  workflowApiV1,
+} from '../apis';
+import { KubernetesNamespace } from '../namespace';
 
 WorkflowEvent.sync(async payload => {
-  const workflow = payload.fullDocument;
-
-  if (!workflow.populated('namespaceDocument')) {
-    await workflow.populate('namespaceDocument').execPopulate();
-  }
-
   if (payload.operationType === 'delete') {
-    await KubernetesWorkflow.delete(workflow.namespaceDocument, workflow);
+    await KubernetesWorkflow.delete(payload.fullDocument);
   } else if (payload.operationType === 'insert') {
-    await KubernetesWorkflow.create(workflow.namespaceDocument, workflow);
+    await KubernetesWorkflow.upsert(payload.fullDocument);
   }
 });
 
 export const KubernetesWorkflow = {
-  create: async (namespace: NamespaceDocument, workflow: WorkflowDocument) => {
+  delete: async (workflow: WorkflowDocument) => {
     const name = KubernetesWorkflow.getName(workflow);
+    const namespace = KubernetesNamespace.getName(workflow.namespaceId);
+
+    /**
+     * ======================
+     * WORKFLOW
+     * ======================
+     */
+    await workflowApiV1.delete(name, namespace);
+  },
+  getName(workflow: WorkflowDocument) {
+    return `workflow-${workflow._id}`;
+  },
+  upsert: async (workflow: WorkflowDocument) => {
+    const name = KubernetesWorkflow.getName(workflow);
+    const namespace = KubernetesNamespace.getName(workflow.namespaceId);
 
     /**
      * ======================
      * NETWORK POLICY
      * ======================
      */
-    await networkingV1.createNamespacedNetworkPolicy(namespace.kubernetesNamespace, {
+    await networkPolicyApiV1.createOrReplace(namespace, {
       metadata: { name },
       spec: {
         egress: [
@@ -68,7 +77,7 @@ export const KubernetesWorkflow = {
      * RBAC
      * ======================
      */
-    await rbacAuthorizationV1.createNamespacedRole(namespace.kubernetesNamespace, {
+    await roleStackApiV1.createOrReplace(namespace, {
       metadata: { name },
       rules: [
         {
@@ -85,24 +94,6 @@ export const KubernetesWorkflow = {
           apiGroups: [''],
           resources: ['pods/log'],
           verbs: ['get', 'watch'],
-        },
-      ],
-    });
-    await coreV1.createNamespacedServiceAccount(namespace.kubernetesNamespace, {
-      metadata: { name },
-    });
-    await rbacAuthorizationV1.createNamespacedRoleBinding(namespace.kubernetesNamespace, {
-      metadata: { name },
-      roleRef: {
-        apiGroup: 'rbac.authorization.k8s.io',
-        kind: 'Role',
-        name,
-      },
-      subjects: [
-        {
-          kind: 'ServiceAccount',
-          name,
-          namespace: namespace.kubernetesNamespace,
         },
       ],
     });
@@ -133,51 +124,42 @@ export const KubernetesWorkflow = {
 
     const templates = workflow.spec.templates.map(t => getTemplateManifest(t, workflow));
 
-    const response: any = await customObjects.createNamespacedCustomObject(
-      'argoproj.io',
-      'v1alpha1',
-      namespace.kubernetesNamespace,
-      'workflows',
-      {
-        apiVersion: 'argoproj.io/v1alpha1',
-        kind: 'Workflow',
-        metadata: { name },
-        spec: {
-          activeDeadlineSeconds: 60 * 60,
-          affinity,
-          automountServiceAccountToken: false,
-          dnsPolicy: 'Default',
-          entrypoint: workflow.spec.entrypoint,
-          executor: { serviceAccountName: name },
-          parallelism: workflow.spec.parallelism,
-          serviceAccountName: name,
-          templates,
-          ttlStrategy: {
-            secondsAfterCompletion: 300,
-          },
-          volumeClaimTemplates: [
-            {
-              metadata: { name: 'workspace' },
-              spec: {
-                accessModes: ['ReadWriteOnce'],
-                resources: {
-                  requests: {
-                    storage: `${workflow.storage}`,
-                  },
+    const response = await workflowApiV1.createOrReplace(namespace, {
+      metadata: { name },
+      spec: {
+        activeDeadlineSeconds: 60 * 60,
+        affinity,
+        automountServiceAccountToken: false,
+        dnsPolicy: 'Default',
+        entrypoint: workflow.spec.entrypoint,
+        executor: { serviceAccountName: name },
+        parallelism: workflow.spec.parallelism,
+        serviceAccountName: name,
+        templates,
+        ttlStrategy: {
+          secondsAfterCompletion: 300,
+        },
+        volumeClaimTemplates: [
+          {
+            metadata: { name: 'workspace' },
+            spec: {
+              accessModes: ['ReadWriteOnce'],
+              resources: {
+                requests: {
+                  storage: `${workflow.storage}`,
                 },
               },
             },
-          ],
-        },
+          },
+        ],
       },
-    );
+    });
 
     /**
      * ======================
      * OWNER REFERENCES
      * ======================
      */
-    const headers = { 'Content-Type': 'application/strategic-merge-patch+json' };
     const ownerReferences = [
       {
         apiVersion: 'argoproj.io/v1alpha1',
@@ -187,67 +169,10 @@ export const KubernetesWorkflow = {
         uid: response.body.metadata.uid,
       },
     ];
-    await networkingV1.patchNamespacedNetworkPolicy(
-      name,
-      namespace.kubernetesNamespace,
-      { metadata: { ownerReferences } },
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { headers },
-    );
-    await rbacAuthorizationV1.patchNamespacedRole(
-      name,
-      namespace.kubernetesNamespace,
-      { metadata: { ownerReferences } },
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { headers },
-    );
-    await coreV1.patchNamespacedServiceAccount(
-      name,
-      namespace.kubernetesNamespace,
-      { metadata: { ownerReferences } },
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { headers },
-    );
-    await rbacAuthorizationV1.patchNamespacedRoleBinding(
-      name,
-      namespace.kubernetesNamespace,
-      { metadata: { ownerReferences } },
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { headers },
-    );
-  },
-  delete: async (namespace: NamespaceDocument, workflow: WorkflowDocument) => {
-    const name = KubernetesWorkflow.getName(workflow);
-
-    /**
-     * ======================
-     * WORKFLOW
-     * ======================
-     */
-    try {
-      await customObjects.deleteNamespacedCustomObject(
-        'argoproj.io',
-        'v1alpha1',
-        namespace.kubernetesNamespace,
-        'workflows',
-        name,
-      );
-    } catch {}
-  },
-  getName(workflow: WorkflowDocument) {
-    return `workflow-${workflow._id}`;
+    await networkPolicyApiV1.patch(name, namespace, { metadata: { ownerReferences } });
+    await roleApiV1.patch(name, namespace, { metadata: { ownerReferences } });
+    await serviceAccountApiV1.patch(name, namespace, { metadata: { ownerReferences } });
+    await roleBindingApiV1.patch(name, namespace, { metadata: { ownerReferences } });
   },
 };
 

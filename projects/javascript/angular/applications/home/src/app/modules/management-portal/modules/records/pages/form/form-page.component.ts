@@ -48,6 +48,15 @@ export class RecordsFormPageComponent implements OnDestroy, OnInit {
       this.collectionId = params.get('collectionId');
       this.databaseId = params.get('databaseId');
 
+      const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
+      this.socket = this.socketService.connect(url);
+      this.socket.addEventListener('open', () => {
+        this.socket.subscribe('collections', Collection, this.collectionService);
+        this.socket.subscribe('records', Record, this.recordService, {
+          collectionId: this.collectionId,
+        });
+      });
+
       this.collection = await this.collectionService.findOne(this.databaseId, this.collectionId);
 
       if (_id !== 'new') {
@@ -65,15 +74,6 @@ export class RecordsFormPageComponent implements OnDestroy, OnInit {
         { label: 'Records', link: '../' },
         { label: this.data._id ? 'Edit Record' : 'Create Record' },
       ];
-
-      const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
-      this.socket = this.socketService.connect(url);
-      this.socket.onopen = () => {
-        this.socket.subscribe('collections', Collection, this.collectionService);
-        this.socket.subscribe('records', Record, this.recordService, {
-          collectionId: this.collectionId,
-        });
-      };
     });
   }
 

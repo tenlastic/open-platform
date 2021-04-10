@@ -155,7 +155,7 @@ export class DatabaseSchema {
    * Returns true if a restart is required on an update.
    */
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'isPreemptible', 'memory'];
+    const immutableFields = ['cpu', 'isPreemptible', 'memory', 'replicas', 'storage'];
     return immutableFields.some(i => fields.includes(i));
   }
 }

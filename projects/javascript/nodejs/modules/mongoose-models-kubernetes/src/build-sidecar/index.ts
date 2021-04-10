@@ -1,37 +1,29 @@
 import * as k8s from '@kubernetes/client-node';
-import { BuildDocument, BuildEvent, NamespaceDocument } from '@tenlastic/mongoose-models';
+import { BuildDocument, BuildEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
+import { deploymentApiV1, roleStackApiV1, secretApiV1, workflowApiV1 } from '../apis';
 import { KubernetesBuild } from '../build';
-
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-
-const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
-const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
-const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
-const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
+import { KubernetesNamespace } from '../namespace';
 
 BuildEvent.sync(async payload => {
-  const build = payload.fullDocument;
-
-  if (!build.populated('namespaceDocument')) {
-    await build.populate('namespaceDocument').execPopulate();
-  }
-
   if (payload.operationType === 'insert') {
-    await KubernetesBuildSidecar.create(build, build.namespaceDocument);
+    await KubernetesBuildSidecar.upsert(payload.fullDocument);
   }
 });
 
 export const KubernetesBuildSidecar = {
-  create: async (build: BuildDocument, namespace: NamespaceDocument) => {
+  getName(build: BuildDocument) {
+    return `build-${build._id}-sidecar`;
+  },
+  upsert: async (build: BuildDocument) => {
     const buildName = KubernetesBuild.getName(build);
     const name = KubernetesBuildSidecar.getName(build);
+    const namespace = KubernetesNamespace.getName(build.namespaceId);
 
-    const uid = await getBuildUid(build, namespace.kubernetesNamespace);
+    const uid = await getBuildUid(build, namespace);
     const ownerReferences = [
       {
         apiVersion: 'argoproj.io/v1alpha1',
@@ -44,10 +36,10 @@ export const KubernetesBuildSidecar = {
 
     /**
      * ======================
-     * ROLE + SERVICE ACCOUNT
+     * ROLE STACK
      * ======================
      */
-    await rbacAuthorizationV1.createNamespacedRole(namespace.kubernetesNamespace, {
+    await roleStackApiV1.createOrReplace(namespace, {
       metadata: { name, ownerReferences },
       rules: [
         {
@@ -62,28 +54,10 @@ export const KubernetesBuildSidecar = {
         },
       ],
     });
-    await coreV1.createNamespacedServiceAccount(namespace.kubernetesNamespace, {
-      metadata: { name, ownerReferences },
-    });
-    await rbacAuthorizationV1.createNamespacedRoleBinding(namespace.kubernetesNamespace, {
-      metadata: { name, ownerReferences },
-      roleRef: {
-        apiGroup: 'rbac.authorization.k8s.io',
-        kind: 'Role',
-        name,
-      },
-      subjects: [
-        {
-          kind: 'ServiceAccount',
-          name,
-          namespace: namespace.kubernetesNamespace,
-        },
-      ],
-    });
 
     /**
      * ======================
-     * DEPLOYMENT
+     * SECRET
      * ======================
      */
     const administrator = { roles: ['builds'], system: true };
@@ -92,7 +66,32 @@ export const KubernetesBuildSidecar = {
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
       { algorithm: 'RS256' },
     );
+    await secretApiV1.createOrReplace(namespace, {
+      metadata: {
+        labels: {
+          'tenlastic.com/app': buildName,
+          'tenlastic.com/role': 'sidecar',
+        },
+        name,
+        ownerReferences,
+      },
+      stringData: {
+        ACCESS_TOKEN: accessToken,
+        LOG_CONTAINER: 'main',
+        LOG_ENDPOINT: `http://api.default:3000/builds/${build._id}/logs`,
+        LOG_POD_LABEL_SELECTOR: `tenlastic.com/app=${buildName},tenlastic.com/role=application`,
+        LOG_POD_NAMESPACE: namespace,
+        WORKFLOW_ENDPOINT: `http://api.default:3000/builds/${build._id}`,
+        WORKFLOW_NAME: buildName,
+        WORKFLOW_NAMESPACE: namespace,
+      },
+    });
 
+    /**
+     * ======================
+     * DEPLOYMENT
+     * ======================
+     */
     const affinity = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
@@ -100,9 +99,7 @@ export const KubernetesBuildSidecar = {
             {
               matchExpressions: [
                 {
-                  key: namespace.limits.workflows.preemptible
-                    ? 'tenlastic.com/low-priority'
-                    : 'tenlastic.com/high-priority',
+                  key: 'tenlastic.com/low-priority',
                   operator: 'Exists',
                 },
               ],
@@ -111,19 +108,6 @@ export const KubernetesBuildSidecar = {
         },
       },
     };
-    const env = [
-      { name: 'ACCESS_TOKEN', value: accessToken },
-      { name: 'LOG_CONTAINER', value: 'main' },
-      { name: 'LOG_ENDPOINT', value: `http://api.default:3000/builds/${build._id}/logs` },
-      {
-        name: 'LOG_POD_LABEL_SELECTOR',
-        value: `tenlastic.com/app=${buildName},tenlastic.com/role=application`,
-      },
-      { name: 'LOG_POD_NAMESPACE', value: namespace.kubernetesNamespace },
-      { name: 'WORKFLOW_ENDPOINT', value: `http://api.default:3000/builds/${build._id}` },
-      { name: 'WORKFLOW_NAME', value: buildName },
-      { name: 'WORKFLOW_NAMESPACE', value: namespace.kubernetesNamespace },
-    ];
 
     const packageDotJson = fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8');
     const version = JSON.parse(packageDotJson).version;
@@ -145,7 +129,7 @@ export const KubernetesBuildSidecar = {
           containers: [
             {
               command: ['npm', 'run', 'start'],
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: 'node:12',
               name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
@@ -154,7 +138,7 @@ export const KubernetesBuildSidecar = {
             },
             {
               command: ['npm', 'run', 'start'],
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: 'node:12',
               name: 'workflow-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
@@ -179,13 +163,13 @@ export const KubernetesBuildSidecar = {
           affinity,
           containers: [
             {
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: `tenlastic/log-sidecar:${version}`,
               name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },
             {
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: `tenlastic/workflow-sidecar:${version}`,
               name: 'workflow-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
@@ -196,7 +180,7 @@ export const KubernetesBuildSidecar = {
       };
     }
 
-    await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
+    await deploymentApiV1.createOrReplace(namespace, {
       metadata: {
         labels: {
           'tenlastic.com/app': buildName,
@@ -217,21 +201,11 @@ export const KubernetesBuildSidecar = {
       },
     });
   },
-  getName(build: BuildDocument) {
-    return `build-${build._id}-sidecar`;
-  },
 };
 
 async function getBuildUid(build: BuildDocument, namespace: string): Promise<string> {
   try {
-    const response: any = await customObjects.getNamespacedCustomObject(
-      'argoproj.io',
-      'v1alpha1',
-      namespace,
-      'workflows',
-      KubernetesBuild.getName(build),
-    );
-
+    const response = await workflowApiV1.read(KubernetesBuild.getName(build), namespace);
     return response.body.metadata.uid;
   } catch {
     await new Promise(resolve => setTimeout(resolve, 1000));

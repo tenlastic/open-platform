@@ -43,7 +43,8 @@
           *matHeaderCellDef></th>
       <td mat-cell
           *matCellDef="let element">
-        <app-button color="accent"
+        <app-button *ngIf="element.status?.phase === 'Running'"
+                    color="accent"
                     [routerLink]="[element._id, 'collections']">
           <mat-icon>category</mat-icon>
           <span>Collections</span>

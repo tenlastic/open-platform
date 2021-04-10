@@ -18,9 +18,13 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
     await kafka.connect(kafkaConnectionString);
 
     // MongoDB.
-    await mongooseModels.connect({
+    const mongoose = await mongooseModels.connect({
       connectionString: mongoConnectionString,
       databaseName: 'database',
+    });
+    mongoose.connection.on('error', e => {
+      console.error(e);
+      process.exit(1);
     });
 
     // Web Server.

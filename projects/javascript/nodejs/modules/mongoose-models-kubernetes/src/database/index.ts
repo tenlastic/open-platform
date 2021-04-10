@@ -1,48 +1,109 @@
 import * as k8s from '@kubernetes/client-node';
-import { DatabaseDocument, DatabaseEvent, NamespaceDocument } from '@tenlastic/mongoose-models';
+import { Database, DatabaseDocument, DatabaseEvent } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 import * as fs from 'fs';
-import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
+
+import {
+  helmReleaseApiV1,
+  ingressApiV1,
+  secretApiV1,
+  serviceApiV1,
+  statefulSetApiV1,
+} from '../apis';
+import { KubernetesNamespace } from '../namespace';
 
 const chance = new Chance();
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-
-const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
-const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
-const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
-const networkingV1 = kc.makeApiClient(k8s.NetworkingV1Api);
-
 DatabaseEvent.sync(async payload => {
-  const database = payload.fullDocument;
-
-  if (!database.populated('namespaceDocument')) {
-    await database.populate('namespaceDocument').execPopulate();
-  }
-
   if (payload.operationType === 'delete') {
-    await KubernetesDatabase.delete(database, database.namespaceDocument);
-  } else if (payload.operationType === 'insert') {
-    await KubernetesDatabase.create(database, database.namespaceDocument);
+    await KubernetesDatabase.delete(payload.fullDocument);
+  } else if (
+    payload.operationType === 'insert' ||
+    Database.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
+  ) {
+    await KubernetesDatabase.upsert(payload.fullDocument);
   }
 });
 
 export const KubernetesDatabase = {
-  create: async (database: DatabaseDocument, namespace: NamespaceDocument) => {
+  delete: async (database: DatabaseDocument) => {
     const name = KubernetesDatabase.getName(database);
+    const namespace = KubernetesNamespace.getName(database.namespaceId);
 
-    const array = Array(database.replicas).fill(0);
-    const kafkas = array.map((a, i) => `${name}-kafka-${i}.${name}-kafka-headless:9092`);
-    const mongos = array.map((a, i) => `${name}-mongodb-${i}.${name}-mongodb-headless:27017`);
+    /**
+     * =======================
+     * INGRESS
+     * =======================
+     */
+    await ingressApiV1.delete(name, namespace);
+
+    /**
+     * =======================
+     * KAFKA
+     * =======================
+     */
+    await secretApiV1.delete(`${name}-kafka-jaas`, namespace);
+    await helmReleaseApiV1.delete(`${name}-kafka`, namespace);
+
+    /**
+     * =======================
+     * MONGODB
+     * =======================
+     */
+    await secretApiV1.delete(`${name}-mongodb`, namespace);
+    await helmReleaseApiV1.delete(`${name}-mongodb`, namespace);
+
+    /**
+     * =======================
+     * ZOOKEEPER
+     * =======================
+     */
+    await secretApiV1.delete(`${name}-zookeeper`, namespace);
+    await helmReleaseApiV1.delete(`${name}-zookeeper`, namespace);
+
+    /**
+     * =======================
+     * SECRET
+     * =======================
+     */
+    await secretApiV1.delete(name, namespace);
+
+    /**
+     * ======================
+     * SERVICE
+     * ======================
+     */
+    await serviceApiV1.delete(name, namespace);
+
+    /**
+     * ======================
+     * STATEFUL SET
+     * ======================
+     */
+    await statefulSetApiV1.delete(name, namespace);
+  },
+  getName(database: DatabaseDocument) {
+    return `database-${database._id}`;
+  },
+  upsert: async (database: DatabaseDocument) => {
+    const name = KubernetesDatabase.getName(database);
+    const namespace = KubernetesNamespace.getName(database.namespaceId);
+
+    const now = Date.now().toString(36);
     const password = chance.hash({ length: 128 });
     const resources: k8s.V1ResourceRequirements = {
       limits: { cpu: `${database.cpu}`, memory: `${database.memory}` },
       requests: { cpu: `${database.cpu}`, memory: `${database.memory}` },
     };
+
+    const array = Array(database.replicas).fill(0);
+    const kafkas = array.map(
+      (a, i) => `${name}-kafka-${now}-${i}.${name}-kafka-${now}-headless:9092`,
+    );
+    const mongos = array.map((a, i) => `${name}-mongodb-${i}.${name}-mongodb-headless:27017`);
     const zookeepers = array.map(
-      (a, i) => `${name}-zookeeper-${i}.${name}-zookeeper-headless:2181`,
+      (a, i) => `${name}-zookeeper-${now}-${i}.${name}-zookeeper-${now}-headless:2181`,
     );
 
     /**
@@ -50,8 +111,8 @@ export const KubernetesDatabase = {
      * INGRESS
      * ========================
      */
-    const ingress = await networkingV1.readNamespacedIngress('default', 'default');
-    await networkingV1.createNamespacedIngress(namespace.kubernetesNamespace, {
+    const ingress = await ingressApiV1.read('default', 'default');
+    await ingressApiV1.createOrReplace(namespace, {
       metadata: {
         annotations: ingress.body.metadata.annotations,
         labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
@@ -86,7 +147,7 @@ export const KubernetesDatabase = {
      * KAFKA
      * ========================
      */
-    await coreV1.createNamespacedSecret(namespace.kubernetesNamespace, {
+    await secretApiV1.createOrReplace(namespace, {
       metadata: {
         labels: {
           'tenlastic.com/app': name,
@@ -100,67 +161,56 @@ export const KubernetesDatabase = {
         'zookeeper-password': password,
       },
     });
-    await customObjects.createNamespacedCustomObject(
-      'helm.fluxcd.io',
-      'v1',
-      namespace.kubernetesNamespace,
-      'helmreleases',
-      {
-        apiVersion: 'helm.fluxcd.io/v1',
-        kind: 'HelmRelease',
-        metadata: {
-          annotations: { 'fluxcd.io/automated': 'true' },
-          name: `${name}-kafka`,
-          namespace: namespace.kubernetesNamespace,
+    await helmReleaseApiV1.delete(`${name}-kafka`, namespace);
+    await helmReleaseApiV1.createOrReplace(namespace, {
+      metadata: {
+        annotations: { 'fluxcd.io/automated': 'true' },
+        name: `${name}-kafka`,
+      },
+      spec: {
+        chart: {
+          name: 'kafka',
+          repository: 'https://charts.bitnami.com/bitnami',
+          version: '12.16.2',
         },
-        spec: {
-          chart: {
-            name: 'kafka',
-            repository: 'https://charts.bitnami.com/bitnami',
-            version: '12.6.2',
+        releaseName: `${name}-kafka-${now}`,
+        values: {
+          affinity: getAffinity(database, 'kafka'),
+          auth: {
+            clientProtocol: 'sasl',
+            interBrokerProtocol: 'sasl',
+            jaas: {
+              clientUsers: 'admin',
+              existingSecret: `${name}-kafka-jaas`,
+              interBrokerUser: 'admin',
+              zookeeperUser: 'admin',
+            },
           },
-          releaseName: `${name}-kafka`,
-          values: {
-            affinity: getAffinity(database, 'kafka'),
-            auth: {
-              clientProtocol: 'sasl',
-              interBrokerProtocol: 'sasl',
-              jaas: {
-                clientPasswords: password,
-                clientUsers: 'admin',
-                existingSecret: `${name}-kafka-jaas`,
-                interBrokerPassword: password,
-                interBrokerUser: 'admin',
-                zookeeperPassword: password,
-                zookeeperUser: 'admin',
-              },
-            },
-            externalZookeeper: { servers: zookeepers.join(',') },
-            image: { tag: '2.7.0' },
-            livenessProbe: { initialDelaySeconds: 120 },
-            persistence: {
-              size: `${database.storage}`,
-              storageClass: 'standard-expandable',
-            },
-            podLabels: {
-              'tenlastic.com/app': name,
-              'tenlastic.com/role': 'kafka',
-            },
-            readinessProbe: { initialDelaySeconds: 120 },
-            replicaCount: database.replicas,
-            resources,
-            zookeeper: { enabled: false },
+          externalZookeeper: { servers: zookeepers.join(',') },
+          image: { tag: '2.7.0' },
+          livenessProbe: { initialDelaySeconds: 120 },
+          persistence: {
+            size: `${database.storage}`,
+            storageClass: 'standard-expandable',
           },
+          podLabels: {
+            'tenlastic.com/app': name,
+            'tenlastic.com/role': 'kafka',
+          },
+          readinessProbe: { initialDelaySeconds: 120 },
+          replicaCount: database.replicas,
+          resources,
+          zookeeper: { enabled: false },
         },
       },
-    );
+    });
 
     /**
      * ========================
      * MONGODB
      * ========================
      */
-    await coreV1.createNamespacedSecret(namespace.kubernetesNamespace, {
+    const mongoSecret = await secretApiV1.createOrRead(namespace, {
       metadata: {
         labels: {
           'tenlastic.com/app': name,
@@ -173,54 +223,45 @@ export const KubernetesDatabase = {
         'mongodb-root-password': password,
       },
     });
-    await customObjects.createNamespacedCustomObject(
-      'helm.fluxcd.io',
-      'v1',
-      namespace.kubernetesNamespace,
-      'helmreleases',
-      {
-        apiVersion: 'helm.fluxcd.io/v1',
-        kind: 'HelmRelease',
-        metadata: {
-          annotations: { 'fluxcd.io/automated': 'true' },
-          name: `${name}-mongodb`,
-          namespace: namespace.kubernetesNamespace,
+    await helmReleaseApiV1.createOrReplace(namespace, {
+      metadata: {
+        annotations: { 'fluxcd.io/automated': 'true' },
+        name: `${name}-mongodb`,
+      },
+      spec: {
+        chart: {
+          name: 'mongodb',
+          repository: 'https://charts.bitnami.com/bitnami',
+          version: '10.4.1',
         },
-        spec: {
-          chart: {
-            name: 'mongodb',
-            repository: 'https://charts.bitnami.com/bitnami',
-            version: '10.4.1',
+        releaseName: `${name}-mongodb`,
+        values: {
+          affinity: getAffinity(database, 'mongodb'),
+          architecture: 'replicaset',
+          auth: { existingSecret: `${name}-mongodb` },
+          image: { tag: '4.4.3' },
+          livenessProbe: { initialDelaySeconds: 120 },
+          persistence: {
+            size: `${database.storage}`,
+            storageClass: 'standard-expandable',
           },
-          releaseName: `${name}-mongodb`,
-          values: {
-            affinity: getAffinity(database, 'mongodb'),
-            architecture: 'replicaset',
-            auth: { existingSecret: `${name}-mongodb` },
-            image: { tag: '4.4.3' },
-            livenessProbe: { initialDelaySeconds: 120 },
-            persistence: {
-              size: `${database.storage}`,
-              storageClass: 'standard-expandable',
-            },
-            podLabels: {
-              'tenlastic.com/app': name,
-              'tenlastic.com/role': 'mongodb',
-            },
-            readinessProbe: { initialDelaySeconds: 120 },
-            replicaCount: database.replicas,
-            resources,
+          podLabels: {
+            'tenlastic.com/app': name,
+            'tenlastic.com/role': 'mongodb',
           },
+          readinessProbe: { initialDelaySeconds: 120 },
+          replicaCount: database.replicas,
+          resources,
         },
       },
-    );
+    });
 
     /**
      * ========================
      * ZOOKEEPER
      * ========================
      */
-    await coreV1.createNamespacedSecret(namespace.kubernetesNamespace, {
+    await secretApiV1.createOrReplace(namespace, {
       metadata: {
         labels: {
           'tenlastic.com/app': name,
@@ -229,63 +270,56 @@ export const KubernetesDatabase = {
         name: `${name}-zookeeper`,
       },
       stringData: {
-        'client-password': password,
-        'server-password': password,
+        'client-password': `${password}`,
+        'server-password': `${password}`,
       },
     });
-    await customObjects.createNamespacedCustomObject(
-      'helm.fluxcd.io',
-      'v1',
-      namespace.kubernetesNamespace,
-      'helmreleases',
-      {
-        apiVersion: 'helm.fluxcd.io/v1',
-        kind: 'HelmRelease',
-        metadata: {
-          annotations: { 'fluxcd.io/automated': 'true' },
-          name: `${name}-zookeeper`,
-          namespace: namespace.kubernetesNamespace,
+    await helmReleaseApiV1.delete(`${name}-zookeeper`, namespace);
+    await helmReleaseApiV1.createOrReplace(namespace, {
+      metadata: {
+        annotations: { 'fluxcd.io/automated': 'true' },
+        name: `${name}-zookeeper`,
+      },
+      spec: {
+        chart: {
+          name: 'zookeeper',
+          repository: 'https://charts.bitnami.com/bitnami',
+          version: '6.7.0',
         },
-        spec: {
-          chart: {
-            name: 'zookeeper',
-            repository: 'https://charts.bitnami.com/bitnami',
-            version: '6.3.4',
+        releaseName: `${name}-zookeeper-${now}`,
+        values: {
+          affinity: getAffinity(database, 'zookeeper'),
+          allowAnonymousLogin: false,
+          auth: {
+            clientUser: 'admin',
+            enabled: true,
+            existingSecret: `${name}-zookeeper`,
+            serverUsers: 'admin',
           },
-          releaseName: `${name}-zookeeper`,
-          values: {
-            affinity: getAffinity(database, 'zookeeper'),
-            allowAnonymousLogin: false,
-            auth: {
-              clientUser: 'admin',
-              enabled: true,
-              existingSecret: `${name}-zookeeper`,
-              serverUsers: 'admin',
-            },
-            image: { tag: '3.6.2' },
-            livenessProbe: { initialDelaySeconds: 120 },
-            persistence: {
-              size: `${database.storage}`,
-              storageClass: 'standard-expandable',
-            },
-            podLabels: {
-              'tenlastic.com/app': name,
-              'tenlastic.com/role': 'zookeeper',
-            },
-            readinessProbe: { initialDelaySeconds: 120 },
-            replicaCount: database.replicas,
-            resources,
+          image: { tag: '3.6.2' },
+          livenessProbe: { initialDelaySeconds: 120 },
+          persistence: {
+            size: `${database.storage}`,
+            storageClass: 'standard-expandable',
           },
+          podLabels: {
+            'tenlastic.com/app': name,
+            'tenlastic.com/role': 'zookeeper',
+          },
+          readinessProbe: { initialDelaySeconds: 120 },
+          replicaCount: database.replicas,
+          resources,
         },
       },
-    );
+    });
 
     /**
      * =======================
      * SECRET
      * =======================
      */
-    await coreV1.createNamespacedSecret(namespace.kubernetesNamespace, {
+    const mongoPassword = Buffer.from(mongoSecret.body.data['mongodb-root-password'], 'base64');
+    await secretApiV1.createOrReplace(namespace, {
       metadata: {
         labels: {
           'tenlastic.com/app': name,
@@ -296,7 +330,8 @@ export const KubernetesDatabase = {
       stringData: {
         JWK_URL: 'http://api.default:3000/public-keys/jwks',
         KAFKA_CONNECTION_STRING: `admin:${password}@${kafkas.join(',')}`,
-        MONGO_CONNECTION_STRING: `mongodb://root:${password}@${mongos.join(',')}`,
+        KAFKA_REPLICATION_FACTOR: `${database.replicas}`,
+        MONGO_CONNECTION_STRING: `mongodb://root:${mongoPassword}@${mongos.join(',')}`,
       },
     });
 
@@ -305,7 +340,7 @@ export const KubernetesDatabase = {
      * SERVICE
      * =======================
      */
-    await coreV1.createNamespacedService(namespace.kubernetesNamespace, {
+    await serviceApiV1.createOrReplace(namespace, {
       metadata: {
         labels: {
           'tenlastic.com/app': name,
@@ -327,6 +362,15 @@ export const KubernetesDatabase = {
      * STATEFUL SET
      * ======================
      */
+    const livenessProbe: k8s.V1Probe = {
+      httpGet: {
+        path: `/databases/${database._id}/collections`,
+        port: 3000 as any,
+      },
+      initialDelaySeconds: 120,
+      periodSeconds: 30,
+    };
+
     let manifest: k8s.V1PodTemplateSpec;
     if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
       manifest = {
@@ -341,6 +385,7 @@ export const KubernetesDatabase = {
               command: ['npm', 'run', 'start'],
               envFrom: [{ secretRef: { name } }],
               image: `node:12`,
+              livenessProbe,
               name: 'main',
               ports: [{ containerPort: 3000, protocol: 'TCP' }],
               resources: { requests: resources.requests },
@@ -366,6 +411,7 @@ export const KubernetesDatabase = {
             {
               envFrom: [{ secretRef: { name } }],
               image: `tenlastic/database:${version}`,
+              livenessProbe,
               name: 'main',
               ports: [{ containerPort: 3000, protocol: 'TCP' }],
               resources: { requests: resources.requests },
@@ -375,7 +421,7 @@ export const KubernetesDatabase = {
       };
     }
 
-    await appsV1.createNamespacedStatefulSet(namespace.kubernetesNamespace, {
+    await statefulSetApiV1.createOrReplace(namespace, {
       metadata: {
         labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
         name,
@@ -389,97 +435,6 @@ export const KubernetesDatabase = {
         template: manifest,
       },
     });
-  },
-  delete: async (database: DatabaseDocument, namespace: NamespaceDocument) => {
-    const array = Array(database.replicas).fill(0);
-    const name = KubernetesDatabase.getName(database);
-
-    /**
-     * =======================
-     * INGRESS
-     * =======================
-     */
-    try {
-      await networkingV1.deleteNamespacedIngress(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * =======================
-     * KAFKA
-     * =======================
-     */
-    try {
-      await coreV1.deleteNamespacedSecret(`${name}-kafka-jaas`, namespace.kubernetesNamespace);
-      await customObjects.deleteNamespacedCustomObject(
-        'helm.fluxcd.io',
-        'v1',
-        namespace.kubernetesNamespace,
-        'helmreleases',
-        `${name}-kafka`,
-      );
-    } catch {}
-
-    /**
-     * =======================
-     * MONGODB
-     * =======================
-     */
-    try {
-      await coreV1.deleteNamespacedSecret(`${name}-mongodb`, namespace.kubernetesNamespace);
-      await customObjects.deleteNamespacedCustomObject(
-        'helm.fluxcd.io',
-        'v1',
-        namespace.kubernetesNamespace,
-        'helmreleases',
-        `${name}-mongodb`,
-      );
-    } catch {}
-
-    /**
-     * =======================
-     * ZOOKEEPER
-     * =======================
-     */
-    try {
-      await coreV1.deleteNamespacedSecret(`${name}-zookeeper`, namespace.kubernetesNamespace);
-      await customObjects.deleteNamespacedCustomObject(
-        'helm.fluxcd.io',
-        'v1',
-        namespace.kubernetesNamespace,
-        'helmreleases',
-        `${name}-zookeeper`,
-      );
-    } catch {}
-
-    /**
-     * =======================
-     * SECRET
-     * =======================
-     */
-    try {
-      await coreV1.deleteNamespacedSecret(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * ======================
-     * SERVICE
-     * ======================
-     */
-    try {
-      await coreV1.deleteNamespacedService(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * ======================
-     * STATEFUL SET
-     * ======================
-     */
-    try {
-      await appsV1.deleteNamespacedStatefulSet(name, namespace.kubernetesNamespace);
-    } catch {}
-  },
-  getName(database: DatabaseDocument) {
-    return `database-${database._id}`;
   },
 };
 

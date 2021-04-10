@@ -1,43 +1,62 @@
 import * as k8s from '@kubernetes/client-node';
-import { GameServerDocument, GameServerEvent, NamespaceDocument } from '@tenlastic/mongoose-models';
+import { GameServerDocument, GameServerEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
+import { clusterRoleStackApiV1, deploymentApiV1, roleStackApiV1, secretApiV1 } from '../apis';
 import { KubernetesGameServer } from '../game-server';
-
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-
-const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
-const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
-const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
+import { KubernetesNamespace } from '../namespace';
 
 GameServerEvent.sync(async payload => {
-  const gameServer = payload.fullDocument;
-
-  if (!gameServer.populated('namespaceDocument')) {
-    await gameServer.populate('namespaceDocument').execPopulate();
-  }
-
   if (payload.operationType === 'delete') {
-    await KubernetesGameServerSidecar.delete(gameServer, gameServer.namespaceDocument);
-  } else if (payload.operationType === 'insert') {
-    await KubernetesGameServerSidecar.create(gameServer, gameServer.namespaceDocument);
+    await KubernetesGameServerSidecar.delete(payload.fullDocument);
+  } else {
+    await KubernetesGameServerSidecar.upsert(payload.fullDocument);
   }
 });
 
 export const KubernetesGameServerSidecar = {
-  create: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
-    const gameServerName = KubernetesGameServer.getName(gameServer);
+  delete: async (gameServer: GameServerDocument) => {
     const name = KubernetesGameServerSidecar.getName(gameServer);
+    const namespace = KubernetesNamespace.getName(gameServer.namespaceId);
 
     /**
      * ======================
      * RBAC
      * ======================
      */
-    await rbacAuthorizationV1.createClusterRole({
+    await clusterRoleStackApiV1.delete(name, namespace);
+    await roleStackApiV1.delete(name, namespace);
+
+    /**
+     * ======================
+     * SECRET
+     * ======================
+     */
+    await secretApiV1.delete(name, namespace);
+
+    /**
+     * ======================
+     * DEPLOYMENT
+     * ======================
+     */
+    await deploymentApiV1.delete(name, namespace);
+  },
+  getName(gameServer: GameServerDocument) {
+    return `game-server-${gameServer._id}-sidecar`;
+  },
+  upsert: async (gameServer: GameServerDocument) => {
+    const gameServerName = KubernetesGameServer.getName(gameServer);
+    const name = KubernetesGameServerSidecar.getName(gameServer);
+    const namespace = KubernetesNamespace.getName(gameServer.namespaceId);
+
+    /**
+     * ======================
+     * RBAC
+     * ======================
+     */
+    await clusterRoleStackApiV1.createOrReplace(namespace, {
       metadata: { name },
       rules: [
         {
@@ -47,7 +66,7 @@ export const KubernetesGameServerSidecar = {
         },
       ],
     });
-    await rbacAuthorizationV1.createNamespacedRole(namespace.kubernetesNamespace, {
+    await roleStackApiV1.createOrReplace(namespace, {
       metadata: { name },
       rules: [
         {
@@ -62,43 +81,10 @@ export const KubernetesGameServerSidecar = {
         },
       ],
     });
-    await coreV1.createNamespacedServiceAccount(namespace.kubernetesNamespace, {
-      metadata: { name },
-    });
-    await rbacAuthorizationV1.createClusterRoleBinding({
-      metadata: { name },
-      roleRef: {
-        apiGroup: 'rbac.authorization.k8s.io',
-        kind: 'ClusterRole',
-        name,
-      },
-      subjects: [
-        {
-          kind: 'ServiceAccount',
-          name,
-          namespace: namespace.kubernetesNamespace,
-        },
-      ],
-    });
-    await rbacAuthorizationV1.createNamespacedRoleBinding(namespace.kubernetesNamespace, {
-      metadata: { name },
-      roleRef: {
-        apiGroup: 'rbac.authorization.k8s.io',
-        kind: 'Role',
-        name,
-      },
-      subjects: [
-        {
-          kind: 'ServiceAccount',
-          name,
-          namespace: namespace.kubernetesNamespace,
-        },
-      ],
-    });
 
     /**
      * ======================
-     * DEPLOYMENT
+     * SECRET
      * ======================
      */
     const administrator = { roles: ['game-servers'], system: true };
@@ -107,10 +93,33 @@ export const KubernetesGameServerSidecar = {
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
       { algorithm: 'RS256' },
     );
+    const labelSelector = `tenlastic.com/app=${gameServerName},tenlastic.com/role=application`;
+    await secretApiV1.createOrReplace(namespace, {
+      metadata: {
+        labels: {
+          'tenlastic.com/app': gameServerName,
+          'tenlastic.com/role': 'sidecar',
+        },
+        name,
+      },
+      stringData: {
+        ACCESS_TOKEN: accessToken,
+        GAME_SERVER_CONTAINER: 'main',
+        GAME_SERVER_ENDPOINT: `http://api.default:3000/game-servers/${gameServer._id}`,
+        GAME_SERVER_POD_LABEL_SELECTOR: labelSelector,
+        GAME_SERVER_POD_NAMESPACE: namespace,
+        LOG_CONTAINER: 'main',
+        LOG_ENDPOINT: `http://api.default:3000/game-servers/${gameServer._id}/logs`,
+        LOG_POD_LABEL_SELECTOR: labelSelector,
+        LOG_POD_NAMESPACE: namespace,
+      },
+    });
 
-    const packageDotJson = fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8');
-    const version = JSON.parse(packageDotJson).version;
-
+    /**
+     * ======================
+     * DEPLOYMENT
+     * ======================
+     */
     const affinity = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
@@ -129,29 +138,6 @@ export const KubernetesGameServerSidecar = {
         },
       },
     };
-    const env = [
-      { name: 'ACCESS_TOKEN', value: accessToken },
-      { name: 'GAME_SERVER_CONTAINER', value: 'main' },
-      {
-        name: 'GAME_SERVER_ENDPOINT',
-        value: `http://api.default:3000/game-servers/${gameServer._id}`,
-      },
-      {
-        name: 'GAME_SERVER_POD_LABEL_SELECTOR',
-        value: `tenlastic.com/app=${gameServerName},tenlastic.com/role=application`,
-      },
-      { name: 'GAME_SERVER_POD_NAMESPACE', value: namespace.kubernetesNamespace },
-      { name: 'LOG_CONTAINER', value: 'main' },
-      {
-        name: 'LOG_ENDPOINT',
-        value: `http://api.default:3000/game-servers/${gameServer._id}/logs`,
-      },
-      {
-        name: 'LOG_POD_LABEL_SELECTOR',
-        value: `tenlastic.com/app=${gameServerName},tenlastic.com/role=application`,
-      },
-      { name: 'LOG_POD_NAMESPACE', value: namespace.kubernetesNamespace },
-    ];
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
@@ -170,7 +156,7 @@ export const KubernetesGameServerSidecar = {
           containers: [
             {
               command: ['npm', 'run', 'start'],
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: 'node:12',
               name: 'game-server-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
@@ -180,7 +166,7 @@ export const KubernetesGameServerSidecar = {
             },
             {
               command: ['npm', 'run', 'start'],
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: 'node:12',
               name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
@@ -193,6 +179,9 @@ export const KubernetesGameServerSidecar = {
         },
       };
     } else {
+      const packageDotJson = fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8');
+      const version = JSON.parse(packageDotJson).version;
+
       manifest = {
         metadata: {
           labels: {
@@ -205,13 +194,13 @@ export const KubernetesGameServerSidecar = {
           affinity,
           containers: [
             {
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: `tenlastic/game-server-sidecar:${version}`,
               name: 'game-server-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },
             {
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: `tenlastic/log-sidecar:${version}`,
               name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
@@ -222,7 +211,7 @@ export const KubernetesGameServerSidecar = {
       };
     }
 
-    await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
+    await deploymentApiV1.createOrReplace(namespace, {
       metadata: {
         labels: {
           'tenlastic.com/app': gameServerName,
@@ -241,33 +230,5 @@ export const KubernetesGameServerSidecar = {
         template: manifest,
       },
     });
-  },
-  delete: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
-    const name = KubernetesGameServerSidecar.getName(gameServer);
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    try {
-      await rbacAuthorizationV1.deleteClusterRole(name);
-      await rbacAuthorizationV1.deleteNamespacedRole(name, namespace.kubernetesNamespace);
-      await coreV1.deleteNamespacedServiceAccount(name, namespace.kubernetesNamespace);
-      await rbacAuthorizationV1.deleteClusterRoleBinding(name);
-      await rbacAuthorizationV1.deleteNamespacedRoleBinding(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * ======================
-     * DEPLOYMENT
-     * ======================
-     */
-    try {
-      await appsV1.deleteNamespacedDeployment(name, namespace.kubernetesNamespace);
-    } catch {}
-  },
-  getName(gameServer: GameServerDocument) {
-    return `game-server-${gameServer._id}-sidecar`;
   },
 };

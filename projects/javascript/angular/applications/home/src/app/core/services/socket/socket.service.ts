@@ -3,7 +3,17 @@ import { v4 as uuid } from 'uuid';
 
 import { IdentityService } from '../identity/identity.service';
 
+interface Subscription {
+  _id: string;
+  collection: string;
+  Model: any;
+  service: any;
+  where?: any;
+}
+
 export class Socket extends WebSocket {
+  public subscriptions: Subscription[] = [];
+
   private resumeTokens: { [key: string]: string } = {};
 
   public close() {
@@ -46,30 +56,34 @@ export class Socket extends WebSocket {
       }
     });
 
+    this.subscriptions.push({ _id, collection, Model, service, where });
+
     return _id;
   }
 
   public unsubscribe(_id: string) {
-    if (!this) {
-      return;
-    }
-
     const data = { _id, method: 'unsubscribe' };
+
+    const index = this.subscriptions.findIndex(s => s._id === _id);
+    this.subscriptions.splice(index, 1);
+
     this.send(JSON.stringify(data));
   }
 }
 
 @Injectable({ providedIn: 'root' })
 export class SocketService {
-  public OnOpen = new EventEmitter();
+  public get sockets() {
+    return this._sockets;
+  }
 
-  private sockets: { [key: string]: Socket } = {};
+  private _sockets: { [key: string]: Socket } = {};
 
   constructor(private identityService: IdentityService) {}
 
-  public connect(url: string) {
-    if (this.sockets[url]) {
-      return this.sockets[url];
+  public connect(url: string, subscriptions: Subscription[] = []) {
+    if (this._sockets[url]) {
+      return this._sockets[url];
     }
 
     if (!this.identityService.accessToken || this.identityService.accessTokenJwt.isExpired) {
@@ -77,25 +91,32 @@ export class SocketService {
     }
 
     const hostname = url.replace('http', 'ws');
-    this.sockets[url] = new Socket(`${hostname}?access_token=${this.identityService.accessToken}`);
+    const socket = new Socket(`${hostname}?access_token=${this.identityService.accessToken}`);
+    socket.subscriptions = subscriptions;
+
+    this._sockets[url] = socket;
 
     const data = { _id: uuid(), method: 'ping' };
-    const interval = setInterval(() => this.sockets[url].send(JSON.stringify(data)), 5000);
+    const interval = setInterval(() => socket.send(JSON.stringify(data)), 5000);
 
-    this.sockets[url].onopen = () => this.OnOpen.emit();
-    this.sockets[url].onclose = e => {
+    socket.addEventListener('close', e => {
       clearInterval(interval);
-      delete this.sockets[url];
+      delete this._sockets[url];
 
       if (e.code !== 1000) {
-        setTimeout(() => this.connect(url), 5000);
+        setTimeout(() => this.connect(url, socket.subscriptions), 5000);
       }
-    };
-    this.sockets[url].onerror = (e: any) => {
-      console.error('Socket error:', e.message);
-      this.sockets[url].close();
-    };
+    });
+    socket.addEventListener('error', socket.close);
+    socket.addEventListener('open', () => {
+      socket.subscriptions = [];
 
-    return this.sockets[url];
+      for (const subscription of subscriptions) {
+        const { collection, Model, service, where } = subscription;
+        socket.subscribe(collection, Model, service, where);
+      }
+    });
+
+    return socket;
   }
 }

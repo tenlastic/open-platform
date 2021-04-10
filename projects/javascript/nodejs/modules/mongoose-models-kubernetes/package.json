@@ -24,6 +24,7 @@
     "@hasezoey/typegoose": "6.0.0-27",
     "@kubernetes/client-node": "0.14.0",
     "@tenlastic/mongoose-models": "0.0.154",
+    "deepmerge": "4.0.0",
     "jsonwebtoken": "8.5.1",
     "mongoose": "5.7.11"
   },

@@ -58,7 +58,7 @@ export class Database extends Model {
   }
 
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['cpu', 'isPreemptible', 'memory'];
+    const immutableFields = ['cpu', 'isPreemptible', 'memory', 'replicas', 'storage'];
     return immutableFields.some(i => fields.includes(i));
   }
 }

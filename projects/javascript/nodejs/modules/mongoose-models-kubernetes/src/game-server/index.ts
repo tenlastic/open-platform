@@ -4,61 +4,87 @@ import {
   GameServerDocument,
   GameServerEvent,
   GameServerRestartEvent,
-  NamespaceDocument,
 } from '@tenlastic/mongoose-models';
 import { URL } from 'url';
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-
-const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
-const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
-const networkingV1 = kc.makeApiClient(k8s.NetworkingV1Api);
+import { deploymentApiV1, networkPolicyApiV1, podApiV1, secretApiV1, serviceApiV1 } from '../apis';
+import { KubernetesNamespace } from '../namespace';
 
 GameServerEvent.sync(async payload => {
-  const gameServer = payload.fullDocument;
-
-  if (!gameServer.populated('namespaceDocument')) {
-    await gameServer.populate('namespaceDocument').execPopulate();
-  }
-
   if (payload.operationType === 'delete') {
-    await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
-  } else if (payload.operationType === 'insert') {
-    await KubernetesGameServer.create(gameServer, gameServer.namespaceDocument);
+    await KubernetesGameServer.delete(payload.fullDocument);
   } else if (
-    payload.operationType === 'update' &&
+    payload.operationType === 'insert' ||
     GameServer.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
   ) {
-    await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
-    await KubernetesGameServer.create(gameServer, gameServer.namespaceDocument);
+    await KubernetesGameServer.upsert(payload.fullDocument);
   }
 });
 GameServerRestartEvent.sync(async gameServer => {
-  if (!gameServer.populated('namespaceDocument')) {
-    await gameServer.populate('namespaceDocument').execPopulate();
-  }
-
-  await KubernetesGameServer.delete(gameServer, gameServer.namespaceDocument);
-  await KubernetesGameServer.create(gameServer, gameServer.namespaceDocument);
+  await KubernetesGameServer.delete(gameServer);
+  await KubernetesGameServer.upsert(gameServer);
 });
 
 export const KubernetesGameServer = {
-  create: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
+  delete: async (gameServer: GameServerDocument) => {
     const name = KubernetesGameServer.getName(gameServer);
+    const namespace = KubernetesNamespace.getName(gameServer.namespaceId);
 
     /**
      * =======================
      * IMAGE PULL SECRET
      * =======================
      */
-    const secret = await coreV1.readNamespacedSecret(
-      'docker-registry-image-pull-secret',
-      'default',
-    );
-    await coreV1.createNamespacedSecret(namespace.kubernetesNamespace, {
+    await secretApiV1.delete(`${name}-image-pull-secret`, namespace);
+
+    /**
+     * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    await networkPolicyApiV1.delete(name, namespace);
+
+    /**
+     * =======================
+     * SERVICE
+     * =======================
+     */
+    await serviceApiV1.delete(name, namespace);
+
+    /**
+     * =======================
+     * DEPLOYMENT OR POD
+     * =======================
+     */
+    await deploymentApiV1.delete(name, namespace);
+    await podApiV1.delete(name, namespace);
+
+    /**
+     * =======================
+     * DEVELOPMENT SERVICE
+     * =======================
+     */
+    await serviceApiV1.delete(`${name}-node-port`, namespace);
+  },
+  getName(gameServer: GameServerDocument) {
+    return `game-server-${gameServer._id}`;
+  },
+  upsert: async (gameServer: GameServerDocument) => {
+    const name = KubernetesGameServer.getName(gameServer);
+    const namespace = KubernetesNamespace.getName(gameServer.namespaceId);
+
+    /**
+     * =======================
+     * IMAGE PULL SECRET
+     * =======================
+     */
+    const secret = await secretApiV1.read('docker-registry-image-pull-secret', 'default');
+    await secretApiV1.createOrReplace(namespace, {
       data: secret.body.data,
-      metadata: { name },
+      metadata: {
+        labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'image-pull-secret' },
+        name: `${name}-image-pull-secret`,
+      },
       type: secret.body.type,
     });
 
@@ -67,7 +93,7 @@ export const KubernetesGameServer = {
      * NETWORK POLICY
      * =======================
      */
-    await networkingV1.createNamespacedNetworkPolicy(namespace.kubernetesNamespace, {
+    await networkPolicyApiV1.createOrReplace(namespace, {
       metadata: { name },
       spec: {
         egress: [
@@ -97,7 +123,7 @@ export const KubernetesGameServer = {
      * SERVICE
      * =======================
      */
-    await coreV1.createNamespacedService(namespace.kubernetesNamespace, {
+    await serviceApiV1.createOrReplace(namespace, {
       metadata: {
         labels: {
           'tenlastic.com/app': name,
@@ -106,12 +132,7 @@ export const KubernetesGameServer = {
         name,
       },
       spec: {
-        ports: [
-          {
-            name: 'tcp',
-            port: 7777,
-          },
-        ],
+        ports: [{ name: 'tcp', port: 7777 }],
         selector: {
           'tenlastic.com/app': name,
           'tenlastic.com/role': 'application',
@@ -189,13 +210,13 @@ export const KubernetesGameServer = {
           },
         ],
         enableServiceLinks: false,
-        imagePullSecrets: [{ name }],
+        imagePullSecrets: [{ name: `${name}-image-pull-secret` }],
         restartPolicy: gameServer.isPersistent ? 'Always' : 'Never',
       },
     };
 
     if (gameServer.isPersistent) {
-      await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
+      await deploymentApiV1.createOrReplace(namespace, {
         metadata: {
           labels: {
             'tenlastic.com/app': name,
@@ -215,7 +236,7 @@ export const KubernetesGameServer = {
         },
       });
     } else {
-      await coreV1.createNamespacedPod(namespace.kubernetesNamespace, manifest);
+      await podApiV1.createOrReplace(namespace, manifest);
     }
 
     /**
@@ -224,7 +245,7 @@ export const KubernetesGameServer = {
      * =======================
      */
     if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
-      await coreV1.createNamespacedService(namespace.kubernetesNamespace, {
+      await serviceApiV1.createOrReplace(namespace, {
         metadata: {
           labels: {
             'tenlastic.com/app': name,
@@ -245,60 +266,5 @@ export const KubernetesGameServer = {
         },
       });
     }
-  },
-  delete: async (gameServer: GameServerDocument, namespace: NamespaceDocument) => {
-    const name = KubernetesGameServer.getName(gameServer);
-
-    /**
-     * =======================
-     * IMAGE PULL SECRET
-     * =======================
-     */
-    try {
-      await coreV1.deleteNamespacedSecret(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * =======================
-     * NETWORK POLICY
-     * =======================
-     */
-    try {
-      await networkingV1.deleteNamespacedNetworkPolicy(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * =======================
-     * SERVICE
-     * =======================
-     */
-    try {
-      await coreV1.deleteNamespacedService(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * =======================
-     * DEPLOYMENT OR POD
-     * =======================
-     */
-    try {
-      await appsV1.deleteNamespacedDeployment(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    try {
-      await coreV1.deleteNamespacedPod(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * =======================
-     * DEVELOPMENT SERVICE
-     * =======================
-     */
-    try {
-      await coreV1.deleteNamespacedService(`${name}-node-port`, namespace.kubernetesNamespace);
-    } catch {}
-  },
-  getName(gameServer: GameServerDocument) {
-    return `game-server-${gameServer._id}`;
   },
 };

@@ -173,7 +173,7 @@ export class QueueSchema {
    * Returns true if a restart is required on an update.
    */
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'isPreemptible', 'memory', 'metadata', 'replicas'];
+    const immutableFields = ['buildId', 'cpu', 'isPreemptible', 'memory', 'replicas'];
     return immutableFields.some(i => fields.includes(i));
   }
 }

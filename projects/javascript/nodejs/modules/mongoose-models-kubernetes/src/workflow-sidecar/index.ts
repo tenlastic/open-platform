@@ -1,36 +1,26 @@
 import * as k8s from '@kubernetes/client-node';
-import { NamespaceDocument, WorkflowDocument, WorkflowEvent } from '@tenlastic/mongoose-models';
+import { WorkflowDocument, WorkflowEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
+import { deploymentApiV1, roleStackApiV1, secretApiV1, workflowApiV1 } from '../apis';
+import { KubernetesNamespace } from '../namespace';
 import { KubernetesWorkflow } from '../workflow';
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
-const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
-const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
-const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
-
 WorkflowEvent.sync(async payload => {
-  const workflow = payload.fullDocument;
-
-  if (!workflow.populated('namespaceDocument')) {
-    await workflow.populate('namespaceDocument').execPopulate();
-  }
-
-  if (payload.operationType === 'insert') {
-    await KubernetesWorkflowSidecar.create(workflow.namespaceDocument, workflow);
+  if (payload.operationType === 'insert' || payload.operationType === 'update') {
+    await KubernetesWorkflowSidecar.upsert(payload.fullDocument);
   }
 });
 
 export const KubernetesWorkflowSidecar = {
-  create: async (namespace: NamespaceDocument, workflow: WorkflowDocument) => {
+  upsert: async (workflow: WorkflowDocument) => {
     const name = KubernetesWorkflowSidecar.getName(workflow);
+    const namespace = KubernetesNamespace.getName(workflow.namespaceId);
     const workflowName = KubernetesWorkflow.getName(workflow);
 
-    const uid = await getWorkflowUid(namespace.kubernetesNamespace, workflow);
+    const uid = await getWorkflowUid(namespace, workflow);
     const ownerReferences = [
       {
         apiVersion: 'argoproj.io/v1alpha1',
@@ -43,10 +33,10 @@ export const KubernetesWorkflowSidecar = {
 
     /**
      * ======================
-     * ROLE + SERVICE ACCOUNT
+     * ROLE STACK
      * ======================
      */
-    await rbacAuthorizationV1.createNamespacedRole(namespace.kubernetesNamespace, {
+    await roleStackApiV1.createOrReplace(namespace, {
       metadata: { name, ownerReferences },
       rules: [
         {
@@ -61,28 +51,10 @@ export const KubernetesWorkflowSidecar = {
         },
       ],
     });
-    await coreV1.createNamespacedServiceAccount(namespace.kubernetesNamespace, {
-      metadata: { name, ownerReferences },
-    });
-    await rbacAuthorizationV1.createNamespacedRoleBinding(namespace.kubernetesNamespace, {
-      metadata: { name, ownerReferences },
-      roleRef: {
-        apiGroup: 'rbac.authorization.k8s.io',
-        kind: 'Role',
-        name,
-      },
-      subjects: [
-        {
-          kind: 'ServiceAccount',
-          name,
-          namespace: namespace.kubernetesNamespace,
-        },
-      ],
-    });
 
     /**
      * ======================
-     * DEPLOYMENT
+     * SECRET
      * ======================
      */
     const administrator = { roles: ['workflows'], system: true };
@@ -91,7 +63,32 @@ export const KubernetesWorkflowSidecar = {
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
       { algorithm: 'RS256' },
     );
+    await secretApiV1.createOrReplace(namespace, {
+      metadata: {
+        labels: {
+          'tenlastic.com/app': workflowName,
+          'tenlastic.com/role': 'sidecar',
+        },
+        name,
+        ownerReferences,
+      },
+      stringData: {
+        ACCESS_TOKEN: accessToken,
+        LOG_CONTAINER: `main`,
+        LOG_ENDPOINT: `http://api.default:3000/workflows/${workflow._id}/logs`,
+        LOG_POD_LABEL_SELECTOR: `tenlastic.com/app=${workflowName},tenlastic.com/role=application`,
+        LOG_POD_NAMESPACE: namespace,
+        WORKFLOW_ENDPOINT: `http://api.default:3000/workflows/${workflow._id}`,
+        WORKFLOW_NAME: workflowName,
+        WORKFLOW_NAMESPACE: namespace,
+      },
+    });
 
+    /**
+     * ======================
+     * DEPLOYMENT
+     * ======================
+     */
     const affinity = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
@@ -110,22 +107,6 @@ export const KubernetesWorkflowSidecar = {
         },
       },
     };
-    const env = [
-      { name: 'ACCESS_TOKEN', value: accessToken },
-      { name: 'LOG_CONTAINER', value: `main` },
-      { name: 'LOG_ENDPOINT', value: `http://api.default:3000/workflows/${workflow._id}/logs` },
-      {
-        name: 'LOG_POD_LABEL_SELECTOR',
-        value: `tenlastic.com/app=${workflowName},tenlastic.com/role=application`,
-      },
-      { name: 'LOG_POD_NAMESPACE', value: namespace.kubernetesNamespace },
-      { name: 'WORKFLOW_ENDPOINT', value: `http://api.default:3000/workflows/${workflow._id}` },
-      { name: 'WORKFLOW_NAME', value: workflowName },
-      { name: 'WORKFLOW_NAMESPACE', value: namespace.kubernetesNamespace },
-    ];
-
-    const packageDotJson = fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8');
-    const version = JSON.parse(packageDotJson).version;
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
@@ -144,7 +125,7 @@ export const KubernetesWorkflowSidecar = {
           containers: [
             {
               command: ['npm', 'run', 'start'],
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: 'node:12',
               name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
@@ -153,7 +134,7 @@ export const KubernetesWorkflowSidecar = {
             },
             {
               command: ['npm', 'run', 'start'],
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: 'node:12',
               name: 'workflow-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
@@ -166,6 +147,9 @@ export const KubernetesWorkflowSidecar = {
         },
       };
     } else {
+      const packageDotJson = fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8');
+      const version = JSON.parse(packageDotJson).version;
+
       manifest = {
         metadata: {
           labels: {
@@ -178,13 +162,13 @@ export const KubernetesWorkflowSidecar = {
           affinity,
           containers: [
             {
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: `tenlastic/log-sidecar:${version}`,
               name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },
             {
-              env,
+              envFrom: [{ secretRef: { name } }],
               image: `tenlastic/workflow-sidecar:${version}`,
               name: 'workflow-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
@@ -195,7 +179,7 @@ export const KubernetesWorkflowSidecar = {
       };
     }
 
-    await appsV1.createNamespacedDeployment(namespace.kubernetesNamespace, {
+    await deploymentApiV1.createOrReplace(namespace, {
       metadata: {
         labels: {
           'tenlastic.com/app': workflowName,
@@ -223,14 +207,7 @@ export const KubernetesWorkflowSidecar = {
 
 async function getWorkflowUid(namespace: string, workflow: WorkflowDocument): Promise<string> {
   try {
-    const response: any = await customObjects.getNamespacedCustomObject(
-      'argoproj.io',
-      'v1alpha1',
-      namespace,
-      'workflows',
-      KubernetesWorkflow.getName(workflow),
-    );
-
+    const response = await workflowApiV1.read(KubernetesWorkflow.getName(workflow), namespace);
     return response.body.metadata.uid;
   } catch {
     await new Promise(resolve => setTimeout(resolve, 1000));

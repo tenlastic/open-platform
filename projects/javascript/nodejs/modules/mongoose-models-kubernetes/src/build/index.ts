@@ -1,47 +1,58 @@
-import * as k8s from '@kubernetes/client-node';
-import { BuildDocument, BuildEvent, NamespaceDocument } from '@tenlastic/mongoose-models';
+import { BuildDocument, BuildEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 import { URL } from 'url';
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-
-const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
-const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
-const rbacAuthorizationV1 = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
+import {
+  roleApiV1,
+  roleBindingApiV1,
+  roleStackApiV1,
+  secretApiV1,
+  serviceAccountApiV1,
+  workflowApiV1,
+} from '../apis';
+import { KubernetesNamespace } from '../namespace';
 
 BuildEvent.sync(async payload => {
-  const build = payload.fullDocument;
-
-  if (!build.populated('namespaceDocument')) {
-    await build.populate('namespaceDocument').execPopulate();
-  }
-
   if (payload.operationType === 'delete') {
-    await KubernetesBuild.delete(build, build.namespaceDocument);
+    await KubernetesBuild.delete(payload.fullDocument);
   } else if (payload.operationType === 'insert') {
-    await KubernetesBuild.create(build, build.namespaceDocument);
+    await KubernetesBuild.upsert(payload.fullDocument);
   }
 });
 
 export const KubernetesBuild = {
-  create: async (build: BuildDocument, namespace: NamespaceDocument) => {
+  delete: async (build: BuildDocument) => {
     const name = KubernetesBuild.getName(build);
+    const namespace = KubernetesNamespace.getName(build.namespaceId);
+
+    /**
+     * ======================
+     * WORKFLOW
+     * ======================
+     */
+    await workflowApiV1.delete(name, namespace);
+  },
+  getName(build: BuildDocument) {
+    return `build-${build._id}`;
+  },
+  upsert: async (build: BuildDocument) => {
+    const name = KubernetesBuild.getName(build);
+    const namespace = KubernetesNamespace.getName(build.namespaceId);
 
     /**
      * =======================
      * IMAGE PULL SECRET
      * =======================
      */
-    const secret = await coreV1.readNamespacedSecret(
-      'docker-registry-image-pull-secret',
-      'default',
-    );
-    await coreV1.createNamespacedSecret(namespace.kubernetesNamespace, {
+    const secret = await secretApiV1.read('docker-registry-image-pull-secret', 'default');
+    await secretApiV1.createOrReplace(namespace, {
       data: { 'config.json': secret.body.data['.dockerconfigjson'] },
-      metadata: { name },
+      metadata: {
+        labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'image-pull-secret' },
+        name: `${name}-image-pull-secret`,
+      },
       type: 'Opaque',
     });
 
@@ -50,7 +61,7 @@ export const KubernetesBuild = {
      * RBAC
      * ======================
      */
-    await rbacAuthorizationV1.createNamespacedRole(namespace.kubernetesNamespace, {
+    await roleStackApiV1.createOrReplace(namespace, {
       metadata: { name },
       rules: [
         {
@@ -70,28 +81,10 @@ export const KubernetesBuild = {
         },
       ],
     });
-    await coreV1.createNamespacedServiceAccount(namespace.kubernetesNamespace, {
-      metadata: { name },
-    });
-    await rbacAuthorizationV1.createNamespacedRoleBinding(namespace.kubernetesNamespace, {
-      metadata: { name },
-      roleRef: {
-        apiGroup: 'rbac.authorization.k8s.io',
-        kind: 'Role',
-        name,
-      },
-      subjects: [
-        {
-          kind: 'ServiceAccount',
-          name,
-          namespace: namespace.kubernetesNamespace,
-        },
-      ],
-    });
 
     /**
      * ======================
-     * WORKFLOW
+     * SECRET
      * ======================
      */
     const administrator = { roles: ['builds'], system: true };
@@ -100,7 +93,27 @@ export const KubernetesBuild = {
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
       { algorithm: 'RS256' },
     );
+    await secretApiV1.createOrReplace(namespace, {
+      metadata: {
+        labels: {
+          'tenlastic.com/app': name,
+          'tenlastic.com/role': 'application',
+        },
+        name,
+      },
+      stringData: {
+        ACCESS_TOKEN: accessToken,
+        BUILD_ID: build._id.toString(),
+        MINIO_BUCKET: process.env.MINIO_BUCKET,
+        MINIO_CONNECTION_STRING: process.env.MINIO_CONNECTION_STRING,
+      },
+    });
 
+    /**
+     * ======================
+     * WORKFLOW
+     * ======================
+     */
     const affinity = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
@@ -108,9 +121,7 @@ export const KubernetesBuild = {
             {
               matchExpressions: [
                 {
-                  key: namespace.limits.workflows.preemptible
-                    ? 'tenlastic.com/low-priority'
-                    : 'tenlastic.com/high-priority',
+                  key: 'tenlastic.com/low-priority',
                   operator: 'Exists',
                 },
               ],
@@ -119,12 +130,6 @@ export const KubernetesBuild = {
         },
       },
     };
-    const env = [
-      { name: 'ACCESS_TOKEN', value: accessToken },
-      { name: 'BUILD_ID', value: build._id.toString() },
-      { name: 'MINIO_BUCKET', value: process.env.MINIO_BUCKET },
-      { name: 'MINIO_CONNECTION_STRING', value: process.env.MINIO_CONNECTION_STRING },
-    ];
     const metadata = {
       annotations: {
         'tenlastic.com/buildId': build._id.toString(),
@@ -167,7 +172,7 @@ export const KubernetesBuild = {
             {
               container: {
                 command: ['npm', 'run', 'start'],
-                env,
+                envFrom: [{ secretRef: { name } }],
                 image: 'node:12',
                 resources: { requests: { cpu: '100m', memory: '100M' } },
                 volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
@@ -206,7 +211,7 @@ export const KubernetesBuild = {
             },
             {
               container: {
-                env,
+                envFrom: [{ secretRef: { name } }],
                 image: `tenlastic/build:${version}`,
                 resources: { requests: { cpu: '100m', memory: '100M' } },
                 workingDir: '/usr/src/app/',
@@ -256,7 +261,7 @@ export const KubernetesBuild = {
         volumes: [
           {
             name: 'kaniko',
-            secret: { secretName: name },
+            secret: { secretName: `${name}-image-pull-secret` },
           },
         ],
       });
@@ -278,13 +283,7 @@ export const KubernetesBuild = {
       ];
     }
 
-    const response: any = await customObjects.createNamespacedCustomObject(
-      'argoproj.io',
-      'v1alpha1',
-      namespace.kubernetesNamespace,
-      'workflows',
-      manifest,
-    );
+    const response = await workflowApiV1.createOrReplace(namespace, manifest);
 
     /**
      * ======================
@@ -300,66 +299,12 @@ export const KubernetesBuild = {
         uid: response.body.metadata.uid,
       },
     ];
-    await coreV1.patchNamespacedSecret(
-      name,
-      namespace.kubernetesNamespace,
-      { metadata: { ownerReferences } },
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
-    );
-    await rbacAuthorizationV1.patchNamespacedRole(
-      name,
-      namespace.kubernetesNamespace,
-      { metadata: { ownerReferences } },
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
-    );
-    await coreV1.patchNamespacedServiceAccount(
-      name,
-      namespace.kubernetesNamespace,
-      { metadata: { ownerReferences } },
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
-    );
-    await rbacAuthorizationV1.patchNamespacedRoleBinding(
-      name,
-      namespace.kubernetesNamespace,
-      { metadata: { ownerReferences } },
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
-    );
-  },
-  delete: async (build: BuildDocument, namespace: NamespaceDocument) => {
-    const name = KubernetesBuild.getName(build);
-
-    /**
-     * ======================
-     * WORKFLOW
-     * ======================
-     */
-    try {
-      await customObjects.deleteNamespacedCustomObject(
-        'argoproj.io',
-        'v1alpha1',
-        namespace.kubernetesNamespace,
-        'workflows',
-        name,
-      );
-    } catch {}
-  },
-  getName(build: BuildDocument) {
-    return `build-${build._id}`;
+    await secretApiV1.patch(`${name}-image-pull-secret`, namespace, {
+      metadata: { ownerReferences },
+    });
+    await roleApiV1.patch(name, namespace, { metadata: { ownerReferences } });
+    await serviceAccountApiV1.patch(name, namespace, { metadata: { ownerReferences } });
+    await roleBindingApiV1.patch(name, namespace, { metadata: { ownerReferences } });
+    await secretApiV1.patch(name, namespace, { metadata: { ownerReferences } });
   },
 };

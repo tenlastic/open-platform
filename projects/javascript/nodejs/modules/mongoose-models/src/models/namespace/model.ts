@@ -98,10 +98,6 @@ export class NamespaceSchema {
   public wasModified: string[];
   public wasNew: boolean;
 
-  public get kubernetesNamespace() {
-    return `namespace-${this._id}`;
-  }
-
   public static getDefaultUsers(
     users: Array<Partial<NamespaceUserDocument>>,
     user: Partial<UserDocument>,

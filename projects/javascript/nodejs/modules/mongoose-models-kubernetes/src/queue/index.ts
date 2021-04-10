@@ -1,50 +1,95 @@
 import * as k8s from '@kubernetes/client-node';
-import { NamespaceDocument, Queue, QueueDocument, QueueEvent } from '@tenlastic/mongoose-models';
+import { Queue, QueueDocument, QueueEvent } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 import { URL } from 'url';
 
+import { helmReleaseApiV1, networkPolicyApiV1, secretApiV1, statefulSetApiV1 } from '../apis';
+import { KubernetesNamespace } from '../namespace';
+
 const chance = new Chance();
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-
-const appsV1 = kc.makeApiClient(k8s.AppsV1Api);
-const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
-const networkingV1 = kc.makeApiClient(k8s.NetworkingV1Api);
-
 QueueEvent.sync(async payload => {
-  const queue = payload.fullDocument;
-
-  if (!queue.populated('namespaceDocument')) {
-    await queue.populate('namespaceDocument').execPopulate();
-  }
-
   if (payload.operationType === 'delete') {
-    await KubernetesQueue.delete(queue.namespaceDocument, queue);
-  } else if (payload.operationType === 'insert') {
-    await KubernetesQueue.create(queue.namespaceDocument, queue);
+    await KubernetesQueue.delete(payload.fullDocument);
   } else if (
-    payload.operationType === 'update' &&
+    payload.operationType === 'insert' ||
     Queue.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
   ) {
-    await KubernetesQueue.delete(queue.namespaceDocument, queue);
-    await KubernetesQueue.create(queue.namespaceDocument, queue);
+    await KubernetesQueue.upsert(payload.fullDocument);
   }
 });
 
 export const KubernetesQueue = {
-  create: async (namespace: NamespaceDocument, queue: QueueDocument) => {
+  delete: async (queue: QueueDocument) => {
     const name = KubernetesQueue.getName(queue);
+    const namespace = KubernetesNamespace.getName(queue.namespaceId);
+
+    /**
+     * =======================
+     * IMAGE PULL SECRET
+     * =======================
+     */
+    await secretApiV1.delete(`${name}-image-pull-secret`, namespace);
 
     /**
      * =======================
      * NETWORK POLICY
      * =======================
      */
-    await networkingV1.createNamespacedNetworkPolicy(namespace.kubernetesNamespace, {
+    await networkPolicyApiV1.delete(name, namespace);
+
+    /**
+     * =======================
+     * REDIS
+     * =======================
+     */
+    await helmReleaseApiV1.delete(`${name}-redis`, namespace);
+
+    /**
+     * =======================
+     * SECRET
+     * =======================
+     */
+    await secretApiV1.delete(name, namespace);
+
+    /**
+     * ======================
+     * STATEFUL SET
+     * ======================
+     */
+    await statefulSetApiV1.delete(name, namespace);
+  },
+  getName(queue: QueueDocument) {
+    return `queue-${queue._id}`;
+  },
+  upsert: async (queue: QueueDocument) => {
+    const name = KubernetesQueue.getName(queue);
+    const namespace = KubernetesNamespace.getName(queue.namespaceId);
+
+    /**
+     * =======================
+     * IMAGE PULL SECRET
+     * =======================
+     */
+    const secret = await secretApiV1.read('docker-registry-image-pull-secret', 'default');
+    await secretApiV1.createOrReplace(namespace, {
+      data: secret.body.data,
+      metadata: {
+        labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'image-pull-secret' },
+        name: `${name}-image-pull-secret`,
+      },
+      type: secret.body.type,
+    });
+
+    /**
+     * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    await networkPolicyApiV1.createOrReplace(namespace, {
       metadata: { name },
       spec: {
         egress: [
@@ -148,84 +193,76 @@ export const KubernetesQueue = {
       },
     };
 
-    await customObjects.createNamespacedCustomObject(
-      'helm.fluxcd.io',
-      'v1',
-      namespace.kubernetesNamespace,
-      'helmreleases',
-      {
-        apiVersion: 'helm.fluxcd.io/v1',
-        kind: 'HelmRelease',
-        metadata: {
-          annotations: { 'fluxcd.io/automated': 'true' },
-          name: `${name}-redis`,
-          namespace: namespace.kubernetesNamespace,
+    await helmReleaseApiV1.createOrReplace(namespace, {
+      metadata: {
+        annotations: { 'fluxcd.io/automated': 'true' },
+        name: `${name}-redis`,
+      },
+      spec: {
+        chart: {
+          name: 'redis',
+          repository: 'https://charts.bitnami.com/bitnami',
+          version: '12.9.0',
         },
-        spec: {
-          chart: {
-            name: 'redis',
-            repository: 'https://charts.bitnami.com/bitnami',
-            version: '12.9.0',
-          },
-          releaseName: `${name}-redis`,
-          values: {
-            cluster: {
-              enabled: false,
+        releaseName: `${name}-redis`,
+        values: {
+          cluster: { enabled: false },
+          master: {
+            affinity,
+            image: { tag: '6.2.1' },
+            persistence: { storageClass: 'standard-expandable' },
+            podLabels: {
+              'tenlastic.com/app': name,
+              'tenlastic.com/role': 'redis',
             },
-            master: {
-              affinity,
-              image: {
-                tag: '6.2.1',
-              },
-              persistence: {
-                storageClass: 'standard-expandable',
-              },
-              podLabels: {
+            resources,
+            statefulset: {
+              labels: {
                 'tenlastic.com/app': name,
                 'tenlastic.com/role': 'redis',
               },
-              resources,
-              statefulset: {
-                labels: {
-                  'tenlastic.com/app': name,
-                  'tenlastic.com/role': 'redis',
-                },
-              },
             },
-            password,
           },
+          password,
         },
       },
+    });
+
+    /**
+     * ======================
+     * SECRET
+     * ======================
+     */
+    const administrator = { roles: ['game-servers', 'queues'], system: true };
+    const accessToken = jwt.sign(
+      { type: 'access', user: administrator },
+      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      { algorithm: 'RS256' },
     );
+    const array = Array(queue.replicas).fill(0);
+    const redis = array.map((a, i) => `${name}-redis-master-${i}.${name}-redis-headless:6379`);
+    await secretApiV1.createOrReplace(namespace, {
+      metadata: {
+        labels: {
+          'tenlastic.com/app': name,
+          'tenlastic.com/role': 'application',
+        },
+        name,
+      },
+      stringData: {
+        ACCESS_TOKEN: queue.buildId ? undefined : accessToken,
+        API_URL: 'http://api.default:3000',
+        QUEUE_JSON: JSON.stringify(queue),
+        REDIS_CONNECTION_STRING: `redis://:${password}@${redis.join(',')}`,
+        WSS_URL: 'ws://wss.default:3000',
+      },
+    });
 
     /**
      * ======================
      * STATEFUL SET
      * ======================
      */
-    const env = [
-      { name: 'API_URL', value: 'http://api.default:3000' },
-      { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
-      { name: 'QUEUE_JSON', value: JSON.stringify(queue) },
-      {
-        name: 'REDIS_CONNECTION_STRING',
-        value: `redis://:${password}@${name}-redis-master-0.${name}-redis-headless:6379`,
-      },
-      { name: 'WSS_URL', value: 'ws://wss.default:3000' },
-    ];
-
-    // Add an access token if the Queue does not use a custom Build.
-    if (!queue.buildId) {
-      const administrator = { roles: ['game-servers', 'queues'], system: true };
-      const accessToken = jwt.sign(
-        { type: 'access', user: administrator },
-        process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        { algorithm: 'RS256' },
-      );
-
-      env.push({ name: 'ACCESS_TOKEN', value: accessToken });
-    }
-
     const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/');
     let manifest: k8s.V1PodTemplateSpec;
     if (isDevelopment && queue.buildId) {
@@ -241,8 +278,17 @@ export const KubernetesQueue = {
         spec: {
           affinity,
           automountServiceAccountToken: false,
-          containers: [{ env, image, name: 'main', resources }],
+          containers: [
+            {
+              env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
+              envFrom: [{ secretRef: { name } }],
+              image,
+              name: 'main',
+              resources,
+            },
+          ],
           enableServiceLinks: false,
+          imagePullSecrets: [{ name: `${name}-image-pull-secret` }],
         },
       };
     } else if (isDevelopment && !queue.buildId) {
@@ -257,7 +303,8 @@ export const KubernetesQueue = {
           containers: [
             {
               command: ['npm', 'run', 'start'],
-              env,
+              env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
+              envFrom: [{ secretRef: { name } }],
               image: `node:12`,
               name: 'main',
               resources,
@@ -281,8 +328,17 @@ export const KubernetesQueue = {
         spec: {
           affinity,
           automountServiceAccountToken: false,
-          containers: [{ env, image, name: 'main', resources }],
+          containers: [
+            {
+              env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
+              envFrom: [{ secretRef: { name } }],
+              image,
+              name: 'main',
+              resources,
+            },
+          ],
           enableServiceLinks: false,
+          imagePullSecrets: [{ name: `${name}-image-pull-secret` }],
         },
       };
     } else {
@@ -297,12 +353,20 @@ export const KubernetesQueue = {
         },
         spec: {
           affinity,
-          containers: [{ env, image: `tenlastic/queue:${version}`, name: 'main', resources }],
+          containers: [
+            {
+              env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
+              envFrom: [{ secretRef: { name } }],
+              image: `tenlastic/queue:${version}`,
+              name: 'main',
+              resources,
+            },
+          ],
         },
       };
     }
 
-    await appsV1.createNamespacedStatefulSet(namespace.kubernetesNamespace, {
+    await statefulSetApiV1.createOrReplace(namespace, {
       metadata: {
         labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
         name,
@@ -316,44 +380,5 @@ export const KubernetesQueue = {
         template: manifest,
       },
     });
-  },
-  delete: async (namespace: NamespaceDocument, queue: QueueDocument) => {
-    const name = KubernetesQueue.getName(queue);
-
-    /**
-     * =======================
-     * NETWORK POLICY
-     * =======================
-     */
-    try {
-      await networkingV1.deleteNamespacedNetworkPolicy(name, namespace.kubernetesNamespace);
-    } catch {}
-
-    /**
-     * =======================
-     * REDIS
-     * =======================
-     */
-    try {
-      await customObjects.deleteNamespacedCustomObject(
-        'helm.fluxcd.io',
-        'v1',
-        namespace.kubernetesNamespace,
-        'helmreleases',
-        `${name}-redis`,
-      );
-    } catch {}
-
-    /**
-     * ======================
-     * STATEFUL SET
-     * ======================
-     */
-    try {
-      await appsV1.deleteNamespacedStatefulSet(name, namespace.kubernetesNamespace);
-    } catch {}
-  },
-  getName(queue: QueueDocument) {
-    return `queue-${queue._id}`;
   },
 };

@@ -1,98 +1,91 @@
-import * as k8s from '@kubernetes/client-node';
+import { mongoose, Ref } from '@hasezoey/typegoose';
 import { NamespaceDocument, NamespaceEvent } from '@tenlastic/mongoose-models';
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-
-const coreV1 = kc.makeApiClient(k8s.CoreV1Api);
-const customObjects = kc.makeApiClient(k8s.CustomObjectsApi);
+import { helmReleaseApiV1, namespaceApiV1 } from '../apis';
 
 NamespaceEvent.sync(async payload => {
-  const namespace = payload.fullDocument;
-
   if (payload.operationType === 'delete') {
-    await KubernetesNamespace.delete(namespace);
-  } else if (payload.operationType === 'insert') {
-    await KubernetesNamespace.create(namespace);
+    await KubernetesNamespace.delete(payload.fullDocument);
+  } else {
+    await KubernetesNamespace.upsert(payload.fullDocument);
   }
 });
 
 export const KubernetesNamespace = {
-  create: async (namespace: NamespaceDocument) => {
+  delete: async (namespace: NamespaceDocument) => {
+    const name = KubernetesNamespace.getName(namespace._id);
+
     /**
      * ========================
      * NAMESPACE
      * ========================
      */
-    await coreV1.createNamespace({ metadata: { name: namespace.kubernetesNamespace } });
+    await namespaceApiV1.delete(name);
+  },
+  getName: (_id: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>) => {
+    return `namespace-${_id}`;
+  },
+  upsert: async (namespace: NamespaceDocument) => {
+    const name = KubernetesNamespace.getName(namespace._id);
+
+    /**
+     * ========================
+     * NAMESPACE
+     * ========================
+     */
+    await namespaceApiV1.createOrReplace({ metadata: { name } });
 
     /**
      * ========================
      * ARGO WORKFLOW CONTROLLER
      * ========================
      */
-    await customObjects.createNamespacedCustomObject(
-      'helm.fluxcd.io',
-      'v1',
-      namespace.kubernetesNamespace,
-      'helmreleases',
-      {
-        apiVersion: 'helm.fluxcd.io/v1',
-        kind: 'HelmRelease',
-        metadata: {
-          annotations: {
-            'fluxcd.io/automated': 'true',
-          },
+    await helmReleaseApiV1.createOrReplace(name, {
+      metadata: {
+        annotations: { 'fluxcd.io/automated': 'true' },
+        name: 'argo',
+      },
+      spec: {
+        chart: {
           name: 'argo',
-          namespace: namespace.kubernetesNamespace,
+          repository: 'https://argoproj.github.io/argo-helm',
+          version: '0.15.2',
         },
-        spec: {
-          chart: {
-            name: 'argo',
-            repository: 'https://argoproj.github.io/argo-helm',
-            version: '0.15.2',
-          },
-          releaseName: `${namespace.kubernetesNamespace}-argo`,
-          values: {
-            controller: {
-              affinity: {
-                nodeAffinity: {
-                  requiredDuringSchedulingIgnoredDuringExecution: {
-                    nodeSelectorTerms: [
-                      {
-                        matchExpressions: [
-                          {
-                            key: 'tenlastic.com/low-priority',
-                            operator: 'Exists',
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                },
-              },
-              containerRuntimeExecutor: 'k8sapi',
-              parallelism: namespace.limits.workflows.parallelism,
-              replicas: 1,
-              resources: {
-                requests: {
-                  cpu: '50m',
+        releaseName: `${name}-argo`,
+        values: {
+          controller: {
+            affinity: {
+              nodeAffinity: {
+                requiredDuringSchedulingIgnoredDuringExecution: {
+                  nodeSelectorTerms: [
+                    {
+                      matchExpressions: [
+                        {
+                          key: 'tenlastic.com/low-priority',
+                          operator: 'Exists',
+                        },
+                      ],
+                    },
+                  ],
                 },
               },
             },
-            installCRD: false,
-            server: {
-              enabled: false,
+            containerRuntimeExecutor: 'k8sapi',
+            parallelism: namespace.limits.workflows.parallelism,
+            replicas: 1,
+            resources: {
+              requests: {
+                cpu: '50m',
+              },
             },
-            singleNamespace: true,
           },
+          installCRD: false,
+          server: {
+            enabled: false,
+          },
+          singleNamespace: true,
         },
       },
-    );
-  },
-  delete: async (namespace: NamespaceDocument) => {
-    try {
-      await coreV1.deleteNamespace(namespace.kubernetesNamespace);
-    } catch {}
+    });
   },
 };

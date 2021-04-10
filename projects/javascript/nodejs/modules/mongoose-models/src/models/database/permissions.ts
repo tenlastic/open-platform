@@ -27,7 +27,7 @@ const administrator = {
     'storage',
     'updatedAt',
   ],
-  update: ['gameId', 'name'],
+  update: ['cpu', 'gameId', 'isPreemptible', 'memory', 'name', 'replicas', 'storage'],
 };
 
 export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Database, {
@@ -134,7 +134,16 @@ export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Dat
   ],
   update: {
     'namespace-administrator': administrator.update,
-    'system-administrator': ['gameId', 'name', 'status.*'],
+    'system-administrator': [
+      'cpu',
+      'gameId',
+      'isPreemptible',
+      'memory',
+      'name',
+      'replicas',
+      'status.*',
+      'storage',
+    ],
     'user-administrator': administrator.update,
   },
 });

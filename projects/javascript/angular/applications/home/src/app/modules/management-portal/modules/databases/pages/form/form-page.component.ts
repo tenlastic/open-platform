@@ -140,12 +140,6 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
     if (this.data._id) {
-      this.form.get('cpu').disable({ emitEvent: false });
-      this.form.get('isPreemptible').disable({ emitEvent: false });
-      this.form.get('memory').disable({ emitEvent: false });
-      this.form.get('replicas').disable({ emitEvent: false });
-      this.form.get('storage').disable({ emitEvent: false });
-
       this.updateDatabase$ = this.databaseQuery
         .selectAll({ filterBy: q => q._id === this.data._id })
         .subscribe(databases => {

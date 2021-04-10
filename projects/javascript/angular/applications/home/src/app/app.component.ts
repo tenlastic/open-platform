@@ -92,18 +92,20 @@ export class AppComponent implements OnInit {
     // Handle websockets when logging in and out.
     this.loginService.onLogin.subscribe(() => {
       this.socket = this.socketService.connect(environment.apiBaseUrl);
+      this.socket.addEventListener('open', () => this.subscribe());
     });
     this.loginService.onLogout.subscribe(() => this.socket && this.socket.close());
 
     // Handle websockets when access token is set.
     this.identityService.OnAccessTokenSet.subscribe(() => {
       this.socket = this.socketService.connect(environment.apiBaseUrl);
+      this.socket.addEventListener('open', () => this.subscribe());
     });
 
     // Connect to websockets.
     try {
-      this.socketService.OnOpen.subscribe(() => this.subscribe());
       this.socket = this.socketService.connect(environment.apiBaseUrl);
+      this.socket.addEventListener('open', () => this.subscribe());
     } catch {}
 
     // Load previous url if set.

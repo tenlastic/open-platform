@@ -21,7 +21,9 @@ import { PromptComponent } from '../prompt/prompt.component';
 export class LayoutComponent implements OnInit {
   public $gameInvitations: Observable<GameInvitation[]>;
   public namespaces: Namespace[] = [];
-  public socket: Socket;
+  public get socket() {
+    return this.socketService.sockets[environment.apiBaseUrl];
+  }
 
   private updateAvailable = false;
 
@@ -37,7 +39,6 @@ export class LayoutComponent implements OnInit {
 
   public async ngOnInit() {
     this.namespaces = await this.namespaceService.find({});
-    this.socket = this.socketService.connect(environment.apiBaseUrl);
 
     if (this.identityService.user) {
       this.$gameInvitations = this.gameInvitationQuery.selectAll({
