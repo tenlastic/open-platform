@@ -28,15 +28,33 @@ interface StatusNode {
 })
 export class WorkflowsFormPageComponent implements OnInit {
   public $data: Observable<Workflow>;
-  public cpus = IWorkflow.Cpu;
+  public get cpus() {
+    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limit = limits.cpu ? limits.cpu : Infinity;
+    return limits.cpu ? IWorkflow.Cpu.filter(r => r.value <= limit) : IWorkflow.Cpu;
+  }
   public data: Workflow;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
   public errors: string[] = [];
   public form: FormGroup;
-  public memories = IWorkflow.Memory;
-  public parallelisms = IWorkflow.Parallelisms;
+  public get memories() {
+    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limit = limits.memory ? limits.memory : Infinity;
+    return limits.memory ? IWorkflow.Memory.filter(r => r.value <= limit) : IWorkflow.Memory;
+  }
+  public get parallelisms() {
+    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limit = limits.parallelism ? limits.parallelism : Infinity;
+    return limits.parallelism
+      ? IWorkflow.Parallelisms.filter(r => r.value <= limit)
+      : IWorkflow.Parallelisms;
+  }
   public readonly separatorKeysCodes: number[] = [ENTER];
-  public storages = IWorkflow.Storage;
+  public get storages() {
+    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limit = limits.storage ? limits.storage : Infinity;
+    return limits.storage ? IWorkflow.Storage.filter(r => r.value <= limit) : IWorkflow.Storage;
+  }
   public treeControl = new NestedTreeControl<StatusNode>(node => node.children);
 
   constructor(

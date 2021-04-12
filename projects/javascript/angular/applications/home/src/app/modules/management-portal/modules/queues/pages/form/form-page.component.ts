@@ -31,7 +31,7 @@ interface PropertyFormGroup {
 export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public builds: Build[];
   public get cpus() {
-    const limits = this.selectedNamespaceService.namespace.limits.databases;
+    const limits = this.selectedNamespaceService.namespace.limits.queues;
     const limit = limits.cpu ? limits.cpu : Infinity;
     return limits.cpu ? IQueue.Cpu.filter(r => r.value <= limit) : IQueue.Cpu;
   }
@@ -40,16 +40,14 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public form: FormGroup;
   public games: Game[];
   public get memories() {
-    const limits = this.selectedNamespaceService.namespace.limits.databases;
+    const limits = this.selectedNamespaceService.namespace.limits.queues;
     const limit = limits.memory ? limits.memory : Infinity;
     return limits.memory ? IQueue.Memory.filter(r => r.value <= limit) : IQueue.Memory;
   }
   public get replicas() {
-    const limits = this.selectedNamespaceService.namespace.limits.databases;
+    const limits = this.selectedNamespaceService.namespace.limits.queues;
     const limit = limits.replicas ? limits.replicas : Infinity;
-    return this.data && this.data.replicas
-      ? IQueue.Replicas.filter(r => r.value <= limit && r.value >= this.data.replicas)
-      : IQueue.Replicas;
+    return limits.replicas ? IQueue.Replicas.filter(r => r.value <= limit) : IQueue.Replicas;
   }
 
   private updateQueue$ = new Subscription();
