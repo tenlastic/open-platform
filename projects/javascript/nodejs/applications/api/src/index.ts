@@ -1,7 +1,8 @@
 import 'source-map-support/register';
 
+import * as kafka from '@tenlastic/kafka';
 import '@tenlastic/logging';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import * as mongooseChangeStreamKafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongooseModels from '@tenlastic/mongoose-models';
 import '@tenlastic/mongoose-models-kubernetes';
 import * as mailgun from '@tenlastic/mailgun';
@@ -65,6 +66,30 @@ import { router as workflowLogsRouter } from './handlers/workflow-logs';
       connectionString: process.env.MONGO_CONNECTION_STRING,
       databaseName: 'api',
     });
+
+    // Send changes from MongoDB to Kafka.
+    mongooseModels.ArticleEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.BuildEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.BuildLogEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.DatabaseEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.FriendEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.GameEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.GameInvitationEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.GameServerEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.GameServerLogEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.GroupEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.GroupInvitationEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.IgnorationEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.MessageEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.NamespaceEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.PasswordResetEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.QueueEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.QueueLogEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.QueueMemberEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.UserEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.WebSocketEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.WorkflowEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.WorkflowLogEvent.sync(mongooseChangeStreamKafka.publish);
 
     // Web Server.
     const webServer = new WebServer();

@@ -1,9 +1,9 @@
+import * as kafka from '@tenlastic/kafka';
 import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
-import { connection } from '../connect';
 import { publish } from '../publish';
 import { subscribe } from './';
 
@@ -18,6 +18,12 @@ const schema = new mongoose.Schema({
 const Model = mongoose.model('example', schema);
 
 describe('subscribe()', function() {
+  let connection: kafka.Kafka;
+
+  before(function() {
+    connection = kafka.getConnection();
+  });
+
   beforeEach(async function() {
     await Model.deleteMany({});
   });
@@ -39,7 +45,7 @@ describe('subscribe()', function() {
       await publish(payload);
 
       // Wait for message to be published.
-      await new Promise(async resolve => {
+      await new Promise<void>(async resolve => {
         const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
         await consumer.connect();
 
@@ -75,7 +81,7 @@ describe('subscribe()', function() {
       await publish(payload);
 
       // Wait for message to be published.
-      await new Promise(async resolve => {
+      await new Promise<void>(async resolve => {
         const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
         await consumer.connect();
 
@@ -119,7 +125,7 @@ describe('subscribe()', function() {
         await publish(payload);
 
         // Wait for message to be published.
-        await new Promise(async resolve => {
+        await new Promise<void>(async resolve => {
           const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
           await consumer.connect();
 
@@ -161,7 +167,7 @@ describe('subscribe()', function() {
         await publish(payload);
 
         // Wait for message to be published.
-        await new Promise(async resolve => {
+        await new Promise<void>(async resolve => {
           const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
           await consumer.connect();
 

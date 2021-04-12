@@ -14,7 +14,6 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
@@ -25,7 +24,7 @@ import { alphanumericValidator, emailValidator, stringLengthValidator } from '..
 import { RefreshToken, RefreshTokenDocument } from '../refresh-token/model';
 import { UserPermissions } from './';
 
-const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
+export const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
 
 export enum UserRole {
   Articles = 'articles',
@@ -39,9 +38,6 @@ export enum UserRole {
   Users = 'users',
   Workflows = 'workflows',
 }
-
-// Publish changes to Kafka.
-UserEvent.sync(kafka.publish);
 
 @index(
   { email: 1 },

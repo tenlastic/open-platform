@@ -14,16 +14,12 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { LogBase } from '../../bases';
 import { BuildDocument, BuildEvent } from '../build';
 
 export const BuildLogEvent = new EventEmitter<IDatabasePayload<BuildLogDocument>>();
-
-// Publish changes to Kafka.
-BuildLogEvent.sync(kafka.publish);
 
 // Delete BuildLogs if associated Game Server is deleted.
 BuildEvent.sync(async payload => {

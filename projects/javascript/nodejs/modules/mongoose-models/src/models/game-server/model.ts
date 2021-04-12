@@ -15,7 +15,6 @@ import {
   IOriginalDocument,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { namespaceValidator } from '../../validators';
@@ -36,9 +35,6 @@ export enum GameServerStatus {
 
 export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
 export const GameServerRestartEvent = new EventEmitter<GameServerDocument>();
-
-// Publish changes to Kafka.
-GameServerEvent.sync(kafka.publish);
 
 // Delete Game Servers if associated Namespace is deleted.
 NamespaceEvent.sync(async payload => {

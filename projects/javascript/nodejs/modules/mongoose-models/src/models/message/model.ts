@@ -14,16 +14,12 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { GroupDocument } from '../group';
 import { UserDocument } from '../user';
 
 export const MessageEvent = new EventEmitter<IDatabasePayload<MessageDocument>>();
-
-// Publish changes to Kafka.
-MessageEvent.sync(kafka.publish);
 
 @index({ fromUserId: 1 })
 @index({ readByUserIds: 1 })

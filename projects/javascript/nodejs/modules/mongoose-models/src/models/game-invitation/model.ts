@@ -13,7 +13,6 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
@@ -23,9 +22,6 @@ import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { UserDocument } from '../user';
 
 export const GameInvitationEvent = new EventEmitter<IDatabasePayload<GameInvitationDocument>>();
-
-// Publish changes to Kafka.
-GameInvitationEvent.sync(kafka.publish);
 
 // Delete Game Invitations if associated Game is deleted.
 GameEvent.sync(async payload => {

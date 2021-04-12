@@ -13,17 +13,13 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
-import { WorkflowSpecSchema, WorkflowSpecTemplateSchema } from './spec';
+import { WorkflowSpecSchema } from './spec';
 import { WorkflowStatusSchema } from './status';
 
 export const WorkflowEvent = new EventEmitter<IDatabasePayload<WorkflowDocument>>();
-
-// Publish changes to Kafka.
-WorkflowEvent.sync(kafka.publish);
 
 // Delete Workflows if associated Namespace is deleted.
 NamespaceEvent.sync(async payload => {

@@ -14,16 +14,12 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { LogBase } from '../../bases';
 import { QueueDocument, QueueEvent } from '../queue';
 
 export const QueueLogEvent = new EventEmitter<IDatabasePayload<QueueLogDocument>>();
-
-// Publish changes to Kafka.
-QueueLogEvent.sync(kafka.publish);
 
 // Delete QueueLogs if associated Game Server is deleted.
 QueueEvent.sync(async payload => {

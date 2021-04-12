@@ -17,7 +17,6 @@ import {
   IOriginalDocument,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
@@ -35,9 +34,6 @@ export enum BuildPlatform {
   Server64 = 'server64',
   Windows64 = 'windows64',
 }
-
-// Publish changes to Kafka.
-BuildEvent.sync(kafka.publish);
 
 // Delete Builds if associated Game is deleted.
 GameEvent.sync(async payload => {

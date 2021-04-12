@@ -2,9 +2,9 @@
   "engines": {
     "node": "^12"
   },
-  "license": "Apache-2.0",
-  "main": "dist/index.js",
-  "name": "@tenlastic/mongoose-models-kubernetes",
+  "license": "ISC",
+  "main": "./dist/index.js",
+  "name": "@tenlastic/kafka",
   "repository": {
     "type": "git",
     "url": "ssh://git@github.com/tenlastic/open-platform.git"
@@ -19,12 +19,7 @@
     "lint": "../../scripts/lint.sh"
   },
   "dependencies": {
-    "@hasezoey/typegoose": "6.0.0-27",
-    "@kubernetes/client-node": "0.14.0",
-    "@tenlastic/mongoose-models": "0.0.154",
-    "deepmerge": "4.0.0",
-    "jsonwebtoken": "8.5.1",
-    "mongoose": "5.7.11"
+    "kafkajs": "1.10.0"
   },
   "devDependencies": {
     "mocha": "7.1.2",

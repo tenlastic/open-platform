@@ -72,7 +72,7 @@ function $eq(json: any, key: string, value: any) {
     return false;
   }
 
-  if (reference.constructor === Array && value.constructor !== Array) {
+  if (reference && reference.constructor === Array && value.constructor !== Array) {
     return reference.includes(value);
   } else if (reference && reference instanceof mongoose.Types.ObjectId) {
     return reference.equals(value);
@@ -99,7 +99,7 @@ function $in(json: any, key: string, value: any[]) {
     return false;
   }
 
-  if (reference.constructor === Array) {
+  if (reference && reference.constructor === Array) {
     return reference.some(r => value.includes(r));
   } else if (reference instanceof mongoose.Types.ObjectId) {
     return Boolean(value.find(v => reference.equals(v)));
@@ -117,7 +117,7 @@ function $ne(json: any, key: string, value: any) {
     return false;
   }
 
-  if (reference.constructor === Array && value.constructor !== Array) {
+  if (reference && reference.constructor === Array && value.constructor !== Array) {
     return !reference.includes(value);
   } else if (reference && reference instanceof mongoose.Types.ObjectId) {
     return !reference.equals(value);

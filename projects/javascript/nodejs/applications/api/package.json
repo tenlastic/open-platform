@@ -20,6 +20,7 @@
     "@hasezoey/typegoose": "6.0.0-27",
     "@kubernetes/client-node": "0.14.0",
     "@tenlastic/json-schema": "0.0.154",
+    "@tenlastic/kafka": "0.0.154",
     "@tenlastic/logging": "0.0.154",
     "@tenlastic/mailgun": "0.0.154",
     "@tenlastic/minio": "0.0.154",

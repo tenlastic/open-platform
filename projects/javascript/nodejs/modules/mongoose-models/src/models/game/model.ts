@@ -15,16 +15,12 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 
 export const GameEvent = new EventEmitter<IDatabasePayload<GameDocument>>();
-
-// Publish changes to Kafka.
-GameEvent.sync(kafka.publish);
 
 // Delete unused images and videos on update.
 GameEvent.sync(async payload => {

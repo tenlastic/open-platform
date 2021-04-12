@@ -14,15 +14,11 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { UserDocument } from '../user';
 
 export const GroupEvent = new EventEmitter<IDatabasePayload<GroupDocument>>();
-
-// Publish changes to Kafka.
-GroupEvent.sync(kafka.publish);
 
 // Delete the group if empty.
 GroupEvent.sync(payload => {

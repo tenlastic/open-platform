@@ -6,7 +6,6 @@ import {
   index,
   modelOptions,
   plugin,
-  post,
   prop,
 } from '@hasezoey/typegoose';
 import {
@@ -14,7 +13,6 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
@@ -49,9 +47,6 @@ export enum NamespaceRole {
   Queues = 'queues',
   Workflows = 'workflows',
 }
-
-// Publish changes to Kafka.
-NamespaceEvent.sync(kafka.publish);
 
 @index(
   { 'keys.value': 1 },

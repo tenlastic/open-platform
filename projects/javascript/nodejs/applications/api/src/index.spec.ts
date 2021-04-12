@@ -1,7 +1,7 @@
+import * as kafka from '@tenlastic/kafka';
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as mongooseModels from '@tenlastic/mongoose-models';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as sinon from 'sinon';
 import { URL } from 'url';
 

@@ -1,6 +1,5 @@
 import { Database, DatabasePermissions } from '@tenlastic/mongoose-models';
-import { RecordNotFoundError } from '@tenlastic/web-server';
-import { Context } from 'koa';
+import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
   const user = ctx.state.apiKey || ctx.state.user;

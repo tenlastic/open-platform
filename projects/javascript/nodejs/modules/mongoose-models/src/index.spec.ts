@@ -1,6 +1,5 @@
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as sinon from 'sinon';
 import { URL } from 'url';
 
@@ -9,8 +8,6 @@ import { connect, deleteAll } from './';
 let sandbox: sinon.SinonSandbox;
 
 before(async function() {
-  await kafka.connect(process.env.KAFKA_CONNECTION_STRING);
-
   const minioConnectionUrl = new URL(process.env.MINIO_CONNECTION_STRING);
   minio.connect({
     accessKey: minioConnectionUrl.username,

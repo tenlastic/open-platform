@@ -38,7 +38,7 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
   public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public dataSource = new MatTableDataSource<QueueMember>();
   public displayedColumns: string[] = ['username', 'createdAt', 'actions'];
-  
+
   private updateDataSource$ = new Subscription();
   private queue: Queue;
 

@@ -13,7 +13,6 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { IOptions, MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
@@ -26,9 +25,6 @@ import { UserDocument } from '../user';
 import { RecordPermissions } from './permissions';
 
 export const RecordEvent = new EventEmitter<IDatabasePayload<RecordDocument>>();
-
-// Publish changes to Kafka.
-RecordEvent.sync(kafka.publish);
 
 @modelOptions({
   schemaOptions: {

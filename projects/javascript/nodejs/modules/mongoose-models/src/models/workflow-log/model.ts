@@ -14,16 +14,12 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { LogBase } from '../../bases';
 import { WorkflowDocument, WorkflowEvent } from '../workflow';
 
 export const WorkflowLogEvent = new EventEmitter<IDatabasePayload<WorkflowLogDocument>>();
-
-// Publish changes to Kafka.
-WorkflowLogEvent.sync(kafka.publish);
 
 // Delete WorkflowLogs if associated Game Server is deleted.
 WorkflowEvent.sync(async payload => {

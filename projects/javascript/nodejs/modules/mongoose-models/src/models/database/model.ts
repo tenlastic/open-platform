@@ -13,7 +13,6 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { decrementalValidator, namespaceValidator } from '../../validators';
@@ -22,9 +21,6 @@ import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } fro
 import { DatabaseStatusSchema } from './status';
 
 export const DatabaseEvent = new EventEmitter<IDatabasePayload<DatabaseDocument>>();
-
-// Publish changes to Kafka.
-DatabaseEvent.sync(kafka.publish);
 
 // Delete Databases if associated Namespace is deleted.
 NamespaceEvent.sync(async payload => {

@@ -13,7 +13,6 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
@@ -21,9 +20,6 @@ import { RefreshTokenDocument } from '../refresh-token/model';
 import { UserDocument } from '../user/model';
 
 export const WebSocketEvent = new EventEmitter<IDatabasePayload<WebSocketDocument>>();
-
-// Publish changes to Kafka.
-WebSocketEvent.sync(kafka.publish);
 
 // Delete stale WebSockets.
 const HEARTBEAT = 15000;

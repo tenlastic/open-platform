@@ -12,6 +12,6 @@ beforeEach(async function() {
     useUnifiedTopology: true,
   });
 
-  await Unique.ensureIndexes();
+  await Unique.syncIndexes({ background: true });
   await Unique.deleteMany({});
 });

@@ -3,6 +3,8 @@ import {
   CollectionPermissions,
   RecordModel,
   RecordSchema,
+  WebSocket,
+  WebSocketPermissions,
 } from '@tenlastic/mongoose-models';
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import * as webSocketServer from '@tenlastic/web-socket-server';
@@ -28,6 +30,11 @@ export async function subscribe(
       const collection = await Collection.findOne({ _id: collectionId });
       Model = RecordSchema.getModel(collection);
       Permissions = RecordSchema.getPermissions(Model as RecordModel, collection);
+      break;
+
+    case 'web-sockets':
+      Model = WebSocket;
+      Permissions = WebSocketPermissions;
       break;
   }
 

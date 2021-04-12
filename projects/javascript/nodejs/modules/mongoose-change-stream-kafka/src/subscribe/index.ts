@@ -1,8 +1,6 @@
+import * as kafka from '@tenlastic/kafka';
 import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
 import * as mongoose from 'mongoose';
-
-import { connection } from '../connect';
-import { createTopic } from '../create-topic';
 
 export interface SubscribeOptions {
   group: string;
@@ -17,8 +15,9 @@ export async function subscribe(
   Model: mongoose.Model<mongoose.Document>,
   options: SubscribeOptions,
 ) {
-  await createTopic(options.topic);
+  await kafka.createTopic(options.topic);
 
+  const connection = kafka.getConnection();
   const consumer = connection.consumer({ groupId: `${options.group}-${options.topic}` });
   await consumer.connect();
 

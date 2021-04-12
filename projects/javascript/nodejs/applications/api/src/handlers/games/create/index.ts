@@ -1,6 +1,5 @@
 import { Game, GamePermissions } from '@tenlastic/mongoose-models';
-import { RequiredFieldError } from '@tenlastic/web-server';
-import { Context } from 'koa';
+import { Context, RequiredFieldError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
   const user = ctx.state.apiKey || ctx.state.user;

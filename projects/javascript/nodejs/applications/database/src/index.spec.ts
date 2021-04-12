@@ -1,5 +1,5 @@
+import * as kafka from '@tenlastic/kafka';
 import * as mongooseModels from '@tenlastic/mongoose-models';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 
 before(async function() {
   await kafka.connect(process.env.KAFKA_CONNECTION_STRING);

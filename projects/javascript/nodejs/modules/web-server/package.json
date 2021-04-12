@@ -33,7 +33,6 @@
     "request-promise-native": "1.0.7"
   },
   "devDependencies": {
-    "@tenlastic/mongoose-change-stream-kafka": "0.0.154",
     "@tenlastic/mongoose-models": "0.0.154",
     "mocha": "7.1.2",
     "nyc": "15.0.0",

@@ -1,6 +1,7 @@
 import 'source-map-support/register';
 
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
+import * as kafka from '@tenlastic/kafka';
+import * as mongooseChangeStreamKafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongooseModels from '@tenlastic/mongoose-models';
 import { WebServer } from '@tenlastic/web-server';
 import { WebSocketServer } from '@tenlastic/web-socket-server';
@@ -26,6 +27,11 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
       console.error(e);
       process.exit(1);
     });
+
+    // Send changes from MongoDB to Kafka.
+    mongooseModels.CollectionEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.RecordEvent.sync(mongooseChangeStreamKafka.publish);
+    mongooseModels.WebSocketEvent.sync(mongooseChangeStreamKafka.publish);
 
     // Web Server.
     const webServer = new WebServer();

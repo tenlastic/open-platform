@@ -1,5 +1,5 @@
 import { GroupPermissions } from '@tenlastic/mongoose-models';
-import { Context } from 'koa';
+import { Context } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
   const override = { ...ctx.params, userIds: [ctx.state.user._id] };

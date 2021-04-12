@@ -13,7 +13,6 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { namespaceValidator } from '../../validators';
@@ -21,9 +20,6 @@ import { GameDocument, GameEvent } from '../game';
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
 
 export const ArticleEvent = new EventEmitter<IDatabasePayload<ArticleDocument>>();
-
-// Publish changes to Kafka.
-ArticleEvent.sync(kafka.publish);
 
 // Delete Articles if associated Game is deleted.
 GameEvent.sync(async payload => {

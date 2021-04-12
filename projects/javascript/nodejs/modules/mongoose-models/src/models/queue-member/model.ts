@@ -16,7 +16,6 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongooseUniqueError from '@tenlastic/mongoose-unique-error';
 import { MongoError } from 'mongodb';
 import * as mongoose from 'mongoose';
@@ -49,9 +48,6 @@ export class QueueMemberUniquenessError extends Error {
   }
 }
 export const QueueMemberEvent = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
-
-// Publish changes to Kafka.
-QueueMemberEvent.sync(kafka.publish);
 
 // Delete QueueMember when associated Group is deleted or updated.
 GroupEvent.sync(async payload => {

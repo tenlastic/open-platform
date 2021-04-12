@@ -1,4 +1,4 @@
-import { admin } from '../connect';
+import { admin } from './connect';
 
 export async function createTopic(topic: string) {
   const replicationFactor = process.env.KAFKA_REPLICATION_FACTOR;
@@ -7,14 +7,8 @@ export async function createTopic(topic: string) {
     topics: [
       {
         configEntries: [
-          {
-            name: 'cleanup.policy',
-            value: 'compact',
-          },
-          {
-            name: 'compression.type',
-            value: 'gzip',
-          },
+          { name: 'cleanup.policy', value: 'compact' },
+          { name: 'compression.type', value: 'gzip' },
         ],
         numPartitions: 3,
         replicationFactor: replicationFactor ? Number(replicationFactor) : 1,

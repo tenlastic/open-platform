@@ -18,7 +18,6 @@ import {
   IOriginalDocument,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { IOptions } from '@tenlastic/mongoose-permissions';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
@@ -30,9 +29,6 @@ import { RecordSchema } from '../record';
 import { CollectionIndexSchema } from './index/index';
 
 export const CollectionEvent = new EventEmitter<IDatabasePayload<CollectionDocument>>();
-
-// Publish changes to Kafka.
-CollectionEvent.sync(kafka.publish);
 
 // Delete Collections if associated Database is deleted.
 DatabaseEvent.sync(async payload => {

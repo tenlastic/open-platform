@@ -21,9 +21,8 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
+    "@tenlastic/kafka": "0.0.154",
     "@tenlastic/mongoose-change-stream": "0.0.154",
-    "@tenlastic/mongoose-permissions": "0.0.154",
-    "kafkajs": "1.10.0",
     "mongoose": "5.7.11"
   },
   "devDependencies": {

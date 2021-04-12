@@ -1,8 +1,8 @@
+import * as kafka from '@tenlastic/kafka';
 import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 
-import { connection } from '../connect';
 import { publish } from './';
 
 const chance = new Chance();
@@ -22,6 +22,7 @@ describe('publish()', function() {
       const { coll, db } = payload.ns;
       const topic = `${db}.${coll}`;
 
+      const connection = kafka.getConnection();
       const consumer = connection.consumer({ groupId: 'example' });
       await consumer.connect();
       await consumer.subscribe({ fromBeginning: true, topic });

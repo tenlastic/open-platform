@@ -13,15 +13,11 @@ import {
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { UserDocument } from '../user';
 
 export const FriendEvent = new EventEmitter<IDatabasePayload<FriendDocument>>();
-
-// Publish changes to Kafka.
-FriendEvent.sync(kafka.publish);
 
 @index({ fromUserId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({

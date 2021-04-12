@@ -1,8 +1,9 @@
 import 'source-map-support/register';
 
+import * as kafka from '@tenlastic/kafka';
 import '@tenlastic/logging';
+import * as mongooseChangeStreamKafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongooseModels from '@tenlastic/mongoose-models';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { WebServer } from '@tenlastic/web-server';
 import { WebSocketServer } from '@tenlastic/web-socket-server';
 import * as Router from 'koa-router';
@@ -19,6 +20,9 @@ import * as handlers from './handlers';
       connectionString: process.env.MONGO_CONNECTION_STRING,
       databaseName: 'api',
     });
+
+    // Send changes from MongoDB to Kafka.
+    mongooseModels.WebSocketEvent.sync(mongooseChangeStreamKafka.publish);
 
     // Web Server.
     const router = new Router();
