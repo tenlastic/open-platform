@@ -16,7 +16,7 @@ import {
 import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { namespaceValidator } from '../../validators';
+import { decrementalValidator, namespaceValidator } from '../../validators';
 import { BuildDocument } from '../build';
 import { GameDocument } from '../game';
 import { GameInvitationDocument } from '../game-invitation';
@@ -78,7 +78,7 @@ export class QueueSchema {
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
-  @prop({ min: 1, required: true })
+  @prop({ min: 0, required: true, validate: decrementalValidator('replicas') })
   public replicas: number;
 
   @prop({ default: { phase: 'Pending' } })

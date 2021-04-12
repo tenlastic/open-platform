@@ -7,9 +7,13 @@ import { status } from './status';
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
 (async () => {
-  await mongooseModels.connect({
+  const mongoose = await mongooseModels.connect({
     connectionString: mongoConnectionString,
     databaseName: 'database',
+  });
+  mongoose.connection.on('error', e => {
+    console.error(e);
+    process.exit(1);
   });
 
   await indexes();

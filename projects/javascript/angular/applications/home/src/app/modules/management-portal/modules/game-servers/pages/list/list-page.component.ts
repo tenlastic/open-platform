@@ -56,11 +56,11 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     'actions',
   ];
   public queue: Queue;
-
-  private updateDataSource$ = new Subscription();
-  private get queueId() {
+  public get queueId() {
     return this.activatedRoute.snapshot.paramMap.get('queueId');
   }
+
+  private updateDataSource$ = new Subscription();
 
   constructor(
     private activatedRoute: ActivatedRoute,

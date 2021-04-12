@@ -30,13 +30,27 @@ interface PropertyFormGroup {
 })
 export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public builds: Build[];
-  public cpus = IQueue.Cpu;
+  public get cpus() {
+    const limits = this.selectedNamespaceService.namespace.limits.databases;
+    const limit = limits.cpu ? limits.cpu : Infinity;
+    return limits.cpu ? IQueue.Cpu.filter(r => r.value <= limit) : IQueue.Cpu;
+  }
   public data: Queue;
   public errors: string[] = [];
   public form: FormGroup;
   public games: Game[];
-  public memories = IQueue.Memory;
-  public replicas = IQueue.Replicas;
+  public get memories() {
+    const limits = this.selectedNamespaceService.namespace.limits.databases;
+    const limit = limits.memory ? limits.memory : Infinity;
+    return limits.memory ? IQueue.Memory.filter(r => r.value <= limit) : IQueue.Memory;
+  }
+  public get replicas() {
+    const limits = this.selectedNamespaceService.namespace.limits.databases;
+    const limit = limits.replicas ? limits.replicas : Infinity;
+    return this.data && this.data.replicas
+      ? IQueue.Replicas.filter(r => r.value <= limit && r.value >= this.data.replicas)
+      : IQueue.Replicas;
+  }
 
   private updateQueue$ = new Subscription();
 

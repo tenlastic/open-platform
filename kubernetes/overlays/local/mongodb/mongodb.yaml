@@ -4,4 +4,4 @@ metadata:
   name: mongodb
 spec:
   values:
-    replicaCount: 3
+    replicaCount: 1

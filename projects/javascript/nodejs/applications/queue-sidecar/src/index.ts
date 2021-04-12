@@ -68,10 +68,13 @@ async function updateQueue() {
   const nodes = Object.entries(pods).map(([key, value]) => ({
     name: value.metadata.name,
     phase: value.status.phase,
+    ready:
+      value.status.conditions &&
+      value.status.conditions.find(c => c.status === 'True' && c.type === 'ContainersReady'),
   }));
 
   let phase = 'Pending';
-  if (nodes.every(n => n.phase === 'Running')) {
+  if (nodes.every(n => n.phase === 'Running' && n.ready)) {
     phase = 'Running';
   } else if (nodes.some(n => n.phase === 'Error')) {
     phase = 'Error';

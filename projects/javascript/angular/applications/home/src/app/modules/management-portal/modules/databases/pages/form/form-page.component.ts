@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Database, DatabaseQuery, DatabaseService, IDatabase } from '@tenlastic/ng-http';
 import { Subscription } from 'rxjs';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { SelectedNamespaceService } from '../../../../../../core/services';
 import {
   BreadcrumbsComponentBreadcrumb,
   PromptComponent,
@@ -18,13 +18,33 @@ import {
 })
 export class DatabasesFormPageComponent implements OnDestroy, OnInit {
   public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
-  public cpus = IDatabase.Cpu;
+  public get cpus() {
+    const limits = this.selectedNamespaceService.namespace.limits.databases;
+    const limit = limits.cpu ? limits.cpu : Infinity;
+    return limits.cpu ? IDatabase.Cpu.filter(r => r.value <= limit) : IDatabase.Cpu;
+  }
   public data: Database;
   public errors: string[] = [];
   public form: FormGroup;
-  public memories = IDatabase.Memory;
-  public replicas = IDatabase.Replicas;
-  public storages = IDatabase.Storage;
+  public get memories() {
+    const limits = this.selectedNamespaceService.namespace.limits.databases;
+    const limit = limits.memory ? limits.memory : Infinity;
+    return limits.memory ? IDatabase.Memory.filter(r => r.value <= limit) : IDatabase.Memory;
+  }
+  public get replicas() {
+    const limits = this.selectedNamespaceService.namespace.limits.databases;
+    const limit = limits.replicas ? limits.replicas : Infinity;
+    return this.data && this.data.replicas
+      ? IDatabase.Replicas.filter(r => r.value <= limit && r.value >= this.data.replicas)
+      : IDatabase.Replicas;
+  }
+  public get storages() {
+    const limits = this.selectedNamespaceService.namespace.limits.databases;
+    const limit = limits.storage ? limits.storage : Infinity;
+    return this.data && this.data.storage
+      ? IDatabase.Storage.filter(r => r.value <= limit && r.value >= this.data.storage)
+      : IDatabase.Storage;
+  }
 
   private updateDatabase$ = new Subscription();
 
@@ -33,11 +53,10 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
     private databaseQuery: DatabaseQuery,
     private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
-    public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private router: Router,
-    public selectedNamespaceService: SelectedNamespaceService,
+    private selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public ngOnInit() {

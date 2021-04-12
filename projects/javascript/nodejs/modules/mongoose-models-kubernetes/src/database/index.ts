@@ -7,6 +7,7 @@ import * as path from 'path';
 import {
   helmReleaseApiV1,
   ingressApiV1,
+  persistentVolumeClaimApiV1,
   secretApiV1,
   serviceApiV1,
   statefulSetApiV1,
@@ -162,7 +163,7 @@ export const KubernetesDatabase = {
       },
     });
     await helmReleaseApiV1.delete(`${name}-kafka`, namespace);
-    await helmReleaseApiV1.createOrReplace(namespace, {
+    await helmReleaseApiV1.create(namespace, {
       metadata: {
         annotations: { 'fluxcd.io/automated': 'true' },
         name: `${name}-kafka`,
@@ -223,7 +224,17 @@ export const KubernetesDatabase = {
         'mongodb-root-password': password,
       },
     });
-    await helmReleaseApiV1.createOrReplace(namespace, {
+
+    // Update PVC storage size.
+    try {
+      const promises = array
+        .map((a, i) => `datadir-${name}-mongodb-${i}`)
+        .map(a => persistentVolumeClaimApiV1.resize(a, namespace, database.storage));
+      await Promise.all(promises);
+    } catch (e) {}
+
+    await helmReleaseApiV1.delete(`${name}-mongodb`, namespace);
+    await helmReleaseApiV1.create(namespace, {
       metadata: {
         annotations: { 'fluxcd.io/automated': 'true' },
         name: `${name}-mongodb`,
@@ -275,7 +286,7 @@ export const KubernetesDatabase = {
       },
     });
     await helmReleaseApiV1.delete(`${name}-zookeeper`, namespace);
-    await helmReleaseApiV1.createOrReplace(namespace, {
+    await helmReleaseApiV1.create(namespace, {
       metadata: {
         annotations: { 'fluxcd.io/automated': 'true' },
         name: `${name}-zookeeper`,
