@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@tenlastic/http": "0.0.154",
-    "redis": "3.0.2",
+    "ioredis": "4.26.0",
     "source-map-support": "0.5.12"
   },
   "devDependencies": {

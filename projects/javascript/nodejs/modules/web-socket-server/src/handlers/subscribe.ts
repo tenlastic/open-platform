@@ -1,4 +1,4 @@
-import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
+import { IDatabasePayload, DatabaseOperationType } from '@tenlastic/mongoose-change-stream';
 import * as kafka from '@tenlastic/kafka';
 import { filterObject, isJsonValid, MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import * as mongoose from 'mongoose';
@@ -14,6 +14,7 @@ export interface SubscribeData {
 
 export interface SubscribeDataParameters {
   collection: string;
+  operationType?: DatabaseOperationType[];
   resumeToken: string;
   where: any;
 }
@@ -53,8 +54,14 @@ export async function subscribe(
         const value = payload.message.value.toString();
         const json = JSON.parse(value) as IDatabasePayload<any>;
 
+        // Filter by operation type.
+        const { parameters } = data;
+        if (parameters.operationType && !parameters.operationType.includes(json.operationType)) {
+          return;
+        }
+
         // Handle the where clause.
-        const where = await Permissions.where(data.parameters.where || {}, user);
+        const where = await Permissions.where(parameters.where || {}, user);
         if (!isJsonValid(json.fullDocument, where)) {
           return;
         }

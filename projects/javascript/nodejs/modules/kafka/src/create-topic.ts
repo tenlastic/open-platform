@@ -10,7 +10,7 @@ export async function createTopic(topic: string) {
           { name: 'cleanup.policy', value: 'compact' },
           { name: 'compression.type', value: 'gzip' },
         ],
-        numPartitions: 3,
+        numPartitions: 10,
         replicationFactor: replicationFactor ? Number(replicationFactor) : 1,
         topic,
       },

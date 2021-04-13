@@ -1,19 +1,46 @@
 import { queueMemberStore } from '@tenlastic/http';
-import * as redis from 'redis';
-import { promisify } from 'util';
+import * as Redis from 'ioredis';
 
 const podName = process.env.POD_NAME;
-const redisConnectionString = process.env.REDIS_CONNECTION_STRING;
+const queue = JSON.parse(process.env.QUEUE_JSON);
+const redisSentinelPassword = process.env.REDIS_SENTINEL_PASSWORD;
+const sentinels = process.env.SENTINELS.split(',');
 
 export async function start() {
-  // Connect to Redis.
-  const client = redis.createClient({ url: redisConnectionString });
+  // Connect to Sentinel.
+  const client = new Redis({
+    name: 'mymaster',
+    password: redisSentinelPassword,
+    retryStrategy: times => Math.min(times * 1000, 5000),
+    sentinelPassword: redisSentinelPassword,
+    sentinels: sentinels.map(s => {
+      const [host, port] = s.split(':');
+      return { host, port: Number(port) };
+    }),
+  });
   client.on('connect', () => console.log('Connected to Redis.'));
   client.on('error', err => console.error(err.message));
 
+  // Deterministically get keys that do not have a replica.
+  const keys = await client.keys('*');
+  const results = keys
+    .filter(k => {
+      const index = podName.replace(`queue-${queue._id}-`, '');
+      const key = k.replace(`queue-${queue._id}-`, '');
+      return Number(key) % queue.replicas === Number(index);
+    })
+    .filter(k => k !== podName);
+
+  // Merge orphan keys.
+  console.log(`Merging ${results.length} orphans...`);
+  if (results.length) {
+    await client.zunionstore(`${podName}-union`, results.length, ...results);
+    await client.rename(`${podName}-union`, podName);
+    await client.del(...results);
+  }
+
   // Fetch existing QueueMembers from Redis.
-  const zrange = promisify(client.zrange).bind(client);
-  const queueMembers = await zrange(podName, 0, -1);
+  const queueMembers = await client.zrange(podName, 0, -1);
   console.log(`Retrieved ${queueMembers.length} existing QueueMembers.`);
 
   // Add existing QueueMembers to the store.
@@ -23,15 +50,16 @@ export async function start() {
   }
 
   // Sync QueueMembers with Redis.
-  const zadd = promisify(client.zadd).bind(client);
-  const zremrangebyscore = promisify(client.zremrangebyscore).bind(client);
-
   queueMemberStore.emitter.on('delete', qm => {
     const score = getScore(qm._id);
-    return zremrangebyscore(podName, score, score);
+    return client.zremrangebyscore(podName, score, score);
   });
-  queueMemberStore.emitter.on('insert', qm => zadd(podName, getScore(qm._id), JSON.stringify(qm)));
-  queueMemberStore.emitter.on('update', qm => zadd(podName, getScore(qm._id), JSON.stringify(qm)));
+  queueMemberStore.emitter.on('insert', qm =>
+    client.zadd(podName, getScore(qm._id), JSON.stringify(qm)),
+  );
+  queueMemberStore.emitter.on('update', qm =>
+    client.zadd(podName, getScore(qm._id), JSON.stringify(qm)),
+  );
 }
 
 function getScore(_id: string) {

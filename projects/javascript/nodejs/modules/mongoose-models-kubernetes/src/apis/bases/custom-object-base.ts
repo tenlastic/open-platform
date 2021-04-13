@@ -31,6 +31,14 @@ export class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
     ) as Promise<BaseResponse<T>>;
   }
 
+  public async createOrRead(namespace: string, body: T) {
+    try {
+      return await this.create(namespace, body);
+    } catch {
+      return this.read(body.metadata.name, namespace);
+    }
+  }
+
   public async createOrReplace(namespace: string, body: T) {
     try {
       return await this.create(namespace, body);

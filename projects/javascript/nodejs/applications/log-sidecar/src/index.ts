@@ -42,7 +42,7 @@ async function getLogs(pod: k8s.V1Pod) {
   console.log(`Watching logs for pod: ${pod.metadata.name}.`);
 
   try {
-    const annotations = Object.keys(pod.metadata.annotations)
+    const annotations: any = Object.keys(pod.metadata.annotations)
       .filter(a => a.startsWith('tenlastic.com/'))
       .reduce((previous, current) => {
         const key = current.replace('tenlastic.com/', '');
@@ -53,7 +53,9 @@ async function getLogs(pod: k8s.V1Pod) {
     const mostRecentLog = await getMostRecentLogCreatedAt(annotations);
 
     const emitter = getPodLog(podNamespace, pod.metadata.name, container, mostRecentLog);
-    emitter.on('data', data => saveLogs(annotations, data));
+    emitter.on('data', data => {
+      return saveLogs({ nodeId: pod.metadata.name, ...annotations }, data);
+    });
     emitter.on('error', e => {
       console.error(e);
 
@@ -80,7 +82,7 @@ async function getMostRecentLogCreatedAt(annotations: any): Promise<any> {
 }
 
 async function saveLogs(annotations: any, data: any) {
-  console.log(data);
+  console.log(data.body);
 
   try {
     await requestPromiseNative.post({

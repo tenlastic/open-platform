@@ -41,6 +41,9 @@ QueueEvent.sync(async payload => {
   this.expiresAt.setDate(this.createdAt.getDate() + 3);
 })
 export class QueueLogSchema extends LogBase {
+  @prop({ required: true })
+  public nodeId: string;
+
   @prop({ immutable: true, ref: 'QueueSchema', required: true })
   public queueId: Ref<QueueDocument>;
 

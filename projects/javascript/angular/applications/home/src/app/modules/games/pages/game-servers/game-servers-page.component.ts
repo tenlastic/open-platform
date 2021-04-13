@@ -20,7 +20,7 @@ import { IdentityService, UpdateService } from '../../../../core/services';
 export class GameServersPageComponent implements OnInit {
   public $gameServers: Observable<GameServer[]>;
   public $group: Observable<Group>;
-  public displayedColumns = ['name', 'description', 'status', 'currentUsers', 'actions'];
+  public displayedColumns = ['name', 'description', 'currentUsers', 'actions'];
   public get status() {
     return this.updateService.getStatus(this.gameQuery.getActiveId());
   }

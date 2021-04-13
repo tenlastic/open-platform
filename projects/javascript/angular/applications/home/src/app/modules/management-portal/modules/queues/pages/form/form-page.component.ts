@@ -76,7 +76,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       this.builds = await this.buildService.find({
         select: '-files',
         sort: '-publishedAt',
-        where: { namespaceId: this.selectedNamespaceService.namespaceId },
+        where: { namespaceId: this.selectedNamespaceService.namespaceId, platform: 'server64' },
       });
       this.games = await this.gameService.find({
         sort: 'title',
@@ -259,8 +259,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
     if (this.data._id) {
-      this.form.get('replicas').disable({ emitEvent: false });
-
       this.updateQueue$ = this.queueQuery
         .selectAll({ filterBy: q => q._id === this.data._id })
         .subscribe(queues => {

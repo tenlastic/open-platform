@@ -5,6 +5,13 @@ import * as WS from 'ws';
 import { accessToken } from '../access-token';
 import { BaseStore } from '../stores';
 
+export interface SubscribeParameters {
+  collection: string;
+  operationType?: Array<'delete' | 'insert' | 'update'>;
+  resumeToken?: string;
+  where?: any;
+}
+
 export class WebSocket {
   public emitter = new EventEmitter();
   public socket: WS;
@@ -27,38 +34,29 @@ export class WebSocket {
     const data = { _id: uuid(), method: 'ping' };
     const interval = setInterval(() => this.socket.send(JSON.stringify(data)), 5000);
 
-    this.socket.onopen = () => this.emitter.emit('open');
-    this.socket.onclose = e => {
+    this.socket.addEventListener('open', () => this.emitter.emit('open'));
+    this.socket.addEventListener('close', e => {
       clearInterval(interval);
       this.socket = null;
 
       if (e.code !== 1000) {
         setTimeout(() => this.connect(url), 5000);
       }
-    };
-    this.socket.onerror = e => {
+    });
+    this.socket.addEventListener('error', e => {
       console.error('Socket error:', e.message);
       this.socket.close();
-    };
+    });
 
     return this.socket;
   }
 
-  public subscribe(
-    collection: string,
-    resumeToken: string,
-    store: BaseStore<any>,
-    where: any = {},
-  ) {
+  public subscribe(parameters: SubscribeParameters, store: BaseStore<any>) {
     const _id = uuid();
-    const data = {
-      _id,
-      method: 'subscribe',
-      parameters: { collection, resumeToken, where },
-    };
+    const data = { _id, method: 'subscribe', parameters };
 
     this.socket.send(JSON.stringify(data));
-    this.socket.onmessage = msg => {
+    this.socket.addEventListener('message', msg => {
       const payload = JSON.parse(msg.data as string);
 
       // If the response is for a different request, ignore it.
@@ -75,7 +73,7 @@ export class WebSocket {
       }
 
       this.emitter.emit(_id, payload);
-    };
+    });
 
     return _id;
   }

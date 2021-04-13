@@ -18,7 +18,7 @@ export class ClusterBaseApiV1<T extends ClusterBaseBody> {
   protected singular: string;
 
   public create(body: T): Promise<ClusterBaseResponse<T>> {
-    const method = `createCluster${this.singular}`;
+    const method = `create${this.singular}`;
     return this.api[method](body);
   }
 
@@ -40,20 +40,20 @@ export class ClusterBaseApiV1<T extends ClusterBaseBody> {
 
   public async delete(name: string): Promise<ClusterBaseResponse<T>> {
     try {
-      const method = `deleteCluster${this.singular}`;
+      const method = `delete${this.singular}`;
       return await this.api[method](name);
     } catch {}
   }
 
   public patch(name: string, body: Partial<T>) {
-    const method = `patchCluster${this.singular}`;
+    const method = `patch${this.singular}`;
     return this.api[method](name, body, undefined, undefined, undefined, undefined, {
       headers: { 'Content-Type': 'application/strategic-merge-patch+json' },
     });
   }
 
   public read(name: string): Promise<ClusterBaseResponse<T>> {
-    const method = `readCluster${this.singular}`;
+    const method = `read${this.singular}`;
     return this.api[method](name);
   }
 
@@ -63,7 +63,7 @@ export class ClusterBaseApiV1<T extends ClusterBaseBody> {
     const arrayMerge = (destination, source) => source;
     const copy = deepmerge(response.body, body, { arrayMerge });
 
-    const method = `replaceCluster${this.singular}`;
+    const method = `replace${this.singular}`;
     return this.api[method](name, copy);
   }
 }

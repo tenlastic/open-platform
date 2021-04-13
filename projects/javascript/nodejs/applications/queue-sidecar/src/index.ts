@@ -62,19 +62,26 @@ const pods: { [key: string]: k8s.V1Pod } = {};
   }
 })();
 
+function getPodStatus(pod: k8s.V1Pod) {
+  const isReady =
+    pod.status.conditions &&
+    pod.status.conditions.find(c => c.status === 'True' && c.type === 'ContainersReady');
+
+  let phase = pod.status.phase;
+  if (phase === 'Running' && !isReady) {
+    phase = 'Pending';
+  }
+
+  return { name: pod.metadata.name, phase };
+}
+
 async function updateQueue() {
   console.log(`Updating Queue status...`);
 
-  const nodes = Object.entries(pods).map(([key, value]) => ({
-    name: value.metadata.name,
-    phase: value.status.phase,
-    ready:
-      value.status.conditions &&
-      value.status.conditions.find(c => c.status === 'True' && c.type === 'ContainersReady'),
-  }));
+  const nodes = Object.entries(pods).map(([key, value]) => getPodStatus(value));
 
   let phase = 'Pending';
-  if (nodes.every(n => n.phase === 'Running' && n.ready)) {
+  if (nodes.every(n => n.phase === 'Running')) {
     phase = 'Running';
   } else if (nodes.some(n => n.phase === 'Error')) {
     phase = 'Error';

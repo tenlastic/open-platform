@@ -46,6 +46,7 @@ export const KubernetesQueue = {
      * REDIS
      * =======================
      */
+    await secretApiV1.delete(`${name}-redis`, namespace);
     await helmReleaseApiV1.delete(`${name}-redis`, namespace);
 
     /**
@@ -104,45 +105,24 @@ export const KubernetesQueue = {
               },
               {
                 // Allow traffic to the API.
-                namespaceSelector: {
-                  matchLabels: {
-                    name: 'default',
-                  },
-                },
-                podSelector: {
-                  matchLabels: {
-                    app: 'api',
-                  },
-                },
+                namespaceSelector: { matchLabels: { name: 'default' } },
+                podSelector: { matchLabels: { app: 'api' } },
               },
               {
                 // Allow traffic to the Web Socket Server.
-                namespaceSelector: {
-                  matchLabels: {
-                    name: 'default',
-                  },
-                },
-                podSelector: {
-                  matchLabels: {
-                    app: 'api',
-                  },
-                },
+                namespaceSelector: { matchLabels: { name: 'default' } },
+                podSelector: { matchLabels: { app: 'wss' } },
               },
               {
                 // Allow traffic within Stateful Set.
                 podSelector: {
-                  matchLabels: {
-                    'tenlastic.com/app': name,
-                    'tenlastic.com/role': 'application',
-                  },
+                  matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
                 },
               },
               {
                 // Allow traffic to Redis.
                 podSelector: {
-                  matchLabels: {
-                    release: `${name}-redis`,
-                  },
+                  matchLabels: { 'tenlastic.com/app': name, release: `${name}-redis` },
                 },
               },
             ],
@@ -183,17 +163,21 @@ export const KubernetesQueue = {
     };
     const password = chance.hash({ length: 128 });
     const resources = {
-      limits: {
-        cpu: queue.cpu.toString(),
-        memory: queue.memory.toString(),
-      },
-      requests: {
-        cpu: queue.cpu.toString(),
-        memory: queue.memory.toString(),
-      },
+      limits: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },
+      requests: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },
     };
-
-    await helmReleaseApiV1.createOrReplace(namespace, {
+    await secretApiV1.createOrReplace(namespace, {
+      metadata: {
+        labels: {
+          'tenlastic.com/app': name,
+          'tenlastic.com/role': 'redis',
+        },
+        name: `${name}-redis`,
+      },
+      stringData: { password },
+    });
+    await helmReleaseApiV1.delete(`${name}-redis`, namespace);
+    await helmReleaseApiV1.create(namespace, {
       metadata: {
         annotations: { 'fluxcd.io/automated': 'true' },
         name: `${name}-redis`,
@@ -202,14 +186,27 @@ export const KubernetesQueue = {
         chart: {
           name: 'redis',
           repository: 'https://charts.bitnami.com/bitnami',
-          version: '12.9.0',
+          version: '13.0.1',
         },
         releaseName: `${name}-redis`,
         values: {
-          cluster: { enabled: false },
-          master: {
+          cluster: { slaveCount: queue.replicas },
+          existingSecret: `${name}-redis`,
+          existingSecretPasswordKey: 'password',
+          image: { tag: '6.2.1' },
+          sentinel: {
+            downAfterMilliseconds: 10000,
+            enabled: true,
+            image: { tag: '6.0.12' },
+            quorum: Math.floor(queue.replicas / 2 + 1),
+            resources: {
+              limits: { cpu: '50m', memory: '50M' },
+              requests: { cpu: '50m', memory: '50M' },
+            },
+            staticID: true,
+          },
+          slave: {
             affinity,
-            image: { tag: '6.2.1' },
             persistence: { storageClass: 'standard-expandable' },
             podLabels: {
               'tenlastic.com/app': name,
@@ -223,7 +220,6 @@ export const KubernetesQueue = {
               },
             },
           },
-          password,
         },
       },
     });
@@ -240,7 +236,7 @@ export const KubernetesQueue = {
       { algorithm: 'RS256' },
     );
     const array = Array(queue.replicas).fill(0);
-    const redis = array.map((a, i) => `${name}-redis-master-${i}.${name}-redis-headless:6379`);
+    const sentinels = array.map((a, i) => `${name}-redis-node-${i}.${name}-redis-headless:26379`);
     await secretApiV1.createOrReplace(namespace, {
       metadata: {
         labels: {
@@ -253,7 +249,8 @@ export const KubernetesQueue = {
         ACCESS_TOKEN: queue.buildId ? undefined : accessToken,
         API_URL: 'http://api.default:3000',
         QUEUE_JSON: JSON.stringify(queue),
-        REDIS_CONNECTION_STRING: `redis://:${password}@${redis.join(',')}`,
+        REDIS_SENTINEL_PASSWORD: password,
+        SENTINELS: sentinels.join(','),
         WSS_URL: 'ws://wss.default:3000',
       },
     });
@@ -366,7 +363,8 @@ export const KubernetesQueue = {
       };
     }
 
-    await statefulSetApiV1.createOrReplace(namespace, {
+    await statefulSetApiV1.delete(name, namespace);
+    await statefulSetApiV1.create(namespace, {
       metadata: {
         labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
         name,

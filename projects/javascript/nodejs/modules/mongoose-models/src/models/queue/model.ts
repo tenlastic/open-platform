@@ -15,7 +15,7 @@ import {
 } from '@tenlastic/mongoose-change-stream';
 import * as mongoose from 'mongoose';
 
-import { decrementalValidator, namespaceValidator } from '../../validators';
+import { namespaceValidator } from '../../validators';
 import { BuildDocument } from '../build';
 import { GameDocument } from '../game';
 import { GameInvitationDocument } from '../game-invitation';
@@ -74,7 +74,7 @@ export class QueueSchema {
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
-  @prop({ min: 0, required: true, validate: decrementalValidator('replicas') })
+  @prop({ min: 0, required: true })
   public replicas: number;
 
   @prop({ default: { phase: 'Pending' } })
@@ -169,7 +169,15 @@ export class QueueSchema {
    * Returns true if a restart is required on an update.
    */
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'isPreemptible', 'memory', 'replicas'];
+    const immutableFields = [
+      'buildId',
+      'cpu',
+      'isPreemptible',
+      'memory',
+      'replicas',
+      'teams',
+      'usersPerTeam',
+    ];
     return immutableFields.some(i => fields.includes(i));
   }
 }

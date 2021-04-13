@@ -31,7 +31,15 @@ export async function namespace() {
     const webSocket = new WebSocket();
     webSocket.emitter.on('open', () => {
       console.log('Web socket connected.');
-      webSocket.subscribe('namespaces', 'database-sidecar', namespaceStore, { _id: record._id });
+
+      webSocket.subscribe(
+        {
+          collection: 'namespaces',
+          resumeToken: 'database-sidecar',
+          where: { _id: record._id },
+        },
+        namespaceStore,
+      );
     });
     webSocket.connect(wssUrl);
   } catch (e) {

@@ -31,7 +31,9 @@ export class BaseStore<T extends BaseModel> {
     const item = this.map.get(_id);
     this.map.delete(_id);
 
-    this.emitter.emit('delete', item);
+    if (item) {
+      this.emitter.emit('delete', item);
+    }
   }
 
   /**

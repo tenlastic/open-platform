@@ -63,7 +63,15 @@ export class Queue extends Model {
   }
 
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'isPreemptible', 'memory', 'replicas'];
+    const immutableFields = [
+      'buildId',
+      'cpu',
+      'isPreemptible',
+      'memory',
+      'replicas',
+      'teams',
+      'usersPerTeam',
+    ];
     return immutableFields.some(i => fields.includes(i));
   }
 }

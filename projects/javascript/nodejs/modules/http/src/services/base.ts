@@ -33,6 +33,8 @@ export abstract class BaseService<T extends BaseModel> {
    * Deletes a Record.
    */
   public async delete(_id: string): Promise<T> {
+    this.store.delete(_id);
+
     try {
       const { record } = await requestPromiseNative.delete({
         headers: this.headers,
@@ -40,9 +42,7 @@ export abstract class BaseService<T extends BaseModel> {
         url: `${this.url}/${_id}`,
       });
       return record;
-    } finally {
-      this.store.delete(_id);
-    }
+    } catch {}
   }
 
   /**

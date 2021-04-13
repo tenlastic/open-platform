@@ -59,16 +59,14 @@ GroupEvent.sync(async payload => {
   return Promise.all(queueMembers.map(qm => qm.remove()));
 });
 
-// Delete QueueMember when associated Queue is deleted or restarted.
+// Delete QueueMember when associated Queue is deleted.
 QueueEvent.sync(async payload => {
-  const isRestarted =
-    payload.operationType === 'update' &&
-    Queue.isRestartRequired(Object.keys(payload.updateDescription.updatedFields));
-
-  if (payload.operationType === 'delete' || isRestarted) {
-    const queueMembers = await QueueMember.find({ queueId: payload.fullDocument._id });
-    return Promise.all(queueMembers.map(qm => qm.remove()));
+  if (payload.operationType !== 'delete') {
+    return;
   }
+
+  const queueMembers = await QueueMember.find({ queueId: payload.fullDocument._id });
+  return Promise.all(queueMembers.map(qm => qm.remove()));
 });
 
 // Delete QueueMember when associated WebSocket is deleted.

@@ -16,10 +16,32 @@ import {
 } from '@tenlastic/mongoose-change-stream';
 import * as mongoose from 'mongoose';
 
-import { GroupDocument } from '../group';
-import { UserDocument } from '../user';
+import { GroupDocument, GroupEvent } from '../group';
+import { UserDocument, UserEvent } from '../user';
 
 export const MessageEvent = new EventEmitter<IDatabasePayload<MessageDocument>>();
+
+// Delete Messages if associated Group is deleted.
+GroupEvent.sync(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await Message.find({ groupId: payload.fullDocument._id });
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
+  }
+});
+
+// Delete Messages if associated User is deleted.
+UserEvent.sync(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await Message.find({
+        $or: [{ fromUserId: payload.fullDocument._id }, { toUserId: payload.fullDocument._id }],
+      });
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
+  }
+});
 
 @index({ fromUserId: 1 })
 @index({ readByUserIds: 1 })

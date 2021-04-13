@@ -108,7 +108,7 @@ export class UpdateService {
     // Get the latest Build from the server.
     status.text = 'Retrieving latest build...';
     const builds = await this.buildService.find({
-      select: '-files',
+      limit: 1,
       sort: '-publishedAt',
       where: {
         gameId,

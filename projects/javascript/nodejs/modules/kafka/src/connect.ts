@@ -17,7 +17,7 @@ export async function connect(connectionString: string) {
 
   connection = new Kafka(config);
   admin = connection.admin();
-  producer = connection.producer();
+  producer = connection.producer({ allowAutoTopicCreation: false });
 
   await admin.connect();
   await producer.connect();
