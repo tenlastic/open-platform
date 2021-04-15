@@ -48,9 +48,6 @@ export class WorkflowSchema {
 
   public createdAt: Date;
 
-  @prop()
-  public finishedAt: Date;
-
   @prop({ immutable: true })
   public isPreemptible: boolean;
 

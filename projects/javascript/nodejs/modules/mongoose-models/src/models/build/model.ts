@@ -84,9 +84,6 @@ export class BuildSchema implements IOriginalDocument {
   @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
   public gameId: Ref<GameDocument>;
 
-  @prop()
-  public finishedAt: Date;
-
   @prop({ required: true })
   public name: string;
 

@@ -57,6 +57,14 @@ export class CollectionsFormPageComponent implements OnDestroy, OnInit {
       const _id = params.get('_id');
       this.databaseId = params.get('databaseId');
 
+      const database = await this.databaseService.findOne(this.databaseId);
+      this.breadcrumbs = [
+        { label: 'Databases', link: '../../../' },
+        { label: database.name, link: '../../' },
+        { label: 'Collections', link: '../' },
+        { label: _id === 'new' ? 'Create Collection' : 'Edit Collection' },
+      ];
+
       const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
       this.socket = this.socketService.connect(url);
       this.socket.addEventListener('open', () =>
@@ -68,14 +76,6 @@ export class CollectionsFormPageComponent implements OnDestroy, OnInit {
       }
 
       this.setupForm();
-
-      const database = await this.databaseService.findOne(this.databaseId);
-      this.breadcrumbs = [
-        { label: 'Databases', link: '../../../' },
-        { label: database.name, link: '../../' },
-        { label: 'Collections', link: '../' },
-        { label: this.data._id ? 'Edit Collection' : 'Create Collection' },
-      ];
     });
   }
 

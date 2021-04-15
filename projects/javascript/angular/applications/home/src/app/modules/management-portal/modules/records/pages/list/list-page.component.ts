@@ -68,6 +68,14 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
     this.titleService.setTitle(`${TITLE} | Records`);
 
     this.collection = await this.collectionService.findOne(this.databaseId, this.collectionId);
+    const database = await this.databaseService.findOne(this.databaseId);
+    this.breadcrumbs = [
+      { label: 'Databases', link: '../../../../' },
+      { label: database.name, link: '../../../' },
+      { label: 'Collections', link: '../../' },
+      { label: this.collection.name, link: '../' },
+      { label: 'Records' },
+    ];
 
     this.propertyColumns = Object.entries(this.collection.jsonSchema.properties)
       .map(([key, value]) => (value.type === 'array' || value.type === 'object' ? null : key))
@@ -85,15 +93,6 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
     });
 
     await this.fetchRecords();
-
-    const database = await this.databaseService.findOne(this.databaseId);
-    this.breadcrumbs = [
-      { label: 'Databases', link: '../../../../' },
-      { label: database.name, link: '../../../' },
-      { label: 'Collections', link: '../../' },
-      { label: this.collection.name, link: '../' },
-      { label: 'Records' },
-    ];
   }
 
   public ngOnDestroy() {

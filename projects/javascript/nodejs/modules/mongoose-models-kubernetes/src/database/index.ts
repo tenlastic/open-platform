@@ -1,13 +1,16 @@
 import * as k8s from '@kubernetes/client-node';
+import * as mongooseModels from '@tenlastic/mongoose-models';
 import { Database, DatabaseDocument, DatabaseEvent } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 import * as fs from 'fs';
+import { Connection } from 'mongoose';
 import * as path from 'path';
 
 import {
   helmReleaseApiV1,
   ingressApiV1,
   persistentVolumeClaimApiV1,
+  podApiV1,
   secretApiV1,
   serviceApiV1,
   statefulSetApiV1,
@@ -233,6 +236,10 @@ export const KubernetesDatabase = {
       await Promise.all(promises);
     } catch (e) {}
 
+    // Force first MongoDB instance to become primary.
+    const mongoPassword = Buffer.from(mongoSecret.body.data['mongodb-root-password'], 'base64');
+    await setMongoPrimary(database, namespace, `${mongoPassword}`);
+
     await helmReleaseApiV1.delete(`${name}-mongodb`, namespace);
     await helmReleaseApiV1.create(namespace, {
       metadata: {
@@ -329,7 +336,6 @@ export const KubernetesDatabase = {
      * SECRET
      * =======================
      */
-    const mongoPassword = Buffer.from(mongoSecret.body.data['mongodb-root-password'], 'base64');
     await secretApiV1.createOrReplace(namespace, {
       metadata: {
         labels: {
@@ -449,6 +455,18 @@ export const KubernetesDatabase = {
   },
 };
 
+function connectToMongo(name: string, namespace: string, password: string, podName: string) {
+  return new Promise<Connection>((resolve, reject) => {
+    const hostname = `${podName}.${name}-mongodb-headless.${namespace}`;
+    const connectionString = `mongodb://root:${password}@${hostname}:27017/admin`;
+    const databaseName = 'database';
+
+    const connection = mongooseModels.createConnection({ connectionString, databaseName });
+    connection.on('connected', () => resolve(connection));
+    connection.on('error', reject);
+  });
+}
+
 function getAffinity(database: DatabaseDocument, role: string): k8s.V1Affinity {
   const name = KubernetesDatabase.getName(database);
 
@@ -486,4 +504,105 @@ function getAffinity(database: DatabaseDocument, role: string): k8s.V1Affinity {
       ],
     },
   };
+}
+
+async function setMongoPrimary(database: DatabaseDocument, namespace: string, password: string) {
+  const name = KubernetesDatabase.getName(database);
+
+  // Get MongoDB pods.
+  const labelSelector = `tenlastic.com/app=${name},tenlastic.com/role=mongodb`;
+  const pods = await podApiV1.list(namespace, { labelSelector });
+  const primary = pods.body.items.find(p => p.metadata.name === `${name}-mongodb-0`);
+  const secondaries = pods.body.items
+    .filter(i => i.metadata.name !== `${name}-mongodb-0`)
+    .map(i => i.metadata.name)
+    .sort();
+
+  // If the primary does not exist, do nothing.
+  if (!primary) {
+    return;
+  }
+
+  // Force secondaries to step down.
+  const promises = secondaries.map(async secondary => {
+    const secondaryConnection = await connectToMongo(name, namespace, password, secondary);
+
+    const { ismaster } = await secondaryConnection.db.command({ isMaster: 1 });
+    if (ismaster) {
+      return secondaryConnection.db.admin().command({ replSetStepDown: 120 });
+    } else {
+      return secondaryConnection.db.admin().command({ replSetFreeze: 120 });
+    }
+  });
+  await Promise.allSettled(promises);
+
+  // Wait for the first pod to become the new primary.
+  const primaryConnection = await connectToMongo(name, namespace, password, primary.metadata.name);
+  let isMaster = await primaryConnection.db.command({ isMaster: 1 });
+  while (!isMaster) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const status = await primaryConnection.db.command({ isMaster: 1 });
+    isMaster = status.ismaster;
+    console.log('isMaster: ' + isMaster);
+  }
+
+  // Get current replica set configuration.
+  const { config } = await primaryConnection.db.admin().command({ replSetGetConfig: 1 });
+
+  // Generate new members.
+  const arbiterService = `${name}-mongodb-arbiter-headless`;
+  const service = `${name}-mongodb-headless`;
+  const members = [
+    {
+      _id: 0,
+      arbiterOnly: false,
+      buildIndexes: true,
+      hidden: false,
+      host: `${primary.metadata.name}.${service}.${namespace}.svc.cluster.local:27017`,
+      priority: 5,
+      slaveDelay: 0,
+      tags: {},
+      votes: 1,
+    },
+    {
+      _id: 1,
+      arbiterOnly: true,
+      buildIndexes: true,
+      hidden: false,
+      host: `${name}-mongodb-arbiter-0.${arbiterService}.${namespace}.svc.cluster.local:27017`,
+      priority: 0,
+      slaveDelay: 0,
+      tags: {},
+      votes: 1,
+    },
+  ];
+
+  // Add the secondaries to the replica set configuration.
+  const array = Array(database.replicas - 1).fill(0);
+  const mongos = array.map(
+    (a, i) => `${name}-mongodb-${i + 1}.${service}.${namespace}.svc.cluster.local:27017`,
+  );
+  for (let i = 0; i < mongos.length; i++) {
+    const mongo = mongos[i];
+
+    members.push({
+      _id: i + 2,
+      arbiterOnly: false,
+      buildIndexes: true,
+      hidden: false,
+      host: mongo,
+      priority: 1,
+      slaveDelay: 0,
+      tags: {},
+      votes: 1,
+    });
+  }
+
+  // Update the configuration, bumping its version number
+  config.members = members;
+  config.version = config.version + 1;
+
+  // Force the primary to accept the changes immediately.
+  await primaryConnection.db.admin().command({ replSetReconfig: config, force: true });
 }

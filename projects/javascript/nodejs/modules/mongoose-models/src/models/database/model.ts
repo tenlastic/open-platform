@@ -62,7 +62,7 @@ export class DatabaseSchema {
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
-  @prop({ min: 0, required: true, validate: decrementalValidator('replicas') })
+  @prop({ min: 0, required: true })
   public replicas: number;
 
   @prop({ default: { phase: 'Pending' } })

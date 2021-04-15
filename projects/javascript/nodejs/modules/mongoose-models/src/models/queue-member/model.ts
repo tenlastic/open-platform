@@ -155,13 +155,13 @@ export class QueueMemberSchema {
   @prop({ ref: 'RefreshTokenSchema', required: true })
   public refreshTokenId: Ref<RefreshTokenDocument>;
 
+  public updatedAt: Date;
+
   @prop({ immutable: true, ref: 'UserSchema' })
   public userId: Ref<UserDocument>;
 
   @arrayProp({ itemsRef: 'UserSchema' })
   public userIds: Array<Ref<UserDocument>>;
-
-  public updatedAt: Date;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'groupId', ref: 'GroupSchema' })
   public groupDocument: GroupDocument;

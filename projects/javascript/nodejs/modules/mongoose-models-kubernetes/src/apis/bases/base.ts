@@ -8,6 +8,16 @@ export interface BaseBody {
   };
 }
 
+export interface BaseListQuery {
+  fieldSelector?: string;
+  labelSelector?: string;
+  limit?: number;
+}
+
+export interface BaseListResponse<T> {
+  items: T[];
+}
+
 export interface BaseResponse<T> {
   body: T;
   response: IncomingMessage;
@@ -43,6 +53,19 @@ export class BaseApiV1<T extends BaseBody> {
       const method = `deleteNamespaced${this.singular}`;
       return await this.api[method](name, namespace);
     } catch {}
+  }
+
+  public list(namespace: string, query: BaseListQuery): Promise<BaseResponse<BaseListResponse<T>>> {
+    const method = `listNamespaced${this.singular}`;
+    return this.api[method](
+      namespace,
+      undefined,
+      undefined,
+      undefined,
+      query.fieldSelector,
+      query.labelSelector,
+      query.limit,
+    );
   }
 
   public patch(name: string, namespace: string, body: Partial<T>) {

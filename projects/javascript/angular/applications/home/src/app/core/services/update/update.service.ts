@@ -195,7 +195,6 @@ export class UpdateService {
     const env = {
       ...process.env,
       ACCESS_TOKEN: this.identityService.accessToken,
-      GAME_SERVER_ID: options.gameServer._id,
       GAME_SERVER_JSON: JSON.stringify(options.gameServer),
       GROUP_ID: options.groupId,
       REFRESH_TOKEN: this.identityService.refreshToken,

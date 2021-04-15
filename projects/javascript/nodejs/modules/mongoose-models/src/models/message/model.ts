@@ -61,6 +61,8 @@ export class MessageSchema {
   @prop({ maxlength: 512, required: true })
   public body: string;
 
+  public createdAt: Date;
+
   @prop({ immutable: true, ref: 'UserSchema', required: true })
   public fromUserId: Ref<UserDocument>;
 

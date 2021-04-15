@@ -34,9 +34,7 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
   public get replicas() {
     const limits = this.selectedNamespaceService.namespace.limits.databases;
     const limit = limits.replicas ? limits.replicas : Infinity;
-    return this.data && this.data.replicas
-      ? IDatabase.Replicas.filter(r => r.value <= limit && r.value >= this.data.replicas)
-      : IDatabase.Replicas;
+    return limits.replicas ? IDatabase.Replicas.filter(r => r.value <= limit) : IDatabase.Replicas;
   }
   public get storages() {
     const limits = this.selectedNamespaceService.namespace.limits.databases;
@@ -62,16 +60,17 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
       const _id = params.get('_id');
+
+      this.breadcrumbs = [
+        { label: 'Databases', link: '../' },
+        { label: _id === 'new' ? 'Create Database' : 'Edit Database' },
+      ];
+
       if (_id !== 'new') {
         this.data = await this.databaseService.findOne(_id);
       }
 
       this.setupForm();
-
-      this.breadcrumbs = [
-        { label: 'Databases', link: '../' },
-        { label: this.data._id ? 'Edit Database' : 'Create Database' },
-      ];
     });
   }
 

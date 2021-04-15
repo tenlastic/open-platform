@@ -48,6 +48,17 @@ export class RecordsFormPageComponent implements OnDestroy, OnInit {
       this.collectionId = params.get('collectionId');
       this.databaseId = params.get('databaseId');
 
+      this.collection = await this.collectionService.findOne(this.databaseId, this.collectionId);
+      const database = await this.databaseService.findOne(this.databaseId);
+      this.breadcrumbs = [
+        { label: 'Databases', link: '../../../../../' },
+        { label: database.name, link: '../../../../' },
+        { label: 'Collections', link: '../../../' },
+        { label: this.collection.name, link: '../../' },
+        { label: 'Records', link: '../' },
+        { label: _id === 'new' ? 'Create Record' : 'Edit Record' },
+      ];
+
       const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
       this.socket = this.socketService.connect(url);
       this.socket.addEventListener('open', () => {
@@ -57,23 +68,11 @@ export class RecordsFormPageComponent implements OnDestroy, OnInit {
         });
       });
 
-      this.collection = await this.collectionService.findOne(this.databaseId, this.collectionId);
-
       if (_id !== 'new') {
         this.data = await this.recordService.findOne(this.databaseId, this.collectionId, _id);
       }
 
       this.setupForm();
-
-      const database = await this.databaseService.findOne(this.databaseId);
-      this.breadcrumbs = [
-        { label: 'Databases', link: '../../../../../' },
-        { label: database.name, link: '../../../../' },
-        { label: 'Collections', link: '../../../' },
-        { label: this.collection.name, link: '../../' },
-        { label: 'Records', link: '../' },
-        { label: this.data._id ? 'Edit Record' : 'Create Record' },
-      ];
     });
   }
 

@@ -109,9 +109,6 @@ export class GameServerSchema implements IOriginalDocument {
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
-  @prop()
-  public port: number;
-
   @prop({ ref: 'QueueSchema' })
   public queueId: Ref<QueueDocument>;
 
