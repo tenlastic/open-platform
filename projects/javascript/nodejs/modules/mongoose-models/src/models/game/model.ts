@@ -8,7 +8,7 @@ import {
   modelOptions,
   plugin,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import * as minio from '@tenlastic/minio';
 import {
   EventEmitter,

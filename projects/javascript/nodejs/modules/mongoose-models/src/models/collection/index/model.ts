@@ -4,7 +4,7 @@ import {
   getModelForClass,
   modelOptions,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 export interface CollectionIndexKey {

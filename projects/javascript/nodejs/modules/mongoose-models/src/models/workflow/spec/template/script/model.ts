@@ -5,7 +5,7 @@ import {
   modelOptions,
   prop,
   arrayProp,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 
 import { WorkflowSpecEnvSchema } from '../../env';
 

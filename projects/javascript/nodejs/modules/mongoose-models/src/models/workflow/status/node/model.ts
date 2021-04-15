@@ -5,7 +5,7 @@ import {
   getModelForClass,
   modelOptions,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 
 import { WorkflowStatusPhase } from '../model';
 

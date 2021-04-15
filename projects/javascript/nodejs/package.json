@@ -39,7 +39,7 @@
     "@types/mongoose": "5.5.11",
     "@types/mustache": "0.8.32",
     "@types/nock": "9.3.0",
-    "@types/node": "12.19.15",
+    "@types/node": "12.11.1",
     "@types/pg": "7.4.14",
     "@types/pluralize": "0.0.29",
     "@types/request": "2.48.1",
@@ -81,7 +81,7 @@
     "ts-node-dev": "1.0.0-pre.44",
     "tslint": "5.18.0",
     "tslint-microsoft-contrib": "6.2.0",
-    "typescript": "3.5.3",
+    "typescript": "3.8.3",
     "watch": "1.0.2",
     "yamljs": "0.3.0"
   }

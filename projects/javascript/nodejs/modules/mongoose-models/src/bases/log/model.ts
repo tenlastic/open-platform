@@ -1,4 +1,4 @@
-import { modelOptions, prop } from '@hasezoey/typegoose';
+import { modelOptions, prop } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 @modelOptions({

@@ -1,4 +1,4 @@
-import { DocumentType, ReturnModelType, getModelForClass, prop } from '@hasezoey/typegoose';
+import { DocumentType, ReturnModelType, getModelForClass, prop } from '@typegoose/typegoose';
 
 export class NamespaceWorkflowLimitsSchema {
   @prop({ default: 0 })

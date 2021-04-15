@@ -4,7 +4,7 @@ import {
   getModelForClass,
   modelOptions,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 
 import { DatabaseStatusPhase } from '../model';
 

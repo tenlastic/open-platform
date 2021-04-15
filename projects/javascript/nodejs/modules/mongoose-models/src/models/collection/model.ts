@@ -10,7 +10,7 @@ import {
   post,
   pre,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import * as jsonSchema from '@tenlastic/json-schema';
 import {
   EventEmitter,

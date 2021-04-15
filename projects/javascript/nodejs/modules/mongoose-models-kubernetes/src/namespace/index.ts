@@ -1,4 +1,4 @@
-import { mongoose, Ref } from '@hasezoey/typegoose';
+import { mongoose, Ref } from '@typegoose/typegoose';
 import { NamespaceDocument, NamespaceEvent } from '@tenlastic/mongoose-models';
 
 import { helmReleaseApiV1, namespaceApiV1 } from '../apis';

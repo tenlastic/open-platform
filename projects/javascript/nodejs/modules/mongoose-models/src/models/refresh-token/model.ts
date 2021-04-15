@@ -7,7 +7,7 @@ import {
   modelOptions,
   plugin,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 

@@ -6,7 +6,7 @@ import {
   modelOptions,
   plugin,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import * as jsonSchema from '@tenlastic/json-schema';
 import {
   EventEmitter,

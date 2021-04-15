@@ -4,7 +4,7 @@ import {
   arrayProp,
   getModelForClass,
   modelOptions,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 
 import { WorkflowSpecTemplateDagTaskSchema } from './task';
 

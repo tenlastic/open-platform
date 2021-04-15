@@ -12,10 +12,10 @@
     "start": "../../scripts/start.sh"
   },
   "dependencies": {
-    "@hasezoey/typegoose": "6.0.0-27",
+    "@typegoose/typegoose": "6.4.0",
     "@tenlastic/logging": "0.0.154",
     "@tenlastic/mongoose-models": "0.0.154",
-    "mongoose": "5.7.11",
+    "mongoose": "5.9.2",
     "source-map-support": "0.5.12"
   },
   "devDependencies": {
@@ -26,7 +26,7 @@
     "ts-node": "8.9.1",
     "ts-node-dev": "1.0.0-pre.44",
     "tslint": "5.18.0",
-    "typescript": "3.5.3",
+    "typescript": "3.8.3",
     "yml-sorter": "1.1.1"
   }
 }

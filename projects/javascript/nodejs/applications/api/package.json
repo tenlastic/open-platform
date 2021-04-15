@@ -17,7 +17,7 @@
     "version": "../../scripts/version.sh api"
   },
   "dependencies": {
-    "@hasezoey/typegoose": "6.0.0-27",
+    "@typegoose/typegoose": "6.4.0",
     "@kubernetes/client-node": "0.14.0",
     "@tenlastic/json-schema": "0.0.154",
     "@tenlastic/kafka": "0.0.154",
@@ -37,7 +37,7 @@
     "jsonwebtoken": "8.5.1",
     "jszip": "3.2.2",
     "koa-router": "7.4.0",
-    "mongoose": "5.7.11",
+    "mongoose": "5.9.2",
     "request": "2.88.0",
     "source-map-support": "0.5.12",
     "tmp": "0.1.0",
@@ -52,7 +52,7 @@
     "ts-node": "8.9.1",
     "ts-node-dev": "1.0.0-pre.44",
     "tslint": "5.18.0",
-    "typescript": "3.5.3",
+    "typescript": "3.8.3",
     "yamljs": "0.3.0",
     "yml-sorter": "1.1.1"
   }

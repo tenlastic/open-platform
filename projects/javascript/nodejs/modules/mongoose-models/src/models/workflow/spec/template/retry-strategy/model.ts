@@ -4,7 +4,7 @@ import {
   getModelForClass,
   modelOptions,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 
 export enum WorkflowSpecTemplateRetryStrategyRetryPolicy {
   OnError = 'OnError',

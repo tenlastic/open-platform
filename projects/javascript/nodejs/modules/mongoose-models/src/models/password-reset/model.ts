@@ -8,7 +8,7 @@ import {
   pre,
   prop,
   modelOptions,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import {
   EventEmitter,
   IDatabasePayload,
