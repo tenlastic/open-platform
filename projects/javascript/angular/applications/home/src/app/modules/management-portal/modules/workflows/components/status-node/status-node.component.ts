@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { Order } from '@datorama/akita';
 import {
   IWorkflow,

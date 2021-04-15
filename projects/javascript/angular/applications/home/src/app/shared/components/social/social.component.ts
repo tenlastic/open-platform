@@ -1,6 +1,6 @@
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   Friend,

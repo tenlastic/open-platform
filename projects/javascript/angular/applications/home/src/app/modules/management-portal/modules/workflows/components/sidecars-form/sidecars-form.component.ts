@@ -1,7 +1,7 @@
 import { ENTER } from '@angular/cdk/keycodes';
 import { Component, Input } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatChipInputEvent } from '@angular/material';
+import { MatChipInputEvent } from '@angular/material/chips';
 
 @Component({
   templateUrl: 'sidecars-form.component.html',

@@ -1,12 +1,9 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import {
-  MatDialog,
-  MatPaginator,
-  MatSnackBar,
-  MatSort,
-  MatTable,
-  MatTableDataSource,
-} from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSort } from '@angular/material/sort';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { Article, ArticleQuery, ArticleService } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';

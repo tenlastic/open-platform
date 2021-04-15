@@ -8,7 +8,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import {
   Group,
   GroupInvitationService,

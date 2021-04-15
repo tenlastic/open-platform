@@ -8,7 +8,8 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Collection, CollectionService, DatabaseService } from '@tenlastic/ng-http';
 
