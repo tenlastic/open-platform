@@ -10,7 +10,7 @@ import { IPasswordResetRequested, PasswordResetRequestFormComponent } from '../.
   styleUrls: ['./request-password-reset-page.component.scss'],
 })
 export class RequestPasswordResetPageComponent {
-  @ViewChild(PasswordResetRequestFormComponent, { static: false })
+  @ViewChild(PasswordResetRequestFormComponent)
   public passwordResetRequestForm: PasswordResetRequestFormComponent;
 
   public disableLogin: boolean;

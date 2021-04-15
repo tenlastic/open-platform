@@ -30,7 +30,7 @@ import { IdentityService } from '../../../core/services';
 })
 export class MessagesComponent implements OnChanges, OnDestroy {
   @Input() public user: User;
-  @ViewChild('messagesScrollContainer', { static: false })
+  @ViewChild('messagesScrollContainer')
   public messagesScrollContainer: ElementRef;
 
   public get $canInvite() {

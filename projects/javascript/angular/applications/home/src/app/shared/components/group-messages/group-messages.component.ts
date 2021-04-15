@@ -35,7 +35,7 @@ import { PromptComponent } from '../prompt/prompt.component';
 })
 export class GroupMessagesComponent implements OnChanges, OnDestroy {
   @Input() public group: Group;
-  @ViewChild('messagesScrollContainer', { static: false })
+  @ViewChild('messagesScrollContainer')
   public messagesScrollContainer: ElementRef;
 
   public $messages: Observable<Message[]>;

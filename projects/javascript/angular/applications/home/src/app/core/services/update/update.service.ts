@@ -11,7 +11,8 @@ import {
 import { ChildProcess } from 'child_process';
 import { Subject } from 'rxjs';
 
-import { ElectronService, IdentityService } from '../../services';
+import { ElectronService } from '../../services/electron/electron.service';
+import { IdentityService } from '../../services/identity/identity.service';
 
 export enum UpdateServiceState {
   Checking,

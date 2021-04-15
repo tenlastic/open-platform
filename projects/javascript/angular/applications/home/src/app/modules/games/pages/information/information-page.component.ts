@@ -11,7 +11,7 @@ import { ArticleDialogComponent } from '../../components';
   templateUrl: 'information-page.component.html',
 })
 export class InformationPageComponent implements OnInit {
-  @ViewChild('video', { static: false }) private video: ElementRef;
+  @ViewChild('video') private video: ElementRef;
 
   public articles: Article[];
   public game: Game;

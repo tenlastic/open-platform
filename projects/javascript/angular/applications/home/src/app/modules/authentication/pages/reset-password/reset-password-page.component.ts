@@ -11,7 +11,7 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./reset-password-page.component.scss'],
 })
 export class ResetPasswordPageComponent implements OnInit {
-  @ViewChild(PasswordResetFormComponent, { static: false })
+  @ViewChild(PasswordResetFormComponent)
   public passwordResetForm: PasswordResetFormComponent;
 
   public disableLogin: boolean;
