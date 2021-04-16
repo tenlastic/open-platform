@@ -1,17 +1,6 @@
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  ViewChild,
-} from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Build, BuildQuery, BuildService, IBuild } from '@tenlastic/ng-http';
-import { Observable } from 'rxjs';
-
-import { IdentityService } from '../../../../../../core/services';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { Build, BuildService, IBuild } from '@tenlastic/ng-http';
 
 export interface UpdatedFile {
   arrayBuffer?: ArrayBuffer;

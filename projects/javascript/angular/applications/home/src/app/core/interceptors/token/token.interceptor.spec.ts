@@ -32,10 +32,10 @@ describe('TokenInterceptor', () => {
       ],
     });
 
-    httpMock = TestBed.get(HttpTestingController);
-    identityService = TestBed.get(IdentityService);
-    interceptor = TestBed.get(TokenInterceptor);
-    userService = TestBed.get(UserService);
+    httpMock = TestBed.inject(HttpTestingController);
+    identityService = TestBed.inject(IdentityService);
+    interceptor = TestBed.inject(TokenInterceptor);
+    userService = TestBed.inject(UserService);
   });
 
   afterEach(() => {
