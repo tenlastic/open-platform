@@ -19,12 +19,7 @@ export async function handler(ctx: Context) {
     existing.namespaceId as any,
   );
 
-  const result = await GameServerPermissions.update(
-    existing,
-    ctx.request.body,
-    ctx.params,
-    ctx.state.user,
-  );
+  const result = await GameServerPermissions.update(existing, ctx.request.body, ctx.params, user);
   const record = await GameServerPermissions.read(result, user);
 
   ctx.response.body = { record };

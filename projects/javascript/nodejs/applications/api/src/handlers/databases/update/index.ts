@@ -19,12 +19,7 @@ export async function handler(ctx: Context) {
     ctx.request.body.storage || existing.storage,
   );
 
-  const result = await DatabasePermissions.update(
-    existing,
-    ctx.request.body,
-    ctx.params,
-    ctx.state.user,
-  );
+  const result = await DatabasePermissions.update(existing, ctx.request.body, ctx.params, user);
   const record = await DatabasePermissions.read(result, user);
 
   ctx.response.body = { record };

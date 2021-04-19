@@ -15,7 +15,7 @@ export function updateOne<TDocument extends mongoose.Document>(
       throw new RecordNotFoundError('Record');
     }
 
-    const result = await Permissions.update(existing, ctx.request.body, ctx.params, ctx.state.user);
+    const result = await Permissions.update(existing, ctx.request.body, ctx.params, user);
     const record = await Permissions.read(result, user);
 
     ctx.response.body = { record };

@@ -20,12 +20,7 @@ export async function handler(ctx: Context) {
     replicas || existing.replicas,
   );
 
-  const result = await QueuePermissions.update(
-    existing,
-    ctx.request.body,
-    ctx.params,
-    ctx.state.user,
-  );
+  const result = await QueuePermissions.update(existing, ctx.request.body, ctx.params, user);
   const record = await QueuePermissions.read(result, user);
 
   ctx.response.body = { record };

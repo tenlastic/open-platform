@@ -103,9 +103,13 @@ export class RecordSchema {
 
     if (collection.permissions.find) {
       const find = JSON.parse(JSON.stringify(collection.permissions.find));
-      if (find.default) {
-        find.default = { $or: [permissions.find.default, find.default] };
-      }
+
+      Object.keys(permissions.find).forEach(key => {
+        if (key in find) {
+          find[key] = { $or: [find[key], permissions.find[key]] };
+        }
+      });
+
       Object.assign(permissions.find, find);
     }
     if (collection.permissions.populate) {

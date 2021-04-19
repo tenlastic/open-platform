@@ -7,7 +7,6 @@ import {
   index,
   modelOptions,
   plugin,
-  post,
   prop,
 } from '@typegoose/typegoose';
 import * as minio from '@tenlastic/minio';
@@ -34,6 +33,18 @@ export enum BuildPlatform {
   Server64 = 'server64',
   Windows64 = 'windows64',
 }
+
+// Delete files from Minio if associated Build is deleted.
+BuildEvent.sync(async payload => {
+  if (payload.operationType !== 'delete') {
+    return;
+  }
+
+  for (const file of payload.fullDocument.files) {
+    const path = payload.fullDocument.getFilePath(file.path);
+    await minio.removeObject(process.env.MINIO_BUCKET, path);
+  }
+});
 
 // Delete Builds if associated Game is deleted.
 GameEvent.sync(async payload => {
@@ -66,11 +77,6 @@ NamespaceEvent.sync(async payload => {
 @modelOptions({ schemaOptions: { collection: 'builds', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: BuildEvent })
 @plugin(uniqueErrorPlugin)
-@post('remove', async function(this: BuildDocument) {
-  for (const file of this.files) {
-    await minio.removeObject(process.env.MINIO_BUCKET, this.getFilePath(file.path));
-  }
-})
 export class BuildSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

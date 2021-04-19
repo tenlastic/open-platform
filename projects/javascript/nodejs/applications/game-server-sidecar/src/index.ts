@@ -82,6 +82,19 @@ async function getPodIp(pod: k8s.V1Pod) {
   return address ? address.address : '127.0.0.1';
 }
 
+function getPodStatus(pod: k8s.V1Pod) {
+  const isReady =
+    pod.status.conditions &&
+    pod.status.conditions.find(c => c.status === 'True' && c.type === 'ContainersReady');
+
+  let phase = pod.status.phase;
+  if (phase === 'Running' && !isReady) {
+    phase = 'Pending';
+  }
+
+  return { name: pod.metadata.name, phase };
+}
+
 async function updateGameServer(pod: k8s.V1Pod) {
   // Endpoints.
   let endpoints = null;
@@ -98,10 +111,7 @@ async function updateGameServer(pod: k8s.V1Pod) {
   }
 
   // Nodes.
-  const nodes = Object.entries(pods).map(([key, value]) => ({
-    name: value.metadata.name,
-    phase: value.status.phase,
-  }));
+  const nodes = Object.entries(pods).map(([key, value]) => getPodStatus(value));
 
   // Phase.
   let phase = 'Pending';

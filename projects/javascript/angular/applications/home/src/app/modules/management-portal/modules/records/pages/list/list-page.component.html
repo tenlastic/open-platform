@@ -27,7 +27,7 @@
                   [matColumnDef]="column">
       <th mat-header-cell
           *matHeaderCellDef
-          mat-sort-header>{{ column }}</th>
+          mat-sort-header>{{ column | camelCaseToTitleCase }}</th>
       <td mat-cell
           *matCellDef="let element">{{ element.properties[column] }}</td>
     </ng-container>

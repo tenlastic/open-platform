@@ -8,7 +8,7 @@ export async function indexes() {
     console.log('Indexes synced successfully!');
 
     // Run every 24 hours.
-    setTimeout(indexes, 24 * 60 * 60);
+    setTimeout(indexes, 24 * 60 * 60 * 1000);
   } catch (e) {
     console.error(e);
     process.exit(1);
