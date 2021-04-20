@@ -138,6 +138,11 @@ export const KubernetesGameServerSidecar = {
         },
       },
     };
+    const livenessProbe: k8s.V1Probe = {
+      httpGet: { path: `/`, port: 3000 as any },
+      initialDelaySeconds: 30,
+      periodSeconds: 30,
+    };
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
@@ -158,6 +163,7 @@ export const KubernetesGameServerSidecar = {
               command: ['npm', 'run', 'start'],
               envFrom: [{ secretRef: { name } }],
               image: 'node:12',
+              livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
               name: 'game-server-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
@@ -168,6 +174,7 @@ export const KubernetesGameServerSidecar = {
               command: ['npm', 'run', 'start'],
               envFrom: [{ secretRef: { name } }],
               image: 'node:12',
+              livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
               name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
@@ -196,12 +203,14 @@ export const KubernetesGameServerSidecar = {
             {
               envFrom: [{ secretRef: { name } }],
               image: `tenlastic/game-server-sidecar:${version}`,
+              livenessProbe,
               name: 'game-server-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },
             {
               envFrom: [{ secretRef: { name } }],
               image: `tenlastic/log-sidecar:${version}`,
+              livenessProbe,
               name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },

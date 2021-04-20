@@ -260,6 +260,12 @@ export const KubernetesQueue = {
      * STATEFUL SET
      * ======================
      */
+    const livenessProbe: k8s.V1Probe = {
+      httpGet: { path: `/`, port: 3000 as any },
+      initialDelaySeconds: 30,
+      periodSeconds: 30,
+    };
+
     const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/');
     let manifest: k8s.V1PodTemplateSpec;
     if (isDevelopment && queue.buildId) {
@@ -303,6 +309,7 @@ export const KubernetesQueue = {
               env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
               envFrom: [{ secretRef: { name } }],
               image: `node:12`,
+              livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
               name: 'main',
               resources,
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
@@ -355,6 +362,7 @@ export const KubernetesQueue = {
               env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
               envFrom: [{ secretRef: { name } }],
               image: `tenlastic/queue:${version}`,
+              livenessProbe,
               name: 'main',
               resources,
             },

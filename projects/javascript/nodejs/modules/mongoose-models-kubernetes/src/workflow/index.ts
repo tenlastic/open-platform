@@ -137,7 +137,7 @@ export const KubernetesWorkflow = {
         serviceAccountName: name,
         templates,
         ttlStrategy: {
-          secondsAfterCompletion: 300,
+          secondsAfterCompletion: 15 * 60,
         },
         volumeClaimTemplates: [
           {

@@ -6,7 +6,6 @@ import * as mongooseChangeStreamKafka from '@tenlastic/mongoose-change-stream-ka
 import * as mongooseModels from '@tenlastic/mongoose-models';
 import { WebServer } from '@tenlastic/web-server';
 import { WebSocketServer } from '@tenlastic/web-socket-server';
-import * as Router from 'koa-router';
 
 import * as handlers from './handlers';
 
@@ -25,10 +24,8 @@ import * as handlers from './handlers';
     mongooseModels.WebSocketEvent.sync(mongooseChangeStreamKafka.publish);
 
     // Web Server.
-    const router = new Router();
-    router.get('/', ctx => (ctx.status = 200));
     const webServer = new WebServer();
-    webServer.use(router.routes());
+    webServer.use(ctx => (ctx.status = 200));
     webServer.start();
 
     // Web Sockets.

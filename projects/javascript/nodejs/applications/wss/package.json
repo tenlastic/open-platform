@@ -21,7 +21,6 @@
     "@tenlastic/mongoose-permissions": "0.0.154",
     "@tenlastic/web-server": "0.0.154",
     "@tenlastic/web-socket-server": "0.0.154",
-    "koa-router": "7.4.0",
     "mongoose": "5.9.2",
     "source-map-support": "0.5.12"
   },

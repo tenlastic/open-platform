@@ -384,7 +384,7 @@ export const KubernetesDatabase = {
         path: `/databases/${database._id}/collections`,
         port: 3000 as any,
       },
-      initialDelaySeconds: 120,
+      initialDelaySeconds: 30,
       periodSeconds: 30,
     };
 
@@ -402,7 +402,7 @@ export const KubernetesDatabase = {
               command: ['npm', 'run', 'start'],
               envFrom: [{ secretRef: { name } }],
               image: `node:12`,
-              livenessProbe,
+              livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
               name: 'main',
               ports: [{ containerPort: 3000, protocol: 'TCP' }],
               resources: { requests: resources.requests },

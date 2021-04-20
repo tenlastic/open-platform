@@ -1,6 +1,7 @@
 import 'source-map-support/register';
 
 import { queueMemberStore, setAccessToken, WebSocket } from '@tenlastic/http';
+import { WebServer } from '@tenlastic/web-server';
 
 import { createGameServer } from './create-game-server';
 import * as redis from './redis';
@@ -14,8 +15,10 @@ const wssUrl = process.env.WSS_URL;
   try {
     setAccessToken(accessToken);
 
+    // Redis.
     await redis.start();
 
+    // Web Socket.
     const webSocket = new WebSocket();
     webSocket.emitter.on('open', () => {
       console.log('Web socket connected.');
@@ -43,6 +46,11 @@ const wssUrl = process.env.WSS_URL;
       );
     });
     webSocket.connect(wssUrl);
+
+    // Web Server.
+    const webServer = new WebServer();
+    webServer.use(ctx => (ctx.status = 200));
+    webServer.start();
 
     // Wait for changes from web socket to catch up.
     setTimeout(main, 15000);
