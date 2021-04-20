@@ -8,7 +8,7 @@ import { UserQuery } from './user';
 export interface NamespaceState extends EntityState<Namespace> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'namespaces' })
+@StoreConfig({ idKey: '_id', name: 'namespaces', resettable: true })
 export class NamespaceStore extends EntityStore<NamespaceState, Namespace> {
   constructor(private namespaceService: NamespaceService) {
     super();

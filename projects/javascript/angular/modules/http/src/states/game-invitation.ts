@@ -12,7 +12,7 @@ import { UserQuery } from './user';
 export interface GameInvitationState extends EntityState<GameInvitation> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'game-invitations' })
+@StoreConfig({ idKey: '_id', name: 'game-invitations', resettable: true })
 export class GameInvitationStore extends EntityStore<GameInvitationState, GameInvitation> {
   constructor(private gameInvitationService: GameInvitationService) {
     super();

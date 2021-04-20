@@ -10,10 +10,10 @@ import { GameQuery } from './game';
 export interface BuildState extends EntityState<Build> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'builds' })
+@StoreConfig({ idKey: '_id', name: 'builds', resettable: true })
 export class BuildStore extends EntityStore<BuildState, Build> {
   constructor(private buildService: BuildService) {
-    super();
+    super([]);
 
     this.buildService.onCreate.subscribe(record => this.add(record));
     this.buildService.onDelete.subscribe(record => this.remove(record._id));

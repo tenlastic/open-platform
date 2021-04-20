@@ -7,7 +7,7 @@ import { RecordService } from '../services/record/record.service';
 export interface RecordState extends EntityState<Record> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'records' })
+@StoreConfig({ idKey: '_id', name: 'records', resettable: true })
 export class RecordStore extends EntityStore<RecordState, Record> {
   constructor(private recordService: RecordService) {
     super();

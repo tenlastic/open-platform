@@ -10,7 +10,7 @@ import { GameQuery } from './game';
 export interface DatabaseState extends EntityState<Database> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'databases' })
+@StoreConfig({ idKey: '_id', name: 'databases', resettable: true })
 export class DatabaseStore extends EntityStore<DatabaseState, Database> {
   constructor(private databaseService: DatabaseService) {
     super();

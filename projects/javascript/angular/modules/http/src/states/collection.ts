@@ -7,7 +7,7 @@ import { CollectionService } from '../services/collection/collection.service';
 export interface CollectionState extends EntityState<Collection> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'collections' })
+@StoreConfig({ idKey: '_id', name: 'collections', resettable: true })
 export class CollectionStore extends EntityStore<CollectionState, Collection> {
   constructor(private collectionService: CollectionService) {
     super();

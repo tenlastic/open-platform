@@ -7,7 +7,7 @@ import { WorkflowService } from '../services/workflow/workflow.service';
 export interface WorkflowState extends EntityState<Workflow> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'workflows' })
+@StoreConfig({ idKey: '_id', name: 'workflows', resettable: true })
 export class WorkflowStore extends EntityStore<WorkflowState, Workflow> {
   constructor(private workflowService: WorkflowService) {
     super();

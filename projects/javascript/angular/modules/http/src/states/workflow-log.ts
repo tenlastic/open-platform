@@ -10,7 +10,7 @@ import { WorkflowQuery } from './workflow';
 export interface WorkflowLogState extends EntityState<WorkflowLog> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'workflow-logs' })
+@StoreConfig({ idKey: '_id', name: 'workflow-logs', resettable: true })
 export class WorkflowLogStore extends EntityStore<WorkflowLogState, WorkflowLog> {
   constructor(private workflowLogService: WorkflowLogService) {
     super();

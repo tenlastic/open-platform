@@ -28,6 +28,7 @@ export class LogoutPageComponent implements OnInit {
   }
 
   private async logOut() {
+    this.identityService.clear();
     await this.loginService.delete();
 
     const { snapshot } = this.activatedRoute;

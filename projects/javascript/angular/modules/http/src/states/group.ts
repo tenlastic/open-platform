@@ -10,7 +10,7 @@ import { UserQuery } from '../states/user';
 export interface GroupState extends EntityState<Group> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'groups' })
+@StoreConfig({ idKey: '_id', name: 'groups', resettable: true })
 export class GroupStore extends EntityStore<GroupState, Group> {
   constructor(private groupService: GroupService) {
     super();

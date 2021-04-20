@@ -11,7 +11,7 @@ import { QueueQuery } from './queue';
 export interface GameServerState extends EntityState<GameServer> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'game-servers' })
+@StoreConfig({ idKey: '_id', name: 'game-servers', resettable: true })
 export class GameServerStore extends EntityStore<GameServerState, GameServer> {
   constructor(private gameServerService: GameServerService) {
     super();

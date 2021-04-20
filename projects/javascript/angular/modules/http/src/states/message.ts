@@ -10,7 +10,7 @@ import { UserQuery } from './user';
 export interface MessageState extends EntityState<Message> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'messages' })
+@StoreConfig({ idKey: '_id', name: 'messages', resettable: true })
 export class MessageStore extends EntityStore<MessageState, Message> {
   constructor(private messageService: MessageService) {
     super();

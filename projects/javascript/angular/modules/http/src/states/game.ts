@@ -7,7 +7,7 @@ import { GameService } from '../services/game/game.service';
 export interface GameState extends EntityState<Game> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'games' })
+@StoreConfig({ idKey: '_id', name: 'games', resettable: true })
 export class GameStore extends EntityStore<GameState, Game> {
   constructor(private gameService: GameService) {
     super();

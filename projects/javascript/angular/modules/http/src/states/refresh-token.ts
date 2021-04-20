@@ -7,7 +7,7 @@ import { RefreshTokenService } from '../services/refresh-token/refresh-token.ser
 export interface RefreshTokenState extends EntityState<RefreshToken> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'refreshtokens' })
+@StoreConfig({ idKey: '_id', name: 'refreshtokens', resettable: true })
 export class RefreshTokenStore extends EntityStore<RefreshTokenState, RefreshToken> {
   constructor(private refreshTokenService: RefreshTokenService) {
     super();

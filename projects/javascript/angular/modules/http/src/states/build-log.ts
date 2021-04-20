@@ -10,7 +10,7 @@ import { BuildQuery } from './build';
 export interface BuildLogState extends EntityState<BuildLog> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'build-logs' })
+@StoreConfig({ idKey: '_id', name: 'build-logs', resettable: true })
 export class BuildLogStore extends EntityStore<BuildLogState, BuildLog> {
   constructor(private buildLogService: BuildLogService) {
     super();

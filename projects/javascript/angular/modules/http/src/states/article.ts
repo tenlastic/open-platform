@@ -11,7 +11,7 @@ import { NamespaceQuery } from './namespace';
 export interface ArticleState extends EntityState<Article> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'articles' })
+@StoreConfig({ idKey: '_id', name: 'articles', resettable: true })
 export class ArticleStore extends EntityStore<ArticleState, Article> {
   constructor(private articleService: ArticleService) {
     super();

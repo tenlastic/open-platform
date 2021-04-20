@@ -1,6 +1,7 @@
 import { Title } from '@angular/platform-browser';
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
+import { akitaConfig, resetStores } from '@datorama/akita';
 import {
   ArticleQuery,
   Build,
@@ -94,7 +95,7 @@ export class AppComponent implements OnInit {
       this.socket = this.socketService.connect(environment.apiBaseUrl);
       this.socket.addEventListener('open', () => this.subscribe());
     });
-    this.loginService.onLogout.subscribe(() => this.socket && this.socket.close());
+    this.loginService.onLogout.subscribe(() => this.socket?.close());
 
     // Handle websockets when access token is set.
     this.identityService.OnAccessTokenSet.subscribe(() => {
@@ -120,6 +121,9 @@ export class AppComponent implements OnInit {
         localStorage.setItem('url', event.url);
       }
     });
+
+    // Clear stores on logout.
+    this.loginService.onLogout.subscribe(() => resetStores());
 
     this.fetchMissingRecords();
   }
