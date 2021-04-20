@@ -32,6 +32,7 @@ table {
 
   .mat-column-actions {
     text-align: right;
+    white-space: nowrap;
 
     app-button {
       margin-left: 8px;

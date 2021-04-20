@@ -464,6 +464,31 @@ table.mat-table {
 
   td.mat-cell {
     color: white;
+    padding: 8px;
+
+    &:first-of-type {
+      padding-left: 16px;
+    }
+
+    &:last-of-type {
+      padding-right: 16px;
+    }
+  }
+
+  th.mat-header-cell {
+    padding: 8px;
+
+    &:first-of-type {
+      padding-left: 16px;
+    }
+
+    &:last-of-type {
+      padding-right: 16px;
+    }
+  }
+
+  tr.mat-row {
+    height: auto;
   }
 
   .mat-column-actions {
