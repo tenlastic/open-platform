@@ -97,7 +97,7 @@ WebSocketEvent.sync(async payload => {
   await this.checkPlayersPerTeam();
 })
 @pre('validate', function(this: QueueMemberDocument) {
-  const message = 'One of the following fields must be specified: groupId or userId.';
+  const message = 'Only one of the following fields must be specified: groupId or userId.';
 
   if (this.groupId && this.userId) {
     this.invalidate('groupId', message, this.groupId);

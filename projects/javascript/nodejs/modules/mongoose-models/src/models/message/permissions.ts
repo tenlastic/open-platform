@@ -31,6 +31,7 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
       ],
     },
   },
+  populate: [{ path: 'toGroupDocument' }],
   read: {
     default: [
       '_id',
@@ -48,6 +49,16 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
       name: 'sender',
       query: {
         'record.fromUserId': { $eq: { $ref: 'user._id' } },
+        'record.toGroupId': { $exists: false },
+        'record.toUserId': { $exists: true },
+      },
+    },
+    {
+      name: 'sender',
+      query: {
+        'record.fromUserId': { $eq: { $ref: 'user._id' } },
+        'record.toGroupDocument.userIds': { $eq: { $ref: 'user._id' } },
+        'record.toUserId': { $exists: false },
       },
     },
     {

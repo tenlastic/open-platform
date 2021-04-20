@@ -7,6 +7,7 @@ import {
   index,
   modelOptions,
   plugin,
+  pre,
   prop,
 } from '@typegoose/typegoose';
 import {
@@ -23,11 +24,16 @@ export const MessageEvent = new EventEmitter<IDatabasePayload<MessageDocument>>(
 
 // Delete Messages if associated Group is deleted.
 GroupEvent.sync(async payload => {
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await Message.find({ groupId: payload.fullDocument._id });
-      const promises = records.map(r => r.remove());
-      return Promise.all(promises);
+  const group = payload.fullDocument;
+
+  if (payload.operationType === 'delete') {
+    const records = await Message.find({ groupId: group._id });
+    const promises = records.map(r => r.remove());
+    return Promise.all(promises);
+  } else if (payload.operationType === 'update') {
+    const records = await Message.find({ fromUserId: { $nin: group.userIds }, groupId: group._id });
+    const promises = records.map(r => r.remove());
+    return Promise.all(promises);
   }
 });
 
@@ -55,6 +61,17 @@ UserEvent.sync(async payload => {
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: MessageEvent })
+@pre('validate', function(this: MessageDocument) {
+  const message = 'Only one of the following fields must be specified: toGroupId or toUserId.';
+
+  if (this.toGroupId && this.toUserId) {
+    this.invalidate('toGroupId', message, this.toGroupId);
+    this.invalidate('toUserId', message, this.toUserId);
+  } else if (!this.toGroupId && !this.toUserId) {
+    this.invalidate('toGroupId', message, this.toGroupId);
+    this.invalidate('toUserId', message, this.toUserId);
+  }
+})
 export class MessageSchema {
   public _id: mongoose.Types.ObjectId;
 
@@ -69,22 +86,10 @@ export class MessageSchema {
   @arrayProp({ itemsRef: 'UserSchema' })
   public readByUserIds: Array<Ref<UserDocument>>;
 
-  @prop({
-    immutable: true,
-    ref: 'GroupSchema',
-    required(this: MessageDocument) {
-      return !this.toUserId;
-    },
-  })
+  @prop({ immutable: true, ref: 'GroupSchema' })
   public toGroupId: Ref<GroupDocument>;
 
-  @prop({
-    immutable: true,
-    ref: 'UserSchema',
-    required(this: MessageDocument) {
-      return !this.toGroupId;
-    },
-  })
+  @prop({ immutable: true, ref: 'UserSchema' })
   public toUserId: Ref<UserDocument>;
 
   public updatedAt: Date;
