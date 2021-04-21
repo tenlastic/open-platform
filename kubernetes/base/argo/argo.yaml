@@ -19,6 +19,7 @@ spec:
               - matchExpressions:
                   - key: tenlastic.com/high-priority
                     operator: Exists
+      containerRuntimeExecutor: k8sapi
       replicas: 1
       resources:
         requests:
