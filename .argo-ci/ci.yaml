@@ -172,6 +172,7 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
         source: |
+          set -e
           lerna run lint --ci --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
           lerna run build --ci --concurrency 1 --include-dependencies --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
           lerna run test --ci --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
@@ -195,6 +196,7 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
         source: |
+          set -e
           lerna run lint --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since 
           lerna run build --ci --include-dependencies --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since
           lerna run test --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since
@@ -259,6 +261,7 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
         source: |
+          set -e
           npm i -g json
           lerna list --all --ignore @tenlastic/ng-* --json --scope @tenlastic/* | \
             json -0 -c 'this.private === true' -e 'this.name = this.name.replace("@tenlastic/","")'
@@ -275,6 +278,7 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
         source: |
+          set -e
           lerna run build --ci --include-dependencies --scope @tenlastic/migrations --scope nodejs
           npm run start
         envFrom:
@@ -335,6 +339,7 @@ spec:
         image: electronuserland/builder:wine
         command: [sh]
         source: |
+          set -e
           lerna run electron:install --ci
           lerna run electron:windows --ci -- -- --publish always --win
         envFrom:
@@ -357,6 +362,8 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
         source: |
+          set -e
+
           # Add Host Key for Github.
           mkdir -p /root/.ssh/
           ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
@@ -422,6 +429,7 @@ spec:
         image: hashicorp/terraform:0.14.5
         command: [sh]
         source: |
+          set -e
           terraform init
           terraform apply -auto-approve
         envFrom:
