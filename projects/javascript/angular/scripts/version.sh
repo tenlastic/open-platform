@@ -2,7 +2,7 @@
 set -e
 
 DIRECTORY="${1}"
-FILE="../../../../../kubernetes/base/angular/${DIRECTORY}/deployment.yml"
+FILE="../../../../../kubernetes/base/angular/${DIRECTORY}/deployment.yaml"
 VERSION=$(node -p "require('./package.json').version")
 
 # Bump tag to the most recent version.
