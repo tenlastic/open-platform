@@ -108,6 +108,11 @@ export const KubernetesBuildSidecar = {
         },
       },
     };
+    const livenessProbe: k8s.V1Probe = {
+      httpGet: { path: `/`, port: 3000 as any },
+      initialDelaySeconds: 30,
+      periodSeconds: 30,
+    };
 
     const packageDotJson = fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8');
     const version = JSON.parse(packageDotJson).version;
@@ -131,6 +136,7 @@ export const KubernetesBuildSidecar = {
               command: ['npm', 'run', 'start'],
               envFrom: [{ secretRef: { name } }],
               image: 'node:12',
+              livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
               name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
@@ -140,6 +146,7 @@ export const KubernetesBuildSidecar = {
               command: ['npm', 'run', 'start'],
               envFrom: [{ secretRef: { name } }],
               image: 'node:12',
+              livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
               name: 'workflow-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
@@ -165,12 +172,14 @@ export const KubernetesBuildSidecar = {
             {
               envFrom: [{ secretRef: { name } }],
               image: `tenlastic/log-sidecar:${version}`,
+              livenessProbe,
               name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },
             {
               envFrom: [{ secretRef: { name } }],
               image: `tenlastic/workflow-sidecar:${version}`,
+              livenessProbe,
               name: 'workflow-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },
