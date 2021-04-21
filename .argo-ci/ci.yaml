@@ -11,7 +11,7 @@ spec:
   entrypoint: pipeline
   podGC:
     strategy: OnPodSuccess
-  serviceAccountName: argo
+  serviceAccountName: argo-workflow
   ttlStrategy:
     secondsAfterSuccess: 1296000
   volumeClaimTemplates:
