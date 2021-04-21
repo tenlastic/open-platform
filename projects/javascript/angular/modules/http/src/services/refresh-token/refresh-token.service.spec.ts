@@ -13,7 +13,6 @@ describe('RefreshTokenService', () => {
   const chance = new Chance();
 
   let httpMock: HttpTestingController;
-  let injector: TestBed;
   let service: RefreshTokenService;
 
   beforeEach(() => {
@@ -26,9 +25,8 @@ describe('RefreshTokenService', () => {
       ],
     });
 
-    injector = getTestBed();
-    httpMock = injector.get(HttpTestingController);
-    service = injector.get(RefreshTokenService);
+    httpMock = TestBed.inject(HttpTestingController);
+    service = TestBed.inject(RefreshTokenService);
   });
 
   afterEach(() => {

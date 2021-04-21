@@ -13,7 +13,6 @@ describe('WorkflowLogService', () => {
   const chance = new Chance();
 
   let httpMock: HttpTestingController;
-  let injector: TestBed;
   let service: WorkflowLogService;
 
   beforeEach(() => {
@@ -26,9 +25,8 @@ describe('WorkflowLogService', () => {
       ],
     });
 
-    injector = getTestBed();
-    httpMock = injector.get(HttpTestingController);
-    service = injector.get(WorkflowLogService);
+    httpMock = TestBed.inject(HttpTestingController);
+    service = TestBed.inject(WorkflowLogService);
   });
 
   afterEach(() => {

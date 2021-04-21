@@ -9,7 +9,6 @@ describe('ApiService', () => {
   const chance = new Chance();
 
   let httpMock: HttpTestingController;
-  let injector: TestBed;
   let service: ApiService;
 
   beforeEach(() => {
@@ -18,9 +17,8 @@ describe('ApiService', () => {
       providers: [ApiService],
     });
 
-    injector = getTestBed();
-    httpMock = injector.get(HttpTestingController);
-    service = injector.get(ApiService);
+    httpMock = TestBed.inject(HttpTestingController);
+    service = TestBed.inject(ApiService);
   });
 
   afterEach(() => {

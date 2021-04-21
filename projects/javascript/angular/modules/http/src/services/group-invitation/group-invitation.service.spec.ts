@@ -13,7 +13,6 @@ describe('GroupInvitationService', () => {
   const chance = new Chance();
 
   let httpMock: HttpTestingController;
-  let injector: TestBed;
   let service: GroupInvitationService;
 
   beforeEach(() => {
@@ -26,9 +25,8 @@ describe('GroupInvitationService', () => {
       ],
     });
 
-    injector = getTestBed();
-    httpMock = injector.get(HttpTestingController);
-    service = injector.get(GroupInvitationService);
+    httpMock = TestBed.inject(HttpTestingController);
+    service = TestBed.inject(GroupInvitationService);
   });
 
   afterEach(() => {

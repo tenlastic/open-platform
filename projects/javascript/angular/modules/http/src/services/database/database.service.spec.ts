@@ -13,7 +13,6 @@ describe('DatabaseService', () => {
   const chance = new Chance();
 
   let httpMock: HttpTestingController;
-  let injector: TestBed;
   let service: DatabaseService;
 
   beforeEach(() => {
@@ -26,9 +25,8 @@ describe('DatabaseService', () => {
       ],
     });
 
-    injector = getTestBed();
-    httpMock = injector.get(HttpTestingController);
-    service = injector.get(DatabaseService);
+    httpMock = TestBed.inject(HttpTestingController);
+    service = TestBed.inject(DatabaseService);
   });
 
   afterEach(() => {

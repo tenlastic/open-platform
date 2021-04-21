@@ -11,7 +11,6 @@ describe('PasswordResetService', () => {
   const chance = new Chance();
 
   let httpMock: HttpTestingController;
-  let injector: TestBed;
   let service: PasswordResetService;
 
   beforeEach(() => {
@@ -24,9 +23,8 @@ describe('PasswordResetService', () => {
       ],
     });
 
-    injector = getTestBed();
-    httpMock = injector.get(HttpTestingController);
-    service = injector.get(PasswordResetService);
+    httpMock = TestBed.inject(HttpTestingController);
+    service = TestBed.inject(PasswordResetService);
   });
 
   afterEach(() => {

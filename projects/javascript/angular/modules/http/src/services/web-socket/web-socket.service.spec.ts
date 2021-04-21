@@ -13,7 +13,6 @@ describe('WebSocketService', () => {
   const chance = new Chance();
 
   let httpMock: HttpTestingController;
-  let injector: TestBed;
   let service: WebSocketService;
 
   beforeEach(() => {
@@ -26,9 +25,8 @@ describe('WebSocketService', () => {
       ],
     });
 
-    injector = getTestBed();
-    httpMock = injector.get(HttpTestingController);
-    service = injector.get(WebSocketService);
+    httpMock = TestBed.inject(HttpTestingController);
+    service = TestBed.inject(WebSocketService);
   });
 
   afterEach(() => {

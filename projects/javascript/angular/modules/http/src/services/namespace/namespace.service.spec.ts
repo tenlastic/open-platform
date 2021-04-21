@@ -13,7 +13,6 @@ describe('NamespaceService', () => {
   const chance = new Chance();
 
   let httpMock: HttpTestingController;
-  let injector: TestBed;
   let service: NamespaceService;
 
   beforeEach(() => {
@@ -26,9 +25,8 @@ describe('NamespaceService', () => {
       ],
     });
 
-    injector = getTestBed();
-    httpMock = injector.get(HttpTestingController);
-    service = injector.get(NamespaceService);
+    httpMock = TestBed.inject(HttpTestingController);
+    service = TestBed.inject(NamespaceService);
   });
 
   afterEach(() => {

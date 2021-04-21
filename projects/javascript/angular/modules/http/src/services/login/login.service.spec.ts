@@ -12,7 +12,6 @@ describe('LoginService', () => {
   const chance = new Chance();
 
   let httpMock: HttpTestingController;
-  let injector: TestBed;
   let service: LoginService;
 
   beforeEach(() => {
@@ -25,9 +24,8 @@ describe('LoginService', () => {
       ],
     });
 
-    injector = getTestBed();
-    httpMock = injector.get(HttpTestingController);
-    service = injector.get(LoginService);
+    httpMock = TestBed.inject(HttpTestingController);
+    service = TestBed.inject(LoginService);
   });
 
   afterEach(() => {

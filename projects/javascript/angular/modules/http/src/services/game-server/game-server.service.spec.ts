@@ -13,7 +13,6 @@ describe('GameServerService', () => {
   const chance = new Chance();
 
   let httpMock: HttpTestingController;
-  let injector: TestBed;
   let service: GameServerService;
 
   beforeEach(() => {
@@ -26,9 +25,8 @@ describe('GameServerService', () => {
       ],
     });
 
-    injector = getTestBed();
-    httpMock = injector.get(HttpTestingController);
-    service = injector.get(GameServerService);
+    httpMock = TestBed.inject(HttpTestingController);
+    service = TestBed.inject(GameServerService);
   });
 
   afterEach(() => {

@@ -13,7 +13,6 @@ describe('CollectionService', () => {
   const chance = new Chance();
 
   let httpMock: HttpTestingController;
-  let injector: TestBed;
   let service: CollectionService;
 
   beforeEach(() => {
@@ -26,9 +25,8 @@ describe('CollectionService', () => {
       ],
     });
 
-    injector = getTestBed();
-    httpMock = injector.get(HttpTestingController);
-    service = injector.get(CollectionService);
+    httpMock = TestBed.inject(HttpTestingController);
+    service = TestBed.inject(CollectionService);
   });
 
   afterEach(() => {
