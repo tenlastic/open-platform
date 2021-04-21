@@ -8,25 +8,20 @@ import {
   modelOptions,
   plugin,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import {
   EventEmitter,
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { User, UserDocument } from '../user';
+import { UserDocument } from '../user';
 
 export const GroupEvent = new EventEmitter<IDatabasePayload<GroupDocument>>();
 
-// Publish to Kafka.
-GroupEvent.on(payload => {
-  kafka.publish(payload);
-});
-
-GroupEvent.on(payload => {
+// Delete the group if empty.
+GroupEvent.sync(payload => {
   if (payload.operationType === 'delete') {
     return;
   }
@@ -54,7 +49,7 @@ export class GroupSchema {
 
   public updatedAt: Date;
 
-  @arrayProp({ itemsRef: User })
+  @arrayProp({ itemsRef: 'UserSchema' })
   public userIds: Array<Ref<UserDocument>>;
 
   public get userCount() {

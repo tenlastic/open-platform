@@ -32,10 +32,10 @@ describe('LoginGuard', () => {
       ],
     });
 
-    document = TestBed.get(DOCUMENT);
-    identityService = TestBed.get(IdentityService);
-    loginService = TestBed.get(LoginService);
-    service = TestBed.get(LoginGuard);
+    document = TestBed.inject(DOCUMENT);
+    identityService = TestBed.inject(IdentityService);
+    loginService = TestBed.inject(LoginService);
+    service = TestBed.inject(LoginGuard);
   });
 
   describe('canActivate()', () => {

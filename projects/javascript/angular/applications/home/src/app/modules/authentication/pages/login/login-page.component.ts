@@ -13,7 +13,7 @@ import { ILogIn, LoginFormComponent } from '../../components';
   styleUrls: ['./login-page.component.scss'],
 })
 export class LoginPageComponent implements OnInit {
-  @ViewChild(LoginFormComponent, { static: false })
+  @ViewChild(LoginFormComponent)
   public loginForm: LoginFormComponent;
 
   public disableLogin: boolean;

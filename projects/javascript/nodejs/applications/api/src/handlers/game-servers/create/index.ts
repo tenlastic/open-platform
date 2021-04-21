@@ -1,6 +1,5 @@
 import { GameServer, GameServerPermissions } from '@tenlastic/mongoose-models';
-import { RequiredFieldError } from '@tenlastic/web-server';
-import { Context } from 'koa';
+import { Context, RequiredFieldError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
   const user = ctx.state.apiKey || ctx.state.user;
@@ -10,7 +9,7 @@ export async function handler(ctx: Context) {
     throw new RequiredFieldError(['cpu', 'memory', 'namespaceId']);
   }
 
-  await GameServer.checkNamespaceLimits(1, cpu, isPreemptible || false, memory, namespaceId);
+  await GameServer.checkNamespaceLimits(null, cpu, isPreemptible || false, memory, namespaceId);
 
   const result = await GameServerPermissions.create(ctx.request.body, ctx.params, user);
   const record = await GameServerPermissions.read(result, user);

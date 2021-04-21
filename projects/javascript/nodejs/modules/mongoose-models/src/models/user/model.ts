@@ -8,33 +8,28 @@ import {
   plugin,
   pre,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import {
   EventEmitter,
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
-import {
-  alphanumericValidator,
-  emailValidator,
-  stringLengthValidator,
-} from '@tenlastic/validations';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
 import * as emails from '../../emails';
+import { alphanumericValidator, emailValidator, stringLengthValidator } from '../../validators';
 import { RefreshToken, RefreshTokenDocument } from '../refresh-token/model';
 import { UserPermissions } from './';
 
-const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
+export const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
 
 export enum UserRole {
   Articles = 'articles',
   Builds = 'builds',
-  Collections = 'collections',
+  Databases = 'databases',
   GameServers = 'game-servers',
   GameInvitations = 'game-invitations',
   Games = 'games',
@@ -43,11 +38,6 @@ export enum UserRole {
   Users = 'users',
   Workflows = 'workflows',
 }
-
-// Publish changes to Kafka.
-UserEvent.on(payload => {
-  kafka.publish(payload);
-});
 
 @index(
   { email: 1 },

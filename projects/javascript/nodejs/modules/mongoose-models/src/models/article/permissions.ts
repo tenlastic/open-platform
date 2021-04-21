@@ -4,8 +4,24 @@ import { Article, ArticleDocument } from './model';
 
 export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Article, {
   create: {
-    'namespace-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
-    'user-administrator': ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
+    'namespace-administrator': [
+      'body',
+      'caption',
+      'gameId',
+      'namespaceId',
+      'publishedAt',
+      'title',
+      'type',
+    ],
+    'user-administrator': [
+      'body',
+      'caption',
+      'gameId',
+      'namespaceId',
+      'publishedAt',
+      'title',
+      'type',
+    ],
   },
   delete: {
     'namespace-administrator': true,
@@ -14,7 +30,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
   find: {
     default: {
       $or: [
-        { $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }] },
+        { publishedAt: { $exists: true, $ne: null } },
         {
           namespaceId: {
             $in: {
@@ -57,6 +73,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
       'body',
       'caption',
       'createdAt',
+      'gameId',
       'namespaceId',
       'publishedAt',
       'title',
@@ -96,7 +113,23 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
     },
   ],
   update: {
-    'namespace-administrator': ['body', 'caption', 'publishedAt', 'title', 'type'],
-    'user-administrator': ['body', 'caption', 'publishedAt', 'title', 'type'],
+    'namespace-administrator': [
+      'body',
+      'caption',
+      'gameId',
+      'namespaceId',
+      'publishedAt',
+      'title',
+      'type',
+    ],
+    'user-administrator': [
+      'body',
+      'caption',
+      'gameId',
+      'namespaceId',
+      'publishedAt',
+      'title',
+      'type',
+    ],
   },
 });

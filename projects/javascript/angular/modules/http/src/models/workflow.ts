@@ -1,6 +1,31 @@
 import { Model } from './model';
 
 export namespace IWorkflow {
+  export const Cpu = [
+    { label: '0.1', value: 0.1 },
+    { label: '0.25', value: 0.25 },
+    { label: '0.5', value: 0.5 },
+    { label: '1', value: 1 },
+  ];
+  export const Memory = [
+    { label: '100 MB', value: 100 * 1000 * 1000 },
+    { label: '250 MB', value: 250 * 1000 * 1000 },
+    { label: '500 MB', value: 500 * 1000 * 1000 },
+    { label: '1 GB', value: 1 * 1000 * 1000 * 1000 },
+  ];
+  export const Parallelisms = [
+    { label: '1', value: 1 },
+    { label: '2', value: 2 },
+    { label: '3', value: 3 },
+    { label: '4', value: 4 },
+    { label: '5', value: 5 },
+  ];
+  export const Storage = [
+    { label: '5 GB', value: 5 * 1000 * 1000 * 1000 },
+    { label: '10 GB', value: 10 * 1000 * 1000 * 1000 },
+    { label: '20 GB', value: 20 * 1000 * 1000 * 1000 },
+  ];
+
   export interface Dag {
     tasks: Task[];
   }
@@ -54,6 +79,7 @@ export namespace IWorkflow {
 
   export interface Spec {
     entrypoint: string;
+    parallelism: number;
     templates?: Template[];
   }
 
@@ -82,12 +108,15 @@ export namespace IWorkflow {
 
 export class Workflow extends Model {
   public _id: string;
+  public cpu: number;
   public createdAt: Date;
   public isPreemptible: boolean;
+  public memory: number;
   public name: string;
   public namespaceId: string;
   public spec: IWorkflow.Spec;
   public status: IWorkflow.Status;
+  public storage: number;
   public updatedAt: Date;
 
   constructor(params: Partial<Workflow> = {}) {

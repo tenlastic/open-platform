@@ -6,19 +6,16 @@ import {
   index,
   modelOptions,
   plugin,
-  post,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import {
   EventEmitter,
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import * as kubernetes from '../../kubernetes';
 import { UserDocument } from '../user';
 import { NamespaceKeySchema } from './key';
 import { NamespaceLimitsSchema } from './limits';
@@ -42,7 +39,7 @@ export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocumen
 export enum NamespaceRole {
   Articles = 'articles',
   Builds = 'builds',
-  Collections = 'collections',
+  Databases = 'databases',
   GameServers = 'game-servers',
   GameInvitations = 'game-invitations',
   Games = 'games',
@@ -50,11 +47,6 @@ export enum NamespaceRole {
   Queues = 'queues',
   Workflows = 'workflows',
 }
-
-// Publish changes to Kafka.
-NamespaceEvent.on(payload => {
-  kafka.publish(payload);
-});
 
 @index(
   { 'keys.value': 1 },
@@ -78,12 +70,6 @@ NamespaceEvent.on(payload => {
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: NamespaceEvent })
 @plugin(uniqueErrorPlugin)
-@post('remove', async function(this: NamespaceDocument) {
-  await kubernetes.Namespace.delete(this);
-})
-@post('save', async function(this: NamespaceDocument) {
-  await kubernetes.Namespace.create(this);
-})
 export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
 
@@ -106,10 +92,6 @@ export class NamespaceSchema {
   public _original: any;
   public wasModified: string[];
   public wasNew: boolean;
-
-  public get kubernetesNamespace() {
-    return `namespace-${this._id}`;
-  }
 
   public static getDefaultUsers(
     users: Array<Partial<NamespaceUserDocument>>,

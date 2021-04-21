@@ -1,59 +1,87 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import {
-  MatPaginator,
-  MatSort,
-  MatTable,
-  MatTableDataSource,
-  MatDialog,
-  MatSnackBar,
-} from '@angular/material';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSort } from '@angular/material/sort';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { Collection, CollectionService } from '@tenlastic/ng-http';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { ActivatedRoute } from '@angular/router';
+import {
+  Collection,
+  CollectionQuery,
+  CollectionService,
+  DatabaseService,
+} from '@tenlastic/ng-http';
+import { Observable, Subscription } from 'rxjs';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import { environment } from '../../../../../../../environments/environment';
+import {
+  IdentityService,
+  SelectedNamespaceService,
+  Socket,
+  SocketService,
+} from '../../../../../../core/services';
+import {
+  BreadcrumbsComponentBreadcrumb,
+  PromptComponent,
+} from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class CollectionsListPageComponent implements OnInit {
+export class CollectionsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Collection>;
 
-  public dataSource: MatTableDataSource<Collection>;
+  public $collections: Observable<Collection[]>;
+  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
+  public dataSource = new MatTableDataSource<Collection>();
   public displayedColumns: string[] = ['name', 'createdAt', 'updatedAt', 'actions'];
-  public search = '';
 
-  private subject: Subject<string> = new Subject();
+  private updateDataSource$ = new Subscription();
+  private get databaseId() {
+    return this.activatedRoute.snapshot.paramMap.get('databaseId');
+  }
+  private socket: Socket;
 
   constructor(
+    private activatedRoute: ActivatedRoute,
+    private collectionQuery: CollectionQuery,
     private collectionService: CollectionService,
+    private databaseService: DatabaseService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private selectedNamespaceService: SelectedNamespaceService,
+    private socketService: SocketService,
     private titleService: Title,
   ) {}
 
-  ngOnInit() {
+  public async ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Collections`);
-    this.fetchCollections();
 
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
+    const database = await this.databaseService.findOne(this.databaseId);
+    this.breadcrumbs = [
+      { label: 'Databases', link: '../../../' },
+      { label: database.name, link: '../../' },
+      { label: 'Collections' },
+    ];
+
+    const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
+    this.socket = this.socketService.connect(url);
+    this.socket.addEventListener('open', () =>
+      this.socket.subscribe('collections', Collection, this.collectionService),
+    );
+
+    await this.fetchCollections();
   }
 
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
-  }
-
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
+  public ngOnDestroy() {
+    this.updateDataSource$.unsubscribe();
+    this.socket.close();
   }
 
   public showDeletePrompt(record: Collection) {
@@ -69,34 +97,29 @@ export class CollectionsListPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
-        await this.collectionService.delete(record._id);
-        this.deleteCollection(record);
-
+        await this.collectionService.delete(this.databaseId, record._id);
         this.matSnackBar.open('Collection deleted successfully.');
       }
     });
   }
 
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-  }
-
   private async fetchCollections() {
-    const records = await this.collectionService.find({
+    this.$collections = this.collectionQuery.selectAll({
+      filterBy: gs =>
+        gs.databaseId === this.databaseId &&
+        gs.namespaceId === this.selectedNamespaceService.namespaceId,
+    });
+
+    await this.collectionService.find(this.databaseId, {
       sort: 'name',
       where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
-    this.dataSource = new MatTableDataSource<Collection>(records);
+    this.updateDataSource$ = this.$collections.subscribe(
+      collections => (this.dataSource.data = collections),
+    );
+
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  private deleteCollection(record: Collection) {
-    const index = this.dataSource.data.findIndex(u => u._id === record._id);
-    this.dataSource.data.splice(index, 1);
-
-    this.dataSource.data = [].concat(this.dataSource.data);
-    this.table.renderRows();
   }
 }

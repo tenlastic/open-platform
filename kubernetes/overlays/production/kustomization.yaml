@@ -33,5 +33,4 @@ resources:
   - ./ingress-nginx/basic-authentication.sealedsecret.yaml
   - ./ingress-nginx/default.ingress.yaml
   - ./nodejs/environment-variables.sealedsecret.yaml
-  - ./rabbitmq/rabbitmq.sealedsecret.yaml
   - ./sealed-secrets/sealed-secrets.yaml

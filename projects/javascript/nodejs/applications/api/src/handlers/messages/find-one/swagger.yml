@@ -1,6 +1,6 @@
 paths:
   /messages/{_id}:
-    delete:
+    get:
       summary: Delete
       tags: [Messages]
       description: Deletes an existing record.

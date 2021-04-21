@@ -7,6 +7,20 @@
   }
 
   div.app-logs-dialog {
+    mat-form-field.mat-form-field div.mat-form-field-wrapper {
+      margin-bottom: -1.25em;
+      margin-top: -14px;
+
+      span.mat-form-field-label-wrapper {
+        display: none;
+      }
+
+      span.mat-select-placeholder {
+        color: white;
+        -webkit-text-fill-color: initial;
+      }
+    }
+
     mat-dialog-container.mat-dialog-container {
       display: flex;
       max-height: 80vh;
@@ -21,16 +35,30 @@ app-button {
   margin-right: 8px;
 }
 
-div.col-sm-6 {
+div.col-sm-3,
+div.col-sm-9 {
   padding: 0px;
+}
 
-  &:nth-child(2) {
-    text-align: right;
+div.col-sm-3 {
+  app-title {
+    margin-bottom: 14px;
+    margin-top: 2px;
+  }
+}
 
-    app-button {
-      margin-left: 8px;
-      margin-right: 0px;
-    }
+div.col-sm-9 {
+  display: flex;
+  justify-content: flex-end;
+  text-align: right;
+
+  app-button {
+    margin-left: 8px;
+    margin-right: 0px;
+  }
+
+  mat-form-field.mat-form-field {
+    display: inline-block;
   }
 }
 
@@ -51,6 +79,7 @@ div.log {
 
   &.expanded span {
     white-space: pre-wrap;
+    word-break: break-word;
   }
 
   span.timestamp {
@@ -62,8 +91,10 @@ div.log {
 }
 
 div.logs-container {
+  display: flex;
   flex: 1 1 auto;
-  overflow: auto;
+  flex-direction: column-reverse;
+  overflow: hidden auto;
 }
 
 div.page {

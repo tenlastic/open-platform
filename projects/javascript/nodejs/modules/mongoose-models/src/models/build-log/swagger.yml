@@ -1,0 +1,27 @@
+components:
+  schemas:
+    BuildLog:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[a-f0-9]{24}$
+        body:
+          type: string
+        buildId:
+          type: string
+          format: ^[a-f0-9]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        nodeId:
+          type: string
+        unix:
+          type: number
+          format: double
+        updatedAt:
+          type: string
+          format: date-time

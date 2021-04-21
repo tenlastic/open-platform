@@ -1,7 +1,7 @@
 export const RecordPermissions = {
   create: {
-    'namespace-administrator': ['collectionId', 'properties.*', 'userId'],
-    'user-administrator': ['collectionId', 'properties.*', 'userId'],
+    'namespace-administrator': ['collectionId', 'databaseId', 'properties.*', 'userId'],
+    'user-administrator': ['collectionId', 'databaseId', 'properties.*', 'userId'],
   },
   delete: {
     'namespace-administrator': true,
@@ -9,42 +9,31 @@ export const RecordPermissions = {
   },
   find: {
     default: {
-      collectionId: {
+      namespaceId: {
         $in: {
-          // Find Collections within returned Namespace.
+          // Find Namespaces where the Key or User has administrator access.
           $query: {
-            model: 'CollectionSchema',
+            model: 'NamespaceSchema',
             select: '_id',
             where: {
-              namespaceId: {
-                $in: {
-                  // Find Namespaces where the Key or User has administrator access.
-                  $query: {
-                    model: 'NamespaceSchema',
-                    select: '_id',
-                    where: {
-                      $or: [
-                        {
-                          keys: {
-                            $elemMatch: {
-                              roles: { $eq: 'collections' },
-                              value: { $eq: { $ref: 'key' } },
-                            },
-                          },
-                        },
-                        {
-                          users: {
-                            $elemMatch: {
-                              _id: { $eq: { $ref: 'user._id' } },
-                              roles: { $eq: 'collections' },
-                            },
-                          },
-                        },
-                      ],
+              $or: [
+                {
+                  keys: {
+                    $elemMatch: {
+                      roles: { $eq: 'databases' },
+                      value: { $eq: { $ref: 'key' } },
                     },
                   },
                 },
-              },
+                {
+                  users: {
+                    $elemMatch: {
+                      _id: { $eq: { $ref: 'user._id' } },
+                      roles: { $eq: 'databases' },
+                    },
+                  },
+                },
+              ],
             },
           },
         },
@@ -52,17 +41,14 @@ export const RecordPermissions = {
     },
     'user-administrator': {},
   },
-  populate: [
-    {
-      path: 'collectionDocument',
-      populate: [{ path: 'namespaceDocument' }],
-    },
-  ],
+  populate: [{ path: 'namespaceDocument' }],
   read: {
     'namespace-administrator': [
       '_id',
       'collectionId',
       'createdAt',
+      'databaseId',
+      'namespaceId',
       'properties.*',
       'updatedAt',
       'userId',
@@ -71,6 +57,8 @@ export const RecordPermissions = {
       '_id',
       'collectionId',
       'createdAt',
+      'databaseId',
+      'namespaceId',
       'properties.*',
       'updatedAt',
       'userId',
@@ -80,7 +68,7 @@ export const RecordPermissions = {
     {
       name: 'user-administrator',
       query: {
-        'user.roles': { $eq: 'collections' },
+        'user.roles': { $eq: 'databases' },
       },
     },
     {
@@ -88,18 +76,18 @@ export const RecordPermissions = {
       query: {
         $or: [
           {
-            'record.collectionDocument.namespaceDocument.keys': {
+            'record.namespaceDocument.keys': {
               $elemMatch: {
-                roles: { $eq: 'collections' },
+                roles: { $eq: 'databases' },
                 value: { $eq: { $ref: 'key' } },
               },
             },
           },
           {
-            'record.collectionDocument.namespaceDocument.users': {
+            'record.namespaceDocument.users': {
               $elemMatch: {
                 _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'collections' },
+                roles: { $eq: 'databases' },
               },
             },
           },
@@ -108,7 +96,7 @@ export const RecordPermissions = {
     },
   ],
   update: {
-    'namespace-administrator': ['collectionId', 'properties.*', 'userId'],
-    'user-administrator': ['collectionId', 'properties.*', 'userId'],
+    'namespace-administrator': ['properties.*', 'userId'],
+    'user-administrator': ['properties.*', 'userId'],
   },
 };

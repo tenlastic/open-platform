@@ -8,13 +8,12 @@ import {
   plugin,
   pre,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import {
   EventEmitter,
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { LogBase } from '../../bases';
@@ -22,13 +21,8 @@ import { QueueDocument, QueueEvent } from '../queue';
 
 export const QueueLogEvent = new EventEmitter<IDatabasePayload<QueueLogDocument>>();
 
-// Publish changes to Kafka.
-QueueLogEvent.on(payload => {
-  kafka.publish(payload);
-});
-
 // Delete QueueLogs if associated Game Server is deleted.
-QueueEvent.on(async payload => {
+QueueEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const queueId = payload.fullDocument._id;
@@ -47,6 +41,9 @@ QueueEvent.on(async payload => {
   this.expiresAt.setDate(this.createdAt.getDate() + 3);
 })
 export class QueueLogSchema extends LogBase {
+  @prop({ required: true })
+  public nodeId: string;
+
   @prop({ immutable: true, ref: 'QueueSchema', required: true })
   public queueId: Ref<QueueDocument>;
 

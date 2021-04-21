@@ -10,7 +10,7 @@ import { UserQuery } from './user';
 export interface FriendState extends EntityState<Friend> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'friends' })
+@StoreConfig({ idKey: '_id', name: 'friends', resettable: true })
 export class FriendStore extends EntityStore<FriendState, Friend> {
   constructor(private friendService: FriendService) {
     super();

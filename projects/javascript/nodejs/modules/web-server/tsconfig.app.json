@@ -7,5 +7,9 @@
     "rootDir": "./src"
   },
   "exclude": ["./src/**/*.spec.ts"],
-  "include": ["./src"]
+  "include": ["./src"],
+  "references": [
+    { "path": "../mongoose-models/tsconfig.app.json" },
+    { "path": "../mongoose-permissions/tsconfig.app.json" },
+  ]
 }

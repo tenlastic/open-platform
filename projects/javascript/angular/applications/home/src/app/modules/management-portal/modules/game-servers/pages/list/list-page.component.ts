@@ -1,13 +1,11 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import {
-  MatPaginator,
-  MatSort,
-  MatTable,
-  MatTableDataSource,
-  MatDialog,
-  MatSnackBar,
-} from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSort } from '@angular/material/sort';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
+import { ActivatedRoute } from '@angular/router';
 import { Order } from '@datorama/akita';
 import {
   GameServer,
@@ -16,16 +14,22 @@ import {
   GameServerLogService,
   GameServerQuery,
   GameServerService,
+  Queue,
+  QueueService,
 } from '@tenlastic/ng-http';
-import { Observable, Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
 
+import { environment } from '../../../../../../../environments/environment';
 import {
   IdentityService,
   SelectedNamespaceService,
   SocketService,
 } from '../../../../../../core/services';
-import { LogsDialogComponent, PromptComponent } from '../../../../../../shared/components';
+import {
+  BreadcrumbsComponentBreadcrumb,
+  LogsDialogComponent,
+  PromptComponent,
+} from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
@@ -38,21 +42,25 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<GameServer>;
 
   public $gameServers: Observable<GameServer[]>;
+  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public dataSource = new MatTableDataSource<GameServer>();
   public displayedColumns: string[] = [
+    'game',
     'name',
     'description',
     'status',
-    'isPersistent',
     'createdAt',
     'actions',
   ];
-  public search = '';
+  public queue: Queue;
+  public get queueId() {
+    return this.activatedRoute.snapshot.paramMap.get('queueId');
+  }
 
   private updateDataSource$ = new Subscription();
-  private subject: Subject<string> = new Subject();
 
   constructor(
+    private activatedRoute: ActivatedRoute,
     private gameServerLogQuery: GameServerLogQuery,
     private gameServerLogService: GameServerLogService,
     private gameServerQuery: GameServerQuery,
@@ -60,6 +68,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private queueService: QueueService,
     private selectedNamespaceService: SelectedNamespaceService,
     private socketService: SocketService,
     private titleService: Title,
@@ -67,22 +76,21 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Game Servers`);
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
 
+    await this.fetchQueue();
     await this.fetchGameServers();
+
+    if (this.queue) {
+      this.breadcrumbs = [
+        { label: 'Queues', link: '../../' },
+        { label: this.queue.name, link: '../' },
+        { label: 'Game Servers' },
+      ];
+    }
   }
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
-  }
-
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
-  }
-
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
   }
 
   public async restart(record: GameServer) {
@@ -120,25 +128,23 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
           sortByOrder: Order.DESC,
         }),
         find: () => this.gameServerLogService.find(record._id, { limit: 250, sort: '-unix' }),
-        subscribe: () =>
-          this.socketService.subscribe(
-            'game-server-logs',
-            GameServerLog,
-            this.gameServerLogService,
-            { gameServerId: record._id },
-          ),
+        subscribe: () => {
+          const socket = this.socketService.connect(environment.apiBaseUrl);
+          return socket.subscribe('game-server-logs', GameServerLog, this.gameServerLogService, {
+            gameServerId: record._id,
+          });
+        },
       },
     });
   }
 
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-  }
-
   private async fetchGameServers() {
-    this.$gameServers = this.gameServerQuery.selectAll({
-      filterBy: gs => gs.namespaceId === this.selectedNamespaceService.namespaceId,
+    const $gameServers = this.gameServerQuery.selectAll({
+      filterBy: gs =>
+        gs.namespaceId === this.selectedNamespaceService.namespaceId &&
+        ((this.queue && this.queue._id === gs.queueId) || (!this.queue && !gs.queueId)),
     });
+    this.$gameServers = this.gameServerQuery.populate($gameServers);
 
     await this.gameServerService.find({
       sort: 'name',
@@ -151,5 +157,11 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+  }
+
+  private async fetchQueue() {
+    if (this.queueId) {
+      this.queue = await this.queueService.findOne(this.queueId);
+    }
   }
 }

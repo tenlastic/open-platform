@@ -1,10 +1,18 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GameInvitation, GameInvitationService, User, UserService } from '@tenlastic/ng-http';
-import { Subject } from 'rxjs';
+import {
+  Game,
+  GameInvitation,
+  GameInvitationService,
+  GameQuery,
+  GameService,
+  User,
+  UserService,
+} from '@tenlastic/ng-http';
+import { Observable, Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
@@ -14,6 +22,7 @@ import { IdentityService, SelectedNamespaceService } from '../../../../../../cor
   styleUrls: ['./form-page.component.scss'],
 })
 export class GameInvitationsFormPageComponent implements OnInit {
+  public $games: Observable<Game[]>;
   public data: GameInvitation;
   public errors: string[] = [];
   public form: FormGroup;
@@ -26,6 +35,8 @@ export class GameInvitationsFormPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private gameInvitationService: GameInvitationService,
+    private gameQuery: GameQuery,
+    private gameService: GameService,
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private router: Router,
@@ -34,6 +45,11 @@ export class GameInvitationsFormPageComponent implements OnInit {
   ) {}
 
   public async ngOnInit() {
+    this.$games = this.gameQuery.selectAll({
+      filterBy: g => g.namespaceId === this.selectedNamespaceService.namespaceId,
+    });
+    this.gameService.find({ where: { namespaceId: this.selectedNamespaceService.namespaceId } });
+
     this.subject.pipe(debounceTime(300)).subscribe(this.findUsers.bind(this));
     this.setupForm();
   }
@@ -50,8 +66,8 @@ export class GameInvitationsFormPageComponent implements OnInit {
 
     this.users = [];
 
-    if (!this.form.controls.user.value || !this.form.controls.user.value.username) {
-      this.form.controls.user.setValue(null);
+    if (!this.form.get('user').value || !this.form.get('user').value.username) {
+      this.form.get('user').setValue(null);
     }
   }
 
@@ -65,11 +81,10 @@ export class GameInvitationsFormPageComponent implements OnInit {
       return;
     }
 
-    const user: User = this.form.get('user').value;
-
     const values: Partial<GameInvitation> = {
-      namespaceId: this.selectedNamespaceService.namespaceId,
-      userId: user._id,
+      gameId: this.form.get('gameId').value,
+      namespaceId: this.form.get('namespaceId').value,
+      userId: this.form.get('user').value._id,
     };
 
     try {
@@ -115,6 +130,8 @@ export class GameInvitationsFormPageComponent implements OnInit {
     this.data = this.data || new GameInvitation();
 
     this.form = this.formBuilder.group({
+      gameId: [this.data.gameId, Validators.required],
+      namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
       user: [null, Validators.required],
     });
 

@@ -6,7 +6,9 @@ import { RouterModule } from '@angular/router';
 
 import { MaterialModule } from '../material.module';
 import {
+  BreadcrumbsComponent,
   ButtonComponent,
+  DataSourceFilterComponent,
   FormMessageComponent,
   GroupMessagesComponent,
   HeaderToolbarComponent,
@@ -19,6 +21,7 @@ import {
   MessageGroupComponent,
   MessagesComponent,
   MetadataFieldComponent,
+  MetadataFieldsComponent,
   PromptComponent,
   RefreshTokenPromptComponent,
   SidenavComponent,
@@ -40,7 +43,9 @@ import {
 } from './pipes';
 
 const components = [
+  BreadcrumbsComponent,
   ButtonComponent,
+  DataSourceFilterComponent,
   FormMessageComponent,
   GroupMessagesComponent,
   HeaderToolbarComponent,
@@ -53,6 +58,7 @@ const components = [
   MessageGroupComponent,
   MessagesComponent,
   MetadataFieldComponent,
+  MetadataFieldsComponent,
   PromptComponent,
   RefreshTokenPromptComponent,
   SidenavComponent,

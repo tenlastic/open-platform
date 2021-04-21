@@ -1,20 +1,25 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import {
-  MatPaginator,
-  MatSort,
-  MatTable,
-  MatTableDataSource,
-  MatDialog,
-  MatSnackBar,
-} from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSort } from '@angular/material/sort';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { QueueMember, QueueMemberQuery, QueueMemberService } from '@tenlastic/ng-http';
-import { Observable, Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import {
+  Queue,
+  QueueMember,
+  QueueMemberQuery,
+  QueueMemberService,
+  QueueService,
+} from '@tenlastic/ng-http';
+import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import {
+  BreadcrumbsComponentBreadcrumb,
+  PromptComponent,
+} from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
@@ -27,12 +32,12 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<QueueMember>;
 
   public $queueMembers: Observable<QueueMember[]>;
+  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public dataSource = new MatTableDataSource<QueueMember>();
   public displayedColumns: string[] = ['username', 'createdAt', 'actions'];
-  public search = '';
 
   private updateDataSource$ = new Subscription();
-  private subject: Subject<string> = new Subject();
+  private queue: Queue;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -41,27 +46,25 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
     private matSnackBar: MatSnackBar,
     private queueMemberQuery: QueueMemberQuery,
     private queueMemberService: QueueMemberService,
+    private queueService: QueueService,
     private titleService: Title,
   ) {}
 
-  public ngOnInit() {
+  public async ngOnInit() {
     this.titleService.setTitle(`${TITLE} | QueueMembers`);
-    this.fetchQueueMembers();
 
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
+    await this.fetchQueue();
+    await this.fetchQueueMembers();
+
+    this.breadcrumbs = [
+      { label: 'Queues', link: '../../' },
+      { label: this.queue.name, link: '../' },
+      { label: 'Queue Members' },
+    ];
   }
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
-  }
-
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
-  }
-
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
   }
 
   public showDeletePrompt(record: QueueMember) {
@@ -78,19 +81,18 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
         await this.queueMemberService.delete(record._id);
-        this.deleteQueueMember(record);
-
         this.matSnackBar.open('Queue Member deleted successfully.');
       }
     });
   }
 
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+  private async fetchQueue() {
+    const queueId = this.activatedRoute.snapshot.paramMap.get('queueId');
+    this.queue = await this.queueService.findOne(queueId);
   }
 
   private async fetchQueueMembers() {
-    const queueId = this.activatedRoute.snapshot.paramMap.get('_id');
+    const queueId = this.activatedRoute.snapshot.paramMap.get('queueId');
 
     const $queueMembers = this.queueMemberQuery.selectAll({
       filterBy: qm => qm.queueId === queueId,
@@ -108,13 +110,5 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  private deleteQueueMember(record: QueueMember) {
-    const index = this.dataSource.data.findIndex(u => u._id === record._id);
-    this.dataSource.data.splice(index, 1);
-
-    this.dataSource.data = [].concat(this.dataSource.data);
-    this.table.renderRows();
   }
 }

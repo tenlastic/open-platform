@@ -1,0 +1,35 @@
+{
+  "engines": {
+    "node": "^12"
+  },
+  "license": "ISC",
+  "main": "./dist/index.js",
+  "name": "@tenlastic/http",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com/tenlastic/open-platform.git"
+  },
+  "version": "0.0.154",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "build:watch": "watch ../../scripts/build.sh ./src",
+    "lint": "../../scripts/lint.sh"
+  },
+  "dependencies": {
+    "request": "2.88.0",
+    "request-promise-native": "1.0.7",
+    "uuid": "8.3.0",
+    "ws": "7.2.1"
+  },
+  "devDependencies": {
+    "mocha": "7.1.2",
+    "nyc": "15.0.0",
+    "ts-node": "8.9.1",
+    "tslint": "5.18.0",
+    "typescript": "3.8.3",
+    "watch": "1.0.2"
+  }
+}

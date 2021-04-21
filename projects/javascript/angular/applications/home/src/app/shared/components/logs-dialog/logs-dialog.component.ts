@@ -1,13 +1,15 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { GameServerLog } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
+import { environment } from '../../../../environments/environment';
 import { IdentityService, SocketService } from '../../../core/services';
 
 export interface LogsDialogComponentData {
   $logs: Observable<any[]>;
-  find(): any[];
+  find(): Promise<any[]>;
   subscribe(): string;
 }
 
@@ -17,8 +19,26 @@ export interface LogsDialogComponentData {
   templateUrl: 'logs-dialog.component.html',
 })
 export class LogsDialogComponent implements OnDestroy, OnInit {
+  @ViewChild('container', { static: true }) private container: ElementRef;
+
+  public get $logs() {
+    return this.data.$logs.pipe(
+      map(logs => {
+        return this.nodeId ? logs.filter(l => l.nodeId === this.nodeId) : logs;
+      }),
+    );
+  }
+  public get $nodeIds() {
+    return this.data.$logs.pipe(
+      map(logs => {
+        const nodeIds = logs.map(l => l.nodeId);
+        return nodeIds.filter((ni, i) => nodeIds.indexOf(ni) === i).sort();
+      }),
+    );
+  }
   public isLive = false;
   public isVisible = false;
+  public nodeId: string;
   public visibility = {};
 
   private logJson: { [_id: string]: any } = {};
@@ -31,14 +51,17 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     private socketService: SocketService,
   ) {}
 
-  public ngOnInit() {
+  public async ngOnInit() {
     this.matDialogRef.addPanelClass('app-logs-dialog');
-    this.data.find();
+
+    await this.data.find();
+    this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
   }
 
   public ngOnDestroy() {
     if (this.socket) {
-      this.socketService.unsubscribe(this.socket);
+      const socket = this.socketService.connect(environment.apiBaseUrl);
+      socket.unsubscribe(this.socket);
     }
   }
 
@@ -56,6 +79,10 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     return this.logJson[log._id];
   }
 
+  public setNodeId($event) {
+    this.nodeId = $event.value;
+  }
+
   public toggleIsLive() {
     this.isLive = !this.isLive;
 
@@ -63,7 +90,8 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
       this.data.find();
       this.socket = this.data.subscribe();
     } else {
-      this.socketService.unsubscribe(this.socket);
+      const socket = this.socketService.connect(environment.apiBaseUrl);
+      socket.unsubscribe(this.socket);
     }
   }
 

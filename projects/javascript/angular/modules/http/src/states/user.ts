@@ -7,7 +7,7 @@ import { UserService } from '../services/user/user.service';
 export interface UserState extends EntityState<User> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'users' })
+@StoreConfig({ idKey: '_id', name: 'users', resettable: true })
 export class UserStore extends EntityStore<UserState, User> {
   constructor(private userService: UserService) {
     super();

@@ -3,7 +3,8 @@ import { NestedTreeControl } from '@angular/cdk/tree';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar, MatTreeNestedDataSource } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IWorkflow, Workflow, WorkflowQuery, WorkflowService } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
@@ -28,11 +29,33 @@ interface StatusNode {
 })
 export class WorkflowsFormPageComponent implements OnInit {
   public $data: Observable<Workflow>;
+  public get cpus() {
+    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limit = limits.cpu ? limits.cpu : Infinity;
+    return limits.cpu ? IWorkflow.Cpu.filter(r => r.value <= limit) : IWorkflow.Cpu;
+  }
   public data: Workflow;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
   public errors: string[] = [];
   public form: FormGroup;
+  public get memories() {
+    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limit = limits.memory ? limits.memory : Infinity;
+    return limits.memory ? IWorkflow.Memory.filter(r => r.value <= limit) : IWorkflow.Memory;
+  }
+  public get parallelisms() {
+    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limit = limits.parallelism ? limits.parallelism : Infinity;
+    return limits.parallelism
+      ? IWorkflow.Parallelisms.filter(r => r.value <= limit)
+      : IWorkflow.Parallelisms;
+  }
   public readonly separatorKeysCodes: number[] = [ENTER];
+  public get storages() {
+    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limit = limits.storage ? limits.storage : Infinity;
+    return limits.storage ? IWorkflow.Storage.filter(r => r.value <= limit) : IWorkflow.Storage;
+  }
   public treeControl = new NestedTreeControl<StatusNode>(node => node.children);
 
   constructor(
@@ -148,11 +171,14 @@ export class WorkflowsFormPageComponent implements OnInit {
     });
 
     const values: Partial<Workflow> = {
+      cpu: raw.cpu,
       isPreemptible: raw.isPreemptible,
+      memory: raw.memory,
       name: raw.name,
       namespaceId: raw.namespaceId,
       spec: {
         entrypoint: 'entrypoint',
+        parallelism: raw.parallelism,
         templates: [
           {
             dag: { tasks },
@@ -161,6 +187,7 @@ export class WorkflowsFormPageComponent implements OnInit {
           ...templates,
         ],
       },
+      storage: raw.storage,
     };
 
     try {
@@ -186,7 +213,7 @@ export class WorkflowsFormPageComponent implements OnInit {
         env: this.formBuilder.array([]),
         image: ['', Validators.required],
         source: ['', Validators.required],
-        workingDir: ['/ws/'],
+        workingDir: ['/workspace/'],
       }),
       sidecars: this.formBuilder.array([]),
     });
@@ -281,9 +308,13 @@ export class WorkflowsFormPageComponent implements OnInit {
     this.data = this.data || new Workflow();
 
     this.form = this.formBuilder.group({
-      isPreemptible: [this.data.isPreemptible || true],
+      cpu: [this.data.cpu || this.cpus[0].value],
+      isPreemptible: [this.data.isPreemptible === false ? false : true],
+      memory: [this.data.memory || this.memories[0].value],
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
+      parallelism: [(this.data.spec && this.data.spec.parallelism) || this.parallelisms[0].value],
+      storage: [this.data.storage || this.storages[0].value],
       templates: this.getTemplatesFormArray(this.data.spec && this.data.spec.templates),
     });
 

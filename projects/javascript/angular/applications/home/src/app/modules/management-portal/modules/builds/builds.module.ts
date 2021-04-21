@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../../../shared/shared.module';
 
-import { FilesFormComponent } from './components';
+import { BuildStatusNodeComponent, FilesFormComponent } from './components';
 import { BuildsFormPageComponent } from './pages/form/form-page.component';
 import { BuildsListPageComponent } from './pages/list/list-page.component';
 
@@ -13,7 +13,12 @@ export const ROUTES: Routes = [
 ];
 
 @NgModule({
-  declarations: [FilesFormComponent, BuildsFormPageComponent, BuildsListPageComponent],
+  declarations: [
+    BuildsFormPageComponent,
+    BuildsListPageComponent,
+    BuildStatusNodeComponent,
+    FilesFormComponent,
+  ],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })
 export class BuildModule {}

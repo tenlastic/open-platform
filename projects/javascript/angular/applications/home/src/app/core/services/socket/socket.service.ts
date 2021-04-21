@@ -1,58 +1,23 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { v4 as uuid } from 'uuid';
 
-import { environment } from '../../../../environments/environment';
 import { IdentityService } from '../identity/identity.service';
 
-@Injectable({ providedIn: 'root' })
-export class SocketService {
-  public OnOpen = new EventEmitter();
+interface Subscription {
+  _id: string;
+  collection: string;
+  Model: any;
+  service: any;
+  where?: any;
+}
 
-  public socket: WebSocket;
+export class Socket extends WebSocket {
+  public subscriptions: Subscription[] = [];
 
   private resumeTokens: { [key: string]: string } = {};
 
-  constructor(private identityService: IdentityService) {}
-
   public close() {
-    if (!this.socket) {
-      return;
-    }
-
-    this.socket.close(1000);
-  }
-
-  public connect() {
-    if (this.socket) {
-      return this.socket;
-    }
-
-    if (!this.identityService.accessToken || this.identityService.accessTokenJwt.isExpired) {
-      return;
-    }
-
-    const hostname = environment.apiBaseUrl.replace('http', 'ws');
-    const url = `${hostname}?access_token=${this.identityService.accessToken}`;
-    this.socket = new WebSocket(url);
-
-    const data = { _id: uuid(), method: 'ping' };
-    const interval = setInterval(() => this.socket.send(JSON.stringify(data)), 5000);
-
-    this.socket.onopen = () => this.OnOpen.emit();
-    this.socket.onclose = e => {
-      clearInterval(interval);
-      this.socket = null;
-
-      if (e.code !== 1000) {
-        setTimeout(() => this.connect(), 5000);
-      }
-    };
-    this.socket.onerror = (e: any) => {
-      console.error('Socket error:', e.message);
-      this.socket.close();
-    };
-
-    return this.socket;
+    super.close(1000);
   }
 
   public subscribe(collection: string, Model: any, service: any, where: any = {}) {
@@ -67,8 +32,8 @@ export class SocketService {
       },
     };
 
-    this.socket.send(JSON.stringify(data));
-    this.socket.addEventListener('message', msg => {
+    this.send(JSON.stringify(data));
+    this.addEventListener('message', msg => {
       const payload = JSON.parse(msg.data);
 
       // If the response is for a different request, ignore it.
@@ -91,11 +56,67 @@ export class SocketService {
       }
     });
 
+    this.subscriptions.push({ _id, collection, Model, service, where });
+
     return _id;
   }
 
   public unsubscribe(_id: string) {
     const data = { _id, method: 'unsubscribe' };
-    this.socket.send(JSON.stringify(data));
+
+    const index = this.subscriptions.findIndex(s => s._id === _id);
+    this.subscriptions.splice(index, 1);
+
+    this.send(JSON.stringify(data));
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class SocketService {
+  public get sockets() {
+    return this._sockets;
+  }
+
+  private _sockets: { [key: string]: Socket } = {};
+
+  constructor(private identityService: IdentityService) {}
+
+  public connect(url: string, subscriptions: Subscription[] = []) {
+    if (this._sockets[url]) {
+      return this._sockets[url];
+    }
+
+    if (!this.identityService.accessToken || this.identityService.accessTokenJwt.isExpired) {
+      return;
+    }
+
+    const hostname = url.replace('http', 'ws');
+    const socket = new Socket(`${hostname}?access_token=${this.identityService.accessToken}`);
+    socket.subscriptions = subscriptions;
+
+    this._sockets[url] = socket;
+
+    const data = { _id: uuid(), method: 'ping' };
+    const interval = setInterval(() => socket.send(JSON.stringify(data)), 5000);
+
+    socket.addEventListener('close', e => {
+      clearInterval(interval);
+      delete this._sockets[url];
+
+      if (e.code !== 1000) {
+        setTimeout(() => this.connect(url, socket.subscriptions), 5000);
+      }
+    });
+    socket.addEventListener('error', socket.close);
+    socket.addEventListener('open', () => {
+      socket.subscriptions = [];
+
+      for (const subscription of subscriptions) {
+        const { collection, Model, service, where } = subscription;
+        socket.subscribe(collection, Model, service, where);
+      }
+    });
+
+    return socket;
   }
 }

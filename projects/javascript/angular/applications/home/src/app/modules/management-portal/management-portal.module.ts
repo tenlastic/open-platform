@@ -17,9 +17,9 @@ export const ROUTES: Routes = [
         loadChildren: () => import('./modules/builds/builds.module').then(m => m.BuildModule),
       },
       {
-        path: 'collections',
+        path: 'databases',
         loadChildren: () =>
-          import('./modules/collections/collections.module').then(m => m.CollectionModule),
+          import('./modules/databases/databases.module').then(m => m.DatabaseModule),
       },
       {
         path: 'game-invitations',
@@ -34,7 +34,7 @@ export const ROUTES: Routes = [
           import('./modules/game-servers/game-servers.module').then(m => m.GameServerModule),
       },
       {
-        path: 'game-information',
+        path: 'games',
         loadChildren: () => import('./modules/games/games.module').then(m => m.GameModule),
       },
       {

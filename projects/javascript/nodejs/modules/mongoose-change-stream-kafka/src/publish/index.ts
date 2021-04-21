@@ -1,34 +1,19 @@
+import * as kafka from '@tenlastic/kafka';
 import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
 import { Document } from 'mongoose';
-
-import { producer } from '../connect';
-import { createTopic } from '../create-topic';
 
 /**
  * Publishes the payload to Kafka.
  */
 export async function publish<T extends Document>(msg: IDatabasePayload<T>) {
-  const start = Date.now();
-
   const { coll, db } = msg.ns;
   const topic = `${db}.${coll}`;
 
-  await createTopic(topic);
+  await kafka.createTopic(topic);
 
   const key = JSON.stringify(msg.documentKey);
   const value = JSON.stringify(msg);
 
+  const producer = kafka.getProducer();
   await producer.send({ topic, messages: [{ key, value }] });
-
-  if (process.env.NODE_ENV !== 'test') {
-    console.log({
-      collection: coll,
-      database: db,
-      documentKey: msg.documentKey,
-      duration: Date.now() - start,
-      label: 'publish()',
-      operationType: msg.operationType,
-      package: 'mongoose-change-stream-kafka',
-    });
-  }
 }

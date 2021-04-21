@@ -36,7 +36,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public get $isReady() {
     return this.$activeGame.pipe(
       map(game => {
-        const status = this.updateService.getStatus(game);
+        const status = this.updateService.getStatus(game._id);
         return status.state === UpdateServiceState.Ready;
       }),
     );
@@ -48,7 +48,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
           return null;
         }
 
-        const status = this.updateService.getStatus(game);
+        const status = this.updateService.getStatus(game._id);
         if (!status) {
           return null;
         }
@@ -89,8 +89,8 @@ export class LayoutComponent implements OnDestroy, OnInit {
       filterBy: gi => gi.userId === this.identityService.user._id,
     });
     this.updateGames$ = this.$gameInvitations.subscribe(gi => {
-      const namespaceIds = gi.map(g => g.namespaceId);
-      return this.fetchGames(namespaceIds);
+      const gameIds = gi.map(g => g.gameId);
+      return this.fetchGames(gameIds);
     });
 
     await this.gameInvitationService.find({ where: { userId: this.identityService.user._id } });
@@ -120,7 +120,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
 
   public getProgress(game: Game) {
-    const status = this.updateService.getStatus(game);
+    const status = this.updateService.getStatus(game._id);
 
     if (!status.progress) {
       return null;
@@ -141,18 +141,18 @@ export class LayoutComponent implements OnDestroy, OnInit {
     }
   }
 
-  private async fetchGames(namespaceIds: string[]) {
-    if (namespaceIds.length === 0) {
+  private async fetchGames(gameIds: string[]) {
+    if (gameIds.length === 0) {
       this.router.navigate(['/']);
       return;
     }
 
-    this.$games = this.gameQuery.selectAll({ filterBy: g => namespaceIds.includes(g.namespaceId) });
+    this.$games = this.gameQuery.selectAll({ filterBy: g => gameIds.includes(g._id) });
 
     this.selectActiveGame$.unsubscribe();
     this.selectActiveGame$ = this.$games.subscribe(games => {
       const activeGame = this.gameQuery.getActive() as Game;
-      if (games.length === 0 || (activeGame && namespaceIds.includes(activeGame.namespaceId))) {
+      if (games.length === 0 || (activeGame && gameIds.includes(activeGame._id))) {
         return;
       }
 
@@ -165,6 +165,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.router.navigate(['/games', game._id]);
     });
 
-    return this.gameService.find({ where: { namespaceId: { $in: namespaceIds } } });
+    return this.gameService.find({ where: { _id: { $in: gameIds } } });
   }
 }

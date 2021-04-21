@@ -7,39 +7,37 @@ import {
   index,
   modelOptions,
   plugin,
-  post,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import {
   EventEmitter,
   IDatabasePayload,
   IOriginalDocument,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
-import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import * as kubernetes from '../../kubernetes';
+import { namespaceValidator } from '../../validators';
+import { BuildDocument } from '../build';
+import { GameDocument } from '../game';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
-import { QueueDocument } from '../queue';
-import { User, UserDocument } from '../user';
+import { QueueDocument, QueueEvent } from '../queue';
+import { UserDocument } from '../user';
+import { GameServerStatusSchema } from './status';
 
 export enum GameServerStatus {
-  Running = 'running',
-  Terminated = 'terminated',
-  Waiting = 'waiting',
+  Failed = 'Failed',
+  Pending = 'Pending',
+  Running = 'Running',
+  Succeeded = 'Succeeded',
+  Unknown = 'Unknown',
 }
 
 export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
-
-// Publish changes to Kafka.
-GameServerEvent.on(payload => {
-  kafka.publish(payload);
-});
+export const GameServerRestartEvent = new EventEmitter<GameServerDocument>();
 
 // Delete Game Servers if associated Namespace is deleted.
-NamespaceEvent.on(async payload => {
+NamespaceEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const records = await GameServer.find({ namespaceId: payload.fullDocument._id });
@@ -48,74 +46,50 @@ NamespaceEvent.on(async payload => {
   }
 });
 
-@index({ namespaceId: 1 })
-@index({ port: 1 }, { unique: true })
-@index(
-  { allowedUserIds: 1, namespaceId: 1 },
-  {
-    partialFilterExpression: {
-      queueId: { $exists: true },
-    },
-    unique: true,
-  },
-)
-@modelOptions({
-  schemaOptions: {
-    collection: 'gameservers',
-    minimize: false,
-    timestamps: true,
-  },
-})
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameServerEvent })
-@plugin(uniqueErrorPlugin)
-@post('remove', async function(this: GameServerDocument) {
-  await kubernetes.GameServer.delete(this);
-  await kubernetes.GameServerSidecar.delete(this);
-})
-@post('save', async function(this: GameServerDocument) {
-  if (
-    !this.wasNew &&
-    !this.wasModified.includes('buildId') &&
-    !this.wasModified.includes('isPersistent') &&
-    !this.wasModified.includes('isPreemptible') &&
-    !this.wasModified.includes('metadata')
-  ) {
-    return;
+// Delete Game Servers if associated Queue is deleted.
+QueueEvent.sync(async payload => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await GameServer.find({ queueId: payload.fullDocument._id });
+      const promises = records.map(r => r.remove());
+      return Promise.all(promises);
   }
+});
 
-  if (this.wasNew) {
-    try {
-      await kubernetes.GameServer.create(this);
-      await kubernetes.GameServerSidecar.create(this);
-    } catch (e) {
-      await kubernetes.GameServer.delete(this);
-      await kubernetes.GameServerSidecar.delete(this);
-      throw e;
-    }
-  } else {
-    await kubernetes.GameServer.delete(this);
-    await kubernetes.GameServer.create(this);
-  }
-})
+@index({ authorizedUserIds: 1 })
+@index({ buildId: 1 })
+@index({ currentUserIds: 1 })
+@index({ gameId: 1 })
+@index({ namespaceId: 1 })
+@index({ queueId: 1 })
+@modelOptions({ schemaOptions: { collection: 'gameservers', minimize: false, timestamps: true } })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameServerEvent })
 export class GameServerSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
 
-  @arrayProp({ itemsRef: User })
-  public allowedUserIds: Array<Ref<UserDocument>>;
+  @arrayProp({ itemsRef: 'UserSchema' })
+  public authorizedUserIds: Array<Ref<UserDocument>>;
 
-  @prop({ required: true })
-  public buildId: mongoose.Types.ObjectId;
+  @prop({
+    ref: 'BuildSchema',
+    required: true,
+    validate: namespaceValidator('buildDocument', 'buildId'),
+  })
+  public buildId: Ref<BuildDocument>;
 
-  @prop({ required: true })
+  @prop({ min: 0, required: true })
   public cpu: number;
 
   public createdAt: Date;
 
-  @arrayProp({ itemsRef: User })
+  @arrayProp({ itemsRef: 'UserSchema' })
   public currentUserIds: Array<Ref<UserDocument>>;
 
   @prop()
   public description: string;
+
+  @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
+  public gameId: Ref<GameDocument>;
 
   @prop()
   public isPersistent: boolean;
@@ -123,7 +97,7 @@ export class GameServerSchema implements IOriginalDocument {
   @prop()
   public isPreemptible: boolean;
 
-  @prop({ required: true })
+  @prop({ min: 0, required: true })
   public memory: number;
 
   @prop({ default: {} })
@@ -135,22 +109,25 @@ export class GameServerSchema implements IOriginalDocument {
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
-  @prop()
-  public port: number;
-
   @prop({ ref: 'QueueSchema' })
   public queueId: Ref<QueueDocument>;
 
-  @prop({ default: GameServerStatus.Waiting, enum: GameServerStatus })
-  public status: GameServerStatus;
+  @prop({ default: { phase: 'Pending' } })
+  public status: GameServerStatusSchema;
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: false, localField: 'allowedUserIds', ref: 'UserSchema' })
-  public allowedUserDocuments: UserDocument[];
+  @prop({ foreignField: '_id', justOne: false, localField: 'authorizedUserIds', ref: 'UserSchema' })
+  public authorizedUserDocuments: UserDocument[];
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })
+  public buildDocument: BuildDocument;
 
   @prop({ foreignField: '_id', justOne: false, localField: 'currentUserIds', ref: 'UserSchema' })
   public currentUserDocuments: UserDocument[];
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: 'GameSchema' })
+  public gameDocument: GameDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
@@ -159,21 +136,18 @@ export class GameServerSchema implements IOriginalDocument {
   public queueDocument: QueueDocument;
 
   public _original: any;
-  public get kubernetesName() {
-    return `game-server-${this._id}`;
-  }
-  public get kubernetesNamespace() {
-    return `namespace-${this.namespaceId}`;
-  }
   public wasModified: string[];
   public wasNew: boolean;
 
+  /**
+   * Throws an error if a NamespaceLimit is exceeded.
+   */
   public static async checkNamespaceLimits(
-    count: number,
+    _id: string | mongoose.Types.ObjectId,
     cpu: number,
     isPreemptible: boolean,
     memory: number,
-    namespaceId: string | mongoose.Types.ObjectId,
+    namespaceId: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>,
   ) {
     const namespace = await Namespace.findOne({ _id: namespaceId });
     if (!namespace) {
@@ -181,53 +155,56 @@ export class GameServerSchema implements IOriginalDocument {
     }
 
     const limits = namespace.limits.gameServers;
+
+    // Preemptible.
     if (limits.preemptible && isPreemptible === false) {
       throw new NamespaceLimitError('gameServers.preemptible', limits.preemptible);
     }
 
-    if (limits.count > 0 || limits.cpu > 0 || limits.memory > 0) {
-      const results = await GameServer.aggregate([
-        { $match: { namespaceId: namespace._id } },
-        {
-          $group: {
-            _id: null,
-            count: { $sum: 1 },
-            cpu: { $sum: '$cpu' },
-            memory: { $sum: '$memory' },
-          },
+    // Skip MongoDB query if no limits are set.
+    if (!limits.cpu && !limits.memory) {
+      return;
+    }
+
+    // Aggregate the sum of existing records.
+    const results = await GameServer.aggregate([
+      { $match: { _id: { $ne: _id }, namespaceId: namespace._id } },
+      {
+        $group: {
+          _id: null,
+          cpu: { $sum: '$cpu' },
+          memory: { $sum: '$memory' },
         },
-      ]);
+      },
+    ]);
 
-      const countSum = results.length > 0 ? results[0].count : 0;
-      if (limits.count > 0 && countSum + count > limits.count) {
-        throw new NamespaceLimitError('gameServers.count', limits.count);
-      }
+    // CPU.
+    const cpuSum = results.length ? results[0].cpu : 0;
+    if (limits.cpu && cpuSum + cpu > limits.cpu) {
+      throw new NamespaceLimitError('gameServers.cpu', limits.cpu);
+    }
 
-      const cpuSum = results.length > 0 ? results[0].cpu : 0;
-      if (limits.cpu > 0 && cpuSum + cpu > limits.cpu) {
-        throw new NamespaceLimitError('gameServers.cpu', limits.cpu);
-      }
-
-      const memorySum = results.length > 0 ? results[0].memory : 0;
-      if (limits.memory > 0 && memorySum + memory > limits.memory) {
-        throw new NamespaceLimitError('gameServers.memory', limits.memory);
-      }
+    // Memory.
+    const memorySum = results.length ? results[0].memory : 0;
+    if (limits.memory && memorySum + memory > limits.memory) {
+      throw new NamespaceLimitError('gameServers.memory', limits.memory);
     }
   }
 
   /**
-   * Returns a random port.
+   * Returns true if a restart is required on an update.
    */
-  public getRandomPort(max = 65535, min = 60000) {
-    return Math.round(Math.random() * (max - min) + min);
+  public static isRestartRequired(fields: string[]) {
+    const immutableFields = ['buildId', 'cpu', 'isPreemptible', 'memory'];
+
+    return immutableFields.some(i => fields.includes(i));
   }
 
   /**
    * Restarts a Game Server.
    */
   public async restart(this: GameServerDocument) {
-    await kubernetes.GameServer.delete(this);
-    await kubernetes.GameServer.create(this);
+    GameServerRestartEvent.emit(this);
   }
 }
 

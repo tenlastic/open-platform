@@ -12,6 +12,7 @@ export class CollectionMock {
     const chance = new Chance();
 
     const defaults = {
+      databaseId: new mongoose.Types.ObjectId(),
       name: chance.hash(),
       namespaceId: new mongoose.Types.ObjectId(),
     };

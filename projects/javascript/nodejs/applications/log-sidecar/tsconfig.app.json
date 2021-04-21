@@ -9,6 +9,6 @@
   "exclude": ["./src/**/*.spec.ts"],
   "include": ["./src"],
   "references": [
-    { "path": "../../modules/kubernetes/tsconfig.app.json" },
+    { "path": "../../modules/web-server/tsconfig.app.json" },
   ]
 }

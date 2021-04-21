@@ -4,7 +4,7 @@ import { QueueLog, QueueLogDocument } from './model';
 
 export const QueueLogPermissions = new MongoosePermissions<QueueLogDocument>(QueueLog, {
   create: {
-    'system-administrator': ['body', 'queueId', 'unix'],
+    'system-administrator': ['body', 'nodeId', 'queueId', 'unix'],
   },
   find: {
     default: {
@@ -61,7 +61,7 @@ export const QueueLogPermissions = new MongoosePermissions<QueueLogDocument>(Que
     },
   ],
   read: {
-    default: ['_id', 'body', 'createdAt', 'expiresAt', 'queueId', 'unix', 'updatedAt'],
+    default: ['_id', 'body', 'createdAt', 'expiresAt', 'nodeId', 'queueId', 'unix', 'updatedAt'],
   },
   roles: [
     {

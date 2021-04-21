@@ -4,8 +4,14 @@
 export PROJECT="production-303220"
 
 # Download Service Account credentials for CertManager.
-gcloud iam service-accounts keys create "../../gcp/service-accounts/dns-admin.json" \
+gcloud iam service-accounts keys create "../../../gcp/service-accounts/dns-admin.json" \
   --iam-account "dns-admin@${PROJECT}.iam.gserviceaccount.com"
+
+# Install Helm Operator.
+kubectl apply -f ../../base/helm-operator/
+
+# Install Sealed Secrets.
+kubectl apply -f ./sealed-secrets/
 
 # Create resources.
 kustomize build ./ | kubectl apply -f -
@@ -34,5 +40,4 @@ kubeseal --controller-name sealed-secrets --controller-namespace default -o yaml
 kubeseal --controller-name sealed-secrets --controller-namespace default -o yaml < ./mongodb/mongoku.secret.yaml > ./mongodb/mongoku.sealedsecret.yaml
 kubeseal --controller-name sealed-secrets --controller-namespace default -o yaml < ./ingress-nginx/basic-authentication.secret.yaml > ./ingress-nginx/basic-authentication.sealedsecret.yaml
 kubeseal --controller-name sealed-secrets --controller-namespace default -o yaml < ./nodejs/environment-variables.secret.yaml > ./nodejs/environment-variables.sealedsecret.yaml
-kubeseal --controller-name sealed-secrets --controller-namespace default -o yaml < ./rabbitmq/rabbitmq.secret.yaml > ./rabbitmq/rabbitmq.sealedsecret.yaml
 ```

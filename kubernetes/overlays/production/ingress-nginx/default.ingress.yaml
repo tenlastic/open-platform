@@ -54,6 +54,16 @@ spec:
                 name: api
                 port:
                   number: 3000
+    - host: docker-registry.tenlastic.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: docker-registry
+                port:
+                  number: 5000
     - host: minio.tenlastic.com
       http:
         paths:
@@ -64,26 +74,6 @@ spec:
                 name: minio
                 port:
                   number: 9000
-    - host: rabbitmq.tenlastic.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: rabbitmq
-                port:
-                  number: 15672
-    - host: registry.tenlastic.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: docker-registry
-                port:
-                  number: 5000
     - host: wss.tenlastic.com
       http:
         paths:

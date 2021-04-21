@@ -10,20 +10,19 @@ import {
   post,
   pre,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import {
   EventEmitter,
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongooseUniqueError from '@tenlastic/mongoose-unique-error';
 import { MongoError } from 'mongodb';
 import * as mongoose from 'mongoose';
 
 import { GameInvitation } from '../game-invitation';
 import { GroupDocument, GroupEvent } from '../group';
-import { QueueDocument } from '../queue';
+import { Queue, QueueDocument, QueueEvent } from '../queue';
 import { RefreshTokenDocument } from '../refresh-token';
 import { UserDocument } from '../user';
 import { WebSocketEvent } from '../web-socket';
@@ -50,13 +49,8 @@ export class QueueMemberUniquenessError extends Error {
 }
 export const QueueMemberEvent = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
 
-// Publish changes to Kafka.
-QueueMemberEvent.on(payload => {
-  kafka.publish(payload);
-});
-
 // Delete QueueMember when associated Group is deleted or updated.
-GroupEvent.on(async payload => {
+GroupEvent.sync(async payload => {
   if (payload.operationType === 'insert') {
     return;
   }
@@ -65,8 +59,18 @@ GroupEvent.on(async payload => {
   return Promise.all(queueMembers.map(qm => qm.remove()));
 });
 
+// Delete QueueMember when associated Queue is deleted.
+QueueEvent.sync(async payload => {
+  if (payload.operationType !== 'delete') {
+    return;
+  }
+
+  const queueMembers = await QueueMember.find({ queueId: payload.fullDocument._id });
+  return Promise.all(queueMembers.map(qm => qm.remove()));
+});
+
 // Delete QueueMember when associated WebSocket is deleted.
-WebSocketEvent.on(async payload => {
+WebSocketEvent.sync(async payload => {
   if (payload.operationType !== 'delete') {
     return;
   }
@@ -93,7 +97,7 @@ WebSocketEvent.on(async payload => {
   await this.checkPlayersPerTeam();
 })
 @pre('validate', function(this: QueueMemberDocument) {
-  const message = 'One of the following fields must be specified: groupId or userId.';
+  const message = 'Only one of the following fields must be specified: groupId or userId.';
 
   if (this.groupId && this.userId) {
     this.invalidate('groupId', message, this.groupId);
@@ -151,13 +155,13 @@ export class QueueMemberSchema {
   @prop({ ref: 'RefreshTokenSchema', required: true })
   public refreshTokenId: Ref<RefreshTokenDocument>;
 
+  public updatedAt: Date;
+
   @prop({ immutable: true, ref: 'UserSchema' })
   public userId: Ref<UserDocument>;
 
   @arrayProp({ itemsRef: 'UserSchema' })
   public userIds: Array<Ref<UserDocument>>;
-
-  public updatedAt: Date;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'groupId', ref: 'GroupSchema' })
   public groupDocument: GroupDocument;

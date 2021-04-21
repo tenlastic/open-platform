@@ -1,7 +1,7 @@
 paths:
   /games/{_id}/videos:
     post:
-      summary: Upload Images
+      summary: Upload Videos
       tags: [Games]
       description: Uploads videos for a Game.
       security:
@@ -13,7 +13,11 @@ paths:
             type: string
           required: true
       requestBody:
-        content: multipart/form-data
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+              format: binary
       responses:
         200:
           description: OK

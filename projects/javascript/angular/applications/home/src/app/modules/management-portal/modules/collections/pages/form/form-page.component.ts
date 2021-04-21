@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -8,48 +8,80 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Collection, CollectionService } from '@tenlastic/ng-http';
+import { Collection, CollectionService, DatabaseService } from '@tenlastic/ng-http';
 
+import { environment } from '../../../../../../../environments/environment';
 import {
   CollectionFormService,
   IdentityService,
   SelectedNamespaceService,
+  Socket,
+  SocketService,
 } from '../../../../../../core/services';
-import { TextAreaDialogComponent } from '../../../../../../shared/components';
+import {
+  BreadcrumbsComponentBreadcrumb,
+  TextAreaDialogComponent,
+} from '../../../../../../shared/components';
 
 @Component({
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
-export class CollectionsFormPageComponent implements OnInit {
+export class CollectionsFormPageComponent implements OnDestroy, OnInit {
+  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public data: Collection;
   public errors: string[] = [];
   public form: FormGroup;
+
+  private databaseId: string;
+  private socket: Socket;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private collectionService: CollectionService,
     private collectionFormService: CollectionFormService,
+    private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private router: Router,
     private selectedNamespaceService: SelectedNamespaceService,
+    private socketService: SocketService,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
       const _id = params.get('_id');
+      this.databaseId = params.get('databaseId');
+
+      const database = await this.databaseService.findOne(this.databaseId);
+      this.breadcrumbs = [
+        { label: 'Databases', link: '../../../' },
+        { label: database.name, link: '../../' },
+        { label: 'Collections', link: '../' },
+        { label: _id === 'new' ? 'Create Collection' : 'Edit Collection' },
+      ];
+
+      const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
+      this.socket = this.socketService.connect(url);
+      this.socket.addEventListener('open', () =>
+        this.socket.subscribe('collections', Collection, this.collectionService),
+      );
 
       if (_id !== 'new') {
-        this.data = await this.collectionService.findOne(_id);
+        this.data = await this.collectionService.findOne(this.databaseId, _id);
       }
 
       this.setupForm();
     });
+  }
+
+  public ngOnDestroy() {
+    this.socket.close();
   }
 
   public addProperty() {
@@ -311,9 +343,9 @@ export class CollectionsFormPageComponent implements OnInit {
   private async upsert(data: Partial<Collection>) {
     if (this.data._id) {
       data._id = this.data._id;
-      await this.collectionService.update(data);
+      await this.collectionService.update(this.databaseId, data);
     } else {
-      await this.collectionService.create(data);
+      await this.collectionService.create(this.databaseId, data);
     }
 
     this.matSnackBar.open('Collection saved successfully.');

@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": "^10"
+    "node": "^12"
   },
   "license": "Apache-2.0",
   "name": "@tenlastic/workflow-sidecar",
@@ -8,14 +8,12 @@
   "version": "0.0.154",
   "scripts": {
     "build": "../../scripts/build.sh",
-    "docker:build": "../../scripts/docker-build.sh workflow-sidecar",
-    "docker:push": "../../scripts/docker-push.sh workflow-sidecar",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh --watch"
   },
   "dependencies": {
-    "@kubernetes/client-node": "0.11.2",
-    "@tenlastic/kubernetes": "0.0.154",
+    "@kubernetes/client-node": "0.14.0",
+    "@tenlastic/web-server": "0.0.154",
     "request": "2.88.0",
     "request-promise-native": "1.0.7"
   },
@@ -27,7 +25,7 @@
     "ts-node": "8.9.1",
     "ts-node-dev": "1.0.0-pre.44",
     "tslint": "5.18.0",
-    "typescript": "3.5.3",
+    "typescript": "3.8.3",
     "yml-sorter": "1.1.1"
   }
 }

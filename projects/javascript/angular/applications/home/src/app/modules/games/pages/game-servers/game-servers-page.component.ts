@@ -20,9 +20,9 @@ import { IdentityService, UpdateService } from '../../../../core/services';
 export class GameServersPageComponent implements OnInit {
   public $gameServers: Observable<GameServer[]>;
   public $group: Observable<Group>;
-  public displayedColumns = ['name', 'description', 'status', 'currentUsers', 'actions'];
+  public displayedColumns = ['name', 'description', 'currentUsers', 'actions'];
   public get status() {
-    return this.updateService.getStatus(this.gameQuery.getActive() as Game);
+    return this.updateService.getStatus(this.gameQuery.getActiveId());
   }
 
   constructor(
@@ -37,7 +37,11 @@ export class GameServersPageComponent implements OnInit {
   public async ngOnInit() {
     const game = this.gameQuery.getActive() as Game;
     this.$gameServers = this.gameServerQuery.selectAll({
-      filterBy: gs => gs.namespaceId === game.namespaceId && !gs.queueId,
+      filterBy: gs =>
+        gs.namespaceId === game.namespaceId &&
+        !gs.queueId &&
+        gs.status &&
+        gs.status.phase === 'Running',
     });
     this.$group = this.groupQuery
       .selectAll({ filterBy: g => g.userIds.includes(this.identityService.user._id) })
@@ -53,13 +57,13 @@ export class GameServersPageComponent implements OnInit {
 
   public async joinAsGroup(gameServer: GameServer) {
     const group = await this.$group.pipe(take(1)).toPromise();
-    this.updateService.play(this.gameQuery.getActive() as Game, {
+    this.updateService.play(this.gameQuery.getActiveId(), {
       gameServer,
       groupId: group._id,
     });
   }
 
   public joinAsIndividual(gameServer: GameServer) {
-    this.updateService.play(this.gameQuery.getActive() as Game, { gameServer });
+    this.updateService.play(this.gameQuery.getActiveId(), { gameServer });
   }
 }

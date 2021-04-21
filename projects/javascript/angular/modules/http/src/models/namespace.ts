@@ -4,7 +4,7 @@ export namespace INamespace {
   export enum Role {
     Articles = 'articles',
     Builds = 'builds',
-    Collections = 'collections',
+    Databases = 'databases',
     GameServers = 'game-servers',
     GameInvitations = 'game-invitations',
     Games = 'games',
@@ -18,19 +18,22 @@ export namespace INamespace {
     size: number;
   }
 
-  export interface CollectionLimits {
-    count: number;
-    size: number;
+  export interface DatabaseLimits {
+    cpu: number;
+    memory: number;
+    preemptible: boolean;
+    replicas: number;
+    storage: number;
   }
 
   export interface GameLimits {
+    count: number;
     images: number;
     size: number;
     videos: number;
   }
 
   export interface GameServerLimits {
-    count: number;
     cpu: number;
     memory: number;
     preemptible: boolean;
@@ -44,10 +47,18 @@ export namespace INamespace {
 
   export interface Limits {
     builds: BuildLimits;
-    collections: CollectionLimits;
+    databases: DatabaseLimits;
     gameServers: GameServerLimits;
     games: GameLimits;
+    queues: QueueLimits;
     workflows: WorkflowLimits;
+  }
+
+  export interface QueueLimits {
+    cpu: number;
+    memory: number;
+    preemptible: boolean;
+    replicas: number;
   }
 
   export interface User {
@@ -61,6 +72,7 @@ export namespace INamespace {
     memory: number;
     parallelism: number;
     preemptible: boolean;
+    storage: number;
   }
 }
 

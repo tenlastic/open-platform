@@ -1,8 +1,20 @@
-<div class="row">
-  <div class="col-sm-6">
+<div *ngIf="$nodeIds | async as nodeIds"
+     class="row">
+  <div class="col-sm-3">
     <app-title>Logs</app-title>
   </div>
-  <div class="col-sm-6">
+
+  <div class="col-sm-9">
+    <mat-form-field *ngIf="nodeIds.length > 1"
+                    floatLabel="always">
+      <mat-select placeholder="All Nodes"
+                  (selectionChange)="setNodeId($event)">
+        <mat-option>All Nodes</mat-option>
+        <mat-option *ngFor="let nodeId of nodeIds"
+                    [value]="nodeId">{{ nodeId }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
     <app-button *ngIf="data.$logs | async as logs"
                 color="accent"
                 (click)="toggleVisibility(logs)">
@@ -16,9 +28,10 @@
   </div>
 </div>
 
-<div class="logs-container">
+<div #container
+     class="logs-container">
   <ng-container *ngIf="(data.$logs | async).length > 0">
-    <div *ngFor="let log of data.$logs | async"
+    <div *ngFor="let log of $logs | async"
          class="log"
          [ngClass]="visibility[log._id] ? 'expanded' : 'collapsed'"
          (click)="visibility[log._id] = !visibility[log._id]">

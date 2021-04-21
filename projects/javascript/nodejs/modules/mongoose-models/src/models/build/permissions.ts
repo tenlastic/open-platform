@@ -4,8 +4,24 @@ import { Build, BuildDocument } from './model';
 
 export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
   create: {
-    'namespace-administrator': ['entrypoints.*', 'namespaceId', 'publishedAt', 'version'],
-    'user-administrator': ['entrypoints.*', 'namespaceId', 'publishedAt', 'version'],
+    'namespace-administrator': [
+      'entrypoint',
+      'gameId',
+      'name',
+      'namespaceId',
+      'platform',
+      'publishedAt',
+      'reference.*',
+    ],
+    'user-administrator': [
+      'entrypoint',
+      'gameId',
+      'name',
+      'namespaceId',
+      'platform',
+      'publishedAt',
+      'reference.*',
+    ],
   },
   delete: {
     'namespace-administrator': true,
@@ -14,7 +30,21 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
   find: {
     default: {
       $or: [
-        { $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }] },
+        {
+          gameId: {
+            $in: {
+              // Find User's Game Invitations.
+              $query: {
+                model: 'GameInvitationSchema',
+                select: 'gameId',
+                where: {
+                  userId: { $eq: { $ref: 'user._id' } },
+                },
+              },
+            },
+          },
+          publishedAt: { $exists: true, $ne: null },
+        },
         {
           namespaceId: {
             $in: {
@@ -48,6 +78,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
         },
       ],
     },
+    'system-administrator': {},
     'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
@@ -55,14 +86,66 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
     default: [
       '_id',
       'createdAt',
-      'entrypoints.*',
+      'entrypoint',
+      'files.*',
+      'gameId',
+      'name',
       'namespaceId',
+      'platform',
       'publishedAt',
-      'version',
+      'updatedAt',
+    ],
+    'namespace-administrator': [
+      '_id',
+      'createdAt',
+      'entrypoint',
+      'files.*',
+      'gameId',
+      'name',
+      'namespaceId',
+      'platform',
+      'publishedAt',
+      'reference.*',
+      'status.*',
+      'updatedAt',
+    ],
+    'system-administrator': [
+      '_id',
+      'createdAt',
+      'entrypoint',
+      'files.*',
+      'gameId',
+      'name',
+      'namespaceId',
+      'platform',
+      'publishedAt',
+      'reference.*',
+      'status.*',
+      'updatedAt',
+    ],
+    'user-administrator': [
+      '_id',
+      'createdAt',
+      'entrypoint',
+      'files.*',
+      'gameId',
+      'name',
+      'namespaceId',
+      'platform',
+      'publishedAt',
+      'reference.*',
+      'status.*',
       'updatedAt',
     ],
   },
   roles: [
+    {
+      name: 'system-administrator',
+      query: {
+        'user.roles': { $eq: 'builds' },
+        'user.system': { $eq: true },
+      },
+    },
     {
       name: 'user-administrator',
       query: {
@@ -94,7 +177,8 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
     },
   ],
   update: {
-    'namespace-administrator': ['entrypoints.*', 'publishedAt', 'version'],
-    'user-administrator': ['entrypoints.*', 'publishedAt', 'version'],
+    'namespace-administrator': ['entrypoint', 'gameId', 'name', 'publishedAt'],
+    'system-administrator': ['files.*', 'status.*'],
+    'user-administrator': ['entrypoint', 'gameId', 'name', 'publishedAt'],
   },
 });

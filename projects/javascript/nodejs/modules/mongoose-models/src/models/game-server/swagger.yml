@@ -6,7 +6,7 @@ components:
         _id:
           type: string
           format: ^[a-f0-9]{24}$
-        allowedUserIds:
+        authorizedUserIds:
           type: array
           items:
             type: string
@@ -16,7 +16,6 @@ components:
           format: ^[a-f0-9]{24}$
         cpu:
           type: number
-          enum: [0.1, 0.25, 0.5]
         createdAt:
           type: string
           format: date-time
@@ -27,13 +26,15 @@ components:
             format: ^[a-f0-9]{24}$
         description:
           type: string
+        gameId:
+          type: string
+          format: ^[a-f0-9]{24}$
         isPersistent:
           type: boolean
         isPreemptible:
           type: boolean
         memory:
           type: number
-          enum: [0.1, 0.25, 0.5, 1, 2.5, 5]
         metadata:
           type: object
         name:
@@ -47,12 +48,12 @@ components:
           type: string
           format: ^[a-f0-9]{24}$
         status:
-          type: string
-          enum: [running, terminated, waiting]
+          $ref: '#/components/schemas/GameServerStatus'
         updatedAt:
           type: string
           format: date-time
       required:
+        - buildId
         - cpu
         - memory
         - name

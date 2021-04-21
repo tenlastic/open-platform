@@ -10,7 +10,7 @@ import { GameServerQuery } from './game-server';
 export interface GameServerLogState extends EntityState<GameServerLog> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'game-server-logs' })
+@StoreConfig({ idKey: '_id', name: 'game-server-logs', resettable: true })
 export class GameServerLogStore extends EntityStore<GameServerLogState, GameServerLog> {
   constructor(private gameServerLogService: GameServerLogService) {
     super();

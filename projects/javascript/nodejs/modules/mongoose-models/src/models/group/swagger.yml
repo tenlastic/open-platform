@@ -16,7 +16,6 @@ components:
           format: date-time
         userCount:
           type: integer
-          readOnly: true
         userIds:
           type: array
           items:

@@ -6,7 +6,7 @@ import {
   modelOptions,
   plugin,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 import { plugin as uniqueErrorPlugin } from '../plugin';

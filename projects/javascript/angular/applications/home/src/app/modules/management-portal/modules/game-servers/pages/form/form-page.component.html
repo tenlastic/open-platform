@@ -6,43 +6,18 @@
         autocomplete="off">
     <div class="row">
       <mat-form-field floatLabel="always">
-        <mat-label>Build</mat-label>
-        <mat-select required
-                    formControlName="buildId">
-          <mat-option *ngFor="let build of builds"
-                      [value]="build._id">
-            {{ build.version }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    <div class="row">
-      <mat-form-field floatLabel="always">
         <mat-label>Name</mat-label>
         <input matInput
                required
                formControlName="name" />
         <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
-    </div>
 
-    <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Description</mat-label>
         <input matInput
                formControlName="description" />
         <mat-error>Enter a valid description.</mat-error>
-      </mat-form-field>
-    </div>
-
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Is Persistent</mat-label>
-        <mat-select formControlName="isPersistent">
-          <mat-option [value]="true">Yes</mat-option>
-          <mat-option [value]="false">No</mat-option>
-        </mat-select>
       </mat-form-field>
     </div>
 
@@ -59,7 +34,7 @@
         <mat-label>CPU</mat-label>
         <mat-select formControlName="cpu">
           <mat-option *ngFor="let cpu of cpus"
-                      [value]="cpu">{{ cpu }}</mat-option>
+                      [value]="cpu.value">{{ cpu.label }}</mat-option>
         </mat-select>
       </mat-form-field>
 
@@ -67,26 +42,83 @@
         <mat-label>Memory</mat-label>
         <mat-select formControlName="memory">
           <mat-option *ngFor="let memory of memories"
-                      [value]="memory">{{ memory }} GB</mat-option>
+                      [value]="memory.value">{{ memory.label }}</mat-option>
         </mat-select>
       </mat-form-field>
     </div>
 
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Build</mat-label>
+        <mat-select formControlName="buildId"
+                    placeholder="No Builds Found"
+                    required>
+          <mat-option *ngFor="let build of builds"
+                      [value]="build._id">
+            {{ build.name }}
+            <ng-container *ngIf="!build.publishedAt">(Unpublished)</ng-container>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field *ngIf="games.length"
+                      floatLabel="always">
+        <mat-label>Game</mat-label>
+        <mat-select formControlName="gameId"
+                    placeholder="No Game">
+          <mat-option [value]="null">No Game</mat-option>
+          <mat-option *ngFor="let game of games"
+                      [value]="game._id">
+            {{ game.fullTitle }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field *ngIf="data?.queueId"
+                      floatLabel="always">
+        <mat-label>Queue</mat-label>
+        <input matInput
+               disabled
+               [value]="queue" />
+      </mat-form-field>
+    </div>
+
     <app-toggle-section title="Metadata">
-      <div class="row"
-           formArrayName="metadata"
-           *ngFor="let property of form['controls'].metadata['controls']; let i = index">
-        <app-metadata-field [form]="property"
-                            (remove)="removeProperty(i)"></app-metadata-field>
+      <app-metadata-fields [formArray]="form['controls'].metadata"></app-metadata-fields>
+    </app-toggle-section>
+
+    <app-toggle-section *ngIf="data._id"
+                        title="Status">
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Phase</mat-label>
+          <input matInput
+                 disabled
+                 [value]="data.status?.phase || 'Pending'" />
+        </mat-form-field>
       </div>
 
       <div class="row">
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="addProperty()">
-          <mat-icon>add</mat-icon>
-          <span>Add Property</span>
-        </app-button>
+        <mat-form-field floatLabel="always">
+          <mat-label>TCP Endpoint</mat-label>
+          <input disabled
+                 matInput
+                 [value]="data.status?.endpoints?.tcp || 'Pending'" />
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>UDP Endpoint</mat-label>
+          <input disabled
+                 matInput
+                 [value]="data.status?.endpoints?.udp || 'Pending'" />
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Websocket Endpoint</mat-label>
+          <input disabled
+                 matInput
+                 [value]="data.status?.endpoints?.websocket || 'Pending'" />
+        </mat-form-field>
       </div>
     </app-toggle-section>
 

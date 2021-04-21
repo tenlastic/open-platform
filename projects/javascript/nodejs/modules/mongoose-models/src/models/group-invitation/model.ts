@@ -7,24 +7,18 @@ import {
   modelOptions,
   plugin,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import {
   EventEmitter,
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { GroupDocument } from '../group';
 import { UserDocument } from '../user';
 
 export const GroupInvitationEvent = new EventEmitter<IDatabasePayload<GroupInvitationDocument>>();
-
-// Publish changes to Kafka.
-GroupInvitationEvent.on(payload => {
-  kafka.publish(payload);
-});
 
 // Delete stale GroupInvitations.
 setInterval(async () => {

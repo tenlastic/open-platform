@@ -12,9 +12,7 @@
                formControlName="name" />
         <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
-    </div>
 
-    <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Description</mat-label>
         <input matInput
@@ -34,9 +32,7 @@
                type="number" />
         <mat-error>Enter a valid amount of teams.</mat-error>
       </mat-form-field>
-    </div>
 
-    <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Players Per Team</mat-label>
         <input matInput
@@ -49,16 +45,84 @@
       </mat-form-field>
     </div>
 
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Is Preemptible</mat-label>
+        <mat-select formControlName="isPreemptible">
+          <mat-option [value]="true">Yes</mat-option>
+          <mat-option [value]="false">No</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Replicas</mat-label>
+        <mat-select formControlName="replicas">
+          <mat-option *ngFor="let replica of replicas"
+                      [value]="replica.value">{{ replica.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>CPU</mat-label>
+        <mat-select formControlName="cpu">
+          <mat-option *ngFor="let cpu of cpus"
+                      [value]="cpu.value">{{ cpu.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Memory</mat-label>
+        <mat-select formControlName="memory">
+          <mat-option *ngFor="let memory of memories"
+                      [value]="memory.value">{{ memory.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Build</mat-label>
+        <mat-select formControlName="buildId"
+                    placeholder="No Build">
+          <mat-option [value]="null">No Build</mat-option>
+          <mat-option *ngFor="let build of builds"
+                      [value]="build._id">
+            {{ build.name }}
+            <ng-container *ngIf="!build.publishedAt">(Unpublished)</ng-container>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field *ngIf="games.length"
+                      floatLabel="always">
+        <mat-label>Game</mat-label>
+        <mat-select formControlName="gameId"
+                    placeholder="No Game">
+          <mat-option [value]="null">No Game</mat-option>
+          <mat-option *ngFor="let game of games"
+                      [value]="game._id">
+            {{ game.fullTitle }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <app-toggle-section title="Queue Metadata"
+                        [isVisible]="false">
+      <app-metadata-fields [formArray]="form['controls'].metadata"></app-metadata-fields>
+    </app-toggle-section>
+
     <app-toggle-section formGroupName="gameServerTemplate"
                         title="Game Server Template">
       <div class="row">
         <mat-form-field floatLabel="always">
           <mat-label>Build</mat-label>
           <mat-select required
-                      formControlName="buildId">
+                      formControlName="buildId"
+                      placeholder="No Builds Available">
             <mat-option *ngFor="let build of builds"
                         [value]="build._id">
-              {{ build.version }}
+              {{ build.name }}
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -77,7 +141,7 @@
           <mat-label>CPU</mat-label>
           <mat-select formControlName="cpu">
             <mat-option *ngFor="let cpu of cpus"
-                        [value]="cpu">{{ cpu }}</mat-option>
+                        [value]="cpu.value">{{ cpu.label }}</mat-option>
           </mat-select>
         </mat-form-field>
 
@@ -85,31 +149,27 @@
           <mat-label>Memory</mat-label>
           <mat-select formControlName="memory">
             <mat-option *ngFor="let memory of memories"
-                        [value]="memory">{{ memory }} GB</mat-option>
+                        [value]="memory.value">{{ memory.label }}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
     </app-toggle-section>
 
     <app-toggle-section formGroupName="gameServerTemplate"
-                        title="Game Server Metadata">
-      <div class="row"
-           formArrayName="metadata"
-           *ngFor="
-          let property of form['controls'].gameServerTemplate['controls'].metadata['controls'];
-          let i = index
-        ">
-        <app-metadata-field [form]="property"
-                            (remove)="removeProperty(i)"></app-metadata-field>
-      </div>
+                        title="Game Server Metadata"
+                        [isVisible]="false">
+      <app-metadata-fields [formArray]="form['controls'].gameServerTemplate['controls'].metadata"></app-metadata-fields>
+    </app-toggle-section>
 
+    <app-toggle-section *ngIf="data._id"
+                        title="Status">
       <div class="row">
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="addProperty()">
-          <mat-icon>add</mat-icon>
-          <span>Add Property</span>
-        </app-button>
+        <mat-form-field floatLabel="always">
+          <mat-label>Phase</mat-label>
+          <input matInput
+                 disabled
+                 [value]="data.status?.phase || 'Pending'" />
+        </mat-form-field>
       </div>
     </app-toggle-section>
 

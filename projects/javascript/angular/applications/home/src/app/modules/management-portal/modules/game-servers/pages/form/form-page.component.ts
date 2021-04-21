@@ -1,15 +1,22 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   Build,
   BuildService,
+  Game,
   GameServer,
+  GameServerQuery,
   GameServerService,
+  GameService,
   IGameServer,
+  Queue,
+  QueueService,
 } from '@tenlastic/ng-http';
+import { Subscription } from 'rxjs';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -24,22 +31,36 @@ interface PropertyFormGroup {
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
-export class GameServersFormPageComponent implements OnInit {
+export class GameServersFormPageComponent implements OnDestroy, OnInit {
+  public updateGameServer$ = new Subscription();
   public builds: Build[];
-  public cpus = IGameServer.Cpu;
+  public get cpus() {
+    const limits = this.selectedNamespaceService.namespace.limits.gameServers;
+    const limit = limits.cpu ? limits.cpu : Infinity;
+    return limits.cpu ? IGameServer.Cpu.filter(r => r.value <= limit) : IGameServer.Cpu;
+  }
   public data: GameServer;
   public errors: string[] = [];
   public form: FormGroup;
-  public memories = IGameServer.Memory;
+  public games: Game[];
+  public get memories() {
+    const limits = this.selectedNamespaceService.namespace.limits.gameServers;
+    const limit = limits.memory ? limits.memory : Infinity;
+    return limits.memory ? IGameServer.Memory.filter(r => r.value <= limit) : IGameServer.Memory;
+  }
+  public queue: Queue;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private buildService: BuildService,
     private formBuilder: FormBuilder,
+    private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
+    private gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private queueService: QueueService,
     private router: Router,
     private selectedNamespaceService: SelectedNamespaceService,
   ) {}
@@ -52,24 +73,25 @@ export class GameServersFormPageComponent implements OnInit {
       }
 
       this.builds = await this.buildService.find({
+        select: '-files',
         sort: '-publishedAt',
+        where: { namespaceId: this.selectedNamespaceService.namespaceId, platform: 'server64' },
+      });
+      this.games = await this.gameService.find({
+        sort: 'title',
         where: { namespaceId: this.selectedNamespaceService.namespaceId },
       });
+
+      if (this.data && this.data.queueId) {
+        this.queue = await this.queueService.findOne(this.data.queueId);
+      }
 
       this.setupForm();
     });
   }
 
-  public addProperty() {
-    const property = this.getDefaultPropertyFormGroup();
-    const formArray = this.form.get('metadata') as FormArray;
-
-    formArray.push(property);
-  }
-
-  public removeProperty(index: number) {
-    const formArray = this.form.get('metadata') as FormArray;
-    formArray.removeAt(index);
+  public ngOnDestroy() {
+    this.updateGameServer$.unsubscribe();
   }
 
   public async save() {
@@ -87,6 +109,7 @@ export class GameServersFormPageComponent implements OnInit {
       buildId: this.form.get('buildId').value,
       cpu: this.form.get('cpu').value,
       description: this.form.get('description').value,
+      gameId: this.form.get('gameId').value,
       isPersistent: this.form.get('isPersistent').value,
       isPreemptible: this.form.get('isPreemptible').value,
       memory: this.form.get('memory').value,
@@ -95,20 +118,15 @@ export class GameServersFormPageComponent implements OnInit {
       namespaceId: this.form.get('namespaceId').value,
     };
 
-    if (
-      this.data._id &&
-      (this.form.get('buildId').dirty ||
-        this.form.get('isPersistent').dirty ||
-        this.form.get('isPreemptible').dirty ||
-        this.form.get('metadata').dirty)
-    ) {
+    const dirtyFields = this.getDirtyFields();
+    if (this.data._id && GameServer.isRestartRequired(dirtyFields)) {
       const dialogRef = this.matDialog.open(PromptComponent, {
         data: {
           buttons: [
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
           ],
-          message: `These changes may require the Game Server to be restarted. Is this OK?`,
+          message: `These changes require the Game Server to be restarted. Is this OK?`,
         },
       });
 
@@ -130,12 +148,8 @@ export class GameServersFormPageComponent implements OnInit {
     }
   }
 
-  private getDefaultPropertyFormGroup() {
-    return this.formBuilder.group({
-      key: ['', [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
-      value: false,
-      type: 'boolean',
-    });
+  private getDirtyFields() {
+    return Object.keys(this.form.controls).filter(key => this.form.get(key).dirty);
   }
 
   private getJsonFromProperty(property: PropertyFormGroup): any {
@@ -186,21 +200,28 @@ export class GameServersFormPageComponent implements OnInit {
     }
 
     this.form = this.formBuilder.group({
-      buildId: [
-        this.data.buildId || (this.builds.length > 0 ? this.builds[0]._id : null),
-        Validators.required,
-      ],
-      cpu: [this.data.cpu || this.cpus[0], Validators.required],
+      buildId: [this.data.buildId || (this.builds[0] && this.builds[0]._id), Validators.required],
+      cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
       description: [this.data.description],
-      isPersistent: [this.data.isPersistent || true],
-      isPreemptible: [this.data.isPreemptible || true],
-      memory: [this.data.memory || this.memories[0], Validators.required],
+      gameId: [this.data.gameId],
+      isPersistent: [this.data.isPersistent === false ? false : true],
+      isPreemptible: [this.data.isPreemptible === false ? false : true],
+      memory: [this.data.memory || this.memories[0].value, Validators.required],
       metadata: this.formBuilder.array(properties),
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
     });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+
+    if (this.data._id) {
+      this.updateGameServer$ = this.gameServerQuery
+        .selectAll({ filterBy: gs => gs._id === this.data._id })
+        .subscribe(gameServers => {
+          const gameServer = new GameServer(gameServers[0]);
+          this.data.status = gameServer.status;
+        });
+    }
   }
 
   private async upsert(data: Partial<GameServer>) {

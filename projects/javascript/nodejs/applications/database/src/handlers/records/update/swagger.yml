@@ -1,0 +1,39 @@
+paths:
+  /databases/{databaseId}/collections/{collectionId}/records/{_id}:
+    put:
+      summary: Update
+      tags: [DatabaseCollectionRecords]
+      description: Updates an existing record.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: collectionId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: databaseId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionRecord'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/CollectionRecord'

@@ -1,5 +1,0 @@
-import { FilePermissions } from '@tenlastic/mongoose-models';
-
-import { count } from '../../../defaults';
-
-export const handler = count(FilePermissions);

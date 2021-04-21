@@ -1,0 +1,13 @@
+components:
+  schemas:
+    BuildFile:
+      type: object
+      properties:
+        compressedBytes:
+          type: integer
+        md5:
+          type: string
+        path:
+          type: string
+        uncompressedBytes:
+          type: integer

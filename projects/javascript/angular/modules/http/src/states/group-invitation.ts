@@ -11,7 +11,7 @@ import { UserQuery } from './user';
 export interface GroupInvitationState extends EntityState<GroupInvitation> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'group-invitations' })
+@StoreConfig({ idKey: '_id', name: 'group-invitations', resettable: true })
 export class GroupInvitationStore extends EntityStore<GroupInvitationState, GroupInvitation> {
   constructor(private groupInvitationService: GroupInvitationService) {
     super();

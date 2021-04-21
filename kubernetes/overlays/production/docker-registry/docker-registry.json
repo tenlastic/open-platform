@@ -4,7 +4,15 @@
     "path": "/spec/template/spec/containers/0/env/-",
     "value": {
       "name": "REGISTRY_HTTP_HOST",
-      "value": "https://registry.tenlastic.com"
+      "value": "https://docker-registry.tenlastic.com"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/spec/template/spec/containers/0/env/-",
+    "value": {
+      "name": "REGISTRY_STORAGE_S3_REGIONENDPOINT",
+      "value": "http://minio.default:9000"
     }
   }
 ]

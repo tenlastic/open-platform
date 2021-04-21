@@ -1,0 +1,47 @@
+components:
+  schemas:
+    WorkflowStatus:
+      type: object
+      properties:
+        finishedAt:
+          type: string
+          format: date-time
+        nodes:
+          type: array
+          items:
+            type: object
+            properties:
+              children:
+                type: array
+                items:
+                  type: string
+              displayName:
+                type: string
+              finishedAt:
+                type: string
+                format: date-time
+              id:
+                type: string
+              message:
+                type: string
+              name:
+                type: string
+              outboundNodes:
+                type: array
+                items:
+                  type: string
+              phase:
+                type: string
+              startedAt:
+                type: string
+                format: date-time
+              templateName:
+                type: string
+              type:
+                type: string
+        phase:
+          type: string
+          enum: [Error]
+        startedAt:
+          type: string
+          format: date-time

@@ -7,23 +7,17 @@ import {
   modelOptions,
   plugin,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import {
   EventEmitter,
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import { User, UserDocument } from '../user';
+import { UserDocument } from '../user';
 
 export const IgnorationEvent = new EventEmitter<IDatabasePayload<IgnorationDocument>>();
-
-// Publish changes to Kafka.
-IgnorationEvent.on(payload => {
-  kafka.publish(payload);
-});
 
 @index({ fromUserId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({

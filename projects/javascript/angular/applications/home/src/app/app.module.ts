@@ -42,6 +42,7 @@ export const ROUTES: Routes = [
     loadChildren: () => import('./modules/home/home.module').then(m => m.HomeModule),
     path: '',
   },
+  { path: '**', redirectTo: '' },
 ];
 
 @NgModule({
@@ -52,7 +53,10 @@ export const ROUTES: Routes = [
     CoreModule,
     HttpModule.forRoot(environment),
     SharedModule,
-    RouterModule.forRoot(ROUTES, { useHash: environment.useHash }),
+    RouterModule.forRoot(ROUTES, {
+      relativeLinkResolution: 'corrected',
+      useHash: environment.useHash,
+    }),
   ],
   bootstrap: [AppComponent],
 })

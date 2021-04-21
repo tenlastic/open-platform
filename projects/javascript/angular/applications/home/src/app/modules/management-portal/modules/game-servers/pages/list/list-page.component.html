@@ -1,26 +1,17 @@
 <div class="page">
+  <app-breadcrumbs *ngIf="queueId"
+                   [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
   <app-title>Game Servers</app-title>
 
   <div class="row">
     <div class="col-sm-3">
-      <mat-form-field floatLabel="always">
-        <mat-label>Filter Game Servers</mat-label>
-        <input matInput
-               type="text"
-               autocomplete="off"
-               [(ngModel)]="search"
-               (keyup)="onKeyUp($event.target.value)" />
-        <button mat-button
-                *ngIf="search"
-                matSuffix
-                mat-icon-button
-                aria-label="Clear"
-                (click)="clearSearch()">
-          <mat-icon>close</mat-icon>
-        </button>
-      </mat-form-field>
+      <app-data-source-filter [dataSource]="dataSource">
+        Filter Game Servers
+      </app-data-source-filter>
     </div>
-    <div class="offset-sm-6 col-sm-3">
+
+    <div *ngIf="!queue"
+         class="offset-sm-6 col-sm-3">
       <app-button color="accent"
                   [routerLink]="['new']">
         <mat-icon>add</mat-icon>
@@ -34,12 +25,13 @@
          matSort
          matSortActive="name"
          matSortDirection="asc">
-    <ng-container matColumnDef="queue">
+    <ng-container matColumnDef="game">
       <th mat-header-cell
           *matHeaderCellDef
-          mat-sort-header>Queue</th>
+          mat-sort-header>Game</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.queueId ? 'Yes' : 'No' }}</td>
+          *matCellDef="let element">{{ element.game?.fullTitle }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="name">
@@ -63,15 +55,7 @@
           *matHeaderCellDef
           mat-sort-header>Status</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.status | titlecase }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="isPersistent">
-      <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Persistent</th>
-      <td mat-cell
-          *matCellDef="let element">{{ element.isPersistent ? 'Yes' : 'No' }}</td>
+          *matCellDef="let element">{{ element.status?.phase }}</td>
     </ng-container>
 
     <ng-container matColumnDef="createdAt">

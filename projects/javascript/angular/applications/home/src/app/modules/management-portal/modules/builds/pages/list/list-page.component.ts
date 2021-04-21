@@ -1,16 +1,19 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import {
-  MatPaginator,
-  MatSort,
-  MatTable,
-  MatTableDataSource,
-  MatDialog,
-  MatSnackBar,
-} from '@angular/material';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSort } from '@angular/material/sort';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { Build, BuildService } from '@tenlastic/ng-http';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import {
+  Build,
+  BuildQuery,
+  BuildService,
+  GameServerService,
+  IBuild,
+  QueueService,
+} from '@tenlastic/ng-http';
+import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -20,54 +23,106 @@ import { TITLE } from '../../../../../../shared/constants';
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class BuildsListPageComponent implements OnInit {
+export class BuildsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Build>;
 
-  public dataSource: MatTableDataSource<Build>;
+  public $builds: Observable<Build[]>;
+  public dataSource = new MatTableDataSource<Build>();
   public displayedColumns: string[] = [
-    'version',
+    'game',
+    'name',
+    'platform',
+    'status',
     'publishedAt',
-    'createdAt',
-    'updatedAt',
     'actions',
   ];
-  public search = '';
 
-  private subject: Subject<string> = new Subject();
+  private updateDataSource$ = new Subscription();
 
   constructor(
+    private buildQuery: BuildQuery,
+    private buildService: BuildService,
+    private gameServerService: GameServerService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private buildService: BuildService,
+    private queueService: QueueService,
     private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
-  ngOnInit() {
+  public ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Builds`);
     this.fetchBuilds();
-
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
   }
 
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
+  public ngOnDestroy() {
+    this.updateDataSource$.unsubscribe();
   }
 
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
+  public getPlatform(platform: string) {
+    const map = {
+      server64: 'Linux Server (x64)',
+      windows64: 'Windows Client (x64)',
+    };
+
+    return map[platform];
   }
 
-  public async publish(article: Build) {
-    const result = await this.buildService.update({
-      ...article,
-      publishedAt: new Date(),
-    });
-    article.publishedAt = result.publishedAt;
+  public async publish(build: Build) {
+    await this.buildService.update({ ...build, publishedAt: new Date() });
+
+    if (build.platform === IBuild.Platform.Server64 && build.reference) {
+      const referenceBuild = await this.buildService.findOne(build.reference._id);
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message:
+            `Would you like to update Game Servers and Queues using the Reference Build ` +
+            `(${referenceBuild.name}) to use this Build?`,
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(async result => {
+        if (result === 'Yes') {
+          // Update Game Servers.
+          const gameServers = await this.gameServerService.find({
+            where: { buildId: build.reference._id, isPersistent: true },
+          });
+          for (const gameServer of gameServers) {
+            await this.gameServerService.update({ ...gameServer, buildId: build._id });
+          }
+
+          // Update Queues.
+          const queues = await this.queueService.find({
+            where: { buildId: build.reference._id },
+          });
+          for (const queue of queues) {
+            await this.queueService.update({ _id: queue._id, buildId: build._id });
+          }
+
+          // Update Queue Game Server templates.
+          const gameServerTemplates = await this.queueService.find({
+            where: { 'gameServerTemplate.buildId': build.reference._id },
+          });
+          for (const queue of gameServerTemplates) {
+            await this.queueService.update({
+              _id: queue._id,
+              gameServerTemplate: { ...queue.gameServerTemplate, buildId: build._id },
+            });
+          }
+
+          this.matSnackBar.open(
+            `${gameServers.length} Game Server(s) and ${queues.length} Queue(s) updated successfully.`,
+          );
+        }
+      });
+    }
   }
 
   public showDeletePrompt(record: Build) {
@@ -84,41 +139,30 @@ export class BuildsListPageComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
         await this.buildService.delete(record._id);
-        this.deleteBuild(record);
-
         this.matSnackBar.open('Build deleted successfully.');
       }
     });
   }
 
-  public async unpublish(article: Build) {
-    const result = await this.buildService.update({
-      ...article,
-      publishedAt: null,
-    });
-    article.publishedAt = result.publishedAt;
-  }
-
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+  public async unpublish(build: Build) {
+    return this.buildService.update({ ...build, publishedAt: null });
   }
 
   private async fetchBuilds() {
-    const records = await this.buildService.find({
-      sort: 'name',
+    const $builds = this.buildQuery.selectAll({
+      filterBy: build => build.namespaceId === this.selectedNamespaceService.namespaceId,
+    });
+    this.$builds = this.buildQuery.populate($builds);
+
+    await this.buildService.find({
+      select: '-files',
+      sort: '-createdAt',
       where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
-    this.dataSource = new MatTableDataSource<Build>(records);
+    this.updateDataSource$ = this.$builds.subscribe(builds => (this.dataSource.data = builds));
+
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  private deleteBuild(record: Build) {
-    const index = this.dataSource.data.findIndex(u => u._id === record._id);
-    this.dataSource.data.splice(index, 1);
-
-    this.dataSource.data = [].concat(this.dataSource.data);
-    this.table.renderRows();
   }
 }

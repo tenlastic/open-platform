@@ -30,6 +30,12 @@ spec:
           envFrom:
             - secretRef:
                 name: mongoku
+          livenessProbe:
+            httpGet:
+              path: /servers
+              port: 3100
+            initialDelaySeconds: 30
+            periodSeconds: 30
           ports:
             - containerPort: 3100
           resources:

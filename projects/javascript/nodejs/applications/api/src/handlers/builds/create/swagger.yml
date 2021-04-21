@@ -3,14 +3,20 @@ paths:
     post:
       summary: Create
       tags: [Builds]
-      description: Creates a new record.
+      description: Uploads files for a Build. Make sure zip is the last field.
       security:
         - AccessToken: []
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Build'
+              type: object
+              properties:
+                build:
+                  $ref: '#/components/schemas/Build'
+                zip:
+                  type: string
+                  format: binary
       responses:
         200:
           description: OK

@@ -12,9 +12,5 @@ export function getFileChanges(localFiles: any[], remoteFiles: any[]) {
     }
   }
 
-  const removed: string[] = remoteFiles
-    .filter(rf => !localFiles.find(lf => lf.path === rf.path))
-    .map(rf => rf.path);
-
-  return { modified, removed, unmodified };
+  return { modified, unmodified };
 }

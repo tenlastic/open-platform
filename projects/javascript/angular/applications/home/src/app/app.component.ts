@@ -1,13 +1,22 @@
 import { Title } from '@angular/platform-browser';
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
+import { akitaConfig, resetStores } from '@datorama/akita';
 import {
+  ArticleQuery,
   Build,
+  BuildQuery,
   BuildService,
+  Database,
+  DatabaseService,
   GameInvitation,
+  GameInvitationQuery,
   GameInvitationService,
+  GameQuery,
   GameServer,
+  GameServerQuery,
   GameServerService,
+  GameService,
   Group,
   GroupInvitation,
   GroupInvitationService,
@@ -18,17 +27,22 @@ import {
   Queue,
   QueueMember,
   QueueMemberService,
+  QueueQuery,
   QueueService,
-  Workflow,
-  WorkflowService,
+  UserQuery,
+  UserService,
   WebSocket,
   WebSocketService,
+  Workflow,
+  WorkflowService,
 } from '@tenlastic/ng-http';
 
+import { environment } from '../environments/environment';
 import {
   BackgroundService,
   ElectronService,
   IdentityService,
+  Socket,
   SocketService,
 } from './core/services';
 import { TITLE } from './shared/constants';
@@ -38,24 +52,36 @@ import { TITLE } from './shared/constants';
   templateUrl: './app.component.html',
 })
 export class AppComponent implements OnInit {
+  private socket: Socket;
+
   constructor(
+    private articleQuery: ArticleQuery,
     public backgroundService: BackgroundService,
+    private buildQuery: BuildQuery,
     private buildService: BuildService,
+    private databaseService: DatabaseService,
     private electronService: ElectronService,
+    private gameInvitationQuery: GameInvitationQuery,
     private gameInvitationService: GameInvitationService,
+    private gameQuery: GameQuery,
+    private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
+    private gameService: GameService,
     private groupService: GroupService,
     private groupInvitationService: GroupInvitationService,
     private identityService: IdentityService,
     private loginService: LoginService,
     private messageService: MessageService,
     private queueMemberService: QueueMemberService,
+    private queueQuery: QueueQuery,
     private queueService: QueueService,
-    private workflowService: WorkflowService,
     private router: Router,
     private socketService: SocketService,
     private titleService: Title,
+    private userQuery: UserQuery,
+    private userService: UserService,
     private webSocketService: WebSocketService,
+    private workflowService: WorkflowService,
   ) {}
 
   public ngOnInit() {
@@ -65,16 +91,22 @@ export class AppComponent implements OnInit {
     this.loginService.onLogout.subscribe(() => this.navigateToLogin());
 
     // Handle websockets when logging in and out.
-    this.loginService.onLogin.subscribe(() => this.socketService.connect());
-    this.loginService.onLogout.subscribe(() => this.socketService.close());
+    this.loginService.onLogin.subscribe(() => {
+      this.socket = this.socketService.connect(environment.apiBaseUrl);
+      this.socket.addEventListener('open', () => this.subscribe());
+    });
+    this.loginService.onLogout.subscribe(() => this.socket?.close());
 
     // Handle websockets when access token is set.
-    this.identityService.OnAccessTokenSet.subscribe(() => this.socketService.connect());
+    this.identityService.OnAccessTokenSet.subscribe(() => {
+      this.socket = this.socketService.connect(environment.apiBaseUrl);
+      this.socket.addEventListener('open', () => this.subscribe());
+    });
 
     // Connect to websockets.
     try {
-      this.socketService.OnOpen.subscribe(() => this.subscribe());
-      this.socketService.connect();
+      this.socket = this.socketService.connect(environment.apiBaseUrl);
+      this.socket.addEventListener('open', () => this.subscribe());
     } catch {}
 
     // Load previous url if set.
@@ -89,6 +121,52 @@ export class AppComponent implements OnInit {
         localStorage.setItem('url', event.url);
       }
     });
+
+    // Clear stores on logout.
+    this.loginService.onLogout.subscribe(() => resetStores());
+
+    this.fetchMissingRecords();
+  }
+
+  public fetchMissingRecords() {
+    this.articleQuery.selectAll().subscribe(records => {
+      const ids = records.map(r => r.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
+      if (ids.length > 0) {
+        this.gameService.find({ where: { _id: { $in: ids } } });
+      }
+    });
+    this.buildQuery.selectAll().subscribe(records => {
+      const ids = records.map(r => r.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
+      if (ids.length > 0) {
+        this.gameService.find({ where: { _id: { $in: ids } } });
+      }
+    });
+    this.gameInvitationQuery.selectAll().subscribe(records => {
+      const ids = records.map(r => r.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
+      if (ids.length > 0) {
+        this.gameService.find({ where: { _id: { $in: ids } } });
+      }
+    });
+    this.gameInvitationQuery.selectAll().subscribe(records => {
+      const ids = records.map(r => r.userId).filter(userId => !this.userQuery.hasEntity(userId));
+      if (ids.length > 0) {
+        this.userService.find({ where: { _id: { $in: ids } } });
+      }
+    });
+    this.gameServerQuery.selectAll().subscribe(records => {
+      const ids = records.map(r => r.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
+      if (ids.length > 0) {
+        this.gameService.find({ where: { _id: { $in: ids } } });
+      }
+    });
+    this.gameServerQuery.selectAll().subscribe(records => {
+      const ids = records
+        .map(r => r.queueId)
+        .filter(queueId => !this.queueQuery.hasEntity(queueId));
+      if (ids.length > 0) {
+        this.queueService.find({ where: { _id: { $in: ids } } });
+      }
+    });
   }
 
   public navigateToLogin() {
@@ -96,15 +174,16 @@ export class AppComponent implements OnInit {
   }
 
   private subscribe() {
-    this.socketService.subscribe('builds', Build, this.buildService);
-    this.socketService.subscribe('game-invitations', GameInvitation, this.gameInvitationService);
-    this.socketService.subscribe('game-servers', GameServer, this.gameServerService);
-    this.socketService.subscribe('groups', Group, this.groupService);
-    this.socketService.subscribe('group-invitations', GroupInvitation, this.groupInvitationService);
-    this.socketService.subscribe('messages', Message, this.messageService);
-    this.socketService.subscribe('queue-members', QueueMember, this.queueMemberService);
-    this.socketService.subscribe('queues', Queue, this.queueService);
-    this.socketService.subscribe('workflows', Workflow, this.workflowService);
-    this.socketService.subscribe('web-sockets', WebSocket, this.webSocketService);
+    this.socket.subscribe('builds', Build, this.buildService);
+    this.socket.subscribe('databases', Database, this.databaseService);
+    this.socket.subscribe('game-invitations', GameInvitation, this.gameInvitationService);
+    this.socket.subscribe('game-servers', GameServer, this.gameServerService);
+    this.socket.subscribe('groups', Group, this.groupService);
+    this.socket.subscribe('group-invitations', GroupInvitation, this.groupInvitationService);
+    this.socket.subscribe('messages', Message, this.messageService);
+    this.socket.subscribe('queue-members', QueueMember, this.queueMemberService);
+    this.socket.subscribe('queues', Queue, this.queueService);
+    this.socket.subscribe('workflows', Workflow, this.workflowService);
+    this.socket.subscribe('web-sockets', WebSocket, this.webSocketService);
   }
 }

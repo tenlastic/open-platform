@@ -1,25 +1,14 @@
 <div class="page">
+  <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
   <app-title>{{ collection?.name }}</app-title>
 
   <div class="row">
     <div class="col-sm-3">
-      <mat-form-field floatLabel="always">
-        <mat-label>Filter Records</mat-label>
-        <input matInput
-               type="text"
-               autocomplete="off"
-               [(ngModel)]="search"
-               (keyup)="onKeyUp($event.target.value)" />
-        <button mat-button
-                *ngIf="search"
-                matSuffix
-                mat-icon-button
-                aria-label="Clear"
-                (click)="clearSearch()">
-          <mat-icon>close</mat-icon>
-        </button>
-      </mat-form-field>
+      <app-data-source-filter [dataSource]="dataSource">
+        Filter Records
+      </app-data-source-filter>
     </div>
+
     <div class="offset-sm-6 col-sm-3">
       <app-button color="accent"
                   [routerLink]="['new']">
@@ -38,7 +27,7 @@
                   [matColumnDef]="column">
       <th mat-header-cell
           *matHeaderCellDef
-          mat-sort-header>{{ column }}</th>
+          mat-sort-header>{{ column | camelCaseToTitleCase }}</th>
       <td mat-cell
           *matCellDef="let element">{{ element.properties[column] }}</td>
     </ng-container>

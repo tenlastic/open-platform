@@ -13,6 +13,7 @@ export class ArticleMock {
 
     const defaults = {
       body: chance.hash(),
+      gameId: mongoose.Types.ObjectId(),
       namespaceId: mongoose.Types.ObjectId(),
       title: chance.hash(),
     };

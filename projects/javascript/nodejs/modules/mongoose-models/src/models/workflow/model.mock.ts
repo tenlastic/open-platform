@@ -1,8 +1,8 @@
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
-import { WorkflowSpecMock } from '../../bases';
 import { Workflow, WorkflowSchema } from './model';
+import { WorkflowSpecMock } from './spec';
 
 export class WorkflowMock {
   /**
@@ -22,9 +22,12 @@ export class WorkflowMock {
     const chance = new Chance();
 
     const defaults = {
+      cpu: chance.pickone([1, 3, 5]),
+      memory: chance.pickone([1, 3, 5]),
       name: chance.hash(),
       namespaceId: mongoose.Types.ObjectId(),
       spec: WorkflowSpecMock.create(),
+      storage: chance.pickone([1, 3, 5]),
     };
 
     return new Workflow({ ...defaults, ...params });

@@ -56,8 +56,8 @@ describe('handlers/game-servers/update', function() {
       expect(ctx.response.body.record).to.exist;
     });
 
-    it('enforces the gameServers.cpu Namespace limit', async function() {
-      namespace.limits.gameServers.cpu = 0.1;
+    it('enforces the Namespace limits', async function() {
+      namespace.limits.gameServers.cpu = 1;
       namespace.markModified('limits');
       await namespace.save();
 
@@ -67,7 +67,7 @@ describe('handlers/game-servers/update', function() {
         },
         request: {
           body: {
-            cpu: 0.2,
+            cpu: 2,
           },
         },
         state: { user: user.toObject() },
@@ -76,52 +76,7 @@ describe('handlers/game-servers/update', function() {
       const promise = handler(ctx as any);
 
       return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: gameServers.cpu. Value: 0.1.',
-      );
-    });
-
-    it('enforces the gameServers.memory Namespace limit', async function() {
-      namespace.limits.gameServers.memory = 0.1;
-      namespace.markModified('limits');
-      await namespace.save();
-
-      const ctx = new ContextMock({
-        request: {
-          body: {
-            memory: 0.2,
-          },
-        },
-        state: { user: user.toObject() },
-      });
-
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: gameServers.memory. Value: 0.1.',
-      );
-    });
-
-    it('enforces the gameServers.preemptible Namespace limit', async function() {
-      namespace.limits.gameServers.preemptible = true;
-      namespace.markModified('limits');
-      await namespace.save();
-
-      const ctx = new ContextMock({
-        params: {
-          _id: record._id,
-        },
-        request: {
-          body: {
-            isPreemptible: false,
-          },
-        },
-        state: { user: user.toObject() },
-      });
-
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: gameServers.preemptible. Value: true.',
+        'Namespace limit reached: gameServers.cpu. Value: 1.',
       );
     });
   });

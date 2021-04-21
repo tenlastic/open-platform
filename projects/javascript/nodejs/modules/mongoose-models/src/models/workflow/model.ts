@@ -1,33 +1,28 @@
 import {
   DocumentType,
+  Ref,
   ReturnModelType,
-  addModelToTypegoose,
+  getModelForClass,
   index,
+  modelOptions,
   plugin,
-  post,
-  buildSchema,
-} from '@hasezoey/typegoose';
+  prop,
+} from '@typegoose/typegoose';
 import {
   EventEmitter,
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
-import * as kubernetes from '../../kubernetes';
-import { WorkflowBase, WorkflowSpecTemplateSchema } from '../../bases';
-import { Namespace, NamespaceEvent, NamespaceLimitError } from '../namespace';
+import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
+import { WorkflowSpecSchema } from './spec';
+import { WorkflowStatusSchema } from './status';
 
 export const WorkflowEvent = new EventEmitter<IDatabasePayload<WorkflowDocument>>();
 
-// Publish changes to Kafka.
-WorkflowEvent.on(payload => {
-  kafka.publish(payload);
-});
-
 // Delete Workflows if associated Namespace is deleted.
-NamespaceEvent.on(async payload => {
+NamespaceEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Workflow.find({ namespaceId: payload.fullDocument._id });
@@ -37,37 +32,62 @@ NamespaceEvent.on(async payload => {
 });
 
 @index({ namespaceId: 1 })
+@modelOptions({
+  schemaOptions: {
+    collection: 'workflows',
+    minimize: false,
+    timestamps: true,
+  },
+})
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: WorkflowEvent })
-@post('remove', async function(this: WorkflowDocument) {
-  await kubernetes.Workflow.delete(this);
-  await kubernetes.WorkflowSidecar.delete(this);
-})
-@post('save', async function(this: WorkflowDocument) {
-  if (!this.populated('namespaceDocument')) {
-    await this.populate('namespaceDocument').execPopulate();
-  }
+export class WorkflowSchema {
+  public _id: mongoose.Types.ObjectId;
 
-  if (this.wasNew) {
-    await kubernetes.Workflow.create(this.namespaceDocument, this);
-    await kubernetes.WorkflowSidecar.create(this);
-  } else if (this.status && this.status.finishedAt) {
-    await kubernetes.Workflow.delete(this);
-    await kubernetes.WorkflowSidecar.delete(this);
-  }
-})
-export class WorkflowSchema extends WorkflowBase {
-  public get kubernetesName() {
-    return `workflow-${this._id}`;
-  }
-  public get kubernetesNamespace() {
-    return `namespace-${this.namespaceId}`;
-  }
+  @prop({ min: 0, required: true })
+  public cpu: number;
 
+  public createdAt: Date;
+
+  @prop({ immutable: true })
+  public isPreemptible: boolean;
+
+  @prop({ min: 0, required: true })
+  public memory: number;
+
+  @prop({ immutable: true, required: true })
+  public name: string;
+
+  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  public namespaceId: Ref<NamespaceDocument>;
+
+  @prop({ immutable: true, required: true })
+  public spec: WorkflowSpecSchema;
+
+  @prop()
+  public status: WorkflowStatusSchema;
+
+  @prop({ min: 0, required: true })
+  public storage: number;
+
+  public updatedAt: Date;
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
+  public namespaceDocument: NamespaceDocument;
+
+  public _original: any;
+  public wasModified: string[];
+  public wasNew: boolean;
+
+  /**
+   * Throws an error if a NamespaceLimit is exceeded.
+   */
   public static async checkNamespaceLimits(
+    cpu: number,
     isPreemptible: boolean,
-    namespaceId: string | mongoose.Types.ObjectId,
+    memory: number,
+    namespaceId: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>,
     parallelism: number,
-    templates: WorkflowSpecTemplateSchema[],
+    storage: number,
   ) {
     const namespace = await Namespace.findOne({ _id: namespaceId });
     if (!namespace) {
@@ -76,55 +96,33 @@ export class WorkflowSchema extends WorkflowBase {
 
     const limits = namespace.limits.workflows;
 
-    const cpuSums = templates.map(t => {
-      let sum = 0;
-
-      if (t.script && t.script.resources && t.script.resources.cpu) {
-        sum += t.script.resources.cpu;
-      }
-      if (t.sidecars) {
-        t.sidecars.forEach(s => (sum += s.resources && s.resources.cpu ? s.resources.cpu : 0));
-      }
-
-      return sum;
-    });
-    if (limits.cpu > 0 && Math.max(...cpuSums) > limits.cpu) {
+    // CPU.
+    if (limits.cpu && cpu > limits.cpu) {
       throw new NamespaceLimitError('workflows.cpu', limits.cpu);
     }
 
-    const memorySums = templates.map(t => {
-      let sum = 0;
-
-      if (t.script && t.script.resources && t.script.resources.memory) {
-        sum += t.script.resources.memory;
-      }
-      if (t.sidecars) {
-        t.sidecars.forEach(
-          s => (sum += s.resources && s.resources.memory ? s.resources.memory : 0),
-        );
-      }
-
-      return sum;
-    });
-    if (limits.memory > 0 && Math.max(...memorySums) > limits.memory) {
+    // Memory.
+    if (limits.memory && memory > limits.memory) {
       throw new NamespaceLimitError('workflows.memory', limits.memory);
     }
 
+    // Parallelism.
     if (limits.parallelism && parallelism > limits.parallelism) {
       throw new NamespaceLimitError('workflows.parallelism', limits.parallelism);
     }
 
+    // Preemptible.
     if (limits.preemptible && isPreemptible === false) {
       throw new NamespaceLimitError('workflows.preemptible', limits.preemptible);
+    }
+
+    // Storage.
+    if (limits.storage && storage > limits.storage) {
+      throw new NamespaceLimitError('workflows.storage', limits.storage);
     }
   }
 }
 
 export type WorkflowDocument = DocumentType<WorkflowSchema>;
 export type WorkflowModel = ReturnModelType<typeof WorkflowSchema>;
-
-const schema = buildSchema(WorkflowSchema).set('collection', 'workflows');
-export const Workflow = addModelToTypegoose(
-  mongoose.model('WorkflowSchema', schema),
-  WorkflowSchema,
-);
+export const Workflow = getModelForClass(WorkflowSchema);

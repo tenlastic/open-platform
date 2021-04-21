@@ -25,7 +25,7 @@ describe('UnauthorizedInterceptor', () => {
           loginApiBaseUrl: 'http://localhost:3000/logins',
           userApiBaseUrl: 'http://localhost:3000/users',
         }),
-        RouterTestingModule,
+        RouterTestingModule.withRoutes([{ path: 'authentication/log-in', redirectTo: '' }]),
       ],
       providers: [
         IdentityService,
@@ -42,10 +42,10 @@ describe('UnauthorizedInterceptor', () => {
       ],
     });
 
-    document = TestBed.get(DOCUMENT);
-    httpMock = TestBed.get(HttpTestingController);
-    interceptor = TestBed.get(UnauthorizedInterceptor);
-    userService = TestBed.get(UserService);
+    document = TestBed.inject(DOCUMENT);
+    httpMock = TestBed.inject(HttpTestingController);
+    interceptor = TestBed.inject(UnauthorizedInterceptor);
+    userService = TestBed.inject(UserService);
   });
 
   afterEach(() => {

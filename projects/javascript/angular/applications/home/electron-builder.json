@@ -28,6 +28,9 @@
     "icon": "./dist/angular/assets/images/favicon-256x256.png",
     "target": ["dmg", "zip"]
   },
+  "nsis": {
+    "deleteAppDataOnUninstall": true
+  },
   "productName": "Tenlastic Launcher",
   "publish": {
     "bucket": "launcher",

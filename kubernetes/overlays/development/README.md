@@ -9,7 +9,6 @@ Add the following lines to your `hosts` file to properly route to your local Kub
 127.0.0.1 kafka.localhost
 127.0.0.1 minio.localhost
 127.0.0.1 mongo.localhost
-127.0.0.1 rabbitmq.localhost
 127.0.0.1 registry.localhost
 127.0.0.1 www.localhost
 ```
@@ -35,7 +34,7 @@ kubectl apply -f ./workspace/
 kubectl wait --for=condition=Ready pod/workspace
 
 # Install Node Modules.
-kubectl exec -it -c workspace workspace -- /bin/bash -c 'cd ./projects/javascript/ && lerna bootstrap --hoist --strict'
+kubectl exec -it -c workspace workspace -- /bin/bash -c 'cd ./projects/javascript/ && lerna bootstrap --strict'
 
 # Create remaining resources.
 kustomize build ./ | kubectl apply -f -

@@ -1,16 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import {
-  MatPaginator,
-  MatSort,
-  MatTable,
-  MatTableDataSource,
-  MatDialog,
-  MatSnackBar,
-} from '@angular/material';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSort } from '@angular/material/sort';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { Namespace, NamespaceService } from '@tenlastic/ng-http';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Namespace, NamespaceQuery, NamespaceService } from '@tenlastic/ng-http';
+import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -20,40 +16,34 @@ import { TITLE } from '../../../../../../shared/constants';
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class NamespacesListPageComponent implements OnInit {
+export class NamespacesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Namespace>;
 
-  public dataSource: MatTableDataSource<Namespace>;
+  public $namespaces: Observable<Namespace[]>;
+  public dataSource = new MatTableDataSource<Namespace>();
   public displayedColumns: string[] = ['name', 'createdAt', 'updatedAt', 'actions'];
-  public search = '';
 
-  private subject: Subject<string> = new Subject();
+  private updateDataSource$ = new Subscription();
 
   constructor(
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
     public selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
-  ngOnInit() {
+  public ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Namespaces`);
     this.fetchNamespaces();
-
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
   }
 
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
-  }
-
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
+  public ngOnDestroy() {
+    this.updateDataSource$.unsubscribe();
   }
 
   public select(record: Namespace) {
@@ -74,30 +64,20 @@ export class NamespacesListPageComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
         await this.namespaceService.delete(record._id);
-        this.deleteNamespace(record);
-
         this.matSnackBar.open('Namespace deleted successfully.');
       }
     });
   }
 
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-  }
-
   private async fetchNamespaces() {
-    const records = await this.namespaceService.find({ sort: 'name' });
+    this.$namespaces = this.namespaceQuery.selectAll();
+    await this.namespaceService.find({ sort: 'name' });
 
-    this.dataSource = new MatTableDataSource<Namespace>(records);
+    this.updateDataSource$ = this.$namespaces.subscribe(
+      namespaces => (this.dataSource.data = namespaces),
+    );
+
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  private deleteNamespace(record: Namespace) {
-    const index = this.dataSource.data.findIndex(u => u._id === record._id);
-    this.dataSource.data.splice(index, 1);
-
-    this.dataSource.data = [].concat(this.dataSource.data);
-    this.table.renderRows();
   }
 }

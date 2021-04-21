@@ -1,4 +1,4 @@
-import { DocumentType, getModelForClass, modelOptions, plugin, prop } from '@hasezoey/typegoose';
+import { DocumentType, getModelForClass, modelOptions, plugin, prop } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 import { EventEmitter } from '..';

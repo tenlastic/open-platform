@@ -6,31 +6,102 @@
         autocomplete="off">
     <div class="row">
       <mat-form-field floatLabel="always">
-        <mat-label>Version</mat-label>
+        <mat-label>Name</mat-label>
         <input matInput
                required
-               formControlName="version" />
-        <mat-error>Enter a valid version.</mat-error>
+               formControlName="name" />
+        <mat-error>Enter a valid name.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Platform</mat-label>
+        <mat-select required
+                    formControlName="platform">
+          <mat-option *ngFor="let platform of platforms"
+                      [value]="platform.value">
+            {{ platform.label }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Select a platform.</mat-error>
       </mat-form-field>
     </div>
+
+    <div *ngIf="($games | async).length"
+         class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Game</mat-label>
+        <mat-select formControlName="gameId"
+                    placeholder="No Game">
+          <mat-option>No Game</mat-option>
+          <mat-option *ngFor="let game of ($games | async)"
+                      [value]="game._id">
+            {{ game.title }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Select a game.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <app-toggle-section *ngIf="form.get('platform').value"
+                        title="Files">
+      <app-files-form [build]="data"
+                      [form]="form"></app-files-form>
+    </app-toggle-section>
+
+    <app-toggle-section *ngIf="$data | async as build"
+                        title="Status">
+      <mat-tree [dataSource]="dataSource"
+                [treeControl]="treeControl"
+                class="example-tree">
+        <!-- This is the tree node template for leaf nodes -->
+        <mat-tree-node *matTreeNodeDef="let node"
+                       matTreeNodeToggle>
+          <li class="mat-tree-node">
+            <app-build-status-node [build]="build"
+                                   [node]="node"></app-build-status-node>
+          </li>
+        </mat-tree-node>
+
+        <!-- This is the tree node template for expandable nodes -->
+        <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+          <li [ngClass]="{ visible: !showStatusNode(node) }">
+            <div class="mat-tree-node">
+              <app-build-status-node [build]="build"
+                                     [node]="node"></app-build-status-node>
+            </div>
+
+            <ul>
+              <ng-container matTreeNodeOutlet></ng-container>
+            </ul>
+          </li>
+        </mat-nested-tree-node>
+      </mat-tree>
+    </app-toggle-section>
 
     <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}
     </div>
 
-    <app-button color="primary"
-                (OnClick)="save()">Save</app-button>
-    <app-button color="accent"
-                routerLink="../">Cancel</app-button>
+    <ng-container *ngIf="form.get('files').value.length && status === Status.Ready">
+      <app-button color="primary"
+                  (OnClick)="save()">Save</app-button>
+      <app-button color="accent"
+                  routerLink="../">Cancel</app-button>
+    </ng-container>
 
-    <ng-container *ngIf="data._id">
-      <app-toggle-section *ngFor="let platform of platforms"
-                          [isVisible]="false"
-                          [title]="platform.label">
-        <app-files-form [build]="data"
-                        [platform]="platform.value"></app-files-form>
-      </app-toggle-section>
+    <ng-container *ngIf="status !== Status.Ready">
+      <app-button color="primary"
+                  [disabled]="status">
+        <mat-spinner *ngIf="status"
+                     [diameter]="20"></mat-spinner>
+        <span *ngIf="status === Status.Uploading">
+          Uploading Files ({{ progress?.current | filesize }} / {{ progress?.total | filesize }})
+        </span>
+        <span *ngIf="status === Status.Zipping">
+          Zipping Files ({{ progress?.current }} / {{ progress?.total }})
+        </span>
+      </app-button>
     </ng-container>
   </form>
 </div>

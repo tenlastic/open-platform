@@ -9,9 +9,7 @@ export function connect(options: ConnectionOptions) {
   return mongoose.connect(
     options.connectionString,
     {
-      config: {
-        autoIndex: false,
-      },
+      config: { autoIndex: false },
       dbName: options.databaseName,
       useCreateIndex: true,
       useFindAndModify: false,
@@ -26,4 +24,15 @@ export function connect(options: ConnectionOptions) {
       }
     },
   );
+}
+
+export function createConnection(options: ConnectionOptions) {
+  return mongoose.createConnection(options.connectionString, {
+    config: { autoIndex: false },
+    dbName: options.databaseName,
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
 }

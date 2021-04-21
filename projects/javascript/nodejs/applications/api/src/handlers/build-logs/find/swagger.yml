@@ -1,0 +1,26 @@
+paths:
+  /builds/{buildId}/logs:
+    get:
+      summary: Find
+      tags: [BuildLogs]
+      description: Finds records matching the search criteria.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: buildId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BuildLog'

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { Order } from '@datorama/akita';
 import {
   IWorkflow,
@@ -9,15 +9,16 @@ import {
   WorkflowLogService,
 } from '@tenlastic/ng-http';
 
+import { environment } from '../../../../../../../environments/environment';
 import { SocketService } from '../../../../../../core/services';
 import { LogsDialogComponent } from '../../../../../../shared/components';
 
 type WorkflowStatusNodeWithParent = IWorkflow.Node & { parent: string };
 
 @Component({
-  templateUrl: 'status-node.component.html',
   selector: 'app-workflow-status-node',
   styleUrls: ['./status-node.component.scss'],
+  templateUrl: 'status-node.component.html',
 })
 export class WorkflowStatusNodeComponent {
   @Input() public node: WorkflowStatusNodeWithParent;
@@ -53,11 +54,13 @@ export class WorkflowStatusNodeComponent {
             sort: '-unix',
             where: { nodeId: this.node.id },
           }),
-        subscribe: () =>
-          this.socketService.subscribe('workflow-logs', WorkflowLog, this.workflowLogService, {
+        subscribe: () => {
+          const socket = this.socketService.connect(environment.apiBaseUrl);
+          return socket.subscribe('workflow-logs', WorkflowLog, this.workflowLogService, {
             nodeId: this.node.id,
             workflowId: this.workflow._id,
-          }),
+          });
+        },
       },
     });
   }

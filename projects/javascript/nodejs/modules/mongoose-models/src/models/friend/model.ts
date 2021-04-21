@@ -7,23 +7,17 @@ import {
   modelOptions,
   plugin,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import {
   EventEmitter,
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { UserDocument } from '../user';
 
 export const FriendEvent = new EventEmitter<IDatabasePayload<FriendDocument>>();
-
-// Publish changes to Kafka.
-FriendEvent.on(payload => {
-  kafka.publish(payload);
-});
 
 @index({ fromUserId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({

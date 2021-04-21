@@ -1,6 +1,6 @@
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   Friend,
@@ -250,7 +250,7 @@ export class SocialComponent implements OnDestroy, OnInit {
       const $queueMembers = this.queueMemberQuery.selectAll({
         filterBy: qm =>
           this.electronService.isElectron &&
-          (qm.groupId === group._id || qm.userId === this.identityService.user._id),
+          ((group && group._id === qm.groupId) || qm.userId === this.identityService.user._id),
       });
       this.$queueMembers = this.queueMemberQuery.populate($queueMembers);
     });
@@ -350,7 +350,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     if (
       !this.electronService.isElectron ||
       !gameServer.queueId ||
-      !gameServer.allowedUserIds.includes(this.identityService.user._id)
+      !gameServer.authorizedUserIds.includes(this.identityService.user._id)
     ) {
       return;
     }
@@ -378,7 +378,7 @@ export class SocialComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Accept') {
-        this.updateService.play(game, { gameServer });
+        this.updateService.play(game._id, { gameServer });
       }
     });
 

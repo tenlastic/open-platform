@@ -10,6 +10,7 @@ export class RefreshTokenService {
 
   public onCreate = new EventEmitter<RefreshToken>();
   public onDelete = new EventEmitter<RefreshToken>();
+  public onRead = new EventEmitter<RefreshToken[]>();
   public onUpdate = new EventEmitter<RefreshToken>();
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
@@ -39,13 +40,19 @@ export class RefreshTokenService {
   public async find(parameters: RestParameters): Promise<RefreshToken[]> {
     const response = await this.apiService.request('get', this.basePath, parameters);
 
-    return response.records.map(record => new RefreshToken(record));
+    const records = response.records.map(record => new RefreshToken(record));
+    this.onRead.emit(records);
+
+    return records;
   }
 
   public async findOne(_id: string): Promise<RefreshToken> {
     const response = await this.apiService.request('get', `${this.basePath}/${_id}`, null);
 
-    return new RefreshToken(response.record);
+    const record = new RefreshToken(response.record);
+    this.onRead.emit([record]);
+
+    return record;
   }
 
   public async update(parameters: Partial<RefreshToken>): Promise<RefreshToken> {

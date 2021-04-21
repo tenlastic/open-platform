@@ -13,6 +13,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     'group-leader': true,
     'namespace-administrator': true,
     owner: true,
+    'system-administrator': true,
     'user-administrator': true,
   },
   find: {
@@ -90,6 +91,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
         },
       ],
     },
+    'system-administrator': {},
     'user-administrator': {},
   },
   populate: [
@@ -100,9 +102,16 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     },
   ],
   read: {
-    default: ['_id', 'createdAt', 'groupId', 'queueId', 'updatedAt', 'userId'],
+    default: ['_id', 'createdAt', 'groupId', 'queueId', 'updatedAt', 'userId', 'userIds'],
   },
   roles: [
+    {
+      name: 'system-administrator',
+      query: {
+        'user.roles': { $eq: 'queues' },
+        'user.system': { $eq: true },
+      },
+    },
     {
       name: 'user-administrator',
       query: {

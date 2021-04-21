@@ -10,7 +10,7 @@ import { UserQuery } from './user';
 export interface IgnorationState extends EntityState<Ignoration> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'ignorations' })
+@StoreConfig({ idKey: '_id', name: 'ignorations', resettable: true })
 export class IgnorationStore extends EntityStore<IgnorationState, Ignoration> {
   constructor(private ignorationService: IgnorationService) {
     super();

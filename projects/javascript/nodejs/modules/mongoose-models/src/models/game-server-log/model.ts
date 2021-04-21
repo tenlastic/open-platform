@@ -8,13 +8,12 @@ import {
   plugin,
   pre,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import {
   EventEmitter,
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongoose from 'mongoose';
 
 import { LogBase } from '../../bases';
@@ -22,13 +21,8 @@ import { GameServerDocument, GameServerEvent } from '../game-server';
 
 export const GameServerLogEvent = new EventEmitter<IDatabasePayload<GameServerLogDocument>>();
 
-// Publish changes to Kafka.
-GameServerLogEvent.on(payload => {
-  kafka.publish(payload);
-});
-
 // Delete GameServerLogs if associated Game Server is deleted.
-GameServerEvent.on(async payload => {
+GameServerEvent.sync(async payload => {
   switch (payload.operationType) {
     case 'delete':
       const gameServerId = payload.fullDocument._id;

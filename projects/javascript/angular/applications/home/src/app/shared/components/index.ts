@@ -1,4 +1,6 @@
+export * from './breadcrumbs/breadcrumbs.component';
 export * from './button/button.component';
+export * from './data-source-filter/data-source-filter.component';
 export * from './form-message/form-message.component';
 export * from './group-messages/group-messages.component';
 export * from './header-toolbar/header-toolbar.component';
@@ -11,6 +13,7 @@ export * from './match-prompt/match-prompt.component';
 export * from './message-group/message-group.component';
 export * from './messages/messages.component';
 export * from './metadata-field/metadata-field.component';
+export * from './metadata-fields/metadata-fields.component';
 export * from './prompt/prompt.component';
 export * from './refresh-token-prompt/refresh-token-prompt.component';
 export * from './sidenav/sidenav.component';

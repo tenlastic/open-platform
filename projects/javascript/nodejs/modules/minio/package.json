@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": "^10"
+    "node": "^12"
   },
   "license": "ISC",
   "main": "./dist/index.js",
@@ -18,15 +18,15 @@
     "build:watch": "watch ../../scripts/build.sh ./src",
     "lint": "../../scripts/lint.sh"
   },
+  "dependencies": {
+    "minio": "7.0.13"
+  },
   "devDependencies": {
     "mocha": "7.1.2",
     "nyc": "15.0.0",
     "ts-node": "8.9.1",
     "tslint": "5.18.0",
-    "typescript": "3.5.3",
+    "typescript": "3.8.3",
     "watch": "1.0.2"
-  },
-  "dependencies": {
-    "minio": "7.0.13"
   }
 }

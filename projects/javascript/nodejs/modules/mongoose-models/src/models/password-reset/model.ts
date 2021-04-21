@@ -8,13 +8,12 @@ import {
   pre,
   prop,
   modelOptions,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import {
   EventEmitter,
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
@@ -22,11 +21,6 @@ import * as emails from '../../emails';
 import { UserDocument } from '../user/model';
 
 export const PasswordResetEvent = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
-
-// Publish changes to Kafka.
-PasswordResetEvent.on(payload => {
-  kafka.publish(payload);
-});
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ hash: 1 }, { unique: true })

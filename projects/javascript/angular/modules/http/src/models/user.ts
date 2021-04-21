@@ -4,7 +4,7 @@ export namespace IUser {
   export enum Role {
     Articles = 'articles',
     Builds = 'builds',
-    Collections = 'collections',
+    Databases = 'databases',
     GameServers = 'game-servers',
     GameInvitations = 'game-invitations',
     Games = 'games',

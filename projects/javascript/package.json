@@ -3,7 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "lerna": "lerna",
     "lerna:angular": "lerna --scope @tenlastic/*-ui --scope @tenlastic/ng-* --scope angular",
     "lerna:nodejs": "lerna --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --scope nodejs"
   },

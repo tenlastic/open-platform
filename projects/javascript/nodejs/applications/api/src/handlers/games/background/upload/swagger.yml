@@ -13,7 +13,11 @@ paths:
             type: string
           required: true
       requestBody:
-        content: multipart/form-data
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+              format: binary
       responses:
         200:
           description: OK

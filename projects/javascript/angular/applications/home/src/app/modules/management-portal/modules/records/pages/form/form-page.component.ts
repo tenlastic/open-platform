@@ -1,45 +1,83 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Collection, CollectionService, Record, RecordService } from '@tenlastic/ng-http';
+import {
+  Collection,
+  CollectionService,
+  DatabaseService,
+  Record,
+  RecordService,
+} from '@tenlastic/ng-http';
 
+import { environment } from '../../../../../../../environments/environment';
+import { BreadcrumbsComponentBreadcrumb } from '../../../../../../shared/components';
 import { CamelCaseToTitleCasePipe } from '../../../../../../shared/pipes';
+import { Socket, SocketService } from '../../../../../../core/services';
 
 @Component({
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
-export class RecordsFormPageComponent implements OnInit {
+export class RecordsFormPageComponent implements OnDestroy, OnInit {
+  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public collection: Collection;
+  public data: Record;
   public errors: string[] = [];
   public form: FormGroup;
 
-  public data: Record;
+  private collectionId: string;
+  private databaseId: string;
+  private socket: Socket;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private collectionService: CollectionService,
+    private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
     private matSnackBar: MatSnackBar,
     private recordService: RecordService,
     private router: Router,
+    private socketService: SocketService,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async params => {
       const _id = params.get('_id');
+      this.collectionId = params.get('collectionId');
+      this.databaseId = params.get('databaseId');
 
-      const collectionId = params.get('collectionId');
-      this.collection = await this.collectionService.findOne(collectionId);
+      this.collection = await this.collectionService.findOne(this.databaseId, this.collectionId);
+      const database = await this.databaseService.findOne(this.databaseId);
+      this.breadcrumbs = [
+        { label: 'Databases', link: '../../../../../' },
+        { label: database.name, link: '../../../../' },
+        { label: 'Collections', link: '../../../' },
+        { label: this.collection.name, link: '../../' },
+        { label: 'Records', link: '../' },
+        { label: _id === 'new' ? 'Create Record' : 'Edit Record' },
+      ];
+
+      const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
+      this.socket = this.socketService.connect(url);
+      this.socket.addEventListener('open', () => {
+        this.socket.subscribe('collections', Collection, this.collectionService);
+        this.socket.subscribe('records', Record, this.recordService, {
+          collectionId: this.collectionId,
+        });
+      });
 
       if (_id !== 'new') {
-        this.data = await this.recordService.findOne(this.collection._id, _id);
+        this.data = await this.recordService.findOne(this.databaseId, this.collectionId, _id);
       }
 
       this.setupForm();
     });
+  }
+
+  public ngOnDestroy() {
+    this.socket.close();
   }
 
   public addArrayItem(key: string) {
@@ -81,10 +119,7 @@ export class RecordsFormPageComponent implements OnInit {
       {},
     );
 
-    const values = {
-      collectionId: this.collection._id,
-      properties,
-    };
+    const values = { properties };
 
     try {
       await this.upsert(values);
@@ -168,9 +203,9 @@ export class RecordsFormPageComponent implements OnInit {
   private async upsert(data: Partial<Record>) {
     if (this.data._id) {
       data._id = this.data._id;
-      await this.recordService.update(this.collection._id, data);
+      await this.recordService.update(this.databaseId, this.collectionId, data);
     } else {
-      await this.recordService.create(this.collection._id, data);
+      await this.recordService.create(this.databaseId, this.collectionId, data);
     }
 
     this.matSnackBar.open('Record saved successfully.');

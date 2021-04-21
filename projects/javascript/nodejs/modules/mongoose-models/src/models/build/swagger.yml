@@ -9,25 +9,25 @@ components:
         createdAt:
           type: string
           format: date-time
-        entrypoints:
-          type: object
-          properties:
-            linux64:
-              type: string
-            mac64:
-              type: string
-            server64:
-              type: string
-            windows64:
-              type: string
+        entrypoint:
+          type: string
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/BuildFile'
+        name:
+          type: string
         namespaceId:
           type: string
           format: ^[a-f0-9]{24}$
+        platform:
+          type: string
+          enum: [server64, windows64]
         publishedAt:
           type: string
           format: date-time
-        version:
-          type: string
+        status:
+          $ref: '#/components/schemas/WorkflowStatus'
         updatedAt:
           type: string
           format: date-time

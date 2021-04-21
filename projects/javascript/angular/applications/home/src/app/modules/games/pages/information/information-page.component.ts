@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Article, ArticleService, Game, GameService, GameStore } from '@tenlastic/ng-http';
 
@@ -11,7 +11,7 @@ import { ArticleDialogComponent } from '../../components';
   templateUrl: 'information-page.component.html',
 })
 export class InformationPageComponent implements OnInit {
-  @ViewChild('video', { static: false }) private video: ElementRef;
+  @ViewChild('video') private video: ElementRef;
 
   public articles: Article[];
   public game: Game;
@@ -59,8 +59,8 @@ export class InformationPageComponent implements OnInit {
       this.articles = await this.articleService.find({
         sort: '-publishedAt',
         where: {
-          $and: [{ publishedAt: { $exists: true } }, { publishedAt: { $ne: null } }],
           namespaceId: this.game.namespaceId,
+          publishedAt: { $exists: true, $ne: null },
         },
       });
 

@@ -6,7 +6,7 @@ import {
   modelOptions,
   prop,
   ReturnModelType,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 

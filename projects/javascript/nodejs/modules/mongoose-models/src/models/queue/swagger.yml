@@ -6,18 +6,48 @@ components:
         _id:
           type: string
           format: ^[a-f0-9]{24}$
+        buildId:
+          type: string
+          format: ^[a-f0-9]{24}$
+        cpu:
+          type: number
         createdAt:
           type: string
           format: date-time
         description:
           type: string
+        gameId:
+          type: string
+          format: ^[a-f0-9]{24}$
         gameServerTemplate:
           $ref: '#/components/schemas/GameServer'
+        memory:
+          type: number
+        metadata:
+          type: object
         name:
           type: string
         namespaceId:
           type: string
           format: ^[a-f0-9]{24}$
+        replicas:
+          type: number
+        status:
+          type: object
+          properties:
+            nodes:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  phase:
+                    type: string
+                    enum: [Error, Failed, Pending, Running, Succeeded]
+            phase:
+              type: string
+              enum: [Error, Failed, Pending, Running, Succeeded]
         teams:
           type: integer
         updatedAt:

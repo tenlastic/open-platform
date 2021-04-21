@@ -1,0 +1,48 @@
+<mat-icon *ngIf="node.phase !== 'Running'"
+          [attr.phase]="node.phase">{{ phaseToIcon[node.phase] }}</mat-icon>
+<mat-spinner *ngIf="node.phase === 'Running'"
+             [diameter]="20"></mat-spinner>
+
+<div class="node-info">
+     <ng-container [ngSwitch]="node.type">
+          <div *ngSwitchCase="'DAG'"
+               class="node-name">Directed Acyclic Graph (DAG)</div>
+          <div *ngSwitchCase="'Workflow'"
+               class="node-name">Workflow</div>
+          <div *ngSwitchDefault
+               class="node-name">{{ getDisplayName(node.displayName) }}</div>
+     </ng-container>
+
+     <div *ngIf="node.phase === 'Error'"
+          class="node-phase"
+          phase="Error">
+          Errored at {{ node.finishedAt | date:'h:mm:ss a on MMM d, y' }}
+          <ng-container *ngIf="node.message">({{ node.message }})</ng-container>
+     </div>
+     <div *ngIf="node.phase === 'Failed'"
+          class="node-phase"
+          phase="Failed">
+          Failed at {{ node.finishedAt | date:'h:mm:ss a on MMM d, y' }}
+          <ng-container *ngIf="node.message">({{ node.message }})</ng-container>
+     </div>
+     <div *ngIf="node.phase === 'Pending'"
+          class="node-phase"
+          phase="Pending">
+          Pending
+          <ng-container *ngIf="node.message">({{ node.message }})</ng-container>
+     </div>
+     <div *ngIf="node.phase === 'Running'"
+          class="node-phase"
+          phase="Running">Started at {{ node.startedAt | date:'h:mm:ss a on MMM d, y' }}</div>
+     <div *ngIf="node.phase === 'Succeeded'"
+          class="node-phase"
+          phase="Succeeded">Succeeded at {{ node.finishedAt | date:'h:mm:ss a on MMM d, y' }}</div>
+</div>
+
+<app-button *ngIf="node.type === 'Pod'"
+            color="accent"
+            layout="left"
+            (OnClick)="showLogsDialog()">
+     <mat-icon>subject</mat-icon>
+     Logs
+</app-button>

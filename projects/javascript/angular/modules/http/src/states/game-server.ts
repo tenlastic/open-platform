@@ -5,12 +5,13 @@ import { map } from 'rxjs/operators';
 
 import { GameServer } from '../models/game-server';
 import { GameServerService } from '../services/game-server/game-server.service';
+import { GameQuery } from './game';
 import { QueueQuery } from './queue';
 
 export interface GameServerState extends EntityState<GameServer> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'game-servers' })
+@StoreConfig({ idKey: '_id', name: 'game-servers', resettable: true })
 export class GameServerStore extends EntityStore<GameServerState, GameServer> {
   constructor(private gameServerService: GameServerService) {
     super();
@@ -24,16 +25,25 @@ export class GameServerStore extends EntityStore<GameServerState, GameServer> {
 
 @Injectable({ providedIn: 'root' })
 export class GameServerQuery extends QueryEntity<GameServerState, GameServer> {
-  constructor(protected store: GameServerStore, private queueQuery: QueueQuery) {
+  constructor(
+    protected gameQuery: GameQuery,
+    protected store: GameServerStore,
+    private queueQuery: QueueQuery,
+  ) {
     super(store);
   }
 
   public populate($input: Observable<GameServer[]>) {
-    return combineLatest([$input, this.queueQuery.selectAll({ asObject: true })]).pipe(
-      map(([gameServers, queues]) => {
+    return combineLatest([
+      $input,
+      this.gameQuery.selectAll({ asObject: true }),
+      this.queueQuery.selectAll({ asObject: true }),
+    ]).pipe(
+      map(([gameServers, games, queues]) => {
         return gameServers.map(gameServer => {
           return new GameServer({
             ...gameServer,
+            game: games[gameServer.gameId],
             queue: queues[gameServer.queueId],
           });
         });

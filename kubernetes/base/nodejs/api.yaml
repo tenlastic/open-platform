@@ -4,9 +4,37 @@ metadata:
   name: api
 rules:
   - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - namespaces
+      - persistentvolumeclaims
+      - pods
+      - pods/exec
+      - pods/log
+      - pods/status
+      - secrets
+      - services
+      - serviceaccounts
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+  - apiGroups:
       - apps
     resources:
       - deployments
+      - statefulsets
     verbs:
       - create
       - delete
@@ -42,6 +70,7 @@ rules:
   - apiGroups:
       - networking.k8s.io
     resources:
+      - ingresses
       - networkpolicies
     verbs:
       - create
@@ -54,28 +83,10 @@ rules:
   - apiGroups:
       - rbac.authorization.k8s.io
     resources:
-      - roles
+      - clusterrolebindings
+      - clusterroles
       - rolebindings
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - configmaps
-      - namespaces
-      - pods
-      - pods/exec
-      - pods/log
-      - pods/status
-      - secrets
-      - services
-      - serviceaccounts
+      - roles
     verbs:
       - create
       - delete

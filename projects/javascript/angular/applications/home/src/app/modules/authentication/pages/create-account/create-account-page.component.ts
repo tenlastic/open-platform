@@ -11,7 +11,7 @@ import { IOnRegister, RegistrationFormComponent } from '../../components';
   styleUrls: ['./create-account-page.component.scss'],
 })
 export class CreateAccountPageComponent {
-  @ViewChild(RegistrationFormComponent, { static: false })
+  @ViewChild(RegistrationFormComponent)
   public registrationForm: RegistrationFormComponent;
 
   public disableLogin: boolean;

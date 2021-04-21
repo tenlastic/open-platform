@@ -9,6 +9,9 @@ components:
         createdAt:
           type: string
           format: date-time
+        databaseId:
+          type: string
+          format: ^[a-f0-9]{24}$
         indexes:
           type: array
           items:
@@ -28,7 +31,7 @@ components:
           type: object
           properties:
             create:
-              $ref: '#/components/schemas/AttributeRoles'
+              $ref: '#/components/schemas/CollectionAttributeRoles'
             delete:
               type: object
               properties:
@@ -42,25 +45,29 @@ components:
             populate:
               type: array
               items:
-                $ref: '#/components/schemas/PopulateOptions'
+                $ref: '#/components/schemas/CollectionPopulateOptions'
             read:
-              $ref: '#/components/schemas/AttributeRoles'
+              $ref: '#/components/schemas/CollectionAttributeRoles'
             update:
-              $ref: '#/components/schemas/AttributeRoles'
+              $ref: '#/components/schemas/CollectionAttributeRoles'
         updatedAt:
           type: string
           format: date-time
-    AttributeRoles:
+      required:
+        - databaseId
+        - name
+        - namespaceId
+    CollectionAttributeRoles:
       type: object
       properties:
         default:
           type: array
           items:
             type: string
-    PopulateOptions:
+    CollectionPopulateOptions:
       type: object
       properties:
         path:
           type: string
         populate:
-          $ref: '#/components/schemas/PopulateOptions'
+          $ref: '#/components/schemas/CollectionPopulateOptions'

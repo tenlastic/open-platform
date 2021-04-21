@@ -1,4 +1,9 @@
-openapi: '3.0.0'
+components:
+  securitySchemes:
+    AccessToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 info:
   version: 1.0.0
   title: 'Tenlastic API Documentation'
@@ -43,20 +48,10 @@ info:
     ```
     http://www.example.com/v1/users?query=%7B%22limit%22%3A20%2C%22skip%22%3A20%2C%22where%22%3A%7B%22email%22%3A%22test%40example%22%7D%7D
     ```
-host: 'localhost:3000'
-basePath: '/'
-schemes:
-  - https
-consumes:
-  - application/json
-produces:
-  - application/json
-components:
-  securitySchemes:
-    AccessToken:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+openapi: '3.0.0'
 paths: {}
-definitions: {}
-responses: {}
+servers:
+  - description: Production
+    url: https://api.tenlastic.com
+  - description: Development
+    url: http://api.localhost

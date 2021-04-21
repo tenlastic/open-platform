@@ -8,7 +8,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import {
   Group,
   GroupInvitationService,
@@ -35,7 +35,7 @@ import { PromptComponent } from '../prompt/prompt.component';
 })
 export class GroupMessagesComponent implements OnChanges, OnDestroy {
   @Input() public group: Group;
-  @ViewChild('messagesScrollContainer', { static: false })
+  @ViewChild('messagesScrollContainer')
   public messagesScrollContainer: ElementRef;
 
   public $messages: Observable<Message[]>;

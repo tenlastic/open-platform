@@ -9,19 +9,17 @@
   "exclude": ["./src/**/*.spec.ts"],
   "include": ["./src"],
   "references": [
-    { "path": "../../modules/docker-engine/tsconfig.app.json" },
     { "path": "../../modules/json-schema/tsconfig.app.json" },
+    { "path": "../../modules/kafka/tsconfig.app.json" },
     { "path": "../../modules/logging/tsconfig.app.json" },
     { "path": "../../modules/mailgun/tsconfig.app.json" },
     { "path": "../../modules/minio/tsconfig.app.json" },
     { "path": "../../modules/mongoose-change-stream/tsconfig.app.json" },
     { "path": "../../modules/mongoose-change-stream-kafka/tsconfig.app.json" },
     { "path": "../../modules/mongoose-models/tsconfig.app.json" },
+    { "path": "../../modules/mongoose-models-kubernetes/tsconfig.app.json" },
     { "path": "../../modules/mongoose-permissions/tsconfig.app.json" },
     { "path": "../../modules/mongoose-unique-error/tsconfig.app.json" },
-    { "path": "../../modules/rabbitmq/tsconfig.app.json" },
-    { "path": "../../modules/rabbitmq-models/tsconfig.app.json" },
-    { "path": "../../modules/validations/tsconfig.app.json" },
     { "path": "../../modules/web-server/tsconfig.app.json" }
   ]
 }

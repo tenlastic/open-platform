@@ -6,185 +6,96 @@
        (change)="onFilesChanged($event)" />
 
 <div class="row">
-  <div class="col-sm-3">
-    <mat-form-field floatLabel="always">
-      <mat-label>Previous Build</mat-label>
-      <mat-select *ngIf="builds.length"
-                  [(ngModel)]="previousBuild"
-                  (selectionChange)="setPreviousBuild($event.value)">
-        <mat-option *ngFor="let build of builds"
-                    [value]="build">
-          {{ build.version }}
-        </mat-option>
-      </mat-select>
-      <input *ngIf="!builds.length"
-             disabled
-             matInput
-             value="No Previous Builds" />
-    </mat-form-field>
-  </div>
+  <div *ngIf="isNew"
+       class="col-sm-6">
+    <div class="margin-bottom">
+      <mat-form-field floatLabel="always">
+        <mat-label>Reference Build</mat-label>
 
-  <ng-container *ngIf="platform !== 'server64'">
-    <div class="col-sm-3 justify-right">
-      <mat-form-field *ngIf="previousFiles.length || stagedEntrypoint"
-                      floatLabel="always">
-        <mat-label>Entrypoint</mat-label>
-        <input *ngIf="previousFiles.length"
-               matInput
-               disabled
-               [value]="previousBuild.entrypoints[platform] || ''" />
-        <input *ngIf="!previousFiles.length"
-               matInput
-               required
-               [formControl]="stagedEntrypoint" />
-        <mat-error>Enter a valid entrypoint.</mat-error>
+        <mat-select placeholder="No Reference Build"
+                    [formControl]="form.get('reference').get('_id')">
+          <mat-option>No Reference Build</mat-option>
+          <mat-option *ngFor="let build of builds"
+                      [value]="build._id">
+            {{ build.name }}
+          </mat-option>
+        </mat-select>
       </mat-form-field>
     </div>
 
-    <div class="col-sm-3 justify-right offset-sm-3">
-      <mat-form-field *ngIf="previousFiles.length && stagedEntrypoint"
-                      floatLabel="always">
-        <mat-label>Entrypoint</mat-label>
+    <div class="list">
+      <mat-label>
+        <span>Reference Files</span>
+      </mat-label>
+
+      <mat-list>
+        <mat-list-item *ngFor="let file of referenceBuild?.files"
+                       [attr.status]="file.status">
+          <span>{{ file.path }}</span>
+          <span *ngIf="file.uncompressedBytes !== undefined && file.uncompressedBytes !== null">
+            {{ file.uncompressedBytes | filesize }}
+          </span>
+        </mat-list-item>
+      </mat-list>
+
+      <mat-hint>
+        <span>Count: {{ referenceBuild ? referenceBuild.files.length : 0 }}</span>
+        <span>Size: {{ referenceBuild ? (referenceBuild.files | sum: 'uncompressedBytes' | filesize) : '0 B' }}</span>
+      </mat-hint>
+    </div>
+  </div>
+
+  <div *ngIf="!isNew || form.get('files').value.length"
+       class="col-sm-6">
+    <div class="margin-bottom">
+      <mat-form-field floatLabel="always">
+        <mat-label>{{ form.get('platform').value === 'server64' ? 'Dockerfile' : 'Entrypoint' }}</mat-label>
         <input matInput
                required
-               [formControl]="stagedEntrypoint" />
+               [formControl]="form.get('entrypoint')" />
         <mat-error>Enter a valid entrypoint.</mat-error>
       </mat-form-field>
     </div>
-  </ng-container>
-</div>
 
-<div class="row">
-  <div *ngIf="previousFiles.length"
-       class="col-sm-6 list">
-    <mat-label>
-      <span>Previous Files</span>
-    </mat-label>
+    <div class="list">
+      <mat-label>
+        <span>{{ isNew ? 'Staged Files' : 'Files' }}</span>
+      </mat-label>
 
-    <mat-list>
-      <mat-list-item *ngFor="let previousFile of previousFiles"
-                     [attr.status]="previousFile.status">
-        <span>{{ previousFile.path }}</span>
-        <span *ngIf="
-            previousFile.uncompressedBytes !== undefined && previousFile.uncompressedBytes !== null
+      <mat-list>
+        <mat-list-item *ngFor="let file of form.get('files').value"
+                       [attr.status]="file.status"
+                       [ngClass]="{ pointer: isNew }"
+                       (click)="setEntrypoint(file.path)">
+          <span>{{ file.path }}</span>
+          <span *ngIf="
+            file.uncompressedBytes !== undefined && file.uncompressedBytes !== null
           ">
-          {{ previousFile.uncompressedBytes | filesize }}
+            {{ file.uncompressedBytes | filesize }}
+          </span>
+        </mat-list-item>
+      </mat-list>
+
+      <mat-hint>
+        <span *ngIf="isNew">
+          Count: {{ modifiedFiles.length }} Modified, {{ removedFiles.length }} Removed,
+          {{ unmodifiedFiles.length }} Unmodified
         </span>
-      </mat-list-item>
-    </mat-list>
-
-    <mat-hint>
-      <span>Count: {{ previousFiles.length }}</span>
-      <span>Size: {{ previousFiles | sum: 'uncompressedBytes' | filesize }}</span>
-    </mat-hint>
-  </div>
-
-  <div *ngIf="stagedFiles.length"
-       class="col-sm-6 list">
-    <mat-label>
-      <span>Staged Files</span>
-    </mat-label>
-
-    <mat-list>
-      <mat-list-item *ngFor="let stagedFile of stagedFiles"
-                     class="pointer"
-                     [attr.status]="stagedFile.status"
-                     (click)="stagedEntrypoint.setValue(stagedFile.path)">
-        <span>{{ stagedFile.path }}</span>
-        <span *ngIf="
-            stagedFile.uncompressedBytes !== undefined && stagedFile.uncompressedBytes !== null
-          ">
-          {{ stagedFile.uncompressedBytes | filesize }}
+        <span *ngIf="isNew">
+          Size: {{ modifiedFiles | sum: 'uncompressedBytes' | filesize }} Modified,
+          {{ removedFiles | sum: 'uncompressedBytes' | filesize }} Removed,
+          {{ unmodifiedFiles | sum: 'uncompressedBytes' | filesize }} Unmodified
         </span>
-      </mat-list-item>
-    </mat-list>
-
-    <mat-hint>
-      <span>
-        Count: {{ modifiedFiles.length }} Modified, {{ removedFiles.length }} Removed,
-        {{ unmodifiedFiles.length }} Unmodified
-      </span>
-      <span>
-        Size: {{ modifiedFiles | sum: 'uncompressedBytes' | filesize }} Modified,
-        {{ removedFiles | sum: 'uncompressedBytes' | filesize }} Removed,
-        {{ unmodifiedFiles | sum: 'uncompressedBytes' | filesize }} Unmodified
-      </span>
-    </mat-hint>
+      </mat-hint>
+    </div>
   </div>
 </div>
 
-<div *ngIf="finishedTasks.length || unfinishedTasks.length"
-     class="row">
-  <div *ngIf="unfinishedTasks.length"
-       class="col-sm-6 list">
-    <mat-label>
-      <span>Unfinished Tasks</span>
-    </mat-label>
-
-    <mat-list>
-      <mat-list-item *ngFor="let task of unfinishedTasks"
-                     [attr.status]="task.status">
-        <span>{{ TASKS[task.action] }}</span>
-        <span>
-          {{ getBuildTaskStatusText(task) }}
-        </span>
-      </mat-list-item>
-    </mat-list>
-
-    <mat-hint>
-      <span>Count: {{ unfinishedTasks.length }}</span>
-    </mat-hint>
-  </div>
-
-  <div *ngIf="finishedTasks.length"
-       class="col-sm-6 list">
-    <mat-label>
-      <span>Finished Tasks</span>
-    </mat-label>
-
-    <mat-list>
-      <mat-list-item *ngFor="let task of finishedTasks"
-                     [attr.status]="task.status">
-        <span>{{ TASKS[task.action] }}</span>
-        <span>
-          {{ getBuildTaskStatusText(task) }}
-        </span>
-      </mat-list-item>
-    </mat-list>
-
-    <mat-hint>
-      <span>Count: {{ finishedTasks.length }}</span>
-    </mat-hint>
-  </div>
-</div>
-
-<div *ngIf="error"
-     class="form-error">
-  {{ error }}
-</div>
-
-<app-button *ngIf="!stagedFiles.length"
-            color="primary"
+<app-button *ngIf="!form.get('files').disabled"
+            [color]="form.get('files').value.length && !status ? 'accent' : 'primary'"
             [disabled]="status"
             (OnClick)="selectFilesInput.click()">
   <mat-spinner *ngIf="status"
                [diameter]="20"></mat-spinner>
-  <span>{{ status ? status : 'Browse' }}</span>
-</app-button>
-<app-button *ngIf="stagedFiles.length"
-            color="primary"
-            [disabled]="status"
-            (OnClick)="upload()">
-  <mat-spinner *ngIf="status"
-               [diameter]="20"></mat-spinner>
-  <span *ngIf="uploadStatus">
-    Uploading ({{ uploadStatus.current | filesize }} / {{ uploadStatus.total | filesize }})
-  </span>
-  <span *ngIf="zipStatus">Zipping Files ({{ zipStatus.current }} / {{ zipStatus.total }})</span>
-  <span *ngIf="!uploadStatus && !zipStatus">{{ status ? status : 'Upload' }}</span>
-</app-button>
-<app-button *ngIf="stagedFiles.length && !status"
-            color="accent"
-            (OnClick)="cancel()">
-  <span>Cancel</span>
+  <span>{{ status ? status : 'Select Files from Computer' }}</span>
 </app-button>

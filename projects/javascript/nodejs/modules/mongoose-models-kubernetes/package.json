@@ -1,0 +1,37 @@
+{
+  "engines": {
+    "node": "^12"
+  },
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "name": "@tenlastic/mongoose-models-kubernetes",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com/tenlastic/open-platform.git"
+  },
+  "version": "0.0.154",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "build:watch": "watch ../../scripts/build.sh ./src",
+    "lint": "../../scripts/lint.sh"
+  },
+  "dependencies": {
+    "@typegoose/typegoose": "6.4.0",
+    "@kubernetes/client-node": "0.14.0",
+    "@tenlastic/mongoose-models": "0.0.154",
+    "deepmerge": "4.0.0",
+    "jsonwebtoken": "8.5.1",
+    "mongoose": "5.9.2"
+  },
+  "devDependencies": {
+    "mocha": "7.1.2",
+    "nyc": "15.0.0",
+    "ts-node": "8.9.1",
+    "tslint": "5.18.0",
+    "typescript": "3.8.3",
+    "watch": "1.0.2"
+  }
+}

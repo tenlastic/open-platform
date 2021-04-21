@@ -19,8 +19,7 @@ export TS_NODE_PROJECT="./tsconfig.spec.json"
 $COVERAGE_ARGUMENTS \
   mocha \
   --exit \
-  --recursive \
-  --require ts-node/register/transpile-only \
+  --require ts-node/register \
   --reporter mocha-multi-reporters \
   --reporter-options configFile="../../mocha-multi-reporters.json" \
   --timeout 10000 \

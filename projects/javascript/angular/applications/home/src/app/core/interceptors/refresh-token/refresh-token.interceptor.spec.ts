@@ -37,11 +37,11 @@ describe('RefreshTokenInterceptor', () => {
       ],
     });
 
-    httpMock = TestBed.get(HttpTestingController);
-    identityService = TestBed.get(IdentityService);
-    interceptor = TestBed.get(RefreshTokenInterceptor);
-    loginService = TestBed.get(LoginService);
-    userService = TestBed.get(UserService);
+    httpMock = TestBed.inject(HttpTestingController);
+    identityService = TestBed.inject(IdentityService);
+    interceptor = TestBed.inject(RefreshTokenInterceptor);
+    loginService = TestBed.inject(LoginService);
+    userService = TestBed.inject(UserService);
   });
 
   afterEach(() => {

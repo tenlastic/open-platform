@@ -1,0 +1,27 @@
+components:
+  schemas:
+    GameServerStatus:
+      type: object
+      properties:
+        endpoints:
+          type: object
+          properties:
+            tcp:
+              type: string
+            udp:
+              type: string
+            websocket:
+              type: string
+        nodes:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              phase:
+                type: string
+                enum: [Error, Failed, Pending, Running, Succeeded]
+        phase:
+          type: string
+          enum: [Error, Failed, Pending, Running, Succeeded]

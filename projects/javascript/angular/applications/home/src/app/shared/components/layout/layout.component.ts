@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import {
   GameInvitation,
   GameInvitationQuery,
@@ -9,7 +9,8 @@ import {
 } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
 
-import { ElectronService, IdentityService, SocketService } from '../../../core/services';
+import { environment } from '../../../../environments/environment';
+import { ElectronService, IdentityService, Socket, SocketService } from '../../../core/services';
 import { PromptComponent } from '../prompt/prompt.component';
 
 @Component({
@@ -20,6 +21,9 @@ import { PromptComponent } from '../prompt/prompt.component';
 export class LayoutComponent implements OnInit {
   public $gameInvitations: Observable<GameInvitation[]>;
   public namespaces: Namespace[] = [];
+  public get socket() {
+    return this.socketService.sockets[environment.apiBaseUrl];
+  }
 
   private updateAvailable = false;
 
@@ -30,7 +34,7 @@ export class LayoutComponent implements OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private namespaceService: NamespaceService,
-    public socketService: SocketService,
+    private socketService: SocketService,
   ) {}
 
   public async ngOnInit() {
@@ -40,7 +44,7 @@ export class LayoutComponent implements OnInit {
       this.$gameInvitations = this.gameInvitationQuery.selectAll({
         filterBy: gi => gi.userId === this.identityService.user._id,
       });
-      await this.gameInvitationService.find({ where: { userId: this.identityService.user._id } });
+      this.gameInvitationService.find({ where: { userId: this.identityService.user._id } });
     }
 
     if (!this.electronService.isElectron) {

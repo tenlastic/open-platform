@@ -627,5 +627,45 @@ describe('is-json-valid', function() {
         });
       });
     });
+
+    describe('multiple operators', function() {
+      it('returns true', function() {
+        const json = {
+          user: {
+            age: 5,
+            name: 'Test User',
+          },
+        };
+        const query = {
+          'user.age': {
+            $exists: true,
+            $ne: null,
+          },
+        };
+
+        const result = isJsonValid(json, query);
+
+        expect(result).to.eql(true);
+      });
+
+      it('returns false', function() {
+        const json = {
+          user: {
+            age: 5,
+            name: 'Test User',
+          },
+        };
+        const query = {
+          'user.age': {
+            $exists: true,
+            $ne: 5,
+          },
+        };
+
+        const result = isJsonValid(json, query);
+
+        expect(result).to.eql(false);
+      });
+    });
   });
 });

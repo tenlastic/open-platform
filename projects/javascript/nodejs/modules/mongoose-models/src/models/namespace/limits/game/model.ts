@@ -1,6 +1,9 @@
-import { DocumentType, ReturnModelType, getModelForClass, prop } from '@hasezoey/typegoose';
+import { DocumentType, ReturnModelType, getModelForClass, prop } from '@typegoose/typegoose';
 
 export class NamespaceGameLimitsSchema {
+  @prop({ default: 0 })
+  public count: number;
+
   @prop({ default: 0 })
   public images: number;
 

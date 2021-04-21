@@ -6,28 +6,25 @@ import {
   modelOptions,
   plugin,
   prop,
-} from '@hasezoey/typegoose';
+} from '@typegoose/typegoose';
 import * as jsonSchema from '@tenlastic/json-schema';
 import {
   EventEmitter,
   IDatabasePayload,
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/mongoose-change-stream-kafka';
 import { IOptions, MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
+import { namespaceValidator } from '../../validators';
 
-import { CollectionDocument } from '../collection/model';
-import { UserDocument } from '../user/model';
+import { CollectionDocument } from '../collection';
+import { DatabaseDocument } from '../database';
+import { NamespaceDocument } from '../namespace';
+import { UserDocument } from '../user';
 import { RecordPermissions } from './permissions';
 
 export const RecordEvent = new EventEmitter<IDatabasePayload<RecordDocument>>();
-
-// Send changes to Kafka.
-RecordEvent.on(payload => {
-  kafka.publish(payload);
-});
 
 @modelOptions({
   schemaOptions: {
@@ -40,12 +37,26 @@ RecordEvent.on(payload => {
 export class RecordSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ ref: 'CollectionSchema', required: true })
+  @prop({
+    ref: 'CollectionSchema',
+    required: true,
+    validate: namespaceValidator('collectionDocument', 'collectionId'),
+  })
   public collectionId: Ref<CollectionDocument>;
 
   public createdAt: Date;
-  public properties: any;
 
+  @prop({
+    ref: 'DatabaseSchema',
+    required: true,
+    validate: namespaceValidator('databaseDocument', 'databaseId'),
+  })
+  public databaseId: Ref<DatabaseDocument>;
+
+  @prop({ ref: 'NamespaceSchema', required: true })
+  public namespaceId: Ref<NamespaceDocument>;
+
+  public properties: any;
   public updatedAt: Date;
 
   @prop({ ref: 'UserSchema' })
@@ -54,6 +65,12 @@ export class RecordSchema {
   @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', ref: 'CollectionSchema' })
   public collectionDocument: CollectionDocument;
 
+  @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', ref: 'DatabaseSchema' })
+  public databaseDocument: DatabaseDocument;
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
+  public namespaceDocument: NamespaceDocument;
+
   @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'UserSchema' })
   public userDocument: UserDocument;
 
@@ -61,17 +78,19 @@ export class RecordSchema {
     // Build schema from Collection's properties.
     const schema = buildSchema(RecordSchema).clone();
     schema.add({ properties: jsonSchema.toMongoose(collection.jsonSchema) });
-    schema.set('collection', collection.collectionName);
+    schema.set('collection', collection.mongoName);
 
     // Register indexes with Mongoose.
-    collection.indexes.forEach(i => schema.index(i.key, i.options));
+    collection.indexes.forEach(i => {
+      schema.index(i.key, { ...i.options, name: i._id.toHexString() });
+    });
 
     // Remove cached Model from Mongoose.
     try {
-      mongoose.connection.deleteModel(collection.collectionName);
+      mongoose.connection.deleteModel(collection.mongoName);
     } catch {}
 
-    return mongoose.model(collection.collectionName, schema) as RecordModel;
+    return mongoose.model(collection.mongoName, schema) as RecordModel;
   }
 
   public static getPermissions(Model: RecordModel, collection: CollectionDocument) {
@@ -84,9 +103,13 @@ export class RecordSchema {
 
     if (collection.permissions.find) {
       const find = JSON.parse(JSON.stringify(collection.permissions.find));
-      if (find.default) {
-        find.default = { $or: [permissions.find.default, find.default] };
-      }
+
+      Object.keys(permissions.find).forEach(key => {
+        if (key in find) {
+          find[key] = { $or: [find[key], permissions.find[key]] };
+        }
+      });
+
       Object.assign(permissions.find, find);
     }
     if (collection.permissions.populate) {

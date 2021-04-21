@@ -13,6 +13,9 @@ components:
         createdAt:
           type: string
           format: date-time
+        gameId:
+          type: string
+          format: ^[a-f0-9]{24}$
         namespaceId:
           type: string
           format: ^[a-f0-9]{24}$

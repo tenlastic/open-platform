@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnChanges, OnDestroy, ViewChild } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   Friend,
   FriendQuery,
@@ -30,7 +30,7 @@ import { IdentityService } from '../../../core/services';
 })
 export class MessagesComponent implements OnChanges, OnDestroy {
   @Input() public user: User;
-  @ViewChild('messagesScrollContainer', { static: false })
+  @ViewChild('messagesScrollContainer')
   public messagesScrollContainer: ElementRef;
 
   public get $canInvite() {

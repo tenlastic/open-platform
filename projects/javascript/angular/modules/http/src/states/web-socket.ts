@@ -7,7 +7,7 @@ import { WebSocketService } from '../services/web-socket/web-socket.service';
 export interface WebSocketState extends EntityState<WebSocket> {}
 
 @Injectable({ providedIn: 'root' })
-@StoreConfig({ idKey: '_id', name: 'websockets' })
+@StoreConfig({ idKey: '_id', name: 'websockets', resettable: true })
 export class WebSocketStore extends EntityStore<WebSocketState, WebSocket> {
   constructor(private webSocketService: WebSocketService) {
     super();

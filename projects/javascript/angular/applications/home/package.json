@@ -5,18 +5,13 @@
   "scripts": {
     "build": "ng build --preserve-symlinks --prod home",
     "build:electron": "ng build --base-href ./ --configuration electron --preserve-symlinks home",
-    "docker:build": "sh ../../scripts/docker-build.sh home home-ui",
-    "docker:push": "sh ../../scripts/docker-push.sh home-ui",
     "e2e": "ng e2e home",
-    "electron:build": "npm run electron:build:tsc && npm run build:electron",
-    "electron:build:tsc": "tsc -p tsconfig.electron.json",
+    "electron:build": "npm run build:electron && npm run electron:tsc && electron-builder build",
     "electron:install": "electron-builder install-app-deps",
-    "electron:linux": "npm run electron:build && electron-builder build --linux",
-    "electron:local": "npm run electron:build && electron ./dist/electron/main.js",
-    "electron:mac": "npm run electron:build && electron-builder build --mac",
-    "electron:serve": "wait-on http-get://platform.localhost/ && npm run electron:build:tsc && electron ./dist/electron/main.js --serve",
+    "electron:local": "npm run build:electron && npm run electron:tsc && electron ./dist/electron/main.js",
+    "electron:serve": "wait-on http-get://www.localhost/ && npm run electron:tsc && electron ./dist/electron/main.js --serve",
     "electron:start": "npm-run-all -p start electron:serve",
-    "electron:windows": "npm run electron:build && electron-builder build --win",
+    "electron:tsc": "tsc -p tsconfig.electron.json",
     "lint": "ng lint home",
     "start": "ng serve --disable-host-check --host 0.0.0.0 --poll 1000 --port 80 home",
     "test": "ng test --code-coverage --watch false home",
@@ -33,13 +28,13 @@
     "unzipper": "0.10.11"
   },
   "devDependencies": {
-    "@angular/cli": "~8.3.21",
+    "@angular/cli": "~9.1.15",
     "@tenlastic/ng-http": "0.0.154",
     "electron": "7.1.7",
     "electron-builder": "21.2.0",
     "electron-reload": "1.5.0",
     "npm-run-all": "4.1.5",
-    "typescript": "3.5.3",
+    "typescript": "3.8.3",
     "wait-on": "3.3.0"
   }
 }

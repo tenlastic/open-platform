@@ -1,18 +1,22 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import {
-  MatPaginator,
-  MatSort,
-  MatTable,
-  MatTableDataSource,
-  MatDialog,
-  MatSnackBar,
-} from '@angular/material';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSort } from '@angular/material/sort';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { Order } from '@datorama/akita';
-import { Queue, QueueLog, QueueLogQuery, QueueLogService, QueueService } from '@tenlastic/ng-http';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import {
+  Queue,
+  QueueLog,
+  QueueLogQuery,
+  QueueLogService,
+  QueueQuery,
+  QueueService,
+} from '@tenlastic/ng-http';
+import { Observable, Subscription } from 'rxjs';
 
+import { environment } from '../../../../../../../environments/environment';
 import {
   IdentityService,
   SelectedNamespaceService,
@@ -25,16 +29,16 @@ import { TITLE } from '../../../../../../shared/constants';
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class QueuesListPageComponent implements OnInit {
+export class QueuesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Queue>;
 
-  public dataSource: MatTableDataSource<Queue>;
-  public displayedColumns: string[] = ['name', 'description', 'createdAt', 'updatedAt', 'actions'];
-  public search = '';
+  public $queues: Observable<Queue[]>;
+  public dataSource = new MatTableDataSource<Queue>();
+  public displayedColumns: string[] = ['game', 'name', 'description', 'status', 'actions'];
 
-  private subject: Subject<string> = new Subject();
+  private updateDataSource$ = new Subscription();
 
   constructor(
     public identityService: IdentityService,
@@ -42,26 +46,20 @@ export class QueuesListPageComponent implements OnInit {
     private matSnackBar: MatSnackBar,
     private queueLogQuery: QueueLogQuery,
     private queueLogService: QueueLogService,
+    private queueQuery: QueueQuery,
     private queueService: QueueService,
     private selectedNamespaceService: SelectedNamespaceService,
     private socketService: SocketService,
     private titleService: Title,
   ) {}
 
-  ngOnInit() {
+  public ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Queues`);
     this.fetchQueues();
-
-    this.subject.pipe(debounceTime(300)).subscribe(this.applyFilter.bind(this));
   }
 
-  public clearSearch() {
-    this.search = '';
-    this.applyFilter('');
-  }
-
-  public onKeyUp(searchTextValue: string) {
-    this.subject.next(searchTextValue);
+  public ngOnDestroy() {
+    this.updateDataSource$.unsubscribe();
   }
 
   public showDeletePrompt(record: Queue) {
@@ -78,8 +76,6 @@ export class QueuesListPageComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async result => {
       if (result === 'Yes') {
         await this.queueService.delete(record._id);
-        this.deleteQueue(record);
-
         this.matSnackBar.open('Queue deleted successfully.');
       }
     });
@@ -96,34 +92,30 @@ export class QueuesListPageComponent implements OnInit {
           sortByOrder: Order.DESC,
         }),
         find: () => this.queueLogService.find(record._id, { limit: 250, sort: '-unix' }),
-        subscribe: () =>
-          this.socketService.subscribe('queue-logs', QueueLog, this.queueLogService, {
+        subscribe: () => {
+          const socket = this.socketService.connect(environment.apiBaseUrl);
+          return socket.subscribe('queue-logs', QueueLog, this.queueLogService, {
             queueId: record._id,
-          }),
+          });
+        },
       },
     });
   }
 
-  private applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-  }
-
   private async fetchQueues() {
-    const records = await this.queueService.find({
+    const $queues = this.queueQuery.selectAll({
+      filterBy: gs => gs.namespaceId === this.selectedNamespaceService.namespaceId,
+    });
+    this.$queues = this.queueQuery.populate($queues);
+
+    await this.queueService.find({
       sort: 'name',
       where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
-    this.dataSource = new MatTableDataSource<Queue>(records);
+    this.updateDataSource$ = this.$queues.subscribe(queues => (this.dataSource.data = queues));
+
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  private deleteQueue(record: Queue) {
-    const index = this.dataSource.data.findIndex(u => u._id === record._id);
-    this.dataSource.data.splice(index, 1);
-
-    this.dataSource.data = [].concat(this.dataSource.data);
-    this.table.renderRows();
   }
 }
