@@ -92,7 +92,7 @@ spec:
                 - name: tag
                   value: "{{item.version}}"
             name: publish-docker-images
-            template: publish-docker-images
+            template: publish-docker-image
             when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
             withParam: "{{steps.get-docker-images.outputs.result}}"
 
