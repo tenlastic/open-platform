@@ -74,6 +74,7 @@ describe('handlers/games/background/upload', function() {
 
     it('uploads file to Minio', async function() {
       await handler(ctx as any);
+      await new Promise(res => setTimeout(res, 100));
 
       const result = await minio.statObject(
         process.env.MINIO_BUCKET,

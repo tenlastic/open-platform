@@ -61,6 +61,7 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
     switch (this.status.state) {
       case UpdateServiceState.NotInstalled:
       case UpdateServiceState.NotUpdated:
+      case UpdateServiceState.Ready:
         return true;
 
       default:
@@ -164,7 +165,7 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
     if (this.status.state === UpdateServiceState.Ready && this.status.childProcess) {
       this.updateService.stop(this.game._id);
     } else if (this.status.state === UpdateServiceState.Ready && !this.status.childProcess) {
-      this.router.navigate(['game-servers'], { relativeTo: this.activatedRoute });
+      this.updateService.play(this.game._id);
     } else {
       this.updateService.update(this.game._id);
     }

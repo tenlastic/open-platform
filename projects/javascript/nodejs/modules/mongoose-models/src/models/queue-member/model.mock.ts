@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 
-import { QueueMember, QueueMemberSchema } from './model';
+import { WebSocketMock } from '../web-socket';
+import { QueueMember, QueueMemberDocument, QueueMemberSchema } from './model';
 
 export class QueueMemberMock {
   /**
@@ -8,10 +9,15 @@ export class QueueMemberMock {
    * @param {Object} params The parameters to initialize the record with.
    */
   public static async create(params: Partial<QueueMemberSchema> = {}) {
-    const defaults = {
+    const defaults: Partial<QueueMemberDocument> = {
       queueId: mongoose.Types.ObjectId(),
-      webSocketId: mongoose.Types.ObjectId(),
+      userId: mongoose.Types.ObjectId(),
     };
+
+    if (!params.webSocketId) {
+      const webSocket = await WebSocketMock.create({ userId: params.userId || defaults.userId });
+      defaults.webSocketId = webSocket._id;
+    }
 
     return QueueMember.create({ ...defaults, ...params });
   }

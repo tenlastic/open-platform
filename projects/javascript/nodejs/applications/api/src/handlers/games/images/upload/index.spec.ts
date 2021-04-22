@@ -75,6 +75,7 @@ describe('handlers/games/images/upload', function() {
 
     it('uploads file to Minio', async function() {
       await handler(ctx as any);
+      await new Promise(res => setTimeout(res, 100));
 
       const { images } = ctx.response.body.record;
       const _id = images[0].replace(`http://localhost:3000/games/${game._id}/images/`, '');

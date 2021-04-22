@@ -50,10 +50,10 @@ export class InformationPageComponent implements OnInit {
       this.game = await this.gameService.findOne(_id);
       this.gameStore.setActive(this.game._id);
 
-      if (this.game.images.length > 0) {
-        this.selectMedia(0, 'image');
+      if (this.game.videos.length > 0) {
+        this.selectMedia(0, 'video', true);
       } else {
-        this.selectMedia(0, 'video');
+        this.selectMedia(0, 'image', true);
       }
 
       this.articles = await this.articleService.find({
@@ -85,7 +85,7 @@ export class InformationPageComponent implements OnInit {
     this.selectMedia(index);
   }
 
-  public selectMedia(index: number, type: 'image' | 'video' = 'image') {
+  public async selectMedia(index: number, type: 'image' | 'video' = 'image', muted = false) {
     this.mainMedia = {
       src: type === 'image' ? this.game.images[index] : this.game.videos[index],
       type,
@@ -93,7 +93,8 @@ export class InformationPageComponent implements OnInit {
 
     if (type === 'video' && this.video) {
       this.video.nativeElement.load();
-      this.video.nativeElement.muted = false;
+      this.video.nativeElement.muted = muted;
+      this.video.nativeElement.setAttribute('onloadedmetadata', `this.muted=${muted}`);
     }
   }
 

@@ -53,11 +53,11 @@
   app-button {
     ::ng-deep {
       a.mat-button mat-icon.mat-icon {
-        color: white;
-        font-size: 36px;
-        height: 36px;
-        line-height: 36px;
+        font-size: 24px;
+        height: 0px;
+        line-height: 0px;
         margin-left: -4px;
+        vertical-align: middle;
         width: 36px;
       }
 
@@ -67,16 +67,22 @@
       }
 
       span.text {
-        font-size: 24px !important;
+        font-size: 20px !important;
         margin-top: -1px !important;
+        vertical-align: middle !important;
       }
     }
   }
 
   app-button[color='primary'] {
     ::ng-deep {
-      span.text {
-        text-transform: uppercase;
+      a.mat-button mat-icon.mat-icon {
+        color: white;
+        font-size: 32px;
+
+        span.text {
+          text-transform: uppercase;
+        }
       }
     }
   }

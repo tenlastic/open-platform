@@ -72,6 +72,7 @@ describe('handlers/files/upload', function() {
 
     it('uploads zip to Minio', async function() {
       await handler(ctx as any);
+      await new Promise(res => setTimeout(res, 100));
 
       await minio.statObject(process.env.MINIO_BUCKET, build.getZipPath());
     });

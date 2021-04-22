@@ -14,7 +14,9 @@
               <video #video
                      *ngIf="mainMedia.type === 'video'"
                      autoplay
-                     controls>
+                     controls
+                     muted
+                     onloadedmetadata="this.muted=true">
                 <source [src]="mainMedia.src"
                         type="video/mp4" />
               </video>
@@ -40,9 +42,8 @@
           </mat-grid-list>
         </div>
       </div>
+
       <div class="col-sm-5">
-        <app-title>{{ game.title }}</app-title>
-        <h3 *ngIf="game.subtitle">{{ game.subtitle }}</h3>
         <app-markdown [markdown]="game.description"></app-markdown>
       </div>
     </div>

@@ -72,6 +72,7 @@ describe('handlers/games/icon/upload', function() {
 
     it('uploads file to Minio', async function() {
       await handler(ctx as any);
+      await new Promise(res => setTimeout(res, 100));
 
       const result = await minio.statObject(process.env.MINIO_BUCKET, game.getMinioKey('icon'));
 
