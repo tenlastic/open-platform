@@ -1,43 +1,34 @@
 <app-header-toolbar *ngIf="$activeGame | async as activeGame">
   <img src="/assets/images/logo.png" />
 
-  <app-button
-    *ngIf="identityService.user"
-    color="accent"
-    [routerLink]="['/', 'games', activeGame._id]"
-    [ngClass]="{ active: router.url === '/games/' + activeGame._id }"
-  >
+  <app-button color="accent"
+              [routerLink]="['/', 'games', activeGame._id]"
+              [ngClass]="{ active: router.url === '/games/' + activeGame._id }">
     <mat-icon>home</mat-icon>
     <span>Home</span>
   </app-button>
 
-  <app-button
-    *ngIf="electronService.isElectron && identityService.user"
-    [ngClass]="{ disabled: ($isReady | async) === false }"
-    color="accent"
-    [disabled]="($isReady | async) === false"
-    [routerLink]="['/', 'games', activeGame._id, 'game-servers']"
-    routerLinkActive="active"
-  >
-    <mat-icon>dns</mat-icon>
-    <span>Game Servers</span>
+  <app-button *ngIf="($news | async).length"
+              color="accent"
+              [routerLink]="['/', 'games', activeGame._id, 'news']"
+              routerLinkActive="active">
+    <mat-icon>new_releases</mat-icon>
+    <span>News</span>
   </app-button>
 
-  <app-button
-    *ngIf="electronService.isElectron && identityService.user"
-    [ngClass]="{ disabled: ($isReady | async) === false }"
-    color="accent"
-    [disabled]="($isReady | async) === false"
-    [routerLink]="['/', 'games', activeGame._id, 'queues']"
-    routerLinkActive="active"
-  >
-    <mat-icon>schedule</mat-icon>
-    <span>Queues</span>
+  <app-button *ngIf="($patchNotes | async).length"
+              color="accent"
+              [routerLink]="['/', 'games', activeGame._id, 'patch-notes']"
+              routerLinkActive="active">
+    <mat-icon>post_add</mat-icon>
+    <span>Patch Notes</span>
   </app-button>
 
   <span class="space"></span>
 
-  <app-button *ngIf="!electronService.isElectron" color="primary" [href]="launcherUrl">
+  <app-button *ngIf="!electronService.isElectron"
+              color="primary"
+              [href]="launcherUrl">
     <span>Download Launcher</span>
   </app-button>
 </app-header-toolbar>
@@ -45,17 +36,17 @@
 <div class="content">
   <app-social>
     <app-sidenav>
-      <div *ngIf="($games | async)?.length > 1" class="nav">
-        <app-button
-          *ngFor="let game of $games | async"
-          color="accent"
-          layout="vertical"
-          [routerLink]="['/', 'games', game._id]"
-          routerLinkActive="active"
-          text="left"
-          width="full"
-        >
-          <img *ngIf="game.icon" [src]="game.icon" />
+      <div *ngIf="($games | async)?.length > 1"
+           class="nav">
+        <app-button *ngFor="let game of $games | async"
+                    color="accent"
+                    layout="vertical"
+                    [routerLink]="['/', 'games', game._id]"
+                    routerLinkActive="active"
+                    text="left"
+                    width="full">
+          <img *ngIf="game.icon"
+               [src]="game.icon" />
           <div>
             {{ game.title }}
 
@@ -66,9 +57,11 @@
         </app-button>
       </div>
 
-      <div *ngIf="$activeGame | async as activeGame" class="content">
+      <div *ngIf="$activeGame | async as activeGame"
+           class="content">
         <router-outlet></router-outlet>
-        <app-status *ngIf="$showStatusComponent | async as game" [game]="game"></app-status>
+        <app-status *ngIf="$showStatusComponent | async as game"
+                    [game]="game"></app-status>
       </div>
     </app-sidenav>
   </app-social>

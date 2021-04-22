@@ -13,10 +13,11 @@ import {
   QueueQuery,
   QueueService,
 } from '@tenlastic/ng-http';
+import { environment } from 'applications/home/src/environments/environment';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
-import { IdentityService } from '../../../../core/services';
+import { IdentityService, SocketService } from '../../../../core/services';
 
 @Component({
   styleUrls: ['./queues-page.component.scss'],
@@ -35,12 +36,13 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   constructor(
     private gameQuery: GameQuery,
     private groupQuery: GroupQuery,
-    public identityService: IdentityService,
+    private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private queueMemberQuery: QueueMemberQuery,
     private queueMemberService: QueueMemberService,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
+    private socketService: SocketService,
   ) {}
 
   public async ngOnInit() {
@@ -118,7 +120,13 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     const group = await this.$group.pipe(first()).toPromise();
 
     try {
-      await this.queueMemberService.create({ groupId: group._id, queueId });
+      const socket = this.socketService.connect(environment.apiBaseUrl);
+      await this.queueMemberService.create({
+        groupId: group._id,
+        queueId,
+        userId: this.identityService.user._id,
+        webSocketId: socket._id,
+      });
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
         if (e.error.errors[0].name === 'QueueMemberGameInvitationError') {
@@ -135,7 +143,12 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   }
 
   public async joinAsIndividual(queueId: string) {
-    await this.queueMemberService.create({ queueId, userId: this.identityService.user._id });
+    const socket = this.socketService.connect(environment.apiBaseUrl);
+    await this.queueMemberService.create({
+      queueId,
+      userId: this.identityService.user._id,
+      webSocketId: socket._id,
+    });
     await this.getCurrentUsers();
   }
 

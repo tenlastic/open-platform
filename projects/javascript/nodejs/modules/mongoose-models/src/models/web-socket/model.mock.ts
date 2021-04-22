@@ -1,3 +1,4 @@
+import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
 import { WebSocket, WebSocketSchema } from './model';
@@ -8,8 +9,10 @@ export class WebSocketMock {
    * @param {Object} params The parameters to initialize the record with.
    */
   public static async create(params: Partial<WebSocketSchema> = {}) {
+    const chance = new Chance();
+
     const defaults = {
-      refreshTokenId: mongoose.Types.ObjectId(),
+      nodeId: chance.hash(),
       userId: mongoose.Types.ObjectId(),
     };
 

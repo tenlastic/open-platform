@@ -11,6 +11,7 @@ export class QueueMember extends Model {
   public updatedAt: Date;
   public user: User;
   public userId: string;
+  public webSocketId: string;
 
   constructor(params: Partial<QueueMember> = {}) {
     super(params);

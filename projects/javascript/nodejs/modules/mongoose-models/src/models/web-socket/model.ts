@@ -16,25 +16,12 @@ import {
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import { RefreshTokenDocument } from '../refresh-token/model';
 import { UserDocument } from '../user/model';
 
 export const WebSocketEvent = new EventEmitter<IDatabasePayload<WebSocketDocument>>();
 
-// Delete stale WebSockets.
-const HEARTBEAT = 15000;
-setInterval(async () => {
-  const date = new Date();
-  date.setSeconds(date.getSeconds() - HEARTBEAT / 1000);
-
-  const webSockets = await WebSocket.find({ heartbeatAt: { $lt: date } });
-  for (const webSocket of webSockets) {
-    await webSocket.remove();
-  }
-}, HEARTBEAT);
-
-@index({ heartbeatAt: 1 })
-@index({ refreshTokenId: 1 }, { unique: true })
+@index({ nodeId: 1 })
+@index({ userId: 1 })
 @modelOptions({
   schemaOptions: {
     collection: 'websockets',
@@ -48,11 +35,8 @@ export class WebSocketSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ default: Date.now })
-  public heartbeatAt: Date;
-
-  @prop({ immutable: true, ref: 'RefreshTokenSchema', required: true })
-  public refreshTokenId: Ref<RefreshTokenDocument>;
+  @prop({ required: true })
+  public nodeId: string;
 
   public updatedAt: Date;
 

@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: wss
   labels:
@@ -9,6 +9,7 @@ spec:
   selector:
     matchLabels:
       app: wss
+  serviceName: wss-headless
   template:
     metadata:
       labels:
@@ -24,6 +25,11 @@ spec:
       containers:
         - name: wss
           image: tenlastic/wss:0.0.154
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
@@ -47,6 +53,21 @@ metadata:
     app: wss
     service: wss
 spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: wss
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wss-headless
+  labels:
+    app: wss
+    service: wss
+spec:
+  clusterIP: None
   ports:
     - port: 3000
       name: http

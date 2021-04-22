@@ -22,10 +22,9 @@ import * as mongoose from 'mongoose';
 
 import { GameInvitation } from '../game-invitation';
 import { GroupDocument, GroupEvent } from '../group';
-import { Queue, QueueDocument, QueueEvent } from '../queue';
-import { RefreshTokenDocument } from '../refresh-token';
+import { QueueDocument, QueueEvent } from '../queue';
 import { UserDocument } from '../user';
-import { WebSocketEvent } from '../web-socket';
+import { WebSocketDocument, WebSocketEvent } from '../web-socket';
 
 export class QueueMemberGameInvitationError extends Error {
   public userIds: string[] | mongoose.Types.ObjectId[] | Array<Ref<UserDocument>>;
@@ -75,13 +74,12 @@ WebSocketEvent.sync(async payload => {
     return;
   }
 
-  const { refreshTokenId } = payload.fullDocument;
-  const queueMembers = await QueueMember.find({ refreshTokenId });
+  const queueMembers = await QueueMember.find({ webSocketId: payload.fullDocument._id });
   return Promise.all(queueMembers.map(qm => qm.remove()));
 });
 
 @index({ queueId: 1, userIds: 1 }, { unique: true })
-@index({ refreshTokenId: 1 })
+@index({ webSocketId: 1 })
 @modelOptions({
   schemaOptions: {
     collection: 'queuemembers',
@@ -96,15 +94,14 @@ WebSocketEvent.sync(async payload => {
   await this.checkGameInvitations();
   await this.checkPlayersPerTeam();
 })
-@pre('validate', function(this: QueueMemberDocument) {
-  const message = 'Only one of the following fields must be specified: groupId or userId.';
+@pre('validate', async function(this: QueueMemberDocument) {
+  if (!this.populated('webSocketDocument')) {
+    await this.populate('webSocketDocument').execPopulate();
+  }
 
-  if (this.groupId && this.userId) {
-    this.invalidate('groupId', message, this.groupId);
-    this.invalidate('userId', message, this.userId);
-  } else if (!this.groupId && !this.userId) {
-    this.invalidate('groupId', message, this.groupId);
-    this.invalidate('userId', message, this.userId);
+  if (this.userId.toString() !== this.webSocketDocument.userId.toString()) {
+    const message = 'Web Socket does not belong to the same User.';
+    this.invalidate('webSocketId', message, this.webSocketId);
   }
 })
 @post('findOneAndUpdate', function(err: MongoError, doc: QueueMemberDocument, next) {
@@ -152,16 +149,16 @@ export class QueueMemberSchema {
   @prop({ immutable: true, ref: 'QueueSchema', required: true })
   public queueId: Ref<QueueDocument>;
 
-  @prop({ ref: 'RefreshTokenSchema', required: true })
-  public refreshTokenId: Ref<RefreshTokenDocument>;
-
   public updatedAt: Date;
 
-  @prop({ immutable: true, ref: 'UserSchema' })
+  @prop({ immutable: true, ref: 'UserSchema', required: true })
   public userId: Ref<UserDocument>;
 
   @arrayProp({ itemsRef: 'UserSchema' })
   public userIds: Array<Ref<UserDocument>>;
+
+  @prop({ ref: 'WebSocketSchema', required: true })
+  public webSocketId: Ref<WebSocketDocument>;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'groupId', ref: 'GroupSchema' })
   public groupDocument: GroupDocument;
@@ -174,6 +171,9 @@ export class QueueMemberSchema {
 
   @prop({ foreignField: '_id', justOne: false, localField: 'userIds', ref: 'UserSchema' })
   public userDocuments: UserDocument[];
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'webSocketId', ref: 'WebSocketSchema' })
+  public webSocketDocument: WebSocketDocument;
 
   public static async getUserIdCount($match: any = {}) {
     const results = await QueueMember.aggregate([
@@ -220,9 +220,7 @@ export class QueueMemberSchema {
       }
 
       this.userIds = this.groupDocument ? this.groupDocument.userIds : [];
-    }
-
-    if (this.userId) {
+    } else {
       this.userIds = [this.userId];
     }
   }

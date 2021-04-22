@@ -1,10 +1,29 @@
-<div *ngIf="isButtonVisible" class="action">
-  <app-button color="primary" [disabled]="isButtonDisabled" layout="vertical" (OnClick)="click()">
+<div *ngIf="!statusText"
+     class="action">
+  <app-button *ngIf="isButtonVisible"
+              color="primary"
+              [disabled]="isButtonDisabled"
+              (OnClick)="click()">
     <span class="text">{{ buttonText }}</span>
   </app-button>
+
+  <ng-container *ngIf="status.state === UpdateServiceState.Ready">
+    <app-button color="accent"
+                [routerLink]="['/', 'games', game._id, 'game-servers']"
+                routerLinkActive="active">
+      <span class="text">Game Servers</span>
+    </app-button>
+
+    <app-button color="accent"
+                [routerLink]="['/', 'games', game._id, 'queues']"
+                routerLinkActive="active">
+      <span class="text">Queues</span>
+    </app-button>
+  </ng-container>
 </div>
 
-<div *ngIf="statusText" class="status">
+<div *ngIf="statusText"
+     class="status">
   <div>
     <span>{{ statusText }}</span>
     <span *ngIf="progressText">
@@ -12,5 +31,6 @@
     </span>
   </div>
 
-  <mat-progress-bar *ngIf="progress" [value]="progress"></mat-progress-bar>
+  <mat-progress-bar *ngIf="progress"
+                    [value]="progress"></mat-progress-bar>
 </div>

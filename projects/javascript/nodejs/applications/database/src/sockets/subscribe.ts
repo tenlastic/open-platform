@@ -38,5 +38,9 @@ export async function subscribe(
       break;
   }
 
+  if (!Model || !Permissions) {
+    return;
+  }
+
   return webSocketServer.subscribe(auth, data, Model, Permissions, ws);
 }

@@ -12,6 +12,7 @@ interface Subscription {
 }
 
 export class Socket extends WebSocket {
+  public _id: string;
   public subscriptions: Subscription[] = [];
 
   private resumeTokens: { [key: string]: string } = {};
@@ -108,6 +109,13 @@ export class SocketService {
       }
     });
     socket.addEventListener('error', socket.close);
+    socket.addEventListener('message', msg => {
+      const payload = JSON.parse(msg.data);
+
+      if (!payload._id && payload.fullDocument && payload.operationType === 'insert') {
+        socket._id = payload.fullDocument._id;
+      }
+    });
     socket.addEventListener('open', () => {
       socket.subscriptions = [];
 

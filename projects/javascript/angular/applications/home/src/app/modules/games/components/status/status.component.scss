@@ -7,11 +7,21 @@
   height: 75px;
 
   div.action {
+    display: flex;
     padding: 0px 16px;
+    width: 100%;
 
     ::ng-deep {
       span.mat-button-wrapper span {
         font-size: 18px;
+      }
+    }
+
+    app-button {
+      width: 100%;
+
+      &:not(:first-of-type) {
+        margin-left: 16px;
       }
     }
   }
@@ -59,6 +69,13 @@
       span.text {
         font-size: 24px !important;
         margin-top: -1px !important;
+      }
+    }
+  }
+
+  app-button[color='primary'] {
+    ::ng-deep {
+      span.text {
         text-transform: uppercase;
       }
     }

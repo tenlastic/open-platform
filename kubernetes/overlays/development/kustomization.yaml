@@ -24,7 +24,7 @@ patches:
   - path: ./nodejs/wss.json
     target:
       group: apps
-      kind: Deployment
+      kind: StatefulSet
       name: wss
       version: v1
 resources:

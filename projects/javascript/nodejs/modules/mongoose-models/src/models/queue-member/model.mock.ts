@@ -10,7 +10,7 @@ export class QueueMemberMock {
   public static async create(params: Partial<QueueMemberSchema> = {}) {
     const defaults = {
       queueId: mongoose.Types.ObjectId(),
-      refreshTokenId: mongoose.Types.ObjectId(),
+      webSocketId: mongoose.Types.ObjectId(),
     };
 
     return QueueMember.create({ ...defaults, ...params });

@@ -57,6 +57,7 @@ export class WebSocketServer {
 
     this.wss = new WS.Server({ noServer: true });
     this.wss.on('connection', async (auth: AuthenticationData, ws: WebSocket) => {
+      ws.setMaxListeners(25);
       this.startHeartbeat(ws);
 
       for (const connection of this.connectionCallbacks) {

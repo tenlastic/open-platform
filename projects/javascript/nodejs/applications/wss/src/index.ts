@@ -9,19 +9,30 @@ import { WebSocketServer } from '@tenlastic/web-socket-server';
 
 import * as handlers from './handlers';
 
+const kafkaConnectionString = process.env.KAFKA_CONNECTION_STRING;
+const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
+const podName = process.env.POD_NAME;
+
 (async () => {
   try {
     // Kafka.
-    await kafka.connect(process.env.KAFKA_CONNECTION_STRING);
+    await kafka.connect(kafkaConnectionString);
 
     // MongoDB.
     await mongooseModels.connect({
-      connectionString: process.env.MONGO_CONNECTION_STRING,
+      connectionString: mongoConnectionString,
       databaseName: 'api',
     });
 
     // Send changes from MongoDB to Kafka.
     mongooseModels.WebSocketEvent.sync(mongooseChangeStreamKafka.publish);
+
+    // Delete stale web sockets on startup and SIGTERM.
+    await deleteStaleWebSockets();
+    process.on('SIGTERM', async () => {
+      await deleteStaleWebSockets();
+      process.exit();
+    });
 
     // Web Server.
     const webServer = new WebServer();
@@ -32,9 +43,14 @@ import * as handlers from './handlers';
     const webSocketServer = new WebSocketServer(webServer.server);
     webSocketServer.connection(handlers.connection);
     webSocketServer.message(handlers.message);
-    webSocketServer.upgrade(handlers.upgrade);
   } catch (e) {
     console.error(e);
     process.exit(1);
   }
 })();
+
+async function deleteStaleWebSockets() {
+  const webSockets = await mongooseModels.WebSocket.find({ nodeId: podName });
+  const promises = webSockets.map(ws => ws.remove());
+  return Promise.all(promises);
+}

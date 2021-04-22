@@ -24,10 +24,20 @@
     h2,
     h3,
     h4 {
+      color: #ffff55;
+      font-size: 0.9rem;
       margin: 0px 0px 8px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    h1 {
+      font-size: 24px;
+    }
+
+    h2 {
+      font-size: 20px;
     }
 
     p {
@@ -38,6 +48,11 @@
     pre code {
       display: block;
       margin: 8px 0px;
+    }
+
+    strong {
+      color: #ffff55;
+      font-weight: 500;
     }
 
     ul {

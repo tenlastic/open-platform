@@ -17,6 +17,12 @@ export class ArticleService {
     this.basePath = this.environmentService.articleApiBaseUrl;
   }
 
+  public async count(parameters: RestParameters): Promise<number> {
+    const response = await this.apiService.request('get', `${this.basePath}/count`, parameters);
+
+    return response.count;
+  }
+
   public async create(parameters: Partial<Article>): Promise<Article> {
     const response = await this.apiService.request('post', `${this.basePath}`, parameters);
 

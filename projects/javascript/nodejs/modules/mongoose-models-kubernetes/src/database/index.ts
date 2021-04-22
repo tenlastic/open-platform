@@ -400,6 +400,16 @@ export const KubernetesDatabase = {
           containers: [
             {
               command: ['npm', 'run', 'start'],
+              env: [
+                {
+                  name: 'POD_NAME',
+                  valueFrom: {
+                    fieldRef: {
+                      fieldPath: 'metadata.name',
+                    },
+                  },
+                },
+              ],
               envFrom: [{ secretRef: { name } }],
               image: `node:12`,
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
@@ -426,6 +436,16 @@ export const KubernetesDatabase = {
           affinity: getAffinity(database, 'application'),
           containers: [
             {
+              env: [
+                {
+                  name: 'POD_NAME',
+                  valueFrom: {
+                    fieldRef: {
+                      fieldPath: 'metadata.name',
+                    },
+                  },
+                },
+              ],
               envFrom: [{ secretRef: { name } }],
               image: `tenlastic/database:${version}`,
               livenessProbe,

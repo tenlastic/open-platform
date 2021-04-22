@@ -12,6 +12,7 @@ import * as sockets from './sockets';
 
 const kafkaConnectionString = process.env.KAFKA_CONNECTION_STRING;
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
+const podName = process.env.POD_NAME;
 
 (async () => {
   try {
@@ -33,6 +34,13 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
     mongooseModels.RecordEvent.sync(mongooseChangeStreamKafka.publish);
     mongooseModels.WebSocketEvent.sync(mongooseChangeStreamKafka.publish);
 
+    // Delete stale web sockets on startup and SIGTERM.
+    await deleteStaleWebSockets();
+    process.on('SIGTERM', async () => {
+      await deleteStaleWebSockets();
+      process.exit();
+    });
+
     // Web Server.
     const webServer = new WebServer();
     webServer.use(collectionsRouter.routes());
@@ -43,9 +51,14 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
     const webSocketServer = new WebSocketServer(webServer.server);
     webSocketServer.connection(sockets.connection);
     webSocketServer.message(sockets.message);
-    webSocketServer.upgrade(sockets.upgrade);
   } catch (e) {
     console.error(e);
     process.exit(1);
   }
 })();
+
+async function deleteStaleWebSockets() {
+  const webSockets = await mongooseModels.WebSocket.find({ nodeId: podName });
+  const promises = webSockets.map(ws => ws.remove());
+  return Promise.all(promises);
+}

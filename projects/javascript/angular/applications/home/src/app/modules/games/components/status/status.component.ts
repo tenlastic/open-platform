@@ -46,6 +46,9 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   }
   public get isButtonDisabled() {
     switch (this.status.state) {
+      case UpdateServiceState.Checking:
+      case UpdateServiceState.Downloading:
+      case UpdateServiceState.Installing:
       case UpdateServiceState.NotAvailable:
       case UpdateServiceState.NotInvited:
         return true;
@@ -56,9 +59,8 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   }
   public get isButtonVisible() {
     switch (this.status.state) {
-      case UpdateServiceState.NotAvailable:
-      case UpdateServiceState.NotInvited:
       case UpdateServiceState.NotInstalled:
+      case UpdateServiceState.NotUpdated:
         return true;
 
       default:
@@ -119,6 +121,7 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
         return null;
     }
   }
+  public UpdateServiceState = UpdateServiceState;
 
   private interval: NodeJS.Timer;
 

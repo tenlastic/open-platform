@@ -2,6 +2,9 @@ import { DOCUMENT } from '@angular/common';
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+  Article,
+  ArticleQuery,
+  ArticleService,
   Game,
   GameInvitation,
   GameInvitationQuery,
@@ -33,14 +36,8 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
   public $games: Observable<Game[]>;
   public $gameInvitations: Observable<GameInvitation[]>;
-  public get $isReady() {
-    return this.$activeGame.pipe(
-      map(game => {
-        const status = this.updateService.getStatus(game._id);
-        return status.state === UpdateServiceState.Ready;
-      }),
-    );
-  }
+  public $news: Observable<Article[]>;
+  public $patchNotes: Observable<Article[]>;
   public get $showStatusComponent() {
     return this.$activeGame.pipe(
       map(game => {
@@ -53,7 +50,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
           return null;
         }
 
-        return status.state === UpdateServiceState.Ready ? null : game;
+        return game;
       }),
     );
   }
@@ -62,11 +59,14 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public showSidenav = false;
 
   private selectActiveGame$ = new Subscription();
-  private updateGames$ = new Subscription();
   private setBackground$ = new Subscription();
+  private updateArticles$ = new Subscription();
+  private updateGames$ = new Subscription();
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
+    private articleQuery: ArticleQuery,
+    private articleService: ArticleService,
     private backgroundService: BackgroundService,
     private changeDetectorRef: ChangeDetectorRef,
     public electronService: ElectronService,
@@ -75,18 +75,31 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private gameQuery: GameQuery,
     private gameService: GameService,
     private gameStore: GameStore,
-    public identityService: IdentityService,
+    private identityService: IdentityService,
     public router: Router,
     private updateService: UpdateService,
   ) {}
 
   public async ngOnInit() {
+    this.$gameInvitations = this.gameInvitationQuery.selectAll({
+      filterBy: gi => gi.userId === this.identityService.user._id,
+    });
+
     this.setBackground$ = this.backgroundService.subject.subscribe(value => {
       this.document.body.style.backgroundImage = `url('${value}')`;
     });
+    this.updateArticles$ = this.$activeGame.subscribe(game => {
+      if (!game) {
+        return;
+      }
 
-    this.$gameInvitations = this.gameInvitationQuery.selectAll({
-      filterBy: gi => gi.userId === this.identityService.user._id,
+      this.$news = this.articleQuery.selectAll({
+        filterBy: a => a.gameId === game._id && a.publishedAt && a.type === 'News',
+      });
+      this.$patchNotes = this.articleQuery.selectAll({
+        filterBy: a => a.gameId === game._id && a.publishedAt && a.type === 'Patch Notes',
+      });
+      return this.fetchArticles(game._id);
     });
     this.updateGames$ = this.$gameInvitations.subscribe(gi => {
       const gameIds = gi.map(g => g.gameId);
@@ -116,6 +129,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public ngOnDestroy() {
     this.selectActiveGame$.unsubscribe();
     this.setBackground$.unsubscribe();
+    this.updateArticles$.unsubscribe();
     this.updateGames$.unsubscribe();
   }
 
@@ -141,6 +155,29 @@ export class LayoutComponent implements OnDestroy, OnInit {
     }
   }
 
+  private fetchArticles(gameId: string) {
+    const promises = [
+      this.articleService.find({
+        limit: 1,
+        where: {
+          gameId,
+          publishedAt: { $exists: true, $ne: null },
+          type: 'News',
+        },
+      }),
+      this.articleService.find({
+        limit: 1,
+        where: {
+          gameId,
+          publishedAt: { $exists: true, $ne: null },
+          type: 'Patch Notes',
+        },
+      }),
+    ];
+
+    return Promise.all(promises);
+  }
+
   private async fetchGames(gameIds: string[]) {
     if (gameIds.length === 0) {
       this.router.navigate(['/']);
@@ -150,7 +187,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     this.$games = this.gameQuery.selectAll({ filterBy: g => gameIds.includes(g._id) });
 
     this.selectActiveGame$.unsubscribe();
-    this.selectActiveGame$ = this.$games.subscribe(games => {
+    this.selectActiveGame$ = this.$games.subscribe(async games => {
       const activeGame = this.gameQuery.getActive() as Game;
       if (games.length === 0 || (activeGame && gameIds.includes(activeGame._id))) {
         return;

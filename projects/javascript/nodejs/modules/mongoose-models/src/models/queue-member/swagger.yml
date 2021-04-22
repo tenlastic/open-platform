@@ -23,3 +23,6 @@ components:
           items:
             type: string
             format: ^[a-f0-9]{24}$
+        webSocketId:
+          type: string
+          format: ^[a-f0-9]{24}$

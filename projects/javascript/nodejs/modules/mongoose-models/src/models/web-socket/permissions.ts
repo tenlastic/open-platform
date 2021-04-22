@@ -7,6 +7,6 @@ export const WebSocketPermissions = new MongoosePermissions<WebSocketDocument>(W
     default: {},
   },
   read: {
-    default: ['_id', 'createdAt', 'namespaceId', 'updatedAt', 'userId'],
+    default: ['_id', 'createdAt', 'updatedAt', 'userId'],
   },
 });
