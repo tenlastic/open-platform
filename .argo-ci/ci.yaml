@@ -122,14 +122,14 @@ spec:
                 image: node-chrome-lerna
 
     - name: bootstrap
-      script:
+      container:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
-        source: lerna bootstrap --ci --hoist --include-dependencies --strict
+        args: [./.argo-ci/bootstrap.sh]
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
-        workingDir: /usr/src/app/projects/javascript/
+        workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -168,14 +168,10 @@ spec:
         retryPolicy: OnFailure
 
     - name: continuous-integration-angular
-      script:
+      container:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
-        source: |
-          set -e
-          lerna run lint --ci --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
-          lerna run build --ci --concurrency 1 --include-dependencies --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
-          lerna run test --ci --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
+        args: [./.argo-ci/continuous-integration-angular.sh]
         envFrom:
           - secretRef:
               name: ci-environment-variables
@@ -186,20 +182,16 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
-        workingDir: /usr/src/app/projects/javascript/
+        workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
 
     - name: continuous-integration-nodejs
-      script:
+      container:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
-        source: |
-          set -e
-          lerna run lint --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since 
-          lerna run build --ci --include-dependencies --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since
-          lerna run test --ci --ignore @tenlastic/*-ui --ignore @tenlastic/ng-* --scope @tenlastic/* --since
+        args: [./.argo-ci/continuous-integration-nodejs.sh]
         envFrom:
           - secretRef:
               name: ci-environment-variables
@@ -210,7 +202,7 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
-        workingDir: /usr/src/app/projects/javascript/
+        workingDir: /usr/src/app/
       sidecars:
         - name: docker-registry
           image: registry:latest
@@ -261,7 +253,6 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
         source: |
-          set -e
           npm i -g json
           lerna list --all --ignore @tenlastic/ng-* --json --scope @tenlastic/* | \
             json -0 -c 'this.private === true' -e 'this.name = this.name.replace("@tenlastic/","")'
@@ -274,13 +265,10 @@ spec:
         retryPolicy: OnError
 
     - name: migrations
-      script:
+      container:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
-        source: |
-          set -e
-          lerna run build --ci --include-dependencies --scope @tenlastic/migrations --scope nodejs
-          npm run start
+        args: [./.argo-ci/migrations.sh]
         envFrom:
           - secretRef:
               name: cd-environment-variables
@@ -291,7 +279,7 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
-        workingDir: /usr/src/app/projects/javascript/nodejs/applications/migrations/
+        workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -335,13 +323,10 @@ spec:
             secretName: cd-environment-variables
 
     - name: publish-electron-applications
-      script:
+      container:
         image: electronuserland/builder:wine
         command: [sh]
-        source: |
-          set -e
-          lerna run electron:install --ci
-          lerna run electron:windows --ci -- -- --publish always --win
+        args: [./.argo-ci/publish-electron-applications.sh]
         envFrom:
           - secretRef:
               name: cd-environment-variables
@@ -352,43 +337,16 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
-        workingDir: /usr/src/app/projects/javascript/
+        workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnFailure
 
     - name: publish-npm-modules
-      script:
+      container:
         image: tenlastic/node-chrome-lerna:latest
         command: [sh]
-        source: |
-          set -e
-
-          # Add Host Key for Github.
-          mkdir -p /root/.ssh/
-          ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
-          cp /tmp/secrets/cd-ssh-keys/id_rsa /root/.ssh/id_rsa
-
-          # Update Git Credentials.
-          git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
-          git config --global gc.auto 0 || true
-          git config user.email $GITHUB_USER_EMAIL
-          git config user.name $GITHUB_USER_NAME
-
-          # Build Applications.
-          lerna run build --ci
-
-          # Publish Node Modules to NPM.
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-          npm config set unsafe-perm true
-          lerna publish --ci --exact --message "javascript-v%v [skip ci]" --tag-version-prefix javascript-v --yes patch
-          npm config set unsafe-perm true
-
-          # Publish Node Modules to Github.
-          echo "@tenlastic:registry=https://npm.pkg.github.com" > ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> ~/.npmrc
-
-          lerna publish --ci --registry https://npm.pkg.github.com --yes from-package
+        args: [./.argo-ci/publish-npm-modules.sh]
         envFrom:
           - secretRef:
               name: cd-environment-variables
@@ -402,7 +360,7 @@ spec:
             readonly: true
           - name: workspace
             mountPath: /usr/src/
-        workingDir: /usr/src/app/projects/javascript/
+        workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnFailure
@@ -425,20 +383,17 @@ spec:
         retryPolicy: OnFailure
 
     - name: terraform
-      script:
+      container:
         image: hashicorp/terraform:0.14.5
         command: [sh]
-        source: |
-          set -e
-          terraform init
-          terraform apply -auto-approve
+        args: [./.argo-ci/terraform.sh]
         envFrom:
           - secretRef:
               name: cd-environment-variables
         volumeMounts:
           - name: workspace
             mountPath: /usr/src/
-        workingDir: /usr/src/app/gcp/terraform/
+        workingDir: /usr/src/app/
       retryStrategy:
         limit: 2
         retryPolicy: OnFailure
