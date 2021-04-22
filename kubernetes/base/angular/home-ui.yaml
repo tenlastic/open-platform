@@ -23,7 +23,7 @@ spec:
                     operator: Exists
       containers:
         - name: home-ui
-          image: tenlastic/home-ui:0.0.154
+          image: tenlastic/home-ui:0.0.155
           ports:
             - containerPort: 80
           resources:

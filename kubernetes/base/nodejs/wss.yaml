@@ -24,7 +24,7 @@ spec:
                     operator: Exists
       containers:
         - name: wss
-          image: tenlastic/wss:0.0.154
+          image: tenlastic/wss:0.0.155
           env:
             - name: POD_NAME
               valueFrom:

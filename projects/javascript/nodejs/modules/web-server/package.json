@@ -9,7 +9,7 @@
     "type": "git",
     "url": "ssh://git@github.com/tenlastic/open-platform.git"
   },
-  "version": "0.0.154",
+  "version": "0.0.155",
   "publishConfig": {
     "access": "public"
   },
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@koa/cors": "3.0.0",
-    "@tenlastic/mongoose-permissions": "0.0.154",
+    "@tenlastic/mongoose-permissions": "0.0.155",
     "jsonwebtoken": "8.5.1",
     "koa": "2.7.0",
     "koa-bodyparser": "4.2.1",
@@ -33,7 +33,7 @@
     "request-promise-native": "1.0.7"
   },
   "devDependencies": {
-    "@tenlastic/mongoose-models": "0.0.154",
+    "@tenlastic/mongoose-models": "0.0.155",
     "mocha": "7.1.2",
     "nyc": "15.0.0",
     "ts-node": "8.9.1",
