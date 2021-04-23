@@ -109,7 +109,7 @@ spec:
                 - name: image
                   value: "{{item.image}}"
                 - name: tag
-                  value: "{{steps.publish-npm-modules.outputs.result}}"
+                  value: latest
             name: publish-miscellaneous-docker-images
             template: publish-docker-image
             when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
@@ -124,7 +124,7 @@ spec:
     - name: bootstrap
       container:
         image: tenlastic/node-chrome-lerna:latest
-        command: [sh]
+        command: [bash]
         args: [./.argo-ci/bootstrap.sh]
         volumeMounts:
           - name: workspace
@@ -170,7 +170,7 @@ spec:
     - name: continuous-integration-angular
       container:
         image: tenlastic/node-chrome-lerna:latest
-        command: [sh]
+        command: [bash]
         args: [./.argo-ci/continuous-integration-angular.sh]
         envFrom:
           - secretRef:
@@ -190,7 +190,7 @@ spec:
     - name: continuous-integration-nodejs
       container:
         image: tenlastic/node-chrome-lerna:latest
-        command: [sh]
+        command: [bash]
         args: [./.argo-ci/continuous-integration-nodejs.sh]
         envFrom:
           - secretRef:
@@ -251,7 +251,7 @@ spec:
     - name: get-docker-images
       script:
         image: tenlastic/node-chrome-lerna:latest
-        command: [sh]
+        command: [bash]
         source: |
           npm i -g json &> /dev/null
 
@@ -269,7 +269,7 @@ spec:
     - name: migrations
       container:
         image: tenlastic/node-chrome-lerna:latest
-        command: [sh]
+        command: [bash]
         args: [./.argo-ci/migrations.sh]
         envFrom:
           - secretRef:
@@ -347,7 +347,7 @@ spec:
     - name: publish-npm-modules
       container:
         image: tenlastic/node-chrome-lerna:latest
-        command: [sh]
+        command: [bash]
         args: [./.argo-ci/publish-npm-modules.sh]
         envFrom:
           - secretRef:
