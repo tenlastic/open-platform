@@ -84,7 +84,7 @@ spec:
         - - arguments:
               parameters:
                 - name: context
-                  value: "dir://{{item.location}}"
+                  value: "{{item.location}}"
                 - name: dockerfile
                   value: ../../Dockerfile
                 - name: image
@@ -103,7 +103,7 @@ spec:
         - - arguments:
               parameters:
                 - name: context
-                  value: "dir://{{item.context}}"
+                  value: "{{item.context}}"
                 - name: dockerfile
                   value: Dockerfile
                 - name: image
@@ -290,14 +290,14 @@ spec:
       container:
         image: gcr.io/kaniko-project/executor:v1.5.0
         args:
-          - --dockerfile="{{inputs.parameters.dockerfile}}"
-          - --context="dir://{{inputs.parameters.context}}"
-          - --destination="tenlastic/{{inputs.parameters.image}}:{{inputs.parameters.tag}}"
-          - --destination="tenlastic/{{inputs.parameters.image}}:latest"
-          - --destination="docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:{{inputs.parameters.tag}}"
-          - --destination="docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:latest"
-          - --destination="docker-registry.tenlastic.com/{{inputs.parameters.image}}:{{inputs.parameters.tag}}"
-          - --destination="docker-registry.tenlastic.com/{{inputs.parameters.image}}:latest"
+          - --context=dir://{{inputs.parameters.context}}
+          - --dockerfile={{inputs.parameters.dockerfile}}
+          - --destination=tenlastic/{{inputs.parameters.image}}:{{inputs.parameters.tag}}
+          - --destination=tenlastic/{{inputs.parameters.image}}:latest
+          - --destination=docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:{{inputs.parameters.tag}}
+          - --destination=docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:latest
+          - --destination=docker-registry.tenlastic.com/{{inputs.parameters.image}}:{{inputs.parameters.tag}}
+          - --destination=docker-registry.tenlastic.com/{{inputs.parameters.image}}:latest
         resources:
           requests:
             memory: 500M
