@@ -256,7 +256,7 @@ spec:
           npm i -g json &> /dev/null
 
           # Explicitly use local Lerna version to avoid "info cli using local version of lerna" message.
-          ./node_modules/.bin/lerna list --all --ignore @tenlastic/ng-* --json --scope @tenlastic/* | \
+          ./node_modules/.bin/lerna list --all --ignore @tenlastic/ng-* --json --loglevel error --scope @tenlastic/* | \
             json -0 -c 'this.private === true' -e 'this.name = this.name.replace("@tenlastic/","")'
         volumeMounts:
           - name: workspace
