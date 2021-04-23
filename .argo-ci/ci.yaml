@@ -84,7 +84,7 @@ spec:
         - - arguments:
               parameters:
                 - name: context
-                  value: "{{item.location}}"
+                  value: "dir://{{item.location}}"
                 - name: dockerfile
                   value: ../../Dockerfile
                 - name: image
@@ -103,7 +103,7 @@ spec:
         - - arguments:
               parameters:
                 - name: context
-                  value: "{{item.context}}"
+                  value: "dir://{{item.context}}"
                 - name: dockerfile
                   value: Dockerfile
                 - name: image
