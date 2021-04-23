@@ -57,7 +57,7 @@ spec:
     - host: docker-registry.tenlastic.com
       http:
         paths:
-          - path: /
+          - path: /v2/
             pathType: Prefix
             backend:
               service:
