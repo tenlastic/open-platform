@@ -306,7 +306,7 @@ spec:
           - name: kaniko
             mountPath: /kaniko/.docker/
           - name: workspace
-            mountPath: /workspace/
+            mountPath: /usr/src/
       inputs:
         parameters:
           - name: context
