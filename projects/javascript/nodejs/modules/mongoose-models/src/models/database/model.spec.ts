@@ -13,7 +13,7 @@ describe('models/database/model', function() {
         }),
       });
 
-      const promise = Database.checkNamespaceLimits(null, 2, true, 1, namespace._id, 1, 1);
+      const promise = Database.checkNamespaceLimits(null, 2, 1, namespace._id, true, 1, 1);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: databases.cpu. Value: 1.',
@@ -27,7 +27,7 @@ describe('models/database/model', function() {
         }),
       });
 
-      const promise = Database.checkNamespaceLimits(null, 1, true, 2, namespace._id, 1, 1);
+      const promise = Database.checkNamespaceLimits(null, 1, 2, namespace._id, true, 1, 1);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: databases.memory. Value: 1.',
@@ -41,7 +41,7 @@ describe('models/database/model', function() {
         }),
       });
 
-      const promise = Database.checkNamespaceLimits(null, 1, false, 1, namespace._id, 1, 1);
+      const promise = Database.checkNamespaceLimits(null, 1, 1, namespace._id, false, 1, 1);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: databases.preemptible. Value: true.',
@@ -55,7 +55,7 @@ describe('models/database/model', function() {
         }),
       });
 
-      const promise = Database.checkNamespaceLimits(null, 1, true, 1, namespace._id, 2, 1);
+      const promise = Database.checkNamespaceLimits(null, 1, 1, namespace._id, true, 2, 1);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: databases.replicas. Value: 1.',
@@ -69,7 +69,7 @@ describe('models/database/model', function() {
         }),
       });
 
-      const promise = Database.checkNamespaceLimits(null, 1, true, 1, namespace._id, 1, 2);
+      const promise = Database.checkNamespaceLimits(null, 1, 1, namespace._id, true, 1, 2);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: databases.storage. Value: 1.',

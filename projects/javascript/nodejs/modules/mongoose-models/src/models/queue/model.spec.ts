@@ -12,7 +12,7 @@ describe('models/queue/model', function() {
         }),
       });
 
-      const promise = Queue.checkNamespaceLimits(null, 2, true, 1, namespace._id, 1);
+      const promise = Queue.checkNamespaceLimits(null, 2, 1, namespace._id, true, 1);
 
       return expect(promise).to.be.rejectedWith('Namespace limit reached: queues.cpu. Value: 1.');
     });
@@ -24,7 +24,7 @@ describe('models/queue/model', function() {
         }),
       });
 
-      const promise = Queue.checkNamespaceLimits(null, 1, true, 2, namespace._id, 1);
+      const promise = Queue.checkNamespaceLimits(null, 1, 2, namespace._id, true, 1);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: queues.memory. Value: 1.',
@@ -38,7 +38,7 @@ describe('models/queue/model', function() {
         }),
       });
 
-      const promise = Queue.checkNamespaceLimits(null, 1, false, 1, namespace._id, 1);
+      const promise = Queue.checkNamespaceLimits(null, 1, 1, namespace._id, false, 1);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: queues.preemptible. Value: true.',
@@ -52,7 +52,7 @@ describe('models/queue/model', function() {
         }),
       });
 
-      const promise = Queue.checkNamespaceLimits(null, 1, true, 1, namespace._id, 2);
+      const promise = Queue.checkNamespaceLimits(null, 1, 1, namespace._id, true, 2);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: queues.replicas. Value: 1.',

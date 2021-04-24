@@ -15,7 +15,7 @@ describe('models/workflow/model', function() {
         }),
       });
 
-      const promise = Workflow.checkNamespaceLimits(2, true, 1, namespace._id, 1, 1);
+      const promise = Workflow.checkNamespaceLimits(2, 1, namespace._id, 1, true, 1);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: workflows.cpu. Value: 1.',
@@ -29,7 +29,7 @@ describe('models/workflow/model', function() {
         }),
       });
 
-      const promise = Workflow.checkNamespaceLimits(1, true, 2, namespace._id, 1, 1);
+      const promise = Workflow.checkNamespaceLimits(1, 2, namespace._id, 1, true, 1);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: workflows.memory. Value: 1.',
@@ -43,7 +43,7 @@ describe('models/workflow/model', function() {
         }),
       });
 
-      const promise = Workflow.checkNamespaceLimits(1, true, 1, namespace._id, 2, 1);
+      const promise = Workflow.checkNamespaceLimits(1, 1, namespace._id, 2, true, 1);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: workflows.parallelism. Value: 1.',
@@ -57,7 +57,7 @@ describe('models/workflow/model', function() {
         }),
       });
 
-      const promise = Workflow.checkNamespaceLimits(1, false, 1, namespace._id, 1, 1);
+      const promise = Workflow.checkNamespaceLimits(1, 1, namespace._id, 1, false, 1);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: workflows.preemptible. Value: true.',
@@ -71,7 +71,7 @@ describe('models/workflow/model', function() {
         }),
       });
 
-      const promise = Workflow.checkNamespaceLimits(1, true, 1, namespace._id, 1, 2);
+      const promise = Workflow.checkNamespaceLimits(1, 1, namespace._id, 1, true, 2);
 
       return expect(promise).to.be.rejectedWith(
         'Namespace limit reached: workflows.storage. Value: 1.',
