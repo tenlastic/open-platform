@@ -24,6 +24,17 @@ spec:
               - matchExpressions:
                   - key: tenlastic.com/low-priority
                     operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - kafdrop
+                topologyKey: kubernetes.io/hostname
       containers:
         - name: kafdrop
           image: obsidiandynamics/kafdrop:latest

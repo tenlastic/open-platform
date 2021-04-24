@@ -143,24 +143,6 @@ export const KubernetesQueue = {
      * REDIS
      * ========================
      */
-    const affinity = {
-      nodeAffinity: {
-        requiredDuringSchedulingIgnoredDuringExecution: {
-          nodeSelectorTerms: [
-            {
-              matchExpressions: [
-                {
-                  key: queue.preemptible
-                    ? 'tenlastic.com/low-priority'
-                    : 'tenlastic.com/high-priority',
-                  operator: 'Exists',
-                },
-              ],
-            },
-          ],
-        },
-      },
-    };
     const password = chance.hash({ length: 128 });
     const resources = {
       limits: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },
@@ -206,7 +188,7 @@ export const KubernetesQueue = {
             staticID: true,
           },
           slave: {
-            affinity,
+            affinity: getAffinity(queue, 'redis'),
             persistence: { storageClass: 'standard-expandable' },
             podLabels: {
               'tenlastic.com/app': name,
@@ -279,7 +261,7 @@ export const KubernetesQueue = {
           name,
         },
         spec: {
-          affinity,
+          affinity: getAffinity(queue, 'application'),
           automountServiceAccountToken: false,
           containers: [
             {
@@ -302,7 +284,7 @@ export const KubernetesQueue = {
           name,
         },
         spec: {
-          affinity,
+          affinity: getAffinity(queue, 'application'),
           containers: [
             {
               command: ['npm', 'run', 'start'],
@@ -330,7 +312,7 @@ export const KubernetesQueue = {
           name,
         },
         spec: {
-          affinity,
+          affinity: getAffinity(queue, 'application'),
           automountServiceAccountToken: false,
           containers: [
             {
@@ -356,7 +338,7 @@ export const KubernetesQueue = {
           name,
         },
         spec: {
-          affinity,
+          affinity: getAffinity(queue, 'application'),
           containers: [
             {
               env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
@@ -388,3 +370,42 @@ export const KubernetesQueue = {
     });
   },
 };
+
+function getAffinity(queue: QueueDocument, role: string): k8s.V1Affinity {
+  const name = KubernetesQueue.getName(queue);
+
+  return {
+    nodeAffinity: {
+      requiredDuringSchedulingIgnoredDuringExecution: {
+        nodeSelectorTerms: [
+          {
+            matchExpressions: [
+              {
+                key: queue.preemptible
+                  ? 'tenlastic.com/low-priority'
+                  : 'tenlastic.com/high-priority',
+                operator: 'Exists',
+              },
+            ],
+          },
+        ],
+      },
+    },
+    podAntiAffinity: {
+      preferredDuringSchedulingIgnoredDuringExecution: [
+        {
+          podAffinityTerm: {
+            labelSelector: {
+              matchExpressions: [
+                { key: 'tenlastic.com/app', operator: 'In', values: [name] },
+                { key: 'tenlastic.com/role', operator: 'In', values: [role] },
+              ],
+            },
+            topologyKey: 'kubernetes.io/hostname',
+          },
+          weight: 100,
+        },
+      ],
+    },
+  };
+}
