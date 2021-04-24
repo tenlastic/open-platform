@@ -17,6 +17,7 @@
     "build": "../../scripts/build.sh",
     "build:watch": "watch ../../scripts/build.sh ./src",
     "lint": "../../scripts/lint.sh",
+    "prepublishOnly": "../../scripts/build.sh",
     "test": "../../scripts/test.sh",
     "test:watch": "../../scripts/test.sh --watch"
   },

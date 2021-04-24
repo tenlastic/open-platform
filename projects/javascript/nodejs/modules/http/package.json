@@ -16,7 +16,8 @@
   "scripts": {
     "build": "../../scripts/build.sh",
     "build:watch": "watch ../../scripts/build.sh ./src",
-    "lint": "../../scripts/lint.sh"
+    "lint": "../../scripts/lint.sh",
+    "prepublishOnly": "../../scripts/build.sh"
   },
   "dependencies": {
     "request": "2.88.0",

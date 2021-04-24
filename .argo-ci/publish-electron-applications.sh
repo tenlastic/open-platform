@@ -6,4 +6,4 @@ cd "${ROOT}/projects/javascript/"
 
 # Publish Electron applications.
 lerna run electron:install --ci
-lerna run electron:windows --ci -- -- --publish always --win
+lerna run electron:build --ci -- -- --publish always --win

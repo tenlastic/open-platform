@@ -1,12 +1,19 @@
 {
   "main": "./dist/angular/bundles/tenlastic-ng-http.umd.js",
   "name": "@tenlastic/ng-http",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com/tenlastic/open-platform.git"
+  },
   "typings": "./dist/angular/module.d.ts",
   "version": "0.0.155",
   "scripts": {
     "build": "ng build http --prod",
     "lint": "ng lint http",
+    "prepublishOnly": "../../scripts/build.sh",
     "test": "ng test --code-coverage --watch false http",
     "test:watch": "ng test http"
   },
