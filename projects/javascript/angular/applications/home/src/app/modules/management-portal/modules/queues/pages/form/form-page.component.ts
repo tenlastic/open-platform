@@ -119,15 +119,15 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       gameServerTemplate: {
         buildId: this.form.get('gameServerTemplate').get('buildId').value,
         cpu: this.form.get('gameServerTemplate').get('cpu').value,
-        isPreemptible: this.form.get('gameServerTemplate').get('isPreemptible').value,
         memory: this.form.get('gameServerTemplate').get('memory').value,
         metadata: gameServerMetadata,
+        preemptible: this.form.get('gameServerTemplate').get('preemptible').value,
       },
-      isPreemptible: this.form.get('isPreemptible').value,
       memory: this.form.get('memory').value,
       metadata,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
+      preemptible: this.form.get('preemptible').value,
       replicas: this.form.get('replicas').value,
       usersPerTeam: this.form.get('usersPerTeam').value,
       teams: this.form.get('teams').value,
@@ -222,17 +222,17 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       gameServerTemplateForm = this.formBuilder.group({
         buildId: [this.data.gameServerTemplate.buildId, Validators.required],
         cpu: [this.data.gameServerTemplate.cpu || this.cpus[0].value],
-        isPreemptible: [this.data.gameServerTemplate.isPreemptible || false],
         memory: [this.data.gameServerTemplate.memory || this.memories[0].value],
         metadata: this.formBuilder.array(gameServerMetadata),
+        preemptible: [this.data.gameServerTemplate.preemptible || false],
       });
     } else {
       gameServerTemplateForm = this.formBuilder.group({
         buildId: [this.builds.length > 0 ? this.builds[0]._id : null, Validators.required],
         cpu: [this.cpus[0].value],
-        isPreemptible: [true],
         memory: [this.memories[0].value],
         metadata: this.formBuilder.array(gameServerMetadata),
+        preemptible: [true],
       });
     }
 
@@ -247,11 +247,11 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       description: [this.data.description],
       gameId: [this.data.gameId],
       gameServerTemplate: gameServerTemplateForm,
-      isPreemptible: [this.data.isPreemptible === false ? false : true],
       memory: [this.data.memory || this.memories[0].value, Validators.required],
       metadata: this.formBuilder.array(metadata),
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId],
+      preemptible: [this.data.preemptible === false ? false : true],
       replicas: [this.data.replicas || this.replicas[0].value, Validators.required],
       usersPerTeam: [this.data.usersPerTeam || 1, Validators.required],
       teams: [this.data.teams || 2, Validators.required],

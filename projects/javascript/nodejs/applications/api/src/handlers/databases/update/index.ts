@@ -12,9 +12,9 @@ export async function handler(ctx: Context) {
   await Database.checkNamespaceLimits(
     existing._id,
     ctx.request.body.cpu || existing.cpu,
-    ctx.request.body.isPreemptible || existing.isPreemptible,
     ctx.request.body.memory || existing.memory,
     existing.namespaceId,
+    ctx.request.body.preemptible || existing.preemptible,
     ctx.request.body.replicas || existing.replicas,
     ctx.request.body.storage || existing.storage,
   );

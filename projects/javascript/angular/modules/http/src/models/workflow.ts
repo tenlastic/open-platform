@@ -110,7 +110,7 @@ export class Workflow extends Model {
   public _id: string;
   public cpu: number;
   public createdAt: Date;
-  public isPreemptible: boolean;
+  public preemptible: boolean;
   public memory: number;
   public name: string;
   public namespaceId: string;

@@ -42,7 +42,7 @@ export class Database extends Model {
   public createdAt: Date;
   public game: Game;
   public gameId: string;
-  public isPreemptible: boolean;
+  public preemptible: boolean;
   public memory: number;
   public name: string;
   public namespaceId: string;
@@ -58,7 +58,7 @@ export class Database extends Model {
   }
 
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['cpu', 'isPreemptible', 'memory', 'replicas', 'storage'];
+    const immutableFields = ['cpu', 'memory', 'preemptible', 'replicas', 'storage'];
     return immutableFields.some(i => fields.includes(i));
   }
 }

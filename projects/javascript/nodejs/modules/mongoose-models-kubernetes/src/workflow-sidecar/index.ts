@@ -96,7 +96,7 @@ export const KubernetesWorkflowSidecar = {
             {
               matchExpressions: [
                 {
-                  key: workflow.isPreemptible
+                  key: workflow.preemptible
                     ? 'tenlastic.com/low-priority'
                     : 'tenlastic.com/high-priority',
                   operator: 'Exists',

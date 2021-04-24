@@ -110,12 +110,12 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       cpu: this.form.get('cpu').value,
       description: this.form.get('description').value,
       gameId: this.form.get('gameId').value,
-      isPersistent: this.form.get('isPersistent').value,
-      isPreemptible: this.form.get('isPreemptible').value,
       memory: this.form.get('memory').value,
       metadata,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
+      persistent: this.form.get('persistent').value,
+      preemptible: this.form.get('preemptible').value,
     };
 
     const dirtyFields = this.getDirtyFields();
@@ -204,12 +204,12 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
       description: [this.data.description],
       gameId: [this.data.gameId],
-      isPersistent: [this.data.isPersistent === false ? false : true],
-      isPreemptible: [this.data.isPreemptible === false ? false : true],
       memory: [this.data.memory || this.memories[0].value, Validators.required],
       metadata: this.formBuilder.array(properties),
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
+      persistent: [this.data.persistent === false ? false : true],
+      preemptible: [this.data.preemptible === false ? false : true],
     });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));

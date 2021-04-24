@@ -30,6 +30,8 @@ components:
         namespaceId:
           type: string
           format: ^[a-f0-9]{24}$
+        preemptible:
+          type: boolean
         replicas:
           type: number
         status:

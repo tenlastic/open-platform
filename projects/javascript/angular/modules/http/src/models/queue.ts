@@ -44,11 +44,11 @@ export class Queue extends Model {
   public game: Game;
   public gameId: string;
   public gameServerTemplate: Partial<GameServer>;
-  public isPreemptible: boolean;
   public memory: number;
   public metadata: any;
   public name: string;
   public namespaceId: string;
+  public preemptible: boolean;
   public replicas: number;
   public status: IQueue.Status;
   public teams: number;
@@ -66,8 +66,8 @@ export class Queue extends Model {
     const immutableFields = [
       'buildId',
       'cpu',
-      'isPreemptible',
       'memory',
+      'preemptible',
       'replicas',
       'teams',
       'usersPerTeam',

@@ -91,12 +91,6 @@ export class GameServerSchema implements IOriginalDocument {
   @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
   public gameId: Ref<GameDocument>;
 
-  @prop()
-  public isPersistent: boolean;
-
-  @prop()
-  public isPreemptible: boolean;
-
   @prop({ min: 0, required: true })
   public memory: number;
 
@@ -108,6 +102,12 @@ export class GameServerSchema implements IOriginalDocument {
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
+
+  @prop()
+  public persistent: boolean;
+
+  @prop()
+  public preemptible: boolean;
 
   @prop({ ref: 'QueueSchema' })
   public queueId: Ref<QueueDocument>;
@@ -145,9 +145,9 @@ export class GameServerSchema implements IOriginalDocument {
   public static async checkNamespaceLimits(
     _id: string | mongoose.Types.ObjectId,
     cpu: number,
-    isPreemptible: boolean,
     memory: number,
     namespaceId: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>,
+    preemptible: boolean,
   ) {
     const namespace = await Namespace.findOne({ _id: namespaceId });
     if (!namespace) {
@@ -157,7 +157,7 @@ export class GameServerSchema implements IOriginalDocument {
     const limits = namespace.limits.gameServers;
 
     // Preemptible.
-    if (limits.preemptible && isPreemptible === false) {
+    if (limits.preemptible && preemptible === false) {
       throw new NamespaceLimitError('gameServers.preemptible', limits.preemptible);
     }
 
@@ -195,7 +195,7 @@ export class GameServerSchema implements IOriginalDocument {
    * Returns true if a restart is required on an update.
    */
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'isPreemptible', 'memory'];
+    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible'];
 
     return immutableFields.some(i => fields.includes(i));
   }

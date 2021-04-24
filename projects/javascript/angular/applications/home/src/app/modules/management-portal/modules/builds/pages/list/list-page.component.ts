@@ -92,7 +92,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
         if (result === 'Yes') {
           // Update Game Servers.
           const gameServers = await this.gameServerService.find({
-            where: { buildId: build.reference._id, isPersistent: true },
+            where: { buildId: build.reference._id, persistent: true },
           });
           for (const gameServer of gameServers) {
             await this.gameServerService.update({ ...gameServer, buildId: build._id });

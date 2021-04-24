@@ -50,9 +50,6 @@ export class DatabaseSchema {
   @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
   public gameId: Ref<GameDocument>;
 
-  @prop()
-  public isPreemptible: boolean;
-
   @prop({ min: 0, required: true })
   public memory: number;
 
@@ -61,6 +58,9 @@ export class DatabaseSchema {
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
+
+  @prop()
+  public preemptible: boolean;
 
   @prop({ min: 0, required: true })
   public replicas: number;
@@ -85,9 +85,9 @@ export class DatabaseSchema {
   public static async checkNamespaceLimits(
     _id: string | mongoose.Types.ObjectId,
     cpu: number,
-    isPreemptible: boolean,
     memory: number,
     namespaceId: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>,
+    preemptible: boolean,
     replicas: number,
     storage: number,
   ) {
@@ -99,7 +99,7 @@ export class DatabaseSchema {
     const limits = namespace.limits.databases;
 
     // Preemptible.
-    if (limits.preemptible && isPreemptible === false) {
+    if (limits.preemptible && preemptible === false) {
       throw new NamespaceLimitError('databases.preemptible', limits.preemptible);
     }
 
@@ -151,7 +151,7 @@ export class DatabaseSchema {
    * Returns true if a restart is required on an update.
    */
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['cpu', 'isPreemptible', 'memory', 'replicas', 'storage'];
+    const immutableFields = ['cpu', 'memory', 'preemptible', 'replicas', 'storage'];
     return immutableFields.some(i => fields.includes(i));
   }
 }

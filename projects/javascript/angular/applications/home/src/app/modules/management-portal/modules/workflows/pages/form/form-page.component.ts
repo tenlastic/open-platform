@@ -172,10 +172,10 @@ export class WorkflowsFormPageComponent implements OnInit {
 
     const values: Partial<Workflow> = {
       cpu: raw.cpu,
-      isPreemptible: raw.isPreemptible,
       memory: raw.memory,
       name: raw.name,
       namespaceId: raw.namespaceId,
+      preemptible: raw.preemptible,
       spec: {
         entrypoint: 'entrypoint',
         parallelism: raw.parallelism,
@@ -309,11 +309,11 @@ export class WorkflowsFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       cpu: [this.data.cpu || this.cpus[0].value],
-      isPreemptible: [this.data.isPreemptible === false ? false : true],
       memory: [this.data.memory || this.memories[0].value],
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
       parallelism: [(this.data.spec && this.data.spec.parallelism) || this.parallelisms[0].value],
+      preemptible: [this.data.preemptible === false ? false : true],
       storage: [this.data.storage || this.storages[0].value],
       templates: this.getTemplatesFormArray(this.data.spec && this.data.spec.templates),
     });

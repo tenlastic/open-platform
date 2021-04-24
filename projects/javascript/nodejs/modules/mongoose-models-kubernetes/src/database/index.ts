@@ -497,7 +497,7 @@ function getAffinity(database: DatabaseDocument, role: string): k8s.V1Affinity {
           {
             matchExpressions: [
               {
-                key: database.isPreemptible
+                key: database.preemptible
                   ? 'tenlastic.com/low-priority'
                   : 'tenlastic.com/high-priority',
                 operator: 'Exists',

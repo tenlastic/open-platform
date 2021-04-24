@@ -59,9 +59,6 @@ export class QueueSchema {
   @prop({ _id: false, required: true })
   public gameServerTemplate: GameServerDocument;
 
-  @prop()
-  public isPreemptible: boolean;
-
   @prop({ min: 0, required: true })
   public memory: number;
 
@@ -73,6 +70,9 @@ export class QueueSchema {
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
+
+  @prop()
+  public preemptible: boolean;
 
   @prop({ min: 0, required: true })
   public replicas: number;
@@ -111,9 +111,9 @@ export class QueueSchema {
   public static async checkNamespaceLimits(
     _id: string | mongoose.Types.ObjectId,
     cpu: number,
-    isPreemptible: boolean,
     memory: number,
     namespaceId: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>,
+    preemptible: boolean,
     replicas: number,
   ) {
     const namespace = await Namespace.findOne({ _id: namespaceId });
@@ -124,7 +124,7 @@ export class QueueSchema {
     const limits = namespace.limits.queues;
 
     // Preemptible.
-    if (limits.preemptible && isPreemptible === false) {
+    if (limits.preemptible && preemptible === false) {
       throw new NamespaceLimitError('queues.preemptible', limits.preemptible);
     }
 
@@ -172,8 +172,8 @@ export class QueueSchema {
     const immutableFields = [
       'buildId',
       'cpu',
-      'isPreemptible',
       'memory',
+      'preemptible',
       'replicas',
       'teams',
       'usersPerTeam',

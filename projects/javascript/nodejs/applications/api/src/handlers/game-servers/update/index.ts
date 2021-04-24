@@ -4,7 +4,7 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 export async function handler(ctx: Context) {
   const user = ctx.state.apiKey || ctx.state.user;
 
-  const { cpu, isPreemptible, memory } = ctx.request.body;
+  const { cpu, memory, preemptible } = ctx.request.body;
 
   const existing = await GameServerPermissions.findOne({}, { where: ctx.params }, user);
   if (!existing) {
@@ -14,9 +14,9 @@ export async function handler(ctx: Context) {
   await GameServer.checkNamespaceLimits(
     existing._id,
     cpu || existing.cpu,
-    isPreemptible || existing.isPreemptible,
     memory || existing.memory,
     existing.namespaceId as any,
+    preemptible || existing.preemptible,
   );
 
   const result = await GameServerPermissions.update(existing, ctx.request.body, ctx.params, user);

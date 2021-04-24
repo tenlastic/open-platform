@@ -44,13 +44,13 @@ export class GameServer extends Model {
   public description: string;
   public game: Game;
   public gameId: string;
-  public isPersistent: boolean;
-  public isPreemptible: boolean;
   public memory: number;
   public metadata: any;
   public name: string;
   public namespaceId: string;
+  public persistent: boolean;
   public port: number;
+  public preemptible: boolean;
   public queue: Queue;
   public queueId: string;
   public status: IGameServer.Status;
@@ -62,7 +62,7 @@ export class GameServer extends Model {
   }
 
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'isPreemptible', 'memory'];
+    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible'];
 
     return immutableFields.some(i => fields.includes(i));
   }

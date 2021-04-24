@@ -79,7 +79,7 @@
           *matHeaderCellDef></th>
       <td mat-cell
           *matCellDef="let element">
-        <app-button *ngIf="element.isPersistent"
+        <app-button *ngIf="element.persistent"
                     color="accent"
                     (click)="restart(element)">
           <mat-icon>refresh</mat-icon>

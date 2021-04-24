@@ -5,10 +5,10 @@ import { Workflow, WorkflowDocument } from './model';
 const administrator = {
   create: [
     'cpu',
-    'isPreemptible',
     'memory',
     'name',
     'namespaceId',
+    'preemptible',
     'spec.arguments.*',
     'spec.entrypoint',
     'spec.parallelism',
@@ -86,10 +86,10 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
       '_id',
       'cpu',
       'createdAt',
-      'isPreemptible',
       'memory',
       'name',
       'namespaceId',
+      'preemptible',
       'spec.*',
       'status.*',
       'storage',

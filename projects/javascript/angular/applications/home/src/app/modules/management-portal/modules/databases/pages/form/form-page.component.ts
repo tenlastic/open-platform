@@ -88,10 +88,10 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
     const values: Partial<Database> = {
       cpu: this.form.get('cpu').value,
       gameId: this.form.get('gameId').value,
-      isPreemptible: this.form.get('isPreemptible').value,
       memory: this.form.get('memory').value,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
+      preemptible: this.form.get('preemptible').value,
       replicas: this.form.get('replicas').value,
       storage: this.form.get('storage').value,
     };
@@ -148,10 +148,10 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
     this.form = this.formBuilder.group({
       cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
       gameId: [this.data.gameId],
-      isPreemptible: [this.data.isPreemptible === false ? false : true],
       memory: [this.data.memory || this.memories[0].value, Validators.required],
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId],
+      preemptible: [this.data.preemptible === false ? false : true],
       replicas: [this.data.replicas || this.replicas[0].value, Validators.required],
       storage: [this.data.storage || this.storages[0].value, Validators.required],
     });

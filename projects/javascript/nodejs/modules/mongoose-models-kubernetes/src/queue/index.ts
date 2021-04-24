@@ -150,7 +150,7 @@ export const KubernetesQueue = {
             {
               matchExpressions: [
                 {
-                  key: queue.isPreemptible
+                  key: queue.preemptible
                     ? 'tenlastic.com/low-priority'
                     : 'tenlastic.com/high-priority',
                   operator: 'Exists',

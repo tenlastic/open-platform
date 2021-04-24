@@ -22,9 +22,9 @@ describe('create-game-server', function() {
       gameServerTemplate: {
         buildId: '1',
         cpu: 1,
-        isPreemptible: true,
         memory: 1,
         metadata: {},
+        preemptible: true,
       },
       name: 'name',
       namespaceId: '1',

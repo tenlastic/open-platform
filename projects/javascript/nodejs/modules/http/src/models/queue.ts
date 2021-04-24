@@ -4,7 +4,7 @@ export namespace IQueue {
   export interface GameServerTemplate {
     buildId?: string;
     cpu?: number;
-    isPreemptible?: boolean;
+    preemptible?: boolean;
     memory?: number;
     metadata?: any;
   }

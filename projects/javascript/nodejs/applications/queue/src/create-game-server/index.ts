@@ -49,8 +49,6 @@ export async function createGameServer(queue: QueueModel): Promise<GameServerMod
     cpu: queue.gameServerTemplate.cpu,
     description: queue.description,
     gameId: queue.gameId,
-    isPersistent: false,
-    isPreemptible: queue.gameServerTemplate.isPreemptible,
     memory: queue.gameServerTemplate.memory,
     metadata: {
       ...queue.gameServerTemplate.metadata,
@@ -60,6 +58,8 @@ export async function createGameServer(queue: QueueModel): Promise<GameServerMod
     },
     name: queue.name,
     namespaceId: queue.namespaceId,
+    persistent: false,
+    preemptible: queue.gameServerTemplate.preemptible,
     queueId: queue._id,
   });
 

@@ -32,7 +32,7 @@ describe('handlers/game-servers/restart', function() {
         roles: ['game-servers'],
       });
       const namespace = await NamespaceMock.create({ users: [namespaceUser] });
-      record = await GameServerMock.create({ namespaceId: namespace._id, isPersistent: true });
+      record = await GameServerMock.create({ namespaceId: namespace._id, persistent: true });
     });
 
     it('returns the record', async function() {

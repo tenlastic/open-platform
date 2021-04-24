@@ -4,7 +4,7 @@ import { Context, RequiredFieldError } from '@tenlastic/web-server';
 export async function handler(ctx: Context) {
   const user = ctx.state.apiKey || ctx.state.user;
 
-  const { cpu, isPreemptible, memory, namespaceId, replicas, storage } = ctx.request.body;
+  const { cpu, memory, namespaceId, preemptible, replicas, storage } = ctx.request.body;
   if (!cpu || !memory || !namespaceId || !replicas || !storage) {
     throw new RequiredFieldError(['cpu', 'memory', 'namespaceId', 'replicas', 'storage']);
   }
@@ -12,9 +12,9 @@ export async function handler(ctx: Context) {
   await Database.checkNamespaceLimits(
     null,
     cpu,
-    isPreemptible || false,
     memory,
     namespaceId,
+    preemptible || false,
     replicas,
     storage,
   );

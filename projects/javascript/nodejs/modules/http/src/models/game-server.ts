@@ -6,11 +6,11 @@ export interface GameServerModel extends BaseModel {
   cpu: number;
   description: string;
   gameId: string;
-  isPersistent: boolean;
-  isPreemptible: boolean;
   memory: number;
   metadata: any;
   name: string;
   namespaceId: string;
+  persistent: boolean;
+  preemptible: boolean;
   queueId: string;
 }

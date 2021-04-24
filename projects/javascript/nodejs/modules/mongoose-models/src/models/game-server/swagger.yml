@@ -29,10 +29,6 @@ components:
         gameId:
           type: string
           format: ^[a-f0-9]{24}$
-        isPersistent:
-          type: boolean
-        isPreemptible:
-          type: boolean
         memory:
           type: number
         metadata:
@@ -44,6 +40,10 @@ components:
           format: ^[a-f0-9]{24}$
         port:
           type: string
+        persistent:
+          type: boolean
+        preemptible:
+          type: boolean
         queueId:
           type: string
           format: ^[a-f0-9]{24}$

@@ -48,9 +48,6 @@ export class WorkflowSchema {
 
   public createdAt: Date;
 
-  @prop({ immutable: true })
-  public isPreemptible: boolean;
-
   @prop({ min: 0, required: true })
   public memory: number;
 
@@ -59,6 +56,9 @@ export class WorkflowSchema {
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
+
+  @prop({ immutable: true })
+  public preemptible: boolean;
 
   @prop({ immutable: true, required: true })
   public spec: WorkflowSpecSchema;
@@ -83,10 +83,10 @@ export class WorkflowSchema {
    */
   public static async checkNamespaceLimits(
     cpu: number,
-    isPreemptible: boolean,
     memory: number,
     namespaceId: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>,
     parallelism: number,
+    preemptible: boolean,
     storage: number,
   ) {
     const namespace = await Namespace.findOne({ _id: namespaceId });
@@ -112,7 +112,7 @@ export class WorkflowSchema {
     }
 
     // Preemptible.
-    if (limits.preemptible && isPreemptible === false) {
+    if (limits.preemptible && preemptible === false) {
       throw new NamespaceLimitError('workflows.preemptible', limits.preemptible);
     }
 

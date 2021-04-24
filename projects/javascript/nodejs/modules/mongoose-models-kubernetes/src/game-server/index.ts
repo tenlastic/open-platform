@@ -155,7 +155,7 @@ export const KubernetesGameServer = {
             {
               matchExpressions: [
                 {
-                  key: gameServer.isPreemptible
+                  key: gameServer.preemptible
                     ? 'tenlastic.com/low-priority'
                     : 'tenlastic.com/high-priority',
                   operator: 'Exists',
@@ -211,11 +211,11 @@ export const KubernetesGameServer = {
         ],
         enableServiceLinks: false,
         imagePullSecrets: [{ name: `${name}-image-pull-secret` }],
-        restartPolicy: gameServer.isPersistent ? 'Always' : 'Never',
+        restartPolicy: gameServer.persistent ? 'Always' : 'Never',
       },
     };
 
-    if (gameServer.isPersistent) {
+    if (gameServer.persistent) {
       await deploymentApiV1.createOrReplace(namespace, {
         metadata: {
           labels: {
