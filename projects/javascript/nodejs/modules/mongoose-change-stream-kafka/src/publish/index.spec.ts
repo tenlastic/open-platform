@@ -13,6 +13,7 @@ describe('publish()', function() {
 
   beforeEach(function() {
     sandbox = sinon.createSandbox();
+    sandbox.stub(kafka, 'createTopic').resolves();
   });
 
   afterEach(function() {
