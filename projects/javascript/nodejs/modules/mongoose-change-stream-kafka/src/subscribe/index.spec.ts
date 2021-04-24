@@ -45,7 +45,7 @@ describe('subscribe()', function() {
       // Wait for message to be published.
       await Promise.all([
         publish(payload),
-        await new Promise<void>(async resolve => {
+        new Promise<void>(async resolve => {
           const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
           await consumer.connect();
 
@@ -84,7 +84,7 @@ describe('subscribe()', function() {
       // Wait for message to be published.
       await Promise.all([
         publish(payload),
-        await new Promise<void>(async resolve => {
+        new Promise<void>(async resolve => {
           const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
           await consumer.connect();
 
@@ -131,7 +131,7 @@ describe('subscribe()', function() {
         // Wait for message to be published.
         await Promise.all([
           publish(payload),
-          await new Promise<void>(async resolve => {
+          new Promise<void>(async resolve => {
             const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
             await consumer.connect();
 
@@ -176,7 +176,7 @@ describe('subscribe()', function() {
         // Wait for message to be published.
         await Promise.all([
           publish(payload),
-          await new Promise<void>(async resolve => {
+          new Promise<void>(async resolve => {
             const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
             await consumer.connect();
 
