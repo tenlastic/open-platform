@@ -2,12 +2,23 @@ import * as kafka from '@tenlastic/kafka';
 import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
 import { expect } from 'chai';
 import * as Chance from 'chance';
+import * as sinon from 'sinon';
 
 import { publish } from './';
 
 const chance = new Chance();
 
 describe('publish()', function() {
+  let sandbox: sinon.SinonSandbox;
+
+  beforeEach(function() {
+    sandbox = sinon.createSandbox();
+  });
+
+  afterEach(function() {
+    sandbox.restore();
+  });
+
   it('publishes the payload to Kafka', async function() {
     const payload: IDatabasePayload<any> = {
       documentKey: { _id: chance.hash() },
@@ -16,29 +27,13 @@ describe('publish()', function() {
       operationType: 'insert',
     };
 
+    const stub = sandbox.stub(kafka.getProducer(), 'send').resolves();
     await publish(payload);
 
-    return new Promise(async resolve => {
-      const { coll, db } = payload.ns;
-      const topic = `${db}.${coll}`;
-
-      const connection = kafka.getConnection();
-      const consumer = connection.consumer({ groupId: 'example' });
-      await consumer.connect();
-      await consumer.subscribe({ fromBeginning: true, topic });
-
-      await consumer.run({
-        eachMessage: async ({ message }) => {
-          const value = JSON.parse(message.value.toString());
-
-          expect(value.documentKey).to.eql(payload.documentKey);
-          expect(value.fullDocument).to.exist;
-          expect(value.ns).to.eql(payload.ns);
-          expect(value.operationType).to.eql(payload.operationType);
-
-          return resolve();
-        },
-      });
+    expect(stub.calledOnce).to.eql(true);
+    expect(stub.getCalls()[0].args[0]).to.eql({
+      messages: [{ key: JSON.stringify(payload.documentKey), value: JSON.stringify(payload) }],
+      topic: `${payload.ns.db}.${payload.ns.coll}`,
     });
   });
 });

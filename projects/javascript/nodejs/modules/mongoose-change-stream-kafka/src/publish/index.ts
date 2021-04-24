@@ -15,5 +15,5 @@ export async function publish<T extends Document>(msg: IDatabasePayload<T>) {
   const value = JSON.stringify(msg);
 
   const producer = kafka.getProducer();
-  await producer.send({ topic, messages: [{ key, value }] });
+  await producer.send({ messages: [{ key, value }], topic });
 }

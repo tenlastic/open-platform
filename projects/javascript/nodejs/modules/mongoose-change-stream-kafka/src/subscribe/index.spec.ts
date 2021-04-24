@@ -5,7 +5,7 @@ import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
 import { publish } from '../publish';
-import { subscribe } from './';
+import { eachMessage, subscribe } from './';
 
 const chance = new Chance();
 
@@ -40,22 +40,7 @@ describe('subscribe()', function() {
       const { coll, db } = payload.ns;
       const topic = `${db}.${coll}`;
 
-      subscribe(Model, { group: chance.hash(), topic });
-
-      // Wait for message to be published.
-      await Promise.all([
-        publish(payload),
-        new Promise<void>(async resolve => {
-          const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
-          await consumer.connect();
-
-          await consumer.subscribe({ fromBeginning: true, topic });
-          await consumer.run({ eachMessage: async () => resolve() });
-        }),
-      ]);
-
-      // Wait for write to MongoDB.
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await eachMessage(Model, { group: chance.hash(), topic }, payload);
 
       const result = await Model.findOne({ _id: record._id });
       expect(result).to.eql(null);
@@ -79,22 +64,7 @@ describe('subscribe()', function() {
       const { coll, db } = payload.ns;
       const topic = `${db}.${coll}`;
 
-      subscribe(Model as any, { group: chance.hash(), topic });
-
-      // Wait for message to be published.
-      await Promise.all([
-        publish(payload),
-        new Promise<void>(async resolve => {
-          const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
-          await consumer.connect();
-
-          await consumer.subscribe({ fromBeginning: true, topic });
-          await consumer.run({ eachMessage: async () => resolve() });
-        }),
-      ]);
-
-      // Wait for write to MongoDB.
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await eachMessage(Model, { group: chance.hash(), topic }, payload);
 
       const result = (await Model.findOne({ _id: payload.fullDocument._id })) as any;
       expect(result._id.toString()).to.eql(payload.fullDocument._id.toString());
@@ -126,22 +96,11 @@ describe('subscribe()', function() {
         const { coll, db } = payload.ns;
         const topic = `${db}.${coll}`;
 
-        subscribe(Model as any, { group: chance.hash(), topic, useUpdateDescription: true });
-
-        // Wait for message to be published.
-        await Promise.all([
-          publish(payload),
-          new Promise<void>(async resolve => {
-            const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
-            await consumer.connect();
-
-            await consumer.subscribe({ fromBeginning: true, topic });
-            await consumer.run({ eachMessage: async () => resolve() });
-          }),
-        ]);
-
-        // Wait for write to MongoDB.
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await eachMessage(
+          Model,
+          { group: chance.hash(), topic, useUpdateDescription: true },
+          payload,
+        );
 
         const result: any = await Model.findOne({ _id: record._id });
         expect(result.createdAt).to.not.exist;
@@ -171,22 +130,7 @@ describe('subscribe()', function() {
         const { coll, db } = payload.ns;
         const topic = `${db}.${coll}`;
 
-        subscribe(Model as any, { group: chance.hash(), topic });
-
-        // Wait for message to be published.
-        await Promise.all([
-          publish(payload),
-          new Promise<void>(async resolve => {
-            const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
-            await consumer.connect();
-
-            await consumer.subscribe({ fromBeginning: true, topic });
-            await consumer.run({ eachMessage: async () => resolve() });
-          }),
-        ]);
-
-        // Wait for write to MongoDB.
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await eachMessage(Model, { group: chance.hash(), topic }, payload);
 
         const result: any = await Model.findOne({ _id: record._id });
         expect(result._id.toString()).to.eql(payload.fullDocument._id.toString());

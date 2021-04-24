@@ -23,51 +23,48 @@ export async function subscribe(
 
   await consumer.subscribe({ fromBeginning: true, topic: options.topic });
   await consumer.run({
-    eachMessage: async data => {
+    eachMessage: data => {
       const value = data.message.value.toString();
-      const json = JSON.parse(value) as IDatabasePayload<mongoose.Model<mongoose.Document>>;
-
-      try {
-        switch (json.operationType) {
-          case 'delete':
-            await Model.findOneAndDelete(json.documentKey);
-            break;
-
-          case 'insert':
-            await Model.create(json.fullDocument);
-            break;
-
-          case 'update':
-            if (options.useUpdateDescription) {
-              const { removedFields, updatedFields } = json.updateDescription;
-              const update: any = {};
-
-              if (removedFields && removedFields.length > 0) {
-                update.$unset = json.updateDescription.removedFields.reduce(
-                  (agg: any, field: string) => {
-                    agg[field] = '';
-                    return agg;
-                  },
-                  {},
-                );
-              }
-
-              if (updatedFields && Object.keys(updatedFields).length > 0) {
-                update.$set = json.updateDescription.updatedFields;
-              }
-
-              if (update.$set || update.$unset) {
-                await Model.findOneAndUpdate(json.documentKey, update, { upsert: true });
-              }
-            } else {
-              await Model.findOneAndUpdate(json.documentKey, json.fullDocument, { upsert: true });
-            }
-
-            break;
-        }
-      } catch (e) {
-        console.error(e);
-      }
+      return eachMessage(Model, options, JSON.parse(value));
     },
   });
+}
+
+export async function eachMessage(
+  Model: mongoose.Model<mongoose.Document>,
+  options: SubscribeOptions,
+  payload: IDatabasePayload<mongoose.Model<mongoose.Document>>,
+) {
+  try {
+    if (payload.operationType === 'delete') {
+      await Model.findOneAndDelete(payload.documentKey);
+    } else if (payload.operationType === 'insert') {
+      await Model.create(payload.fullDocument);
+    } else if (options.useUpdateDescription) {
+      const { removedFields, updatedFields } = payload.updateDescription;
+      const update: any = {};
+
+      if (removedFields && removedFields.length > 0) {
+        update.$unset = payload.updateDescription.removedFields.reduce(
+          (agg: any, field: string) => {
+            agg[field] = '';
+            return agg;
+          },
+          {},
+        );
+      }
+
+      if (updatedFields && Object.keys(updatedFields).length > 0) {
+        update.$set = payload.updateDescription.updatedFields;
+      }
+
+      if (update.$set || update.$unset) {
+        await Model.findOneAndUpdate(payload.documentKey, update, { upsert: true });
+      }
+    } else {
+      await Model.findOneAndUpdate(payload.documentKey, payload.fullDocument, { upsert: true });
+    }
+  } catch (e) {
+    console.error(e);
+  }
 }
