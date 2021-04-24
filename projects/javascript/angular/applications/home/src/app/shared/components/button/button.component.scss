@@ -146,7 +146,6 @@
       img {
         filter: drop-shadow(2px 2px black);
         max-height: 20px;
-        float: left;
         margin: 0px 8px 0px 0px;
       }
 
@@ -173,6 +172,11 @@
           margin-left: 6px;
           margin-right: 0px;
         }
+      }
+
+      span.mat-button-wrapper div + mat-icon {
+        margin-left: 6px;
+        margin-right: 0px;
       }
     }
   }

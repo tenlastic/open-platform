@@ -1,10 +1,10 @@
 :host {
   align-items: center;
   background: rgba(0, 0, 0, 0.5);
-  box-shadow: 3px 3px 5px black;
+  box-shadow: 2px 2px 3px black;
   display: flex;
   flex: 0 0 auto;
-  height: 75px;
+  padding: 12px 0px;
 
   div.action {
     display: flex;
@@ -53,12 +53,11 @@
   app-button {
     ::ng-deep {
       a.mat-button mat-icon.mat-icon {
-        font-size: 24px;
+        font-size: 20px;
         height: 0px;
         line-height: 0px;
-        margin-left: -4px;
         vertical-align: middle;
-        width: 36px;
+        width: 24px;
       }
 
       mat-icon[icon='get_app'] {
@@ -67,8 +66,6 @@
       }
 
       span.text {
-        font-size: 20px !important;
-        margin-top: -1px !important;
         vertical-align: middle !important;
       }
     }
@@ -78,11 +75,12 @@
     ::ng-deep {
       a.mat-button mat-icon.mat-icon {
         color: white;
-        font-size: 32px;
+        font-size: 28px;
+        margin-top: 1px;
+      }
 
-        span.text {
-          text-transform: uppercase;
-        }
+      span.text {
+        text-transform: uppercase;
       }
     }
   }

@@ -2,6 +2,10 @@
   <div *ngIf="!loadingMessage"
        class="page">
     <div class="row">
+      <div class="col-sm-5">
+        <app-markdown [markdown]="game.description"></app-markdown>
+      </div>
+
       <div class="col-sm-7">
         <div *ngIf="(game.images && game.images.length) || (game.videos && game.videos.length)">
           <mat-grid-list class="main"
@@ -41,10 +45,6 @@
                            (click)="selectMedia(i, 'image')"></mat-grid-tile>
           </mat-grid-list>
         </div>
-      </div>
-
-      <div class="col-sm-5">
-        <app-markdown [markdown]="game.description"></app-markdown>
       </div>
     </div>
     <div class="row">

@@ -1,10 +1,8 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Article, ArticleService, Game, GameService, GameStore } from '@tenlastic/ng-http';
 
 import { BackgroundService, IdentityService } from '../../../../core/services';
-import { ArticleDialogComponent } from '../../components';
 
 @Component({
   styleUrls: ['./information-page.component.scss'],
@@ -29,7 +27,6 @@ export class InformationPageComponent implements OnInit {
     public identityService: IdentityService,
     private gameService: GameService,
     private gameStore: GameStore,
-    private matDialog: MatDialog,
     private router: Router,
   ) {}
 
@@ -96,13 +93,5 @@ export class InformationPageComponent implements OnInit {
       this.video.nativeElement.muted = muted;
       this.video.nativeElement.setAttribute('onloadedmetadata', `this.muted=${muted}`);
     }
-  }
-
-  public showArticle(article: Article) {
-    this.matDialog.open(ArticleDialogComponent, {
-      autoFocus: false,
-      data: { article },
-      width: '1000000px',
-    });
   }
 }

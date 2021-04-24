@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../shared/shared.module';
-import { ArticleDialogComponent, LayoutComponent, StatusComponent } from './components';
+import { ArticleComponent, LayoutComponent, StatusComponent } from './components';
 import {
   GameServersPageComponent,
   InformationPageComponent,
@@ -48,7 +48,7 @@ export const ROUTES: Routes = [
 
 @NgModule({
   declarations: [
-    ArticleDialogComponent,
+    ArticleComponent,
     GameServersPageComponent,
     InformationPageComponent,
     LayoutComponent,
@@ -57,7 +57,7 @@ export const ROUTES: Routes = [
     QueuesPageComponent,
     StatusComponent,
   ],
-  entryComponents: [ArticleDialogComponent],
+  entryComponents: [ArticleComponent],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })
 export class GamesModule {}

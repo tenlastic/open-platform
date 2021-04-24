@@ -2,26 +2,19 @@
   <img src="/assets/images/logo.png" />
 
   <app-button color="accent"
-              [routerLink]="['/', 'games', activeGame._id]"
-              [ngClass]="{ active: router.url === '/games/' + activeGame._id }">
-    <mat-icon>home</mat-icon>
-    <span>Home</span>
-  </app-button>
+              [routerLink]="['/', 'games']"
+              text="left">
+    <mat-icon>sports_esports</mat-icon>
 
-  <app-button *ngIf="($news | async).length"
-              color="accent"
-              [routerLink]="['/', 'games', activeGame._id, 'news']"
-              routerLinkActive="active">
-    <mat-icon>new_releases</mat-icon>
-    <span>News</span>
-  </app-button>
+    <div>
+      {{ activeGame.title }}
 
-  <app-button *ngIf="($patchNotes | async).length"
-              color="accent"
-              [routerLink]="['/', 'games', activeGame._id, 'patch-notes']"
-              routerLinkActive="active">
-    <mat-icon>post_add</mat-icon>
-    <span>Patch Notes</span>
+      <div *ngIf="activeGame.subtitle">
+        {{ activeGame.subtitle }}
+      </div>
+    </div>
+
+    <mat-icon>keyboard_arrow_down</mat-icon>
   </app-button>
 
   <span class="space"></span>
@@ -33,27 +26,41 @@
   </app-button>
 </app-header-toolbar>
 
-<div class="content">
+<div *ngIf="$activeGame | async as activeGame"
+     class="content">
   <app-social>
     <app-sidenav>
-      <div *ngIf="($games | async)?.length > 1"
-           class="nav">
-        <app-button *ngFor="let game of $games | async"
+      <div class="nav">
+        <app-button color="accent"
+                    layout="vertical"
+                    text="left"
+                    width="full"
+                    [ngClass]="{ active: router.url === '/games/' + activeGame._id }"
+                    [routerLink]="['/', 'games', activeGame._id]">
+          <mat-icon fontSet="material-icons-outlined">info</mat-icon>
+          <span>Information</span>
+        </app-button>
+
+        <app-button *ngIf="($news | async).length"
                     color="accent"
                     layout="vertical"
-                    [routerLink]="['/', 'games', game._id]"
                     routerLinkActive="active"
                     text="left"
-                    width="full">
-          <img *ngIf="game.icon"
-               [src]="game.icon" />
-          <div>
-            {{ game.title }}
+                    width="full"
+                    [routerLink]="['/', 'games', activeGame._id, 'news']">
+          <mat-icon fontSet="material-icons-outlined">campaign</mat-icon>
+          <span>News</span>
+        </app-button>
 
-            <div *ngIf="game.subtitle">
-              {{ game.subtitle }}
-            </div>
-          </div>
+        <app-button *ngIf="($patchNotes | async).length"
+                    color="accent"
+                    layout="vertical"
+                    routerLinkActive="active"
+                    text="left"
+                    width="full"
+                    [routerLink]="['/', 'games', activeGame._id, 'patch-notes']">
+          <mat-icon>healing</mat-icon>
+          <span>Patch Notes</span>
         </app-button>
       </div>
 

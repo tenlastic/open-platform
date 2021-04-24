@@ -6,31 +6,29 @@
   width: 100vw;
 }
 
-::ng-deep {
-  app-layout {
-    app-button {
-      &.disabled {
-        opacity: 0.5;
-        pointer-events: none;
+app-header-toolbar::ng-deep {
+  app-button a.mat-button span.mat-button-wrapper {
+    align-items: center;
+    display: flex;
+    height: 27px;
+
+    & > div {
+      vertical-align: inherit;
+
+      div {
+        margin-top: -4px;
       }
     }
-  }
-}
 
-app-sidenav app-button img {
-  margin-right: 12px;
-  max-height: 36px;
-}
-
-app-header-toolbar::ng-deep {
-  app-button:first-of-type {
-    a.mat-button {
-      padding: 8px 12px !important;
+    img {
+      height: 32px;
+      max-height: initial;
+      margin: -10px 12px -10px 0px;
+      vertical-align: inherit;
     }
 
-    mat-icon {
-      font-size: 18px !important;
-      width: 18px !important;
+    mat-icon.mat-icon {
+      line-height: 18px;
     }
   }
 
@@ -54,25 +52,6 @@ app-sidenav {
       }
     }
   }
-
-  div.nav {
-    ::ng-deep {
-      div {
-        flex: 1 1 auto;
-      }
-
-      mat-progress-bar.mat-progress-bar {
-        margin-bottom: 4px;
-        margin-top: 2px;
-      }
-
-      span.mat-button-wrapper {
-        align-items: center;
-        display: flex;
-        flex-direction: row;
-      }
-    }
-  }
 }
 
 div.content {
@@ -83,13 +62,5 @@ div.content {
 
   app-sidenav div.content {
     overflow: auto;
-  }
-}
-
-img.logo {
-  cursor: pointer;
-
-  &:hover {
-    filter: brightness(120%);
   }
 }

@@ -94,7 +94,7 @@ div.mat-tooltip {
   background-position: center;
   background-size: cover;
   border-radius: 0px;
-  box-shadow: 3px 3px 5px black;
+  box-shadow: 2px 2px 3px black;
   font-family: 'Oswald', sans-serif;
   font-size: 14px;
   padding: 6px 12px;
@@ -110,7 +110,7 @@ input.mat-chip-input {
 mat-chip.mat-chip.mat-standard-chip {
   background-color: rgba(0, 0, 0, 0.25);
   border-radius: 0px;
-  box-shadow: 3px 3px 5px black;
+  box-shadow: 2px 2px 3px black;
   color: white;
 
   &:focus::after,

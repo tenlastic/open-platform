@@ -13,7 +13,7 @@
   "scripts": {
     "build": "ng build http --prod",
     "lint": "ng lint http",
-    "prepublishOnly": "../../scripts/build.sh",
+    "prepublishOnly": "ng build http --prod",
     "test": "ng test --code-coverage --watch false http",
     "test:watch": "ng test http"
   },
