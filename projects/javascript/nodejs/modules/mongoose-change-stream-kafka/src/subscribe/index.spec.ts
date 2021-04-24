@@ -42,16 +42,19 @@ describe('subscribe()', function() {
 
       subscribe(Model, { group: chance.hash(), topic });
 
-      await publish(payload);
-
       // Wait for message to be published.
-      await new Promise<void>(async resolve => {
-        const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
-        await consumer.connect();
+      await Promise.all([
+        publish(payload),
+        await new Promise<void>(async resolve => {
+          const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
+          await consumer.connect();
 
-        await consumer.subscribe({ fromBeginning: true, topic });
-        await consumer.run({ eachMessage: async () => resolve() });
-      });
+          await consumer.subscribe({ fromBeginning: true, topic });
+          await consumer.run({ eachMessage: async () => resolve() });
+        }),
+      ]);
+
+      // Wait for write to MongoDB.
       await new Promise(resolve => setTimeout(resolve, 200));
 
       const result = await Model.findOne({ _id: record._id });
@@ -78,16 +81,19 @@ describe('subscribe()', function() {
 
       subscribe(Model as any, { group: chance.hash(), topic });
 
-      await publish(payload);
-
       // Wait for message to be published.
-      await new Promise<void>(async resolve => {
-        const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
-        await consumer.connect();
+      await Promise.all([
+        publish(payload),
+        await new Promise<void>(async resolve => {
+          const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
+          await consumer.connect();
 
-        await consumer.subscribe({ fromBeginning: true, topic });
-        await consumer.run({ eachMessage: async () => resolve() });
-      });
+          await consumer.subscribe({ fromBeginning: true, topic });
+          await consumer.run({ eachMessage: async () => resolve() });
+        }),
+      ]);
+
+      // Wait for write to MongoDB.
       await new Promise(resolve => setTimeout(resolve, 200));
 
       const result = (await Model.findOne({ _id: payload.fullDocument._id })) as any;
@@ -122,16 +128,19 @@ describe('subscribe()', function() {
 
         subscribe(Model as any, { group: chance.hash(), topic, useUpdateDescription: true });
 
-        await publish(payload);
-
         // Wait for message to be published.
-        await new Promise<void>(async resolve => {
-          const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
-          await consumer.connect();
+        await Promise.all([
+          publish(payload),
+          await new Promise<void>(async resolve => {
+            const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
+            await consumer.connect();
 
-          await consumer.subscribe({ fromBeginning: true, topic });
-          await consumer.run({ eachMessage: async () => resolve() });
-        });
+            await consumer.subscribe({ fromBeginning: true, topic });
+            await consumer.run({ eachMessage: async () => resolve() });
+          }),
+        ]);
+
+        // Wait for write to MongoDB.
         await new Promise(resolve => setTimeout(resolve, 200));
 
         const result: any = await Model.findOne({ _id: record._id });
@@ -164,16 +173,19 @@ describe('subscribe()', function() {
 
         subscribe(Model as any, { group: chance.hash(), topic });
 
-        await publish(payload);
-
         // Wait for message to be published.
-        await new Promise<void>(async resolve => {
-          const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
-          await consumer.connect();
+        await Promise.all([
+          publish(payload),
+          await new Promise<void>(async resolve => {
+            const consumer = connection.consumer({ groupId: `${chance.hash()}-${topic}` });
+            await consumer.connect();
 
-          await consumer.subscribe({ fromBeginning: true, topic });
-          await consumer.run({ eachMessage: async () => resolve() });
-        });
+            await consumer.subscribe({ fromBeginning: true, topic });
+            await consumer.run({ eachMessage: async () => resolve() });
+          }),
+        ]);
+
+        // Wait for write to MongoDB.
         await new Promise(resolve => setTimeout(resolve, 200));
 
         const result: any = await Model.findOne({ _id: record._id });
