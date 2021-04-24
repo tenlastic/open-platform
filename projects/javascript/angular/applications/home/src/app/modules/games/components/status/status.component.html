@@ -4,7 +4,7 @@
               color="primary"
               [disabled]="isButtonDisabled"
               (OnClick)="click()">
-    <mat-icon *ngIf="status.state === UpdateServiceState.Ready">play_arrow</mat-icon>
+    <mat-icon *ngIf="buttonIcon">{{ buttonIcon }}</mat-icon>
     <span class="text">{{ buttonText }}</span>
   </app-button>
 
@@ -12,7 +12,7 @@
     <app-button color="accent"
                 [routerLink]="['/', 'games', game._id, 'game-servers']"
                 routerLinkActive="active">
-      <mat-icon>language</mat-icon>
+      <mat-icon>public</mat-icon>
       <span class="text">Game Servers</span>
     </app-button>
 

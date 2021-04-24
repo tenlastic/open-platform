@@ -21,6 +21,19 @@ import { FilesizePipe } from '../../../../shared/pipes';
 export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   @Input() public game: Game;
 
+  public get buttonIcon() {
+    switch (this.status.state) {
+      case UpdateServiceState.NotInstalled:
+      case UpdateServiceState.NotUpdated:
+        return 'file_download';
+
+      case UpdateServiceState.Ready:
+        return this.status.childProcess ? 'stop' : 'play_arrow';
+
+      default:
+        return null;
+    }
+  }
   public get buttonText() {
     switch (this.status.state) {
       case UpdateServiceState.Checking:

@@ -76,7 +76,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private gameService: GameService,
     private gameStore: GameStore,
     private identityService: IdentityService,
-    private router: Router,
+    public router: Router,
     private updateService: UpdateService,
   ) {}
 
