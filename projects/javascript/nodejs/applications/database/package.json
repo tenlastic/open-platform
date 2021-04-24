@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/database",
   "private": true,
-  "version": "0.0.157",
+  "version": "0.0.158",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -14,11 +14,11 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/kafka": "0.0.157",
-    "@tenlastic/mongoose-change-stream-kafka": "0.0.157",
-    "@tenlastic/mongoose-models": "0.0.157",
-    "@tenlastic/web-server": "0.0.157",
-    "@tenlastic/web-socket-server": "0.0.157",
+    "@tenlastic/kafka": "0.0.158",
+    "@tenlastic/mongoose-change-stream-kafka": "0.0.158",
+    "@tenlastic/mongoose-models": "0.0.158",
+    "@tenlastic/web-server": "0.0.158",
+    "@tenlastic/web-socket-server": "0.0.158",
     "@typegoose/typegoose": "6.4.0",
     "koa-router": "7.4.0",
     "mongoose": "5.9.2",
