@@ -73,9 +73,9 @@ spec:
             template: terraform
             when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
 
-        # - - name: publish-npm-modules
-        #     template: publish-npm-modules
-        #     when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
+        - - name: publish-npm-modules
+            template: publish-npm-modules
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
 
         - - name: get-docker-images
             template: get-docker-images
