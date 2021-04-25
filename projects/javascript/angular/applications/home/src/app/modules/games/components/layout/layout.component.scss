@@ -10,7 +10,7 @@ app-header-toolbar::ng-deep {
   app-button a.mat-button span.mat-button-wrapper {
     align-items: center;
     display: flex;
-    height: 27px;
+    height: 21px;
 
     & > div {
       vertical-align: inherit;
@@ -37,7 +37,7 @@ app-header-toolbar::ng-deep {
   }
 }
 
-app-sidenav {
+app-social {
   div.content {
     display: flex;
     flex-direction: column;

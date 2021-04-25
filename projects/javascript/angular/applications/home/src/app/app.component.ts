@@ -38,13 +38,7 @@ import {
 } from '@tenlastic/ng-http';
 
 import { environment } from '../environments/environment';
-import {
-  BackgroundService,
-  ElectronService,
-  IdentityService,
-  Socket,
-  SocketService,
-} from './core/services';
+import { ElectronService, IdentityService, Socket, SocketService } from './core/services';
 import { TITLE } from './shared/constants';
 
 @Component({
@@ -56,7 +50,6 @@ export class AppComponent implements OnInit {
 
   constructor(
     private articleQuery: ArticleQuery,
-    public backgroundService: BackgroundService,
     private buildQuery: BuildQuery,
     private buildService: BuildService,
     private databaseService: DatabaseService,

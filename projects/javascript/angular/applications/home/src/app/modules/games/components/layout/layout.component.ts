@@ -11,13 +11,11 @@ import {
   GameInvitationService,
   GameQuery,
   GameService,
-  GameStore,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import {
-  BackgroundService,
   ElectronService,
   IdentityService,
   UpdateService,
@@ -58,23 +56,19 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public message: string;
   public showSidenav = false;
 
-  private selectActiveGame$ = new Subscription();
   private setBackground$ = new Subscription();
   private updateArticles$ = new Subscription();
-  private updateGames$ = new Subscription();
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private articleQuery: ArticleQuery,
     private articleService: ArticleService,
-    private backgroundService: BackgroundService,
     private changeDetectorRef: ChangeDetectorRef,
     public electronService: ElectronService,
     private gameInvitationQuery: GameInvitationQuery,
     private gameInvitationService: GameInvitationService,
-    private gameQuery: GameQuery,
     private gameService: GameService,
-    private gameStore: GameStore,
+    private gameQuery: GameQuery,
     private identityService: IdentityService,
     public router: Router,
     private updateService: UpdateService,
@@ -84,8 +78,10 @@ export class LayoutComponent implements OnDestroy, OnInit {
     this.$gameInvitations = this.gameInvitationQuery.selectAll({
       filterBy: gi => gi.userId === this.identityService.user._id,
     });
+    this.$games = this.gameQuery.selectAll();
 
-    this.setBackground$ = this.backgroundService.subject.subscribe(value => {
+    this.setBackground$ = this.$activeGame.subscribe(activeGame => {
+      const value = activeGame.background || '/assets/images/background.jpg';
       this.document.body.style.backgroundImage = `url('${value}')`;
     });
     this.updateArticles$ = this.$activeGame.subscribe(game => {
@@ -101,12 +97,11 @@ export class LayoutComponent implements OnDestroy, OnInit {
       });
       return this.fetchArticles(game._id);
     });
-    this.updateGames$ = this.$gameInvitations.subscribe(gi => {
-      const gameIds = gi.map(g => g.gameId);
-      return this.fetchGames(gameIds);
-    });
 
-    await this.gameInvitationService.find({ where: { userId: this.identityService.user._id } });
+    await Promise.all([
+      this.gameInvitationService.find({ where: { userId: this.identityService.user._id } }),
+      this.gameService.find({}),
+    ]);
 
     if (!this.electronService.isElectron) {
       return;
@@ -127,10 +122,10 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
 
   public ngOnDestroy() {
-    this.selectActiveGame$.unsubscribe();
     this.setBackground$.unsubscribe();
     this.updateArticles$.unsubscribe();
-    this.updateGames$.unsubscribe();
+
+    this.document.body.style.backgroundImage = `url('/assets/images/background.jpg')`;
   }
 
   public getProgress(game: Game) {
@@ -176,32 +171,5 @@ export class LayoutComponent implements OnDestroy, OnInit {
     ];
 
     return Promise.all(promises);
-  }
-
-  private async fetchGames(gameIds: string[]) {
-    if (gameIds.length === 0) {
-      this.router.navigate(['/']);
-      return;
-    }
-
-    this.$games = this.gameQuery.selectAll({ filterBy: g => gameIds.includes(g._id) });
-
-    this.selectActiveGame$.unsubscribe();
-    this.selectActiveGame$ = this.$games.subscribe(async games => {
-      const activeGame = this.gameQuery.getActive() as Game;
-      if (games.length === 0 || (activeGame && gameIds.includes(activeGame._id))) {
-        return;
-      }
-
-      const previousGameId = localStorage.getItem('previousGameId');
-      const game = previousGameId
-        ? games.find(g => g._id === previousGameId) || games[0]
-        : games[0];
-
-      this.gameStore.setActive(game._id);
-      this.router.navigate(['/games', game._id]);
-    });
-
-    return this.gameService.find({ where: { _id: { $in: gameIds } } });
   }
 }

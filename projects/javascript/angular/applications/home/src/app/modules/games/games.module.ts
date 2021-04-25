@@ -3,8 +3,10 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../shared/shared.module';
 import { ArticleComponent, LayoutComponent, StatusComponent } from './components';
+import { GameGuard, StatusGuard } from './guards';
 import {
   GameServersPageComponent,
+  GamesListPageComponent,
   InformationPageComponent,
   NewsPageComponent,
   PatchNotesPageComponent,
@@ -15,28 +17,33 @@ export const ROUTES: Routes = [
   {
     children: [
       {
-        component: InformationPageComponent,
+        component: GamesListPageComponent,
         path: '',
         pathMatch: 'full',
       },
       {
+        canActivate: [GameGuard],
         component: InformationPageComponent,
         path: ':_id',
         pathMatch: 'full',
       },
       {
+        canActivate: [GameGuard, StatusGuard],
         component: GameServersPageComponent,
         path: ':_id/game-servers',
       },
       {
+        canActivate: [GameGuard],
         component: NewsPageComponent,
         path: ':_id/news',
       },
       {
+        canActivate: [GameGuard],
         component: PatchNotesPageComponent,
         path: ':_id/patch-notes',
       },
       {
+        canActivate: [GameGuard, StatusGuard],
         component: QueuesPageComponent,
         path: ':_id/queues',
       },
@@ -50,6 +57,7 @@ export const ROUTES: Routes = [
   declarations: [
     ArticleComponent,
     GameServersPageComponent,
+    GamesListPageComponent,
     InformationPageComponent,
     LayoutComponent,
     NewsPageComponent,

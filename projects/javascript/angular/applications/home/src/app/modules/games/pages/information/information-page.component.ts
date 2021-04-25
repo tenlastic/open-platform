@@ -1,8 +1,8 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Article, ArticleService, Game, GameService, GameStore } from '@tenlastic/ng-http';
+import { ActivatedRoute } from '@angular/router';
+import { Article, ArticleService, Game, GameService } from '@tenlastic/ng-http';
 
-import { BackgroundService, IdentityService } from '../../../../core/services';
+import { IdentityService } from '../../../../core/services';
 
 @Component({
   styleUrls: ['./information-page.component.scss'],
@@ -23,63 +23,31 @@ export class InformationPageComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private articleService: ArticleService,
-    private backgroundService: BackgroundService,
     public identityService: IdentityService,
     private gameService: GameService,
-    private gameStore: GameStore,
-    private router: Router,
   ) {}
 
-  public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
-      this.loadingMessage = 'Loading Game...';
+  public async ngOnInit() {
+    this.loadingMessage = 'Loading Game information...';
 
-      const _id = params.get('_id');
-      if (!_id) {
-        const previousGameId = localStorage.getItem('previousGameId');
-        if (previousGameId) {
-          this.router.navigate([previousGameId], { relativeTo: this.activatedRoute });
-        }
+    const _id = this.activatedRoute.snapshot.paramMap.get('_id');
+    this.game = await this.gameService.findOne(_id);
 
-        return;
-      }
+    if (this.game.videos.length > 0) {
+      this.selectMedia(0, 'video', true);
+    } else {
+      this.selectMedia(0, 'image', true);
+    }
 
-      this.game = await this.gameService.findOne(_id);
-      this.gameStore.setActive(this.game._id);
-
-      if (this.game.videos.length > 0) {
-        this.selectMedia(0, 'video', true);
-      } else {
-        this.selectMedia(0, 'image', true);
-      }
-
-      this.articles = await this.articleService.find({
-        sort: '-publishedAt',
-        where: {
-          namespaceId: this.game.namespaceId,
-          publishedAt: { $exists: true, $ne: null },
-        },
-      });
-
-      this.backgroundService.subject.next(this.game.background || '/assets/images/background.jpg');
-
-      localStorage.setItem('previousGameId', _id);
-
-      this.loadingMessage = null;
+    this.articles = await this.articleService.find({
+      sort: '-publishedAt',
+      where: {
+        namespaceId: this.game.namespaceId,
+        publishedAt: { $exists: true, $ne: null },
+      },
     });
-  }
 
-  public nextMedia(value: number, type: 'image' | 'video' = 'image') {
-    let index = this.game.images.indexOf(this.mainMedia.src) + value;
-
-    if (index < 0) {
-      index = this.game.images.length - 1;
-    }
-    if (index >= this.game.images.length) {
-      index = 0;
-    }
-
-    this.selectMedia(index);
+    this.loadingMessage = null;
   }
 
   public async selectMedia(index: number, type: 'image' | 'video' = 'image', muted = false) {

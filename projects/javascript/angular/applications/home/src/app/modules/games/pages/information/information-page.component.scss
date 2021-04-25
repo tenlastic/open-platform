@@ -30,16 +30,17 @@ div.main-media {
 
 div.row {
   div.col-sm-5,
-  div.col-sm-7 {
+  div.col-sm-7,
+  div.col-sm-12 {
     padding: 0px 16px;
   }
 
   div.col-sm-5 {
-    padding-right: 8px;
+    padding-left: 8px;
   }
 
   div.col-sm-7 {
-    padding-left: 8px;
+    padding-right: 8px;
   }
 }
 

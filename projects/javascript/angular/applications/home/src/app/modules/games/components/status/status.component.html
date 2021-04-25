@@ -1,7 +1,6 @@
 <div *ngIf="!statusText"
      class="action">
-  <app-button *ngIf="isButtonVisible"
-              color="primary"
+  <app-button color="primary"
               [disabled]="isButtonDisabled"
               (OnClick)="click()">
     <mat-icon *ngIf="buttonIcon">{{ buttonIcon }}</mat-icon>

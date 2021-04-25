@@ -464,6 +464,7 @@ table.mat-table {
 
   td.mat-cell {
     color: white;
+    min-height: 54px;
     padding: 8px;
 
     &:first-of-type {

@@ -1,21 +1,63 @@
-<app-header-toolbar *ngIf="$activeGame | async as activeGame">
+<app-header-toolbar>
   <img src="/assets/images/logo.png" />
 
-  <app-button color="accent"
+  <app-button *ngIf="($games | async)?.length > 1"
+              color="accent"
+              routerLinkActive="active"
+              text="left"
               [routerLink]="['/', 'games']"
-              text="left">
+              [routerLinkActiveOptions]="{ exact: true }">
     <mat-icon>sports_esports</mat-icon>
 
-    <div>
+    <div *ngIf="$activeGame | async as activeGame; else selectAGame">
       {{ activeGame.title }}
 
       <div *ngIf="activeGame.subtitle">
         {{ activeGame.subtitle }}
       </div>
     </div>
+    <ng-template #selectAGame>
+      <span>Select a Game</span>
+    </ng-template>
 
     <mat-icon>keyboard_arrow_down</mat-icon>
   </app-button>
+  <app-button *ngIf="($games | async)?.length <= 1"
+              color="accent"
+              text="left">
+    <mat-icon>sports_esports</mat-icon>
+
+    <div *ngIf="$activeGame | async as activeGame">
+      {{ activeGame.title }}
+
+      <div *ngIf="activeGame.subtitle">{{ activeGame.subtitle }}</div>
+    </div>
+  </app-button>
+
+  <ng-container *ngIf="$activeGame | async as activeGame">
+    <app-button color="accent"
+                [ngClass]="{ active: router.url === '/games/' + activeGame._id }"
+                [routerLink]="['/', 'games', activeGame._id]">
+      <mat-icon fontSet="material-icons-outlined">info</mat-icon>
+      <span>Information</span>
+    </app-button>
+
+    <app-button *ngIf="($news | async).length"
+                color="accent"
+                routerLinkActive="active"
+                [routerLink]="['/', 'games', activeGame._id, 'news']">
+      <mat-icon fontSet="material-icons-outlined">campaign</mat-icon>
+      <span>News</span>
+    </app-button>
+
+    <app-button *ngIf="($patchNotes | async).length"
+                color="accent"
+                routerLinkActive="active"
+                [routerLink]="['/', 'games', activeGame._id, 'patch-notes']">
+      <mat-icon>healing</mat-icon>
+      <span>Patch Notes</span>
+    </app-button>
+  </ng-container>
 
   <span class="space"></span>
 
@@ -26,50 +68,12 @@
   </app-button>
 </app-header-toolbar>
 
-<div *ngIf="$activeGame | async as activeGame"
-     class="content">
+<div class="content">
   <app-social>
-    <app-sidenav>
-      <div class="nav">
-        <app-button color="accent"
-                    layout="vertical"
-                    text="left"
-                    width="full"
-                    [ngClass]="{ active: router.url === '/games/' + activeGame._id }"
-                    [routerLink]="['/', 'games', activeGame._id]">
-          <mat-icon fontSet="material-icons-outlined">info</mat-icon>
-          <span>Information</span>
-        </app-button>
-
-        <app-button *ngIf="($news | async).length"
-                    color="accent"
-                    layout="vertical"
-                    routerLinkActive="active"
-                    text="left"
-                    width="full"
-                    [routerLink]="['/', 'games', activeGame._id, 'news']">
-          <mat-icon fontSet="material-icons-outlined">campaign</mat-icon>
-          <span>News</span>
-        </app-button>
-
-        <app-button *ngIf="($patchNotes | async).length"
-                    color="accent"
-                    layout="vertical"
-                    routerLinkActive="active"
-                    text="left"
-                    width="full"
-                    [routerLink]="['/', 'games', activeGame._id, 'patch-notes']">
-          <mat-icon>healing</mat-icon>
-          <span>Patch Notes</span>
-        </app-button>
-      </div>
-
-      <div *ngIf="$activeGame | async as activeGame"
-           class="content">
-        <router-outlet></router-outlet>
-        <app-status *ngIf="$showStatusComponent | async as game"
-                    [game]="game"></app-status>
-      </div>
-    </app-sidenav>
+    <div class="content">
+      <router-outlet></router-outlet>
+      <app-status *ngIf="$showStatusComponent | async as game"
+                  [game]="game"></app-status>
+    </div>
   </app-social>
 </div>
