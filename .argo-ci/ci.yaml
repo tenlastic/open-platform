@@ -138,6 +138,7 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [bash]
         args: [./.argo-ci/bootstrap.sh]
+        imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
@@ -156,6 +157,7 @@ spec:
             value: "{{inputs.parameters.context}}"
           - name: SCOPE
             value: "@tenlastic/{{inputs.parameters.image}}"
+        imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
@@ -187,6 +189,7 @@ spec:
           cd /workspace/open-platform/
           git fetch --all
           git reset --hard {{inputs.parameters.revision}}
+        imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: cd-ssh-keys
             mountPath: /tmp/secrets/cd-ssh-keys/
@@ -209,6 +212,7 @@ spec:
         envFrom:
           - secretRef:
               name: ci-environment-variables
+        imagePullPolicy: IfNotPresent
         resources:
           requests:
             memory: 4096M
@@ -229,6 +233,7 @@ spec:
         envFrom:
           - secretRef:
               name: ci-environment-variables
+        imagePullPolicy: IfNotPresent
         resources:
           requests:
             memory: 4096M
@@ -271,6 +276,7 @@ spec:
         image: alpine/git:latest
         command: [sh]
         source: git branch --contains {{inputs.parameters.revision}} --remotes | tail +2 | cut -c 3-
+        imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
@@ -292,6 +298,7 @@ spec:
           # Explicitly use local Lerna version to avoid "info cli using local version of lerna" message.
           ./node_modules/.bin/lerna list --all --ignore @tenlastic/ng-* --json --loglevel error --scope @tenlastic/* | \
             json -0 -c 'this.private === true' -e 'this.name = this.name.replace("@tenlastic/","")'
+        imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
@@ -308,6 +315,7 @@ spec:
         envFrom:
           - secretRef:
               name: cd-environment-variables
+        imagePullPolicy: IfNotPresent
         resources:
           requests:
             memory: 4096M
@@ -332,6 +340,7 @@ spec:
           - --destination=docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:latest
           - --destination=docker-registry.tenlastic.com/{{inputs.parameters.image}}:{{inputs.parameters.tag}}
           - --destination=docker-registry.tenlastic.com/{{inputs.parameters.image}}:latest
+        imagePullPolicy: IfNotPresent
         resources:
           requests:
             memory: 500M
@@ -366,6 +375,7 @@ spec:
         envFrom:
           - secretRef:
               name: cd-environment-variables
+        imagePullPolicy: IfNotPresent
         resources:
           requests:
             memory: 4096M
@@ -386,6 +396,7 @@ spec:
         envFrom:
           - secretRef:
               name: cd-environment-variables
+        imagePullPolicy: IfNotPresent
         resources:
           requests:
             memory: 4096M
@@ -410,6 +421,7 @@ spec:
             *\[skip\ ci\]*) echo "true" ;;
             *) echo "false";; 
           esac
+        imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
@@ -426,6 +438,7 @@ spec:
         envFrom:
           - secretRef:
               name: cd-environment-variables
+        imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
