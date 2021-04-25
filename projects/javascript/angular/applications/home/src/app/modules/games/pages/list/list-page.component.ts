@@ -49,17 +49,12 @@ export class GamesListPageComponent implements OnDestroy, OnInit {
 
   public select(record: Game) {
     this.gameStore.setActive(record._id);
+    this.router.navigate(['games', record._id]);
   }
 
   private async fetchGames() {
     this.$games = this.gameQuery.selectAll();
-
-    const games = await this.gameService.find({ sort: 'name' });
-    if (games.length === 1) {
-      const game = games[0];
-      this.gameStore.setActive(game._id);
-      this.router.navigate([game._id]);
-    }
+    await this.gameService.find({ sort: 'name' });
 
     this.updateDataSource$ = this.$games.subscribe(games => (this.dataSource.data = games));
 

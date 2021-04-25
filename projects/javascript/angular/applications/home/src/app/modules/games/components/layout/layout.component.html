@@ -36,8 +36,9 @@
 
   <ng-container *ngIf="$activeGame | async as activeGame">
     <app-button color="accent"
-                [ngClass]="{ active: router.url === '/games/' + activeGame._id }"
-                [routerLink]="['/', 'games', activeGame._id]">
+                routerLinkActive="active"
+                [routerLink]="['/', 'games', activeGame._id]"
+                [routerLinkActiveOptions]="{ exact: true }">
       <mat-icon fontSet="material-icons-outlined">info</mat-icon>
       <span>Information</span>
     </app-button>

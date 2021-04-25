@@ -9,7 +9,6 @@ const chance = new Chance();
 const context = describe;
 
 describe('CollectionFormService', () => {
-  let injector: TestBed;
   let service: CollectionFormService;
 
   beforeEach(() => {
@@ -18,8 +17,7 @@ describe('CollectionFormService', () => {
       providers: [ApiService, CollectionFormService],
     });
 
-    injector = getTestBed();
-    service = injector.get(CollectionFormService);
+    service = TestBed.inject(CollectionFormService);
   });
 
   describe('getDefaultCriterionFormGroup()', () => {
