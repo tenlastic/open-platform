@@ -34,6 +34,6 @@ spec:
       readonly: true
       url: https://github.com/tenlastic/open-platform
     manifestGeneration: true
-    replicaCount: 3
+    replicaCount: 1
     syncGarbageCollection:
       enabled: true
