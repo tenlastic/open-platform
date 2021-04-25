@@ -85,6 +85,17 @@ spec:
               parameters:
                 - name: context
                   value: "{{item.location}}"
+                - name: image
+                  value: "{{item.name}}"
+            name: build-docker-images
+            template: build-docker-image
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
+            withParam: "{{steps.get-docker-images.outputs.result}}"
+
+        - - arguments:
+              parameters:
+                - name: context
+                  value: "{{item.location}}"
                 - name: dockerfile
                   value: ../../Dockerfile
                 - name: image
@@ -128,8 +139,24 @@ spec:
         args: [./.argo-ci/bootstrap.sh]
         volumeMounts:
           - name: workspace
-            mountPath: /usr/src/
-        workingDir: /usr/src/app/
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/
+      retryStrategy:
+        limit: 2
+        retryPolicy: OnError
+
+    - name: build-docker-image
+      container:
+        image: tenlastic/node-chrome-lerna:latest
+        command: [bash]
+        args: [./.argo-ci/build-docker-image.sh]
+        env:
+          - name: SCOPE
+            value: "@tenlastic/{{inputs.parameters.image}}"
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace/
+        workingDir: "{{inputs.parameters.context}}"
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -149,8 +176,8 @@ spec:
           git config --global gc.auto 0 || true
 
           # Clone repository and reset to specific revision.
-          git clone {{inputs.parameters.repo}} /usr/src/app/
-          cd /usr/src/app/
+          git clone {{inputs.parameters.repo}} /workspace/open-platform/
+          cd /workspace/open-platform/
           git fetch --all
           git reset --hard {{inputs.parameters.revision}}
         volumeMounts:
@@ -158,7 +185,7 @@ spec:
             mountPath: /tmp/secrets/cd-ssh-keys/
             readonly: true
           - name: workspace
-            mountPath: /usr/src/
+            mountPath: /workspace/
       inputs:
         parameters:
           - name: repo
@@ -181,8 +208,8 @@ spec:
             cpu: 500m
         volumeMounts:
           - name: workspace
-            mountPath: /usr/src/
-        workingDir: /usr/src/app/
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -201,8 +228,8 @@ spec:
             cpu: 500m
         volumeMounts:
           - name: workspace
-            mountPath: /usr/src/
-        workingDir: /usr/src/app/
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/
       sidecars:
         - name: docker-registry
           image: registry:latest
@@ -239,8 +266,8 @@ spec:
         source: git branch --contains {{inputs.parameters.revision}} --remotes | tail +2 | cut -c 3-
         volumeMounts:
           - name: workspace
-            mountPath: /usr/src/
-        workingDir: /usr/src/app/
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/
       inputs:
         parameters:
           - name: revision
@@ -260,8 +287,8 @@ spec:
             json -0 -c 'this.private === true' -e 'this.name = this.name.replace("@tenlastic/","")'
         volumeMounts:
           - name: workspace
-            mountPath: /usr/src/
-        workingDir: /usr/src/app/projects/javascript/
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/projects/javascript/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -280,8 +307,8 @@ spec:
             cpu: 500m
         volumeMounts:
           - name: workspace
-            mountPath: /usr/src/
-        workingDir: /usr/src/app/
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/
       retryStrategy:
         limit: 2
         retryPolicy: OnError
@@ -306,7 +333,7 @@ spec:
           - name: kaniko
             mountPath: /kaniko/.docker/
           - name: workspace
-            mountPath: /usr/src/
+            mountPath: /workspace/
       inputs:
         parameters:
           - name: context
@@ -338,8 +365,8 @@ spec:
             cpu: 500m
         volumeMounts:
           - name: workspace
-            mountPath: /usr/src/
-        workingDir: /usr/src/app/
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/
       retryStrategy:
         limit: 2
         retryPolicy: OnFailure
@@ -361,8 +388,8 @@ spec:
             mountPath: /tmp/secrets/cd-ssh-keys/
             readonly: true
           - name: workspace
-            mountPath: /usr/src/
-        workingDir: /usr/src/app/
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/
       retryStrategy:
         limit: 2
         retryPolicy: OnFailure
@@ -378,8 +405,8 @@ spec:
           esac
         volumeMounts:
           - name: workspace
-            mountPath: /usr/src/
-        workingDir: /usr/src/app/
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/
       retryStrategy:
         limit: 2
         retryPolicy: OnFailure
@@ -394,8 +421,8 @@ spec:
               name: cd-environment-variables
         volumeMounts:
           - name: workspace
-            mountPath: /usr/src/
-        workingDir: /usr/src/app/
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/
       retryStrategy:
         limit: 2
         retryPolicy: OnFailure
