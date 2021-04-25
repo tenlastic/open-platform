@@ -151,12 +151,14 @@ spec:
         command: [bash]
         args: [./.argo-ci/build-docker-image.sh]
         env:
+          - name: CONTEXT
+            value: "{{inputs.parameters.context}}"
           - name: SCOPE
             value: "@tenlastic/{{inputs.parameters.image}}"
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
-        workingDir: "{{inputs.parameters.context}}"
+        workingDir: /workspace/open-platform/
       inputs:
         parameters:
           - name: context
