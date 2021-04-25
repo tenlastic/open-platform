@@ -157,6 +157,10 @@ spec:
           - name: workspace
             mountPath: /workspace/
         workingDir: "{{inputs.parameters.context}}"
+      inputs:
+        parameters:
+          - name: context
+          - name: image
       retryStrategy:
         limit: 2
         retryPolicy: OnError
