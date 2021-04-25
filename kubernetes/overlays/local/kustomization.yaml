@@ -23,6 +23,7 @@ patchesStrategicMerge:
   - ./angular/home-ui.yaml
   - ./argo/argo.yaml
   - ./docker-registry/docker-registry-ui.yaml
+  - ./global/ssd-expandable.storageclass.yaml
   - ./global/standard-expandable.storageclass.yaml
   - ./kafka/kafdrop.yaml
   - ./kafka/kafka.yaml

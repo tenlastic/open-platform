@@ -36,7 +36,7 @@ spec:
       tag: 4.4.3
     persistence:
       size: 8Gi
-      storageClass: standard-expandable
+      storageClass: ssd-expandable
     podLabels:
       release: mongodb
     replicaCount: 3
