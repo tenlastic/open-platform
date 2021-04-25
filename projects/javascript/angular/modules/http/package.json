@@ -9,7 +9,7 @@
     "url": "ssh://git@github.com/tenlastic/open-platform.git"
   },
   "typings": "./dist/angular/module.d.ts",
-  "version": "0.0.160",
+  "version": "0.0.161",
   "scripts": {
     "build": "ng build http --prod",
     "lint": "ng lint http",
