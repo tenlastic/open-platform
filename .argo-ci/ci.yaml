@@ -33,7 +33,7 @@ spec:
         defaultMode: 0600
     - name: npm-cache
       nfs:
-        server: argo-nfs-server.default.svc.cluster.local
+        server: 10.4.2.120
         path: /npm-cache/
     - name: workspace
       nfs:
