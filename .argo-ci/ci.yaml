@@ -136,11 +136,11 @@ spec:
                   value: latest
             when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
             withItems:
-              - context: /workspace/dockerfiles/development-cli/
+              - context: /workspace/open-platform/dockerfiles/development-cli/
                 image: development-cli
-              - context: /workspace/dockerfiles/mongo-replica-set/
+              - context: /workspace/open-platform/dockerfiles/mongo-replica-set/
                 image: mongo-replica-set
-              - context: /workspace/dockerfiles/node-chrome-lerna/
+              - context: /workspace/open-platform/dockerfiles/node-chrome-lerna/
                 image: node-chrome-lerna
 
     - name: bootstrap
