@@ -31,10 +31,6 @@ spec:
       secret:
         secretName: cd-ssh-keys
         defaultMode: 0600
-    - name: npm-cache
-      nfs:
-        server: 10.4.2.120
-        path: /npm-cache/
     - name: workspace
       nfs:
         server: "{{steps.nfs-server.ip}}"
@@ -153,9 +149,6 @@ spec:
         command: [bash]
         args: [./.argo-ci/bootstrap.sh]
         imagePullPolicy: IfNotPresent
-        volumeMounts:
-          - name: npm-cache
-            mountPath: /workspace/open-platform/projects/javascript/npm-cache/
           - name: workspace
             mountPath: /workspace/
         workingDir: /workspace/open-platform/
