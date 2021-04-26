@@ -162,16 +162,19 @@ spec:
 
     - name: build-docker-image
       container:
-        - image: tenlastic/node-chrome-lerna:latest
-          command: [bash]
-          args: [./.argo-ci/build-docker-image.sh]
-          env:
-            - name: CONTEXT
-              value: "{{inputs.parameters.context}}"
-            - name: SCOPE
-              value: "@tenlastic/{{inputs.parameters.image}}"
-          imagePullPolicy: IfNotPresent
-          workingDir: /workspace/open-platform/
+        image: tenlastic/node-chrome-lerna:latest
+        command: [bash]
+        args: [./.argo-ci/build-docker-image.sh]
+        env:
+          - name: CONTEXT
+            value: "{{inputs.parameters.context}}"
+          - name: SCOPE
+            value: "@tenlastic/{{inputs.parameters.image}}"
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/
       inputs:
         parameters:
           - name: context
