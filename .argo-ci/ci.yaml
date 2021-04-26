@@ -31,11 +31,14 @@ spec:
       secret:
         secretName: cd-ssh-keys
         defaultMode: 0600
+    - name: npm-cache
+      nfs:
+        server: argo-nfs-server.default.svc.cluster.local
+        path: /npm-cache/
     - name: workspace
       nfs:
         server: "{{steps.nfs-server.ip}}"
-        path: "/"
-        readOnly: false
+        path: /
   templates:
     - name: pipeline
       inputs:
@@ -81,6 +84,48 @@ spec:
             template: migrations
             when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
 
+          - name: terraform
+            template: terraform
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
+
+        - - name: publish-npm-modules
+            template: publish-npm-modules
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
+
+        - - name: get-docker-images
+            template: get-docker-images
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
+
+        - - name: build-docker-images
+            template: build-docker-image
+            arguments:
+              parameters:
+                - name: context
+                  value: "{{item.location}}"
+                - name: image
+                  value: "{{item.name}}"
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
+            withParam: "{{steps.get-docker-images.outputs.result}}"
+
+        - - name: publish-docker-images
+            template: publish-docker-image
+            arguments:
+              parameters:
+                - name: context
+                  value: "{{item.location}}"
+                - name: dockerfile
+                  value: ../../Dockerfile
+                - name: image
+                  value: "{{item.name}}"
+                - name: tag
+                  value: "{{item.version}}"
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
+            withParam: "{{steps.get-docker-images.outputs.result}}"
+
+          - name: publish-electron-applications
+            template: publish-electron-applications
+            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
+
           - name: publish-miscellaneous-docker-images
             template: publish-docker-image
             arguments:
@@ -102,37 +147,6 @@ spec:
               - context: /workspace/dockerfiles/node-chrome-lerna/
                 image: node-chrome-lerna
 
-          - name: terraform
-            template: terraform
-            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
-
-        - - name: publish-npm-modules
-            template: publish-npm-modules
-            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
-
-        - - name: get-docker-images
-            template: get-docker-images
-            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
-
-        - - name: publish-docker-images
-            template: publish-docker-image
-            arguments:
-              parameters:
-                - name: context
-                  value: "{{item.location}}"
-                - name: dockerfile
-                  value: ../../Dockerfile
-                - name: image
-                  value: "{{item.name}}"
-                - name: tag
-                  value: "{{item.version}}"
-            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
-            withParam: "{{steps.get-docker-images.outputs.result}}"
-
-          - name: publish-electron-applications
-            template: publish-electron-applications
-            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
-
     - name: bootstrap
       container:
         image: tenlastic/node-chrome-lerna:latest
@@ -140,9 +154,28 @@ spec:
         args: [./.argo-ci/bootstrap.sh]
         imagePullPolicy: IfNotPresent
         volumeMounts:
+          - name: npm-cache
+            mountPath: /workspace/open-platform/projects/javascript/npm-cache/
           - name: workspace
             mountPath: /workspace/
         workingDir: /workspace/open-platform/
+
+    - name: build-docker-image
+      container:
+        - image: tenlastic/node-chrome-lerna:latest
+          command: [bash]
+          args: [./.argo-ci/build-docker-image.sh]
+          env:
+            - name: CONTEXT
+              value: "{{inputs.parameters.context}}"
+            - name: SCOPE
+              value: "@tenlastic/{{inputs.parameters.image}}"
+          imagePullPolicy: IfNotPresent
+          workingDir: /workspace/open-platform/
+      inputs:
+        parameters:
+          - name: context
+          - name: image
 
     - name: checkout
       script:
@@ -186,7 +219,7 @@ spec:
         imagePullPolicy: IfNotPresent
         resources:
           requests:
-            memory: 4096M
+            memory: 500M
             cpu: 500m
         volumeMounts:
           - name: workspace
@@ -204,7 +237,7 @@ spec:
         imagePullPolicy: IfNotPresent
         resources:
           requests:
-            memory: 4096M
+            memory: 500M
             cpu: 500m
         volumeMounts:
           - name: workspace
@@ -277,7 +310,7 @@ spec:
         imagePullPolicy: IfNotPresent
         resources:
           requests:
-            memory: 4096M
+            memory: 500M
             cpu: 500m
         volumeMounts:
           - name: workspace
@@ -319,18 +352,6 @@ spec:
             mountPath: /kaniko/.docker/
           - name: workspace
             mountPath: /workspace/
-      initContainers:
-        - image: tenlastic/node-chrome-lerna:latest
-          command: [bash]
-          args: [./.argo-ci/build-docker-image.sh]
-          env:
-            - name: CONTEXT
-              value: "{{inputs.parameters.context}}"
-            - name: SCOPE
-              value: "@tenlastic/{{inputs.parameters.image}}"
-          imagePullPolicy: IfNotPresent
-          mirrorVolumeMounts: true
-          workingDir: /workspace/open-platform/
       inputs:
         parameters:
           - name: context
@@ -356,7 +377,7 @@ spec:
         imagePullPolicy: IfNotPresent
         resources:
           requests:
-            memory: 4096M
+            memory: 500M
             cpu: 500m
         volumeMounts:
           - name: workspace
@@ -374,7 +395,7 @@ spec:
         imagePullPolicy: IfNotPresent
         resources:
           requests:
-            memory: 4096M
+            memory: 500M
             cpu: 500m
         volumeMounts:
           - name: cd-ssh-keys

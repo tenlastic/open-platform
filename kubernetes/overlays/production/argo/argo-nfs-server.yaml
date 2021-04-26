@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argo-nfs-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: argo-nfs-server
+  template:
+    metadata:
+      labels:
+        role: argo-nfs-server
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+      containers:
+        - name: nfs-server
+          image: itsthenetwork/nfs-server-alpine:12
+          env:
+            - name: SHARED_DIRECTORY
+              value: /nfsshare
+          ports:
+            - name: nfs
+              containerPort: 2049
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /nfsshare
+              name: argo-nfs-server
+      volumes:
+        - name: argo-nfs-server
+          persistentVolumeClaim:
+            claimName: argo-nfs-server
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: argo-nfs-server
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: balanced-expandable
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argo-nfs-server
+spec:
+  ports:
+    - name: nfs
+      port: 2049
+  selector:
+    role: argo-nfs-server
