@@ -6,11 +6,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      role: argo-nfs-server
+      app: argo-nfs-server
   template:
     metadata:
       labels:
-        role: argo-nfs-server
+        app: argo-nfs-server
     spec:
       affinity:
         nodeAffinity:
@@ -59,4 +59,4 @@ spec:
     - name: nfs
       port: 2049
   selector:
-    role: argo-nfs-server
+    app: argo-nfs-server
