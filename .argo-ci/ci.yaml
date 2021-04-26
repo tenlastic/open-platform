@@ -156,6 +156,7 @@ spec:
             readonly: true
           - name: workspace
             mountPath: /workspace/
+        workingDir: /workspace/
       inputs:
         parameters:
           - name: repo
