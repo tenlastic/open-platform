@@ -7,7 +7,7 @@ ENTRYPOINT ["/sbin/tini", "--"]
 # Set up NodeJS.
 WORKDIR /usr/src/app/
 COPY ./package*.json ./
-RUN npm ci
+RUN npm i --production
 COPY ./dist/ ./dist/
 
 EXPOSE 3000
