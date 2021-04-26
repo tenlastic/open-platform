@@ -195,7 +195,7 @@ export const KubernetesDatabase = {
           livenessProbe: { initialDelaySeconds: 120 },
           persistence: {
             size: `${database.storage}`,
-            storageClass: 'ssd-expandable',
+            storageClass: 'balanced-expandable',
           },
           podLabels: {
             'tenlastic.com/app': name,
@@ -261,7 +261,7 @@ export const KubernetesDatabase = {
           livenessProbe: { initialDelaySeconds: 120 },
           persistence: {
             size: `${database.storage}`,
-            storageClass: 'ssd-expandable',
+            storageClass: 'balanced-expandable',
           },
           podLabels: {
             'tenlastic.com/app': name,

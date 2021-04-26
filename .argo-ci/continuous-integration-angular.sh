@@ -4,7 +4,7 @@ set -e
 ROOT=$(pwd)
 cd "${ROOT}/projects/javascript/"
 
-# Lint, build, and test Angular applications.
+# Lint, test, and build Angular applications.
 lerna run lint --ci --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
-lerna run build --ci --concurrency 1 --include-dependencies --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
 lerna run test --ci --concurrency 1 --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since
+lerna run build --ci --concurrency 1 --include-dependencies --scope @tenlastic/*-ui --scope @tenlastic/ng-* --since

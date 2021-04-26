@@ -1,0 +1,10 @@
+allowVolumeExpansion: true
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: balanced-expandable
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-balanced
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer

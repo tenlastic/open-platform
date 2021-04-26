@@ -43,7 +43,7 @@ spec:
       tag: 2.7.0
     persistence:
       size: 8Gi
-      storageClass: ssd-expandable
+      storageClass: balanced-expandable
     podLabels:
       release: kafka
     replicaCount: 3

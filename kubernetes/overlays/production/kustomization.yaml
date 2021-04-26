@@ -14,6 +14,7 @@ patchesStrategicMerge:
 resources:
   - ./argo/argo-ci.sealedsecret.yaml
   - ./argo/argo-ci.yaml
+  - ./argo/argo.yaml
   - ./cert-manager/cert-manager-credentials.sealedsecret.yaml
   - ./cert-manager/cert-manager.yaml
   - ./cert-manager/letsencrypt-production.clusterissuer.yaml
