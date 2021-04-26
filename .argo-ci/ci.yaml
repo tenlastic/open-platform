@@ -149,6 +149,7 @@ spec:
         command: [bash]
         args: [./.argo-ci/bootstrap.sh]
         imagePullPolicy: IfNotPresent
+        volumeMounts:
           - name: workspace
             mountPath: /workspace/
         workingDir: /workspace/open-platform/
