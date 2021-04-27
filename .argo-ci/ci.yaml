@@ -287,7 +287,7 @@ spec:
           npm i -g json &> /dev/null
 
           # Explicitly use local Lerna version to avoid "info cli using local version of lerna" message.
-          ./node_modules/.bin/lerna list --all --ignore @tenlastic/ng-* --json --loglevel error --scope @tenlastic/* | \
+          ./node_modules/.bin/lerna list --all --json --loglevel silent 2> /dev/null || echo "[]" | \
             json -0 -c 'this.private === true' -e 'this.name = this.name.replace("@tenlastic/","")'
         imagePullPolicy: IfNotPresent
         volumeMounts:
