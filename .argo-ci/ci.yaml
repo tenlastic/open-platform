@@ -11,9 +11,6 @@ spec:
   entrypoint: pipeline
   podGC:
     strategy: OnWorkflowSuccess
-  retryStrategy:
-    limit: 2
-    retryPolicy: OnError
   serviceAccountName: argo-workflow
   ttlStrategy:
     secondsAfterSuccess: 86400
