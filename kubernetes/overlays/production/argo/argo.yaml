@@ -9,7 +9,7 @@ spec:
   chart:
     repository: https://argoproj.github.io/argo-helm
     name: argo
-    version: 0.15.2
+    version: 0.16.9
   values:
     controller:
       affinity:
