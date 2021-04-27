@@ -90,7 +90,6 @@ spec:
 
         - - name: get-docker-images
             template: get-docker-images
-            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
 
         - - name: build-docker-images
             template: build-docker-image
