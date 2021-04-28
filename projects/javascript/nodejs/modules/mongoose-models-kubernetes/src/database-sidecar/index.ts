@@ -1,10 +1,10 @@
 import * as k8s from '@kubernetes/client-node';
+import { deploymentApiV1, roleStackApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 import { DatabaseDocument, DatabaseEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
-import { deploymentApiV1, roleStackApiV1, secretApiV1 } from '../apis';
 import { KubernetesDatabase } from '../database';
 import { KubernetesNamespace } from '../namespace';
 

@@ -1,7 +1,6 @@
-import { mongoose, Ref } from '@typegoose/typegoose';
+import { helmReleaseApiV1, namespaceApiV1 } from '@tenlastic/kubernetes';
 import { NamespaceDocument, NamespaceEvent } from '@tenlastic/mongoose-models';
-
-import { helmReleaseApiV1, namespaceApiV1 } from '../apis';
+import { mongoose, Ref } from '@typegoose/typegoose';
 
 NamespaceEvent.sync(async payload => {
   if (payload.operationType === 'delete') {

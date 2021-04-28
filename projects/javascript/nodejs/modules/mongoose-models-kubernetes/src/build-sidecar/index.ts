@@ -1,10 +1,10 @@
 import * as k8s from '@kubernetes/client-node';
+import { deploymentApiV1, roleStackApiV1, secretApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
 import { BuildDocument, BuildEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
-import { deploymentApiV1, roleStackApiV1, secretApiV1, workflowApiV1 } from '../apis';
 import { KubernetesBuild } from '../build';
 import { KubernetesNamespace } from '../namespace';
 
@@ -137,16 +137,6 @@ export const KubernetesBuildSidecar = {
               envFrom: [{ secretRef: { name } }],
               image: 'node:12',
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
-              name: 'log-sidecar',
-              resources: { requests: { cpu: '50m', memory: '50M' } },
-              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/log-sidecar/',
-            },
-            {
-              command: ['npm', 'run', 'start'],
-              envFrom: [{ secretRef: { name } }],
-              image: 'node:12',
-              livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
               name: 'workflow-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
@@ -169,13 +159,6 @@ export const KubernetesBuildSidecar = {
         spec: {
           affinity,
           containers: [
-            {
-              envFrom: [{ secretRef: { name } }],
-              image: `tenlastic/log-sidecar:${version}`,
-              livenessProbe,
-              name: 'log-sidecar',
-              resources: { requests: { cpu: '50m', memory: '50M' } },
-            },
             {
               envFrom: [{ secretRef: { name } }],
               image: `tenlastic/workflow-sidecar:${version}`,

@@ -1,18 +1,18 @@
 import {
-  WorkflowDocument,
-  WorkflowEvent,
-  WorkflowSpecTemplate,
-  WorkflowSpecTemplateSchema,
-} from '@tenlastic/mongoose-models';
-
-import {
   networkPolicyApiV1,
   roleApiV1,
   roleBindingApiV1,
   roleStackApiV1,
   serviceAccountApiV1,
   workflowApiV1,
-} from '../apis';
+} from '@tenlastic/kubernetes';
+import {
+  WorkflowDocument,
+  WorkflowEvent,
+  WorkflowSpecTemplate,
+  WorkflowSpecTemplateSchema,
+} from '@tenlastic/mongoose-models';
+
 import { KubernetesNamespace } from '../namespace';
 
 WorkflowEvent.sync(async payload => {

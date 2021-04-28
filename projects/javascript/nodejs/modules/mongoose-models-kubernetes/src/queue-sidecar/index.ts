@@ -1,10 +1,10 @@
 import * as k8s from '@kubernetes/client-node';
+import { deploymentApiV1, roleStackApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 import { QueueDocument, QueueEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
-import { deploymentApiV1, roleStackApiV1, secretApiV1 } from '../apis';
 import { KubernetesNamespace } from '../namespace';
 import { KubernetesQueue } from '../queue';
 
@@ -145,16 +145,6 @@ export const KubernetesQueueSidecar = {
               envFrom: [{ secretRef: { name } }],
               image: 'node:12',
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
-              name: 'log-sidecar',
-              resources: { requests: { cpu: '50m', memory: '50M' } },
-              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/log-sidecar/',
-            },
-            {
-              command: ['npm', 'run', 'start'],
-              envFrom: [{ secretRef: { name } }],
-              image: 'node:12',
-              livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
               name: 'queue-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
@@ -180,13 +170,6 @@ export const KubernetesQueueSidecar = {
         spec: {
           affinity,
           containers: [
-            {
-              envFrom: [{ secretRef: { name } }],
-              image: `tenlastic/log-sidecar:${version}`,
-              livenessProbe,
-              name: 'log-sidecar',
-              resources: { requests: { cpu: '50m', memory: '50M' } },
-            },
             {
               envFrom: [{ secretRef: { name } }],
               image: `tenlastic/queue-sidecar:${version}`,

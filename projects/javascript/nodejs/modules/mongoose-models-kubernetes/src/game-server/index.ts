@@ -1,5 +1,12 @@
 import * as k8s from '@kubernetes/client-node';
 import {
+  deploymentApiV1,
+  networkPolicyApiV1,
+  podApiV1,
+  secretApiV1,
+  serviceApiV1,
+} from '@tenlastic/kubernetes';
+import {
   GameServer,
   GameServerDocument,
   GameServerEvent,
@@ -7,7 +14,6 @@ import {
 } from '@tenlastic/mongoose-models';
 import { URL } from 'url';
 
-import { deploymentApiV1, networkPolicyApiV1, podApiV1, secretApiV1, serviceApiV1 } from '../apis';
 import { KubernetesNamespace } from '../namespace';
 
 GameServerEvent.sync(async payload => {

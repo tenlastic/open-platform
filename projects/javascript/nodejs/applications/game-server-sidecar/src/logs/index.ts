@@ -1,7 +1,6 @@
 import * as k8s from '@kubernetes/client-node';
+import { podApiV1 } from '@tenlastic/kubernetes';
 import * as requestPromiseNative from 'request-promise-native';
-
-import { getPodLog } from '../get-pod-log';
 
 const accessToken = process.env.ACCESS_TOKEN;
 const container = process.env.LOG_CONTAINER;
@@ -52,10 +51,13 @@ async function getLogs(pod: k8s.V1Pod) {
 
     const mostRecentLog = await getMostRecentLogCreatedAt(annotations);
 
-    const emitter = getPodLog(podNamespace, pod.metadata.name, container, mostRecentLog);
-    emitter.on('data', data => {
-      return saveLogs({ nodeId: pod.metadata.name, ...annotations }, data);
-    });
+    const emitter = podApiV1.readNamespacedPodLog(
+      pod.metadata.name,
+      podNamespace,
+      container,
+      mostRecentLog,
+    );
+    emitter.on('data', data => saveLogs({ nodeId: pod.metadata.name, ...annotations }, data));
     emitter.on('error', e => {
       console.error(e);
 

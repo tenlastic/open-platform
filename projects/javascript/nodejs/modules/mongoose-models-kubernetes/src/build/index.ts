@@ -1,9 +1,3 @@
-import { BuildDocument, BuildEvent } from '@tenlastic/mongoose-models';
-import * as fs from 'fs';
-import * as jwt from 'jsonwebtoken';
-import * as path from 'path';
-import { URL } from 'url';
-
 import {
   roleApiV1,
   roleBindingApiV1,
@@ -11,7 +5,13 @@ import {
   secretApiV1,
   serviceAccountApiV1,
   workflowApiV1,
-} from '../apis';
+} from '@tenlastic/kubernetes';
+import { BuildDocument, BuildEvent } from '@tenlastic/mongoose-models';
+import * as fs from 'fs';
+import * as jwt from 'jsonwebtoken';
+import * as path from 'path';
+import { URL } from 'url';
+
 import { KubernetesNamespace } from '../namespace';
 
 BuildEvent.sync(async payload => {

@@ -1,7 +1,7 @@
 <mat-toolbar>
-  <ng-container *ngIf="identityService.user">
-    <span class="space"></span>
+  <span class="space"></span>
 
+  <ng-container *ngIf="identityService.user">
     <app-button color="accent"
                 routerLink="/"
                 routerLinkActive="active"

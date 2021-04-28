@@ -1,3 +1,4 @@
+import * as k8s from '@tenlastic/kubernetes';
 import { SinonSandbox } from 'sinon';
 
 import {
@@ -15,6 +16,8 @@ import {
 } from './';
 
 export function stub(sandbox: SinonSandbox) {
+  k8s.stub(sandbox);
+
   sandbox.stub(KubernetesBuild, 'delete').resolves();
   sandbox.stub(KubernetesBuild, 'upsert').resolves();
   sandbox.stub(KubernetesBuildSidecar, 'upsert').resolves();

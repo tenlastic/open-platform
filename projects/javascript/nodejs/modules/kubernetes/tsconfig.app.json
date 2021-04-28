@@ -7,8 +7,5 @@
     "rootDir": "./src"
   },
   "exclude": ["./src/**/*.spec.ts"],
-  "include": ["./src"],
-  "references": [
-    { "path": "../../modules/web-server/tsconfig.app.json" },
-  ]
+  "include": ["./src"]
 }

@@ -1,4 +1,10 @@
 import * as k8s from '@kubernetes/client-node';
+import {
+  helmReleaseApiV1,
+  networkPolicyApiV1,
+  secretApiV1,
+  statefulSetApiV1,
+} from '@tenlastic/kubernetes';
 import { Queue, QueueDocument, QueueEvent } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 import * as fs from 'fs';
@@ -6,7 +12,6 @@ import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 import { URL } from 'url';
 
-import { helmReleaseApiV1, networkPolicyApiV1, secretApiV1, statefulSetApiV1 } from '../apis';
 import { KubernetesNamespace } from '../namespace';
 
 const chance = new Chance();

@@ -1,10 +1,15 @@
 import * as k8s from '@kubernetes/client-node';
+import {
+  clusterRoleStackApiV1,
+  deploymentApiV1,
+  roleStackApiV1,
+  secretApiV1,
+} from '@tenlastic/kubernetes';
 import { GameServerDocument, GameServerEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
-import { clusterRoleStackApiV1, deploymentApiV1, roleStackApiV1, secretApiV1 } from '../apis';
 import { KubernetesGameServer } from '../game-server';
 import { KubernetesNamespace } from '../namespace';
 
@@ -170,16 +175,6 @@ export const KubernetesGameServerSidecar = {
               workingDir:
                 '/usr/src/app/projects/javascript/nodejs/applications/game-server-sidecar/',
             },
-            {
-              command: ['npm', 'run', 'start'],
-              envFrom: [{ secretRef: { name } }],
-              image: 'node:12',
-              livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
-              name: 'log-sidecar',
-              resources: { requests: { cpu: '50m', memory: '50M' } },
-              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/log-sidecar/',
-            },
           ],
           serviceAccountName: name,
           volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
@@ -205,13 +200,6 @@ export const KubernetesGameServerSidecar = {
               image: `tenlastic/game-server-sidecar:${version}`,
               livenessProbe,
               name: 'game-server-sidecar',
-              resources: { requests: { cpu: '50m', memory: '50M' } },
-            },
-            {
-              envFrom: [{ secretRef: { name } }],
-              image: `tenlastic/log-sidecar:${version}`,
-              livenessProbe,
-              name: 'log-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },
           ],

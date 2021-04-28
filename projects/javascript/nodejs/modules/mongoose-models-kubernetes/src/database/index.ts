@@ -1,11 +1,4 @@
 import * as k8s from '@kubernetes/client-node';
-import * as mongooseModels from '@tenlastic/mongoose-models';
-import { Database, DatabaseDocument, DatabaseEvent } from '@tenlastic/mongoose-models';
-import * as Chance from 'chance';
-import * as fs from 'fs';
-import { Connection } from 'mongoose';
-import * as path from 'path';
-
 import {
   helmReleaseApiV1,
   ingressApiV1,
@@ -14,7 +7,14 @@ import {
   secretApiV1,
   serviceApiV1,
   statefulSetApiV1,
-} from '../apis';
+} from '@tenlastic/kubernetes';
+import * as mongooseModels from '@tenlastic/mongoose-models';
+import { Database, DatabaseDocument, DatabaseEvent } from '@tenlastic/mongoose-models';
+import * as Chance from 'chance';
+import * as fs from 'fs';
+import { Connection } from 'mongoose';
+import * as path from 'path';
+
 import { KubernetesNamespace } from '../namespace';
 
 const chance = new Chance();
