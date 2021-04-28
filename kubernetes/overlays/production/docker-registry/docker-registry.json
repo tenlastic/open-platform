@@ -12,7 +12,7 @@
     "path": "/spec/template/spec/containers/0/env/-",
     "value": {
       "name": "REGISTRY_STORAGE_S3_REGIONENDPOINT",
-      "value": "http://minio.default:9000"
+      "value": "https://minio.tenlastic.com"
     }
   }
 ]
