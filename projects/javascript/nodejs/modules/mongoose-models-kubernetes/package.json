@@ -9,7 +9,7 @@
     "type": "git",
     "url": "ssh://git@github.com/tenlastic/open-platform.git"
   },
-  "version": "0.0.166",
+  "version": "0.0.167",
   "publishConfig": {
     "access": "public"
   },
@@ -21,8 +21,8 @@
   },
   "dependencies": {
     "@kubernetes/client-node": "0.14.0",
-    "@tenlastic/kubernetes": "0.0.166",
-    "@tenlastic/mongoose-models": "0.0.166",
+    "@tenlastic/kubernetes": "0.0.167",
+    "@tenlastic/mongoose-models": "0.0.167",
     "@typegoose/typegoose": "6.4.0",
     "deepmerge": "4.0.0",
     "jsonwebtoken": "8.5.1",
