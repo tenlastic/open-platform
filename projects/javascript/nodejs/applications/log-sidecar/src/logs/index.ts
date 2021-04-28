@@ -1,5 +1,4 @@
 import * as k8s from '@kubernetes/client-node';
-import { WebServer } from '@tenlastic/web-server';
 import * as requestPromiseNative from 'request-promise-native';
 
 import { getPodLog } from '../get-pod-log';
@@ -33,11 +32,6 @@ export async function logs() {
         process.exit(err ? 1 : 0);
       },
     );
-
-    // Web Server.
-    const webServer = new WebServer();
-    webServer.use(ctx => (ctx.status = 200));
-    webServer.start();
   } catch (e) {
     console.error(e);
     process.exit(1);
