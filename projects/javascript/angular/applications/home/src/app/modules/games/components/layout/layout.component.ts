@@ -32,7 +32,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public get $activeGame() {
     return this.gameQuery.selectActive() as Observable<Game>;
   }
-  public $games: Observable<Game[]>;
   public $gameInvitations: Observable<GameInvitation[]>;
   public $news: Observable<Article[]>;
   public $patchNotes: Observable<Article[]>;
@@ -44,11 +43,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
         }
 
         const status = this.updateService.getStatus(game._id);
-        if (!status) {
-          return null;
-        }
-
-        return game;
+        return status ? game : null;
       }),
     );
   }
@@ -78,7 +73,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
     this.$gameInvitations = this.gameInvitationQuery.selectAll({
       filterBy: gi => gi.userId === this.identityService.user._id,
     });
-    this.$games = this.gameQuery.selectAll();
 
     this.setBackground$ = this.$activeGame.subscribe(activeGame => {
       const value = activeGame.background || '/assets/images/background.jpg';
@@ -126,28 +120,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
     this.updateArticles$.unsubscribe();
 
     this.document.body.style.backgroundImage = `url('/assets/images/background.jpg')`;
-  }
-
-  public getProgress(game: Game) {
-    const status = this.updateService.getStatus(game._id);
-
-    if (!status.progress) {
-      return null;
-    }
-
-    switch (status.state) {
-      case UpdateServiceState.Checking:
-        return (status.progress.current / status.progress.total) * 100;
-
-      case UpdateServiceState.Downloading:
-        return (status.progress.current / status.progress.total) * 100;
-
-      case UpdateServiceState.Installing:
-        return (status.progress.current / status.progress.total) * 100;
-
-      default:
-        return null;
-    }
   }
 
   private fetchArticles(gameId: string) {

@@ -139,12 +139,7 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
 
   private interval: NodeJS.Timer;
 
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private changeDetectorRef: ChangeDetectorRef,
-    private router: Router,
-    private updateService: UpdateService,
-  ) {}
+  constructor(private changeDetectorRef: ChangeDetectorRef, private updateService: UpdateService) {}
 
   public ngOnInit() {
     if (this.updateService) {
@@ -179,8 +174,6 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
       this.updateService.stop(this.game._id);
     } else if (this.status.state === UpdateServiceState.Ready && !this.status.childProcess) {
       this.updateService.play(this.game._id);
-    } else {
-      this.updateService.update(this.game._id);
     }
   }
 }

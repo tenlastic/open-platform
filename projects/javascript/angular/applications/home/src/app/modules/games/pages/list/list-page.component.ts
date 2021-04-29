@@ -53,7 +53,7 @@ export class GamesListPageComponent implements OnDestroy, OnInit {
   }
 
   private async fetchGames() {
-    this.$games = this.gameQuery.selectAll();
+    this.$games = this.gameQuery.selectAll({ sortBy: 'title' });
     await this.gameService.find({ sort: 'name' });
 
     this.updateDataSource$ = this.$games.subscribe(games => (this.dataSource.data = games));

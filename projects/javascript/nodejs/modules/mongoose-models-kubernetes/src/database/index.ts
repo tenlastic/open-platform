@@ -2,6 +2,7 @@ import * as k8s from '@kubernetes/client-node';
 import {
   helmReleaseApiV1,
   ingressApiV1,
+  networkPolicyApiV1,
   persistentVolumeClaimApiV1,
   podApiV1,
   secretApiV1,
@@ -265,6 +266,49 @@ export const KubernetesDatabase = {
           replicaCount: database.replicas,
           resources,
         },
+      },
+    });
+
+    /**
+     * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    await networkPolicyApiV1.createOrReplace(namespace, {
+      metadata: { name },
+      spec: {
+        egress: [
+          {
+            to: [
+              {
+                // Allow traffic within Stateful Set.
+                podSelector: {
+                  matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
+                },
+              },
+              {
+                // Allow traffic to Kafka.
+                podSelector: {
+                  matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'kafka' },
+                },
+              },
+              {
+                // Allow traffic to MongoDB.
+                podSelector: {
+                  matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'mongodb' },
+                },
+              },
+              {
+                // Allow traffic to Zookeeper.
+                podSelector: {
+                  matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'zookeeper' },
+                },
+              },
+            ],
+          },
+        ],
+        podSelector: { matchLabels: { 'tenlastic.com/app': name } },
+        policyTypes: ['Egress'],
       },
     });
 

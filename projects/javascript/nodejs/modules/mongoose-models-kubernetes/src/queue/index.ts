@@ -110,7 +110,7 @@ export const KubernetesQueue = {
               {
                 // Allow traffic to Redis.
                 podSelector: {
-                  matchLabels: { 'tenlastic.com/app': name, release: `${name}-redis` },
+                  matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'redis' },
                 },
               },
             ],

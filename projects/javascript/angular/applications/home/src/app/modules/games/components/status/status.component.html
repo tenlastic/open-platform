@@ -18,7 +18,7 @@
     <app-button color="accent"
                 [routerLink]="['/', 'games', game._id, 'queues']"
                 routerLinkActive="active">
-      <mat-icon>schedule</mat-icon>
+      <mat-icon>hourglass_bottom</mat-icon>
       <span class="text">Queues</span>
     </app-button>
   </ng-container>
@@ -28,9 +28,7 @@
      class="status">
   <div>
     <span>{{ statusText }}</span>
-    <span *ngIf="progressText">
-      {{ progressText }}
-    </span>
+    <span *ngIf="progressText">{{ progressText }}</span>
   </div>
 
   <mat-progress-bar *ngIf="progress"

@@ -329,8 +329,6 @@ spec:
           - --destination=tenlastic/{{inputs.parameters.image}}:latest
           - --destination=docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:{{inputs.parameters.tag}}
           - --destination=docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:latest
-          - --destination=docker-registry.tenlastic.com/{{inputs.parameters.image}}:{{inputs.parameters.tag}}
-          - --destination=docker-registry.tenlastic.com/{{inputs.parameters.image}}:latest
         imagePullPolicy: IfNotPresent
         resources:
           requests:

@@ -13,7 +13,7 @@ import {
   UserService,
 } from '@tenlastic/ng-http';
 import { Observable, Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, map } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 
@@ -45,9 +45,11 @@ export class GameInvitationsFormPageComponent implements OnInit {
   ) {}
 
   public async ngOnInit() {
-    this.$games = this.gameQuery.selectAll({
-      filterBy: g => g.namespaceId === this.selectedNamespaceService.namespaceId,
-    });
+    this.$games = this.gameQuery
+      .selectAll({
+        filterBy: g => g.namespaceId === this.selectedNamespaceService.namespaceId,
+      })
+      .pipe(map(games => games.map(g => new Game(g))));
     this.gameService.find({ where: { namespaceId: this.selectedNamespaceService.namespaceId } });
 
     this.subject.pipe(debounceTime(300)).subscribe(this.findUsers.bind(this));

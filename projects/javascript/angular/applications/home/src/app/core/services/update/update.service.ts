@@ -19,6 +19,7 @@ export enum UpdateServiceState {
   Downloading,
   Installing,
   NotAvailable,
+  NotChecked,
   NotInstalled,
   NotInvited,
   NotUpdated,
@@ -80,13 +81,13 @@ export class UpdateService {
   ) {
     this.subscribeToServices();
 
-    this.loginService.onLogout.subscribe(() => this.clear());
+    this.loginService.onLogout.subscribe(() => this.status.clear());
   }
 
   public async checkForUpdates(gameId: string) {
     const status = this.getStatus(gameId);
     if (
-      status.state >= 0 &&
+      status.state !== UpdateServiceState.NotChecked &&
       status.state !== UpdateServiceState.NotInvited &&
       status.state !== UpdateServiceState.NotAvailable
     ) {
@@ -123,9 +124,9 @@ export class UpdateService {
     }
 
     // Find Files associated with latest Build.
+    status.build = builds[0];
     status.progress = null;
     status.text = 'Retrieving build files...';
-    status.build = builds[0];
     if (status.build.files.length === 0) {
       status.state = UpdateServiceState.NotAvailable;
       return;
@@ -168,9 +169,18 @@ export class UpdateService {
     if (updatedFiles.length > 0) {
       status.modifiedFiles = updatedFiles;
       status.progress = null;
-      status.state = UpdateServiceState.NotUpdated;
+      status.state = UpdateServiceState.Downloading;
+      status.text = 'Downloading and installing update...';
 
-      this.update(gameId);
+      try {
+        await this.download(status.build, gameId);
+      } catch (e) {
+        console.error(e);
+      }
+
+      // Make sure download is complete.
+      status.state = UpdateServiceState.NotChecked;
+      await this.checkForUpdates(gameId);
     } else {
       status.modifiedFiles = [];
       status.progress = null;
@@ -180,8 +190,7 @@ export class UpdateService {
 
   public getStatus(gameId: string) {
     if (!this.status.has(gameId)) {
-      this.status.set(gameId, {});
-      this.checkForUpdates(gameId);
+      this.status.set(gameId, { state: UpdateServiceState.NotChecked });
     }
 
     return this.status.get(gameId);
@@ -213,31 +222,6 @@ export class UpdateService {
     }
 
     status.childProcess.kill();
-  }
-
-  public async update(gameId: string) {
-    const status = this.getStatus(gameId);
-
-    status.progress = null;
-    status.state = UpdateServiceState.Downloading;
-    status.text = 'Downloading and installing update...';
-
-    try {
-      await this.download(status.build, gameId);
-    } catch (e) {
-      console.error(e);
-    }
-
-    // Make sure download is complete.
-    status.state = -1;
-    await this.checkForUpdates(gameId);
-    if (status.modifiedFiles.length > 0) {
-      this.update(gameId);
-    }
-  }
-
-  private clear() {
-    this.status = new Map();
   }
 
   private async deleteRemovedFiles(
@@ -339,15 +323,6 @@ export class UpdateService {
   }
 
   private subscribeToServices() {
-    this.gameInvitationService.onCreate.subscribe(record => {
-      const status = this.getStatus(record.gameId);
-
-      if (!status.build) {
-        status.state = -1;
-        this.checkForUpdates(record.gameId);
-      }
-    });
-
     this.buildService.onUpdate.subscribe(record => {
       if (!record.gameId) {
         return;
@@ -356,7 +331,16 @@ export class UpdateService {
       const status = this.getStatus(record.gameId);
 
       if (!status.build || record._id !== status.build._id) {
-        status.state = -1;
+        status.state = UpdateServiceState.NotChecked;
+        this.checkForUpdates(record.gameId);
+      }
+    });
+
+    this.gameInvitationService.onCreate.subscribe(record => {
+      const status = this.getStatus(record.gameId);
+
+      if (!status.build) {
+        status.state = UpdateServiceState.NotChecked;
         this.checkForUpdates(record.gameId);
       }
     });
