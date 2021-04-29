@@ -104,12 +104,28 @@ export const KubernetesGameServer = {
       spec: {
         egress: [
           {
+            ports: [
+              // Allow DNS resolution.
+              { port: 53 as any, protocol: 'TCP' },
+              { port: 53 as any, protocol: 'UDP' },
+            ],
             to: [
               {
+                // Block internal traffic.
                 ipBlock: {
                   cidr: '0.0.0.0/0',
                   except: ['10.0.0.0/8', '172.0.0.0/8', '192.0.0.0/8'],
                 },
+              },
+              {
+                // Allow traffic to the API.
+                namespaceSelector: { matchLabels: { name: 'default' } },
+                podSelector: { matchLabels: { app: 'api' } },
+              },
+              {
+                // Allow traffic to the Web Socket Server.
+                namespaceSelector: { matchLabels: { name: 'default' } },
+                podSelector: { matchLabels: { app: 'wss' } },
               },
             ],
           },

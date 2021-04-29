@@ -40,10 +40,7 @@ export const KubernetesNamespace = {
      * ========================
      */
     await helmReleaseApiV1.createOrReplace(name, {
-      metadata: {
-        annotations: { 'fluxcd.io/automated': 'true' },
-        name: 'argo',
-      },
+      metadata: { name: 'argo' },
       spec: {
         chart: {
           name: 'argo',

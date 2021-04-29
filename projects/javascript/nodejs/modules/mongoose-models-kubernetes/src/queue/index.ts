@@ -100,9 +100,14 @@ export const KubernetesQueue = {
       spec: {
         egress: [
           {
+            ports: [
+              // Allow DNS resolution.
+              { port: 53 as any, protocol: 'TCP' },
+              { port: 53 as any, protocol: 'UDP' },
+            ],
             to: [
               {
-                // Block all internal traffic.
+                // Block internal traffic.
                 ipBlock: {
                   cidr: '0.0.0.0/0',
                   except: ['10.0.0.0/8', '172.0.0.0/8', '192.0.0.0/8'],
@@ -165,10 +170,7 @@ export const KubernetesQueue = {
     });
     await helmReleaseApiV1.delete(`${name}-redis`, namespace);
     await helmReleaseApiV1.create(namespace, {
-      metadata: {
-        annotations: { 'fluxcd.io/automated': 'true' },
-        name: `${name}-redis`,
-      },
+      metadata: { name: `${name}-redis` },
       spec: {
         chart: {
           name: 'redis',

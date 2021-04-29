@@ -167,10 +167,7 @@ export const KubernetesDatabase = {
     });
     await helmReleaseApiV1.delete(`${name}-kafka`, namespace);
     await helmReleaseApiV1.create(namespace, {
-      metadata: {
-        annotations: { 'fluxcd.io/automated': 'true' },
-        name: `${name}-kafka`,
-      },
+      metadata: { name: `${name}-kafka` },
       spec: {
         chart: {
           name: 'kafka',
@@ -242,10 +239,7 @@ export const KubernetesDatabase = {
 
     await helmReleaseApiV1.delete(`${name}-mongodb`, namespace);
     await helmReleaseApiV1.create(namespace, {
-      metadata: {
-        annotations: { 'fluxcd.io/automated': 'true' },
-        name: `${name}-mongodb`,
-      },
+      metadata: { name: `${name}-mongodb` },
       spec: {
         chart: {
           name: 'mongodb',
@@ -294,10 +288,7 @@ export const KubernetesDatabase = {
     });
     await helmReleaseApiV1.delete(`${name}-zookeeper`, namespace);
     await helmReleaseApiV1.create(namespace, {
-      metadata: {
-        annotations: { 'fluxcd.io/automated': 'true' },
-        name: `${name}-zookeeper`,
-      },
+      metadata: { name: `${name}-zookeeper` },
       spec: {
         chart: {
           name: 'zookeeper',
