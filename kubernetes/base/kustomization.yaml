@@ -6,6 +6,7 @@ resources:
   - ./docker-registry/docker-registry.yaml
   - ./global/balanced-expandable.storageclass.yaml
   - ./global/default.namespace.yaml
+  - ./global/kube-system.namespace.yaml
   - ./global/ssd-expandable.storageclass.yaml
   - ./global/standard-expandable.storageclass.yaml
   - ./helm-operator/helm-operator.yaml

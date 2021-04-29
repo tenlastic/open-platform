@@ -7,11 +7,11 @@ export class ClusterRoleStackApiV1 {
   public async create(namespace: string, body: k8s.V1ClusterRole) {
     const clusterRole = await clusterRoleApiV1.create(body);
     const clusterRoleBinding = await clusterRoleBindingApiV1.create(
-      this.getClusterRoleBinding(body.metadata.name, namespace),
+      this.getClusterRoleBinding(body.metadata, namespace),
     );
     const serviceAccount = await serviceAccountApiV1.create(
       namespace,
-      this.getServiceAccount(body.metadata.name),
+      this.getServiceAccount(body.metadata),
     );
 
     return { clusterRole, clusterRoleBinding, serviceAccount };
@@ -20,11 +20,11 @@ export class ClusterRoleStackApiV1 {
   public async createOrReplace(namespace: string, body: k8s.V1ClusterRole) {
     const clusterRole = await clusterRoleApiV1.createOrReplace(body);
     const clusterRoleBinding = await clusterRoleBindingApiV1.createOrReplace(
-      this.getClusterRoleBinding(body.metadata.name, namespace),
+      this.getClusterRoleBinding(body.metadata, namespace),
     );
     const serviceAccount = await serviceAccountApiV1.createOrReplace(
       namespace,
-      this.getClusterRoleBinding(body.metadata.name, namespace),
+      this.getServiceAccount(body.metadata),
     );
 
     return { clusterRole, clusterRoleBinding, serviceAccount };
@@ -48,31 +48,31 @@ export class ClusterRoleStackApiV1 {
     const clusterRole = await clusterRoleApiV1.replace(name, body);
     const clusterRoleBinding = await clusterRoleBindingApiV1.replace(
       name,
-      this.getClusterRoleBinding(name, namespace),
+      this.getClusterRoleBinding(body.metadata, namespace),
     );
     const serviceAccount = await serviceAccountApiV1.replace(
       name,
       namespace,
-      this.getServiceAccount(name),
+      this.getServiceAccount(body.metadata),
     );
 
     return { clusterRole, clusterRoleBinding, serviceAccount };
   }
 
-  private getClusterRoleBinding(name: string, namespace: string) {
+  private getClusterRoleBinding(metadata: k8s.V1ObjectMeta, namespace: string) {
     return {
-      metadata: { name },
+      metadata,
       roleRef: {
         apiGroup: 'rbac.authorization.k8s.io',
         kind: 'ClusterRole',
-        name,
+        name: metadata.name,
       },
-      subjects: [{ kind: 'ServiceAccount', name, namespace }],
+      subjects: [{ kind: 'ServiceAccount', name: metadata.name, namespace }],
     };
   }
 
-  private getServiceAccount(name) {
-    return { metadata: { name } };
+  private getServiceAccount(metadata: k8s.V1ObjectMeta) {
+    return { metadata };
   }
 }
 

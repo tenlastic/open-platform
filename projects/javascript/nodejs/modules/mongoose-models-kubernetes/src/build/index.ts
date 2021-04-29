@@ -1,11 +1,4 @@
-import {
-  roleApiV1,
-  roleBindingApiV1,
-  roleStackApiV1,
-  secretApiV1,
-  serviceAccountApiV1,
-  workflowApiV1,
-} from '@tenlastic/kubernetes';
+import { roleStackApiV1, secretApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
 import { BuildDocument, BuildEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
@@ -40,74 +33,6 @@ export const KubernetesBuild = {
   upsert: async (build: BuildDocument) => {
     const name = KubernetesBuild.getName(build);
     const namespace = KubernetesNamespace.getName(build.namespaceId);
-
-    /**
-     * =======================
-     * IMAGE PULL SECRET
-     * =======================
-     */
-    const secret = await secretApiV1.read('docker-registry-image-pull-secret', 'default');
-    await secretApiV1.createOrReplace(namespace, {
-      data: { 'config.json': secret.body.data['.dockerconfigjson'] },
-      metadata: {
-        labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'image-pull-secret' },
-        name: `${name}-image-pull-secret`,
-      },
-      type: 'Opaque',
-    });
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    await roleStackApiV1.createOrReplace(namespace, {
-      metadata: { name },
-      rules: [
-        {
-          apiGroups: [''],
-          resources: ['pods'],
-          verbs: ['get', 'patch', 'watch'],
-        },
-        {
-          apiGroups: [''],
-          resources: ['pods/exec'],
-          verbs: ['create'],
-        },
-        {
-          apiGroups: [''],
-          resources: ['pods/log'],
-          verbs: ['get', 'watch'],
-        },
-      ],
-    });
-
-    /**
-     * ======================
-     * SECRET
-     * ======================
-     */
-    const administrator = { roles: ['builds'], system: true };
-    const accessToken = jwt.sign(
-      { type: 'access', user: administrator },
-      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      { algorithm: 'RS256' },
-    );
-    await secretApiV1.createOrReplace(namespace, {
-      metadata: {
-        labels: {
-          'tenlastic.com/app': name,
-          'tenlastic.com/role': 'application',
-        },
-        name,
-      },
-      stringData: {
-        ACCESS_TOKEN: accessToken,
-        BUILD_ID: build._id.toString(),
-        MINIO_BUCKET: process.env.MINIO_BUCKET,
-        MINIO_CONNECTION_STRING: process.env.MINIO_CONNECTION_STRING,
-      },
-    });
 
     /**
      * ======================
@@ -284,12 +209,6 @@ export const KubernetesBuild = {
     }
 
     const response = await workflowApiV1.createOrReplace(namespace, manifest);
-
-    /**
-     * ======================
-     * OWNER REFERENCES
-     * ======================
-     */
     const ownerReferences = [
       {
         apiVersion: 'argoproj.io/v1alpha1',
@@ -299,12 +218,78 @@ export const KubernetesBuild = {
         uid: response.body.metadata.uid,
       },
     ];
-    await secretApiV1.patch(`${name}-image-pull-secret`, namespace, {
-      metadata: { ownerReferences },
+
+    /**
+     * =======================
+     * IMAGE PULL SECRET
+     * =======================
+     */
+    const secret = await secretApiV1.read('docker-registry-image-pull-secret', 'default');
+    await secretApiV1.createOrReplace(namespace, {
+      data: { 'config.json': secret.body.data['.dockerconfigjson'] },
+      metadata: {
+        labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'image-pull-secret' },
+        name: `${name}-image-pull-secret`,
+        ownerReferences,
+      },
+      type: 'Opaque',
     });
-    await roleApiV1.patch(name, namespace, { metadata: { ownerReferences } });
-    await serviceAccountApiV1.patch(name, namespace, { metadata: { ownerReferences } });
-    await roleBindingApiV1.patch(name, namespace, { metadata: { ownerReferences } });
-    await secretApiV1.patch(name, namespace, { metadata: { ownerReferences } });
+
+    /**
+     * ======================
+     * RBAC
+     * ======================
+     */
+    await roleStackApiV1.createOrReplace(namespace, {
+      metadata: {
+        name,
+        ownerReferences,
+      },
+      rules: [
+        {
+          apiGroups: [''],
+          resources: ['pods'],
+          verbs: ['get', 'patch', 'watch'],
+        },
+        {
+          apiGroups: [''],
+          resources: ['pods/exec'],
+          verbs: ['create'],
+        },
+        {
+          apiGroups: [''],
+          resources: ['pods/log'],
+          verbs: ['get', 'watch'],
+        },
+      ],
+    });
+
+    /**
+     * ======================
+     * SECRET
+     * ======================
+     */
+    const administrator = { roles: ['builds'], system: true };
+    const accessToken = jwt.sign(
+      { type: 'access', user: administrator },
+      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      { algorithm: 'RS256' },
+    );
+    await secretApiV1.createOrReplace(namespace, {
+      metadata: {
+        labels: {
+          'tenlastic.com/app': name,
+          'tenlastic.com/role': 'application',
+        },
+        name,
+        ownerReferences,
+      },
+      stringData: {
+        ACCESS_TOKEN: accessToken,
+        BUILD_ID: build._id.toString(),
+        MINIO_BUCKET: process.env.MINIO_BUCKET,
+        MINIO_CONNECTION_STRING: process.env.MINIO_CONNECTION_STRING,
+      },
+    });
   },
 };

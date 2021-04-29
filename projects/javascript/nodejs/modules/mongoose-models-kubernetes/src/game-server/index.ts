@@ -1,11 +1,5 @@
 import * as k8s from '@kubernetes/client-node';
-import {
-  deploymentApiV1,
-  networkPolicyApiV1,
-  podApiV1,
-  secretApiV1,
-  serviceApiV1,
-} from '@tenlastic/kubernetes';
+import { deploymentApiV1, podApiV1, secretApiV1, serviceApiV1 } from '@tenlastic/kubernetes';
 import {
   GameServer,
   GameServerDocument,
@@ -42,13 +36,6 @@ export const KubernetesGameServer = {
      * =======================
      */
     await secretApiV1.delete(`${name}-image-pull-secret`, namespace);
-
-    /**
-     * =======================
-     * NETWORK POLICY
-     * =======================
-     */
-    await networkPolicyApiV1.delete(name, namespace);
 
     /**
      * =======================
@@ -92,52 +79,6 @@ export const KubernetesGameServer = {
         name: `${name}-image-pull-secret`,
       },
       type: secret.body.type,
-    });
-
-    /**
-     * =======================
-     * NETWORK POLICY
-     * =======================
-     */
-    await networkPolicyApiV1.createOrReplace(namespace, {
-      metadata: { name },
-      spec: {
-        egress: [
-          {
-            ports: [
-              // Allow DNS resolution.
-              { port: 53 as any, protocol: 'TCP' },
-              { port: 53 as any, protocol: 'UDP' },
-            ],
-            to: [
-              {
-                // Block internal traffic.
-                ipBlock: {
-                  cidr: '0.0.0.0/0',
-                  except: ['10.0.0.0/8', '172.0.0.0/8', '192.0.0.0/8'],
-                },
-              },
-              {
-                // Allow traffic to the API.
-                namespaceSelector: { matchLabels: { name: 'default' } },
-                podSelector: { matchLabels: { app: 'api' } },
-              },
-              {
-                // Allow traffic to the Web Socket Server.
-                namespaceSelector: { matchLabels: { name: 'default' } },
-                podSelector: { matchLabels: { app: 'wss' } },
-              },
-            ],
-          },
-        ],
-        podSelector: {
-          matchLabels: {
-            'tenlastic.com/app': name,
-            'tenlastic.com/role': 'application',
-          },
-        },
-        policyTypes: ['Egress'],
-      },
     });
 
     /**

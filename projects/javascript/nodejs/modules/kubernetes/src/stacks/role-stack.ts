@@ -8,11 +8,11 @@ export class RoleStackApiV1 {
     const role = await roleApiV1.create(namespace, body);
     const roleBinding = await roleBindingApiV1.create(
       namespace,
-      this.getRoleBinding(body.metadata.name, namespace),
+      this.getRoleBinding(body.metadata, namespace),
     );
     const serviceAccount = await serviceAccountApiV1.create(
       namespace,
-      this.getServiceAccount(body.metadata.name),
+      this.getServiceAccount(body.metadata),
     );
 
     return { role, roleBinding, serviceAccount };
@@ -22,11 +22,11 @@ export class RoleStackApiV1 {
     const role = await roleApiV1.createOrReplace(namespace, body);
     const roleBinding = await roleBindingApiV1.createOrReplace(
       namespace,
-      this.getRoleBinding(body.metadata.name, namespace),
+      this.getRoleBinding(body.metadata, namespace),
     );
     const serviceAccount = await serviceAccountApiV1.createOrReplace(
       namespace,
-      this.getRoleBinding(body.metadata.name, namespace),
+      this.getServiceAccount(body.metadata),
     );
 
     return { role, roleBinding, serviceAccount };
@@ -51,31 +51,31 @@ export class RoleStackApiV1 {
     const roleBinding = await roleBindingApiV1.replace(
       name,
       namespace,
-      this.getRoleBinding(name, namespace),
+      this.getRoleBinding(body.metadata, namespace),
     );
     const serviceAccount = await serviceAccountApiV1.replace(
       name,
       namespace,
-      this.getServiceAccount(name),
+      this.getServiceAccount(body.metadata),
     );
 
     return { role, roleBinding, serviceAccount };
   }
 
-  private getRoleBinding(name: string, namespace: string) {
+  private getRoleBinding(metadata: k8s.V1ObjectMeta, namespace: string) {
     return {
-      metadata: { name },
+      metadata,
       roleRef: {
         apiGroup: 'rbac.authorization.k8s.io',
         kind: 'Role',
-        name,
+        name: metadata.name,
       },
-      subjects: [{ kind: 'ServiceAccount', name, namespace }],
+      subjects: [{ kind: 'ServiceAccount', name: metadata.name, namespace }],
     };
   }
 
-  private getServiceAccount(name) {
-    return { metadata: { name } };
+  private getServiceAccount(metadata: k8s.V1ObjectMeta) {
+    return { metadata };
   }
 }
 

@@ -1,11 +1,4 @@
-import {
-  networkPolicyApiV1,
-  roleApiV1,
-  roleBindingApiV1,
-  roleStackApiV1,
-  serviceAccountApiV1,
-  workflowApiV1,
-} from '@tenlastic/kubernetes';
+import { roleStackApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
 import {
   WorkflowDocument,
   WorkflowEvent,
@@ -44,78 +37,6 @@ export const KubernetesWorkflow = {
 
     /**
      * ======================
-     * NETWORK POLICY
-     * ======================
-     */
-    await networkPolicyApiV1.createOrReplace(namespace, {
-      metadata: { name },
-      spec: {
-        egress: [
-          {
-            ports: [
-              // Allow DNS resolution.
-              { port: 53 as any, protocol: 'TCP' },
-              { port: 53 as any, protocol: 'UDP' },
-            ],
-            to: [
-              {
-                // Block internal traffic.
-                ipBlock: {
-                  cidr: '0.0.0.0/0',
-                  except: ['10.0.0.0/8', '172.0.0.0/8', '192.0.0.0/8'],
-                },
-              },
-              {
-                // Allow traffic to the API.
-                namespaceSelector: { matchLabels: { name: 'default' } },
-                podSelector: { matchLabels: { app: 'api' } },
-              },
-              {
-                // Allow traffic to the Web Socket Server.
-                namespaceSelector: { matchLabels: { name: 'default' } },
-                podSelector: { matchLabels: { app: 'wss' } },
-              },
-            ],
-          },
-        ],
-        podSelector: {
-          matchLabels: {
-            'tenlastic.com/app': name,
-            'tenlastic.com/role': 'application',
-          },
-        },
-        policyTypes: ['Egress'],
-      },
-    });
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    await roleStackApiV1.createOrReplace(namespace, {
-      metadata: { name },
-      rules: [
-        {
-          apiGroups: [''],
-          resources: ['pods'],
-          verbs: ['get', 'patch', 'watch'],
-        },
-        {
-          apiGroups: [''],
-          resources: ['pods/exec'],
-          verbs: ['create'],
-        },
-        {
-          apiGroups: [''],
-          resources: ['pods/log'],
-          verbs: ['get', 'watch'],
-        },
-      ],
-    });
-
-    /**
-     * ======================
      * WORKFLOW
      * ======================
      */
@@ -137,9 +58,7 @@ export const KubernetesWorkflow = {
         },
       },
     };
-
     const templates = workflow.spec.templates.map(t => getTemplateManifest(t, workflow));
-
     const response = await workflowApiV1.createOrReplace(namespace, {
       metadata: { name },
       spec: {
@@ -173,22 +92,40 @@ export const KubernetesWorkflow = {
 
     /**
      * ======================
-     * OWNER REFERENCES
+     * RBAC
      * ======================
      */
-    const ownerReferences = [
-      {
-        apiVersion: 'argoproj.io/v1alpha1',
-        controller: true,
-        kind: 'Workflow',
+    await roleStackApiV1.createOrReplace(namespace, {
+      metadata: {
         name,
-        uid: response.body.metadata.uid,
+        ownerReferences: [
+          {
+            apiVersion: 'argoproj.io/v1alpha1',
+            controller: true,
+            kind: 'Workflow',
+            name,
+            uid: response.body.metadata.uid,
+          },
+        ],
       },
-    ];
-    await networkPolicyApiV1.patch(name, namespace, { metadata: { ownerReferences } });
-    await roleApiV1.patch(name, namespace, { metadata: { ownerReferences } });
-    await serviceAccountApiV1.patch(name, namespace, { metadata: { ownerReferences } });
-    await roleBindingApiV1.patch(name, namespace, { metadata: { ownerReferences } });
+      rules: [
+        {
+          apiGroups: [''],
+          resources: ['pods'],
+          verbs: ['get', 'patch', 'watch'],
+        },
+        {
+          apiGroups: [''],
+          resources: ['pods/exec'],
+          verbs: ['create'],
+        },
+        {
+          apiGroups: [''],
+          resources: ['pods/log'],
+          verbs: ['get', 'watch'],
+        },
+      ],
+    });
   },
 };
 
