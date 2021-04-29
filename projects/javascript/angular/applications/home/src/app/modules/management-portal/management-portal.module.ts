@@ -22,13 +22,6 @@ export const ROUTES: Routes = [
           import('./modules/databases/databases.module').then(m => m.DatabaseModule),
       },
       {
-        path: 'game-invitations',
-        loadChildren: () =>
-          import('./modules/game-invitations/game-invitations.module').then(
-            m => m.GameInvitationModule,
-          ),
-      },
-      {
         path: 'game-servers',
         loadChildren: () =>
           import('./modules/game-servers/game-servers.module').then(m => m.GameServerModule),

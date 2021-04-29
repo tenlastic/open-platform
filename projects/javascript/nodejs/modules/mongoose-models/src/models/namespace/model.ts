@@ -41,7 +41,6 @@ export enum NamespaceRole {
   Builds = 'builds',
   Databases = 'databases',
   GameServers = 'game-servers',
-  GameInvitations = 'game-invitations',
   Games = 'games',
   Namespaces = 'namespaces',
   Queues = 'queues',

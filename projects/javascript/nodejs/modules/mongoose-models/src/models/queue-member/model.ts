@@ -20,19 +20,18 @@ import * as mongooseUniqueError from '@tenlastic/mongoose-unique-error';
 import { MongoError } from 'mongodb';
 import * as mongoose from 'mongoose';
 
-import { GameInvitation } from '../game-invitation';
 import { GroupDocument, GroupEvent } from '../group';
 import { QueueDocument, QueueEvent } from '../queue';
 import { UserDocument } from '../user';
 import { WebSocketDocument, WebSocketEvent } from '../web-socket';
 
-export class QueueMemberGameInvitationError extends Error {
+export class QueueMemberAuthorizationError extends Error {
   public userIds: string[] | mongoose.Types.ObjectId[] | Array<Ref<UserDocument>>;
 
   constructor(userIds: string[] | mongoose.Types.ObjectId[] | Array<Ref<UserDocument>>) {
     super(`The following Users are missing a Game Invitation: ${userIds.join(', ')}.`);
 
-    this.name = 'QueueMemberGameInvitationError';
+    this.name = 'QueueMemberAuthorizationError';
     this.userIds = userIds;
   }
 }
@@ -91,8 +90,8 @@ WebSocketEvent.sync(async payload => {
 @plugin(mongooseUniqueError.plugin)
 @pre('save', async function(this: QueueMemberDocument) {
   await this.setUserIds();
-  await this.checkGameInvitations();
   await this.checkPlayersPerTeam();
+  await this.checkUserAuthorization();
 })
 @pre('validate', async function(this: QueueMemberDocument) {
   if (!this.populated('webSocketDocument')) {
@@ -185,24 +184,6 @@ export class QueueMemberSchema {
     return results && results[0] ? results[0].count : 0;
   }
 
-  private async checkGameInvitations(this: QueueMemberDocument) {
-    if (!this.populated('queueDocument')) {
-      await this.populate('queueDocument').execPopulate();
-    }
-
-    const gameInvitations = await GameInvitation.find({
-      namespaceId: this.queueDocument.namespaceId,
-      userId: { $in: this.userIds },
-    });
-
-    if (this.userIds.length > gameInvitations.length) {
-      const gameInvitationUserIds = gameInvitations.map(gi => gi.userId.toString());
-      const userIds = this.userIds.filter(ui => !gameInvitationUserIds.includes(ui.toString()));
-
-      throw new QueueMemberGameInvitationError(userIds);
-    }
-  }
-
   private async checkPlayersPerTeam(this: QueueMemberDocument) {
     if (!this.populated('queueDocument')) {
       await this.populate('queueDocument').execPopulate();
@@ -210,6 +191,33 @@ export class QueueMemberSchema {
 
     if (this.userIds.length > this.queueDocument.usersPerTeam) {
       throw new Error('Group size is too large for this Queue.');
+    }
+  }
+
+  private async checkUserAuthorization(this: QueueMemberDocument) {
+    if (!this.populated('queueDocument')) {
+      await this.populate('queueDocument').execPopulate();
+    }
+
+    if (!this.queueDocument.gameId) {
+      return;
+    }
+
+    if (!this.queueDocument.populated('gameDocument')) {
+      await this.queueDocument.populate('gameDocument').execPopulate();
+    }
+
+    const game = this.queueDocument.gameDocument;
+    const unauthorizedUserIds = this.userIds.filter(ui => {
+      if (game.public) {
+        return game.unauthorizedUserIds.some(uui => uui.equals(ui));
+      } else {
+        return !game.authorizedUserIds.some(aui => aui.equals(ui));
+      }
+    });
+
+    if (unauthorizedUserIds.length > 0) {
+      throw new QueueMemberAuthorizationError(unauthorizedUserIds);
     }
   }
 

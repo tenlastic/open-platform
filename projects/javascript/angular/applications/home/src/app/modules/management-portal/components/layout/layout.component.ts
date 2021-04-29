@@ -24,11 +24,7 @@ export class LayoutComponent {
     );
   }
   public get hasLauncherButtons() {
-    return (
-      this.hasPermission('articles') ||
-      this.hasPermission('game-invitations') ||
-      this.hasPermission('games')
-    );
+    return this.hasPermission('articles') || this.hasPermission('games');
   }
   public launcherUrl = environment.launcherUrl;
   public showInfrastructureButtons = true;

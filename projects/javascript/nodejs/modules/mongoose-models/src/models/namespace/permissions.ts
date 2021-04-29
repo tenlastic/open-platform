@@ -1,6 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { Namespace, NamespaceDocument } from './model';
+import { Namespace, NamespaceDocument, NamespaceRole } from './model';
 
 export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(Namespace, {
   create: {
@@ -90,3 +90,36 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     'user-administrator': ['keys.*', 'limits.*', 'name', 'users.*'],
   },
 });
+
+export const NamespacePermissionsHelpers = {
+  getNamespaceIdsByRole(role: NamespaceRole) {
+    return {
+      $query: {
+        model: 'NamespaceSchema',
+        select: '_id',
+        where: {
+          $or: [
+            { keys: { $elemMatch: { roles: role, value: { $ref: 'key' } } } },
+            { users: { $elemMatch: { _id: { $ref: 'user._id' }, roles: role } } },
+          ],
+        },
+      },
+    };
+  },
+  getRoleQuery(namespaceDocumentPath: string, role: NamespaceRole) {
+    return {
+      $or: [
+        {
+          [`${namespaceDocumentPath}.keys`]: {
+            $elemMatch: { roles: role, value: { $ref: 'key' } },
+          },
+        },
+        {
+          [`${namespaceDocumentPath}.users`]: {
+            $elemMatch: { _id: { $ref: 'user._id' }, roles: role },
+          },
+        },
+      ],
+    };
+  },
+};

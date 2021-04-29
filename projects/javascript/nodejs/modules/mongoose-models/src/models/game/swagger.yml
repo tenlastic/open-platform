@@ -6,6 +6,11 @@ components:
         _id:
           type: string
           format: ^[a-f0-9]{24}$
+        authorizedUserIds:
+          type: array
+          items:
+            type: string
+            format: ^[a-f0-9]{24}$
         createdAt:
           type: string
           format: date-time
@@ -20,12 +25,19 @@ components:
         namespaceId:
           type: string
           format: ^[a-f0-9]{24}$
+        public:
+          type: boolean
         subtitle:
           type: string
           format: ^.{2,40}$
         title:
           type: string
           format: ^.{2,40}$
+        unauthorizedUserIds:
+          type: array
+          items:
+            type: string
+            format: ^[a-f0-9]{24}$
         updatedAt:
           type: string
           format: date-time

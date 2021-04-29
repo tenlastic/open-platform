@@ -21,7 +21,6 @@ import * as mongoose from 'mongoose';
 
 import { namespaceValidator } from '../../validators';
 import { GameDocument, GameEvent } from '../game';
-import { GameInvitationDocument } from '../game-invitation';
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { WorkflowStatusSchema } from '../workflow';
 import { BuildFileSchema } from './file';
@@ -112,9 +111,6 @@ export class BuildSchema implements IOriginalDocument {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: 'GameSchema' })
   public gameDocument: GameDocument;
-
-  @prop({ foreignField: 'gameId', localField: 'gameId', ref: 'GameInvitationSchema' })
-  public gameInvitationDocuments: GameInvitationDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;

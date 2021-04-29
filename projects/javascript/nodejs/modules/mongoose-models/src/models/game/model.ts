@@ -19,6 +19,7 @@ import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
+import { UserDocument } from '../user';
 
 export const GameEvent = new EventEmitter<IDatabasePayload<GameDocument>>();
 
@@ -59,6 +60,9 @@ NamespaceEvent.sync(async payload => {
 export class GameSchema {
   public _id: mongoose.Types.ObjectId;
 
+  @arrayProp({ itemsRef: 'UserSchema' })
+  public authorizedUserIds: Array<Ref<UserDocument>>;
+
   @prop()
   public background: string;
 
@@ -76,11 +80,17 @@ export class GameSchema {
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
+  @prop()
+  public public: boolean;
+
   @prop({ match: /^.{2,40}$/ })
   public subtitle: string;
 
   @prop({ match: /^.{2,40}$/, required: true })
   public title: string;
+
+  @arrayProp({ itemsRef: 'UserSchema' })
+  public unauthorizedUserIds: Array<Ref<UserDocument>>;
 
   public updatedAt: Date;
 

@@ -6,21 +6,13 @@ import {
   ArticleQuery,
   ArticleService,
   Game,
-  GameInvitation,
-  GameInvitationQuery,
-  GameInvitationService,
   GameQuery,
   GameService,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import {
-  ElectronService,
-  IdentityService,
-  UpdateService,
-  UpdateServiceState,
-} from '../../../../core/services';
+import { ElectronService, IdentityService, UpdateService } from '../../../../core/services';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -32,7 +24,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public get $activeGame() {
     return this.gameQuery.selectActive() as Observable<Game>;
   }
-  public $gameInvitations: Observable<GameInvitation[]>;
   public $news: Observable<Article[]>;
   public $patchNotes: Observable<Article[]>;
   public get $showStatusComponent() {
@@ -60,20 +51,13 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private articleService: ArticleService,
     private changeDetectorRef: ChangeDetectorRef,
     public electronService: ElectronService,
-    private gameInvitationQuery: GameInvitationQuery,
-    private gameInvitationService: GameInvitationService,
     private gameService: GameService,
     private gameQuery: GameQuery,
-    private identityService: IdentityService,
     public router: Router,
     private updateService: UpdateService,
   ) {}
 
   public async ngOnInit() {
-    this.$gameInvitations = this.gameInvitationQuery.selectAll({
-      filterBy: gi => gi.userId === this.identityService.user._id,
-    });
-
     this.setBackground$ = this.$activeGame.subscribe(activeGame => {
       const value = activeGame.background || '/assets/images/background.jpg';
       this.document.body.style.backgroundImage = `url('${value}')`;
@@ -92,10 +76,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
       return this.fetchArticles(game._id);
     });
 
-    await Promise.all([
-      this.gameInvitationService.find({ where: { userId: this.identityService.user._id } }),
-      this.gameService.find({}),
-    ]);
+    await this.gameService.find({});
 
     if (!this.electronService.isElectron) {
       return;

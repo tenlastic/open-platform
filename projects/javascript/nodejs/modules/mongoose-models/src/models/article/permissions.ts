@@ -1,27 +1,19 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
+import { GamePermissionsHelpers } from '../game';
+import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
+import { UserPermissionsHelpers, UserRole } from '../user';
 import { Article, ArticleDocument } from './model';
+
+const administrator = {
+  create: ['body', 'caption', 'gameId', 'namespaceId', 'publishedAt', 'title', 'type'],
+  update: ['body', 'caption', 'gameId', 'namespaceId', 'publishedAt', 'title', 'type'],
+};
 
 export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Article, {
   create: {
-    'namespace-administrator': [
-      'body',
-      'caption',
-      'gameId',
-      'namespaceId',
-      'publishedAt',
-      'title',
-      'type',
-    ],
-    'user-administrator': [
-      'body',
-      'caption',
-      'gameId',
-      'namespaceId',
-      'publishedAt',
-      'title',
-      'type',
-    ],
+    'namespace-administrator': administrator.create,
+    'user-administrator': administrator.create,
   },
   delete: {
     'namespace-administrator': true,
@@ -30,36 +22,13 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
   find: {
     default: {
       $or: [
-        { publishedAt: { $exists: true, $ne: null } },
+        {
+          gameId: { $in: GamePermissionsHelpers.getAuthorizedGameIds() },
+          publishedAt: { $exists: true, $ne: null },
+        },
         {
           namespaceId: {
-            $in: {
-              // Find Namespaces where the Key or User has administrator access.
-              $query: {
-                model: 'NamespaceSchema',
-                select: '_id',
-                where: {
-                  $or: [
-                    {
-                      keys: {
-                        $elemMatch: {
-                          roles: { $eq: 'articles' },
-                          value: { $eq: { $ref: 'key' } },
-                        },
-                      },
-                    },
-                    {
-                      users: {
-                        $elemMatch: {
-                          _id: { $eq: { $ref: 'user._id' } },
-                          roles: { $eq: 'articles' },
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
-            },
+            $in: NamespacePermissionsHelpers.getNamespaceIdsByRole(NamespaceRole.Articles),
           },
         },
       ],
@@ -84,52 +53,18 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
   roles: [
     {
       name: 'user-administrator',
-      query: {
-        'user.roles': { $eq: 'articles' },
-      },
+      query: UserPermissionsHelpers.getRoleQuery(UserRole.Articles),
     },
     {
       name: 'namespace-administrator',
-      query: {
-        $or: [
-          {
-            'record.namespaceDocument.keys': {
-              $elemMatch: {
-                roles: { $eq: 'articles' },
-                value: { $eq: { $ref: 'key' } },
-              },
-            },
-          },
-          {
-            'record.namespaceDocument.users': {
-              $elemMatch: {
-                _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'articles' },
-              },
-            },
-          },
-        ],
-      },
+      query: NamespacePermissionsHelpers.getRoleQuery(
+        'record.namespaceDocument',
+        NamespaceRole.Articles,
+      ),
     },
   ],
   update: {
-    'namespace-administrator': [
-      'body',
-      'caption',
-      'gameId',
-      'namespaceId',
-      'publishedAt',
-      'title',
-      'type',
-    ],
-    'user-administrator': [
-      'body',
-      'caption',
-      'gameId',
-      'namespaceId',
-      'publishedAt',
-      'title',
-      'type',
-    ],
+    'namespace-administrator': administrator.update,
+    'user-administrator': administrator.update,
   },
 });

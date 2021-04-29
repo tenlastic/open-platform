@@ -1,5 +1,4 @@
 import {
-  GameInvitationMock,
   GroupMock,
   NamespaceDocument,
   NamespaceMock,
@@ -31,13 +30,6 @@ describe('handlers/queue-members/count', function() {
       roles: ['queues'],
     });
     namespace = await NamespaceMock.create({ users: [namespaceUser] });
-
-    await Promise.all([
-      GameInvitationMock.create({ namespaceId: namespace._id, userId: users[0]._id }),
-      GameInvitationMock.create({ namespaceId: namespace._id, userId: users[1]._id }),
-      GameInvitationMock.create({ namespaceId: namespace._id, userId: users[2]._id }),
-      GameInvitationMock.create({ namespaceId: namespace._id, userId: users[3]._id }),
-    ]);
   });
 
   it('returns the number of matching records', async function() {

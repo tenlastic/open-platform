@@ -12,7 +12,6 @@ components:
               - builds
               - collections
               - game-servers
-              - game-invitations
               - games
               - namespaces
               - queues

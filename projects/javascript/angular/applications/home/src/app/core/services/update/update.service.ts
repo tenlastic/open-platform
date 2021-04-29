@@ -3,8 +3,8 @@ import {
   Build,
   BuildService,
   Game,
-  GameInvitationService,
   GameServer,
+  GameService,
   IBuild,
   LoginService,
 } from '@tenlastic/ng-http';
@@ -21,7 +21,6 @@ export enum UpdateServiceState {
   NotAvailable,
   NotChecked,
   NotInstalled,
-  NotInvited,
   NotUpdated,
   Ready,
 }
@@ -75,12 +74,11 @@ export class UpdateService {
   constructor(
     private buildService: BuildService,
     private electronService: ElectronService,
-    private gameInvitationService: GameInvitationService,
+    private gameService: GameService,
     private identityService: IdentityService,
     private loginService: LoginService,
   ) {
     this.subscribeToServices();
-
     this.loginService.onLogout.subscribe(() => this.status.clear());
   }
 
@@ -88,7 +86,6 @@ export class UpdateService {
     const status = this.getStatus(gameId);
     if (
       status.state !== UpdateServiceState.NotChecked &&
-      status.state !== UpdateServiceState.NotInvited &&
       status.state !== UpdateServiceState.NotAvailable
     ) {
       return;
@@ -96,16 +93,6 @@ export class UpdateService {
 
     status.progress = null;
     status.state = UpdateServiceState.Checking;
-
-    // Check if the user has been invited.
-    status.text = 'Checking access permission...';
-    const invitations = await this.gameInvitationService.find({
-      where: { gameId, userId: this.identityService.user._id },
-    });
-    if (invitations.length === 0) {
-      status.state = UpdateServiceState.NotInvited;
-      return;
-    }
 
     // Get the latest Build from the server.
     status.text = 'Retrieving latest build...';
@@ -323,7 +310,7 @@ export class UpdateService {
   }
 
   private subscribeToServices() {
-    this.buildService.onUpdate.subscribe(record => {
+    this.buildService.onUpdate.subscribe((record: Build) => {
       if (!record.gameId) {
         return;
       }
@@ -336,12 +323,12 @@ export class UpdateService {
       }
     });
 
-    this.gameInvitationService.onCreate.subscribe(record => {
-      const status = this.getStatus(record.gameId);
+    this.gameService.onUpdate.subscribe((record: Game) => {
+      const status = this.getStatus(record._id);
 
       if (!status.build) {
         status.state = UpdateServiceState.NotChecked;
-        this.checkForUpdates(record.gameId);
+        this.checkForUpdates(record._id);
       }
     });
   }

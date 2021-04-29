@@ -1,13 +1,16 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
+import { GamePermissionsHelpers } from '../game';
+import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
+import { UserPermissionsHelpers, UserRole } from '../user';
 import { QueueMember, QueueMemberDocument } from './model';
 
 export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocument>(QueueMember, {
   create: {
-    'group-leader': ['groupId', 'queueId'],
-    'namespace-administrator': ['groupId', 'queueId', 'userId'],
-    owner: ['queueId', 'userId'],
-    'user-administrator': ['groupId', 'queueId', 'userId'],
+    'group-leader': ['groupId', 'queueId', 'webSocketId'],
+    'namespace-administrator': ['groupId', 'queueId', 'userId', 'webSocketId'],
+    owner: ['queueId', 'userId', 'webSocketId'],
+    'user-administrator': ['groupId', 'queueId', 'userId', 'webSocketId'],
   },
   delete: {
     'group-leader': true,
@@ -28,33 +31,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
                 select: '_id',
                 where: {
                   namespaceId: {
-                    $in: {
-                      // Find Namespaces where the Key or User has administrator access.
-                      $query: {
-                        model: 'NamespaceSchema',
-                        select: '_id',
-                        where: {
-                          $or: [
-                            {
-                              keys: {
-                                $elemMatch: {
-                                  roles: { $eq: 'queues' },
-                                  value: { $eq: { $ref: 'key' } },
-                                },
-                              },
-                            },
-                            {
-                              users: {
-                                $elemMatch: {
-                                  _id: { $eq: { $ref: 'user._id' } },
-                                  roles: { $eq: 'queues' },
-                                },
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    },
+                    $in: NamespacePermissionsHelpers.getNamespaceIdsByRole(NamespaceRole.Queues),
                   },
                 },
               },
@@ -64,31 +41,16 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
         {
           queueId: {
             $in: {
-              // Find all Queues within the returned Namespaces.
+              // Find all Queues associated with the returned Games.
               $query: {
                 model: 'QueueSchema',
                 select: '_id',
-                where: {
-                  namespaceId: {
-                    $in: {
-                      // Find all Namespaces of which the User has been invited.
-                      $query: {
-                        model: 'GameInvitationSchema',
-                        select: 'namespaceId',
-                        where: {
-                          userId: { $eq: { $ref: 'user._id' } },
-                        },
-                      },
-                    },
-                  },
-                },
+                where: { gameId: { $in: GamePermissionsHelpers.getAuthorizedGameIds() } },
               },
             },
           },
         },
-        {
-          userIds: { $eq: { $ref: 'user._id' } },
-        },
+        { userIds: { $eq: { $ref: 'user._id' } } },
       ],
     },
     'system-administrator': {},
@@ -114,44 +76,22 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     },
     {
       name: 'user-administrator',
-      query: {
-        'user.roles': { $eq: 'queues' },
-      },
+      query: UserPermissionsHelpers.getRoleQuery(UserRole.Queues),
     },
     {
       name: 'namespace-administrator',
-      query: {
-        $or: [
-          {
-            'record.queueDocument.namespaceDocument.keys': {
-              $elemMatch: {
-                roles: { $eq: 'queues' },
-                value: { $eq: { $ref: 'key' } },
-              },
-            },
-          },
-          {
-            'record.queueDocument.namespaceDocument.users': {
-              $elemMatch: {
-                _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'queues' },
-              },
-            },
-          },
-        ],
-      },
+      query: NamespacePermissionsHelpers.getRoleQuery(
+        'record.queueDocument.namespaceDocument',
+        NamespaceRole.Queues,
+      ),
     },
     {
       name: 'group-leader',
-      query: {
-        'record.groupDocument.userIds.0': { $eq: { $ref: 'user._id' } },
-      },
+      query: { 'record.groupDocument.userIds.0': { $eq: { $ref: 'user._id' } } },
     },
     {
       name: 'owner',
-      query: {
-        'record.userId': { $eq: { $ref: 'user._id' } },
-      },
+      query: { 'record.userId': { $eq: { $ref: 'user._id' } } },
     },
   ],
 });

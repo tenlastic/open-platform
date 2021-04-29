@@ -44,7 +44,6 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
         return this.status.isInstalled ? 'Updating...' : 'Installing...';
 
       case UpdateServiceState.NotAvailable:
-      case UpdateServiceState.NotInvited:
         return 'Not Available';
 
       case UpdateServiceState.NotInstalled:
@@ -63,7 +62,6 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
       case UpdateServiceState.Downloading:
       case UpdateServiceState.Installing:
       case UpdateServiceState.NotAvailable:
-      case UpdateServiceState.NotInvited:
         return true;
 
       default:

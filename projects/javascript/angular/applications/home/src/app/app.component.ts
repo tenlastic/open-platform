@@ -1,7 +1,7 @@
 import { Title } from '@angular/platform-browser';
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { akitaConfig, resetStores } from '@datorama/akita';
+import { resetStores } from '@datorama/akita';
 import {
   ArticleQuery,
   Build,
@@ -9,9 +9,6 @@ import {
   BuildService,
   Database,
   DatabaseService,
-  GameInvitation,
-  GameInvitationQuery,
-  GameInvitationService,
   GameQuery,
   GameServer,
   GameServerQuery,
@@ -54,8 +51,6 @@ export class AppComponent implements OnInit {
     private buildService: BuildService,
     private databaseService: DatabaseService,
     private electronService: ElectronService,
-    private gameInvitationQuery: GameInvitationQuery,
-    private gameInvitationService: GameInvitationService,
     private gameQuery: GameQuery,
     private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
@@ -134,18 +129,6 @@ export class AppComponent implements OnInit {
         this.gameService.find({ where: { _id: { $in: ids } } });
       }
     });
-    this.gameInvitationQuery.selectAll().subscribe(records => {
-      const ids = records.map(r => r.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
-      if (ids.length > 0) {
-        this.gameService.find({ where: { _id: { $in: ids } } });
-      }
-    });
-    this.gameInvitationQuery.selectAll().subscribe(records => {
-      const ids = records.map(r => r.userId).filter(userId => !this.userQuery.hasEntity(userId));
-      if (ids.length > 0) {
-        this.userService.find({ where: { _id: { $in: ids } } });
-      }
-    });
     this.gameServerQuery.selectAll().subscribe(records => {
       const ids = records.map(r => r.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
       if (ids.length > 0) {
@@ -169,7 +152,6 @@ export class AppComponent implements OnInit {
   private subscribe() {
     this.socket.subscribe('builds', Build, this.buildService);
     this.socket.subscribe('databases', Database, this.databaseService);
-    this.socket.subscribe('game-invitations', GameInvitation, this.gameInvitationService);
     this.socket.subscribe('game-servers', GameServer, this.gameServerService);
     this.socket.subscribe('groups', Group, this.groupService);
     this.socket.subscribe('group-invitations', GroupInvitation, this.groupInvitationService);

@@ -1,6 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { User, UserDocument } from './model';
+import { User, UserDocument, UserRole } from './model';
 
 export const UserPermissions = new MongoosePermissions<UserDocument>(User, {
   create: {
@@ -30,3 +30,9 @@ export const UserPermissions = new MongoosePermissions<UserDocument>(User, {
     self: ['email', 'password', 'username'],
   },
 });
+
+export const UserPermissionsHelpers = {
+  getRoleQuery(role: UserRole) {
+    return { 'user.roles': role };
+  },
+};

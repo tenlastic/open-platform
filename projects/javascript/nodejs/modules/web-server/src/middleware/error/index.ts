@@ -20,9 +20,9 @@ export async function errorMiddleware(ctx: Context, next: () => Promise<void>) {
         ctx.response.body = getError(e);
         break;
 
-      case 'QueueMemberGameInvitationError':
+      case 'QueueMemberAuthorizationError':
         ctx.response.status = status;
-        ctx.response.body = getQueueMemberGameInvitationError(e);
+        ctx.response.body = getQueueMemberAuthorizationError(e);
         break;
 
       case 'QueueMemberUniquenessError':
@@ -66,7 +66,7 @@ function getNamespaceLimitError(err: any) {
   return { errors: [{ message, name, path, value }] };
 }
 
-function getQueueMemberGameInvitationError(err: any) {
+function getQueueMemberAuthorizationError(err: any) {
   const { message, name, userIds } = err;
   return { errors: [{ message, name, userIds }] };
 }
