@@ -1,4 +1,3 @@
-import { NamespaceMock } from 'applications/api/dist/models';
 import * as mongoose from 'mongoose';
 
 import { WebSocketMock } from '../web-socket';
