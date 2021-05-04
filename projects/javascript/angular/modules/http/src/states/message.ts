@@ -18,7 +18,7 @@ export class MessageStore extends EntityStore<MessageState, Message> {
     this.messageService.onCreate.subscribe(record => this.add(record));
     this.messageService.onDelete.subscribe(record => this.remove(record._id));
     this.messageService.onRead.subscribe(records => this.upsertMany(records));
-    this.messageService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.messageService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

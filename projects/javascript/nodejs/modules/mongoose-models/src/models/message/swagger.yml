@@ -5,7 +5,7 @@ components:
       properties:
         _id:
           type: string
-          format: ^[a-f0-9]{24}$
+          format: ^[0-9a-f]{24}$
         body:
           type: string
           format: ^.{0,512}
@@ -14,18 +14,18 @@ components:
           format: date-time
         fromUserId:
           type: string
-          format: ^[a-f0-9]{24}$
+          format: ^[0-9a-f]{24}$
         readByUserIds:
           type: array
           items:
             type: string
-            format: ^[a-f0-9]{24}$
+            format: ^[0-9a-f]{24}$
         toGroupId:
           type: string
-          format: ^[a-f0-9]{24}$
+          format: ^[0-9a-f]{24}$
         toUserId:
           type: string
-          format: ^[a-f0-9]{24}$
+          format: ^[0-9a-f]{24}$
         updatedAt:
           type: string
           format: date-time

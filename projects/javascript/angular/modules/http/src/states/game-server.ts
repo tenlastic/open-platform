@@ -19,7 +19,7 @@ export class GameServerStore extends EntityStore<GameServerState, GameServer> {
     this.gameServerService.onCreate.subscribe(record => this.add(record));
     this.gameServerService.onDelete.subscribe(record => this.remove(record._id));
     this.gameServerService.onRead.subscribe(records => this.upsertMany(records));
-    this.gameServerService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.gameServerService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

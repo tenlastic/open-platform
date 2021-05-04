@@ -18,7 +18,7 @@ export class GameServerLogStore extends EntityStore<GameServerLogState, GameServ
     this.gameServerLogService.onCreate.subscribe(record => this.add(record));
     this.gameServerLogService.onDelete.subscribe(record => this.remove(record._id));
     this.gameServerLogService.onRead.subscribe(records => this.upsertMany(records));
-    this.gameServerLogService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.gameServerLogService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

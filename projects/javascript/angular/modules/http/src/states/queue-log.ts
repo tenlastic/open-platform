@@ -18,7 +18,7 @@ export class QueueLogStore extends EntityStore<QueueLogState, QueueLog> {
     this.queueLogService.onCreate.subscribe(record => this.add(record));
     this.queueLogService.onDelete.subscribe(record => this.remove(record._id));
     this.queueLogService.onRead.subscribe(records => this.upsertMany(records));
-    this.queueLogService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.queueLogService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

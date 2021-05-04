@@ -69,14 +69,10 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
   find: {
     default: {
       $or: [
-        { gameId: { $eq: null } },
-        { gameId: { $exists: false } },
+        NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Queues),
         { gameId: { $in: GamePermissionsHelpers.getAuthorizedGameIds() } },
-        {
-          namespaceId: {
-            $in: NamespacePermissionsHelpers.getNamespaceIdsByRole(NamespaceRole.Queues),
-          },
-        },
+        { gameId: null },
+        { gameId: { $exists: false } },
       ],
     },
     'system-administrator': {},
@@ -103,10 +99,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
   roles: [
     {
       name: 'system-administrator',
-      query: {
-        'user.roles': { $eq: 'queues' },
-        'user.system': { $eq: true },
-      },
+      query: { 'user.roles': UserRole.Queues, 'user.system': true },
     },
     {
       name: 'user-administrator',
@@ -114,10 +107,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
     },
     {
       name: 'namespace-administrator',
-      query: NamespacePermissionsHelpers.getRoleQuery(
-        'record.namespaceDocument',
-        NamespaceRole.Queues,
-      ),
+      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Queues),
     },
   ],
   update: {

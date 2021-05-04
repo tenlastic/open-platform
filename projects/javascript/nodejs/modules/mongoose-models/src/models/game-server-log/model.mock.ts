@@ -14,6 +14,7 @@ export class GameServerLogMock {
     const defaults = {
       body: chance.hash(),
       gameServerId: mongoose.Types.ObjectId(),
+      namespaceId: mongoose.Types.ObjectId(),
       unix: Date.now(),
     };
 

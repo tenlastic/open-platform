@@ -23,7 +23,7 @@ div.main-media {
   background-position: center;
   background-size: cover;
   display: block;
-  filter: drop-shadow(3px 3px 3px black);
+  filter: drop-shadow(2px 2px 3px black);
   margin-bottom: 8px;
   width: 100%;
 }
@@ -50,7 +50,7 @@ mat-grid-list.mat-grid-list {
   mat-grid-tile.mat-grid-tile {
     background-position: center;
     background-size: cover;
-    box-shadow: 3px 3px 3px black;
+    box-shadow: 2px 2px 3px black;
     cursor: pointer;
     filter: brightness(0.5);
 

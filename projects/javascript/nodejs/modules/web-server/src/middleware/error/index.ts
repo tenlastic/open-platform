@@ -46,9 +46,7 @@ export async function errorMiddleware(ctx: Context, next: () => Promise<void>) {
         break;
 
       default:
-        if (process.env.NODE_ENV !== 'test') {
-          console.error(e.stack);
-        }
+        console.error(e.stack);
         ctx.response.status = status;
         ctx.response.body = getError(e);
         break;

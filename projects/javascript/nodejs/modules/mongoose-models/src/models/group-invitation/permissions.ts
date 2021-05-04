@@ -15,10 +15,7 @@ export const GroupInvitationPermissions = new MongoosePermissions<GroupInvitatio
     },
     find: {
       default: {
-        $or: [
-          { fromUserId: { $eq: { $ref: 'user._id' } } },
-          { toUserId: { $eq: { $ref: 'user._id' } } },
-        ],
+        $or: [{ fromUserId: { $ref: 'user._id' } }, { toUserId: { $ref: 'user._id' } }],
       },
     },
     populate: [{ path: 'groupDocument' }],
@@ -29,28 +26,24 @@ export const GroupInvitationPermissions = new MongoosePermissions<GroupInvitatio
       {
         name: 'leader',
         query: {
-          'record.groupDocument.isOpen': { $eq: false },
-          'record.groupDocument.userIds.0': { $eq: { $ref: 'user._id' } },
+          'record.groupDocument.isOpen': false,
+          'record.groupDocument.userIds.0': { $ref: 'user._id' },
         },
       },
       {
         name: 'open-member',
         query: {
-          'record.groupDocument.isOpen': { $eq: true },
-          'record.groupDocument.userIds': { $eq: { $ref: 'user._id' } },
+          'record.groupDocument.isOpen': true,
+          'record.groupDocument.userIds': { $ref: 'user._id' },
         },
       },
       {
         name: 'sender',
-        query: {
-          'record.fromUserId': { $eq: { $ref: 'user._id' } },
-        },
+        query: { 'record.fromUserId': { $ref: 'user._id' } },
       },
       {
         name: 'recipient',
-        query: {
-          'record.toUserId': { $eq: { $ref: 'user._id' } },
-        },
+        query: { 'record.toUserId': { $ref: 'user._id' } },
       },
     ],
   },

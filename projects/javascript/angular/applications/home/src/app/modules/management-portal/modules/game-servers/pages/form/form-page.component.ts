@@ -217,10 +217,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     if (this.data._id) {
       this.updateGameServer$ = this.gameServerQuery
         .selectAll({ filterBy: gs => gs._id === this.data._id })
-        .subscribe(gameServers => {
-          const gameServer = new GameServer(gameServers[0]);
-          this.data.status = gameServer.status;
-        });
+        .subscribe(gameServers => (this.data = gameServers[0]));
     }
   }
 

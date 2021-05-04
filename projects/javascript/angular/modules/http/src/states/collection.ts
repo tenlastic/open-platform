@@ -15,7 +15,7 @@ export class CollectionStore extends EntityStore<CollectionState, Collection> {
     this.collectionService.onCreate.subscribe(record => this.add(record));
     this.collectionService.onDelete.subscribe(record => this.remove(record._id));
     this.collectionService.onRead.subscribe(records => this.upsertMany(records));
-    this.collectionService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.collectionService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

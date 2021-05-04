@@ -161,10 +161,7 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
     if (this.data._id) {
       this.updateDatabase$ = this.databaseQuery
         .selectAll({ filterBy: q => q._id === this.data._id })
-        .subscribe(databases => {
-          const database = new Database(databases[0]);
-          this.data.status = database.status;
-        });
+        .subscribe(databases => (this.data = databases[0]));
     }
   }
 

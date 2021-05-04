@@ -20,7 +20,11 @@ import * as mongooseUniqueError from '@tenlastic/mongoose-unique-error';
 import { MongoError } from 'mongodb';
 import * as mongoose from 'mongoose';
 
+import { namespaceValidator } from '../../validators';
+import { GameAccess } from '../game';
+import { GameAuthorization, GameAuthorizationStatus } from '../game-authorization';
 import { GroupDocument, GroupEvent } from '../group';
+import { NamespaceDocument } from '../namespace';
 import { QueueDocument, QueueEvent } from '../queue';
 import { UserDocument } from '../user';
 import { WebSocketDocument, WebSocketEvent } from '../web-socket';
@@ -77,7 +81,7 @@ WebSocketEvent.sync(async payload => {
   return Promise.all(queueMembers.map(qm => qm.remove()));
 });
 
-@index({ queueId: 1, userIds: 1 }, { unique: true })
+@index({ namespaceId: 1, queueId: 1, userIds: 1 }, { unique: true })
 @index({ webSocketId: 1 })
 @modelOptions({
   schemaOptions: {
@@ -142,10 +146,21 @@ export class QueueMemberSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ immutable: true, ref: 'GroupSchema' })
+  @prop({
+    immutable: true,
+    ref: 'GroupSchema',
+  })
   public groupId: Ref<GroupDocument>;
 
-  @prop({ immutable: true, ref: 'QueueSchema', required: true })
+  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  public namespaceId: Ref<NamespaceDocument>;
+
+  @prop({
+    immutable: true,
+    ref: 'QueueSchema',
+    required: true,
+    validate: namespaceValidator('queueDocument', 'queueId'),
+  })
   public queueId: Ref<QueueDocument>;
 
   public updatedAt: Date;
@@ -161,6 +176,9 @@ export class QueueMemberSchema {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'groupId', ref: 'GroupSchema' })
   public groupDocument: GroupDocument;
+
+  @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
+  public namespaceDocument: NamespaceDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: 'QueueSchema' })
   public queueDocument: QueueDocument;
@@ -208,11 +226,20 @@ export class QueueMemberSchema {
     }
 
     const game = this.queueDocument.gameDocument;
+    const gameAuthorizations = await GameAuthorization.find({
+      gameId: game._id,
+      userId: { $in: this.userIds },
+    });
+
     const unauthorizedUserIds = this.userIds.filter(ui => {
-      if (game.public) {
-        return game.unauthorizedUserIds.some(uui => uui.equals(ui));
+      if (game.access === GameAccess.Public) {
+        return gameAuthorizations
+          .filter(ga => ga.status === GameAuthorizationStatus.Revoked)
+          .some(ga => ga.userId.equals(ui));
       } else {
-        return !game.authorizedUserIds.some(aui => aui.equals(ui));
+        return !gameAuthorizations
+          .filter(ga => ga.status === GameAuthorizationStatus.Granted)
+          .some(ga => ga.userId.equals(ui));
       }
     });
 

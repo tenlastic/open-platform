@@ -141,6 +141,7 @@ function getTemplateManifest(template: WorkflowSpecTemplateSchema, workflow: Wor
   t.artifactLocation = { archiveLogs: false };
   t.metadata = {
     annotations: {
+      'tenlastic.com/namespaceId': workflow.namespaceId.toString(),
       'tenlastic.com/nodeId': `{{pod.name}}`,
       'tenlastic.com/workflowId': workflow._id.toString(),
     },

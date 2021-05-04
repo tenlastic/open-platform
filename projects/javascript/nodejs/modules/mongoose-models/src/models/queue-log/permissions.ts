@@ -1,104 +1,44 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
+import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
+import { UserPermissionsHelpers, UserRole } from '../user';
 import { QueueLog, QueueLogDocument } from './model';
 
 export const QueueLogPermissions = new MongoosePermissions<QueueLogDocument>(QueueLog, {
   create: {
-    'system-administrator': ['body', 'nodeId', 'queueId', 'unix'],
+    'system-administrator': ['body', 'namespaceId', 'nodeId', 'queueId', 'unix'],
   },
   find: {
-    default: {
-      queueId: {
-        $in: {
-          // Find Game Servers within returned Namespaces.
-          $query: {
-            model: 'QueueSchema',
-            select: '_id',
-            where: {
-              namespaceId: {
-                $in: {
-                  // Find Namespaces where the Key or User has administrator access.
-                  $query: {
-                    model: 'NamespaceSchema',
-                    select: '_id',
-                    where: {
-                      $or: [
-                        {
-                          keys: {
-                            $elemMatch: {
-                              roles: { $eq: 'queues' },
-                              value: { $eq: { $ref: 'key' } },
-                            },
-                          },
-                        },
-                        {
-                          users: {
-                            $elemMatch: {
-                              _id: { $eq: { $ref: 'user._id' } },
-                              roles: { $eq: 'queues' },
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
+    default: NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Queues),
     'system-administrator': {},
     'user-administrator': {},
   },
-  populate: [
-    {
-      path: 'queueDocument',
-      populate: {
-        path: 'namespaceDocument',
-      },
-    },
-  ],
+  populate: [{ path: 'namespaceDocument' }],
   read: {
-    default: ['_id', 'body', 'createdAt', 'expiresAt', 'nodeId', 'queueId', 'unix', 'updatedAt'],
+    default: [
+      '_id',
+      'body',
+      'createdAt',
+      'expiresAt',
+      'namespaceId',
+      'nodeId',
+      'queueId',
+      'unix',
+      'updatedAt',
+    ],
   },
   roles: [
     {
       name: 'system-administrator',
-      query: {
-        'user.roles': { $eq: 'queues' },
-        'user.system': { $eq: true },
-      },
+      query: { 'user.roles': UserRole.Queues, 'user.system': true },
     },
     {
       name: 'user-administrator',
-      query: {
-        'user.roles': { $eq: 'queues' },
-      },
+      query: UserPermissionsHelpers.getRoleQuery(UserRole.Queues),
     },
     {
       name: 'namespace-administrator',
-      query: {
-        $or: [
-          {
-            'record.queueDocument.namespaceDocument.keys': {
-              $elemMatch: {
-                roles: { $eq: 'queues' },
-                value: { $eq: { $ref: 'key' } },
-              },
-            },
-          },
-          {
-            'record.queueDocument.namespaceDocument.users': {
-              $elemMatch: {
-                _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'queues' },
-              },
-            },
-          },
-        ],
-      },
+      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Queues),
     },
   ],
 });

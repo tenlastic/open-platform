@@ -1,3 +1,6 @@
+import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
+import { UserPermissionsHelpers, UserRole } from '../user';
+
 export const RecordPermissions = {
   create: {
     'namespace-administrator': ['collectionId', 'databaseId', 'properties.*', 'userId'],
@@ -8,37 +11,7 @@ export const RecordPermissions = {
     'user-administrator': true,
   },
   find: {
-    default: {
-      namespaceId: {
-        $in: {
-          // Find Namespaces where the Key or User has administrator access.
-          $query: {
-            model: 'NamespaceSchema',
-            select: '_id',
-            where: {
-              $or: [
-                {
-                  keys: {
-                    $elemMatch: {
-                      roles: { $eq: 'databases' },
-                      value: { $eq: { $ref: 'key' } },
-                    },
-                  },
-                },
-                {
-                  users: {
-                    $elemMatch: {
-                      _id: { $eq: { $ref: 'user._id' } },
-                      roles: { $eq: 'databases' },
-                    },
-                  },
-                },
-              ],
-            },
-          },
-        },
-      },
-    },
+    default: NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Databases),
     'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
@@ -67,32 +40,11 @@ export const RecordPermissions = {
   roles: [
     {
       name: 'user-administrator',
-      query: {
-        'user.roles': { $eq: 'databases' },
-      },
+      query: UserPermissionsHelpers.getRoleQuery(UserRole.Databases),
     },
     {
       name: 'namespace-administrator',
-      query: {
-        $or: [
-          {
-            'record.namespaceDocument.keys': {
-              $elemMatch: {
-                roles: { $eq: 'databases' },
-                value: { $eq: { $ref: 'key' } },
-              },
-            },
-          },
-          {
-            'record.namespaceDocument.users': {
-              $elemMatch: {
-                _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'databases' },
-              },
-            },
-          },
-        ],
-      },
+      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Databases),
     },
   ],
   update: {

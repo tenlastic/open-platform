@@ -5,6 +5,10 @@ import {
   BuildPermissions,
   Database,
   DatabasePermissions,
+  Game,
+  GameAuthorization,
+  GameAuthorizationPermissions,
+  GamePermissions,
   GameServer,
   GameServerLog,
   GameServerLogPermissions,
@@ -56,6 +60,16 @@ export async function subscribe(
     case 'databases':
       Model = Database;
       Permissions = DatabasePermissions;
+      break;
+
+    case 'games':
+      Model = Game;
+      Permissions = GamePermissions;
+      break;
+
+    case 'game-authorizations':
+      Model = GameAuthorization;
+      Permissions = GameAuthorizationPermissions;
       break;
 
     case 'game-server-logs':

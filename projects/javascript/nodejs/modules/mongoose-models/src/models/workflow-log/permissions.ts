@@ -1,104 +1,44 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
+import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
+import { UserPermissionsHelpers, UserRole } from '../user';
 import { WorkflowLog, WorkflowLogDocument } from './model';
 
 export const WorkflowLogPermissions = new MongoosePermissions<WorkflowLogDocument>(WorkflowLog, {
   create: {
-    'system-administrator': ['body', 'nodeId', 'unix', 'workflowId'],
+    'system-administrator': ['body', 'namespaceId', 'nodeId', 'unix', 'workflowId'],
   },
   find: {
-    default: {
-      workflowId: {
-        $in: {
-          // Find Game Servers within returned Namespaces.
-          $query: {
-            model: 'WorkflowSchema',
-            select: '_id',
-            where: {
-              namespaceId: {
-                $in: {
-                  // Find Namespaces where the Key or User has administrator access.
-                  $query: {
-                    model: 'NamespaceSchema',
-                    select: '_id',
-                    where: {
-                      $or: [
-                        {
-                          keys: {
-                            $elemMatch: {
-                              roles: { $eq: 'workflows' },
-                              value: { $eq: { $ref: 'key' } },
-                            },
-                          },
-                        },
-                        {
-                          users: {
-                            $elemMatch: {
-                              _id: { $eq: { $ref: 'user._id' } },
-                              roles: { $eq: 'workflows' },
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
+    default: NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Workflows),
     'system-administrator': {},
     'user-administrator': {},
   },
-  populate: [
-    {
-      path: 'workflowDocument',
-      populate: {
-        path: 'namespaceDocument',
-      },
-    },
-  ],
+  populate: [{ path: 'namespaceDocument' }],
   read: {
-    default: ['_id', 'body', 'createdAt', 'expiresAt', 'nodeId', 'unix', 'updatedAt', 'workflowId'],
+    default: [
+      '_id',
+      'body',
+      'createdAt',
+      'expiresAt',
+      'namespaceId',
+      'nodeId',
+      'unix',
+      'updatedAt',
+      'workflowId',
+    ],
   },
   roles: [
     {
       name: 'system-administrator',
-      query: {
-        'user.roles': { $eq: 'workflows' },
-        'user.system': { $eq: true },
-      },
+      query: { 'user.roles': UserRole.Workflows, 'user.system': true },
     },
     {
       name: 'user-administrator',
-      query: {
-        'user.roles': { $eq: 'workflows' },
-      },
+      query: UserPermissionsHelpers.getRoleQuery(UserRole.Workflows),
     },
     {
       name: 'namespace-administrator',
-      query: {
-        $or: [
-          {
-            'record.workflowDocument.namespaceDocument.keys': {
-              $elemMatch: {
-                roles: { $eq: 'workflows' },
-                value: { $eq: { $ref: 'key' } },
-              },
-            },
-          },
-          {
-            'record.workflowDocument.namespaceDocument.users': {
-              $elemMatch: {
-                _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'workflows' },
-              },
-            },
-          },
-        ],
-      },
+      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Workflows),
     },
   ],
 });

@@ -5,6 +5,7 @@ export const environment = {
   databaseApiBaseUrl: 'http://api.localhost/databases',
   friendApiBaseUrl: 'http://api.localhost/friends',
   gameApiBaseUrl: 'http://api.localhost/games',
+  gameAuthorizationApiBaseUrl: 'http://api.localhost/game-authorizations',
   gameServerApiBaseUrl: 'http://api.localhost/game-servers',
   groupApiBaseUrl: 'http://api.localhost/groups',
   groupInvitationApiBaseUrl: 'http://api.localhost/group-invitations',

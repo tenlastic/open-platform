@@ -74,21 +74,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       { arrayMerge: overwriteMerge },
     );
 
-    const start = Date.now();
-    const record = await this.Model.create(mergedParams);
-
-    if (process.env.NODE_ENV !== 'test') {
-      console.log({
-        _id: record._id,
-        collection: this.Model.collection.collectionName,
-        database: this.Model.db.db.databaseName,
-        duration: Date.now() - start,
-        label: 'create()',
-        module: 'mongoose-permissions',
-      });
-    }
-
-    return record;
+    return this.Model.create(mergedParams);
   }
 
   /**
@@ -103,21 +89,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       throw new PermissionError();
     }
 
-    const start = Date.now();
-    record = await record.remove();
-
-    if (process.env.NODE_ENV !== 'test') {
-      console.log({
-        _id: record._id,
-        collection: this.Model.collection.collectionName,
-        database: this.Model.db.db.databaseName,
-        duration: Date.now() - start,
-        label: 'delete()',
-        module: 'mongoose-permissions',
-      });
-    }
-
-    return record;
+    return record.remove();
   }
 
   /**
@@ -144,21 +116,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       query = query.populate(this.accessControl.options.populate);
     }
 
-    const start = Date.now();
-    const records = (await query.exec()) as TDocument[];
-
-    if (process.env.NODE_ENV !== 'test') {
-      console.log({
-        collection: this.Model.collection.collectionName,
-        database: this.Model.db.db.databaseName,
-        duration: Date.now() - start,
-        label: 'find()',
-        module: 'mongoose-permissions',
-        where,
-      });
-    }
-
-    return records;
+    return query.exec();
   }
 
   /**
@@ -229,22 +187,8 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       { arrayMerge, customMerge },
     );
 
-    const start = Date.now();
     Object.keys(mergedParams).forEach(key => (record[key] = mergedParams[key]));
-    record = await record.save();
-
-    if (process.env.NODE_ENV !== 'test') {
-      console.log({
-        _id: record._id,
-        collection: this.Model.collection.collectionName,
-        database: this.Model.db.db.databaseName,
-        duration: Date.now() - start,
-        label: 'update()',
-        module: 'mongoose-permissions',
-      });
-    }
-
-    return record;
+    return record.save();
   }
 
   /**

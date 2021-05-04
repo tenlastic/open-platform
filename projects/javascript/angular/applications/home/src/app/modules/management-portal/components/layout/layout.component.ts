@@ -43,7 +43,7 @@ export class LayoutComponent {
     }
 
     return this.selectedNamespaceService.namespace.users
-      .find(u => u._id === this.identityService.user._id)
+      .find(u => u._id === this.identityService.user?._id)
       .roles.includes(role);
   }
 }

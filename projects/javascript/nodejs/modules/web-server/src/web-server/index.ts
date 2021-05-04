@@ -49,11 +49,7 @@ export class WebServer {
   }
 
   public start(port = 3000) {
-    this.server = this.app.listen(port, () => {
-      if (process.env.NODE_ENV !== 'test') {
-        console.log(`Koa server running on port ${port}.`);
-      }
-    });
+    this.server = this.app.listen(port, () => console.log(`Koa server running on port ${port}.`));
   }
 
   public use(middleware: koa.Middleware<koa.ParameterizedContext<any, {}>>) {

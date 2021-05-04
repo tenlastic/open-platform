@@ -22,6 +22,13 @@ export const ROUTES: Routes = [
           import('./modules/databases/databases.module').then(m => m.DatabaseModule),
       },
       {
+        path: 'game-authorizations',
+        loadChildren: () =>
+          import('./modules/game-authorizations/game-authorizations.module').then(
+            m => m.GameAuthorizationModule,
+          ),
+      },
+      {
         path: 'game-servers',
         loadChildren: () =>
           import('./modules/game-servers/game-servers.module').then(m => m.GameServerModule),

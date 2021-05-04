@@ -17,6 +17,7 @@ import {
 import * as mongoose from 'mongoose';
 
 import { LogBase } from '../../bases';
+import { namespaceValidator } from '../../validators';
 import { BuildDocument, BuildEvent } from '../build';
 
 export const BuildLogEvent = new EventEmitter<IDatabasePayload<BuildLogDocument>>();
@@ -35,6 +36,7 @@ BuildEvent.sync(async payload => {
 @index({ body: 'text' })
 @index({ buildId: 1 })
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+@index({ namespaceId: 1 })
 @index({ nodeId: 1 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: BuildLogEvent })
 @pre('save', function(this: BuildLogDocument) {
@@ -42,10 +44,14 @@ BuildEvent.sync(async payload => {
   this.expiresAt.setDate(this.createdAt.getDate() + 3);
 })
 export class BuildLogSchema extends LogBase {
-  @prop({ immutable: true, ref: 'BuildSchema', required: true })
+  @prop({
+    ref: 'BuildSchema',
+    required: true,
+    validate: namespaceValidator('buildDocument', 'buildId'),
+  })
   public buildId: Ref<BuildDocument>;
 
-  @prop({ immutable: true, required: true })
+  @prop({ required: true })
   public nodeId: string;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })

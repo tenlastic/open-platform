@@ -3,25 +3,35 @@ import {
   Build,
   BuildService,
   Game,
+  GameAuthorizationService,
   GameServer,
   GameService,
   IBuild,
+  IGame,
+  IGameAuthorization,
+  IUser,
   LoginService,
+  Namespace,
+  NamespaceService,
 } from '@tenlastic/ng-http';
 import { ChildProcess } from 'child_process';
+import { GameAuthorization } from 'modules/http/src/public-api';
 import { Subject } from 'rxjs';
 
 import { ElectronService } from '../../services/electron/electron.service';
 import { IdentityService } from '../../services/identity/identity.service';
 
 export enum UpdateServiceState {
+  Banned,
   Checking,
   Downloading,
   Installing,
+  NotAuthorized,
   NotAvailable,
   NotChecked,
   NotInstalled,
   NotUpdated,
+  PendingAuthorization,
   Ready,
 }
 
@@ -75,8 +85,10 @@ export class UpdateService {
     private buildService: BuildService,
     private electronService: ElectronService,
     private gameService: GameService,
+    private gameAuthorizationService: GameAuthorizationService,
     private identityService: IdentityService,
     private loginService: LoginService,
+    private namespaceService: NamespaceService,
   ) {
     this.subscribeToServices();
     this.loginService.onLogout.subscribe(() => this.status.clear());
@@ -93,6 +105,30 @@ export class UpdateService {
 
     status.progress = null;
     status.state = UpdateServiceState.Checking;
+
+    // Check Game Authorization...
+    status.text = 'Checking authorization...';
+    const { Games } = IUser.Role;
+    const { game, gameAuthorization, namespaceUser } = await this.getAuthorization(gameId);
+    const { user } = this.identityService;
+    if (!user.roles.includes(Games) && !namespaceUser?.roles.includes(Games)) {
+      if (gameAuthorization?.status === IGameAuthorization.GameAuthorizationStatus.Revoked) {
+        status.state = UpdateServiceState.Banned;
+        return;
+      }
+
+      if (game.access !== IGame.Access.Public) {
+        if (gameAuthorization?.status === IGameAuthorization.GameAuthorizationStatus.Pending) {
+          status.state = UpdateServiceState.PendingAuthorization;
+          return;
+        } else if (
+          gameAuthorization?.status !== IGameAuthorization.GameAuthorizationStatus.Granted
+        ) {
+          status.state = UpdateServiceState.NotAuthorized;
+          return;
+        }
+      }
+    }
 
     // Get the latest Build from the server.
     status.text = 'Retrieving latest build...';
@@ -279,6 +315,21 @@ export class UpdateService {
     });
   }
 
+  private async getAuthorization(gameId: string) {
+    const game = await this.gameService.findOne(gameId);
+    const gameAuthorizations = await this.gameAuthorizationService.find({
+      where: { gameId, userId: this.identityService.user._id },
+    });
+
+    let namespace: Namespace;
+    try {
+      namespace = await this.namespaceService.findOne(game.namespaceId);
+    } catch {}
+    const namespaceUser = namespace?.users.find(u => u._id === this.identityService.user._id);
+
+    return { game, gameAuthorization: gameAuthorizations[0], namespaceUser };
+  }
+
   private async getLocalFiles(gameId: string) {
     const { crypto, fs, glob } = this.electronService;
     const status = this.getStatus(gameId);
@@ -309,6 +360,26 @@ export class UpdateService {
     return localFiles;
   }
 
+  private onGameChange(record: Game) {
+    const status = this.getStatus(record._id);
+    if (status.state !== UpdateServiceState.NotChecked) {
+      status.state = UpdateServiceState.NotChecked;
+      this.checkForUpdates(record._id);
+    }
+  }
+
+  private onGameAuthorizationChange(record: GameAuthorization) {
+    if (record.userId !== this.identityService.user._id) {
+      return;
+    }
+
+    const status = this.getStatus(record.gameId);
+    if (status.state !== UpdateServiceState.NotChecked) {
+      status.state = UpdateServiceState.NotChecked;
+      this.checkForUpdates(record.gameId);
+    }
+  }
+
   private subscribeToServices() {
     this.buildService.onUpdate.subscribe((record: Build) => {
       if (!record.gameId) {
@@ -323,13 +394,17 @@ export class UpdateService {
       }
     });
 
-    this.gameService.onUpdate.subscribe((record: Game) => {
-      const status = this.getStatus(record._id);
-
-      if (!status.build) {
-        status.state = UpdateServiceState.NotChecked;
-        this.checkForUpdates(record._id);
-      }
-    });
+    this.gameService.onCreate.subscribe((record: Game) => this.onGameChange(record));
+    this.gameService.onDelete.subscribe((record: Game) => this.onGameChange(record));
+    this.gameService.onUpdate.subscribe((record: Game) => this.onGameChange(record));
+    this.gameAuthorizationService.onCreate.subscribe((record: GameAuthorization) =>
+      this.onGameAuthorizationChange(record),
+    );
+    this.gameAuthorizationService.onDelete.subscribe((record: GameAuthorization) =>
+      this.onGameAuthorizationChange(record),
+    );
+    this.gameAuthorizationService.onUpdate.subscribe((record: GameAuthorization) =>
+      this.onGameAuthorizationChange(record),
+    );
   }
 }

@@ -17,6 +17,7 @@ import {
 import * as mongoose from 'mongoose';
 
 import { LogBase } from '../../bases';
+import { namespaceValidator } from '../../validators';
 import { GameServerDocument, GameServerEvent } from '../game-server';
 
 export const GameServerLogEvent = new EventEmitter<IDatabasePayload<GameServerLogDocument>>();
@@ -35,13 +36,18 @@ GameServerEvent.sync(async payload => {
 @index({ body: 'text' })
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ gameServerId: 1 })
+@index({ namespaceId: 1 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameServerLogEvent })
 @pre('save', async function(this: GameServerLogDocument) {
   this.expiresAt = new Date(this.createdAt);
   this.expiresAt.setDate(this.createdAt.getDate() + 3);
 })
 export class GameServerLogSchema extends LogBase {
-  @prop({ immutable: true, ref: 'GameServerSchema', required: true })
+  @prop({
+    ref: 'GameServerSchema',
+    required: true,
+    validate: namespaceValidator('gameServerDocument', 'gameServerId'),
+  })
   public gameServerId: Ref<GameServerDocument>;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'gameServerId', ref: 'GameServerSchema' })

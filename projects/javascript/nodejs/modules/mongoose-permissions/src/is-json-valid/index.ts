@@ -18,11 +18,13 @@ export function isJsonValid(json: any, query: any, and = true) {
       return operations.map(o => isJsonValid(json, o, false)).includes(true);
     }
 
-    const map = { $elemMatch, $eq, $exists, $in, $ne };
+    const map = { $elemMatch, $eq, $exists, $in, $ne, $nin };
 
+    const isNotOperator = Object.keys(map).includes(key) === false;
     if (
-      Object.keys(map).includes(key) === false &&
-      Object.keys(operations).some(o => Object.keys(map).includes(o)) === false
+      operations === null ||
+      operations === undefined ||
+      (isNotOperator && Object.keys(operations).some(o => Object.keys(map).includes(o)) === false)
     ) {
       return $eq(json, key, operations);
     }
@@ -124,6 +126,13 @@ function $ne(json: any, key: string, value: any) {
   } else {
     return reference !== value;
   }
+}
+
+/**
+ * Determines if the referenced value is not included within the given array.
+ */
+function $nin(json: any, key: string, value: any[]) {
+  return !$in(json, key, value);
 }
 
 /**

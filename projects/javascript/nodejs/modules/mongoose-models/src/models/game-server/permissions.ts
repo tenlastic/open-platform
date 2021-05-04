@@ -69,14 +69,10 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   find: {
     default: {
       $or: [
-        { gameId: { $eq: null } },
-        { gameId: { $exists: false } },
+        NamespacePermissionsHelpers.getFindQuery(NamespaceRole.GameServers),
         { gameId: { $in: GamePermissionsHelpers.getAuthorizedGameIds() } },
-        {
-          namespaceId: {
-            $in: NamespacePermissionsHelpers.getNamespaceIdsByRole(NamespaceRole.GameServers),
-          },
-        },
+        { gameId: null },
+        { gameId: { $exists: false } },
       ],
     },
     'system-administrator': {},
@@ -107,10 +103,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   roles: [
     {
       name: 'system-administrator',
-      query: {
-        'user.roles': { $eq: 'game-servers' },
-        'user.system': { $eq: true },
-      },
+      query: { 'user.roles': UserRole.GameServers, 'user.system': true },
     },
     {
       name: 'user-administrator',
@@ -118,10 +111,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
     },
     {
       name: 'namespace-administrator',
-      query: NamespacePermissionsHelpers.getRoleQuery(
-        'record.namespaceDocument',
-        NamespaceRole.GameServers,
-      ),
+      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.GameServers),
     },
   ],
   update: {

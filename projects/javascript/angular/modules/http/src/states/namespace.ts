@@ -16,7 +16,7 @@ export class NamespaceStore extends EntityStore<NamespaceState, Namespace> {
     this.namespaceService.onCreate.subscribe(record => this.add(record));
     this.namespaceService.onDelete.subscribe(record => this.remove(record._id));
     this.namespaceService.onRead.subscribe(records => this.upsertMany(records));
-    this.namespaceService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.namespaceService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

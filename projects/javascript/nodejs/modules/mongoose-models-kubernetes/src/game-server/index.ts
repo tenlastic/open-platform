@@ -138,6 +138,7 @@ export const KubernetesGameServer = {
       metadata: {
         annotations: {
           'tenlastic.com/gameServerId': gameServer._id.toString(),
+          'tenlastic.com/namespaceId': gameServer.namespaceId.toString(),
         },
         labels: {
           'tenlastic.com/app': name,

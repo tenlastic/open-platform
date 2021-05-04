@@ -18,7 +18,7 @@ export class BuildLogStore extends EntityStore<BuildLogState, BuildLog> {
     this.buildLogService.onCreate.subscribe(record => this.add(record));
     this.buildLogService.onDelete.subscribe(record => this.remove(record._id));
     this.buildLogService.onRead.subscribe(records => this.upsertMany(records));
-    this.buildLogService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.buildLogService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

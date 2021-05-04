@@ -58,6 +58,7 @@ export const KubernetesBuild = {
     const metadata = {
       annotations: {
         'tenlastic.com/buildId': build._id.toString(),
+        'tenlastic.com/namespaceId': build.namespaceId.toString(),
         'tenlastic.com/nodeId': `{{pod.name}}`,
       },
       labels: {
@@ -241,10 +242,7 @@ export const KubernetesBuild = {
      * ======================
      */
     await roleStackApiV1.createOrReplace(namespace, {
-      metadata: {
-        name,
-        ownerReferences,
-      },
+      metadata: { name, ownerReferences },
       rules: [
         {
           apiGroups: [''],

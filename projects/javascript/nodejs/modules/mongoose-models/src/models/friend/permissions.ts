@@ -10,7 +10,7 @@ export const FriendPermissions = new MongoosePermissions<FriendDocument>(Friend,
     owner: true,
   },
   find: {
-    default: { fromUserId: { $eq: { $ref: 'user._id' } } },
+    default: { fromUserId: { $ref: 'user._id' } },
   },
   read: {
     default: ['_id', 'createdAt', 'fromUserId', 'toUserId', 'updatedAt'],
@@ -18,9 +18,7 @@ export const FriendPermissions = new MongoosePermissions<FriendDocument>(Friend,
   roles: [
     {
       name: 'owner',
-      query: {
-        'record.fromUserId': { $eq: { $ref: 'user._id' } },
-      },
+      query: { 'record.fromUserId': { $ref: 'user._id' } },
     },
   ],
 });

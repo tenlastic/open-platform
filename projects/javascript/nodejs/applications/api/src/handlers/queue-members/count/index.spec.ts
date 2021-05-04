@@ -36,8 +36,16 @@ describe('handlers/queue-members/count', function() {
     const group = await GroupMock.create({ userIds: [users[1]._id, users[2]._id] });
     const queue = await QueueMock.create({ namespaceId: namespace._id, usersPerTeam: 2 });
     await Promise.all([
-      QueueMemberMock.create({ queueId: queue._id, userId: users[0]._id }),
-      QueueMemberMock.create({ groupId: group._id, queueId: queue._id }),
+      QueueMemberMock.create({
+        namespaceId: namespace._id,
+        queueId: queue._id,
+        userId: users[0]._id,
+      }),
+      QueueMemberMock.create({
+        groupId: group._id,
+        namespaceId: namespace._id,
+        queueId: queue._id,
+      }),
     ]);
     const ctx = new ContextMock({ state: { user: users[0].toObject() } });
 

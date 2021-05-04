@@ -9,6 +9,9 @@ import {
   BuildService,
   Database,
   DatabaseService,
+  Game,
+  GameAuthorization,
+  GameAuthorizationService,
   GameQuery,
   GameServer,
   GameServerQuery,
@@ -51,6 +54,7 @@ export class AppComponent implements OnInit {
     private buildService: BuildService,
     private databaseService: DatabaseService,
     private electronService: ElectronService,
+    private gameAuthorizationService: GameAuthorizationService,
     private gameQuery: GameQuery,
     private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
@@ -66,8 +70,6 @@ export class AppComponent implements OnInit {
     private router: Router,
     private socketService: SocketService,
     private titleService: Title,
-    private userQuery: UserQuery,
-    private userService: UserService,
     private webSocketService: WebSocketService,
     private workflowService: WorkflowService,
   ) {}
@@ -152,7 +154,9 @@ export class AppComponent implements OnInit {
   private subscribe() {
     this.socket.subscribe('builds', Build, this.buildService);
     this.socket.subscribe('databases', Database, this.databaseService);
+    this.socket.subscribe('game-authorizations', GameAuthorization, this.gameAuthorizationService);
     this.socket.subscribe('game-servers', GameServer, this.gameServerService);
+    this.socket.subscribe('games', Game, this.gameService);
     this.socket.subscribe('groups', Group, this.groupService);
     this.socket.subscribe('group-invitations', GroupInvitation, this.groupInvitationService);
     this.socket.subscribe('messages', Message, this.messageService);

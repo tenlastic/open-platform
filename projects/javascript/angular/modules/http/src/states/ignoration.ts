@@ -18,7 +18,7 @@ export class IgnorationStore extends EntityStore<IgnorationState, Ignoration> {
     this.ignorationService.onCreate.subscribe(record => this.add(record));
     this.ignorationService.onDelete.subscribe(record => this.remove(record._id));
     this.ignorationService.onRead.subscribe(records => this.upsertMany(records));
-    this.ignorationService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.ignorationService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

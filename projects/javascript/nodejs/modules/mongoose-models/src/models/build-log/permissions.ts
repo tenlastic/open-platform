@@ -1,104 +1,44 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
+import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
+import { UserPermissionsHelpers, UserRole } from '../user';
 import { BuildLog, BuildLogDocument } from './model';
 
 export const BuildLogPermissions = new MongoosePermissions<BuildLogDocument>(BuildLog, {
   create: {
-    'system-administrator': ['body', 'buildId', 'nodeId', 'unix'],
+    'system-administrator': ['body', 'buildId', 'namespaceId', 'nodeId', 'unix'],
   },
   find: {
-    default: {
-      buildId: {
-        $in: {
-          // Find Game Servers within returned Namespaces.
-          $query: {
-            model: 'BuildSchema',
-            select: '_id',
-            where: {
-              namespaceId: {
-                $in: {
-                  // Find Namespaces where the Key or User has administrator access.
-                  $query: {
-                    model: 'NamespaceSchema',
-                    select: '_id',
-                    where: {
-                      $or: [
-                        {
-                          keys: {
-                            $elemMatch: {
-                              roles: { $eq: 'builds' },
-                              value: { $eq: { $ref: 'key' } },
-                            },
-                          },
-                        },
-                        {
-                          users: {
-                            $elemMatch: {
-                              _id: { $eq: { $ref: 'user._id' } },
-                              roles: { $eq: 'builds' },
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
+    default: NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Builds),
     'system-administrator': {},
     'user-administrator': {},
   },
-  populate: [
-    {
-      path: 'buildDocument',
-      populate: {
-        path: 'namespaceDocument',
-      },
-    },
-  ],
+  populate: [{ path: 'namespaceDocument' }],
   read: {
-    default: ['_id', 'body', 'buildId', 'createdAt', 'expiresAt', 'nodeId', 'unix', 'updatedAt'],
+    default: [
+      '_id',
+      'body',
+      'buildId',
+      'createdAt',
+      'expiresAt',
+      'namespaceId',
+      'nodeId',
+      'unix',
+      'updatedAt',
+    ],
   },
   roles: [
     {
       name: 'system-administrator',
-      query: {
-        'user.roles': { $eq: 'builds' },
-        'user.system': { $eq: true },
-      },
+      query: { 'user.roles': UserRole.Builds, 'user.system': true },
     },
     {
       name: 'user-administrator',
-      query: {
-        'user.roles': { $eq: 'builds' },
-      },
+      query: UserPermissionsHelpers.getRoleQuery(UserRole.Builds),
     },
     {
       name: 'namespace-administrator',
-      query: {
-        $or: [
-          {
-            'record.buildDocument.namespaceDocument.keys': {
-              $elemMatch: {
-                roles: { $eq: 'builds' },
-                value: { $eq: { $ref: 'key' } },
-              },
-            },
-          },
-          {
-            'record.buildDocument.namespaceDocument.users': {
-              $elemMatch: {
-                _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'builds' },
-              },
-            },
-          },
-        ],
-      },
+      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Builds),
     },
   ],
 });

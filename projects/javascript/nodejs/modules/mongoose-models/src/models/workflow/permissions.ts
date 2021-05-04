@@ -1,5 +1,7 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
+import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
+import { UserPermissionsHelpers, UserRole } from '../user';
 import { Workflow, WorkflowDocument } from './model';
 
 const administrator = {
@@ -46,37 +48,7 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
     'user-administrator': true,
   },
   find: {
-    default: {
-      namespaceId: {
-        $in: {
-          // Find Namespaces where the Key or User has administrator access.
-          $query: {
-            model: 'NamespaceSchema',
-            select: '_id',
-            where: {
-              $or: [
-                {
-                  keys: {
-                    $elemMatch: {
-                      roles: { $eq: 'workflows' },
-                      value: { $eq: { $ref: 'key' } },
-                    },
-                  },
-                },
-                {
-                  users: {
-                    $elemMatch: {
-                      _id: { $eq: { $ref: 'user._id' } },
-                      roles: { $eq: 'workflows' },
-                    },
-                  },
-                },
-              ],
-            },
-          },
-        },
-      },
-    },
+    default: NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Workflows),
     'system-administrator': {},
     'user-administrator': {},
   },
@@ -99,39 +71,15 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
   roles: [
     {
       name: 'system-administrator',
-      query: {
-        'user.roles': { $eq: 'workflows' },
-        'user.system': { $eq: true },
-      },
+      query: { 'user.roles': UserRole.Workflows, 'user.system': true },
     },
     {
       name: 'user-administrator',
-      query: {
-        'user.roles': { $eq: 'workflows' },
-      },
+      query: UserPermissionsHelpers.getRoleQuery(UserRole.Workflows),
     },
     {
       name: 'namespace-administrator',
-      query: {
-        $or: [
-          {
-            'record.namespaceDocument.keys': {
-              $elemMatch: {
-                roles: { $eq: 'workflows' },
-                value: { $eq: { $ref: 'key' } },
-              },
-            },
-          },
-          {
-            'record.namespaceDocument.users': {
-              $elemMatch: {
-                _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'workflows' },
-              },
-            },
-          },
-        ],
-      },
+      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Workflows),
     },
   ],
   update: {

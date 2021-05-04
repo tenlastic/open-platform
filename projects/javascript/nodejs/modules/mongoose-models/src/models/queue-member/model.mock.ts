@@ -1,3 +1,4 @@
+import { NamespaceMock } from 'applications/api/dist/models';
 import * as mongoose from 'mongoose';
 
 import { WebSocketMock } from '../web-socket';
@@ -10,6 +11,7 @@ export class QueueMemberMock {
    */
   public static async create(params: Partial<QueueMemberSchema> = {}) {
     const defaults: Partial<QueueMemberDocument> = {
+      namespaceId: mongoose.Types.ObjectId(),
       queueId: mongoose.Types.ObjectId(),
       userId: mongoose.Types.ObjectId(),
     };

@@ -7,10 +7,14 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Game } from '@tenlastic/ng-http';
+import { Game, GameAuthorizationService } from '@tenlastic/ng-http';
 
-import { UpdateService, UpdateServiceState, UpdateServiceStatus } from '../../../../core/services';
+import {
+  IdentityService,
+  UpdateService,
+  UpdateServiceState,
+  UpdateServiceStatus,
+} from '../../../../core/services';
 import { FilesizePipe } from '../../../../shared/pipes';
 
 @Component({
@@ -36,12 +40,18 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   }
   public get buttonText() {
     switch (this.status.state) {
+      case UpdateServiceState.Banned:
+        return 'Banned';
+
       case UpdateServiceState.Checking:
         return 'Verifying...';
 
       case UpdateServiceState.Downloading:
       case UpdateServiceState.Installing:
         return this.status.isInstalled ? 'Updating...' : 'Installing...';
+
+      case UpdateServiceState.NotAuthorized:
+        return 'Request Authorization';
 
       case UpdateServiceState.NotAvailable:
         return 'Not Available';
@@ -52,16 +62,21 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
       case UpdateServiceState.NotUpdated:
         return 'Update';
 
+      case UpdateServiceState.PendingAuthorization:
+        return 'Pending Authorization';
+
       case UpdateServiceState.Ready:
         return this.status.childProcess ? 'Stop' : 'Play';
     }
   }
   public get isButtonDisabled() {
     switch (this.status.state) {
+      case UpdateServiceState.Banned:
       case UpdateServiceState.Checking:
       case UpdateServiceState.Downloading:
       case UpdateServiceState.Installing:
       case UpdateServiceState.NotAvailable:
+      case UpdateServiceState.PendingAuthorization:
         return true;
 
       default:
@@ -70,8 +85,11 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   }
   public get isButtonVisible() {
     switch (this.status.state) {
+      case UpdateServiceState.Banned:
+      case UpdateServiceState.NotAuthorized:
       case UpdateServiceState.NotInstalled:
       case UpdateServiceState.NotUpdated:
+      case UpdateServiceState.PendingAuthorization:
       case UpdateServiceState.Ready:
         return true;
 
@@ -137,7 +155,12 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
 
   private interval: NodeJS.Timer;
 
-  constructor(private changeDetectorRef: ChangeDetectorRef, private updateService: UpdateService) {}
+  constructor(
+    private changeDetectorRef: ChangeDetectorRef,
+    private gameAuthorizationService: GameAuthorizationService,
+    private identityService: IdentityService,
+    private updateService: UpdateService,
+  ) {}
 
   public ngOnInit() {
     if (this.updateService) {
@@ -172,6 +195,12 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
       this.updateService.stop(this.game._id);
     } else if (this.status.state === UpdateServiceState.Ready && !this.status.childProcess) {
       this.updateService.play(this.game._id);
+    } else if (this.status.state === UpdateServiceState.NotAuthorized) {
+      this.gameAuthorizationService.create({
+        gameId: this.game._id,
+        namespaceId: this.game.namespaceId,
+        userId: this.identityService.user._id,
+      });
     }
   }
 }

@@ -10,7 +10,7 @@
       <span>Home</span>
     </app-button>
 
-    <app-button *ngIf="($games | async)?.length > 0"
+    <app-button *ngIf="identityService.user && ($games | async)?.length > 0"
                 color="accent"
                 routerLink="/games"
                 routerLinkActive="active">

@@ -227,6 +227,10 @@ export const KubernetesQueue = {
      * STATEFUL SET
      * ======================
      */
+    const annotations = {
+      'tenlastic.com/namespaceId': queue.namespaceId.toString(),
+      'tenlastic.com/queueId': queue._id.toString(),
+    };
     const livenessProbe: k8s.V1Probe = {
       httpGet: { path: `/`, port: 3000 as any },
       initialDelaySeconds: 30,
@@ -241,7 +245,7 @@ export const KubernetesQueue = {
 
       manifest = {
         metadata: {
-          annotations: { 'tenlastic.com/queueId': queue._id.toString() },
+          annotations,
           labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
           name,
         },
@@ -264,7 +268,7 @@ export const KubernetesQueue = {
     } else if (isDevelopment && !queue.buildId) {
       manifest = {
         metadata: {
-          annotations: { 'tenlastic.com/queueId': queue._id.toString() },
+          annotations,
           labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
           name,
         },
@@ -292,7 +296,7 @@ export const KubernetesQueue = {
 
       manifest = {
         metadata: {
-          annotations: { 'tenlastic.com/queueId': queue._id.toString() },
+          annotations,
           labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
           name,
         },
@@ -318,7 +322,7 @@ export const KubernetesQueue = {
 
       manifest = {
         metadata: {
-          annotations: { 'tenlastic.com/queueId': queue._id.toString() },
+          annotations,
           labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
           name,
         },

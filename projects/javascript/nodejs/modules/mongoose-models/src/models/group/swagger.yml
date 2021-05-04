@@ -5,7 +5,7 @@ components:
       properties:
         _id:
           type: string
-          format: ^[a-f0-9]{24}$
+          format: ^[0-9a-f]{24}$
         createdAt:
           type: string
           format: date-time
@@ -20,4 +20,4 @@ components:
           type: array
           items:
             type: string
-            format: ^[a-f0-9]{24}$
+            format: ^[0-9a-f]{24}$

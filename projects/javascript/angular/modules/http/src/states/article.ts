@@ -19,7 +19,7 @@ export class ArticleStore extends EntityStore<ArticleState, Article> {
     this.articleService.onCreate.subscribe(record => this.add(record));
     this.articleService.onDelete.subscribe(record => this.remove(record._id));
     this.articleService.onRead.subscribe(records => this.upsertMany(records));
-    this.articleService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.articleService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

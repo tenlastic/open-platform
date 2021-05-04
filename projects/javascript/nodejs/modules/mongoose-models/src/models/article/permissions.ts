@@ -22,14 +22,10 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
   find: {
     default: {
       $or: [
+        NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Articles),
         {
           gameId: { $in: GamePermissionsHelpers.getAuthorizedGameIds() },
           publishedAt: { $exists: true, $ne: null },
-        },
-        {
-          namespaceId: {
-            $in: NamespacePermissionsHelpers.getNamespaceIdsByRole(NamespaceRole.Articles),
-          },
         },
       ],
     },
@@ -57,10 +53,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
     },
     {
       name: 'namespace-administrator',
-      query: NamespacePermissionsHelpers.getRoleQuery(
-        'record.namespaceDocument',
-        NamespaceRole.Articles,
-      ),
+      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Articles),
     },
   ],
   update: {

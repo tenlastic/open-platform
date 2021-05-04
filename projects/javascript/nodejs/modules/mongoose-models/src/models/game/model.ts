@@ -19,9 +19,14 @@ import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
-import { UserDocument } from '../user';
 
 export const GameEvent = new EventEmitter<IDatabasePayload<GameDocument>>();
+
+export enum GameAccess {
+  Private = 'private',
+  PrivatePublic = 'private-public',
+  Public = 'public',
+}
 
 // Delete unused images and videos on update.
 GameEvent.sync(async payload => {
@@ -46,6 +51,7 @@ NamespaceEvent.sync(async payload => {
   }
 });
 
+@index({ access: 1 })
 @index({ namespaceId: 1 })
 @index({ subtitle: 1, title: 1 }, { unique: true })
 @modelOptions({
@@ -60,8 +66,8 @@ NamespaceEvent.sync(async payload => {
 export class GameSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @arrayProp({ itemsRef: 'UserSchema' })
-  public authorizedUserIds: Array<Ref<UserDocument>>;
+  @prop({ default: GameAccess.Private, enum: GameAccess })
+  public access: GameAccess;
 
   @prop()
   public background: string;
@@ -80,17 +86,11 @@ export class GameSchema {
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
-  @prop()
-  public public: boolean;
-
   @prop({ match: /^.{2,40}$/ })
   public subtitle: string;
 
   @prop({ match: /^.{2,40}$/, required: true })
   public title: string;
-
-  @arrayProp({ itemsRef: 'UserSchema' })
-  public unauthorizedUserIds: Array<Ref<UserDocument>>;
 
   public updatedAt: Date;
 
@@ -104,7 +104,8 @@ export class GameSchema {
    * Throws an error if a NamespaceLimit is exceeded.
    */
   public static async checkNamespaceLimits(
-    count: number,
+    _id: string | mongoose.Types.ObjectId,
+    access: GameAccess,
     namespaceId: string | mongoose.Types.ObjectId,
   ) {
     const namespace = await Namespace.findOne({ _id: namespaceId });
@@ -113,15 +114,37 @@ export class GameSchema {
     }
 
     const limits = namespace.limits.games;
-    if (limits.count > 0) {
+    if (limits.count > 0 || limits.public >= 0) {
       const results = await Game.aggregate([
-        { $match: { namespaceId: namespace._id } },
-        { $group: { _id: null, count: { $sum: 1 } } },
+        { $match: { _id: { $ne: _id }, namespaceId: namespace._id } },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+            public: {
+              $sum: {
+                $cond: {
+                  else: 0,
+                  if: { $ne: ['$access', GameAccess.Private] },
+                  then: 1,
+                },
+              },
+            },
+          },
+        },
       ]);
 
+      // Count.
       const countSum = results.length > 0 ? results[0].count : 0;
-      if (limits.count > 0 && countSum + count > limits.count) {
+      if (limits.count > 0 && countSum >= limits.count) {
         throw new NamespaceLimitError('games.count', limits.count);
+      }
+
+      // Public.
+      const isPublic = [GameAccess.PrivatePublic, GameAccess.Public].includes(access);
+      const publicSum = results.length > 0 ? results[0].public : 0;
+      if (isPublic && publicSum + 1 > limits.public) {
+        throw new NamespaceLimitError('games.public', limits.public);
       }
     }
   }

@@ -28,6 +28,7 @@ export namespace INamespace {
   export interface GameLimits {
     count: number;
     images: number;
+    public: number;
     size: number;
     videos: number;
   }

@@ -4,12 +4,12 @@ import { Context, RequiredFieldError } from '@tenlastic/web-server';
 export async function handler(ctx: Context) {
   const user = ctx.state.apiKey || ctx.state.user;
 
-  const { namespaceId } = ctx.request.body;
+  const { access, namespaceId } = ctx.request.body;
   if (!namespaceId) {
     throw new RequiredFieldError(['namespaceId']);
   }
 
-  await Game.checkNamespaceLimits(1, namespaceId);
+  await Game.checkNamespaceLimits(null, access, namespaceId);
 
   const result = await GamePermissions.create(ctx.request.body, ctx.params, user);
   const record = await GamePermissions.read(result, user);

@@ -7,10 +7,10 @@ import { QueueMember, QueueMemberDocument } from './model';
 
 export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocument>(QueueMember, {
   create: {
-    'group-leader': ['groupId', 'queueId', 'webSocketId'],
-    'namespace-administrator': ['groupId', 'queueId', 'userId', 'webSocketId'],
-    owner: ['queueId', 'userId', 'webSocketId'],
-    'user-administrator': ['groupId', 'queueId', 'userId', 'webSocketId'],
+    'group-leader': ['groupId', 'namespaceId', 'queueId', 'userId', 'webSocketId'],
+    'namespace-administrator': ['groupId', 'namespaceId', 'queueId', 'userId', 'webSocketId'],
+    owner: ['namespaceId', 'queueId', 'userId', 'webSocketId'],
+    'user-administrator': ['groupId', 'namespaceId', 'queueId', 'userId', 'webSocketId'],
   },
   delete: {
     'group-leader': true,
@@ -22,22 +22,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
   find: {
     default: {
       $or: [
-        {
-          queueId: {
-            $in: {
-              // Find all Queues within the returned Namespaces.
-              $query: {
-                model: 'QueueSchema',
-                select: '_id',
-                where: {
-                  namespaceId: {
-                    $in: NamespacePermissionsHelpers.getNamespaceIdsByRole(NamespaceRole.Queues),
-                  },
-                },
-              },
-            },
-          },
-        },
+        NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Queues),
         {
           queueId: {
             $in: {
@@ -50,29 +35,29 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
             },
           },
         },
-        { userIds: { $eq: { $ref: 'user._id' } } },
+        { userIds: { $ref: 'user._id' } },
       ],
     },
     'system-administrator': {},
     'user-administrator': {},
   },
-  populate: [
-    { path: 'groupDocument' },
-    {
-      path: 'queueDocument',
-      populate: [{ path: 'namespaceDocument' }],
-    },
-  ],
+  populate: [{ path: 'groupDocument' }, { path: 'namespaceDocument' }],
   read: {
-    default: ['_id', 'createdAt', 'groupId', 'queueId', 'updatedAt', 'userId', 'userIds'],
+    default: [
+      '_id',
+      'createdAt',
+      'groupId',
+      'namespaceId',
+      'queueId',
+      'updatedAt',
+      'userId',
+      'userIds',
+    ],
   },
   roles: [
     {
       name: 'system-administrator',
-      query: {
-        'user.roles': { $eq: 'queues' },
-        'user.system': { $eq: true },
-      },
+      query: { 'user.roles': UserRole.Queues, 'user.system': true },
     },
     {
       name: 'user-administrator',
@@ -80,18 +65,15 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     },
     {
       name: 'namespace-administrator',
-      query: NamespacePermissionsHelpers.getRoleQuery(
-        'record.queueDocument.namespaceDocument',
-        NamespaceRole.Queues,
-      ),
+      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Queues),
     },
     {
       name: 'group-leader',
-      query: { 'record.groupDocument.userIds.0': { $eq: { $ref: 'user._id' } } },
+      query: { 'record.groupDocument.userIds.0': { $ref: 'user._id' } },
     },
     {
       name: 'owner',
-      query: { 'record.userId': { $eq: { $ref: 'user._id' } } },
+      query: { 'record.userId': { $ref: 'user._id' } },
     },
   ],
 });

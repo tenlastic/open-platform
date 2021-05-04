@@ -18,6 +18,7 @@ import * as mongoose from 'mongoose';
 
 import { LogBase } from '../../bases';
 import { QueueDocument, QueueEvent } from '../queue';
+import { namespaceValidator } from '../../validators';
 
 export const QueueLogEvent = new EventEmitter<IDatabasePayload<QueueLogDocument>>();
 
@@ -34,6 +35,7 @@ QueueEvent.sync(async payload => {
 
 @index({ body: 'text' })
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+@index({ namespaceId: 1 })
 @index({ queueId: 1 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: QueueLogEvent })
 @pre('save', function(this: QueueLogDocument) {
@@ -44,7 +46,11 @@ export class QueueLogSchema extends LogBase {
   @prop({ required: true })
   public nodeId: string;
 
-  @prop({ immutable: true, ref: 'QueueSchema', required: true })
+  @prop({
+    ref: 'QueueSchema',
+    required: true,
+    validate: namespaceValidator('queueDocument', 'queueId'),
+  })
   public queueId: Ref<QueueDocument>;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: 'QueueSchema' })

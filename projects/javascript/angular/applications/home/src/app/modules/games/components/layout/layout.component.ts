@@ -59,7 +59,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.setBackground$ = this.$activeGame.subscribe(activeGame => {
-      const value = activeGame.background || '/assets/images/background.jpg';
+      const value = activeGame?.background || '/assets/images/background.jpg';
       this.document.body.style.backgroundImage = `url('${value}')`;
     });
     this.updateArticles$ = this.$activeGame.subscribe(game => {
