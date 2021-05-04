@@ -554,7 +554,7 @@ function getAffinity(database: DatabaseDocument, role: string): k8s.V1Affinity {
             },
             topologyKey: 'kubernetes.io/hostname',
           },
-          weight: 100,
+          weight: 1,
         },
       ],
     },

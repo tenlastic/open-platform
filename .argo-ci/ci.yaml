@@ -146,6 +146,9 @@ spec:
         args: [./.argo-ci/bootstrap.sh]
         imagePullPolicy: IfNotPresent
         resources:
+          limits:
+            memory: 500M
+            cpu: 500m
           requests:
             memory: 500M
             cpu: 500m
