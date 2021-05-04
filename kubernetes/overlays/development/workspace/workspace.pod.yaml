@@ -24,32 +24,17 @@ spec:
         - name: workspace
           mountPath: /usr/src/app/
       workingDir: /usr/src/app/
-    - name: dind
-      image: docker:19.03.8-dind
-      command:
-        - "dockerd"
-        - "--host"
-        - "tcp://0.0.0.0:2375"
-      securityContext:
-        privileged: true
-    - name: docker-registry
-      image: registry:latest
-      command:
-        - /bin/sh
-        - -c
-        - trap "exit 0" SIGKILL && ./entrypoint.sh /etc/docker/registry/config.yml
-    - name: kafka
-      image: spotify/kafka:latest
+    - name: mongodb
+      image: bitnami/mongodb:latest
       env:
-        - name: ADVERTISED_HOST
+        - name: MONGODB_REPLICA_SET_MODE
+          value: primary
+        - name: MONGODB_ADVERTISED_HOSTNAME
           value: localhost
-        - name: ADVERTISED_PORT
-          value: "9092"
-    - name: mongo
-      image: tenlastic/mongo-replica-set:latest
-      env:
-        - name: REPLICA_SET_HOSTNAME
-          value: localhost
+        - name: MONGODB_ROOT_PASSWORD
+          value: password
+        - name: MONGODB_REPLICA_SET_KEY
+          value: key
     - name: minio
       image: minio/minio:latest
       command:

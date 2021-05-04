@@ -138,13 +138,6 @@ spec:
         command: [bash]
         args: [./.argo-ci/bootstrap.sh]
         imagePullPolicy: IfNotPresent
-        resources:
-          limits:
-            memory: 1000M
-            cpu: 1000m
-          requests:
-            memory: 500M
-            cpu: 500m
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
@@ -210,10 +203,6 @@ spec:
           - secretRef:
               name: ci-environment-variables
         imagePullPolicy: IfNotPresent
-        resources:
-          requests:
-            memory: 500M
-            cpu: 500m
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
@@ -228,35 +217,26 @@ spec:
           - secretRef:
               name: ci-environment-variables
         imagePullPolicy: IfNotPresent
-        resources:
-          requests:
-            memory: 500M
-            cpu: 500m
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
         workingDir: /workspace/open-platform/
       sidecars:
-        - name: docker-registry
-          image: registry:latest
-          command:
-            - /bin/sh
-            - -c
-            - trap "exit 0" SIGKILL && ./entrypoint.sh /etc/docker/registry/config.yml
-        - name: kafka
-          image: spotify/kafka:latest
+        - name: mongodb
+          image: bitnami/mongodb:latest
+          imagePullPolicy: IfNotPresent
           env:
-            - name: ADVERTISED_HOST
+            - name: MONGODB_REPLICA_SET_MODE
+              value: primary
+            - name: MONGODB_ADVERTISED_HOSTNAME
               value: localhost
-            - name: ADVERTISED_PORT
-              value: "9092"
-        - name: mongo
-          image: tenlastic/mongo-replica-set:latest
-          env:
-            - name: REPLICA_SET_HOSTNAME
-              value: localhost
+            - name: MONGODB_ROOT_PASSWORD
+              value: password
+            - name: MONGODB_REPLICA_SET_KEY
+              value: key
         - name: minio
           image: minio/minio:latest
+          imagePullPolicy: IfNotPresent
           command:
             - minio
             - server
@@ -317,10 +297,6 @@ spec:
           - --destination=docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:{{inputs.parameters.tag}}
           - --destination=docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:latest
         imagePullPolicy: IfNotPresent
-        resources:
-          requests:
-            memory: 500M
-            cpu: 500m
         volumeMounts:
           - name: kaniko
             mountPath: /kaniko/.docker/
@@ -349,10 +325,6 @@ spec:
           - secretRef:
               name: cd-environment-variables
         imagePullPolicy: IfNotPresent
-        resources:
-          requests:
-            memory: 500M
-            cpu: 500m
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
@@ -367,10 +339,6 @@ spec:
           - secretRef:
               name: cd-environment-variables
         imagePullPolicy: IfNotPresent
-        resources:
-          requests:
-            memory: 500M
-            cpu: 500m
         volumeMounts:
           - name: cd-ssh-keys
             mountPath: /tmp/secrets/cd-ssh-keys/
