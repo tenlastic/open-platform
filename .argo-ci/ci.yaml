@@ -16,7 +16,7 @@ spec:
     secondsAfterSuccess: 86400
   volumeClaimTemplates:
     - metadata:
-        name: nfs-server
+        name: workspace
       spec:
         accessModes: ["ReadWriteOnce"]
         resources:
@@ -28,10 +28,6 @@ spec:
       secret:
         secretName: cd-ssh-keys
         defaultMode: 0600
-    - name: workspace
-      nfs:
-        server: "{{steps.nfs-server.ip}}"
-        path: /
   templates:
     - name: pipeline
       inputs:
@@ -39,9 +35,6 @@ spec:
           - name: repo
           - name: revision
       steps:
-        - - name: nfs-server
-            template: nfs-server
-
         - - name: checkout
             template: checkout
             arguments:
@@ -312,19 +305,6 @@ spec:
           - name: workspace
             mountPath: /workspace/
         workingDir: /workspace/open-platform/
-
-    - name: nfs-server
-      container:
-        env:
-          - name: SHARED_DIRECTORY
-            value: /nfsshare
-        image: itsthenetwork/nfs-server-alpine:12
-        securityContext:
-          privileged: true
-        volumeMounts:
-          - mountPath: /nfsshare
-            name: nfs-server
-      daemon: true
 
     - name: publish-docker-image
       container:
