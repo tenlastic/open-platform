@@ -145,6 +145,10 @@ spec:
         command: [bash]
         args: [./.argo-ci/bootstrap.sh]
         imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: 500M
+            cpu: 500m
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
