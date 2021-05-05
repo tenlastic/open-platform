@@ -137,11 +137,20 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [bash]
         args: [./.argo-ci/bootstrap.sh]
+        env:
+          - name: NPM_CONFIG_CACHE
+            value: /npm-cache/
         imagePullPolicy: IfNotPresent
         volumeMounts:
+          - name: ci-npm-cache
+            mountPath: /npm-cache/
           - name: workspace
             mountPath: /workspace/
         workingDir: /workspace/open-platform/
+      volumes:
+        - name: ci-npm-cache
+          persistentVolumeClaim:
+            claimName: ci-npm-cache
 
     - name: build-docker-image
       container:
@@ -241,7 +250,7 @@ spec:
             - name: MONGODB_ADVERTISED_HOSTNAME
               value: localhost
             - name: MONGODB_REPLICA_SET_KEY
-              value: 0123456789
+              value: "1234567890"
             - name: MONGODB_REPLICA_SET_MODE
               value: primary
             - name: MONGODB_ROOT_PASSWORD

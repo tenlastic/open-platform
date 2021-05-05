@@ -24,13 +24,24 @@ spec:
         - name: workspace
           mountPath: /usr/src/app/
       workingDir: /usr/src/app/
+    - name: kafka
+      image: bitnami/kafka:latest
+      env:
+        - name: ALLOW_PLAINTEXT_LISTENER
+          value: "yes"
+        - name: KAFKA_CFG_ADVERTISED_LISTENERS
+          value: PLAINTEXT://127.0.0.1:9092
+        - name: KAFKA_CFG_LISTENERS
+          value: PLAINTEXT://:9092
+        - name: KAFKA_CFG_ZOOKEEPER_CONNECT
+          value: localhost:2181
     - name: mongodb
       image: bitnami/mongodb:latest
       env:
         - name: MONGODB_ADVERTISED_HOSTNAME
           value: localhost
         - name: MONGODB_REPLICA_SET_KEY
-          value: 0123456789
+          value: "1234567890"
         - name: MONGODB_REPLICA_SET_MODE
           value: primary
         - name: MONGODB_ROOT_PASSWORD
@@ -42,6 +53,11 @@ spec:
           value: minioadmin
         - name: MINIO_SECRET_KEY
           value: minioadmin
+    - name: zookeeper
+      image: bitnami/zookeeper:latest
+      env:
+        - name: ALLOW_ANONYMOUS_LOGIN
+          value: "yes"
   volumes:
     - name: node-modules
       persistentVolumeClaim:
