@@ -1,4 +1,4 @@
-import { TestBed, getTestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '@tenlastic/ng-http';
 import { Chance } from 'chance';

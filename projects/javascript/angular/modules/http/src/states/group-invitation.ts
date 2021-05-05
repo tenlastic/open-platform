@@ -19,7 +19,7 @@ export class GroupInvitationStore extends EntityStore<GroupInvitationState, Grou
     this.groupInvitationService.onCreate.subscribe(record => this.add(record));
     this.groupInvitationService.onDelete.subscribe(record => this.remove(record._id));
     this.groupInvitationService.onRead.subscribe(records => this.upsertMany(records));
-    this.groupInvitationService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.groupInvitationService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

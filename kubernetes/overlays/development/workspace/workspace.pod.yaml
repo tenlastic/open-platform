@@ -24,38 +24,40 @@ spec:
         - name: workspace
           mountPath: /usr/src/app/
       workingDir: /usr/src/app/
-    - name: dind
-      image: docker:19.03.8-dind
-      command:
-        - "dockerd"
-        - "--host"
-        - "tcp://0.0.0.0:2375"
-      securityContext:
-        privileged: true
-    - name: docker-registry
-      image: registry:latest
-      command:
-        - /bin/sh
-        - -c
-        - trap "exit 0" SIGKILL && ./entrypoint.sh /etc/docker/registry/config.yml
     - name: kafka
-      image: spotify/kafka:latest
+      image: bitnami/kafka:latest
       env:
-        - name: ADVERTISED_HOST
-          value: localhost
-        - name: ADVERTISED_PORT
-          value: "9092"
-    - name: mongo
-      image: tenlastic/mongo-replica-set:latest
+        - name: ALLOW_PLAINTEXT_LISTENER
+          value: "yes"
+        - name: KAFKA_CFG_ADVERTISED_LISTENERS
+          value: PLAINTEXT://127.0.0.1:9092
+        - name: KAFKA_CFG_LISTENERS
+          value: PLAINTEXT://:9092
+        - name: KAFKA_CFG_ZOOKEEPER_CONNECT
+          value: localhost:2181
+    - name: mongodb
+      image: bitnami/mongodb:latest
       env:
-        - name: REPLICA_SET_HOSTNAME
+        - name: MONGODB_ADVERTISED_HOSTNAME
           value: localhost
+        - name: MONGODB_REPLICA_SET_KEY
+          value: "1234567890"
+        - name: MONGODB_REPLICA_SET_MODE
+          value: primary
+        - name: MONGODB_ROOT_PASSWORD
+          value: password
     - name: minio
-      image: minio/minio:latest
-      command:
-        - minio
-        - server
-        - /data
+      image: bitnami/minio:latest
+      env:
+        - name: MINIO_ACCESS_KEY
+          value: minioadmin
+        - name: MINIO_SECRET_KEY
+          value: minioadmin
+    - name: zookeeper
+      image: bitnami/zookeeper:latest
+      env:
+        - name: ALLOW_ANONYMOUS_LOGIN
+          value: "yes"
   volumes:
     - name: node-modules
       persistentVolumeClaim:

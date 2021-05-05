@@ -1,7 +1,7 @@
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
-import { Game, GameSchema } from './model';
+import { Game, GameAccess, GameSchema } from './model';
 
 export class GameMock {
   /**
@@ -12,6 +12,7 @@ export class GameMock {
     const chance = new Chance();
 
     const defaults = {
+      access: GameAccess.Private,
       namespaceId: mongoose.Types.ObjectId(),
       title: chance.hash(),
     };

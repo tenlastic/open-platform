@@ -18,15 +18,11 @@ export const GroupPermissions = new MongoosePermissions<GroupDocument>(Group, {
   roles: [
     {
       name: 'leader',
-      query: {
-        'record.userIds.0': { $eq: { $ref: 'user._id' } },
-      },
+      query: { 'record.userIds.0': { $ref: 'user._id' } },
     },
     {
       name: 'member',
-      query: {
-        'record.userIds': { $eq: { $ref: 'user._id' } },
-      },
+      query: { 'record.userIds': { $ref: 'user._id' } },
     },
   ],
   update: {

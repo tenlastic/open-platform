@@ -1,5 +1,8 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
+import { GamePermissionsHelpers } from '../game';
+import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
+import { UserPermissionsHelpers, UserRole } from '../user';
 import { Queue, QueueDocument } from './model';
 
 const administrator = {
@@ -66,51 +69,10 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
   find: {
     default: {
       $or: [
-        {
-          namespaceId: {
-            $in: {
-              // Find all Namespaces of which the User has been invited.
-              $query: {
-                model: 'GameInvitationSchema',
-                select: 'namespaceId',
-                where: {
-                  userId: { $eq: { $ref: 'user._id' } },
-                },
-              },
-            },
-          },
-        },
-        {
-          namespaceId: {
-            $in: {
-              // Find Namespaces where the Key or User has administrator access.
-              $query: {
-                model: 'NamespaceSchema',
-                select: '_id',
-                where: {
-                  $or: [
-                    {
-                      keys: {
-                        $elemMatch: {
-                          roles: { $eq: 'queues' },
-                          value: { $eq: { $ref: 'key' } },
-                        },
-                      },
-                    },
-                    {
-                      users: {
-                        $elemMatch: {
-                          _id: { $eq: { $ref: 'user._id' } },
-                          roles: { $eq: 'queues' },
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
-            },
-          },
-        },
+        NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Queues),
+        { gameId: { $in: GamePermissionsHelpers.getAuthorizedGameIds() } },
+        { gameId: null },
+        { gameId: { $exists: false } },
       ],
     },
     'system-administrator': {},
@@ -137,39 +99,15 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
   roles: [
     {
       name: 'system-administrator',
-      query: {
-        'user.roles': { $eq: 'queues' },
-        'user.system': { $eq: true },
-      },
+      query: { 'user.roles': UserRole.Queues, 'user.system': true },
     },
     {
       name: 'user-administrator',
-      query: {
-        'user.roles': { $eq: 'queues' },
-      },
+      query: UserPermissionsHelpers.getRoleQuery(UserRole.Queues),
     },
     {
       name: 'namespace-administrator',
-      query: {
-        $or: [
-          {
-            'record.namespaceDocument.keys': {
-              $elemMatch: {
-                roles: { $eq: 'queues' },
-                value: { $eq: { $ref: 'key' } },
-              },
-            },
-          },
-          {
-            'record.namespaceDocument.users': {
-              $elemMatch: {
-                _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'queues' },
-              },
-            },
-          },
-        ],
-      },
+      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Queues),
     },
   ],
   update: {

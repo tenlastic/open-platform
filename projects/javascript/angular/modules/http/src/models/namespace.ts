@@ -6,7 +6,6 @@ export namespace INamespace {
     Builds = 'builds',
     Databases = 'databases',
     GameServers = 'game-servers',
-    GameInvitations = 'game-invitations',
     Games = 'games',
     Namespaces = 'namespaces',
     Queues = 'queues',
@@ -29,6 +28,7 @@ export namespace INamespace {
   export interface GameLimits {
     count: number;
     images: number;
+    public: number;
     size: number;
     videos: number;
   }

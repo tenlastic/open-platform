@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { NamespaceGameLimitsMock, NamespaceLimitsMock, NamespaceMock } from '../namespace';
 
 import { GameMock } from './model.mock';
-import { Game } from './model';
+import { Game, GameAccess } from './model';
 
 describe('models/game.model', function() {
   describe('checkNamespaceLimits()', function() {
@@ -16,9 +16,21 @@ describe('models/game.model', function() {
       });
       await GameMock.create({ namespaceId: namespace._id });
 
-      const promise = Game.checkNamespaceLimits(1, namespace._id);
+      const promise = Game.checkNamespaceLimits(null, GameAccess.Private, namespace._id);
 
       return expect(promise).to.be.rejectedWith('Namespace limit reached: games.count. Value: 1.');
+    });
+
+    it('enforces the games.public Namespace limit', async function() {
+      const namespace = await NamespaceMock.create({
+        limits: NamespaceLimitsMock.create({
+          games: NamespaceGameLimitsMock.create({ public: 0 }),
+        }),
+      });
+
+      const promise = Game.checkNamespaceLimits(null, GameAccess.Public, namespace._id);
+
+      return expect(promise).to.be.rejectedWith('Namespace limit reached: games.public. Value: 0.');
     });
   });
 

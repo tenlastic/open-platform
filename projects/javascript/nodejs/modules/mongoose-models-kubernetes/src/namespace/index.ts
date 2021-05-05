@@ -90,7 +90,7 @@ export const KubernetesNamespace = {
      * =======================
      */
     await networkPolicyApiV1.createOrReplace(name, {
-      metadata: { name },
+      metadata: { name: 'default' },
       spec: {
         egress: [
           {

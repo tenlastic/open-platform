@@ -5,7 +5,7 @@ components:
       properties:
         _id:
           type: string
-          format: ^[a-f0-9]{24}$
+          format: ^[0-9a-f]{24}$
         body:
           type: string
         createdAt:
@@ -16,7 +16,10 @@ components:
           format: date-time
         gameServerId:
           type: string
-          format: ^[a-f0-9]{24}$
+          format: ^[0-9a-f]{24}$
+        namespaceId:
+          type: string
+          format: ^[0-9a-f]{24}$
         unix:
           type: number
           format: double

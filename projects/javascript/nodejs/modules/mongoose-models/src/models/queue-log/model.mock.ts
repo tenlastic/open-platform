@@ -13,6 +13,7 @@ export class QueueLogMock {
 
     const defaults = {
       body: chance.hash(),
+      namespaceId: mongoose.Types.ObjectId(),
       queueId: mongoose.Types.ObjectId(),
       unix: Date.now(),
     };

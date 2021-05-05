@@ -18,7 +18,7 @@ export class BuildStore extends EntityStore<BuildState, Build> {
     this.buildService.onCreate.subscribe(record => this.add(record));
     this.buildService.onDelete.subscribe(record => this.remove(record._id));
     this.buildService.onRead.subscribe(records => this.upsertMany(records));
-    this.buildService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.buildService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

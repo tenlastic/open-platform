@@ -13,6 +13,7 @@ export class WorkflowLogMock {
 
     const defaults = {
       body: chance.hash(),
+      namespaceId: mongoose.Types.ObjectId(),
       nodeId: chance.hash(),
       unix: Date.now(),
       workflowId: mongoose.Types.ObjectId(),

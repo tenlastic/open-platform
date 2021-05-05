@@ -4,18 +4,11 @@
   box-shadow: 2px 2px 3px black;
   display: flex;
   flex: 0 0 auto;
-  padding: 12px 0px;
+  padding: 12px 16px;
 
   div.action {
     display: flex;
-    padding: 0px 16px;
     width: 100%;
-
-    ::ng-deep {
-      span.mat-button-wrapper span {
-        font-size: 18px;
-      }
-    }
 
     app-button {
       width: 100%;
@@ -28,7 +21,6 @@
 
   div.status {
     flex: 1 1 auto;
-    padding: 0px 16px;
 
     div {
       display: flex;
@@ -50,33 +42,13 @@
     }
   }
 
-  app-button {
-    ::ng-deep {
-      a.mat-button mat-icon.mat-icon {
-        font-size: 20px;
-        height: 0px;
-        line-height: 0px;
-        vertical-align: middle;
-        width: 24px;
-      }
-
-      mat-icon[icon='get_app'] {
-        margin-bottom: -2px;
-        margin-top: 2px;
-      }
-
-      span.text {
-        vertical-align: middle !important;
-      }
-    }
-  }
-
   app-button[color='primary'] {
     ::ng-deep {
       a.mat-button mat-icon.mat-icon {
         color: white;
-        font-size: 28px;
+        font-size: 24px;
         margin-top: 1px;
+        width: 20px;
       }
 
       span.text {

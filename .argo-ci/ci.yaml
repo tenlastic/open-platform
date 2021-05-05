@@ -16,7 +16,7 @@ spec:
     secondsAfterSuccess: 86400
   volumeClaimTemplates:
     - metadata:
-        name: nfs-server
+        name: workspace
       spec:
         accessModes: ["ReadWriteOnce"]
         resources:
@@ -28,10 +28,6 @@ spec:
       secret:
         secretName: cd-ssh-keys
         defaultMode: 0600
-    - name: workspace
-      nfs:
-        server: "{{steps.nfs-server.ip}}"
-        path: /
   templates:
     - name: pipeline
       inputs:
@@ -39,9 +35,6 @@ spec:
           - name: repo
           - name: revision
       steps:
-        - - name: nfs-server
-            template: nfs-server
-
         - - name: checkout
             template: checkout
             arguments:
@@ -144,11 +137,20 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [bash]
         args: [./.argo-ci/bootstrap.sh]
+        env:
+          - name: NPM_CONFIG_CACHE
+            value: /npm-cache/
         imagePullPolicy: IfNotPresent
         volumeMounts:
+          - name: ci-npm-cache
+            mountPath: /npm-cache/
           - name: workspace
             mountPath: /workspace/
         workingDir: /workspace/open-platform/
+      volumes:
+        - name: ci-npm-cache
+          persistentVolumeClaim:
+            claimName: ci-npm-cache
 
     - name: build-docker-image
       container:
@@ -210,10 +212,6 @@ spec:
           - secretRef:
               name: ci-environment-variables
         imagePullPolicy: IfNotPresent
-        resources:
-          requests:
-            memory: 500M
-            cpu: 500m
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
@@ -228,39 +226,49 @@ spec:
           - secretRef:
               name: ci-environment-variables
         imagePullPolicy: IfNotPresent
-        resources:
-          requests:
-            memory: 500M
-            cpu: 500m
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
         workingDir: /workspace/open-platform/
       sidecars:
-        - name: docker-registry
-          image: registry:latest
-          command:
-            - /bin/sh
-            - -c
-            - trap "exit 0" SIGKILL && ./entrypoint.sh /etc/docker/registry/config.yml
         - name: kafka
-          image: spotify/kafka:latest
+          image: bitnami/kafka:latest
+          imagePullPolicy: IfNotPresent
           env:
-            - name: ADVERTISED_HOST
-              value: localhost
-            - name: ADVERTISED_PORT
-              value: "9092"
-        - name: mongo
-          image: tenlastic/mongo-replica-set:latest
+            - name: ALLOW_PLAINTEXT_LISTENER
+              value: "yes"
+            - name: KAFKA_CFG_ADVERTISED_LISTENERS
+              value: PLAINTEXT://127.0.0.1:9092
+            - name: KAFKA_CFG_LISTENERS
+              value: PLAINTEXT://:9092
+            - name: KAFKA_CFG_ZOOKEEPER_CONNECT
+              value: localhost:2181
+        - name: mongodb
+          image: bitnami/mongodb:latest
+          imagePullPolicy: IfNotPresent
           env:
-            - name: REPLICA_SET_HOSTNAME
+            - name: MONGODB_ADVERTISED_HOSTNAME
               value: localhost
+            - name: MONGODB_REPLICA_SET_KEY
+              value: "1234567890"
+            - name: MONGODB_REPLICA_SET_MODE
+              value: primary
+            - name: MONGODB_ROOT_PASSWORD
+              value: password
         - name: minio
-          image: minio/minio:latest
-          command:
-            - minio
-            - server
-            - /data
+          image: bitnami/minio:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MINIO_ACCESS_KEY
+              value: minioadmin
+            - name: MINIO_SECRET_KEY
+              value: minioadmin
+        - name: zookeeper
+          image: bitnami/zookeeper:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ALLOW_ANONYMOUS_LOGIN
+              value: "yes"
 
     - name: get-branch
       script:
@@ -306,19 +314,6 @@ spec:
             mountPath: /workspace/
         workingDir: /workspace/open-platform/
 
-    - name: nfs-server
-      container:
-        env:
-          - name: SHARED_DIRECTORY
-            value: /nfsshare
-        image: itsthenetwork/nfs-server-alpine:12
-        securityContext:
-          privileged: true
-        volumeMounts:
-          - mountPath: /nfsshare
-            name: nfs-server
-      daemon: true
-
     - name: publish-docker-image
       container:
         image: gcr.io/kaniko-project/executor:v1.5.0
@@ -329,13 +324,7 @@ spec:
           - --destination=tenlastic/{{inputs.parameters.image}}:latest
           - --destination=docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:{{inputs.parameters.tag}}
           - --destination=docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:latest
-          - --destination=docker-registry.tenlastic.com/{{inputs.parameters.image}}:{{inputs.parameters.tag}}
-          - --destination=docker-registry.tenlastic.com/{{inputs.parameters.image}}:latest
         imagePullPolicy: IfNotPresent
-        resources:
-          requests:
-            memory: 500M
-            cpu: 500m
         volumeMounts:
           - name: kaniko
             mountPath: /kaniko/.docker/
@@ -364,10 +353,6 @@ spec:
           - secretRef:
               name: cd-environment-variables
         imagePullPolicy: IfNotPresent
-        resources:
-          requests:
-            memory: 500M
-            cpu: 500m
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
@@ -382,10 +367,6 @@ spec:
           - secretRef:
               name: cd-environment-variables
         imagePullPolicy: IfNotPresent
-        resources:
-          requests:
-            memory: 500M
-            cpu: 500m
         volumeMounts:
           - name: cd-ssh-keys
             mountPath: /tmp/secrets/cd-ssh-keys/

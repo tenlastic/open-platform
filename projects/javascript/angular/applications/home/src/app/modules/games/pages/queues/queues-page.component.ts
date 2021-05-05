@@ -129,8 +129,8 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
       });
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
-        if (e.error.errors[0].name === 'QueueMemberGameInvitationError') {
-          this.matSnackBar.open('A User in your Group is missing a Game Invitation.');
+        if (e.error.errors[0].name === 'QueueMemberAuthorizationError') {
+          this.matSnackBar.open('A User in your Group is not authorized to play this Game.');
         }
 
         if (e.error.errors[0].name === 'QueueMemberUniquenessError') {

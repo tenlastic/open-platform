@@ -280,6 +280,13 @@ export class NamespacesFormPageComponent implements OnInit {
             },
             Validators.required,
           ],
+          public: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: (limits && limits.games && limits.games.public) || 0,
+            },
+            Validators.required,
+          ],
           size: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),

@@ -38,16 +38,6 @@
         </app-button>
 
         <app-button color="accent"
-                    layout="vertical"
-                    routerLink="refresh-tokens"
-                    routerLinkActive="active"
-                    text="left"
-                    width="full">
-          <mat-icon>vpn_key</mat-icon>
-          <span>Refresh Tokens</span>
-        </app-button>
-
-        <app-button color="accent"
                     [hidden]="!identityService?.user?.roles?.includes('users')"
                     layout="vertical"
                     routerLink="users"
@@ -100,7 +90,7 @@
                       routerLinkActive="active"
                       text="left"
                       width="full">
-            <mat-icon>computer</mat-icon>
+            <mat-icon>public</mat-icon>
             <span>Game Servers</span>
           </app-button>
 
@@ -111,7 +101,7 @@
                       routerLinkActive="active"
                       text="left"
                       width="full">
-            <mat-icon>schedule</mat-icon>
+            <mat-icon>hourglass_bottom</mat-icon>
             <span>Queues</span>
           </app-button>
 
@@ -162,15 +152,15 @@
             <span>Games</span>
           </app-button>
 
-          <app-button *ngIf="hasPermission('game-invitations')"
+          <app-button *ngIf="hasPermission('games')"
                       color="accent"
                       layout="vertical"
-                      routerLink="game-invitations"
+                      routerLink="game-authorizations"
                       routerLinkActive="active"
                       text="left"
                       width="full">
-            <mat-icon>person_add_alt_1</mat-icon>
-            <span>Game Invitations</span>
+            <mat-icon>vpn_key</mat-icon>
+            <span>Game Authorizations</span>
           </app-button>
         </ng-container>
       </div>

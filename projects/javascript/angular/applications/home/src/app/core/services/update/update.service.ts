@@ -3,25 +3,35 @@ import {
   Build,
   BuildService,
   Game,
-  GameInvitationService,
+  GameAuthorizationService,
   GameServer,
+  GameService,
   IBuild,
+  IGame,
+  IGameAuthorization,
+  IUser,
   LoginService,
+  Namespace,
+  NamespaceService,
 } from '@tenlastic/ng-http';
 import { ChildProcess } from 'child_process';
+import { GameAuthorization } from 'modules/http/src/public-api';
 import { Subject } from 'rxjs';
 
 import { ElectronService } from '../../services/electron/electron.service';
 import { IdentityService } from '../../services/identity/identity.service';
 
 export enum UpdateServiceState {
+  Banned,
   Checking,
   Downloading,
   Installing,
+  NotAuthorized,
   NotAvailable,
+  NotChecked,
   NotInstalled,
-  NotInvited,
   NotUpdated,
+  PendingAuthorization,
   Ready,
 }
 
@@ -74,20 +84,20 @@ export class UpdateService {
   constructor(
     private buildService: BuildService,
     private electronService: ElectronService,
-    private gameInvitationService: GameInvitationService,
+    private gameService: GameService,
+    private gameAuthorizationService: GameAuthorizationService,
     private identityService: IdentityService,
     private loginService: LoginService,
+    private namespaceService: NamespaceService,
   ) {
     this.subscribeToServices();
-
-    this.loginService.onLogout.subscribe(() => this.clear());
+    this.loginService.onLogout.subscribe(() => this.status.clear());
   }
 
   public async checkForUpdates(gameId: string) {
     const status = this.getStatus(gameId);
     if (
-      status.state >= 0 &&
-      status.state !== UpdateServiceState.NotInvited &&
+      status.state !== UpdateServiceState.NotChecked &&
       status.state !== UpdateServiceState.NotAvailable
     ) {
       return;
@@ -96,14 +106,28 @@ export class UpdateService {
     status.progress = null;
     status.state = UpdateServiceState.Checking;
 
-    // Check if the user has been invited.
-    status.text = 'Checking access permission...';
-    const invitations = await this.gameInvitationService.find({
-      where: { gameId, userId: this.identityService.user._id },
-    });
-    if (invitations.length === 0) {
-      status.state = UpdateServiceState.NotInvited;
-      return;
+    // Check Game Authorization...
+    status.text = 'Checking authorization...';
+    const { Games } = IUser.Role;
+    const { game, gameAuthorization, namespaceUser } = await this.getAuthorization(gameId);
+    const { user } = this.identityService;
+    if (!user.roles.includes(Games) && !namespaceUser?.roles.includes(Games)) {
+      if (gameAuthorization?.status === IGameAuthorization.GameAuthorizationStatus.Revoked) {
+        status.state = UpdateServiceState.Banned;
+        return;
+      }
+
+      if (game.access !== IGame.Access.Public) {
+        if (gameAuthorization?.status === IGameAuthorization.GameAuthorizationStatus.Pending) {
+          status.state = UpdateServiceState.PendingAuthorization;
+          return;
+        } else if (
+          gameAuthorization?.status !== IGameAuthorization.GameAuthorizationStatus.Granted
+        ) {
+          status.state = UpdateServiceState.NotAuthorized;
+          return;
+        }
+      }
     }
 
     // Get the latest Build from the server.
@@ -123,9 +147,9 @@ export class UpdateService {
     }
 
     // Find Files associated with latest Build.
+    status.build = builds[0];
     status.progress = null;
     status.text = 'Retrieving build files...';
-    status.build = builds[0];
     if (status.build.files.length === 0) {
       status.state = UpdateServiceState.NotAvailable;
       return;
@@ -168,9 +192,18 @@ export class UpdateService {
     if (updatedFiles.length > 0) {
       status.modifiedFiles = updatedFiles;
       status.progress = null;
-      status.state = UpdateServiceState.NotUpdated;
+      status.state = UpdateServiceState.Downloading;
+      status.text = 'Downloading and installing update...';
 
-      this.update(gameId);
+      try {
+        await this.download(status.build, gameId);
+      } catch (e) {
+        console.error(e);
+      }
+
+      // Make sure download is complete.
+      status.state = UpdateServiceState.NotChecked;
+      await this.checkForUpdates(gameId);
     } else {
       status.modifiedFiles = [];
       status.progress = null;
@@ -180,8 +213,7 @@ export class UpdateService {
 
   public getStatus(gameId: string) {
     if (!this.status.has(gameId)) {
-      this.status.set(gameId, {});
-      this.checkForUpdates(gameId);
+      this.status.set(gameId, { state: UpdateServiceState.NotChecked });
     }
 
     return this.status.get(gameId);
@@ -213,31 +245,6 @@ export class UpdateService {
     }
 
     status.childProcess.kill();
-  }
-
-  public async update(gameId: string) {
-    const status = this.getStatus(gameId);
-
-    status.progress = null;
-    status.state = UpdateServiceState.Downloading;
-    status.text = 'Downloading and installing update...';
-
-    try {
-      await this.download(status.build, gameId);
-    } catch (e) {
-      console.error(e);
-    }
-
-    // Make sure download is complete.
-    status.state = -1;
-    await this.checkForUpdates(gameId);
-    if (status.modifiedFiles.length > 0) {
-      this.update(gameId);
-    }
-  }
-
-  private clear() {
-    this.status = new Map();
   }
 
   private async deleteRemovedFiles(
@@ -308,6 +315,21 @@ export class UpdateService {
     });
   }
 
+  private async getAuthorization(gameId: string) {
+    const game = await this.gameService.findOne(gameId);
+    const gameAuthorizations = await this.gameAuthorizationService.find({
+      where: { gameId, userId: this.identityService.user._id },
+    });
+
+    let namespace: Namespace;
+    try {
+      namespace = await this.namespaceService.findOne(game.namespaceId);
+    } catch {}
+    const namespaceUser = namespace?.users.find(u => u._id === this.identityService.user._id);
+
+    return { game, gameAuthorization: gameAuthorizations[0], namespaceUser };
+  }
+
   private async getLocalFiles(gameId: string) {
     const { crypto, fs, glob } = this.electronService;
     const status = this.getStatus(gameId);
@@ -338,17 +360,28 @@ export class UpdateService {
     return localFiles;
   }
 
+  private onGameChange(record: Game) {
+    const status = this.getStatus(record._id);
+    if (status.state !== UpdateServiceState.NotChecked) {
+      status.state = UpdateServiceState.NotChecked;
+      this.checkForUpdates(record._id);
+    }
+  }
+
+  private onGameAuthorizationChange(record: GameAuthorization) {
+    if (record.userId !== this.identityService.user._id) {
+      return;
+    }
+
+    const status = this.getStatus(record.gameId);
+    if (status.state !== UpdateServiceState.NotChecked) {
+      status.state = UpdateServiceState.NotChecked;
+      this.checkForUpdates(record.gameId);
+    }
+  }
+
   private subscribeToServices() {
-    this.gameInvitationService.onCreate.subscribe(record => {
-      const status = this.getStatus(record.gameId);
-
-      if (!status.build) {
-        status.state = -1;
-        this.checkForUpdates(record.gameId);
-      }
-    });
-
-    this.buildService.onUpdate.subscribe(record => {
+    this.buildService.onUpdate.subscribe((record: Build) => {
       if (!record.gameId) {
         return;
       }
@@ -356,9 +389,22 @@ export class UpdateService {
       const status = this.getStatus(record.gameId);
 
       if (!status.build || record._id !== status.build._id) {
-        status.state = -1;
+        status.state = UpdateServiceState.NotChecked;
         this.checkForUpdates(record.gameId);
       }
     });
+
+    this.gameService.onCreate.subscribe((record: Game) => this.onGameChange(record));
+    this.gameService.onDelete.subscribe((record: Game) => this.onGameChange(record));
+    this.gameService.onUpdate.subscribe((record: Game) => this.onGameChange(record));
+    this.gameAuthorizationService.onCreate.subscribe((record: GameAuthorization) =>
+      this.onGameAuthorizationChange(record),
+    );
+    this.gameAuthorizationService.onDelete.subscribe((record: GameAuthorization) =>
+      this.onGameAuthorizationChange(record),
+    );
+    this.gameAuthorizationService.onUpdate.subscribe((record: GameAuthorization) =>
+      this.onGameAuthorizationChange(record),
+    );
   }
 }

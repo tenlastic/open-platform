@@ -443,6 +443,104 @@ describe('is-json-valid', function() {
       });
     });
 
+    describe('$nin', function() {
+      context('when the reference is an array', function() {
+        it('returns true', function() {
+          const json = {
+            user: {
+              roles: ['Admin'],
+            },
+          };
+          const query = {
+            'user.roles': { $nin: ['Owner'] },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function() {
+          const json = {
+            user: {
+              roles: ['Admin'],
+            },
+          };
+          const query = {
+            'user.roles': { $nin: ['Admin', 'Owner'] },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+      });
+
+      context('when the reference is an ObjectId', function() {
+        it('returns true', function() {
+          const json = {
+            user: {
+              _id: mongoose.Types.ObjectId(),
+            },
+          };
+          const query = {
+            'user._id': { $nin: [mongoose.Types.ObjectId()] },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function() {
+          const json = {
+            user: {
+              _id: mongoose.Types.ObjectId(),
+            },
+          };
+          const query = {
+            'user._id': { $nin: [json.user._id] },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+      });
+
+      context('when the reference is anything else', function() {
+        it('returns true', function() {
+          const json = {
+            user: {
+              _id: '123',
+            },
+          };
+          const query = {
+            'user._id': { $nin: [123] },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function() {
+          const json = {
+            user: {
+              _id: '123',
+            },
+          };
+          const query = {
+            'user._id': { $nin: ['123'] },
+          };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+      });
+    });
+
     describe('$or', function() {
       it('returns true', function() {
         const json = {

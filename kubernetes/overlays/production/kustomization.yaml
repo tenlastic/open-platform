@@ -21,6 +21,7 @@ resources:
   - ./ci-cd/cd-environment-variables.sealedsecret.yaml
   - ./ci-cd/cd-ssh-keys.sealedsecret.yaml
   - ./ci-cd/ci-environment-variables.sealedsecret.yaml
+  - ./ci-cd/ci-npm-cache.pvc.yaml
   - ./docker-registry/docker-registry-image-pull-secret.sealedsecret.yaml
   - ./docker-registry/docker-registry.sealedsecret.yaml
   - ./flux/flux.yaml

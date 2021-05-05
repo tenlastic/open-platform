@@ -1,106 +1,45 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
+import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
+import { UserPermissionsHelpers, UserRole } from '../user';
 import { GameServerLog, GameServerLogDocument } from './model';
 
 export const GameServerLogPermissions = new MongoosePermissions<GameServerLogDocument>(
   GameServerLog,
   {
     create: {
-      'system-administrator': ['body', 'gameServerId', 'unix'],
+      'system-administrator': ['body', 'gameServerId', 'namespaceId', 'unix'],
     },
     find: {
-      default: {
-        gameServerId: {
-          $in: {
-            // Find Game Servers within returned Namespaces.
-            $query: {
-              model: 'GameServerSchema',
-              select: '_id',
-              where: {
-                namespaceId: {
-                  $in: {
-                    // Find Namespaces where the Key or User has administrator access.
-                    $query: {
-                      model: 'NamespaceSchema',
-                      select: '_id',
-                      where: {
-                        $or: [
-                          {
-                            keys: {
-                              $elemMatch: {
-                                roles: { $eq: 'game-servers' },
-                                value: { $eq: { $ref: 'key' } },
-                              },
-                            },
-                          },
-                          {
-                            users: {
-                              $elemMatch: {
-                                _id: { $eq: { $ref: 'user._id' } },
-                                roles: { $eq: 'game-servers' },
-                              },
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+      default: NamespacePermissionsHelpers.getFindQuery(NamespaceRole.GameServers),
       'system-administrator': {},
       'user-administrator': {},
     },
-    populate: [
-      {
-        path: 'gameServerDocument',
-        populate: {
-          path: 'namespaceDocument',
-        },
-      },
-    ],
+    populate: [{ path: 'namespaceDocument' }],
     read: {
-      default: ['_id', 'body', 'createdAt', 'expiresAt', 'gameServerId', 'unix', 'updatedAt'],
+      default: [
+        '_id',
+        'body',
+        'createdAt',
+        'expiresAt',
+        'gameServerId',
+        'namespaceId',
+        'unix',
+        'updatedAt',
+      ],
     },
     roles: [
       {
         name: 'system-administrator',
-        query: {
-          'user.roles': { $eq: 'game-servers' },
-          'user.system': { $eq: true },
-        },
+        query: { 'user.roles': UserRole.GameServers, 'user.system': true },
       },
       {
         name: 'user-administrator',
-        query: {
-          'user.roles': { $eq: 'game-servers' },
-        },
+        query: UserPermissionsHelpers.getRoleQuery(UserRole.GameServers),
       },
       {
         name: 'namespace-administrator',
-        query: {
-          $or: [
-            {
-              'record.gameServerDocument.namespaceDocument.keys': {
-                $elemMatch: {
-                  roles: { $eq: 'game-servers' },
-                  value: { $eq: { $ref: 'key' } },
-                },
-              },
-            },
-            {
-              'record.gameServerDocument.namespaceDocument.users': {
-                $elemMatch: {
-                  _id: { $eq: { $ref: 'user._id' } },
-                  roles: { $eq: 'game-servers' },
-                },
-              },
-            },
-          ],
-        },
+        query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.GameServers),
       },
     ],
   },

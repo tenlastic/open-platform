@@ -110,7 +110,7 @@ export const KubernetesQueue = {
               {
                 // Allow traffic to Redis.
                 podSelector: {
-                  matchLabels: { 'tenlastic.com/app': name, release: `${name}-redis` },
+                  matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'redis' },
                 },
               },
             ],
@@ -227,6 +227,10 @@ export const KubernetesQueue = {
      * STATEFUL SET
      * ======================
      */
+    const annotations = {
+      'tenlastic.com/namespaceId': queue.namespaceId.toString(),
+      'tenlastic.com/queueId': queue._id.toString(),
+    };
     const livenessProbe: k8s.V1Probe = {
       httpGet: { path: `/`, port: 3000 as any },
       initialDelaySeconds: 30,
@@ -241,7 +245,7 @@ export const KubernetesQueue = {
 
       manifest = {
         metadata: {
-          annotations: { 'tenlastic.com/queueId': queue._id.toString() },
+          annotations,
           labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
           name,
         },
@@ -264,7 +268,7 @@ export const KubernetesQueue = {
     } else if (isDevelopment && !queue.buildId) {
       manifest = {
         metadata: {
-          annotations: { 'tenlastic.com/queueId': queue._id.toString() },
+          annotations,
           labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
           name,
         },
@@ -292,7 +296,7 @@ export const KubernetesQueue = {
 
       manifest = {
         metadata: {
-          annotations: { 'tenlastic.com/queueId': queue._id.toString() },
+          annotations,
           labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
           name,
         },
@@ -318,7 +322,7 @@ export const KubernetesQueue = {
 
       manifest = {
         metadata: {
-          annotations: { 'tenlastic.com/queueId': queue._id.toString() },
+          annotations,
           labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
           name,
         },
@@ -388,7 +392,7 @@ function getAffinity(queue: QueueDocument, role: string): k8s.V1Affinity {
             },
             topologyKey: 'kubernetes.io/hostname',
           },
-          weight: 100,
+          weight: 1,
         },
       ],
     },

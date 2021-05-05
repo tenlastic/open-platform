@@ -18,7 +18,6 @@ import * as mongoose from 'mongoose';
 import { namespaceValidator } from '../../validators';
 import { BuildDocument } from '../build';
 import { GameDocument } from '../game';
-import { GameInvitationDocument } from '../game-invitation';
 import { GameServerDocument } from '../game-server';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 import { QueueStatusSchema } from './status';
@@ -93,14 +92,6 @@ export class QueueSchema {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: 'GameSchema' })
   public gameDocument: GameDocument;
-
-  @prop({
-    foreignField: 'namespaceId',
-    justOne: true,
-    localField: 'namespaceId',
-    ref: 'GameInvitationSchema',
-  })
-  public gameInvitationDocument: GameInvitationDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;

@@ -3,12 +3,12 @@ import {
   BuildLog,
   BuildLogPermissions,
   BuildPermissions,
-  Collection,
-  CollectionPermissions,
   Database,
   DatabasePermissions,
-  GameInvitation,
-  GameInvitationPermissions,
+  Game,
+  GameAuthorization,
+  GameAuthorizationPermissions,
+  GamePermissions,
   GameServer,
   GameServerLog,
   GameServerLogPermissions,
@@ -25,8 +25,6 @@ import {
   QueueMember,
   QueueMemberPermissions,
   QueuePermissions,
-  RecordModel,
-  RecordSchema,
   User,
   UserPermissions,
   WebSocket,
@@ -64,9 +62,14 @@ export async function subscribe(
       Permissions = DatabasePermissions;
       break;
 
-    case 'game-invitations':
-      Model = GameInvitation;
-      Permissions = GameInvitationPermissions;
+    case 'games':
+      Model = Game;
+      Permissions = GamePermissions;
+      break;
+
+    case 'game-authorizations':
+      Model = GameAuthorization;
+      Permissions = GameAuthorizationPermissions;
       break;
 
     case 'game-server-logs':

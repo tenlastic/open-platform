@@ -8,6 +8,9 @@ export class NamespaceGameLimitsSchema {
   public images: number;
 
   @prop({ default: 0 })
+  public public: number;
+
+  @prop({ default: 0 })
   public size: number;
 
   @prop({ default: 0 })

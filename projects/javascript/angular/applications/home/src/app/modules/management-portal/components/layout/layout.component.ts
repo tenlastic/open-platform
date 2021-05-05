@@ -24,11 +24,7 @@ export class LayoutComponent {
     );
   }
   public get hasLauncherButtons() {
-    return (
-      this.hasPermission('articles') ||
-      this.hasPermission('game-invitations') ||
-      this.hasPermission('games')
-    );
+    return this.hasPermission('articles') || this.hasPermission('games');
   }
   public launcherUrl = environment.launcherUrl;
   public showInfrastructureButtons = true;
@@ -47,7 +43,7 @@ export class LayoutComponent {
     }
 
     return this.selectedNamespaceService.namespace.users
-      .find(u => u._id === this.identityService.user._id)
+      .find(u => u._id === this.identityService.user?._id)
       .roles.includes(role);
   }
 }

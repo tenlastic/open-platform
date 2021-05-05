@@ -1,4 +1,3 @@
-import * as kafka from '@tenlastic/kafka';
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as mongooseModels from '@tenlastic/mongoose-models';
@@ -8,8 +7,6 @@ import { URL } from 'url';
 let sandbox: sinon.SinonSandbox;
 
 before(async function() {
-  await kafka.connect(process.env.KAFKA_CONNECTION_STRING);
-
   const minioConnectionUrl = new URL(process.env.MINIO_CONNECTION_STRING);
   minio.connect({
     accessKey: minioConnectionUrl.username,

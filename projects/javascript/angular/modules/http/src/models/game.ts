@@ -1,7 +1,16 @@
 import { Model } from './model';
 
+export namespace IGame {
+  export enum Access {
+    Private = 'private',
+    PrivatePublic = 'private-public',
+    Public = 'public',
+  }
+}
+
 export class Game extends Model {
   public _id: string;
+  public access: IGame.Access;
   public background: string;
   public createdAt: Date;
   public description: string;
@@ -18,7 +27,6 @@ export class Game extends Model {
   }
 
   public get fullTitle() {
-    const subtitle = this.subtitle ? `: ${this.subtitle}` : '';
-    return `${this.title}${subtitle}`;
+    return this.subtitle ? `${this.title}:${this.subtitle}` : this.title;
   }
 }

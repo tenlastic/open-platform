@@ -17,6 +17,7 @@ import {
 import * as mongoose from 'mongoose';
 
 import { LogBase } from '../../bases';
+import { namespaceValidator } from '../../validators';
 import { WorkflowDocument, WorkflowEvent } from '../workflow';
 
 export const WorkflowLogEvent = new EventEmitter<IDatabasePayload<WorkflowLogDocument>>();
@@ -34,6 +35,7 @@ WorkflowEvent.sync(async payload => {
 
 @index({ body: 'text' })
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+@index({ namespaceId: 1 })
 @index({ nodeId: 1 })
 @index({ workflowId: 1 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: WorkflowLogEvent })
@@ -42,10 +44,14 @@ WorkflowEvent.sync(async payload => {
   this.expiresAt.setDate(this.createdAt.getDate() + 3);
 })
 export class WorkflowLogSchema extends LogBase {
-  @prop({ immutable: true, required: true })
+  @prop({ required: true })
   public nodeId: string;
 
-  @prop({ immutable: true, ref: 'WorkflowSchema', required: true })
+  @prop({
+    ref: 'WorkflowSchema',
+    required: true,
+    validate: namespaceValidator('workflowDocument', 'workflowId'),
+  })
   public workflowId: Ref<WorkflowDocument>;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'workflowId', ref: 'WorkflowSchema' })

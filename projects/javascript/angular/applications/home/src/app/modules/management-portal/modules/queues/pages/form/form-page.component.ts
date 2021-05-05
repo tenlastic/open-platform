@@ -262,10 +262,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     if (this.data._id) {
       this.updateQueue$ = this.queueQuery
         .selectAll({ filterBy: q => q._id === this.data._id })
-        .subscribe(queues => {
-          const queue = new Queue(queues[0]);
-          this.data.status = queue.status;
-        });
+        .subscribe(queues => (this.data = queues[0]));
     }
   }
 

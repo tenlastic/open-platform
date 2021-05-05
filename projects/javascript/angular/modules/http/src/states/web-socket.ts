@@ -15,7 +15,7 @@ export class WebSocketStore extends EntityStore<WebSocketState, WebSocket> {
     this.webSocketService.onCreate.subscribe(record => this.add(record));
     this.webSocketService.onDelete.subscribe(record => this.remove(record._id));
     this.webSocketService.onRead.subscribe(records => this.upsertMany(records));
-    this.webSocketService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.webSocketService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

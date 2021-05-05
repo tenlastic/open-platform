@@ -15,7 +15,7 @@ export class RefreshTokenStore extends EntityStore<RefreshTokenState, RefreshTok
     this.refreshTokenService.onCreate.subscribe(record => this.add(record));
     this.refreshTokenService.onDelete.subscribe(record => this.remove(record._id));
     this.refreshTokenService.onRead.subscribe(records => this.upsertMany(records));
-    this.refreshTokenService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.refreshTokenService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

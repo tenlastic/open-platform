@@ -22,10 +22,10 @@ export const ROUTES: Routes = [
           import('./modules/databases/databases.module').then(m => m.DatabaseModule),
       },
       {
-        path: 'game-invitations',
+        path: 'game-authorizations',
         loadChildren: () =>
-          import('./modules/game-invitations/game-invitations.module').then(
-            m => m.GameInvitationModule,
+          import('./modules/game-authorizations/game-authorizations.module').then(
+            m => m.GameAuthorizationModule,
           ),
       },
       {

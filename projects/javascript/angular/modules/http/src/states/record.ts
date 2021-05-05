@@ -15,7 +15,7 @@ export class RecordStore extends EntityStore<RecordState, Record> {
     this.recordService.onCreate.subscribe(record => this.add(record));
     this.recordService.onDelete.subscribe(record => this.remove(record._id));
     this.recordService.onRead.subscribe(records => this.upsertMany(records));
-    this.recordService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.recordService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

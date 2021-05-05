@@ -12,13 +12,12 @@ components:
               - builds
               - collections
               - game-servers
-              - game-invitations
               - games
               - namespaces
               - queues
         userId:
           type: string
-          format: ^[a-f0-9]{24}$
+          format: ^[0-9a-f]{24}$
       required:
         - roles
         - userId

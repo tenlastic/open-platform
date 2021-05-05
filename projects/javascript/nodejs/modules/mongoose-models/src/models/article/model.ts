@@ -73,7 +73,7 @@ export class ArticleSchema {
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
-  @prop()
+  @prop({ default: null })
   public publishedAt: Date;
 
   @prop({ match: /^.{2,100}$/, required: true })

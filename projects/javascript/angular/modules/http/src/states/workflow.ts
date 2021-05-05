@@ -15,7 +15,7 @@ export class WorkflowStore extends EntityStore<WorkflowState, Workflow> {
     this.workflowService.onCreate.subscribe(record => this.add(record));
     this.workflowService.onDelete.subscribe(record => this.remove(record._id));
     this.workflowService.onRead.subscribe(records => this.upsertMany(records));
-    this.workflowService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.workflowService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

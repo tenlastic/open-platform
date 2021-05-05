@@ -188,6 +188,16 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
+          <mat-label>Total Public Games</mat-label>
+          <input matInput
+                 required
+                 formControlName="public"
+                 step="1"
+                 type="number" />
+          <mat-error>Enter a valid value.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
           <mat-label>Maximum Images Per Game</mat-label>
           <input matInput
                  required

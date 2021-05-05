@@ -1,5 +1,8 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
+import { GamePermissionsHelpers } from '../game';
+import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
+import { UserPermissionsHelpers, UserRole } from '../user';
 import { GameServer, GameServerDocument } from './model';
 
 const administrator = {
@@ -66,51 +69,10 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   find: {
     default: {
       $or: [
-        {
-          namespaceId: {
-            $in: {
-              // Find all Namespaces of which the User has been invited.
-              $query: {
-                model: 'GameInvitationSchema',
-                select: 'namespaceId',
-                where: {
-                  userId: { $eq: { $ref: 'user._id' } },
-                },
-              },
-            },
-          },
-        },
-        {
-          namespaceId: {
-            $in: {
-              // Find Namespaces where the Key or User has administrator access.
-              $query: {
-                model: 'NamespaceSchema',
-                select: '_id',
-                where: {
-                  $or: [
-                    {
-                      keys: {
-                        $elemMatch: {
-                          roles: { $eq: 'game-servers' },
-                          value: { $eq: { $ref: 'key' } },
-                        },
-                      },
-                    },
-                    {
-                      users: {
-                        $elemMatch: {
-                          _id: { $eq: { $ref: 'user._id' } },
-                          roles: { $eq: 'game-servers' },
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
-            },
-          },
-        },
+        NamespacePermissionsHelpers.getFindQuery(NamespaceRole.GameServers),
+        { gameId: { $in: GamePermissionsHelpers.getAuthorizedGameIds() } },
+        { gameId: null },
+        { gameId: { $exists: false } },
       ],
     },
     'system-administrator': {},
@@ -141,37 +103,15 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   roles: [
     {
       name: 'system-administrator',
-      query: {
-        'user.roles': { $eq: 'game-servers' },
-        'user.system': { $eq: true },
-      },
+      query: { 'user.roles': UserRole.GameServers, 'user.system': true },
     },
     {
       name: 'user-administrator',
-      query: { 'user.roles': { $eq: 'game-servers' } },
+      query: UserPermissionsHelpers.getRoleQuery(UserRole.GameServers),
     },
     {
       name: 'namespace-administrator',
-      query: {
-        $or: [
-          {
-            'record.namespaceDocument.keys': {
-              $elemMatch: {
-                roles: { $eq: 'game-servers' },
-                value: { $eq: { $ref: 'key' } },
-              },
-            },
-          },
-          {
-            'record.namespaceDocument.users': {
-              $elemMatch: {
-                _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'game-servers' },
-              },
-            },
-          },
-        ],
-      },
+      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.GameServers),
     },
   ],
   update: {

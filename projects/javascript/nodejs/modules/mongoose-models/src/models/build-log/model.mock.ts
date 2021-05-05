@@ -14,6 +14,7 @@ export class BuildLogMock {
     const defaults = {
       body: chance.hash(),
       buildId: mongoose.Types.ObjectId(),
+      namespaceId: mongoose.Types.ObjectId(),
       nodeId: chance.hash(),
       unix: Date.now(),
     };

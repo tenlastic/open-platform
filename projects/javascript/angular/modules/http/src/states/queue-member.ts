@@ -19,7 +19,7 @@ export class QueueMemberStore extends EntityStore<QueueMemberState, QueueMember>
     this.queueMemberService.onCreate.subscribe(record => this.add(record));
     this.queueMemberService.onDelete.subscribe(record => this.remove(record._id));
     this.queueMemberService.onRead.subscribe(records => this.upsertMany(records));
-    this.queueMemberService.onUpdate.subscribe(record => this.update(record._id, record));
+    this.queueMemberService.onUpdate.subscribe(record => this.upsert(record._id, record));
   }
 }
 

@@ -12,7 +12,7 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
   find: {
     default: {
       $or: [
-        { fromUserId: { $eq: { $ref: 'user._id' } } },
+        { fromUserId: { $ref: 'user._id' } },
         {
           toGroupId: {
             $in: {
@@ -21,13 +21,13 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
                 model: 'GroupSchema',
                 select: '_id',
                 where: {
-                  userIds: { $eq: { $ref: 'user._id' } },
+                  userIds: { $ref: 'user._id' },
                 },
               },
             },
           },
         },
-        { toUserId: { $eq: { $ref: 'user._id' } } },
+        { toUserId: { $ref: 'user._id' } },
       ],
     },
   },
@@ -48,7 +48,7 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
     {
       name: 'sender',
       query: {
-        'record.fromUserId': { $eq: { $ref: 'user._id' } },
+        'record.fromUserId': { $ref: 'user._id' },
         'record.toGroupId': { $exists: false },
         'record.toUserId': { $exists: true },
       },
@@ -56,16 +56,14 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
     {
       name: 'sender',
       query: {
-        'record.fromUserId': { $eq: { $ref: 'user._id' } },
-        'record.toGroupDocument.userIds': { $eq: { $ref: 'user._id' } },
+        'record.fromUserId': { $ref: 'user._id' },
+        'record.toGroupDocument.userIds': { $ref: 'user._id' },
         'record.toUserId': { $exists: false },
       },
     },
     {
       name: 'recipient',
-      query: {
-        'record.toUserId': { $eq: { $ref: 'user._id' } },
-      },
+      query: { 'record.toUserId': { $ref: 'user._id' } },
     },
   ],
   update: {

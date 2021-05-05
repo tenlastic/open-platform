@@ -1,10 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { Game, GameService } from '@tenlastic/ng-http';
+import { Game, GameService, IGame } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -15,6 +15,11 @@ import { MediaDialogComponent } from '../../components';
   styleUrls: ['./form-page.component.scss'],
 })
 export class GamesFormPageComponent implements OnInit {
+  public accesses = [
+    { label: 'Private', value: 'private' },
+    { label: 'Public w/ Authorization', value: 'private-public' },
+    { label: 'Public', value: 'public' },
+  ];
   public data: Game;
   public errors: string[] = [];
   public form: FormGroup;
@@ -50,6 +55,10 @@ export class GamesFormPageComponent implements OnInit {
 
       this.setupForm();
     });
+  }
+
+  public addUser(formArray: FormArray) {
+    formArray.push(this.formBuilder.control(null, [Validators.required]));
   }
 
   public async onFieldChanged($event, field: string) {
@@ -102,14 +111,12 @@ export class GamesFormPageComponent implements OnInit {
 
   public async save() {
     if (this.form.invalid) {
-      this.form.get('description').markAsTouched();
-      this.form.get('subtitle').markAsTouched();
-      this.form.get('title').markAsTouched();
-
+      this.form.markAllAsTouched();
       return;
     }
 
     const values: Partial<Game> = {
+      access: this.form.get('access').value,
       description: this.form.get('description').value,
       namespaceId: this.selectedNamespaceService.namespaceId,
       subtitle: this.form.get('subtitle').value,
@@ -147,6 +154,7 @@ export class GamesFormPageComponent implements OnInit {
     this.data = this.data || new Game();
 
     this.form = this.formBuilder.group({
+      access: [this.data.access || IGame.Access.Private],
       description: [this.data.description, Validators.required],
       icon: [this.data.icon],
       subtitle: [this.data.subtitle],

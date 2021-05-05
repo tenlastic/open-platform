@@ -1,6 +1,7 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { Namespace, NamespaceDocument } from './model';
+import { UserPermissionsHelpers, UserRole } from '../user';
+import { Namespace, NamespaceDocument, NamespaceRole } from './model';
 
 export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(Namespace, {
   create: {
@@ -13,22 +14,8 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
   find: {
     default: {
       $or: [
-        {
-          keys: {
-            $elemMatch: {
-              roles: { $eq: 'namespaces' },
-              value: { $eq: { $ref: 'key' } },
-            },
-          },
-        },
-        {
-          users: {
-            $elemMatch: {
-              _id: { $eq: { $ref: 'user._id' } },
-              roles: { $eq: 'namespaces' },
-            },
-          },
-        },
+        { keys: { $elemMatch: { roles: NamespaceRole.Namespaces, value: { $ref: 'key' } } } },
+        { users: { $elemMatch: { _id: { $ref: 'user._id' }, roles: NamespaceRole.Namespaces } } },
       ],
     },
     'user-administrator': {},
@@ -57,9 +44,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
   roles: [
     {
       name: 'user-administrator',
-      query: {
-        'user.roles': { $eq: 'namespaces' },
-      },
+      query: UserPermissionsHelpers.getRoleQuery(UserRole.Namespaces),
     },
     {
       name: 'namespace-administrator',
@@ -67,18 +52,12 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
         $or: [
           {
             'record.keys': {
-              $elemMatch: {
-                roles: { $eq: 'namespaces' },
-                value: { $eq: { $ref: 'key' } },
-              },
+              $elemMatch: { roles: NamespaceRole.Namespaces, value: { $ref: 'key' } },
             },
           },
           {
             'record.users': {
-              $elemMatch: {
-                _id: { $eq: { $ref: 'user._id' } },
-                roles: { $eq: 'namespaces' },
-              },
+              $elemMatch: { _id: { $ref: 'user._id' }, roles: NamespaceRole.Namespaces },
             },
           },
         ],
@@ -90,3 +69,32 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     'user-administrator': ['keys.*', 'limits.*', 'name', 'users.*'],
   },
 });
+
+export const NamespacePermissionsHelpers = {
+  getFindQuery(role: NamespaceRole) {
+    return {
+      namespaceId: {
+        $in: {
+          $query: {
+            model: 'NamespaceSchema',
+            select: '_id',
+            where: {
+              $or: [
+                { keys: { $elemMatch: { roles: role, value: { $ref: 'key' } } } },
+                { users: { $elemMatch: { _id: { $ref: 'user._id' }, roles: role } } },
+              ],
+            },
+          },
+        },
+      },
+    };
+  },
+  getRoleQuery(role: NamespaceRole, selector = 'record.namespaceDocument') {
+    return {
+      $or: [
+        { [`${selector}.keys`]: { $elemMatch: { roles: role, value: { $ref: 'key' } } } },
+        { [`${selector}.users`]: { $elemMatch: { _id: { $ref: 'user._id' }, roles: role } } },
+      ],
+    };
+  },
+};

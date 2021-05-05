@@ -1,0 +1,92 @@
+<div class="page">
+  <app-title>Game Authorizations</app-title>
+
+  <div class="row">
+    <div class="col-sm-3">
+      <app-data-source-filter [dataSource]="dataSource">
+        Filter Game Authorizations
+      </app-data-source-filter>
+    </div>
+
+    <div class="offset-sm-6 col-sm-3">
+      <app-button color="accent"
+                  [routerLink]="['new']">
+        <mat-icon>add</mat-icon>
+        <span>New Game Authorization</span>
+      </app-button>
+    </div>
+  </div>
+
+  <table mat-table
+         [dataSource]="dataSource"
+         matSort
+         matSortActive="createdAt"
+         matSortDirection="desc">
+    <ng-container matColumnDef="game">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Game</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.game?.fullTitle }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="user">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>User</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.user?.username }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Status</th>
+      <td mat-cell
+          *matCellDef="let element">{{ statuses[element.status] }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Created At</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.createdAt | date }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell
+          *matHeaderCellDef></th>
+      <td mat-cell
+          *matCellDef="let element">
+        <app-button *ngIf="element.status !== GameAuthorizationStatus.Granted"
+                    color="accent"
+                    (OnClick)="grant(element)">
+          <mat-icon>thumb_up</mat-icon>
+          <span>Grant</span>
+        </app-button>
+
+        <app-button *ngIf="element.status !== GameAuthorizationStatus.Revoked"
+                    color="accent"
+                    (OnClick)="revoke(element)">
+          <mat-icon>thumb_down</mat-icon>
+          <span>Revoke</span>
+        </app-button>
+
+        <app-button color="accent"
+                    (OnClick)="showDeletePrompt(element)">
+          <mat-icon>delete</mat-icon>
+          <span>Delete</span>
+        </app-button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row
+        *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row
+        *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[10, 25, 100]"
+                 showFirstLastButtons></mat-paginator>
+</div>

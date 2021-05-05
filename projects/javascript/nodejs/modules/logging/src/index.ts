@@ -11,14 +11,6 @@ const format = winston.format((info: any) => {
     return false;
   }
 
-  // Hide messages with acceptable durations.
-  const threshold = process.env.DEBUG_DURATION_THRESHOLD
-    ? parseInt(process.env.DEBUG_DURATION_THRESHOLD, 10)
-    : Infinity;
-  if (info.message.duration && info.message.duration < threshold) {
-    return false;
-  }
-
   return info;
 });
 

@@ -22,7 +22,8 @@ export class GameServersPageComponent implements OnInit {
   public $group: Observable<Group>;
   public displayedColumns = ['name', 'description', 'currentUsers', 'actions'];
   public get status() {
-    return this.updateService.getStatus(this.gameQuery.getActiveId());
+    const activeGameId = this.gameQuery.getActiveId();
+    return this.updateService.getStatus(activeGameId);
   }
 
   constructor(

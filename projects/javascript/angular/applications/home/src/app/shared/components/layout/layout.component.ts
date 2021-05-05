@@ -1,16 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import {
-  GameInvitation,
-  GameInvitationQuery,
-  GameInvitationService,
-  Namespace,
-  NamespaceService,
-} from '@tenlastic/ng-http';
+import { Game, GameQuery, GameService, Namespace, NamespaceService } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { ElectronService, IdentityService, Socket, SocketService } from '../../../core/services';
+import { ElectronService, IdentityService, SocketService } from '../../../core/services';
 import { PromptComponent } from '../prompt/prompt.component';
 
 @Component({
@@ -19,7 +13,7 @@ import { PromptComponent } from '../prompt/prompt.component';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
-  public $gameInvitations: Observable<GameInvitation[]>;
+  public $games: Observable<Game[]>;
   public namespaces: Namespace[] = [];
   public get socket() {
     return this.socketService.sockets[environment.apiBaseUrl];
@@ -29,8 +23,8 @@ export class LayoutComponent implements OnInit {
 
   constructor(
     public electronService: ElectronService,
-    public gameInvitationQuery: GameInvitationQuery,
-    public gameInvitationService: GameInvitationService,
+    public gameQuery: GameQuery,
+    public gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private namespaceService: NamespaceService,
@@ -40,12 +34,8 @@ export class LayoutComponent implements OnInit {
   public async ngOnInit() {
     this.namespaces = await this.namespaceService.find({});
 
-    if (this.identityService.user) {
-      this.$gameInvitations = this.gameInvitationQuery.selectAll({
-        filterBy: gi => gi.userId === this.identityService.user._id,
-      });
-      this.gameInvitationService.find({ where: { userId: this.identityService.user._id } });
-    }
+    this.$games = this.gameQuery.selectAll();
+    this.gameService.find({});
 
     if (!this.electronService.isElectron) {
       return;

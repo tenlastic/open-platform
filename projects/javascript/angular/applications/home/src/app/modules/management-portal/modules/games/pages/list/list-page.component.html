@@ -60,6 +60,12 @@
       <td mat-cell
           *matCellDef="let element">
         <app-button color="accent"
+                    [routerLink]="[element._id, 'multimedia']">
+          <mat-icon>image</mat-icon>
+          <span>Images / Videos</span>
+        </app-button>
+
+        <app-button color="accent"
                     [routerLink]="[element._id]">
           <mat-icon>create</mat-icon>
           <span>Edit</span>
