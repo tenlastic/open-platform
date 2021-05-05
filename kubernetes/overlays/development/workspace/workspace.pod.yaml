@@ -27,20 +27,21 @@ spec:
     - name: mongodb
       image: bitnami/mongodb:latest
       env:
-        - name: MONGODB_REPLICA_SET_MODE
-          value: primary
         - name: MONGODB_ADVERTISED_HOSTNAME
           value: localhost
+        - name: MONGODB_REPLICA_SET_KEY
+          value: 0123456789
+        - name: MONGODB_REPLICA_SET_MODE
+          value: primary
         - name: MONGODB_ROOT_PASSWORD
           value: password
-        - name: MONGODB_REPLICA_SET_KEY
-          value: key
     - name: minio
-      image: minio/minio:latest
-      command:
-        - minio
-        - server
-        - /data
+      image: bitnami/minio:latest
+      env:
+        - name: MINIO_ACCESS_KEY
+          value: minioadmin
+        - name: MINIO_SECRET_KEY
+          value: minioadmin
   volumes:
     - name: node-modules
       persistentVolumeClaim:

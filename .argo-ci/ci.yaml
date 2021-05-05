@@ -226,21 +226,22 @@ spec:
           image: bitnami/mongodb:latest
           imagePullPolicy: IfNotPresent
           env:
-            - name: MONGODB_REPLICA_SET_MODE
-              value: primary
             - name: MONGODB_ADVERTISED_HOSTNAME
               value: localhost
+            - name: MONGODB_REPLICA_SET_KEY
+              value: 0123456789
+            - name: MONGODB_REPLICA_SET_MODE
+              value: primary
             - name: MONGODB_ROOT_PASSWORD
               value: password
-            - name: MONGODB_REPLICA_SET_KEY
-              value: key
         - name: minio
-          image: minio/minio:latest
+          image: bitnami/minio:latest
           imagePullPolicy: IfNotPresent
-          command:
-            - minio
-            - server
-            - /data
+          env:
+            - name: MINIO_ACCESS_KEY
+              value: minioadmin
+            - name: MINIO_SECRET_KEY
+              value: minioadmin
 
     - name: get-branch
       script:
