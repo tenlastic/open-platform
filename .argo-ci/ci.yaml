@@ -234,6 +234,7 @@ spec:
         - name: kafka
           image: bitnami/kafka:latest
           imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c", "trap 'exit 0' SIGKILL; ./run.sh"]
           env:
             - name: ALLOW_PLAINTEXT_LISTENER
               value: "yes"
