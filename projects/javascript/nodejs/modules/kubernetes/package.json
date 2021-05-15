@@ -22,7 +22,7 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@kubernetes/client-node": "0.14.0",
+    "@kubernetes/client-node": "0.14.3",
     "deepmerge": "4.0.0",
     "request": "2.88.0"
   },

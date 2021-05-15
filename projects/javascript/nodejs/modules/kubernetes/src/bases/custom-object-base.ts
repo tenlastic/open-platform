@@ -1,7 +1,7 @@
 import * as k8s from '@kubernetes/client-node';
 import * as deepmerge from 'deepmerge';
 
-import { BaseResponse } from './base';
+import { BaseResponse, BaseWatchCallback, BaseWatchDoneCallback, BaseWatchOptions } from './base';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -15,7 +15,7 @@ export interface CustomObjectBaseBody {
   };
 }
 
-export class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
+export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
   protected group: string;
   protected kind: string;
   protected plural: string;
@@ -84,4 +84,17 @@ export class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
       { apiVersion: `${this.group}/${this.version}`, kind: this.kind, ...copy },
     ) as Promise<BaseResponse<T>>;
   }
+
+  public watch(
+    namespace: string,
+    options: BaseWatchOptions,
+    callback: BaseWatchCallback<T>,
+    done?: BaseWatchDoneCallback,
+  ) {
+    const endpoint = this.getEndpoint(namespace);
+    const watch = new k8s.Watch(kc);
+    watch.watch(endpoint, options, callback, done);
+  }
+
+  protected abstract getEndpoint(namespace: string): string;
 }

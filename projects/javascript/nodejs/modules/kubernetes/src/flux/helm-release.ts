@@ -23,6 +23,10 @@ export class HelmReleaseApiV1 extends CustomObjectBaseApiV1<V1HelmRelease> {
   protected kind = 'HelmRelease';
   protected plural = 'helmreleases';
   protected version = 'v1';
+
+  protected getEndpoint(namespace: string) {
+    return `/apis/helm.fluxcd.io/v1/namespaces/${namespace}/helmreleases`;
+  }
 }
 
 export const helmReleaseApiV1 = new HelmReleaseApiV1();

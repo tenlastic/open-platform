@@ -1,5 +1,10 @@
-import * as k8s from '@kubernetes/client-node';
-import { deploymentApiV1, podApiV1, secretApiV1, serviceApiV1 } from '@tenlastic/kubernetes';
+import {
+  deploymentApiV1,
+  podApiV1,
+  secretApiV1,
+  serviceApiV1,
+  V1PodTemplateSpec,
+} from '@tenlastic/kubernetes';
 import {
   GameServer,
   GameServerDocument,
@@ -134,7 +139,7 @@ export const KubernetesGameServer = {
     const min = 30000;
     const hostPort = Math.round(Math.random() * (max - min) + min);
 
-    const manifest: k8s.V1PodTemplateSpec = {
+    const manifest: V1PodTemplateSpec = {
       metadata: {
         annotations: {
           'tenlastic.com/gameServerId': gameServer._id.toString(),

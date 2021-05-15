@@ -16,6 +16,10 @@ export class WorkflowApiV1 extends CustomObjectBaseApiV1<V1Workflow> {
   protected kind = 'Workflow';
   protected plural = 'workflows';
   protected version = 'v1alpha1';
+
+  protected getEndpoint(namespace: string) {
+    return `/apis/argoproj.io/v1alpha1/namespaces/${namespace}/workflows`;
+  }
 }
 
 export const workflowApiV1 = new WorkflowApiV1();

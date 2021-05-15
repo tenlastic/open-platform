@@ -1,4 +1,4 @@
-import * as k8s from '@kubernetes/client-node';
+import { nodeApiV1, podApiV1, V1Pod } from '@tenlastic/kubernetes';
 import * as requestPromiseNative from 'request-promise-native';
 
 const accessToken = process.env.ACCESS_TOKEN;
@@ -7,82 +7,56 @@ const endpoint = process.env.GAME_SERVER_ENDPOINT;
 const podLabelSelector = process.env.GAME_SERVER_POD_LABEL_SELECTOR;
 const podNamespace = process.env.GAME_SERVER_POD_NAMESPACE;
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-const coreV1Api = kc.makeApiClient(k8s.CoreV1Api);
-
 let activePodName: string;
 let activePodStatus: string;
-const pods: { [key: string]: k8s.V1Pod } = {};
+const pods: { [key: string]: V1Pod } = {};
 
 /**
  * Checks the status of the pod and saves it to the Game Server's database.
  */
 export async function status() {
-  try {
-    console.log('Fetching container state...');
+  podApiV1.watch(
+    podNamespace,
+    { labelSelector: podLabelSelector },
+    async (type, pod: V1Pod) => {
+      // Update Pods.
+      if (type === 'ADDED' || type === 'MODIFIED') {
+        pods[pod.metadata.name] = pod;
+      } else if (type === 'DELETED') {
+        delete pods[pod.metadata.name];
+      }
 
-    // Get initial Pods.
-    const listNamespacedPodResponse = await coreV1Api.listNamespacedPod(
-      podNamespace,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      podLabelSelector,
-    );
-    for (const pod of listNamespacedPodResponse.body.items) {
-      pods[pod.metadata.name] = pod;
-    }
+      // Update active Pod.
+      if (type === 'ADDED') {
+        activePodName = pod.metadata.name;
+      }
+      if (activePodName !== pod.metadata.name || activePodStatus === pod.status.phase) {
+        return;
+      }
+      activePodStatus = pod.status.phase;
 
-    // Watch Pods for changes.
-    const watch = new k8s.Watch(kc);
-    watch.watch(
-      `/api/v1/namespaces/${podNamespace}/pods`,
-      { labelSelector: podLabelSelector },
-      async (type, pod: k8s.V1Pod) => {
-        // Update Pods.
-        if (type === 'ADDED' || type === 'MODIFIED') {
-          pods[pod.metadata.name] = pod;
-        } else if (type === 'DELETED') {
-          delete pods[pod.metadata.name];
-        }
-
-        // Update active Pod.
-        if (type === 'ADDED') {
-          activePodName = pod.metadata.name;
-        }
-        if (activePodName !== pod.metadata.name || activePodStatus === pod.status.phase) {
-          return;
-        }
-        activePodStatus = pod.status.phase;
-
-        try {
-          await updateGameServer(pod);
-        } catch (e) {
-          console.error(e);
-          process.exit(1);
-        }
-      },
-      err => {
-        console.error(err);
-        process.exit(err ? 1 : 0);
-      },
-    );
-  } catch (e) {
-    console.error(e);
-    process.exit(1);
-  }
+      try {
+        await updateGameServer(pod);
+      } catch (e) {
+        console.error(e);
+        process.exit(1);
+      }
+    },
+    err => {
+      console.error(err);
+      process.exit(err ? 1 : 0);
+    },
+  );
 }
 
-async function getPodIp(pod: k8s.V1Pod) {
-  const response = await coreV1Api.readNode(pod.spec.nodeName);
+async function getPodIp(pod: V1Pod) {
+  const response = await nodeApiV1.read(pod.spec.nodeName);
   const address = response.body.status.addresses.find(a => a.type === 'ExternalIP');
 
   return address ? address.address : '127.0.0.1';
 }
 
-function getPodStatus(pod: k8s.V1Pod) {
+function getPodStatus(pod: V1Pod) {
   const isReady =
     pod.status.conditions &&
     pod.status.conditions.find(c => c.status === 'True' && c.type === 'ContainersReady');
@@ -95,7 +69,7 @@ function getPodStatus(pod: k8s.V1Pod) {
   return { name: pod.metadata.name, phase };
 }
 
-async function updateGameServer(pod: k8s.V1Pod) {
+async function updateGameServer(pod: V1Pod) {
   // Endpoints.
   let endpoints = null;
   if (pod.spec.nodeName) {
@@ -111,7 +85,7 @@ async function updateGameServer(pod: k8s.V1Pod) {
   }
 
   // Nodes.
-  const nodes = Object.entries(pods).map(([key, value]) => getPodStatus(value));
+  const nodes = Object.values(pods).map(getPodStatus);
 
   // Phase.
   let phase = 'Pending';

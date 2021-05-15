@@ -1,4 +1,3 @@
-import * as k8s from '@kubernetes/client-node';
 import {
   helmReleaseApiV1,
   ingressApiV1,
@@ -8,6 +7,10 @@ import {
   secretApiV1,
   serviceApiV1,
   statefulSetApiV1,
+  V1Affinity,
+  V1PodTemplateSpec,
+  V1Probe,
+  V1ResourceRequirements,
 } from '@tenlastic/kubernetes';
 import * as mongooseModels from '@tenlastic/mongoose-models';
 import { Database, DatabaseDocument, DatabaseEvent } from '@tenlastic/mongoose-models';
@@ -97,7 +100,7 @@ export const KubernetesDatabase = {
 
     const now = Date.now().toString(36);
     const password = chance.hash({ length: 128 });
-    const resources: k8s.V1ResourceRequirements = {
+    const resources: V1ResourceRequirements = {
       limits: { cpu: `${database.cpu}`, memory: `${database.memory}` },
       requests: { cpu: `${database.cpu}`, memory: `${database.memory}` },
     };
@@ -414,7 +417,7 @@ export const KubernetesDatabase = {
      * STATEFUL SET
      * ======================
      */
-    const livenessProbe: k8s.V1Probe = {
+    const livenessProbe: V1Probe = {
       httpGet: {
         path: `/databases/${database._id}/collections`,
         port: 3000 as any,
@@ -423,7 +426,7 @@ export const KubernetesDatabase = {
       periodSeconds: 30,
     };
 
-    let manifest: k8s.V1PodTemplateSpec;
+    let manifest: V1PodTemplateSpec;
     if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
       manifest = {
         metadata: {
@@ -522,7 +525,7 @@ function connectToMongo(name: string, namespace: string, password: string, podNa
   });
 }
 
-function getAffinity(database: DatabaseDocument, role: string): k8s.V1Affinity {
+function getAffinity(database: DatabaseDocument, role: string): V1Affinity {
   const name = KubernetesDatabase.getName(database);
 
   return {

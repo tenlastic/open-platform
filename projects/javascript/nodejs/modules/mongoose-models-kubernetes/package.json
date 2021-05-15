@@ -20,7 +20,6 @@
     "prepublishOnly": "../../scripts/build.sh"
   },
   "dependencies": {
-    "@kubernetes/client-node": "0.14.0",
     "@tenlastic/kubernetes": "0.0.170",
     "@tenlastic/mongoose-models": "0.0.170",
     "@typegoose/typegoose": "6.4.0",

@@ -17,7 +17,6 @@
     "version": "../../scripts/version.sh api"
   },
   "dependencies": {
-    "@kubernetes/client-node": "0.14.0",
     "@tenlastic/json-schema": "0.0.170",
     "@tenlastic/kafka": "0.0.170",
     "@tenlastic/logging": "0.0.170",

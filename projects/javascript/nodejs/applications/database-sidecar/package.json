@@ -12,8 +12,8 @@
     "start": "../../scripts/start.sh --watch"
   },
   "dependencies": {
-    "@kubernetes/client-node": "0.14.0",
     "@tenlastic/http": "0.0.170",
+    "@tenlastic/kubernetes": "0.0.170",
     "@tenlastic/mongoose-models": "0.0.170",
     "@tenlastic/web-server": "0.0.170",
     "request": "2.88.0",

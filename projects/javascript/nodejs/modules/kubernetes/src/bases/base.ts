@@ -1,3 +1,4 @@
+import * as k8s from '@kubernetes/client-node';
 import * as deepmerge from 'deepmerge';
 import { IncomingMessage } from 'http';
 
@@ -23,7 +24,16 @@ export interface BaseResponse<T> {
   response: IncomingMessage;
 }
 
-export class BaseApiV1<T extends BaseBody> {
+export type BaseWatchAction = 'ADDED' | 'DELETED' | 'MODIFIED';
+export type BaseWatchCallback<T> = (action: BaseWatchAction, object: T) => void | Promise<void>;
+export type BaseWatchDoneCallback = (err: any) => void;
+
+export interface BaseWatchOptions {
+  fieldSelector?: string;
+  labelSelector?: string;
+}
+
+export abstract class BaseApiV1<T extends BaseBody> {
   protected api: object;
   protected singular: string;
 
@@ -89,4 +99,20 @@ export class BaseApiV1<T extends BaseBody> {
     const method = `replaceNamespaced${this.singular}`;
     return this.api[method](name, namespace, copy);
   }
+
+  public watch(
+    namespace: string,
+    options: BaseWatchOptions,
+    callback: BaseWatchCallback<T>,
+    done?: BaseWatchDoneCallback,
+  ) {
+    const kc = new k8s.KubeConfig();
+    kc.loadFromDefault();
+
+    const endpoint = this.getEndpoint(namespace);
+    const watch = new k8s.Watch(kc);
+    watch.watch(endpoint, options, callback, done);
+  }
+
+  protected abstract getEndpoint(namespace: string): string;
 }

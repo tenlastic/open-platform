@@ -1,9 +1,11 @@
-import * as k8s from '@kubernetes/client-node';
 import {
   helmReleaseApiV1,
   networkPolicyApiV1,
   secretApiV1,
   statefulSetApiV1,
+  V1Affinity,
+  V1PodTemplateSpec,
+  V1Probe,
 } from '@tenlastic/kubernetes';
 import { Queue, QueueDocument, QueueEvent } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
@@ -231,14 +233,14 @@ export const KubernetesQueue = {
       'tenlastic.com/namespaceId': queue.namespaceId.toString(),
       'tenlastic.com/queueId': queue._id.toString(),
     };
-    const livenessProbe: k8s.V1Probe = {
+    const livenessProbe: V1Probe = {
       httpGet: { path: `/`, port: 3000 as any },
       initialDelaySeconds: 30,
       periodSeconds: 30,
     };
 
     const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/');
-    let manifest: k8s.V1PodTemplateSpec;
+    let manifest: V1PodTemplateSpec;
     if (isDevelopment && queue.buildId) {
       const url = new URL(process.env.DOCKER_REGISTRY_URL);
       const image = `${url.host}/${queue.namespaceId}:${queue.buildId}`;
@@ -360,7 +362,7 @@ export const KubernetesQueue = {
   },
 };
 
-function getAffinity(queue: QueueDocument, role: string): k8s.V1Affinity {
+function getAffinity(queue: QueueDocument, role: string): V1Affinity {
   const name = KubernetesQueue.getName(queue);
 
   return {

@@ -14,6 +14,10 @@ export class PersistentVolumeClaimApiV1 extends BaseApiV1<k8s.V1PersistentVolume
       spec: { resources: { requests: { storage: `${size}` } } },
     });
   }
+
+  protected getEndpoint(namespace: string) {
+    return `/api/v1/namespaces/${namespace}/persistentvolumeclaims`;
+  }
 }
 
 export const persistentVolumeClaimApiV1 = new PersistentVolumeClaimApiV1();

@@ -8,6 +8,10 @@ kc.loadFromDefault();
 export class DeploymentApiV1 extends BaseApiV1<k8s.V1Deployment> {
   protected api = kc.makeApiClient(k8s.AppsV1Api);
   protected singular = 'Deployment';
+
+  protected getEndpoint(namespace: string) {
+    return `/apis/apps/v1/namespaces/${namespace}/deployments`;
+  }
 }
 
 export const deploymentApiV1 = new DeploymentApiV1();

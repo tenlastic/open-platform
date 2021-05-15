@@ -1,5 +1,11 @@
-import * as k8s from '@kubernetes/client-node';
-import { deploymentApiV1, roleStackApiV1, secretApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
+import {
+  deploymentApiV1,
+  roleStackApiV1,
+  secretApiV1,
+  V1PodTemplateSpec,
+  V1Probe,
+  workflowApiV1,
+} from '@tenlastic/kubernetes';
 import { BuildDocument, BuildEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
@@ -108,7 +114,7 @@ export const KubernetesBuildSidecar = {
         },
       },
     };
-    const livenessProbe: k8s.V1Probe = {
+    const livenessProbe: V1Probe = {
       httpGet: { path: `/`, port: 3000 as any },
       initialDelaySeconds: 30,
       periodSeconds: 30,
@@ -119,7 +125,7 @@ export const KubernetesBuildSidecar = {
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
-    let manifest: k8s.V1PodTemplateSpec;
+    let manifest: V1PodTemplateSpec;
     if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
       manifest = {
         metadata: {

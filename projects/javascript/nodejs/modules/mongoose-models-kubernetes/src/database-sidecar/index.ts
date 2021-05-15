@@ -1,5 +1,12 @@
-import * as k8s from '@kubernetes/client-node';
-import { deploymentApiV1, roleStackApiV1, secretApiV1 } from '@tenlastic/kubernetes';
+import {
+  deploymentApiV1,
+  roleStackApiV1,
+  secretApiV1,
+  V1Affinity,
+  V1EnvVar,
+  V1PodTemplateSpec,
+  V1Probe,
+} from '@tenlastic/kubernetes';
 import { DatabaseDocument, DatabaseEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
@@ -105,7 +112,7 @@ export const KubernetesDatabaseSidecar = {
      * DEPLOYMENT
      * ======================
      */
-    const affinity: k8s.V1Affinity = {
+    const affinity: V1Affinity = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
           nodeSelectorTerms: [
@@ -121,7 +128,7 @@ export const KubernetesDatabaseSidecar = {
         },
       },
     };
-    const env: k8s.V1EnvVar[] = [
+    const env: V1EnvVar[] = [
       {
         name: 'MONGO_CONNECTION_STRING',
         valueFrom: {
@@ -132,7 +139,7 @@ export const KubernetesDatabaseSidecar = {
         },
       },
     ];
-    const livenessProbe: k8s.V1Probe = {
+    const livenessProbe: V1Probe = {
       httpGet: { path: `/`, port: 3000 as any },
       initialDelaySeconds: 30,
       periodSeconds: 30,
@@ -140,7 +147,7 @@ export const KubernetesDatabaseSidecar = {
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
-    let manifest: k8s.V1PodTemplateSpec;
+    let manifest: V1PodTemplateSpec;
     if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
       manifest = {
         metadata: {

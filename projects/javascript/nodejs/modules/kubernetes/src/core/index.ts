@@ -1,4 +1,5 @@
 export * from './namespace';
+export * from './node';
 export * from './persistent-volume-claim';
 export * from './pod';
 export * from './secret';
