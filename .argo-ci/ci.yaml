@@ -232,18 +232,13 @@ spec:
         workingDir: /workspace/open-platform/
       sidecars:
         - name: kafka
-          image: bitnami/kafka:latest
+          image: spotify/kafka:latest
           imagePullPolicy: IfNotPresent
-          command: ["/bin/sh", "-c", "trap 'exit 0' SIGKILL; ./run.sh"]
           env:
-            - name: ALLOW_PLAINTEXT_LISTENER
-              value: "yes"
-            - name: KAFKA_CFG_ADVERTISED_LISTENERS
-              value: PLAINTEXT://127.0.0.1:9092
-            - name: KAFKA_CFG_LISTENERS
-              value: PLAINTEXT://:9092
-            - name: KAFKA_CFG_ZOOKEEPER_CONNECT
-              value: localhost:2181
+            - name: ADVERTISED_HOST
+              value: localhost
+            - name: ADVERTISED_PORT
+              value: "9092"
         - name: mongodb
           image: bitnami/mongodb:latest
           imagePullPolicy: IfNotPresent
@@ -264,12 +259,6 @@ spec:
               value: minioadmin
             - name: MINIO_SECRET_KEY
               value: minioadmin
-        - name: zookeeper
-          image: bitnami/zookeeper:latest
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: ALLOW_ANONYMOUS_LOGIN
-              value: "yes"
 
     - name: get-branch
       script:
