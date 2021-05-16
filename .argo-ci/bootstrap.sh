@@ -5,4 +5,4 @@ ROOT=$(pwd)
 cd "${ROOT}/projects/javascript/"
 
 # Install NPM dependencies.
-lerna bootstrap --ci --hoist --strict
+lerna bootstrap --ci

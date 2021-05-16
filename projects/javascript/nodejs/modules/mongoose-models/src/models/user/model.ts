@@ -38,32 +38,12 @@ export enum UserRole {
   Workflows = 'workflows',
 }
 
-@index(
-  { email: 1 },
-  {
-    partialFilterExpression: {
-      email: { $type: 'string' },
-    },
-    unique: true,
-  },
-)
-@index(
-  { username: 1 },
-  {
-    collation: {
-      locale: 'en_US',
-      strength: 1,
-    },
-    unique: true,
-  },
-)
+@index({ email: 1 }, { partialFilterExpression: { email: { $type: 'string' } }, unique: true })
+@index({ username: 1 }, { collation: { locale: 'en_US', strength: 1 }, unique: true })
 @index({ roles: 1 })
 @modelOptions({
   schemaOptions: {
-    collation: {
-      locale: 'en_US',
-      strength: 1,
-    },
+    collation: { locale: 'en_US', strength: 1 },
     collection: 'users',
     minimize: false,
     timestamps: true,
@@ -134,17 +114,9 @@ export class UserSchema {
     let token: RefreshTokenDocument;
     if (jti) {
       token = await RefreshToken.findOneAndUpdate(
-        {
-          _id: jti,
-          userId: this._id,
-        },
-        {
-          expiresAt,
-          updatedAt: new Date(),
-        },
-        {
-          new: true,
-        },
+        { _id: jti, userId: this._id },
+        { expiresAt, updatedAt: new Date() },
+        { new: true },
       );
     } else {
       token = await RefreshToken.create({ expiresAt, userId: this._id });

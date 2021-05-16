@@ -16,6 +16,21 @@ resource "google_dns_record_set" "wildcard_tenlastic_com" {
   type         = "A"
 }
 
+resource "google_dns_record_set" "gmail" {
+  managed_zone = google_dns_managed_zone.tenlastic_com.name
+  name         = "${google_dns_managed_zone.tenlastic_com.dns_name}"
+  ttl          = 3600
+  type         = "MX"
+
+  rrdatas = [
+    "1 aspmx.l.google.com.",
+    "5 alt1.aspmx.l.google.com.",
+    "5 alt2.aspmx.l.google.com.",
+    "10 alt3.aspmx.l.google.com.",
+    "10 alt4.aspmx.l.google.com."
+  ]
+}
+
 module "dns_admin" {
   source = "./modules/service-account"
 
