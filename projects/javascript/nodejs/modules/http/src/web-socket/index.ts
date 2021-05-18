@@ -2,8 +2,8 @@ import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 import * as WS from 'ws';
 
-import { accessToken } from '../access-token';
 import { BaseStore } from '../stores';
+import { getAccessToken } from '../tokens';
 
 export interface SubscribeParameters {
   collection: string;
@@ -24,11 +24,12 @@ export class WebSocket {
     this.socket.close(1000);
   }
 
-  public connect(url: string) {
+  public async connect(url: string) {
     if (this.socket) {
       return this.socket;
     }
 
+    const accessToken = await getAccessToken();
     this.socket = new WS(`${url}?access_token=${accessToken}`);
 
     const data = { _id: uuid(), method: 'ping' };

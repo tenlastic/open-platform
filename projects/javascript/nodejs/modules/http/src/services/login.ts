@@ -1,28 +1,18 @@
-import * as requestPromiseNative from 'request-promise-native';
-
-import { accessToken } from '../access-token';
-
-const apiUrl = process.env.API_URL;
+import { apiUrl } from '../api-url';
+import * as request from '../request';
 
 export class LoginService {
-  private url = `${apiUrl}/logins`;
-
-  // Using Getter since Access Token may change.
-  private get headers() {
-    return {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    };
+  private get url() {
+    return `${apiUrl}/logins`;
   }
 
   /**
    * Logs in with username and password.
    */
   public async createWithCredentials(username: string, password: string) {
-    const response = await requestPromiseNative.post({
-      headers: this.headers,
+    const response = await request.promise(this.url, {
       json: { password, username },
-      url: this.url,
+      method: 'post',
     });
 
     return { accessToken: response.accessToken, refreshToken: response.refreshToken };
@@ -32,10 +22,9 @@ export class LoginService {
    * Logs in with a refresh token.
    */
   public async createWithRefreshToken(refreshToken: string) {
-    const response = await requestPromiseNative.post({
-      headers: this.headers,
+    const response = await request.promise(`${this.url}/refresh-token`, {
       json: { token: refreshToken },
-      url: `${this.url}/refresh-token`,
+      method: 'post',
     });
 
     return { accessToken: response.accessToken, refreshToken: response.refreshToken };
@@ -45,7 +34,7 @@ export class LoginService {
    * Logs out.
    */
   public async delete() {
-    return requestPromiseNative.delete({ headers: this.headers, json: true, url: this.url });
+    return request.promise(this.url, { json: true, method: 'delete' });
   }
 }
 

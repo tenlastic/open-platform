@@ -1,12 +1,13 @@
 import 'source-map-support/register';
 
-import { queueMemberStore, setAccessToken, WebSocket } from '@tenlastic/http';
+import { queueMemberStore, setAccessToken, setApiUrl, WebSocket } from '@tenlastic/http';
 import { WebServer } from '@tenlastic/web-server';
 
 import { createGameServer } from './create-game-server';
 import * as redis from './redis';
 
 const accessToken = process.env.ACCESS_TOKEN;
+const apiUrl = process.env.API_URL;
 const podName = process.env.POD_NAME;
 const queue = JSON.parse(process.env.QUEUE_JSON);
 const wssUrl = process.env.WSS_URL;
@@ -14,6 +15,7 @@ const wssUrl = process.env.WSS_URL;
 (async () => {
   try {
     setAccessToken(accessToken);
+    setApiUrl(apiUrl);
 
     // Redis.
     await redis.start();
@@ -45,7 +47,7 @@ const wssUrl = process.env.WSS_URL;
         queueMemberStore,
       );
     });
-    webSocket.connect(wssUrl);
+    await webSocket.connect(wssUrl);
 
     // Web Server.
     const webServer = new WebServer();

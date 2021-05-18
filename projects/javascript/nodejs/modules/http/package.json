@@ -17,11 +17,15 @@
     "build": "../../scripts/build.sh",
     "build:watch": "watch ../../scripts/build.sh ./src",
     "lint": "../../scripts/lint.sh",
-    "prepublishOnly": "../../scripts/build.sh"
+    "prepublishOnly": "../../scripts/build.sh",
+    "test": "../../scripts/test.sh",
+    "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
+    "jsonwebtoken": "8.5.1",
     "request": "2.88.0",
     "request-promise-native": "1.0.7",
+    "unzipper": "0.10.11",
     "uuid": "8.3.0",
     "ws": "7.2.1"
   },

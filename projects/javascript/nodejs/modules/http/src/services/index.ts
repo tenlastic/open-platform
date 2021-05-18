@@ -1,4 +1,6 @@
 export * from './base';
+export * from './build';
+export * from './build-log';
 export * from './game-server';
 export * from './login';
 export * from './namespace';
@@ -6,3 +8,4 @@ export * from './password-reset';
 export * from './queue-member';
 export * from './queue';
 export * from './user';
+export * from './workflow';

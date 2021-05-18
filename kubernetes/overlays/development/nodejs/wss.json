@@ -40,6 +40,14 @@
         }
       ],
       "image": "node:12",
+      "livenessProbe": {
+        "httpGet": {
+          "path": "/",
+          "port": 3000,
+          "initialDelaySeconds": 30,
+          "periodSeconds": 30
+        }
+      },
       "name": "wss",
       "ports": [{ "containerPort": 3000 }],
       "volumeMounts": [

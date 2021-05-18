@@ -39,6 +39,9 @@ BuildEvent.sync(async payload => {
     return;
   }
 
+  const zipPath = payload.fullDocument.getZipPath();
+  await minio.removeObject(process.env.MINIO_BUCKET, zipPath);
+
   for (const file of payload.fullDocument.files) {
     const path = payload.fullDocument.getFilePath(file.path);
     await minio.removeObject(process.env.MINIO_BUCKET, path);

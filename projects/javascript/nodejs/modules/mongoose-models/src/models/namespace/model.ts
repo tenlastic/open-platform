@@ -18,7 +18,16 @@ import * as mongoose from 'mongoose';
 
 import { UserDocument } from '../user';
 import { NamespaceKeySchema } from './key';
-import { NamespaceLimitsSchema } from './limits';
+import {
+  NamespaceBuildLimits,
+  NamespaceDatabaseLimits,
+  NamespaceGameLimits,
+  NamespaceGameServerLimits,
+  NamespaceLimits,
+  NamespaceLimitsSchema,
+  NamespaceQueueLimits,
+  NamespaceWorkflowLimits,
+} from './limits';
 import { NamespaceUser, NamespaceUserDocument, NamespaceUserSchema } from './user';
 
 export class NamespaceLimitError extends Error {
@@ -77,7 +86,16 @@ export class NamespaceSchema {
   @arrayProp({ items: NamespaceKeySchema })
   public keys: NamespaceKeySchema[];
 
-  @prop({ required: true })
+  @prop({
+    default: new NamespaceLimits({
+      builds: new NamespaceBuildLimits(),
+      databases: new NamespaceDatabaseLimits(),
+      gameServers: new NamespaceGameServerLimits(),
+      games: new NamespaceGameLimits(),
+      queues: new NamespaceQueueLimits(),
+      workflows: new NamespaceWorkflowLimits(),
+    }),
+  })
   public limits: NamespaceLimitsSchema;
 
   @prop({ required: true })

@@ -1,30 +1,16 @@
-import * as requestPromiseNative from 'request-promise-native';
-
-import { accessToken } from '../access-token';
 import { BaseModel } from '../models';
+import * as request from '../request';
 import { BaseStore } from '../stores';
 
 export abstract class BaseService<T extends BaseModel> {
   protected store: BaseStore<T>;
-  protected url: string;
-
-  // Using Getter since Access Token may change.
-  private get headers() {
-    return {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    };
-  }
+  protected abstract get url(): string;
 
   /**
    * Creates a Record.
    */
   public async create(json: T): Promise<T> {
-    const { record } = await requestPromiseNative.post({
-      headers: this.headers,
-      json,
-      url: this.url,
-    });
+    const { record } = await request.promise(this.url, { json, method: 'post' });
     this.store.insert(record);
     return record;
   }
@@ -36,10 +22,9 @@ export abstract class BaseService<T extends BaseModel> {
     this.store.delete(_id);
 
     try {
-      const { record } = await requestPromiseNative.delete({
-        headers: this.headers,
+      const { record } = await request.promise(`${this.url}/${_id}`, {
         json: true,
-        url: `${this.url}/${_id}`,
+        method: 'delete',
       });
       return record;
     } catch {}
@@ -49,11 +34,10 @@ export abstract class BaseService<T extends BaseModel> {
    * Returns an array of Records satisfying the query.
    */
   public async find(query: any): Promise<T[]> {
-    const { records } = await requestPromiseNative.get({
-      headers: this.headers,
+    const { records } = await request.promise(this.url, {
       json: true,
-      qs: JSON.stringify(query),
-      url: this.url,
+      method: 'get',
+      qs: { query: JSON.stringify(query) },
     });
     return records;
   }
@@ -62,11 +46,7 @@ export abstract class BaseService<T extends BaseModel> {
    * Returns a Record by ID.
    */
   public async findOne(_id: string): Promise<T> {
-    const { record } = await requestPromiseNative.get({
-      headers: this.headers,
-      json: true,
-      url: `${this.url}/${_id}`,
-    });
+    const { record } = await request.promise(`${this.url}/${_id}`, { json: true, method: 'get' });
     return record;
   }
 
@@ -74,11 +54,7 @@ export abstract class BaseService<T extends BaseModel> {
    * Updates a Record.
    */
   public async update(_id: string, json: T): Promise<T> {
-    const { record } = await requestPromiseNative.put({
-      headers: this.headers,
-      json,
-      url: `${this.url}/${_id}`,
-    });
+    const { record } = await request.promise(`${this.url}/${_id}`, { json });
     this.store.update(record);
     return record;
   }

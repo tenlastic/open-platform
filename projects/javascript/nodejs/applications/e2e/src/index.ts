@@ -1,4 +1,7 @@
-import { loginService, setAccessToken } from '@tenlastic/http';
+import { loginService, setAccessToken, setApiUrl, setRefreshToken } from '@tenlastic/http';
+
+const apiUrl = process.env.E2E_API_URL;
+setApiUrl(apiUrl);
 
 beforeEach(async function() {
   const password = process.env.E2E_ADMINISTRATOR_PASSWORD;
@@ -6,6 +9,7 @@ beforeEach(async function() {
 
   const response = await loginService.createWithCredentials(username, password);
   setAccessToken(response.accessToken);
+  setRefreshToken(response.refreshToken);
 });
 
 afterEach(async function() {

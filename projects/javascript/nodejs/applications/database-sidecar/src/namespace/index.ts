@@ -1,13 +1,21 @@
-import { namespaceService, namespaceStore, setAccessToken, WebSocket } from '@tenlastic/http';
+import {
+  namespaceService,
+  namespaceStore,
+  setAccessToken,
+  setApiUrl,
+  WebSocket,
+} from '@tenlastic/http';
 import { Namespace } from '@tenlastic/mongoose-models';
 
 const accessToken = process.env.ACCESS_TOKEN;
+const apiUrl = process.env.API_URL;
 const database = JSON.parse(process.env.DATABASE_JSON);
 const wssUrl = process.env.WSS_URL;
 
 export async function namespace() {
   try {
     setAccessToken(accessToken);
+    setApiUrl(apiUrl);
 
     // Fetch Namespace from API and MongoDB.
     let record = await Namespace.findOne({ _id: database.namespaceId });
@@ -41,7 +49,7 @@ export async function namespace() {
         namespaceStore,
       );
     });
-    webSocket.connect(wssUrl);
+    await webSocket.connect(wssUrl);
   } catch (e) {
     console.error(e);
     process.exit(1);

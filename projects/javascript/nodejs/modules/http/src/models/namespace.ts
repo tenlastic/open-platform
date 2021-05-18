@@ -75,8 +75,8 @@ export namespace INamespace {
 }
 
 export interface NamespaceModel extends BaseModel {
-  keys: INamespace.Key[];
-  limits: INamespace.Limits;
+  keys?: INamespace.Key[];
+  limits?: INamespace.Limits;
   name: string;
-  users: INamespace.User[];
+  users?: INamespace.User[];
 }

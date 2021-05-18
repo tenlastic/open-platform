@@ -1,12 +1,13 @@
+import { apiUrl } from '../api-url';
 import { QueueModel } from '../models';
 import { queueStore } from '../stores';
 import { BaseService } from './base';
 
-const apiUrl = process.env.API_URL;
-
 export class QueueService extends BaseService<QueueModel> {
   protected store = queueStore;
-  protected url = `${apiUrl}/queues`;
+  protected get url() {
+    return `${apiUrl}/queues`;
+  }
 }
 
 export const queueService = new QueueService();
