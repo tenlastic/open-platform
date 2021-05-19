@@ -18,21 +18,22 @@ export namespace INamespace {
   }
 
   export interface DatabaseLimits {
-    count: number;
     cpu: number;
     memory: number;
     preemptible: boolean;
+    replicas: number;
+    storage: number;
   }
 
   export interface GameLimits {
     count: number;
     images: number;
+    public: number;
     size: number;
     videos: number;
   }
 
   export interface GameServerLimits {
-    count: number;
     cpu: number;
     memory: number;
     preemptible: boolean;
@@ -54,10 +55,10 @@ export namespace INamespace {
   }
 
   export interface QueueLimits {
-    count: number;
     cpu: number;
     memory: number;
     preemptible: boolean;
+    replicas: number;
   }
 
   export interface User {
@@ -71,12 +72,17 @@ export namespace INamespace {
     memory: number;
     parallelism: number;
     preemptible: boolean;
+    storage: number;
   }
 }
 
-export interface NamespaceModel extends BaseModel {
-  keys?: INamespace.Key[];
-  limits?: INamespace.Limits;
-  name: string;
-  users?: INamespace.User[];
+export class NamespaceModel extends BaseModel {
+  public keys: INamespace.Key[];
+  public limits: INamespace.Limits;
+  public name: string;
+  public users: INamespace.User[];
+
+  constructor(parameters: Partial<NamespaceModel> = {}) {
+    super(parameters);
+  }
 }

@@ -1,4 +1,4 @@
-import { queueMemberStore } from '@tenlastic/http';
+import { queueMemberService, queueMemberStore } from '@tenlastic/http';
 import * as Redis from 'ioredis';
 
 const podName = process.env.POD_NAME;
@@ -46,18 +46,18 @@ export async function start() {
   // Add existing QueueMembers to the store.
   for (const queueMember of queueMembers) {
     const json = JSON.parse(queueMember);
-    queueMemberStore.add(json);
+    queueMemberStore.upsert(json._id, json);
   }
 
   // Sync QueueMembers with Redis.
-  queueMemberStore.emitter.on('delete', qm => {
-    const score = getScore(qm._id);
-    return client.zremrangebyscore(podName, score, score);
-  });
-  queueMemberStore.emitter.on('insert', qm =>
+  queueMemberService.emitter.on('create', qm =>
     client.zadd(podName, getScore(qm._id), JSON.stringify(qm)),
   );
-  queueMemberStore.emitter.on('update', qm =>
+  queueMemberService.emitter.on('delete', _id => {
+    const score = getScore(_id);
+    return client.zremrangebyscore(podName, score, score);
+  });
+  queueMemberService.emitter.on('update', qm =>
     client.zadd(podName, getScore(qm._id), JSON.stringify(qm)),
   );
 }

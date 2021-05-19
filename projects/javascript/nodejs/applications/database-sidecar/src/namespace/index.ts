@@ -1,10 +1,4 @@
-import {
-  namespaceService,
-  namespaceStore,
-  setAccessToken,
-  setApiUrl,
-  WebSocket,
-} from '@tenlastic/http';
+import { namespaceService, setAccessToken, setApiUrl, WebSocket } from '@tenlastic/http';
 import { Namespace } from '@tenlastic/mongoose-models';
 
 const accessToken = process.env.ACCESS_TOKEN;
@@ -27,8 +21,8 @@ export async function namespace() {
     await record.save();
     console.log('Namespace updated successfully.');
 
-    // Update Namespace on NamespaceStore changes.
-    namespaceStore.emitter.on('update', async n => {
+    // Update Namespace on NamespaceService changes.
+    namespaceService.emitter.on('update', async n => {
       console.log('Updating Namespace...');
       record.set(n);
       await record.save();
@@ -40,14 +34,11 @@ export async function namespace() {
     webSocket.emitter.on('open', () => {
       console.log('Web socket connected.');
 
-      webSocket.subscribe(
-        {
-          collection: 'namespaces',
-          resumeToken: 'database-sidecar',
-          where: { _id: record._id },
-        },
-        namespaceStore,
-      );
+      webSocket.subscribe(namespaceService.emitter, {
+        collection: 'namespaces',
+        resumeToken: 'database-sidecar',
+        where: { _id: record._id },
+      });
     });
     await webSocket.connect(wssUrl);
   } catch (e) {

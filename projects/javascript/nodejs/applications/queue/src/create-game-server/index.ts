@@ -5,6 +5,7 @@ import {
   QueueMemberModel,
   queueMemberService,
   queueMemberStore,
+  queueMemberQuery,
 } from '@tenlastic/http';
 
 import { getTeamAssignments } from '../get-team-assignments';
@@ -15,7 +16,7 @@ import { removeConflictedUsers } from '../remove-conflicted-users';
  */
 export async function createGameServer(queue: QueueModel): Promise<GameServerModel> {
   // Assign QueueMembers to teams.
-  const queueMembers = queueMemberStore.array;
+  const queueMembers = queueMemberQuery.getAll();
   const teamAssignments = getTeamAssignments(queue, queueMembers);
 
   // Throw an error if not enough teams were found.
@@ -38,7 +39,7 @@ export async function createGameServer(queue: QueueModel): Promise<GameServerMod
   // If any QueueMembers have been removed, retry team assignments.
   const removedQueueMembers = await removeConflictedUsers(queue, Array.from(set));
   if (removedQueueMembers.length) {
-    removedQueueMembers.forEach(rqm => queueMemberStore.delete(rqm._id));
+    removedQueueMembers.forEach(rqm => queueMemberStore.remove(rqm._id));
     return createGameServer(queue);
   }
 

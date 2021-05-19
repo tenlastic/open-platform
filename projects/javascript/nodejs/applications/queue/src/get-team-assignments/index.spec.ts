@@ -1,3 +1,4 @@
+import { QueueMemberModel, QueueModel } from '@tenlastic/http';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 
@@ -7,8 +8,11 @@ const chance = new Chance();
 
 describe('get-team-assignments', function() {
   it('handles solo queue', async function() {
-    const queue = { teams: 2, usersPerTeam: 1 };
-    const queueMembers = [{ userIds: [chance.hash()] }, { userIds: [chance.hash()] }];
+    const queue = new QueueModel({ teams: 2, usersPerTeam: 1 });
+    const queueMembers = [
+      new QueueMemberModel({ userIds: [chance.hash()] }),
+      new QueueMemberModel({ userIds: [chance.hash()] }),
+    ];
 
     const result = getTeamAssignments(queue, queueMembers);
 
@@ -17,11 +21,11 @@ describe('get-team-assignments', function() {
   });
 
   it('handles group queue', async function() {
-    const queue = { teams: 2, usersPerTeam: 2 };
+    const queue = new QueueModel({ teams: 2, usersPerTeam: 2 });
     const queueMembers = [
-      { userIds: [chance.hash(), chance.hash()] },
-      { userIds: [chance.hash()] },
-      { userIds: [chance.hash()] },
+      new QueueMemberModel({ userIds: [chance.hash(), chance.hash()] }),
+      new QueueMemberModel({ userIds: [chance.hash()] }),
+      new QueueMemberModel({ userIds: [chance.hash()] }),
     ];
 
     const result = getTeamAssignments(queue, queueMembers);
@@ -33,11 +37,11 @@ describe('get-team-assignments', function() {
   });
 
   it('accounts for group size', async function() {
-    const queue = { teams: 2, usersPerTeam: 2 };
+    const queue = new QueueModel({ teams: 2, usersPerTeam: 2 });
     const queueMembers = [
-      { userIds: [chance.hash()] },
-      { userIds: [chance.hash(), chance.hash()] },
-      { userIds: [chance.hash()] },
+      new QueueMemberModel({ userIds: [chance.hash()] }),
+      new QueueMemberModel({ userIds: [chance.hash(), chance.hash()] }),
+      new QueueMemberModel({ userIds: [chance.hash()] }),
     ];
 
     const result = getTeamAssignments(queue, queueMembers);
@@ -49,11 +53,11 @@ describe('get-team-assignments', function() {
   });
 
   it('skips larger groups', async function() {
-    const queue = { teams: 2, usersPerTeam: 1 };
+    const queue = new QueueModel({ teams: 2, usersPerTeam: 1 });
     const queueMembers = [
-      { userIds: [chance.hash(), chance.hash()] },
-      { userIds: [chance.hash()] },
-      { userIds: [chance.hash()] },
+      new QueueMemberModel({ userIds: [chance.hash(), chance.hash()] }),
+      new QueueMemberModel({ userIds: [chance.hash()] }),
+      new QueueMemberModel({ userIds: [chance.hash()] }),
     ];
 
     const result = getTeamAssignments(queue, queueMembers);

@@ -1,6 +1,6 @@
 import 'source-map-support/register';
 
-import { queueMemberStore, setAccessToken, setApiUrl, WebSocket } from '@tenlastic/http';
+import { queueMemberService, setAccessToken, setApiUrl, WebSocket } from '@tenlastic/http';
 import { WebServer } from '@tenlastic/web-server';
 
 import { createGameServer } from './create-game-server';
@@ -26,26 +26,20 @@ const wssUrl = process.env.WSS_URL;
       console.log('Web socket connected.');
 
       // Distribute new Queue Members among replicas.
-      webSocket.subscribe(
-        {
-          collection: 'queue-members',
-          operationType: ['insert'],
-          resumeToken: queue._id,
-          where: { queueId: queue._id },
-        },
-        queueMemberStore,
-      );
+      webSocket.subscribe(queueMemberService.emitter, {
+        collection: 'queue-members',
+        operationType: ['insert'],
+        resumeToken: queue._id,
+        where: { queueId: queue._id },
+      });
 
       // Get all Queue Member deletions.
-      webSocket.subscribe(
-        {
-          collection: 'queue-members',
-          operationType: ['delete'],
-          resumeToken: podName,
-          where: { queueId: queue._id },
-        },
-        queueMemberStore,
-      );
+      webSocket.subscribe(queueMemberService.emitter, {
+        collection: 'queue-members',
+        operationType: ['delete'],
+        resumeToken: podName,
+        where: { queueId: queue._id },
+      });
     });
     await webSocket.connect(wssUrl);
 

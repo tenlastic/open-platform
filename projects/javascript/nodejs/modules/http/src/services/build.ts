@@ -2,20 +2,28 @@ import { CoreOptions } from 'request';
 import * as unzipper from 'unzipper';
 
 import { apiUrl } from '../api-url';
-import { BuildModel } from '../models';
+import { BuildModel } from '../models/build';
 import * as request from '../request';
-import { buildStore } from '../stores';
+import { BaseService, ServiceEventEmitter } from './base';
 
 export class BuildService {
-  protected get url() {
-    return `${apiUrl}/builds`;
+  public emitter = new ServiceEventEmitter<BuildModel>();
+  private baseService = new BaseService<BuildModel>(this.emitter, BuildModel);
+
+  /**
+   * Returns the number of Records satisfying the query.
+   */
+  public async count(query: any) {
+    const url = this.getUrl();
+    return this.baseService.count(query, url);
   }
 
   /**
    * Creates a Record.
    */
-  public async create(json: BuildModel, zip: Buffer): Promise<BuildModel> {
-    const { record } = await request.promise(this.url, {
+  public async create(json: Partial<BuildModel>, zip: Buffer) {
+    const url = this.getUrl();
+    const response = await request.promise(url, {
       formData: {
         build: JSON.stringify(json),
         zip: { options: { contentType: 'application/zip', filename: 'zip.zip' }, value: zip },
@@ -23,23 +31,19 @@ export class BuildService {
       json: true,
       method: 'post',
     });
-    buildStore.insert(record);
+
+    const record = new BuildModel(response.record);
+    this.emitter.emit('create', record);
+
     return record;
   }
 
   /**
    * Deletes a Record.
    */
-  public async delete(_id: string): Promise<BuildModel> {
-    buildStore.delete(_id);
-
-    try {
-      const { record } = await request.promise(`${this.url}/${_id}`, {
-        json: true,
-        method: 'delete',
-      });
-      return record;
-    } catch {}
+  public async delete(_id: string) {
+    const url = this.getUrl();
+    return this.baseService.delete(_id, url);
   }
 
   /**
@@ -51,37 +55,41 @@ export class BuildService {
       options.qs = { query: JSON.stringify({ files: files.join('') }) };
     }
 
-    const response = await request.stream(`${this.url}/${_id}/files`, options);
+    const url = this.getUrl();
+    const response = await request.stream(`${url}/${_id}/files`, options);
+
     return response.pipe(unzipper.Parse());
   }
 
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(query: any): Promise<BuildModel[]> {
-    const { records } = await request.promise(this.url, {
-      json: true,
-      method: 'get',
-      qs: { query: JSON.stringify(query) },
-    });
-    return records;
+  public async find(query: any) {
+    const url = this.getUrl();
+    return this.baseService.find(query, url);
   }
 
   /**
    * Returns a Record by ID.
    */
-  public async findOne(_id: string): Promise<BuildModel> {
-    const { record } = await request.promise(`${this.url}/${_id}`, { json: true, method: 'get' });
-    return record;
+  public async findOne(_id: string) {
+    const url = this.getUrl();
+    return this.baseService.findOne(_id, url);
   }
 
   /**
    * Updates a Record.
    */
-  public async update(_id: string, json: BuildModel): Promise<BuildModel> {
-    const { record } = await request.promise(`${this.url}/${_id}`, { json });
-    buildStore.update(record);
-    return record;
+  public async update(_id: string, json: Partial<BuildModel>) {
+    const url = this.getUrl();
+    return this.baseService.update(_id, json, url);
+  }
+
+  /**
+   * Returns the base URL for this Model.
+   */
+  private getUrl() {
+    return `${apiUrl}/builds`;
   }
 }
 

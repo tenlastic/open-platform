@@ -2,18 +2,12 @@ import { apiUrl } from '../api-url';
 import * as request from '../request';
 
 export class LoginService {
-  private get url() {
-    return `${apiUrl}/logins`;
-  }
-
   /**
    * Logs in with username and password.
    */
   public async createWithCredentials(username: string, password: string) {
-    const response = await request.promise(this.url, {
-      json: { password, username },
-      method: 'post',
-    });
+    const url = this.getUrl();
+    const response = await request.promise(url, { json: { password, username }, method: 'post' });
 
     return { accessToken: response.accessToken, refreshToken: response.refreshToken };
   }
@@ -22,7 +16,8 @@ export class LoginService {
    * Logs in with a refresh token.
    */
   public async createWithRefreshToken(refreshToken: string) {
-    const response = await request.promise(`${this.url}/refresh-token`, {
+    const url = this.getUrl();
+    const response = await request.promise(`${url}/refresh-token`, {
       json: { token: refreshToken },
       method: 'post',
     });
@@ -34,7 +29,12 @@ export class LoginService {
    * Logs out.
    */
   public async delete() {
-    return request.promise(this.url, { json: true, method: 'delete' });
+    const url = this.getUrl();
+    return request.promise(url, { json: true, method: 'delete' });
+  }
+
+  private getUrl() {
+    return `${apiUrl}/logins`;
   }
 }
 

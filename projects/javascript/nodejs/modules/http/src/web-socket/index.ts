@@ -2,7 +2,8 @@ import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 import * as WS from 'ws';
 
-import { BaseStore } from '../stores';
+import { BaseModel } from '../models';
+import { ServiceEventEmitter } from '../services';
 import { getAccessToken } from '../tokens';
 
 export interface SubscribeParameters {
@@ -52,7 +53,7 @@ export class WebSocket {
     return this.socket;
   }
 
-  public subscribe(parameters: SubscribeParameters, store: BaseStore<any>) {
+  public subscribe(emitter: ServiceEventEmitter<BaseModel>, parameters: SubscribeParameters) {
     const _id = uuid();
     const data = { _id, method: 'subscribe', parameters };
 
@@ -66,11 +67,11 @@ export class WebSocket {
       }
 
       if (payload.operationType === 'delete') {
-        store.delete(payload.fullDocument._id);
+        emitter.emit('delete', payload.fullDocument._id);
       } else if (payload.operationType === 'insert') {
-        store.insert(payload.fullDocument);
+        emitter.emit('create', payload.fullDocument);
       } else if (payload.operationType === 'update') {
-        store.update(payload.fullDocument);
+        emitter.emit('update', payload.fullDocument);
       }
 
       this.emitter.emit(_id, payload);

@@ -1,4 +1,9 @@
-import { gameServerService, queueMemberService } from '@tenlastic/http';
+import {
+  gameServerService,
+  QueueMemberModel,
+  queueMemberService,
+  QueueModel,
+} from '@tenlastic/http';
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
@@ -16,10 +21,10 @@ describe('remove-conflicted-users', function() {
   });
 
   it('removes the User from all Queues', async function() {
-    const queue = { namespaceId: '1' };
+    const queue = new QueueModel({ namespaceId: '1' });
     const queueMembers = [
-      { _id: '1', userIds: ['1'] },
-      { _id: '2', userIds: ['2'] },
+      new QueueMemberModel({ _id: '1', userIds: ['1'] }),
+      new QueueMemberModel({ _id: '2', userIds: ['2'] }),
     ];
 
     const gameServerSpy = sandbox
@@ -29,7 +34,9 @@ describe('remove-conflicted-users', function() {
 
     const result = await removeConflictedUsers(queue, queueMembers);
 
-    expect(result).to.eql([{ _id: '1', userIds: ['1'] }]);
+    expect(result.length).to.eql(1);
+    expect(result[0]._id).to.eql('1');
+    expect(result[0].userIds).to.eql(['1']);
     expect(gameServerSpy.calledOnce).to.eql(true);
     expect(queueMemberSpy.calledOnce).to.eql(true);
   });

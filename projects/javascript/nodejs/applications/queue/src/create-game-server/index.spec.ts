@@ -1,4 +1,10 @@
-import { gameServerService, queueMemberService, queueMemberStore } from '@tenlastic/http';
+import {
+  gameServerService,
+  QueueMemberModel,
+  queueMemberService,
+  queueMemberStore,
+  QueueModel,
+} from '@tenlastic/http';
 
 import { expect } from 'chai';
 import * as sinon from 'sinon';
@@ -17,7 +23,7 @@ describe('create-game-server', function() {
   });
 
   it('removes the User from all Queues', async function() {
-    const queue = {
+    const queue = new QueueModel({
       _id: '1',
       gameServerTemplate: {
         buildId: '1',
@@ -30,10 +36,10 @@ describe('create-game-server', function() {
       namespaceId: '1',
       teams: 2,
       usersPerTeam: 1,
-    };
-    queueMemberStore.insert({ _id: '1', userIds: ['1'] });
-    queueMemberStore.insert({ _id: '2', userIds: ['2'] });
-    queueMemberStore.insert({ _id: '3', userIds: ['3'] });
+    });
+    queueMemberStore.upsert('1', new QueueMemberModel({ _id: '1', userIds: ['1'] }));
+    queueMemberStore.upsert('2', new QueueMemberModel({ _id: '2', userIds: ['2'] }));
+    queueMemberStore.upsert('3', new QueueMemberModel({ _id: '3', userIds: ['3'] }));
 
     const createGameServerSpy = sandbox.stub(gameServerService, 'create').resolves({ _id: '1' });
     const findGameServersSpy = sandbox.stub(gameServerService, 'find').resolves([]);
