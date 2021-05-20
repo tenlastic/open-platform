@@ -9,7 +9,17 @@ export async function connect(connectionString: string) {
     ? connectionString.split('@')
     : [null, connectionString];
 
-  const config: KafkaConfig = { brokers: brokers.split(','), logLevel: logLevel.NOTHING };
+  const config: KafkaConfig = {
+    brokers: brokers.split(','),
+    logLevel: logLevel.NOTHING,
+    retry: {
+      factor: 0,
+      initialRetryTime: 1000,
+      maxRetryTime: 15000,
+      multiplier: 2,
+      retries: 25,
+    },
+  };
   if (credentials) {
     const [username, password] = credentials.split(':').map(c => decodeURIComponent(c));
     config.sasl = { mechanism: 'plain', password, username };

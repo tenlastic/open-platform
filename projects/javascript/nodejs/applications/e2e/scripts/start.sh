@@ -21,6 +21,6 @@ $COVERAGE_ARGUMENTS \
     --exclude "src/**/*.spec.ts" \
     --exit \
     --require ts-node/register \
-    --timeout 180000 \
+    --timeout 600000 \
     $WATCH_ARGUMENTS \
     "src/**/*.ts"

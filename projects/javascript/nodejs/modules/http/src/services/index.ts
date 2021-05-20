@@ -7,6 +7,7 @@ export * from './collection';
 export * from './database';
 export * from './game';
 export * from './game-server';
+export * from './game-server-log';
 export * from './group';
 export * from './login';
 export * from './namespace';

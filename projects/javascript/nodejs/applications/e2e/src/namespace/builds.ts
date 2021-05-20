@@ -10,6 +10,7 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import * as JSZip from 'jszip';
+import { step } from 'mocha-steps';
 
 import { wait } from '../wait';
 
@@ -20,18 +21,25 @@ describe('builds', function() {
   let build: BuildModel;
   let namespace: NamespaceModel;
 
-  beforeEach(async function() {
+  before(async function() {
     namespace = await namespaceService.create({ name: chance.hash() });
+  });
 
+  after(async function() {
+    await namespaceService.delete(namespace._id);
+  });
+
+  step('creates a build', async function() {
+    // Generate a zip stream.
     const zip = new JSZip();
-    zip.file('Dockerfile', 'FROM n0r1skcom/echo:latest');
-
+    zip.file('Dockerfile', 'FROM inanimate/echo-server:latest');
     const buffer = await zip.generateAsync({
       compression: 'DEFLATE',
       compressionOptions: { level: 1 },
       type: 'nodebuffer',
     });
 
+    // Create the Build.
     build = await buildService.create(
       {
         entrypoint: 'Dockerfile',
@@ -43,18 +51,15 @@ describe('builds', function() {
     );
     expect(build).to.exist;
 
+    // Wait for Build to finish.
     const phase = await wait(1000, 180000, async () => {
-      const response = await buildService.findOne(build._id);
-      return response.status?.finishedAt ? response.status.phase : null;
+      build = await buildService.findOne(build._id);
+      return build.status?.finishedAt ? build.status.phase : null;
     });
     expect(phase).to.eql('Succeeded');
   });
 
-  afterEach(async function() {
-    await namespaceService.delete(namespace._id);
-  });
-
-  it('can be downloaded', async function() {
+  step('can be downloaded', async function() {
     const stream = await buildService.download(build._id);
 
     const result = await new Promise<{ content: string; path: string }>((resolve, reject) => {
@@ -78,11 +83,11 @@ describe('builds', function() {
         .on('error', reject);
     });
 
-    expect(result.content).to.eql('FROM n0r1skcom/echo:latest');
+    expect(result.content).to.eql('FROM inanimate/echo-server:latest');
     expect(result.path).to.eql('Dockerfile');
   });
 
-  it('generates logs', async function() {
+  step('generates logs', async function() {
     const logs = await buildLogService.find(build._id, {});
     expect(logs.length).to.be.greaterThan(0);
   });

@@ -95,7 +95,7 @@ export class BaseService<T extends BaseModel> {
    * Updates a Record.
    */
   public async update(_id: string, json: Partial<T>, url: string): Promise<T> {
-    const response = await request.promise(`${url}/${_id}`, { json });
+    const response = await request.promise(`${url}/${_id}`, { json, method: 'put' });
 
     const record = new this.Model(response.record);
     this.emitter.emit('update', record);

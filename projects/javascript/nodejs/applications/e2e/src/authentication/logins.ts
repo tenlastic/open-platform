@@ -1,4 +1,10 @@
-import { loginService, setAccessToken, UserModel, userService } from '@tenlastic/http';
+import {
+  getAccessToken,
+  loginService,
+  setAccessToken,
+  UserModel,
+  userService,
+} from '@tenlastic/http';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
@@ -76,8 +82,13 @@ describe('logins', function() {
 
     beforeEach(async function() {
       const response = await loginService.createWithCredentials(username, password);
-      accessToken = response.accessToken;
       refreshToken = response.refreshToken;
+
+      accessToken = await getAccessToken();
+      setAccessToken(response.accessToken);
+    });
+
+    afterEach(async function() {
       setAccessToken(accessToken);
     });
 

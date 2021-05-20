@@ -18,7 +18,7 @@ export namespace ICollection {
     default?: any;
     format?: string;
     items?: JsonSchemaProperty;
-    properties?: JsonSchemaProperty;
+    properties?: { [key: string]: JsonSchemaProperty };
     required?: string[];
     type?: string;
   }

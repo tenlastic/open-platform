@@ -3,7 +3,7 @@ import { loginService, setAccessToken, setApiUrl, setRefreshToken } from '@tenla
 const apiUrl = process.env.E2E_API_URL;
 setApiUrl(apiUrl);
 
-beforeEach(async function() {
+before(async function() {
   const password = process.env.E2E_ADMINISTRATOR_PASSWORD;
   const username = process.env.E2E_ADMINISTRATOR_USERNAME;
 
@@ -12,6 +12,6 @@ beforeEach(async function() {
   setRefreshToken(response.refreshToken);
 });
 
-afterEach(async function() {
+after(async function() {
   await loginService.delete();
 });

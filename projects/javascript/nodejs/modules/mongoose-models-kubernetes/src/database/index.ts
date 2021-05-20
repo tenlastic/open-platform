@@ -417,7 +417,7 @@ export const KubernetesDatabase = {
      * STATEFUL SET
      * ======================
      */
-    const livenessProbe: V1Probe = {
+    const probe: V1Probe = {
       httpGet: {
         path: `/databases/${database._id}/collections`,
         port: 3000 as any,
@@ -450,9 +450,10 @@ export const KubernetesDatabase = {
               ],
               envFrom: [{ secretRef: { name } }],
               image: `node:12`,
-              livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
+              livenessProbe: { ...probe, initialDelaySeconds: 120 },
               name: 'main',
               ports: [{ containerPort: 3000, protocol: 'TCP' }],
+              readinessProbe: probe,
               resources: { requests: resources.requests },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
               workingDir: '/usr/src/app/projects/javascript/nodejs/applications/database/',
@@ -486,9 +487,10 @@ export const KubernetesDatabase = {
               ],
               envFrom: [{ secretRef: { name } }],
               image: `tenlastic/database:${version}`,
-              livenessProbe,
+              livenessProbe: probe,
               name: 'main',
               ports: [{ containerPort: 3000, protocol: 'TCP' }],
+              readinessProbe: probe,
               resources: { requests: resources.requests },
             },
           ],
