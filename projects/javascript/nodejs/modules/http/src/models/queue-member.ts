@@ -1,3 +1,4 @@
+import { namespaceQuery } from '../stores/namespace';
 import { queueQuery } from '../stores/queue';
 import { userQuery } from '../stores/user';
 import { BaseModel } from './base';
@@ -6,6 +7,10 @@ export class QueueMemberModel extends BaseModel {
   public _id: string;
   public createdAt: Date;
   public groupId: string;
+  public get namespace() {
+    return namespaceQuery.getEntity(this.namespaceId);
+  }
+  public namespaceId: string;
   public get queue() {
     return queueQuery.getEntity(this.queueId);
   }

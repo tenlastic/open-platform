@@ -36,7 +36,6 @@ export class WebSocket {
     const data = { _id: uuid(), method: 'ping' };
     const interval = setInterval(() => this.socket.send(JSON.stringify(data)), 5000);
 
-    this.socket.addEventListener('open', () => this.emitter.emit('open'));
     this.socket.addEventListener('close', e => {
       clearInterval(interval);
       this.socket = null;
@@ -49,6 +48,11 @@ export class WebSocket {
       console.error('Socket error:', e.message);
       this.socket.close();
     });
+    this.socket.addEventListener('message', msg => {
+      const payload = JSON.parse(msg.data as string);
+      this.emitter.emit('message', payload);
+    });
+    this.socket.addEventListener('open', () => this.emitter.emit('open'));
 
     return this.socket;
   }

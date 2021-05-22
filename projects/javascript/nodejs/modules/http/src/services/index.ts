@@ -14,6 +14,8 @@ export * from './namespace';
 export * from './password-reset';
 export * from './queue-member';
 export * from './queue';
+export * from './queue-log';
 export * from './record';
 export * from './user';
 export * from './workflow';
+export * from './workflow-log';

@@ -233,7 +233,7 @@ export const KubernetesQueue = {
       'tenlastic.com/namespaceId': queue.namespaceId.toString(),
       'tenlastic.com/queueId': queue._id.toString(),
     };
-    const livenessProbe: V1Probe = {
+    const probe: V1Probe = {
       httpGet: { path: `/`, port: 3000 as any },
       initialDelaySeconds: 30,
       periodSeconds: 30,
@@ -282,8 +282,9 @@ export const KubernetesQueue = {
               env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
               envFrom: [{ secretRef: { name } }],
               image: `node:12`,
-              livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
+              livenessProbe: { ...probe, initialDelaySeconds: 300 },
               name: 'main',
+              readinessProbe: probe,
               resources,
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
               workingDir: '/usr/src/app/projects/javascript/nodejs/applications/queue/',
@@ -335,8 +336,9 @@ export const KubernetesQueue = {
               env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
               envFrom: [{ secretRef: { name } }],
               image: `tenlastic/queue:${version}`,
-              livenessProbe,
+              livenessProbe: probe,
               name: 'main',
+              readinessProbe: probe,
               resources,
             },
           ],

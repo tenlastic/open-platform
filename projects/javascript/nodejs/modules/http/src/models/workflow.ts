@@ -101,7 +101,7 @@ export namespace IWorkflow {
     dag?: Dag;
     name: string;
     retryStrategy?: RetryStrategy;
-    script: Script;
+    script?: Script;
     sidecars?: Sidecar[];
   }
 }

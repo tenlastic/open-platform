@@ -165,7 +165,7 @@ export const KubernetesDatabaseSidecar = {
               env,
               envFrom: [{ secretRef: { name } }],
               image: 'node:12',
-              livenessProbe: { ...livenessProbe, initialDelaySeconds: 120 },
+              livenessProbe: { ...livenessProbe, initialDelaySeconds: 300 },
               name: 'database-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
               volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],

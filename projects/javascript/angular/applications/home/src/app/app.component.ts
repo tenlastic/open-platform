@@ -26,6 +26,7 @@ import {
   MessageService,
   Queue,
   QueueMember,
+  QueueMemberQuery,
   QueueMemberService,
   QueueQuery,
   QueueService,
@@ -64,12 +65,15 @@ export class AppComponent implements OnInit {
     private identityService: IdentityService,
     private loginService: LoginService,
     private messageService: MessageService,
+    private queueMemberQuery: QueueMemberQuery,
     private queueMemberService: QueueMemberService,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
     private router: Router,
     private socketService: SocketService,
     private titleService: Title,
+    private userQuery: UserQuery,
+    private userService: UserService,
     private webSocketService: WebSocketService,
     private workflowService: WorkflowService,
   ) {}
@@ -143,6 +147,12 @@ export class AppComponent implements OnInit {
         .filter(queueId => !this.queueQuery.hasEntity(queueId));
       if (ids.length > 0) {
         this.queueService.find({ where: { _id: { $in: ids } } });
+      }
+    });
+    this.queueMemberQuery.selectAll().subscribe(records => {
+      const ids = records.map(r => r.userId).filter(userId => !this.userQuery.hasEntity(userId));
+      if (ids.length > 0) {
+        this.userService.find({ where: { _id: { $in: ids } } });
       }
     });
   }

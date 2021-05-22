@@ -116,14 +116,15 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     return this.$group.pipe(map(group => group && group.userIds.length <= queue.usersPerTeam));
   }
 
-  public async joinAsGroup(queueId: string) {
+  public async joinAsGroup(queue: Queue) {
     const group = await this.$group.pipe(first()).toPromise();
 
     try {
       const socket = this.socketService.connect(environment.apiBaseUrl);
       await this.queueMemberService.create({
         groupId: group._id,
-        queueId,
+        namespaceId: queue.namespaceId,
+        queueId: queue._id,
         userId: this.identityService.user._id,
         webSocketId: socket._id,
       });
@@ -142,10 +143,11 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     await this.getCurrentUsers();
   }
 
-  public async joinAsIndividual(queueId: string) {
+  public async joinAsIndividual(queue: Queue) {
     const socket = this.socketService.connect(environment.apiBaseUrl);
     await this.queueMemberService.create({
-      queueId,
+      namespaceId: queue.namespaceId,
+      queueId: queue._id,
       userId: this.identityService.user._id,
       webSocketId: socket._id,
     });
