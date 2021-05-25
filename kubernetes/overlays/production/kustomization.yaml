@@ -12,6 +12,7 @@ patches:
 patchesStrategicMerge:
   - ./static/ingress-nginx/ingress-nginx.yaml
 resources:
+  - ./default/argo/argo-ci.ingress.yaml
   - ./default/argo/argo-ci.sealedsecret.yaml
   - ./default/argo/argo-ci.yaml
   - ./dynamic/secrets/docker-registry.sealedsecret.yaml

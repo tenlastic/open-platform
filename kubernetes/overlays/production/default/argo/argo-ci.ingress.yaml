@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    certmanager.k8s.io/cluster-issuer: letsencrypt-production
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+    kubernetes.io/ingress.allow-http: "false"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header  X-Forwarded-Proto https;
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "1G"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/server-snippet: |
+      rewrite /discord https://discord.gg/AXSfWq permanent;
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  name: argo-ci
+  namespace: default
+spec:
+  tls:
+    - hosts:
+        - "*.tenlastic.com"
+      secretName: argo-ci-tls
+  rules:
+    - host: argo-ci.tenlastic.com
+      http:
+        paths:
+          - path: /api/webhook/github
+            pathType: Prefix
+            backend:
+              service:
+                name: argo-ci
+                port:
+                  number: 8001
