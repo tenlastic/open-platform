@@ -18,19 +18,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: argo-server
+                name: argo-workflows-argo-workflows-server
                 port:
                   number: 2746
-    - host: argo-ci.localhost
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: argo-ci
-                port:
-                  number: 8001
     - host: docker-registry.localhost
       http:
         paths:

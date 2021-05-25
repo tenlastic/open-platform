@@ -33,19 +33,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: argo-server
+                name: argo-workflows-argo-workflows-server
                 port:
                   number: 2746
-    - host: argo-ci.tenlastic.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: argo-ci
-                port:
-                  number: 8002
     - host: docker-registry.tenlastic.com
       http:
         paths:
