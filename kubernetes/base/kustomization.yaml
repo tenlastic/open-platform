@@ -21,6 +21,7 @@ resources:
   - ./dynamic/rbac/workflow.yaml
   - ./dynamic/rbac/workflow-sidecar.yaml
   - ./static/angular/home-ui.yaml
+  - ./static/argo/argo-workflows.yaml
   - ./static/docker-registry/docker-registry-ui.yaml
   - ./static/docker-registry/docker-registry.yaml
   - ./static/helm-operator/helm-operator.yaml
@@ -33,3 +34,4 @@ resources:
   - ./static/mongodb/mongoku.yaml
   - ./static/nodejs/api.yaml
   - ./static/nodejs/wss.yaml
+  - ./static/sealed-secrets/sealed-secrets.yaml

@@ -18,7 +18,7 @@ resource "google_dns_record_set" "wildcard_tenlastic_com" {
 
 resource "google_dns_record_set" "gmail" {
   managed_zone = google_dns_managed_zone.tenlastic_com.name
-  name         = "${google_dns_managed_zone.tenlastic_com.dns_name}"
+  name         = google_dns_managed_zone.tenlastic_com.dns_name
   ttl          = 3600
   type         = "MX"
 

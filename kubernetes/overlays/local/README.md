@@ -23,6 +23,9 @@ Default Location per Platform:
 If you would like to run the Open Platform without modifying its source code, run the following command:
 
 ```bash
+# Set default namespace to "static".
+kubectl config set-context --current --namespace=static
+
 # Apply Node labels.
 kubectl label node $(kubectl get nodes -o jsonpath={..metadata.name}) tenlastic.com/high-priority=true
 kubectl label node $(kubectl get nodes -o jsonpath={..metadata.name}) tenlastic.com/low-priority=true

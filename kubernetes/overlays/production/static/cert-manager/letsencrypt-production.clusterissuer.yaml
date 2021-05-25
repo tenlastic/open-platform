@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-production
+  namespace: static
+spec:
+  acme:
+    email: appellod@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt-production
+    server: https://acme-v02.api.letsencrypt.org/directory
+    solvers:
+      - dns01:
+          cloudDNS:
+            project: production-303220
+            serviceAccountSecretRef:
+              name: cert-manager-credentials
+              key: dns-admin.json

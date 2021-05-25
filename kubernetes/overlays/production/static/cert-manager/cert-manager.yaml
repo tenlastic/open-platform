@@ -1,0 +1,40 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  annotations:
+    fluxcd.io/automated: "true"
+  name: cert-manager
+  namespace: static
+spec:
+  chart:
+    name: cert-manager
+    repository: https://charts.jetstack.io
+    version: 1.1.0
+  releaseName: cert-manager
+  values:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/low-priority
+                  operator: Exists
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - cert-manager
+              topologyKey: kubernetes.io/hostname
+    ingressShim:
+      defaultIssuerName: letsencrypt-production
+      defaultIssuerKind: ClusterIssuer
+    installCRDs: true
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 50m

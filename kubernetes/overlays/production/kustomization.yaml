@@ -3,36 +3,35 @@ bases:
   - ../../base/
 kind: Kustomization
 patches:
-  - path: ./docker-registry/docker-registry.json
+  - path: ./static/docker-registry/docker-registry.json
     target:
       group: apps
       kind: Deployment
       name: docker-registry
       version: v1
 patchesStrategicMerge:
-  - ./ingress-nginx/ingress-nginx.yaml
+  - ./static/ingress-nginx/ingress-nginx.yaml
 resources:
-  - ./argo/argo-ci.sealedsecret.yaml
-  - ./argo/argo-ci.yaml
-  - ./argo/argo.yaml
-  - ./cert-manager/cert-manager-credentials.sealedsecret.yaml
-  - ./cert-manager/cert-manager.yaml
-  - ./cert-manager/letsencrypt-production.clusterissuer.yaml
-  - ./ci-cd/cd-environment-variables.sealedsecret.yaml
-  - ./ci-cd/cd-ssh-keys.sealedsecret.yaml
-  - ./ci-cd/ci-environment-variables.sealedsecret.yaml
-  - ./ci-cd/ci-npm-cache.pvc.yaml
-  - ./docker-registry/docker-registry-image-pull-secret.sealedsecret.yaml
-  - ./docker-registry/docker-registry.sealedsecret.yaml
-  - ./flux/flux.yaml
-  - ./kafka/kafdrop.sealedsecret.yaml
-  - ./kafka/kafka.sealedsecret.yaml
-  - ./kafka/zookeeper.sealedsecret.yaml
-  - ./minio/minio.sealedsecret.yaml
-  - ./mongodb/mongodb.sealedsecret.yaml
-  - ./mongodb/mongoku.sealedsecret.yaml
-  - ./ingress-nginx/basic-authentication.ingress.yaml
-  - ./ingress-nginx/basic-authentication.sealedsecret.yaml
-  - ./ingress-nginx/default.ingress.yaml
-  - ./nodejs/environment-variables.sealedsecret.yaml
-  - ./sealed-secrets/sealed-secrets.yaml
+  - ./dynamic/secrets/docker-registry.sealedsecret.yaml
+  - ./static/argo/argo-ci.sealedsecret.yaml
+  - ./static/argo/argo-ci.yaml
+  - ./static/cert-manager/cert-manager-credentials.sealedsecret.yaml
+  - ./static/cert-manager/cert-manager.yaml
+  - ./static/cert-manager/letsencrypt-production.clusterissuer.yaml
+  - ./static/ci-cd/cd-environment-variables.sealedsecret.yaml
+  - ./static/ci-cd/cd-ssh-keys.sealedsecret.yaml
+  - ./static/ci-cd/ci-environment-variables.sealedsecret.yaml
+  - ./static/ci-cd/ci-npm-cache.pvc.yaml
+  - ./static/docker-registry/docker-registry-image-pull-secret.sealedsecret.yaml
+  - ./static/docker-registry/docker-registry.sealedsecret.yaml
+  - ./static/flux/flux.yaml
+  - ./static/ingress-nginx/basic-authentication.ingress.yaml
+  - ./static/ingress-nginx/basic-authentication.sealedsecret.yaml
+  - ./static/ingress-nginx/default.ingress.yaml
+  - ./static/kafka/kafdrop.sealedsecret.yaml
+  - ./static/kafka/kafka.sealedsecret.yaml
+  - ./static/kafka/zookeeper.sealedsecret.yaml
+  - ./static/minio/minio.sealedsecret.yaml
+  - ./static/mongodb/mongodb.sealedsecret.yaml
+  - ./static/mongodb/mongoku.sealedsecret.yaml
+  - ./static/nodejs/environment-variables.sealedsecret.yaml

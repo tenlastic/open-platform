@@ -93,6 +93,7 @@ export const KubernetesWorkflow = {
             spec: {
               accessModes: ['ReadWriteOnce'],
               resources: { requests: { storage: `${workflow.storage}` } },
+              storageClassName: 'balanced-expandable',
             },
           },
         ],

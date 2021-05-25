@@ -219,7 +219,7 @@ export const KubernetesBuild = {
           image: `gcr.io/kaniko-project/executor:v1.5.0`,
           resources: { requests: { cpu: '100m', memory: '100M' } },
           volumeMounts: [
-            { mountPath: '/kaniko/.docker/', name: 'kaniko', readOnly: true },
+            { mountPath: '/kaniko/.docker/', name: 'docker-registry', readOnly: true },
             { mountPath: '/workspace/', name: 'workspace' },
           ],
         },
@@ -227,8 +227,11 @@ export const KubernetesBuild = {
         name: 'build-docker-image',
         volumes: [
           {
-            name: 'kaniko',
-            secret: { secretName: 'kaniko' },
+            name: 'docker-registry',
+            secret: {
+              items: [{ key: '.dockerconfigjson', path: 'config.json' }],
+              secretName: 'docker-registry',
+            },
           },
         ],
       });
@@ -243,6 +246,7 @@ export const KubernetesBuild = {
                 storage: '10Gi',
               },
             },
+            storageClassName: 'balanced-expandable',
           },
         },
       ];

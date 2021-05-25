@@ -1,0 +1,12 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: ingress-nginx
+  namespace: static
+spec:
+  values:
+    controller:
+      extraArgs:
+        default-ssl-certificate: static/default-tls
+      service:
+        loadBalancerIP: 35.232.165.190

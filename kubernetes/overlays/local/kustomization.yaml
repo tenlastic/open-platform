@@ -37,8 +37,7 @@ patchesStrategicMerge:
   - ./static/nodejs/wss.yaml
 resources:
   - ./cluster/cluster-role-bindings/docker-for-desktop-binding.yaml
-  - ./dynamic/secrets/docker-registry.yaml
-  - ./dynamic/secrets/kaniko.yaml
+  - ./dynamic/secrets/docker-registry.secret.example.yaml
   - ./static/docker-registry/docker-registry-image-pull-secret.secret.example.yaml
   - ./static/docker-registry/docker-registry.secret.example.yaml
   - ./static/ingress-nginx/basic-authentication.ingress.yaml
