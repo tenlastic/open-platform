@@ -1,0 +1,119 @@
+apiVersion: v1
+data:
+  externalUiUrl: https://argo.tenlastic.com
+kind: ConfigMap
+metadata:
+  name: argo-ci-settings
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: argo-ci
+  namespace: default
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - secrets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argo-ci
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: argo-ci
+subjects:
+  - kind: ServiceAccount
+    name: argo-ci
+    namespace: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argo-ci
+  namespace: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: argo-ci
+  name: argo-ci
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: argo-ci
+  template:
+    metadata:
+      labels:
+        app: argo-ci
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - argo-ci
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: argo-ci
+          image: argoproj/argoci:latest
+          env:
+            - name: ARGO_CI_IMAGE
+              value: argoproj/argoci:latest
+            - name: IN_CLUSTER
+              value: "true"
+            - name: NAMESPACE
+              value: default
+            - name: WORKFLOWS_NAMESPACE
+              value: static
+          ports:
+            - containerPort: 8001
+            - containerPort: 8002
+          resources:
+            requests:
+              cpu: 50m
+      serviceAccountName: argo-ci
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: argo-ci
+    service: argo-ci
+  name: argo-ci
+  namespace: default
+spec:
+  ports:
+    - port: 8001
+      name: webhook
+    - port: 8002
+      name: ui
+  selector:
+    app: argo-ci

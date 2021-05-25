@@ -11,13 +11,14 @@ gcloud iam service-accounts keys create "../../../gcp/service-accounts/dns-admin
   --iam-account "dns-admin@${PROJECT}.iam.gserviceaccount.com"
 
 # Install Helm Operator.
-kubectl apply -f ../../base/helm-operator/
+kubectl apply -f ../../base/cluster/namespaces/
+kubectl apply -f ../../base/static/helm-operator/
 
 # Install Sealed Secrets.
-kubectl apply -f ./sealed-secrets/
+kubectl apply -f ../../base/static/sealed-secrets/
 
-# Create resources.
-kustomize build ./ | kubectl apply -f -
+# Install Flux.
+kubectl apply -f ./static/flux/
 ```
 
 Don't worry if the `kustomize` command fails, Flux will take care of the rest.
@@ -29,8 +30,8 @@ Make sure to update all passwords and htpasswd files. Update all secrets with th
 ```bash
 export SEALED_SECRETS_CONTROLLER_NAME="sealed-secrets"
 export SEALED_SECRETS_CONTROLLER_NAMESPACE="static"
+kubeseal -o yaml < ./default/argo/argo-ci.secret.yaml > ./default/argo/argo-ci.sealedsecret.yaml
 kubeseal -o yaml < ./dynamic/secrets/docker-registry.secret.yaml > ./dynamic/secrets/docker-registry.sealedsecret.yaml
-kubeseal -o yaml < ./static/argo/argo-ci.secret.yaml > ./static/argo/argo-ci.sealedsecret.yaml
 kubeseal -o yaml < ./static/cert-manager/cert-manager-credentials.secret.yaml > ./static/cert-manager/cert-manager-credentials.sealedsecret.yaml
 kubeseal -o yaml < ./static/ci-cd/cd-environment-variables.secret.yaml > ./static/ci-cd/cd-environment-variables.sealedsecret.yaml
 kubeseal -o yaml < ./static/ci-cd/cd-ssh-keys.secret.yaml > ./static/ci-cd/cd-ssh-keys.sealedsecret.yaml
