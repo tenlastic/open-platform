@@ -65,6 +65,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: argo-workflow
+  namespace: static
 rules:
   - apiGroups:
       - ""
@@ -98,6 +99,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: argo-workflow
+  namespace: static
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -105,8 +107,10 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: argo-workflow
+    namespace: static
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: argo-workflow
+  namespace: static
