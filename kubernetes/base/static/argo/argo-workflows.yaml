@@ -31,7 +31,7 @@ spec:
                       values:
                         - argo-workflow-controller
                 topologyKey: kubernetes.io/hostname
-      containerRuntimeExecutor: pns
+      containerRuntimeExecutor: k8s-api
       replicas: 1
       resources:
         requests:
