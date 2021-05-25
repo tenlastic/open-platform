@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: workspace
+  namespace: dynamic
+  labels:
+    app: workspace
+spec:
+  containers:
+    - name: workspace
+      image: tenlastic/node-chrome-lerna:latest
+      command:
+        - /bin/bash
+        - -c
+        - --
+        - while true; do sleep 30; done;
+      ports:
+        - containerPort: 3000
+      volumeMounts:
+        - name: node-modules
+          mountPath: /usr/src/projects/javascript/node_modules/
+        - name: source
+          mountPath: /usr/src/
+      workingDir: /usr/src/
+  volumes:
+    - name: node-modules
+      persistentVolumeClaim:
+        claimName: node-modules
+    - name: source
+      hostPath:
+        path: /run/desktop/mnt/host/c/open-platform/

@@ -25,6 +25,7 @@ const podName = process.env.POD_NAME;
     });
 
     // Send changes from MongoDB to Kafka.
+    mongooseModels.QueueMemberEvent.sync(mongooseChangeStreamKafka.publish);
     mongooseModels.WebSocketEvent.sync(mongooseChangeStreamKafka.publish);
 
     // Delete stale web sockets on startup and SIGTERM.

@@ -1,0 +1,11 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: zookeeper
+  namespace: static
+spec:
+  values:
+    auth:
+      clientUser: username
+      serverUsers: username
+    replicaCount: 1

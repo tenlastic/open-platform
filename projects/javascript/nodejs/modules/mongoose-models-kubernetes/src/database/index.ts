@@ -19,8 +19,6 @@ import * as fs from 'fs';
 import { Connection } from 'mongoose';
 import * as path from 'path';
 
-import { KubernetesNamespace } from '../namespace';
-
 const chance = new Chance();
 
 DatabaseEvent.sync(async payload => {
@@ -37,66 +35,72 @@ DatabaseEvent.sync(async payload => {
 export const KubernetesDatabase = {
   delete: async (database: DatabaseDocument) => {
     const name = KubernetesDatabase.getName(database);
-    const namespace = KubernetesNamespace.getName(database.namespaceId);
 
     /**
      * =======================
      * INGRESS
      * =======================
      */
-    await ingressApiV1.delete(name, namespace);
+    await ingressApiV1.delete(name, 'dynamic');
 
     /**
      * =======================
      * KAFKA
      * =======================
      */
-    await secretApiV1.delete(`${name}-kafka-jaas`, namespace);
-    await helmReleaseApiV1.delete(`${name}-kafka`, namespace);
+    await secretApiV1.delete(`${name}-kafka-jaas`, 'dynamic');
+    await helmReleaseApiV1.delete(`${name}-kafka`, 'dynamic');
 
     /**
      * =======================
      * MONGODB
      * =======================
      */
-    await secretApiV1.delete(`${name}-mongodb`, namespace);
-    await helmReleaseApiV1.delete(`${name}-mongodb`, namespace);
+    await secretApiV1.delete(`${name}-mongodb`, 'dynamic');
+    await helmReleaseApiV1.delete(`${name}-mongodb`, 'dynamic');
 
     /**
      * =======================
      * ZOOKEEPER
      * =======================
      */
-    await secretApiV1.delete(`${name}-zookeeper`, namespace);
-    await helmReleaseApiV1.delete(`${name}-zookeeper`, namespace);
+    await secretApiV1.delete(`${name}-zookeeper`, 'dynamic');
+    await helmReleaseApiV1.delete(`${name}-zookeeper`, 'dynamic');
 
     /**
      * =======================
      * SECRET
      * =======================
      */
-    await secretApiV1.delete(name, namespace);
+    await secretApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
      * SERVICE
      * ======================
      */
-    await serviceApiV1.delete(name, namespace);
+    await serviceApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
      * STATEFUL SET
      * ======================
      */
-    await statefulSetApiV1.delete(name, namespace);
+    await statefulSetApiV1.delete(name, 'dynamic');
+  },
+  getLabels(database: DatabaseDocument) {
+    const name = KubernetesDatabase.getName(database);
+    return {
+      'tenlastic.com/app': name,
+      'tenlastic.com/namespaceId': `${database.namespaceId}`,
+    };
   },
   getName(database: DatabaseDocument) {
     return `database-${database._id}`;
   },
   upsert: async (database: DatabaseDocument) => {
+    const labels = KubernetesDatabase.getLabels(database);
     const name = KubernetesDatabase.getName(database);
-    const namespace = KubernetesNamespace.getName(database.namespaceId);
 
     const now = Date.now().toString(36);
     const password = chance.hash({ length: 128 });
@@ -119,11 +123,11 @@ export const KubernetesDatabase = {
      * INGRESS
      * ========================
      */
-    const ingress = await ingressApiV1.read('default', 'default');
-    await ingressApiV1.createOrReplace(namespace, {
+    const ingress = await ingressApiV1.read('default', 'static');
+    await ingressApiV1.createOrReplace('dynamic', {
       metadata: {
         annotations: ingress.body.metadata.annotations,
-        labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,
       },
       spec: {
@@ -155,12 +159,9 @@ export const KubernetesDatabase = {
      * KAFKA
      * ========================
      */
-    await secretApiV1.createOrReplace(namespace, {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': name,
-          'tenlastic.com/role': 'kafka',
-        },
+        labels: { ...labels, 'tenlastic.com/role': 'kafka' },
         name: `${name}-kafka-jaas`,
       },
       stringData: {
@@ -169,9 +170,12 @@ export const KubernetesDatabase = {
         'zookeeper-password': password,
       },
     });
-    await helmReleaseApiV1.delete(`${name}-kafka`, namespace);
-    await helmReleaseApiV1.create(namespace, {
-      metadata: { name: `${name}-kafka` },
+    await helmReleaseApiV1.delete(`${name}-kafka`, 'dynamic');
+    await helmReleaseApiV1.create('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'kafka' },
+        name: `${name}-kafka`,
+      },
       spec: {
         chart: {
           name: 'kafka',
@@ -198,10 +202,7 @@ export const KubernetesDatabase = {
             size: `${database.storage}`,
             storageClass: 'balanced-expandable',
           },
-          podLabels: {
-            'tenlastic.com/app': name,
-            'tenlastic.com/role': 'kafka',
-          },
+          podLabels: { ...labels, 'tenlastic.com/role': 'kafka' },
           readinessProbe: { initialDelaySeconds: 120 },
           replicaCount: database.replicas,
           resources,
@@ -215,12 +216,9 @@ export const KubernetesDatabase = {
      * MONGODB
      * ========================
      */
-    const mongoSecret = await secretApiV1.createOrRead(namespace, {
+    const mongoSecret = await secretApiV1.createOrRead('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': name,
-          'tenlastic.com/role': 'mongodb',
-        },
+        labels: { ...labels, 'tenlastic.com/role': 'mongodb' },
         name: `${name}-mongodb`,
       },
       stringData: {
@@ -233,17 +231,20 @@ export const KubernetesDatabase = {
     try {
       const promises = array
         .map((a, i) => `datadir-${name}-mongodb-${i}`)
-        .map(a => persistentVolumeClaimApiV1.resize(a, namespace, database.storage));
+        .map(a => persistentVolumeClaimApiV1.resize(a, 'dynamic', database.storage));
       await Promise.all(promises);
     } catch (e) {}
 
     // Force first MongoDB instance to become primary.
     const mongoPassword = Buffer.from(mongoSecret.body.data['mongodb-root-password'], 'base64');
-    await setMongoPrimary(database, namespace, `${mongoPassword}`);
+    await setMongoPrimary(database, 'dynamic', `${mongoPassword}`);
 
-    await helmReleaseApiV1.delete(`${name}-mongodb`, namespace);
-    await helmReleaseApiV1.create(namespace, {
-      metadata: { name: `${name}-mongodb` },
+    await helmReleaseApiV1.delete(`${name}-mongodb`, 'dynamic');
+    await helmReleaseApiV1.create('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'mongodb' },
+        name: `${name}-mongodb`,
+      },
       spec: {
         chart: {
           name: 'mongodb',
@@ -261,10 +262,7 @@ export const KubernetesDatabase = {
             size: `${database.storage}`,
             storageClass: 'balanced-expandable',
           },
-          podLabels: {
-            'tenlastic.com/app': name,
-            'tenlastic.com/role': 'mongodb',
-          },
+          podLabels: { ...labels, 'tenlastic.com/role': 'mongodb' },
           readinessProbe: { initialDelaySeconds: 120 },
           replicaCount: database.replicas,
           resources,
@@ -277,8 +275,11 @@ export const KubernetesDatabase = {
      * NETWORK POLICY
      * =======================
      */
-    await networkPolicyApiV1.createOrReplace(namespace, {
-      metadata: { name },
+    await networkPolicyApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
+        name,
+      },
       spec: {
         egress: [
           {
@@ -286,25 +287,25 @@ export const KubernetesDatabase = {
               {
                 // Allow traffic within Stateful Set.
                 podSelector: {
-                  matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
+                  matchLabels: { 'tenlastic.com/role': 'application' },
                 },
               },
               {
                 // Allow traffic to Kafka.
                 podSelector: {
-                  matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'kafka' },
+                  matchLabels: { 'tenlastic.com/role': 'kafka' },
                 },
               },
               {
                 // Allow traffic to MongoDB.
                 podSelector: {
-                  matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'mongodb' },
+                  matchLabels: { 'tenlastic.com/role': 'mongodb' },
                 },
               },
               {
                 // Allow traffic to Zookeeper.
                 podSelector: {
-                  matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'zookeeper' },
+                  matchLabels: { 'tenlastic.com/role': 'zookeeper' },
                 },
               },
             ],
@@ -320,12 +321,9 @@ export const KubernetesDatabase = {
      * ZOOKEEPER
      * ========================
      */
-    await secretApiV1.createOrReplace(namespace, {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': name,
-          'tenlastic.com/role': 'zookeeper',
-        },
+        labels: { ...labels, 'tenlastic.com/role': 'zookeeper' },
         name: `${name}-zookeeper`,
       },
       stringData: {
@@ -333,9 +331,12 @@ export const KubernetesDatabase = {
         'server-password': `${password}`,
       },
     });
-    await helmReleaseApiV1.delete(`${name}-zookeeper`, namespace);
-    await helmReleaseApiV1.create(namespace, {
-      metadata: { name: `${name}-zookeeper` },
+    await helmReleaseApiV1.delete(`${name}-zookeeper`, 'dynamic');
+    await helmReleaseApiV1.create('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'zookeeper' },
+        name: `${name}-zookeeper`,
+      },
       spec: {
         chart: {
           name: 'zookeeper',
@@ -358,10 +359,7 @@ export const KubernetesDatabase = {
             size: `${database.storage}`,
             storageClass: 'standard-expandable',
           },
-          podLabels: {
-            'tenlastic.com/app': name,
-            'tenlastic.com/role': 'zookeeper',
-          },
+          podLabels: { ...labels, 'tenlastic.com/role': 'zookeeper' },
           readinessProbe: { initialDelaySeconds: 120 },
           replicaCount: database.replicas,
           resources,
@@ -374,16 +372,13 @@ export const KubernetesDatabase = {
      * SECRET
      * =======================
      */
-    await secretApiV1.createOrReplace(namespace, {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': name,
-          'tenlastic.com/role': 'application',
-        },
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,
       },
       stringData: {
-        JWK_URL: 'http://api.default:3000/public-keys/jwks',
+        JWK_URL: 'http://api.static:3000/public-keys/jwks',
         KAFKA_CONNECTION_STRING: `admin:${password}@${kafkas.join(',')}`,
         KAFKA_REPLICATION_FACTOR: `${database.replicas}`,
         MONGO_CONNECTION_STRING: `mongodb://root:${mongoPassword}@${mongos.join(',')}`,
@@ -395,20 +390,14 @@ export const KubernetesDatabase = {
      * SERVICE
      * =======================
      */
-    await serviceApiV1.createOrReplace(namespace, {
+    await serviceApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': name,
-          'tenlastic.com/role': 'application',
-        },
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,
       },
       spec: {
         ports: [{ name: 'tcp', port: 3000 }],
-        selector: {
-          'tenlastic.com/app': name,
-          'tenlastic.com/role': 'application',
-        },
+        selector: { ...labels, 'tenlastic.com/role': 'application' },
       },
     });
 
@@ -427,10 +416,10 @@ export const KubernetesDatabase = {
     };
 
     let manifest: V1PodTemplateSpec;
-    if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
+    if (process.env.PWD && process.env.PWD.includes('/usr/src/projects/')) {
       manifest = {
         metadata: {
-          labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
+          labels: { ...labels, 'tenlastic.com/role': 'application' },
           name,
         },
         spec: {
@@ -455,11 +444,20 @@ export const KubernetesDatabase = {
               ports: [{ containerPort: 3000, protocol: 'TCP' }],
               readinessProbe: probe,
               resources: { requests: resources.requests },
-              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/database/',
+              volumeMounts: [
+                {
+                  mountPath: '/usr/src/projects/javascript/node_modules/',
+                  name: 'node-modules',
+                },
+                { mountPath: '/usr/src/', name: 'source' },
+              ],
+              workingDir: '/usr/src/projects/javascript/nodejs/applications/database/',
             },
           ],
-          volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
+          volumes: [
+            { name: 'node-modules', persistentVolumeClaim: { claimName: 'node-modules' } },
+            { hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'source' },
+          ],
         },
       };
     } else {
@@ -468,7 +466,7 @@ export const KubernetesDatabase = {
 
       manifest = {
         metadata: {
-          labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
+          labels: { ...labels, 'tenlastic.com/role': 'application' },
           name,
         },
         spec: {
@@ -491,23 +489,21 @@ export const KubernetesDatabase = {
               name: 'main',
               ports: [{ containerPort: 3000, protocol: 'TCP' }],
               readinessProbe: probe,
-              resources: { requests: resources.requests },
+              resources,
             },
           ],
         },
       };
     }
 
-    await statefulSetApiV1.createOrReplace(namespace, {
+    await statefulSetApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,
       },
       spec: {
         replicas: database.replicas,
-        selector: {
-          matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
-        },
+        selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'application' } },
         serviceName: name,
         template: manifest,
       },

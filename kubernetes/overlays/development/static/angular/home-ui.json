@@ -1,0 +1,41 @@
+[
+  {
+    "op": "add",
+    "path": "/spec/template/spec/volumes",
+    "value": [
+      {
+        "name": "node-modules",
+        "persistentVolumeClaim": {
+          "claimName": "node-modules"
+        }
+      },
+      {
+        "hostPath": {
+          "path": "/run/desktop/mnt/host/c/open-platform/"
+        },
+        "name": "source"
+      }
+    ]
+  },
+  {
+    "op": "replace",
+    "path": "/spec/template/spec/containers/0",
+    "value": {
+      "command": ["npm", "run", "start"],
+      "image": "node:12",
+      "name": "home-ui",
+      "ports": [{ "containerPort": 80 }],
+      "volumeMounts": [
+        {
+          "mountPath": "/usr/src/projects/javascript/node_modules/",
+          "name": "node-modules"
+        },
+        {
+          "mountPath": "/usr/src/",
+          "name": "source"
+        }
+      ],
+      "workingDir": "/usr/src/projects/javascript/angular/applications/home/"
+    }
+  }
+]

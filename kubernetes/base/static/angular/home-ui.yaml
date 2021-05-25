@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: home-ui
+  name: home-ui
+  namespace: static
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: home-ui
+  template:
+    metadata:
+      labels:
+        app: home-ui
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - home-ui
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: home-ui
+          image: tenlastic/home-ui:0.0.175
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: home-ui
+    service: home-ui
+  name: home-ui
+  namespace: static
+spec:
+  ports:
+    - port: 80
+      name: http
+  selector:
+    app: home-ui

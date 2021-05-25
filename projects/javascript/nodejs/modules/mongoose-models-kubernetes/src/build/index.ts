@@ -1,4 +1,4 @@
-import { roleStackApiV1, secretApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
+import { secretApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
 import { BuildDocument, BuildEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
@@ -18,21 +18,53 @@ BuildEvent.sync(async payload => {
 export const KubernetesBuild = {
   delete: async (build: BuildDocument) => {
     const name = KubernetesBuild.getName(build);
-    const namespace = KubernetesNamespace.getName(build.namespaceId);
 
     /**
      * ======================
      * WORKFLOW
      * ======================
      */
-    await workflowApiV1.delete(name, namespace);
+    await workflowApiV1.delete(name, 'dynamic');
+  },
+  getLabels(build: BuildDocument) {
+    const name = KubernetesBuild.getName(build);
+    return {
+      'tenlastic.com/app': name,
+      'tenlastic.com/buildId': `${build._id}`,
+      'tenlastic.com/namespaceId': `${build.namespaceId}`,
+    };
   },
   getName(build: BuildDocument) {
     return `build-${build._id}`;
   },
   upsert: async (build: BuildDocument) => {
+    const labels = KubernetesBuild.getLabels(build);
     const name = KubernetesBuild.getName(build);
     const namespace = KubernetesNamespace.getName(build.namespaceId);
+
+    /**
+     * ======================
+     * SECRET
+     * ======================
+     */
+    const administrator = { roles: ['builds'], system: true };
+    const accessToken = jwt.sign(
+      { type: 'access', user: administrator },
+      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      { algorithm: 'RS256' },
+    );
+    await secretApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'applications' },
+        name,
+      },
+      stringData: {
+        ACCESS_TOKEN: accessToken,
+        BUILD_ID: build._id.toString(),
+        MINIO_BUCKET: process.env.MINIO_BUCKET,
+        MINIO_CONNECTION_STRING: process.env.MINIO_CONNECTION_STRING,
+      },
+    });
 
     /**
      * ======================
@@ -55,33 +87,32 @@ export const KubernetesBuild = {
         },
       },
     };
-    const metadata = {
-      annotations: {
-        'tenlastic.com/buildId': build._id.toString(),
-        'tenlastic.com/namespaceId': build.namespaceId.toString(),
-        'tenlastic.com/nodeId': `{{pod.name}}`,
-      },
-      labels: {
-        'tenlastic.com/app': name,
-        'tenlastic.com/role': 'application',
-      },
+    const podLabels = {
+      ...labels,
+      'tenlastic.com/nodeId': `{{pod.name}}`,
+      'tenlastic.com/role': 'application',
     };
 
     const packageDotJson = fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8');
     const version = JSON.parse(packageDotJson).version;
 
-    let manifest: any;
-    if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
-      const workingDir = '/usr/src/app/projects/javascript/nodejs/applications';
+    let manifest: V1Workflow;
+    if (process.env.PWD && process.env.PWD.includes('/usr/src/projects/')) {
+      const workingDir = '/usr/src/projects/javascript/nodejs/applications';
       manifest = {
-        apiVersion: 'argoproj.io/v1alpha1',
-        kind: 'Workflow',
-        metadata: { name },
+        metadata: {
+          labels: {
+            ...labels,
+            'tenlastic.com/role': 'applications',
+            'workflows.argoproj.io/controller-instanceid': namespace,
+          },
+          name,
+        },
         spec: {
           activeDeadlineSeconds: 60 * 60,
           affinity,
           entrypoint: 'entrypoint',
-          serviceAccountName: name,
+          serviceAccountName: 'build',
           templates: [
             {
               dag: {
@@ -92,7 +123,7 @@ export const KubernetesBuild = {
                   },
                 ],
               },
-              metadata,
+              metadata: { labels: podLabels },
               name: 'entrypoint',
             },
             {
@@ -101,27 +132,37 @@ export const KubernetesBuild = {
                 envFrom: [{ secretRef: { name } }],
                 image: 'node:12',
                 resources: { requests: { cpu: '100m', memory: '100M' } },
-                volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
+                volumeMounts: [
+                  {
+                    mountPath: '/usr/src/projects/javascript/node_modules/',
+                    name: 'node-modules',
+                  },
+                  { mountPath: '/usr/src/', name: 'source' },
+                ],
                 workingDir: `${workingDir}/build/`,
               },
-              metadata,
+              metadata: { labels: podLabels },
               name: 'copy-and-unzip-files',
             },
           ],
           ttlStrategy: { secondsAfterCompletion: 30 },
-          volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
+          volumes: [
+            { name: 'node-modules', persistentVolumeClaim: { claimName: 'node-modules' } },
+            { hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'source' },
+          ],
         },
       };
     } else {
       manifest = {
-        apiVersion: 'argoproj.io/v1alpha1',
-        kind: 'Workflow',
-        metadata: { name },
+        metadata: {
+          labels: { 'workflows.argoproj.io/controller-instanceid': namespace },
+          name,
+        },
         spec: {
           activeDeadlineSeconds: 60 * 60,
           affinity,
           entrypoint: 'entrypoint',
-          serviceAccountName: name,
+          serviceAccountName: 'build',
           templates: [
             {
               dag: {
@@ -132,7 +173,7 @@ export const KubernetesBuild = {
                   },
                 ],
               },
-              metadata,
+              metadata: { labels: podLabels },
               name: 'entrypoint',
             },
             {
@@ -141,9 +182,9 @@ export const KubernetesBuild = {
                 image: `tenlastic/build:${version}`,
                 resources: { requests: { cpu: '100m', memory: '100M' } },
                 volumeMounts: [],
-                workingDir: '/usr/src/app/',
+                workingDir: '/usr/src/',
               },
-              metadata,
+              metadata: { labels: podLabels },
               name: 'copy-and-unzip-files',
             },
           ],
@@ -182,21 +223,19 @@ export const KubernetesBuild = {
             { mountPath: '/workspace/', name: 'workspace' },
           ],
         },
-        metadata,
+        metadata: { labels: podLabels },
         name: 'build-docker-image',
         volumes: [
           {
             name: 'kaniko',
-            secret: { secretName: `${name}-image-pull-secret` },
+            secret: { secretName: 'kaniko' },
           },
         ],
       });
 
       manifest.spec.volumeClaimTemplates = [
         {
-          metadata: {
-            name: 'workspace',
-          },
+          metadata: { name: 'workspace' },
           spec: {
             accessModes: ['ReadWriteOnce'],
             resources: {
@@ -209,7 +248,13 @@ export const KubernetesBuild = {
       ];
     }
 
-    const response = await workflowApiV1.createOrReplace(namespace, manifest);
+    const response = await workflowApiV1.createOrReplace('dynamic', manifest);
+
+    /**
+     * ======================
+     * OWNER REFERENCES
+     * ======================
+     */
     const ownerReferences = [
       {
         apiVersion: 'argoproj.io/v1alpha1',
@@ -219,75 +264,6 @@ export const KubernetesBuild = {
         uid: response.body.metadata.uid,
       },
     ];
-
-    /**
-     * =======================
-     * IMAGE PULL SECRET
-     * =======================
-     */
-    const secret = await secretApiV1.read('docker-registry-image-pull-secret', 'default');
-    await secretApiV1.createOrReplace(namespace, {
-      data: { 'config.json': secret.body.data['.dockerconfigjson'] },
-      metadata: {
-        labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'image-pull-secret' },
-        name: `${name}-image-pull-secret`,
-        ownerReferences,
-      },
-      type: 'Opaque',
-    });
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    await roleStackApiV1.createOrReplace(namespace, {
-      metadata: { name, ownerReferences },
-      rules: [
-        {
-          apiGroups: [''],
-          resources: ['pods'],
-          verbs: ['get', 'patch', 'watch'],
-        },
-        {
-          apiGroups: [''],
-          resources: ['pods/exec'],
-          verbs: ['create'],
-        },
-        {
-          apiGroups: [''],
-          resources: ['pods/log'],
-          verbs: ['get', 'watch'],
-        },
-      ],
-    });
-
-    /**
-     * ======================
-     * SECRET
-     * ======================
-     */
-    const administrator = { roles: ['builds'], system: true };
-    const accessToken = jwt.sign(
-      { type: 'access', user: administrator },
-      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      { algorithm: 'RS256' },
-    );
-    await secretApiV1.createOrReplace(namespace, {
-      metadata: {
-        labels: {
-          'tenlastic.com/app': name,
-          'tenlastic.com/role': 'application',
-        },
-        name,
-        ownerReferences,
-      },
-      stringData: {
-        ACCESS_TOKEN: accessToken,
-        BUILD_ID: build._id.toString(),
-        MINIO_BUCKET: process.env.MINIO_BUCKET,
-        MINIO_CONNECTION_STRING: process.env.MINIO_CONNECTION_STRING,
-      },
-    });
+    await secretApiV1.patch(name, 'dynamic', { metadata: { ownerReferences } });
   },
 };

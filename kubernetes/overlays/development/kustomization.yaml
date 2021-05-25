@@ -3,31 +3,37 @@ bases:
   - ../local/
 kind: Kustomization
 patches:
-  - path: ./angular/home-ui.json
+  - path: ./static/angular/home-ui.json
     target:
       group: apps
       kind: Deployment
       name: home-ui
+      namespace: static
       version: v1
-  - path: ./nodejs/api.json
+  - path: ./static/nodejs/api.json
     target:
       group: apps
       kind: Deployment
       name: api
+      namespace: static
       version: v1
-  - path: ./nodejs/migrations.json
+  - path: ./static/nodejs/migrations.json
     target:
       group: batch
       kind: Job
       name: migrations
+      namespace: static
       version: v1
-  - path: ./nodejs/wss.json
+  - path: ./static/nodejs/wss.json
     target:
       group: apps
       kind: StatefulSet
       name: wss
+      namespace: static
       version: v1
 resources:
-  - ./workspace/environment-variables.secret.example.yaml
-  - ./workspace/node-modules.pvc.yaml
-  - ./workspace/workspace.pod.yaml
+  - ./dynamic/workspace/node-modules.pvc.yaml
+  - ./dynamic/workspace/workspace.pod.yaml
+  - ./static/workspace/environment-variables.secret.example.yaml
+  - ./static/workspace/node-modules.pvc.yaml
+  - ./static/workspace/workspace.pod.yaml

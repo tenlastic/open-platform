@@ -99,8 +99,6 @@ components:
                     type: string
                   workingDir:
                     type: string
-                  workspace:
-                    type: boolean
                 required:
                   - image
                   - source

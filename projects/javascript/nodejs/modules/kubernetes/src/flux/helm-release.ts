@@ -3,7 +3,7 @@ import { CustomObjectBaseApiV1 } from '../bases';
 export interface V1HelmRelease {
   metadata: {
     annotations?: { [key: string]: string };
-    label?: { [key: string]: string };
+    labels?: { [key: string]: string };
     name: string;
     resourceVersion?: string;
   };

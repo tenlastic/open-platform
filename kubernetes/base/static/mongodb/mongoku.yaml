@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mongoku
+    release: mongodb
+  name: mongoku
+  namespace: static
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mongoku
+      release: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongoku
+        release: mongodb
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - mongoku
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: mongoku
+          image: huggingface/mongoku:latest
+          envFrom:
+            - secretRef:
+                name: mongoku
+          livenessProbe:
+            httpGet:
+              path: /servers
+              port: 3100
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          ports:
+            - containerPort: 3100
+          resources:
+            requests:
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mongoku
+    release: mongodb
+  name: mongoku
+  namespace: static
+spec:
+  ports:
+    - port: 3100
+      name: http
+  selector:
+    app: mongoku

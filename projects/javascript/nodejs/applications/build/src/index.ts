@@ -28,7 +28,7 @@ minio.connect({
     const response = await requestPromiseNative.get({
       headers: { Authorization: `Bearer ${accessToken}` },
       json: true,
-      url: `http://api.default:3000/builds/${buildId}`,
+      url: `http://api.static:3000/builds/${buildId}`,
     });
     const build = new Build(response.record);
 
@@ -37,7 +37,7 @@ minio.connect({
       const referenceBuildResponse = await requestPromiseNative.get({
         headers: { Authorization: `Bearer ${accessToken}` },
         json: true,
-        url: `http://api.default:3000/builds/${build.reference._id}`,
+        url: `http://api.static:3000/builds/${build.reference._id}`,
       });
       if (!referenceBuildResponse.record) {
         throw new Error(`Reference Build ${buildId} not found.`);
@@ -58,7 +58,7 @@ minio.connect({
       body: { files: build.files },
       headers: { Authorization: `Bearer ${accessToken}` },
       json: true,
-      url: `http://api.default:3000/builds/${buildId}`,
+      url: `http://api.static:3000/builds/${buildId}`,
     });
 
     await minio.removeObject(minioBucket, build.getZipPath());

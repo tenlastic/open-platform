@@ -1,0 +1,9 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: minio
+  namespace: static
+spec:
+  values:
+    drivesPerNode: 4
+    replicas: 1

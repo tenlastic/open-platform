@@ -1,0 +1,37 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  annotations:
+    fluxcd.io/automated: "true"
+  name: ingress-nginx
+  namespace: static
+spec:
+  chart:
+    name: ingress-nginx
+    repository: https://kubernetes.github.io/ingress-nginx
+    version: 3.22.0
+  releaseName: ingress-nginx
+  values:
+    controller:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/high-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: release
+                      operator: In
+                      values:
+                        - ingress-ginx
+                topologyKey: kubernetes.io/hostname
+      replicaCount: 3
+      resources:
+        requests:
+          cpu: 50m

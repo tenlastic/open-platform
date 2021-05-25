@@ -28,13 +28,18 @@ kubectl label node $(kubectl get nodes -o jsonpath={..metadata.name}) tenlastic.
 kubectl label node $(kubectl get nodes -o jsonpath={..metadata.name}) tenlastic.com/low-priority=true
 
 # Initialize Workspace resources.
-kubectl apply -f ./workspace/
+kubectl apply -f ../../base/cluster/namespaces/dynamic.yaml
+kubectl apply -f ../../base/cluster/namespaces/static.yaml
+kubectl apply -f ./dynamic/workspace/
+kubectl apply -f ./static/workspace/
 
-# Wait for Workspace Pod to be created.
-kubectl wait --for=condition=Ready pod/workspace
+# Wait for Workspace Pods to be created.
+kubectl wait -n dynamic --for=condition=Ready pod/workspace
+kubectl wait -n static --for=condition=Ready pod/workspace
 
 # Install Node Modules.
-kubectl exec -it -c workspace workspace -- /bin/bash -c 'cd ./projects/javascript/ && lerna bootstrap --strict'
+kubectl exec -it -c workspace -n dynamic workspace -- /bin/bash -c 'cd ./projects/javascript/ && lerna bootstrap'
+kubectl exec -it -c workspace -n static workspace -- /bin/bash -c 'cd ./projects/javascript/ && lerna bootstrap'
 
 # Create remaining resources.
 kustomize build ./ | kubectl apply -f -
@@ -45,5 +50,6 @@ kustomize build ./ | kubectl apply -f -
 To make Javascript development easier, you can SSH into the Workspace Pod with the following command:
 
 ```bash
-kubectl exec -it workspace -- /bin/bash
+kubectl exec -it -n dynamic workspace -- /bin/bash
+kubectl exec -it -n static workspace -- /bin/bash
 ```

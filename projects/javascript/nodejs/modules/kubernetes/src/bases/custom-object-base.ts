@@ -42,7 +42,8 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
   public async createOrReplace(namespace: string, body: T) {
     try {
       return await this.create(namespace, body);
-    } catch {
+    } catch (e) {
+      console.error(e);
       return this.replace(body.metadata.name, namespace, body);
     }
   }

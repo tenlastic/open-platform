@@ -14,8 +14,6 @@ import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 import { URL } from 'url';
 
-import { KubernetesNamespace } from '../namespace';
-
 const chance = new Chance();
 
 QueueEvent.sync(async payload => {
@@ -32,73 +30,61 @@ QueueEvent.sync(async payload => {
 export const KubernetesQueue = {
   delete: async (queue: QueueDocument) => {
     const name = KubernetesQueue.getName(queue);
-    const namespace = KubernetesNamespace.getName(queue.namespaceId);
-
-    /**
-     * =======================
-     * IMAGE PULL SECRET
-     * =======================
-     */
-    await secretApiV1.delete(`${name}-image-pull-secret`, namespace);
 
     /**
      * =======================
      * NETWORK POLICY
      * =======================
      */
-    await networkPolicyApiV1.delete(name, namespace);
+    await networkPolicyApiV1.delete(name, 'dynamic');
 
     /**
      * =======================
      * REDIS
      * =======================
      */
-    await secretApiV1.delete(`${name}-redis`, namespace);
-    await helmReleaseApiV1.delete(`${name}-redis`, namespace);
+    await secretApiV1.delete(`${name}-redis`, 'dynamic');
+    await helmReleaseApiV1.delete(`${name}-redis`, 'dynamic');
 
     /**
      * =======================
      * SECRET
      * =======================
      */
-    await secretApiV1.delete(name, namespace);
+    await secretApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
      * STATEFUL SET
      * ======================
      */
-    await statefulSetApiV1.delete(name, namespace);
+    await statefulSetApiV1.delete(name, 'dynamic');
+  },
+  getLabels(queue: QueueDocument) {
+    const name = KubernetesQueue.getName(queue);
+    return {
+      'tenlastic.com/app': name,
+      'tenlastic.com/namespaceId': `${queue.namespaceId}`,
+      'tenlastic.com/queueId': `${queue._id}`,
+    };
   },
   getName(queue: QueueDocument) {
     return `queue-${queue._id}`;
   },
   upsert: async (queue: QueueDocument) => {
+    const labels = KubernetesQueue.getLabels(queue);
     const name = KubernetesQueue.getName(queue);
-    const namespace = KubernetesNamespace.getName(queue.namespaceId);
-
-    /**
-     * =======================
-     * IMAGE PULL SECRET
-     * =======================
-     */
-    const secret = await secretApiV1.read('docker-registry-image-pull-secret', 'default');
-    await secretApiV1.createOrReplace(namespace, {
-      data: secret.body.data,
-      metadata: {
-        labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'image-pull-secret' },
-        name: `${name}-image-pull-secret`,
-      },
-      type: secret.body.type,
-    });
 
     /**
      * =======================
      * NETWORK POLICY
      * =======================
      */
-    await networkPolicyApiV1.createOrReplace(namespace, {
-      metadata: { name },
+    await networkPolicyApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
+        name,
+      },
       spec: {
         egress: [
           {
@@ -119,10 +105,7 @@ export const KubernetesQueue = {
           },
         ],
         podSelector: {
-          matchLabels: {
-            'tenlastic.com/app': name,
-            'tenlastic.com/role': 'application',
-          },
+          matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
         },
         policyTypes: ['Egress'],
       },
@@ -138,19 +121,19 @@ export const KubernetesQueue = {
       limits: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },
       requests: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },
     };
-    await secretApiV1.createOrReplace(namespace, {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': name,
-          'tenlastic.com/role': 'redis',
-        },
+        labels: { ...labels, 'tenlastic.com/role': 'redis' },
         name: `${name}-redis`,
       },
       stringData: { password },
     });
-    await helmReleaseApiV1.delete(`${name}-redis`, namespace);
-    await helmReleaseApiV1.create(namespace, {
-      metadata: { name: `${name}-redis` },
+    await helmReleaseApiV1.delete(`${name}-redis`, 'dynamic');
+    await helmReleaseApiV1.create('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'redis' },
+        name: `${name}-redis`,
+      },
       spec: {
         chart: {
           name: 'redis',
@@ -177,17 +160,9 @@ export const KubernetesQueue = {
           slave: {
             affinity: getAffinity(queue, 'redis'),
             persistence: { storageClass: 'standard-expandable' },
-            podLabels: {
-              'tenlastic.com/app': name,
-              'tenlastic.com/role': 'redis',
-            },
+            podLabels: { ...labels, 'tenlastic.com/role': 'redis' },
             resources,
-            statefulset: {
-              labels: {
-                'tenlastic.com/app': name,
-                'tenlastic.com/role': 'redis',
-              },
-            },
+            statefulset: { labels: { ...labels, 'tenlastic.com/role': 'redis' } },
           },
         },
       },
@@ -206,21 +181,18 @@ export const KubernetesQueue = {
     );
     const array = Array(queue.replicas).fill(0);
     const sentinels = array.map((a, i) => `${name}-redis-node-${i}.${name}-redis-headless:26379`);
-    await secretApiV1.createOrReplace(namespace, {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': name,
-          'tenlastic.com/role': 'application',
-        },
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,
       },
       stringData: {
         ACCESS_TOKEN: queue.buildId ? undefined : accessToken,
-        API_URL: 'http://api.default:3000',
+        API_URL: 'http://api.static:3000',
         QUEUE_JSON: JSON.stringify(queue),
         REDIS_SENTINEL_PASSWORD: password,
         SENTINELS: sentinels.join(','),
-        WSS_URL: 'ws://wss.default:3000',
+        WSS_URL: 'ws://wss.static:3000',
       },
     });
 
@@ -229,17 +201,13 @@ export const KubernetesQueue = {
      * STATEFUL SET
      * ======================
      */
-    const annotations = {
-      'tenlastic.com/namespaceId': queue.namespaceId.toString(),
-      'tenlastic.com/queueId': queue._id.toString(),
-    };
     const probe: V1Probe = {
       httpGet: { path: `/`, port: 3000 as any },
       initialDelaySeconds: 30,
       periodSeconds: 30,
     };
 
-    const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/');
+    const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/projects/');
     let manifest: V1PodTemplateSpec;
     if (isDevelopment && queue.buildId) {
       const url = new URL(process.env.DOCKER_REGISTRY_URL);
@@ -247,8 +215,7 @@ export const KubernetesQueue = {
 
       manifest = {
         metadata: {
-          annotations,
-          labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
+          labels: { ...labels, 'tenlastic.com/role': 'application' },
           name,
         },
         spec: {
@@ -264,14 +231,13 @@ export const KubernetesQueue = {
             },
           ],
           enableServiceLinks: false,
-          imagePullSecrets: [{ name: `${name}-image-pull-secret` }],
+          imagePullSecrets: [{ name: 'docker-registry' }],
         },
       };
     } else if (isDevelopment && !queue.buildId) {
       manifest = {
         metadata: {
-          annotations,
-          labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
+          labels: { ...labels, 'tenlastic.com/role': 'application' },
           name,
         },
         spec: {
@@ -285,12 +251,21 @@ export const KubernetesQueue = {
               livenessProbe: { ...probe, initialDelaySeconds: 300 },
               name: 'main',
               readinessProbe: probe,
-              resources,
-              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/queue/',
+              resources: { requests: resources.requests },
+              volumeMounts: [
+                {
+                  mountPath: '/usr/src/projects/javascript/node_modules/',
+                  name: 'node-modules',
+                },
+                { mountPath: '/usr/src/', name: 'source' },
+              ],
+              workingDir: '/usr/src/projects/javascript/nodejs/applications/queue/',
             },
           ],
-          volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
+          volumes: [
+            { name: 'node-modules', persistentVolumeClaim: { claimName: 'node-modules' } },
+            { hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'source' },
+          ],
         },
       };
     } else if (queue.buildId) {
@@ -299,8 +274,7 @@ export const KubernetesQueue = {
 
       manifest = {
         metadata: {
-          annotations,
-          labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
+          labels: { ...labels, 'tenlastic.com/role': 'application' },
           name,
         },
         spec: {
@@ -316,7 +290,7 @@ export const KubernetesQueue = {
             },
           ],
           enableServiceLinks: false,
-          imagePullSecrets: [{ name: `${name}-image-pull-secret` }],
+          imagePullSecrets: [{ name: 'docker-registry' }],
         },
       };
     } else {
@@ -325,8 +299,7 @@ export const KubernetesQueue = {
 
       manifest = {
         metadata: {
-          annotations,
-          labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
+          labels: { ...labels, 'tenlastic.com/role': 'application' },
           name,
         },
         spec: {
@@ -346,17 +319,15 @@ export const KubernetesQueue = {
       };
     }
 
-    await statefulSetApiV1.delete(name, namespace);
-    await statefulSetApiV1.create(namespace, {
+    await statefulSetApiV1.delete(name, 'dynamic');
+    await statefulSetApiV1.create('dynamic', {
       metadata: {
-        labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,
       },
       spec: {
         replicas: queue.replicas,
-        selector: {
-          matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
-        },
+        selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'application' } },
         serviceName: name,
         template: manifest,
       },

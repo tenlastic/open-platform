@@ -98,7 +98,7 @@ describe('queues', function() {
     expect(logs.length).to.be.greaterThan(0);
   });
 
-  it.skip('removes disconnected Users', async function() {
+  step('removes disconnected Users', async function() {
     const user = await createUser();
 
     // Add Queue Members.

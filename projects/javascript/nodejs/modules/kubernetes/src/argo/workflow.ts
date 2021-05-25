@@ -3,12 +3,12 @@ import { CustomObjectBaseApiV1 } from '../bases';
 export interface V1Workflow {
   metadata: {
     annotations?: { [key: string]: string };
-    label?: { [key: string]: string };
+    labels?: { [key: string]: string };
     name: string;
     resourceVersion?: string;
     uid?: string;
   };
-  spec: object;
+  spec: any;
 }
 
 export class WorkflowApiV1 extends CustomObjectBaseApiV1<V1Workflow> {

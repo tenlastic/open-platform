@@ -1,6 +1,5 @@
 import {
   deploymentApiV1,
-  roleStackApiV1,
   secretApiV1,
   V1Affinity,
   V1EnvVar,
@@ -13,7 +12,6 @@ import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
 import { KubernetesDatabase } from '../database';
-import { KubernetesNamespace } from '../namespace';
 
 DatabaseEvent.sync(async payload => {
   if (payload.operationType === 'delete') {
@@ -26,52 +24,28 @@ DatabaseEvent.sync(async payload => {
 export const KubernetesDatabaseSidecar = {
   delete: async (database: DatabaseDocument) => {
     const name = KubernetesDatabaseSidecar.getName(database);
-    const namespace = KubernetesNamespace.getName(database.namespaceId);
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    await roleStackApiV1.delete(name, namespace);
 
     /**
      * =======================
      * SECRET
      * =======================
      */
-    await secretApiV1.delete(name, namespace);
+    await secretApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
      * DEPLOYMENT
      * ======================
      */
-    await deploymentApiV1.delete(name, namespace);
+    await deploymentApiV1.delete(name, 'dynamic');
   },
   getName(database: DatabaseDocument) {
     return `database-${database._id}-sidecar`;
   },
   upsert: async (database: DatabaseDocument) => {
+    const databaseLabels = KubernetesDatabase.getLabels(database);
     const databaseName = KubernetesDatabase.getName(database);
     const name = KubernetesDatabaseSidecar.getName(database);
-    const namespace = KubernetesNamespace.getName(database.namespaceId);
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    await roleStackApiV1.createOrReplace(namespace, {
-      metadata: { name },
-      rules: [
-        {
-          apiGroups: [''],
-          resources: ['pods', 'pods/log', 'pods/status'],
-          verbs: ['get', 'list', 'watch'],
-        },
-      ],
-    });
 
     /**
      * ======================
@@ -88,22 +62,18 @@ export const KubernetesDatabaseSidecar = {
     const roles = ['application', 'kafka', 'mongodb', 'zookeeper'];
     const appSelector = `tenlastic.com/app=${databaseName}`;
     const roleSelector = `tenlastic.com/role in (${roles.join(',')})`;
-    await secretApiV1.createOrReplace(namespace, {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': databaseName,
-          'tenlastic.com/role': 'sidecar',
-        },
+        labels: { ...databaseLabels, 'tenlastic.com/role': 'sidecar' },
         name,
       },
       stringData: {
         ACCESS_TOKEN: accessToken,
-        API_URL: 'http://api.default:3000',
-        DATABASE_ENDPOINT: `http://api.default:3000/databases/${database._id}`,
+        API_URL: 'http://api.static:3000',
+        DATABASE_ENDPOINT: `http://api.static:3000/databases/${database._id}`,
         DATABASE_JSON: JSON.stringify(database),
         DATABASE_POD_LABEL_SELECTOR: `${appSelector},${roleSelector}`,
-        DATABASE_POD_NAMESPACE: namespace,
-        WSS_URL: 'ws://wss.default:3000',
+        WSS_URL: 'ws://wss.static:3000',
       },
     });
 
@@ -148,13 +118,10 @@ export const KubernetesDatabaseSidecar = {
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
     let manifest: V1PodTemplateSpec;
-    if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
+    if (process.env.PWD && process.env.PWD.includes('/usr/src/projects/')) {
       manifest = {
         metadata: {
-          labels: {
-            'tenlastic.com/app': databaseName,
-            'tenlastic.com/role': 'sidecar',
-          },
+          labels: { ...databaseLabels, 'tenlastic.com/role': 'sidecar' },
           name,
         },
         spec: {
@@ -168,12 +135,21 @@ export const KubernetesDatabaseSidecar = {
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 300 },
               name: 'database-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
-              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/database-sidecar/',
+              volumeMounts: [
+                {
+                  mountPath: '/usr/src/projects/javascript/node_modules/',
+                  name: 'node-modules',
+                },
+                { mountPath: '/usr/src/', name: 'source' },
+              ],
+              workingDir: '/usr/src/projects/javascript/nodejs/applications/database-sidecar/',
             },
           ],
-          serviceAccountName: name,
-          volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
+          serviceAccountName: 'database-sidecar',
+          volumes: [
+            { name: 'node-modules', persistentVolumeClaim: { claimName: 'node-modules' } },
+            { hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'source' },
+          ],
         },
       };
     } else {
@@ -182,10 +158,7 @@ export const KubernetesDatabaseSidecar = {
 
       manifest = {
         metadata: {
-          labels: {
-            'tenlastic.com/app': databaseName,
-            'tenlastic.com/role': 'sidecar',
-          },
+          labels: { ...databaseLabels, 'tenlastic.com/role': 'sidecar' },
           name,
         },
         spec: {
@@ -200,27 +173,19 @@ export const KubernetesDatabaseSidecar = {
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },
           ],
-          serviceAccountName: name,
+          serviceAccountName: 'database-sidecar',
         },
       };
     }
 
-    await deploymentApiV1.createOrReplace(namespace, {
+    await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': databaseName,
-          'tenlastic.com/role': 'sidecar',
-        },
+        labels: { ...databaseLabels, 'tenlastic.com/role': 'sidecar' },
         name,
       },
       spec: {
         replicas: 1,
-        selector: {
-          matchLabels: {
-            'tenlastic.com/app': databaseName,
-            'tenlastic.com/role': 'sidecar',
-          },
-        },
+        selector: { matchLabels: { ...databaseLabels, 'tenlastic.com/role': 'sidecar' } },
         template: manifest,
       },
     });

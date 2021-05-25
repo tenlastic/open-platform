@@ -13,39 +13,42 @@ images:
     newTag: latest
 kind: Kustomization
 patches:
-  - path: ./docker-registry/docker-registry.json
+  - path: ./static/docker-registry/docker-registry.json
     target:
       group: apps
       kind: Deployment
       name: docker-registry
+      namespace: static
       version: v1
 patchesStrategicMerge:
-  - ./angular/home-ui.yaml
-  - ./docker-registry/docker-registry-ui.yaml
-  - ./global/balanced-expandable.storageclass.yaml
-  - ./global/ssd-expandable.storageclass.yaml
-  - ./global/standard-expandable.storageclass.yaml
-  - ./kafka/kafdrop.yaml
-  - ./kafka/kafka.yaml
-  - ./kafka/zookeeper.yaml
-  - ./minio/minio.yaml
-  - ./mongodb/mongodb.yaml
-  - ./mongodb/mongoku.yaml
-  - ./ingress-nginx/ingress-nginx.yaml
-  - ./nodejs/api.yaml
-  - ./nodejs/wss.yaml
+  - ./cluster/storage-classes/balanced-expandable.yaml
+  - ./cluster/storage-classes/ssd-expandable.yaml
+  - ./cluster/storage-classes/standard-expandable.yaml
+  - ./static/angular/home-ui.yaml
+  - ./static/docker-registry/docker-registry-ui.yaml
+  - ./static/ingress-nginx/ingress-nginx.yaml
+  - ./static/kafka/kafdrop.yaml
+  - ./static/kafka/kafka.yaml
+  - ./static/kafka/zookeeper.yaml
+  - ./static/minio/minio.yaml
+  - ./static/mongodb/mongodb.yaml
+  - ./static/mongodb/mongoku.yaml
+  - ./static/nodejs/api.yaml
+  - ./static/nodejs/wss.yaml
 resources:
-  - ./docker-registry/docker-registry-image-pull-secret.secret.example.yaml
-  - ./docker-registry/docker-registry.secret.example.yaml
-  - ./global/docker-for-desktop-binding.clusterrolebinding.yaml
-  - ./kafka/kafdrop.secret.example.yaml
-  - ./kafka/kafka.secret.example.yaml
-  - ./kafka/zookeeper.secret.example.yaml
-  - ./minio/minio.secret.example.yaml
-  - ./mongodb/mongodb.secret.example.yaml
-  - ./mongodb/mongoku.secret.example.yaml
-  - ./ingress-nginx/basic-authentication.ingress.yaml
-  - ./ingress-nginx/basic-authentication.secret.example.yaml
-  - ./ingress-nginx/default.ingress.yaml
-  - ./nodejs/environment-variables.secret.example.yaml
-  - ./nodejs/migrations.yaml
+  - ./cluster/cluster-role-bindings/docker-for-desktop-binding.yaml
+  - ./dynamic/secrets/docker-registry.yaml
+  - ./dynamic/secrets/kaniko.yaml
+  - ./static/docker-registry/docker-registry-image-pull-secret.secret.example.yaml
+  - ./static/docker-registry/docker-registry.secret.example.yaml
+  - ./static/ingress-nginx/basic-authentication.ingress.yaml
+  - ./static/ingress-nginx/basic-authentication.secret.example.yaml
+  - ./static/ingress-nginx/default.ingress.yaml
+  - ./static/kafka/kafdrop.secret.example.yaml
+  - ./static/kafka/kafka.secret.example.yaml
+  - ./static/kafka/zookeeper.secret.example.yaml
+  - ./static/minio/minio.secret.example.yaml
+  - ./static/mongodb/mongodb.secret.example.yaml
+  - ./static/mongodb/mongoku.secret.example.yaml
+  - ./static/nodejs/environment-variables.secret.example.yaml
+  - ./static/nodejs/migrations.yaml

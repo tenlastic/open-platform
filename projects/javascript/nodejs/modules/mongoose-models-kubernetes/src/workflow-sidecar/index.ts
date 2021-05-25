@@ -1,6 +1,5 @@
 import {
   deploymentApiV1,
-  roleStackApiV1,
   secretApiV1,
   V1PodTemplateSpec,
   V1Probe,
@@ -11,7 +10,6 @@ import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
-import { KubernetesNamespace } from '../namespace';
 import { KubernetesWorkflow } from '../workflow';
 
 WorkflowEvent.sync(async payload => {
@@ -21,12 +19,15 @@ WorkflowEvent.sync(async payload => {
 });
 
 export const KubernetesWorkflowSidecar = {
+  getName(workflow: WorkflowDocument) {
+    return `workflow-${workflow._id}-sidecar`;
+  },
   upsert: async (workflow: WorkflowDocument) => {
     const name = KubernetesWorkflowSidecar.getName(workflow);
-    const namespace = KubernetesNamespace.getName(workflow.namespaceId);
+    const workflowLabels = KubernetesWorkflow.getLabels(workflow);
     const workflowName = KubernetesWorkflow.getName(workflow);
 
-    const uid = await getWorkflowUid(namespace, workflow);
+    const uid = await getWorkflowUid(workflow);
     const ownerReferences = [
       {
         apiVersion: 'argoproj.io/v1alpha1',
@@ -39,27 +40,6 @@ export const KubernetesWorkflowSidecar = {
 
     /**
      * ======================
-     * ROLE STACK
-     * ======================
-     */
-    await roleStackApiV1.createOrReplace(namespace, {
-      metadata: { name, ownerReferences },
-      rules: [
-        {
-          apiGroups: [''],
-          resources: ['pods', 'pods/log', 'pods/status'],
-          verbs: ['get', 'list', 'watch'],
-        },
-        {
-          apiGroups: ['argoproj.io'],
-          resources: ['workflows'],
-          verbs: ['get', 'list', 'watch'],
-        },
-      ],
-    });
-
-    /**
-     * ======================
      * SECRET
      * ======================
      */
@@ -69,24 +49,19 @@ export const KubernetesWorkflowSidecar = {
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
       { algorithm: 'RS256' },
     );
-    await secretApiV1.createOrReplace(namespace, {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': workflowName,
-          'tenlastic.com/role': 'sidecar',
-        },
+        labels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' },
         name,
         ownerReferences,
       },
       stringData: {
         ACCESS_TOKEN: accessToken,
         LOG_CONTAINER: `main`,
-        LOG_ENDPOINT: `http://api.default:3000/workflows/${workflow._id}/logs`,
+        LOG_ENDPOINT: `http://api.static:3000/workflows/${workflow._id}/logs`,
         LOG_POD_LABEL_SELECTOR: `tenlastic.com/app=${workflowName},tenlastic.com/role=application`,
-        LOG_POD_NAMESPACE: namespace,
-        WORKFLOW_ENDPOINT: `http://api.default:3000/workflows/${workflow._id}`,
+        WORKFLOW_ENDPOINT: `http://api.static:3000/workflows/${workflow._id}`,
         WORKFLOW_NAME: workflowName,
-        WORKFLOW_NAMESPACE: namespace,
       },
     });
 
@@ -122,13 +97,10 @@ export const KubernetesWorkflowSidecar = {
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
     let manifest: V1PodTemplateSpec;
-    if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
+    if (process.env.PWD && process.env.PWD.includes('/usr/src/projects/')) {
       manifest = {
         metadata: {
-          labels: {
-            'tenlastic.com/app': workflowName,
-            'tenlastic.com/role': 'sidecar',
-          },
+          labels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' },
           name,
         },
         spec: {
@@ -141,12 +113,21 @@ export const KubernetesWorkflowSidecar = {
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 300 },
               name: 'workflow-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
-              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/workflow-sidecar/',
+              volumeMounts: [
+                {
+                  mountPath: '/usr/src/projects/javascript/node_modules/',
+                  name: 'node-modules',
+                },
+                { mountPath: '/usr/src/', name: 'source' },
+              ],
+              workingDir: '/usr/src/projects/javascript/nodejs/applications/workflow-sidecar/',
             },
           ],
-          serviceAccountName: name,
-          volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
+          serviceAccountName: 'workflow-sidecar',
+          volumes: [
+            { name: 'node-modules', persistentVolumeClaim: { claimName: 'node-modules' } },
+            { hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'source' },
+          ],
         },
       };
     } else {
@@ -155,10 +136,7 @@ export const KubernetesWorkflowSidecar = {
 
       manifest = {
         metadata: {
-          labels: {
-            'tenlastic.com/app': workflowName,
-            'tenlastic.com/role': 'sidecar',
-          },
+          labels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' },
           name,
         },
         spec: {
@@ -172,43 +150,32 @@ export const KubernetesWorkflowSidecar = {
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },
           ],
-          serviceAccountName: name,
+          serviceAccountName: 'workflow-sidecar',
         },
       };
     }
 
-    await deploymentApiV1.createOrReplace(namespace, {
+    await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': workflowName,
-          'tenlastic.com/role': 'sidecar',
-        },
+        labels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' },
         name,
         ownerReferences,
       },
       spec: {
         replicas: 1,
-        selector: {
-          matchLabels: {
-            'tenlastic.com/app': workflowName,
-            'tenlastic.com/role': 'sidecar',
-          },
-        },
+        selector: { matchLabels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' } },
         template: manifest,
       },
     });
   },
-  getName(workflow: WorkflowDocument) {
-    return `workflow-${workflow._id}-sidecar`;
-  },
 };
 
-async function getWorkflowUid(namespace: string, workflow: WorkflowDocument): Promise<string> {
+async function getWorkflowUid(workflow: WorkflowDocument): Promise<string> {
   try {
-    const response = await workflowApiV1.read(KubernetesWorkflow.getName(workflow), namespace);
+    const response = await workflowApiV1.read(KubernetesWorkflow.getName(workflow), 'dynamic');
     return response.body.metadata.uid;
   } catch {
     await new Promise(resolve => setTimeout(resolve, 1000));
-    return getWorkflowUid(namespace, workflow);
+    return getWorkflowUid(workflow);
   }
 }

@@ -22,6 +22,9 @@ const wssUrl = process.env.WSS_URL;
 
     // Web Socket.
     const webSocket = new WebSocket();
+    webSocket.emitter.on('message', payload => {
+      console.log(payload);
+    });
     webSocket.emitter.on('open', () => {
       console.log('Web socket connected.');
 

@@ -125,3 +125,5 @@ import { router as workflowLogsRouter } from './handlers/workflow-logs';
     process.exit(1);
   }
 })();
+
+process.on('unhandledRejection', err => console.error(JSON.stringify(err)));

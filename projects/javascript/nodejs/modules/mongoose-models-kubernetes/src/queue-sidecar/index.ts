@@ -1,16 +1,9 @@
-import {
-  deploymentApiV1,
-  roleStackApiV1,
-  secretApiV1,
-  V1PodTemplateSpec,
-  V1Probe,
-} from '@tenlastic/kubernetes';
+import { deploymentApiV1, secretApiV1, V1PodTemplateSpec, V1Probe } from '@tenlastic/kubernetes';
 import { QueueDocument, QueueEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
-import { KubernetesNamespace } from '../namespace';
 import { KubernetesQueue } from '../queue';
 
 QueueEvent.sync(async payload => {
@@ -24,52 +17,28 @@ QueueEvent.sync(async payload => {
 export const KubernetesQueueSidecar = {
   delete: async (queue: QueueDocument) => {
     const name = KubernetesQueueSidecar.getName(queue);
-    const namespace = KubernetesNamespace.getName(queue.namespaceId);
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    await roleStackApiV1.delete(name, namespace);
 
     /**
      * ======================
      * SECRET
      * ======================
      */
-    await secretApiV1.delete(name, namespace);
+    await secretApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
      * DEPLOYMENT
      * ======================
      */
-    await deploymentApiV1.delete(name, namespace);
+    await deploymentApiV1.delete(name, 'dynamic');
   },
   getName(queue: QueueDocument) {
     return `queue-${queue._id}-sidecar`;
   },
   upsert: async (queue: QueueDocument) => {
+    const queueLabels = KubernetesQueue.getLabels(queue);
     const queueName = KubernetesQueue.getName(queue);
     const name = KubernetesQueueSidecar.getName(queue);
-    const namespace = KubernetesNamespace.getName(queue.namespaceId);
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    await roleStackApiV1.createOrReplace(namespace, {
-      metadata: { name },
-      rules: [
-        {
-          apiGroups: [''],
-          resources: ['pods', 'pods/log', 'pods/status'],
-          verbs: ['get', 'list', 'watch'],
-        },
-      ],
-    });
 
     /**
      * ======================
@@ -83,23 +52,18 @@ export const KubernetesQueueSidecar = {
       { algorithm: 'RS256' },
     );
     const appSelector = `tenlastic.com/app=${queueName}`;
-    await secretApiV1.createOrReplace(namespace, {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': queueName,
-          'tenlastic.com/role': 'sidecar',
-        },
+        labels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' },
         name,
       },
       stringData: {
         ACCESS_TOKEN: accessToken,
         LOG_CONTAINER: 'main',
-        LOG_ENDPOINT: `http://api.default:3000/queues/${queue._id}/logs`,
+        LOG_ENDPOINT: `http://api.static:3000/queues/${queue._id}/logs`,
         LOG_POD_LABEL_SELECTOR: `${appSelector},tenlastic.com/role=application`,
-        LOG_POD_NAMESPACE: namespace,
-        QUEUE_ENDPOINT: `http://api.default:3000/queues/${queue._id}`,
+        QUEUE_ENDPOINT: `http://api.static:3000/queues/${queue._id}`,
         QUEUE_POD_LABEL_SELECTOR: `${appSelector},tenlastic.com/role in (application,redis)`,
-        QUEUE_POD_NAMESPACE: namespace,
       },
     });
 
@@ -133,13 +97,10 @@ export const KubernetesQueueSidecar = {
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
     let manifest: V1PodTemplateSpec;
-    if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
+    if (process.env.PWD && process.env.PWD.includes('/usr/src/projects/')) {
       manifest = {
         metadata: {
-          labels: {
-            'tenlastic.com/app': queueName,
-            'tenlastic.com/role': 'sidecar',
-          },
+          labels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' },
           name,
         },
         spec: {
@@ -152,12 +113,21 @@ export const KubernetesQueueSidecar = {
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 300 },
               name: 'queue-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
-              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-              workingDir: '/usr/src/app/projects/javascript/nodejs/applications/queue-sidecar/',
+              volumeMounts: [
+                {
+                  mountPath: '/usr/src/projects/javascript/node_modules/',
+                  name: 'node-modules',
+                },
+                { mountPath: '/usr/src/', name: 'source' },
+              ],
+              workingDir: '/usr/src/projects/javascript/nodejs/applications/queue-sidecar/',
             },
           ],
-          serviceAccountName: name,
-          volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
+          serviceAccountName: 'queue-sidecar',
+          volumes: [
+            { name: 'node-modules', persistentVolumeClaim: { claimName: 'node-modules' } },
+            { hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'source' },
+          ],
         },
       };
     } else {
@@ -166,10 +136,7 @@ export const KubernetesQueueSidecar = {
 
       manifest = {
         metadata: {
-          labels: {
-            'tenlastic.com/app': queueName,
-            'tenlastic.com/role': 'sidecar',
-          },
+          labels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' },
           name,
         },
         spec: {
@@ -183,27 +150,19 @@ export const KubernetesQueueSidecar = {
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },
           ],
-          serviceAccountName: name,
+          serviceAccountName: 'queue-sidecar',
         },
       };
     }
 
-    await deploymentApiV1.createOrReplace(namespace, {
+    await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': queueName,
-          'tenlastic.com/role': 'sidecar',
-        },
+        labels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' },
         name,
       },
       spec: {
         replicas: 1,
-        selector: {
-          matchLabels: {
-            'tenlastic.com/app': queueName,
-            'tenlastic.com/role': 'sidecar',
-          },
-        },
+        selector: { matchLabels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' } },
         template: manifest,
       },
     });

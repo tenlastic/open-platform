@@ -1,10 +1,4 @@
-import {
-  deploymentApiV1,
-  podApiV1,
-  secretApiV1,
-  serviceApiV1,
-  V1PodTemplateSpec,
-} from '@tenlastic/kubernetes';
+import { deploymentApiV1, podApiV1, serviceApiV1, V1PodTemplateSpec } from '@tenlastic/kubernetes';
 import {
   GameServer,
   GameServerDocument,
@@ -12,8 +6,6 @@ import {
   GameServerRestartEvent,
 } from '@tenlastic/mongoose-models';
 import { URL } from 'url';
-
-import { KubernetesNamespace } from '../namespace';
 
 GameServerEvent.sync(async payload => {
   if (payload.operationType === 'delete') {
@@ -33,78 +25,57 @@ GameServerRestartEvent.sync(async gameServer => {
 export const KubernetesGameServer = {
   delete: async (gameServer: GameServerDocument) => {
     const name = KubernetesGameServer.getName(gameServer);
-    const namespace = KubernetesNamespace.getName(gameServer.namespaceId);
-
-    /**
-     * =======================
-     * IMAGE PULL SECRET
-     * =======================
-     */
-    await secretApiV1.delete(`${name}-image-pull-secret`, namespace);
 
     /**
      * =======================
      * SERVICE
      * =======================
      */
-    await serviceApiV1.delete(name, namespace);
+    await serviceApiV1.delete(name, 'dynamic');
 
     /**
      * =======================
      * DEPLOYMENT OR POD
      * =======================
      */
-    await deploymentApiV1.delete(name, namespace);
-    await podApiV1.delete(name, namespace);
+    await deploymentApiV1.delete(name, 'dynamic');
+    await podApiV1.delete(name, 'dynamic');
 
     /**
      * =======================
      * DEVELOPMENT SERVICE
      * =======================
      */
-    await serviceApiV1.delete(`${name}-node-port`, namespace);
+    await serviceApiV1.delete(`${name}-node-port`, 'dynamic');
+  },
+  getLabels(gameServer: GameServerDocument) {
+    const name = KubernetesGameServer.getName(gameServer);
+    return {
+      'tenlastic.com/app': name,
+      'tenlastic.com/gameServerId': `${gameServer._id}`,
+      'tenlastic.com/namespaceId': `${gameServer.namespaceId}`,
+    };
   },
   getName(gameServer: GameServerDocument) {
     return `game-server-${gameServer._id}`;
   },
   upsert: async (gameServer: GameServerDocument) => {
+    const labels = KubernetesGameServer.getLabels(gameServer);
     const name = KubernetesGameServer.getName(gameServer);
-    const namespace = KubernetesNamespace.getName(gameServer.namespaceId);
-
-    /**
-     * =======================
-     * IMAGE PULL SECRET
-     * =======================
-     */
-    const secret = await secretApiV1.read('docker-registry-image-pull-secret', 'default');
-    await secretApiV1.createOrReplace(namespace, {
-      data: secret.body.data,
-      metadata: {
-        labels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'image-pull-secret' },
-        name: `${name}-image-pull-secret`,
-      },
-      type: secret.body.type,
-    });
 
     /**
      * =======================
      * SERVICE
      * =======================
      */
-    await serviceApiV1.createOrReplace(namespace, {
+    await serviceApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': name,
-          'tenlastic.com/role': 'application',
-        },
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,
       },
       spec: {
         ports: [{ name: 'tcp', port: 7777 }],
-        selector: {
-          'tenlastic.com/app': name,
-          'tenlastic.com/role': 'application',
-        },
+        selector: { ...labels, 'tenlastic.com/role': 'application' },
       },
     });
 
@@ -141,14 +112,7 @@ export const KubernetesGameServer = {
 
     const manifest: V1PodTemplateSpec = {
       metadata: {
-        annotations: {
-          'tenlastic.com/gameServerId': gameServer._id.toString(),
-          'tenlastic.com/namespaceId': gameServer.namespaceId.toString(),
-        },
-        labels: {
-          'tenlastic.com/app': name,
-          'tenlastic.com/role': 'application',
-        },
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,
       },
       spec: {
@@ -157,7 +121,7 @@ export const KubernetesGameServer = {
         containers: [
           {
             env: [
-              { name: 'GAME_SERVER_ID', value: gameServer._id.toHexString() },
+              { name: 'GAME_SERVER_ID', value: `${gameServer._id}` },
               { name: 'GAME_SERVER_JSON', value: JSON.stringify(gameServer) },
             ],
             image,
@@ -167,45 +131,31 @@ export const KubernetesGameServer = {
               { containerPort: 7777, hostPort, protocol: 'UDP' },
             ],
             resources: {
-              limits: {
-                cpu: gameServer.cpu.toString(),
-                memory: gameServer.memory.toString(),
-              },
-              requests: {
-                cpu: gameServer.cpu.toString(),
-                memory: gameServer.memory.toString(),
-              },
+              limits: { cpu: `${gameServer.cpu}`, memory: `${gameServer.memory}` },
+              requests: { cpu: `${gameServer.cpu}`, memory: `${gameServer.memory}` },
             },
           },
         ],
         enableServiceLinks: false,
-        imagePullSecrets: [{ name: `${name}-image-pull-secret` }],
+        imagePullSecrets: [{ name: 'docker-registry' }],
         restartPolicy: gameServer.persistent ? 'Always' : 'Never',
       },
     };
 
     if (gameServer.persistent) {
-      await deploymentApiV1.createOrReplace(namespace, {
+      await deploymentApiV1.createOrReplace('dynamic', {
         metadata: {
-          labels: {
-            'tenlastic.com/app': name,
-            'tenlastic.com/role': 'application',
-          },
+          labels: { ...labels, 'tenlastic.com/role': 'application' },
           name,
         },
         spec: {
           replicas: 1,
-          selector: {
-            matchLabels: {
-              'tenlastic.com/app': name,
-              'tenlastic.com/role': 'application',
-            },
-          },
+          selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'application' } },
           template: manifest,
         },
       });
     } else {
-      await podApiV1.createOrReplace(namespace, manifest);
+      await podApiV1.createOrReplace('dynamic', manifest);
     }
 
     /**
@@ -213,13 +163,10 @@ export const KubernetesGameServer = {
      * DEVELOPMENT SERVICE
      * =======================
      */
-    if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
-      await serviceApiV1.createOrReplace(namespace, {
+    if (process.env.PWD && process.env.PWD.includes('/usr/src/projects/')) {
+      await serviceApiV1.createOrReplace('dynamic', {
         metadata: {
-          labels: {
-            'tenlastic.com/app': name,
-            'tenlastic.com/role': 'application',
-          },
+          labels: { ...labels, 'tenlastic.com/role': 'application' },
           name: `${name}-node-port`,
         },
         spec: {
@@ -227,10 +174,7 @@ export const KubernetesGameServer = {
             { name: 'tcp', nodePort: hostPort, port: 7777, protocol: 'TCP' },
             { name: 'udp', nodePort: hostPort, port: 7777, protocol: 'UDP' },
           ],
-          selector: {
-            'tenlastic.com/app': name,
-            'tenlastic.com/role': 'application',
-          },
+          selector: { ...labels, 'tenlastic.com/role': 'application' },
           type: 'NodePort',
         },
       });

@@ -1,18 +1,10 @@
-import {
-  clusterRoleStackApiV1,
-  deploymentApiV1,
-  roleStackApiV1,
-  secretApiV1,
-  V1PodTemplateSpec,
-  V1Probe,
-} from '@tenlastic/kubernetes';
+import { deploymentApiV1, secretApiV1, V1PodTemplateSpec, V1Probe } from '@tenlastic/kubernetes';
 import { GameServerDocument, GameServerEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
 import { KubernetesGameServer } from '../game-server';
-import { KubernetesNamespace } from '../namespace';
 
 GameServerEvent.sync(async payload => {
   if (payload.operationType === 'delete') {
@@ -25,68 +17,28 @@ GameServerEvent.sync(async payload => {
 export const KubernetesGameServerSidecar = {
   delete: async (gameServer: GameServerDocument) => {
     const name = KubernetesGameServerSidecar.getName(gameServer);
-    const namespace = KubernetesNamespace.getName(gameServer.namespaceId);
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    await clusterRoleStackApiV1.delete(name, namespace);
-    await roleStackApiV1.delete(name, namespace);
 
     /**
      * ======================
      * SECRET
      * ======================
      */
-    await secretApiV1.delete(name, namespace);
+    await secretApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
      * DEPLOYMENT
      * ======================
      */
-    await deploymentApiV1.delete(name, namespace);
+    await deploymentApiV1.delete(name, 'dynamic');
   },
   getName(gameServer: GameServerDocument) {
     return `game-server-${gameServer._id}-sidecar`;
   },
   upsert: async (gameServer: GameServerDocument) => {
+    const gameServerLabels = KubernetesGameServer.getLabels(gameServer);
     const gameServerName = KubernetesGameServer.getName(gameServer);
     const name = KubernetesGameServerSidecar.getName(gameServer);
-    const namespace = KubernetesNamespace.getName(gameServer.namespaceId);
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    await clusterRoleStackApiV1.createOrReplace(namespace, {
-      metadata: { name },
-      rules: [
-        {
-          apiGroups: [''],
-          resources: ['nodes'],
-          verbs: ['get'],
-        },
-      ],
-    });
-    await roleStackApiV1.createOrReplace(namespace, {
-      metadata: { name },
-      rules: [
-        {
-          apiGroups: [''],
-          resources: ['pods', 'pods/log', 'pods/status'],
-          verbs: ['get', 'list', 'watch'],
-        },
-        {
-          apiGroups: [''],
-          resources: ['nodes'],
-          verbs: ['get'],
-        },
-      ],
-    });
 
     /**
      * ======================
@@ -100,24 +52,19 @@ export const KubernetesGameServerSidecar = {
       { algorithm: 'RS256' },
     );
     const labelSelector = `tenlastic.com/app=${gameServerName},tenlastic.com/role=application`;
-    await secretApiV1.createOrReplace(namespace, {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': gameServerName,
-          'tenlastic.com/role': 'sidecar',
-        },
+        labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },
         name,
       },
       stringData: {
         ACCESS_TOKEN: accessToken,
         GAME_SERVER_CONTAINER: 'main',
-        GAME_SERVER_ENDPOINT: `http://api.default:3000/game-servers/${gameServer._id}`,
+        GAME_SERVER_ENDPOINT: `http://api.static:3000/game-servers/${gameServer._id}`,
         GAME_SERVER_POD_LABEL_SELECTOR: labelSelector,
-        GAME_SERVER_POD_NAMESPACE: namespace,
         LOG_CONTAINER: 'main',
-        LOG_ENDPOINT: `http://api.default:3000/game-servers/${gameServer._id}/logs`,
+        LOG_ENDPOINT: `http://api.static:3000/game-servers/${gameServer._id}/logs`,
         LOG_POD_LABEL_SELECTOR: labelSelector,
-        LOG_POD_NAMESPACE: namespace,
       },
     });
 
@@ -153,13 +100,10 @@ export const KubernetesGameServerSidecar = {
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
     let manifest: V1PodTemplateSpec;
-    if (process.env.PWD && process.env.PWD.includes('/usr/src/app/projects/')) {
+    if (process.env.PWD && process.env.PWD.includes('/usr/src/projects/')) {
       manifest = {
         metadata: {
-          labels: {
-            'tenlastic.com/app': gameServerName,
-            'tenlastic.com/role': 'sidecar',
-          },
+          labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },
           name,
         },
         spec: {
@@ -172,13 +116,21 @@ export const KubernetesGameServerSidecar = {
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 300 },
               name: 'game-server-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
-              volumeMounts: [{ mountPath: '/usr/src/app/', name: 'app' }],
-              workingDir:
-                '/usr/src/app/projects/javascript/nodejs/applications/game-server-sidecar/',
+              volumeMounts: [
+                {
+                  mountPath: '/usr/src/projects/javascript/node_modules/',
+                  name: 'node-modules',
+                },
+                { mountPath: '/usr/src/', name: 'source' },
+              ],
+              workingDir: '/usr/src/projects/javascript/nodejs/applications/game-server-sidecar/',
             },
           ],
-          serviceAccountName: name,
-          volumes: [{ hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'app' }],
+          serviceAccountName: 'game-server-sidecar',
+          volumes: [
+            { name: 'node-modules', persistentVolumeClaim: { claimName: 'node-modules' } },
+            { hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'source' },
+          ],
         },
       };
     } else {
@@ -187,10 +139,7 @@ export const KubernetesGameServerSidecar = {
 
       manifest = {
         metadata: {
-          labels: {
-            'tenlastic.com/app': gameServerName,
-            'tenlastic.com/role': 'sidecar',
-          },
+          labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },
           name,
         },
         spec: {
@@ -204,27 +153,19 @@ export const KubernetesGameServerSidecar = {
               resources: { requests: { cpu: '50m', memory: '50M' } },
             },
           ],
-          serviceAccountName: name,
+          serviceAccountName: 'game-server-sidecar',
         },
       };
     }
 
-    await deploymentApiV1.createOrReplace(namespace, {
+    await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          'tenlastic.com/app': gameServerName,
-          'tenlastic.com/role': 'sidecar',
-        },
+        labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },
         name,
       },
       spec: {
         replicas: 1,
-        selector: {
-          matchLabels: {
-            'tenlastic.com/app': gameServerName,
-            'tenlastic.com/role': 'sidecar',
-          },
-        },
+        selector: { matchLabels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' } },
         template: manifest,
       },
     });

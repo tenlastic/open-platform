@@ -26,11 +26,8 @@ export class WorkflowSpecTemplateScriptSchema {
   @prop({ required: true })
   public source: string;
 
-  @prop({ default: '/usr/src/app/' })
+  @prop({ default: '/workspace/' })
   public workingDir: string;
-
-  @prop()
-  public workspace: boolean;
 }
 
 export type WorkflowSpecTemplateScriptDocument = DocumentType<WorkflowSpecTemplateScriptSchema>;

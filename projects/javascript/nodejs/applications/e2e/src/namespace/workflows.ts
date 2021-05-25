@@ -48,8 +48,6 @@ describe('workflows', function() {
               command: ['/bin/sh'],
               image: 'alpine:latest',
               source: 'echo "Hello Everyone!"',
-              workingDir: '/workspace/',
-              workspace: true,
             },
           },
         ],

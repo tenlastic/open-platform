@@ -1,4 +1,4 @@
-import { roleStackApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
+import { workflowApiV1 } from '@tenlastic/kubernetes';
 import {
   WorkflowDocument,
   WorkflowEvent,
@@ -19,19 +19,27 @@ WorkflowEvent.sync(async payload => {
 export const KubernetesWorkflow = {
   delete: async (workflow: WorkflowDocument) => {
     const name = KubernetesWorkflow.getName(workflow);
-    const namespace = KubernetesNamespace.getName(workflow.namespaceId);
 
     /**
      * ======================
      * WORKFLOW
      * ======================
      */
-    await workflowApiV1.delete(name, namespace);
+    await workflowApiV1.delete(name, 'dynamic');
+  },
+  getLabels(workflow: WorkflowDocument) {
+    const name = KubernetesWorkflow.getName(workflow);
+    return {
+      'tenlastic.com/app': name,
+      'tenlastic.com/namespaceId': `${workflow.namespaceId}`,
+      'tenlastic.com/workflowId': `${workflow._id}`,
+    };
   },
   getName(workflow: WorkflowDocument) {
     return `workflow-${workflow._id}`;
   },
   upsert: async (workflow: WorkflowDocument) => {
+    const labels = KubernetesWorkflow.getLabels(workflow);
     const name = KubernetesWorkflow.getName(workflow);
     const namespace = KubernetesNamespace.getName(workflow.namespaceId);
 
@@ -59,72 +67,36 @@ export const KubernetesWorkflow = {
       },
     };
     const templates = workflow.spec.templates.map(t => getTemplateManifest(t, workflow));
-    const response = await workflowApiV1.createOrReplace(namespace, {
-      metadata: { name },
+    await workflowApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: {
+          ...labels,
+          'tenlastic.com/role': 'application',
+          'workflows.argoproj.io/controller-instanceid': namespace,
+        },
+        name,
+      },
       spec: {
         activeDeadlineSeconds: 60 * 60,
         affinity,
         automountServiceAccountToken: false,
         dnsPolicy: 'Default',
         entrypoint: workflow.spec.entrypoint,
-        executor: { serviceAccountName: name },
+        executor: { serviceAccountName: 'workflow' },
         parallelism: workflow.spec.parallelism,
-        serviceAccountName: name,
+        serviceAccountName: 'workflow',
         templates,
-        ttlStrategy: {
-          secondsAfterCompletion: 15 * 60,
-        },
+        ttlStrategy: { secondsAfterCompletion: 15 * 60 },
         volumeClaimTemplates: [
           {
             metadata: { name: 'workspace' },
             spec: {
               accessModes: ['ReadWriteOnce'],
-              resources: {
-                requests: {
-                  storage: `${workflow.storage}`,
-                },
-              },
+              resources: { requests: { storage: `${workflow.storage}` } },
             },
           },
         ],
       },
-    });
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    await roleStackApiV1.createOrReplace(namespace, {
-      metadata: {
-        name,
-        ownerReferences: [
-          {
-            apiVersion: 'argoproj.io/v1alpha1',
-            controller: true,
-            kind: 'Workflow',
-            name,
-            uid: response.body.metadata.uid,
-          },
-        ],
-      },
-      rules: [
-        {
-          apiGroups: [''],
-          resources: ['pods'],
-          verbs: ['get', 'patch', 'watch'],
-        },
-        {
-          apiGroups: [''],
-          resources: ['pods/exec'],
-          verbs: ['create'],
-        },
-        {
-          apiGroups: [''],
-          resources: ['pods/log'],
-          verbs: ['get', 'watch'],
-        },
-      ],
     });
   },
 };
@@ -140,13 +112,9 @@ function getTemplateManifest(template: WorkflowSpecTemplateSchema, workflow: Wor
 
   t.artifactLocation = { archiveLogs: false };
   t.metadata = {
-    annotations: {
-      'tenlastic.com/namespaceId': workflow.namespaceId.toString(),
-      'tenlastic.com/nodeId': `{{pod.name}}`,
-      'tenlastic.com/workflowId': workflow._id.toString(),
-    },
     labels: {
-      'tenlastic.com/app': KubernetesWorkflow.getName(workflow),
+      ...KubernetesWorkflow.getLabels(workflow),
+      'tenlastic.com/nodeId': `{{pod.name}}`,
       'tenlastic.com/role': 'application',
     },
   };
@@ -157,10 +125,7 @@ function getTemplateManifest(template: WorkflowSpecTemplateSchema, workflow: Wor
   const resources = { cpu: `${cpu}`, memory: `${memory}` };
 
   t.script.resources = { limits: resources, requests: resources };
-
-  if (t.script.workspace) {
-    t.script.volumeMounts = [{ mountPath: '/workspace/', name: 'workspace' }];
-  }
+  t.script.volumeMounts = [{ mountPath: '/workspace/', name: 'workspace' }];
 
   if (t.sidecars) {
     t.sidecars = t.sidecars.map(s => {

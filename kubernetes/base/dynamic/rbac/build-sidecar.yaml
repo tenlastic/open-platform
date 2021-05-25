@@ -1,0 +1,44 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: build-sidecar
+  namespace: dynamic
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/log
+      - pods/status
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - workflows
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: build-sidecar
+  namespace: dynamic
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: build-sidecar
+subjects:
+  - kind: ServiceAccount
+    name: build-sidecar
+    namespace: dynamic
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: build-sidecar
+  namespace: dynamic

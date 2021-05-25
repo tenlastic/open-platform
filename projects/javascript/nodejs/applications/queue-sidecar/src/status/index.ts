@@ -4,7 +4,6 @@ import * as requestPromiseNative from 'request-promise-native';
 const accessToken = process.env.ACCESS_TOKEN;
 const endpoint = process.env.QUEUE_ENDPOINT;
 const podLabelSelector = process.env.QUEUE_POD_LABEL_SELECTOR;
-const podNamespace = process.env.QUEUE_POD_NAMESPACE;
 
 const pods: { [key: string]: V1Pod } = {};
 
@@ -13,7 +12,7 @@ const pods: { [key: string]: V1Pod } = {};
  */
 export async function status() {
   podApiV1.watch(
-    podNamespace,
+    'dynamic',
     { labelSelector: podLabelSelector },
     async (type, pod: V1Pod) => {
       if (type === 'ADDED' || type === 'MODIFIED') {

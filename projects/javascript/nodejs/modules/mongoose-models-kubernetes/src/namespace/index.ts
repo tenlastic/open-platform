@@ -1,4 +1,4 @@
-import { helmReleaseApiV1, namespaceApiV1, networkPolicyApiV1 } from '@tenlastic/kubernetes';
+import { configMapApiV1, deploymentApiV1, helmReleaseApiV1 } from '@tenlastic/kubernetes';
 import { NamespaceDocument, NamespaceEvent } from '@tenlastic/mongoose-models';
 import { mongoose, Ref } from '@typegoose/typegoose';
 
@@ -16,10 +16,11 @@ export const KubernetesNamespace = {
 
     /**
      * ========================
-     * NAMESPACE
+     * ARGO WORKFLOW CONTROLLER
      * ========================
      */
-    await namespaceApiV1.delete(name);
+    await configMapApiV1.delete(`${name}-argo-workflow-controller`, 'dynamic');
+    await deploymentApiV1.delete(`${name}-argo-workflow-controller`, 'dynamic');
   },
   getName: (_id: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>) => {
     return `namespace-${_id}`;
@@ -29,27 +30,48 @@ export const KubernetesNamespace = {
 
     /**
      * ========================
-     * NAMESPACE
-     * ========================
-     */
-    await namespaceApiV1.createOrReplace({ metadata: { name } });
-
-    /**
-     * ========================
      * ARGO WORKFLOW CONTROLLER
      * ========================
      */
-    await helmReleaseApiV1.createOrReplace(name, {
-      metadata: { name: 'argo' },
-      spec: {
-        chart: {
-          name: 'argo',
-          repository: 'https://argoproj.github.io/argo-helm',
-          version: '0.15.2',
+    const configMap = [
+      'containerRuntimeExecutor: k8sapi',
+      `instanceID: ${name}`,
+      `parallelism: ${namespace.limits.workflows.count}`,
+    ];
+    await configMapApiV1.createOrReplace('dynamic', {
+      data: { config: configMap.join('\n') },
+      metadata: {
+        labels: {
+          'tenlastic.com/app': `${name}-argo-workflow-controller`,
+          'tenlastic.com/namespaceId': `${namespace._id}`,
         },
-        releaseName: `${name}-argo`,
-        values: {
-          controller: {
+        name: `${name}-argo-workflow-controller`,
+      },
+    });
+    await deploymentApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: {
+          'tenlastic.com/app': `${name}-argo-workflow-controller`,
+          'tenlastic.com/namespaceId': `${namespace._id}`,
+        },
+        name: `${name}-argo-workflow-controller`,
+      },
+      spec: {
+        replicas: 1,
+        selector: {
+          matchLabels: {
+            'tenlastic.com/app': `${name}-argo-workflow-controller`,
+            'tenlastic.com/namespaceId': `${namespace._id}`,
+          },
+        },
+        template: {
+          metadata: {
+            labels: {
+              'tenlastic.com/app': `${name}-argo-workflow-controller`,
+              'tenlastic.com/namespaceId': `${namespace._id}`,
+            },
+          },
+          spec: {
             affinity: {
               nodeAffinity: {
                 requiredDuringSchedulingIgnoredDuringExecution: {
@@ -66,71 +88,52 @@ export const KubernetesNamespace = {
                 },
               },
             },
-            containerRuntimeExecutor: 'k8sapi',
-            parallelism: namespace.limits.workflows.parallelism,
-            replicas: 1,
-            resources: {
-              requests: {
-                cpu: '50m',
-              },
-            },
-          },
-          installCRD: false,
-          server: {
-            enabled: false,
-          },
-          singleNamespace: true,
-        },
-      },
-    });
-
-    /**
-     * =======================
-     * NETWORK POLICY
-     * =======================
-     */
-    await networkPolicyApiV1.createOrReplace(name, {
-      metadata: { name: 'default' },
-      spec: {
-        egress: [
-          {
-            ports: [
-              // Allow DNS resolution.
-              { port: 53 as any, protocol: 'TCP' },
-              { port: 53 as any, protocol: 'UDP' },
-            ],
-            to: [
+            containers: [
               {
-                // Allow traffic to the Web Socket Server.
-                namespaceSelector: { matchLabels: { name: 'kube-system' } },
-                podSelector: { matchLabels: { 'k8s-app': 'kube-dns' } },
-              },
-            ],
-          },
-          {
-            to: [
-              {
-                // Block internal traffic.
-                ipBlock: {
-                  cidr: '0.0.0.0/0',
-                  except: ['10.0.0.0/8', '172.0.0.0/8', '192.0.0.0/8'],
+                args: [
+                  '--configmap',
+                  `${name}-argo-workflow-controller`,
+                  '--executor-image',
+                  'quay.io/argoproj/argoexec:v3.0.2',
+                  '--loglevel',
+                  'info',
+                  '--gloglevel',
+                  '0',
+                  '--namespaced',
+                ],
+                command: ['workflow-controller'],
+                env: [
+                  {
+                    name: 'ARGO_NAMESPACE',
+                    valueFrom: {
+                      fieldRef: {
+                        apiVersion: 'v1',
+                        fieldPath: 'metadata.namespace',
+                      },
+                    },
+                  },
+                  { name: 'LEADER_ELECTION_DISABLE', value: 'true' },
+                ],
+                image: 'quay.io/argoproj/workflow-controller:v3.0.4',
+                livenessProbe: {
+                  httpGet: { path: '/metrics', port: 'metrics' as any },
+                  initialDelaySeconds: 30,
+                  periodSeconds: 30,
+                },
+                name: 'controller',
+                ports: [{ name: 'metrics', containerPort: 9090 }],
+                resources: { requests: { cpu: '50m' } },
+                securityContext: {
+                  allowPrivilegeEscalation: false,
+                  capabilities: { drop: ['ALL'] },
+                  readOnlyRootFilesystem: true,
+                  runAsNonRoot: true,
                 },
               },
-              {
-                // Allow traffic to the API.
-                namespaceSelector: { matchLabels: { name: 'default' } },
-                podSelector: { matchLabels: { app: 'api' } },
-              },
-              {
-                // Allow traffic to the Web Socket Server.
-                namespaceSelector: { matchLabels: { name: 'default' } },
-                podSelector: { matchLabels: { app: 'wss' } },
-              },
             ],
+            serviceAccountName: 'argo',
           },
-        ],
-        podSelector: {},
-        policyTypes: ['Egress'],
+        },
       },
     });
   },

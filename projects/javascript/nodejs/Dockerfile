@@ -5,7 +5,7 @@ RUN apk add --no-cache tini
 ENTRYPOINT ["/sbin/tini", "--"]
 
 # Set up NodeJS.
-WORKDIR /usr/src/app/
+WORKDIR /usr/src/
 COPY ./package*.json ./
 RUN npm i --production
 COPY ./dist/ ./dist/

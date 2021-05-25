@@ -66,7 +66,6 @@ export namespace IWorkflow {
     image: string;
     source: string;
     workingDir?: string;
-    workspace?: boolean;
   }
 
   export interface Sidecar {

@@ -4,14 +4,13 @@ import * as requestPromiseNative from 'request-promise-native';
 const accessToken = process.env.ACCESS_TOKEN;
 const workflowEndpoint = process.env.WORKFLOW_ENDPOINT;
 const workflowName = process.env.WORKFLOW_NAME;
-const workflowNamespace = process.env.WORKFLOW_NAMESPACE;
 
 /**
  * Checks the status of the Workflow and updates it within MongoDB.
  */
 export async function status() {
   workflowApiV1.watch(
-    workflowNamespace,
+    'dynamic',
     { fieldSelector: `metadata.name=${workflowName}` },
     (type, object) => updateWorkflow(object),
     err => {
