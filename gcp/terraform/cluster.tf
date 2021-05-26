@@ -42,7 +42,7 @@ module "preemptible_pool" {
   source = "./modules/node-pool"
 
   cluster_name   = google_container_cluster.primary.name
-  machine_type   = "e2-standard-2"
+  machine_type   = "e2-standard-4"
   max_node_count = 7
   min_node_count = 0
   name           = "preemptible-pool"
