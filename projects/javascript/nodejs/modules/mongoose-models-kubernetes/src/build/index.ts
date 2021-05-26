@@ -1,4 +1,4 @@
-import { secretApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
+import { networkPolicyApiV1, secretApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
 import { BuildDocument, BuildEvent } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
@@ -43,6 +43,33 @@ export const KubernetesBuild = {
     const namespace = KubernetesNamespace.getName(build.namespaceId);
 
     /**
+     * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    await networkPolicyApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
+        name,
+      },
+      spec: {
+        egress: [
+          {
+            to: [
+              {
+                // Allow traffic to Minio.
+                namespaceSelector: { matchLabels: { name: 'static' } },
+                podSelector: { matchLabels: { app: 'minio' } },
+              },
+            ],
+          },
+        ],
+        podSelector: { matchLabels: { ...labels, 'tenlastic.com/role': 'application' } },
+        policyTypes: ['Egress'],
+      },
+    });
+
+    /**
      * ======================
      * SECRET
      * ======================
@@ -55,7 +82,7 @@ export const KubernetesBuild = {
     );
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'applications' },
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,
       },
       stringData: {
@@ -103,7 +130,7 @@ export const KubernetesBuild = {
         metadata: {
           labels: {
             ...labels,
-            'tenlastic.com/role': 'applications',
+            'tenlastic.com/role': 'application',
             'workflows.argoproj.io/controller-instanceid': namespace,
           },
           name,
@@ -268,6 +295,7 @@ export const KubernetesBuild = {
         uid: response.body.metadata.uid,
       },
     ];
+    await networkPolicyApiV1.patch(name, 'dynamic', { metadata: { ownerReferences } });
     await secretApiV1.patch(name, 'dynamic', { metadata: { ownerReferences } });
   },
 };

@@ -2,6 +2,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: api
+  namespace: static
 rules:
   - apiGroups:
       - networking.k8s.io
@@ -14,6 +15,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: api
+  namespace: static
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
