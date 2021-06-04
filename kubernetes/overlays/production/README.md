@@ -30,6 +30,7 @@ Make sure to update all passwords and htpasswd files. Update all secrets with th
 ```bash
 export SEALED_SECRETS_CONTROLLER_NAME="sealed-secrets"
 export SEALED_SECRETS_CONTROLLER_NAMESPACE="static"
+
 kubeseal -o yaml < ./default/argo/argo-ci.secret.yaml > ./default/argo/argo-ci.sealedsecret.yaml
 kubeseal -o yaml < ./dynamic/secrets/docker-registry.secret.yaml > ./dynamic/secrets/docker-registry.sealedsecret.yaml
 kubeseal -o yaml < ./static/cert-manager/cert-manager-credentials.secret.yaml > ./static/cert-manager/cert-manager-credentials.sealedsecret.yaml

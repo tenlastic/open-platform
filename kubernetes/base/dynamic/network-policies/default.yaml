@@ -35,6 +35,18 @@ spec:
               name: static
           podSelector:
             matchLabels:
+              app: docker-registry
+        - namespaceSelector:
+            matchLabels:
+              name: static
+          podSelector:
+            matchLabels:
+              app: minio
+        - namespaceSelector:
+            matchLabels:
+              name: static
+          podSelector:
+            matchLabels:
               app: wss
   podSelector: {}
   policyTypes:
