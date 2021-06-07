@@ -1,0 +1,76 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kubernetes-dashboard-static
+  namespace: static
+rules:
+  - apiGroups:
+      - "*"
+    resources:
+      - "*"
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods/exec
+    verbs:
+      - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubernetes-dashboard-static
+  namespace: static
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kubernetes-dashboard-static
+subjects:
+  - kind: ServiceAccount
+    name: kubernetes-dashboard
+    namespace: static
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  annotations:
+    fluxcd.io/automated: "true"
+  name: kubernetes-dashboard
+  namespace: static
+spec:
+  chart:
+    name: kubernetes-dashboard
+    repository: https://kubernetes.github.io/dashboard
+    version: 4.2.0
+  releaseName: kubernetes-dashboard
+  values:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/low-priority
+                  operator: Exists
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - kubernetes-dashboard
+              topologyKey: kubernetes.io/hostname
+    extraArgs:
+      - --disable-settings-authorizer
+      - --enable-insecure-login
+      - --enable-skip-login
+    protocolHttp: true
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 50m
