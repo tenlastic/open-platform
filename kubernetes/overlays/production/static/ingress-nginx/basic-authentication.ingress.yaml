@@ -56,7 +56,7 @@ spec:
                 name: kafdrop
                 port:
                   number: 9000
-    - host: kubernetes-dashboard.localhost
+    - host: kubernetes-dashboard.tenlastic.com
       http:
         paths:
           - path: /
