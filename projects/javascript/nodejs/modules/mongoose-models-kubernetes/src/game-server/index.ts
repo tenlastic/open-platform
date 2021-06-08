@@ -84,7 +84,7 @@ export const KubernetesGameServer = {
      * DEPLOYMENT OR POD
      * =======================
      */
-    const url = new URL(process.env.DOCKER_REGISTRY_URL);
+    const url = new URL(process.env.DOCKER_REGISTRY_PULL_URL);
     const image = `${url.host}/${gameServer.namespaceId}:${gameServer.buildId}`;
 
     const affinity = {

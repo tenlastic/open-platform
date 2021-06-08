@@ -210,7 +210,7 @@ export const KubernetesQueue = {
     const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/projects/');
     let manifest: V1PodTemplateSpec;
     if (isDevelopment && queue.buildId) {
-      const url = new URL(process.env.DOCKER_REGISTRY_URL);
+      const url = new URL(process.env.DOCKER_REGISTRY_PULL_URL);
       const image = `${url.host}/${queue.namespaceId}:${queue.buildId}`;
 
       manifest = {
@@ -269,7 +269,7 @@ export const KubernetesQueue = {
         },
       };
     } else if (queue.buildId) {
-      const url = new URL(process.env.DOCKER_REGISTRY_URL);
+      const url = new URL(process.env.DOCKER_REGISTRY_PULL_URL);
       const image = `${url.host}/${queue.namespaceId}:${queue.buildId}`;
 
       manifest = {
