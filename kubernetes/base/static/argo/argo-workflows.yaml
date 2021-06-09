@@ -60,6 +60,8 @@ spec:
                       values:
                         - argo-server
                 topologyKey: kubernetes.io/hostname
+      image:
+        tag: v3.0.7
       replicas: 3
       resources:
         requests:
