@@ -17,7 +17,7 @@ import { wait } from '../wait';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('builds', function() {
+describe.only('builds', function() {
   let build: BuildModel;
   let namespace: NamespaceModel;
 

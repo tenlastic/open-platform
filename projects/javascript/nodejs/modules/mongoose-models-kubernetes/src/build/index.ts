@@ -205,7 +205,7 @@ export const KubernetesBuild = {
         name: 'workspace',
       });
 
-      const url = new URL(process.env.DOCKER_REGISTRY_PUSH_URL);
+      const url = new URL(process.env.DOCKER_REGISTRY_URL);
       const image = `${url.host}/${build.namespaceId}:${build._id}`;
       const args = url.protocol === 'http:' ? ['--insecure', '--skip-tls-verify'] : [];
       manifest.spec.templates.push({
