@@ -9,7 +9,7 @@ spec:
   chart:
     name: argo-workflows
     repository: https://argoproj.github.io/argo-helm
-    version: 0.1.3
+    version: 0.2.5
   releaseName: argo-workflows
   values:
     controller:
@@ -32,10 +32,15 @@ spec:
                         - argo-workflow-controller
                 topologyKey: kubernetes.io/hostname
       containerRuntimeExecutor: pns
+      image:
+        tag: v3.0.7
       replicas: 1
       resources:
         requests:
           cpu: 50m
+    executor:
+      image:
+        tag: v3.0.7
     server:
       affinity:
         nodeAffinity:

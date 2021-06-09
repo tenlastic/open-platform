@@ -94,7 +94,7 @@ export const KubernetesNamespace = {
                   '--configmap',
                   `${name}-argo-workflow-controller`,
                   '--executor-image',
-                  'quay.io/argoproj/argoexec:v3.0.2',
+                  'quay.io/argoproj/argoexec:v3.0.7',
                   '--loglevel',
                   'info',
                   '--gloglevel',
@@ -114,7 +114,7 @@ export const KubernetesNamespace = {
                   },
                   { name: 'LEADER_ELECTION_DISABLE', value: 'true' },
                 ],
-                image: 'quay.io/argoproj/workflow-controller:v3.0.4',
+                image: 'quay.io/argoproj/workflow-controller:v3.0.7',
                 livenessProbe: {
                   httpGet: { path: '/metrics', port: 'metrics' as any },
                   initialDelaySeconds: 30,
