@@ -45,6 +45,13 @@ export const KubernetesDatabase = {
 
     /**
      * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    await networkPolicyApiV1.delete(name, 'dynamic');
+
+    /**
+     * =======================
      * KAFKA
      * =======================
      */

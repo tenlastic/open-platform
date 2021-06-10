@@ -22,6 +22,8 @@ spec:
             cidr: 0.0.0.0/0
             except:
               - 10.0.0.0/8
+              - 172.0.0.0/12
+              - 192.0.0.0/16
         - namespaceSelector:
             matchLabels:
               name: static
@@ -34,6 +36,12 @@ spec:
           podSelector:
             matchLabels:
               app: docker-registry
+        - namespaceSelector:
+            matchLabels:
+              name: static
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
         - namespaceSelector:
             matchLabels:
               name: static
