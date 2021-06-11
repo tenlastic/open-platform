@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/build-uploader",
   "private": true,
-  "version": "0.0.181",
+  "version": "0.0.182",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
