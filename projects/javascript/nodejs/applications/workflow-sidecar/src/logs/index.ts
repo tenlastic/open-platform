@@ -13,6 +13,8 @@ export async function logs() {
     'dynamic',
     { labelSelector: podLabelSelector },
     (type, pod: V1Pod) => {
+      console.log(`${type}: ${pod.metadata.name}`);
+
       if (!activePodNames.includes(pod.metadata.name)) {
         activePodNames.push(pod.metadata.name);
         getLogs(pod);
@@ -46,6 +48,12 @@ async function getLogs(pod: V1Pod) {
       mostRecentLog,
     );
     emitter.on('data', data => saveLogs({ nodeId: pod.metadata.name, ...labels }, data));
+    emitter.on('end', () => {
+      const index = activePodNames.findIndex(name => name === pod.metadata.name);
+      activePodNames.splice(index, 1);
+
+      console.log(`Stopped watching logs for pod: ${pod.metadata.name}.`);
+    });
     emitter.on('error', e => {
       console.error(e);
 
