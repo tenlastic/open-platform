@@ -6,7 +6,7 @@ const container = process.env.LOG_CONTAINER;
 const endpoint = process.env.LOG_ENDPOINT;
 const podLabelSelector = process.env.LOG_POD_LABEL_SELECTOR;
 
-const activePodNames: string[] = [];
+const activePods: V1Pod[] = [];
 
 export async function logs() {
   podApiV1.watch(
@@ -15,9 +15,15 @@ export async function logs() {
     (type, pod: V1Pod) => {
       console.log(`${type}: ${pod.metadata.name}`);
 
-      if (!activePodNames.includes(pod.metadata.name)) {
-        activePodNames.push(pod.metadata.name);
-        getLogs(pod);
+      if (type === 'ADDED') {
+        activePods.push(pod);
+        return getLogs(pod);
+      } else if (type === 'DELETED') {
+        const index = activePods.findIndex(ap => ap.metadata.name === pod.metadata.name);
+        activePods.splice(index, 1);
+      } else if (type === 'MODIFIED' && ['Failed', 'Succeeded'].includes(pod.status.phase)) {
+        const index = activePods.findIndex(ap => ap.metadata.name === pod.metadata.name);
+        activePods.splice(index, 1);
       }
     },
     err => {
@@ -28,7 +34,11 @@ export async function logs() {
 }
 
 async function getLogs(pod: V1Pod) {
-  console.log(`Watching logs for pod: ${pod.metadata.name}.`);
+  if (activePods.findIndex(ap => ap.metadata.name === pod.metadata.name) < 0) {
+    return;
+  }
+
+  console.log(`Watching logs: ${pod.metadata.name}...`);
 
   try {
     const labels: any = Object.keys(pod.metadata.labels)
@@ -48,17 +58,17 @@ async function getLogs(pod: V1Pod) {
       mostRecentLog,
     );
     emitter.on('data', data => saveLogs({ nodeId: pod.metadata.name, ...labels }, data));
-    emitter.on('end', () => {
-      const index = activePodNames.findIndex(name => name === pod.metadata.name);
-      activePodNames.splice(index, 1);
+    emitter.on('end', async () => {
+      console.log(`Stopped watching logs: ${pod.metadata.name}.`);
 
-      console.log(`Stopped watching logs for pod: ${pod.metadata.name}.`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      return getLogs(pod);
     });
-    emitter.on('error', e => {
+    emitter.on('error', async e => {
       console.error(e);
 
-      const index = activePodNames.findIndex(name => name === pod.metadata.name);
-      activePodNames.splice(index, 1);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      return getLogs(pod);
     });
   } catch (e) {
     console.error(e);
