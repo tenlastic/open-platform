@@ -15,7 +15,7 @@ WORKDIR /home/
 
 # Run package update and install some basics.
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common python-dev unzip wget
+RUN apt-get install -qy apt-transport-https ca-certificates curl gnupg2 software-properties-common python-dev unzip wget
 
 # Install docker.
 RUN curl -L -o /tmp/docker.tgz https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz && \
@@ -25,10 +25,10 @@ RUN curl -L -o /tmp/docker.tgz https://download.docker.com/linux/static/stable/x
 # Install gcloud.
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
   curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && \
-  apt-get update && apt-get install -y google-cloud-sdk
+  apt-get update && apt-get install -qy google-cloud-sdk
 
 # Install git and git-lfs.
-RUN apt-get install -y git git-lfs
+RUN apt-get install -qy git git-lfs
 
 # Install kubectl.
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
@@ -40,7 +40,7 @@ RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/
 
 # Install node and npm.
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
-  apt-get install nodejs
+  apt-get install -qy nodejs
 
 # Install terraform
 RUN curl -o terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \

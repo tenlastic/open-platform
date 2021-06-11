@@ -6,7 +6,7 @@ const container = process.env.LOG_CONTAINER;
 const endpoint = process.env.LOG_ENDPOINT;
 const podLabelSelector = process.env.LOG_POD_LABEL_SELECTOR;
 
-const activePods: V1Pod[] = [];
+const pods = new Map<string, V1Pod>();
 
 export async function logs() {
   podApiV1.watch(
@@ -14,16 +14,12 @@ export async function logs() {
     { labelSelector: podLabelSelector },
     (type, pod: V1Pod) => {
       console.log(`${type}: ${pod.metadata.name}`);
+      pods.set(pod.metadata.name, pod);
 
       if (type === 'ADDED') {
-        activePods.push(pod);
         return getLogs(pod);
       } else if (type === 'DELETED') {
-        const index = activePods.findIndex(ap => ap.metadata.name === pod.metadata.name);
-        activePods.splice(index, 1);
-      } else if (type === 'MODIFIED' && ['Failed', 'Succeeded'].includes(pod.status.phase)) {
-        const index = activePods.findIndex(ap => ap.metadata.name === pod.metadata.name);
-        activePods.splice(index, 1);
+        pods.delete(pod.metadata.name);
       }
     },
     err => {
@@ -34,10 +30,6 @@ export async function logs() {
 }
 
 async function getLogs(pod: V1Pod) {
-  if (activePods.findIndex(ap => ap.metadata.name === pod.metadata.name) < 0) {
-    return;
-  }
-
   console.log(`Watching logs: ${pod.metadata.name}...`);
 
   try {
@@ -61,14 +53,20 @@ async function getLogs(pod: V1Pod) {
     emitter.on('end', async () => {
       console.log(`Stopped watching logs: ${pod.metadata.name}.`);
 
-      await new Promise(resolve => setTimeout(resolve, 5000));
-      return getLogs(pod);
+      const p = pods.get(pod.metadata.name);
+      if (p?.status?.phase === 'Pending' || p?.status?.phase === 'Running') {
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        return getLogs(p);
+      }
     });
     emitter.on('error', async e => {
       console.error(e);
 
-      await new Promise(resolve => setTimeout(resolve, 5000));
-      return getLogs(pod);
+      const p = pods.get(pod.metadata.name);
+      if (p?.status?.phase === 'Pending' || p?.status?.phase === 'Running') {
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        return getLogs(p);
+      }
     });
   } catch (e) {
     console.error(e);

@@ -19,7 +19,7 @@ resources:
   - ./static/ci-cd/cd-environment-variables.sealedsecret.yaml
   - ./static/ci-cd/cd-ssh-keys.sealedsecret.yaml
   - ./static/ci-cd/ci-environment-variables.sealedsecret.yaml
-  - ./static/ci-cd/ci-npm-cache.pvc.yaml
+  - ./static/ci-cd/ci-node-modules.pvc.yaml
   - ./static/docker-registry/docker-registry-image-pull-secret.sealedsecret.yaml
   - ./static/docker-registry/docker-registry.sealedsecret.yaml
   - ./static/flux/flux.yaml

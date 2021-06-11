@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: ci-npm-cache
+  name: ci-node-modules
   namespace: static
 spec:
   accessModes: [ReadWriteOnce]

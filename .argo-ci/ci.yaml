@@ -137,20 +137,17 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [bash]
         args: [./.argo-ci/bootstrap.sh]
-        env:
-          - name: NPM_CONFIG_CACHE
-            value: /npm-cache/
         imagePullPolicy: IfNotPresent
         volumeMounts:
-          - name: ci-npm-cache
-            mountPath: /npm-cache/
+          - name: ci-node-modules
+            mountPath: /workspace/open-platform/projects/javascript/node-modules/
           - name: workspace
             mountPath: /workspace/
         workingDir: /workspace/open-platform/
       volumes:
-        - name: ci-npm-cache
+        - name: ci-node-modules
           persistentVolumeClaim:
-            claimName: ci-npm-cache
+            claimName: ci-node-modules
 
     - name: build-docker-image
       container:
