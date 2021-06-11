@@ -15,7 +15,7 @@ import { wait } from '../wait';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('workflows', function() {
+describe.only('workflows', function() {
   let namespace: NamespaceModel;
   let workflow: WorkflowModel;
 
@@ -62,6 +62,7 @@ describe('workflows', function() {
   });
 
   step('generates logs', async function() {
+    await new Promise(resolve => setTimeout(resolve, 10 * 60 * 1000));
     const logs = await workflowLogService.find(workflow._id, {});
     expect(logs.length).to.be.greaterThan(0);
   });
