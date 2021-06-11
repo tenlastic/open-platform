@@ -31,22 +31,18 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
         url: `${server}/api/v1/namespaces/${namespace}/pods/${name}/log`,
       })
       .on('data', data => {
-        try {
-          const string = data.toString();
-          const lines = this.split(string);
+        const string = data.toString();
+        const lines = this.split(string);
 
-          for (const line of lines) {
-            const body = this.getBody(line);
-            const microseconds = this.getMicroseconds(line);
-            const unix = this.getUnix(line);
+        for (const line of lines) {
+          const body = this.getBody(line);
+          const microseconds = this.getMicroseconds(line);
+          const unix = this.getUnix(line);
 
-            const timestamp = parseFloat(`${unix}.${microseconds}`);
-            const json = { body, unix: timestamp };
+          const timestamp = parseFloat(`${unix}.${microseconds}`);
+          const json = { body, unix: timestamp };
 
-            emitter.emit('data', json);
-          }
-        } catch (e) {
-          emitter.emit('error', e);
+          emitter.emit('data', json);
         }
       })
       .on('end', () => emitter.emit('end'))
@@ -61,18 +57,17 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
 
   private getBody(value: string) {
     const matches = value.match(/^[0-9-]{10}T[0-9:]{8}\.[0-9]{3}[0-9]+Z (.*)/m);
-    return matches[1];
+    return matches ? matches[1] : value;
   }
 
   private getMicroseconds(value: string) {
     const matches = value.match(/^[0-9-]{10}T[0-9:]{8}\.[0-9]{3}([0-9]+)Z/m);
-    return parseInt(matches[1], 10);
+    return matches ? parseInt(matches[1], 10) : null;
   }
 
   private getUnix(value: string) {
     const matches = value.match(/^([0-9-]{10}T[0-9:]{8}\.[0-9]{3}[0-9]+Z)/m);
-    const timestamp = matches[1];
-    return new Date(timestamp).getTime();
+    return matches ? new Date(matches[1]).getTime() : null;
   }
 
   private split(value: string) {
