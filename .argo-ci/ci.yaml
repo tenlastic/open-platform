@@ -78,6 +78,9 @@ spec:
             template: publish-npm-modules
             when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
 
+        - - name: delete-node-modules
+            template: delete-node-modules
+
         - - name: get-docker-images
             template: get-docker-images
 
@@ -140,7 +143,7 @@ spec:
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: ci-node-modules
-            mountPath: /workspace/open-platform/projects/javascript/node-modules/
+            mountPath: /ci-node-modules/
           - name: workspace
             mountPath: /workspace/
         workingDir: /workspace/open-platform/
@@ -256,6 +259,17 @@ spec:
               value: minioadmin
             - name: MINIO_SECRET_KEY
               value: minioadmin
+
+    - name: delete-node-modules
+      script:
+        image: alpine:latest
+        command: [sh]
+        source: rm -rf ./node_modules/
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/projects/javascript/
 
     - name: get-branch
       script:
