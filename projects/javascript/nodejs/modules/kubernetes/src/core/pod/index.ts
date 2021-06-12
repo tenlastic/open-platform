@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as request from 'request';
 
 import { BaseApiV1 } from '../../bases';
+import { HttpError } from '../../errors';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -30,23 +31,30 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
         },
         url: `${server}/api/v1/namespaces/${namespace}/pods/${name}/log`,
       })
-      .on('data', data => {
-        const string = data.toString();
-        const lines = this.split(string);
-
-        for (const line of lines) {
-          const body = this.getBody(line);
-          const microseconds = this.getMicroseconds(line);
-          const unix = this.getUnix(line);
-
-          const timestamp = parseFloat(`${unix}.${microseconds}`);
-          const json = { body, unix: timestamp };
-
-          emitter.emit('data', json);
+      .on('error', e => emitter.emit('error', e))
+      .on('response', response => {
+        if (response.statusCode !== 200) {
+          emitter.emit('error', new HttpError(response.statusCode, JSON.parse(response.body)));
+          return;
         }
-      })
-      .on('end', () => emitter.emit('end'))
-      .on('error', e => emitter.emit('error', e));
+
+        response.on('data', data => {
+          const string = data.toString();
+          const lines = this.split(string);
+
+          for (const line of lines) {
+            const body = this.getBody(line);
+            const microseconds = this.getMicroseconds(line);
+            const unix = this.getUnix(line);
+
+            const timestamp = parseFloat(`${unix}.${microseconds}`);
+            const json = { body, unix: timestamp };
+
+            emitter.emit('data', json);
+          }
+        });
+        response.on('end', () => emitter.emit('end'));
+      });
 
     return emitter;
   }

@@ -47,7 +47,7 @@ describe('workflows', function() {
             script: {
               command: ['/bin/sh'],
               image: 'alpine:latest',
-              source: 'echo "Hello Everyone!"',
+              source: 'echo "Hello World!"',
             },
           },
         ],
@@ -64,5 +64,6 @@ describe('workflows', function() {
   step('generates logs', async function() {
     const logs = await workflowLogService.find(workflow._id, {});
     expect(logs.length).to.be.greaterThan(0);
+    expect(logs[0].body).to.eql('Hello World!');
   });
 });
