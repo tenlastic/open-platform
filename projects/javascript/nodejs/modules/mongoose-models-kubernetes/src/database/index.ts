@@ -581,6 +581,9 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
     .map(i => i.metadata.name)
     .sort();
 
+  console.log(`Primary: ${primary}.`);
+  console.log(`Secondaries: ${secondaries}.`);
+
   // If the primary does not exist, do nothing.
   if (!primary) {
     return;
@@ -591,6 +594,8 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
     const secondaryConnection = await connectToMongo(name, namespace, password, secondary);
 
     const { ismaster } = await secondaryConnection.db.command({ isMaster: 1 });
+    console.log(`${secondary} is master: ${ismaster}.`);
+
     if (ismaster) {
       return secondaryConnection.db.admin().command({ replSetStepDown: 120 });
     } else {
@@ -602,12 +607,13 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
   // Wait for the first pod to become the new primary.
   const primaryConnection = await connectToMongo(name, namespace, password, primary.metadata.name);
   let isMaster = await primaryConnection.db.command({ isMaster: 1 });
+  console.log(`Primary is master: ${isMaster}.`);
   while (!isMaster) {
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     const status = await primaryConnection.db.command({ isMaster: 1 });
     isMaster = status.ismaster;
-    console.log('isMaster: ' + isMaster);
+    console.log(`Primary is master: ${isMaster}.`);
   }
 
   // Get current replica set configuration.
@@ -661,6 +667,8 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
       votes: 1,
     });
   }
+
+  console.log(`Members: ${members}.`);
 
   // Update the configuration, bumping its version number
   config.members = members;
