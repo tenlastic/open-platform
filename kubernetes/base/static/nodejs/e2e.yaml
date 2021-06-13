@@ -2,6 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
   name: e2e
+  namespace: static
 spec:
   concurrencyPolicy: Allow
   schedule: 0 0 * * *
