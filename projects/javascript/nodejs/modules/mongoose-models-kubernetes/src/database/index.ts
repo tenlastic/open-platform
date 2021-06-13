@@ -590,30 +590,21 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
   }
 
   // Force secondaries to step down.
-  const promises = secondaries.map(async secondary => {
-    const secondaryConnection = await connectToMongo(name, namespace, password, secondary);
+  await stepDown(name, namespace, password, secondaries);
 
-    const { ismaster } = await secondaryConnection.db.command({ isMaster: 1 });
-    console.log(`${secondary} is master: ${ismaster}.`);
-
-    if (ismaster) {
-      return secondaryConnection.db.admin().command({ replSetStepDown: 120 });
-    } else {
-      return secondaryConnection.db.admin().command({ replSetFreeze: 120 });
-    }
-  });
-  await Promise.allSettled(promises);
+  // Connect to the primary.
+  const primaryConnection = await connectToMongo(name, namespace, password, primary.metadata.name);
 
   // Wait for the first pod to become the new primary.
-  const primaryConnection = await connectToMongo(name, namespace, password, primary.metadata.name);
-  let isMaster = await primaryConnection.db.command({ isMaster: 1 });
-  console.log(`Primary is master: ${isMaster}.`);
-  while (!isMaster) {
+  let { ismaster } = await primaryConnection.db.command({ isMaster: 1 });
+  console.log(`Primary is master: ${ismaster}.`);
+  while (!ismaster) {
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const status = await primaryConnection.db.command({ isMaster: 1 });
-    isMaster = status.ismaster;
-    console.log(`Primary is master: ${isMaster}.`);
+    const isMaster = await primaryConnection.db.command({ isMaster: 1 });
+    ismaster = isMaster.ismaster;
+
+    console.log(`Primary is master: ${ismaster}.`);
   }
 
   // Get current replica set configuration.
@@ -668,7 +659,7 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
     });
   }
 
-  console.log(`Members: ${members}.`);
+  console.log(`Members: ${JSON.stringify(members)}.`);
 
   // Update the configuration, bumping its version number
   config.members = members;
@@ -676,4 +667,21 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
 
   // Force the primary to accept the changes immediately.
   await primaryConnection.db.admin().command({ replSetReconfig: config, force: true });
+}
+
+function stepDown(name: string, namespace: string, password: string, secondaries: string[]) {
+  const promises = secondaries.map(async secondary => {
+    const secondaryConnection = await connectToMongo(name, namespace, password, secondary);
+
+    const { ismaster } = await secondaryConnection.db.command({ isMaster: 1 });
+    console.log(`${secondary} is master: ${ismaster}.`);
+
+    if (ismaster) {
+      return secondaryConnection.db.admin().command({ replSetStepDown: 120 });
+    } else {
+      return secondaryConnection.db.admin().command({ replSetFreeze: 120 });
+    }
+  });
+
+  return Promise.allSettled(promises);
 }
