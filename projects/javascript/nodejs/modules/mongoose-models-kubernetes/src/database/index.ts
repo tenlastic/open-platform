@@ -610,10 +610,9 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
   // Get current replica set configuration.
   const { config } = await primaryConnection.db.admin().command({ replSetGetConfig: 1 });
 
-  // Generate new members.
-  const arbiterService = `${name}-mongodb-arbiter-headless`;
+  // Update the configuration, bumping its version number
   const service = `${name}-mongodb-headless`;
-  const members = [
+  config.members = [
     {
       _id: 0,
       arbiterOnly: false,
@@ -625,44 +624,7 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
       tags: {},
       votes: 1,
     },
-    {
-      _id: 1,
-      arbiterOnly: true,
-      buildIndexes: true,
-      hidden: false,
-      host: `${name}-mongodb-arbiter-0.${arbiterService}.${namespace}.svc.cluster.local:27017`,
-      priority: 0,
-      slaveDelay: 0,
-      tags: {},
-      votes: 1,
-    },
   ];
-
-  // Add the secondaries to the replica set configuration.
-  const array = Array(database.replicas - 1).fill(0);
-  const mongos = array.map(
-    (a, i) => `${name}-mongodb-${i + 1}.${service}.${namespace}.svc.cluster.local:27017`,
-  );
-  for (let i = 0; i < mongos.length; i++) {
-    const mongo = mongos[i];
-
-    members.push({
-      _id: i + 2,
-      arbiterOnly: false,
-      buildIndexes: true,
-      hidden: false,
-      host: mongo,
-      priority: 1,
-      slaveDelay: 0,
-      tags: {},
-      votes: 1,
-    });
-  }
-
-  console.log(`Members: ${JSON.stringify(members)}.`);
-
-  // Update the configuration, bumping its version number
-  config.members = members;
   config.version = config.version + 1;
 
   // Force the primary to accept the changes immediately.

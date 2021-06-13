@@ -1,42 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: kubernetes-dashboard-dynamic
-  namespace: dynamic
-rules:
-  - apiGroups:
-      - "*"
-    resources:
-      - "*"
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - pods/exec
-    verbs:
-      - create
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: kubernetes-dashboard-dynamic
-  namespace: dynamic
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: kubernetes-dashboard-dynamic
-subjects:
-  - kind: ServiceAccount
-    name: kubernetes-dashboard
-    namespace: static
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: kubernetes-dashboard-static
+  name: kubernetes-dashboard
   namespace: static
 rules:
   - apiGroups:
@@ -57,12 +22,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: kubernetes-dashboard-static
+  name: kubernetes-dashboard
   namespace: static
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: kubernetes-dashboard-static
+  name: kubernetes-dashboard
 subjects:
   - kind: ServiceAccount
     name: kubernetes-dashboard
