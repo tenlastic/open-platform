@@ -35,5 +35,6 @@ resources:
   - ./static/mongodb/mongodb.yaml
   - ./static/mongodb/mongoku.yaml
   - ./static/nodejs/api.yaml
+  - ./static/nodejs/e2e.yaml
   - ./static/nodejs/wss.yaml
   - ./static/sealed-secrets/sealed-secrets.yaml

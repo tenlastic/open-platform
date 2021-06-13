@@ -46,5 +46,6 @@ kubeseal -o yaml < ./static/minio/minio.secret.yaml > ./static/minio/minio.seale
 kubeseal -o yaml < ./static/mongodb/mongodb.secret.yaml > ./static/mongodb/mongodb.sealedsecret.yaml
 kubeseal -o yaml < ./static/mongodb/mongoku.secret.yaml > ./static/mongodb/mongoku.sealedsecret.yaml
 kubeseal -o yaml < ./static/ingress-nginx/basic-authentication.secret.yaml > ./static/ingress-nginx/basic-authentication.sealedsecret.yaml
+kubeseal -o yaml < ./static/nodejs/e2e.secret.yaml > ./static/nodejs/e2e.sealedsecret.yaml
 kubeseal -o yaml < ./static/nodejs/environment-variables.secret.yaml > ./static/nodejs/environment-variables.sealedsecret.yaml
 ```

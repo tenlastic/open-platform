@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: e2e
+spec:
+  concurrencyPolicy: Allow
+  schedule: 0 0 * * *
+  startingDeadlineSeconds: 0
+  workflowSpec:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/low-priority
+                  operator: Exists
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - api
+              topologyKey: kubernetes.io/hostname
+    entrypoint: e2e
+    podGC:
+      strategy: OnWorkflowSuccess
+    serviceAccountName: argo-workflow
+    ttlStrategy:
+      secondsAfterSuccess: 86400
+    templates:
+      - name: e2e
+        container:
+          image: tenlastic/e2e:0.0.189
+          envFrom:
+            - secretRef:
+                name: e2e
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 50m

@@ -49,5 +49,6 @@ resources:
   - ./static/minio/minio.secret.example.yaml
   - ./static/mongodb/mongodb.secret.example.yaml
   - ./static/mongodb/mongoku.secret.example.yaml
+  - ./static/nodejs/e2e.secret.example.yaml
   - ./static/nodejs/environment-variables.secret.example.yaml
   - ./static/nodejs/migrations.yaml

@@ -11,7 +11,8 @@
     "lint": "../../scripts/lint.sh",
     "start": "./scripts/start.sh",
     "test": "../../scripts/test.sh",
-    "test:watch": "../../scripts/test.sh --watch"
+    "test:watch": "../../scripts/test.sh --watch",
+    "version": "../../scripts/version.sh e2e"
   },
   "dependencies": {
     "@tenlastic/http": "0.0.189",
