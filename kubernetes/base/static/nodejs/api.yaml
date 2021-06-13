@@ -68,7 +68,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: api
-          image: tenlastic/api:0.0.188
+          image: tenlastic/api:0.0.189
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
