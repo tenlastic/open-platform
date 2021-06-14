@@ -99,7 +99,7 @@ spec:
                 - name: context
                   value: "{{item.location}}"
                 - name: dockerfile
-                  value: ../../Dockerfile
+                  value: Dockerfile
                 - name: image
                   value: "{{item.name}}"
                 - name: tag

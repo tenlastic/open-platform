@@ -24,4 +24,4 @@ $COVERAGE_ARGUMENTS \
   --reporter-options configFile="../../mocha-multi-reporters.json" \
   --timeout 10000 \
   $WATCH_ARGUMENTS \
-  "src/**/*.spec.ts"
+  "./src/**/*.spec.ts"
