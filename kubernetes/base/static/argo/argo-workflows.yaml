@@ -31,7 +31,7 @@ spec:
                       values:
                         - argo-workflow-controller
                 topologyKey: kubernetes.io/hostname
-      containerRuntimeExecutor: k8sapi
+      containerRuntimeExecutor: pns
       image:
         tag: v3.0.7
       replicas: 1
