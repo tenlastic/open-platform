@@ -2,15 +2,9 @@ FROM node:12-alpine
 
 WORKDIR /usr/src/
 
-# Install NPM modules.
 COPY ./package*.json ./
-RUN npm i
+RUN npm i --production
 
-# Copy start script.
-COPY ./scripts/start.sh ./scripts/start.sh
-RUN chmod +x ./scripts/start.sh
+COPY ./dist/ ./dist/
 
-# Copy source files.
-COPY ./src/ ./src/
-
-CMD [ "npm", "run", "start" ]
+CMD [ "./node_modules/.bin/mocha", "--exit", "--timeout", "600000", "./dist/**/*.js" ]
