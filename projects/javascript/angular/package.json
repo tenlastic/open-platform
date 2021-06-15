@@ -1,7 +1,7 @@
 {
   "name": "angular",
   "private": true,
-  "version": "0.0.191",
+  "version": "0.0.192",
   "dependencies": {
     "@angular/animations": "9.1.13",
     "@angular/cdk": "9.2.4",
