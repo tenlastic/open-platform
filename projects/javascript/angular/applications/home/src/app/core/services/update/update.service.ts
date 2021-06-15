@@ -35,6 +35,11 @@ export enum UpdateServiceState {
   Ready,
 }
 
+export interface UpdateServiceLocalFile {
+  md5: string;
+  path: string;
+}
+
 export interface UpdateServicePlayOptions {
   gameServer?: GameServer;
   groupId?: string;
@@ -174,20 +179,7 @@ export class UpdateService {
     // Calculate which files either don't exist locally or have a different checksum.
     status.progress = null;
     status.text = 'Calculating updated files...';
-    let updatedFiles = status.build.files;
-    if (localFiles.length > 0) {
-      const localFilePaths = localFiles.reduce((previous, current) => {
-        previous[current.path] = current;
-        return previous;
-      }, {});
-
-      updatedFiles = status.build.files.filter((rf, i) => {
-        status.progress = { current: i, total: status.build.files.length };
-
-        const localFile = localFilePaths[`${this.installPath}/${gameId}/${rf.path}`];
-        return !localFile || localFile.md5 !== rf.md5;
-      });
-    }
+    const updatedFiles = this.getUpdatedFiles(gameId, localFiles);
 
     if (updatedFiles.length > 0) {
       status.modifiedFiles = updatedFiles;
@@ -217,6 +209,25 @@ export class UpdateService {
     }
 
     return this.status.get(gameId);
+  }
+
+  public async install(gameId: string) {
+    const status = this.getStatus(gameId);
+
+    status.modifiedFiles = status.build.files;
+    status.progress = null;
+    status.state = UpdateServiceState.Downloading;
+    status.text = 'Downloading and installing...';
+
+    try {
+      await this.download(status.build, gameId);
+    } catch (e) {
+      console.error(e);
+    }
+
+    // Make sure download is complete.
+    status.state = UpdateServiceState.NotChecked;
+    await this.checkForUpdates(gameId);
   }
 
   public play(gameId: string, options: UpdateServicePlayOptions = {}) {
@@ -358,6 +369,27 @@ export class UpdateService {
     }
 
     return localFiles;
+  }
+
+  private getUpdatedFiles(gameId: string, localFiles: UpdateServiceLocalFile[]) {
+    const status = this.getStatus(gameId);
+
+    let updatedFiles = status.build.files;
+    if (localFiles.length > 0) {
+      const localFilePaths = localFiles.reduce((previous, current) => {
+        previous[current.path] = current;
+        return previous;
+      }, {});
+
+      updatedFiles = status.build.files.filter((rf, i) => {
+        status.progress = { current: i, total: status.build.files.length };
+
+        const localFile = localFilePaths[`${this.installPath}/${gameId}/${rf.path}`];
+        return !localFile || localFile.md5 !== rf.md5;
+      });
+    }
+
+    return updatedFiles;
   }
 
   private onGameChange(record: Game) {

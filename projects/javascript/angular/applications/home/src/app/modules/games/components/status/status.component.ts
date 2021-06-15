@@ -201,6 +201,8 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
         namespaceId: this.game.namespaceId,
         userId: this.identityService.user._id,
       });
+    } else if (this.status.state === UpdateServiceState.NotInstalled) {
+      this.updateService.install(this.game._id);
     }
   }
 }
