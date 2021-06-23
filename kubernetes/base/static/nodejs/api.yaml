@@ -1,36 +1,3 @@
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: api
-  namespace: static
-rules:
-  - apiGroups:
-      - networking.k8s.io
-    resources:
-      - ingresses
-    verbs:
-      - get
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: api
-  namespace: static
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: api
-subjects:
-  - kind: ServiceAccount
-    name: api
-    namespace: static
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: api
-  namespace: static
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -83,7 +50,6 @@ spec:
           resources:
             requests:
               cpu: 50m
-      serviceAccountName: api
 ---
 apiVersion: v1
 kind: Service

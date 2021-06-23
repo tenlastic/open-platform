@@ -34,7 +34,9 @@ patchesStrategicMerge:
   - ./static/mongodb/mongodb.yaml
   - ./static/mongodb/mongoku.yaml
   - ./static/nodejs/api.yaml
+  - ./static/nodejs/provisioner.yaml
   - ./static/nodejs/wss.yaml
+  - ./static/rabbitmq/rabbitmq.yaml
 resources:
   - ./cluster/cluster-role-bindings/docker-for-desktop-binding.yaml
   - ./dynamic/secrets/docker-registry.secret.example.yaml
@@ -52,3 +54,4 @@ resources:
   - ./static/nodejs/e2e.secret.example.yaml
   - ./static/nodejs/environment-variables.secret.example.yaml
   - ./static/nodejs/migrations.yaml
+  - ./static/rabbitmq/rabbitmq.secret.example.yaml

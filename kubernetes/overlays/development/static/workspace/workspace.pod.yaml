@@ -54,6 +54,13 @@ spec:
           value: minioadmin
         - name: MINIO_SECRET_KEY
           value: minioadmin
+    - name: rabbitmq
+      image: bitnami/rabbitmq:latest
+      env:
+        - name: RABBITMQ_PASSWORD
+          value: password
+        - name: RABBITMQ_USERNAME
+          value: username
     - name: zookeeper
       image: bitnami/zookeeper:latest
       env:

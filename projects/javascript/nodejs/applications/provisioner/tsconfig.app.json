@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "exclude": ["./src/**/*.spec.ts"],
+  "include": ["./src"],
+  "references": [
+    { "path": "../../modules/kafka/tsconfig.app.json" },
+    { "path": "../../modules/kubernetes/tsconfig.app.json" },
+    { "path": "../../modules/logging/tsconfig.app.json" },
+    { "path": "../../modules/mongoose-change-stream/tsconfig.app.json" },
+    { "path": "../../modules/mongoose-models/tsconfig.app.json" },
+    { "path": "../../modules/rabbitmq/tsconfig.app.json" },
+    { "path": "../../modules/web-server/tsconfig.app.json" }
+  ]
+}

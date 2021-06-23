@@ -48,4 +48,5 @@ kubeseal -o yaml < ./static/mongodb/mongoku.secret.yaml > ./static/mongodb/mongo
 kubeseal -o yaml < ./static/ingress-nginx/basic-authentication.secret.yaml > ./static/ingress-nginx/basic-authentication.sealedsecret.yaml
 kubeseal -o yaml < ./static/nodejs/e2e.secret.yaml > ./static/nodejs/e2e.sealedsecret.yaml
 kubeseal -o yaml < ./static/nodejs/environment-variables.secret.yaml > ./static/nodejs/environment-variables.sealedsecret.yaml
+kubeseal -o yaml < ./static/rabbitmq/rabbitmq.secret.yaml > ./static/rabbitmq/rabbitmq.sealedsecret.yaml
 ```

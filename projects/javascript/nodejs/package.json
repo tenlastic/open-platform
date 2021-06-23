@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@types/ajv": "1.0.0",
-    "@types/amqplib": "0.5.13",
+    "@types/amqplib": "0.8.0",
     "@types/aws-lambda": "8.10.23",
     "@types/bcryptjs": "2.4.2",
     "@types/busboy": "0.2.3",

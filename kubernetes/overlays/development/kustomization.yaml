@@ -24,6 +24,13 @@ patches:
       name: migrations
       namespace: static
       version: v1
+  - path: ./static/nodejs/provisioner.json
+    target:
+      group: apps
+      kind: Deployment
+      name: provisioner
+      namespace: static
+      version: v1
   - path: ./static/nodejs/wss.json
     target:
       group: apps

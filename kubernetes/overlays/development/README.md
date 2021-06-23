@@ -9,6 +9,7 @@ Add the following lines to your `hosts` file to properly route to your local Kub
 127.0.0.1 kafka.localhost
 127.0.0.1 minio.localhost
 127.0.0.1 mongo.localhost
+127.0.0.1 rabbitmq.localhost
 127.0.0.1 registry.localhost
 127.0.0.1 www.localhost
 ```
@@ -31,25 +32,10 @@ kubectl label node $(kubectl get nodes -o jsonpath={..metadata.name}) tenlastic.
 kubectl label node $(kubectl get nodes -o jsonpath={..metadata.name}) tenlastic.com/low-priority=true
 
 # Initialize Workspace resources.
-kubectl apply -f ../../base/cluster/namespaces/dynamic.yaml
-kubectl apply -f ../../base/cluster/namespaces/static.yaml
-kubectl apply -f ./dynamic/workspace/
-kubectl apply -f ./static/workspace/
-
-# Wait for Workspace Pods to be created.
-kubectl wait -n dynamic --for=condition=Ready pod/workspace
-kubectl wait -n static --for=condition=Ready pod/workspace
-
-# Install Node Modules.
-kubectl exec -it -c workspace -n dynamic workspace -- /bin/bash -c 'cd ./projects/javascript/ && lerna bootstrap'
-kubectl exec -it -c workspace -n static workspace -- /bin/bash -c 'cd ./projects/javascript/ && lerna bootstrap'
+./scripts/workspace.sh
 
 # Create remaining resources.
-kustomize build ./ | kubectl apply -f -
-
-# Apply local, uncommitted secret files. (Kubectl PR: https://github.com/kubernetes/kubernetes/pull/102265)
-kubectl apply $(find ../local/ -name '*.secret.yaml' -type f | awk ' { print " -f " $1 } ')
-kubectl apply $(find ./ -name '*.secret.yaml' -type f | awk ' { print " -f " $1 } ')
+./scripts/kustomize.sh
 ```
 
 #### SSH into Workspace Pod

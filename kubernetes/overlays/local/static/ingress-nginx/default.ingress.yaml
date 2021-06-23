@@ -61,6 +61,16 @@ spec:
                 name: minio
                 port:
                   number: 9000
+    - host: rabbitmq.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rabbitmq
+                port:
+                  number: 15672
     - host: wss.localhost
       http:
         paths:

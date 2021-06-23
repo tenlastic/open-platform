@@ -4,7 +4,6 @@ import * as kafka from '@tenlastic/kafka';
 import '@tenlastic/logging';
 import * as mongooseChangeStreamKafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongooseModels from '@tenlastic/mongoose-models';
-import '@tenlastic/mongoose-models-kubernetes';
 import * as mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import { WebServer } from '@tenlastic/web-server';

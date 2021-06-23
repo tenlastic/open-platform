@@ -17,9 +17,9 @@
       "@tenlastic/mongoose-change-stream": ["./modules/mongoose-change-stream/src"],
       "@tenlastic/mongoose-change-stream-kafka": ["./modules/mongoose-change-stream-kafka/src"],
       "@tenlastic/mongoose-models": ["./modules/mongoose-models/src"],
-      "@tenlastic/mongoose-models-kubernetes": ["./modules/mongoose-models-kubernetes/src"],
       "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],
       "@tenlastic/mongoose-unique-error": ["./modules/mongoose-unique-error/src"],
+      "@tenlastic/rabbitmq": ["./modules/rabbitmq/src"],
       "@tenlastic/web-server": ["./modules/web-server/src"],
       "@tenlastic/web-socket-server": ["./modules/web-socket-server/src"]
     },

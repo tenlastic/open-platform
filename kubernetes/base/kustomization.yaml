@@ -12,12 +12,12 @@ resources:
   - ./dynamic/argo-workflows/workflow-controller-crb.yaml
   - ./dynamic/argo-workflows/workflow-controller-sa.yaml
   - ./dynamic/network-policies/default.yaml
-  - ./dynamic/rbac/api.yaml
   - ./dynamic/rbac/build.yaml
   - ./dynamic/rbac/build-sidecar.yaml
   - ./dynamic/rbac/database-sidecar.yaml
   - ./dynamic/rbac/game-server-sidecar.yaml
   - ./dynamic/rbac/kubernetes-dashboard.yaml
+  - ./dynamic/rbac/provisioner.yaml
   - ./dynamic/rbac/queue-sidecar.yaml
   - ./dynamic/rbac/workflow.yaml
   - ./dynamic/rbac/workflow-sidecar.yaml
@@ -36,5 +36,7 @@ resources:
   - ./static/mongodb/mongoku.yaml
   - ./static/nodejs/api.yaml
   - ./static/nodejs/e2e.yaml
+  - ./static/nodejs/provisioner.yaml
   - ./static/nodejs/wss.yaml
+  - ./static/rabbitmq/rabbitmq.yaml
   - ./static/sealed-secrets/sealed-secrets.yaml

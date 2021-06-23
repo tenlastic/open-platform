@@ -1,0 +1,40 @@
+import * as kafka from '@tenlastic/kafka';
+import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
+import * as rabbitmq from '@tenlastic/rabbitmq';
+import * as mongoose from 'mongoose';
+
+/**
+ * Copies Kafka events to RabbitMQ.
+ */
+export async function subscribe<TDocument extends mongoose.Document>(
+  Model: mongoose.Model<mongoose.Document>,
+  queue: string,
+  callback: (payload: IDatabasePayload<TDocument>) => Promise<void>,
+) {
+  const topic = `api.${Model.collection.name}`;
+
+  await kafka.createTopic(topic);
+
+  const connection = kafka.getConnection();
+  const consumer = connection.consumer({ groupId: `provisioner-${queue}` });
+  await consumer.connect();
+
+  await consumer.subscribe({ topic });
+  await consumer.run({
+    eachMessage: data => {
+      const payload = data.message.value.toString();
+      return rabbitmq.publish(`provisioner.${queue}`, payload);
+    },
+  });
+
+  rabbitmq.consume(`provisioner.${queue}`, async (channel, content, msg) => {
+    try {
+      await callback(content);
+    } catch (e) {
+      console.error(e);
+      await rabbitmq.requeue(channel, msg, { delay: 5000 });
+    } finally {
+      channel.ack(msg);
+    }
+  });
+}

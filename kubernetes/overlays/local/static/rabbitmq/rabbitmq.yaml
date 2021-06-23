@@ -1,0 +1,10 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: rabbitmq
+  namespace: static
+spec:
+  values:
+    auth:
+      username: username
+    replicaCount: 1

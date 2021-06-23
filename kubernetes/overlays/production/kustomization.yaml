@@ -33,3 +33,4 @@ resources:
   - ./static/mongodb/mongoku.sealedsecret.yaml
   - ./static/nodejs/e2e.sealedsecret.yaml
   - ./static/nodejs/environment-variables.sealedsecret.yaml
+  - ./static/rabbitmq/rabbitmq.sealedsecret.yaml
