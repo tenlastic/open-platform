@@ -65,6 +65,16 @@ spec:
                 name: minio
                 port:
                   number: 9000
+    - host: rabbitmq.tenlastic.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rabbitmq
+                port:
+                  number: 15672
     - host: wss.tenlastic.com
       http:
         paths:
