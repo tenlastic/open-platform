@@ -94,7 +94,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   }
 
   public async restart(record: GameServer) {
-    await this.gameServerService.restart(record._id);
+    await this.gameServerService.update({ _id: record._id, restartedAt: new Date() });
     this.matSnackBar.open('Game Server is restarting...');
   }
 

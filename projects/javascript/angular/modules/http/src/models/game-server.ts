@@ -53,6 +53,7 @@ export class GameServer extends Model {
   public preemptible: boolean;
   public queue: Queue;
   public queueId: string;
+  public restartedAt: Date;
   public status: IGameServer.Status;
 
   constructor(params: Partial<GameServer> = {}) {

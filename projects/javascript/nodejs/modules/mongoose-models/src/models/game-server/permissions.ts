@@ -36,6 +36,7 @@ const administrator = {
     'namespaceId',
     'persistent',
     'preemptible',
+    'restartedAt',
     'queueId',
     'status.*',
     'updatedAt',
@@ -51,6 +52,7 @@ const administrator = {
     'metadata.*',
     'name',
     'preemptible',
+    'restartedAt',
   ],
 };
 
@@ -91,6 +93,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'namespaceId',
       'persistent',
       'queueId',
+      'restartedAt',
       'status.endpoints.*',
       'status.phase',
       'updatedAt',
@@ -127,6 +130,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'name',
       'preemptible',
       'queueId',
+      'restartedAt',
       'status.*',
     ],
     'user-administrator': administrator.update,

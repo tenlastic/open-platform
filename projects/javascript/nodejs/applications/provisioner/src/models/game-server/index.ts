@@ -1,13 +1,8 @@
 import { deploymentApiV1, podApiV1, serviceApiV1, V1PodTemplateSpec } from '@tenlastic/kubernetes';
-import { GameServer, GameServerDocument, GameServerRestartEvent } from '@tenlastic/mongoose-models';
+import { GameServer, GameServerDocument } from '@tenlastic/mongoose-models';
 import { URL } from 'url';
 
 import { subscribe } from '../../subscribe';
-
-GameServerRestartEvent.sync(async gameServer => {
-  await KubernetesGameServer.delete(gameServer);
-  await KubernetesGameServer.upsert(gameServer);
-});
 
 export const KubernetesGameServer = {
   delete: async (gameServer: GameServerDocument) => {
@@ -54,6 +49,7 @@ export const KubernetesGameServer = {
         payload.operationType === 'insert' ||
         GameServer.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
       ) {
+        await KubernetesGameServer.delete(payload.fullDocument);
         await KubernetesGameServer.upsert(payload.fullDocument);
       }
     });

@@ -34,7 +34,6 @@ export enum GameServerStatus {
 }
 
 export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
-export const GameServerRestartEvent = new EventEmitter<GameServerDocument>();
 
 // Delete Game Servers if associated Namespace is deleted.
 NamespaceEvent.sync(async payload => {
@@ -111,6 +110,9 @@ export class GameServerSchema implements IOriginalDocument {
 
   @prop({ ref: 'QueueSchema' })
   public queueId: Ref<QueueDocument>;
+
+  @prop()
+  public restartedAt: Date;
 
   @prop({ default: { phase: 'Pending' } })
   public status: GameServerStatusSchema;
@@ -195,16 +197,8 @@ export class GameServerSchema implements IOriginalDocument {
    * Returns true if a restart is required on an update.
    */
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible'];
-
+    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible', 'restartedAt'];
     return immutableFields.some(i => fields.includes(i));
-  }
-
-  /**
-   * Restarts a Game Server.
-   */
-  public async restart(this: GameServerDocument) {
-    GameServerRestartEvent.emit(this);
   }
 }
 
