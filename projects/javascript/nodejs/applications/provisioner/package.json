@@ -10,8 +10,6 @@
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh --watch",
-    "test": "../../scripts/test.sh",
-    "test:watch": "../../scripts/test.sh --watch",
     "version": "../../scripts/version.sh provisioner"
   },
   "dependencies": {
