@@ -1,6 +1,7 @@
 import {
   helmReleaseApiV1,
   networkPolicyApiV1,
+  persistentVolumeClaimApiV1,
   secretApiV1,
   statefulSetApiV1,
   V1Affinity,
@@ -36,6 +37,7 @@ export const KubernetesQueue = {
      */
     await secretApiV1.delete(`${name}-redis`, 'dynamic');
     await helmReleaseApiV1.delete(`${name}-redis`, 'dynamic');
+    await deletePvcs(`app.kubernetes.io/instance=${name}-redis`);
 
     /**
      * =======================
@@ -141,14 +143,23 @@ export const KubernetesQueue = {
         chart: {
           name: 'redis',
           repository: 'https://charts.bitnami.com/bitnami',
-          version: '13.0.1',
+          version: '14.6.2',
         },
         releaseName: `${name}-redis`,
         values: {
-          cluster: { slaveCount: queue.replicas },
-          existingSecret: `${name}-redis`,
-          existingSecretPasswordKey: 'password',
-          image: { tag: '6.2.1' },
+          auth: {
+            existingSecret: `${name}-redis`,
+            existingSecretPasswordKey: 'password',
+          },
+          image: { tag: '6.2.4' },
+          replica: {
+            affinity: getAffinity(queue, 'redis'),
+            persistence: { storageClass: 'standard-expandable' },
+            podLabels: { ...labels, 'tenlastic.com/role': 'redis' },
+            replicaCount: queue.replicas,
+            resources,
+            statefulset: { labels: { ...labels, 'tenlastic.com/role': 'redis' } },
+          },
           sentinel: {
             downAfterMilliseconds: 10000,
             enabled: true,
@@ -159,13 +170,6 @@ export const KubernetesQueue = {
               requests: { cpu: '50m', memory: '50M' },
             },
             staticID: true,
-          },
-          slave: {
-            affinity: getAffinity(queue, 'redis'),
-            persistence: { storageClass: 'standard-expandable' },
-            podLabels: { ...labels, 'tenlastic.com/role': 'redis' },
-            resources,
-            statefulset: { labels: { ...labels, 'tenlastic.com/role': 'redis' } },
           },
         },
       },
@@ -337,6 +341,14 @@ export const KubernetesQueue = {
     });
   },
 };
+
+async function deletePvcs(labelSelector: string) {
+  const response = await persistentVolumeClaimApiV1.list('dynamic', { labelSelector });
+  const pvcs = response.body.items;
+
+  const promises = pvcs.map(p => persistentVolumeClaimApiV1.delete(p.metadata.name, 'dynamic'));
+  return Promise.all(promises);
+}
 
 function getAffinity(queue: QueueDocument, role: string): V1Affinity {
   const name = KubernetesQueue.getName(queue);

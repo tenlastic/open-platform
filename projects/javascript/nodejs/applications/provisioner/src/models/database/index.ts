@@ -48,6 +48,7 @@ export const KubernetesDatabase = {
      */
     await secretApiV1.delete(`${name}-kafka-jaas`, 'dynamic');
     await helmReleaseApiV1.delete(`${name}-kafka`, 'dynamic');
+    await deletePvcs(`app.kubernetes.io/instance=${name}-kafka`);
 
     /**
      * =======================
@@ -56,6 +57,7 @@ export const KubernetesDatabase = {
      */
     await secretApiV1.delete(`${name}-mongodb`, 'dynamic');
     await helmReleaseApiV1.delete(`${name}-mongodb`, 'dynamic');
+    await deletePvcs(`app.kubernetes.io/instance=${name}-mongodb`);
 
     /**
      * =======================
@@ -64,6 +66,7 @@ export const KubernetesDatabase = {
      */
     await secretApiV1.delete(`${name}-zookeeper`, 'dynamic');
     await helmReleaseApiV1.delete(`${name}-zookeeper`, 'dynamic');
+    await deletePvcs(`app.kubernetes.io/instance=${name}-zookeeper`);
 
     /**
      * =======================
@@ -112,7 +115,6 @@ export const KubernetesDatabase = {
     const labels = KubernetesDatabase.getLabels(database);
     const name = KubernetesDatabase.getName(database);
 
-    const now = Date.now().toString(36);
     const password = chance.hash({ length: 128 });
     const resources: V1ResourceRequirements = {
       limits: { cpu: `${database.cpu}`, memory: `${database.memory}` },
@@ -120,12 +122,10 @@ export const KubernetesDatabase = {
     };
 
     const array = Array(database.replicas).fill(0);
-    const kafkas = array.map(
-      (a, i) => `${name}-kafka-${now}-${i}.${name}-kafka-${now}-headless:9092`,
-    );
+    const kafkas = array.map((a, i) => `${name}-kafka-${i}.${name}-kafka-headless:9092`);
     const mongos = array.map((a, i) => `${name}-mongodb-${i}.${name}-mongodb-headless:27017`);
     const zookeepers = array.map(
-      (a, i) => `${name}-zookeeper-${now}-${i}.${name}-zookeeper-${now}-headless:2181`,
+      (a, i) => `${name}-zookeeper-${i}.${name}-zookeeper-headless:2181`,
     );
 
     /**
@@ -181,6 +181,7 @@ export const KubernetesDatabase = {
       },
     });
     await helmReleaseApiV1.delete(`${name}-kafka`, 'dynamic');
+    await deletePvcs(`app.kubernetes.io/instance=${name}-kafka`);
     await helmReleaseApiV1.create('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'kafka' },
@@ -192,7 +193,7 @@ export const KubernetesDatabase = {
           repository: 'https://charts.bitnami.com/bitnami',
           version: '12.16.2',
         },
-        releaseName: `${name}-kafka-${now}`,
+        releaseName: `${name}-kafka`,
         values: {
           affinity: getAffinity(database, 'kafka'),
           auth: {
@@ -342,6 +343,7 @@ export const KubernetesDatabase = {
       },
     });
     await helmReleaseApiV1.delete(`${name}-zookeeper`, 'dynamic');
+    await deletePvcs(`app.kubernetes.io/instance=${name}-zookeeper`);
     await helmReleaseApiV1.create('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'zookeeper' },
@@ -353,7 +355,7 @@ export const KubernetesDatabase = {
           repository: 'https://charts.bitnami.com/bitnami',
           version: '6.7.0',
         },
-        releaseName: `${name}-zookeeper-${now}`,
+        releaseName: `${name}-zookeeper`,
         values: {
           affinity: getAffinity(database, 'zookeeper'),
           allowAnonymousLogin: false,
@@ -533,6 +535,14 @@ function connectToMongo(name: string, namespace: string, password: string, podNa
   });
 }
 
+async function deletePvcs(labelSelector: string) {
+  const response = await persistentVolumeClaimApiV1.list('dynamic', { labelSelector });
+  const pvcs = response.body.items;
+
+  const promises = pvcs.map(p => persistentVolumeClaimApiV1.delete(p.metadata.name, 'dynamic'));
+  return Promise.all(promises);
+}
+
 function getAffinity(database: DatabaseDocument, role: string): V1Affinity {
   const name = KubernetesDatabase.getName(database);
 
@@ -584,9 +594,6 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
     .map(i => i.metadata.name)
     .sort();
 
-  console.log(`Primary: ${primary}.`);
-  console.log(`Secondaries: ${secondaries}.`);
-
   // If the primary does not exist, do nothing.
   if (!primary) {
     return;
@@ -600,14 +607,11 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
 
   // Wait for the first pod to become the new primary.
   let { ismaster } = await primaryConnection.db.command({ isMaster: 1 });
-  console.log(`Primary is master: ${ismaster}.`);
   while (!ismaster) {
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     const isMaster = await primaryConnection.db.command({ isMaster: 1 });
     ismaster = isMaster.ismaster;
-
-    console.log(`Primary is master: ${ismaster}.`);
   }
 
   // Get current replica set configuration.
@@ -639,8 +643,6 @@ function stepDown(name: string, namespace: string, password: string, secondaries
     const secondaryConnection = await connectToMongo(name, namespace, password, secondary);
 
     const { ismaster } = await secondaryConnection.db.command({ isMaster: 1 });
-    console.log(`${secondary} is master: ${ismaster}.`);
-
     if (ismaster) {
       return secondaryConnection.db.admin().command({ replSetStepDown: 120 });
     } else {
