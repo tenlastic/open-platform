@@ -473,7 +473,7 @@ export const KubernetesDatabase = {
         },
       };
     } else {
-      const packageDotJson = fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8');
+      const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
       const version = JSON.parse(packageDotJson).version;
 
       manifest = {
