@@ -32,7 +32,7 @@ export async function subscribe<TDocument extends mongoose.Document>(
       await callback(content);
     } catch (e) {
       console.error(e);
-      await rabbitmq.requeue(channel, msg, { delay: 5000 });
+      await rabbitmq.requeue(channel, msg, { delay: 15 * 1000 });
     } finally {
       channel.ack(msg);
     }

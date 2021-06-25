@@ -20,6 +20,7 @@ export const KubernetesWorkflowSidecar = {
   subscribe: () => {
     return subscribe<WorkflowDocument>(Workflow, 'workflow-sidecar', async payload => {
       if (payload.operationType === 'insert' || payload.operationType === 'update') {
+        console.log(`Upserting Workflow Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesWorkflowSidecar.upsert(payload.fullDocument);
       }
     });

@@ -38,8 +38,10 @@ export const KubernetesDatabaseSidecar = {
   subscribe: () => {
     return subscribe<DatabaseDocument>(Database, 'database-sidecar', async payload => {
       if (payload.operationType === 'delete') {
+        console.log(`Deleting Database Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesDatabaseSidecar.delete(payload.fullDocument);
       } else if (payload.operationType === 'insert') {
+        console.log(`Creating Database Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesDatabaseSidecar.upsert(payload.fullDocument);
       }
     });

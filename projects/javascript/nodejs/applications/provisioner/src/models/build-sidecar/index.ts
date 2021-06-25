@@ -20,6 +20,7 @@ export const KubernetesBuildSidecar = {
   subscribe: () => {
     return subscribe<BuildDocument>(Build, 'build-sidecar', async payload => {
       if (payload.operationType === 'insert') {
+        console.log(`Creating Build Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesBuildSidecar.upsert(payload.fullDocument);
       }
     });

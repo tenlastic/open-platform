@@ -31,8 +31,10 @@ export const KubernetesQueueSidecar = {
   subscribe: () => {
     return subscribe<QueueDocument>(Queue, 'queue-sidecar', async payload => {
       if (payload.operationType === 'delete') {
+        console.log(`Deleting Queue Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesQueueSidecar.delete(payload.fullDocument);
       } else {
+        console.log(`Upserting Queue Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesQueueSidecar.upsert(payload.fullDocument);
       }
     });

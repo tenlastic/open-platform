@@ -34,8 +34,10 @@ export const KubernetesWorkflow = {
   subscribe: () => {
     return subscribe<WorkflowDocument>(Workflow, 'workflow', async payload => {
       if (payload.operationType === 'delete') {
+        console.log(`Deleting Workflow: ${payload.fullDocument._id}.`);
         await KubernetesWorkflow.delete(payload.fullDocument);
       } else if (payload.operationType === 'insert') {
+        console.log(`Creating Workflow: ${payload.fullDocument._id}.`);
         await KubernetesWorkflow.upsert(payload.fullDocument);
       }
     });

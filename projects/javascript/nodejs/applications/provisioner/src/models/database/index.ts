@@ -102,11 +102,13 @@ export const KubernetesDatabase = {
   subscribe: () => {
     return subscribe<DatabaseDocument>(Database, 'database', async payload => {
       if (payload.operationType === 'delete') {
+        console.log(`Deleting Database: ${payload.fullDocument._id}.`);
         await KubernetesDatabase.delete(payload.fullDocument);
       } else if (
         payload.operationType === 'insert' ||
         Database.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
       ) {
+        console.log(`Upserting Database: ${payload.fullDocument._id}.`);
         await KubernetesDatabase.upsert(payload.fullDocument);
       }
     });

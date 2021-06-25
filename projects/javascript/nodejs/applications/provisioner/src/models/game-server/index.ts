@@ -44,11 +44,13 @@ export const KubernetesGameServer = {
   subscribe: () => {
     return subscribe<GameServerDocument>(GameServer, 'game-server', async payload => {
       if (payload.operationType === 'delete') {
+        console.log(`Deleting Game Server: ${payload.fullDocument._id}.`);
         await KubernetesGameServer.delete(payload.fullDocument);
       } else if (
         payload.operationType === 'insert' ||
         GameServer.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
       ) {
+        console.log(`Upserting Game Server: ${payload.fullDocument._id}.`);
         await KubernetesGameServer.delete(payload.fullDocument);
         await KubernetesGameServer.upsert(payload.fullDocument);
       }

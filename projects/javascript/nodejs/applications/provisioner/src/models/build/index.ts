@@ -33,8 +33,10 @@ export const KubernetesBuild = {
   subscribe: () => {
     return subscribe<BuildDocument>(Build, 'build', async payload => {
       if (payload.operationType === 'delete') {
+        console.log(`Deleting Build: ${payload.fullDocument._id}.`);
         await KubernetesBuild.delete(payload.fullDocument);
       } else if (payload.operationType === 'insert') {
+        console.log(`Creating Build: ${payload.fullDocument._id}.`);
         await KubernetesBuild.upsert(payload.fullDocument);
       }
     });

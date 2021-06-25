@@ -31,8 +31,10 @@ export const KubernetesGameServerSidecar = {
   subscribe: () => {
     return subscribe<GameServerDocument>(GameServer, 'game-server-sidecar', async payload => {
       if (payload.operationType === 'delete') {
+        console.log(`Deleting Game Server Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesGameServerSidecar.delete(payload.fullDocument);
       } else {
+        console.log(`Upserting Game Server Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesGameServerSidecar.upsert(payload.fullDocument);
       }
     });

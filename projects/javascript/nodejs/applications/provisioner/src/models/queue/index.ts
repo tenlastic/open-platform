@@ -67,11 +67,13 @@ export const KubernetesQueue = {
   subscribe: () => {
     return subscribe<QueueDocument>(Queue, 'queue', async payload => {
       if (payload.operationType === 'delete') {
+        console.log(`Deleting Queue: ${payload.fullDocument._id}.`);
         await KubernetesQueue.delete(payload.fullDocument);
       } else if (
         payload.operationType === 'insert' ||
         Queue.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
       ) {
+        console.log(`Upserting Queue: ${payload.fullDocument._id}.`);
         await KubernetesQueue.upsert(payload.fullDocument);
       }
     });
