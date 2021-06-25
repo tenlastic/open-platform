@@ -12,6 +12,27 @@ rules:
       - delete
       - get
       - list
+      - watch
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - pods/exec
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - pods/log
+    verbs:
+      - get
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -54,7 +75,7 @@ spec:
     entrypoint: delete-evicted-pods
     podGC:
       strategy: OnWorkflowCompletion
-    serviceAccountName: argo-workflow
+    serviceAccountName: delete-evicted-pods
     ttlStrategy:
       secondsAfterSuccess: 60
     templates:
