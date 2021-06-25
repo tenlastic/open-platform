@@ -123,6 +123,10 @@ export class SocialComponent implements OnDestroy, OnInit {
   ) {}
 
   public async ngOnInit() {
+    if (!this.identityService.user) {
+      return;
+    }
+
     this.$webSockets = this.webSocketQuery.selectAll();
     this.$friends = this.friendQuery.selectAll();
     this.$friends = this.friendQuery.populateUsers(this.$friends);

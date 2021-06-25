@@ -17,5 +17,7 @@ export async function loggingMiddleware(ctx: Context, next: () => Promise<void>)
   const { method, path } = ctx.request;
   const { status } = ctx.response;
 
-  console.log({ duration, method, path, status });
+  if (duration > 250) {
+    console.log({ duration, method, path, status });
+  }
 }

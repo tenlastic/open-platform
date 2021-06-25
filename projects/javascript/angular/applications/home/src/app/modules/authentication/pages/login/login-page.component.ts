@@ -33,7 +33,7 @@ export class LoginPageComponent implements OnInit {
   }
 
   public ngOnInit() {
-    if (this.identityService.refreshToken) {
+    if (this.identityService.getRefreshToken()) {
       this.refreshToken();
     }
   }
@@ -43,25 +43,26 @@ export class LoginPageComponent implements OnInit {
       this.loadingMessage = 'Logging in...';
       await this.loginService.createWithCredentials(data.username, data.password);
 
-      this.logIn();
+      return this.logIn();
     } catch (e) {
       this.loadingMessage = null;
       this.loginForm.error = 'Invalid username or password.';
     }
   }
 
-  private logIn() {
+  private async logIn() {
     const { snapshot } = this.activatedRoute;
 
     if (snapshot.queryParamMap.has('redirectUrl')) {
-      const { accessToken, refreshToken } = this.identityService;
+      const accessToken = await this.identityService.getAccessToken();
+      const refreshToken = this.identityService.getRefreshToken();
 
       const redirectUrl = snapshot.queryParamMap.get('redirectUrl');
       const url = new URL(redirectUrl);
       url.searchParams.delete('accessToken');
-      url.searchParams.append('accessToken', accessToken);
+      url.searchParams.append('accessToken', accessToken.value);
       url.searchParams.delete('refreshToken');
-      url.searchParams.append('refreshToken', refreshToken);
+      url.searchParams.append('refreshToken', refreshToken.value);
 
       this.document.location.href = redirectUrl.split('?')[0] + url.search;
     } else {
@@ -73,10 +74,10 @@ export class LoginPageComponent implements OnInit {
     this.loadingMessage = 'Logging in...';
 
     try {
-      const { refreshToken } = this.identityService;
-      await this.loginService.createWithRefreshToken(refreshToken);
+      const refreshToken = this.identityService.getRefreshToken();
+      await this.loginService.createWithRefreshToken(refreshToken.value);
 
-      this.logIn();
+      return this.logIn();
     } catch (e) {
       this.loadingMessage = null;
       this.loginForm.error = 'Could not verify existing session. Please log in again.';

@@ -120,7 +120,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     const group = await this.$group.pipe(first()).toPromise();
 
     try {
-      const socket = this.socketService.connect(environment.apiBaseUrl);
+      const socket = await this.socketService.connect(environment.apiBaseUrl);
       await this.queueMemberService.create({
         groupId: group._id,
         namespaceId: queue.namespaceId,
@@ -144,7 +144,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   }
 
   public async joinAsIndividual(queue: Queue) {
-    const socket = this.socketService.connect(environment.apiBaseUrl);
+    const socket = await this.socketService.connect(environment.apiBaseUrl);
     await this.queueMemberService.create({
       namespaceId: queue.namespaceId,
       queueId: queue._id,

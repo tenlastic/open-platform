@@ -230,18 +230,21 @@ export class UpdateService {
     await this.checkForUpdates(gameId);
   }
 
-  public play(gameId: string, options: UpdateServicePlayOptions = {}) {
+  public async play(gameId: string, options: UpdateServicePlayOptions = {}) {
     const status = this.getStatus(gameId);
     if (status.childProcess) {
       return;
     }
 
+    const accessToken = await this.identityService.getAccessToken();
+    const refreshToken = this.identityService.getRefreshToken();
+
     const env = {
       ...process.env,
-      ACCESS_TOKEN: this.identityService.accessToken,
+      ACCESS_TOKEN: accessToken.value,
       GAME_SERVER_JSON: JSON.stringify(options.gameServer),
       GROUP_ID: options.groupId,
-      REFRESH_TOKEN: this.identityService.refreshToken,
+      REFRESH_TOKEN: refreshToken.value,
     };
     const target = `${this.installPath}/${gameId}/${status.build.entrypoint}`;
 
@@ -291,10 +294,12 @@ export class UpdateService {
     const files = build.files.map(f => (modifiedFilePaths.includes(f.path) ? 1 : 0));
     const { fs, request, unzipper } = this.electronService;
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      const accessToken = await this.identityService.getAccessToken();
+
       request
         .get({
-          headers: { Authorization: `Bearer ${this.identityService.accessToken}` },
+          headers: { Authorization: `Bearer ${accessToken.value}` },
           qs: { query: JSON.stringify({ files: files.join('') }) },
           url: `${this.buildService.basePath}/${status.build._id}/files`,
         })

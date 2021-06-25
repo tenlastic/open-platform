@@ -5,7 +5,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
-import { RefreshTokenInterceptor, TokenInterceptor, UnauthorizedInterceptor } from './interceptors';
+import { TokenInterceptor, UnauthorizedInterceptor } from './interceptors';
 
 import { MaterialModule } from '../material.module';
 
@@ -20,11 +20,6 @@ import { MaterialModule } from '../material.module';
     RouterModule,
   ],
   providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: RefreshTokenInterceptor,
-      multi: true,
-    },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,

@@ -82,17 +82,18 @@ export class SocketService {
 
   constructor(private identityService: IdentityService) {}
 
-  public connect(url: string, subscriptions: Subscription[] = []) {
+  public async connect(url: string, subscriptions: Subscription[] = []) {
     if (this._sockets[url]) {
       return this._sockets[url];
     }
 
-    if (!this.identityService.accessToken || this.identityService.accessTokenJwt.isExpired) {
+    const accessToken = await this.identityService.getAccessToken();
+    if (!accessToken || accessToken.isExpired) {
       return;
     }
 
     const hostname = url.replace('http', 'ws');
-    const socket = new Socket(`${hostname}?access_token=${this.identityService.accessToken}`);
+    const socket = new Socket(`${hostname}?access_token=${accessToken.value}`);
     socket.subscriptions = subscriptions;
 
     this._sockets[url] = socket;

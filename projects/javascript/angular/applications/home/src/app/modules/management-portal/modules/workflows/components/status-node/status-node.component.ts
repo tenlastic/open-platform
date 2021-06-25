@@ -54,8 +54,8 @@ export class WorkflowStatusNodeComponent {
             sort: '-unix',
             where: { nodeId: this.node.id },
           }),
-        subscribe: () => {
-          const socket = this.socketService.connect(environment.apiBaseUrl);
+        subscribe: async () => {
+          const socket = await this.socketService.connect(environment.apiBaseUrl);
           return socket.subscribe('workflow-logs', WorkflowLog, this.workflowLogService, {
             nodeId: this.node.id,
             workflowId: this.workflow._id,

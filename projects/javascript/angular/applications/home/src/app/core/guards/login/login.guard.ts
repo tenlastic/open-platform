@@ -9,9 +9,10 @@ export class LoginGuard implements CanActivate {
   constructor(private identityService: IdentityService, private loginService: LoginService) {}
 
   public async canActivate() {
-    if (!this.identityService.refreshToken || this.identityService.refreshTokenJwt.isExpired) {
-      this.loginService.onLogout.emit();
+    const refreshToken = this.identityService.getRefreshToken();
 
+    if (!refreshToken || refreshToken.isExpired) {
+      this.loginService.onLogout.emit();
       return false;
     }
 
@@ -19,6 +20,7 @@ export class LoginGuard implements CanActivate {
   }
 
   public canActivateChild() {
-    return Boolean(this.identityService.refreshToken);
+    const refreshToken = this.identityService.getRefreshToken();
+    return Boolean(refreshToken);
   }
 }

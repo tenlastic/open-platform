@@ -47,8 +47,8 @@ describe('LoginGuard', () => {
         const accessToken = jsonwebtoken.sign({}, secret);
         const refreshToken = jsonwebtoken.sign({}, secret);
 
-        identityService.accessToken = accessToken;
-        identityService.refreshToken = refreshToken;
+        identityService.setAccessToken(accessToken);
+        identityService.setRefreshToken(refreshToken);
 
         spy = spyOn(loginService.onLogout, 'emit');
       });
@@ -62,7 +62,7 @@ describe('LoginGuard', () => {
 
     describe('when user is not authenticated', () => {
       beforeEach(() => {
-        identityService.refreshToken = null;
+        identityService.setRefreshToken(null);
         spy = spyOn(loginService.onLogout, 'emit');
       });
 

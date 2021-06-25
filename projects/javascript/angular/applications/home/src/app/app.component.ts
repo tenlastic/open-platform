@@ -78,28 +78,28 @@ export class AppComponent implements OnInit {
     private workflowService: WorkflowService,
   ) {}
 
-  public ngOnInit() {
+  public async ngOnInit() {
     this.titleService.setTitle(`${TITLE}`);
 
     // Navigate to login page on logout.
     this.loginService.onLogout.subscribe(() => this.navigateToLogin());
 
     // Handle websockets when logging in and out.
-    this.loginService.onLogin.subscribe(() => {
-      this.socket = this.socketService.connect(environment.apiBaseUrl);
+    this.loginService.onLogin.subscribe(async () => {
+      this.socket = await this.socketService.connect(environment.apiBaseUrl);
       this.socket.addEventListener('open', () => this.subscribe());
     });
     this.loginService.onLogout.subscribe(() => this.socket?.close());
 
     // Handle websockets when access token is set.
-    this.identityService.OnAccessTokenSet.subscribe(() => {
-      this.socket = this.socketService.connect(environment.apiBaseUrl);
+    this.identityService.OnAccessTokenSet.subscribe(async () => {
+      this.socket = await this.socketService.connect(environment.apiBaseUrl);
       this.socket.addEventListener('open', () => this.subscribe());
     });
 
     // Connect to websockets.
     try {
-      this.socket = this.socketService.connect(environment.apiBaseUrl);
+      this.socket = await this.socketService.connect(environment.apiBaseUrl);
       this.socket.addEventListener('open', () => this.subscribe());
     } catch {}
 

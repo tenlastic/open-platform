@@ -10,7 +10,7 @@ import { IdentityService, SocketService } from '../../../core/services';
 export interface LogsDialogComponentData {
   $logs: Observable<any[]>;
   find(): Promise<any[]>;
-  subscribe(): string;
+  subscribe(): Promise<string>;
 }
 
 @Component({
@@ -58,9 +58,9 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
   }
 
-  public ngOnDestroy() {
+  public async ngOnDestroy() {
     if (this.socket) {
-      const socket = this.socketService.connect(environment.apiBaseUrl);
+      const socket = await this.socketService.connect(environment.apiBaseUrl);
       socket.unsubscribe(this.socket);
     }
   }
@@ -83,14 +83,14 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     this.nodeId = $event.value;
   }
 
-  public toggleIsLive() {
+  public async toggleIsLive() {
     this.isLive = !this.isLive;
 
     if (this.isLive) {
       this.data.find();
-      this.socket = this.data.subscribe();
+      this.socket = await this.data.subscribe();
     } else {
-      const socket = this.socketService.connect(environment.apiBaseUrl);
+      const socket = await this.socketService.connect(environment.apiBaseUrl);
       socket.unsubscribe(this.socket);
     }
   }

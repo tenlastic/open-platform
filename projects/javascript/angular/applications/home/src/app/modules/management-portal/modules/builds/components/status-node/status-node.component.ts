@@ -56,8 +56,8 @@ export class BuildStatusNodeComponent {
             sort: '-unix',
             where: { nodeId: this.node.id },
           }),
-        subscribe: () => {
-          const socket = this.socketService.connect(environment.apiBaseUrl);
+        subscribe: async () => {
+          const socket = await this.socketService.connect(environment.apiBaseUrl);
           return socket.subscribe('build-logs', BuildLog, this.buildLogService, {
             nodeId: this.node.id,
             buildId: this.build._id,

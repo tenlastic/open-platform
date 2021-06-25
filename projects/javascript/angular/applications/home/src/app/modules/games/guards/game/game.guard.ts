@@ -18,13 +18,13 @@ export class GameGuard implements CanActivate {
       return true;
     }
 
-    const game = await this.gameService.findOne(_id);
-    if (!game) {
+    try {
+      const game = await this.gameService.findOne(_id);
+      this.gameStore.setActive(game._id);
+    } catch {
       this.router.navigateByUrl('/games');
       return false;
     }
-
-    this.gameStore.setActive(game._id);
 
     return true;
   }

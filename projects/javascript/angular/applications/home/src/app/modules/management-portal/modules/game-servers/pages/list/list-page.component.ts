@@ -128,8 +128,8 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
           sortByOrder: Order.DESC,
         }),
         find: () => this.gameServerLogService.find(record._id, { limit: 250, sort: '-unix' }),
-        subscribe: () => {
-          const socket = this.socketService.connect(environment.apiBaseUrl);
+        subscribe: async () => {
+          const socket = await this.socketService.connect(environment.apiBaseUrl);
           return socket.subscribe('game-server-logs', GameServerLog, this.gameServerLogService, {
             gameServerId: record._id,
           });

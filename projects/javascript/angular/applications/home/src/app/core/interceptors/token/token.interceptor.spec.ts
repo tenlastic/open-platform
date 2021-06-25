@@ -3,6 +3,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 import { HttpModule, UserService } from '@tenlastic/ng-http';
 import { Chance } from 'chance';
+import * as jsonwebtoken from 'jsonwebtoken';
 
 import { IdentityService } from '../../services/identity/identity.service';
 import { TokenInterceptor } from './token.interceptor';
@@ -43,7 +44,9 @@ describe('TokenInterceptor', () => {
   });
 
   it('adds an Authorization header', () => {
-    identityService.accessToken = 'token';
+    const secret = chance.hash();
+    const accessToken = jsonwebtoken.sign({}, secret);
+    identityService.setAccessToken(accessToken);
 
     userService.find({}).then(response => {
       expect(response).toBeTruthy();

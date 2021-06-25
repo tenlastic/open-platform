@@ -60,7 +60,7 @@ export class RecordsFormPageComponent implements OnDestroy, OnInit {
       ];
 
       const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
-      this.socket = this.socketService.connect(url);
+      this.socket = await this.socketService.connect(url);
       this.socket.addEventListener('open', () => {
         this.socket.subscribe('collections', Collection, this.collectionService);
         this.socket.subscribe('records', Record, this.recordService, {

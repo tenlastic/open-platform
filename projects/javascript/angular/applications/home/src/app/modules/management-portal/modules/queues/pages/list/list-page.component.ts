@@ -92,8 +92,8 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
           sortByOrder: Order.DESC,
         }),
         find: () => this.queueLogService.find(record._id, { limit: 250, sort: '-unix' }),
-        subscribe: () => {
-          const socket = this.socketService.connect(environment.apiBaseUrl);
+        subscribe: async () => {
+          const socket = await this.socketService.connect(environment.apiBaseUrl);
           return socket.subscribe('queue-logs', QueueLog, this.queueLogService, {
             queueId: record._id,
           });
