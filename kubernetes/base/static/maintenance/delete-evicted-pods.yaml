@@ -61,7 +61,7 @@ spec:
       - name: delete-evicted-pods
         script:
           command: [sh]
-          image: bitnami/kubectl
+          image: bitnami/kubectl:latest
           imagePullPolicy: IfNotPresent
           resources:
             requests:

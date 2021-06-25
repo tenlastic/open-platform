@@ -31,6 +31,7 @@ resources:
   - ./static/kafka/kafka.yaml
   - ./static/kafka/zookeeper.yaml
   - ./static/kubernetes-dashboard/kubernetes-dashboard.yaml
+  - ./static/maintenance/delete-evicted-pods.yaml
   - ./static/minio/minio.yaml
   - ./static/mongodb/mongodb.yaml
   - ./static/mongodb/mongoku.yaml
