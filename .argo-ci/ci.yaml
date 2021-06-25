@@ -34,6 +34,7 @@ spec:
         parameters:
           - name: repo
           - name: revision
+      parallelism: 5
       steps:
         - - name: checkout
             template: checkout
@@ -325,7 +326,6 @@ spec:
           - name: dockerfile
           - name: image
           - name: tag
-      parallelism: 1
       volumes:
         - name: kaniko
           secret:
