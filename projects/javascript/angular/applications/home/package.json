@@ -15,7 +15,7 @@
     "lint": "ng lint home",
     "start": "ng serve --disable-host-check --host 0.0.0.0 --poll 1000 --port 80 home",
     "test": "ng test --code-coverage --watch false home",
-    "test:watch": "ng test home",
+    "test:watch": "ng test --poll 5000 home",
     "version": "../../scripts/version.sh home-ui"
   },
   "private": true,

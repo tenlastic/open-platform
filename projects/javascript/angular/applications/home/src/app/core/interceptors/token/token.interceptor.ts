@@ -17,13 +17,12 @@ export class TokenInterceptor implements HttpInterceptor {
 
     return from(this.identityService.getAccessToken()).pipe(
       switchMap(accessToken => {
-        request = request.clone({
-          setHeaders: {
-            Authorization: `Bearer ${accessToken.value}`,
-          },
-        });
-
-        return next.handle(request);
+        if (accessToken) {
+          request = request.clone({ setHeaders: { Authorization: `Bearer ${accessToken.value}` } });
+          return next.handle(request);
+        } else {
+          return next.handle(request);
+        }
       }),
     );
   }

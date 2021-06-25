@@ -1,6 +1,6 @@
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { HttpModule, UserService } from '@tenlastic/ng-http';
 import { Chance } from 'chance';
 import * as jsonwebtoken from 'jsonwebtoken';
@@ -43,16 +43,20 @@ describe('TokenInterceptor', () => {
     httpMock.verify();
   });
 
-  it('adds an Authorization header', () => {
+  it('adds an Authorization header', fakeAsync(() => {
     const secret = chance.hash();
-    const accessToken = jsonwebtoken.sign({}, secret);
+    const accessToken = jsonwebtoken.sign({ exp: new Date().getTime() }, secret);
     identityService.setAccessToken(accessToken);
 
     userService.find({}).then(response => {
       expect(response).toBeTruthy();
     });
 
+    tick();
+
     const httpRequest = httpMock.expectOne(req => req.url === userService.basePath);
-    expect(httpRequest.request.headers.get('Authorization')).toEqual(`Bearer token`);
-  });
+    expect(httpRequest.request.headers.get('Authorization')).toEqual(`Bearer ${accessToken}`);
+
+    flush();
+  }));
 });

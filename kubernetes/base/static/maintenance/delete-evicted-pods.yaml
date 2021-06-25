@@ -88,7 +88,9 @@ spec:
             requests:
               cpu: 50m
           source: |
-            kubectl get pod -n static | \
-              grep Evicted | \
-              awk '{print $1}' | \
-              xargs kubectl delete pod -n static
+            if [ "$(kubectl get pod -n static | grep -c Evicted)" -ge 1 ]; then
+              kubectl get pod -n static | \
+                grep Evicted | \
+                awk '{print $1}' | \
+                xargs kubectl delete pod -n static
+            fi

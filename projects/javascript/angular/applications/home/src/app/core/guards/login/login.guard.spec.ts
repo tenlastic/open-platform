@@ -44,8 +44,8 @@ describe('LoginGuard', () => {
     describe('when user is authenticated', () => {
       beforeEach(() => {
         const secret = chance.hash();
-        const accessToken = jsonwebtoken.sign({}, secret);
-        const refreshToken = jsonwebtoken.sign({}, secret);
+        const accessToken = jsonwebtoken.sign({ exp: new Date().getTime() }, secret);
+        const refreshToken = jsonwebtoken.sign({ exp: new Date().getTime() }, secret);
 
         identityService.setAccessToken(accessToken);
         identityService.setRefreshToken(refreshToken);
