@@ -1,0 +1,73 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: delete-evicted-pods
+  namespace: static
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - delete
+      - get
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: delete-evicted-pods
+  namespace: static
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: delete-evicted-pods
+subjects:
+  - kind: ServiceAccount
+    name: delete-evicted-pods
+    namespace: static
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: delete-evicted-pods
+  namespace: static
+---
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: delete-evicted-pods
+  namespace: static
+spec:
+  concurrencyPolicy: Allow
+  schedule: 0 */3 * * *
+  startingDeadlineSeconds: 0
+  timezone: America/New_York
+  workflowSpec:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/low-priority
+                  operator: Exists
+    entrypoint: delete-evicted-pods
+    podGC:
+      strategy: OnWorkflowCompletion
+    serviceAccountName: argo-workflow
+    ttlStrategy:
+      secondsAfterSuccess: 60
+    templates:
+      - name: delete-evicted-pods
+        script:
+          command: [sh]
+          image: bitnami/kubectl
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 50m
+          source: |
+            kubectl get pod -n static | \
+              grep Evicted | \
+              awk '{print $1}' | \
+              xargs kubectl delete pod -n static

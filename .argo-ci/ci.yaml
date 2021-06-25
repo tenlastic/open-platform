@@ -107,7 +107,7 @@ spec:
             when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
             withParam: "{{steps.get-docker-images.outputs.result}}"
 
-          - name: publish-electron-applications
+        - - name: publish-electron-applications
             template: publish-electron-applications
             when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
 
@@ -325,6 +325,7 @@ spec:
           - name: dockerfile
           - name: image
           - name: tag
+      parallelism: 1
       volumes:
         - name: kaniko
           secret:
