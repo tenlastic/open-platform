@@ -9,7 +9,7 @@
     "type": "git",
     "url": "ssh://git@github.com/tenlastic/open-platform.git"
   },
-  "version": "0.0.197",
+  "version": "0.0.198",
   "publishConfig": {
     "access": "public"
   },
