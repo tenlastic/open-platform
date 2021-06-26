@@ -1,14 +1,31 @@
-<div *ngIf="data.title" mat-dialog-title>{{ data.title }}</div>
-<div mat-dialog-content>
-  <p>{{ data.message }}</p>
-</div>
-<div mat-dialog-actions>
-  <app-button
-    *ngFor="let button of data.buttons"
-    mat-button
-    [color]="button.color | asAny"
-    (OnClick)="dialogRef.close(button.label)"
-  >
-    {{ button.label }}
-  </app-button>
-</div>
+<ng-container *ngIf="accepted">
+  <div mat-dialog-content>
+    <app-loading-message>Waiting for Game Server...</app-loading-message>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!accepted">
+  <div mat-dialog-title>Match Found</div>
+
+  <div mat-dialog-content>
+    <p>Game: {{ game.fullTitle }}</p>
+    <p>
+      Queue: {{ queue.name }}
+      <ng-container *ngIf="queue.description">- {{ queue.description }}</ng-container>
+    </p>
+  </div>
+
+  <div mat-dialog-actions>
+    <app-button mat-button
+                color="accent"
+                (OnClick)="decline()">
+      Decline
+    </app-button>
+
+    <app-button mat-button
+                color="primary"
+                (OnClick)="accept()">
+      Accept
+    </app-button>
+  </div>
+</ng-container>

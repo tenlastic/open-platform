@@ -48,15 +48,28 @@ export class GamesListPageComponent implements OnDestroy, OnInit {
   }
 
   public select(record: Game) {
+    localStorage.setItem('games.gameId', record._id);
     this.gameStore.setActive(record._id);
     this.router.navigate(['games', record._id]);
   }
 
   private async fetchGames() {
     this.$games = this.gameQuery.selectAll({ sortBy: 'title' });
-    await this.gameService.find({ sort: 'name' });
+    const games = await this.gameService.find({ sort: 'title' });
 
-    this.updateDataSource$ = this.$games.subscribe(games => (this.dataSource.data = games));
+    // If only one Game is available, automatically select it.
+    if (games.length === 1) {
+      this.select(games[0]);
+    }
+
+    // If a Game was selected during a previous session, restore that selection.
+    const gameId = localStorage.getItem('games.gameId');
+    const game = games.find(g => g._id === gameId);
+    if (game && this.gameQuery.getActiveId() !== game._id) {
+      this.select(game);
+    }
+
+    this.updateDataSource$ = this.$games.subscribe(g => (this.dataSource.data = g));
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;

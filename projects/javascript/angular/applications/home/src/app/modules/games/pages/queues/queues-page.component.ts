@@ -118,9 +118,9 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
   public async joinAsGroup(queue: Queue) {
     const group = await this.$group.pipe(first()).toPromise();
+    const socket = await this.socketService.connect(environment.apiBaseUrl);
 
     try {
-      const socket = await this.socketService.connect(environment.apiBaseUrl);
       await this.queueMemberService.create({
         groupId: group._id,
         namespaceId: queue.namespaceId,
@@ -145,12 +145,26 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
   public async joinAsIndividual(queue: Queue) {
     const socket = await this.socketService.connect(environment.apiBaseUrl);
-    await this.queueMemberService.create({
-      namespaceId: queue.namespaceId,
-      queueId: queue._id,
-      userId: this.identityService.user._id,
-      webSocketId: socket._id,
-    });
+
+    try {
+      await this.queueMemberService.create({
+        namespaceId: queue.namespaceId,
+        queueId: queue._id,
+        userId: this.identityService.user._id,
+        webSocketId: socket._id,
+      });
+    } catch (e) {
+      if (e instanceof HttpErrorResponse) {
+        if (e.error.errors[0].name === 'QueueMemberAuthorizationError') {
+          this.matSnackBar.open('You are not authorized to play this Game.');
+        }
+
+        if (e.error.errors[0].name === 'QueueMemberUniquenessError') {
+          this.matSnackBar.open('You are already queued.');
+        }
+      }
+    }
+
     await this.getCurrentUsers();
   }
 

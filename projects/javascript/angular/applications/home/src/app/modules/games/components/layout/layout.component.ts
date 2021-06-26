@@ -12,7 +12,7 @@ import {
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ElectronService, IdentityService, UpdateService } from '../../../../core/services';
+import { ElectronService, UpdateService } from '../../../../core/services';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -24,6 +24,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public get $activeGame() {
     return this.gameQuery.selectActive() as Observable<Game>;
   }
+  public $games: Observable<Game[]>;
   public $news: Observable<Article[]>;
   public $patchNotes: Observable<Article[]>;
   public get $showStatusComponent() {
@@ -58,6 +59,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   ) {}
 
   public async ngOnInit() {
+    this.$games = this.gameQuery.selectAll({ sortBy: 'title' });
     this.setBackground$ = this.$activeGame.subscribe(activeGame => {
       const value = activeGame?.background || '/assets/images/background.jpg';
       this.document.body.style.backgroundImage = `url('${value}')`;
@@ -76,7 +78,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
       return this.fetchArticles(game._id);
     });
 
-    await this.gameService.find({});
+    await this.gameService.find({ sort: 'title' });
 
     if (!this.electronService.isElectron) {
       return;

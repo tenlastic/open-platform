@@ -1,7 +1,8 @@
 <app-header-toolbar>
   <img src="/assets/images/logo.png" />
 
-  <app-button color="accent"
+  <app-button *ngIf="($games | async)?.length > 1"
+              color="accent"
               routerLinkActive="active"
               text="left"
               [routerLink]="['/', 'games']"
@@ -20,6 +21,22 @@
     </ng-template>
 
     <mat-icon>keyboard_arrow_down</mat-icon>
+  </app-button>
+
+  <app-button *ngIf="($games | async)?.length <= 1"
+              color="accent"
+              disabled
+              routerLinkActive="active"
+              text="left">
+    <mat-icon>sports_esports</mat-icon>
+
+    <div *ngIf="$activeGame | async as activeGame">
+      {{ activeGame.title }}
+
+      <div *ngIf="activeGame.subtitle">
+        {{ activeGame.subtitle }}
+      </div>
+    </div>
   </app-button>
 
   <ng-container *ngIf="$activeGame | async as activeGame">

@@ -359,32 +359,7 @@ export class SocialComponent implements OnDestroy, OnInit {
       return;
     }
 
-    const games = await this.gameQuery
-      .selectAll({ filterBy: g => g.namespaceId === gameServer.namespaceId })
-      .pipe(first())
-      .toPromise();
-    const game = new Game(games[0]);
-    const queue = this.queueQuery.getEntity(gameServer.queueId);
-
-    const gameText = `Game: ${game.fullTitle}`;
-    const queueText = `Queue: ${queue.name}${queue.description ? ' - ' + queue.description : ''}`;
-    const dialogRef = this.matDialog.open(MatchPromptComponent, {
-      data: {
-        buttons: [
-          { color: 'accent', label: 'Decline' },
-          { color: 'primary', label: 'Accept' },
-        ],
-        message: `${gameText}\n${queueText}`,
-        title: 'Match Found',
-      },
-      disableClose: true,
-    });
-
-    dialogRef.afterClosed().subscribe(async result => {
-      if (result === 'Accept') {
-        this.updateService.play(game._id, { gameServer });
-      }
-    });
+    this.matDialog.open(MatchPromptComponent, { data: { gameServer } });
 
     if (this.electronService.isElectron) {
       this.electronService.remote.getCurrentWindow().show();
