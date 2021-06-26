@@ -25,7 +25,7 @@ spec:
     templates:
       - name: e2e
         container:
-          image: tenlastic/e2e:0.0.199
+          image: tenlastic/e2e:0.0.200
           envFrom:
             - secretRef:
                 name: e2e
