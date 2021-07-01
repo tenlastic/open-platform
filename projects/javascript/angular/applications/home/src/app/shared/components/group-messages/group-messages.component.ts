@@ -113,7 +113,11 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
         return;
       }
 
-      await this.groupInvitationService.create({ groupId: this.group._id, toUserId: users[0]._id });
+      await this.groupInvitationService.create({
+        fromUserId: this.identityService.user._id,
+        groupId: this.group._id,
+        toUserId: users[0]._id,
+      });
     });
   }
 

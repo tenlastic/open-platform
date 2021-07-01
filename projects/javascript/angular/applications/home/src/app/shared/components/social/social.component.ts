@@ -6,8 +6,6 @@ import {
   Friend,
   FriendQuery,
   FriendService,
-  Game,
-  GameQuery,
   GameServer,
   GameServerService,
   Group,
@@ -39,7 +37,7 @@ import {
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
-import { ElectronService, IdentityService, UpdateService } from '../../../core/services';
+import { ElectronService, IdentityService } from '../../../core/services';
 import { InputDialogComponent } from '../input-dialog/input-dialog.component';
 import { MatchPromptComponent } from '../match-prompt/match-prompt.component';
 
@@ -74,6 +72,7 @@ export class SocialComponent implements OnDestroy, OnInit {
   public $users: Observable<User[]>;
   public $webSockets: Observable<WebSocket[]>;
   public fetchFriendUser$ = new Subscription();
+  public fetchGroupInvitationUser$ = new Subscription();
   public fetchIgnorationUser$ = new Subscription();
   public fetchMatchesQueues$ = new Subscription();
   public fetchMessageUser$ = new Subscription();
@@ -97,7 +96,6 @@ export class SocialComponent implements OnDestroy, OnInit {
     private electronService: ElectronService,
     private friendQuery: FriendQuery,
     private friendService: FriendService,
-    private gameQuery: GameQuery,
     private gameServerService: GameServerService,
     private groupInvitationQuery: GroupInvitationQuery,
     private groupInvitationService: GroupInvitationService,
@@ -115,7 +113,6 @@ export class SocialComponent implements OnDestroy, OnInit {
     private queueQuery: QueueQuery,
     private queueService: QueueService,
     private router: Router,
-    private updateService: UpdateService,
     public userQuery: UserQuery,
     private userService: UserService,
     private userStore: UserStore,
@@ -166,6 +163,11 @@ export class SocialComponent implements OnDestroy, OnInit {
       return missingUserIds.length > 0
         ? this.userService.find({ where: { _id: { $in: missingUserIds } } })
         : null;
+    });
+    this.fetchGroupInvitationUser$ = this.$groupInvitation.subscribe(groupInvitation => {
+      if (!this.userQuery.hasEntity(groupInvitation.fromUserId)) {
+        return this.userService.find({ where: { _id: groupInvitation.fromUserId } });
+      }
     });
     this.fetchIgnorationUser$ = this.$ignorations.subscribe(ignorations => {
       const missingUserIds = ignorations
@@ -262,6 +264,7 @@ export class SocialComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.fetchFriendUser$.unsubscribe();
+    this.fetchGroupInvitationUser$.unsubscribe();
     this.fetchIgnorationUser$.unsubscribe();
     this.fetchMatchesQueues$.unsubscribe();
     this.fetchMessageUser$.unsubscribe();
