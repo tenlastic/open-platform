@@ -6,8 +6,8 @@ export const GroupInvitationPermissions = new MongoosePermissions<GroupInvitatio
   GroupInvitation,
   {
     create: {
-      leader: ['groupId', 'toUserId'],
-      'open-member': ['groupId', 'toUserId'],
+      leader: ['fromUserId', 'groupId', 'toUserId'],
+      'open-member': ['fromUserId', 'groupId', 'toUserId'],
     },
     delete: {
       recipient: true,
