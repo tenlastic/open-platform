@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: delete-evicted-pods
+  name: delete-dynamic-corrupted-pods
   namespace: static
 rules:
   - apiGroups:
@@ -9,11 +9,9 @@ rules:
     resources:
       - pods
     verbs:
-      - delete
       - get
-      - list
-      - watch
       - patch
+      - watch
   - apiGroups:
       - ""
     resources:
@@ -37,27 +35,27 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: delete-evicted-pods
+  name: delete-dynamic-corrupted-pods
   namespace: static
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: delete-evicted-pods
+  name: delete-dynamic-corrupted-pods
 subjects:
   - kind: ServiceAccount
-    name: delete-evicted-pods
+    name: delete-dynamic-corrupted-pods
     namespace: static
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: delete-evicted-pods
+  name: delete-dynamic-corrupted-pods
   namespace: static
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: delete-evicted-pods
+  name: delete-dynamic-corrupted-pods
   namespace: static
 spec:
   concurrencyPolicy: Allow
@@ -72,14 +70,14 @@ spec:
             - matchExpressions:
                 - key: tenlastic.com/low-priority
                   operator: Exists
-    entrypoint: delete-evicted-pods
+    entrypoint: delete-dynamic-corrupted-pods
     podGC:
       strategy: OnWorkflowCompletion
-    serviceAccountName: delete-evicted-pods
+    serviceAccountName: delete-dynamic-corrupted-pods
     ttlStrategy:
       secondsAfterSuccess: 60
     templates:
-      - name: delete-evicted-pods
+      - name: delete-dynamic-corrupted-pods
         script:
           command: [sh]
           image: bitnami/kubectl:latest
@@ -88,9 +86,9 @@ spec:
             requests:
               cpu: 50m
           source: |
-            if [ "$(kubectl get pod -n static | grep -c Evicted)" -ge 1 ]; then
-              kubectl get pod -n static | \
-                grep Evicted | \
+            if [ "$(kubectl get pod -n dynamic | grep -c -e Evicted -e Shutdown)" -ge 1 ]; then
+              kubectl get pod -n dynamic | \
+                grep -e Evicted -e Shutdown | \
                 awk '{print $1}' | \
-                xargs kubectl delete pod -n static
+                xargs kubectl delete pod -n dynamic
             fi

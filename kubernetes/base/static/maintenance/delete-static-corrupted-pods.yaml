@@ -1,0 +1,96 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: delete-static-corrupted-pods
+  namespace: static
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - delete
+      - get
+      - list
+      - watch
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - pods/exec
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - pods/log
+    verbs:
+      - get
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: delete-static-corrupted-pods
+  namespace: static
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: delete-static-corrupted-pods
+subjects:
+  - kind: ServiceAccount
+    name: delete-static-corrupted-pods
+    namespace: static
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: delete-static-corrupted-pods
+  namespace: static
+---
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: delete-static-corrupted-pods
+  namespace: static
+spec:
+  concurrencyPolicy: Allow
+  schedule: "*/5 * * * *"
+  startingDeadlineSeconds: 0
+  timezone: America/New_York
+  workflowSpec:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/low-priority
+                  operator: Exists
+    entrypoint: delete-static-corrupted-pods
+    podGC:
+      strategy: OnWorkflowCompletion
+    serviceAccountName: delete-static-corrupted-pods
+    ttlStrategy:
+      secondsAfterSuccess: 60
+    templates:
+      - name: delete-static-corrupted-pods
+        script:
+          command: [sh]
+          image: bitnami/kubectl:latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 50m
+          source: |
+            if [ "$(kubectl get pod -n static | grep -c -e Evicted -e Shutdown)" -ge 1 ]; then
+              kubectl get pod -n static | \
+                grep -e Evicted -e Shutdown | \
+                awk '{print $1}' | \
+                xargs kubectl delete pod -n static
+            fi
