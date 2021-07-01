@@ -34,7 +34,8 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
       .on('error', e => emitter.emit('error', e))
       .on('response', response => {
         if (response.statusCode !== 200) {
-          emitter.emit('error', new HttpError(response.statusCode, JSON.parse(response.body)));
+          const body = response.body ? JSON.parse(response.body) : null;
+          emitter.emit('error', new HttpError(response.statusCode, body));
           return;
         }
 
