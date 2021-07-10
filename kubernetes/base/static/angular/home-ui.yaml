@@ -35,7 +35,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: home-ui
-          image: tenlastic/home-ui:0.0.206
+          image: tenlastic/home-ui:0.0.207
           ports:
             - containerPort: 80
           resources:
