@@ -68,7 +68,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: provisioner
-          image: tenlastic/provisioner:0.0.207
+          image: tenlastic/provisioner:0.0.208
           envFrom:
             - secretRef:
                 name: nodejs-environment-variables
