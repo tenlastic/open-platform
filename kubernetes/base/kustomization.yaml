@@ -38,7 +38,6 @@ resources:
   - ./static/mongodb/mongodb.yaml
   - ./static/mongodb/mongoku.yaml
   - ./static/nodejs/api.yaml
-  - ./static/nodejs/cdn.yaml
   - ./static/nodejs/e2e.yaml
   - ./static/nodejs/provisioner.yaml
   - ./static/nodejs/wss.yaml

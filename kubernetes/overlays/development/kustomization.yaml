@@ -17,13 +17,6 @@ patches:
       name: api
       namespace: static
       version: v1
-  - path: ./static/nodejs/cdn.json
-    target:
-      group: apps
-      kind: Deployment
-      name: api
-      namespace: static
-      version: v1
   - path: ./static/nodejs/migrations.json
     target:
       group: batch

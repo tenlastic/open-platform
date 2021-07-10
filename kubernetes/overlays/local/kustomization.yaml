@@ -34,7 +34,6 @@ patchesStrategicMerge:
   - ./static/mongodb/mongodb.yaml
   - ./static/mongodb/mongoku.yaml
   - ./static/nodejs/api.yaml
-  - ./static/nodejs/cdn.yaml
   - ./static/nodejs/provisioner.yaml
   - ./static/nodejs/wss.yaml
   - ./static/rabbitmq/rabbitmq.yaml
