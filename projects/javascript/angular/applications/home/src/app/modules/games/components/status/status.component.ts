@@ -73,6 +73,7 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
     switch (this.status.state) {
       case UpdateServiceState.Banned:
       case UpdateServiceState.Checking:
+      case UpdateServiceState.Deleting:
       case UpdateServiceState.Downloading:
       case UpdateServiceState.Installing:
       case UpdateServiceState.NotAvailable:
@@ -104,11 +105,8 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
 
     switch (this.status.state) {
       case UpdateServiceState.Checking:
-        return (this.status.progress.current / this.status.progress.total) * 100;
-
+      case UpdateServiceState.Deleting:
       case UpdateServiceState.Downloading:
-        return (this.status.progress.current / this.status.progress.total) * 100;
-
       case UpdateServiceState.Installing:
         return (this.status.progress.current / this.status.progress.total) * 100;
 
@@ -143,6 +141,7 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   public get statusText() {
     switch (this.status.state) {
       case UpdateServiceState.Checking:
+      case UpdateServiceState.Deleting:
       case UpdateServiceState.Downloading:
       case UpdateServiceState.Installing:
         return this.status.text;
@@ -165,7 +164,7 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   public ngOnInit() {
     if (this.updateService) {
       this.status = this.updateService.getStatus(this.game._id);
-      this.updateService.checkForUpdates(this.game._id);
+      this.updateService.checkForUpdates(this.game._id, true);
     }
 
     const { changeDetectorRef } = this;
@@ -182,7 +181,7 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
 
     if (this.updateService) {
       this.status = this.updateService.getStatus(this.game._id);
-      this.updateService.checkForUpdates(this.game._id);
+      this.updateService.checkForUpdates(this.game._id, true);
     }
   }
 
@@ -204,5 +203,16 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
     } else if (this.status.state === UpdateServiceState.NotInstalled) {
       this.updateService.install(this.game._id);
     }
+  }
+
+  public delete() {
+    this.updateService.delete(this.game._id);
+  }
+
+  public sync() {
+    const status = this.updateService.getStatus(this.game._id);
+    status.state = UpdateServiceState.NotChecked;
+
+    this.updateService.checkForUpdates(this.game._id, false);
   }
 }

@@ -21,6 +21,18 @@
       <mat-icon>hourglass_bottom</mat-icon>
       <span class="text">Queues</span>
     </app-button>
+
+    <app-button color="accent"
+                matTooltip="Check for Updates / Repair Installation"
+                (OnClick)="sync()">
+      <mat-icon>build</mat-icon>
+    </app-button>
+
+    <app-button color="accent"
+                matTooltip="Delete Installation"
+                (OnClick)="delete()">
+      <mat-icon>delete</mat-icon>
+    </app-button>
   </ng-container>
 </div>
 

@@ -24,6 +24,7 @@ import { IdentityService } from '../../services/identity/identity.service';
 export enum UpdateServiceState {
   Banned,
   Checking,
+  Deleting,
   Downloading,
   Installing,
   NotAuthorized,
@@ -99,7 +100,7 @@ export class UpdateService {
     this.loginService.onLogout.subscribe(() => this.status.clear());
   }
 
-  public async checkForUpdates(gameId: string) {
+  public async checkForUpdates(gameId: string, useCache = false) {
     const status = this.getStatus(gameId);
     if (
       status.state !== UpdateServiceState.NotChecked &&
@@ -163,7 +164,8 @@ export class UpdateService {
     // Calculate local file checksums.
     status.progress = null;
     status.text = 'Checking local files...';
-    const localFiles = await this.getLocalFiles(gameId);
+    const cachedFiles = useCache ? await this.getCachedFiles(gameId) : null;
+    const localFiles = cachedFiles || (await this.getLocalFiles(gameId));
     if (localFiles.length === 0) {
       status.modifiedFiles = status.build.files;
       status.state = UpdateServiceState.NotInstalled;
@@ -195,12 +197,25 @@ export class UpdateService {
 
       // Make sure download is complete.
       status.state = UpdateServiceState.NotChecked;
-      await this.checkForUpdates(gameId);
+      await this.checkForUpdates(gameId, useCache);
     } else {
       status.modifiedFiles = [];
       status.progress = null;
       status.state = UpdateServiceState.Ready;
     }
+  }
+
+  public async delete(gameId: string) {
+    const { fs } = this.electronService;
+    const status = this.getStatus(gameId);
+
+    status.state = UpdateServiceState.Deleting;
+    status.text = 'Deleting Files';
+
+    fs.rmdirSync(`${this.installPath}/${gameId}/`, { recursive: true });
+    fs.unlinkSync(`${this.installPath}/${gameId}.json`);
+
+    status.state = UpdateServiceState.NotInstalled;
   }
 
   public getStatus(gameId: string) {
@@ -346,6 +361,18 @@ export class UpdateService {
     return { game, gameAuthorization: gameAuthorizations[0], namespaceUser };
   }
 
+  private async getCachedFiles(gameId: string) {
+    const { fs } = this.electronService;
+
+    const isCached = fs.existsSync(`${this.installPath}/${gameId}.json`);
+    if (!isCached) {
+      return null;
+    }
+
+    const file = fs.readFileSync(`${this.installPath}/${gameId}.json`, 'utf8');
+    return JSON.parse(file);
+  }
+
   private async getLocalFiles(gameId: string) {
     const { crypto, fs, glob } = this.electronService;
     const status = this.getStatus(gameId);
@@ -372,6 +399,8 @@ export class UpdateService {
 
       localFiles.push({ md5, path });
     }
+
+    fs.writeFileSync(`${this.installPath}/${gameId}.json`, JSON.stringify(localFiles));
 
     return localFiles;
   }

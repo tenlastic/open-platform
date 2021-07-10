@@ -80,7 +80,6 @@ export class SocialComponent implements OnDestroy, OnInit {
   public fetchUserWebSockets$ = new Subscription();
   public fetchUserGroup$ = new Subscription();
   public newMatchNotification$ = new Subscription();
-  public newMessageNotification$ = new Subscription();
   public updateConversations$ = new Subscription();
   public updateQueueMembers$ = new Subscription();
   public conversations: Conversation[] = [];
@@ -165,7 +164,7 @@ export class SocialComponent implements OnDestroy, OnInit {
         : null;
     });
     this.fetchGroupInvitationUser$ = this.$groupInvitation.subscribe(groupInvitation => {
-      if (!this.userQuery.hasEntity(groupInvitation.fromUserId)) {
+      if (!this.userQuery.hasEntity(groupInvitation?.fromUserId)) {
         return this.userService.find({ where: { _id: groupInvitation.fromUserId } });
       }
     });
@@ -205,9 +204,6 @@ export class SocialComponent implements OnDestroy, OnInit {
       return this.groupService.find({ where: { userIds: { $in: users.map(u => u._id) } } });
     });
 
-    this.newMessageNotification$ = this.messageService.onCreate.subscribe(message =>
-      this.newMessageNotification(message),
-    );
     this.newMatchNotification$ = this.gameServerService.onCreate.subscribe(gameServer =>
       this.newMatchNotification(gameServer),
     );
@@ -272,7 +268,6 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.fetchUserWebSockets$.unsubscribe();
     this.fetchUserGroup$.unsubscribe();
     this.newMatchNotification$.unsubscribe();
-    this.newMessageNotification$.unsubscribe();
     this.updateConversations$.unsubscribe();
     this.updateQueueMembers$.unsubscribe();
   }
@@ -367,32 +362,5 @@ export class SocialComponent implements OnDestroy, OnInit {
     if (this.electronService.isElectron) {
       this.electronService.remote.getCurrentWindow().show();
     }
-  }
-
-  private async newMessageNotification(message: Message) {
-    if (message.fromUserId === this.identityService.user._id) {
-      return;
-    }
-
-    const users = await this.$users.pipe(first()).toPromise();
-    const user = users.find(u => u._id === message.fromUserId);
-
-    this.zone.run(async () => {
-      if (Notification.permission !== 'denied') {
-        await new Promise(resolve => Notification.requestPermission(resolve));
-      }
-
-      const notification = new Notification('Tenlastic', {
-        body: `New message from ${user.username}.`,
-        requireInteraction: false,
-      });
-      notification.onclick = () => {
-        this.router.navigate([user._id], { relativeTo: this.activatedRoute });
-
-        if (this.electronService.isElectron) {
-          this.electronService.remote.getCurrentWindow().show();
-        }
-      };
-    });
   }
 }
