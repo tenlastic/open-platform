@@ -78,7 +78,11 @@ describe('game-servers', function() {
   });
 
   step('generates logs', async function() {
-    const logs = await gameServerLogService.find(gameServer._id, {});
+    const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
+      const response = await gameServerLogService.find(gameServer._id, {});
+      return response.length > 0 ? response : null;
+    });
+
     expect(logs.length).to.be.greaterThan(0);
   });
 

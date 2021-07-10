@@ -62,7 +62,11 @@ describe('workflows', function() {
   });
 
   step('generates logs', async function() {
-    const logs = await workflowLogService.find(workflow._id, {});
+    const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
+      const response = await workflowLogService.find(workflow._id, {});
+      return response.length > 0 ? response : null;
+    });
+
     expect(logs.length).to.be.greaterThan(0);
     expect(logs[0].body).to.eql('Hello World!');
   });
