@@ -1,7 +1,6 @@
-import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
 import {
   Friend,
   FriendQuery,
@@ -80,6 +79,7 @@ export class SocialComponent implements OnDestroy, OnInit {
   public fetchUserWebSockets$ = new Subscription();
   public fetchUserGroup$ = new Subscription();
   public newMatchNotification$ = new Subscription();
+  public newMessageNotification$ = new Subscription();
   public updateConversations$ = new Subscription();
   public updateQueueMembers$ = new Subscription();
   public conversations: Conversation[] = [];
@@ -89,7 +89,6 @@ export class SocialComponent implements OnDestroy, OnInit {
   public isIgnoredUsersVisible = false;
 
   constructor(
-    private activatedRoute: ActivatedRoute,
     private webSocketQuery: WebSocketQuery,
     private webSocketService: WebSocketService,
     private electronService: ElectronService,
@@ -111,11 +110,9 @@ export class SocialComponent implements OnDestroy, OnInit {
     private queueMemberService: QueueMemberService,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
-    private router: Router,
     public userQuery: UserQuery,
     private userService: UserService,
     private userStore: UserStore,
-    private zone: NgZone,
   ) {}
 
   public async ngOnInit() {
@@ -204,6 +201,9 @@ export class SocialComponent implements OnDestroy, OnInit {
       return this.groupService.find({ where: { userIds: { $in: users.map(u => u._id) } } });
     });
 
+    this.newMessageNotification$ = this.messageService.onCreate.subscribe(message =>
+      this.newMessageNotification(message),
+    );
     this.newMatchNotification$ = this.gameServerService.onCreate.subscribe(gameServer =>
       this.newMatchNotification(gameServer),
     );
@@ -268,6 +268,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.fetchUserWebSockets$.unsubscribe();
     this.fetchUserGroup$.unsubscribe();
     this.newMatchNotification$.unsubscribe();
+    this.newMessageNotification$.unsubscribe();
     this.updateConversations$.unsubscribe();
     this.updateQueueMembers$.unsubscribe();
   }
@@ -360,7 +361,25 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.matDialog.open(MatchPromptComponent, { data: { gameServer } });
 
     if (this.electronService.isElectron) {
-      this.electronService.remote.getCurrentWindow().show();
+      const window = this.electronService.remote.getCurrentWindow();
+      window.flashFrame(true);
+      window.show();
+
+      if (!window.isFocused()) {
+        window.setAlwaysOnTop(true);
+        window.on('focus', () => window.setAlwaysOnTop(false));
+      }
+    }
+  }
+
+  private async newMessageNotification(message: Message) {
+    if (message.fromUserId === this.identityService.user._id) {
+      return;
+    }
+
+    if (this.electronService.isElectron) {
+      const window = this.electronService.remote.getCurrentWindow();
+      window.flashFrame(true);
     }
   }
 }

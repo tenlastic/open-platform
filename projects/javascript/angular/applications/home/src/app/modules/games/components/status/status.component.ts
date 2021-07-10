@@ -206,7 +206,7 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   }
 
   public delete() {
-    this.updateService.delete(this.game._id);
+    return this.updateService.delete(this.game._id);
   }
 
   public sync() {

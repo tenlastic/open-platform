@@ -43,6 +43,6 @@
     <span *ngIf="progressText">{{ progressText }}</span>
   </div>
 
-  <mat-progress-bar *ngIf="progress"
+  <mat-progress-bar [mode]="progress ? 'determinate' : 'indeterminate'"
                     [value]="progress"></mat-progress-bar>
 </div>

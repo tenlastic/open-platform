@@ -92,6 +92,11 @@ app.on('ready', () => {
 });
 
 // ==================
+// RELOADS
+// ==================
+app.allowRendererProcessReuse = false;
+
+// ==================
 // WINDOW
 // ==================
 function createWindow() {
@@ -123,6 +128,8 @@ function createWindow() {
     resizable: serve,
     webPreferences: {
       allowRunningInsecureContent: serve,
+      contextIsolation: false,
+      enableRemoteModule: true,
       nodeIntegration: true,
       webSecurity: false,
     },

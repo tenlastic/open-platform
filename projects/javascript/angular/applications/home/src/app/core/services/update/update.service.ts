@@ -197,7 +197,7 @@ export class UpdateService {
 
       // Make sure download is complete.
       status.state = UpdateServiceState.NotChecked;
-      await this.checkForUpdates(gameId, useCache);
+      await this.checkForUpdates(gameId, false);
     } else {
       status.modifiedFiles = [];
       status.progress = null;
@@ -210,7 +210,7 @@ export class UpdateService {
     const status = this.getStatus(gameId);
 
     status.state = UpdateServiceState.Deleting;
-    status.text = 'Deleting Files';
+    status.text = 'Deleting Files...';
 
     fs.rmdirSync(`${this.installPath}/${gameId}/`, { recursive: true });
     fs.unlinkSync(`${this.installPath}/${gameId}.json`);

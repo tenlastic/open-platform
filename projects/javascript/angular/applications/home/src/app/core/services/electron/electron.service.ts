@@ -24,8 +24,7 @@ export class ElectronService {
   public webFrame: typeof webFrame;
 
   public get isElectron(): boolean {
-    const { process } = window as any;
-    return process && Boolean(process.type);
+    return navigator.userAgent.includes('Electron');
   }
 
   constructor() {
