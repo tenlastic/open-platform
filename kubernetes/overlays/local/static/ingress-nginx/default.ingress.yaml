@@ -28,7 +28,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: api
+                name: cdn
                 port:
                   number: 3000
     - host: ci.localhost
