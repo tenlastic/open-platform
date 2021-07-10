@@ -34,8 +34,8 @@ export class LayoutComponent implements OnInit {
   public async ngOnInit() {
     this.namespaces = await this.namespaceService.find({});
 
-    this.$games = this.gameQuery.selectAll();
-    this.gameService.find({});
+    this.$games = this.$games || this.gameQuery.selectAll();
+    await this.gameService.find({});
 
     if (!this.electronService.isElectron) {
       return;

@@ -5,5 +5,4 @@
   {{ article.publishedAt | date: 'shortTime' }}
 </div>
 
-<app-markdown mat-dialog-content
-              [markdown]="article.body"></app-markdown>
+<app-markdown [markdown]="article.body"></app-markdown>
