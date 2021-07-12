@@ -9,7 +9,7 @@
     "type": "git",
     "url": "ssh://git@github.com/tenlastic/open-platform.git"
   },
-  "version": "0.0.208",
+  "version": "0.0.209",
   "publishConfig": {
     "access": "public"
   },
@@ -22,8 +22,8 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/kafka": "0.0.208",
-    "@tenlastic/mongoose-change-stream": "0.0.208",
+    "@tenlastic/kafka": "0.0.209",
+    "@tenlastic/mongoose-change-stream": "0.0.209",
     "mongoose": "5.9.2"
   },
   "devDependencies": {
