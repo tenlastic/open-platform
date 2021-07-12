@@ -180,7 +180,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   private setupForm(): void {
     this.data = this.data || new GameServer();
 
-    const properties = [];
+    const metadata = [];
     if (this.data.metadata) {
       Object.entries(this.data.metadata).forEach(([key, property]) => {
         let type = 'boolean';
@@ -195,7 +195,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
           value: [property, Validators.required],
           type,
         });
-        properties.push(formGroup);
+        metadata.push(formGroup);
       });
     }
 
@@ -205,7 +205,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       description: [this.data.description],
       gameId: [this.data.gameId],
       memory: [this.data.memory || this.memories[0].value, Validators.required],
-      metadata: this.formBuilder.array(properties),
+      metadata: this.formBuilder.array(metadata),
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
       persistent: [this.data.persistent === false ? false : true],

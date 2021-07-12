@@ -50,6 +50,10 @@
       </div>
     </div>
 
+    <app-toggle-section title="Metadata">
+      <app-metadata-fields [formArray]="form['controls'].metadata"></app-metadata-fields>
+    </app-toggle-section>
+
     <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}

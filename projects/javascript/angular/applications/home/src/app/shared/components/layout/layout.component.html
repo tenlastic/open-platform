@@ -12,7 +12,7 @@
 
     <app-button *ngIf="identityService.user && ($games | async)?.length > 0"
                 color="accent"
-                routerLink="/games"
+                [routerLink]="gameQuery.hasActive() ? ['/games', gameQuery.getActiveId()] : ['/games']"
                 routerLinkActive="active">
       <mat-icon>sports_esports</mat-icon>
       <span>Games</span>

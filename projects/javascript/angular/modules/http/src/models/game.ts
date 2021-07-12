@@ -16,6 +16,7 @@ export class Game extends Model {
   public description: string;
   public icon: string;
   public images: string[];
+  public metadata: any;
   public namespaceId: string;
   public subtitle: string;
   public title: string;

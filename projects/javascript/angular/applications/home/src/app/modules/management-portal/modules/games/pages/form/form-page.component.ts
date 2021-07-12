@@ -10,6 +10,12 @@ import { IdentityService, SelectedNamespaceService } from '../../../../../../cor
 import { PromptComponent } from '../../../../../../shared/components';
 import { MediaDialogComponent } from '../../components';
 
+interface PropertyFormGroup {
+  key?: string;
+  type?: string;
+  value?: any;
+}
+
 @Component({
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
@@ -115,9 +121,15 @@ export class GamesFormPageComponent implements OnInit {
       return;
     }
 
+    const metadata = this.form.get('metadata').value.reduce((accumulator, property) => {
+      accumulator[property.key] = this.getJsonFromProperty(property);
+      return accumulator;
+    }, {});
+
     const values: Partial<Game> = {
       access: this.form.get('access').value,
       description: this.form.get('description').value,
+      metadata,
       namespaceId: this.selectedNamespaceService.namespaceId,
       subtitle: this.form.get('subtitle').value,
       title: this.form.get('title').value,
@@ -132,6 +144,19 @@ export class GamesFormPageComponent implements OnInit {
 
   public view(src: string, type: string = 'image') {
     this.matDialog.open(MediaDialogComponent, { autoFocus: false, data: { src, type } });
+  }
+
+  private getJsonFromProperty(property: PropertyFormGroup): any {
+    switch (property.type) {
+      case 'boolean':
+        return property.value || false;
+
+      case 'number':
+        return isNaN(parseFloat(property.value)) ? 0 : parseFloat(property.value);
+
+      default:
+        return property.value || '';
+    }
   }
 
   private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
@@ -153,10 +178,30 @@ export class GamesFormPageComponent implements OnInit {
   private setupForm(): void {
     this.data = this.data || new Game();
 
+    const metadata = [];
+    if (this.data.metadata) {
+      Object.entries(this.data.metadata).forEach(([key, property]) => {
+        let type = 'boolean';
+        if (typeof property === 'string' || property instanceof String) {
+          type = 'string';
+        } else if (typeof property === 'number') {
+          type = 'number';
+        }
+
+        const formGroup = this.formBuilder.group({
+          key: [key, [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
+          value: [property, Validators.required],
+          type,
+        });
+        metadata.push(formGroup);
+      });
+    }
+
     this.form = this.formBuilder.group({
       access: [this.data.access || IGame.Access.Private],
       description: [this.data.description, Validators.required],
       icon: [this.data.icon],
+      metadata: this.formBuilder.array(metadata),
       subtitle: [this.data.subtitle],
       title: [this.data.title, Validators.required],
     });

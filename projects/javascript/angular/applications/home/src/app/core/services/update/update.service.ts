@@ -3,7 +3,9 @@ import {
   Build,
   BuildService,
   Game,
+  GameAuthorization,
   GameAuthorizationService,
+  GameQuery,
   GameServer,
   GameService,
   IBuild,
@@ -15,7 +17,6 @@ import {
   NamespaceService,
 } from '@tenlastic/ng-http';
 import { ChildProcess } from 'child_process';
-import { GameAuthorization } from 'modules/http/src/public-api';
 import { Subject } from 'rxjs';
 
 import { ElectronService } from '../../services/electron/electron.service';
@@ -90,6 +91,7 @@ export class UpdateService {
   constructor(
     private buildService: BuildService,
     private electronService: ElectronService,
+    private gameQuery: GameQuery,
     private gameService: GameService,
     private gameAuthorizationService: GameAuthorizationService,
     private identityService: IdentityService,
@@ -252,11 +254,13 @@ export class UpdateService {
     }
 
     const accessToken = await this.identityService.getAccessToken();
+    const game = this.gameQuery.getEntity(gameId);
     const refreshToken = this.identityService.getRefreshToken();
 
     const env = {
       ...process.env,
       ACCESS_TOKEN: accessToken.value,
+      GAME_JSON: JSON.stringify(game),
       GAME_SERVER_JSON: JSON.stringify(options.gameServer),
       GROUP_ID: options.groupId,
       REFRESH_TOKEN: refreshToken.value,

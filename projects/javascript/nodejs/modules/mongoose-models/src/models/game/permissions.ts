@@ -12,12 +12,23 @@ const administrator = {
     'description',
     'icon',
     'images',
+    'metadata.*',
     'namespaceId',
     'subtitle',
     'title',
     'videos',
   ],
-  update: ['access', 'background', 'description', 'icon', 'images', 'subtitle', 'title', 'videos'],
+  update: [
+    'access',
+    'background',
+    'description',
+    'icon',
+    'images',
+    'metadata.*',
+    'subtitle',
+    'title',
+    'videos',
+  ],
 };
 
 export const GamePermissions = new MongoosePermissions<GameDocument>(Game, {
@@ -77,6 +88,7 @@ export const GamePermissions = new MongoosePermissions<GameDocument>(Game, {
       'description',
       'icon',
       'images',
+      'metadata.*',
       'namespaceId',
       'subtitle',
       'title',

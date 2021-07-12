@@ -22,6 +22,8 @@ components:
           type: array
           items:
             type: string
+        metadata:
+          type: object
         namespaceId:
           type: string
           format: ^[0-9a-f]{24}$

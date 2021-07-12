@@ -83,6 +83,9 @@ export class GameSchema {
   @arrayProp({ items: String })
   public images: string[];
 
+  @prop({ default: {} })
+  public metadata: any;
+
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
   public namespaceId: Ref<NamespaceDocument>;
 
