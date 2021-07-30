@@ -23,10 +23,7 @@ export async function connect(options: ConnectionOptions) {
     setTimeout(() => connect(options), 5000);
   });
 
-  connection.on('error', err => {
-    console.error(err);
-    setTimeout(() => connect(options), 5000);
-  });
+  connection.on('error', console.error);
 
   events.emit('connect');
   console.log('Connected to RabbitMQ.');

@@ -252,12 +252,12 @@ spec:
             - name: MINIO_SECRET_KEY
               value: minioadmin
         - name: rabbitmq
-          image: rabbitmq:latest
+          image: bitnami/rabbitmq:latest
           imagePullPolicy: IfNotPresent
           env:
-            - name: RABBITMQ_DEFAULT_PASS
+            - name: RABBITMQ_PASSWORD
               value: password
-            - name: RABBITMQ_DEFAULT_USER
+            - name: RABBITMQ_USERNAME
               value: username
 
     - name: get-branch

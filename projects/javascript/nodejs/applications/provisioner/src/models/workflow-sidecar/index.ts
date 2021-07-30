@@ -11,6 +11,7 @@ import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
 import { subscribe } from '../../subscribe';
+import { wait } from '../../wait';
 import { KubernetesWorkflow } from '../workflow';
 
 export const KubernetesWorkflowSidecar = {
@@ -30,7 +31,10 @@ export const KubernetesWorkflowSidecar = {
     const workflowLabels = KubernetesWorkflow.getLabels(workflow);
     const workflowName = KubernetesWorkflow.getName(workflow);
 
-    const uid = await getWorkflowUid(workflow);
+    const uid = wait(1000, 15 * 1000, async () => {
+      const response = await workflowApiV1.read(KubernetesWorkflow.getName(workflow), 'dynamic');
+      return response.body.metadata.uid;
+    });
     const ownerReferences = [
       {
         apiVersion: 'argoproj.io/v1alpha1',
@@ -172,13 +176,3 @@ export const KubernetesWorkflowSidecar = {
     });
   },
 };
-
-async function getWorkflowUid(workflow: WorkflowDocument): Promise<string> {
-  try {
-    const response = await workflowApiV1.read(KubernetesWorkflow.getName(workflow), 'dynamic');
-    return response.body.metadata.uid;
-  } catch {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return getWorkflowUid(workflow);
-  }
-}

@@ -11,6 +11,7 @@ import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 
 import { subscribe } from '../../subscribe';
+import { wait } from '../../wait';
 import { KubernetesBuild } from '../build';
 
 export const KubernetesBuildSidecar = {
@@ -30,7 +31,10 @@ export const KubernetesBuildSidecar = {
     const buildName = KubernetesBuild.getName(build);
     const name = KubernetesBuildSidecar.getName(build);
 
-    const uid = await getBuildUid(build);
+    const uid = wait(1000, 15 * 1000, async () => {
+      const response = await workflowApiV1.read(KubernetesBuild.getName(build), 'dynamic');
+      return response.body.metadata.uid;
+    });
     const ownerReferences = [
       {
         apiVersion: 'argoproj.io/v1alpha1',
@@ -170,13 +174,3 @@ export const KubernetesBuildSidecar = {
     });
   },
 };
-
-async function getBuildUid(build: BuildDocument): Promise<string> {
-  try {
-    const response = await workflowApiV1.read(KubernetesBuild.getName(build), 'dynamic');
-    return response.body.metadata.uid;
-  } catch {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return getBuildUid(build);
-  }
-}

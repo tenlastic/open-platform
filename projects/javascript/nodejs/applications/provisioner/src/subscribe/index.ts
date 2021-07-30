@@ -34,7 +34,7 @@ export async function subscribe<TDocument extends mongoose.Document>(
     } catch (e) {
       console.log(`Error processing message from provisioner.${queue}.`);
       console.error(e);
-      await rabbitmq.requeue(channel, msg, { delay: 15 * 1000 });
+      await rabbitmq.requeue(channel, msg, { delay: 15 * 1000, retries: 3 });
     } finally {
       console.log(`Acking message from provisioner.${queue}.`);
       channel.ack(msg);
