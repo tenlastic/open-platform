@@ -2,16 +2,10 @@ import * as amqp from 'amqplib';
 
 import { connection, events } from '../connect';
 
-let handler: () => void;
-
 export async function consume(
   queue: string,
   onMessage: (channel: amqp.Channel, content: any, msg: amqp.ConsumeMessage) => void,
 ) {
-  if (handler) {
-    events.off('connect', handler);
-  }
-
   const channel = await connection.createChannel();
   await channel.assertQueue(queue, { durable: true });
 
@@ -23,8 +17,7 @@ export async function consume(
     onMessage(channel, parsed, msg);
   });
 
-  handler = () => consume(queue, onMessage);
-  events.on('connect', handler);
-
+  // Resubscibe on reconnect.
+  events.once('connect', () => consume(queue, onMessage));
   console.log(`Subscribed to RabbitMQ queue: ${queue}.`);
 }

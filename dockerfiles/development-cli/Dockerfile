@@ -50,7 +50,7 @@ RUN curl -o terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_V
   rm terraform.zip
 
 # Install argo.
-RUN wget https://github.com/argoproj/argo/releases/download/v$ARGO_VERSION/argo-linux-amd64 -O argo && \
+RUN wget https://github.com/argoproj/argo-workflows/releases/download/v$ARGO_VERSION/argo-linux-amd64 -O argo && \
   chmod +x argo && \
   mv argo /usr/local/bin/argo
 
