@@ -12,10 +12,10 @@ export async function connect(options: ConnectionOptions) {
   try {
     connection = await amqp.connect(options.url, { heartbeat: 60 });
   } catch (err) {
-    console.error(err);
-    setTimeout(() => connect(options), 5000);
+    console.error(`Could not connect to RabbitMQ: ${err.message}.`);
 
-    return;
+    await new Promise(res => setTimeout(res, 5000));
+    return connect(options);
   }
 
   connection.on('close', () => {
