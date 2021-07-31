@@ -6,8 +6,6 @@ const container = process.env.GAME_SERVER_CONTAINER;
 const endpoint = process.env.GAME_SERVER_ENDPOINT;
 const podLabelSelector = process.env.GAME_SERVER_POD_LABEL_SELECTOR;
 
-let activePodName: string;
-let activePodStatus: string;
 const pods: { [key: string]: V1Pod } = {};
 
 /**
