@@ -44,9 +44,9 @@ async function getPodIp(pod: V1Pod) {
 }
 
 function getPodStatus(pod: V1Pod) {
-  const isReady =
-    pod.status.conditions &&
-    pod.status.conditions.find(c => c.status === 'True' && c.type === 'ContainersReady');
+  const isReady = pod.status.conditions?.find(
+    c => c.status === 'True' && c.type === 'ContainersReady',
+  );
 
   let phase = pod.status.phase;
   if (phase === 'Running' && !isReady) {
@@ -59,7 +59,7 @@ function getPodStatus(pod: V1Pod) {
 async function updateGameServer() {
   // Endpoints.
   let endpoints = null;
-  const pod = Object.values(pods).find(p => p.status.phase === 'Running');
+  const pod = Object.values(pods).find(p => !p.metadata.deletionTimestamp);
   if (pod?.spec?.nodeName) {
     const ip = await getPodIp(pod);
     const ports = pod.spec.containers.find(cs => cs.name === container).ports;
@@ -73,7 +73,9 @@ async function updateGameServer() {
   }
 
   // Nodes.
-  const nodes = Object.values(pods).map(getPodStatus);
+  const nodes = Object.values(pods)
+    .filter(p => !p.metadata.deletionTimestamp)
+    .map(getPodStatus);
 
   // Phase.
   let phase = 'Pending';
@@ -85,10 +87,10 @@ async function updateGameServer() {
     phase = 'Failed';
   }
 
-  const ownerReference = pod.metadata.ownerReferences && pod.metadata.ownerReferences[0];
-  const isDeployment = ownerReference && ownerReference.kind === 'ReplicaSet';
+  const ownerReference = pod?.metadata?.ownerReferences[0];
+  const isDeployment = ownerReference?.kind === 'ReplicaSet';
 
-  if (isDeployment || ['Pending', 'Running'].includes(pod.status.phase)) {
+  if (isDeployment || ['Pending', 'Running'].includes(pod?.status?.phase)) {
     console.log(`Updating Game Server status: ${pod.status.phase}.`);
 
     await requestPromiseNative.put({

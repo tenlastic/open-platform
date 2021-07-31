@@ -36,9 +36,9 @@ export async function status() {
 }
 
 function getPodStatus(pod: V1Pod) {
-  const isReady =
-    pod.status.conditions &&
-    pod.status.conditions.find(c => c.status === 'True' && c.type === 'ContainersReady');
+  const isReady = pod.status.conditions?.find(
+    c => c.status === 'True' && c.type === 'ContainersReady',
+  );
 
   let phase = pod.status.phase;
   if (phase === 'Running' && !isReady) {
@@ -51,7 +51,9 @@ function getPodStatus(pod: V1Pod) {
 async function updateDatabase() {
   console.log(`Updating Database status...`);
 
-  const nodes = Object.values(pods).map(getPodStatus);
+  const nodes = Object.values(pods)
+    .filter(p => !p.metadata.deletionTimestamp)
+    .map(getPodStatus);
 
   let phase = 'Pending';
   if (nodes.every(n => n.phase === 'Running')) {
