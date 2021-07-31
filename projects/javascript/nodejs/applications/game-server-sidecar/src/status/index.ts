@@ -18,24 +18,14 @@ export async function status() {
     'dynamic',
     { labelSelector: podLabelSelector },
     async (type, pod: V1Pod) => {
-      // Update Pods.
       if (type === 'ADDED' || type === 'MODIFIED') {
         pods[pod.metadata.name] = pod;
       } else if (type === 'DELETED') {
         delete pods[pod.metadata.name];
       }
 
-      // Update active Pod.
-      if (type === 'ADDED') {
-        activePodName = pod.metadata.name;
-      }
-      if (activePodName !== pod.metadata.name || activePodStatus === pod.status.phase) {
-        return;
-      }
-      activePodStatus = pod.status.phase;
-
       try {
-        await updateGameServer(pod);
+        await updateGameServer();
       } catch (e) {
         console.error(e);
         process.exit(1);
@@ -68,10 +58,11 @@ function getPodStatus(pod: V1Pod) {
   return { name: pod.metadata.name, phase };
 }
 
-async function updateGameServer(pod: V1Pod) {
+async function updateGameServer() {
   // Endpoints.
   let endpoints = null;
-  if (pod.spec.nodeName) {
+  const pod = Object.values(pods).find(p => p.status.phase === 'Running');
+  if (pod?.spec?.nodeName) {
     const ip = await getPodIp(pod);
     const ports = pod.spec.containers.find(cs => cs.name === container).ports;
     const tcp = ports.find(p => p.protocol === 'TCP').hostPort;
