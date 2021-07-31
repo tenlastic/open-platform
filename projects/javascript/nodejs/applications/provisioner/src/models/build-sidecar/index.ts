@@ -31,7 +31,7 @@ export const KubernetesBuildSidecar = {
     const buildName = KubernetesBuild.getName(build);
     const name = KubernetesBuildSidecar.getName(build);
 
-    const uid = wait(1000, 15 * 1000, async () => {
+    const uid = await wait(1000, 15 * 1000, async () => {
       const response = await workflowApiV1.read(KubernetesBuild.getName(build), 'dynamic');
       return response.body.metadata.uid;
     });

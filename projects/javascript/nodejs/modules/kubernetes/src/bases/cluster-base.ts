@@ -25,16 +25,24 @@ export class ClusterBaseApiV1<T extends ClusterBaseBody> {
   public async createOrRead(body: T): Promise<ClusterBaseResponse<T>> {
     try {
       return await this.create(body);
-    } catch {
-      return this.read(body.metadata.name);
+    } catch (e) {
+      if (e.response?.statusCode === 409) {
+        return this.read(body.metadata.name);
+      } else {
+        throw e;
+      }
     }
   }
 
   public async createOrReplace(body: T): Promise<ClusterBaseResponse<T>> {
     try {
       return await this.create(body);
-    } catch {
-      return this.replace(body.metadata.name, body);
+    } catch (e) {
+      if (e.response?.statusCode === 409) {
+        return this.replace(body.metadata.name, body);
+      } else {
+        throw e;
+      }
     }
   }
 

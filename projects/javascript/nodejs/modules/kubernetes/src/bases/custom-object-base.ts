@@ -34,8 +34,12 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
   public async createOrRead(namespace: string, body: T) {
     try {
       return await this.create(namespace, body);
-    } catch {
-      return this.read(body.metadata.name, namespace);
+    } catch (e) {
+      if (e.response?.statusCode === 409) {
+        return this.read(body.metadata.name, namespace);
+      } else {
+        throw e;
+      }
     }
   }
 
@@ -43,8 +47,11 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
     try {
       return await this.create(namespace, body);
     } catch (e) {
-      console.error(e);
-      return this.replace(body.metadata.name, namespace, body);
+      if (e.response?.statusCode === 409) {
+        return this.replace(body.metadata.name, namespace, body);
+      } else {
+        throw e;
+      }
     }
   }
 

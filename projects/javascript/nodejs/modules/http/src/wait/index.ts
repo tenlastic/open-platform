@@ -8,10 +8,12 @@ import { performance } from 'perf_hooks';
 export async function wait(interval: number, timeout: number, criteria: () => any) {
   const start = performance.now();
 
-  const result = await criteria();
-  if (result) {
-    return result;
-  }
+  try {
+    const result = await criteria();
+    if (result) {
+      return result;
+    }
+  } catch {}
 
   const duration = performance.now() - start;
   if (duration >= timeout) {

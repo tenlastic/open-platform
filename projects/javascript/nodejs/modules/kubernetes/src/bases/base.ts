@@ -45,16 +45,24 @@ export abstract class BaseApiV1<T extends BaseBody> {
   public async createOrRead(namespace: string, body: T): Promise<BaseResponse<T>> {
     try {
       return await this.create(namespace, body);
-    } catch {
-      return this.read(body.metadata.name, namespace);
+    } catch (e) {
+      if (e.response?.statusCode === 409) {
+        return this.read(body.metadata.name, namespace);
+      } else {
+        throw e;
+      }
     }
   }
 
   public async createOrReplace(namespace: string, body: T): Promise<BaseResponse<T>> {
     try {
       return await this.create(namespace, body);
-    } catch {
-      return this.replace(body.metadata.name, namespace, body);
+    } catch (e) {
+      if (e.response?.statusCode === 409) {
+        return this.replace(body.metadata.name, namespace, body);
+      } else {
+        throw e;
+      }
     }
   }
 
