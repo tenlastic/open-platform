@@ -22,6 +22,6 @@ $COVERAGE_ARGUMENTS \
   --require ts-node/register \
   --reporter mocha-multi-reporters \
   --reporter-options configFile="../../mocha-multi-reporters.json" \
-  --timeout 10000 \
+  --timeout 30000 \
   $WATCH_ARGUMENTS \
   "./src/**/*.spec.ts"
