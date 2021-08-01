@@ -31,6 +31,7 @@ export type BaseWatchDoneCallback = (err: any) => void;
 export interface BaseWatchOptions {
   fieldSelector?: string;
   labelSelector?: string;
+  resourceVersion?: string;
 }
 
 export abstract class BaseApiV1<T extends BaseBody> {
@@ -108,18 +109,40 @@ export abstract class BaseApiV1<T extends BaseBody> {
     return this.api[method](name, namespace, copy);
   }
 
-  public watch(
+  public async watch(
     namespace: string,
     options: BaseWatchOptions,
     callback: BaseWatchCallback<T>,
     done?: BaseWatchDoneCallback,
   ) {
+    let resourceVersion: string;
+
     const kc = new k8s.KubeConfig();
     kc.loadFromDefault();
 
     const endpoint = this.getEndpoint(namespace);
     const watch = new k8s.Watch(kc);
-    watch.watch(endpoint, options, callback, done);
+    const req = await watch.watch(
+      endpoint,
+      { ...options, allowWatchBookmarks: true },
+      (type, resource) => {
+        // Remember the resource version for later.
+        resourceVersion = resource.metadata.resourceVersion;
+
+        // Do not propagate bookmark events.
+        if (type !== 'BOOKMARK') {
+          callback(type as BaseWatchAction, resource);
+        }
+      },
+      done,
+    );
+
+    // Abort the request after 5 minutes.
+    await new Promise(res => setTimeout(res, 5 * 60 * 1000));
+    req.abort();
+
+    // Start another watch with the most recent resource version.
+    return this.watch(namespace, { ...options, resourceVersion }, callback, done);
   }
 
   protected abstract getEndpoint(namespace: string): string;
