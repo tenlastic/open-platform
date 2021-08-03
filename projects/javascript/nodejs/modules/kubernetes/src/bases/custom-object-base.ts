@@ -93,7 +93,7 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
     ) as Promise<BaseResponse<T>>;
   }
 
-  public watch(
+  public async watch(
     namespace: string,
     options: BaseWatchOptions,
     callback: BaseWatchCallback<T>,
@@ -101,7 +101,13 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
   ) {
     const endpoint = this.getEndpoint(namespace);
     const watch = new k8s.Watch(kc);
-    watch.watch(endpoint, options, callback, done);
+    const req = await watch.watch(endpoint, options, callback, done);
+
+    // Abort the request after 5 minutes.
+    await new Promise(res => setTimeout(res, 5 * 60 * 1000));
+    req.abort();
+
+    return this.watch(namespace, options, callback, done);
   }
 
   protected abstract getEndpoint(namespace: string): string;

@@ -120,12 +120,7 @@ export abstract class BaseApiV1<T extends BaseBody> {
 
     const endpoint = this.getEndpoint(namespace);
     const watch = new k8s.Watch(kc);
-    const req = await watch.watch(
-      endpoint,
-      { ...options },
-      (type, resource) => callback(type as BaseWatchAction, resource),
-      done,
-    );
+    const req = await watch.watch(endpoint, options, callback, done);
 
     // Abort the request after 5 minutes.
     await new Promise(res => setTimeout(res, 5 * 60 * 1000));
