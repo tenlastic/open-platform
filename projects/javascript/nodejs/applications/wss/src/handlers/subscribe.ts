@@ -1,7 +1,5 @@
 import {
   Build,
-  BuildLog,
-  BuildLogPermissions,
   BuildPermissions,
   Database,
   DatabasePermissions,
@@ -10,8 +8,6 @@ import {
   GameAuthorizationPermissions,
   GamePermissions,
   GameServer,
-  GameServerLog,
-  GameServerLogPermissions,
   GameServerPermissions,
   GroupInvitation,
   GroupInvitationPermissions,
@@ -20,8 +16,6 @@ import {
   Message,
   MessagePermissions,
   Queue,
-  QueueLog,
-  QueueLogPermissions,
   QueueMember,
   QueueMemberPermissions,
   QueuePermissions,
@@ -30,12 +24,8 @@ import {
   WebSocket,
   WebSocketPermissions,
   Workflow,
-  WorkflowLog,
-  WorkflowLogPermissions,
   WorkflowPermissions,
 } from '@tenlastic/mongoose-models';
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
-import * as mongoose from 'mongoose';
 import * as webSocketServer from '@tenlastic/web-socket-server';
 
 export async function subscribe(
@@ -43,99 +33,56 @@ export async function subscribe(
   data: webSocketServer.SubscribeData,
   ws: webSocketServer.WebSocket,
 ) {
-  let Model: mongoose.Model<mongoose.Document>;
-  let Permissions: MongoosePermissions<any>;
+  if (!data.parameters) {
+    return webSocketServer.unsubscribe(auth, data, ws);
+  }
 
   switch (data.parameters.collection) {
-    case 'build-logs':
-      Model = BuildLog;
-      Permissions = BuildLogPermissions;
-      break;
-
     case 'builds':
-      Model = Build;
-      Permissions = BuildPermissions;
-      break;
+      return webSocketServer.subscribe(auth, data, Build, BuildPermissions, ws);
 
     case 'databases':
-      Model = Database;
-      Permissions = DatabasePermissions;
-      break;
+      return webSocketServer.subscribe(auth, data, Database, DatabasePermissions, ws);
 
     case 'games':
-      Model = Game;
-      Permissions = GamePermissions;
-      break;
+      return webSocketServer.subscribe(auth, data, Game, GamePermissions, ws);
 
     case 'game-authorizations':
-      Model = GameAuthorization;
-      Permissions = GameAuthorizationPermissions;
-      break;
-
-    case 'game-server-logs':
-      Model = GameServerLog;
-      Permissions = GameServerLogPermissions;
-      break;
+      return webSocketServer.subscribe(
+        auth,
+        data,
+        GameAuthorization,
+        GameAuthorizationPermissions,
+        ws,
+      );
 
     case 'game-servers':
-      Model = GameServer;
-      Permissions = GameServerPermissions;
-      break;
+      return webSocketServer.subscribe(auth, data, GameServer, GameServerPermissions, ws);
 
     case 'group-invitations':
-      Model = GroupInvitation;
-      Permissions = GroupInvitationPermissions;
-      break;
+      return webSocketServer.subscribe(auth, data, GroupInvitation, GroupInvitationPermissions, ws);
 
     case 'groups':
-      Model = Group;
-      Permissions = GroupPermissions;
-      break;
+      return webSocketServer.subscribe(auth, data, Group, GroupPermissions, ws);
 
     case 'messages':
-      Model = Message;
-      Permissions = MessagePermissions;
-      break;
-
-    case 'queue-logs':
-      Model = QueueLog;
-      Permissions = QueueLogPermissions;
-      break;
+      return webSocketServer.subscribe(auth, data, Message, MessagePermissions, ws);
 
     case 'queue-members':
-      Model = QueueMember;
-      Permissions = QueueMemberPermissions;
-      break;
+      return webSocketServer.subscribe(auth, data, QueueMember, QueueMemberPermissions, ws);
 
     case 'queues':
-      Model = Queue;
-      Permissions = QueuePermissions;
-      break;
+      return webSocketServer.subscribe(auth, data, Queue, QueuePermissions, ws);
 
     case 'users':
-      Model = User;
-      Permissions = UserPermissions;
-      break;
+      return webSocketServer.subscribe(auth, data, User, UserPermissions, ws);
 
     case 'web-sockets':
-      Model = WebSocket;
-      Permissions = WebSocketPermissions;
-      break;
+      return webSocketServer.subscribe(auth, data, WebSocket, WebSocketPermissions, ws);
 
     case 'workflows':
-      Model = Workflow;
-      Permissions = WorkflowPermissions;
-      break;
-
-    case 'workflow-logs':
-      Model = WorkflowLog;
-      Permissions = WorkflowLogPermissions;
-      break;
+      return webSocketServer.subscribe(auth, data, Workflow, WorkflowPermissions, ws);
   }
 
-  if (!Model || !Permissions) {
-    return;
-  }
-
-  return webSocketServer.subscribe(auth, data, Model, Permissions, ws);
+  throw new Error('Invalid arguments.');
 }

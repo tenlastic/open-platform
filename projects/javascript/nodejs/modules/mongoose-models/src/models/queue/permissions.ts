@@ -29,6 +29,7 @@ const administrator = {
     'description',
     'gameId',
     'gameServerTemplate.*',
+    'logs',
     'memory',
     'metadata.*',
     'name',

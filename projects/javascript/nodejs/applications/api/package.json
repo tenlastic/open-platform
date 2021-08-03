@@ -19,6 +19,7 @@
   "dependencies": {
     "@tenlastic/json-schema": "0.0.216",
     "@tenlastic/kafka": "0.0.216",
+    "@tenlastic/kubernetes": "0.0.216",
     "@tenlastic/logging": "0.0.216",
     "@tenlastic/mailgun": "0.0.216",
     "@tenlastic/minio": "0.0.216",

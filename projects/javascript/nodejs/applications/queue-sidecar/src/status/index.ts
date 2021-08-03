@@ -15,6 +15,8 @@ export async function status() {
     'dynamic',
     { labelSelector: podLabelSelector },
     async (type, pod: V1Pod) => {
+      console.log(`Event - ${type}: ${pod.metadata.name}.`);
+
       if (type === 'ADDED' || type === 'MODIFIED') {
         pods[pod.metadata.name] = pod;
       } else if (type === 'DELETED') {
@@ -24,12 +26,12 @@ export async function status() {
       try {
         await updateQueue();
       } catch (e) {
-        console.error(e);
+        console.error(e.message);
         process.exit(1);
       }
     },
     err => {
-      console.error(err);
+      console.error(err?.message);
       process.exit(err ? 1 : 0);
     },
   );
@@ -45,7 +47,7 @@ function getPodStatus(pod: V1Pod) {
     phase = 'Pending';
   }
 
-  return { name: pod.metadata.name, phase };
+  return { _id: pod.metadata.name, phase };
 }
 
 async function updateQueue() {

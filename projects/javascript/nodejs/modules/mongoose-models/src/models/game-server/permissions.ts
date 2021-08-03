@@ -30,6 +30,7 @@ const administrator = {
     'currentUserIds',
     'description',
     'gameId',
+    'logs',
     'memory',
     'metadata.*',
     'name',

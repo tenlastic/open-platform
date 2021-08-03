@@ -55,7 +55,6 @@ export const KubernetesGameServerSidecar = {
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
       { algorithm: 'RS256' },
     );
-    const labelSelector = `tenlastic.com/app=${gameServerName},tenlastic.com/role=application`;
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },
@@ -65,10 +64,7 @@ export const KubernetesGameServerSidecar = {
         ACCESS_TOKEN: accessToken,
         GAME_SERVER_CONTAINER: 'main',
         GAME_SERVER_ENDPOINT: `http://api.static:3000/game-servers/${gameServer._id}`,
-        GAME_SERVER_POD_LABEL_SELECTOR: labelSelector,
-        LOG_CONTAINER: 'main',
-        LOG_ENDPOINT: `http://api.static:3000/game-servers/${gameServer._id}/logs`,
-        LOG_POD_LABEL_SELECTOR: labelSelector,
+        GAME_SERVER_POD_LABEL_SELECTOR: `tenlastic.com/app=${gameServerName}`,
       },
     });
 

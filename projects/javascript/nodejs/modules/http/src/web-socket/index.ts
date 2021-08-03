@@ -89,7 +89,7 @@ export class WebSocket {
       return;
     }
 
-    const data = { _id, method: 'unsubscribe' };
+    const data = { _id, method: 'subscribe' };
     this.socket.send(JSON.stringify(data));
   }
 }

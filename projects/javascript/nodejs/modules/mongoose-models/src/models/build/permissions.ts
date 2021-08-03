@@ -13,6 +13,7 @@ const administrator = {
     'entrypoint',
     'files.*',
     'gameId',
+    'logs',
     'name',
     'namespaceId',
     'platform',

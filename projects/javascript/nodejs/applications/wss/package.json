@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@tenlastic/kafka": "0.0.216",
+    "@tenlastic/kubernetes": "0.0.216",
     "@tenlastic/logging": "0.0.216",
     "@tenlastic/mongoose-change-stream-kafka": "0.0.216",
     "@tenlastic/mongoose-models": "0.0.216",

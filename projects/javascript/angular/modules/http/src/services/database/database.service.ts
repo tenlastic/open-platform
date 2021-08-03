@@ -1,8 +1,14 @@
 import { EventEmitter, Injectable } from '@angular/core';
 
 import { Database } from '../../models/database';
+import { DatabaseLog } from '../../models/database-log';
 import { ApiService, RestParameters } from '../api/api.service';
 import { EnvironmentService } from '../environment/environment.service';
+
+export interface DatabaseServiceLogsOptions {
+  since?: string;
+  tail?: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
@@ -10,6 +16,7 @@ export class DatabaseService {
 
   public onCreate = new EventEmitter<Database>();
   public onDelete = new EventEmitter<Database>();
+  public onLogs = new EventEmitter<DatabaseLog[]>();
   public onRead = new EventEmitter<Database[]>();
   public onUpdate = new EventEmitter<Database>();
 
@@ -57,6 +64,25 @@ export class DatabaseService {
     this.onRead.emit([record]);
 
     return record;
+  }
+
+  public async logs(
+    _id: string,
+    nodeId: string,
+    parameters?: DatabaseServiceLogsOptions,
+  ): Promise<DatabaseLog[]> {
+    const response = await this.apiService.request(
+      'get',
+      `${this.basePath}/${_id}/logs/${nodeId}`,
+      parameters,
+    );
+
+    const records = response.records.map(
+      record => new DatabaseLog({ ...record, databaseId: _id, nodeId }),
+    );
+    this.onLogs.emit(records);
+
+    return records;
   }
 
   public async update(parameters: Partial<Database>): Promise<Database> {

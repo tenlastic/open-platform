@@ -64,9 +64,6 @@ export const KubernetesBuildSidecar = {
       },
       stringData: {
         ACCESS_TOKEN: accessToken,
-        LOG_CONTAINER: 'main',
-        LOG_ENDPOINT: `http://api.static:3000/builds/${build._id}/logs`,
-        LOG_POD_LABEL_SELECTOR: `tenlastic.com/app=${buildName},tenlastic.com/role=application`,
         WORKFLOW_ENDPOINT: `http://api.static:3000/builds/${build._id}`,
         WORKFLOW_NAME: buildName,
       },

@@ -9,7 +9,7 @@ import {
   GroupQuery,
 } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 
 import { IdentityService, UpdateService } from '../../../../core/services';
 
@@ -57,7 +57,7 @@ export class GameServersPageComponent implements OnInit {
   }
 
   public async joinAsGroup(gameServer: GameServer) {
-    const group = await this.$group.pipe(take(1)).toPromise();
+    const group = await this.$group.pipe(first()).toPromise();
     this.updateService.play(this.gameQuery.getActiveId(), {
       gameServer,
       groupId: group._id,

@@ -8,10 +8,10 @@ import {
 
 import { GameServerStatusPhase } from '../model';
 
-@modelOptions({ schemaOptions: { _id: false } })
+@modelOptions({ schemaOptions: { _id: false, id: false } })
 export class GameServerStatusNodeSchema {
   @prop({ required: true })
-  public name: string;
+  public _id: string;
 
   @prop({ enum: GameServerStatusPhase, required: true })
   public phase: GameServerStatusPhase;

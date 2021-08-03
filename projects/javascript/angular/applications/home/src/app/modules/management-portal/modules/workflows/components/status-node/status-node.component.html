@@ -10,7 +10,7 @@
           <div *ngSwitchCase="'Workflow'"
                class="node-name">Workflow</div>
           <div *ngSwitchDefault
-               class="node-name">{{ node.displayName }}</div>
+               class="node-name">{{ getDisplayName(node.displayName) }}</div>
      </ng-container>
 
      <div *ngIf="node.phase === 'Error'"

@@ -55,7 +55,6 @@ export const KubernetesQueueSidecar = {
       process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
       { algorithm: 'RS256' },
     );
-    const appSelector = `tenlastic.com/app=${queueName}`;
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' },
@@ -63,11 +62,8 @@ export const KubernetesQueueSidecar = {
       },
       stringData: {
         ACCESS_TOKEN: accessToken,
-        LOG_CONTAINER: 'main',
-        LOG_ENDPOINT: `http://api.static:3000/queues/${queue._id}/logs`,
-        LOG_POD_LABEL_SELECTOR: `${appSelector},tenlastic.com/role=application`,
         QUEUE_ENDPOINT: `http://api.static:3000/queues/${queue._id}`,
-        QUEUE_POD_LABEL_SELECTOR: `${appSelector},tenlastic.com/role in (application,redis)`,
+        QUEUE_POD_LABEL_SELECTOR: `tenlastic.com/app=${queueName}`,
       },
     });
 

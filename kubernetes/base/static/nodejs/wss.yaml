@@ -1,3 +1,9 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: wss
+  namespace: static
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -56,6 +62,7 @@ spec:
           resources:
             requests:
               cpu: 50m
+      serviceAccountName: wss
 ---
 apiVersion: v1
 kind: Service

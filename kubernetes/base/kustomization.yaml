@@ -12,6 +12,7 @@ resources:
   - ./dynamic/argo-workflows/workflow-controller-crb.yaml
   - ./dynamic/argo-workflows/workflow-controller-sa.yaml
   - ./dynamic/network-policies/default.yaml
+  - ./dynamic/rbac/api.yaml
   - ./dynamic/rbac/build.yaml
   - ./dynamic/rbac/build-sidecar.yaml
   - ./dynamic/rbac/database-sidecar.yaml
@@ -22,6 +23,7 @@ resources:
   - ./dynamic/rbac/queue-sidecar.yaml
   - ./dynamic/rbac/workflow.yaml
   - ./dynamic/rbac/workflow-sidecar.yaml
+  - ./dynamic/rbac/wss.yaml
   - ./static/angular/home-ui.yaml
   - ./static/argo/argo-workflows.yaml
   - ./static/docker-registry/docker-registry-ui.yaml

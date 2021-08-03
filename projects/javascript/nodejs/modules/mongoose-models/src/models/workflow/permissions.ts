@@ -58,6 +58,7 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
       '_id',
       'cpu',
       'createdAt',
+      'logs',
       'memory',
       'name',
       'namespaceId',

@@ -3,7 +3,7 @@ import 'source-map-support/register';
 import * as kafka from '@tenlastic/kafka';
 import * as mongooseChangeStreamKafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongooseModels from '@tenlastic/mongoose-models';
-import { WebServer } from '@tenlastic/web-server';
+import { loggingMiddleware, WebServer } from '@tenlastic/web-server';
 import { WebSocketServer } from '@tenlastic/web-socket-server';
 
 import { router as collectionsRouter } from './handlers/collections';
@@ -43,8 +43,13 @@ const podName = process.env.POD_NAME;
 
     // Web Server.
     const webServer = new WebServer();
+    webServer.use(loggingMiddleware);
+
+    // Register web server routes.
     webServer.use(collectionsRouter.routes());
     webServer.use(recordsRouter.routes());
+
+    // Start the web server.
     webServer.start();
 
     // Web Sockets.

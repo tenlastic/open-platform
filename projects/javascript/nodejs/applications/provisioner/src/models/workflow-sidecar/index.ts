@@ -64,9 +64,6 @@ export const KubernetesWorkflowSidecar = {
       },
       stringData: {
         ACCESS_TOKEN: accessToken,
-        LOG_CONTAINER: `main`,
-        LOG_ENDPOINT: `http://api.static:3000/workflows/${workflow._id}/logs`,
-        LOG_POD_LABEL_SELECTOR: `tenlastic.com/app=${workflowName},tenlastic.com/role=application`,
         WORKFLOW_ENDPOINT: `http://api.static:3000/workflows/${workflow._id}`,
         WORKFLOW_NAME: workflowName,
       },

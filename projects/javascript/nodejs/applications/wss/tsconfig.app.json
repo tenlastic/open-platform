@@ -10,6 +10,7 @@
   "include": ["./src"],
   "references": [
     { "path": "../../modules/kafka/tsconfig.app.json" },
+    { "path": "../../modules/kubernetes/tsconfig.app.json" },
     { "path": "../../modules/logging/tsconfig.app.json" },
     { "path": "../../modules/mongoose-change-stream-kafka/tsconfig.app.json" },
     { "path": "../../modules/mongoose-models/tsconfig.app.json" },

@@ -115,8 +115,6 @@ export abstract class BaseApiV1<T extends BaseBody> {
     callback: BaseWatchCallback<T>,
     done?: BaseWatchDoneCallback,
   ) {
-    let resourceVersion: string;
-
     const kc = new k8s.KubeConfig();
     kc.loadFromDefault();
 
@@ -124,16 +122,8 @@ export abstract class BaseApiV1<T extends BaseBody> {
     const watch = new k8s.Watch(kc);
     const req = await watch.watch(
       endpoint,
-      { ...options, allowWatchBookmarks: true },
-      (type, resource) => {
-        // Remember the resource version for later.
-        resourceVersion = resource.metadata.resourceVersion;
-
-        // Do not propagate bookmark events.
-        if (type !== 'BOOKMARK') {
-          callback(type as BaseWatchAction, resource);
-        }
-      },
+      { ...options },
+      (type, resource) => callback(type as BaseWatchAction, resource),
       done,
     );
 
@@ -141,8 +131,7 @@ export abstract class BaseApiV1<T extends BaseBody> {
     await new Promise(res => setTimeout(res, 5 * 60 * 1000));
     req.abort();
 
-    // Start another watch with the most recent resource version.
-    return this.watch(namespace, { ...options, resourceVersion }, callback, done);
+    return this.watch(namespace, options, callback, done);
   }
 
   protected abstract getEndpoint(namespace: string): string;

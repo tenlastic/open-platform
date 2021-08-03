@@ -26,12 +26,13 @@ export namespace IDatabase {
   ];
 
   export interface Status {
-    nodes?: StatusNode;
+    nodes?: StatusNode[];
     phase: string;
   }
 
   export interface StatusNode {
-    name: string;
+    _id: string;
+    displayName: string;
     phase: string;
   }
 }

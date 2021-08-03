@@ -1,8 +1,14 @@
 import { EventEmitter, Injectable } from '@angular/core';
 
 import { Workflow } from '../../models/workflow';
+import { WorkflowLog } from '../../models/workflow-log';
 import { ApiService, RestParameters } from '../api/api.service';
 import { EnvironmentService } from '../environment/environment.service';
+
+export interface WorkflowServiceLogsOptions {
+  since?: string;
+  tail?: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class WorkflowService {
@@ -10,6 +16,7 @@ export class WorkflowService {
 
   public onCreate = new EventEmitter<Workflow>();
   public onDelete = new EventEmitter<Workflow>();
+  public onLogs = new EventEmitter<WorkflowLog[]>();
   public onRead = new EventEmitter<Workflow[]>();
   public onUpdate = new EventEmitter<Workflow>();
 
@@ -57,6 +64,25 @@ export class WorkflowService {
     this.onRead.emit([record]);
 
     return record;
+  }
+
+  public async logs(
+    _id: string,
+    nodeId: string,
+    parameters?: WorkflowServiceLogsOptions,
+  ): Promise<WorkflowLog[]> {
+    const response = await this.apiService.request(
+      'get',
+      `${this.basePath}/${_id}/logs/${nodeId}`,
+      parameters,
+    );
+
+    const records = response.records.map(
+      record => new WorkflowLog({ ...record, nodeId, workflowId: _id }),
+    );
+    this.onLogs.emit(records);
+
+    return records;
   }
 
   public async update(parameters: Partial<Workflow>): Promise<Workflow> {

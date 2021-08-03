@@ -1,7 +1,16 @@
 import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Order } from '@datorama/akita';
-import { IBuild, Build, BuildLog, BuildLogQuery, BuildLogService } from '@tenlastic/ng-http';
+import {
+  IBuild,
+  Build,
+  BuildLog,
+  BuildLogQuery,
+  BuildService,
+  BuildLogStore,
+  BuildQuery,
+} from '@tenlastic/ng-http';
+import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
 import { SocketService } from '../../../../../../core/services';
@@ -27,7 +36,9 @@ export class BuildStatusNodeComponent {
 
   constructor(
     private buildLogQuery: BuildLogQuery,
-    private buildLogService: BuildLogService,
+    private buildLogStore: BuildLogStore,
+    private buildQuery: BuildQuery,
+    private buildService: BuildService,
     private matDialog: MatDialog,
     private socketService: SocketService,
   ) {}
@@ -41,29 +52,35 @@ export class BuildStatusNodeComponent {
   }
 
   public showLogsDialog() {
-    this.matDialog.open(LogsDialogComponent, {
+    const dialogRef = this.matDialog.open(LogsDialogComponent, {
       autoFocus: false,
       data: {
         $logs: this.buildLogQuery.selectAll({
-          filterBy: log => log.nodeId === this.node.id && log.buildId === this.build._id,
-          limitTo: 250,
+          filterBy: log => log.buildId === this.build._id,
           sortBy: 'unix',
           sortByOrder: Order.DESC,
         }),
-        find: () =>
-          this.buildLogService.find(this.build._id, {
-            limit: 250,
-            sort: '-unix',
-            where: { nodeId: this.node.id },
-          }),
-        subscribe: async () => {
+        $nodeIds: this.buildQuery
+          .selectEntity(this.build._id)
+          .pipe(map(build => this.getNodeIds(build))),
+        find: nodeId => this.buildService.logs(this.build._id, nodeId, { tail: 500 }),
+        nodeId: this.node._id,
+        subscribe: async (nodeId, unix) => {
           const socket = await this.socketService.connect(environment.apiBaseUrl);
-          return socket.subscribe('build-logs', BuildLog, this.buildLogService, {
-            nodeId: this.node.id,
-            buildId: this.build._id,
-          });
+          return socket.logs(
+            BuildLog,
+            { buildId: this.build._id, nodeId, since: unix ? new Date(unix) : new Date() },
+            this.buildService,
+          );
         },
       },
     });
+
+    dialogRef.afterClosed().subscribe(() => this.buildLogStore.reset());
+  }
+
+  private getNodeIds(build: Build) {
+    const nodes = build.status?.nodes?.filter(n => n.type === 'Pod');
+    return nodes.map(n => ({ label: this.getDisplayName(n.displayName), value: n._id }));
   }
 }

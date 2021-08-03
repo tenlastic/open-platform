@@ -149,7 +149,7 @@ export const KubernetesBuild = {
               name: 'copy-and-unzip-files',
             },
           ],
-          ttlStrategy: { secondsAfterCompletion: 15 * 60 },
+          ttlStrategy: { secondsAfterCompletion: 3 * 60 * 60 },
           volumes: [
             { name: 'node-modules', persistentVolumeClaim: { claimName: 'node-modules' } },
             { hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'source' },

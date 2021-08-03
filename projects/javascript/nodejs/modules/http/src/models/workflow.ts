@@ -128,8 +128,8 @@ export class WorkflowModel extends BaseModel {
     for (const node of nodes) {
       if (node.children) {
         for (const childId of node.children) {
-          const child = nodes.find(n => n.id === childId);
-          child.parent = node.id;
+          const child = nodes.find(n => n._id === childId);
+          child.parent = node._id;
         }
       }
     }
@@ -153,7 +153,7 @@ export class WorkflowModel extends BaseModel {
       const obj = Object.assign({}, current);
 
       if (parent === current.parent) {
-        const children = this.getChildren(data, current.id);
+        const children = this.getChildren(data, current._id);
 
         if (children.length) {
           obj.children = children;

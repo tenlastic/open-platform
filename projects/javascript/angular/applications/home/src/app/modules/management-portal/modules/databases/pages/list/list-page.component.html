@@ -51,6 +51,12 @@
         </app-button>
 
         <app-button color="accent"
+                    (OnClick)="showLogsDialog(element)">
+          <mat-icon>subject</mat-icon>
+          <span>Logs</span>
+        </app-button>
+
+        <app-button color="accent"
                     [routerLink]="[element._id]">
           <mat-icon>create</mat-icon>
           <span>Edit</span>

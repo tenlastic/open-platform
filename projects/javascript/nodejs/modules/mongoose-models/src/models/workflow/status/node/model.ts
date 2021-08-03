@@ -18,6 +18,9 @@ export enum WorkflowStatusNodeType {
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })
 export class WorkflowStatusNodeSchema {
+  @prop()
+  public _id: string;
+
   @arrayProp({ items: String })
   public children: string[];
 
@@ -28,7 +31,7 @@ export class WorkflowStatusNodeSchema {
   public finishedAt: Date;
 
   @prop()
-  public id: string;
+  public logs: boolean;
 
   @prop()
   public message: string;

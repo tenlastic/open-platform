@@ -1,4 +1,3 @@
-export * from './bases';
 export * from './models';
 
 export * from './connect';

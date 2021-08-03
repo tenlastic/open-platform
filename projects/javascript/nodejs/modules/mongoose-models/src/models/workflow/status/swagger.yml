@@ -11,6 +11,8 @@ components:
           items:
             type: object
             properties:
+              _id:
+                type: string
               children:
                 type: array
                 items:
@@ -20,8 +22,6 @@ components:
               finishedAt:
                 type: string
                 format: date-time
-              id:
-                type: string
               message:
                 type: string
               name:

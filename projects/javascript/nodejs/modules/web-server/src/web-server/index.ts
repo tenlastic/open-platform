@@ -6,13 +6,7 @@ import * as mount from 'koa-mount';
 import * as Router from 'koa-router';
 import * as serve from 'koa-static';
 
-import {
-  apiKeyMiddleware,
-  errorMiddleware,
-  jwtMiddleware,
-  loggingMiddleware,
-  queryMiddleware,
-} from '../middleware';
+import { apiKeyMiddleware, errorMiddleware, jwtMiddleware, queryMiddleware } from '../middleware';
 
 export class WebServer {
   public app: koa;
@@ -31,7 +25,6 @@ export class WebServer {
     this.app.use(bodyParser({ jsonLimit: '5mb' }));
 
     // Setup middleware.
-    this.app.use(loggingMiddleware);
     this.app.use(errorMiddleware);
     this.app.use(queryMiddleware);
     this.app.use(jwtMiddleware);
@@ -52,7 +45,7 @@ export class WebServer {
     this.server = this.app.listen(port, () => console.log(`Koa server running on port ${port}.`));
   }
 
-  public use(middleware: koa.Middleware<koa.ParameterizedContext<any, {}>>) {
+  public use(middleware: koa.Middleware<any, koa.DefaultContext & koa.Context>) {
     this.app.use(middleware);
   }
 }

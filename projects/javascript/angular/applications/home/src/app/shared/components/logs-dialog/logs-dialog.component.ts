@@ -1,16 +1,23 @@
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { GameServerLog } from '@tenlastic/ng-http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
+import { first, map } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
 import { IdentityService, SocketService } from '../../../core/services';
 
 export interface LogsDialogComponentData {
   $logs: Observable<any[]>;
-  find(): Promise<any[]>;
-  subscribe(): Promise<string>;
+  $nodeIds: Observable<NodeId[]>;
+  nodeId?: string;
+  find(nodeId: string): Promise<any[]>;
+  subscribe(nodeId: string, unix: string): Promise<string>;
+}
+
+export interface NodeId {
+  label: string;
+  value: string;
 }
 
 @Component({
@@ -28,19 +35,12 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
       }),
     );
   }
-  public get $nodeIds() {
-    return this.data.$logs.pipe(
-      map(logs => {
-        const nodeIds = logs.map(l => l.nodeId);
-        return nodeIds.filter((ni, i) => nodeIds.indexOf(ni) === i).sort();
-      }),
-    );
-  }
   public isLive = false;
   public isVisible = false;
   public nodeId: string;
   public visibility = {};
 
+  private setDefaultNodeId$ = new Subscription();
   private logJson: { [_id: string]: any } = {};
   private socket: string;
 
@@ -54,11 +54,22 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
   public async ngOnInit() {
     this.matDialogRef.addPanelClass('app-logs-dialog');
 
-    await this.data.find();
+    const nodeIds = await this.data.$nodeIds.pipe(first()).toPromise();
+    this.nodeId = this.data.nodeId || nodeIds[0]?.value;
+
+    this.setDefaultNodeId$ = this.data.$nodeIds.subscribe(nodeIds => {
+      if (!this.nodeId && !this.data.nodeId && nodeIds.length > 0) {
+        this.setNodeId(nodeIds[0].value);
+      }
+    });
+
+    await this.find();
     this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
   }
 
   public async ngOnDestroy() {
+    this.setDefaultNodeId$.unsubscribe();
+
     if (this.socket) {
       const socket = await this.socketService.connect(environment.apiBaseUrl);
       socket.unsubscribe(this.socket);
@@ -79,16 +90,26 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     return this.logJson[log._id];
   }
 
-  public setNodeId($event) {
-    this.nodeId = $event.value;
+  public async setNodeId(nodeId: string) {
+    this.nodeId = nodeId;
+
+    if (this.isLive) {
+      await this.toggleIsLive();
+    }
+
+    await this.find();
+    this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
   }
 
   public async toggleIsLive() {
     this.isLive = !this.isLive;
 
     if (this.isLive) {
-      this.data.find();
-      this.socket = await this.data.subscribe();
+      await this.find();
+
+      const logs = await this.$logs.pipe(first()).toPromise();
+      const mostRecentLog = logs.length > 0 ? logs[0] : null;
+      this.socket = await this.data.subscribe(this.nodeId, mostRecentLog?.unix);
     } else {
       const socket = await this.socketService.connect(environment.apiBaseUrl);
       socket.unsubscribe(this.socket);
@@ -99,7 +120,15 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     this.isVisible = !this.isVisible;
 
     for (const log of logs) {
-      this.visibility[log._id] = this.isVisible;
+      this.visibility[log.unix] = this.isVisible;
     }
+  }
+
+  private find() {
+    if (!this.nodeId) {
+      return;
+    }
+
+    return this.data.find(this.nodeId);
   }
 }

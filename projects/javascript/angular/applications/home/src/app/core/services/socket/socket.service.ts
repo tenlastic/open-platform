@@ -1,14 +1,32 @@
 import { EventEmitter, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { first } from 'rxjs/operators';
 import { v4 as uuid } from 'uuid';
 
 import { IdentityService } from '../identity/identity.service';
 
+export interface LogsParameters {
+  buildId?: string;
+  databaseId?: string;
+  gameServerId?: string;
+  nodeId: string;
+  queueId?: string;
+  since?: Date;
+  workflowId?: string;
+}
+
+interface SubscribeParameters {
+  collection: string;
+  where?: any;
+}
+
 interface Subscription {
   _id: string;
-  collection: string;
+  logs?: LogsParameters;
+  method: 'logs' | 'subscribe';
   Model: any;
   service: any;
-  where?: any;
+  subscribe?: SubscribeParameters;
 }
 
 export class Socket extends WebSocket {
@@ -19,6 +37,31 @@ export class Socket extends WebSocket {
 
   public close() {
     super.close(1000);
+  }
+
+  public async logs(Model: any, parameters: LogsParameters, service: any) {
+    const _id = uuid();
+    const data = { _id, method: 'logs', parameters };
+
+    this.send(JSON.stringify(data));
+    this.addEventListener('message', msg => {
+      const payload = JSON.parse(msg.data);
+
+      // If the response is for a different request, ignore it.
+      if (payload._id !== _id || !payload.fullDocument) {
+        return;
+      }
+
+      const record = new Model({ ...payload.fullDocument, ...parameters });
+      service.onLogs.emit([record]);
+
+      const subscription = this.subscriptions.find(s => s._id === _id);
+      subscription.logs.since = new Date(record.unix);
+    });
+
+    this.subscriptions.push({ _id, logs: parameters, method: 'logs', Model, service });
+
+    return _id;
   }
 
   public subscribe(collection: string, Model: any, service: any, where: any = {}) {
@@ -57,13 +100,20 @@ export class Socket extends WebSocket {
       }
     });
 
-    this.subscriptions.push({ _id, collection, Model, service, where });
+    this.subscriptions.push({
+      _id,
+      method: 'subscribe',
+      Model,
+      service,
+      subscribe: { collection, where },
+    });
 
     return _id;
   }
 
   public unsubscribe(_id: string) {
-    const data = { _id, method: 'unsubscribe' };
+    const subscription = this.subscriptions.find(s => s._id === _id);
+    const data = { _id, method: subscription.method };
 
     const index = this.subscriptions.findIndex(s => s._id === _id);
     this.subscriptions.splice(index, 1);
@@ -120,8 +170,14 @@ export class SocketService {
     socket.addEventListener('open', () => {
       socket.subscriptions = [];
 
-      for (const subscription of subscriptions) {
-        const { collection, Model, service, where } = subscription;
+      for (const subscription of subscriptions.filter(s => s.method === 'logs')) {
+        const { Model, service } = subscription;
+        socket.logs(Model, subscription.logs, service);
+      }
+
+      for (const subscription of subscriptions.filter(s => s.method === 'subscribe')) {
+        const { Model, service } = subscription;
+        const { collection, where } = subscription.subscribe;
         socket.subscribe(collection, Model, service, where);
       }
     });

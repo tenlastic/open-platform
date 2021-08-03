@@ -14,7 +14,7 @@ export async function status() {
     { fieldSelector: `metadata.name=${workflowName}` },
     (type, object) => updateWorkflow(object),
     err => {
-      console.error(err);
+      console.error(err?.message);
       process.exit(err ? 1 : 0);
     },
   );
@@ -25,7 +25,7 @@ async function updateWorkflow(object: any) {
 
   await requestPromiseNative.put({
     headers: { Authorization: `Bearer ${accessToken}` },
-    json: { status: { ...object.status, nodes } },
+    json: { status: { ...object.status, nodes: nodes.map((n: any) => ({ ...n, _id: n.id })) } },
     url: workflowEndpoint,
   });
 }

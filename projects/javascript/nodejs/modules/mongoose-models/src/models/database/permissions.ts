@@ -11,6 +11,7 @@ const administrator = {
     'cpu',
     'createdAt',
     'gameId',
+    'logs',
     'memory',
     'name',
     'namespaceId',

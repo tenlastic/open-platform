@@ -11,13 +11,14 @@ import {
   GameServer,
   GameServerLog,
   GameServerLogQuery,
-  GameServerLogService,
+  GameServerLogStore,
   GameServerQuery,
   GameServerService,
   Queue,
   QueueService,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
 import {
@@ -62,7 +63,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private gameServerLogQuery: GameServerLogQuery,
-    private gameServerLogService: GameServerLogService,
+    private gameServerLogStore: GameServerLogStore,
     private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
     public identityService: IdentityService,
@@ -118,24 +119,31 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   }
 
   public showLogsDialog(record: GameServer) {
-    this.matDialog.open(LogsDialogComponent, {
+    const dialogRef = this.matDialog.open(LogsDialogComponent, {
       autoFocus: false,
       data: {
         $logs: this.gameServerLogQuery.selectAll({
           filterBy: log => log.gameServerId === record._id,
-          limitTo: 250,
           sortBy: 'unix',
           sortByOrder: Order.DESC,
         }),
-        find: () => this.gameServerLogService.find(record._id, { limit: 250, sort: '-unix' }),
-        subscribe: async () => {
+        $nodeIds: this.gameServerQuery
+          .selectEntity(record._id)
+          .pipe(map(gameServer => this.getNodeIds(gameServer))),
+        find: nodeId => this.gameServerService.logs(record._id, nodeId, { tail: 500 }),
+        nodeIds: record.status?.nodes?.map(n => n._id),
+        subscribe: async (nodeId, unix) => {
           const socket = await this.socketService.connect(environment.apiBaseUrl);
-          return socket.subscribe('game-server-logs', GameServerLog, this.gameServerLogService, {
-            gameServerId: record._id,
-          });
+          return socket.logs(
+            GameServerLog,
+            { gameServerId: record._id, nodeId, since: unix ? new Date(unix) : new Date() },
+            this.gameServerService,
+          );
         },
       },
     });
+
+    dialogRef.afterClosed().subscribe(() => this.gameServerLogStore.reset());
   }
 
   private async fetchGameServers() {
@@ -163,5 +171,16 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     if (this.queueId) {
       this.queue = await this.queueService.findOne(this.queueId);
     }
+  }
+
+  private getNodeIds(gameServer: GameServer) {
+    return gameServer.status?.nodes.map(n => {
+      let displayName = 'Game Server';
+      if (n._id.includes('sidecar')) {
+        displayName = 'Sidecar';
+      }
+
+      return { label: displayName, value: n._id };
+    });
   }
 }

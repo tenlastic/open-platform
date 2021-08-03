@@ -25,14 +25,6 @@ import { QueueDocument, QueueEvent } from '../queue';
 import { UserDocument } from '../user';
 import { GameServerStatusSchema } from './status';
 
-export enum GameServerStatus {
-  Failed = 'Failed',
-  Pending = 'Pending',
-  Running = 'Running',
-  Succeeded = 'Succeeded',
-  Unknown = 'Unknown',
-}
-
 export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
 
 // Delete Game Servers if associated Namespace is deleted.

@@ -5,11 +5,25 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { Database, DatabaseQuery, DatabaseService } from '@tenlastic/ng-http';
+import { Order } from '@datorama/akita';
+import {
+  Database,
+  DatabaseLog,
+  DatabaseLogQuery,
+  DatabaseLogStore,
+  DatabaseQuery,
+  DatabaseService,
+} from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import { environment } from '../../../../../../../environments/environment';
+import {
+  IdentityService,
+  SelectedNamespaceService,
+  SocketService,
+} from '../../../../../../core/services';
+import { LogsDialogComponent, PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
@@ -28,12 +42,15 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
   private updateDataSource$ = new Subscription();
 
   constructor(
+    private databaseLogQuery: DatabaseLogQuery,
+    private databaseLogStore: DatabaseLogStore,
     private databaseQuery: DatabaseQuery,
     private databaseService: DatabaseService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private selectedNamespaceService: SelectedNamespaceService,
+    private socketService: SocketService,
     private titleService: Title,
   ) {}
 
@@ -65,6 +82,33 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
     });
   }
 
+  public showLogsDialog(record: Database) {
+    const dialogRef = this.matDialog.open(LogsDialogComponent, {
+      autoFocus: false,
+      data: {
+        $logs: this.databaseLogQuery.selectAll({
+          filterBy: log => log.databaseId === record._id,
+          sortBy: 'unix',
+          sortByOrder: Order.DESC,
+        }),
+        $nodeIds: this.databaseQuery
+          .selectEntity(record._id)
+          .pipe(map(database => this.getNodeIds(database))),
+        find: nodeId => this.databaseService.logs(record._id, nodeId, { tail: 500 }),
+        subscribe: async (nodeId, unix) => {
+          const socket = await this.socketService.connect(environment.apiBaseUrl);
+          return socket.logs(
+            DatabaseLog,
+            { databaseId: record._id, nodeId, since: unix ? new Date(unix) : new Date() },
+            this.databaseService,
+          );
+        },
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(() => this.databaseLogStore.reset());
+  }
+
   private async fetchDatabases() {
     const $databases = this.databaseQuery.selectAll({
       filterBy: gs => gs.namespaceId === this.selectedNamespaceService.namespaceId,
@@ -82,5 +126,23 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+  }
+
+  private getNodeIds(database: Database) {
+    return database.status?.nodes.map(n => {
+      let displayName = 'API';
+      if (n._id.includes('kafka')) {
+        displayName = 'Kafka';
+      } else if (n._id.includes('mongodb')) {
+        displayName = 'MongoDB';
+      } else if (n._id.includes('sidecar')) {
+        displayName = 'Sidecar';
+      } else if (n._id.includes('zookeeper')) {
+        displayName = 'Zookeeper';
+      }
+
+      const index = n._id.substr(-1);
+      return { label: `${displayName} (${index})`, value: n._id };
+    });
   }
 }

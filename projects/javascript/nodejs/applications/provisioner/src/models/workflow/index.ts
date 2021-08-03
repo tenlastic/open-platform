@@ -90,7 +90,7 @@ export const KubernetesWorkflow = {
         parallelism: workflow.spec.parallelism,
         serviceAccountName: 'workflow',
         templates,
-        ttlStrategy: { secondsAfterCompletion: 15 * 60 },
+        ttlStrategy: { secondsAfterCompletion: 3 * 60 * 60 },
         volumeClaimTemplates: [
           {
             metadata: { name: 'workspace' },

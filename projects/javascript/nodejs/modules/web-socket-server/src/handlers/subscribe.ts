@@ -9,7 +9,7 @@ import { unsubscribe } from './unsubscribe';
 export interface SubscribeData {
   _id: string;
   method: string;
-  parameters: SubscribeDataParameters;
+  parameters?: SubscribeDataParameters;
 }
 
 export interface SubscribeDataParameters {
@@ -98,7 +98,7 @@ export async function subscribe(
         console.error(e);
 
         const { message, name } = e;
-        const errors = { errors: [{ message, name }] };
+        const errors = { _id: data._id, errors: [{ message, name }] };
         ws.send(JSON.stringify(errors));
       }
     },

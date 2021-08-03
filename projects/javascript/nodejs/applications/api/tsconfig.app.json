@@ -11,6 +11,7 @@
   "references": [
     { "path": "../../modules/json-schema/tsconfig.app.json" },
     { "path": "../../modules/kafka/tsconfig.app.json" },
+    { "path": "../../modules/kubernetes/tsconfig.app.json" },
     { "path": "../../modules/logging/tsconfig.app.json" },
     { "path": "../../modules/mailgun/tsconfig.app.json" },
     { "path": "../../modules/minio/tsconfig.app.json" },

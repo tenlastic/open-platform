@@ -1,13 +1,13 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 
 import { GameServer } from '../../models/game-server';
+import { GameServerLog } from '../../models/game-server-log';
 import { ApiService, RestParameters } from '../api/api.service';
 import { EnvironmentService } from '../environment/environment.service';
 
-export interface GameServerServiceUploadOptions {
-  background?: Blob;
-  icon?: Blob;
+export interface GameServerServiceLogsOptions {
+  since?: string;
+  tail?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -16,6 +16,7 @@ export class GameServerService {
 
   public onCreate = new EventEmitter<GameServer>();
   public onDelete = new EventEmitter<GameServer>();
+  public onLogs = new EventEmitter<GameServerLog[]>();
   public onRead = new EventEmitter<GameServer[]>();
   public onUpdate = new EventEmitter<GameServer>();
 
@@ -61,6 +62,25 @@ export class GameServerService {
     this.onRead.emit([record]);
 
     return record;
+  }
+
+  public async logs(
+    _id: string,
+    nodeId: string,
+    parameters?: GameServerServiceLogsOptions,
+  ): Promise<GameServerLog[]> {
+    const response = await this.apiService.request(
+      'get',
+      `${this.basePath}/${_id}/logs/${nodeId}`,
+      parameters,
+    );
+
+    const records = response.records.map(
+      record => new GameServerLog({ ...record, gameServerId: _id, nodeId }),
+    );
+    this.onLogs.emit(records);
+
+    return records;
   }
 
   public async update(parameters: Partial<GameServer>): Promise<GameServer> {

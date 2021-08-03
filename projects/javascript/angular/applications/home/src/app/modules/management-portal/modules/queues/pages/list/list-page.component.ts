@@ -10,11 +10,12 @@ import {
   Queue,
   QueueLog,
   QueueLogQuery,
-  QueueLogService,
+  QueueLogStore,
   QueueQuery,
   QueueService,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
 import {
@@ -45,7 +46,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private queueLogQuery: QueueLogQuery,
-    private queueLogService: QueueLogService,
+    private queueLogStore: QueueLogStore,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
     private selectedNamespaceService: SelectedNamespaceService,
@@ -82,24 +83,31 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   }
 
   public showLogsDialog(record: Queue) {
-    this.matDialog.open(LogsDialogComponent, {
+    const dialogRef = this.matDialog.open(LogsDialogComponent, {
       autoFocus: false,
       data: {
         $logs: this.queueLogQuery.selectAll({
           filterBy: log => log.queueId === record._id,
-          limitTo: 250,
           sortBy: 'unix',
           sortByOrder: Order.DESC,
         }),
-        find: () => this.queueLogService.find(record._id, { limit: 250, sort: '-unix' }),
-        subscribe: async () => {
+        $nodeIds: this.queueQuery
+          .selectEntity(record._id)
+          .pipe(map(queue => this.getNodeIds(queue))),
+        find: nodeId => this.queueService.logs(record._id, nodeId, { tail: 500 }),
+        nodeIds: record.status?.nodes?.map(n => n._id),
+        subscribe: async (nodeId, unix) => {
           const socket = await this.socketService.connect(environment.apiBaseUrl);
-          return socket.subscribe('queue-logs', QueueLog, this.queueLogService, {
-            queueId: record._id,
-          });
+          return socket.logs(
+            QueueLog,
+            { nodeId, queueId: record._id, since: unix ? new Date(unix) : new Date() },
+            this.queueService,
+          );
         },
       },
     });
+
+    dialogRef.afterClosed().subscribe(() => this.queueLogStore.reset());
   }
 
   private async fetchQueues() {
@@ -117,5 +125,19 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+  }
+
+  private getNodeIds(queue: Queue) {
+    return queue.status?.nodes.map(n => {
+      let displayName = 'Queue';
+      if (n._id.includes('redis')) {
+        displayName = 'Redis';
+      } else if (n._id.includes('sidecar')) {
+        displayName = 'Sidecar';
+      }
+
+      const index = n._id.substr(-1);
+      return { label: `${displayName} (${index})`, value: n._id };
+    });
   }
 }

@@ -6,8 +6,11 @@ import {
   Workflow,
   WorkflowLog,
   WorkflowLogQuery,
-  WorkflowLogService,
+  WorkflowLogStore,
+  WorkflowQuery,
+  WorkflowService,
 } from '@tenlastic/ng-http';
+import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
 import { SocketService } from '../../../../../../core/services';
@@ -35,33 +38,49 @@ export class WorkflowStatusNodeComponent {
     private matDialog: MatDialog,
     private socketService: SocketService,
     private workflowLogQuery: WorkflowLogQuery,
-    private workflowLogService: WorkflowLogService,
+    private workflowLogStore: WorkflowLogStore,
+    private workflowQuery: WorkflowQuery,
+    private workflowService: WorkflowService,
   ) {}
 
+  public getDisplayName(displayName: string) {
+    return displayName
+      .toLowerCase()
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
   public showLogsDialog() {
-    this.matDialog.open(LogsDialogComponent, {
+    const dialogRef = this.matDialog.open(LogsDialogComponent, {
       autoFocus: false,
       data: {
         $logs: this.workflowLogQuery.selectAll({
-          filterBy: log => log.nodeId === this.node.id && log.workflowId === this.workflow._id,
-          limitTo: 250,
+          filterBy: log => log.workflowId === this.workflow._id,
           sortBy: 'unix',
           sortByOrder: Order.DESC,
         }),
-        find: () =>
-          this.workflowLogService.find(this.workflow._id, {
-            limit: 250,
-            sort: '-unix',
-            where: { nodeId: this.node.id },
-          }),
-        subscribe: async () => {
+        $nodeIds: this.workflowQuery
+          .selectEntity(this.workflow._id)
+          .pipe(map(workflow => this.getNodeIds(workflow))),
+        find: nodeId => this.workflowService.logs(this.workflow._id, nodeId, { tail: 500 }),
+        nodeId: this.node._id,
+        subscribe: async (nodeId, unix) => {
           const socket = await this.socketService.connect(environment.apiBaseUrl);
-          return socket.subscribe('workflow-logs', WorkflowLog, this.workflowLogService, {
-            nodeId: this.node.id,
-            workflowId: this.workflow._id,
-          });
+          return socket.logs(
+            WorkflowLog,
+            { nodeId, since: unix ? new Date(unix) : new Date(), workflowId: this.workflow._id },
+            this.workflowService,
+          );
         },
       },
     });
+
+    dialogRef.afterClosed().subscribe(() => this.workflowLogStore.reset());
+  }
+
+  private getNodeIds(workflow: Workflow) {
+    const nodes = workflow.status?.nodes?.filter(n => n.type === 'Pod');
+    return nodes.map(n => ({ label: this.getDisplayName(n.displayName), value: n._id }));
   }
 }

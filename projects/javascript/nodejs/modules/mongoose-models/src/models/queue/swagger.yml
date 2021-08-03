@@ -42,7 +42,7 @@ components:
               items:
                 type: object
                 properties:
-                  name:
+                  _id:
                     type: string
                   phase:
                     type: string

@@ -36,10 +36,10 @@ export namespace IWorkflow {
   }
 
   export interface Node {
+    _id?: string;
     children?: string[];
     displayName?: string;
     finishedAt?: Date;
-    id?: string;
     message?: string;
     name?: string;
     outboundNodes?: string[];
@@ -128,8 +128,8 @@ export class Workflow extends Model {
     for (const node of nodes) {
       if (node.children) {
         for (const childId of node.children) {
-          const child = nodes.find(n => n.id === childId);
-          child.parent = node.id;
+          const child = nodes.find(n => n._id === childId);
+          child.parent = node._id;
         }
       }
     }
@@ -153,7 +153,7 @@ export class Workflow extends Model {
       const obj = Object.assign({}, current);
 
       if (parent === current.parent) {
-        const children = this.getChildren(data, current.id);
+        const children = this.getChildren(data, current._id);
 
         if (children.length) {
           obj.children = children;

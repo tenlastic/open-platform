@@ -2,9 +2,15 @@ import * as k8s from '@kubernetes/client-node';
 import { EventEmitter } from 'events';
 import * as fs from 'fs';
 import * as request from 'request';
+import * as requestPromiseNative from 'request-promise-native';
 
 import { BaseApiV1 } from '../../bases';
 import { HttpError } from '../../errors';
+
+export interface NamespacedPodLogOptions {
+  since?: string;
+  tail?: number;
+}
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -13,22 +19,30 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
   protected api = kc.makeApiClient(k8s.CoreV1Api);
   protected singular = 'Pod';
 
-  public readNamespacedPodLog(name: string, namespace: string, container: string, since?: string) {
+  public followNamespacedPodLog(
+    name: string,
+    namespace: string,
+    container: string,
+    options?: NamespacedPodLogOptions,
+  ) {
     const certificate = fs.readFileSync(kc.getCurrentCluster().caFile);
     const server = kc.getCurrentCluster().server;
     const token = fs.readFileSync(kc.getCurrentUser().authProvider.config.tokenFile, 'utf8');
 
+    // Construct querystring.
+    const qs: any = { container, follow: true, limitBytes: 250000, timestamps: true };
+    if (options?.since) {
+      qs.sinceTime = options.since;
+    } else if (options?.tail) {
+      qs.tailLines = options.tail;
+    }
+
     const emitter = new EventEmitter();
-    request
+    const req = request
       .get({
         agentOptions: { ca: certificate },
         headers: { Authorization: `Bearer ${token}` },
-        qs: {
-          container,
-          follow: true,
-          sinceTime: since || new Date(0).toISOString(),
-          timestamps: true,
-        },
+        qs,
         url: `${server}/api/v1/namespaces/${namespace}/pods/${name}/log`,
       })
       .on('error', e => emitter.emit('error', e))
@@ -57,7 +71,55 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
         response.on('end', () => emitter.emit('end'));
       });
 
-    return emitter;
+    return { emitter, request: req };
+  }
+
+  public async readNamespacedPodLog(
+    name: string,
+    namespace: string,
+    container: string,
+    options?: NamespacedPodLogOptions,
+  ) {
+    const certificate = fs.readFileSync(kc.getCurrentCluster().caFile);
+    const server = kc.getCurrentCluster().server;
+    const token = fs.readFileSync(kc.getCurrentUser().authProvider.config.tokenFile, 'utf8');
+
+    // Construct querystring.
+    const qs: any = { container, limitBytes: 250000, timestamps: true };
+    if (options?.since) {
+      qs.sinceTime = options.since;
+    } else if (options?.tail) {
+      qs.tailLines = options.tail;
+    }
+
+    const response: requestPromiseNative.FullResponse = await requestPromiseNative.get({
+      agentOptions: { ca: certificate },
+      headers: { Authorization: `Bearer ${token}` },
+      qs,
+      resolveWithFullResponse: true,
+      simple: false,
+      url: `${server}/api/v1/namespaces/${namespace}/pods/${name}/log`,
+    });
+
+    if (response.statusCode !== 200) {
+      throw new HttpError(response.statusCode, response.body);
+    }
+
+    const results = [];
+    const lines = this.split(response.body);
+
+    for (const line of lines) {
+      const body = this.getBody(line);
+      const microseconds = this.getMicroseconds(line);
+      const unix = this.getUnix(line);
+
+      const timestamp = parseFloat(`${unix}.${microseconds}`);
+      const json = { body, unix: timestamp };
+
+      results.push(json);
+    }
+
+    return results;
   }
 
   protected getEndpoint(namespace: string) {

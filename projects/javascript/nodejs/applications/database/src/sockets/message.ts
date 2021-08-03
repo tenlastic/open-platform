@@ -2,7 +2,6 @@ import {
   AuthenticationData,
   MessageData,
   ping,
-  unsubscribe,
   WebSocket as WS,
 } from '@tenlastic/web-socket-server';
 
@@ -13,11 +12,9 @@ export function message(auth: AuthenticationData, data: MessageData, ws: WS) {
     case 'ping':
       ping(auth, data, ws);
       break;
+
     case 'subscribe':
       subscribe(auth, data, ws);
-      break;
-    case 'unsubscribe':
-      unsubscribe(auth, data, ws);
       break;
   }
 }
