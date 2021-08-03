@@ -174,13 +174,15 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   }
 
   private getNodeIds(gameServer: GameServer) {
-    return gameServer.status?.nodes.map(n => {
-      let displayName = 'Game Server';
-      if (n._id.includes('sidecar')) {
-        displayName = 'Sidecar';
-      }
+    return gameServer.status?.nodes
+      .map(n => {
+        let displayName = 'Game Server';
+        if (n._id.includes('sidecar')) {
+          displayName = 'Sidecar';
+        }
 
-      return { label: displayName, value: n._id };
-    });
+        return { label: displayName, value: n._id };
+      })
+      .sort((a, b) => (a.label > b.label ? 1 : -1));
   }
 }

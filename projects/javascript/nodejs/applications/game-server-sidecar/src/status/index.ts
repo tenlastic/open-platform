@@ -4,6 +4,7 @@ import * as requestPromiseNative from 'request-promise-native';
 const accessToken = process.env.ACCESS_TOKEN;
 const container = process.env.GAME_SERVER_CONTAINER;
 const endpoint = process.env.GAME_SERVER_ENDPOINT;
+const persistent = process.env.GAME_SERVER_PERSISTENT === 'true';
 const podLabelSelector = process.env.GAME_SERVER_POD_LABEL_SELECTOR;
 
 const pods: { [key: string]: V1Pod } = {};
@@ -38,11 +39,24 @@ export async function status() {
   );
 }
 
-async function getPodIp(pod: V1Pod) {
+async function getEndpoints(pod: V1Pod) {
+  if (!pod || !pod.spec.nodeName) {
+    return null;
+  }
+
   const response = await nodeApiV1.read(pod.spec.nodeName);
   const address = response.body.status.addresses.find(a => a.type === 'ExternalIP');
+  const ip = address ? address.address : '127.0.0.1';
 
-  return address ? address.address : '127.0.0.1';
+  const ports = pod.spec.containers.find(cs => cs.name === container).ports;
+  const tcp = ports.find(p => p.protocol === 'TCP').hostPort;
+  const udp = ports.find(p => p.protocol === 'UDP').hostPort;
+
+  return {
+    tcp: `tcp://${ip}:${tcp}`,
+    udp: `udp://${ip}:${udp}`,
+    websocket: `ws://${ip}:${tcp}`,
+  };
 }
 
 function getPodStatus(pod: V1Pod) {
@@ -59,20 +73,8 @@ function getPodStatus(pod: V1Pod) {
 }
 
 async function updateGameServer() {
-  // Endpoints.
-  let endpoints = null;
   const pod = Object.values(pods).find(p => !p.metadata.deletionTimestamp);
-  if (pod?.spec?.nodeName) {
-    const ip = await getPodIp(pod);
-    const ports = pod.spec.containers.find(cs => cs.name === container).ports;
-    const tcp = ports.find(p => p.protocol === 'TCP').hostPort;
-    const udp = ports.find(p => p.protocol === 'UDP').hostPort;
-    endpoints = {
-      tcp: `tcp://${ip}:${tcp}`,
-      udp: `udp://${ip}:${udp}`,
-      websocket: `ws://${ip}:${tcp}`,
-    };
-  }
+  const endpoints = await getEndpoints(pod);
 
   // Nodes.
   const nodes = Object.values(pods)
@@ -89,10 +91,7 @@ async function updateGameServer() {
     phase = 'Failed';
   }
 
-  const ownerReference = pod?.metadata?.ownerReferences[0];
-  const isDeployment = ownerReference?.kind === 'ReplicaSet';
-
-  if (isDeployment || ['Pending', 'Running'].includes(pod?.status?.phase)) {
+  if (persistent || pod) {
     console.log(`Updating Game Server status: ${pod.status.phase}.`);
 
     await requestPromiseNative.put({

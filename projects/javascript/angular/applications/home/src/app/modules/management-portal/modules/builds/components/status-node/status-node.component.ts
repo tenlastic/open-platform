@@ -81,6 +81,8 @@ export class BuildStatusNodeComponent {
 
   private getNodeIds(build: Build) {
     const nodes = build.status?.nodes?.filter(n => n.type === 'Pod');
-    return nodes.map(n => ({ label: this.getDisplayName(n.displayName), value: n._id }));
+    return nodes
+      .map(n => ({ label: this.getDisplayName(n.displayName), value: n._id }))
+      .sort((a, b) => (a.label > b.label ? 1 : -1));
   }
 }

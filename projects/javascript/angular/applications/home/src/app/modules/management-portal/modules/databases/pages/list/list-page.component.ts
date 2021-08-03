@@ -129,20 +129,22 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
   }
 
   private getNodeIds(database: Database) {
-    return database.status?.nodes.map(n => {
-      let displayName = 'API';
-      if (n._id.includes('kafka')) {
-        displayName = 'Kafka';
-      } else if (n._id.includes('mongodb')) {
-        displayName = 'MongoDB';
-      } else if (n._id.includes('sidecar')) {
-        displayName = 'Sidecar';
-      } else if (n._id.includes('zookeeper')) {
-        displayName = 'Zookeeper';
-      }
+    return database.status?.nodes
+      .map(n => {
+        let displayName = 'API';
+        if (n._id.includes('kafka')) {
+          displayName = 'Kafka';
+        } else if (n._id.includes('mongodb')) {
+          displayName = 'MongoDB';
+        } else if (n._id.includes('sidecar')) {
+          displayName = 'Sidecar';
+        } else if (n._id.includes('zookeeper')) {
+          displayName = 'Zookeeper';
+        }
 
-      const index = n._id.substr(-1);
-      return { label: `${displayName} (${index})`, value: n._id };
-    });
+        const index = isNaN(n._id.substr(-1) as any) ? '0' : n._id.substr(-1);
+        return { label: `${displayName} (${index})`, value: n._id };
+      })
+      .sort((a, b) => (a.label > b.label ? 1 : -1));
   }
 }

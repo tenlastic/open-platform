@@ -128,16 +128,18 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   }
 
   private getNodeIds(queue: Queue) {
-    return queue.status?.nodes.map(n => {
-      let displayName = 'Queue';
-      if (n._id.includes('redis')) {
-        displayName = 'Redis';
-      } else if (n._id.includes('sidecar')) {
-        displayName = 'Sidecar';
-      }
+    return queue.status?.nodes
+      .map(n => {
+        let displayName = 'Queue';
+        if (n._id.includes('redis')) {
+          displayName = 'Redis';
+        } else if (n._id.includes('sidecar')) {
+          displayName = 'Sidecar';
+        }
 
-      const index = n._id.substr(-1);
-      return { label: `${displayName} (${index})`, value: n._id };
-    });
+        const index = isNaN(n._id.substr(-1) as any) ? '0' : n._id.substr(-1);
+        return { label: `${displayName} (${index})`, value: n._id };
+      })
+      .sort((a, b) => (a.label > b.label ? 1 : -1));
   }
 }
