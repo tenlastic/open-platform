@@ -73,7 +73,9 @@ function getPodStatus(pod: V1Pod) {
 }
 
 async function updateGameServer() {
-  const pod = Object.values(pods).find(p => !p.metadata.deletionTimestamp);
+  const pod = Object.values(pods).find(
+    p => !p.metadata.deletionTimestamp && p.metadata.labels['tenlastic.com/role'] === 'application',
+  );
   const endpoints = await getEndpoints(pod);
 
   // Nodes.
