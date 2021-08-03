@@ -89,7 +89,8 @@ describe('builds', function() {
 
   step('generates logs', async function() {
     const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
-      const response = await buildLogService.find(build._id, {});
+      const node = build.status.nodes.find(n => n.type === 'Pod');
+      const response = await buildLogService.find(build._id, node._id, {});
       return response.length > 0 ? response : null;
     });
 

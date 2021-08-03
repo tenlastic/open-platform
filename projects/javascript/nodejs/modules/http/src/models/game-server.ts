@@ -26,12 +26,12 @@ export namespace IGameServer {
 
   export interface Status {
     endpoints?: Endpoints;
-    nodes?: StatusNode;
+    nodes?: StatusNode[];
     phase: string;
   }
 
   export interface StatusNode {
-    name: string;
+    _id: string;
     phase: string;
   }
 }

@@ -63,7 +63,8 @@ describe('workflows', function() {
 
   step('generates logs', async function() {
     const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
-      const response = await workflowLogService.find(workflow._id, {});
+      const node = workflow.status.nodes.find(n => n.type === 'Pod');
+      const response = await workflowLogService.find(workflow._id, node._id, {});
       return response.length > 0 ? response : null;
     });
 

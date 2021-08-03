@@ -31,7 +31,7 @@ export namespace IDatabase {
   }
 
   export interface StatusNode {
-    name: string;
+    _id: string;
     phase: string;
   }
 }

@@ -1,6 +1,7 @@
 import {
   CollectionModel,
   collectionService,
+  databaseLogService,
   DatabaseModel,
   databaseService,
   NamespaceModel,
@@ -78,6 +79,19 @@ describe('databases', function() {
       properties: { email: chance.email(), name: chance.hash() },
     });
     expect(record).to.exist;
+  });
+
+  step('generates logs', async function() {
+    const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
+      const response = await databaseLogService.find(
+        database._id,
+        database.status.nodes[0]._id,
+        {},
+      );
+      return response.length > 0 ? response : null;
+    });
+
+    expect(logs.length).to.be.greaterThan(0);
   });
 
   step('scales up', async function() {

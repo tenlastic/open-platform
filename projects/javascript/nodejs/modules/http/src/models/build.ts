@@ -11,10 +11,10 @@ export namespace IBuild {
   }
 
   export interface Node {
+    _id?: string;
     children?: string[];
     displayName?: string;
     finishedAt?: Date;
-    id?: string;
     message?: string;
     name?: string;
     outboundNodes?: string[];

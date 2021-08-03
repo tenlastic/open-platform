@@ -57,9 +57,9 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     const nodeIds = await this.data.$nodeIds.pipe(first()).toPromise();
     this.nodeId = this.data.nodeId || nodeIds[0]?.value;
 
-    this.setDefaultNodeId$ = this.data.$nodeIds.subscribe(nodeIds => {
-      if (!this.nodeId && !this.data.nodeId && nodeIds.length > 0) {
-        this.setNodeId(nodeIds[0].value);
+    this.setDefaultNodeId$ = this.data.$nodeIds.subscribe(nis => {
+      if (!this.nodeId && !this.data.nodeId && nis.length > 0) {
+        this.setNodeId(nis[0].value);
       }
     });
 
