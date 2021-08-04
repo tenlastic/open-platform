@@ -192,7 +192,7 @@ export const KubernetesBuild = {
               name: 'copy-and-unzip-files',
             },
           ],
-          ttlStrategy: { secondsAfterCompletion: 30 },
+          ttlStrategy: { secondsAfterCompletion: 3 * 60 * 60 },
         },
       };
     }
