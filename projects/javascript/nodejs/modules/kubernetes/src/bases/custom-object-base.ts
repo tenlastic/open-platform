@@ -103,8 +103,8 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
     const watch = new k8s.Watch(kc);
     const req = await watch.watch(endpoint, options, callback, done);
 
-    // Abort the request after 5 minutes.
-    await new Promise(res => setTimeout(res, 5 * 60 * 1000));
+    // Abort the request after 15 minutes.
+    await new Promise(res => setTimeout(res, 15 * 60 * 1000));
     req.abort();
 
     return this.watch(namespace, options, callback, done);
