@@ -43,9 +43,11 @@ export async function logs(
 
   // Dynamically set _id and Permissions depending on requested resource.
   let _id: string;
+  let container: string;
   let Permissions: MongoosePermissions<any>;
   if ('buildId' in data.parameters) {
     _id = data.parameters.buildId;
+    container = 'main';
     Permissions = BuildPermissions;
   } else if ('databaseId' in data.parameters) {
     _id = data.parameters.databaseId;
@@ -58,6 +60,7 @@ export async function logs(
     Permissions = QueuePermissions;
   } else if ('workflowId' in data.parameters) {
     _id = data.parameters.workflowId;
+    container = 'main';
     Permissions = WorkflowPermissions;
   } else {
     throw new Error('Invalid arguments.');
@@ -88,7 +91,7 @@ export async function logs(
   const { emitter, request } = podApiV1.followNamespacedPodLog(
     node._id,
     'dynamic',
-    pod.body.spec.containers[0].name,
+    container || pod.body.spec.containers[0].name,
     { since: data.parameters.since, tail: data.parameters.tail },
   );
   emitter.on('data', log => ws.send(JSON.stringify({ _id: data._id, fullDocument: log })));
