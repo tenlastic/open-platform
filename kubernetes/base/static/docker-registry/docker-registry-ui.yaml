@@ -38,10 +38,14 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: docker-registry-ui
-          image: joxit/docker-registry-ui:static
+          image: joxit/docker-registry-ui:latest
           env:
-            - name: REGISTRY_URL
+            - name: DELETE_IMAGES
+              value: "true"
+            - name: NGINX_PROXY_PASS_URL
               value: http://docker-registry:5000
+            - name: SINGLE_REGISTRY
+              value: "true"
           ports:
             - containerPort: 80
           resources:

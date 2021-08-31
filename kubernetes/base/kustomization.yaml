@@ -36,6 +36,7 @@ resources:
   - ./static/kubernetes-dashboard/kubernetes-dashboard.yaml
   - ./static/maintenance/delete-dynamic-corrupted-pods.yaml
   - ./static/maintenance/delete-static-corrupted-pods.yaml
+  - ./static/maintenance/garbage-collect-docker-registry.yaml
   - ./static/minio/minio.yaml
   - ./static/mongodb/mongodb.yaml
   - ./static/mongodb/mongoku.yaml

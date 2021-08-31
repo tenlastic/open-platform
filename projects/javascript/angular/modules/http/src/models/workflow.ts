@@ -123,7 +123,7 @@ export class Workflow extends Model {
   }
 
   public getNestedStatusNodes() {
-    const nodes = JSON.parse(JSON.stringify(this.status.nodes));
+    const nodes = JSON.parse(JSON.stringify(this.status.nodes)).reverse();
 
     for (const node of nodes) {
       if (node.children) {

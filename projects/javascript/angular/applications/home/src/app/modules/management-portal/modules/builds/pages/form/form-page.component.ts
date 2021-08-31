@@ -127,7 +127,7 @@ export class BuildsFormPageComponent implements OnInit {
   }
 
   public showStatusNode(node: StatusNode) {
-    return ['Pod', 'Retry', 'Workflow'].includes(node.type);
+    return ['Pod', 'Workflow'].includes(node.type);
   }
 
   private async create(data: Partial<Build>) {
@@ -203,15 +203,19 @@ export class BuildsFormPageComponent implements OnInit {
   }
 
   private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map(e => {
-      if (e.name === 'UniquenessError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map(p => pathMap[p]);
-        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
-    });
+    if (err.error.errors) {
+      this.errors = err.error.errors.map(e => {
+        if (e.name === 'UniquenessError') {
+          const combination = e.paths.length > 1 ? 'combination ' : '';
+          const paths = e.paths.map(p => pathMap[p]);
+          return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
+        } else {
+          return e.message;
+        }
+      });
+    } else {
+      this.errors = ['Error uploading Build. Please try again in a few minutes.'];
+    }
 
     this.form.enable({ emitEvent: false });
     this.progress = null;

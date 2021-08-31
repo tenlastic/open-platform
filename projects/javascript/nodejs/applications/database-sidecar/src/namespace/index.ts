@@ -42,7 +42,7 @@ export async function namespace() {
     });
     await webSocket.connect(wssUrl);
   } catch (e) {
-    console.error(e);
+    console.error(e.message);
     process.exit(1);
   }
 }

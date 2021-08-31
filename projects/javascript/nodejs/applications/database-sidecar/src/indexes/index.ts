@@ -10,7 +10,7 @@ export async function indexes() {
     // Run every 24 hours.
     setTimeout(indexes, 24 * 60 * 60 * 1000);
   } catch (e) {
-    console.error(e);
+    console.error(e.message);
     process.exit(1);
   }
 }

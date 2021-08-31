@@ -25,7 +25,7 @@ const podName = process.env.POD_NAME;
       databaseName: 'database',
     });
     mongoose.connection.on('error', e => {
-      console.error(e);
+      console.error(e.message);
       process.exit(1);
     });
 
@@ -57,7 +57,7 @@ const podName = process.env.POD_NAME;
     webSocketServer.connection(sockets.connection);
     webSocketServer.message(sockets.message);
   } catch (e) {
-    console.error(e);
+    console.error(e.message);
     process.exit(1);
   }
 })();

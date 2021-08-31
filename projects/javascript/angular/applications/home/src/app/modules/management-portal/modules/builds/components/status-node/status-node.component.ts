@@ -48,7 +48,9 @@ export class BuildStatusNodeComponent {
       .toLowerCase()
       .split('-')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+      .join(' ')
+      .replace(/\(0\)$/, '')
+      .replace(/\(([0-9]+)\)$/, (match, p1) => ` (Retry #${p1})`);
   }
 
   public showLogsDialog() {

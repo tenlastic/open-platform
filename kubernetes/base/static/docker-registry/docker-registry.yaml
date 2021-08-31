@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     app: docker-registry
-    release: docker-registry
-  name: docker-registry-config
+  name: docker-registry
   namespace: static
 data:
   config.yml: |-
@@ -30,14 +29,18 @@ data:
         blobdescriptor: inmemory
       delete:
         enabled: true
+      s3:
+        bucket: docker-registry
+        region: us-east-1
     version: 0.1
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    fluxcd.io/automated: "true"
   labels:
     app: docker-registry
-    release: docker-registry
   name: docker-registry
   namespace: static
 spec:
@@ -82,15 +85,13 @@ spec:
                 secretKeyRef:
                   name: docker-registry
                   key: haSharedSecret
+            - name: REGISTRY_STORAGE_MAINTENANCE_READONLY
+              value: '{"enabled":false}'
             - name: REGISTRY_STORAGE_S3_ACCESSKEY
               valueFrom:
                 secretKeyRef:
                   name: docker-registry
                   key: s3AccessKey
-            - name: REGISTRY_STORAGE_S3_BUCKET
-              value: docker-registry
-            - name: REGISTRY_STORAGE_S3_REGION
-              value: us-east-1
             - name: REGISTRY_STORAGE_S3_SECRETKEY
               valueFrom:
                 secretKeyRef:
@@ -127,14 +128,13 @@ spec:
                 path: htpasswd
         - name: docker-registry-config
           configMap:
-            name: docker-registry-config
+            name: docker-registry
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     app: docker-registry
-    release: docker-registry
   name: docker-registry
   namespace: static
 spec:

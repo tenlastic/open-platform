@@ -14,7 +14,7 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
     databaseName: 'database',
   });
   mongoose.connection.on('error', e => {
-    console.error(e);
+    console.error(e.message);
     process.exit(1);
   });
 

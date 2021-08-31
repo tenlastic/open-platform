@@ -196,6 +196,10 @@ export class WorkflowsFormPageComponent implements OnInit {
     }
   }
 
+  public showStatusNode(node: StatusNode) {
+    return ['Pod', 'Workflow'].includes(node.type);
+  }
+
   private async create(data: Partial<Workflow>) {
     const result = await this.workflowService.create(data);
 

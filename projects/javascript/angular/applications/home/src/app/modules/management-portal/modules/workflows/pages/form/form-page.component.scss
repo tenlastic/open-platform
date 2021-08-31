@@ -26,14 +26,6 @@ div.row {
   align-items: baseline;
 }
 
-mat-form-field.mat-form-field {
-  margin-right: 16px;
-
-  &.start {
-    flex: 1 1 auto;
-  }
-}
-
 div.template {
   align-items: flex-start;
   flex-wrap: nowrap;
@@ -52,6 +44,24 @@ div.template {
   }
 
   div.script-sidecars {
+    flex: 1 1 auto;
+  }
+}
+
+li.visible {
+  > div {
+    display: none;
+  }
+
+  > ul {
+    padding-inline-start: 0px;
+  }
+}
+
+mat-form-field.mat-form-field {
+  margin-right: 16px;
+
+  &.start {
     flex: 1 1 auto;
   }
 }

@@ -18,6 +18,7 @@ import {
 } from '@tenlastic/mongoose-change-stream';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
+import * as requestPromiseNative from 'request-promise-native';
 
 import { namespaceValidator } from '../../validators';
 import { GameDocument, GameEvent } from '../game';
@@ -25,6 +26,7 @@ import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { WorkflowStatusSchema } from '../workflow';
 import { BuildFileSchema } from './file';
 import { BuildReferenceSchema } from './reference';
+import { URL } from 'url';
 
 export const BuildEvent = new EventEmitter<IDatabasePayload<BuildDocument>>();
 
@@ -39,13 +41,35 @@ BuildEvent.sync(async payload => {
     return;
   }
 
-  const zipPath = payload.fullDocument.getZipPath();
+  // Delete zip file.
+  const build = payload.fullDocument;
+  const zipPath = build.getZipPath();
   await minio.removeObject(process.env.MINIO_BUCKET, zipPath);
 
-  for (const file of payload.fullDocument.files) {
-    const path = payload.fullDocument.getFilePath(file.path);
+  // Delete build files.
+  for (const file of build.files) {
+    const path = build.getFilePath(file.path);
     await minio.removeObject(process.env.MINIO_BUCKET, path);
   }
+
+  // Delete docker tag.
+  const headers = { Accept: 'application/vnd.docker.distribution.manifest.v2+json' };
+  const url = process.env.DOCKER_REGISTRY_URL;
+
+  const response: requestPromiseNative.FullResponse = await requestPromiseNative({
+    headers,
+    method: 'GET',
+    resolveWithFullResponse: true,
+    url: `${url}/v2/${build.namespaceId}/manifests/${build._id}`,
+  });
+
+  const digest = response.headers['docker-content-digest'];
+  await requestPromiseNative({
+    headers,
+    method: 'DELETE',
+    resolveWithFullResponse: true,
+    url: `${url}/v2/${build.namespaceId}/manifests/${digest}`,
+  });
 });
 
 // Delete Builds if associated Game is deleted.

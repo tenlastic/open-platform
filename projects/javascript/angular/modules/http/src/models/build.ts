@@ -62,7 +62,7 @@ export class Build extends Model {
       return [];
     }
 
-    const nodes = JSON.parse(JSON.stringify(this.status.nodes));
+    const nodes = JSON.parse(JSON.stringify(this.status.nodes)).reverse();
 
     for (const node of nodes) {
       if (node.children) {

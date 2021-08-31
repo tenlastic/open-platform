@@ -229,6 +229,13 @@ export const KubernetesBuild = {
         },
         metadata: { labels: podLabels },
         name: 'build-docker-image',
+        retryStrategy: {
+          backoff: {
+            duration: '15',
+            factor: '2',
+          },
+          limit: 4,
+        },
         volumes: [
           {
             name: 'docker-registry',
