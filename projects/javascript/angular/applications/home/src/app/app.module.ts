@@ -5,7 +5,7 @@ import { HttpModule } from '@tenlastic/ng-http';
 
 import { environment } from '../environments/environment';
 import { CoreModule } from './core/core.module';
-import { LoginGuard, NamespaceGuard } from './core/guards';
+import { LoginGuard } from './core/guards';
 import { LayoutComponent } from './shared/components';
 import { SharedModule } from './shared/shared.module';
 import { AppComponent } from './app.component';
@@ -29,7 +29,7 @@ export const ROUTES: Routes = [
     path: 'games',
   },
   {
-    canActivate: [LoginGuard, NamespaceGuard],
+    canActivate: [LoginGuard],
     component: LayoutComponent,
     loadChildren: () =>
       import('./modules/management-portal/management-portal.module').then(

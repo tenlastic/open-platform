@@ -90,19 +90,35 @@ div.group-invitation {
 
     app-button {
       margin: 0px 4px;
+
+      mat-spinner.mat-spinner {
+        margin-top: -2px;
+      }
+    }
+
+    &.waiting-for-game-server {
+      display: flex;
     }
   }
 
   div.label {
     display: inline-block;
+    max-width: 125px;
+    overflow: hidden;
 
     div.name {
       font-size: 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     div.status {
       color: #ffff55;
       font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 

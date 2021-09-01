@@ -9,6 +9,36 @@
 
   <div *ngIf="identityService.user"
        class="nav">
+    <ng-container *ngIf="electronService.isElectron">
+      <div *ngFor="let gameServer of $gameServers | async"
+           class="group-invitation queue">
+        <div class="hover-off">
+          <mat-icon>public</mat-icon>
+          <div class="label">
+            <div class="name">{{ gameServer.game?.fullTitle }}</div>
+            <div class="status">{{ gameServer.queue.name }}</div>
+          </div>
+        </div>
+
+        <div class="hover-on"
+             [ngClass]="{ 'waiting-for-game-server': isWaitingForGameServer }">
+          <app-button *ngIf="!isWaitingForGameServer"
+                      color="primary"
+                      (OnClick)="joinGameServer(gameServer)">
+            <span>Join Game Server</span>
+          </app-button>
+
+          <app-button *ngIf="isWaitingForGameServer"
+                      color="primary"
+                      [disabled]="true"
+                      (OnClick)="joinGameServer(gameServer)">
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>Joining Game Server...</span>
+          </app-button>
+        </div>
+      </div>
+    </ng-container>
+
     <div *ngFor="let queueMember of $queueMembers | async"
          class="group-invitation queue">
       <div class="hover-off">

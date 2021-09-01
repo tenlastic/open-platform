@@ -1,6 +1,4 @@
-import { EventEmitter, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { first } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
 import { v4 as uuid } from 'uuid';
 
 import { IdentityService } from '../identity/identity.service';
@@ -31,9 +29,8 @@ interface Subscription {
 
 export class Socket extends WebSocket {
   public _id: string;
+  public resumeTokens: { [key: string]: string } = {};
   public subscriptions: Subscription[] = [];
-
-  private resumeTokens: { [key: string]: string } = {};
 
   public close() {
     super.close(1000);
@@ -132,7 +129,11 @@ export class SocketService {
 
   constructor(private identityService: IdentityService) {}
 
-  public async connect(url: string, subscriptions: Subscription[] = []) {
+  public async connect(
+    url: string,
+    resumeTokens: { [key: string]: string } = {},
+    subscriptions: Subscription[] = [],
+  ) {
     if (this._sockets[url]) {
       return this._sockets[url];
     }
@@ -144,6 +145,7 @@ export class SocketService {
 
     const hostname = url.replace('http', 'ws');
     const socket = new Socket(`${hostname}?access_token=${accessToken.value}`);
+    socket.resumeTokens = resumeTokens;
     socket.subscriptions = subscriptions;
 
     this._sockets[url] = socket;
@@ -156,7 +158,7 @@ export class SocketService {
       delete this._sockets[url];
 
       if (e.code !== 1000) {
-        setTimeout(() => this.connect(url, socket.subscriptions), 5000);
+        setTimeout(() => this.connect(url, socket.resumeTokens, socket.subscriptions), 5000);
       }
     });
     socket.addEventListener('error', socket.close);

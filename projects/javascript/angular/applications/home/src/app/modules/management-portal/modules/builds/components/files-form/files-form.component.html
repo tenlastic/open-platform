@@ -91,7 +91,7 @@
   </div>
 </div>
 
-<app-button *ngIf="!form.get('files').disabled"
+<app-button *ngIf="!build._id"
             [color]="form.get('files').value.length && !status ? 'accent' : 'primary'"
             [disabled]="status"
             (OnClick)="selectFilesInput.click()">

@@ -71,6 +71,7 @@ export class FilesFormComponent implements OnInit {
       this.form.get('entrypoint').setValue(this.referenceBuild.entrypoint);
     }
 
+    this.form.get('files').disable({ emitEvent: false });
     this.status = 'Calculating file changes...';
 
     this.form.get('files').setValue([]);
@@ -117,6 +118,7 @@ export class FilesFormComponent implements OnInit {
     const sorted = this.form.get('files').value.sort((a, b) => this.sort(a.path, b.path));
     this.form.get('files').setValue(sorted);
 
+    this.form.get('files').enable({ emitEvent: false });
     this.status = null;
   }
 

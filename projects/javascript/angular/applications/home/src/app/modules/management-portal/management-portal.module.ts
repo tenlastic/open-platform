@@ -1,11 +1,13 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { NamespaceGuard } from '../../core/guards';
 import { SharedModule } from '../../shared/shared.module';
 import { LayoutComponent } from './components';
 
 export const ROUTES: Routes = [
   {
+    canActivate: [NamespaceGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'namespaces' },
       {

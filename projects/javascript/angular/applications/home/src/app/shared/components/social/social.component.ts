@@ -6,6 +6,7 @@ import {
   FriendQuery,
   FriendService,
   GameServer,
+  GameServerQuery,
   GameServerService,
   Group,
   GroupInvitation,
@@ -36,7 +37,7 @@ import {
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
-import { ElectronService, IdentityService } from '../../../core/services';
+import { ElectronService, IdentityService, UpdateService } from '../../../core/services';
 import { InputDialogComponent } from '../input-dialog/input-dialog.component';
 import { MatchPromptComponent } from '../match-prompt/match-prompt.component';
 
@@ -58,6 +59,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     return this.userQuery.selectActive() as Observable<User>;
   }
   public $friends: Observable<Friend[]>;
+  public $gameServers: Observable<GameServer[]>;
   public $group: Observable<Group>;
   public $groupInvitation: Observable<GroupInvitation>;
   public get $groupUsersWithoutCurrentUser() {
@@ -82,11 +84,13 @@ export class SocialComponent implements OnDestroy, OnInit {
   public newMessageNotification$ = new Subscription();
   public updateConversations$ = new Subscription();
   public updateQueueMembers$ = new Subscription();
+  public waitForGameServer$ = new Subscription();
   public conversations: Conversation[] = [];
   public isConversationsVisible = true;
   public isFriendsVisible = true;
   public isGroupVisible = true;
   public isIgnoredUsersVisible = false;
+  public isWaitingForGameServer = false;
 
   constructor(
     private webSocketQuery: WebSocketQuery,
@@ -94,6 +98,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     private electronService: ElectronService,
     private friendQuery: FriendQuery,
     private friendService: FriendService,
+    private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
     private groupInvitationQuery: GroupInvitationQuery,
     private groupInvitationService: GroupInvitationService,
@@ -110,6 +115,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     private queueMemberService: QueueMemberService,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
+    private updateService: UpdateService,
     public userQuery: UserQuery,
     private userService: UserService,
     private userStore: UserStore,
@@ -123,6 +129,11 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.$webSockets = this.webSocketQuery.selectAll();
     this.$friends = this.friendQuery.selectAll();
     this.$friends = this.friendQuery.populateUsers(this.$friends);
+    const $gameServers = this.gameServerQuery.selectAll({
+      filterBy: g =>
+        g.authorizedUserIds.includes(this.identityService.user._id) && Boolean(g.queueId),
+    });
+    this.$gameServers = this.gameServerQuery.populate($gameServers);
     const $groups = this.groupQuery.selectAll({
       filterBy: g => g.userIds.includes(this.identityService.user._id),
     });
@@ -141,14 +152,15 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.$users = this.userQuery.selectAll();
 
     await Promise.all([
-      this.webSocketService.find({}),
       this.friendService.find({}),
+      this.gameServerService.find({ where: { authorizedUserIds: this.identityService.user._id } }),
       this.groupInvitationService.find({ where: { toUserId: this.identityService.user._id } }),
       this.groupService.find({}),
       this.ignorationService.find({}),
       this.messageService.find({ sort: '-createdAt' }),
       this.queueMemberService.find({}),
       this.userService.find({}),
+      this.webSocketService.find({}),
     ]);
 
     this.fetchFriendUser$ = this.$friends.subscribe(friends => {
@@ -271,6 +283,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.newMessageNotification$.unsubscribe();
     this.updateConversations$.unsubscribe();
     this.updateQueueMembers$.unsubscribe();
+    this.waitForGameServer$.unsubscribe();
   }
 
   public $getUnreadGroupMessagesCount(groupId: string) {
@@ -282,6 +295,25 @@ export class SocialComponent implements OnDestroy, OnInit {
   public async acceptGroupInvitation() {
     const groupInvitation = await this.$groupInvitation.pipe(first()).toPromise();
     await this.groupService.join(groupInvitation.groupId);
+  }
+
+  public async joinGameServer(gameServer: GameServer) {
+    this.isWaitingForGameServer = true;
+
+    this.waitForGameServer$ = this.gameServerQuery.selectEntity(gameServer._id).subscribe(gs => {
+      // If the Game Server is not ready yet, do nothing.
+      if (!gs.status || gs.status.phase !== 'Running') {
+        return;
+      }
+
+      // If the Game Server does not have public endpoints yet, do nothing.
+      if (!gs.status.endpoints) {
+        return;
+      }
+
+      this.isWaitingForGameServer = false;
+      this.updateService.play(gs.gameId, { gameServer: gs });
+    });
   }
 
   public async leaveQueue(queueMemberId: string) {
@@ -358,7 +390,7 @@ export class SocialComponent implements OnDestroy, OnInit {
       return;
     }
 
-    this.matDialog.open(MatchPromptComponent, { data: { gameServer } });
+    this.matDialog.open(MatchPromptComponent, { autoFocus: false, data: { gameServer } });
 
     if (this.electronService.isElectron) {
       const window = this.electronService.remote.getCurrentWindow();
