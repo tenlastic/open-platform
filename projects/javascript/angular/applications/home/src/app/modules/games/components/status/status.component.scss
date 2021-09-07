@@ -21,6 +21,35 @@
       &:nth-of-type(5) {
         width: auto;
       }
+
+      &[color='primary'] {
+        mat-icon.mat-icon {
+          color: white;
+          font-size: 32px;
+          width: 28px;
+        }
+
+        span {
+          text-transform: uppercase;
+        }
+      }
+
+      &[matTooltip] {
+        mat-icon.mat-icon {
+          margin: 0px;
+        }
+      }
+
+      mat-icon.mat-icon {
+        font-size: 24px;
+        height: 24px;
+        line-height: 22px;
+        width: 24px;
+      }
+
+      span {
+        font-size: 20px;
+      }
     }
   }
 
@@ -41,8 +70,9 @@
 
     ::ng-deep {
       mat-progress-bar.mat-progress-bar {
-        margin-bottom: 2px;
-        margin-top: 8px;
+        height: 20px;
+        margin-bottom: 0px;
+        margin-top: 2px;
       }
     }
   }
@@ -51,8 +81,9 @@
     ::ng-deep {
       a.mat-button mat-icon.mat-icon {
         color: white;
-        font-size: 24px;
-        width: 20px;
+        font-size: 32px;
+        height: 32px;
+        width: 32px;
       }
 
       span.text {

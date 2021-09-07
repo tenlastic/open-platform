@@ -95,7 +95,7 @@ export class SocialComponent implements OnDestroy, OnInit {
   constructor(
     private webSocketQuery: WebSocketQuery,
     private webSocketService: WebSocketService,
-    private electronService: ElectronService,
+    public electronService: ElectronService,
     private friendQuery: FriendQuery,
     private friendService: FriendService,
     private gameServerQuery: GameServerQuery,
