@@ -15,14 +15,34 @@ import { wait } from '../../wait';
 import { KubernetesWorkflow } from '../workflow';
 
 export const KubernetesWorkflowSidecar = {
+  delete: async (build: WorkflowDocument) => {
+    const name = KubernetesWorkflowSidecar.getName(build);
+
+    /**
+     * ======================
+     * SECRET
+     * ======================
+     */
+    await secretApiV1.delete('dynamic', name);
+
+    /**
+     * ======================
+     * DEPLOYMENT
+     * ======================
+     */
+    await deploymentApiV1.delete('dynamic', name);
+  },
   getName(workflow: WorkflowDocument) {
     return `workflow-${workflow._id}-sidecar`;
   },
   subscribe: () => {
     return subscribe<WorkflowDocument>(Workflow, 'workflow-sidecar', async payload => {
-      if (payload.operationType === 'insert' || payload.operationType === 'update') {
+      if (payload.operationType === 'insert') {
         console.log(`Upserting Workflow Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesWorkflowSidecar.upsert(payload.fullDocument);
+      } else if (payload.operationType === 'update' && payload.fullDocument.status?.finishedAt) {
+        console.log(`Deleting Build Sidecar: ${payload.fullDocument._id}.`);
+        await KubernetesWorkflowSidecar.delete(payload.fullDocument);
       }
     });
   },

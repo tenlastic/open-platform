@@ -15,6 +15,23 @@ import { wait } from '../../wait';
 import { KubernetesBuild } from '../build';
 
 export const KubernetesBuildSidecar = {
+  delete: async (build: BuildDocument) => {
+    const name = KubernetesBuildSidecar.getName(build);
+
+    /**
+     * ======================
+     * SECRET
+     * ======================
+     */
+    await secretApiV1.delete('dynamic', name);
+
+    /**
+     * ======================
+     * DEPLOYMENT
+     * ======================
+     */
+    await deploymentApiV1.delete('dynamic', name);
+  },
   getName: (build: BuildDocument) => {
     return `build-${build._id}-sidecar`;
   },
@@ -23,6 +40,9 @@ export const KubernetesBuildSidecar = {
       if (payload.operationType === 'insert') {
         console.log(`Creating Build Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesBuildSidecar.upsert(payload.fullDocument);
+      } else if (payload.operationType === 'update' && payload.fullDocument.status?.finishedAt) {
+        console.log(`Deleting Build Sidecar: ${payload.fullDocument._id}.`);
+        await KubernetesBuildSidecar.delete(payload.fullDocument);
       }
     });
   },
