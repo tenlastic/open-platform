@@ -67,6 +67,7 @@ export class QueueModel extends BaseModel {
     const immutableFields = [
       'buildId',
       'cpu',
+      'gameServerTemplate',
       'memory',
       'preemptible',
       'replicas',

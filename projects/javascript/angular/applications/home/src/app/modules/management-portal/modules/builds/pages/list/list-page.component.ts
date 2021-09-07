@@ -117,8 +117,9 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
             });
           }
 
+          const totalQueues = queues.length + gameServerTemplates.length;
           this.matSnackBar.open(
-            `${gameServers.length} Game Server(s) and ${queues.length} Queue(s) updated successfully.`,
+            `${gameServers.length} Game Server(s) and ${totalQueues} Queue(s) updated successfully.`,
           );
         }
       });

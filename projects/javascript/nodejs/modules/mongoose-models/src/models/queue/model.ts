@@ -163,6 +163,7 @@ export class QueueSchema {
     const immutableFields = [
       'buildId',
       'cpu',
+      'gameServerTemplate',
       'memory',
       'preemptible',
       'replicas',
