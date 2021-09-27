@@ -1,6 +1,14 @@
 import 'source-map-support/register';
 
-import { queueMemberService, setAccessToken, setApiUrl, WebSocket } from '@tenlastic/http';
+import {
+  queueMemberService,
+  queueQuery,
+  queueService,
+  queueStore,
+  setAccessToken,
+  setApiUrl,
+  WebSocket,
+} from '@tenlastic/http';
 import { WebServer } from '@tenlastic/web-server';
 
 import { createGameServer } from './create-game-server';
@@ -20,10 +28,26 @@ const wssUrl = process.env.WSS_URL;
     // Redis.
     await redis.start();
 
+    // Add initial Queue data.
+    queueStore.add(queue);
+
+    // Log Queue Member changes.
+    queueMemberService.emitter.on('create', record =>
+      console.log(`Created Queue Member: ${record.userIds.join(',')}`),
+    );
+    queueMemberService.emitter.on('delete', _id => console.log(`Deleted Queue Member: ${_id}`));
+
     // Web Socket.
     const webSocket = new WebSocket();
     webSocket.emitter.on('open', () => {
       console.log('Web socket connected.');
+
+      // Watch for updates to the Queue.
+      webSocket.subscribe(queueService.emitter, {
+        collection: 'queues',
+        resumeToken: podName,
+        where: { _id: queue._id },
+      });
 
       // Distribute new Queue Members among replicas.
       webSocket.subscribe(queueMemberService.emitter, {
@@ -58,7 +82,8 @@ const wssUrl = process.env.WSS_URL;
 
 async function main() {
   try {
-    const result = await createGameServer(queue);
+    const q = queueQuery.getEntity(queue._id);
+    const result = await createGameServer(q);
     console.log(`GameServer created successfully: ${result._id}.`);
 
     return main();
