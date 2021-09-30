@@ -57,7 +57,8 @@ app.commandLine.appendSwitch('no-proxy-server');
 // GLOBAL SHORTCUTS
 // ==================
 app.on('ready', () => {
-  globalShortcut.register('CmdOrCtrl+R', () => {});
+  globalShortcut.register('f5', win.reload);
+  globalShortcut.register('CommandOrControl+R', win.reload);
 });
 
 // ==================
