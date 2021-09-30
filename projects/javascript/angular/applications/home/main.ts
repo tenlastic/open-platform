@@ -54,6 +54,13 @@ app.commandLine.appendSwitch('auto-detect', 'false');
 app.commandLine.appendSwitch('no-proxy-server');
 
 // ==================
+// GLOBAL SHORTCUTS
+// ==================
+app.on('ready', () => {
+  globalShortcut.register('CmdOrCtrl+R', () => {});
+});
+
+// ==================
 // LOGGING
 // ==================
 log.transports.file.level = 'info';

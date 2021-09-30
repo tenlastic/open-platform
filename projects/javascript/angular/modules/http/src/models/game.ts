@@ -28,6 +28,6 @@ export class Game extends Model {
   }
 
   public get fullTitle() {
-    return this.subtitle ? `${this.title}:${this.subtitle}` : this.title;
+    return this.subtitle ? `${this.title} (${this.subtitle})` : this.title;
   }
 }

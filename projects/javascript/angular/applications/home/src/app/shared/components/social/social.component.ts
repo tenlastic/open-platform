@@ -126,6 +126,8 @@ export class SocialComponent implements OnDestroy, OnInit {
       return;
     }
 
+    console.log('SocialComponent - NgOnInit');
+
     this.$webSockets = this.webSocketQuery.selectAll();
     this.$friends = this.friendQuery.selectAll();
     this.$friends = this.friendQuery.populateUsers(this.$friends);

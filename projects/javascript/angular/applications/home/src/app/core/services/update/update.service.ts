@@ -320,6 +320,7 @@ export class UpdateService {
         .get({
           headers: { Authorization: `Bearer ${accessToken.value}` },
           qs: { query: JSON.stringify({ files: files.join('') }) },
+          rejectUnauthorized: false,
           url: `${this.buildService.basePath}/${status.build._id}/files`,
         })
         .on('data', data => {
@@ -431,11 +432,7 @@ export class UpdateService {
   }
 
   private onGameChange(record: Game) {
-    const status = this.getStatus(record._id);
-    if (status.state !== UpdateServiceState.NotChecked) {
-      status.state = UpdateServiceState.NotChecked;
-      this.checkForUpdates(record._id);
-    }
+    this.checkForUpdates(record._id);
   }
 
   private onGameAuthorizationChange(record: GameAuthorization) {
@@ -443,11 +440,7 @@ export class UpdateService {
       return;
     }
 
-    const status = this.getStatus(record.gameId);
-    if (status.state !== UpdateServiceState.NotChecked) {
-      status.state = UpdateServiceState.NotChecked;
-      this.checkForUpdates(record.gameId);
-    }
+    this.checkForUpdates(record.gameId);
   }
 
   private subscribeToServices() {
@@ -456,12 +449,7 @@ export class UpdateService {
         return;
       }
 
-      const status = this.getStatus(record.gameId);
-
-      if (!status.build || record._id !== status.build._id) {
-        status.state = UpdateServiceState.NotChecked;
-        this.checkForUpdates(record.gameId);
-      }
+      this.checkForUpdates(record.gameId);
     });
 
     this.gameService.onCreate.subscribe((record: Game) => this.onGameChange(record));

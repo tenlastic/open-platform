@@ -168,6 +168,8 @@ export class AppComponent implements OnInit {
   }
 
   private subscribe() {
+    console.log('AppComponent - Subscribe');
+
     this.socket.subscribe('builds', Build, this.buildService);
     this.socket.subscribe('databases', Database, this.databaseService);
     this.socket.subscribe('game-authorizations', GameAuthorization, this.gameAuthorizationService);
@@ -180,5 +182,9 @@ export class AppComponent implements OnInit {
     this.socket.subscribe('queues', Queue, this.queueService);
     this.socket.subscribe('workflows', Workflow, this.workflowService);
     this.socket.subscribe('web-sockets', WebSocket, this.webSocketService);
+
+    this.gameServerService.onCreate.subscribe(gs =>
+      console.log(`Game Server created: ${JSON.stringify(gs)}.`),
+    );
   }
 }
