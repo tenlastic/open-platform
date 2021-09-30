@@ -28,8 +28,8 @@ export async function status() {
       try {
         if (
           !persistent &&
-          pod.metadata.deletionTimestamp &&
-          pod.metadata.labels['tenlastic.com/role'] === 'application'
+          pod.metadata.labels['tenlastic.com/role'] === 'application' &&
+          (pod.status?.phase === 'Failed' || pod.status?.phase === 'Succeeded')
         ) {
           await deleteGameServer();
         } else {

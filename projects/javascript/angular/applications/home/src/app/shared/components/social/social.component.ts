@@ -216,9 +216,10 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.newMessageNotification$ = this.messageService.onCreate.subscribe(message =>
       this.newMessageNotification(message),
     );
-    this.newMatchNotification$ = this.gameServerService.onCreate.subscribe(gameServer =>
-      this.newMatchNotification(gameServer),
-    );
+    this.newMatchNotification$ = this.gameServerService.onCreate.subscribe(gameServer => {
+      console.log('SocialComponent - New Match Notification');
+      this.newMatchNotification(gameServer);
+    });
 
     this.updateConversations$ = combineLatest([
       this.$friends,
@@ -390,7 +391,7 @@ export class SocialComponent implements OnDestroy, OnInit {
       return;
     }
 
-    console.log(`New match found: ${gameServer}.`);
+    console.log(`New match found: ${JSON.stringify(gameServer)}.`);
     this.matDialog.open(MatchPromptComponent, { autoFocus: false, data: { gameServer } });
 
     if (this.electronService.isElectron) {
