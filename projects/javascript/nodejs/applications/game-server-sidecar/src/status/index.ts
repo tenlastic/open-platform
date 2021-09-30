@@ -1,4 +1,4 @@
-import { nodeApiV1, podApiV1, V1Pod } from '@tenlastic/kubernetes';
+import { BaseWatchAction, nodeApiV1, podApiV1, V1Pod } from '@tenlastic/kubernetes';
 import * as requestPromiseNative from 'request-promise-native';
 
 const accessToken = process.env.ACCESS_TOKEN;
@@ -26,9 +26,17 @@ export async function status() {
       }
 
       try {
-        await updateGameServer();
+        if (
+          !persistent &&
+          pod.metadata.deletionTimestamp &&
+          pod.metadata.labels['tenlastic.com/role'] === 'application'
+        ) {
+          await deleteGameServer();
+        } else {
+          await updateGameServer();
+        }
       } catch (e) {
-        console.error(e.message);
+        console.error(e?.message);
         process.exit(1);
       }
     },
@@ -37,6 +45,17 @@ export async function status() {
       process.exit(err ? 1 : 0);
     },
   );
+}
+
+async function deleteGameServer() {
+  console.log(`Deleting Game Server...`);
+
+  await requestPromiseNative.delete({
+    headers: { Authorization: `Bearer ${accessToken}` },
+    url: endpoint,
+  });
+
+  console.log('Game Server deleted successfully.');
 }
 
 async function getEndpoints(pod: V1Pod) {
@@ -93,24 +112,13 @@ async function updateGameServer() {
     phase = 'Failed';
   }
 
-  if (persistent || pod) {
-    console.log(`Updating Game Server status: ${pod.status.phase}.`);
+  console.log(`Updating Game Server status: ${phase}.`);
 
-    await requestPromiseNative.put({
-      headers: { Authorization: `Bearer ${accessToken}` },
-      json: { status: { endpoints, nodes, phase } },
-      url: endpoint,
-    });
+  await requestPromiseNative.put({
+    headers: { Authorization: `Bearer ${accessToken}` },
+    json: { status: { endpoints, nodes, phase } },
+    url: endpoint,
+  });
 
-    console.log('Game Server updated successfully.');
-  } else {
-    console.log(`Deleting Game Server...`);
-
-    await requestPromiseNative.delete({
-      headers: { Authorization: `Bearer ${accessToken}` },
-      url: endpoint,
-    });
-
-    console.log('Game Server deleted successfully.');
-  }
+  console.log('Game Server updated successfully.');
 }

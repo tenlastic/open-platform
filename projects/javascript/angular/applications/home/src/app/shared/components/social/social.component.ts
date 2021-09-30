@@ -390,6 +390,7 @@ export class SocialComponent implements OnDestroy, OnInit {
       return;
     }
 
+    console.log(`New match found: ${gameServer}.`);
     this.matDialog.open(MatchPromptComponent, { autoFocus: false, data: { gameServer } });
 
     if (this.electronService.isElectron) {

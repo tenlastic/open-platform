@@ -33,9 +33,11 @@ const wssUrl = process.env.WSS_URL;
 
     // Log Queue Member changes.
     queueMemberService.emitter.on('create', record =>
-      console.log(`Created Queue Member: ${record.userIds.join(',')}`),
+      console.log(`Created Queue Member with User IDs: ${record.userIds.join(',')}.`),
     );
-    queueMemberService.emitter.on('delete', _id => console.log(`Deleted Queue Member: ${_id}`));
+    queueMemberService.emitter.on('delete', _id =>
+      console.log(`Deleted Queue Member User IDs: ${_id}.`),
+    );
 
     // Web Socket.
     const webSocket = new WebSocket();
