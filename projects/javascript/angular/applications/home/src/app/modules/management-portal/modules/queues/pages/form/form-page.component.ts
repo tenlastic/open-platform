@@ -9,6 +9,7 @@ import {
   BuildService,
   Game,
   GameService,
+  IGameServer,
   IQueue,
   Queue,
   QueueQuery,
@@ -39,6 +40,16 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public data: Queue;
   public errors: string[] = [];
   public form: FormGroup;
+  public get gameServerCpus() {
+    const limits = this.selectedNamespaceService.namespace.limits.gameServers;
+    const limit = limits.cpu ? limits.cpu : Infinity;
+    return limits.cpu ? IGameServer.Cpu.filter(r => r.value <= limit) : IGameServer.Cpu;
+  }
+  public get gameServerMemories() {
+    const limits = this.selectedNamespaceService.namespace.limits.gameServers;
+    const limit = limits.memory ? limits.memory : Infinity;
+    return limits.memory ? IGameServer.Memory.filter(r => r.value <= limit) : IGameServer.Memory;
+  }
   public games: Game[];
   public get memories() {
     const limits = this.selectedNamespaceService.namespace.limits.queues;

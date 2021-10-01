@@ -140,7 +140,7 @@
         <mat-form-field floatLabel="always">
           <mat-label>CPU</mat-label>
           <mat-select formControlName="cpu">
-            <mat-option *ngFor="let cpu of cpus"
+            <mat-option *ngFor="let cpu of gameServerCpus"
                         [value]="cpu.value">{{ cpu.label }}</mat-option>
           </mat-select>
         </mat-form-field>
@@ -148,7 +148,7 @@
         <mat-form-field floatLabel="always">
           <mat-label>Memory</mat-label>
           <mat-select formControlName="memory">
-            <mat-option *ngFor="let memory of memories"
+            <mat-option *ngFor="let memory of gameServerMemories"
                         [value]="memory.value">{{ memory.label }}</mat-option>
           </mat-select>
         </mat-form-field>
