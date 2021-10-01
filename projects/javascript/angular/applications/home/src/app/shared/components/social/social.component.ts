@@ -161,7 +161,7 @@ export class SocialComponent implements OnDestroy, OnInit {
         : null;
     });
     this.fetchGroupInvitationUser$ = this.$groupInvitation.subscribe(groupInvitation => {
-      if (!this.userQuery.hasEntity(groupInvitation?.fromUserId)) {
+      if (groupInvitation && !this.userQuery.hasEntity(groupInvitation.fromUserId)) {
         return this.userService.find({ where: { _id: groupInvitation.fromUserId } });
       }
     });
