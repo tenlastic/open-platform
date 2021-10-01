@@ -121,12 +121,10 @@ export class SocialComponent implements OnDestroy, OnInit {
     private userStore: UserStore,
   ) {}
 
-  public async ngOnInit() {
+  public ngOnInit() {
     if (!this.identityService.user) {
       return;
     }
-
-    console.log('SocialComponent - NgOnInit');
 
     this.$webSockets = this.webSocketQuery.selectAll();
     this.$friends = this.friendQuery.selectAll();
@@ -152,18 +150,6 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.$messages = this.messageQuery.selectAll();
     this.$queueMembers = this.queueMemberQuery.selectAll({ filterBy: () => false });
     this.$users = this.userQuery.selectAll();
-
-    await Promise.all([
-      this.friendService.find({}),
-      this.gameServerService.find({ where: { authorizedUserIds: this.identityService.user._id } }),
-      this.groupInvitationService.find({ where: { toUserId: this.identityService.user._id } }),
-      this.groupService.find({}),
-      this.ignorationService.find({}),
-      this.messageService.find({ sort: '-createdAt' }),
-      this.queueMemberService.find({}),
-      this.userService.find({}),
-      this.webSocketService.find({}),
-    ]);
 
     this.fetchFriendUser$ = this.$friends.subscribe(friends => {
       const missingUserIds = friends
@@ -218,10 +204,9 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.newMessageNotification$ = this.messageService.onCreate.subscribe(message =>
       this.newMessageNotification(message),
     );
-    this.newMatchNotification$ = this.gameServerService.onCreate.subscribe(gameServer => {
-      console.log('SocialComponent - New Match Notification');
-      this.newMatchNotification(gameServer);
-    });
+    this.newMatchNotification$ = this.gameServerService.onCreate.subscribe(gameServer =>
+      this.newMatchNotification(gameServer),
+    );
 
     this.updateConversations$ = combineLatest([
       this.$friends,
@@ -271,6 +256,18 @@ export class SocialComponent implements OnDestroy, OnInit {
       });
       this.$queueMembers = this.queueMemberQuery.populate($queueMembers);
     });
+
+    return Promise.all([
+      this.friendService.find({}),
+      this.gameServerService.find({ where: { authorizedUserIds: this.identityService.user._id } }),
+      this.groupInvitationService.find({ where: { toUserId: this.identityService.user._id } }),
+      this.groupService.find({}),
+      this.ignorationService.find({}),
+      this.messageService.find({ sort: '-createdAt' }),
+      this.queueMemberService.find({}),
+      this.userService.find({}),
+      this.webSocketService.find({}),
+    ]);
   }
 
   public ngOnDestroy() {
@@ -393,7 +390,6 @@ export class SocialComponent implements OnDestroy, OnInit {
       return;
     }
 
-    console.log(`New match found: ${JSON.stringify(gameServer)}.`);
     this.matDialog.open(MatchPromptComponent, { autoFocus: false, data: { gameServer } });
 
     if (this.electronService.isElectron) {

@@ -87,8 +87,6 @@ export class AppComponent implements OnInit {
     // Handle websockets when logging in and out.
     this.loginService.onLogin.subscribe(async () => {
       this.socket = await this.socketService.connect(environment.apiBaseUrl);
-
-      console.log('AppComponent - LoginService - OnLogin');
       this.socket.addEventListener('open', () => this.subscribe());
     });
     this.loginService.onLogout.subscribe(() => this.socket?.close());
@@ -96,16 +94,12 @@ export class AppComponent implements OnInit {
     // Handle websockets when access token is set.
     this.identityService.OnAccessTokenSet.subscribe(async () => {
       this.socket = await this.socketService.connect(environment.apiBaseUrl);
-
-      console.log('AppComponent - IdentityService - OnAccessTokenSet');
       this.socket.addEventListener('open', () => this.subscribe());
     });
 
     // Connect to websockets.
     try {
       this.socket = await this.socketService.connect(environment.apiBaseUrl);
-
-      console.log('AppComponent - NgOnInit');
       this.socket.addEventListener('open', () => this.subscribe());
     } catch {}
 
@@ -168,8 +162,6 @@ export class AppComponent implements OnInit {
   }
 
   private subscribe() {
-    console.log('AppComponent - Subscribe');
-
     this.socket.subscribe('builds', Build, this.buildService);
     this.socket.subscribe('databases', Database, this.databaseService);
     this.socket.subscribe('game-authorizations', GameAuthorization, this.gameAuthorizationService);
@@ -182,9 +174,5 @@ export class AppComponent implements OnInit {
     this.socket.subscribe('queues', Queue, this.queueService);
     this.socket.subscribe('workflows', Workflow, this.workflowService);
     this.socket.subscribe('web-sockets', WebSocket, this.webSocketService);
-
-    this.gameServerService.onCreate.subscribe(gs =>
-      console.log(`Game Server created: ${JSON.stringify(gs)}.`),
-    );
   }
 }
