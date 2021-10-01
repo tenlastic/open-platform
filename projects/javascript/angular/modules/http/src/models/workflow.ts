@@ -123,18 +123,25 @@ export class Workflow extends Model {
   }
 
   public getNestedStatusNodes() {
-    const nodes = JSON.parse(JSON.stringify(this.status.nodes)).reverse();
+    const nodes = JSON.parse(JSON.stringify(this.status.nodes));
+    const sortedNodes = nodes.sort((a, b) => {
+      if (a.startedAt === b.startedAt) {
+        return 0;
+      }
 
-    for (const node of nodes) {
+      return a.startedAt > b.startedAt ? 1 : -1;
+    });
+
+    for (const node of sortedNodes) {
       if (node.children) {
         for (const childId of node.children) {
-          const child = nodes.find(n => n._id === childId);
+          const child = sortedNodes.find(n => n._id === childId);
           child.parent = node._id;
         }
       }
     }
 
-    const children = this.getChildren(nodes);
+    const children = this.getChildren(sortedNodes);
 
     return [
       {

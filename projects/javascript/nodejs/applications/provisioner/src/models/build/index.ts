@@ -116,6 +116,11 @@ export const KubernetesBuild = {
           activeDeadlineSeconds: 60 * 60,
           affinity,
           entrypoint: 'entrypoint',
+          retryStrategy: {
+            backoff: { duration: '15', factor: '2' },
+            limit: 4,
+            retryStrategy: 'Always',
+          },
           serviceAccountName: 'build',
           templates: [
             {
@@ -166,6 +171,11 @@ export const KubernetesBuild = {
           activeDeadlineSeconds: 60 * 60,
           affinity,
           entrypoint: 'entrypoint',
+          retryStrategy: {
+            backoff: { duration: '15', factor: '2' },
+            limit: 4,
+            retryStrategy: 'Always',
+          },
           serviceAccountName: 'build',
           templates: [
             {
@@ -229,13 +239,6 @@ export const KubernetesBuild = {
         },
         metadata: { labels: podLabels },
         name: 'build-docker-image',
-        retryStrategy: {
-          backoff: {
-            duration: '15',
-            factor: '2',
-          },
-          limit: 4,
-        },
         volumes: [
           {
             name: 'docker-registry',
