@@ -320,7 +320,6 @@ export class UpdateService {
         .get({
           headers: { Authorization: `Bearer ${accessToken.value}` },
           qs: { query: JSON.stringify({ files: files.join('') }) },
-          rejectUnauthorized: false,
           url: `${this.buildService.basePath}/${status.build._id}/files`,
         })
         .on('data', data => {
