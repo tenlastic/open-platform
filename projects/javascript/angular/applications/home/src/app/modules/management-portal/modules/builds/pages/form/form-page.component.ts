@@ -82,9 +82,9 @@ export class BuildsFormPageComponent implements OnInit {
         this.dataSource.data = this.data.getNestedStatusNodes();
       }
 
-      this.$games = this.gameQuery.selectAll({
-        filterBy: g => g.namespaceId === this.selectedNamespaceService.namespaceId,
-      });
+      this.$games = this.gameQuery
+        .selectAll({ filterBy: g => g.namespaceId === this.selectedNamespaceService.namespaceId })
+        .pipe(map(games => games.map(g => new Game(g))));
       this.gameService.find({ where: { namespaceId: this.selectedNamespaceService.namespaceId } });
 
       this.setupForm();

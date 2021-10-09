@@ -35,7 +35,7 @@
           <mat-option>No Game</mat-option>
           <mat-option *ngFor="let game of ($games | async)"
                       [value]="game._id">
-            {{ game.title }}
+            {{ game.fullTitle }}
           </mat-option>
         </mat-select>
         <mat-error>Select a game.</mat-error>
@@ -83,7 +83,10 @@
       {{ error }}
     </div>
 
-    <ng-container *ngIf="form.get('files').enabled && form.get('files').value.length && status === Status.Ready">
+    <ng-container *ngIf="
+                    data._id || 
+                    form.get('files').enabled && form.get('files').value.length && status === Status.Ready
+                  ">
       <app-button color="primary"
                   (OnClick)="save()">Save</app-button>
       <app-button color="accent"

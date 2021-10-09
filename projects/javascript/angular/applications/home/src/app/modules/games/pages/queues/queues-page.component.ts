@@ -55,7 +55,11 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
       filterBy: qm => qm.userId === this.identityService.user._id,
     });
     this.$queues = this.queueQuery.selectAll({
-      filterBy: q => q.namespaceId === game.namespaceId && q.status && q.status.phase === 'Running',
+      filterBy: q =>
+        q.gameId === game._id &&
+        q.namespaceId === game.namespaceId &&
+        q.status &&
+        q.status.phase === 'Running',
     });
 
     await this.queueService.find({ where: { namespaceId: game.namespaceId } });

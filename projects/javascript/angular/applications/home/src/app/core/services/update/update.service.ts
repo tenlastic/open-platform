@@ -340,9 +340,7 @@ export class UpdateService {
 
           const target = `${this.installPath}/${gameId}/${entry.path}`;
           const targetDirectory = target.substr(0, target.lastIndexOf('/'));
-          if (!fs.existsSync(targetDirectory)) {
-            fs.mkdirSync(targetDirectory, { recursive: true } as any);
-          }
+          fs.mkdirSync(targetDirectory, { recursive: true });
 
           entry.pipe(fs.createWriteStream(target));
         })
@@ -404,6 +402,7 @@ export class UpdateService {
       localFiles.push({ md5, path });
     }
 
+    fs.mkdirSync(this.installPath, { recursive: true });
     fs.writeFileSync(`${this.installPath}/${gameId}.json`, JSON.stringify(localFiles));
 
     return localFiles;

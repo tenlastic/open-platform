@@ -39,6 +39,7 @@ export class GameServersPageComponent implements OnInit {
     const game = this.gameQuery.getActive() as Game;
     this.$gameServers = this.gameServerQuery.selectAll({
       filterBy: gs =>
+        gs.gameId === game._id &&
         gs.namespaceId === game.namespaceId &&
         !gs.queueId &&
         gs.status &&
