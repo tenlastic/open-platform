@@ -2,6 +2,7 @@
   "extends": ["tslint:recommended"],
   "jsRules": {},
   "rules": {
+    "array-type": [true, "array-simple"],
     "arrow-parens": false,
     "curly": true,
     "interface-name": false,

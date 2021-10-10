@@ -17,12 +17,15 @@
     "test": "ng test --code-coverage --watch false http",
     "test:watch": "ng test http"
   },
+  "dependencies": {
+    "tslib": "^2.0.0"
+  },
   "peerDependencies": {
     "@angular/common": "^8.2.14",
     "@angular/core": "^8.2.14",
     "@datorama/akita": "^4.23.1"
   },
   "devDependencies": {
-    "@angular/cli": "~9.1.15"
+    "@angular/cli": "~10.2.3"
   }
 }
