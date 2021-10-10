@@ -1,4 +1,4 @@
-import * as kafka from '@tenlastic/kafka';
+import kafka from '@tenlastic/kafka';
 import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
 import { Document } from 'mongoose';
 

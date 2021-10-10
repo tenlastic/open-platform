@@ -1,6 +1,6 @@
 import 'source-map-support/register';
 
-import * as kafka from '@tenlastic/kafka';
+import kafka from '@tenlastic/kafka';
 import '@tenlastic/logging';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { WebServer } from '@tenlastic/web-server';

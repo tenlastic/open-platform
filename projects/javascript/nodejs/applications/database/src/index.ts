@@ -1,6 +1,6 @@
 import 'source-map-support/register';
 
-import * as kafka from '@tenlastic/kafka';
+import kafka from '@tenlastic/kafka';
 import * as mongooseChangeStreamKafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongooseModels from '@tenlastic/mongoose-models';
 import { loggingMiddleware, WebServer } from '@tenlastic/web-server';

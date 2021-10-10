@@ -1,11 +1,11 @@
-import * as kafka from '@tenlastic/kafka';
+import kafka from '@tenlastic/kafka';
 import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
 import { expect } from 'chai';
 import * as Chance from 'chance';
+import * as kafkajs from 'kafkajs';
 import * as mongoose from 'mongoose';
 
-import { publish } from '../publish';
-import { eachMessage, subscribe } from './';
+import { eachMessage } from './';
 
 const chance = new Chance();
 
@@ -18,7 +18,7 @@ const schema = new mongoose.Schema({
 const Model = mongoose.model('example', schema);
 
 describe('subscribe()', function() {
-  let connection: kafka.Kafka;
+  let connection: kafkajs.Kafka;
 
   before(function() {
     connection = kafka.getConnection();

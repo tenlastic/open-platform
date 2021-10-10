@@ -1,6 +1,7 @@
 import { IDatabasePayload, DatabaseOperationType } from '@tenlastic/mongoose-change-stream';
-import * as kafka from '@tenlastic/kafka';
+import kafka from '@tenlastic/kafka';
 import { filterObject, isJsonValid, MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import * as kafkajs from 'kafkajs';
 import * as mongoose from 'mongoose';
 
 import { AuthenticationData, WebSocket } from '../web-socket-server';
@@ -19,7 +20,7 @@ export interface SubscribeDataParameters {
   where: any;
 }
 
-export const consumers = new Map<WebSocket, Map<string, kafka.Consumer>>();
+export const consumers = new Map<WebSocket, Map<string, kafkajs.Consumer>>();
 
 export async function subscribe(
   auth: AuthenticationData,

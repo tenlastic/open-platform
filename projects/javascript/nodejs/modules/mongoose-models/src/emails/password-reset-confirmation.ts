@@ -1,4 +1,4 @@
-import * as mailgun from '@tenlastic/mailgun';
+import mailgun from '@tenlastic/mailgun';
 
 import { UserDocument } from '../models';
 

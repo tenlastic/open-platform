@@ -17,7 +17,7 @@ import {
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import * as emails from '../../emails';
+import emails from '../../emails';
 import { UserDocument } from '../user/model';
 
 export const PasswordResetEvent = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();

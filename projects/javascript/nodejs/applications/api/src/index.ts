@@ -1,10 +1,10 @@
 import 'source-map-support/register';
 
-import * as kafka from '@tenlastic/kafka';
+import kafka from '@tenlastic/kafka';
 import '@tenlastic/logging';
 import * as mongooseChangeStreamKafka from '@tenlastic/mongoose-change-stream-kafka';
 import * as mongooseModels from '@tenlastic/mongoose-models';
-import * as mailgun from '@tenlastic/mailgun';
+import mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import { loggingMiddleware, WebServer } from '@tenlastic/web-server';
 import * as path from 'path';

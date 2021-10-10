@@ -1,4 +1,4 @@
-import * as kafka from '@tenlastic/kafka';
+import kafka from '@tenlastic/kafka';
 import * as mongoose from 'mongoose';
 
 before(async function() {

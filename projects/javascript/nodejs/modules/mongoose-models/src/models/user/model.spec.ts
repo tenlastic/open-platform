@@ -5,7 +5,7 @@ import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
-import * as emails from '../../emails';
+import emails from '../../emails';
 import { RefreshToken, RefreshTokenMock } from '../refresh-token';
 import { UserMock } from './model.mock';
 import { User, UserDocument } from './model';

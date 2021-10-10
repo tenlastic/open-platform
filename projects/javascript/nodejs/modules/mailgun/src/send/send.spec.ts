@@ -1,24 +1,13 @@
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import * as request from 'request-promise-native';
-import * as sinon from 'sinon';
+import * as nock from 'nock';
 
-import { setCredentials } from '..';
+import mailgun from '..';
 import { send } from './send';
 
 use(chaiAsPromised);
 
 describe('mailgun', function() {
-  let sandbox: sinon.SinonSandbox;
-
-  beforeEach(function() {
-    sandbox = sinon.createSandbox();
-  });
-
-  afterEach(function() {
-    sandbox.restore();
-  });
-
   describe('send()', function() {
     context('when domain and key are not set', function() {
       it('does not send a request to Mailgun', function() {
@@ -35,17 +24,17 @@ describe('mailgun', function() {
 
     context('when domain and key are set', function() {
       it('sends a request to Mailgun', async function() {
-        setCredentials('domain', 'key');
-        const stub = sandbox.stub(request, 'post');
+        mailgun.setCredentials('domain', 'key');
+        nock('https://api.mailgun.net')
+          .post('/v3/domain/messages')
+          .reply(200);
 
-        await send({
+        return send({
           from: 'from@example.com',
           html: '<p>Hello</p>',
           subject: 'Subject',
           to: 'to@example.com',
         });
-
-        expect(stub.called).to.eql(true);
       });
     });
   });

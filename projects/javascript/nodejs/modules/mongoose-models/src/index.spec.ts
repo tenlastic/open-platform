@@ -1,4 +1,4 @@
-import * as mailgun from '@tenlastic/mailgun';
+import mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as sinon from 'sinon';
 import { URL } from 'url';
@@ -31,7 +31,7 @@ before(async function() {
 
 beforeEach(async function() {
   sandbox = sinon.createSandbox();
-  sandbox.stub(mailgun, 'send').resolves();
+  mailgun.stub(sandbox);
 
   await deleteAll();
 });

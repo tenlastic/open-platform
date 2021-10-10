@@ -19,7 +19,7 @@ import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
-import * as emails from '../../emails';
+import emails from '../../emails';
 import { alphanumericValidator, emailValidator, stringLengthValidator } from '../../validators';
 import { RefreshToken, RefreshTokenDocument } from '../refresh-token/model';
 import { UserPermissions } from './';

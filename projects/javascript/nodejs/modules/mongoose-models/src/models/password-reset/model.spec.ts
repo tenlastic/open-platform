@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
-import * as emails from '../../emails';
+import emails from '../../emails';
 import { UserMock } from '../user/model.mock';
 import { PasswordResetMock } from './model.mock';
 
