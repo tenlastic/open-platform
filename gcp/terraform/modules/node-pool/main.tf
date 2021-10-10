@@ -15,7 +15,7 @@ resource "google_container_node_pool" "node_pool" {
   }
 
   node_config {
-    disk_size_gb = 20
+    disk_size_gb = var.disk_size_gb
     labels = var.labels
     machine_type = var.machine_type
     oauth_scopes = ["https://www.googleapis.com/auth/cloud-platform"]

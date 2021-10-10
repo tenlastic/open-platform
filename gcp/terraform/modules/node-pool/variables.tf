@@ -2,6 +2,11 @@ variable "cluster_name" {
   type = string
 }
 
+variable "disk_size_gb" {
+  default = "20"
+  type    = number
+}
+
 variable "labels" {
   type = map
 }
