@@ -26,6 +26,6 @@
     "@datorama/akita": "^4.23.1"
   },
   "devDependencies": {
-    "@angular/cli": "~10.2.3"
+    "@angular/cli": "~12.2.9"
   }
 }

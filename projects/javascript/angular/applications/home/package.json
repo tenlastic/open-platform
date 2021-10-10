@@ -28,7 +28,7 @@
     "unzipper": "0.10.11"
   },
   "devDependencies": {
-    "@angular/cli": "~10.2.3",
+    "@angular/cli": "~12.2.9",
     "@tenlastic/ng-http": "0.0.236",
     "electron": "11.4.10",
     "electron-builder": "21.2.0",
