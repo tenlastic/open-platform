@@ -10,7 +10,7 @@
       "prefix": "ten",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
+          "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
             "tsConfig": "modules/http/tsconfig.lib.json",
             "project": "modules/http/ng-package.json"
