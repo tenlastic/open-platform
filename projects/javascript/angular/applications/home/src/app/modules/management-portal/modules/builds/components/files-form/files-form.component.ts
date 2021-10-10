@@ -76,7 +76,7 @@ export class FilesFormComponent implements OnInit {
 
     this.form.get('files').setValue([]);
     await new Promise<void>(resolve => {
-      const worker = new Worker('../../../../../../workers/file-reader.worker', { type: 'module' });
+      const worker = new Worker(new URL('../../../../../../workers/file-reader.worker', import.meta.url), { type: 'module' });
       worker.onmessage = ({ data }) => {
         if (data.file) {
           if (this.referenceBuild) {
