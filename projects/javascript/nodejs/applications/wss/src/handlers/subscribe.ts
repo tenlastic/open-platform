@@ -15,6 +15,8 @@ import {
   GroupPermissions,
   Message,
   MessagePermissions,
+  Namespace,
+  NamespacePermissions,
   Queue,
   QueueMember,
   QueueMemberPermissions,
@@ -67,6 +69,9 @@ export async function subscribe(
 
     case 'messages':
       return webSocketServer.subscribe(auth, data, Message, MessagePermissions, ws);
+
+    case 'namespaces':
+      return webSocketServer.subscribe(auth, data, Namespace, NamespacePermissions, ws);
 
     case 'queue-members':
       return webSocketServer.subscribe(auth, data, QueueMember, QueueMemberPermissions, ws);

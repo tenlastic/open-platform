@@ -65,10 +65,14 @@ export class WebSocketServer {
       }
 
       ws.on('message', async data => {
-        const json = JSON.parse(data.toString());
+        try {
+          const json = JSON.parse(data.toString());
 
-        for (const message of this.messageCallbacks) {
-          await message(auth, json, ws);
+          for (const message of this.messageCallbacks) {
+            await message(auth, json, ws);
+          }
+        } catch (e) {
+          ws.send(JSON.stringify({ error: e.message }));
         }
       });
     });

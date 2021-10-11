@@ -17,7 +17,7 @@
     "@tenlastic/minio": "0.0.236",
     "@tenlastic/mongoose-models": "0.0.236",
     "@typegoose/typegoose": "6.4.0",
-    "mongoose": "5.9.2",
+    "mongoose": "5.9.13",
     "request": "2.88.0",
     "request-promise-native": "1.0.7",
     "source-map-support": "0.5.12",
@@ -26,7 +26,7 @@
   "devDependencies": {
     "mocha": "7.1.2",
     "nyc": "15.0.0",
-    "ts-node": "10.2.1",
+    "ts-node": "8.9.1",
     "ts-node-dev": "1.0.0-pre.44",
     "tslint": "6.1.3",
     "typescript": "4.3.5"

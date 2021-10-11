@@ -12,15 +12,12 @@ import { subscribe } from './subscribe';
 export function message(auth: AuthenticationData, data: MessageData, ws: WS) {
   switch (data.method) {
     case 'logs':
-      logs(auth, data, ws);
-      break;
+      return logs(auth, data, ws);
 
     case 'ping':
-      ping(auth, data, ws);
-      break;
+      return ping(auth, data, ws);
 
     case 'subscribe':
-      subscribe(auth, data, ws);
-      break;
+      return subscribe(auth, data, ws);
   }
 }
