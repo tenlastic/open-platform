@@ -7,7 +7,7 @@ ENTRYPOINT ["/sbin/tini", "--"]
 # Set up NodeJS.
 WORKDIR /usr/src/
 COPY ./package*.json ./
-RUN npm i --production
+RUN npm config set registry "https://verdaccio.tenlastic.com" && npm i --production
 COPY ./dist/ ./dist/
 
 EXPOSE 3000

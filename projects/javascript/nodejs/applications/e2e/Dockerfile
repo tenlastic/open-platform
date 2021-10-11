@@ -3,7 +3,7 @@ FROM node:14-alpine
 WORKDIR /usr/src/
 
 COPY ./package*.json ./
-RUN npm i --production
+RUN npm config set registry "https://verdaccio.tenlastic.com" && npm i --production
 
 COPY ./dist/ ./dist/
 

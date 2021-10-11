@@ -24,5 +24,9 @@ npm config set unsafe-perm false
 # Publish Node Modules to Github.
 echo "@tenlastic:registry=https://npm.pkg.github.com" > ~/.npmrc
 echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> ~/.npmrc
-
 lerna publish --ci --registry "https://npm.pkg.github.com" --yes from-package
+
+# Publish Node Modules to Verdaccio.
+echo "@tenlastic:registry=https://verdaccio.tenlastic.com" > ~/.npmrc
+echo "//verdaccio.tenlastic.com/:_authToken=${VERDACCIO_TOKEN}" >> ~/.npmrc
+lerna publish --ci --registry "https://verdaccio.tenlastic.com" --yes from-package
