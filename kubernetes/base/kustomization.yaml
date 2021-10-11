@@ -46,3 +46,4 @@ resources:
   - ./static/nodejs/wss.yaml
   - ./static/rabbitmq/rabbitmq.yaml
   - ./static/sealed-secrets/sealed-secrets.yaml
+  - ./static/verdaccio/verdaccio.yaml

@@ -1,0 +1,119 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: verdaccio
+  namespace: static
+data:
+  config.yaml: |-
+    auth:
+      htpasswd:
+        file: /verdaccio/storage/htpasswd
+    packages:
+      '@*/*':
+        # scoped packages
+        access: $all
+        publish: $authenticated
+        proxy: npmjs
+      '**':
+        access: $all
+        publish: $authenticated
+        proxy: npmjs
+    storage: /verdaccio/storage/data
+    uplinks:
+      npmjs:
+        url: https://registry.npmjs.org/
+        agent_options:
+          keepAlive: true
+          maxSockets: 40
+          maxFreeSockets: 10
+    web:
+      title: Verdaccio
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    fluxcd.io/automated: "true"
+  labels:
+    app: verdaccio
+  name: verdaccio
+  namespace: static
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: verdaccio
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+  template:
+    metadata:
+      labels:
+        app: verdaccio
+    spec:
+      containers:
+        - name: verdaccio
+          image: verdaccio/verdaccio:5.1.1
+          ports:
+            - containerPort: 4873
+              name: http
+          livenessProbe:
+            httpGet:
+              path: /-/ping
+              port: http
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /-/ping
+              port: http
+            initialDelaySeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+          volumeMounts:
+            - mountPath: /verdaccio/storage
+              name: storage
+              readOnly: false
+            - mountPath: /verdaccio/storage/htpasswd
+              name: htpasswd
+              subPath: htpasswd
+              readOnly: true
+            - mountPath: /verdaccio/conf
+              name: config
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: verdaccio
+        - name: htpasswd
+          secret:
+            secretName: verdaccio
+        - name: storage
+          persistentVolumeClaim:
+            claimName: verdaccio
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: verdaccio
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+  storageClassName: balanced-expandable
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: verdaccio-internal
+  namespace: static
+spec:
+  type: ClusterIP
+  ports:
+    - name: registry
+      port: 4873
+      protocol: TCP
+  selector:
+    app: verdaccio

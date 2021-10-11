@@ -71,6 +71,16 @@ spec:
                 name: rabbitmq
                 port:
                   number: 15672
+    - host: verdaccio.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: verdaccio-internal
+                port:
+                  number: 4873
     - host: wss.localhost
       http:
         paths:

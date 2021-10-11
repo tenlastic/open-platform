@@ -34,3 +34,4 @@ resources:
   - ./static/nodejs/e2e.sealedsecret.yaml
   - ./static/nodejs/environment-variables.sealedsecret.yaml
   - ./static/rabbitmq/rabbitmq.sealedsecret.yaml
+  - ./static/verdaccio/verdaccio.sealedsecret.yaml

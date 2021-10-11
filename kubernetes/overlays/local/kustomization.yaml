@@ -55,3 +55,4 @@ resources:
   - ./static/nodejs/environment-variables.secret.example.yaml
   - ./static/nodejs/migrations.yaml
   - ./static/rabbitmq/rabbitmq.secret.example.yaml
+  - ./static/verdaccio/verdaccio.secret.example.yaml
