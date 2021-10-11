@@ -19,7 +19,7 @@ git config user.name $GITHUB_USER_NAME
 echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
 npm config set unsafe-perm true
 lerna publish --ci --exact --message "javascript-v%v [skip ci]" --tag-version-prefix "javascript-v" --yes patch
-npm config set unsafe-perm true
+npm config set unsafe-perm false
 
 # Publish Node Modules to Github.
 echo "@tenlastic:registry=https://npm.pkg.github.com" > ~/.npmrc
