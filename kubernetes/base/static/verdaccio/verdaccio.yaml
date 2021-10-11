@@ -50,6 +50,8 @@ spec:
     metadata:
       labels:
         app: verdaccio
+    securityContext:
+      fsGroup: 101
     spec:
       containers:
         - name: verdaccio
@@ -70,6 +72,8 @@ spec:
           resources:
             requests:
               cpu: 100m
+          securityContext:
+            runAsUser: 10001
           volumeMounts:
             - mountPath: /verdaccio/storage
               name: storage
