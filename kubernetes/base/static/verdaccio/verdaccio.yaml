@@ -10,7 +10,6 @@ data:
         file: /verdaccio/storage/htpasswd
     packages:
       '@*/*':
-        # scoped packages
         access: $all
         publish: $authenticated
         proxy: npmjs
