@@ -256,7 +256,7 @@ export const KubernetesQueue = {
               command: ['npm', 'run', 'start'],
               env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
               envFrom: [{ secretRef: { name } }],
-              image: `node:12`,
+              image: `node:14`,
               livenessProbe: { ...probe, initialDelaySeconds: 300 },
               name: 'main',
               readinessProbe: probe,

@@ -29,7 +29,7 @@
           }
         }
       ],
-      "image": "node:12",
+      "image": "node:14",
       "livenessProbe": {
         "httpGet": {
           "path": "/",

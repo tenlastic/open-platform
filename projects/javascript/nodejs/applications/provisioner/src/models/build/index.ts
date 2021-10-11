@@ -139,7 +139,7 @@ export const KubernetesBuild = {
               container: {
                 command: ['npm', 'run', 'start'],
                 envFrom: [{ secretRef: { name } }],
-                image: 'node:12',
+                image: 'node:14',
                 resources: { requests: { cpu: '100m', memory: '100M' } },
                 volumeMounts: [
                   {

@@ -22,7 +22,7 @@
     "path": "/spec/template/spec/containers/0",
     "value": {
       "command": ["npm", "run", "start"],
-      "image": "node:12",
+      "image": "node:14",
       "name": "home-ui",
       "ports": [{ "containerPort": 80 }],
       "volumeMounts": [

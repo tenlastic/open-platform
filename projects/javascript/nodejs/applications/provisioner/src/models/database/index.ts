@@ -452,7 +452,7 @@ export const KubernetesDatabase = {
                 },
               ],
               envFrom: [{ secretRef: { name } }],
-              image: `node:12`,
+              image: `node:14`,
               livenessProbe: { ...probe, initialDelaySeconds: 300 },
               name: 'main',
               ports: [{ containerPort: 3000, protocol: 'TCP' }],
