@@ -75,7 +75,7 @@ spec:
                 name: rabbitmq
                 port:
                   number: 15672
-    - host: verdaccio.localhost
+    - host: verdaccio.tenlastic.com
       http:
         paths:
           - path: /
