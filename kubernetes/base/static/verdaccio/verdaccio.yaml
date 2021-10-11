@@ -50,8 +50,6 @@ spec:
     metadata:
       labels:
         app: verdaccio
-    securityContext:
-      fsGroup: 101
     spec:
       containers:
         - name: verdaccio
@@ -85,6 +83,8 @@ spec:
             - mountPath: /verdaccio/conf
               name: config
               readOnly: true
+      securityContext:
+        fsGroup: 101
       volumes:
         - name: config
           configMap:
