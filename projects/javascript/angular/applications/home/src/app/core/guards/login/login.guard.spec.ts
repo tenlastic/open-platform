@@ -3,7 +3,6 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { EnvironmentService, HttpModule, LoginService } from '@tenlastic/ng-http';
 import { Chance } from 'chance';
-import * as jsonwebtoken from 'jsonwebtoken';
 
 import { IdentityService } from '../../services';
 import { LoginGuard } from './login.guard';
@@ -43,12 +42,11 @@ describe('LoginGuard', () => {
 
     describe('when user is authenticated', () => {
       beforeEach(() => {
-        const secret = chance.hash();
-        const accessToken = jsonwebtoken.sign({ exp: new Date().getTime() }, secret);
-        const refreshToken = jsonwebtoken.sign({ exp: new Date().getTime() }, secret);
+        const token =
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjIxNDc0ODM2NDd9._flG9gy9n7JKFZTfZX5a3oUiwOM2fAI0ul6dAT8mbKU';
 
-        identityService.setAccessToken(accessToken);
-        identityService.setRefreshToken(refreshToken);
+        identityService.setAccessToken(token);
+        identityService.setRefreshToken(token);
 
         spy = spyOn(loginService.onLogout, 'emit');
       });

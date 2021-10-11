@@ -11,9 +11,9 @@
   "typings": "./dist/angular/module.d.ts",
   "version": "0.0.236",
   "scripts": {
-    "build": "ng build http --prod",
+    "build": "ng build http --configuration production",
     "lint": "ng lint http",
-    "prepublishOnly": "ng build http --prod",
+    "prepublishOnly": "ng build http --configuration production",
     "test": "ng test --code-coverage --watch false http",
     "test:watch": "ng test http"
   },
@@ -23,7 +23,7 @@
   "peerDependencies": {
     "@angular/common": "^8.2.14",
     "@angular/core": "^8.2.14",
-    "@datorama/akita": "^4.23.1"
+    "@datorama/akita": "^6.2.4"
   },
   "devDependencies": {
     "@angular/cli": "~12.2.9"

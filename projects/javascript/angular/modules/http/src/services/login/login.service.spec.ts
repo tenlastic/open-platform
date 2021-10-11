@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Chance } from 'chance';
-import * as jsonwebtoken from 'jsonwebtoken';
 
 import { ApiService } from '../api/api.service';
 import { EnvironmentService } from '../environment/environment.service';
@@ -39,9 +38,8 @@ describe('LoginService', () => {
 
       service.createWithCredentials(username, password);
 
-      const secret = chance.hash();
-      const accessToken = jsonwebtoken.sign({}, secret);
-      const refreshToken = jsonwebtoken.sign({}, secret);
+      const accessToken = chance.hash();
+      const refreshToken = chance.hash();
 
       const req = httpMock.expectOne(`${service.basePath}`);
       expect(req.request.method).toBe('POST');
@@ -55,9 +53,8 @@ describe('LoginService', () => {
 
       service.createWithRefreshToken(token);
 
-      const secret = chance.hash();
-      const accessToken = jsonwebtoken.sign({}, secret);
-      const refreshToken = jsonwebtoken.sign({}, secret);
+      const accessToken = chance.hash();
+      const refreshToken = chance.hash();
 
       const req = httpMock.expectOne(`${service.basePath}/refresh-token`);
       expect(req.request.method).toBe('POST');
