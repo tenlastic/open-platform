@@ -96,6 +96,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: verdaccio
+  namespace: static
 spec:
   accessModes:
     - ReadWriteOnce
