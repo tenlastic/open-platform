@@ -67,6 +67,7 @@
               }
             ],
             "scripts": [
+              "../node_modules/marked/lib/marked.js",
               "../node_modules/swagger-ui-dist/swagger-ui-bundle.js",
               "../node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js"
             ],
@@ -86,7 +87,6 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
@@ -95,7 +95,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
+                  "maximumWarning": "3mb",
                   "maximumError": "5mb"
                 },
                 {
@@ -115,7 +115,6 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
@@ -124,7 +123,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
+                  "maximumWarning": "3mb",
                   "maximumError": "5mb"
                 },
                 {

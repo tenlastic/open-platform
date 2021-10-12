@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { IOnLogin, LoginService, User, UserService } from '@tenlastic/ng-http';
-import jwtDecode from 'jwt-decode';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { IOnLogin, LoginService, User } from '@tenlastic/ng-http';
 
 export class ExpiredRefreshTokenError extends Error {
   constructor(message?: string) {
@@ -25,7 +25,8 @@ export class Jwt {
   private _value: string;
 
   constructor(value: string) {
-    const decodedValue = jwtDecode(value) as any;
+    const jwtHelperService = new JwtHelperService();
+    const decodedValue = jwtHelperService.decodeToken(value);
 
     this._payload = {
       exp: decodedValue.exp ? new Date(decodedValue.exp * 1000) : null,
