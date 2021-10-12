@@ -5,6 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Article, ArticleService, Game, GameQuery, GameService } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
 
@@ -41,9 +42,9 @@ export class ArticlesFormPageComponent implements OnInit {
         this.data = await this.articleService.findOne(_id);
       }
 
-      this.$games = this.gameQuery.selectAll({
-        filterBy: g => g.namespaceId === this.selectedNamespaceService.namespaceId,
-      });
+      this.$games = this.gameQuery
+        .selectAll({ filterBy: g => g.namespaceId === this.selectedNamespaceService.namespaceId })
+        .pipe(map(games => games.map(g => new Game(g))));
       this.gameService.find({ where: { namespaceId: this.selectedNamespaceService.namespaceId } });
 
       this.setupForm();

@@ -11,7 +11,7 @@
                     required>
           <mat-option *ngFor="let game of ($games | async)"
                       [value]="game._id">
-            {{ game.title }}
+            {{ game.fullTitle }}
           </mat-option>
         </mat-select>
         <mat-error>Select a game.</mat-error>
