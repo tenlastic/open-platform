@@ -77,6 +77,15 @@
             "webWorkerTsConfig": "applications/home/tsconfig.worker.json"
           },
           "configurations": {
+            "development": {
+              "optimization": false,
+              "sourceMap": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": false,
+              "vendorChunk": false,
+              "buildOptimizer": false
+            },
             "electron": {
               "fileReplacements": [
                 {
@@ -137,14 +146,15 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "browserTarget": "home:build"
-          },
           "configurations": {
+            "development": {
+              "browserTarget": "home:build:development"
+            },
             "production": {
               "browserTarget": "home:build:production"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",

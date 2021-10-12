@@ -42,6 +42,13 @@
       </mat-form-field>
     </div>
 
+    <ng-container *ngIf="data._id">
+      <app-button color="primary"
+                  (OnClick)="save()">Save</app-button>
+      <app-button color="accent"
+                  routerLink="../">Cancel</app-button>
+    </ng-container>
+
     <app-toggle-section *ngIf="form.get('platform').value"
                         title="Files">
       <app-files-form [build]="data"
@@ -84,8 +91,11 @@
     </div>
 
     <ng-container *ngIf="
-                    data._id || 
-                    form.get('files').enabled && form.get('files').value.length && status === Status.Ready
+                    !data._id && 
+                    (
+                      form.get('files').enabled && form.get('files').value.length > 0 && status === Status.Ready ||
+                      form.get('reference').get('_id').value && status === Status.Ready
+                    )
                   ">
       <app-button color="primary"
                   (OnClick)="save()">Save</app-button>

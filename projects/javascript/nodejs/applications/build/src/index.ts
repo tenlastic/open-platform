@@ -49,9 +49,15 @@ minio.connect({
     }
 
     // Unzip modified Files.
-    const stream = await minio.getObject(minioBucket, build.getZipPath());
-    const files = await unzip(build, stream);
-    build.files = [].concat(build.files || [], files);
+    try {
+      const stream = await minio.getObject(minioBucket, build.getZipPath());
+      const files = await unzip(build, stream);
+      build.files = [].concat(build.files || [], files);
+    } catch (e) {
+      if (e.code !== 'NoSuchKey') {
+        console.error(e.message);
+      }
+    }
 
     // Update the Build.
     await requestPromiseNative.put({

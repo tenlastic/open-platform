@@ -27,11 +27,14 @@ export class BuildService {
     this.basePath = this.environmentService.buildApiBaseUrl;
   }
 
-  public create(parameters: Partial<Build>, zip: Blob) {
+  public create(parameters: Partial<Build>, zip?: Blob) {
     const formData = new FormData();
-
     formData.append('build', JSON.stringify(parameters));
-    formData.append('zip', zip);
+
+    // Only append zip field if supplied.
+    if (zip) {
+      formData.append('zip', zip);
+    }
 
     const observable = this.apiService.request('post', this.basePath, formData, {
       observe: 'events',

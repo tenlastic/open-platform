@@ -45,7 +45,7 @@
     </div>
   </div>
 
-  <div *ngIf="!isNew || form.get('files').value.length"
+  <div *ngIf="!isNew || form.get('files').value.length > 0 || referenceBuild"
        class="col-sm-6">
     <div class="margin-bottom">
       <mat-form-field floatLabel="always">
@@ -57,7 +57,8 @@
       </mat-form-field>
     </div>
 
-    <div class="list">
+    <div *ngIf="form.get('files').value.length > 0"
+         class="list">
       <mat-label>
         <span>{{ isNew ? 'Staged Files' : 'Files' }}</span>
       </mat-label>
@@ -88,14 +89,52 @@
         </span>
       </mat-hint>
     </div>
+
+    <div *ngIf="form.get('files').value.length === 0 && referenceBuild"
+         class="list">
+      <mat-label>
+        <span>{{ isNew ? 'Staged Files' : 'Files' }}</span>
+      </mat-label>
+
+      <mat-list>
+        <mat-list-item *ngFor="let file of referenceBuild?.files"
+                       [attr.status]="file.status"
+                       [ngClass]="{ pointer: isNew }"
+                       (click)="setEntrypoint(file.path)">
+          <span>{{ file.path }}</span>
+          <span *ngIf="file.uncompressedBytes !== undefined && file.uncompressedBytes !== null">
+            {{ file.uncompressedBytes | filesize }}
+          </span>
+        </mat-list-item>
+      </mat-list>
+
+      <mat-hint>
+        <span *ngIf="isNew">
+          Count: {{ modifiedFiles.length }} Modified, {{ removedFiles.length }} Removed,
+          {{ referenceBuild.files.length }} Unmodified
+        </span>
+        <span *ngIf="isNew">
+          Size: {{ modifiedFiles | sum: 'uncompressedBytes' | filesize }} Modified,
+          {{ removedFiles | sum: 'uncompressedBytes' | filesize }} Removed,
+          {{ referenceBuild.files | sum: 'uncompressedBytes' | filesize }} Unmodified
+        </span>
+      </mat-hint>
+    </div>
   </div>
 </div>
 
-<app-button *ngIf="!build._id"
-            [color]="form.get('files').value.length && !status ? 'accent' : 'primary'"
-            [disabled]="status"
-            (OnClick)="selectFilesInput.click()">
-  <mat-spinner *ngIf="status"
-               [diameter]="20"></mat-spinner>
-  <span>{{ status ? status : 'Select Files from Computer' }}</span>
-</app-button>
+<ng-container *ngIf="isNew">
+  <app-button [color]="form.get('files').value.length && !status ? 'accent' : 'primary'"
+              [disabled]="status"
+              (OnClick)="selectFilesInput.click()">
+    <mat-spinner *ngIf="status"
+                 [diameter]="20"></mat-spinner>
+    <span>{{ status ? status : 'Select Files from Computer' }}</span>
+  </app-button>
+
+  <app-button *ngIf="form.get('files').value.length > 0 && !status"
+              color="accent"
+              (OnClick)="useReferenceFiles()">
+    <span>Select Reference Files</span>
+  </app-button>
+</ng-container>

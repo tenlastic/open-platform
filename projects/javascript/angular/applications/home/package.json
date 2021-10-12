@@ -13,7 +13,7 @@
     "electron:start": "npm-run-all -p start electron:serve",
     "electron:tsc": "tsc -p tsconfig.electron.json",
     "lint": "ng lint home",
-    "start": "ng serve --disable-host-check --host 0.0.0.0 --poll 1000 --port 80 home",
+    "start": "ng serve --configuration development --disable-host-check --host 0.0.0.0 --poll 1000 --port 80 home",
     "test": "ng test --code-coverage --watch false home",
     "test:watch": "ng test --poll 5000 home",
     "version": "../../scripts/version.sh home-ui"

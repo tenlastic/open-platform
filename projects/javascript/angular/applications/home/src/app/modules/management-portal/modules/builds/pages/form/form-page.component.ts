@@ -131,42 +131,47 @@ export class BuildsFormPageComponent implements OnInit {
   }
 
   private async create(data: Partial<Build>) {
+    this.form.disable({ emitEvent: false });
+
     const files: UpdatedFile[] = this.form.get('files').value;
-
-    const unmodifiedFiles = files.filter(u => u.status === 'unmodified');
-    this.form
-      .get('reference')
-      .get('files')
-      .setValue(unmodifiedFiles.map(f => f.path));
-
     const modifiedFiles = files.filter(u => u.status === 'modified');
 
     // Zip files.
-    this.form.disable({ emitEvent: false });
-    this.progress = { current: 0, total: modifiedFiles.length };
-    this.status = Status.Zipping;
+    let zipBlob: Blob;
+    if (files.length > 0) {
+      this.progress = { current: 0, total: modifiedFiles.length };
+      this.status = Status.Zipping;
 
-    const zip = new JSZip();
-    for (const file of modifiedFiles) {
-      const fileBlob = this.fileReaderService.arrayBufferToBlob(file.arrayBuffer);
-      zip.file(file.path, fileBlob);
+      const zip = new JSZip();
+      for (const file of modifiedFiles) {
+        const fileBlob = this.fileReaderService.arrayBufferToBlob(file.arrayBuffer);
+        zip.file(file.path, fileBlob);
+      }
+      zipBlob = await zip.generateAsync(
+        {
+          compression: 'DEFLATE',
+          compressionOptions: { level: 3 },
+          type: 'blob',
+        },
+        metadata => {
+          const total = modifiedFiles.length;
+          this.progress = { current: Math.floor(total * (metadata.percent / 100)), total };
+
+          this.changeDetectorRef.detectChanges();
+        },
+      );
+    } else {
+      data.reference.files = this.form.get('reference').get('files').value;
     }
-    const zipBlob = await zip.generateAsync(
-      {
-        compression: 'DEFLATE',
-        compressionOptions: { level: 3 },
-        type: 'blob',
-      },
-      metadata => {
-        const total = modifiedFiles.length;
-        this.progress = { current: Math.floor(total * (metadata.percent / 100)), total };
 
-        this.changeDetectorRef.detectChanges();
-      },
-    );
+    // Reset reference files.
+    this.form
+      .get('reference')
+      .get('files')
+      .setValue([]);
 
     // Upload files.
-    this.progress = { current: 0, total: zipBlob.size };
+    this.progress = { current: 0, total: zipBlob?.size };
     this.status = Status.Uploading;
     const result = await new Promise<Build>((resolve, reject) => {
       this.buildService
@@ -227,7 +232,7 @@ export class BuildsFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       entrypoint: [this.data.entrypoint, Validators.required],
-      files: [this.data.files || [], Validators.required],
+      files: [this.data.files || []],
       gameId: [this.data.gameId],
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],

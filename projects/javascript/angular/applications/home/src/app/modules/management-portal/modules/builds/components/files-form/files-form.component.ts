@@ -76,7 +76,10 @@ export class FilesFormComponent implements OnInit {
 
     this.form.get('files').setValue([]);
     await new Promise<void>(resolve => {
-      const worker = new Worker(new URL('../../../../../../workers/file-reader.worker', import.meta.url), { type: 'module' });
+      const worker = new Worker(
+        new URL('../../../../../../workers/file-reader.worker', import.meta.url),
+        { type: 'module' },
+      );
       worker.onmessage = ({ data }) => {
         if (data.file) {
           if (this.referenceBuild) {
@@ -135,30 +138,48 @@ export class FilesFormComponent implements OnInit {
         emitEvent: false,
       });
 
-    for (const file of this.form.get('files').value) {
-      if (this.referenceBuild) {
-        const referenceFile = this.referenceBuild.files.find(f => f.path === file.path);
+    if (this.form.get('files').value.length > 0) {
+      for (const file of this.form.get('files').value) {
+        if (this.referenceBuild) {
+          const referenceFile = this.referenceBuild.files.find(f => f.path === file.path);
 
-        if (referenceFile) {
-          file.status = file.md5 === referenceFile.md5 ? 'unmodified' : 'modified';
+          if (referenceFile) {
+            file.status = file.md5 === referenceFile.md5 ? 'unmodified' : 'modified';
+          } else {
+            file.status = 'modified';
+          }
         } else {
           file.status = 'modified';
         }
-      } else {
-        file.status = 'modified';
       }
-    }
 
-    this.removedFiles = [];
-    if (this.referenceBuild) {
-      for (const referenceFile of this.referenceBuild.files) {
-        const file = this.form.get('files').value.find(f => f.path === referenceFile.path);
+      this.removedFiles = [];
+      if (this.referenceBuild) {
+        for (const referenceFile of this.referenceBuild.files) {
+          const file = this.form.get('files').value.find(f => f.path === referenceFile.path);
 
-        if (!file) {
-          this.removedFiles.push(referenceFile);
+          if (!file) {
+            this.removedFiles.push(referenceFile);
+          }
         }
       }
+    } else {
+      if (this.referenceBuild?.entrypoint) {
+        this.form.get('entrypoint').setValue(this.referenceBuild.entrypoint);
+      }
+
+      this.form.get('files').setValue([]);
+      this.removedFiles = [];
     }
+  }
+
+  public useReferenceFiles() {
+    if (this.referenceBuild?.entrypoint) {
+      this.form.get('entrypoint').setValue(this.referenceBuild.entrypoint);
+    }
+
+    this.form.get('files').setValue([]);
+    this.removedFiles = [];
   }
 
   private async getReferenceBuilds() {
