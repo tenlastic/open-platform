@@ -164,7 +164,8 @@ export class BuildsFormPageComponent implements OnInit {
       data.reference.files = this.form.get('reference').get('files').value;
     }
 
-    // Reset reference files.
+    // Reset files.
+    this.form.get('files').setValue([]);
     this.form
       .get('reference')
       .get('files')

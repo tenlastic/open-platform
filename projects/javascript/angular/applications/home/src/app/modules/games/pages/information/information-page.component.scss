@@ -50,17 +50,16 @@ mat-grid-list.mat-grid-list {
   mat-grid-tile.mat-grid-tile {
     background-position: center;
     background-size: cover;
-    box-shadow: 2px 2px 3px black;
+    filter: brightness(0.5) drop-shadow(2px 2px 3px black);
     cursor: pointer;
-    filter: brightness(0.5);
 
     &:hover {
-      filter: brightness(1);
+      filter: brightness(1) drop-shadow(2px 2px 3px black);
     }
 
     &.selected {
       cursor: initial;
-      filter: brightness(1);
+      filter: brightness(1) drop-shadow(2px 2px 3px black);
     }
 
     ::ng-deep {

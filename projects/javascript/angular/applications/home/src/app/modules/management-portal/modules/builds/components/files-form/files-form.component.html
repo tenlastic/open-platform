@@ -57,7 +57,7 @@
       </mat-form-field>
     </div>
 
-    <div *ngIf="form.get('files').value.length > 0"
+    <div *ngIf="!isNew || form.get('files').value.length > 0"
          class="list">
       <mat-label>
         <span>{{ isNew ? 'Staged Files' : 'Files' }}</span>
