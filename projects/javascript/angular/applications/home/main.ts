@@ -44,7 +44,7 @@ autoUpdater.on('download-progress', progressObj => {
 autoUpdater.on('update-downloaded', info => {
   sendStatusToWindow('Update downloaded');
 });
-app.on('ready', () => autoUpdater.checkForUpdatesAndNotify());
+app.on('ready', () => autoUpdater.checkForUpdates());
 ipcMain.on('quitAndInstall', () => autoUpdater.quitAndInstall());
 
 // ==================

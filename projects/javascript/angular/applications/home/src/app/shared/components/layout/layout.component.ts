@@ -4,7 +4,12 @@ import { Game, GameQuery, GameService, Namespace, NamespaceService } from '@tenl
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { ElectronService, IdentityService, SocketService } from '../../../core/services';
+import {
+  ElectronService,
+  IdentityService,
+  SocketService,
+  UpdateStatus,
+} from '../../../core/services';
 import { PromptComponent } from '../prompt/prompt.component';
 
 @Component({
@@ -18,8 +23,7 @@ export class LayoutComponent implements OnInit {
   public get socket() {
     return this.socketService.sockets[environment.apiBaseUrl];
   }
-
-  private updateAvailable = false;
+  public UpdateStatus = UpdateStatus;
 
   constructor(
     public electronService: ElectronService,
@@ -36,26 +40,11 @@ export class LayoutComponent implements OnInit {
 
     this.$games = this.$games || this.gameQuery.selectAll();
     await this.gameService.find({});
-
-    if (!this.electronService.isElectron) {
-      return;
-    }
-
-    const { ipcRenderer } = this.electronService;
-    ipcRenderer.on('message', (event, text) => {
-      if (text.includes('Update available')) {
-        console.log('Downloading update...');
-      }
-
-      if (text.includes('Update downloaded')) {
-        this.updateAvailable = true;
-      }
-    });
   }
 
   public close() {
     let buttons = [];
-    if (this.updateAvailable) {
+    if (this.electronService.updateStatus === UpdateStatus.Downloaded) {
       buttons = [
         { color: 'accent', label: 'Minimize to Taskbar' },
         { color: 'primary', label: 'Update and Restart' },

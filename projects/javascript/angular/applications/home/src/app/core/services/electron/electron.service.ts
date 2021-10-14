@@ -9,6 +9,12 @@ import * as path from 'path';
 import * as request from 'request';
 import * as unzipper from 'unzipper';
 
+export enum UpdateStatus {
+  Downloading,
+  Downloaded,
+  NotAvailable,
+}
+
 @Injectable({ providedIn: 'root' })
 export class ElectronService {
   public childProcess: typeof childProcess;
@@ -21,6 +27,7 @@ export class ElectronService {
   public remote: typeof remote;
   public request: typeof request;
   public unzipper: typeof unzipper;
+  public updateStatus = UpdateStatus.NotAvailable;
   public webFrame: typeof webFrame;
 
   public get isElectron(): boolean {
@@ -46,7 +53,20 @@ export class ElectronService {
     this.unzipper = require('unzipper');
     this.webFrame = require('electron').webFrame;
 
+    this.checkForUpdates();
     this.inspectElementHandler();
+  }
+
+  private checkForUpdates() {
+    this.ipcRenderer.on('message', (event, text) => {
+      if (text.includes('Update available')) {
+        this.updateStatus = UpdateStatus.Downloading;
+      }
+
+      if (text.includes('Update downloaded')) {
+        this.updateStatus = UpdateStatus.Downloaded;
+      }
+    });
   }
 
   private inspectElementHandler() {
