@@ -1,0 +1,46 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  annotations:
+    fluxcd.io/automated: "true"
+  name: nats
+  namespace: static
+spec:
+  chart:
+    name: nats
+    repository: https://nats-io.github.io/k8s/helm/charts
+    version: 0.9.0
+  releaseName: nats
+  values:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/high-priority
+                  operator: Exists
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - nats
+              topologyKey: kubernetes.io/hostname
+    nats:
+      jetstream:
+        enabled: true
+        fileStorage:
+          enabled: true
+          size: 8Gi
+          storageDirectory: /data/
+          storageClassName: balanced-expandable
+        memStorage:
+          enabled: true
+          size: 2Gi
+      resources:
+        requests:
+          cpu: 100m

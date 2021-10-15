@@ -1,33 +1,44 @@
-import kafka from '@tenlastic/kafka';
 import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
+import nats from '@tenlastic/nats';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import * as mongoose from 'mongoose';
+import { TextDecoder } from 'util';
 
 /**
- * Copies Kafka events to RabbitMQ.
+ * Copies NATS events to RabbitMQ.
  */
 export async function subscribe<TDocument extends mongoose.Document>(
   Model: mongoose.Model<mongoose.Document>,
   queue: string,
   callback: (payload: IDatabasePayload<TDocument>) => Promise<void>,
 ) {
-  const topic = `api.${Model.collection.name}`;
+  return Promise.all([subscribeToNats(Model, queue), subscribeToRabbitMQ(queue, callback)]);
+}
 
-  await kafka.createTopic(topic);
+/**
+ * Copies NATS messages to RabbitMQ.
+ */
+async function subscribeToNats(Model: mongoose.Model<mongoose.Document>, queue: string) {
+  const subject = `api.${Model.collection.name}`;
+  await nats.upsertStream(subject);
 
-  const connection = kafka.getConnection();
-  const consumer = connection.consumer({ groupId: `provisioner-${queue}` });
-  await consumer.connect();
+  const subscription = await nats.subscribe(`provisioner-${queue}`, subject);
+  for await (const message of subscription) {
+    const data = new TextDecoder().decode(message.data);
+    const json = JSON.parse(data);
 
-  await consumer.subscribe({ topic });
-  await consumer.run({
-    eachMessage: data => {
-      const payload = data.message.value.toString();
-      return rabbitmq.publish(`provisioner.${queue}`, payload);
-    },
-  });
+    rabbitmq.publish(`provisioner.${queue}`, json);
+  }
+}
 
-  rabbitmq.consume(`provisioner.${queue}`, async (channel, content, msg) => {
+/**
+ * Subscribes to RabbitMQ and executes the callback with returned messages.
+ */
+function subscribeToRabbitMQ<TDocument extends mongoose.Document>(
+  queue: string,
+  callback: (payload: IDatabasePayload<TDocument>) => Promise<void>,
+) {
+  return rabbitmq.consume(`provisioner.${queue}`, async (channel, content, msg) => {
     try {
       console.log(`Message from provisioner.${queue}.`);
       await callback(content);

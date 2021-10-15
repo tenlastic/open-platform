@@ -16,9 +16,11 @@
       "@tenlastic/minio": ["./modules/minio/src"],
       "@tenlastic/mongoose-change-stream": ["./modules/mongoose-change-stream/src"],
       "@tenlastic/mongoose-change-stream-kafka": ["./modules/mongoose-change-stream-kafka/src"],
+      "@tenlastic/mongoose-change-stream-nats": ["./modules/mongoose-change-stream-nats/src"],
       "@tenlastic/mongoose-models": ["./modules/mongoose-models/src"],
       "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],
       "@tenlastic/mongoose-unique-error": ["./modules/mongoose-unique-error/src"],
+      "@tenlastic/nats": ["./modules/nats/src"],
       "@tenlastic/rabbitmq": ["./modules/rabbitmq/src"],
       "@tenlastic/web-server": ["./modules/web-server/src"],
       "@tenlastic/web-socket-server": ["./modules/web-socket-server/src"]

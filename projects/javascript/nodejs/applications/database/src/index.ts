@@ -1,8 +1,8 @@
 import 'source-map-support/register';
 
-import kafka from '@tenlastic/kafka';
-import * as mongooseChangeStreamKafka from '@tenlastic/mongoose-change-stream-kafka';
+import * as mongooseChangeStreamNats from '@tenlastic/mongoose-change-stream-nats';
 import * as mongooseModels from '@tenlastic/mongoose-models';
+import nats from '@tenlastic/nats';
 import { loggingMiddleware, WebServer } from '@tenlastic/web-server';
 import { WebSocketServer } from '@tenlastic/web-socket-server';
 
@@ -10,15 +10,12 @@ import { router as collectionsRouter } from './handlers/collections';
 import { router as recordsRouter } from './handlers/records';
 import * as sockets from './sockets';
 
-const kafkaConnectionString = process.env.KAFKA_CONNECTION_STRING;
+const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 const podName = process.env.POD_NAME;
 
 (async () => {
   try {
-    // Kafka.
-    await kafka.connect(kafkaConnectionString);
-
     // MongoDB.
     const mongoose = await mongooseModels.connect({
       connectionString: mongoConnectionString,
@@ -29,10 +26,13 @@ const podName = process.env.POD_NAME;
       process.exit(1);
     });
 
-    // Send changes from MongoDB to Kafka.
-    mongooseModels.CollectionEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.RecordEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.WebSocketEvent.sync(mongooseChangeStreamKafka.publish);
+    // NATS.
+    await nats.connect(natsConnectionString);
+
+    // Send changes from MongoDB to NATS.
+    mongooseModels.CollectionEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.RecordEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.WebSocketEvent.sync(mongooseChangeStreamNats.publish);
 
     // Delete stale web sockets on startup and SIGTERM.
     await deleteStaleWebSockets();

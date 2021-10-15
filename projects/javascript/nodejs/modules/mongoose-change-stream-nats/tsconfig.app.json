@@ -11,6 +11,6 @@
   "references": [
     { "path": "../mongoose-change-stream/tsconfig.app.json" },
     { "path": "../mongoose-permissions/tsconfig.app.json" },
-    { "path": "../nats/tsconfig.app.json" },
+    { "path": "../nats/tsconfig.app.json" }
   ]
 }

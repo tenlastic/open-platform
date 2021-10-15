@@ -1,11 +1,11 @@
 import 'source-map-support/register';
 
-import kafka from '@tenlastic/kafka';
 import '@tenlastic/logging';
-import * as mongooseChangeStreamKafka from '@tenlastic/mongoose-change-stream-kafka';
+import * as mongooseChangeStreamNats from '@tenlastic/mongoose-change-stream-nats';
 import * as mongooseModels from '@tenlastic/mongoose-models';
 import mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
+import nats from '@tenlastic/nats';
 import { loggingMiddleware, WebServer } from '@tenlastic/web-server';
 import * as path from 'path';
 import { URL } from 'url';
@@ -34,9 +34,6 @@ import { router as workflowsRouter } from './handlers/workflows';
 
 (async () => {
   try {
-    // Kafka.
-    await kafka.connect(process.env.KAFKA_CONNECTION_STRING);
-
     // Mailgun.
     mailgun.setCredentials(process.env.MAILGUN_DOMAIN, process.env.MAILGUN_SECRET);
 
@@ -62,25 +59,28 @@ import { router as workflowsRouter } from './handlers/workflows';
       databaseName: 'api',
     });
 
-    // Send changes from MongoDB to Kafka.
-    mongooseModels.ArticleEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.BuildEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.DatabaseEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.FriendEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.GameEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.GameAuthorizationEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.GameServerEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.GroupEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.GroupInvitationEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.IgnorationEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.MessageEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.NamespaceEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.PasswordResetEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.QueueEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.QueueMemberEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.UserEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.WebSocketEvent.sync(mongooseChangeStreamKafka.publish);
-    mongooseModels.WorkflowEvent.sync(mongooseChangeStreamKafka.publish);
+    // NATS.
+    await nats.connect({ connectionString: process.env.NATS_CONNECTION_STRING });
+
+    // Send changes from MongoDB to NATS.
+    mongooseModels.ArticleEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.BuildEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.DatabaseEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.FriendEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.GameEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.GameAuthorizationEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.GameServerEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.GroupEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.GroupInvitationEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.IgnorationEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.MessageEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.NamespaceEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.PasswordResetEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.QueueEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.QueueMemberEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.UserEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.WebSocketEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.WorkflowEvent.sync(mongooseChangeStreamNats.publish);
 
     // Web Server.
     const webServer = new WebServer();
