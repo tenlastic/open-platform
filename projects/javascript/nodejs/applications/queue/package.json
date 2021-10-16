@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/queue",
   "private": true,
-  "version": "0.0.246",
+  "version": "0.0.247",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -14,8 +14,8 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/http": "0.0.246",
-    "@tenlastic/web-server": "0.0.246",
+    "@tenlastic/http": "0.0.247",
+    "@tenlastic/web-server": "0.0.247",
     "ioredis": "4.26.0",
     "source-map-support": "0.5.12"
   },
