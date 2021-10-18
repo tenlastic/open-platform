@@ -33,6 +33,7 @@ patchesStrategicMerge:
   - ./static/minio/minio.yaml
   - ./static/mongodb/mongodb.yaml
   - ./static/mongodb/mongoku.yaml
+  - ./static/nats/nats.yaml
   - ./static/nodejs/api.yaml
   - ./static/nodejs/provisioner.yaml
   - ./static/nodejs/wss.yaml

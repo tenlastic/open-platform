@@ -43,15 +43,6 @@ export const KubernetesDatabase = {
 
     /**
      * =======================
-     * KAFKA
-     * =======================
-     */
-    await secretApiV1.delete(`${name}-kafka-jaas`, 'dynamic');
-    await helmReleaseApiV1.delete(`${name}-kafka`, 'dynamic');
-    await deletePvcs(`app.kubernetes.io/instance=${name}-kafka`);
-
-    /**
-     * =======================
      * MONGODB
      * =======================
      */
@@ -61,12 +52,11 @@ export const KubernetesDatabase = {
 
     /**
      * =======================
-     * ZOOKEEPER
+     * NATS
      * =======================
      */
-    await secretApiV1.delete(`${name}-zookeeper`, 'dynamic');
-    await helmReleaseApiV1.delete(`${name}-zookeeper`, 'dynamic');
-    await deletePvcs(`app.kubernetes.io/instance=${name}-zookeeper`);
+    await helmReleaseApiV1.delete(`${name}-nats`, 'dynamic');
+    await deletePvcs(`app.kubernetes.io/instance=${name}-nats`);
 
     /**
      * =======================
@@ -124,11 +114,8 @@ export const KubernetesDatabase = {
     };
 
     const array = Array(database.replicas).fill(0);
-    const kafkas = array.map((a, i) => `${name}-kafka-${i}.${name}-kafka-headless:9092`);
     const mongos = array.map((a, i) => `${name}-mongodb-${i}.${name}-mongodb-headless:27017`);
-    const zookeepers = array.map(
-      (a, i) => `${name}-zookeeper-${i}.${name}-zookeeper-headless:2181`,
-    );
+    const nats = array.map((a, i) => `${name}-nats-${i}.${name}-nats:4222`);
 
     /**
      * ========================
@@ -163,64 +150,6 @@ export const KubernetesDatabase = {
           },
         ],
         tls: ingress.body.spec.tls ? ingress.body.spec.tls.map(t => ({ hosts: t.hosts })) : null,
-      },
-    });
-
-    /**
-     * ========================
-     * KAFKA
-     * ========================
-     */
-    await secretApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'kafka' },
-        name: `${name}-kafka-jaas`,
-      },
-      stringData: {
-        'client-passwords': password,
-        'inter-broker-password': password,
-        'zookeeper-password': password,
-      },
-    });
-    await helmReleaseApiV1.delete(`${name}-kafka`, 'dynamic');
-    await deletePvcs(`app.kubernetes.io/instance=${name}-kafka`);
-    await helmReleaseApiV1.create('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'kafka' },
-        name: `${name}-kafka`,
-      },
-      spec: {
-        chart: {
-          name: 'kafka',
-          repository: 'https://charts.bitnami.com/bitnami',
-          version: '12.16.2',
-        },
-        releaseName: `${name}-kafka`,
-        values: {
-          affinity: getAffinity(database, 'kafka'),
-          auth: {
-            clientProtocol: 'sasl',
-            interBrokerProtocol: 'sasl',
-            jaas: {
-              clientUsers: 'admin',
-              existingSecret: `${name}-kafka-jaas`,
-              interBrokerUser: 'admin',
-              zookeeperUser: 'admin',
-            },
-          },
-          externalZookeeper: { servers: zookeepers.join(',') },
-          image: { tag: '2.7.0' },
-          livenessProbe: { initialDelaySeconds: 120 },
-          persistence: {
-            size: `${database.storage}`,
-            storageClass: 'balanced-expandable',
-          },
-          podLabels: { ...labels, 'tenlastic.com/role': 'kafka' },
-          readinessProbe: { initialDelaySeconds: 120 },
-          replicaCount: database.replicas,
-          resources,
-          zookeeper: { enabled: false },
-        },
       },
     });
 
@@ -270,15 +199,68 @@ export const KubernetesDatabase = {
           architecture: 'replicaset',
           auth: { existingSecret: `${name}-mongodb` },
           image: { tag: '4.4.3' },
-          livenessProbe: { initialDelaySeconds: 120 },
           persistence: {
             size: `${database.storage}`,
             storageClass: 'balanced-expandable',
           },
           podLabels: { ...labels, 'tenlastic.com/role': 'mongodb' },
-          readinessProbe: { initialDelaySeconds: 120 },
           replicaCount: database.replicas,
           resources,
+        },
+      },
+    });
+
+    /**
+     * ========================
+     * NATS
+     * ========================
+     */
+    await helmReleaseApiV1.delete(`${name}-nats`, 'dynamic');
+    await deletePvcs(`app.kubernetes.io/instance=${name}-nats`);
+    await helmReleaseApiV1.create('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'nats' },
+        name: `${name}-nats`,
+      },
+      spec: {
+        chart: {
+          git: 'https://github.com/nats-io/k8s.git',
+          path: 'helm/charts/nats',
+          ref: '846d13603357cc0e4c76f78bb5887c051a7b08e9',
+        },
+        releaseName: `${name}-nats`,
+        values: {
+          affinity: getAffinity(database, 'nats'),
+          auth: {
+            basic: {
+              accounts: {
+                jetstream: { jetstream: true, users: [{ pass: password, user: 'jetstream' }] },
+                system: { users: [{ pass: password, user: 'username' }] },
+              },
+            },
+            enabled: true,
+            systemAccount: 'system',
+          },
+          cluster: {
+            enabled: database.replicas > 1 ? true : false,
+            replicas: database.replicas,
+          },
+          nats: {
+            jetstream: {
+              enabled: true,
+              fileStorage: {
+                enabled: true,
+                size: getNatsUnit(database.storage),
+                storageDirectory: '/data/',
+                storageClassName: 'balanced-expandable',
+              },
+              memStorage: { enabled: true, size: getNatsUnit(database.memory) },
+            },
+            limits: { lameDuckDuration: '30s' },
+            resources,
+            terminationGracePeriodSeconds: 30,
+          },
+          statefulSetPodLabels: { ...labels, 'tenlastic.com/role': 'nats' },
         },
       },
     });
@@ -304,21 +286,15 @@ export const KubernetesDatabase = {
                 },
               },
               {
-                // Allow traffic to Kafka.
-                podSelector: {
-                  matchLabels: { 'tenlastic.com/role': 'kafka' },
-                },
-              },
-              {
                 // Allow traffic to MongoDB.
                 podSelector: {
                   matchLabels: { 'tenlastic.com/role': 'mongodb' },
                 },
               },
               {
-                // Allow traffic to Zookeeper.
+                // Allow traffic to NATS.
                 podSelector: {
-                  matchLabels: { 'tenlastic.com/role': 'zookeeper' },
+                  matchLabels: { 'tenlastic.com/role': 'nats' },
                 },
               },
             ],
@@ -326,58 +302,6 @@ export const KubernetesDatabase = {
         ],
         podSelector: { matchLabels: { 'tenlastic.com/app': name } },
         policyTypes: ['Egress'],
-      },
-    });
-
-    /**
-     * ========================
-     * ZOOKEEPER
-     * ========================
-     */
-    await secretApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'zookeeper' },
-        name: `${name}-zookeeper`,
-      },
-      stringData: {
-        'client-password': `${password}`,
-        'server-password': `${password}`,
-      },
-    });
-    await helmReleaseApiV1.delete(`${name}-zookeeper`, 'dynamic');
-    await deletePvcs(`app.kubernetes.io/instance=${name}-zookeeper`);
-    await helmReleaseApiV1.create('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'zookeeper' },
-        name: `${name}-zookeeper`,
-      },
-      spec: {
-        chart: {
-          name: 'zookeeper',
-          repository: 'https://charts.bitnami.com/bitnami',
-          version: '6.7.0',
-        },
-        releaseName: `${name}-zookeeper`,
-        values: {
-          affinity: getAffinity(database, 'zookeeper'),
-          allowAnonymousLogin: false,
-          auth: {
-            clientUser: 'admin',
-            enabled: true,
-            existingSecret: `${name}-zookeeper`,
-            serverUsers: 'admin',
-          },
-          image: { tag: '3.6.2' },
-          livenessProbe: { initialDelaySeconds: 120 },
-          persistence: {
-            size: `${database.storage}`,
-            storageClass: 'standard-expandable',
-          },
-          podLabels: { ...labels, 'tenlastic.com/role': 'zookeeper' },
-          readinessProbe: { initialDelaySeconds: 120 },
-          replicaCount: database.replicas,
-          resources,
-        },
       },
     });
 
@@ -393,9 +317,8 @@ export const KubernetesDatabase = {
       },
       stringData: {
         JWK_URL: 'http://api.static:3000/public-keys/jwks',
-        KAFKA_CONNECTION_STRING: `admin:${password}@${kafkas.join(',')}`,
-        KAFKA_REPLICATION_FACTOR: `${database.replicas}`,
         MONGO_CONNECTION_STRING: `mongodb://root:${mongoPassword}@${mongos.join(',')}`,
+        NATS_CONNECTION_STRING: `jetstream:${password}@${nats.join(',')}`,
       },
     });
 
@@ -453,7 +376,7 @@ export const KubernetesDatabase = {
               ],
               envFrom: [{ secretRef: { name } }],
               image: `node:14`,
-              livenessProbe: { ...probe, initialDelaySeconds: 300 },
+              livenessProbe: probe,
               name: 'main',
               ports: [{ containerPort: 3000, protocol: 'TCP' }],
               readinessProbe: probe,
@@ -582,6 +505,21 @@ function getAffinity(database: DatabaseDocument, role: string): V1Affinity {
       ],
     },
   };
+}
+
+function getNatsUnit(bytes: number) {
+  if (bytes === 0) {
+    return '0';
+  }
+
+  const sizes = ['', 'K', 'M', 'G', 'T'];
+
+  const index = Math.floor(Math.log(bytes) / Math.log(1000));
+  const size = sizes[index];
+  const value = bytes / Math.pow(1000, index);
+  const fixed = value.toFixed();
+
+  return `${fixed}${size}`;
 }
 
 async function setMongoPrimary(database: DatabaseDocument, namespace: string, password: string) {

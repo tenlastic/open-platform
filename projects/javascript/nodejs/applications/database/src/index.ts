@@ -27,7 +27,7 @@ const podName = process.env.POD_NAME;
     });
 
     // NATS.
-    await nats.connect(natsConnectionString);
+    await nats.connect({ connectionString: natsConnectionString });
 
     // Send changes from MongoDB to NATS.
     mongooseModels.CollectionEvent.sync(mongooseChangeStreamNats.publish);

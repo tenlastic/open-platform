@@ -14,8 +14,10 @@ export async function connect(options: ConnectionOptions) {
   }
 
   if (options.connectionString) {
+    const connectionString = decodeURIComponent(options.connectionString);
+
     if (options.connectionString.includes('@')) {
-      const [authentication, servers] = options.connectionString.split['@'];
+      const [authentication, servers] = connectionString.split('@');
       const [user, pass] = authentication.split(':');
 
       options.pass = pass;

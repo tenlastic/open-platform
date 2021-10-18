@@ -9,6 +9,7 @@ export namespace IDatabase {
     { label: '1', value: 1 },
   ];
   export const Memory = [
+    { label: '250 MB', value: 250 * 1000 * 1000 },
     { label: '500 MB', value: 500 * 1000 * 1000 },
     { label: '1 GB', value: 1 * 1000 * 1000 * 1000 },
     { label: '2.5 GB', value: 2.5 * 1000 * 1000 * 1000 },

@@ -7,9 +7,9 @@ metadata:
   namespace: static
 spec:
   chart:
-    name: nats
-    repository: https://nats-io.github.io/k8s/helm/charts
-    version: 0.9.0
+    git: https://github.com/nats-io/k8s.git
+    path: helm/charts/nats
+    ref: 846d13603357cc0e4c76f78bb5887c051a7b08e9
   releaseName: nats
   values:
     affinity:
@@ -30,6 +30,23 @@ spec:
                     values:
                       - nats
               topologyKey: kubernetes.io/hostname
+    auth:
+      basic:
+        accounts:
+          jetstream:
+            jetstream: true
+            users:
+              - user: jetstream
+                pass: password
+          system:
+            users:
+              - user: username
+                pass: password
+      enabled: true
+      systemAccount: system
+    cluster:
+      enabled: true
+      replicas: 3
     nats:
       jetstream:
         enabled: true
@@ -41,6 +58,15 @@ spec:
         memStorage:
           enabled: true
           size: 2Gi
+      logging:
+        debug: true
+        trace: true
       resources:
         requests:
           cpu: 100m
+  valuesFrom:
+    - secretKeyRef:
+        key: values.yaml
+        name: nats
+        namespace: static
+        optional: true

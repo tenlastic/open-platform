@@ -31,6 +31,7 @@ resources:
   - ./static/minio/minio.sealedsecret.yaml
   - ./static/mongodb/mongodb.sealedsecret.yaml
   - ./static/mongodb/mongoku.sealedsecret.yaml
+  - ./static/nats/nats.sealedsecret.yaml
   - ./static/nodejs/e2e.sealedsecret.yaml
   - ./static/nodejs/environment-variables.sealedsecret.yaml
   - ./static/rabbitmq/rabbitmq.sealedsecret.yaml
