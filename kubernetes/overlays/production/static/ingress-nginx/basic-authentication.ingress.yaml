@@ -46,16 +46,6 @@ spec:
                 name: docker-registry-ui
                 port:
                   number: 80
-    - host: kafka.tenlastic.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: kafdrop
-                port:
-                  number: 9000
     - host: kubernetes-dashboard.tenlastic.com
       http:
         paths:

@@ -223,14 +223,6 @@ spec:
             mountPath: /workspace/
         workingDir: /workspace/open-platform/
       sidecars:
-        - name: kafka
-          image: spotify/kafka:latest
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: ADVERTISED_HOST
-              value: localhost
-            - name: ADVERTISED_PORT
-              value: "9092"
         - name: mongodb
           image: bitnami/mongodb:latest
           imagePullPolicy: IfNotPresent
@@ -251,6 +243,9 @@ spec:
               value: minioadmin
             - name: MINIO_SECRET_KEY
               value: minioadmin
+        - name: nats
+          image: nats:latest
+          imagePullPolicy: IfNotPresent
         - name: rabbitmq
           image: rabbitmq:3.8
           imagePullPolicy: IfNotPresent

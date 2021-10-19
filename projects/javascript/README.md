@@ -2,7 +2,6 @@
 
 ### Local Development Ports
 
-- 2181: Zookeeper
 - 3000: Authentication API
 - 3001: Namespace API
 - 3002: Database API
@@ -16,8 +15,6 @@
 - 8082: SSO UI
 - 8083: Launcher UI
 - 9000: Minio
-- 9092: Kafka
-- 19092: Kafka Management Dashboard
 - 27017: MongoDB
 - 27018: MongoDB
 - 27019: MongoDB

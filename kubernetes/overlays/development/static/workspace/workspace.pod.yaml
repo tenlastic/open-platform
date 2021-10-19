@@ -25,17 +25,6 @@ spec:
         - name: source
           mountPath: /usr/src/
       workingDir: /usr/src/
-    - name: kafka
-      image: bitnami/kafka:latest
-      env:
-        - name: ALLOW_PLAINTEXT_LISTENER
-          value: "yes"
-        - name: KAFKA_CFG_ADVERTISED_LISTENERS
-          value: PLAINTEXT://127.0.0.1:9092
-        - name: KAFKA_CFG_LISTENERS
-          value: PLAINTEXT://:9092
-        - name: KAFKA_CFG_ZOOKEEPER_CONNECT
-          value: localhost:2181
     - name: mongodb
       image: bitnami/mongodb:latest
       env:
@@ -54,6 +43,8 @@ spec:
           value: minioadmin
         - name: MINIO_SECRET_KEY
           value: minioadmin
+    - name: nats
+      image: nats:latest
     - name: rabbitmq
       image: bitnami/rabbitmq:latest
       env:
@@ -61,11 +52,6 @@ spec:
           value: password
         - name: RABBITMQ_USERNAME
           value: username
-    - name: zookeeper
-      image: bitnami/zookeeper:latest
-      env:
-        - name: ALLOW_ANONYMOUS_LOGIN
-          value: "yes"
   volumes:
     - name: node-modules
       persistentVolumeClaim:

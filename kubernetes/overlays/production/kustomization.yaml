@@ -25,9 +25,6 @@ resources:
   - ./static/ingress-nginx/basic-authentication.ingress.yaml
   - ./static/ingress-nginx/basic-authentication.sealedsecret.yaml
   - ./static/ingress-nginx/default.ingress.yaml
-  - ./static/kafka/kafdrop.sealedsecret.yaml
-  - ./static/kafka/kafka.sealedsecret.yaml
-  - ./static/kafka/zookeeper.sealedsecret.yaml
   - ./static/minio/minio.sealedsecret.yaml
   - ./static/mongodb/mongodb.sealedsecret.yaml
   - ./static/mongodb/mongoku.sealedsecret.yaml

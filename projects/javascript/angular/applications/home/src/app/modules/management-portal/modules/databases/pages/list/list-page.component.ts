@@ -154,8 +154,6 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
           displayName = 'NATS';
         } else if (n._id.includes('sidecar')) {
           displayName = 'Sidecar';
-        } else if (n._id.includes('zookeeper')) {
-          displayName = 'Zookeeper';
         }
 
         const index = isNaN(n._id.substr(-1) as any) ? '0' : n._id.substr(-1);

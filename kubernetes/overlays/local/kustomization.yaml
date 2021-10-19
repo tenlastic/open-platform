@@ -27,9 +27,6 @@ patchesStrategicMerge:
   - ./static/angular/home-ui.yaml
   - ./static/docker-registry/docker-registry-ui.yaml
   - ./static/ingress-nginx/ingress-nginx.yaml
-  - ./static/kafka/kafdrop.yaml
-  - ./static/kafka/kafka.yaml
-  - ./static/kafka/zookeeper.yaml
   - ./static/minio/minio.yaml
   - ./static/mongodb/mongodb.yaml
   - ./static/mongodb/mongoku.yaml
@@ -46,9 +43,6 @@ resources:
   - ./static/ingress-nginx/basic-authentication.ingress.yaml
   - ./static/ingress-nginx/basic-authentication.secret.example.yaml
   - ./static/ingress-nginx/default.ingress.yaml
-  - ./static/kafka/kafdrop.secret.example.yaml
-  - ./static/kafka/kafka.secret.example.yaml
-  - ./static/kafka/zookeeper.secret.example.yaml
   - ./static/minio/minio.secret.example.yaml
   - ./static/mongodb/mongodb.secret.example.yaml
   - ./static/mongodb/mongoku.secret.example.yaml
