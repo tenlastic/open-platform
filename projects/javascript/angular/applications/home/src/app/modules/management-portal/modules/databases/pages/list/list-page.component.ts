@@ -69,7 +69,12 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
     ).length;
     const total = record.replicas * 3;
 
-    const phase = running === total ? 'Running' : 'Pending';
+    let phase = running === total ? 'Running' : 'Pending';
+    if (record.status?.nodes?.some(n => n.phase === 'Error')) {
+      phase = 'Error';
+    } else if (record.status?.nodes?.some(n => n.phase === 'Failed')) {
+      phase = 'Failed';
+    }
 
     return `${phase} (${running} / ${total})`;
   }

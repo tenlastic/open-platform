@@ -1,10 +1,12 @@
 import * as nats from 'nats';
 
 import { getJetStream } from '../connect';
+import { upsertStream } from '../upsert-stream';
 
 export async function subscribe(durable: string, subject: string) {
-  const inbox = nats.createInbox();
+  await upsertStream(subject);
 
+  const inbox = nats.createInbox();
   const opts = nats.consumerOpts();
   opts.ackNone();
   opts.deliverNew();

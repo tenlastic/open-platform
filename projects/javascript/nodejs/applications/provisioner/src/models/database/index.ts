@@ -314,7 +314,7 @@ export const KubernetesDatabase = {
      * SECRET
      * =======================
      */
-    await secretApiV1.createOrReplace('dynamic', {
+    await secretApiV1.createOrRead('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,

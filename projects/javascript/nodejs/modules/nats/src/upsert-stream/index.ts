@@ -11,5 +11,5 @@ export async function upsertStream(subject: string) {
     return stream;
   }
 
-  return jsm.streams.add({ name, subjects: [`${name}.*`] });
+  return jsm.streams.add({ name, subjects: [`${name}.>`] });
 }

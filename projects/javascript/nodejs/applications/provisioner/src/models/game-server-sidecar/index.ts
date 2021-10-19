@@ -114,7 +114,7 @@ export const KubernetesGameServerSidecar = {
               command: ['npm', 'run', 'start'],
               envFrom: [{ secretRef: { name } }],
               image: 'node:14',
-              livenessProbe: { ...livenessProbe, initialDelaySeconds: 300 },
+              livenessProbe,
               name: 'game-server-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
               volumeMounts: [
