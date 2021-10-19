@@ -16,8 +16,6 @@ export async function subscribe(
   Model: mongoose.Model<mongoose.Document>,
   options: SubscribeOptions,
 ) {
-  await nats.upsertStream(options.subject);
-
   const subscription = await nats.subscribe(options.durable, options.subject);
   for await (const message of subscription) {
     const data = new TextDecoder().decode(message.data);

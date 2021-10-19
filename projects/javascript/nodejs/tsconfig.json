@@ -9,13 +9,11 @@
     "paths": {
       "@tenlastic/http": ["./modules/http/src"],
       "@tenlastic/json-schema": ["./modules/json-schema/src"],
-      "@tenlastic/kafka": ["./modules/kafka/src"],
       "@tenlastic/kubernetes": ["./modules/kubernetes/src"],
       "@tenlastic/logging": ["./modules/logging/src"],
       "@tenlastic/mailgun": ["./modules/mailgun/src"],
       "@tenlastic/minio": ["./modules/minio/src"],
       "@tenlastic/mongoose-change-stream": ["./modules/mongoose-change-stream/src"],
-      "@tenlastic/mongoose-change-stream-kafka": ["./modules/mongoose-change-stream-kafka/src"],
       "@tenlastic/mongoose-change-stream-nats": ["./modules/mongoose-change-stream-nats/src"],
       "@tenlastic/mongoose-models": ["./modules/mongoose-models/src"],
       "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],

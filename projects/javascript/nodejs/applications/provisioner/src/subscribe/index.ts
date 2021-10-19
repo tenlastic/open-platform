@@ -20,7 +20,6 @@ export async function subscribe<TDocument extends mongoose.Document>(
  */
 async function subscribeToNats(Model: mongoose.Model<mongoose.Document>, queue: string) {
   const subject = `api.${Model.collection.name}`;
-  await nats.upsertStream(subject);
 
   const subscription = await nats.subscribe(`provisioner-${queue}`, subject);
   for await (const message of subscription) {

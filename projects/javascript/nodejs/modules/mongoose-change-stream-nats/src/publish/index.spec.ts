@@ -8,7 +8,7 @@ import { publish } from './';
 
 const chance = new Chance();
 
-describe.only('publish()', function() {
+describe('publish()', function() {
   it('publishes the payload to NATS', async function() {
     const payload: IDatabasePayload<any> = {
       documentKey: { _id: chance.hash() },
@@ -17,9 +17,9 @@ describe.only('publish()', function() {
       operationType: 'insert',
     };
 
+    const subscription = await nats.subscribe(chance.hash(), `${payload.ns.db}.${payload.ns.coll}`);
     await publish(payload);
 
-    const subscription = await nats.subscribe(chance.hash(), `${payload.ns.db}.${payload.ns.coll}`);
     for await (const message of subscription) {
       const data = new TextDecoder().decode(message.data);
       const json = JSON.parse(data);
