@@ -246,6 +246,8 @@ spec:
         - name: nats
           image: nats:latest
           imagePullPolicy: IfNotPresent
+          args:
+            - --js
         - name: rabbitmq
           image: rabbitmq:3.8
           imagePullPolicy: IfNotPresent

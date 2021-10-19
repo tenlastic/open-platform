@@ -45,6 +45,8 @@ spec:
           value: minioadmin
     - name: nats
       image: nats:latest
+      args:
+        - --js
     - name: rabbitmq
       image: bitnami/rabbitmq:latest
       env:
