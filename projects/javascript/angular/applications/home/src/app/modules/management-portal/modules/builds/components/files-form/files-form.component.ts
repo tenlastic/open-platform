@@ -122,6 +122,7 @@ export class FilesFormComponent implements OnInit {
     this.form.get('files').setValue(sorted);
 
     this.form.get('files').enable({ emitEvent: false });
+    this.selectFilesInput.nativeElement.value = '';
     this.status = null;
   }
 

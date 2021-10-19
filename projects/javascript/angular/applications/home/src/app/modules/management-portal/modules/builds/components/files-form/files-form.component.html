@@ -90,7 +90,7 @@
       </mat-hint>
     </div>
 
-    <div *ngIf="form.get('files').value.length === 0 && referenceBuild"
+    <div *ngIf="isNew && form.get('files').value.length === 0 && referenceBuild"
          class="list">
       <mat-label>
         <span>{{ isNew ? 'Staged Files' : 'Files' }}</span>
@@ -124,7 +124,8 @@
 </div>
 
 <ng-container *ngIf="isNew">
-  <app-button [color]="form.get('files').value.length && !status ? 'accent' : 'primary'"
+  <app-button *ngIf="form.get('files').value.length === 0 || !referenceBuild || status"
+              [color]="form.get('files').value.length && !status ? 'accent' : 'primary'"
               [disabled]="status"
               (OnClick)="selectFilesInput.click()">
     <mat-spinner *ngIf="status"
@@ -132,7 +133,7 @@
     <span>{{ status ? status : 'Select Files from Computer' }}</span>
   </app-button>
 
-  <app-button *ngIf="form.get('files').value.length > 0 && !status"
+  <app-button *ngIf="form.get('files').value.length > 0 && referenceBuild && !status"
               color="accent"
               (OnClick)="useReferenceFiles()">
     <span>Select Reference Files</span>
