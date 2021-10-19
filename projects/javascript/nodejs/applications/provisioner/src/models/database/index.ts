@@ -181,6 +181,10 @@ export const KubernetesDatabase = {
     const mongoPassword = Buffer.from(mongoSecret.body.data['mongodb-root-password'], 'base64');
     await setMongoPrimary(database, 'dynamic', `${mongoPassword}`);
 
+    // Delete extraneous PVCs.
+    const replicas = array.map((a, i) => i);
+    await deletePvcs(`app.kubernetes.io/instance=${name}-mongodb`, replicas);
+
     await helmReleaseApiV1.delete(`${name}-mongodb`, 'dynamic');
     await helmReleaseApiV1.create('dynamic', {
       metadata: {
@@ -460,11 +464,20 @@ function connectToMongo(name: string, namespace: string, password: string, podNa
   });
 }
 
-async function deletePvcs(labelSelector: string) {
+async function deletePvcs(labelSelector: string, replicas?: number[]) {
   const response = await persistentVolumeClaimApiV1.list('dynamic', { labelSelector });
-  const pvcs = response.body.items;
 
-  const promises = pvcs.map(p => persistentVolumeClaimApiV1.delete(p.metadata.name, 'dynamic'));
+  const promises = response.body.items
+    .filter(p => {
+      if (!replicas) {
+        return true;
+      }
+
+      const strings = replicas.map(r => `${r}`);
+      return !strings.includes(p.metadata.name.substr(-1));
+    })
+    .map(p => persistentVolumeClaimApiV1.delete(p.metadata.name, 'dynamic'));
+
   return Promise.all(promises);
 }
 

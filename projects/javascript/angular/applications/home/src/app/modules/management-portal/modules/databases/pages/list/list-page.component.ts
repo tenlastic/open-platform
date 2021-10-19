@@ -63,6 +63,17 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
+  public getStatus(record: Database) {
+    const running = record.status?.nodes?.filter(
+      n => !n._id.includes('sidecar') && n.phase === 'Running',
+    ).length;
+    const total = record.replicas * 3;
+
+    const phase = running === total ? 'Running' : 'Pending';
+
+    return `${phase} (${running} / ${total})`;
+  }
+
   public showDeletePrompt(record: Database) {
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
@@ -132,10 +143,10 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
     return database.status?.nodes
       .map(n => {
         let displayName = 'API';
-        if (n._id.includes('kafka')) {
-          displayName = 'Kafka';
-        } else if (n._id.includes('mongodb')) {
+        if (n._id.includes('mongodb')) {
           displayName = 'MongoDB';
+        } else if (n._id.includes('nats')) {
+          displayName = 'NATS';
         } else if (n._id.includes('sidecar')) {
           displayName = 'Sidecar';
         } else if (n._id.includes('zookeeper')) {

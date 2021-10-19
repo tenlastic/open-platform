@@ -257,7 +257,7 @@ export const KubernetesQueue = {
               env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
               envFrom: [{ secretRef: { name } }],
               image: `node:14`,
-              livenessProbe: { ...probe, initialDelaySeconds: 300 },
+              livenessProbe: probe,
               name: 'main',
               readinessProbe: probe,
               resources: { requests: resources.requests },

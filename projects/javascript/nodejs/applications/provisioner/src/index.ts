@@ -28,19 +28,17 @@ import {
     await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 
     // Subscribe to NATS events.
-    await Promise.all([
-      KubernetesBuild.subscribe(),
-      KubernetesBuildSidecar.subscribe(),
-      KubernetesDatabase.subscribe(),
-      KubernetesDatabaseSidecar.subscribe(),
-      KubernetesGameServer.subscribe(),
-      KubernetesGameServerSidecar.subscribe(),
-      KubernetesNamespace.subscribe(),
-      KubernetesQueue.subscribe(),
-      KubernetesQueueSidecar.subscribe(),
-      KubernetesWorkflow.subscribe(),
-      KubernetesWorkflowSidecar.subscribe(),
-    ]);
+    KubernetesBuild.subscribe();
+    KubernetesBuildSidecar.subscribe();
+    KubernetesDatabase.subscribe();
+    KubernetesDatabaseSidecar.subscribe();
+    KubernetesGameServer.subscribe();
+    KubernetesGameServerSidecar.subscribe();
+    KubernetesNamespace.subscribe();
+    KubernetesQueue.subscribe();
+    KubernetesQueueSidecar.subscribe();
+    KubernetesWorkflow.subscribe();
+    KubernetesWorkflowSidecar.subscribe();
 
     // Web Server.
     const webServer = new WebServer();

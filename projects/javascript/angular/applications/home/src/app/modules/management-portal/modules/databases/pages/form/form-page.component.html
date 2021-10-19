@@ -69,6 +69,29 @@
                  [value]="data.status?.phase || 'Pending'" />
         </mat-form-field>
       </div>
+
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Application</mat-label>
+          <input matInput
+                 disabled
+                 [value]="status.application.phase + ' (' + status.application.current + ' / ' + status.application.max + ')'" />
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>MongoDB</mat-label>
+          <input matInput
+                 disabled
+                 [value]="status.mongodb.phase + ' (' + status.mongodb.current + ' / ' + status.mongodb.max + ')'" />
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>NATS</mat-label>
+          <input matInput
+                 disabled
+                 [value]="status.nats.phase + ' (' + status.nats.current + ' / ' + status.nats.max + ')'" />
+        </mat-form-field>
+      </div>
     </app-toggle-section>
 
     <div *ngFor="let error of errors"
