@@ -249,7 +249,7 @@ spec:
           command:
             - /bin/sh
             - -c
-            - trap "exit 0" SIGKILL && docker-entrypoint.sh nats-server --config /etc/nats/nats-server.conf --js
+            - trap "exit 0" SIGKILL && docker-entrypoint.sh --js
         - name: rabbitmq
           image: rabbitmq:3.8
           imagePullPolicy: IfNotPresent
