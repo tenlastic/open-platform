@@ -244,10 +244,12 @@ spec:
             - name: MINIO_SECRET_KEY
               value: minioadmin
         - name: nats
-          image: nats:latest
+          image: nats:alpine
           imagePullPolicy: IfNotPresent
-          args:
-            - --js
+          command:
+            - /bin/sh
+            - -c
+            - trap "exit 0" SIGKILL && docker-entrypoint.sh nats-server --config /etc/nats/nats-server.conf --js
         - name: rabbitmq
           image: rabbitmq:3.8
           imagePullPolicy: IfNotPresent
