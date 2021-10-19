@@ -22,8 +22,8 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/mongoose-change-stream": "0.0.245",
-    "@tenlastic/nats": "0.0.245",
+    "@tenlastic/mongoose-change-stream": "0.0.247",
+    "@tenlastic/nats": "0.0.247",
     "mongoose": "5.9.13"
   },
   "devDependencies": {
