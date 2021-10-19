@@ -9,9 +9,9 @@
   "exclude": ["./src/**/*.spec.ts"],
   "include": ["./src"],
   "references": [
-    { "path": "../../modules/kafka/tsconfig.app.json" },
-    { "path": "../../modules/mongoose-change-stream-kafka/tsconfig.app.json" },
+    { "path": "../../modules/mongoose-change-stream-nats/tsconfig.app.json" },
     { "path": "../../modules/mongoose-models/tsconfig.app.json" },
+    { "path": "../../modules/nats/tsconfig.app.json" },
     { "path": "../../modules/web-server/tsconfig.app.json" },
     { "path": "../../modules/web-socket-server/tsconfig.app.json" }
   ]

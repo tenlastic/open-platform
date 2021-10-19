@@ -1,0 +1,33 @@
+{
+  "engines": {
+    "node": "^14"
+  },
+  "license": "ISC",
+  "main": "./dist/index.js",
+  "name": "@tenlastic/nats",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com/tenlastic/open-platform.git"
+  },
+  "version": "0.0.245",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "build:watch": "watch ../../scripts/build.sh ./src",
+    "lint": "../../scripts/lint.sh",
+    "prepublishOnly": "../../scripts/build.sh"
+  },
+  "dependencies": {
+    "nats": "2.2.0"
+  },
+  "devDependencies": {
+    "mocha": "7.1.2",
+    "nyc": "15.0.0",
+    "ts-node": "8.9.1",
+    "tslint": "6.1.3",
+    "typescript": "4.3.5",
+    "watch": "1.0.2"
+  }
+}

@@ -1,15 +1,15 @@
 import { AuthenticationData, WebSocket } from '../web-socket-server';
-import { consumers } from './subscribe';
+import { subscriptions } from './subscribe';
 
 export async function unsubscribe(auth: AuthenticationData, data: any, ws: WebSocket) {
-  if (!consumers.has(ws) || !consumers.get(ws).has(data._id)) {
+  if (!subscriptions.has(ws) || !subscriptions.get(ws).has(data._id)) {
     return;
   }
 
-  // Disconnect the Kafka consumer.
-  const consumer = consumers.get(ws).get(data._id);
-  consumer.disconnect();
+  // Disconnect the NATS subscription.
+  const subscription = subscriptions.get(ws).get(data._id);
+  subscription.unsubscribe();
 
-  // Remove the Kafka consumer from memory.
-  consumers.get(ws).delete(data._id);
+  // Remove the NATS subscription from memory.
+  subscriptions.get(ws).delete(data._id);
 }

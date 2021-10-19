@@ -113,7 +113,8 @@
     </app-toggle-section>
 
     <app-toggle-section formGroupName="gameServerTemplate"
-                        title="Game Server Template">
+                        title="Game Server Template"
+                        [isVisible]="!data._id">
       <div class="row">
         <mat-form-field floatLabel="always">
           <mat-label>Build</mat-label>
@@ -169,6 +170,22 @@
           <input matInput
                  disabled
                  [value]="data.status?.phase || 'Pending'" />
+        </mat-form-field>
+      </div>
+
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Application</mat-label>
+          <input matInput
+                 disabled
+                 [value]="status.application.phase + ' (' + status.application.current + ' / ' + status.application.max + ')'" />
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Redis</mat-label>
+          <input matInput
+                 disabled
+                 [value]="status.redis.phase + ' (' + status.redis.current + ' / ' + status.redis.max + ')'" />
         </mat-form-field>
       </div>
     </app-toggle-section>

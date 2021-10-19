@@ -1,7 +1,7 @@
 import 'source-map-support/register';
 
-import kafka from '@tenlastic/kafka';
 import '@tenlastic/logging';
+import nats from '@tenlastic/nats';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { WebServer } from '@tenlastic/web-server';
 
@@ -21,26 +21,24 @@ import {
 
 (async () => {
   try {
-    // Kafka.
-    await kafka.connect(process.env.KAFKA_CONNECTION_STRING);
+    // NATS.
+    await nats.connect({ connectionString: process.env.NATS_CONNECTION_STRING });
 
     // RabbitMQ.
     await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 
-    // Subscribe to Kafka events.
-    await Promise.all([
-      KubernetesBuild.subscribe(),
-      KubernetesBuildSidecar.subscribe(),
-      KubernetesDatabase.subscribe(),
-      KubernetesDatabaseSidecar.subscribe(),
-      KubernetesGameServer.subscribe(),
-      KubernetesGameServerSidecar.subscribe(),
-      KubernetesNamespace.subscribe(),
-      KubernetesQueue.subscribe(),
-      KubernetesQueueSidecar.subscribe(),
-      KubernetesWorkflow.subscribe(),
-      KubernetesWorkflowSidecar.subscribe(),
-    ]);
+    // Subscribe to NATS events.
+    KubernetesBuild.subscribe();
+    KubernetesBuildSidecar.subscribe();
+    KubernetesDatabase.subscribe();
+    KubernetesDatabaseSidecar.subscribe();
+    KubernetesGameServer.subscribe();
+    KubernetesGameServerSidecar.subscribe();
+    KubernetesNamespace.subscribe();
+    KubernetesQueue.subscribe();
+    KubernetesQueueSidecar.subscribe();
+    KubernetesWorkflow.subscribe();
+    KubernetesWorkflowSidecar.subscribe();
 
     // Web Server.
     const webServer = new WebServer();

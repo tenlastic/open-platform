@@ -61,6 +61,42 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     const limit = limits.replicas ? limits.replicas : Infinity;
     return limits.replicas ? IQueue.Replicas.filter(r => r.value <= limit) : IQueue.Replicas;
   }
+  public get status() {
+    return this.data.status?.nodes?.reduce(
+      (previous, current) => {
+        if (current.phase !== 'Running') {
+          return previous;
+        }
+
+        if (current._id.includes('redis')) {
+          previous.redis.current++;
+
+          if (previous.redis.current === this.data.replicas) {
+            previous.redis.phase = 'Running';
+          }
+        } else if (current._id.includes('sidecar')) {
+          previous.sidecar.current++;
+
+          if (previous.sidecar.current === 1) {
+            previous.sidecar.phase = 'Running';
+          }
+        } else {
+          previous.application.current++;
+
+          if (previous.application.current === this.data.replicas) {
+            previous.application.phase = 'Running';
+          }
+        }
+
+        return previous;
+      },
+      {
+        application: { current: 0, max: this.data.replicas, phase: 'Pending' },
+        redis: { current: 0, max: this.data.replicas, phase: 'Pending' },
+        sidecar: { current: 0, max: 1, phase: 'Pending' },
+      },
+    );
+  }
 
   private updateQueue$ = new Subscription();
 

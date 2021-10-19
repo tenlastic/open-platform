@@ -133,7 +133,7 @@ export const KubernetesDatabaseSidecar = {
               env,
               envFrom: [{ secretRef: { name } }],
               image: 'node:14',
-              livenessProbe: { ...livenessProbe, initialDelaySeconds: 300 },
+              livenessProbe,
               name: 'database-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
               volumeMounts: [

@@ -1,0 +1,13 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: nats
+  namespace: static
+spec:
+  values:
+    cluster:
+      enabled: false
+    nats:
+      logging:
+        debug: true
+        trace: true

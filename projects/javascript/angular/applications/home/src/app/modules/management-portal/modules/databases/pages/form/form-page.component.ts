@@ -37,6 +37,49 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
     const limit = limits.replicas ? limits.replicas : Infinity;
     return limits.replicas ? IDatabase.Replicas.filter(r => r.value <= limit) : IDatabase.Replicas;
   }
+  public get status() {
+    return this.data.status?.nodes?.reduce(
+      (previous, current) => {
+        if (current.phase !== 'Running') {
+          return previous;
+        }
+
+        if (current._id.includes('mongodb')) {
+          previous.mongodb.current++;
+
+          if (previous.mongodb.current === this.data.replicas) {
+            previous.mongodb.phase = 'Running';
+          }
+        } else if (current._id.includes('nats')) {
+          previous.nats.current++;
+
+          if (previous.nats.current === this.data.replicas) {
+            previous.nats.phase = 'Running';
+          }
+        } else if (current._id.includes('sidecar')) {
+          previous.sidecar.current++;
+
+          if (previous.sidecar.current === 1) {
+            previous.sidecar.phase = 'Running';
+          }
+        } else {
+          previous.application.current++;
+
+          if (previous.application.current === this.data.replicas) {
+            previous.application.phase = 'Running';
+          }
+        }
+
+        return previous;
+      },
+      {
+        application: { current: 0, max: this.data.replicas, phase: 'Pending' },
+        mongodb: { current: 0, max: this.data.replicas, phase: 'Pending' },
+        nats: { current: 0, max: this.data.replicas, phase: 'Pending' },
+        sidecar: { current: 0, max: 1, phase: 'Pending' },
+      },
+    );
+  }
   public get storages() {
     const limits = this.selectedNamespaceService.namespace.limits.databases;
     const limit = limits.storage ? limits.storage : Infinity;

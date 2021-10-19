@@ -1,5 +1,17 @@
 import { CustomObjectBaseApiV1 } from '../bases';
 
+export interface ChartRepository {
+  name: string;
+  repository: string;
+  version: string;
+}
+
+export interface GitRepository {
+  git: string;
+  path: string;
+  ref: string;
+}
+
 export interface V1HelmRelease {
   metadata: {
     annotations?: { [key: string]: string };
@@ -8,11 +20,7 @@ export interface V1HelmRelease {
     resourceVersion?: string;
   };
   spec: {
-    chart: {
-      name: string;
-      repository: string;
-      version: string;
-    };
+    chart: ChartRepository | GitRepository;
     releaseName: string;
     values?: object;
   };

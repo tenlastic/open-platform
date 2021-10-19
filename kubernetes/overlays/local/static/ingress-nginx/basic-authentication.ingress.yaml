@@ -31,16 +31,6 @@ spec:
                 name: docker-registry-ui
                 port:
                   number: 80
-    - host: kafka.localhost
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: kafdrop
-                port:
-                  number: 9000
     - host: kubernetes-dashboard.localhost
       http:
         paths:

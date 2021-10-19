@@ -63,6 +63,22 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
+  public getStatus(record: Queue) {
+    const running = record.status?.nodes?.filter(
+      n => !n._id.includes('sidecar') && n.phase === 'Running',
+    ).length;
+    const total = record.replicas * 2;
+
+    let phase = running === total ? 'Running' : 'Pending';
+    if (record.status?.nodes?.some(n => n.phase === 'Error')) {
+      phase = 'Error';
+    } else if (record.status?.nodes?.some(n => n.phase === 'Failed')) {
+      phase = 'Failed';
+    }
+
+    return `${phase} (${running} / ${total})`;
+  }
+
   public showDeletePrompt(record: Queue) {
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {

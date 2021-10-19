@@ -39,13 +39,11 @@ kubeseal -o yaml < ./static/ci-cd/cd-ssh-keys.secret.yaml > ./static/ci-cd/cd-ss
 kubeseal -o yaml < ./static/ci-cd/ci-environment-variables.secret.yaml > ./static/ci-cd/ci-environment-variables.sealedsecret.yaml
 kubeseal -o yaml < ./static/docker-registry/docker-registry-image-pull-secret.secret.yaml > ./static/docker-registry/docker-registry-image-pull-secret.sealedsecret.yaml
 kubeseal -o yaml < ./static/docker-registry/docker-registry.secret.yaml > ./static/docker-registry/docker-registry.sealedsecret.yaml
-kubeseal -o yaml < ./static/kafka/kafdrop.secret.yaml > ./static/kafka/kafdrop.sealedsecret.yaml
-kubeseal -o yaml < ./static/kafka/kafka.secret.yaml > ./static/kafka/kafka.sealedsecret.yaml
-kubeseal -o yaml < ./static/kafka/zookeeper.secret.yaml > ./static/kafka/zookeeper.sealedsecret.yaml
+kubeseal -o yaml < ./static/ingress-nginx/basic-authentication.secret.yaml > ./static/ingress-nginx/basic-authentication.sealedsecret.yaml
 kubeseal -o yaml < ./static/minio/minio.secret.yaml > ./static/minio/minio.sealedsecret.yaml
 kubeseal -o yaml < ./static/mongodb/mongodb.secret.yaml > ./static/mongodb/mongodb.sealedsecret.yaml
 kubeseal -o yaml < ./static/mongodb/mongoku.secret.yaml > ./static/mongodb/mongoku.sealedsecret.yaml
-kubeseal -o yaml < ./static/ingress-nginx/basic-authentication.secret.yaml > ./static/ingress-nginx/basic-authentication.sealedsecret.yaml
+kubeseal -o yaml < ./static/nats/nats.secret.yaml > ./static/nats/nats.sealedsecret.yaml
 kubeseal -o yaml < ./static/nodejs/e2e.secret.yaml > ./static/nodejs/e2e.sealedsecret.yaml
 kubeseal -o yaml < ./static/nodejs/environment-variables.secret.yaml > ./static/nodejs/environment-variables.sealedsecret.yaml
 kubeseal -o yaml < ./static/rabbitmq/rabbitmq.secret.yaml > ./static/rabbitmq/rabbitmq.sealedsecret.yaml
