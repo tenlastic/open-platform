@@ -55,7 +55,7 @@ spec:
                 name: docker-registry
                 port:
                   number: 5000
-    - host: grafana.localhost
+    - host: grafana.tenlastic.com
       http:
         paths:
           - path: /
