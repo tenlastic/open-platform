@@ -249,6 +249,7 @@ export const KubernetesDatabase = {
             enabled: database.replicas > 1 ? true : false,
             replicas: database.replicas,
           },
+          exporter: { enabled: false },
           nats: {
             jetstream: {
               enabled: true,
@@ -314,7 +315,7 @@ export const KubernetesDatabase = {
      * SECRET
      * =======================
      */
-    await secretApiV1.createOrRead('dynamic', {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,
@@ -437,7 +438,8 @@ export const KubernetesDatabase = {
       };
     }
 
-    await statefulSetApiV1.createOrReplace('dynamic', {
+    await statefulSetApiV1.delete(name, 'dynamic');
+    await statefulSetApiV1.create('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,
