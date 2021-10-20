@@ -66,7 +66,7 @@ spec:
                 name: mongoku
                 port:
                   number: 3100
-    - host: prometheus.tenlastc.com
+    - host: prometheus.tenlastic.com
       http:
         paths:
           - path: /
