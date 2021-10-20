@@ -1,0 +1,8 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: grafana
+  namespace: static
+spec:
+  values:
+    replicas: 1

@@ -26,6 +26,7 @@ patchesStrategicMerge:
   - ./cluster/storage-classes/standard-expandable.yaml
   - ./static/angular/home-ui.yaml
   - ./static/docker-registry/docker-registry-ui.yaml
+  - ./static/grafana/grafana.yaml
   - ./static/ingress-nginx/ingress-nginx.yaml
   - ./static/minio/minio.yaml
   - ./static/mongodb/mongodb.yaml
@@ -34,12 +35,14 @@ patchesStrategicMerge:
   - ./static/nodejs/api.yaml
   - ./static/nodejs/provisioner.yaml
   - ./static/nodejs/wss.yaml
+  - ./static/prometheus/prometheus.yaml
   - ./static/rabbitmq/rabbitmq.yaml
 resources:
   - ./cluster/cluster-role-bindings/docker-for-desktop-binding.yaml
   - ./dynamic/secrets/docker-registry.secret.example.yaml
   - ./static/docker-registry/docker-registry-image-pull-secret.secret.example.yaml
   - ./static/docker-registry/docker-registry.secret.example.yaml
+  - ./static/grafana/grafana.secret.example.yaml
   - ./static/ingress-nginx/basic-authentication.ingress.yaml
   - ./static/ingress-nginx/basic-authentication.secret.example.yaml
   - ./static/ingress-nginx/default.ingress.yaml

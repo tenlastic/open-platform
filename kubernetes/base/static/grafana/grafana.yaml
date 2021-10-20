@@ -1,0 +1,70 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  annotations:
+    fluxcd.io/automated: "true"
+  name: grafana
+  namespace: static
+spec:
+  chart:
+    name: grafana
+    repository: https://grafana.github.io/helm-charts
+    version: 6.17.2
+  releaseName: grafana
+  values:
+    admin:
+      existingSecret: grafana
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/high-priority
+                  operator: Exists
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/instance
+                    operator: In
+                    values:
+                      - grafana
+              topologyKey: kubernetes.io/hostname
+    dashboards:
+      nats:
+        jetstream:
+          datasource: Prometheus
+          gnetId: 14862
+          revision: 2
+        server:
+          datasource: Prometheus
+          gnetId: 13707
+          revision: 1
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: nats
+            orgId: 1
+            folder: NATS
+            type: file
+            options:
+              path: /var/lib/grafana/dashboards/nats
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - isDefault: true
+            name: Prometheus
+            type: prometheus
+            url: http://prometheus-server
+    persistence:
+      enabled: true
+      size: 8Gi
+      storageClass: balanced-expandable
+    replicas: 3
+    resources:
+      requests:
+        cpu: 50m

@@ -28,6 +28,7 @@ resources:
   - ./static/argo/argo-workflows.yaml
   - ./static/docker-registry/docker-registry-ui.yaml
   - ./static/docker-registry/docker-registry.yaml
+  - ./static/grafana/grafana.yaml
   - ./static/helm-operator/helm-operator.yaml
   - ./static/ingress-nginx/ingress-nginx.yaml
   - ./static/kubernetes-dashboard/kubernetes-dashboard.yaml
@@ -42,6 +43,7 @@ resources:
   - ./static/nodejs/e2e.yaml
   - ./static/nodejs/provisioner.yaml
   - ./static/nodejs/wss.yaml
+  - ./static/prometheus/prometheus.yaml
   - ./static/rabbitmq/rabbitmq.yaml
   - ./static/sealed-secrets/sealed-secrets.yaml
   - ./static/verdaccio/verdaccio.yaml

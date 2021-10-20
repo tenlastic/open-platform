@@ -39,6 +39,7 @@ kubeseal -o yaml < ./static/ci-cd/cd-ssh-keys.secret.yaml > ./static/ci-cd/cd-ss
 kubeseal -o yaml < ./static/ci-cd/ci-environment-variables.secret.yaml > ./static/ci-cd/ci-environment-variables.sealedsecret.yaml
 kubeseal -o yaml < ./static/docker-registry/docker-registry-image-pull-secret.secret.yaml > ./static/docker-registry/docker-registry-image-pull-secret.sealedsecret.yaml
 kubeseal -o yaml < ./static/docker-registry/docker-registry.secret.yaml > ./static/docker-registry/docker-registry.sealedsecret.yaml
+kubeseal -o yaml < ./static/grafana/grafana.secret.yaml > ./static/grafana/grafana.sealedsecret.yaml
 kubeseal -o yaml < ./static/ingress-nginx/basic-authentication.secret.yaml > ./static/ingress-nginx/basic-authentication.sealedsecret.yaml
 kubeseal -o yaml < ./static/minio/minio.secret.yaml > ./static/minio/minio.sealedsecret.yaml
 kubeseal -o yaml < ./static/mongodb/mongodb.secret.yaml > ./static/mongodb/mongodb.sealedsecret.yaml

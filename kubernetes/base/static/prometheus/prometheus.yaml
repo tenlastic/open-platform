@@ -1,0 +1,50 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  annotations:
+    fluxcd.io/automated: "true"
+  name: prometheus
+  namespace: static
+spec:
+  chart:
+    name: prometheus
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 14.11.0
+  releaseName: prometheus
+  values:
+    alertmanager:
+      enabled: false
+    kubeStateMetrics:
+      enabled: false
+    nodeExporter:
+      enabled: false
+    pushgateway:
+      enabled: false
+    server:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/high-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - prometheus
+                topologyKey: kubernetes.io/hostname
+      persistentVolume:
+        size: 8Gi
+        storageClass: balanced-expandable
+      replicaCount: 3
+      statefulSet:
+        enabled: true
+      resources:
+        requests:
+          cpu: 50m
