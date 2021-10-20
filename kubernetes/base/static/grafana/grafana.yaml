@@ -65,7 +65,7 @@ spec:
       size: 8Gi
       storageClass: balanced-expandable
       type: statefulset
-    replicas: 3
+    replicas: 1
     resources:
       requests:
         cpu: 50m

@@ -42,7 +42,7 @@ spec:
       persistentVolume:
         size: 8Gi
         storageClass: balanced-expandable
-      replicaCount: 3
+      replicaCount: 1
       statefulSet:
         enabled: true
       resources:
