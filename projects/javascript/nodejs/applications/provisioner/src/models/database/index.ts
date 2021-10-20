@@ -203,11 +203,13 @@ export const KubernetesDatabase = {
           architecture: 'replicaset',
           auth: { existingSecret: `${name}-mongodb` },
           image: { tag: '4.4.3' },
+          livenessProbe: { initialDelaySeconds: 0 },
           persistence: {
             size: `${database.storage}`,
             storageClass: 'balanced-expandable',
           },
           podLabels: { ...labels, 'tenlastic.com/role': 'mongodb' },
+          podManagementPolicy: 'Parallel',
           replicaCount: database.replicas,
           resources,
         },
@@ -348,13 +350,22 @@ export const KubernetesDatabase = {
      * STATEFUL SET
      * ======================
      */
-    const probe: V1Probe = {
+    const livenessProbe: V1Probe = {
       httpGet: {
         path: `/databases/${database._id}/collections`,
         port: 3000 as any,
       },
       initialDelaySeconds: 30,
-      periodSeconds: 30,
+      timeoutSeconds: 5,
+    };
+    const readinessProbe: V1Probe = {
+      httpGet: {
+        path: `/databases/${database._id}/collections`,
+        port: 3000 as any,
+      },
+      initialDelaySeconds: 5,
+      periodSeconds: 5,
+      timeoutSeconds: 5,
     };
 
     let manifest: V1PodTemplateSpec;
@@ -381,10 +392,10 @@ export const KubernetesDatabase = {
               ],
               envFrom: [{ secretRef: { name } }],
               image: `node:14`,
-              livenessProbe: probe,
+              livenessProbe,
               name: 'main',
               ports: [{ containerPort: 3000, protocol: 'TCP' }],
-              readinessProbe: probe,
+              readinessProbe,
               resources: { requests: resources.requests },
               volumeMounts: [
                 {
@@ -427,10 +438,10 @@ export const KubernetesDatabase = {
               ],
               envFrom: [{ secretRef: { name } }],
               image: `tenlastic/database:${version}`,
-              livenessProbe: probe,
+              livenessProbe,
               name: 'main',
               ports: [{ containerPort: 3000, protocol: 'TCP' }],
-              readinessProbe: probe,
+              readinessProbe,
               resources,
             },
           ],
@@ -445,6 +456,7 @@ export const KubernetesDatabase = {
         name,
       },
       spec: {
+        podManagementPolicy: 'Parallel',
         replicas: database.replicas,
         selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'application' } },
         serviceName: name,

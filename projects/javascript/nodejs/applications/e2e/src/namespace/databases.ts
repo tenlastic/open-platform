@@ -35,8 +35,8 @@ describe('databases', function() {
 
   step('creates a database, collection, and record', async function() {
     database = await databaseService.create({
-      cpu: 0.25,
-      memory: 500 * 1000 * 1000,
+      cpu: 0.1,
+      memory: 250 * 1000 * 1000,
       name: chance.hash(),
       namespaceId: namespace._id,
       preemptible: true,
