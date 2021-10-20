@@ -64,6 +64,7 @@ spec:
       enabled: true
       size: 8Gi
       storageClass: balanced-expandable
+      type: statefulset
     replicas: 3
     resources:
       requests:
