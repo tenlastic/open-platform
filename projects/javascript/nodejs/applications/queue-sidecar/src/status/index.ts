@@ -5,6 +5,8 @@ const accessToken = process.env.ACCESS_TOKEN;
 const endpoint = process.env.QUEUE_ENDPOINT;
 const podLabelSelector = process.env.QUEUE_POD_LABEL_SELECTOR;
 
+let isUpdateRequired = false;
+let isUpdatingStatus = false;
 const pods: { [key: string]: V1Pod } = {};
 
 /**
@@ -51,12 +53,20 @@ function getPodStatus(pod: V1Pod) {
 }
 
 async function updateQueue() {
-  console.log(`Updating Queue status...`);
+  if (isUpdatingStatus) {
+    isUpdateRequired = true;
+    return;
+  }
 
+  console.log(`Updating Queue status...`);
+  isUpdatingStatus = true;
+
+  // Nodes.
   const nodes = Object.values(pods)
     .filter(p => !p.metadata.deletionTimestamp)
     .map(getPodStatus);
 
+  // Phase.
   let phase = 'Pending';
   if (nodes.every(n => n.phase === 'Running')) {
     phase = 'Running';
@@ -73,4 +83,10 @@ async function updateQueue() {
   });
 
   console.log('Queue updated successfully.');
+  isUpdatingStatus = false;
+
+  if (isUpdateRequired) {
+    isUpdateRequired = false;
+    return updateQueue();
+  }
 }

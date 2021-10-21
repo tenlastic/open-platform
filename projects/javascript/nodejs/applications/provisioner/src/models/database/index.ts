@@ -209,7 +209,6 @@ export const KubernetesDatabase = {
             storageClass: 'balanced-expandable',
           },
           podLabels: { ...labels, 'tenlastic.com/role': 'mongodb' },
-          podManagementPolicy: 'Parallel',
           replicaCount: database.replicas,
           resources,
         },
@@ -356,7 +355,6 @@ export const KubernetesDatabase = {
         port: 3000 as any,
       },
       initialDelaySeconds: 30,
-      timeoutSeconds: 5,
     };
     const readinessProbe: V1Probe = {
       httpGet: {
@@ -365,7 +363,6 @@ export const KubernetesDatabase = {
       },
       initialDelaySeconds: 5,
       periodSeconds: 5,
-      timeoutSeconds: 5,
     };
 
     let manifest: V1PodTemplateSpec;
@@ -456,7 +453,6 @@ export const KubernetesDatabase = {
         name,
       },
       spec: {
-        podManagementPolicy: 'Parallel',
         replicas: database.replicas,
         selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'application' } },
         serviceName: name,

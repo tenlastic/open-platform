@@ -7,6 +7,8 @@ const endpoint = process.env.GAME_SERVER_ENDPOINT;
 const persistent = process.env.GAME_SERVER_PERSISTENT === 'true';
 const podLabelSelector = process.env.GAME_SERVER_POD_LABEL_SELECTOR;
 
+let isUpdateRequired = false;
+let isUpdatingStatus = false;
 const pods: { [key: string]: V1Pod } = {};
 
 /**
@@ -92,6 +94,15 @@ function getPodStatus(pod: V1Pod) {
 }
 
 async function updateGameServer() {
+  if (isUpdatingStatus) {
+    isUpdateRequired = true;
+    return;
+  }
+
+  console.log(`Updating Game Server status...`);
+  isUpdatingStatus = true;
+
+  // Endpoints.
   const pod = Object.values(pods).find(
     p => !p.metadata.deletionTimestamp && p.metadata.labels['tenlastic.com/role'] === 'application',
   );
@@ -112,8 +123,6 @@ async function updateGameServer() {
     phase = 'Failed';
   }
 
-  console.log(`Updating Game Server status: ${phase}.`);
-
   await requestPromiseNative.put({
     headers: { Authorization: `Bearer ${accessToken}` },
     json: { status: { endpoints, nodes, phase } },
@@ -121,4 +130,10 @@ async function updateGameServer() {
   });
 
   console.log('Game Server updated successfully.');
+  isUpdatingStatus = false;
+
+  if (isUpdateRequired) {
+    isUpdateRequired = false;
+    return updateGameServer();
+  }
 }
