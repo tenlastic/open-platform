@@ -18,5 +18,5 @@
     "nodejs/applications/*",
     "nodejs/modules/*"
   ],
-  "version": "0.0.250"
+  "version": "0.0.251"
 }
