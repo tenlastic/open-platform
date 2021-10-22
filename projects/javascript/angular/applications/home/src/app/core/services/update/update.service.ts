@@ -330,6 +330,7 @@ export class UpdateService {
             total: totalBytes,
           };
         })
+        .on('error', reject)
         .pipe(unzipper.Parse())
         .on('close', resolve)
         .on('entry', entry => {

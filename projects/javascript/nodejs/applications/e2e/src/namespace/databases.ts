@@ -98,7 +98,7 @@ describe('databases', function() {
     database = await databaseService.update(database._id, { replicas: 3 });
     await wait(10000, 10 * 60 * 1000, async () => {
       database = await databaseService.findOne(database._id);
-      return database.status?.nodes?.length === 12 && database.status?.phase === 'Running';
+      return database.status?.nodes?.length === 10 && database.status?.phase === 'Running';
     });
 
     collection = await collectionService.findOne(database._id, collection._id);
