@@ -203,7 +203,6 @@ export const KubernetesDatabase = {
           architecture: 'replicaset',
           auth: { existingSecret: `${name}-mongodb` },
           image: { tag: '4.4.3' },
-          livenessProbe: { initialDelaySeconds: 0 },
           persistence: {
             size: `${database.storage}`,
             storageClass: 'balanced-expandable',
