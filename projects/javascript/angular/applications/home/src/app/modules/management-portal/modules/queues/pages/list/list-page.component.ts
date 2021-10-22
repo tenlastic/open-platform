@@ -64,19 +64,10 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   }
 
   public getStatus(record: Queue) {
-    const running = record.status?.nodes?.filter(
-      n => !n._id.includes('sidecar') && n.phase === 'Running',
-    ).length;
-    const total = record.replicas * 2;
+    const current = record.status.components.reduce((a, b) => a + b.current, 0);
+    const total = record.status.components.reduce((a, b) => a + b.total, 0);
 
-    let phase = running === total ? 'Running' : 'Pending';
-    if (record.status?.nodes?.some(n => n.phase === 'Error')) {
-      phase = 'Error';
-    } else if (record.status?.nodes?.some(n => n.phase === 'Failed')) {
-      phase = 'Failed';
-    }
-
-    return `${phase} (${running} / ${total})`;
+    return `${record.status.phase} (${current} / ${total})`;
   }
 
   public showDeletePrompt(record: Queue) {

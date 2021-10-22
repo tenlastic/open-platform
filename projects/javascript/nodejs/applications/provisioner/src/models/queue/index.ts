@@ -210,10 +210,14 @@ export const KubernetesQueue = {
      * STATEFUL SET
      * ======================
      */
-    const probe: V1Probe = {
+    const livenessProbe: V1Probe = {
       httpGet: { path: `/`, port: 3000 as any },
       initialDelaySeconds: 30,
-      periodSeconds: 30,
+    };
+    const readinessProbe: V1Probe = {
+      httpGet: { path: `/`, port: 3000 as any },
+      initialDelaySeconds: 5,
+      periodSeconds: 5,
     };
 
     const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/projects/');
@@ -257,9 +261,9 @@ export const KubernetesQueue = {
               env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
               envFrom: [{ secretRef: { name } }],
               image: `node:14`,
-              livenessProbe: probe,
+              livenessProbe,
               name: 'main',
-              readinessProbe: probe,
+              readinessProbe,
               resources: { requests: resources.requests },
               volumeMounts: [
                 {
@@ -318,9 +322,9 @@ export const KubernetesQueue = {
               env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
               envFrom: [{ secretRef: { name } }],
               image: `tenlastic/queue:${version}`,
-              livenessProbe: probe,
+              livenessProbe,
               name: 'main',
-              readinessProbe: probe,
+              readinessProbe,
               resources,
             },
           ],

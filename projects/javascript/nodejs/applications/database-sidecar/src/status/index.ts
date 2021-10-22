@@ -1,7 +1,9 @@
+import { databaseQuery, IDatabase } from '@tenlastic/http';
 import { podApiV1, V1Pod } from '@tenlastic/kubernetes';
 import * as requestPromiseNative from 'request-promise-native';
 
 const accessToken = process.env.ACCESS_TOKEN;
+const database = JSON.parse(process.env.DATABASE_JSON);
 const endpoint = process.env.DATABASE_ENDPOINT;
 const podLabelSelector = process.env.DATABASE_POD_LABEL_SELECTOR;
 
@@ -66,9 +68,44 @@ async function updateDatabase() {
     .filter(p => !p.metadata.deletionTimestamp)
     .map(getPodStatus);
 
+  // Components.
+  const replicas = databaseQuery.getEntity(database._id).replicas;
+  const components = nodes.reduce(
+    (previous, current) => {
+      if (current.phase !== 'Running') {
+        return previous;
+      }
+
+      let component: IDatabase.StatusComponent;
+      if (current._id.includes('mongodb')) {
+        component = previous.find(p => p.name === 'mongodb');
+      } else if (current._id.includes('nats')) {
+        component = previous.find(p => p.name === 'nats');
+      } else if (current._id.includes('sidecar')) {
+        component = previous.find(p => p.name === 'sidecar');
+      } else {
+        component = previous.find(p => p.name === 'application');
+      }
+
+      component.current++;
+
+      if (component.current === component.total) {
+        component.phase = 'Running';
+      }
+
+      return previous;
+    },
+    [
+      { current: 0, name: 'application', phase: 'Pending', total: replicas },
+      { current: 0, name: 'mongodb', phase: 'Pending', total: replicas },
+      { current: 0, name: 'nats', phase: 'Pending', total: replicas },
+      { current: 0, name: 'sidecar', phase: 'Pending', total: 1 },
+    ],
+  );
+
   // Phase.
   let phase = 'Pending';
-  if (nodes.every(n => n.phase === 'Running')) {
+  if (components.every(c => c.phase === 'Running')) {
     phase = 'Running';
   } else if (nodes.some(n => n.phase === 'Error')) {
     phase = 'Error';
@@ -78,7 +115,7 @@ async function updateDatabase() {
 
   await requestPromiseNative.put({
     headers: { Authorization: `Bearer ${accessToken}` },
-    json: { status: { phase, nodes } },
+    json: { status: { components, phase, nodes } },
     url: endpoint,
   });
 

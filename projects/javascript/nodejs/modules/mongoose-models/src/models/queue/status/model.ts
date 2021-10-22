@@ -7,6 +7,7 @@ import {
   prop,
 } from '@typegoose/typegoose';
 
+import { QueueStatusComponentSchema } from './component';
 import { QueueStatusNodeSchema } from './node';
 
 export enum QueueStatusPhase {
@@ -19,6 +20,9 @@ export enum QueueStatusPhase {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class QueueStatusSchema {
+  @arrayProp({ items: QueueStatusComponentSchema })
+  public components: QueueStatusComponentSchema[];
+
   @arrayProp({ items: QueueStatusNodeSchema })
   public nodes: QueueStatusNodeSchema[];
 

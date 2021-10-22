@@ -6,6 +6,7 @@ import {
   index,
   modelOptions,
   plugin,
+  pre,
   prop,
 } from '@typegoose/typegoose';
 import {
@@ -20,7 +21,12 @@ import { BuildDocument } from '../build';
 import { GameDocument } from '../game';
 import { GameServerDocument } from '../game-server';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
-import { QueueStatusSchema } from './status';
+import {
+  QueueStatusComponent,
+  QueueStatusComponentName,
+  QueueStatusPhase,
+  QueueStatusSchema,
+} from './status';
 
 export const QueueEvent = new EventEmitter<IDatabasePayload<QueueDocument>>();
 
@@ -38,6 +44,32 @@ NamespaceEvent.sync(async payload => {
 @index({ namespaceId: 1 })
 @modelOptions({ schemaOptions: { collection: 'queues', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: QueueEvent })
+@pre('save', async function(this: QueueDocument) {
+  if (!this.isNew) {
+    return;
+  }
+
+  this.status.components = [
+    new QueueStatusComponent({
+      current: 0,
+      name: QueueStatusComponentName.Application,
+      phase: QueueStatusPhase.Pending,
+      total: this.replicas,
+    }),
+    new QueueStatusComponent({
+      current: 0,
+      name: QueueStatusComponentName.Redis,
+      phase: QueueStatusPhase.Pending,
+      total: this.replicas,
+    }),
+    new QueueStatusComponent({
+      current: 0,
+      name: QueueStatusComponentName.Sidecar,
+      phase: QueueStatusPhase.Pending,
+      total: 1,
+    }),
+  ];
+})
 export class QueueSchema {
   public _id: mongoose.Types.ObjectId;
 

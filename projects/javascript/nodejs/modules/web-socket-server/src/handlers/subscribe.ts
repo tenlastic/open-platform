@@ -38,7 +38,7 @@ export async function subscribe(
   // Generate group ID for NATS consumer.
   const resumeToken = data.parameters.resumeToken || mongoose.Types.ObjectId();
   const username = typeof user === 'string' ? user : user.username;
-  const durable = `${username}-${resumeToken}`;
+  const durable = `${subject}-${username}-${resumeToken}`.replace(/\./g, '-');
 
   // Create a NATS consumer.
   const subscription = await nats.subscribe(durable, subject);

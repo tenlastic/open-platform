@@ -7,6 +7,7 @@ import {
   prop,
 } from '@typegoose/typegoose';
 
+import { DatabaseStatusComponentSchema } from './component';
 import { DatabaseStatusNodeSchema } from './node';
 
 export enum DatabaseStatusPhase {
@@ -19,6 +20,9 @@ export enum DatabaseStatusPhase {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class DatabaseStatusSchema {
+  @arrayProp({ items: DatabaseStatusComponentSchema })
+  public components: DatabaseStatusComponentSchema[];
+
   @arrayProp({ items: DatabaseStatusNodeSchema })
   public nodes: DatabaseStatusNodeSchema[];
 

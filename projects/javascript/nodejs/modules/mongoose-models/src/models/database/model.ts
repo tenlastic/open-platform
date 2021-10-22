@@ -6,6 +6,7 @@ import {
   index,
   modelOptions,
   plugin,
+  pre,
   prop,
 } from '@typegoose/typegoose';
 import {
@@ -18,7 +19,12 @@ import * as mongoose from 'mongoose';
 import { decrementalValidator, namespaceValidator } from '../../validators';
 import { GameDocument } from '../game';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
-import { DatabaseStatusSchema } from './status';
+import {
+  DatabaseStatusComponent,
+  DatabaseStatusComponentName,
+  DatabaseStatusPhase,
+  DatabaseStatusSchema,
+} from './status';
 
 export const DatabaseEvent = new EventEmitter<IDatabasePayload<DatabaseDocument>>();
 
@@ -36,6 +42,38 @@ NamespaceEvent.sync(async payload => {
 @index({ namespaceId: 1 })
 @modelOptions({ schemaOptions: { collection: 'databases', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: DatabaseEvent })
+@pre('save', async function(this: DatabaseDocument) {
+  if (!this.isNew) {
+    return;
+  }
+
+  this.status.components = [
+    new DatabaseStatusComponent({
+      current: 0,
+      name: DatabaseStatusComponentName.Application,
+      phase: DatabaseStatusPhase.Pending,
+      total: this.replicas,
+    }),
+    new DatabaseStatusComponent({
+      current: 0,
+      name: DatabaseStatusComponentName.MongoDB,
+      phase: DatabaseStatusPhase.Pending,
+      total: this.replicas,
+    }),
+    new DatabaseStatusComponent({
+      current: 0,
+      name: DatabaseStatusComponentName.NATS,
+      phase: DatabaseStatusPhase.Pending,
+      total: this.replicas,
+    }),
+    new DatabaseStatusComponent({
+      current: 0,
+      name: DatabaseStatusComponentName.Sidecar,
+      phase: DatabaseStatusPhase.Pending,
+      total: 1,
+    }),
+  ];
+})
 export class DatabaseSchema {
   public _id: mongoose.Types.ObjectId;
 

@@ -174,18 +174,12 @@
       </div>
 
       <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Application</mat-label>
+        <mat-form-field *ngFor="let component of data.status?.components"
+                        floatLabel="always">
+          <mat-label>{{ components[component.name] }}</mat-label>
           <input matInput
                  disabled
-                 [value]="status.application.phase + ' (' + status.application.current + ' / ' + status.application.max + ')'" />
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Redis</mat-label>
-          <input matInput
-                 disabled
-                 [value]="status.redis.phase + ' (' + status.redis.current + ' / ' + status.redis.max + ')'" />
+                 [value]="component.phase + ' (' + component.current + ' / ' + component.total + ')'" />
         </mat-form-field>
       </div>
     </app-toggle-section>

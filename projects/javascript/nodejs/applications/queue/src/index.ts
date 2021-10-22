@@ -29,7 +29,7 @@ const wssUrl = process.env.WSS_URL;
     await redis.start();
 
     // Add initial Queue data.
-    queueStore.add(queue);
+    await queueService.findOne(queue._id);
 
     // Log Queue Member changes.
     queueMemberService.emitter.on('create', record =>
@@ -55,7 +55,7 @@ const wssUrl = process.env.WSS_URL;
       webSocket.subscribe(queueMemberService.emitter, {
         collection: 'queue-members',
         operationType: ['insert'],
-        resumeToken: queue._id,
+        resumeToken: `queue-${queue._id}`,
         where: { queueId: queue._id },
       });
 

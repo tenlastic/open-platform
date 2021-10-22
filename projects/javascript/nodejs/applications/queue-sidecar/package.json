@@ -12,6 +12,7 @@
     "start": "../../scripts/start.sh --watch"
   },
   "dependencies": {
+    "@tenlastic/http": "0.0.251",
     "@tenlastic/kubernetes": "0.0.251",
     "@tenlastic/web-server": "0.0.251",
     "request": "2.88.0",

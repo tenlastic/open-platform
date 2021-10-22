@@ -25,8 +25,16 @@ export namespace IQueue {
   ];
 
   export interface Status {
+    components?: StatusComponent[];
     nodes?: StatusNode[];
     phase: string;
+  }
+
+  export interface StatusComponent {
+    current: number;
+    name: string;
+    phase: string;
+    total: number;
   }
 
   export interface StatusNode {
