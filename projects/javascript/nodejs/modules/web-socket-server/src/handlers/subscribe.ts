@@ -55,13 +55,13 @@ export async function subscribe(
       // Filter by operation type.
       const { parameters } = data;
       if (parameters.operationType && !parameters.operationType.includes(json.operationType)) {
-        return;
+        continue;
       }
 
       // Handle the where clause.
       const where = await Permissions.where(parameters.where || {}, user);
       if (!isJsonValid(json.fullDocument, where)) {
-        return;
+        continue;
       }
 
       // Strip document of unauthorized information.

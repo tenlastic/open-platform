@@ -21,7 +21,7 @@ export async function subscribe(
     const data = new TextDecoder().decode(message.data);
     const json = JSON.parse(data);
 
-    return eachMessage(Model, options, json);
+    await eachMessage(Model, options, json);
   }
 }
 
