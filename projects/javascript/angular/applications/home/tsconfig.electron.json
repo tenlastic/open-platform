@@ -10,6 +10,6 @@
     "target": "es5",
     "types": ["node"]
   },
-  "include": ["main.ts"],
+  "include": ["electron/**/*.ts"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }
