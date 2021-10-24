@@ -1,4 +1,10 @@
-import { deploymentApiV1, podApiV1, serviceApiV1, V1PodTemplateSpec } from '@tenlastic/kubernetes';
+import {
+  deploymentApiV1,
+  networkPolicyApiV1,
+  podApiV1,
+  serviceApiV1,
+  V1PodTemplateSpec,
+} from '@tenlastic/kubernetes';
 import { GameServer, GameServerDocument } from '@tenlastic/mongoose-models';
 import { URL } from 'url';
 
@@ -7,6 +13,13 @@ import { subscribe } from '../../subscribe';
 export const KubernetesGameServer = {
   delete: async (gameServer: GameServerDocument) => {
     const name = KubernetesGameServer.getName(gameServer);
+
+    /**
+     * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    await networkPolicyApiV1.delete(name, 'dynamic');
 
     /**
      * =======================
@@ -59,6 +72,23 @@ export const KubernetesGameServer = {
   upsert: async (gameServer: GameServerDocument) => {
     const labels = KubernetesGameServer.getLabels(gameServer);
     const name = KubernetesGameServer.getName(gameServer);
+
+    /**
+     * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    await networkPolicyApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
+        name,
+      },
+      spec: {
+        egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
+        podSelector: { matchLabels: { 'tenlastic.com/app': name } },
+        policyTypes: ['Egress'],
+      },
+    });
 
     /**
      * =======================

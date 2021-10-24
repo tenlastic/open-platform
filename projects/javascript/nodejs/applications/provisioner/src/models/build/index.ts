@@ -1,4 +1,4 @@
-import { secretApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
+import { networkPolicyApiV1, secretApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
 import { Build, BuildDocument } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
@@ -11,6 +11,13 @@ import { KubernetesNamespace } from '../namespace';
 export const KubernetesBuild = {
   delete: async (build: BuildDocument) => {
     const name = KubernetesBuild.getName(build);
+
+    /**
+     * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    await networkPolicyApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
@@ -45,6 +52,23 @@ export const KubernetesBuild = {
     const labels = KubernetesBuild.getLabels(build);
     const name = KubernetesBuild.getName(build);
     const namespace = KubernetesNamespace.getName(build.namespaceId);
+
+    /**
+     * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    await networkPolicyApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
+        name,
+      },
+      spec: {
+        egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
+        podSelector: { matchLabels: { 'tenlastic.com/app': name } },
+        policyTypes: ['Egress'],
+      },
+    });
 
     /**
      * ======================
@@ -116,6 +140,7 @@ export const KubernetesBuild = {
           activeDeadlineSeconds: 60 * 60,
           affinity,
           entrypoint: 'entrypoint',
+          podMetadata: { labels: { 'tenlastic.com/app': name } },
           retryStrategy: {
             backoff: { duration: '15', factor: '2' },
             limit: 4,
@@ -171,6 +196,7 @@ export const KubernetesBuild = {
           activeDeadlineSeconds: 60 * 60,
           affinity,
           entrypoint: 'entrypoint',
+          podMetadata: { labels: { 'tenlastic.com/app': name } },
           retryStrategy: {
             backoff: { duration: '15', factor: '2' },
             limit: 4,

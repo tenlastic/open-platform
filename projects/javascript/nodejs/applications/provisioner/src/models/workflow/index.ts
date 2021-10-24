@@ -1,4 +1,4 @@
-import { workflowApiV1 } from '@tenlastic/kubernetes';
+import { networkPolicyApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
 import {
   Workflow,
   WorkflowDocument,
@@ -12,6 +12,13 @@ import { KubernetesNamespace } from '../namespace';
 export const KubernetesWorkflow = {
   delete: async (workflow: WorkflowDocument) => {
     const name = KubernetesWorkflow.getName(workflow);
+
+    /**
+     * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    await networkPolicyApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
@@ -46,6 +53,23 @@ export const KubernetesWorkflow = {
     const labels = KubernetesWorkflow.getLabels(workflow);
     const name = KubernetesWorkflow.getName(workflow);
     const namespace = KubernetesNamespace.getName(workflow.namespaceId);
+
+    /**
+     * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    await networkPolicyApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
+        name,
+      },
+      spec: {
+        egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
+        podSelector: { matchLabels: { 'tenlastic.com/app': name } },
+        policyTypes: ['Egress'],
+      },
+    });
 
     /**
      * ======================
@@ -88,6 +112,7 @@ export const KubernetesWorkflow = {
         entrypoint: workflow.spec.entrypoint,
         executor: { serviceAccountName: 'workflow' },
         parallelism: workflow.spec.parallelism,
+        podMetadata: { labels: { 'tenlastic.com/app': name } },
         serviceAccountName: 'workflow',
         templates,
         ttlStrategy: { secondsAfterCompletion: 3 * 60 * 60 },

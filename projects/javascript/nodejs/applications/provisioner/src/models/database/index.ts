@@ -281,30 +281,7 @@ export const KubernetesDatabase = {
         name,
       },
       spec: {
-        egress: [
-          {
-            to: [
-              {
-                // Allow traffic within Stateful Set.
-                podSelector: {
-                  matchLabels: { 'tenlastic.com/role': 'application' },
-                },
-              },
-              {
-                // Allow traffic to MongoDB.
-                podSelector: {
-                  matchLabels: { 'tenlastic.com/role': 'mongodb' },
-                },
-              },
-              {
-                // Allow traffic to NATS.
-                podSelector: {
-                  matchLabels: { 'tenlastic.com/role': 'nats' },
-                },
-              },
-            ],
-          },
-        ],
+        egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
         podSelector: { matchLabels: { 'tenlastic.com/app': name } },
         policyTypes: ['Egress'],
       },

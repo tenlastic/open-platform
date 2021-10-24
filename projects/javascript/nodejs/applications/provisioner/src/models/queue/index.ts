@@ -93,24 +93,7 @@ export const KubernetesQueue = {
         name,
       },
       spec: {
-        egress: [
-          {
-            to: [
-              {
-                // Allow traffic within Stateful Set.
-                podSelector: {
-                  matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
-                },
-              },
-              {
-                // Allow traffic to Redis.
-                podSelector: {
-                  matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'redis' },
-                },
-              },
-            ],
-          },
-        ],
+        egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
         podSelector: {
           matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
         },
