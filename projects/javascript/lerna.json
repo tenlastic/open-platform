@@ -2,11 +2,18 @@
   "command": {
     "bootstrap": {
       "hoist": true,
-      "nohoist": [
-        "**/electron*",
-        "**/electron*/**"
-      ],
+      "nohoist": ["**/electron*", "**/electron*/**"],
       "strict": true
+    },
+    "publish": {
+      "exact": true,
+      "message": "javascript-v%v [skip ci]",
+      "tagVersionPrefix": "javascript-v"
+    },
+    "version": {
+      "exact": true,
+      "message": "javascript-v%v [skip ci]",
+      "tagVersionPrefix": "javascript-v"
     }
   },
   "npmClient": "npm",

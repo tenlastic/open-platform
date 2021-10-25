@@ -15,10 +15,14 @@ git config --global gc.auto 0 || true
 git config user.email $GITHUB_USER_EMAIL
 git config user.name $GITHUB_USER_NAME
 
+# Reset Git changes for clean publish.
+git checkout -f
+git clean -fd
+
 # Publish Node Modules to NPM.
 echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
 npm config set unsafe-perm true
-lerna publish --ci --exact --message "javascript-v%v [skip ci]" --tag-version-prefix "javascript-v" --yes patch
+lerna publish --ci --yes patch
 
 # Publish Node Modules to Github.
 echo "@tenlastic:registry=https://npm.pkg.github.com" > ~/.npmrc
