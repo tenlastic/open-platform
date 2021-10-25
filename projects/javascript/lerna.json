@@ -2,7 +2,10 @@
   "command": {
     "bootstrap": {
       "hoist": true,
-      "nohoist": ["**/electron*", "**/electron*/**"],
+      "nohoist": [
+        "**/electron*",
+        "**/electron*/**"
+      ],
       "strict": true
     },
     "publish": {
@@ -25,5 +28,5 @@
     "nodejs/applications/*",
     "nodejs/modules/*"
   ],
-  "version": "0.0.257"
+  "version": "0.0.258"
 }
