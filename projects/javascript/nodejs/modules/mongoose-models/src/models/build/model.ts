@@ -26,7 +26,6 @@ import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { WorkflowStatusSchema } from '../workflow';
 import { BuildFileSchema } from './file';
 import { BuildReferenceSchema } from './reference';
-import { URL } from 'url';
 
 export const BuildEvent = new EventEmitter<IDatabasePayload<BuildDocument>>();
 

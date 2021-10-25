@@ -21,11 +21,15 @@ export async function status() {
 }
 
 async function updateWorkflow(object: any) {
-  const nodes = Object.values(object.status.nodes || {});
+  // Nodes
+  const nodes = Object.values(object.status.nodes || {}).map((n: any) => ({ ...n, _id: n.id }));
+
+  // Version
+  const { version } = require('../../package.json');
 
   await requestPromiseNative.put({
     headers: { Authorization: `Bearer ${accessToken}` },
-    json: { status: { ...object.status, nodes: nodes.map((n: any) => ({ ...n, _id: n.id })) } },
+    json: { status: { ...object.status, nodes, version } },
     url: workflowEndpoint,
   });
 }

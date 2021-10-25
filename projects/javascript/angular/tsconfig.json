@@ -1,24 +1,26 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
     "downlevelIteration": true,
+    "esModuleInterop": true,
     "experimentalDecorators": true,
+    "importHelpers": true,
+    "lib": ["es2018", "dom"],
     "module": "es2020",
     "moduleResolution": "node",
-    "importHelpers": true,
-    "target": "es2015",
-    "typeRoots": ["../node_modules/@types"],
-    "lib": ["es2018", "dom"],
     "paths": {
       "@tenlastic/ng-http": ["modules/http/dist/angular"],
       "@tenlastic/ng-http/*": ["modules/http/dist/angular/*"]
     },
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "resolveJsonModule": true,
+    "target": "es2015",
+    "typeRoots": ["../node_modules/@types"],
+
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,

@@ -28,6 +28,9 @@ export class DatabaseStatusSchema {
 
   @prop({ enum: DatabaseStatusPhase, required: true })
   public phase: DatabaseStatusPhase;
+
+  @prop()
+  public version: string;
 }
 
 export type DatabaseStatusDocument = DocumentType<DatabaseStatusSchema>;

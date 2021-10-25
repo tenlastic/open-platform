@@ -33,6 +33,9 @@ export class WorkflowStatusSchema {
 
   @prop()
   public startedAt: Date;
+
+  @prop()
+  public version: string;
 }
 
 export type WorkflowStatusDocument = DocumentType<WorkflowStatusSchema>;

@@ -17,6 +17,7 @@ import {
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import packageJson from '../../../../../../../../package.json';
 import { environment } from '../../../../../../../environments/environment';
 import {
   IdentityService,
@@ -38,6 +39,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   public $queues: Observable<Queue[]>;
   public dataSource = new MatTableDataSource<Queue>();
   public displayedColumns: string[] = ['game', 'name', 'description', 'status', 'actions'];
+  public version = packageJson.version;
 
   private updateDataSource$ = new Subscription();
 

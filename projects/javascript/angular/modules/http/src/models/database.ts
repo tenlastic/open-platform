@@ -30,6 +30,7 @@ export namespace IDatabase {
     components?: StatusComponent[];
     nodes?: StatusNode[];
     phase: string;
+    version?: string;
   }
 
   export interface StatusComponent {

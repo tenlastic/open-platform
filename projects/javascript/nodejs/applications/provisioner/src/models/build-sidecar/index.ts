@@ -110,9 +110,7 @@ export const KubernetesBuildSidecar = {
       initialDelaySeconds: 30,
       periodSeconds: 30,
     };
-
-    const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
-    const version = JSON.parse(packageDotJson).version;
+    const { version } = require('../../../package.json');
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.

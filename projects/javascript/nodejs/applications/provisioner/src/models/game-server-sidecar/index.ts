@@ -138,8 +138,7 @@ export const KubernetesGameServerSidecar = {
         },
       };
     } else {
-      const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
-      const version = JSON.parse(packageDotJson).version;
+      const { version } = require('../../../package.json');
 
       manifest = {
         metadata: {

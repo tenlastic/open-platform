@@ -28,6 +28,7 @@ export namespace IGameServer {
     endpoints?: Endpoints;
     nodes?: StatusNode[];
     phase: string;
+    version?: string;
   }
 
   export interface StatusNode {

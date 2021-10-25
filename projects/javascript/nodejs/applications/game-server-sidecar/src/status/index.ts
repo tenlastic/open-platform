@@ -123,9 +123,12 @@ async function updateGameServer() {
     phase = 'Failed';
   }
 
+  // Version
+  const { version } = require('../../package.json');
+
   await requestPromiseNative.put({
     headers: { Authorization: `Bearer ${accessToken}` },
-    json: { status: { endpoints, nodes, phase } },
+    json: { status: { endpoints, nodes, phase, version } },
     url: endpoint,
   });
 

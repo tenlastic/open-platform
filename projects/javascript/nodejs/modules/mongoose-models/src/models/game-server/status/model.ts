@@ -28,6 +28,9 @@ export class GameServerStatusSchema {
 
   @prop({ enum: GameServerStatusPhase, required: true })
   public phase: GameServerStatusPhase;
+
+  @prop()
+  public version: string;
 }
 
 export type GameServerStatusDocument = DocumentType<GameServerStatusSchema>;

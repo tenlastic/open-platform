@@ -20,6 +20,7 @@ import {
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import packageJson from '../../../../../../../../package.json';
 import { environment } from '../../../../../../../environments/environment';
 import {
   IdentityService,
@@ -57,6 +58,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   public get queueId() {
     return this.activatedRoute.snapshot.paramMap.get('queueId');
   }
+  public version = packageJson.version;
 
   private updateDataSource$ = new Subscription();
 

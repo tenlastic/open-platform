@@ -88,6 +88,7 @@ export namespace IWorkflow {
     nodes?: Node[];
     phase?: string;
     startedAt?: Date;
+    version?: string;
   }
 
   export interface Task {

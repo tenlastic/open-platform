@@ -113,9 +113,12 @@ async function updateDatabase() {
     phase = 'Failed';
   }
 
+  // Version
+  const { version } = require('../../package.json');
+
   await requestPromiseNative.put({
     headers: { Authorization: `Bearer ${accessToken}` },
-    json: { status: { components, phase, nodes } },
+    json: { status: { components, phase, nodes, version } },
     url: endpoint,
   });
 

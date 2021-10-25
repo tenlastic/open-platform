@@ -28,6 +28,9 @@ export class QueueStatusSchema {
 
   @prop({ enum: QueueStatusPhase, required: true })
   public phase: QueueStatusPhase;
+
+  @prop()
+  public version: string;
 }
 
 export type QueueStatusDocument = DocumentType<QueueStatusSchema>;

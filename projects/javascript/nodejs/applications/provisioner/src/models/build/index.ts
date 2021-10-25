@@ -115,9 +115,7 @@ export const KubernetesBuild = {
       'tenlastic.com/nodeId': `{{pod.name}}`,
       'tenlastic.com/role': 'application',
     };
-
-    const packageDotJson = fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8');
-    const version = JSON.parse(packageDotJson).version;
+    const { version } = require('../../../package.json');
 
     let manifest: V1Workflow;
     if (process.env.PWD && process.env.PWD.includes('/usr/src/projects/')) {

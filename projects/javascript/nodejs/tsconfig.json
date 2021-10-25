@@ -23,6 +23,7 @@
       "@tenlastic/web-server": ["./modules/web-server/src"],
       "@tenlastic/web-socket-server": ["./modules/web-socket-server/src"]
     },
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "target": "es2015",
