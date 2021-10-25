@@ -1,5 +1,5 @@
 import { deploymentApiV1, secretApiV1, V1PodTemplateSpec, V1Probe } from '@tenlastic/kubernetes';
-import { Queue, QueueDocument } from '@tenlastic/mongoose-models';
+import { Namespace, NamespaceRole, Queue, QueueDocument } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
@@ -49,12 +49,7 @@ export const KubernetesQueueSidecar = {
      * SECRET
      * ======================
      */
-    const administrator = { roles: ['queues'], system: true };
-    const accessToken = jwt.sign(
-      { type: 'access', user: administrator },
-      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      { algorithm: 'RS256' },
-    );
+    const accessToken = Namespace.getAccessToken(queue.namespaceId, [NamespaceRole.Queues]);
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' },

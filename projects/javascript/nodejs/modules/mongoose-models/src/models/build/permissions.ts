@@ -37,6 +37,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
     default: {
       $or: [
         NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Builds),
+        NamespacePermissionsHelpers.getNamespaceUserFindQuery(NamespaceRole.Builds),
         {
           gameId: { $in: GamePermissionsHelpers.getAuthorizedGameIds() },
           publishedAt: { $exists: true, $ne: null },
@@ -45,7 +46,6 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
         { gameId: { $exists: false }, publishedAt: { $exists: true, $ne: null } },
       ],
     },
-    'system-administrator': {},
     'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
@@ -69,7 +69,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
   roles: [
     {
       name: 'system-administrator',
-      query: { 'user.roles': UserRole.Builds, 'user.system': true },
+      query: NamespacePermissionsHelpers.getNamespaceUserRoleQuery(NamespaceRole.Builds),
     },
     {
       name: 'user-administrator',

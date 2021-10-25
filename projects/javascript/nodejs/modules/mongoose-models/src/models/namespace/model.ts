@@ -14,6 +14,7 @@ import {
   changeStreamPlugin,
 } from '@tenlastic/mongoose-change-stream';
 import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
+import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
 import { UserDocument } from '../user';
@@ -109,6 +110,20 @@ export class NamespaceSchema {
   public _original: any;
   public wasModified: string[];
   public wasNew: boolean;
+
+  /**
+   * Creates an access token that does not expire.
+   */
+  public static getAccessToken(
+    namespaceId: string | mongoose.Types.ObjectId,
+    roles: NamespaceRole[],
+  ) {
+    return jwt.sign(
+      { type: 'access', user: { namespaceId, roles } },
+      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      { algorithm: 'RS256' },
+    );
+  }
 
   public static getDefaultUsers(
     users: Array<Partial<NamespaceUserDocument>>,

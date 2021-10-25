@@ -1,4 +1,5 @@
 import { getPropertyByDotNotation } from '../get-property-by-dot-notation';
+import { isJsonValid } from '../is-json-valid';
 
 /**
  * Substitute { $ref: 'string' } subdocuments within JSON with values from references.
@@ -7,9 +8,13 @@ export function substituteReferenceValues(json: any, references: any) {
   if (json && json.constructor === Array) {
     return json.map(j => substituteReferenceValues(j, references));
   } else if (json && json.constructor === Object) {
-    if (json.$ref) {
-      if (typeof json.$ref === 'string' || json.$ref instanceof String) {
-        return getPropertyByDotNotation(references, json.$ref);
+    const { $ref } = json;
+
+    if ($ref) {
+      if (typeof $ref === 'string') {
+        return getPropertyByDotNotation(references, $ref);
+      } else if (typeof $ref === 'object' && $ref !== null && !Array.isArray($ref)) {
+        return isJsonValid(references, $ref);
       } else {
         return null;
       }

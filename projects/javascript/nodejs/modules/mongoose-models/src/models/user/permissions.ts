@@ -33,6 +33,6 @@ export const UserPermissions = new MongoosePermissions<UserDocument>(User, {
 
 export const UserPermissionsHelpers = {
   getRoleQuery(role: UserRole) {
-    return { 'user.roles': role };
+    return { 'user.namespaceId': { $exists: false }, 'user.roles': role };
   },
 };

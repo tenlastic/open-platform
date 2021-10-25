@@ -36,8 +36,12 @@ export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Dat
     'user-administrator': true,
   },
   find: {
-    default: NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Databases),
-    'system-administrator': {},
+    default: {
+      $or: [
+        NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Databases),
+        NamespacePermissionsHelpers.getNamespaceUserFindQuery(NamespaceRole.Databases),
+      ],
+    },
     'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
@@ -61,7 +65,7 @@ export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Dat
   roles: [
     {
       name: 'system-administrator',
-      query: { 'user.roles': UserRole.Databases, 'user.system': true },
+      query: NamespacePermissionsHelpers.getNamespaceUserRoleQuery(NamespaceRole.Databases),
     },
     {
       name: 'user-administrator',

@@ -5,7 +5,7 @@ import {
   V1Probe,
   workflowApiV1,
 } from '@tenlastic/kubernetes';
-import { Workflow, WorkflowDocument } from '@tenlastic/mongoose-models';
+import { Namespace, NamespaceRole, Workflow, WorkflowDocument } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
@@ -70,12 +70,7 @@ export const KubernetesWorkflowSidecar = {
      * SECRET
      * ======================
      */
-    const administrator = { roles: ['workflows'], system: true };
-    const accessToken = jwt.sign(
-      { type: 'access', user: administrator },
-      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      { algorithm: 'RS256' },
-    );
+    const accessToken = Namespace.getAccessToken(workflow.namespaceId, [NamespaceRole.Workflows]);
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' },

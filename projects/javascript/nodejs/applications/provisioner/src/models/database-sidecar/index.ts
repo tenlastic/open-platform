@@ -6,7 +6,7 @@ import {
   V1PodTemplateSpec,
   V1Probe,
 } from '@tenlastic/kubernetes';
-import { Database, DatabaseDocument } from '@tenlastic/mongoose-models';
+import { Database, DatabaseDocument, Namespace, NamespaceRole } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
@@ -56,13 +56,10 @@ export const KubernetesDatabaseSidecar = {
      * SECRET
      * ======================
      */
-    const administrator = { roles: ['databases', 'namespaces'], system: true };
-    const accessToken = jwt.sign(
-      { type: 'access', user: administrator },
-      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      { algorithm: 'RS256' },
-    );
-
+    const accessToken = Namespace.getAccessToken(database.namespaceId, [
+      NamespaceRole.Databases,
+      NamespaceRole.Namespaces,
+    ]);
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...databaseLabels, 'tenlastic.com/role': 'sidecar' },

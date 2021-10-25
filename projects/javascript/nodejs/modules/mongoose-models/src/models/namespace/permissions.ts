@@ -89,6 +89,15 @@ export const NamespacePermissionsHelpers = {
       },
     };
   },
+  getNamespaceUserFindQuery(role: NamespaceRole) {
+    return {
+      _id: { $exists: { $ref: { 'user.roles': role } } },
+      namespaceId: { $ref: 'user.namespaceId' },
+    };
+  },
+  getNamespaceUserRoleQuery(role: NamespaceRole, selector = 'record.namespaceId') {
+    return { 'user.namespaceId': { $ref: selector }, 'user.roles': role };
+  },
   getRoleQuery(role: NamespaceRole, selector = 'record.namespaceDocument') {
     return {
       $or: [

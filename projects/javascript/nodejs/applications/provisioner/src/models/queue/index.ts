@@ -8,7 +8,7 @@ import {
   V1PodTemplateSpec,
   V1Probe,
 } from '@tenlastic/kubernetes';
-import { Queue, QueueDocument } from '@tenlastic/mongoose-models';
+import { Namespace, NamespaceRole, Queue, QueueDocument } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
@@ -165,12 +165,10 @@ export const KubernetesQueue = {
      * SECRET
      * ======================
      */
-    const administrator = { roles: ['game-servers', 'queues'], system: true };
-    const accessToken = jwt.sign(
-      { type: 'access', user: administrator },
-      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      { algorithm: 'RS256' },
-    );
+    const accessToken = Namespace.getAccessToken(queue.namespaceId, [
+      NamespaceRole.GameServers,
+      NamespaceRole.Queues,
+    ]);
     const array = Array(queue.replicas).fill(0);
     const sentinels = array.map((a, i) => `${name}-redis-node-${i}.${name}-redis-headless:26379`);
     await secretApiV1.createOrReplace('dynamic', {

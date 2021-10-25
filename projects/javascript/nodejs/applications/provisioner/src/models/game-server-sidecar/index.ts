@@ -1,5 +1,10 @@
 import { deploymentApiV1, secretApiV1, V1PodTemplateSpec, V1Probe } from '@tenlastic/kubernetes';
-import { GameServer, GameServerDocument } from '@tenlastic/mongoose-models';
+import {
+  GameServer,
+  GameServerDocument,
+  Namespace,
+  NamespaceRole,
+} from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
@@ -49,12 +54,7 @@ export const KubernetesGameServerSidecar = {
      * SECRET
      * ======================
      */
-    const administrator = { roles: ['game-servers'], system: true };
-    const accessToken = jwt.sign(
-      { type: 'access', user: administrator },
-      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      { algorithm: 'RS256' },
-    );
+    const accessToken = Namespace.getAccessToken(gameServer.namespaceId, [NamespaceRole.Games]);
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },

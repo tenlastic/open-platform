@@ -48,8 +48,12 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
     'user-administrator': true,
   },
   find: {
-    default: NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Workflows),
-    'system-administrator': {},
+    default: {
+      $or: [
+        NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Workflows),
+        NamespacePermissionsHelpers.getNamespaceUserFindQuery(NamespaceRole.Workflows),
+      ],
+    },
     'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
@@ -72,7 +76,7 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
   roles: [
     {
       name: 'system-administrator',
-      query: { 'user.roles': UserRole.Workflows, 'user.system': true },
+      query: NamespacePermissionsHelpers.getNamespaceUserRoleQuery(NamespaceRole.Workflows),
     },
     {
       name: 'user-administrator',

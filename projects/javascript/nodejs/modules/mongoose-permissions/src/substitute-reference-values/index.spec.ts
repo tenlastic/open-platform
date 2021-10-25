@@ -33,4 +33,13 @@ describe('substitute-reference-values', function() {
 
     expect(result).to.eql(5);
   });
+
+  it('handles subqueries', function() {
+    const json = { _id: { $exists: { $ref: { 'user.roles': 'namespaces' } } } };
+    const references = { user: { roles: ['namespaces'] } };
+
+    const result = substituteReferenceValues(json, references);
+
+    expect(result).to.eql({ _id: { $exists: true } });
+  });
 });

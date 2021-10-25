@@ -1,5 +1,5 @@
 import { networkPolicyApiV1, secretApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
-import { Build, BuildDocument } from '@tenlastic/mongoose-models';
+import { Build, BuildDocument, Namespace, NamespaceRole } from '@tenlastic/mongoose-models';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
@@ -75,12 +75,7 @@ export const KubernetesBuild = {
      * SECRET
      * ======================
      */
-    const administrator = { roles: ['builds'], system: true };
-    const accessToken = jwt.sign(
-      { type: 'access', user: administrator },
-      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      { algorithm: 'RS256' },
-    );
+    const accessToken = Namespace.getAccessToken(build.namespaceId, [NamespaceRole.Builds]);
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'application' },
@@ -88,7 +83,7 @@ export const KubernetesBuild = {
       },
       stringData: {
         ACCESS_TOKEN: accessToken,
-        BUILD_ID: build._id.toString(),
+        BUILD_ID: `${build._id}`,
         MINIO_BUCKET: process.env.MINIO_BUCKET,
         MINIO_CONNECTION_STRING: process.env.MINIO_CONNECTION_STRING,
       },

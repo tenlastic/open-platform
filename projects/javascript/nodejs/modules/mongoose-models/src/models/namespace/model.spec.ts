@@ -1,9 +1,29 @@
 import { expect } from 'chai';
+import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
-import { Namespace, NamespaceRole } from './model';
+import { Namespace, NamespaceDocument, NamespaceRole } from './model';
+import { NamespaceMock } from './model.mock';
 
 describe('models/namespace/model', function() {
+  describe('getAccessToken()', function() {
+    let namespace: NamespaceDocument;
+
+    beforeEach(async function() {
+      namespace = await NamespaceMock.create();
+    });
+
+    it('returns an accessToken', async function() {
+      const roles = [NamespaceRole.Namespaces];
+      const accessToken = Namespace.getAccessToken(namespace._id, roles);
+      const { user } = jwt.decode(accessToken) as any;
+
+      expect(accessToken).to.exist;
+      expect(user.namespaceId).to.eql(namespace._id.toString());
+      expect(user.roles).to.eql(roles);
+    });
+  });
+
   describe('getDefaultUsers()', function() {
     context('when the ACL is empty', function() {
       it('returns an array with the current user as an Namespace administrator', function() {

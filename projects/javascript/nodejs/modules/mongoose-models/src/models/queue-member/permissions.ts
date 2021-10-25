@@ -23,6 +23,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     default: {
       $or: [
         NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Queues),
+        NamespacePermissionsHelpers.getNamespaceUserFindQuery(NamespaceRole.Queues),
         {
           queueId: {
             $in: {
@@ -38,7 +39,6 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
         { userIds: { $ref: 'user._id' } },
       ],
     },
-    'system-administrator': {},
     'user-administrator': {},
   },
   populate: [{ path: 'groupDocument' }, { path: 'namespaceDocument' }],
@@ -57,7 +57,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
   roles: [
     {
       name: 'system-administrator',
-      query: { 'user.roles': UserRole.Queues, 'user.system': true },
+      query: NamespacePermissionsHelpers.getNamespaceUserRoleQuery(NamespaceRole.Queues),
     },
     {
       name: 'user-administrator',
