@@ -1,11 +1,7 @@
 import { networkPolicyApiV1, secretApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
-import { Build, BuildDocument, Namespace, NamespaceRole } from '@tenlastic/mongoose-models';
-import * as fs from 'fs';
-import * as jwt from 'jsonwebtoken';
-import * as path from 'path';
+import { BuildDocument, Namespace, NamespaceRole } from '@tenlastic/mongoose-models';
 import { URL } from 'url';
 
-import { subscribe } from '../../subscribe';
 import { KubernetesNamespace } from '../namespace';
 
 export const KubernetesBuild = {
@@ -36,17 +32,6 @@ export const KubernetesBuild = {
   },
   getName: (build: BuildDocument) => {
     return `build-${build._id}`;
-  },
-  subscribe: () => {
-    return subscribe<BuildDocument>(Build, 'build', async payload => {
-      if (payload.operationType === 'delete') {
-        console.log(`Deleting Build: ${payload.fullDocument._id}.`);
-        await KubernetesBuild.delete(payload.fullDocument);
-      } else if (payload.operationType === 'insert') {
-        console.log(`Creating Build: ${payload.fullDocument._id}.`);
-        await KubernetesBuild.upsert(payload.fullDocument);
-      }
-    });
   },
   upsert: async (build: BuildDocument) => {
     const labels = KubernetesBuild.getLabels(build);

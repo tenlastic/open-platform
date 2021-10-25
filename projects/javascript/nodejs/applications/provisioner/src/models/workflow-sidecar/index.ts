@@ -5,12 +5,8 @@ import {
   V1Probe,
   workflowApiV1,
 } from '@tenlastic/kubernetes';
-import { Namespace, NamespaceRole, Workflow, WorkflowDocument } from '@tenlastic/mongoose-models';
-import * as fs from 'fs';
-import * as jwt from 'jsonwebtoken';
-import * as path from 'path';
+import { Namespace, NamespaceRole, WorkflowDocument } from '@tenlastic/mongoose-models';
 
-import { subscribe } from '../../subscribe';
 import { wait } from '../../wait';
 import { KubernetesWorkflow } from '../workflow';
 
@@ -34,17 +30,6 @@ export const KubernetesWorkflowSidecar = {
   },
   getName(workflow: WorkflowDocument) {
     return `workflow-${workflow._id}-sidecar`;
-  },
-  subscribe: () => {
-    return subscribe<WorkflowDocument>(Workflow, 'workflow-sidecar', async payload => {
-      if (payload.operationType === 'insert') {
-        console.log(`Upserting Workflow Sidecar: ${payload.fullDocument._id}.`);
-        await KubernetesWorkflowSidecar.upsert(payload.fullDocument);
-      } else if (payload.operationType === 'update' && payload.fullDocument.status?.finishedAt) {
-        console.log(`Deleting Build Sidecar: ${payload.fullDocument._id}.`);
-        await KubernetesWorkflowSidecar.delete(payload.fullDocument);
-      }
-    });
   },
   upsert: async (workflow: WorkflowDocument) => {
     const name = KubernetesWorkflowSidecar.getName(workflow);

@@ -1,10 +1,6 @@
 import { deploymentApiV1, secretApiV1, V1PodTemplateSpec, V1Probe } from '@tenlastic/kubernetes';
-import { Namespace, NamespaceRole, Queue, QueueDocument } from '@tenlastic/mongoose-models';
-import * as fs from 'fs';
-import * as jwt from 'jsonwebtoken';
-import * as path from 'path';
+import { Namespace, NamespaceRole, QueueDocument } from '@tenlastic/mongoose-models';
 
-import { subscribe } from '../../subscribe';
 import { KubernetesQueue } from '../queue';
 
 export const KubernetesQueueSidecar = {
@@ -27,20 +23,6 @@ export const KubernetesQueueSidecar = {
   },
   getName: (queue: QueueDocument) => {
     return `queue-${queue._id}-sidecar`;
-  },
-  subscribe: () => {
-    return subscribe<QueueDocument>(Queue, 'queue-sidecar', async payload => {
-      if (payload.operationType === 'delete') {
-        console.log(`Deleting Queue Sidecar: ${payload.fullDocument._id}.`);
-        await KubernetesQueueSidecar.delete(payload.fullDocument);
-      } else if (
-        payload.operationType === 'insert' ||
-        Queue.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
-      ) {
-        console.log(`Upserting Queue Sidecar: ${payload.fullDocument._id}.`);
-        await KubernetesQueueSidecar.upsert(payload.fullDocument);
-      }
-    });
   },
   upsert: async (queue: QueueDocument) => {
     const queueLabels = KubernetesQueue.getLabels(queue);

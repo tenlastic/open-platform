@@ -13,13 +13,9 @@ import {
   V1ResourceRequirements,
 } from '@tenlastic/kubernetes';
 import * as mongooseModels from '@tenlastic/mongoose-models';
-import { Database, DatabaseDocument } from '@tenlastic/mongoose-models';
+import { DatabaseDocument } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
-import * as fs from 'fs';
 import { Connection } from 'mongoose';
-import * as path from 'path';
-
-import { subscribe } from '../../subscribe';
 
 const chance = new Chance();
 
@@ -88,21 +84,6 @@ export const KubernetesDatabase = {
   },
   getName: (database: DatabaseDocument) => {
     return `database-${database._id}`;
-  },
-  subscribe: () => {
-    return subscribe<DatabaseDocument>(Database, 'database', async payload => {
-      if (payload.operationType === 'delete') {
-        console.log(`Deleting Database: ${payload.fullDocument._id}.`);
-        await KubernetesDatabase.delete(payload.fullDocument);
-      } else if (
-        payload.operationType === 'insert' ||
-        Database.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
-      ) {
-        console.log(`Upserting Database: ${payload.fullDocument._id}.`);
-        await KubernetesDatabase.delete(payload.fullDocument);
-        await KubernetesDatabase.upsert(payload.fullDocument);
-      }
-    });
   },
   upsert: async (database: DatabaseDocument) => {
     const labels = KubernetesDatabase.getLabels(database);

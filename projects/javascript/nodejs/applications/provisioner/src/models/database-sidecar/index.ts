@@ -1,17 +1,15 @@
 import {
   deploymentApiV1,
   secretApiV1,
+  statefulSetApiV1,
   V1Affinity,
   V1EnvVar,
   V1PodTemplateSpec,
   V1Probe,
 } from '@tenlastic/kubernetes';
-import { Database, DatabaseDocument, Namespace, NamespaceRole } from '@tenlastic/mongoose-models';
-import * as fs from 'fs';
-import * as jwt from 'jsonwebtoken';
-import * as path from 'path';
+import { DatabaseDocument, Namespace, NamespaceRole } from '@tenlastic/mongoose-models';
 
-import { subscribe } from '../../subscribe';
+import { wait } from '../../wait';
 import { KubernetesDatabase } from '../database';
 
 export const KubernetesDatabaseSidecar = {
@@ -35,24 +33,24 @@ export const KubernetesDatabaseSidecar = {
   getName(database: DatabaseDocument) {
     return `database-${database._id}-sidecar`;
   },
-  subscribe: () => {
-    return subscribe<DatabaseDocument>(Database, 'database-sidecar', async payload => {
-      if (payload.operationType === 'delete') {
-        console.log(`Deleting Database Sidecar: ${payload.fullDocument._id}.`);
-        await KubernetesDatabaseSidecar.delete(payload.fullDocument);
-      } else if (
-        payload.operationType === 'insert' ||
-        Database.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
-      ) {
-        console.log(`Upserting Database Sidecar: ${payload.fullDocument._id}.`);
-        await KubernetesDatabaseSidecar.upsert(payload.fullDocument);
-      }
-    });
-  },
   upsert: async (database: DatabaseDocument) => {
     const databaseLabels = KubernetesDatabase.getLabels(database);
     const databaseName = KubernetesDatabase.getName(database);
     const name = KubernetesDatabaseSidecar.getName(database);
+
+    const uid = await wait(1000, 15 * 1000, async () => {
+      const response = await statefulSetApiV1.read(KubernetesDatabase.getName(database), 'dynamic');
+      return response.body.metadata.uid;
+    });
+    const ownerReferences = [
+      {
+        apiVersion: 'apps/v1',
+        controller: true,
+        kind: 'StatefulSet',
+        name: databaseName,
+        uid,
+      },
+    ];
 
     /**
      * ======================
@@ -67,6 +65,7 @@ export const KubernetesDatabaseSidecar = {
       metadata: {
         labels: { ...databaseLabels, 'tenlastic.com/role': 'sidecar' },
         name,
+        ownerReferences,
       },
       stringData: {
         ACCESS_TOKEN: accessToken,
@@ -182,6 +181,7 @@ export const KubernetesDatabaseSidecar = {
       metadata: {
         labels: { ...databaseLabels, 'tenlastic.com/role': 'sidecar' },
         name,
+        ownerReferences,
       },
       spec: {
         replicas: 1,

@@ -5,12 +5,8 @@ import {
   V1Probe,
   workflowApiV1,
 } from '@tenlastic/kubernetes';
-import { Build, BuildDocument, Namespace, NamespaceRole } from '@tenlastic/mongoose-models';
-import * as fs from 'fs';
-import * as jwt from 'jsonwebtoken';
-import * as path from 'path';
+import { BuildDocument, Namespace, NamespaceRole } from '@tenlastic/mongoose-models';
 
-import { subscribe } from '../../subscribe';
 import { wait } from '../../wait';
 import { KubernetesBuild } from '../build';
 
@@ -34,17 +30,6 @@ export const KubernetesBuildSidecar = {
   },
   getName: (build: BuildDocument) => {
     return `build-${build._id}-sidecar`;
-  },
-  subscribe: () => {
-    return subscribe<BuildDocument>(Build, 'build-sidecar', async payload => {
-      if (payload.operationType === 'insert') {
-        console.log(`Creating Build Sidecar: ${payload.fullDocument._id}.`);
-        await KubernetesBuildSidecar.upsert(payload.fullDocument);
-      } else if (payload.operationType === 'update' && payload.fullDocument.status?.finishedAt) {
-        console.log(`Deleting Build Sidecar: ${payload.fullDocument._id}.`);
-        await KubernetesBuildSidecar.delete(payload.fullDocument);
-      }
-    });
   },
   upsert: async (build: BuildDocument) => {
     const buildLabels = KubernetesBuild.getLabels(build);

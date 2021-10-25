@@ -1,8 +1,6 @@
 import { configMapApiV1, deploymentApiV1 } from '@tenlastic/kubernetes';
-import { Namespace, NamespaceDocument } from '@tenlastic/mongoose-models';
+import { NamespaceDocument } from '@tenlastic/mongoose-models';
 import { mongoose, Ref } from '@typegoose/typegoose';
-
-import { subscribe } from '../../subscribe';
 
 export const KubernetesNamespace = {
   delete: async (namespace: NamespaceDocument) => {
@@ -18,17 +16,6 @@ export const KubernetesNamespace = {
   },
   getName: (_id: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>) => {
     return `namespace-${_id}`;
-  },
-  subscribe: () => {
-    return subscribe<NamespaceDocument>(Namespace, 'namespace', async payload => {
-      if (payload.operationType === 'delete') {
-        console.log(`Deleting Namespace: ${payload.fullDocument._id}.`);
-        await KubernetesNamespace.delete(payload.fullDocument);
-      } else {
-        console.log(`Upserting Namespace: ${payload.fullDocument._id}.`);
-        await KubernetesNamespace.upsert(payload.fullDocument);
-      }
-    });
   },
   upsert: async (namespace: NamespaceDocument) => {
     const name = KubernetesNamespace.getName(namespace._id);

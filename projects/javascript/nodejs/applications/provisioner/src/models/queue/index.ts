@@ -8,14 +8,9 @@ import {
   V1PodTemplateSpec,
   V1Probe,
 } from '@tenlastic/kubernetes';
-import { Namespace, NamespaceRole, Queue, QueueDocument } from '@tenlastic/mongoose-models';
+import { Namespace, NamespaceRole, QueueDocument } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
-import * as fs from 'fs';
-import * as jwt from 'jsonwebtoken';
-import * as path from 'path';
 import { URL } from 'url';
-
-import { subscribe } from '../../subscribe';
 
 const chance = new Chance();
 
@@ -63,21 +58,6 @@ export const KubernetesQueue = {
   },
   getName: (queue: QueueDocument) => {
     return `queue-${queue._id}`;
-  },
-  subscribe: () => {
-    return subscribe<QueueDocument>(Queue, 'queue', async payload => {
-      if (payload.operationType === 'delete') {
-        console.log(`Deleting Queue: ${payload.fullDocument._id}.`);
-        await KubernetesQueue.delete(payload.fullDocument);
-      } else if (
-        payload.operationType === 'insert' ||
-        Queue.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
-      ) {
-        console.log(`Upserting Queue: ${payload.fullDocument._id}.`);
-        await KubernetesQueue.delete(payload.fullDocument);
-        await KubernetesQueue.upsert(payload.fullDocument);
-      }
-    });
   },
   upsert: async (queue: QueueDocument) => {
     const labels = KubernetesQueue.getLabels(queue);

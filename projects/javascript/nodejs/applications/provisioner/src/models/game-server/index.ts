@@ -5,10 +5,8 @@ import {
   serviceApiV1,
   V1PodTemplateSpec,
 } from '@tenlastic/kubernetes';
-import { GameServer, GameServerDocument } from '@tenlastic/mongoose-models';
+import { GameServerDocument } from '@tenlastic/mongoose-models';
 import { URL } from 'url';
-
-import { subscribe } from '../../subscribe';
 
 export const KubernetesGameServer = {
   delete: async (gameServer: GameServerDocument) => {
@@ -53,21 +51,6 @@ export const KubernetesGameServer = {
   },
   getName: (gameServer: GameServerDocument) => {
     return `game-server-${gameServer._id}`;
-  },
-  subscribe: () => {
-    return subscribe<GameServerDocument>(GameServer, 'game-server', async payload => {
-      if (payload.operationType === 'delete') {
-        console.log(`Deleting Game Server: ${payload.fullDocument._id}.`);
-        await KubernetesGameServer.delete(payload.fullDocument);
-      } else if (
-        payload.operationType === 'insert' ||
-        GameServer.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
-      ) {
-        console.log(`Upserting Game Server: ${payload.fullDocument._id}.`);
-        await KubernetesGameServer.delete(payload.fullDocument);
-        await KubernetesGameServer.upsert(payload.fullDocument);
-      }
-    });
   },
   upsert: async (gameServer: GameServerDocument) => {
     const labels = KubernetesGameServer.getLabels(gameServer);

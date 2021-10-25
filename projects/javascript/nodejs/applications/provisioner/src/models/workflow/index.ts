@@ -1,12 +1,10 @@
 import { networkPolicyApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
 import {
-  Workflow,
   WorkflowDocument,
   WorkflowSpecTemplate,
   WorkflowSpecTemplateSchema,
 } from '@tenlastic/mongoose-models';
 
-import { subscribe } from '../../subscribe';
 import { KubernetesNamespace } from '../namespace';
 
 export const KubernetesWorkflow = {
@@ -37,17 +35,6 @@ export const KubernetesWorkflow = {
   },
   getName: (workflow: WorkflowDocument) => {
     return `workflow-${workflow._id}`;
-  },
-  subscribe: () => {
-    return subscribe<WorkflowDocument>(Workflow, 'workflow', async payload => {
-      if (payload.operationType === 'delete') {
-        console.log(`Deleting Workflow: ${payload.fullDocument._id}.`);
-        await KubernetesWorkflow.delete(payload.fullDocument);
-      } else if (payload.operationType === 'insert') {
-        console.log(`Creating Workflow: ${payload.fullDocument._id}.`);
-        await KubernetesWorkflow.upsert(payload.fullDocument);
-      }
-    });
   },
   upsert: async (workflow: WorkflowDocument) => {
     const labels = KubernetesWorkflow.getLabels(workflow);

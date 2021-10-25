@@ -5,19 +5,7 @@ import nats from '@tenlastic/nats';
 import * as rabbitmq from '@tenlastic/rabbitmq';
 import { WebServer } from '@tenlastic/web-server';
 
-import {
-  KubernetesBuild,
-  KubernetesBuildSidecar,
-  KubernetesDatabase,
-  KubernetesDatabaseSidecar,
-  KubernetesGameServer,
-  KubernetesGameServerSidecar,
-  KubernetesNamespace,
-  KubernetesQueue,
-  KubernetesQueueSidecar,
-  KubernetesWorkflow,
-  KubernetesWorkflowSidecar,
-} from './models';
+import * as events from './events';
 
 (async () => {
   try {
@@ -28,17 +16,12 @@ import {
     await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 
     // Subscribe to NATS events.
-    KubernetesBuild.subscribe();
-    KubernetesBuildSidecar.subscribe();
-    KubernetesDatabase.subscribe();
-    KubernetesDatabaseSidecar.subscribe();
-    KubernetesGameServer.subscribe();
-    KubernetesGameServerSidecar.subscribe();
-    KubernetesNamespace.subscribe();
-    KubernetesQueue.subscribe();
-    KubernetesQueueSidecar.subscribe();
-    KubernetesWorkflow.subscribe();
-    KubernetesWorkflowSidecar.subscribe();
+    events.builds();
+    events.databases();
+    events.gameServers();
+    events.namespaces();
+    events.queues();
+    events.workflows();
 
     // Web Server.
     const webServer = new WebServer();
