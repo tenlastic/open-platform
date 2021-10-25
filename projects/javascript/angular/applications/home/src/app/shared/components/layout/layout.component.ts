@@ -9,6 +9,7 @@ import {
   IdentityService,
   SocketService,
   UpdateStatus,
+  VersionService,
 } from '../../../core/services';
 import { PromptComponent } from '../prompt/prompt.component';
 
@@ -33,6 +34,7 @@ export class LayoutComponent implements OnInit {
     private matDialog: MatDialog,
     private namespaceService: NamespaceService,
     private socketService: SocketService,
+    public versionService: VersionService,
   ) {}
 
   public async ngOnInit() {

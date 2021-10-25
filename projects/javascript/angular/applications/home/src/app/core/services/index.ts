@@ -6,3 +6,4 @@ export * from './identity/identity.service';
 export * from './selected-namespace/selected-namespace.service';
 export * from './socket/socket.service';
 export * from './update/update.service';
+export * from './version/version.service';

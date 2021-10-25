@@ -1,4 +1,9 @@
 <mat-toolbar>
+  <app-button color="accent"
+              style="display: none">
+    <span>{{ versionService.version }}</span>
+  </app-button>
+
   <span class="space"></span>
 
   <ng-container *ngIf="identityService.user">

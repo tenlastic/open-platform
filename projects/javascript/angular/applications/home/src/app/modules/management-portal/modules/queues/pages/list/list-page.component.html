@@ -78,9 +78,9 @@
         </app-button>
 
         <app-button color="accent"
-                    [matTooltip]="version === element.status?.version ? 'Restart' : 'Restart and Update'"
+                    [matTooltip]="versionService.version === element.status?.version ? 'Restart' : 'Restart and Update'"
                     (click)="restart(element)">
-          <mat-icon>{{ version === element.status?.version ? 'sync' : 'sync_problem' }}</mat-icon>
+          <mat-icon>{{ versionService.version === element.status?.version ? 'sync' : 'sync_problem' }}</mat-icon>
         </app-button>
 
         <app-button color="accent"
