@@ -16,7 +16,6 @@ export function databases() {
       Database.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
     ) {
       console.log(`Upserting Database: ${payload.fullDocument._id}.`);
-      await KubernetesDatabase.delete(payload.fullDocument);
       await KubernetesDatabase.upsert(payload.fullDocument);
 
       console.log(`Upserting Database Sidecar: ${payload.fullDocument._id}.`);

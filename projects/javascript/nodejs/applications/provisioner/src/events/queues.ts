@@ -16,7 +16,6 @@ export function queues() {
       Queue.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
     ) {
       console.log(`Upserting Queue: ${payload.fullDocument._id}.`);
-      await KubernetesQueue.delete(payload.fullDocument);
       await KubernetesQueue.upsert(payload.fullDocument);
 
       console.log(`Upserting Queue Sidecar: ${payload.fullDocument._id}.`);

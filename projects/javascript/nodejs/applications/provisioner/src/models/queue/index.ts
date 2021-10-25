@@ -87,18 +87,20 @@ export const KubernetesQueue = {
      * REDIS
      * ========================
      */
-    const password = chance.hash({ length: 128 });
     const resources = {
       limits: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },
       requests: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },
     };
-    await secretApiV1.createOrReplace('dynamic', {
+
+    const redisSecret = await secretApiV1.createOrRead('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'redis' },
         name: `${name}-redis`,
       },
-      stringData: { password },
+      stringData: { password: chance.hash({ length: 128 }) },
     });
+    const redisPassword = Buffer.from(redisSecret.body.data.password, 'base64');
+
     await helmReleaseApiV1.delete(`${name}-redis`, 'dynamic');
     await helmReleaseApiV1.create('dynamic', {
       metadata: {
@@ -161,7 +163,7 @@ export const KubernetesQueue = {
         ACCESS_TOKEN: queue.buildId ? undefined : accessToken,
         API_URL: 'http://api.static:3000',
         QUEUE_JSON: JSON.stringify(queue),
-        REDIS_SENTINEL_PASSWORD: password,
+        REDIS_SENTINEL_PASSWORD: `${redisPassword}`,
         SENTINELS: sentinels.join(','),
         WSS_URL: 'ws://wss.static:3000',
       },

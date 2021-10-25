@@ -153,6 +153,7 @@ export const KubernetesGameServer = {
     };
 
     if (gameServer.persistent) {
+      await deploymentApiV1.delete(name, 'dynamic');
       await deploymentApiV1.createOrReplace('dynamic', {
         metadata: {
           labels: { ...labels, 'tenlastic.com/role': 'application' },
@@ -165,6 +166,7 @@ export const KubernetesGameServer = {
         },
       });
     } else {
+      await podApiV1.delete(name, 'dynamic');
       await podApiV1.createOrReplace('dynamic', manifest);
     }
 

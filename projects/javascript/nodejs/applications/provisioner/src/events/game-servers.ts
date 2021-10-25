@@ -16,7 +16,6 @@ export function gameServers() {
       GameServer.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
     ) {
       console.log(`Upserting Game Server: ${payload.fullDocument._id}.`);
-      await KubernetesGameServer.delete(payload.fullDocument);
       await KubernetesGameServer.upsert(payload.fullDocument);
 
       console.log(`Upserting Game Server Sidecar: ${payload.fullDocument._id}.`);

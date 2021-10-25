@@ -34,7 +34,9 @@ export const KubernetesGameServerSidecar = {
      * SECRET
      * ======================
      */
-    const accessToken = Namespace.getAccessToken(gameServer.namespaceId, [NamespaceRole.Games]);
+    const accessToken = Namespace.getAccessToken(gameServer.namespaceId, [
+      NamespaceRole.GameServers,
+    ]);
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },
