@@ -74,7 +74,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
 
   public async restart(record: Queue) {
     await this.queueService.update({ _id: record._id, restartedAt: new Date() });
-    this.matSnackBar.open('Game Server is restarting...');
+    this.matSnackBar.open('Queue is restarting...');
   }
 
   public showDeletePrompt(record: Queue) {
