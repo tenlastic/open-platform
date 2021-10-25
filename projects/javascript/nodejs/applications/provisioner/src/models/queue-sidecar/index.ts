@@ -33,7 +33,10 @@ export const KubernetesQueueSidecar = {
       if (payload.operationType === 'delete') {
         console.log(`Deleting Queue Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesQueueSidecar.delete(payload.fullDocument);
-      } else {
+      } else if (
+        payload.operationType === 'insert' ||
+        Queue.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
+      ) {
         console.log(`Upserting Queue Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesQueueSidecar.upsert(payload.fullDocument);
       }

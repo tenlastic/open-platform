@@ -57,6 +57,7 @@ export class Database extends Model {
   public name: string;
   public namespaceId: string;
   public replicas: number;
+  public restartedAt: Date;
   public status: IDatabase.Status;
   public storage: number;
   public updatedAt: Date;
@@ -68,7 +69,7 @@ export class Database extends Model {
   }
 
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['cpu', 'memory', 'preemptible', 'replicas', 'storage'];
+    const immutableFields = ['cpu', 'memory', 'preemptible', 'replicas', 'restartedAt', 'storage'];
     return immutableFields.some(i => fields.includes(i));
   }
 }

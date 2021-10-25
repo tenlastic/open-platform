@@ -61,22 +61,22 @@
           *matCellDef="let element">
         <app-button *ngIf="element.status !== GameAuthorizationStatus.Granted"
                     color="accent"
+                    matTooltip="Grant"
                     (OnClick)="grant(element)">
           <mat-icon>thumb_up</mat-icon>
-          <span>Grant</span>
         </app-button>
 
         <app-button *ngIf="element.status !== GameAuthorizationStatus.Revoked"
                     color="accent"
+                    matTooltip="Revoke"
                     (OnClick)="revoke(element)">
           <mat-icon>thumb_down</mat-icon>
-          <span>Revoke</span>
         </app-button>
 
         <app-button color="accent"
+                    matTooltip="Delete"
                     (OnClick)="showDeletePrompt(element)">
           <mat-icon>delete</mat-icon>
-          <span>Delete</span>
         </app-button>
       </td>
     </ng-container>

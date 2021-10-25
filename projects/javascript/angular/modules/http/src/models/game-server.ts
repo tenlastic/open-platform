@@ -64,7 +64,7 @@ export class GameServer extends Model {
   }
 
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible'];
+    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible', 'restartedAt'];
 
     return immutableFields.some(i => fields.includes(i));
   }

@@ -60,6 +60,7 @@ export class Queue extends Model {
   public namespaceId: string;
   public preemptible: boolean;
   public replicas: number;
+  public restartedAt: Date;
   public status: IQueue.Status;
   public teams: number;
   public updatedAt: Date;
@@ -80,6 +81,7 @@ export class Queue extends Model {
       'memory',
       'preemptible',
       'replicas',
+      'restartedAt',
       'teams',
       'usersPerTeam',
     ];

@@ -74,6 +74,7 @@ export const KubernetesQueue = {
         Queue.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
       ) {
         console.log(`Upserting Queue: ${payload.fullDocument._id}.`);
+        await KubernetesQueue.delete(payload.fullDocument);
         await KubernetesQueue.upsert(payload.fullDocument);
       }
     });

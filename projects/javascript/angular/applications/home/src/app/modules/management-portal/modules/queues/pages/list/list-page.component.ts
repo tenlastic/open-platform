@@ -70,6 +70,11 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     return `${record.status.phase} (${current} / ${total})`;
   }
 
+  public async restart(record: Queue) {
+    await this.queueService.update({ _id: record._id, restartedAt: new Date() });
+    this.matSnackBar.open('Game Server is restarting...');
+  }
+
   public showDeletePrompt(record: Queue) {
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {

@@ -108,6 +108,9 @@ export class QueueSchema {
   @prop({ min: 0, required: true })
   public replicas: number;
 
+  @prop()
+  public restartedAt: Date;
+
   @prop({ default: { phase: 'Pending' } })
   public status: QueueStatusSchema;
 
@@ -199,6 +202,7 @@ export class QueueSchema {
       'memory',
       'preemptible',
       'replicas',
+      'restartedAt',
       'teams',
       'usersPerTeam',
     ];

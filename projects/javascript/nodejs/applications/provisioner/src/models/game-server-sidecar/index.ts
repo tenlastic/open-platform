@@ -38,7 +38,10 @@ export const KubernetesGameServerSidecar = {
       if (payload.operationType === 'delete') {
         console.log(`Deleting Game Server Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesGameServerSidecar.delete(payload.fullDocument);
-      } else {
+      } else if (
+        payload.operationType === 'insert' ||
+        GameServer.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
+      ) {
         console.log(`Upserting Game Server Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesGameServerSidecar.upsert(payload.fullDocument);
       }

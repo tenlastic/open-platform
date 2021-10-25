@@ -85,28 +85,28 @@
           *matCellDef="let element">
         <app-button *ngIf="element.publishedAt"
                     color="accent"
+                    matTooltip="Unpublish"
                     (OnClick)="unpublish(element)">
           <mat-icon>visibility_off</mat-icon>
-          <span>Unpublish</span>
         </app-button>
 
         <app-button *ngIf="!element.publishedAt && element.status?.phase === 'Succeeded'"
                     color="accent"
+                    matTooltip="Publish"
                     (OnClick)="publish(element)">
           <mat-icon>visibility</mat-icon>
-          <span>Publish</span>
         </app-button>
 
         <app-button color="accent"
+                    matTooltip="Edit"
                     [routerLink]="[element._id]">
           <mat-icon>create</mat-icon>
-          <span>Edit</span>
         </app-button>
 
         <app-button color="accent"
+                    matTooltip="Delete"
                     (OnClick)="showDeletePrompt(element)">
           <mat-icon>delete</mat-icon>
-          <span>Delete</span>
         </app-button>
       </td>
     </ng-container>

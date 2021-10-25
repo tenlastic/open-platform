@@ -45,27 +45,33 @@
           *matCellDef="let element">
         <app-button *ngIf="element.status?.phase === 'Running'"
                     color="accent"
+                    matTooltip="Collections"
                     [routerLink]="[element._id, 'collections']">
           <mat-icon>category</mat-icon>
-          <span>Collections</span>
         </app-button>
 
         <app-button color="accent"
+                    matTooltip="Logs"
                     (OnClick)="showLogsDialog(element)">
           <mat-icon>subject</mat-icon>
-          <span>Logs</span>
         </app-button>
 
         <app-button color="accent"
+                    matTooltip="Restart"
+                    (click)="restart(element)">
+          <mat-icon>refresh</mat-icon>
+        </app-button>
+
+        <app-button color="accent"
+                    matTooltip="Edit"
                     [routerLink]="[element._id]">
           <mat-icon>create</mat-icon>
-          <span>Edit</span>
         </app-button>
 
         <app-button color="accent"
+                    matTooltip="Delete"
                     (OnClick)="showDeletePrompt(element)">
           <mat-icon>delete</mat-icon>
-          <span>Delete</span>
         </app-button>
       </td>
     </ng-container>

@@ -99,6 +99,7 @@ export const KubernetesDatabase = {
         Database.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
       ) {
         console.log(`Upserting Database: ${payload.fullDocument._id}.`);
+        await KubernetesDatabase.delete(payload.fullDocument);
         await KubernetesDatabase.upsert(payload.fullDocument);
       }
     });

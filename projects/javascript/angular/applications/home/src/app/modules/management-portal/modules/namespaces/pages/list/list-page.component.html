@@ -53,21 +53,21 @@
           *matCellDef="let element">
         <app-button *ngIf="selectedNamespaceService.namespaceId !== element._id"
                     color="accent"
+                    matTooltip="Select"
                     (OnClick)="select(element)">
           <mat-icon>check</mat-icon>
-          <span>Select</span>
         </app-button>
 
         <app-button color="accent"
+                    matTooltip="Edit"
                     [routerLink]="[element._id]">
           <mat-icon>create</mat-icon>
-          <span>Edit</span>
         </app-button>
 
         <app-button color="accent"
+                    matTooltip="Delete"
                     (OnClick)="showDeletePrompt(element)">
           <mat-icon>delete</mat-icon>
-          <span>Delete</span>
         </app-button>
       </td>
     </ng-container>

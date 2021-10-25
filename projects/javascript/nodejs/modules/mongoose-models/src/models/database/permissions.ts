@@ -5,7 +5,17 @@ import { UserPermissionsHelpers, UserRole } from '../user';
 import { Database, DatabaseDocument } from './model';
 
 const administrator = {
-  create: ['cpu', 'gameId', 'memory', 'name', 'namespaceId', 'preemptible', 'replicas', 'storage'],
+  create: [
+    'cpu',
+    'gameId',
+    'memory',
+    'name',
+    'namespaceId',
+    'preemptible',
+    'replicas',
+    'restartedAt',
+    'storage',
+  ],
   read: [
     '_id',
     'cpu',
@@ -17,11 +27,12 @@ const administrator = {
     'namespaceId',
     'preemptible',
     'replicas',
+    'restartedAt',
     'status.*',
     'storage',
     'updatedAt',
   ],
-  update: ['cpu', 'gameId', 'memory', 'name', 'preemptible', 'replicas', 'storage'],
+  update: ['cpu', 'gameId', 'memory', 'name', 'preemptible', 'replicas', 'restartedAt', 'storage'],
 };
 
 export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Database, {
@@ -85,6 +96,7 @@ export const DatabasePermissions = new MongoosePermissions<DatabaseDocument>(Dat
       'name',
       'preemptible',
       'replicas',
+      'restartedAt',
       'status.*',
       'storage',
     ],

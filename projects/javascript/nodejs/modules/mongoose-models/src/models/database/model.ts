@@ -103,6 +103,9 @@ export class DatabaseSchema {
   @prop({ min: 0, required: true })
   public replicas: number;
 
+  @prop()
+  public restartedAt: Date;
+
   @prop({ default: { phase: 'Pending' } })
   public status: DatabaseStatusSchema;
 
@@ -189,7 +192,7 @@ export class DatabaseSchema {
    * Returns true if a restart is required on an update.
    */
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['cpu', 'memory', 'preemptible', 'replicas', 'storage'];
+    const immutableFields = ['cpu', 'memory', 'preemptible', 'replicas', 'restartedAt', 'storage'];
     return immutableFields.some(i => fields.includes(i));
   }
 }

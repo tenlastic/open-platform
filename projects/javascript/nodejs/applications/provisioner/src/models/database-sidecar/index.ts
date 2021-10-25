@@ -40,8 +40,11 @@ export const KubernetesDatabaseSidecar = {
       if (payload.operationType === 'delete') {
         console.log(`Deleting Database Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesDatabaseSidecar.delete(payload.fullDocument);
-      } else if (payload.operationType === 'insert') {
-        console.log(`Creating Database Sidecar: ${payload.fullDocument._id}.`);
+      } else if (
+        payload.operationType === 'insert' ||
+        Database.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
+      ) {
+        console.log(`Upserting Database Sidecar: ${payload.fullDocument._id}.`);
         await KubernetesDatabaseSidecar.upsert(payload.fullDocument);
       }
     });

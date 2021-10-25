@@ -70,6 +70,11 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
     return `${record.status.phase} (${current} / ${total})`;
   }
 
+  public async restart(record: Database) {
+    await this.databaseService.update({ _id: record._id, restartedAt: new Date() });
+    this.matSnackBar.open('Game Server is restarting...');
+  }
+
   public showDeletePrompt(record: Database) {
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
