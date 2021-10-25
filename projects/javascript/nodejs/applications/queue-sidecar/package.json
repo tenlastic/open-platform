@@ -5,16 +5,16 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/queue-sidecar",
   "private": true,
-  "version": "0.0.259",
+  "version": "0.0.260",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/http": "0.0.259",
-    "@tenlastic/kubernetes": "0.0.259",
-    "@tenlastic/web-server": "0.0.259",
+    "@tenlastic/http": "0.0.260",
+    "@tenlastic/kubernetes": "0.0.260",
+    "@tenlastic/web-server": "0.0.260",
     "request": "2.88.0",
     "request-promise-native": "1.0.7"
   },
