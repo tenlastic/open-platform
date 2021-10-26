@@ -54,7 +54,12 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
       $or: [
         { keys: { $elemMatch: { roles: NamespaceRole.Namespaces, value: { $ref: 'key' } } } },
         { users: { $elemMatch: { _id: { $ref: 'user._id' }, roles: NamespaceRole.Namespaces } } },
-        NamespacePermissionsHelpers.getNamespaceUserFindQuery(NamespaceRole.Databases),
+        {
+          $and: [
+            { _id: { $exists: { $ref: { 'user.roles': NamespaceRole.Namespaces } } } },
+            { _id: { $ref: 'user.namespaceId' } },
+          ],
+        },
       ],
     },
     'user-administrator': {},
@@ -92,7 +97,10 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
   roles: [
     {
       name: 'system-administrator',
-      query: NamespacePermissionsHelpers.getNamespaceUserRoleQuery(NamespaceRole.Namespaces),
+      query: NamespacePermissionsHelpers.getNamespaceUserRoleQuery(
+        NamespaceRole.Namespaces,
+        'record._id',
+      ),
     },
     {
       name: 'user-administrator',
