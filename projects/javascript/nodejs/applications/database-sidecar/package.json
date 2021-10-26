@@ -5,17 +5,17 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/database-sidecar",
   "private": true,
-  "version": "0.0.261",
+  "version": "0.0.262",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/http": "0.0.261",
-    "@tenlastic/kubernetes": "0.0.261",
-    "@tenlastic/mongoose-models": "0.0.261",
-    "@tenlastic/web-server": "0.0.261",
+    "@tenlastic/http": "0.0.262",
+    "@tenlastic/kubernetes": "0.0.262",
+    "@tenlastic/mongoose-models": "0.0.262",
+    "@tenlastic/web-server": "0.0.262",
     "request": "2.88.0",
     "request-promise-native": "1.0.7"
   },
