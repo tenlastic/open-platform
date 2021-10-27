@@ -2,23 +2,23 @@ import { expect } from 'chai';
 
 import { toMongo } from '../to-mongo';
 
-describe('toMongo()', function() {
-  context('when the schema is invalid', function() {
-    it('throws an error', function() {
+describe('toMongo()', function () {
+  context('when the schema is invalid', function () {
+    it('throws an error', function () {
       const input = { type: 'objectttt' };
       const func = () => toMongo(input);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
 
-    it('throws an error', function() {
+    it('throws an error', function () {
       const input = { type: 'object', properties: 'not an object' };
       const func = () => toMongo(input);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
 
-    it('throws an error', function() {
+    it('throws an error', function () {
       const input = {
         properties: { email: { type: 'not a type' } },
         type: 'object',
@@ -29,8 +29,8 @@ describe('toMongo()', function() {
     });
   });
 
-  context('when the schema is valid', function() {
-    it('converts the schema to mongoose', function() {
+  context('when the schema is valid', function () {
+    it('converts the schema to mongoose', function () {
       const json = {
         properties: {
           address: {
@@ -58,29 +58,29 @@ describe('toMongo()', function() {
       const result = toMongo(json);
 
       expect(result).to.eql({
-        bsonType: 'object',
+        bsonType: ['null', 'object'],
         properties: {
           address: {
-            bsonType: 'object',
+            bsonType: ['null', 'object'],
             properties: {
-              builtAt: { bsonType: 'date' },
-              street: { bsonType: ['double', 'int'], minimum: 0, maximum: 50 },
+              builtAt: { bsonType: ['date', 'null'] },
+              street: { bsonType: ['double', 'int', 'null'], minimum: 0, maximum: 50 },
             },
             required: ['builtAt'],
           },
-          anyValue: { bsonType: 'object' },
+          anyValue: { bsonType: ['null', 'object'] },
           arr: {
-            bsonType: 'array',
+            bsonType: ['array', 'null'],
             items: {
-              bsonType: 'object',
+              bsonType: ['null', 'object'],
               properties: {
-                num: { bsonType: ['double', 'int'] },
-                str: { bsonType: 'string' },
+                num: { bsonType: ['double', 'int', 'null'] },
+                str: { bsonType: ['null', 'string'] },
               },
             },
           },
-          id: { bsonType: 'string', pattern: /^\d{3}$/ },
-          name: { bsonType: 'object' },
+          id: { bsonType: ['null', 'string'], pattern: /^\d{3}$/ },
+          name: { bsonType: ['null', 'object'] },
         },
       });
     });

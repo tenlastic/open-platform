@@ -23,7 +23,7 @@ export function toMongo(jsonSchema: any) {
   const typeIsDefined = 'type' in jsonSchema;
 
   if (typeIsDate) {
-    return { bsonType: 'date' };
+    return { bsonType: ['date', 'null'] };
   } else if (jsonSchema.type in typeToMongoose) {
     return Object.entries(jsonSchema).reduce(toMongoParams, {});
   } else if (jsonSchema.type === 'object') {
@@ -31,7 +31,7 @@ export function toMongo(jsonSchema: any) {
   } else if (jsonSchema.type === 'array') {
     return getArrayType(jsonSchema);
   } else if (!typeIsDefined) {
-    return { bsonType: 'object' };
+    return { bsonType: ['null', 'object'] };
   }
 
   throw new Error(`Unsupported JSON schema type: ${jsonSchema.type}.`);
@@ -39,15 +39,15 @@ export function toMongo(jsonSchema: any) {
 
 function getArrayType(jsonSchema: any) {
   if (jsonSchema.items && Object.keys(jsonSchema.items).length > 0) {
-    return { bsonType: 'array', items: toMongo(jsonSchema.items) };
+    return { bsonType: ['array', 'null'], items: toMongo(jsonSchema.items) };
   }
 
-  return { bsonType: 'array', items: { bsonType: 'object' } };
+  return { bsonType: ['array', 'null'], items: { bsonType: ['null', 'object'] } };
 }
 
 function getObjectType(jsonSchema: any) {
   if (!jsonSchema.properties || Object.keys(jsonSchema.properties).length === 0) {
-    return { bsonType: 'object' };
+    return { bsonType: ['null', 'object'] };
   }
 
   const properties = Object.entries(jsonSchema.properties).reduce((previousValue, [key, value]) => {
@@ -55,7 +55,7 @@ function getObjectType(jsonSchema: any) {
     return previousValue;
   }, {});
 
-  const converted: any = { bsonType: 'object', properties };
+  const converted: any = { bsonType: ['null', 'object'], properties };
 
   if ('additionalProperties' in jsonSchema) {
     converted.additionalProperties = jsonSchema.additionalProperties;
