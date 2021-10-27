@@ -3,6 +3,24 @@ kind: Workflow
 metadata:
   generateName: continuous-integration-
 spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: tenlastic.com/low-priority
+                operator: Exists
+    podAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: workflows.argoproj.io/workflow
+                  operator: In
+                  values:
+                    - "{{workflow.name}}"
+            topologyKey: kubernetes.io/hostname
   arguments:
     parameters:
       - name: repo
