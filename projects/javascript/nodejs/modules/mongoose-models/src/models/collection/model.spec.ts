@@ -8,18 +8,18 @@ import { CollectionMock } from './model.mock';
 
 use(chaiAsPromised);
 
-describe('models/collection/model', function() {
+describe('models/collection/model', function () {
   let sandbox: sinon.SinonSandbox;
 
-  beforeEach(function() {
+  beforeEach(function () {
     sandbox = sinon.createSandbox();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     sandbox.restore();
   });
 
-  describe(`pre('save')`, function() {
+  describe(`pre('save')`, function () {
     it('creates an index on the collection within MongoDB', async () => {
       const index = await CollectionIndexMock.new({
         _id: mongoose.Types.ObjectId(),
@@ -35,7 +35,7 @@ describe('models/collection/model', function() {
       expect(indexes[1].unique).to.eql(true);
     });
 
-    it('deletes the index on the collection within MongoDB', async function() {
+    it('deletes the index on the collection within MongoDB', async function () {
       const index = await CollectionIndexMock.new({
         _id: mongoose.Types.ObjectId(),
         key: { properties: 1 },
@@ -53,8 +53,8 @@ describe('models/collection/model', function() {
     });
   });
 
-  describe('jsonSchema', function() {
-    it('does not return an error', async function() {
+  describe('jsonSchema', function () {
+    it('does not return an error', async function () {
       const record = await CollectionMock.create({
         jsonSchema: {
           additionalProperties: false,
@@ -69,7 +69,7 @@ describe('models/collection/model', function() {
       expect(record).to.exist;
     });
 
-    it('returns an error', function() {
+    it('returns an error', function () {
       const promise = CollectionMock.create({
         jsonSchema: '{a:123}',
       });
@@ -78,8 +78,8 @@ describe('models/collection/model', function() {
     });
   });
 
-  describe('setValidator()', function() {
-    it('sets the validator on the collection within MongoDB', async function() {
+  describe('setValidator()', function () {
+    it('sets the validator on the collection within MongoDB', async function () {
       const collection = await CollectionMock.create({
         jsonSchema: {
           additionalProperties: false,
@@ -98,7 +98,7 @@ describe('models/collection/model', function() {
         .toArray();
       const { $jsonSchema } = collections[0].options.validator;
       const { properties } = $jsonSchema.properties;
-      expect(properties.properties.name.bsonType).to.eql('string');
+      expect(properties.properties.name.bsonType).to.eql(['null', 'string']);
     });
   });
 });
