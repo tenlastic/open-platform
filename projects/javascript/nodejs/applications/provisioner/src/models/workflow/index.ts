@@ -80,8 +80,27 @@ export const KubernetesWorkflow = {
           ],
         },
       },
+      podAffinity: {
+        preferredDuringSchedulingIgnoredDuringExecution: [
+          {
+            podAffinityTerm: {
+              labelSelector: {
+                matchExpressions: [
+                  {
+                    key: 'workflows.argoproj.io/workflow',
+                    operator: 'In',
+                    values: ['{{workflow.name}}'],
+                  },
+                ],
+              },
+              topologyKey: 'kubernetes.io/hostname',
+            },
+            weight: 1,
+          },
+        ],
+      },
     };
-    const templates = workflow.spec.templates.map(t => getTemplateManifest(t, workflow));
+    const templates = workflow.spec.templates.map((t) => getTemplateManifest(t, workflow));
     await workflowApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: {
@@ -145,7 +164,7 @@ function getTemplateManifest(template: WorkflowSpecTemplateSchema, workflow: Wor
   t.script.volumeMounts = [{ mountPath: '/workspace/', name: 'workspace' }];
 
   if (t.sidecars) {
-    t.sidecars = t.sidecars.map(s => {
+    t.sidecars = t.sidecars.map((s) => {
       s.resources = { limits: resources, requests: resources };
       return s;
     });
