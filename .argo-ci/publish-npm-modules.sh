@@ -15,10 +15,6 @@ git config --global gc.auto 0 || true
 git config user.email $GITHUB_USER_EMAIL
 git config user.name $GITHUB_USER_NAME
 
-# Reset Git changes.
-git clean -df
-git reset --hard
-
 # Publish Node Modules to NPM.
 echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
 npm config set unsafe-perm true
