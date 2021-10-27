@@ -16,8 +16,8 @@ git config user.email $GITHUB_USER_EMAIL
 git config user.name $GITHUB_USER_NAME
 
 # Reset Git changes.
-git checkout -f
 git clean -df
+git reset --hard
 
 # Publish Node Modules to NPM.
 echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
