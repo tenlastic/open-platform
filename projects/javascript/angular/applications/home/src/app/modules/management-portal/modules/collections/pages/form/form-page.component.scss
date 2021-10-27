@@ -7,13 +7,4 @@ app-role-field {
 
 div.col-sm-6 {
   padding: 0px;
-
-  &:nth-child(2) {
-    text-align: right;
-
-    app-button {
-      margin-left: 8px;
-      margin-right: 0px;
-    }
-  }
 }

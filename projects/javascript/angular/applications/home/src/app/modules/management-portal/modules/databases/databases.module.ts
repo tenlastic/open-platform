@@ -3,19 +3,28 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../../../shared/shared.module';
 
-import { DatabasesFormPageComponent, DatabasesListPageComponent } from './pages';
+import {
+  DatabasesFormPageComponent,
+  DatabasesJsonPageComponent,
+  DatabasesListPageComponent,
+} from './pages';
 
 export const ROUTES: Routes = [
   { path: '', component: DatabasesListPageComponent },
   { path: ':_id', component: DatabasesFormPageComponent },
   {
     path: ':databaseId/collections',
-    loadChildren: () => import('../collections/collections.module').then(m => m.CollectionModule),
+    loadChildren: () => import('../collections/collections.module').then((m) => m.CollectionModule),
   },
+  { path: ':_id/json', component: DatabasesJsonPageComponent },
 ];
 
 @NgModule({
-  declarations: [DatabasesFormPageComponent, DatabasesListPageComponent],
+  declarations: [
+    DatabasesFormPageComponent,
+    DatabasesJsonPageComponent,
+    DatabasesListPageComponent,
+  ],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })
 export class DatabaseModule {}

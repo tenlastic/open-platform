@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,16 +11,14 @@ import {
   RecordService,
 } from '@tenlastic/ng-http';
 
-import { environment } from '../../../../../../../environments/environment';
 import { BreadcrumbsComponentBreadcrumb } from '../../../../../../shared/components';
 import { CamelCaseToTitleCasePipe } from '../../../../../../shared/pipes';
-import { Socket, SocketService } from '../../../../../../core/services';
 
 @Component({
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
-export class RecordsFormPageComponent implements OnDestroy, OnInit {
+export class RecordsFormPageComponent implements OnInit {
   public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public collection: Collection;
   public data: Record;
@@ -29,7 +27,6 @@ export class RecordsFormPageComponent implements OnDestroy, OnInit {
 
   private collectionId: string;
   private databaseId: string;
-  private socket: Socket;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -39,11 +36,10 @@ export class RecordsFormPageComponent implements OnDestroy, OnInit {
     private matSnackBar: MatSnackBar,
     private recordService: RecordService,
     private router: Router,
-    private socketService: SocketService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
       const _id = params.get('_id');
       this.collectionId = params.get('collectionId');
       this.databaseId = params.get('databaseId');
@@ -59,25 +55,12 @@ export class RecordsFormPageComponent implements OnDestroy, OnInit {
         { label: _id === 'new' ? 'Create Record' : 'Edit Record' },
       ];
 
-      const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
-      this.socket = await this.socketService.connect(url);
-      this.socket.addEventListener('open', () => {
-        this.socket.subscribe('collections', Collection, this.collectionService);
-        this.socket.subscribe('records', Record, this.recordService, {
-          collectionId: this.collectionId,
-        });
-      });
-
       if (_id !== 'new') {
         this.data = await this.recordService.findOne(this.databaseId, this.collectionId, _id);
       }
 
       this.setupForm();
     });
-  }
-
-  public ngOnDestroy() {
-    this.socket.close();
   }
 
   public addArrayItem(key: string) {
@@ -138,10 +121,10 @@ export class RecordsFormPageComponent implements OnDestroy, OnInit {
   }
 
   private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map(e => {
+    this.errors = err.error.errors.map((e) => {
       if (e.name === 'UniquenessError') {
         const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map(p => pathMap[p]);
+        const paths = e.paths.map((p) => pathMap[p]);
         return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
       } else {
         return e.message;
@@ -194,7 +177,7 @@ export class RecordsFormPageComponent implements OnDestroy, OnInit {
       }, this);
     }
 
-    Object.keys(arrays).forEach(key => (options[key] = arrays[key]));
+    Object.keys(arrays).forEach((key) => (options[key] = arrays[key]));
     this.form = this.formBuilder.group(options);
 
     this.form.valueChanges.subscribe(() => (this.errors = []));

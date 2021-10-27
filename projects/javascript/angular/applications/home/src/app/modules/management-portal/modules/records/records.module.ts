@@ -3,16 +3,20 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../../../shared/shared.module';
 
-import { RecordsFormPageComponent } from './pages/form/form-page.component';
-import { RecordsListPageComponent } from './pages/list/list-page.component';
+import {
+  RecordsFormPageComponent,
+  RecordsJsonPageComponent,
+  RecordsListPageComponent,
+} from './pages';
 
 export const ROUTES: Routes = [
   { path: '', component: RecordsListPageComponent },
   { path: ':_id', component: RecordsFormPageComponent },
+  { path: ':_id/json', component: RecordsJsonPageComponent },
 ];
 
 @NgModule({
-  declarations: [RecordsFormPageComponent, RecordsListPageComponent],
+  declarations: [RecordsFormPageComponent, RecordsJsonPageComponent, RecordsListPageComponent],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })
 export class RecordModule {}

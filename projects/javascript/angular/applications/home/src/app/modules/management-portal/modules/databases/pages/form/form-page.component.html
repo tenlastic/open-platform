@@ -1,6 +1,18 @@
 <div class="page">
   <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
-  <app-title>{{ data && data._id ? 'Edit' : 'Create' }} Database</app-title>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <app-title>{{ data?._id ? 'Edit' : 'Create' }} Database</app-title>
+    </div>
+    <div class="col-sm-6 align-right">
+      <app-button color="accent"
+                  routerLink="./json">
+        <mat-icon>code</mat-icon>
+        <span>{{ data?._id ? 'Edit' : 'Create' }} as JSON</span>
+      </app-button>
+    </div>
+  </div>
 
   <form *ngIf="form"
         [formGroup]="form"

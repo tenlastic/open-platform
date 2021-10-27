@@ -4,7 +4,11 @@ import { Routes, RouterModule } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
 
 import { CriterionFieldComponent, PropertyFieldComponent, RoleFieldComponent } from './components';
-import { CollectionsFormPageComponent, CollectionsListPageComponent } from './pages';
+import {
+  CollectionsFormPageComponent,
+  CollectionsJsonPageComponent,
+  CollectionsListPageComponent,
+} from './pages';
 
 export const ROUTES: Routes = [
   { path: '', component: CollectionsListPageComponent },
@@ -13,6 +17,7 @@ export const ROUTES: Routes = [
     loadChildren: () => import('../records/records.module').then(m => m.RecordModule),
   },
   { path: ':_id', component: CollectionsFormPageComponent },
+  { path: ':_id/json', component: CollectionsJsonPageComponent },
 ];
 
 @NgModule({
@@ -22,6 +27,7 @@ export const ROUTES: Routes = [
     RoleFieldComponent,
 
     CollectionsFormPageComponent,
+    CollectionsJsonPageComponent,
     CollectionsListPageComponent,
   ],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],

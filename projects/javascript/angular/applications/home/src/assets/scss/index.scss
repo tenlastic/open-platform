@@ -34,6 +34,15 @@ body {
   padding: 0px;
 }
 
+div.align-right {
+  text-align: right;
+
+  app-button {
+    margin-left: 8px;
+    margin-right: 0px;
+  }
+}
+
 form {
   div.row {
     margin-left: 0px;
