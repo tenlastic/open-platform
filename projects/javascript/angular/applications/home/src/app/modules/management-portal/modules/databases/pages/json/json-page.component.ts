@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Database, DatabaseService } from '@tenlastic/ng-http';
@@ -10,7 +11,10 @@ import {
   SelectedNamespaceService,
   TextareaService,
 } from '../../../../../../core/services';
-import { BreadcrumbsComponentBreadcrumb } from '../../../../../../shared/components';
+import {
+  BreadcrumbsComponentBreadcrumb,
+  PromptComponent,
+} from '../../../../../../shared/components';
 import { jsonValidator } from '../../../../../../shared/validators';
 
 @Component({
@@ -28,6 +32,7 @@ export class DatabasesJsonPageComponent implements OnInit {
     private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
+    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private router: Router,
     private selectedNamespaceService: SelectedNamespaceService,
@@ -50,6 +55,28 @@ export class DatabasesJsonPageComponent implements OnInit {
 
       this.setupForm();
     });
+  }
+
+  public navigateToForm() {
+    if (this.form.dirty) {
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message: 'Changes will not be saved. Is this OK?',
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result === 'Yes') {
+          this.router.navigate([`../`], { relativeTo: this.activatedRoute });
+        }
+      });
+    } else {
+      this.router.navigate([`../`], { relativeTo: this.activatedRoute });
+    }
   }
 
   public onKeyDown(event: any) {

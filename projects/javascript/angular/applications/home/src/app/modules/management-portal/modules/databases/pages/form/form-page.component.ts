@@ -28,7 +28,7 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
   public get cpus() {
     const limits = this.selectedNamespaceService.namespace.limits.databases;
     const limit = limits.cpu ? limits.cpu : Infinity;
-    return limits.cpu ? IDatabase.Cpu.filter(r => r.value <= limit) : IDatabase.Cpu;
+    return limits.cpu ? IDatabase.Cpu.filter((r) => r.value <= limit) : IDatabase.Cpu;
   }
   public data: Database;
   public errors: string[] = [];
@@ -36,18 +36,20 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
   public get memories() {
     const limits = this.selectedNamespaceService.namespace.limits.databases;
     const limit = limits.memory ? limits.memory : Infinity;
-    return limits.memory ? IDatabase.Memory.filter(r => r.value <= limit) : IDatabase.Memory;
+    return limits.memory ? IDatabase.Memory.filter((r) => r.value <= limit) : IDatabase.Memory;
   }
   public get replicas() {
     const limits = this.selectedNamespaceService.namespace.limits.databases;
     const limit = limits.replicas ? limits.replicas : Infinity;
-    return limits.replicas ? IDatabase.Replicas.filter(r => r.value <= limit) : IDatabase.Replicas;
+    return limits.replicas
+      ? IDatabase.Replicas.filter((r) => r.value <= limit)
+      : IDatabase.Replicas;
   }
   public get storages() {
     const limits = this.selectedNamespaceService.namespace.limits.databases;
     const limit = limits.storage ? limits.storage : Infinity;
     return this.data && this.data.storage
-      ? IDatabase.Storage.filter(r => r.value <= limit && r.value >= this.data.storage)
+      ? IDatabase.Storage.filter((r) => r.value <= limit && r.value >= this.data.storage)
       : IDatabase.Storage;
   }
 
@@ -65,7 +67,7 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
       const _id = params.get('_id');
 
       this.breadcrumbs = [
@@ -83,6 +85,28 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.updateDatabase$.unsubscribe();
+  }
+
+  public navigateToJson() {
+    if (this.form.dirty) {
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message: 'Changes will not be saved. Is this OK?',
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result === 'Yes') {
+          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+        }
+      });
+    } else {
+      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+    }
   }
 
   public async save() {
@@ -133,14 +157,14 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
   }
 
   private getDirtyFields() {
-    return Object.keys(this.form.controls).filter(key => this.form.get(key).dirty);
+    return Object.keys(this.form.controls).filter((key) => this.form.get(key).dirty);
   }
 
   private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map(e => {
+    this.errors = err.error.errors.map((e) => {
       if (e.name === 'UniquenessError') {
         const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map(p => pathMap[p]);
+        const paths = e.paths.map((p) => pathMap[p]);
         return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
       } else {
         return e.message;
@@ -166,8 +190,8 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
 
     if (this.data._id) {
       this.updateDatabase$ = this.databaseQuery
-        .selectAll({ filterBy: q => q._id === this.data._id })
-        .subscribe(databases => (this.data = databases[0]));
+        .selectAll({ filterBy: (q) => q._id === this.data._id })
+        .subscribe((databases) => (this.data = databases[0]));
     }
   }
 

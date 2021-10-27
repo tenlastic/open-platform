@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -11,7 +12,10 @@ import {
   RecordService,
 } from '@tenlastic/ng-http';
 
-import { BreadcrumbsComponentBreadcrumb } from '../../../../../../shared/components';
+import {
+  BreadcrumbsComponentBreadcrumb,
+  PromptComponent,
+} from '../../../../../../shared/components';
 import { CamelCaseToTitleCasePipe } from '../../../../../../shared/pipes';
 
 @Component({
@@ -33,6 +37,7 @@ export class RecordsFormPageComponent implements OnInit {
     private collectionService: CollectionService,
     private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
+    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private recordService: RecordService,
     private router: Router,
@@ -78,6 +83,28 @@ export class RecordsFormPageComponent implements OnInit {
       case 'string':
         formArray.push(this.formBuilder.control(''));
         break;
+    }
+  }
+
+  public navigateToJson() {
+    if (this.form.dirty) {
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message: 'Changes will not be saved. Is this OK?',
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result === 'Yes') {
+          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+        }
+      });
+    } else {
+      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
     }
   }
 
