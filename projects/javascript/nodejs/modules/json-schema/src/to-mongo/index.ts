@@ -9,9 +9,9 @@ const schemaParamsToMongo = {
 };
 
 const typeToMongoose = {
-  boolean: 'bool',
-  number: ['double', 'int'],
-  string: 'string',
+  boolean: ['bool', 'null'],
+  number: ['double', 'int', 'null'],
+  string: ['null', 'string'],
 };
 
 export function toMongo(jsonSchema: any) {
