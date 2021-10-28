@@ -91,9 +91,10 @@ export const KubernetesBuildSidecar = {
       },
     };
     const livenessProbe: V1Probe = {
+      failureThreshold: 3,
       httpGet: { path: `/`, port: 3000 as any },
-      initialDelaySeconds: 30,
-      periodSeconds: 30,
+      initialDelaySeconds: 10,
+      periodSeconds: 10,
     };
     const { version } = require('../../../package.json');
 
@@ -113,7 +114,7 @@ export const KubernetesBuildSidecar = {
               command: ['npm', 'run', 'start'],
               envFrom: [{ secretRef: { name } }],
               image: 'node:14',
-              livenessProbe,
+              livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
               name: 'workflow-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
               volumeMounts: [

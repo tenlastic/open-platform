@@ -75,9 +75,10 @@ export const KubernetesGameServerSidecar = {
       },
     };
     const livenessProbe: V1Probe = {
+      failureThreshold: 3,
       httpGet: { path: `/`, port: 3000 as any },
-      initialDelaySeconds: 30,
-      periodSeconds: 30,
+      initialDelaySeconds: 10,
+      periodSeconds: 10,
     };
 
     // If application is running locally, create debug containers.
@@ -96,7 +97,7 @@ export const KubernetesGameServerSidecar = {
               command: ['npm', 'run', 'start'],
               envFrom: [{ secretRef: { name } }],
               image: 'node:14',
-              livenessProbe,
+              livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
               name: 'game-server-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
               volumeMounts: [

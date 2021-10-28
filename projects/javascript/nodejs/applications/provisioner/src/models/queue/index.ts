@@ -175,10 +175,13 @@ export const KubernetesQueue = {
      * ======================
      */
     const livenessProbe: V1Probe = {
+      failureThreshold: 3,
       httpGet: { path: `/`, port: 3000 as any },
-      initialDelaySeconds: 30,
+      initialDelaySeconds: 10,
+      periodSeconds: 10,
     };
     const readinessProbe: V1Probe = {
+      failureThreshold: 1,
       httpGet: { path: `/`, port: 3000 as any },
       initialDelaySeconds: 5,
       periodSeconds: 5,
@@ -225,7 +228,7 @@ export const KubernetesQueue = {
               env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
               envFrom: [{ secretRef: { name } }],
               image: `node:14`,
-              livenessProbe,
+              livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
               name: 'main',
               readinessProbe,
               resources: { requests: resources.requests },
@@ -315,7 +318,7 @@ async function deletePvcs(labelSelector: string) {
   const response = await persistentVolumeClaimApiV1.list('dynamic', { labelSelector });
   const pvcs = response.body.items;
 
-  const promises = pvcs.map(p => persistentVolumeClaimApiV1.delete(p.metadata.name, 'dynamic'));
+  const promises = pvcs.map((p) => persistentVolumeClaimApiV1.delete(p.metadata.name, 'dynamic'));
   return Promise.all(promises);
 }
 

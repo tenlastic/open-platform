@@ -114,7 +114,7 @@ export const KubernetesDatabase = {
       spec: {
         rules: [
           {
-            host: ingress.body.spec.rules.find(r => r.host.startsWith('api')).host,
+            host: ingress.body.spec.rules.find((r) => r.host.startsWith('api')).host,
             http: {
               paths: [
                 {
@@ -131,7 +131,7 @@ export const KubernetesDatabase = {
             },
           },
         ],
-        tls: ingress.body.spec.tls ? ingress.body.spec.tls.map(t => ({ hosts: t.hosts })) : null,
+        tls: ingress.body.spec.tls ? ingress.body.spec.tls.map((t) => ({ hosts: t.hosts })) : null,
       },
     });
 
@@ -155,7 +155,7 @@ export const KubernetesDatabase = {
     try {
       const promises = array
         .map((a, i) => `datadir-${name}-mongodb-${i}`)
-        .map(a => persistentVolumeClaimApiV1.resize(a, 'dynamic', database.storage));
+        .map((a) => persistentVolumeClaimApiV1.resize(a, 'dynamic', database.storage));
       await Promise.all(promises);
     } catch (e) {}
 
@@ -308,13 +308,16 @@ export const KubernetesDatabase = {
      * ======================
      */
     const livenessProbe: V1Probe = {
+      failureThreshold: 3,
       httpGet: {
         path: `/databases/${database._id}/collections`,
         port: 3000 as any,
       },
-      initialDelaySeconds: 30,
+      initialDelaySeconds: 10,
+      periodSeconds: 10,
     };
     const readinessProbe: V1Probe = {
+      failureThreshold: 1,
       httpGet: {
         path: `/databases/${database._id}/collections`,
         port: 3000 as any,
@@ -347,7 +350,7 @@ export const KubernetesDatabase = {
               ],
               envFrom: [{ secretRef: { name } }],
               image: `node:14`,
-              livenessProbe,
+              livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
               name: 'main',
               ports: [{ containerPort: 3000, protocol: 'TCP' }],
               readinessProbe,
@@ -435,15 +438,15 @@ async function deletePvcs(labelSelector: string, replicas?: number[]) {
   const response = await persistentVolumeClaimApiV1.list('dynamic', { labelSelector });
 
   const promises = response.body.items
-    .filter(p => {
+    .filter((p) => {
       if (!replicas) {
         return true;
       }
 
-      const strings = replicas.map(r => `${r}`);
+      const strings = replicas.map((r) => `${r}`);
       return !strings.includes(p.metadata.name.substr(-1));
     })
-    .map(p => persistentVolumeClaimApiV1.delete(p.metadata.name, 'dynamic'));
+    .map((p) => persistentVolumeClaimApiV1.delete(p.metadata.name, 'dynamic'));
 
   return Promise.all(promises);
 }
@@ -508,10 +511,10 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
   // Get MongoDB pods.
   const labelSelector = `tenlastic.com/app=${name},tenlastic.com/role=mongodb`;
   const pods = await podApiV1.list(namespace, { labelSelector });
-  const primary = pods.body.items.find(p => p.metadata.name === `${name}-mongodb-0`);
+  const primary = pods.body.items.find((p) => p.metadata.name === `${name}-mongodb-0`);
   const secondaries = pods.body.items
-    .filter(i => i.metadata.name !== `${name}-mongodb-0`)
-    .map(i => i.metadata.name)
+    .filter((i) => i.metadata.name !== `${name}-mongodb-0`)
+    .map((i) => i.metadata.name)
     .sort();
 
   // If the primary does not exist, do nothing.
@@ -528,7 +531,7 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
   // Wait for the first pod to become the new primary.
   let { ismaster } = await primaryConnection.db.command({ isMaster: 1 });
   while (!ismaster) {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const isMaster = await primaryConnection.db.command({ isMaster: 1 });
     ismaster = isMaster.ismaster;
@@ -559,7 +562,7 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
 }
 
 function stepDown(name: string, namespace: string, password: string, secondaries: string[]) {
-  const promises = secondaries.map(async secondary => {
+  const promises = secondaries.map(async (secondary) => {
     const secondaryConnection = await connectToMongo(name, namespace, password, secondary);
 
     const { ismaster } = await secondaryConnection.db.command({ isMaster: 1 });
