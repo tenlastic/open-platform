@@ -89,7 +89,7 @@ export const KubernetesDatabaseSidecar = {
             {
               matchExpressions: [
                 {
-                  key: 'tenlastic.com/low-priority',
+                  key: 'tenlastic.com/high-priority',
                   operator: 'Exists',
                 },
               ],

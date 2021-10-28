@@ -21,14 +21,14 @@ export class UniquenessError extends Error {
 
 export function getValidationError(err: MongoError, schema: Schema, doc: any) {
   // Get index name from the MongoError.
-  const indexName = err.message.match(/index: ([A-Za-z0-9\_\.]+) dup key/)[1];
+  const indexName = err.message.match(/index: ([A-Za-z0-9\_\.]+) (collation|dup key)/)[1];
 
   // Get names of unique indexes defined within Mongoose schema.
-  const uniqueIndexes = schema.indexes().filter(i => i[1] && i[1].unique);
+  const uniqueIndexes = schema.indexes().filter((i) => i[1] && i[1].unique);
   const uniqueIndexNames = getIndexNames(uniqueIndexes);
 
   // Find the Mongoose index that matches the MongoError's index name.
-  const index = uniqueIndexNames.findIndex(i => i === indexName);
+  const index = uniqueIndexNames.findIndex((i) => i === indexName);
   const uniqueIndex = uniqueIndexes[index];
 
   // If the index is not defined, return the MongoError.
@@ -51,7 +51,7 @@ export function getValidationError(err: MongoError, schema: Schema, doc: any) {
 }
 
 function getIndexNames(indexes: any[]) {
-  return indexes.map(i => {
+  return indexes.map((i) => {
     const [keys, options] = i;
 
     // Return the index name if explicitly defined.
@@ -59,7 +59,7 @@ function getIndexNames(indexes: any[]) {
       return options.name;
     }
 
-    const names = Object.keys(keys).map(key => `${key}_1`);
+    const names = Object.keys(keys).map((key) => `${key}_1`);
     return names.join('_');
   });
 }

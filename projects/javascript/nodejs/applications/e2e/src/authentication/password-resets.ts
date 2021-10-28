@@ -17,43 +17,49 @@ const oauth2Client = new google.auth.OAuth2(
 oauth2Client.setCredentials({ refresh_token: process.env.E2E_GMAIL_REFRESH_TOKEN });
 google.options({ auth: oauth2Client });
 
-describe('password-resets', function() {
+describe('password-resets', function () {
   let email: string;
   let refreshToken: string;
   let user: UserModel;
   let username: string;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     email = process.env.E2E_EMAIL_ADDRESS;
     username = chance.hash({ length: 20 });
 
     const password = chance.hash();
-    user = await userService.create({ email, password, username });
+
+    try {
+      user = await userService.create({ email, password, username });
+    } catch (e) {
+      const users = await userService.find({ where: { email } });
+      user = users[0];
+    }
 
     const response = await loginService.createWithCredentials(username, password);
     refreshToken = response.refreshToken;
   });
 
-  afterEach(async function() {
+  afterEach(async function () {
     await userService.delete(user._id);
   });
 
-  it('sends a password reset email', async function() {
+  it('sends a password reset email', async function () {
     await passwordResetService.create(email);
 
     const hash = await wait(2.5 * 1000, 30 * 1000, getPasswordResetHash);
     expect(hash).to.match(/[A-Za-z0-9]+/);
   });
 
-  describe('after a password reset email has been received', function() {
+  describe('after a password reset email has been received', function () {
     let hash: string;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       await passwordResetService.create(email);
       hash = await wait(2.5 * 1000, 30 * 1000, getPasswordResetHash);
     });
 
-    it('resets the password', async function() {
+    it('resets the password', async function () {
       const password = chance.hash();
       await passwordResetService.delete(hash, password);
 
@@ -62,7 +68,7 @@ describe('password-resets', function() {
       expect(response.refreshToken).to.exist;
     });
 
-    it('invalidates the old refresh token', async function() {
+    it('invalidates the old refresh token', async function () {
       await passwordResetService.delete(hash, chance.hash());
 
       const promise = loginService.createWithRefreshToken(refreshToken);

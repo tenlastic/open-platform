@@ -47,6 +47,9 @@ export async function subscribe(
   subscriptions.set(ws, subscriptions.has(ws) ? subscriptions.get(ws) : new Map());
   subscriptions.get(ws).set(data._id, subscription);
 
+  // Disconnect the NATS consumer on WebSocket disconnect.
+  ws.on('close', () => unsubscribe(auth, data, ws));
+
   for await (const message of subscription) {
     try {
       const decoding = new TextDecoder().decode(message.data);
@@ -78,7 +81,7 @@ export async function subscribe(
         const { removedFields, updatedFields } = json.updateDescription;
 
         updateDescription = {
-          removedFields: removedFields.filter(rf => permissions.includes(rf)),
+          removedFields: removedFields.filter((rf) => permissions.includes(rf)),
           updatedFields: filterObject(updatedFields, permissions),
         };
       }
@@ -99,7 +102,4 @@ export async function subscribe(
       ws.send(JSON.stringify(errors));
     }
   }
-
-  // Disconnect the NATS consumer on WebSocket disconnect.
-  ws.on('close', () => unsubscribe(auth, data, ws));
 }
