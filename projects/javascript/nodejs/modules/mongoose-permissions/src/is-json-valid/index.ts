@@ -9,13 +9,13 @@ import { substituteReferenceValues } from '../substitute-reference-values';
 export function isJsonValid(json: any, query: any, and = true) {
   const substitutedQuery = substituteReferenceValues(query, json);
 
-  const results = Object.keys(substitutedQuery).map(key => {
+  const results = Object.keys(substitutedQuery).map((key) => {
     const operations = substitutedQuery[key];
 
     if (key === '$and') {
-      return operations.map(o => isJsonValid(json, o)).every(f => f);
+      return operations.map((o) => isJsonValid(json, o)).every((f) => f);
     } else if (key === '$or') {
-      return operations.map(o => isJsonValid(json, o, false)).includes(true);
+      return operations.map((o) => isJsonValid(json, o, false)).includes(true);
     }
 
     const map = { $elemMatch, $eq, $exists, $in, $ne, $nin };
@@ -24,12 +24,12 @@ export function isJsonValid(json: any, query: any, and = true) {
     if (
       operations === null ||
       operations === undefined ||
-      (isNotOperator && Object.keys(operations).some(o => Object.keys(map).includes(o)) === false)
+      (isNotOperator && Object.keys(operations).some((o) => Object.keys(map).includes(o)) === false)
     ) {
       return $eq(json, key, operations);
     }
 
-    return Object.keys(operations).map(operator => {
+    return Object.keys(operations).map((operator) => {
       const value = operations[operator];
       const operation = map[operator];
 
@@ -41,7 +41,7 @@ export function isJsonValid(json: any, query: any, and = true) {
     });
   });
 
-  return and ? flatten(results).every(f => f) : flatten(results).includes(true);
+  return and ? flatten(results).every((f) => f) : flatten(results).includes(true);
 }
 
 /**
@@ -74,7 +74,7 @@ function $eq(json: any, key: string, value: any) {
     return false;
   }
 
-  if (reference && reference.constructor === Array && value.constructor !== Array) {
+  if (reference && reference.constructor === Array && value?.constructor !== Array) {
     return reference.includes(value);
   } else if (reference && reference instanceof mongoose.Types.ObjectId) {
     return reference.equals(value);
@@ -102,11 +102,11 @@ function $in(json: any, key: string, value: any[]) {
   }
 
   if (reference && reference.constructor === Array) {
-    return reference.some(r => value.includes(r));
+    return reference.some((r) => value.includes(r));
   } else if (reference instanceof mongoose.Types.ObjectId) {
-    return Boolean(value.find(v => reference.equals(v)));
+    return Boolean(value.find((v) => reference.equals(v)));
   } else {
-    return value.some(v => (v.equals ? v.equals(reference) : v === reference));
+    return value.some((v) => (v.equals ? v.equals(reference) : v === reference));
   }
 }
 
@@ -119,7 +119,7 @@ function $ne(json: any, key: string, value: any) {
     return false;
   }
 
-  if (reference && reference.constructor === Array && value.constructor !== Array) {
+  if (reference && reference.constructor === Array && value?.constructor !== Array) {
     return !reference.includes(value);
   } else if (reference && reference instanceof mongoose.Types.ObjectId) {
     return !reference.equals(value);
@@ -139,7 +139,7 @@ function $nin(json: any, key: string, value: any[]) {
  * Completely flattens an array.
  */
 function flatten(arr: any[]): boolean[] {
-  return arr.reduce(function(flat, toFlatten) {
+  return arr.reduce(function (flat, toFlatten) {
     return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
   }, []);
 }

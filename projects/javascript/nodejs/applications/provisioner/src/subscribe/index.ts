@@ -39,14 +39,11 @@ function subscribeToRabbitMQ<TDocument extends mongoose.Document>(
 ) {
   return rabbitmq.consume(`provisioner.${queue}`, async (channel, content, msg) => {
     try {
-      console.log(`Message from provisioner.${queue}.`);
       await callback(content);
     } catch (e) {
-      console.log(`Error processing message from provisioner.${queue}.`);
       console.error(e);
       await rabbitmq.requeue(channel, msg, { delay: 15 * 1000, retries: 3 });
     } finally {
-      console.log(`Acking message from provisioner.${queue}.`);
       channel.ack(msg);
     }
   });

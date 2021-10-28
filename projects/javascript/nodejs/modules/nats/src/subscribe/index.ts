@@ -12,6 +12,7 @@ export async function subscribe(durable: string, subject: string) {
   opts.deliverNew();
   opts.deliverTo(inbox);
   opts.durable(durable);
+  opts.queue(durable);
 
   const js = getJetStream();
   return js.subscribe(subject, opts);

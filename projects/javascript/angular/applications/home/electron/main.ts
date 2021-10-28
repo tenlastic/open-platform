@@ -3,6 +3,7 @@ import log from 'electron-log';
 import * as path from 'path';
 
 import { createTray } from './tray';
+import './update';
 import { createWindow, getWindow, setIsQuitting } from './window';
 
 // ==================

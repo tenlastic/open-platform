@@ -21,12 +21,12 @@ import { wait } from '../wait';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('game-servers', function() {
+describe('game-servers', function () {
   let build: BuildModel;
   let gameServer: GameServerModel;
   let namespace: NamespaceModel;
 
-  before(async function() {
+  before(async function () {
     namespace = await namespaceService.create({ name: chance.hash() });
 
     // Generate a zip stream.
@@ -56,11 +56,11 @@ describe('game-servers', function() {
     });
   });
 
-  after(async function() {
+  after(async function () {
     await namespaceService.delete(namespace._id);
   });
 
-  step('creates a Game Server', async function() {
+  step('creates a Game Server', async function () {
     gameServer = await gameServerService.create({
       buildId: build._id,
       cpu: 0.1,
@@ -73,11 +73,11 @@ describe('game-servers', function() {
     // Wait for Game Server to be running.
     await wait(10000, 180000, async () => {
       gameServer = await gameServerService.findOne(gameServer._id);
-      return gameServer.status?.phase === 'Running';
+      return gameServer.status?.endpoints && gameServer.status?.phase === 'Running';
     });
   });
 
-  step('generates logs', async function() {
+  step('generates logs', async function () {
     const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
       const response = await gameServerLogService.find(
         gameServer._id,
@@ -90,7 +90,7 @@ describe('game-servers', function() {
     expect(logs.length).to.be.greaterThan(0);
   });
 
-  step('allows connections', async function() {
+  step('allows connections', async function () {
     const http = gameServer.status.endpoints.tcp.replace('tcp', 'http');
     const url = new URL(http);
     url.hostname = url.hostname === '127.0.0.1' ? 'kubernetes.localhost' : url.hostname;
