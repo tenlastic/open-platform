@@ -164,17 +164,20 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$ = this.$builds.subscribe((builds) => (this.dataSource.data = builds));
 
     this.dataSource.filterPredicate = (data: Build, filter: string) => {
-      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
+      filter = filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+
+      const regex = new RegExp(filter, 'i');
+      const exactRegex = new RegExp(`^${filter}$`, 'i');
 
       const platform = this.getPlatform(data.platform);
-      const published = data.publishedAt ? 'Published' : '';
+      const published = data.publishedAt ? 'Published' : 'Unpublished';
 
       return (
         regex.test(data.game?.fullTitle) ||
         regex.test(data.name) ||
         regex.test(data.status?.phase) ||
         regex.test(platform) ||
-        regex.test(published)
+        exactRegex.test(published)
       );
     };
 
