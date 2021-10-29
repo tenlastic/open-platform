@@ -29,12 +29,13 @@ describe('password-resets', function () {
 
     const password = chance.hash();
 
-    try {
-      user = await userService.create({ email, password, username });
-    } catch (e) {
-      const users = await userService.find({ where: { email } });
-      user = users[0];
+    // Delete existing User if exists;
+    const users = await userService.find({ where: { email } });
+    if (users.length > 0) {
+      await userService.delete(users[0]._id);
     }
+
+    user = await userService.create({ email, password, username });
 
     const response = await loginService.createWithCredentials(username, password);
     refreshToken = response.refreshToken;
