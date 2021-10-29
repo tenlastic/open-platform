@@ -61,7 +61,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         await this.namespaceService.delete(record._id);
         this.matSnackBar.open('Namespace deleted successfully.');
@@ -74,8 +74,12 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
     await this.namespaceService.find({ sort: 'name' });
 
     this.updateDataSource$ = this.$namespaces.subscribe(
-      namespaces => (this.dataSource.data = namespaces),
+      (namespaces) => (this.dataSource.data = namespaces),
     );
+
+    this.dataSource.filterPredicate = (data: Namespace, filter: string) => {
+      return new RegExp(filter, 'i').test(data.name);
+    };
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;

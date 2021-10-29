@@ -30,7 +30,7 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
 
   public $users: Observable<User[]>;
   public dataSource = new MatTableDataSource<User>();
-  public displayedColumns: string[] = ['webSocket', 'username', 'createdAt', 'updatedAt'];
+  public displayedColumns: string[] = ['webSocket', 'username', 'email', 'createdAt', 'updatedAt'];
   public webSockets: { [key: string]: WebSocket } = {};
 
   private fetchWebSockets$ = new Subscription();
@@ -75,7 +75,7 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         await this.userService.delete(user._id);
         this.matSnackBar.open('User deleted successfully.');
@@ -88,17 +88,24 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
 
     await this.userService.find({ sort: 'username' });
 
-    this.fetchWebSockets$ = this.$users.subscribe(users =>
-      this.webSocketService.find({ where: { userId: { $in: users.map(u => u._id) } } }),
+    this.fetchWebSockets$ = this.$users.subscribe((users) =>
+      this.webSocketService.find({ where: { userId: { $in: users.map((u) => u._id) } } }),
     );
-    this.updateDataSource$ = this.$users.subscribe(users => (this.dataSource.data = users));
-    this.updateWebSockets$ = this.webSocketQuery.selectAll().subscribe(webSockets => {
+    this.updateDataSource$ = this.$users.subscribe((users) => (this.dataSource.data = users));
+    this.updateWebSockets$ = this.webSocketQuery.selectAll().subscribe((webSockets) => {
       this.webSockets = {};
 
       for (const webSocket of webSockets) {
         this.webSockets[webSocket.userId] = webSocket;
       }
     });
+
+    this.dataSource.filterPredicate = (data: User, filter: string) => {
+      const regex = new RegExp(filter, 'i');
+      const status = this.webSockets[data._id] ? 'Online' : 'Offline';
+
+      return regex.test(data.email) || regex.test(data.username) || regex.test(status);
+    };
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;

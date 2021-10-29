@@ -35,6 +35,14 @@
           *matCellDef="let element">{{ element.username }}</td>
     </ng-container>
 
+    <ng-container matColumnDef="email">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Email Address</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.email }}</td>
+    </ng-container>
+
     <ng-container matColumnDef="createdAt">
       <th mat-header-cell
           *matHeaderCellDef
