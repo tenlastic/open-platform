@@ -1,5 +1,12 @@
-import { DocumentType, ReturnModelType, getModelForClass, prop } from '@typegoose/typegoose';
+import {
+  DocumentType,
+  ReturnModelType,
+  getModelForClass,
+  modelOptions,
+  prop,
+} from '@typegoose/typegoose';
 
+@modelOptions({ schemaOptions: { _id: false } })
 export class NamespaceQueueLimitsSchema {
   @prop({ default: 0 })
   public cpu: number;

@@ -13,33 +13,56 @@ export class TextareaService {
       event.preventDefault();
 
       const target = event.target as HTMLTextAreaElement;
+
+      const startIndex = target.selectionStart;
+      const start = target.value.substring(0, startIndex);
+
+      const endIndex = target.selectionEnd;
+      const end = target.value.substring(endIndex);
+
       if (this.isShiftDown) {
-        const startIndex: number = target.selectionStart;
-        const endIndex: number = target.selectionEnd;
-
-        const start: string = target.value.substring(0, startIndex);
-        const end = target.value.substring(endIndex);
-
         const lastIndexOf = start.lastIndexOf('\n');
-        const success = start.substring(lastIndexOf).includes('    ');
+        let occurences = start.substring(lastIndexOf).includes('    ') ? 1 : 0;
+        const successful = occurences > 0;
         const substring = start.substring(lastIndexOf).replace('    ', '');
-        const result = start.substring(0, lastIndexOf) + substring;
+        const startReplacement = start.substring(0, lastIndexOf) + substring;
 
-        target.value = result + end;
-        target.selectionStart = target.selectionEnd = startIndex - (success ? 4 : 0);
+        let selectionReplacement = '';
+        if (endIndex !== startIndex) {
+          const selection = target.value.substring(startIndex, endIndex);
+          occurences += selection.split('\n    ').length - 1;
+          selectionReplacement = selection.replace(/\n    /g, '\n');
+        }
+
+        target.value = startReplacement + selectionReplacement + end;
+
+        target.selectionStart = target.selectionEnd = startIndex - (occurences ? 4 : 0);
+        if (endIndex !== startIndex) {
+          target.selectionEnd += endIndex - startIndex - 4 * (occurences ? occurences - 1 : 0);
+        }
+
+        if (occurences && !successful) {
+          target.selectionStart += 4;
+        }
       } else {
-        const startIndex = target.selectionStart;
-        const endIndex = target.selectionEnd;
-
-        const start: string = target.value.substring(0, startIndex);
-        const end = target.value.substring(endIndex);
-
         const lastIndexOf = start.lastIndexOf('\n');
         const substring = start.substring(lastIndexOf).replace('\n', '\n    ');
-        const result = start.substring(0, lastIndexOf) + substring;
+        const startReplacement = start.substring(0, lastIndexOf) + substring;
 
-        target.value = result + end;
+        let occurences = 0;
+        let selectionReplacement = '';
+        if (endIndex !== startIndex) {
+          const selection = target.value.substring(startIndex, endIndex);
+          occurences += selection.split('\n').length - 1;
+          selectionReplacement = selection.replace(/\n/g, '\n    ');
+        }
+
+        target.value = startReplacement + selectionReplacement + end;
+
         target.selectionStart = target.selectionEnd = startIndex + 4;
+        if (endIndex !== startIndex) {
+          target.selectionEnd += endIndex - startIndex + 4 * occurences;
+        }
       }
     }
   }

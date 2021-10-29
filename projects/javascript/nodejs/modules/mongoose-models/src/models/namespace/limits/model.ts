@@ -1,4 +1,10 @@
-import { DocumentType, ReturnModelType, getModelForClass, prop } from '@typegoose/typegoose';
+import {
+  DocumentType,
+  ReturnModelType,
+  getModelForClass,
+  modelOptions,
+  prop,
+} from '@typegoose/typegoose';
 
 import { NamespaceBuildLimitsSchema } from './build';
 import { NamespaceDatabaseLimitsSchema } from './database';
@@ -7,6 +13,7 @@ import { NamespaceGameServerLimitsSchema } from './game-server';
 import { NamespaceQueueLimitsSchema } from './queue';
 import { NamespaceWorkflowLimitsSchema } from './workflow';
 
+@modelOptions({ schemaOptions: { _id: false } })
 export class NamespaceLimitsSchema {
   @prop({ required: true })
   public builds: NamespaceBuildLimitsSchema;

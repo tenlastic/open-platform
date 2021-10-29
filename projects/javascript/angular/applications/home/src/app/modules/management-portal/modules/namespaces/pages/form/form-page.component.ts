@@ -1,17 +1,23 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { INamespace, Namespace, NamespaceService, UserService } from '@tenlastic/ng-http';
 
 import { IdentityService } from '../../../../../../core/services';
+import {
+  BreadcrumbsComponentBreadcrumb,
+  PromptComponent,
+} from '../../../../../../shared/components';
 
 @Component({
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
 export class NamespacesFormPageComponent implements OnInit {
+  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public data: Namespace;
   public errors: string[] = [];
   public form: FormGroup;
@@ -27,6 +33,7 @@ export class NamespacesFormPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
+    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private namespaceService: NamespaceService,
     private router: Router,
@@ -35,14 +42,19 @@ export class NamespacesFormPageComponent implements OnInit {
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
       const _id = params.get('_id');
+
+      this.breadcrumbs = [
+        { label: 'Namespaces', link: '../' },
+        { label: _id === 'new' ? 'Create Namespace' : 'Edit Namespace' },
+      ];
 
       if (_id !== 'new') {
         this.data = await this.namespaceService.findOne(_id);
       }
 
-      this.roles = Object.keys(INamespace.Role).map(key => ({
+      this.roles = Object.keys(INamespace.Role).map((key) => ({
         label: key.replace(/([A-Z])/g, ' $1').trim(),
         value: INamespace.Role[key],
       }));
@@ -88,14 +100,8 @@ export class NamespacesFormPageComponent implements OnInit {
   }
 
   public getKey() {
-    const getRandomCharacter = () =>
-      Math.random()
-        .toString(36)
-        .charAt(2);
-    const value = Array(64)
-      .fill(0)
-      .map(getRandomCharacter)
-      .join('');
+    const getRandomCharacter = () => Math.random().toString(36).charAt(2);
+    const value = Array(64).fill(0).map(getRandomCharacter).join('');
 
     return this.formBuilder.group({
       description: [null, Validators.required],
@@ -106,6 +112,28 @@ export class NamespacesFormPageComponent implements OnInit {
 
   public getUser() {
     return this.formBuilder.group({ roles: null, user: null });
+  }
+
+  public navigateToJson() {
+    if (this.form.dirty) {
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message: 'Changes will not be saved. Is this OK?',
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result === 'Yes') {
+          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+        }
+      });
+    } else {
+      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+    }
   }
 
   public removeKey(index: number) {
@@ -127,8 +155,8 @@ export class NamespacesFormPageComponent implements OnInit {
     const keys = this.form.getRawValue().keys;
     const users = this.form
       .get('users')
-      .value.filter(u => u.roles && u.user)
-      .map(u => ({ _id: u.user._id, roles: u.roles }));
+      .value.filter((u) => u.roles && u.user)
+      .map((u) => ({ _id: u.user._id, roles: u.roles }));
 
     const values: Partial<Namespace> = {
       keys,
@@ -148,10 +176,10 @@ export class NamespacesFormPageComponent implements OnInit {
   }
 
   private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map(e => {
+    this.errors = err.error.errors.map((e) => {
       if (e.name === 'UniquenessError') {
         const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map(p => pathMap[p]);
+        const paths = e.paths.map((p) => pathMap[p]);
         return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
       } else {
         return e.message;
@@ -163,7 +191,7 @@ export class NamespacesFormPageComponent implements OnInit {
     this.data = this.data || new Namespace();
 
     const array = this.data.keys || [];
-    const keys = array.map(key =>
+    const keys = array.map((key) =>
       this.formBuilder.group({
         description: this.formBuilder.control(key.description),
         roles: this.formBuilder.control(key.roles),
@@ -183,6 +211,13 @@ export class NamespacesFormPageComponent implements OnInit {
           }),
         );
       }
+    } else {
+      users.push(
+        this.formBuilder.group({
+          roles: this.formBuilder.control([INamespace.Role.Namespaces]),
+          user: this.formBuilder.control(this.identityService.user),
+        }),
+      );
     }
 
     const { limits } = this.data;
