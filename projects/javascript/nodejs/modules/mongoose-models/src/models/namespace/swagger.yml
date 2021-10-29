@@ -24,3 +24,5 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/NamespaceUser'
+      required:
+        - name

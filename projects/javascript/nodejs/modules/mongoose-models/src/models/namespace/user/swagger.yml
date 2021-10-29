@@ -3,6 +3,9 @@ components:
     NamespaceUser:
       type: object
       properties:
+        _id:
+          type: string
+          format: ^[0-9a-f]{24}$
         roles:
           type: array
           items:
@@ -15,9 +18,5 @@ components:
               - games
               - namespaces
               - queues
-        userId:
-          type: string
-          format: ^[0-9a-f]{24}$
       required:
-        - roles
-        - userId
+        - _id

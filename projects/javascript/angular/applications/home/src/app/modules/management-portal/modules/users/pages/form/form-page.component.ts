@@ -1,17 +1,23 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IUser, User, UserService } from '@tenlastic/ng-http';
 
 import { IdentityService } from '../../../../../../core/services';
+import {
+  BreadcrumbsComponentBreadcrumb,
+  PromptComponent,
+} from '../../../../../../shared/components';
 
 @Component({
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
 export class UsersFormPageComponent implements OnInit {
+  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public data: User;
   public errors: string[] = [];
   public form: FormGroup;
@@ -22,22 +28,28 @@ export class UsersFormPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
+    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private router: Router,
     private userService: UserService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
       this.loadingMessage = 'Loading User...';
 
-      this.roles = Object.keys(IUser.Role).map(key => ({
+      this.roles = Object.keys(IUser.Role).map((key) => ({
         label: key.replace(/([A-Z])/g, ' $1').trim(),
         value: IUser.Role[key],
       }));
 
       try {
         const _id = params.get('_id');
+
+        this.breadcrumbs = [
+          { label: 'Users', link: '../' },
+          { label: _id === 'new' ? 'Create User' : 'Edit User' },
+        ];
 
         if (_id !== 'new') {
           this.data = await this.userService.findOne(_id);
@@ -50,6 +62,28 @@ export class UsersFormPageComponent implements OnInit {
 
       this.loadingMessage = null;
     });
+  }
+
+  public navigateToJson() {
+    if (this.form.dirty) {
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message: 'Changes will not be saved. Is this OK?',
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result === 'Yes') {
+          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+        }
+      });
+    } else {
+      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+    }
   }
 
   public async save() {
@@ -72,10 +106,10 @@ export class UsersFormPageComponent implements OnInit {
   }
 
   private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map(e => {
+    this.errors = err.error.errors.map((e) => {
       if (e.name === 'UniquenessError') {
         const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map(p => pathMap[p]);
+        const paths = e.paths.map((p) => pathMap[p]);
         return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
       } else {
         return e.message;

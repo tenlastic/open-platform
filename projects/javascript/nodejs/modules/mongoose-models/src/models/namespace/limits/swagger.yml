@@ -71,7 +71,6 @@ components:
               type: integer
       required:
         - builds
-        - collections
         - databases
         - gameServers
         - games

@@ -12,14 +12,14 @@ components:
             enum:
               - articles
               - builds
-              - collections
+              - databases
               - game-servers
               - games
               - namespaces
               - queues
+              - workflows
         value:
           type: string
       required:
         - description
-        - roles
         - value

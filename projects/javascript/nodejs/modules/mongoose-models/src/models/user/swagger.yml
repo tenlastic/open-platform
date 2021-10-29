@@ -21,14 +21,18 @@ components:
             enum:
               - articles
               - builds
-              - collections
+              - databases
               - game-servers
               - games
               - namespaces
               - queues
               - users
+              - workflows
         updatedAt:
           type: string
           format: date-time
         username:
           type: string
+      required:
+        - password
+        - username
