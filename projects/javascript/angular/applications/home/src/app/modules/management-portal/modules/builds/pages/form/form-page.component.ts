@@ -2,6 +2,7 @@ import { NestedTreeControl } from '@angular/cdk/tree';
 import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -15,6 +16,10 @@ import {
   IdentityService,
   SelectedNamespaceService,
 } from '../../../../../../core/services';
+import {
+  BreadcrumbsComponentBreadcrumb,
+  PromptComponent,
+} from '../../../../../../shared/components';
 import { UpdatedFile } from '../../components';
 
 enum Status {
@@ -47,6 +52,7 @@ export class BuildsFormPageComponent implements OnInit {
   public $data: Observable<Build>;
   public $games: Observable<Game[]>;
   public Status = Status;
+  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public data: Build;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
   public errors: string[] = [];
@@ -57,7 +63,7 @@ export class BuildsFormPageComponent implements OnInit {
   ];
   public progress: Progress;
   public status = Status.Ready;
-  public treeControl = new NestedTreeControl<StatusNode>(node => node.children);
+  public treeControl = new NestedTreeControl<StatusNode>((node) => node.children);
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -69,22 +75,29 @@ export class BuildsFormPageComponent implements OnInit {
     private gameQuery: GameQuery,
     private gameService: GameService,
     public identityService: IdentityService,
+    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private router: Router,
     private selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
       const _id = params.get('_id');
+
+      this.breadcrumbs = [
+        { label: 'Builds', link: '../' },
+        { label: _id === 'new' ? 'Create Build' : 'Edit Build' },
+      ];
+
       if (_id !== 'new') {
         this.data = await this.buildService.findOne(_id);
         this.dataSource.data = this.data.getNestedStatusNodes();
       }
 
       this.$games = this.gameQuery
-        .selectAll({ filterBy: g => g.namespaceId === this.selectedNamespaceService.namespaceId })
-        .pipe(map(games => games.map(g => new Game(g))));
+        .selectAll({ filterBy: (g) => g.namespaceId === this.selectedNamespaceService.namespaceId })
+        .pipe(map((games) => games.map((g) => new Game(g))));
       this.gameService.find({ where: { namespaceId: this.selectedNamespaceService.namespaceId } });
 
       this.setupForm();
@@ -95,6 +108,28 @@ export class BuildsFormPageComponent implements OnInit {
     return !!node.children && node.children.length > 0;
   }
 
+  public navigateToJson() {
+    if (this.form.dirty) {
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message: 'Changes will not be saved. Is this OK?',
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result === 'Yes') {
+          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+        }
+      });
+    } else {
+      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+    }
+  }
+
   public async save() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -102,8 +137,8 @@ export class BuildsFormPageComponent implements OnInit {
     }
 
     const referenceId = this.form.get('reference').get('_id').value;
-    const unmodifiedFiles = this.form.get('files').value.filter(f => f.status === 'unmodified');
-    const reference = { _id: referenceId, files: unmodifiedFiles.map(uf => uf.path) };
+    const unmodifiedFiles = this.form.get('files').value.filter((f) => f.status === 'unmodified');
+    const reference = { _id: referenceId, files: unmodifiedFiles.map((uf) => uf.path) };
 
     const values: Partial<Build> = {
       entrypoint: this.form.get('entrypoint').value,
@@ -134,7 +169,7 @@ export class BuildsFormPageComponent implements OnInit {
     this.form.disable({ emitEvent: false });
 
     const files: UpdatedFile[] = this.form.get('files').value;
-    const modifiedFiles = files.filter(u => u.status === 'modified');
+    const modifiedFiles = files.filter((u) => u.status === 'modified');
 
     // Zip files.
     let zipBlob: Blob;
@@ -153,7 +188,7 @@ export class BuildsFormPageComponent implements OnInit {
           compressionOptions: { level: 3 },
           type: 'blob',
         },
-        metadata => {
+        (metadata) => {
           const total = modifiedFiles.length;
           this.progress = { current: Math.floor(total * (metadata.percent / 100)), total };
 
@@ -166,10 +201,7 @@ export class BuildsFormPageComponent implements OnInit {
 
     // Reset files.
     this.form.get('files').setValue([]);
-    this.form
-      .get('reference')
-      .get('files')
-      .setValue([]);
+    this.form.get('reference').get('files').setValue([]);
 
     // Upload files.
     this.progress = { current: 0, total: zipBlob?.size };
@@ -183,7 +215,7 @@ export class BuildsFormPageComponent implements OnInit {
             return EMPTY;
           }),
         )
-        .subscribe(event => {
+        .subscribe((event) => {
           const file = new File([zipBlob], 'file');
 
           switch (event.type) {
@@ -210,10 +242,10 @@ export class BuildsFormPageComponent implements OnInit {
 
   private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
     if (err.error.errors) {
-      this.errors = err.error.errors.map(e => {
+      this.errors = err.error.errors.map((e) => {
         if (e.name === 'UniquenessError') {
           const combination = e.paths.length > 1 ? 'combination ' : '';
-          const paths = e.paths.map(p => pathMap[p]);
+          const paths = e.paths.map((p) => pathMap[p]);
           return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
         } else {
           return e.message;
@@ -249,8 +281,8 @@ export class BuildsFormPageComponent implements OnInit {
       this.form.get('platform').disable({ emitEvent: false });
       this.form.get('reference').disable({ emitEvent: false });
 
-      this.$data = this.buildQuery.selectAll({ filterBy: b => b._id === this.data._id }).pipe(
-        map(builds => {
+      this.$data = this.buildQuery.selectAll({ filterBy: (b) => b._id === this.data._id }).pipe(
+        map((builds) => {
           const build = new Build(builds[0]);
           build.status = build.status || { nodes: [], phase: 'Pending' };
           this.dataSource.data = build.getNestedStatusNodes();

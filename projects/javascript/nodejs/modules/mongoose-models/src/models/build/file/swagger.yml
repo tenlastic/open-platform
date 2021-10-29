@@ -11,3 +11,8 @@ components:
           type: string
         uncompressedBytes:
           type: integer
+      required:
+        - compressedBytes
+        - md5
+        - path
+        - uncompressedBytes

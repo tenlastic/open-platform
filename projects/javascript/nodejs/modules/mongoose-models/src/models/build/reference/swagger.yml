@@ -1,6 +1,6 @@
 components:
   schemas:
-    BuildFile:
+    BuildReference:
       type: object
       properties:
         _id:
@@ -10,3 +10,5 @@ components:
           type: array
           items:
             type: string
+      required:
+        - _id

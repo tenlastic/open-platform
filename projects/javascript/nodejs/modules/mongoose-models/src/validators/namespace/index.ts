@@ -6,7 +6,7 @@ export const namespaceValidator = (documentField: string, idField: string) => {
         await this.populate(documentField).execPopulate();
       }
 
-      return this[documentField] ? this[documentField].namespaceId.equals(this.namespaceId) : true;
+      return this[documentField] ? this[documentField].namespaceId.equals(this.namespaceId) : false;
     },
   };
 };

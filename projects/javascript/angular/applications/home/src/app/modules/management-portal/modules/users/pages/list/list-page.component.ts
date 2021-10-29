@@ -101,7 +101,7 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
     });
 
     this.dataSource.filterPredicate = (data: User, filter: string) => {
-      const regex = new RegExp(filter, 'i');
+      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
       const status = this.webSockets[data._id] ? 'Online' : 'Offline';
 
       return regex.test(data.email) || regex.test(data.username) || regex.test(status);

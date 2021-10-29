@@ -78,7 +78,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
     );
 
     this.dataSource.filterPredicate = (data: Namespace, filter: string) => {
-      return new RegExp(filter, 'i').test(data.name);
+      return new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i').test(data.name);
     };
 
     this.dataSource.paginator = this.paginator;

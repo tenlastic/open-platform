@@ -88,7 +88,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
         },
       });
 
-      dialogRef.afterClosed().subscribe(async result => {
+      dialogRef.afterClosed().subscribe(async (result) => {
         if (result === 'Yes') {
           // Update Game Servers.
           const gameServers = await this.gameServerService.find({
@@ -137,7 +137,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         await this.buildService.delete(record._id);
         this.matSnackBar.open('Build deleted successfully.');
@@ -151,7 +151,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
 
   private async fetchBuilds() {
     const $builds = this.buildQuery.selectAll({
-      filterBy: build => build.namespaceId === this.selectedNamespaceService.namespaceId,
+      filterBy: (build) => build.namespaceId === this.selectedNamespaceService.namespaceId,
     });
     this.$builds = this.buildQuery.populate($builds);
 
@@ -161,7 +161,22 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
       where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
-    this.updateDataSource$ = this.$builds.subscribe(builds => (this.dataSource.data = builds));
+    this.updateDataSource$ = this.$builds.subscribe((builds) => (this.dataSource.data = builds));
+
+    this.dataSource.filterPredicate = (data: Build, filter: string) => {
+      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
+
+      const platform = this.getPlatform(data.platform);
+      const published = data.publishedAt ? 'Published' : '';
+
+      return (
+        regex.test(data.game?.fullTitle) ||
+        regex.test(data.name) ||
+        regex.test(data.status?.phase) ||
+        regex.test(platform) ||
+        regex.test(published)
+      );
+    };
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;

@@ -26,8 +26,17 @@ components:
         publishedAt:
           type: string
           format: date-time
+        reference:
+          type: array
+          items:
+            $ref: '#/components/schemas/BuildReference'
         status:
           $ref: '#/components/schemas/WorkflowStatus'
         updatedAt:
           type: string
           format: date-time
+      required:
+        - entrypoint
+        - name
+        - namespaceId
+        - platform
