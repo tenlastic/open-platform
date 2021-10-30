@@ -11,22 +11,21 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
-import * as mongoose from 'mongoose';
 
 import { handler } from './';
 
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/databases/create', function() {
+describe('handlers/databases/create', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  context('when permission is granted', function() {
-    it('creates a new record', async function() {
+  context('when permission is granted', function () {
+    it('creates a new record', async function () {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
         roles: ['databases'],
@@ -37,11 +36,11 @@ describe('handlers/databases/create', function() {
         request: {
           body: {
             cpu: 1,
-            memory: 1,
+            memory: 250 * 1000 * 1000,
             name: chance.hash(),
             namespaceId: namespace._id,
             replicas: 1,
-            storage: 1,
+            storage: 5 * 1000 * 1000 * 1000,
           },
         },
         state: { user: user.toObject() },
@@ -52,7 +51,7 @@ describe('handlers/databases/create', function() {
       expect(ctx.response.body.record).to.exist;
     });
 
-    it('enforces the Namespace limits', async function() {
+    it('enforces the Namespace limits', async function () {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
         roles: ['databases'],
@@ -87,8 +86,8 @@ describe('handlers/databases/create', function() {
     });
   });
 
-  context('when permission is denied', function() {
-    it('throws an error', async function() {
+  context('when permission is denied', function () {
+    it('throws an error', async function () {
       const namespace = await NamespaceMock.create();
 
       const ctx = new ContextMock({

@@ -6,6 +6,8 @@ import {
   NamespaceUserMock,
   UserDocument,
   UserMock,
+  GameServerTemplateMock,
+  BuildMock,
 } from '@tenlastic/mongoose-models';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -18,27 +20,28 @@ import { handler } from './';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/queues/create', function() {
+describe('handlers/queues/create', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  context('when permission is granted', function() {
-    it('creates a new record', async function() {
+  context('when permission is granted', function () {
+    it('creates a new record', async function () {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
         roles: ['queues'],
       });
       const namespace = await NamespaceMock.create({ users: [namespaceUser] });
+      const build = await BuildMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         request: {
           body: {
             cpu: 1,
-            gameServerTemplate: {},
-            memory: 1,
+            gameServerTemplate: GameServerTemplateMock.create({ buildId: build._id }),
+            memory: 100 * 1000 * 1000,
             name: chance.hash(),
             namespaceId: namespace._id,
             replicas: 1,
@@ -54,7 +57,7 @@ describe('handlers/queues/create', function() {
       expect(ctx.response.body.record).to.exist;
     });
 
-    it('enforces the Namespace limits', async function() {
+    it('enforces the Namespace limits', async function () {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
         roles: ['queues'],
@@ -86,8 +89,8 @@ describe('handlers/queues/create', function() {
     });
   });
 
-  context('when permission is denied', function() {
-    it('throws an error', async function() {
+  context('when permission is denied', function () {
+    it('throws an error', async function () {
       const namespace = await NamespaceMock.create();
 
       const ctx = new ContextMock({

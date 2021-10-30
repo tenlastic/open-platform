@@ -40,7 +40,7 @@ describe('handlers/game-servers/create', function () {
           body: {
             buildId: build._id,
             cpu: 1,
-            memory: 1,
+            memory: 100 * 1000 * 1000,
             name: chance.hash(),
             namespaceId: namespace._id,
           },
