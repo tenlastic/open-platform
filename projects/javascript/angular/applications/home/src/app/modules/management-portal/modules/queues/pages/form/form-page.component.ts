@@ -18,7 +18,10 @@ import {
 import { Subscription } from 'rxjs';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import {
+  BreadcrumbsComponentBreadcrumb,
+  PromptComponent,
+} from '../../../../../../shared/components';
 
 interface PropertyFormGroup {
   key?: string;
@@ -31,6 +34,7 @@ interface PropertyFormGroup {
   styleUrls: ['./form-page.component.scss'],
 })
 export class QueuesFormPageComponent implements OnDestroy, OnInit {
+  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public builds: Build[];
   public components = {
     application: 'Application',
@@ -40,7 +44,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public get cpus() {
     const limits = this.selectedNamespaceService.namespace.limits.queues;
     const limit = limits.cpu ? limits.cpu : Infinity;
-    return limits.cpu ? IQueue.Cpu.filter(r => r.value <= limit) : IQueue.Cpu;
+    return limits.cpu ? IQueue.Cpu.filter((r) => r.value <= limit) : IQueue.Cpu;
   }
   public data: Queue;
   public errors: string[] = [];
@@ -48,23 +52,23 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public get gameServerCpus() {
     const limits = this.selectedNamespaceService.namespace.limits.gameServers;
     const limit = limits.cpu ? limits.cpu : Infinity;
-    return limits.cpu ? IGameServer.Cpu.filter(r => r.value <= limit) : IGameServer.Cpu;
+    return limits.cpu ? IGameServer.Cpu.filter((r) => r.value <= limit) : IGameServer.Cpu;
   }
   public get gameServerMemories() {
     const limits = this.selectedNamespaceService.namespace.limits.gameServers;
     const limit = limits.memory ? limits.memory : Infinity;
-    return limits.memory ? IGameServer.Memory.filter(r => r.value <= limit) : IGameServer.Memory;
+    return limits.memory ? IGameServer.Memory.filter((r) => r.value <= limit) : IGameServer.Memory;
   }
   public games: Game[];
   public get memories() {
     const limits = this.selectedNamespaceService.namespace.limits.queues;
     const limit = limits.memory ? limits.memory : Infinity;
-    return limits.memory ? IQueue.Memory.filter(r => r.value <= limit) : IQueue.Memory;
+    return limits.memory ? IQueue.Memory.filter((r) => r.value <= limit) : IQueue.Memory;
   }
   public get replicas() {
     const limits = this.selectedNamespaceService.namespace.limits.queues;
     const limit = limits.replicas ? limits.replicas : Infinity;
-    return limits.replicas ? IQueue.Replicas.filter(r => r.value <= limit) : IQueue.Replicas;
+    return limits.replicas ? IQueue.Replicas.filter((r) => r.value <= limit) : IQueue.Replicas;
   }
 
   private updateQueue$ = new Subscription();
@@ -84,8 +88,14 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
       const _id = params.get('_id');
+
+      this.breadcrumbs = [
+        { label: 'Game Servers', link: '../' },
+        { label: _id === 'new' ? 'Create Game Server' : 'Edit Game Server' },
+      ];
+
       if (_id !== 'new') {
         this.data = await this.queueService.findOne(_id);
       }
@@ -106,6 +116,28 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.updateQueue$.unsubscribe();
+  }
+
+  public navigateToJson() {
+    if (this.form.dirty) {
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message: 'Changes will not be saved. Is this OK?',
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result === 'Yes') {
+          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+        }
+      });
+    } else {
+      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+    }
   }
 
   public async save() {
@@ -180,7 +212,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   }
 
   private getDirtyFields() {
-    return Object.keys(this.form.controls).filter(key => this.form.get(key).dirty);
+    return Object.keys(this.form.controls).filter((key) => this.form.get(key).dirty);
   }
 
   private getJsonFromProperty(property: PropertyFormGroup): any {
@@ -214,10 +246,10 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   }
 
   private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map(e => {
+    this.errors = err.error.errors.map((e) => {
       if (e.name === 'UniquenessError') {
         const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map(p => pathMap[p]);
+        const paths = e.paths.map((p) => pathMap[p]);
         return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
       } else {
         return e.message;
@@ -277,8 +309,8 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
 
     if (this.data._id) {
       this.updateQueue$ = this.queueQuery
-        .selectAll({ filterBy: q => q._id === this.data._id })
-        .subscribe(queues => (this.data = queues[0]));
+        .selectAll({ filterBy: (q) => q._id === this.data._id })
+        .subscribe((queues) => (this.data = queues[0]));
     }
   }
 

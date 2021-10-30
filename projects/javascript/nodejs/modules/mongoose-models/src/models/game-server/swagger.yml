@@ -16,6 +16,7 @@ components:
           format: ^[0-9a-f]{24}$
         cpu:
           type: number
+          minimum: 0.1
         createdAt:
           type: string
           format: date-time
@@ -31,6 +32,7 @@ components:
           format: ^[0-9a-f]{24}$
         memory:
           type: number
+          minimum: 100000000
         metadata:
           type: object
         name:
@@ -38,8 +40,6 @@ components:
         namespaceId:
           type: string
           format: ^[0-9a-f]{24}$
-        port:
-          type: string
         persistent:
           type: boolean
         preemptible:

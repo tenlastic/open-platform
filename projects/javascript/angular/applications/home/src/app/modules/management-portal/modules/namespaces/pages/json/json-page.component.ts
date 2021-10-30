@@ -105,9 +105,8 @@ export class NamespacesJsonPageComponent implements OnInit {
 
   private async handleHttpError(err: HttpErrorResponse) {
     this.errors = err.error.errors.map((e) => {
-      if (e.name === 'ValidatorError' && e.kind === 'required') {
-        const path = e.path;
-        return `${path} is required.`;
+      if (e.name === 'CastError' || e.name === 'ValidatorError') {
+        return `(${e.path}) ${e.message}`;
       } else if (e.name === 'UniquenessError') {
         const combination = e.paths.length > 1 ? 'combination ' : '';
         return `${e.paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;

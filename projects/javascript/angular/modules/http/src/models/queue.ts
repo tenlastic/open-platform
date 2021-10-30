@@ -24,6 +24,14 @@ export namespace IQueue {
     { label: '5', value: 5 },
   ];
 
+  export interface GameServerTemplate {
+    buildId: string;
+    cpu: number;
+    memory: number;
+    metadata: any;
+    preemptible: boolean;
+  }
+
   export interface Status {
     components?: StatusComponent[];
     nodes?: StatusNode[];
@@ -46,15 +54,13 @@ export namespace IQueue {
 }
 
 export class Queue extends Model {
-  public _id: string;
   public build: Build;
   public buildId: string;
   public cpu: number;
-  public createdAt: Date;
   public description: string;
   public game: Game;
   public gameId: string;
-  public gameServerTemplate: Partial<GameServer>;
+  public gameServerTemplate: IQueue.GameServerTemplate;
   public memory: number;
   public metadata: any;
   public name: string;
@@ -64,7 +70,6 @@ export class Queue extends Model {
   public restartedAt: Date;
   public status: IQueue.Status;
   public teams: number;
-  public updatedAt: Date;
   public usersPerTeam: number;
 
   constructor(params: Partial<Queue> = {}) {
@@ -86,6 +91,6 @@ export class Queue extends Model {
       'teams',
       'usersPerTeam',
     ];
-    return immutableFields.some(i => fields.includes(i));
+    return immutableFields.some((i) => fields.includes(i));
   }
 }

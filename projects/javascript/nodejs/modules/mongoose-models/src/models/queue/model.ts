@@ -16,11 +16,11 @@ import {
 } from '@tenlastic/mongoose-change-stream';
 import * as mongoose from 'mongoose';
 
-import { namespaceValidator } from '../../validators';
+import { enumValidator, namespaceValidator } from '../../validators';
 import { BuildDocument } from '../build';
 import { GameDocument } from '../game';
-import { GameServerDocument } from '../game-server';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
+import { GameServerTemplateSchema } from './game-server-template';
 import {
   QueueStatusComponent,
   QueueStatusComponentName,
@@ -31,11 +31,11 @@ import {
 export const QueueEvent = new EventEmitter<IDatabasePayload<QueueDocument>>();
 
 // Delete Queues if associated Namespace is deleted.
-NamespaceEvent.sync(async payload => {
+NamespaceEvent.sync(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Queue.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map(r => r.remove());
+      const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }
 });
@@ -44,7 +44,7 @@ NamespaceEvent.sync(async payload => {
 @index({ namespaceId: 1 })
 @modelOptions({ schemaOptions: { collection: 'queues', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: QueueEvent })
-@pre('save', async function(this: QueueDocument) {
+@pre('save', async function (this: QueueDocument) {
   if (!this.isNew) {
     return;
   }
@@ -76,7 +76,7 @@ export class QueueSchema {
   @prop({ ref: 'BuildSchema', validate: namespaceValidator('buildDocument', 'buildId') })
   public buildId: Ref<BuildDocument>;
 
-  @prop({ min: 0, required: true })
+  @prop({ min: 0.1, required: true })
   public cpu: number;
 
   public createdAt: Date;
@@ -87,10 +87,10 @@ export class QueueSchema {
   @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
   public gameId: Ref<GameDocument>;
 
-  @prop({ _id: false, required: true })
-  public gameServerTemplate: GameServerDocument;
+  @prop({ required: true })
+  public gameServerTemplate: GameServerTemplateSchema;
 
-  @prop({ min: 0, required: true })
+  @prop({ min: 100 * 1000 * 1000, required: true })
   public memory: number;
 
   @prop({ default: {} })
@@ -105,7 +105,7 @@ export class QueueSchema {
   @prop()
   public preemptible: boolean;
 
-  @prop({ min: 0, required: true })
+  @prop({ min: 0, required: true, validate: enumValidator([1, 3, 5]) })
   public replicas: number;
 
   @prop()
@@ -114,12 +114,12 @@ export class QueueSchema {
   @prop({ default: { phase: 'Pending' } })
   public status: QueueStatusSchema;
 
-  @prop({ required: true })
+  @prop({ min: 1, required: true })
   public teams: number;
 
   public updatedAt: Date;
 
-  @prop({ required: true })
+  @prop({ min: 1, required: true })
   public usersPerTeam: number;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })
@@ -206,7 +206,7 @@ export class QueueSchema {
       'teams',
       'usersPerTeam',
     ];
-    return immutableFields.some(i => fields.includes(i));
+    return immutableFields.some((i) => fields.includes(i));
   }
 }
 

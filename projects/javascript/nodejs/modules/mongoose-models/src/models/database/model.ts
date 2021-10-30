@@ -16,7 +16,7 @@ import {
 } from '@tenlastic/mongoose-change-stream';
 import * as mongoose from 'mongoose';
 
-import { decrementalValidator, namespaceValidator } from '../../validators';
+import { decrementalValidator, enumValidator, namespaceValidator } from '../../validators';
 import { GameDocument } from '../game';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 import {
@@ -29,11 +29,11 @@ import {
 export const DatabaseEvent = new EventEmitter<IDatabasePayload<DatabaseDocument>>();
 
 // Delete Databases if associated Namespace is deleted.
-NamespaceEvent.sync(async payload => {
+NamespaceEvent.sync(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Database.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map(r => r.remove());
+      const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }
 });
@@ -42,7 +42,7 @@ NamespaceEvent.sync(async payload => {
 @index({ namespaceId: 1 })
 @modelOptions({ schemaOptions: { collection: 'databases', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: DatabaseEvent })
-@pre('save', async function(this: DatabaseDocument) {
+@pre('save', async function (this: DatabaseDocument) {
   if (!this.isNew) {
     return;
   }
@@ -77,7 +77,7 @@ NamespaceEvent.sync(async payload => {
 export class DatabaseSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ min: 0, required: true })
+  @prop({ min: 0.1, required: true })
   public cpu: number;
 
   public createdAt: Date;
@@ -88,7 +88,7 @@ export class DatabaseSchema {
   @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
   public gameId: Ref<GameDocument>;
 
-  @prop({ min: 0, required: true })
+  @prop({ min: 250 * 1000 * 1000, required: true })
   public memory: number;
 
   @prop({ required: true })
@@ -100,7 +100,7 @@ export class DatabaseSchema {
   @prop()
   public preemptible: boolean;
 
-  @prop({ min: 0, required: true })
+  @prop({ min: 0, required: true, validate: enumValidator([1, 3, 5]) })
   public replicas: number;
 
   @prop()
@@ -109,7 +109,7 @@ export class DatabaseSchema {
   @prop({ default: { phase: 'Pending' } })
   public status: DatabaseStatusSchema;
 
-  @prop({ min: 0, required: true, validate: decrementalValidator('storage') })
+  @prop({ min: 5 * 1000 * 1000 * 1000, required: true, validate: decrementalValidator('storage') })
   public storage: number;
 
   public updatedAt: Date;
@@ -193,7 +193,7 @@ export class DatabaseSchema {
    */
   public static isRestartRequired(fields: string[]) {
     const immutableFields = ['cpu', 'memory', 'preemptible', 'replicas', 'restartedAt', 'storage'];
-    return immutableFields.some(i => fields.includes(i));
+    return immutableFields.some((i) => fields.includes(i));
   }
 }
 

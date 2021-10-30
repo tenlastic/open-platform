@@ -80,10 +80,19 @@ function getUniquenessError(err: any) {
 }
 
 function getValidationError(err: any) {
-  const errors = Object.keys(err.errors).map((key) => {
-    const { kind, message, name, path, value } = err.errors[key];
-    return { kind, message: message.replace(`\`${path}\``, `"${key}"`), name, path: key, value };
-  });
+  const errors = Object.keys(err.errors)
+    .filter((key) => err.errors[key].name !== 'ValidationError')
+    .sort()
+    .map((key) => {
+      const { kind, message, name, value } = err.errors[key];
+      return {
+        kind,
+        message: message.replace(/Path `\w+`/, 'Value').replace(/path `\w+`/, 'value'),
+        name,
+        path: key,
+        value,
+      };
+    });
 
   return { errors };
 }

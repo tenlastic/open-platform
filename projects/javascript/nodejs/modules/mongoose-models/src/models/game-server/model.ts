@@ -28,21 +28,21 @@ import { GameServerStatusSchema } from './status';
 export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
 
 // Delete Game Servers if associated Namespace is deleted.
-NamespaceEvent.sync(async payload => {
+NamespaceEvent.sync(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await GameServer.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map(r => r.remove());
+      const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }
 });
 
 // Delete Game Servers if associated Queue is deleted.
-QueueEvent.sync(async payload => {
+QueueEvent.sync(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await GameServer.find({ queueId: payload.fullDocument._id });
-      const promises = records.map(r => r.remove());
+      const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }
 });
@@ -68,7 +68,7 @@ export class GameServerSchema implements IOriginalDocument {
   })
   public buildId: Ref<BuildDocument>;
 
-  @prop({ min: 0, required: true })
+  @prop({ min: 0.1, required: true })
   public cpu: number;
 
   public createdAt: Date;
@@ -82,7 +82,7 @@ export class GameServerSchema implements IOriginalDocument {
   @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
   public gameId: Ref<GameDocument>;
 
-  @prop({ min: 0, required: true })
+  @prop({ min: 100 * 1000 * 1000, required: true })
   public memory: number;
 
   @prop({ default: {} })
@@ -100,7 +100,7 @@ export class GameServerSchema implements IOriginalDocument {
   @prop()
   public preemptible: boolean;
 
-  @prop({ ref: 'QueueSchema' })
+  @prop({ ref: 'QueueSchema', validate: namespaceValidator('queueDocument', 'queueId') })
   public queueId: Ref<QueueDocument>;
 
   @prop()
@@ -190,7 +190,7 @@ export class GameServerSchema implements IOriginalDocument {
    */
   public static isRestartRequired(fields: string[]) {
     const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible', 'restartedAt'];
-    return immutableFields.some(i => fields.includes(i));
+    return immutableFields.some((i) => fields.includes(i));
   }
 }
 

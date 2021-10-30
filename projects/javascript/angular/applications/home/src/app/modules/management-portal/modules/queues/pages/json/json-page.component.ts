@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GameServer, GameServerService, IGameServer } from '@tenlastic/ng-http';
+import { Queue, QueueService, IQueue, IGameServer } from '@tenlastic/ng-http';
 
 import {
   IdentityService,
@@ -21,16 +21,16 @@ import { jsonValidator } from '../../../../../../shared/validators';
   templateUrl: 'json-page.component.html',
   styleUrls: ['./json-page.component.scss'],
 })
-export class GameServersJsonPageComponent implements OnInit {
+export class QueuesJsonPageComponent implements OnInit {
   public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
-  public data: GameServer;
+  public data: Queue;
   public errors: string[] = [];
   public form: FormGroup;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private gameServerService: GameServerService,
+    private gameServerService: QueueService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
@@ -44,9 +44,9 @@ export class GameServersJsonPageComponent implements OnInit {
       const _id = params.get('_id');
 
       this.breadcrumbs = [
-        { label: 'Game Servers', link: '../../' },
-        { label: _id === 'new' ? 'Create Game Server' : 'Edit Game Server', link: '../' },
-        { label: _id === 'new' ? 'Create Game Server as JSON' : 'Edit Game Server as JSON' },
+        { label: 'Queues', link: '../../' },
+        { label: _id === 'new' ? 'Create Queue' : 'Edit Queue', link: '../' },
+        { label: _id === 'new' ? 'Create Queue as JSON' : 'Edit Queue as JSON' },
       ];
 
       if (_id !== 'new') {
@@ -94,10 +94,9 @@ export class GameServersJsonPageComponent implements OnInit {
     }
 
     const json = this.form.get('json').value;
-    const values = JSON.parse(json) as GameServer;
+    const values = JSON.parse(json) as Queue;
 
     values.namespaceId = this.selectedNamespaceService.namespaceId;
-    values.persistent = true;
 
     try {
       await this.upsert(values);
@@ -120,28 +119,40 @@ export class GameServersJsonPageComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.data ??= new GameServer({
-      authorizedUserIds: [],
+    this.data ??= new Queue({
       buildId: '',
-      cpu: IGameServer.Cpu[0].value,
+      cpu: IQueue.Cpu[0].value,
       description: '',
       gameId: '',
-      memory: IGameServer.Memory[0].value,
+      gameServerTemplate: {
+        buildId: '',
+        cpu: IGameServer.Cpu[0].value,
+        memory: IGameServer.Memory[0].value,
+        metadata: {},
+        preemptible: true,
+      },
+      memory: IQueue.Memory[0].value,
       metadata: {},
       name: '',
       preemptible: true,
+      replicas: IQueue.Replicas[0].value,
+      teams: 2,
+      usersPerTeam: 1,
     });
 
     const keys = [
-      'authorizedUserIds',
       'buildId',
       'cpu',
       'description',
       'gameId',
+      'gameServerTemplate',
       'memory',
       'metadata',
       'name',
       'preemptible',
+      'replicas',
+      'teams',
+      'usersPerTeam',
     ];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))
@@ -155,8 +166,8 @@ export class GameServersJsonPageComponent implements OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async upsert(data: Partial<GameServer>) {
-    let result: GameServer;
+  private async upsert(data: Partial<Queue>) {
+    let result: Queue;
 
     if (this.data._id) {
       data._id = this.data._id;
@@ -165,7 +176,7 @@ export class GameServersJsonPageComponent implements OnInit {
       result = await this.gameServerService.create(data);
     }
 
-    this.matSnackBar.open('GameServer saved successfully.');
+    this.matSnackBar.open('Queue saved successfully.');
     this.router.navigate([`../../${result._id}`], { relativeTo: this.activatedRoute });
   }
 }

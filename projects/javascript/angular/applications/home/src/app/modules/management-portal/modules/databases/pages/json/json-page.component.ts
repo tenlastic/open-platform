@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Database, DatabaseService } from '@tenlastic/ng-http';
+import { Database, DatabaseService, IDatabase } from '@tenlastic/ng-http';
 
 import {
   IdentityService,
@@ -107,9 +107,8 @@ export class DatabasesJsonPageComponent implements OnInit {
 
   private async handleHttpError(err: HttpErrorResponse) {
     this.errors = err.error.errors.map((e) => {
-      if (e.name === 'ValidatorError' && e.kind === 'required') {
-        const path = e.path;
-        return `${path} is required.`;
+      if (e.name === 'CastError' || e.name === 'ValidatorError') {
+        return `(${e.path}) ${e.message}`;
       } else if (e.name === 'UniquenessError') {
         const combination = e.paths.length > 1 ? 'combination ' : '';
         return `${e.paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
@@ -120,9 +119,16 @@ export class DatabasesJsonPageComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.data ??= new Database({ name: '' });
+    this.data ??= new Database({
+      cpu: IDatabase.Cpu[0].value,
+      memory: IDatabase.Memory[0].value,
+      name: '',
+      preemptible: true,
+      replicas: IDatabase.Replicas[0].value,
+      storage: IDatabase.Storage[0].value,
+    });
 
-    const keys = ['name'];
+    const keys = ['cpu', 'memory', 'name', 'preemptible', 'replicas', 'storage'];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))
       .sort()

@@ -121,6 +121,10 @@
     text-shadow: inherit !important;
   }
 
+  td.response-col_links {
+    display: none;
+  }
+
   tr.responses-header td,
   tr.response td {
     color: white !important;

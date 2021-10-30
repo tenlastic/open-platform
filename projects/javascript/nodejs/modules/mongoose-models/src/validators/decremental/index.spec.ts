@@ -2,9 +2,9 @@ import { expect } from 'chai';
 
 import { decrementalValidator } from './';
 
-describe('validators/decremental', function() {
-  describe('validator', function() {
-    it('returns true', function() {
+describe('validators/decremental', function () {
+  describe('validator', function () {
+    it('returns true', function () {
       const object = { _original: { replicas: 1 } };
       const { validator } = decrementalValidator('replicas');
       const result = validator.bind(object)(1);
@@ -12,7 +12,7 @@ describe('validators/decremental', function() {
       expect(result).to.eql(true);
     });
 
-    it('returns true', function() {
+    it('returns true', function () {
       const object = { replicas: 1 };
       const { validator } = decrementalValidator('replicas');
       const result = validator.bind(object)(1);
@@ -20,7 +20,7 @@ describe('validators/decremental', function() {
       expect(result).to.eql(true);
     });
 
-    it('returns false', function() {
+    it('returns false', function () {
       const object = { _original: { replicas: 2 } };
       const { validator } = decrementalValidator('replicas');
       const result = validator.bind(object)(1);
