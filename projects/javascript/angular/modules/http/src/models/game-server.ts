@@ -51,7 +51,6 @@ export class GameServer extends Model {
   public name: string;
   public namespaceId: string;
   public persistent: boolean;
-  public port: number;
   public preemptible: boolean;
   public queue: Queue;
   public queueId: string;
@@ -67,6 +66,6 @@ export class GameServer extends Model {
   public static isRestartRequired(fields: string[]) {
     const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible', 'restartedAt'];
 
-    return immutableFields.some(i => fields.includes(i));
+    return immutableFields.some((i) => fields.includes(i));
   }
 }

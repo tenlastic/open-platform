@@ -112,7 +112,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         await this.gameServerService.delete(record._id);
         this.matSnackBar.open('Game Server deleted successfully.');
@@ -125,15 +125,15 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
       autoFocus: false,
       data: {
         $logs: this.gameServerLogQuery.selectAll({
-          filterBy: log => log.gameServerId === record._id,
+          filterBy: (log) => log.gameServerId === record._id,
           sortBy: 'unix',
           sortByOrder: Order.DESC,
         }),
         $nodeIds: this.gameServerQuery
           .selectEntity(record._id)
-          .pipe(map(gameServer => this.getNodeIds(gameServer))),
-        find: nodeId => this.gameServerService.logs(record._id, nodeId, { tail: 500 }),
-        nodeIds: record.status?.nodes?.map(n => n._id),
+          .pipe(map((gameServer) => this.getNodeIds(gameServer))),
+        find: (nodeId) => this.gameServerService.logs(record._id, nodeId, { tail: 500 }),
+        nodeIds: record.status?.nodes?.map((n) => n._id),
         subscribe: async (nodeId, unix) => {
           const socket = await this.socketService.connect(environment.apiBaseUrl);
           return socket.logs(
@@ -150,7 +150,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
   private async fetchGameServers() {
     const $gameServers = this.gameServerQuery.selectAll({
-      filterBy: gs =>
+      filterBy: (gs) =>
         gs.namespaceId === this.selectedNamespaceService.namespaceId &&
         ((this.queue && this.queue._id === gs.queueId) || (!this.queue && !gs.queueId)),
     });
@@ -162,8 +162,19 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     });
 
     this.updateDataSource$ = this.$gameServers.subscribe(
-      gameServers => (this.dataSource.data = gameServers),
+      (gameServers) => (this.dataSource.data = gameServers),
     );
+
+    this.dataSource.filterPredicate = (data: GameServer, filter: string) => {
+      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
+
+      return (
+        regex.test(data.description) ||
+        regex.test(data.game?.fullTitle) ||
+        regex.test(data.name) ||
+        regex.test(data.status?.phase)
+      );
+    };
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -177,7 +188,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
   private getNodeIds(gameServer: GameServer) {
     return gameServer.status?.nodes
-      .map(n => {
+      .map((n) => {
         let displayName = 'Game Server';
         if (n._id.includes('sidecar')) {
           displayName = 'Sidecar';

@@ -3,15 +3,23 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../../../shared/shared.module';
 
-import { GameServersFormPageComponent } from './pages/form/form-page.component';
-import { GameServersListPageComponent } from './pages/list/list-page.component';
+import {
+  GameServersFormPageComponent,
+  GameServersJsonPageComponent,
+  GameServersListPageComponent,
+} from './pages';
 
 export const ROUTES: Routes = [
   { path: '', component: GameServersListPageComponent },
   { path: ':_id', component: GameServersFormPageComponent },
+  { path: ':_id/json', component: GameServersJsonPageComponent },
 ];
 
-const pages = [GameServersFormPageComponent, GameServersListPageComponent];
+const pages = [
+  GameServersFormPageComponent,
+  GameServersJsonPageComponent,
+  GameServersListPageComponent,
+];
 
 @NgModule({
   declarations: [...pages],

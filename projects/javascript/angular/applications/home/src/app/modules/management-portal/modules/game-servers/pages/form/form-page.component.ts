@@ -19,7 +19,10 @@ import {
 import { Subscription } from 'rxjs';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import {
+  BreadcrumbsComponentBreadcrumb,
+  PromptComponent,
+} from '../../../../../../shared/components';
 
 interface PropertyFormGroup {
   key?: string;
@@ -33,11 +36,12 @@ interface PropertyFormGroup {
 })
 export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public updateGameServer$ = new Subscription();
+  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public builds: Build[];
   public get cpus() {
     const limits = this.selectedNamespaceService.namespace.limits.gameServers;
     const limit = limits.cpu ? limits.cpu : Infinity;
-    return limits.cpu ? IGameServer.Cpu.filter(r => r.value <= limit) : IGameServer.Cpu;
+    return limits.cpu ? IGameServer.Cpu.filter((r) => r.value <= limit) : IGameServer.Cpu;
   }
   public data: GameServer;
   public errors: string[] = [];
@@ -46,7 +50,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public get memories() {
     const limits = this.selectedNamespaceService.namespace.limits.gameServers;
     const limit = limits.memory ? limits.memory : Infinity;
-    return limits.memory ? IGameServer.Memory.filter(r => r.value <= limit) : IGameServer.Memory;
+    return limits.memory ? IGameServer.Memory.filter((r) => r.value <= limit) : IGameServer.Memory;
   }
   public queue: Queue;
 
@@ -66,8 +70,14 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
       const _id = params.get('_id');
+
+      this.breadcrumbs = [
+        { label: 'Game Servers', link: '../' },
+        { label: _id === 'new' ? 'Create Game Server' : 'Edit Game Server' },
+      ];
+
       if (_id !== 'new') {
         this.data = await this.gameServerService.findOne(_id);
       }
@@ -92,6 +102,28 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.updateGameServer$.unsubscribe();
+  }
+
+  public navigateToJson() {
+    if (this.form.dirty) {
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message: 'Changes will not be saved. Is this OK?',
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result === 'Yes') {
+          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+        }
+      });
+    } else {
+      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+    }
   }
 
   public async save() {
@@ -149,7 +181,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   }
 
   private getDirtyFields() {
-    return Object.keys(this.form.controls).filter(key => this.form.get(key).dirty);
+    return Object.keys(this.form.controls).filter((key) => this.form.get(key).dirty);
   }
 
   private getJsonFromProperty(property: PropertyFormGroup): any {
@@ -166,10 +198,10 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   }
 
   private async handleHttpError(err: HttpErrorResponse, pathMap: any = {}) {
-    this.errors = err.error.errors.map(e => {
+    this.errors = err.error.errors.map((e) => {
       if (e.name === 'UniquenessError') {
         const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map(p => pathMap[p]);
+        const paths = e.paths.map((p) => pathMap[p]);
         return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
       } else {
         return e.message;
@@ -216,8 +248,8 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
 
     if (this.data._id) {
       this.updateGameServer$ = this.gameServerQuery
-        .selectAll({ filterBy: gs => gs._id === this.data._id })
-        .subscribe(gameServers => (this.data = gameServers[0]));
+        .selectAll({ filterBy: (gs) => gs._id === this.data._id })
+        .subscribe((gameServers) => (this.data = gameServers[0]));
     }
   }
 

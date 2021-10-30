@@ -130,7 +130,6 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'metadata.*',
       'name',
       'preemptible',
-      'queueId',
       'restartedAt',
       'status.*',
     ],
