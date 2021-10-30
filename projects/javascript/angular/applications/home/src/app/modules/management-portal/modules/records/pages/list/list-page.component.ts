@@ -76,7 +76,7 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
     this.propertyColumns = Object.entries(this.collection.jsonSchema.properties)
       .map(([key, value]) => (value.type === 'array' || value.type === 'object' ? null : key))
-      .filter(p => p)
+      .filter((p) => p)
       .slice(0, 4);
     this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
 
@@ -108,7 +108,7 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         await this.recordService.delete(this.databaseId, this.collectionId, record._id);
         this.matSnackBar.open('Record deleted successfully.');
@@ -118,14 +118,21 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
   private async fetchRecords() {
     this.$records = this.recordQuery.selectAll({
-      filterBy: gs => gs.collectionId === this.collectionId && gs.databaseId === this.databaseId,
+      filterBy: (gs) => gs.collectionId === this.collectionId && gs.databaseId === this.databaseId,
     });
 
     await this.recordService.find(this.databaseId, this.collectionId, {
       sort: 'name',
     });
 
-    this.updateDataSource$ = this.$records.subscribe(records => (this.dataSource.data = records));
+    this.updateDataSource$ = this.$records.subscribe((records) => (this.dataSource.data = records));
+
+    this.dataSource.filterPredicate = (data: Record, filter: string) => {
+      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
+      const json = JSON.stringify(data);
+
+      return regex.test(json);
+    };
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;

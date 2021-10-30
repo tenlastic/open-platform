@@ -95,7 +95,7 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         await this.collectionService.delete(this.databaseId, record._id);
         this.matSnackBar.open('Collection deleted successfully.');
@@ -105,7 +105,7 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
 
   private async fetchCollections() {
     this.$collections = this.collectionQuery.selectAll({
-      filterBy: gs =>
+      filterBy: (gs) =>
         gs.databaseId === this.databaseId &&
         gs.namespaceId === this.selectedNamespaceService.namespaceId,
     });
@@ -116,8 +116,13 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
     });
 
     this.updateDataSource$ = this.$collections.subscribe(
-      collections => (this.dataSource.data = collections),
+      (collections) => (this.dataSource.data = collections),
     );
+
+    this.dataSource.filterPredicate = (data: Collection, filter: string) => {
+      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
+      return regex.test(data.name);
+    };
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;

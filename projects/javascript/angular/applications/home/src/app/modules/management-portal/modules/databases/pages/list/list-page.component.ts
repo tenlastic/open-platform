@@ -88,7 +88,7 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         await this.databaseService.delete(record._id);
         this.matSnackBar.open('Database deleted successfully.');
@@ -101,14 +101,14 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
       autoFocus: false,
       data: {
         $logs: this.databaseLogQuery.selectAll({
-          filterBy: log => log.databaseId === record._id,
+          filterBy: (log) => log.databaseId === record._id,
           sortBy: 'unix',
           sortByOrder: Order.DESC,
         }),
         $nodeIds: this.databaseQuery
           .selectEntity(record._id)
-          .pipe(map(database => this.getNodeIds(database))),
-        find: nodeId => this.databaseService.logs(record._id, nodeId, { tail: 500 }),
+          .pipe(map((database) => this.getNodeIds(database))),
+        find: (nodeId) => this.databaseService.logs(record._id, nodeId, { tail: 500 }),
         subscribe: async (nodeId, unix) => {
           const socket = await this.socketService.connect(environment.apiBaseUrl);
           return socket.logs(
@@ -125,7 +125,7 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
 
   private async fetchDatabases() {
     const $databases = this.databaseQuery.selectAll({
-      filterBy: gs => gs.namespaceId === this.selectedNamespaceService.namespaceId,
+      filterBy: (gs) => gs.namespaceId === this.selectedNamespaceService.namespaceId,
     });
     this.$databases = this.databaseQuery.populate($databases);
 
@@ -135,8 +135,13 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
     });
 
     this.updateDataSource$ = this.$databases.subscribe(
-      databases => (this.dataSource.data = databases),
+      (databases) => (this.dataSource.data = databases),
     );
+
+    this.dataSource.filterPredicate = (data: Database, filter: string) => {
+      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
+      return regex.test(data.name);
+    };
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -144,7 +149,7 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
 
   private getNodeIds(database: Database) {
     return database.status?.nodes
-      .map(n => {
+      .map((n) => {
         let displayName = 'API';
         if (n._id.includes('mongodb')) {
           displayName = 'MongoDB';
