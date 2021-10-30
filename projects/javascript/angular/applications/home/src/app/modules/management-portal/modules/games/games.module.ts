@@ -6,6 +6,7 @@ import { SharedModule } from '../../../../shared/shared.module';
 import { MediaDialogComponent } from './components';
 import {
   GamesFormPageComponent,
+  GamesJsonPageComponent,
   GamesListPageComponent,
   GamesMultimediaFormPageComponent,
 } from './pages';
@@ -13,12 +14,14 @@ import {
 export const ROUTES: Routes = [
   { path: '', component: GamesListPageComponent },
   { path: ':_id', component: GamesFormPageComponent },
+  { path: ':_id/json', component: GamesJsonPageComponent },
   { path: ':_id/multimedia', component: GamesMultimediaFormPageComponent },
 ];
 
 @NgModule({
   declarations: [
     GamesFormPageComponent,
+    GamesJsonPageComponent,
     GamesListPageComponent,
     GamesMultimediaFormPageComponent,
     MediaDialogComponent,

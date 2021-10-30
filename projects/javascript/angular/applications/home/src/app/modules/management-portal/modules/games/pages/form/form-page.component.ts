@@ -3,11 +3,14 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Game, GameService, IGame } from '@tenlastic/ng-http';
 
 import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import {
+  BreadcrumbsComponentBreadcrumb,
+  PromptComponent,
+} from '../../../../../../shared/components';
 import { MediaDialogComponent } from '../../components';
 
 interface PropertyFormGroup {
@@ -26,6 +29,7 @@ export class GamesFormPageComponent implements OnInit {
     { label: 'Public w/ Authorization', value: 'private-public' },
     { label: 'Public', value: 'public' },
   ];
+  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public data: Game;
   public errors: string[] = [];
   public form: FormGroup;
@@ -49,12 +53,19 @@ export class GamesFormPageComponent implements OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private router: Router,
     public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public async ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
       const _id = params.get('_id');
+
+      this.breadcrumbs = [
+        { label: 'Games', link: '../' },
+        { label: _id === 'new' ? 'Create Game' : 'Edit Game' },
+      ];
+
       if (_id !== 'new') {
         this.data = await this.gameService.findOne(_id);
       }
@@ -65,6 +76,28 @@ export class GamesFormPageComponent implements OnInit {
 
   public addUser(formArray: FormArray) {
     formArray.push(this.formBuilder.control(null, [Validators.required]));
+  }
+
+  public navigateToJson() {
+    if (this.form.dirty) {
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message: 'Changes will not be saved. Is this OK?',
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result === 'Yes') {
+          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+        }
+      });
+    } else {
+      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
+    }
   }
 
   public async onFieldChanged($event, field: string) {
@@ -100,7 +133,7 @@ export class GamesFormPageComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         if (index >= 0) {
           this.data[field] = this.data[field].filter((f, i) => i !== index);
@@ -160,10 +193,10 @@ export class GamesFormPageComponent implements OnInit {
   }
 
   private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map(e => {
+    this.errors = err.error.errors.map((e) => {
       if (e.name === 'UniquenessError') {
         const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map(p => pathMap[p]);
+        const paths = e.paths.map((p) => pathMap[p]);
         return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
       } else {
         return e.message;
@@ -172,7 +205,7 @@ export class GamesFormPageComponent implements OnInit {
   }
 
   private handleUploadHttpError(err: HttpErrorResponse) {
-    return err.error.errors.map(e => e.message);
+    return err.error.errors.map((e) => e.message);
   }
 
   private setupForm(): void {

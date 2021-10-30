@@ -58,7 +58,7 @@ export class GamesListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         await this.gameService.delete(record._id);
         this.matSnackBar.open('Game deleted successfully.');
@@ -68,7 +68,7 @@ export class GamesListPageComponent implements OnDestroy, OnInit {
 
   private async fetchGames() {
     this.$games = this.gameQuery.selectAll({
-      filterBy: gs => gs.namespaceId === this.selectedNamespaceService.namespaceId,
+      filterBy: (gs) => gs.namespaceId === this.selectedNamespaceService.namespaceId,
     });
 
     await this.gameService.find({
@@ -76,7 +76,12 @@ export class GamesListPageComponent implements OnDestroy, OnInit {
       where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
-    this.updateDataSource$ = this.$games.subscribe(games => (this.dataSource.data = games));
+    this.updateDataSource$ = this.$games.subscribe((games) => (this.dataSource.data = games));
+
+    this.dataSource.filterPredicate = (data: Game, filter: string) => {
+      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
+      return regex.test(data.subtitle) || regex.test(data.title);
+    };
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;

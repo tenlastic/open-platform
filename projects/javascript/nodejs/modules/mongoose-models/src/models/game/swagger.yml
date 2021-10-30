@@ -47,3 +47,6 @@ components:
           type: array
           items:
             type: string
+      required:
+        - namespaceId
+        - title
