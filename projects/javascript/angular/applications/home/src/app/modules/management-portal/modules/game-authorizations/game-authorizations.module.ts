@@ -3,16 +3,24 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../../../shared/shared.module';
 
-import { GameAuthorizationsFormPageComponent } from './pages/form/form-page.component';
-import { GameAuthorizationsListPageComponent } from './pages/list/list-page.component';
+import {
+  GameAuthorizationsFormPageComponent,
+  GameAuthorizationsJsonPageComponent,
+  GameAuthorizationsListPageComponent,
+} from './pages';
 
 export const ROUTES: Routes = [
   { path: '', component: GameAuthorizationsListPageComponent },
   { path: ':_id', component: GameAuthorizationsFormPageComponent },
+  { path: ':_id/json', component: GameAuthorizationsJsonPageComponent },
 ];
 
 @NgModule({
-  declarations: [GameAuthorizationsFormPageComponent, GameAuthorizationsListPageComponent],
+  declarations: [
+    GameAuthorizationsFormPageComponent,
+    GameAuthorizationsJsonPageComponent,
+    GameAuthorizationsListPageComponent,
+  ],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })
 export class GameAuthorizationModule {}

@@ -83,7 +83,7 @@ export class GameAuthorizationsListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         await this.gameAuthorizationService.delete(record._id);
         this.matSnackBar.open('Game Authorization deleted successfully.');
@@ -93,7 +93,7 @@ export class GameAuthorizationsListPageComponent implements OnDestroy, OnInit {
 
   private async fetchGameAuthorizations() {
     const $gameAuthorizations = this.gameAuthorizationQuery.selectAll({
-      filterBy: gameAuthorization =>
+      filterBy: (gameAuthorization) =>
         gameAuthorization.namespaceId === this.selectedNamespaceService.namespaceId,
     });
     this.$gameAuthorizations = this.gameAuthorizationQuery.populate($gameAuthorizations);
@@ -104,8 +104,17 @@ export class GameAuthorizationsListPageComponent implements OnDestroy, OnInit {
     });
 
     this.updateDataSource$ = this.$gameAuthorizations.subscribe(
-      gameAuthorizations => (this.dataSource.data = gameAuthorizations),
+      (gameAuthorizations) => (this.dataSource.data = gameAuthorizations),
     );
+
+    this.dataSource.filterPredicate = (data: GameAuthorization, filter: string) => {
+      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
+      return (
+        regex.test(data.game?.fullTitle) ||
+        regex.test(data.status) ||
+        regex.test(data.user?.username)
+      );
+    };
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;

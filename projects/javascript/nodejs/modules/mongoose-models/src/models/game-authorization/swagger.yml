@@ -24,3 +24,7 @@ components:
         userId:
           type: string
           format: ^[0-9a-f]{24}$
+      required:
+        - gameId
+        - namespaceId
+        - userId
