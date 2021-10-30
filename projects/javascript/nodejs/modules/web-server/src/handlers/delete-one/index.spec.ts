@@ -15,17 +15,17 @@ import { deleteOne } from './';
 
 use(chaiAsPromised);
 
-describe('defaults/delete-one', function() {
+describe('handlers/delete-one', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  context('when permission is granted', function() {
+  context('when permission is granted', function () {
     let record: ArticleDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
         roles: ['articles'],
@@ -35,7 +35,7 @@ describe('defaults/delete-one', function() {
       record = await ArticleMock.create({ namespaceId: namespace._id });
     });
 
-    it('returns the deleted record', async function() {
+    it('returns the deleted record', async function () {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
@@ -50,15 +50,15 @@ describe('defaults/delete-one', function() {
     });
   });
 
-  context('when permission is denied', function() {
+  context('when permission is denied', function () {
     let record: ArticleDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       const namespace = await NamespaceMock.create();
       record = await ArticleMock.create({ namespaceId: namespace._id });
     });
 
-    it('throws an error', async function() {
+    it('throws an error', async function () {
       const ctx = new ContextMock({
         params: {
           _id: record._id,

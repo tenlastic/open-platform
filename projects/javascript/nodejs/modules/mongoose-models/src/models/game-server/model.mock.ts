@@ -1,6 +1,7 @@
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
+import { BuildMock } from '../build';
 import { GameServer, GameServerSchema } from './model';
 
 export class GameServerMock {
@@ -18,6 +19,13 @@ export class GameServerMock {
       name: chance.hash(),
       namespaceId: mongoose.Types.ObjectId(),
     };
+
+    if (!params.buildId) {
+      const build = await BuildMock.create({
+        namespaceId: params.namespaceId ?? defaults.namespaceId,
+      });
+      defaults.buildId = build._id;
+    }
 
     return GameServer.create({ ...defaults, ...params });
   }

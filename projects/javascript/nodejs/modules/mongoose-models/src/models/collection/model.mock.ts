@@ -1,6 +1,7 @@
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
+import { DatabaseMock } from '../database';
 import { Collection, CollectionModel } from './model';
 
 export class CollectionMock {
@@ -16,6 +17,13 @@ export class CollectionMock {
       name: chance.hash(),
       namespaceId: new mongoose.Types.ObjectId(),
     };
+
+    if (!params.databaseId) {
+      const database = await DatabaseMock.create({
+        namespaceId: params.namespaceId ?? defaults.namespaceId,
+      });
+      defaults.databaseId = database._id;
+    }
 
     return Collection.create({ ...defaults, ...params });
   }

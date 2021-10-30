@@ -16,15 +16,15 @@ import { create } from './';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('defaults/create', function() {
+describe('handlers/create', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  context('when permission is granted', function() {
-    it('creates a new record', async function() {
+  context('when permission is granted', function () {
+    it('creates a new record', async function () {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
         roles: ['articles'],
@@ -51,8 +51,8 @@ describe('defaults/create', function() {
     });
   });
 
-  context('when permission is denied', function() {
-    it('throws an error', async function() {
+  context('when permission is denied', function () {
+    it('throws an error', async function () {
       await NamespaceMock.create();
 
       const ctx = new ContextMock({

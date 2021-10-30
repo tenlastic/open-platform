@@ -15,11 +15,11 @@ import { findOne } from './';
 
 use(chaiAsPromised);
 
-describe('defaults/find-one', function() {
+describe('handlers/find-one', function () {
   let record: ArticleDocument;
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
 
     const namespaceUser = NamespaceUserMock.create({
@@ -31,7 +31,7 @@ describe('defaults/find-one', function() {
     record = await ArticleMock.create({ namespaceId: namespace._id });
   });
 
-  it('returns the record', async function() {
+  it('returns the record', async function () {
     const ctx = new ContextMock({
       params: {
         _id: record._id,

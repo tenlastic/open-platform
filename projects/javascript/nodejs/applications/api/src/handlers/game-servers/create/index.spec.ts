@@ -1,4 +1,5 @@
 import {
+  BuildMock,
   GameServerMock,
   NamespaceGameServerLimitsMock,
   NamespaceLimitsMock,
@@ -18,25 +19,26 @@ import { handler } from './';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/game-servers/create', function() {
+describe('handlers/game-servers/create', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  context('when permission is granted', function() {
-    it('creates a new record', async function() {
+  context('when permission is granted', function () {
+    it('creates a new record', async function () {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
         roles: ['game-servers'],
       });
       const namespace = await NamespaceMock.create({ users: [namespaceUser] });
+      const build = await BuildMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         request: {
           body: {
-            buildId: new mongoose.Types.ObjectId(),
+            buildId: build._id,
             cpu: 1,
             memory: 1,
             name: chance.hash(),
@@ -51,7 +53,7 @@ describe('handlers/game-servers/create', function() {
       expect(ctx.response.body.record).to.exist;
     });
 
-    it('enforces the Namespace limits', async function() {
+    it('enforces the Namespace limits', async function () {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
         roles: ['game-servers'],
@@ -85,8 +87,8 @@ describe('handlers/game-servers/create', function() {
     });
   });
 
-  context('when permission is denied', function() {
-    it('throws an error', async function() {
+  context('when permission is denied', function () {
+    it('throws an error', async function () {
       const namespace = await NamespaceMock.create();
 
       const ctx = new ContextMock({

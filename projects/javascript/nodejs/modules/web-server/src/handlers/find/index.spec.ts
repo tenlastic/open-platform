@@ -12,11 +12,11 @@ import { expect } from 'chai';
 import { ContextMock } from '../../context';
 import { find } from './';
 
-describe('defaults/find', function() {
+describe('handlers/find', function () {
   let record: ArticleDocument;
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
 
     const namespaceUser = NamespaceUserMock.create({
@@ -28,7 +28,7 @@ describe('defaults/find', function() {
     record = await ArticleMock.create({ namespaceId: namespace._id });
   });
 
-  it('returns the number of matching records', async function() {
+  it('returns the number of matching records', async function () {
     const ctx = new ContextMock({
       state: { user: user.toObject() },
     });
