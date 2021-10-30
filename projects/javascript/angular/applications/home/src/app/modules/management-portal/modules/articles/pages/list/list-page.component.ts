@@ -61,7 +61,7 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         await this.articleService.delete(record._id);
         this.matSnackBar.open('Article deleted successfully.');
@@ -75,7 +75,7 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
 
   private async fetchArticles() {
     const $articles = this.articleQuery.selectAll({
-      filterBy: article => article.namespaceId === this.selectedNamespaceService.namespaceId,
+      filterBy: (article) => article.namespaceId === this.selectedNamespaceService.namespaceId,
     });
     this.$articles = this.articleQuery.populate($articles);
 
@@ -85,8 +85,21 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
     });
 
     this.updateDataSource$ = this.$articles.subscribe(
-      articles => (this.dataSource.data = articles),
+      (articles) => (this.dataSource.data = articles),
     );
+
+    this.dataSource.filterPredicate = (data: Article, filter: string) => {
+      filter = filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+
+      const regex = new RegExp(filter, 'i');
+      const exactRegex = new RegExp(`^${filter}$`, 'i');
+
+      const published = data.publishedAt ? 'Published' : 'Unpublished';
+
+      return (
+        regex.test(data.game?.fullTitle) || regex.test(data.title) || exactRegex.test(published)
+      );
+    };
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;

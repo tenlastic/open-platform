@@ -3,10 +3,8 @@ import { Game } from './game';
 import { Namespace } from './namespace';
 
 export class Article extends Model {
-  public _id: string;
   public body: string;
   public caption: string;
-  public createdAt: Date;
   public game: Game;
   public gameId: string;
   public namespace: Namespace;
@@ -14,7 +12,6 @@ export class Article extends Model {
   public publishedAt: Date;
   public title: string;
   public type: string;
-  public updatedAt: Date;
 
   constructor(params: Partial<Article> = {}) {
     super(params);

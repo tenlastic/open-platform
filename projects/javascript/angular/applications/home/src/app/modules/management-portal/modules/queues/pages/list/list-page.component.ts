@@ -88,7 +88,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         await this.queueService.delete(record._id);
         this.matSnackBar.open('Queue deleted successfully.');
@@ -101,15 +101,15 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
       autoFocus: false,
       data: {
         $logs: this.queueLogQuery.selectAll({
-          filterBy: log => log.queueId === record._id,
+          filterBy: (log) => log.queueId === record._id,
           sortBy: 'unix',
           sortByOrder: Order.DESC,
         }),
         $nodeIds: this.queueQuery
           .selectEntity(record._id)
-          .pipe(map(queue => this.getNodeIds(queue))),
-        find: nodeId => this.queueService.logs(record._id, nodeId, { tail: 500 }),
-        nodeIds: record.status?.nodes?.map(n => n._id),
+          .pipe(map((queue) => this.getNodeIds(queue))),
+        find: (nodeId) => this.queueService.logs(record._id, nodeId, { tail: 500 }),
+        nodeIds: record.status?.nodes?.map((n) => n._id),
         subscribe: async (nodeId, unix) => {
           const socket = await this.socketService.connect(environment.apiBaseUrl);
           return socket.logs(
@@ -126,7 +126,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
 
   private async fetchQueues() {
     const $queues = this.queueQuery.selectAll({
-      filterBy: gs => gs.namespaceId === this.selectedNamespaceService.namespaceId,
+      filterBy: (gs) => gs.namespaceId === this.selectedNamespaceService.namespaceId,
     });
     this.$queues = this.queueQuery.populate($queues);
 
@@ -135,7 +135,18 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
       where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });
 
-    this.updateDataSource$ = this.$queues.subscribe(queues => (this.dataSource.data = queues));
+    this.updateDataSource$ = this.$queues.subscribe((queues) => (this.dataSource.data = queues));
+
+    this.dataSource.filterPredicate = (data: Queue, filter: string) => {
+      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
+
+      return (
+        regex.test(data.description) ||
+        regex.test(data.game?.fullTitle) ||
+        regex.test(data.name) ||
+        regex.test(data.status?.phase)
+      );
+    };
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -143,7 +154,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
 
   private getNodeIds(queue: Queue) {
     return queue.status?.nodes
-      .map(n => {
+      .map((n) => {
         let displayName = 'Queue';
         if (n._id.includes('redis')) {
           displayName = 'Redis';

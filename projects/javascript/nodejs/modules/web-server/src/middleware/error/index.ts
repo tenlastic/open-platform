@@ -85,13 +85,7 @@ function getValidationError(err: any) {
     .sort()
     .map((key) => {
       const { kind, message, name, value } = err.errors[key];
-      return {
-        kind,
-        message: message.replace(/Path `\w+`/, 'Value').replace(/path `\w+`/, 'value'),
-        name,
-        path: key,
-        value,
-      };
+      return { kind, message, name, path: key, value };
     });
 
   return { errors };

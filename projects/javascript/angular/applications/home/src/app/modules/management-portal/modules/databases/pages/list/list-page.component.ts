@@ -140,7 +140,7 @@ export class DatabasesListPageComponent implements OnDestroy, OnInit {
 
     this.dataSource.filterPredicate = (data: Database, filter: string) => {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
-      return regex.test(data.name);
+      return regex.test(data.name) || regex.test(data.status?.phase);
     };
 
     this.dataSource.paginator = this.paginator;
