@@ -20,13 +20,13 @@ export class GameServerTemplateSchema {
   })
   public buildId: Ref<BuildDocument>;
 
-  @prop({ min: 0, required: true })
+  @prop({ min: 0.1, required: true })
   public cpu: number;
 
   @prop()
   public description: string;
 
-  @prop({ min: 0, required: true })
+  @prop({ min: 250 * 1000 * 1000, required: true })
   public memory: number;
 
   @prop({ default: {} })

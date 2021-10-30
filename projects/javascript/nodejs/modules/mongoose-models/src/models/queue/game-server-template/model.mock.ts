@@ -11,8 +11,8 @@ export class GameServerTemplateMock {
     const chance = new Chance();
 
     const defaults = {
-      cpu: chance.pickone([0.1, 0.25, 0.5]),
-      memory: chance.pickone([0.1, 0.25, 0.5]),
+      cpu: chance.floating({ max: 1, min: 0.1 }),
+      memory: chance.integer({ max: 1 * 1000 * 1000 * 1000, min: 250 * 1000 * 1000 }),
       name: chance.hash(),
     };
 
