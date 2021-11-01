@@ -9,8 +9,8 @@ import * as mongooseModels from '@tenlastic/mongoose-models';
 import { WebServer } from '@tenlastic/web-server';
 
 import { indexes } from './indexes';
-import { namespace } from './namespace';
 import { status } from './status';
+import { sync } from './sync';
 
 const accessToken = process.env.ACCESS_TOKEN;
 const apiUrl = process.env.API_URL;
@@ -27,7 +27,7 @@ const wssUrl = process.env.WSS_URL;
     connectionString: mongoConnectionString,
     databaseName: 'database',
   });
-  mongoose.connection.on('error', e => {
+  mongoose.connection.on('error', (e) => {
     console.error(e.message);
     process.exit(1);
   });
@@ -37,8 +37,8 @@ const wssUrl = process.env.WSS_URL;
 
   // Background Tasks.
   await indexes();
-  await namespace();
   await status();
+  await sync();
 
   // Web Socket.
   const webSocket = new WebSocket();
@@ -63,6 +63,6 @@ const wssUrl = process.env.WSS_URL;
 
   // Web Server.
   const webServer = new WebServer();
-  webServer.use(ctx => (ctx.status = 200));
+  webServer.use((ctx) => (ctx.status = 200));
   webServer.start();
 })();

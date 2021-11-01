@@ -26,7 +26,7 @@ export class GameServerTemplateSchema {
   @prop()
   public description: string;
 
-  @prop({ min: 250 * 1000 * 1000, required: true })
+  @prop({ min: 100 * 1000 * 1000, required: true })
   public memory: number;
 
   @prop({ default: {} })
