@@ -25,7 +25,7 @@ export class BuildService {
     const url = this.getUrl();
     const response = await request.promise(url, {
       formData: {
-        build: JSON.stringify(json),
+        record: JSON.stringify(json),
         zip: { options: { contentType: 'application/zip', filename: 'zip.zip' }, value: zip },
       },
       json: true,

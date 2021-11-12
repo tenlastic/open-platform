@@ -12,7 +12,7 @@ paths:
             schema:
               type: object
               properties:
-                build:
+                record:
                   $ref: '#/components/schemas/Build'
                 zip:
                   type: string

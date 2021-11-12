@@ -29,7 +29,7 @@ export class BuildService {
 
   public create(parameters: Partial<Build>, zip?: Blob) {
     const formData = new FormData();
-    formData.append('build', JSON.stringify(parameters));
+    formData.append('record', JSON.stringify(parameters));
 
     // Only append zip field if supplied.
     if (zip) {
@@ -41,7 +41,7 @@ export class BuildService {
       reportProgress: true,
     }) as Observable<any>;
     observable.pipe(
-      map(event => {
+      map((event) => {
         if (event.type === HttpEventType.Response) {
           this.onCreate.emit(event.body.record);
         }
@@ -73,7 +73,7 @@ export class BuildService {
   public async find(parameters: RestParameters): Promise<Build[]> {
     const response = await this.apiService.request('get', `${this.basePath}`, parameters);
 
-    const records = response.records.map(record => new Build(record));
+    const records = response.records.map((record) => new Build(record));
     this.onRead.emit(records);
 
     return records;
@@ -100,7 +100,7 @@ export class BuildService {
     );
 
     const records = response.records.map(
-      record => new BuildLog({ ...record, buildId: _id, nodeId }),
+      (record) => new BuildLog({ ...record, buildId: _id, nodeId }),
     );
     this.onLogs.emit(records);
 
