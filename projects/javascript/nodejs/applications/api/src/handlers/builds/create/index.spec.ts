@@ -18,19 +18,19 @@ import { handler } from './';
 
 use(chaiAsPromised);
 
-describe('handlers/files/upload', function() {
+describe('handlers/builds/create', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  context('when permission is granted', function() {
+  context('when permission is granted', function () {
     let build: BuildDocument;
     let ctx: ContextMock;
     let form: FormData;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
         roles: ['builds'],
@@ -48,7 +48,7 @@ describe('handlers/files/upload', function() {
       });
 
       form = new FormData();
-      form.append('build', JSON.stringify(build));
+      form.append('record', JSON.stringify(build));
       form.append('zip', stream);
 
       ctx = new ContextMock({
@@ -64,27 +64,27 @@ describe('handlers/files/upload', function() {
       } as any);
     });
 
-    it('returns the Build', async function() {
+    it('returns the Build', async function () {
       await handler(ctx as any);
 
       expect(ctx.response.body.record).to.exist;
     });
 
-    it('uploads zip to Minio', async function() {
+    it('uploads zip to Minio', async function () {
       await handler(ctx as any);
-      await new Promise(res => setTimeout(res, 100));
+      await new Promise((res) => setTimeout(res, 100));
 
       await minio.statObject(process.env.MINIO_BUCKET, build.getZipPath());
     });
   });
 
-  context('when permission is denied', function() {
-    it('throws an error', async function() {
+  context('when permission is denied', function () {
+    it('throws an error', async function () {
       const namespace = await NamespaceMock.create();
       const build = await BuildMock.new({ namespaceId: namespace._id });
 
       const form = new FormData();
-      form.append('build', JSON.stringify(build));
+      form.append('record', JSON.stringify(build));
 
       const ctx = new ContextMock({
         params: {
