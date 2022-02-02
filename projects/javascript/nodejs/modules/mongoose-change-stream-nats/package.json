@@ -9,7 +9,7 @@
     "type": "git",
     "url": "ssh://git@github.com/tenlastic/open-platform.git"
   },
-  "version": "0.0.275",
+  "version": "0.0.276",
   "publishConfig": {
     "access": "public"
   },
@@ -22,8 +22,8 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/mongoose-change-stream": "0.0.275",
-    "@tenlastic/nats": "0.0.275",
+    "@tenlastic/mongoose-change-stream": "0.0.276",
+    "@tenlastic/nats": "0.0.276",
     "mongoose": "5.9.13"
   },
   "devDependencies": {
