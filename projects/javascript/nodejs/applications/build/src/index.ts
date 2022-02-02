@@ -44,17 +44,23 @@ minio.connect({
       }
 
       const referenceBuild = new Build(referenceBuildResponse.record);
-      const copyPromises = build.reference.files.map(f => copy(build, f, referenceBuild));
+      const copyPromises = build.reference.files.map((f) => copy(build, f, referenceBuild));
       build.files = await Promise.all(copyPromises);
     }
 
     // Unzip modified Files.
     try {
+      console.log(`Attempting to unzip file: ${build.getZipPath()}.`);
+
       const stream = await minio.getObject(minioBucket, build.getZipPath());
       const files = await unzip(build, stream);
       build.files = [].concat(build.files || [], files);
+
+      console.log(`Finished unzipping file: ${build.getZipPath()}.`);
     } catch (e) {
-      if (e.code !== 'NoSuchKey') {
+      if (e.code === 'NoSuchKey') {
+        console.error(`Could not find zip file: ${build.getZipPath()}.`);
+      } else {
         console.error(e.message);
       }
     }
