@@ -33,7 +33,11 @@ export async function handler(ctx: Context) {
   });
 
   try {
-    const result = await BuildPermissions.create(build.toObject(), { _id: build._id }, user);
+    const result = await BuildPermissions.create(
+      build.toObject(),
+      { _id: build._id, unzip: build.unzip },
+      user,
+    );
     const record = await BuildPermissions.read(result, user);
 
     ctx.response.body = { record };
