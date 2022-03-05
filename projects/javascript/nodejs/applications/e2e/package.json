@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/e2e",
   "private": true,
-  "version": "0.0.276",
+  "version": "0.0.277",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -15,7 +15,7 @@
     "version": "../../scripts/version.sh e2e"
   },
   "dependencies": {
-    "@tenlastic/http": "0.0.276",
+    "@tenlastic/http": "0.0.277",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
     "chance": "1.0.16",
