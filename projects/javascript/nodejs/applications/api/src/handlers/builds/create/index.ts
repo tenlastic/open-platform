@@ -16,7 +16,6 @@ export async function handler(ctx: Context) {
       console.log(field);
 
       if (field === 'zip') {
-        build.unzip = true;
         minio.putObject(process.env.MINIO_BUCKET, build.getZipPath(), stream);
       } else {
         stream.resume();
@@ -33,11 +32,7 @@ export async function handler(ctx: Context) {
   });
 
   try {
-    const result = await BuildPermissions.create(
-      build.toObject(),
-      { _id: build._id, unzip: build.unzip },
-      user,
-    );
+    const result = await BuildPermissions.create(build.toObject(), { _id: build._id }, user);
     const record = await BuildPermissions.read(result, user);
 
     ctx.response.body = { record };

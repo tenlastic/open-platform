@@ -133,9 +133,6 @@ export class BuildSchema implements IOriginalDocument {
   @prop()
   public status: WorkflowStatusSchema;
 
-  @prop()
-  public unzip: boolean;
-
   public updatedAt: Date;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: 'GameSchema' })
