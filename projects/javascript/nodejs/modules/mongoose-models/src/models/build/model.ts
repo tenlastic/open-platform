@@ -35,7 +35,7 @@ export enum BuildPlatform {
 }
 
 // Delete files from Minio if associated Build is deleted.
-BuildEvent.sync(async payload => {
+BuildEvent.sync(async (payload) => {
   if (payload.operationType !== 'delete') {
     return;
   }
@@ -72,21 +72,21 @@ BuildEvent.sync(async payload => {
 });
 
 // Delete Builds if associated Game is deleted.
-GameEvent.sync(async payload => {
+GameEvent.sync(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Build.find({ gameId: payload.fullDocument._id });
-      const promises = records.map(r => r.remove());
+      const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }
 });
 
 // Delete Builds if associated Namespace is deleted.
-NamespaceEvent.sync(async payload => {
+NamespaceEvent.sync(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Build.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map(r => r.remove());
+      const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }
 });
@@ -132,6 +132,9 @@ export class BuildSchema implements IOriginalDocument {
 
   @prop()
   public status: WorkflowStatusSchema;
+
+  @prop()
+  public unzip: boolean;
 
   public updatedAt: Date;
 

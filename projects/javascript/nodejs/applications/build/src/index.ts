@@ -49,19 +49,29 @@ minio.connect({
     }
 
     // Unzip modified Files.
-    try {
-      console.log(`Attempting to unzip file: ${build.getZipPath()}.`);
+    if (build.unzip) {
+      let retries = 0;
 
-      const stream = await minio.getObject(minioBucket, build.getZipPath());
-      const files = await unzip(build, stream);
-      build.files = [].concat(build.files || [], files);
+      while (retries++ < 3) {
+        try {
+          console.log(`Attempting to unzip file: ${build.getZipPath()}.`);
 
-      console.log(`Finished unzipping file: ${build.getZipPath()}.`);
-    } catch (e) {
-      if (e.code === 'NoSuchKey') {
-        console.error(`Could not find zip file: ${build.getZipPath()}.`);
-      } else {
-        console.error(e.message);
+          const stream = await minio.getObject(minioBucket, build.getZipPath());
+          const files = await unzip(build, stream);
+          build.files = [].concat(build.files || [], files);
+
+          console.log(`Finished unzipping file: ${build.getZipPath()}.`);
+
+          break;
+        } catch (e) {
+          if (e.code === 'NoSuchKey') {
+            console.error(`Could not find zip file: ${build.getZipPath()}.`);
+          } else {
+            console.error(e.message);
+          }
+
+          await new Promise((res) => setTimeout(res, 5000));
+        }
       }
     }
 

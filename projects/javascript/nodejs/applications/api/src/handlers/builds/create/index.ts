@@ -16,6 +16,7 @@ export async function handler(ctx: Context) {
       console.log(field);
 
       if (field === 'zip') {
+        build.unzip = true;
         minio.putObject(process.env.MINIO_BUCKET, build.getZipPath(), stream);
       } else {
         stream.resume();
