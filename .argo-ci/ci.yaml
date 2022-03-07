@@ -257,9 +257,9 @@ spec:
           image: bitnami/minio:latest
           imagePullPolicy: IfNotPresent
           env:
-            - name: MINIO_ACCESS_KEY
+            - name: MINIO_ROOT_PASSWORD
               value: minioadmin
-            - name: MINIO_SECRET_KEY
+            - name: MINIO_ROOT_USER
               value: minioadmin
         - name: nats
           image: nats:alpine
