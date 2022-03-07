@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/build",
   "private": true,
-  "version": "0.0.278",
+  "version": "0.0.279",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -14,8 +14,8 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/minio": "0.0.278",
-    "@tenlastic/mongoose-models": "0.0.278",
+    "@tenlastic/minio": "0.0.279",
+    "@tenlastic/mongoose-models": "0.0.279",
     "@typegoose/typegoose": "6.4.0",
     "mongoose": "5.9.13",
     "request": "2.88.0",
