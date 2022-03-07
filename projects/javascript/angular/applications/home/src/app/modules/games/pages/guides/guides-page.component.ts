@@ -20,7 +20,7 @@ export class GuidesPageComponent implements OnInit {
       where: {
         gameId: game._id,
         publishedAt: { $exists: true, $ne: null },
-        type: 'Guides',
+        type: 'Guide',
       },
     });
 
