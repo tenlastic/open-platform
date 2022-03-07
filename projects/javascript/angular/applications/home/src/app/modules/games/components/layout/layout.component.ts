@@ -25,11 +25,12 @@ export class LayoutComponent implements OnDestroy, OnInit {
     return this.gameQuery.selectActive() as Observable<Game>;
   }
   public $games: Observable<Game[]>;
+  public $guides: Observable<Article[]>;
   public $news: Observable<Article[]>;
   public $patchNotes: Observable<Article[]>;
   public get $showStatusComponent() {
     return this.$activeGame.pipe(
-      map(game => {
+      map((game) => {
         if (!this.electronService.isElectron || !game) {
           return null;
         }
@@ -60,20 +61,23 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.$games = this.gameQuery.selectAll({ sortBy: 'title' });
-    this.setBackground$ = this.$activeGame.subscribe(activeGame => {
+    this.setBackground$ = this.$activeGame.subscribe((activeGame) => {
       const value = activeGame?.background || '/assets/images/background.jpg';
       this.document.body.style.backgroundImage = `url('${value}')`;
     });
-    this.updateArticles$ = this.$activeGame.subscribe(game => {
+    this.updateArticles$ = this.$activeGame.subscribe((game) => {
       if (!game) {
         return;
       }
 
+      this.$guides = this.articleQuery.selectAll({
+        filterBy: (a) => a.gameId === game._id && a.publishedAt && a.type === 'Guide',
+      });
       this.$news = this.articleQuery.selectAll({
-        filterBy: a => a.gameId === game._id && a.publishedAt && a.type === 'News',
+        filterBy: (a) => a.gameId === game._id && a.publishedAt && a.type === 'News',
       });
       this.$patchNotes = this.articleQuery.selectAll({
-        filterBy: a => a.gameId === game._id && a.publishedAt && a.type === 'Patch Notes',
+        filterBy: (a) => a.gameId === game._id && a.publishedAt && a.type === 'Patch Notes',
       });
       return this.fetchArticles(game._id);
     });

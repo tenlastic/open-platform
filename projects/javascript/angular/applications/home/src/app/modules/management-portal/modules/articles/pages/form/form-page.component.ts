@@ -25,6 +25,7 @@ export class ArticlesFormPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public types = [
+    { label: 'Guide', value: 'Guide' },
     { label: 'News', value: 'News' },
     { label: 'Patch Notes', value: 'Patch Notes' },
   ];

@@ -27,7 +27,7 @@ components:
           format: ^.{2,40}$
         type:
           type: string
-          enum: [News, Patch Notes]
+          enum: [Guide, News, Patch Notes]
         updatedAt:
           type: string
           format: date-time

@@ -63,6 +63,14 @@
       <mat-icon>healing</mat-icon>
       <span>Patch Notes</span>
     </app-button>
+
+    <app-button *ngIf="($guides | async).length"
+                color="accent"
+                routerLinkActive="active"
+                [routerLink]="['/', 'games', activeGame._id, 'guides']">
+      <mat-icon fontSet="material-icons-outlined">format_list_bulleted</mat-icon>
+      <span>Guides</span>
+    </app-button>
   </ng-container>
 
   <span class="space"></span>

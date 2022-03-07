@@ -7,6 +7,7 @@ import { GameGuard, StatusGuard } from './guards';
 import {
   GameServersPageComponent,
   GamesListPageComponent,
+  GuidesPageComponent,
   InformationPageComponent,
   NewsPageComponent,
   PatchNotesPageComponent,
@@ -34,6 +35,11 @@ export const ROUTES: Routes = [
       },
       {
         canActivate: [GameGuard],
+        component: GuidesPageComponent,
+        path: ':_id/guides',
+      },
+      {
+        canActivate: [GameGuard],
         component: NewsPageComponent,
         path: ':_id/news',
       },
@@ -58,6 +64,7 @@ export const ROUTES: Routes = [
     ArticleComponent,
     GameServersPageComponent,
     GamesListPageComponent,
+    GuidesPageComponent,
     InformationPageComponent,
     LayoutComponent,
     NewsPageComponent,

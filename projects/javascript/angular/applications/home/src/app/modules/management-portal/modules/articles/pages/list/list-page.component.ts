@@ -23,7 +23,14 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
 
   public $articles: Observable<Article[]>;
   public dataSource = new MatTableDataSource<Article>();
-  public displayedColumns: string[] = ['game', 'title', 'publishedAt', 'createdAt', 'actions'];
+  public displayedColumns: string[] = [
+    'game',
+    'type',
+    'title',
+    'publishedAt',
+    'createdAt',
+    'actions',
+  ];
 
   private updateDataSource$ = new Subscription();
 
@@ -97,7 +104,10 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
       const published = data.publishedAt ? 'Published' : 'Unpublished';
 
       return (
-        regex.test(data.game?.fullTitle) || regex.test(data.title) || exactRegex.test(published)
+        regex.test(data.game?.fullTitle) ||
+        regex.test(data.title) ||
+        regex.test(data.type) ||
+        exactRegex.test(published)
       );
     };
 

@@ -22,21 +22,21 @@ import { NamespaceDocument, NamespaceEvent } from '../namespace';
 export const ArticleEvent = new EventEmitter<IDatabasePayload<ArticleDocument>>();
 
 // Delete Articles if associated Game is deleted.
-GameEvent.sync(async payload => {
+GameEvent.sync(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Article.find({ gameId: payload.fullDocument._id });
-      const promises = records.map(r => r.remove());
+      const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }
 });
 
 // Delete Articles if associated Namespace is deleted.
-NamespaceEvent.sync(async payload => {
+NamespaceEvent.sync(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Article.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map(r => r.remove());
+      const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }
 });
@@ -79,7 +79,7 @@ export class ArticleSchema {
   @prop({ match: /^.{2,100}$/, required: true })
   public title: string;
 
-  @prop({ default: 'News', enum: ['News', 'Patch Notes'] })
+  @prop({ default: 'News', enum: ['Guide', 'News', 'Patch Notes'] })
   public type: string;
 
   public updatedAt: Date;
