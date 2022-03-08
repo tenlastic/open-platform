@@ -242,7 +242,7 @@ spec:
         workingDir: /workspace/open-platform/
       sidecars:
         - name: mongodb
-          image: bitnami/mongodb:latest
+          image: bitnami/mongodb:4.4
           imagePullPolicy: IfNotPresent
           env:
             - name: MONGODB_ADVERTISED_HOSTNAME
@@ -254,7 +254,7 @@ spec:
             - name: MONGODB_ROOT_PASSWORD
               value: password
         - name: minio
-          image: bitnami/minio:latest
+          image: bitnami/minio:2022
           imagePullPolicy: IfNotPresent
           env:
             - name: MINIO_ROOT_PASSWORD
@@ -262,14 +262,14 @@ spec:
             - name: MINIO_ROOT_USER
               value: minioadmin
         - name: nats
-          image: nats:alpine
+          image: nats:2.7.3-alpine
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
             - -c
             - trap "exit 0" SIGKILL && docker-entrypoint.sh --js
         - name: rabbitmq
-          image: rabbitmq:3.8
+          image: rabbitmq:3.9
           imagePullPolicy: IfNotPresent
           env:
             - name: RABBITMQ_DEFAULT_PASS
