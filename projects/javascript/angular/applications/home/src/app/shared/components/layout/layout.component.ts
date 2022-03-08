@@ -1,6 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Game, GameQuery, GameService, Namespace, NamespaceService } from '@tenlastic/ng-http';
+import {
+  Game,
+  GameQuery,
+  GameService,
+  Namespace,
+  NamespaceQuery,
+  NamespaceService,
+} from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
@@ -19,7 +26,7 @@ import { PromptComponent } from '../prompt/prompt.component';
 })
 export class LayoutComponent implements OnInit {
   public $games: Observable<Game[]>;
-  public namespaces: Namespace[] = [];
+  public $namespaces: Observable<Namespace[]>;
   public get socket() {
     return this.socketService.sockets[environment.apiBaseUrl];
   }
@@ -31,15 +38,16 @@ export class LayoutComponent implements OnInit {
     public gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
+    private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
     private socketService: SocketService,
   ) {}
 
   public async ngOnInit() {
-    this.namespaces = await this.namespaceService.find({});
-
     this.$games = this.$games || this.gameQuery.selectAll();
-    await this.gameService.find({});
+    this.$namespaces = this.$namespaces || this.namespaceQuery.selectAll();
+
+    await Promise.all([this.gameService.find({}), this.namespaceService.find({})]);
   }
 
   public close() {
@@ -64,7 +72,7 @@ export class LayoutComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Minimize to Taskbar') {
         const window = this.electronService.remote.getCurrentWindow();
         window.close();

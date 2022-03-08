@@ -18,7 +18,7 @@
       <span>Games</span>
     </app-button>
 
-    <app-button *ngIf="identityService.user?.roles?.length > 0 || namespaces.length > 0"
+    <app-button *ngIf="identityService.user?.roles?.length > 0 || ($namespaces | async)?.length > 0"
                 color="accent"
                 routerLink="/management-portal"
                 routerLinkActive="active">

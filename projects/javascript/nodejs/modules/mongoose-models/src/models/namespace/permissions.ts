@@ -52,8 +52,8 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
   find: {
     default: {
       $or: [
-        { keys: { $elemMatch: { roles: NamespaceRole.Namespaces, value: { $ref: 'key' } } } },
-        { users: { $elemMatch: { _id: { $ref: 'user._id' }, roles: NamespaceRole.Namespaces } } },
+        { 'keys.value': { $ref: 'key' } },
+        { 'users._id': { $ref: 'user._id' } },
         {
           $and: [
             { _id: { $exists: { $ref: { 'user.roles': NamespaceRole.Namespaces } } } },
