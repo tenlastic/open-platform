@@ -170,7 +170,7 @@ export class RecordsJsonPageComponent implements OnInit {
 
     this.data ??= new Record({ properties });
 
-    const keys = ['properties'];
+    const keys = ['properties', 'userId'];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))
       .sort()

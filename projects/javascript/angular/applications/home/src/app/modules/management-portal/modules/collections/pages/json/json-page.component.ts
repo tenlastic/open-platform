@@ -142,7 +142,7 @@ export class CollectionsJsonPageComponent implements OnInit {
       ],
     });
 
-    const keys = ['jsonSchema', 'name', 'permissions'];
+    const keys = ['indexes', 'jsonSchema', 'name', 'permissions'];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))
       .sort()

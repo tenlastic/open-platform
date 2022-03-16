@@ -229,9 +229,10 @@ export const KubernetesBuild = {
       manifest.spec.templates.push({
         container: {
           args: [
-            `--dockerfile=${build.entrypoint}`,
             '--context=dir:///workspace/',
             `--destination=${image}`,
+            `--dockerfile=${build.entrypoint}`,
+            '--push-retry=2',
             ...args,
           ],
           image: `gcr.io/kaniko-project/executor:v1.5.0`,
