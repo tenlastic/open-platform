@@ -58,13 +58,15 @@
           <mat-icon>check</mat-icon>
         </app-button>
 
-        <app-button color="accent"
+        <app-button *ngIf="hasPermission(element)"
+                    color="accent"
                     matTooltip="Edit"
                     [routerLink]="[element._id]">
           <mat-icon>create</mat-icon>
         </app-button>
 
-        <app-button color="accent"
+        <app-button *ngIf="hasPermission(element)"
+                    color="accent"
                     matTooltip="Delete"
                     (OnClick)="showDeletePrompt(element)">
           <mat-icon>delete</mat-icon>

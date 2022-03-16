@@ -75,6 +75,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
       'updatedAt',
       'users.*',
     ],
+    'namespace-member': ['_id', 'createdAt', 'name', 'updatedAt', 'users.*'],
     'system-administrator': [
       '_id',
       'createdAt',
@@ -109,6 +110,15 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     {
       name: 'namespace-administrator',
       query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Namespaces, 'record'),
+    },
+    {
+      name: 'namespace-member',
+      query: {
+        $or: [
+          { [`record.keys.value`]: { $ref: 'key' } },
+          { [`record.users._id`]: { $ref: 'user._id' } },
+        ],
+      },
     },
   ],
   update: {

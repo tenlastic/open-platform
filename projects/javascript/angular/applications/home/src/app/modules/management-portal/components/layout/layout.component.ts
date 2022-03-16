@@ -38,12 +38,10 @@ export class LayoutComponent {
   ) {}
 
   public hasPermission(role: string) {
-    if (this.identityService.user && this.identityService.user.roles.includes(role)) {
-      return true;
-    }
+    const namespace = this.selectedNamespaceService.namespace;
+    const namespaceUser = namespace.users?.find((u) => u._id === this.identityService.user._id);
+    const user = this.identityService.user;
 
-    return this.selectedNamespaceService.namespace.users
-      .find(u => u._id === this.identityService.user?._id)
-      .roles.includes(role);
+    return namespaceUser?.roles.includes(role) || user.roles.includes(role);
   }
 }

@@ -1,3 +1,26 @@
+:host::ng-deep {
+  app-toggle-section {
+    & > div.row {
+      align-items: center;
+      display: flex;
+      justify-content: flex-start;
+
+      app-button {
+        margin-left: initial;
+        margin-right: initial;
+        width: auto;
+      }
+
+      h3 {
+        color: #ffff55;
+        font-size: 30px;
+        font-weight: bold;
+        line-height: 36px;
+      }
+    }
+  }
+}
+
 div.container {
   flex: 1 1 auto;
   height: 0px;

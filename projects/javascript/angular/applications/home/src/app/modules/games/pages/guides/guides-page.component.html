@@ -1,11 +1,11 @@
 <div class="container">
   <div *ngIf="!loadingMessage"
        class="page">
-    <div *ngFor="let article of articles; let last = last">
-      <app-article [article]="article"></app-article>
-
-      <hr *ngIf="!last">
-    </div>
+    <app-toggle-section *ngFor="let article of articles"
+                        [title]="article.title"
+                        [isVisible]="articles.length < 5">
+      <app-markdown [markdown]="article.body"></app-markdown>
+    </app-toggle-section>
   </div>
 
   <app-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</app-loading-message>

@@ -46,6 +46,13 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
+  public hasPermission(namespace: Namespace) {
+    const namespaceUser = namespace.users?.find((u) => u._id === this.identityService.user._id);
+    const user = this.identityService.user;
+
+    return namespaceUser?.roles.includes('namespaces') || user.roles.includes('namespaces');
+  }
+
   public select(record: Namespace) {
     this.selectedNamespaceService.namespace = record;
   }
