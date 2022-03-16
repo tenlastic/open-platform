@@ -323,7 +323,7 @@ spec:
 
     - name: publish-docker-image
       container:
-        image: gcr.io/kaniko-project/executor:v1.5.0
+        image: gcr.io/kaniko-project/executor:v1.8.0
         args:
           - --context=dir://{{inputs.parameters.context}}
           - --dockerfile={{inputs.parameters.dockerfile}}

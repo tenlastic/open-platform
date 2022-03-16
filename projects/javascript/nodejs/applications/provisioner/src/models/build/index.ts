@@ -235,7 +235,7 @@ export const KubernetesBuild = {
             '--push-retry=2',
             ...args,
           ],
-          image: `gcr.io/kaniko-project/executor:v1.5.0`,
+          image: `gcr.io/kaniko-project/executor:v1.8.0`,
           resources: { requests: { cpu: '100m', memory: '100M' } },
           volumeMounts: [
             { mountPath: '/kaniko/.docker/', name: 'docker-registry', readOnly: true },
