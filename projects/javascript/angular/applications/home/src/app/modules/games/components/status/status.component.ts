@@ -209,6 +209,10 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
     return this.updateService.delete(this.game._id);
   }
 
+  public showInExplorer() {
+    this.updateService.showInExplorer(this.game._id);
+  }
+
   public sync() {
     const status = this.updateService.getStatus(this.game._id);
     status.state = UpdateServiceState.NotChecked;

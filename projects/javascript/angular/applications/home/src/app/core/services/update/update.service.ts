@@ -271,6 +271,11 @@ export class UpdateService {
     status.childProcess.on('close', () => (status.childProcess = null));
   }
 
+  public showInExplorer(gameId: string) {
+    const path = this.electronService.path.join(this.installPath, gameId);
+    this.electronService.shell.openExternal(path);
+  }
+
   public stop(gameId: string) {
     const status = this.getStatus(gameId);
     if (!status.childProcess) {
@@ -289,10 +294,10 @@ export class UpdateService {
 
     for (const localFile of localFiles) {
       const localPath = localFile.path.replace(`${this.installPath}/${gameId}/`, '');
-      const remotePaths = remoteFiles.map(rf => rf.path);
+      const remotePaths = remoteFiles.map((rf) => rf.path);
 
       if (!remotePaths.includes(localPath)) {
-        await new Promise<void>(resolve =>
+        await new Promise<void>((resolve) =>
           fs.unlink(`${this.installPath}/${gameId}/${localPath}`, () => resolve()),
         );
       }
@@ -309,8 +314,8 @@ export class UpdateService {
       0,
     );
 
-    const modifiedFilePaths = status.modifiedFiles.map(f => f.path);
-    const files = build.files.map(f => (modifiedFilePaths.includes(f.path) ? 1 : 0));
+    const modifiedFilePaths = status.modifiedFiles.map((f) => f.path);
+    const files = build.files.map((f) => (modifiedFilePaths.includes(f.path) ? 1 : 0));
     const { fs, request, unzipper } = this.electronService;
 
     return new Promise(async (resolve, reject) => {
@@ -322,7 +327,7 @@ export class UpdateService {
           qs: { query: JSON.stringify({ files: files.join('') }) },
           url: `${this.buildService.basePath}/${status.build._id}/files`,
         })
-        .on('data', data => {
+        .on('data', (data) => {
           downloadedBytes += data.length;
           status.progress = {
             current: downloadedBytes,
@@ -333,7 +338,7 @@ export class UpdateService {
         .on('error', reject)
         .pipe(unzipper.Parse())
         .on('close', resolve)
-        .on('entry', entry => {
+        .on('entry', (entry) => {
           if (entry.type !== 'File') {
             entry.autodrain();
             return;
@@ -359,7 +364,7 @@ export class UpdateService {
     try {
       namespace = await this.namespaceService.findOne(game.namespaceId);
     } catch {}
-    const namespaceUser = namespace?.users.find(u => u._id === this.identityService.user._id);
+    const namespaceUser = namespace?.users.find((u) => u._id === this.identityService.user._id);
 
     return { game, gameAuthorization: gameAuthorizations[0], namespaceUser };
   }

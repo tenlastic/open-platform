@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as childProcess from 'child_process';
 import * as crypto from 'crypto';
-import { ipcRenderer, webFrame, remote } from 'electron';
+import { ipcRenderer, webFrame, remote, shell } from 'electron';
 import * as fs from 'fs';
 import * as glob from 'glob';
 import * as os from 'os';
@@ -26,6 +26,7 @@ export class ElectronService {
   public path: typeof path;
   public remote: typeof remote;
   public request: typeof request;
+  public shell: typeof shell;
   public unzipper: typeof unzipper;
   public updateStatus = UpdateStatus.NotAvailable;
   public webFrame: typeof webFrame;
@@ -50,6 +51,7 @@ export class ElectronService {
     this.path = require('path');
     this.remote = require('electron').remote;
     this.request = require('request');
+    this.shell = require('electron').shell;
     this.unzipper = require('unzipper');
     this.webFrame = require('electron').webFrame;
 
@@ -86,7 +88,7 @@ export class ElectronService {
 
     window.addEventListener(
       'contextmenu',
-      e => {
+      (e) => {
         e.preventDefault();
         rightClickPosition = { x: e.x, y: e.y };
         menu.popup();
