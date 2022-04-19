@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/wss",
   "private": true,
-  "version": "0.0.285",
+  "version": "0.0.286",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -13,14 +13,14 @@
     "version": "../../scripts/version.sh wss"
   },
   "dependencies": {
-    "@tenlastic/kubernetes": "0.0.285",
-    "@tenlastic/logging": "0.0.285",
-    "@tenlastic/mongoose-change-stream-nats": "0.0.285",
-    "@tenlastic/mongoose-models": "0.0.285",
-    "@tenlastic/mongoose-permissions": "0.0.285",
-    "@tenlastic/nats": "0.0.285",
-    "@tenlastic/web-server": "0.0.285",
-    "@tenlastic/web-socket-server": "0.0.285",
+    "@tenlastic/kubernetes": "0.0.286",
+    "@tenlastic/logging": "0.0.286",
+    "@tenlastic/mongoose-change-stream-nats": "0.0.286",
+    "@tenlastic/mongoose-models": "0.0.286",
+    "@tenlastic/mongoose-permissions": "0.0.286",
+    "@tenlastic/nats": "0.0.286",
+    "@tenlastic/web-server": "0.0.286",
+    "@tenlastic/web-socket-server": "0.0.286",
     "@typegoose/typegoose": "6.4.0",
     "mongoose": "5.9.13",
     "source-map-support": "0.5.12"
