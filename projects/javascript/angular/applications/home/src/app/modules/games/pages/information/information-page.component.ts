@@ -14,10 +14,16 @@ export class InformationPageComponent implements OnInit {
   public articles: Article[];
   public game: Game;
   public error: string;
+  public get images() {
+    return this.game.images.filter((i) => i !== this.mainMedia?.src);
+  }
   public loadingMessage: string;
   public mainMedia: { src: string; type: 'image' | 'video' };
   public get timestamp() {
     return new Date().getTime();
+  }
+  public get videos() {
+    return this.game.videos.filter((i) => i !== this.mainMedia?.src);
   }
 
   constructor(
@@ -52,7 +58,7 @@ export class InformationPageComponent implements OnInit {
 
   public async selectMedia(index: number, type: 'image' | 'video' = 'image', muted = false) {
     this.mainMedia = {
-      src: type === 'image' ? this.game.images[index] : this.game.videos[index],
+      src: type === 'image' ? this.images[index] : this.videos[index],
       type,
     };
 

@@ -26,7 +26,7 @@
         <mat-grid-list cols="4"
                        gutterSize="8"
                        rowHeight="1920:1080">
-          <mat-grid-tile *ngFor="let video of game.videos; let i = index"
+          <mat-grid-tile *ngFor="let video of videos; let i = index"
                          [ngClass]="{ selected: mainMedia.src === video }"
                          (click)="selectMedia(i, 'video')">
             <video preload="metadata">
@@ -35,7 +35,7 @@
             </video>
             <mat-icon>play_arrow</mat-icon>
           </mat-grid-tile>
-          <mat-grid-tile *ngFor="let image of game.images; let i = index"
+          <mat-grid-tile *ngFor="let image of images; let i = index"
                          [ngClass]="{ selected: mainMedia.src === image }"
                          [ngStyle]="{ 'background-image': 'url(' + image + ')' }"
                          (click)="selectMedia(i, 'image')"></mat-grid-tile>
