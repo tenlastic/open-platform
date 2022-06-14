@@ -2,7 +2,6 @@ import { app, globalShortcut, protocol } from 'electron';
 import log from 'electron-log';
 import * as path from 'path';
 
-import { createTray } from './tray';
 import './update';
 import { createWindow, getWindow, setIsQuitting } from './window';
 
@@ -51,15 +50,9 @@ app.allowRendererProcessReuse = false;
 
 const instanceLock = app.requestSingleInstanceLock();
 if (instanceLock) {
-  app.on('activate', () => {
-    createTray();
-    createWindow();
-  });
+  app.on('activate', createWindow);
   app.on('before-quit', () => setIsQuitting(true));
-  app.on('ready', () => {
-    createTray();
-    createWindow();
-  });
+  app.on('ready', createWindow);
   app.on('second-instance', (event, commandLine, workingDirectory) => {
     const window = getWindow();
     if (!window) {

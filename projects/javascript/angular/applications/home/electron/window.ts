@@ -2,9 +2,11 @@ import { BrowserWindow, shell } from 'electron';
 import * as path from 'path';
 import { format } from 'url';
 
+import { createTray } from './tray';
+
 const args = process.argv.slice(1);
 let isQuitting = false;
-const serve = args.some(val => val === '--serve');
+const serve = args.some((val) => val === '--serve');
 let window: BrowserWindow;
 
 export function createWindow() {
@@ -58,7 +60,7 @@ export function createWindow() {
   window.webContents.on('will-navigate', handleRedirect);
 
   // Emitted when the window is closed.
-  window.on('close', event => {
+  window.on('close', (event) => {
     if (isQuitting) {
       return;
     }
@@ -66,8 +68,9 @@ export function createWindow() {
     event.preventDefault();
     event.returnValue = false;
     window.hide();
+
+    createTray();
   });
-  window.on('closed', () => (window = null));
 
   return window;
 }

@@ -10,14 +10,12 @@ export function createTray() {
     return tray;
   }
 
-  const window = getWindow();
-
   tray = new Tray(path.join(__dirname, '../angular/assets/images/favicon-256x256.png'));
-  tray.on('click', () => window.show());
+  tray.on('click', showWindow);
   tray.setContextMenu(
     Menu.buildFromTemplate([
       {
-        click: () => window.show(),
+        click: showWindow,
         label: 'Show Window',
       },
       {
@@ -31,4 +29,12 @@ export function createTray() {
   );
 
   return tray;
+}
+
+function showWindow() {
+  tray.destroy();
+  tray = null;
+
+  const window = getWindow();
+  window.show();
 }

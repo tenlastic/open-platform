@@ -24,14 +24,8 @@ export class RegistrationFormComponent implements OnInit {
   public submit() {
     if (this.form.invalid) {
       this.form.get('email').markAsTouched();
-      this.form
-        .get('passwords')
-        .get('password')
-        .markAsTouched();
-      this.form
-        .get('passwords')
-        .get('confirmPassword')
-        .markAsTouched();
+      this.form.get('passwords').get('password').markAsTouched();
+      this.form.get('passwords').get('confirmPassword').markAsTouched();
       this.form.get('username').markAsTouched();
 
       return;
@@ -63,10 +57,13 @@ export class RegistrationFormComponent implements OnInit {
         },
         this.confirmPassword,
       ),
-      username: new FormControl('', [Validators.required]),
+      username: new FormControl('', [
+        Validators.pattern(/^[A-Za-z0-9]{0,20}$/),
+        Validators.required,
+      ]),
     });
 
-    this.form.valueChanges.subscribe(data => {
+    this.form.valueChanges.subscribe((data) => {
       this.error = null;
     });
   }
