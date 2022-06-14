@@ -64,7 +64,7 @@ export class IdentityService {
 
   private accessToken: Jwt;
   private refreshToken: Jwt;
-  private isRefreshingAccessToken = false;
+  private startedRefreshingAt: Date;
 
   constructor(private loginService: LoginService) {
     this.loginService.onLogin.subscribe(this.login.bind(this));
@@ -78,7 +78,18 @@ export class IdentityService {
   }
 
   public async getAccessToken() {
-    await this.wait(250, 5 * 1000, () => !this.isRefreshingAccessToken);
+    try {
+      await this.wait(250, 15 * 1000, () => {
+        if (!this.startedRefreshingAt) {
+          return true;
+        }
+
+        const milliseconds = Date.now() - this.startedRefreshingAt.getTime();
+        return milliseconds >= 5 * 1000;
+      });
+    } catch {
+      return null;
+    }
 
     // If the access token is still valid, return it.
     if (this.accessToken && !this.accessToken.isExpired) {
@@ -91,7 +102,7 @@ export class IdentityService {
       return null;
     }
 
-    this.isRefreshingAccessToken = true;
+    this.startedRefreshingAt = new Date();
 
     try {
       await this.loginService.createWithRefreshToken(refreshToken.value);
@@ -100,7 +111,7 @@ export class IdentityService {
       return null;
     }
 
-    this.isRefreshingAccessToken = false;
+    this.startedRefreshingAt = null;
 
     return this.accessToken;
   }
@@ -113,6 +124,8 @@ export class IdentityService {
     } else {
       localStorage.removeItem('accessToken');
     }
+
+    this.OnAccessTokenSet.emit(value);
   }
 
   public getRefreshToken() {
@@ -134,6 +147,8 @@ export class IdentityService {
     } else {
       localStorage.removeItem('refreshToken');
     }
+
+    this.OnRefreshTokenSet.emit(value);
   }
 
   private login(data: IOnLogin) {
@@ -144,7 +159,7 @@ export class IdentityService {
   private async wait(frequency: number, timeout: number, condition: () => any) {
     const wait = async () => {
       while (!condition()) {
-        await new Promise(res => setTimeout(res, frequency));
+        await new Promise((res) => setTimeout(res, frequency));
       }
     };
 
