@@ -5,15 +5,15 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/workflow-sidecar",
   "private": true,
-  "version": "0.0.286",
+  "version": "0.0.287",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/kubernetes": "0.0.286",
-    "@tenlastic/web-server": "0.0.286",
+    "@tenlastic/kubernetes": "0.0.287",
+    "@tenlastic/web-server": "0.0.287",
     "request": "2.88.0",
     "request-promise-native": "1.0.7"
   },
