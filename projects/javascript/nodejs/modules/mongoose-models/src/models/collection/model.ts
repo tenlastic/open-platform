@@ -31,11 +31,11 @@ import { CollectionIndexSchema } from './index/index';
 export const CollectionEvent = new EventEmitter<IDatabasePayload<CollectionDocument>>();
 
 // Delete Collections if associated Database is deleted.
-DatabaseEvent.sync(async payload => {
+DatabaseEvent.sync(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Collection.find({ databaseId: payload.fullDocument._id });
-      const promises = records.map(r => r.remove());
+      const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }
 });
@@ -52,16 +52,16 @@ DatabaseEvent.sync(async payload => {
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: CollectionEvent })
 @plugin(uniqueErrorPlugin)
-@pre('save', async function(this: CollectionDocument) {
+@pre('save', async function (this: CollectionDocument) {
   const Record = RecordSchema.getModel(this);
   await Record.syncIndexes({ background: true });
 })
-@post('remove', async function(this: CollectionDocument) {
+@post('remove', async function (this: CollectionDocument) {
   try {
     await this.dropCollection();
   } catch {}
 })
-@post('save', async function(this: CollectionDocument) {
+@post('save', async function (this: CollectionDocument) {
   await this.setValidator();
 })
 export class CollectionSchema implements IOriginalDocument {
@@ -82,8 +82,8 @@ export class CollectionSchema implements IOriginalDocument {
   @prop({
     _id: false,
     default: JSON.stringify({ type: 'object' }),
-    get: value => (typeof value === 'string' ? JSON.parse(value) : value),
-    set: value => (typeof value === 'string' ? value : JSON.stringify(value)),
+    get: (value) => (typeof value === 'string' ? JSON.parse(value) : value),
+    set: (value) => (typeof value === 'string' ? value : JSON.stringify(value)),
     validate: jsonSchemaPropertiesValidator,
   })
   public jsonSchema: any;
@@ -97,8 +97,8 @@ export class CollectionSchema implements IOriginalDocument {
   @prop({
     _id: false,
     default: JSON.stringify({}),
-    get: value => (typeof value === 'string' ? JSON.parse(value) : value),
-    set: value => (typeof value === 'string' ? value : JSON.stringify(value)),
+    get: (value) => (typeof value === 'string' ? JSON.parse(value) : value),
+    set: (value) => (typeof value === 'string' ? value : JSON.stringify(value)),
   })
   public permissions: IOptions;
 
@@ -122,7 +122,7 @@ export class CollectionSchema implements IOriginalDocument {
    */
   public async dropCollection(this: CollectionDocument) {
     const collections = await mongoose.connection.db.listCollections().toArray();
-    const collectionExists = collections.map(c => c.name).includes(this.mongoName);
+    const collectionExists = collections.map((c) => c.name).includes(this.mongoName);
 
     if (!collectionExists) {
       return;
@@ -137,7 +137,7 @@ export class CollectionSchema implements IOriginalDocument {
    */
   public async setValidator(this: CollectionDocument) {
     const collections = await mongoose.connection.db.listCollections().toArray();
-    const collectionExists = collections.map(c => c.name).includes(this.mongoName);
+    const collectionExists = collections.map((c) => c.name).includes(this.mongoName);
 
     if (collectionExists) {
       await mongoose.connection.db.command({
@@ -185,7 +185,7 @@ export class CollectionSchema implements IOriginalDocument {
             bsonType: 'date',
           },
           userId: {
-            bsonType: 'objectId',
+            bsonType: ['null', 'objectId', 'undefined'],
           },
         },
       },
