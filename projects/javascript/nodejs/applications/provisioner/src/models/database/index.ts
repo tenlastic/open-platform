@@ -177,7 +177,7 @@ export const KubernetesDatabase = {
         chart: {
           name: 'mongodb',
           repository: 'https://charts.bitnami.com/bitnami',
-          version: '10.4.1',
+          version: '12.1.20',
         },
         releaseName: `${name}-mongodb`,
         values: {

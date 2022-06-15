@@ -1,4 +1,4 @@
-FROM ubuntu:20.10
+FROM ubuntu:22.04
 
 ENV ARGO_VERSION 2.7.0
 ENV DOCKER_VERSION 18.06.3-ce
@@ -15,7 +15,7 @@ WORKDIR /home/
 
 # Run package update and install some basics.
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -qy apt-transport-https ca-certificates curl gnupg2 software-properties-common python-dev unzip wget
+RUN apt-get install -qy apt-transport-https ca-certificates curl gnupg2 software-properties-common python2-dev unzip wget
 
 # Install docker.
 RUN curl -L -o /tmp/docker.tgz https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz && \
@@ -39,7 +39,7 @@ RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/
   mv kustomize /bin/kustomize
 
 # Install node and npm.
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
   apt-get install -qy nodejs
 
 # Install terraform

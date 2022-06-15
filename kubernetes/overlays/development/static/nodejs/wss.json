@@ -45,8 +45,8 @@
           "path": "/",
           "port": 3000
         },
-        "initialDelaySeconds": 30,
-        "periodSeconds": 30
+        "initialDelaySeconds": 60,
+        "periodSeconds": 60
       },
       "name": "wss",
       "ports": [{ "containerPort": 3000 }],

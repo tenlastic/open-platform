@@ -9,7 +9,7 @@ spec:
   chart:
     name: rabbitmq
     repository: https://charts.bitnami.com/bitnami
-    version: 8.16.0
+    version: 10.1.7
   releaseName: rabbitmq
   values:
     affinity:

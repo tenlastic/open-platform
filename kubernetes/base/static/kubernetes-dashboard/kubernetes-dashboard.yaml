@@ -42,7 +42,7 @@ spec:
   chart:
     name: kubernetes-dashboard
     repository: https://kubernetes.github.io/dashboard
-    version: 4.2.0
+    version: 5.7.0
   releaseName: kubernetes-dashboard
   values:
     affinity:
@@ -68,6 +68,8 @@ spec:
       - --enable-insecure-login
       - --enable-skip-login
     protocolHttp: true
+    rbac:
+      create: false
     replicaCount: 1
     resources:
       requests:

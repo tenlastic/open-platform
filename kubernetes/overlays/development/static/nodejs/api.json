@@ -35,8 +35,8 @@
           "path": "/articles",
           "port": 3000
         },
-        "initialDelaySeconds": 30,
-        "periodSeconds": 30
+        "initialDelaySeconds": 60,
+        "periodSeconds": 60
       },
       "name": "api",
       "ports": [{ "containerPort": 3000 }],
