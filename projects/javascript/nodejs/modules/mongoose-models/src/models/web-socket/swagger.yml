@@ -9,6 +9,9 @@ components:
         createdAt:
           type: string
           format: date-time
+        disconnectedAt:
+          type: string
+          format: date-time
         updatedAt:
           type: string
           format: date-time

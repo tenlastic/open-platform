@@ -35,6 +35,9 @@ export class WebSocketSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
+  @prop()
+  public disconnectedAt: Date;
+
   @prop({ required: true })
   public nodeId: string;
 

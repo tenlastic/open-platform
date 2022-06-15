@@ -75,7 +75,7 @@ export class LayoutComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Minimize to Taskbar') {
         const window = this.electronService.remote.getCurrentWindow();
-        window.close();
+        setTimeout(window.close, 0);
       } else if (result === 'Update and Restart') {
         const { ipcRenderer } = this.electronService;
         ipcRenderer.send('quitAndInstall');

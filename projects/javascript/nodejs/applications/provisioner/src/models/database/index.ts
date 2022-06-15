@@ -184,7 +184,6 @@ export const KubernetesDatabase = {
           affinity: getAffinity(database, 'mongodb'),
           architecture: 'replicaset',
           auth: { existingSecret: `${name}-mongodb` },
-          image: { tag: '4.4.3' },
           persistence: {
             size: `${database.storage}`,
             storageClass: 'balanced-expandable',

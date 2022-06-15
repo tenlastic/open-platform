@@ -41,7 +41,7 @@ export class Socket extends WebSocket {
     const data = { _id, method: 'logs', parameters };
 
     this.send(JSON.stringify(data));
-    this.addEventListener('message', msg => {
+    this.addEventListener('message', (msg) => {
       const payload = JSON.parse(msg.data);
 
       // If the response is for a different request, ignore it.
@@ -52,7 +52,7 @@ export class Socket extends WebSocket {
       const record = new Model({ ...payload.fullDocument, ...parameters });
       service.onLogs.emit([record]);
 
-      const subscription = this.subscriptions.find(s => s._id === _id);
+      const subscription = this.subscriptions.find((s) => s._id === _id);
       subscription.logs.since = new Date(record.unix);
     });
 
@@ -74,7 +74,7 @@ export class Socket extends WebSocket {
     };
 
     this.send(JSON.stringify(data));
-    this.addEventListener('message', msg => {
+    this.addEventListener('message', (msg) => {
       const payload = JSON.parse(msg.data);
 
       // If the response is for a different request, ignore it.
@@ -109,10 +109,10 @@ export class Socket extends WebSocket {
   }
 
   public unsubscribe(_id: string) {
-    const subscription = this.subscriptions.find(s => s._id === _id);
+    const subscription = this.subscriptions.find((s) => s._id === _id);
     const data = { _id, method: subscription.method };
 
-    const index = this.subscriptions.findIndex(s => s._id === _id);
+    const index = this.subscriptions.findIndex((s) => s._id === _id);
     this.subscriptions.splice(index, 1);
 
     this.send(JSON.stringify(data));
@@ -134,13 +134,13 @@ export class SocketService {
     resumeTokens: { [key: string]: string } = {},
     subscriptions: Subscription[] = [],
   ) {
-    if (this._sockets[url]) {
-      return this._sockets[url];
-    }
-
     const accessToken = await this.identityService.getAccessToken();
     if (!accessToken || accessToken.isExpired) {
       return;
+    }
+
+    if (this._sockets[url]) {
+      return this._sockets[url];
     }
 
     const hostname = url.replace('http', 'ws');
@@ -153,7 +153,7 @@ export class SocketService {
     const data = { _id: uuid(), method: 'ping' };
     const interval = setInterval(() => socket.send(JSON.stringify(data)), 5000);
 
-    socket.addEventListener('close', e => {
+    socket.addEventListener('close', (e) => {
       clearInterval(interval);
       delete this._sockets[url];
 
@@ -162,7 +162,7 @@ export class SocketService {
       }
     });
     socket.addEventListener('error', socket.close);
-    socket.addEventListener('message', msg => {
+    socket.addEventListener('message', (msg) => {
       const payload = JSON.parse(msg.data);
 
       if (!payload._id && payload.fullDocument && payload.operationType === 'insert') {
@@ -172,12 +172,12 @@ export class SocketService {
     socket.addEventListener('open', () => {
       socket.subscriptions = [];
 
-      for (const subscription of subscriptions.filter(s => s.method === 'logs')) {
+      for (const subscription of subscriptions.filter((s) => s.method === 'logs')) {
         const { Model, service } = subscription;
         socket.logs(Model, subscription.logs, service);
       }
 
-      for (const subscription of subscriptions.filter(s => s.method === 'subscribe')) {
+      for (const subscription of subscriptions.filter((s) => s.method === 'subscribe')) {
         const { Model, service } = subscription;
         const { collection, where } = subscription.subscribe;
         socket.subscribe(collection, Model, service, where);

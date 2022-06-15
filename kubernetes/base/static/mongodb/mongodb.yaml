@@ -33,8 +33,6 @@ spec:
     architecture: replicaset
     auth:
       existingSecret: mongodb
-    image:
-      tag: 4.4.3
     persistence:
       size: 8Gi
       storageClass: balanced-expandable

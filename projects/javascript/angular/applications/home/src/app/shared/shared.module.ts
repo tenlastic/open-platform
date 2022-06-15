@@ -34,6 +34,7 @@ import {
 import {
   AsAnyPipe,
   CamelCaseToTitleCasePipe,
+  DurationPipe,
   FilesizePipe,
   KeysPipe,
   MarkdownPipe,
@@ -80,6 +81,7 @@ const modules = [
 const pipes = [
   AsAnyPipe,
   CamelCaseToTitleCasePipe,
+  DurationPipe,
   FilesizePipe,
   KeysPipe,
   MarkdownPipe,

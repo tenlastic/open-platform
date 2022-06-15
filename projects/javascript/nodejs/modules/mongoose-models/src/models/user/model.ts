@@ -51,7 +51,7 @@ export enum UserRole {
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: UserEvent })
 @plugin(uniqueErrorPlugin)
-@pre('save', async function(this: UserDocument) {
+@pre('save', async function (this: UserDocument) {
   if (!this.isNew && this._original.password !== this.password) {
     await emails.sendPasswordResetConfirmation(this);
   }
