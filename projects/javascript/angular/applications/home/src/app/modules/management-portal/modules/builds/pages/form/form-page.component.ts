@@ -185,7 +185,7 @@ export class BuildsFormPageComponent implements OnInit {
       zipBlob = await zip.generateAsync(
         {
           compression: 'DEFLATE',
-          compressionOptions: { level: 3 },
+          compressionOptions: { level: 1 },
           type: 'blob',
         },
         (metadata) => {

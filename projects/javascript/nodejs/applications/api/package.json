@@ -34,7 +34,7 @@
     "busboy": "0.3.1",
     "chance": "1.0.16",
     "jsonwebtoken": "8.5.1",
-    "jszip": "3.2.2",
+    "jszip": "3.10.0",
     "koa-router": "7.4.0",
     "mongoose": "5.9.13",
     "request": "2.88.0",

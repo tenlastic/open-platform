@@ -29,6 +29,6 @@ export async function handler(ctx: Context) {
 
   ctx.response.body = zip.generateNodeStream({
     compression: 'DEFLATE',
-    compressionOptions: { level: 5 },
+    compressionOptions: { level: 1 },
   });
 }
