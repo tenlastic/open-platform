@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/database",
   "private": true,
-  "version": "0.0.290",
+  "version": "0.0.291",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -14,11 +14,11 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/mongoose-change-stream-nats": "0.0.290",
-    "@tenlastic/mongoose-models": "0.0.290",
-    "@tenlastic/nats": "0.0.290",
-    "@tenlastic/web-server": "0.0.290",
-    "@tenlastic/web-socket-server": "0.0.290",
+    "@tenlastic/mongoose-change-stream-nats": "0.0.291",
+    "@tenlastic/mongoose-models": "0.0.291",
+    "@tenlastic/nats": "0.0.291",
+    "@tenlastic/web-server": "0.0.291",
+    "@tenlastic/web-socket-server": "0.0.291",
     "@typegoose/typegoose": "9.9.0",
     "koa-router": "7.4.0",
     "mongoose": "6.3.5",
