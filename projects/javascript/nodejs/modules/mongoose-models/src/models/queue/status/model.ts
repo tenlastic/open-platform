@@ -1,7 +1,6 @@
 import {
   DocumentType,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   modelOptions,
   prop,
@@ -20,10 +19,10 @@ export enum QueueStatusPhase {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class QueueStatusSchema {
-  @arrayProp({ items: QueueStatusComponentSchema })
+  @prop({ type: QueueStatusComponentSchema })
   public components: QueueStatusComponentSchema[];
 
-  @arrayProp({ items: QueueStatusNodeSchema })
+  @prop({ type: QueueStatusNodeSchema })
   public nodes: QueueStatusNodeSchema[];
 
   @prop({ enum: QueueStatusPhase, required: true })

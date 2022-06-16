@@ -2,7 +2,6 @@ import {
   DocumentType,
   Ref,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   index,
   modelOptions,
@@ -10,41 +9,37 @@ import {
   pre,
   prop,
 } from '@typegoose/typegoose';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
 import * as mongoose from 'mongoose';
 
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import { GroupDocument, GroupEvent } from '../group';
 import { UserDocument, UserEvent } from '../user';
 
 export const MessageEvent = new EventEmitter<IDatabasePayload<MessageDocument>>();
 
 // Delete Messages if associated Group is deleted.
-GroupEvent.sync(async payload => {
+GroupEvent.sync(async (payload) => {
   const group = payload.fullDocument;
 
   if (payload.operationType === 'delete') {
     const records = await Message.find({ groupId: group._id });
-    const promises = records.map(r => r.remove());
+    const promises = records.map((r) => r.remove());
     return Promise.all(promises);
   } else if (payload.operationType === 'update') {
     const records = await Message.find({ fromUserId: { $nin: group.userIds }, groupId: group._id });
-    const promises = records.map(r => r.remove());
+    const promises = records.map((r) => r.remove());
     return Promise.all(promises);
   }
 });
 
 // Delete Messages if associated User is deleted.
-UserEvent.sync(async payload => {
+UserEvent.sync(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Message.find({
         $or: [{ fromUserId: payload.fullDocument._id }, { toUserId: payload.fullDocument._id }],
       });
-      const promises = records.map(r => r.remove());
+      const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }
 });
@@ -61,7 +56,7 @@ UserEvent.sync(async payload => {
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: MessageEvent })
-@pre('validate', function(this: MessageDocument) {
+@pre('validate', function (this: MessageDocument) {
   const message = 'Only one of the following fields must be specified: toGroupId or toUserId.';
 
   if (this.toGroupId && this.toUserId) {
@@ -81,16 +76,16 @@ export class MessageSchema {
   public createdAt: Date;
 
   @prop({ immutable: true, ref: 'UserSchema', required: true })
-  public fromUserId: Ref<UserDocument>;
+  public fromUserId: mongoose.Types.ObjectId;
 
-  @arrayProp({ itemsRef: 'UserSchema' })
-  public readByUserIds: Array<Ref<UserDocument>>;
+  @prop({ ref: 'UserSchema', type: new mongoose.Types.ObjectId() })
+  public readByUserIds: mongoose.Types.ObjectId[];
 
   @prop({ immutable: true, ref: 'GroupSchema' })
-  public toGroupId: Ref<GroupDocument>;
+  public toGroupId: mongoose.Types.ObjectId;
 
   @prop({ immutable: true, ref: 'UserSchema' })
-  public toUserId: Ref<UserDocument>;
+  public toUserId: mongoose.Types.ObjectId;
 
   public updatedAt: Date;
 

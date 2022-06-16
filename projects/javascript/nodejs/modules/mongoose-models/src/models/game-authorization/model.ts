@@ -1,6 +1,5 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   getModelForClass,
   index,
@@ -8,14 +7,10 @@ import {
   plugin,
   prop,
 } from '@typegoose/typegoose';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
-import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import * as errors from '../../errors';
 import { namespaceValidator } from '../../validators';
 import { GameDocument, GameEvent } from '../game';
 import { NamespaceDocument } from '../namespace';
@@ -32,11 +27,11 @@ export enum GameAuthorizationStatus {
 }
 
 // Delete GameAuthorizations if associated Game is deleted.
-GameEvent.sync(async payload => {
+GameEvent.sync(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await GameAuthorization.find({ gameId: payload.fullDocument._id });
-      const promises = records.map(r => r.remove());
+      const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }
 });
@@ -52,7 +47,7 @@ GameEvent.sync(async payload => {
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameAuthorizationEvent })
-@plugin(uniqueErrorPlugin)
+@plugin(errors.unique.plugin)
 export class GameAuthorizationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
@@ -62,16 +57,16 @@ export class GameAuthorizationSchema {
     required: true,
     validate: namespaceValidator('gameDocument', 'gameId'),
   })
-  public gameId: Ref<GameDocument>;
+  public gameId: mongoose.Types.ObjectId;
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
-  public namespaceId: Ref<NamespaceDocument>;
+  public namespaceId: mongoose.Types.ObjectId;
 
   @prop({ default: GameAuthorizationStatus.Pending, enum: GameAuthorizationStatus })
   public status: GameAuthorizationStatus;
 
   @prop({ ref: 'UserSchema', required: true })
-  public userId: Ref<UserDocument>;
+  public userId: mongoose.Types.ObjectId;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: 'GameSchema' })
   public gameDocument: GameDocument;

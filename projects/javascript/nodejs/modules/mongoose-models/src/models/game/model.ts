@@ -1,23 +1,18 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   index,
   modelOptions,
   plugin,
   prop,
+  Severity,
 } from '@typegoose/typegoose';
 import * as minio from '@tenlastic/minio';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
-import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import * as errors from '../../errors';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 
 export const GameEvent = new EventEmitter<IDatabasePayload<GameDocument>>();
@@ -29,7 +24,7 @@ export enum GameAccess {
 }
 
 // Delete unused images and videos on update.
-GameEvent.sync(async payload => {
+GameEvent.sync(async (payload) => {
   const game = payload.fullDocument;
 
   switch (payload.operationType) {
@@ -42,11 +37,11 @@ GameEvent.sync(async payload => {
 });
 
 // Delete Games if associated Namespace is deleted.
-NamespaceEvent.sync(async payload => {
+NamespaceEvent.sync(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Game.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map(r => r.remove());
+      const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }
 });
@@ -55,6 +50,7 @@ NamespaceEvent.sync(async payload => {
 @index({ namespaceId: 1 })
 @index({ subtitle: 1, title: 1 }, { unique: true })
 @modelOptions({
+  options: { allowMixed: Severity.ALLOW },
   schemaOptions: {
     collection: 'games',
     minimize: false,
@@ -62,7 +58,7 @@ NamespaceEvent.sync(async payload => {
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameEvent })
-@plugin(uniqueErrorPlugin)
+@plugin(errors.unique.plugin)
 export class GameSchema {
   public _id: mongoose.Types.ObjectId;
 
@@ -80,14 +76,14 @@ export class GameSchema {
   @prop()
   public icon: string;
 
-  @arrayProp({ items: String })
+  @prop({ type: String })
   public images: string[];
 
   @prop({ default: {} })
   public metadata: any;
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
-  public namespaceId: Ref<NamespaceDocument>;
+  public namespaceId: mongoose.Types.ObjectId;
 
   @prop({ match: /^.{2,40}$/ })
   public subtitle: string;
@@ -97,7 +93,7 @@ export class GameSchema {
 
   public updatedAt: Date;
 
-  @arrayProp({ items: String })
+  @prop({ type: String })
   public videos: string[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
@@ -156,7 +152,7 @@ export class GameSchema {
    * Get the path for the property within Minio.
    */
   public getMinioKey(field?: string, _id?: string) {
-    const id = _id || mongoose.Types.ObjectId().toHexString();
+    const id = _id || new mongoose.Types.ObjectId();
 
     switch (field) {
       case 'background':
@@ -189,7 +185,7 @@ export class GameSchema {
 
     for (const object of objects) {
       const _id = object.name.replace(`${prefix}/`, '');
-      const image = this.images.find(i => i.includes(`images/${_id}`));
+      const image = this.images.find((i) => i.includes(`images/${_id}`));
 
       if (!image) {
         await minio.removeObject(process.env.MINIO_BUCKET, object.name);
@@ -204,7 +200,7 @@ export class GameSchema {
     const prefix = this.getMinioKey();
     const objects = await minio.listObjects(process.env.MINIO_BUCKET, prefix);
 
-    const promises = objects.map(o => minio.removeObject(process.env.MINIO_BUCKET, o.name));
+    const promises = objects.map((o) => minio.removeObject(process.env.MINIO_BUCKET, o.name));
     return Promise.all(promises);
   }
 
@@ -217,7 +213,7 @@ export class GameSchema {
 
     for (const object of objects) {
       const _id = object.name.replace(`${prefix}/`, '');
-      const video = this.videos.find(i => i.includes(`videos/${_id}`));
+      const video = this.videos.find((i) => i.includes(`videos/${_id}`));
 
       if (!video) {
         await minio.removeObject(process.env.MINIO_BUCKET, object.name);

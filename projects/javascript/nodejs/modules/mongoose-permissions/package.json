@@ -22,9 +22,9 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@typegoose/typegoose": "6.4.0",
+    "@typegoose/typegoose": "9.9.0",
     "deepmerge": "4.0.0",
-    "mongoose": "5.9.13"
+    "mongoose": "6.3.5"
   },
   "devDependencies": {
     "mocha": "7.1.2",

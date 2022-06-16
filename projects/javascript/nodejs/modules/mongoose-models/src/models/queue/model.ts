@@ -1,6 +1,5 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   getModelForClass,
   index,
@@ -8,14 +7,11 @@ import {
   plugin,
   pre,
   prop,
+  Severity,
 } from '@typegoose/typegoose';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
 import * as mongoose from 'mongoose';
 
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import { enumValidator, namespaceValidator } from '../../validators';
 import { BuildDocument } from '../build';
 import { GameDocument } from '../game';
@@ -42,7 +38,10 @@ NamespaceEvent.sync(async (payload) => {
 
 @index({ gameId: 1 })
 @index({ namespaceId: 1 })
-@modelOptions({ schemaOptions: { collection: 'queues', minimize: false, timestamps: true } })
+@modelOptions({
+  options: { allowMixed: Severity.ALLOW },
+  schemaOptions: { collection: 'queues', minimize: false, timestamps: true },
+})
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: QueueEvent })
 @pre('save', async function (this: QueueDocument) {
   if (!this.isNew) {
@@ -74,7 +73,7 @@ export class QueueSchema {
   public _id: mongoose.Types.ObjectId;
 
   @prop({ ref: 'BuildSchema', validate: namespaceValidator('buildDocument', 'buildId') })
-  public buildId: Ref<BuildDocument>;
+  public buildId: mongoose.Types.ObjectId;
 
   @prop({ min: 0.1, required: true })
   public cpu: number;
@@ -85,7 +84,7 @@ export class QueueSchema {
   public description: string;
 
   @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
-  public gameId: Ref<GameDocument>;
+  public gameId: mongoose.Types.ObjectId;
 
   @prop({ required: true })
   public gameServerTemplate: GameServerTemplateSchema;
@@ -100,7 +99,7 @@ export class QueueSchema {
   public name: string;
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
-  public namespaceId: Ref<NamespaceDocument>;
+  public namespaceId: mongoose.Types.ObjectId;
 
   @prop()
   public preemptible: boolean;
@@ -138,7 +137,7 @@ export class QueueSchema {
     _id: string | mongoose.Types.ObjectId,
     cpu: number,
     memory: number,
-    namespaceId: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>,
+    namespaceId: string | mongoose.Types.ObjectId,
     preemptible: boolean,
     replicas: number,
   ) {

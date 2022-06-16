@@ -9,16 +9,11 @@ import {
   prop,
   modelOptions,
 } from '@typegoose/typegoose';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
-import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import emails from '../../emails';
-import { UserDocument } from '../user/model';
+import * as errors from '../../errors';
 
 export const PasswordResetEvent = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
 
@@ -33,8 +28,8 @@ export const PasswordResetEvent = new EventEmitter<IDatabasePayload<PasswordRese
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: PasswordResetEvent })
-@plugin(uniqueErrorPlugin)
-@pre('save', async function(this: PasswordResetDocument) {
+@plugin(errors.unique.plugin)
+@pre('save', async function (this: PasswordResetDocument) {
   if (this.isNew) {
     await emails.sendPasswordResetRequest(this);
   }
@@ -52,7 +47,7 @@ export class PasswordResetSchema {
   public updatedAt: Date;
 
   @prop({ immutable: true, ref: 'UserSchema', required: true })
-  public userId: Ref<UserDocument>;
+  public userId: mongoose.Types.ObjectId;
 }
 
 export type PasswordResetDocument = DocumentType<PasswordResetSchema>;

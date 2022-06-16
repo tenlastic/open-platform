@@ -1,7 +1,6 @@
 import {
   DocumentType,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   modelOptions,
   prop,
@@ -25,7 +24,7 @@ export class WorkflowStatusSchema {
   @prop()
   public message: string;
 
-  @arrayProp({ items: WorkflowStatusNodeSchema })
+  @prop({ type: WorkflowStatusNodeSchema })
   public nodes: WorkflowStatusNodeSchema[];
 
   @prop({ enum: WorkflowStatusPhase })

@@ -25,7 +25,7 @@ export class WorkflowMock {
       cpu: chance.pickone([1, 3, 5]),
       memory: chance.pickone([1, 3, 5]),
       name: chance.hash(),
-      namespaceId: mongoose.Types.ObjectId(),
+      namespaceId: new mongoose.Types.ObjectId(),
       spec: WorkflowSpecMock.create(),
       storage: chance.pickone([1, 3, 5]),
     };

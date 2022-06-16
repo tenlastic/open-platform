@@ -1,6 +1,5 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   getModelForClass,
   index,
@@ -8,14 +7,10 @@ import {
   plugin,
   prop,
 } from '@typegoose/typegoose';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
-import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import * as errors from '../../errors';
 import { UserDocument } from '../user/model';
 
 export const WebSocketEvent = new EventEmitter<IDatabasePayload<WebSocketDocument>>();
@@ -30,7 +25,7 @@ export const WebSocketEvent = new EventEmitter<IDatabasePayload<WebSocketDocumen
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: WebSocketEvent })
-@plugin(uniqueErrorPlugin)
+@plugin(errors.unique.plugin)
 export class WebSocketSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
@@ -44,7 +39,7 @@ export class WebSocketSchema {
   public updatedAt: Date;
 
   @prop({ immutable: true, ref: 'UserSchema', required: true })
-  public userId: Ref<UserDocument>;
+  public userId: mongoose.Types.ObjectId;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'UserSchema' })
   public userDocument: UserDocument;

@@ -1,22 +1,17 @@
 import {
   DocumentType,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   index,
   modelOptions,
   plugin,
   prop,
 } from '@typegoose/typegoose';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
-import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import * as errors from '../../errors';
 import { UserDocument } from '../user';
 import { NamespaceKeySchema } from './key';
 import {
@@ -78,13 +73,13 @@ export enum NamespaceRole {
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: NamespaceEvent })
-@plugin(uniqueErrorPlugin)
+@plugin(errors.unique.plugin)
 export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
 
   public createdAt: Date;
 
-  @arrayProp({ items: NamespaceKeySchema })
+  @prop({ type: NamespaceKeySchema })
   public keys: NamespaceKeySchema[];
 
   @prop({
@@ -104,7 +99,7 @@ export class NamespaceSchema {
 
   public updatedAt: Date;
 
-  @arrayProp({ items: NamespaceUserSchema })
+  @prop({ type: NamespaceUserSchema })
   public users: NamespaceUserSchema[];
 
   public _original: any;
@@ -141,11 +136,11 @@ export class NamespaceSchema {
       return copy;
     }
 
-    if (copy.find(u => u.roles.includes(NamespaceRole.Namespaces))) {
+    if (copy.find((u) => u.roles.includes(NamespaceRole.Namespaces))) {
       return copy;
     }
 
-    const result = copy.find(u => u._id.toString() === user._id.toString());
+    const result = copy.find((u) => u._id.toString() === user._id.toString());
     if (result) {
       result.roles.push(NamespaceRole.Namespaces);
     } else {

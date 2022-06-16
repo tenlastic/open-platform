@@ -1,8 +1,6 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   index,
   modelOptions,
@@ -10,16 +8,17 @@ import {
   prop,
 } from '@typegoose/typegoose';
 import * as minio from '@tenlastic/minio';
+
+import * as mongoose from 'mongoose';
+import * as requestPromiseNative from 'request-promise-native';
+
 import {
   EventEmitter,
   IDatabasePayload,
   IOriginalDocument,
   changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
-import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
-import * as mongoose from 'mongoose';
-import * as requestPromiseNative from 'request-promise-native';
-
+} from '../../change-stream';
+import * as errors from '../../errors';
 import { namespaceValidator } from '../../validators';
 import { GameDocument, GameEvent } from '../game';
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
@@ -101,7 +100,7 @@ NamespaceEvent.sync(async (payload) => {
 @index({ name: 1, namespaceId: 1, platform: 1 }, { unique: true })
 @modelOptions({ schemaOptions: { collection: 'builds', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: BuildEvent })
-@plugin(uniqueErrorPlugin)
+@plugin(errors.unique.plugin)
 export class BuildSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
@@ -109,17 +108,17 @@ export class BuildSchema implements IOriginalDocument {
   @prop({ required: true })
   public entrypoint: string;
 
-  @arrayProp({ items: BuildFileSchema })
+  @prop({ type: BuildFileSchema })
   public files: BuildFileSchema[];
 
   @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
-  public gameId: Ref<GameDocument>;
+  public gameId: mongoose.Types.ObjectId;
 
   @prop({ required: true })
   public name: string;
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
-  public namespaceId: Ref<NamespaceDocument>;
+  public namespaceId: mongoose.Types.ObjectId;
 
   @prop({ enum: BuildPlatform, immutable: true, required: true })
   public platform: BuildPlatform;

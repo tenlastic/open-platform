@@ -1,7 +1,6 @@
 import {
   DocumentType,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   modelOptions,
   prop,
@@ -15,7 +14,7 @@ export class NamespaceUserSchema {
   @prop({ required: true })
   public _id: mongoose.Types.ObjectId;
 
-  @arrayProp({ enum: NamespaceRole, items: String })
+  @prop({ enum: NamespaceRole, type: String })
   public roles: string[];
 }
 

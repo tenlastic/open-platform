@@ -9,9 +9,9 @@ export class GameAuthorizationMock {
    */
   public static async create(params: Partial<GameAuthorizationSchema> = {}) {
     const defaults = {
-      gameId: mongoose.Types.ObjectId(),
-      namespaceId: mongoose.Types.ObjectId(),
-      userId: mongoose.Types.ObjectId(),
+      gameId: new mongoose.Types.ObjectId(),
+      namespaceId: new mongoose.Types.ObjectId(),
+      userId: new mongoose.Types.ObjectId(),
     };
 
     return GameAuthorization.create({ ...defaults, ...params });

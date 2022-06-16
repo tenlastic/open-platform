@@ -4,20 +4,20 @@ import {
   getModelForClass,
   modelOptions,
   prop,
-  arrayProp,
 } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import { WorkflowSpecEnvSchema } from '../../env';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateScriptSchema {
-  @arrayProp({ default: undefined, items: String })
+  @prop({ default: undefined, type: String })
   public args: string[];
 
-  @arrayProp({ default: ['sh'], items: String })
+  @prop({ default: ['sh'], type: String })
   public command: string[];
 
-  @arrayProp({ default: undefined, items: WorkflowSpecEnvSchema })
+  @prop({ default: undefined, type: WorkflowSpecEnvSchema })
   public env: WorkflowSpecEnvSchema[];
 
   @prop({ required: true })

@@ -8,13 +8,9 @@ import {
   plugin,
   prop,
 } from '@typegoose/typegoose';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
 import * as mongoose from 'mongoose';
 
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import { namespaceValidator } from '../../validators';
 import { GameDocument, GameEvent } from '../game';
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
@@ -68,10 +64,10 @@ export class ArticleSchema {
     required: true,
     validate: namespaceValidator('gameDocument', 'gameId'),
   })
-  public gameId: Ref<GameDocument>;
+  public gameId: mongoose.Types.ObjectId;
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
-  public namespaceId: Ref<NamespaceDocument>;
+  public namespaceId: mongoose.Types.ObjectId;
 
   @prop({ default: null })
   public publishedAt: Date;

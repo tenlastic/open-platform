@@ -57,7 +57,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
   public async create(params: Partial<TDocument>, override: Partial<TDocument>, user: any) {
     let stubRecord = new this.Model({ ...params, ...override } as any);
     if (this.accessControl.options.populate) {
-      stubRecord = await stubRecord.populate(this.accessControl.options.populate).execPopulate();
+      stubRecord = await stubRecord.populate(this.accessControl.options.populate);
     }
 
     const createPermissions = this.accessControl.getFieldPermissions('create', stubRecord, user);
@@ -113,7 +113,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       .select(override.select || params.select);
 
     if (this.accessControl.options.populate) {
-      query = query.populate(this.accessControl.options.populate);
+      return query.populate(this.accessControl.options.populate);
     }
 
     return query.exec();
@@ -171,7 +171,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     // Update record with authorized fields
     const filteredParams = filterObject(params, updatePermissions);
     const arrayMerge = (destinationArray, sourceArray) => sourceArray;
-    const customMerge = key => {
+    const customMerge = (key) => {
       if (merge.includes(key)) {
         return deepmerge;
       }
@@ -187,7 +187,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       { arrayMerge, customMerge },
     );
 
-    Object.keys(mergedParams).forEach(key => (record[key] = mergedParams[key]));
+    Object.keys(mergedParams).forEach((key) => (record[key] = mergedParams[key]));
     return record.save();
   }
 
@@ -212,7 +212,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
 
     // Combines the two queries if a user-defined where clause is specified.
     if (where) {
-      Object.keys(where).forEach(key => {
+      Object.keys(where).forEach((key) => {
         if (key === '$and' && '$and' in substitutedQuery) {
           substitutedQuery.$and = substitutedQuery.$and.concat(where.$and);
         } else if (key in substitutedQuery) {

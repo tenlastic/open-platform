@@ -1,11 +1,11 @@
 import {
   DocumentType,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   modelOptions,
   prop,
 } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import { WorkflowSpecArgumentsSchema } from '../../../arguments';
 
@@ -14,7 +14,7 @@ export class WorkflowSpecTemplateDagTaskSchema {
   @prop()
   public arguments: WorkflowSpecArgumentsSchema;
 
-  @arrayProp({ default: undefined, items: String })
+  @prop({ default: undefined, type: String })
   public dependencies: string[];
 
   @prop({ required: true })

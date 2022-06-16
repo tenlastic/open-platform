@@ -1,6 +1,6 @@
 import { configMapApiV1, deploymentApiV1 } from '@tenlastic/kubernetes';
 import { NamespaceDocument } from '@tenlastic/mongoose-models';
-import { mongoose, Ref } from '@typegoose/typegoose';
+import { mongoose } from '@typegoose/typegoose';
 
 export const KubernetesNamespace = {
   delete: async (namespace: NamespaceDocument) => {
@@ -14,7 +14,7 @@ export const KubernetesNamespace = {
     await configMapApiV1.delete(`${name}-argo-workflow-controller`, 'dynamic');
     await deploymentApiV1.delete(`${name}-argo-workflow-controller`, 'dynamic');
   },
-  getName: (_id: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>) => {
+  getName: (_id: string | mongoose.Types.ObjectId) => {
     return `namespace-${_id}`;
   },
   upsert: async (namespace: NamespaceDocument) => {

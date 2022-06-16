@@ -1,7 +1,6 @@
 import {
   DocumentType,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   modelOptions,
   prop,
@@ -21,7 +20,7 @@ export class WorkflowSpecSchema {
   @prop({ default: 1, min: 0 })
   public parallelism: number;
 
-  @arrayProp({ items: WorkflowSpecTemplateSchema, required: true })
+  @prop({ required: true, type: WorkflowSpecTemplateSchema })
   public templates: WorkflowSpecTemplateSchema[];
 }
 

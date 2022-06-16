@@ -1,16 +1,17 @@
 import {
   DocumentType,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   modelOptions,
+  prop,
 } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import { WorkflowSpecParameterSchema } from '../parameter';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecArgumentsSchema {
-  @arrayProp({ items: WorkflowSpecParameterSchema })
+  @prop({ type: WorkflowSpecParameterSchema })
   public parameters: WorkflowSpecParameterSchema[];
 }
 

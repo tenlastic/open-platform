@@ -9,7 +9,7 @@ export class NamespaceKeyMock {
    */
   public static create(params: Partial<NamespaceKeySchema> = {}) {
     const defaults = {
-      userId: mongoose.Types.ObjectId(),
+      userId: new mongoose.Types.ObjectId(),
     };
 
     return new NamespaceKey({ ...defaults, ...params });

@@ -1,7 +1,6 @@
 import {
   DocumentType,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   modelOptions,
   prop,
@@ -21,7 +20,7 @@ export class WorkflowStatusNodeSchema {
   @prop()
   public _id: string;
 
-  @arrayProp({ items: String })
+  @prop({ type: String })
   public children: string[];
 
   @prop()
@@ -39,7 +38,7 @@ export class WorkflowStatusNodeSchema {
   @prop()
   public name: string;
 
-  @arrayProp({ items: String })
+  @prop({ type: String })
   public outboundNodes: string[];
 
   @prop()

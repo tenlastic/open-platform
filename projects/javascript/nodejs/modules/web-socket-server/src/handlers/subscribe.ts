@@ -1,4 +1,4 @@
-import { IDatabasePayload, DatabaseOperationType } from '@tenlastic/mongoose-change-stream';
+import { IDatabasePayload, DatabaseOperationType } from '@tenlastic/mongoose-models';
 import { filterObject, isJsonValid, MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import nats from '@tenlastic/nats';
 import { JetStreamSubscription } from 'nats';
@@ -36,7 +36,7 @@ export async function subscribe(
   const user = auth.key || auth.jwt.user;
 
   // Generate group ID for NATS consumer.
-  const resumeToken = data.parameters.resumeToken || mongoose.Types.ObjectId();
+  const resumeToken = data.parameters.resumeToken || new mongoose.Types.ObjectId();
   const username = typeof user === 'string' ? user : user.username;
   const durable = `${subject}-${username}-${resumeToken}`.replace(/\./g, '-');
 
@@ -69,9 +69,9 @@ export async function subscribe(
 
       // Strip document of unauthorized information.
       const { accessControl } = Permissions;
-      const document = await new Model(json.fullDocument)
-        .populate(accessControl.options.populate || [])
-        .execPopulate();
+      const document = await new Model(json.fullDocument).populate(
+        accessControl.options.populate || [],
+      );
       const fullDocument = await Permissions.read(document, user);
 
       // Strip update description of unauthorized information.

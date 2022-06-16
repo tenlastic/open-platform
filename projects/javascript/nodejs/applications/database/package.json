@@ -19,9 +19,9 @@
     "@tenlastic/nats": "0.0.290",
     "@tenlastic/web-server": "0.0.290",
     "@tenlastic/web-socket-server": "0.0.290",
-    "@typegoose/typegoose": "6.4.0",
+    "@typegoose/typegoose": "9.9.0",
     "koa-router": "7.4.0",
-    "mongoose": "5.9.13",
+    "mongoose": "6.3.5",
     "source-map-support": "0.5.12"
   },
   "devDependencies": {

@@ -10,9 +10,9 @@ export class QueueMemberMock {
    */
   public static async create(params: Partial<QueueMemberSchema> = {}) {
     const defaults: Partial<QueueMemberDocument> = {
-      namespaceId: mongoose.Types.ObjectId(),
-      queueId: mongoose.Types.ObjectId(),
-      userId: mongoose.Types.ObjectId(),
+      namespaceId: new mongoose.Types.ObjectId(),
+      queueId: new mongoose.Types.ObjectId(),
+      userId: new mongoose.Types.ObjectId(),
     };
 
     if (!params.webSocketId) {

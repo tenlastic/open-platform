@@ -5,9 +5,9 @@ import { Unique } from '../model';
 
 const chance = new Chance();
 
-describe('plugin', function() {
-  describe(`post('findOneAndUpdate')`, function() {
-    it('properly formats a unique MongoError', async function() {
+describe('errors/unique/plugin', function () {
+  describe(`post('findOneAndUpdate')`, function () {
+    it('properly formats a unique MongoError', async function () {
       const name = chance.hash();
       await Unique.create({ name });
 
@@ -31,7 +31,7 @@ describe('plugin', function() {
       throw new Error('Expected error to be thrown.');
     });
 
-    it('allows other errors to propagate', async function() {
+    it('allows other errors to propagate', async function () {
       const record = await Unique.create({ name: chance.hash() });
 
       try {
@@ -54,7 +54,7 @@ describe('plugin', function() {
       throw new Error('Expected error to be thrown.');
     });
 
-    it('does not interrupt a successful update', async function() {
+    it('does not interrupt a successful update', async function () {
       const record = await Unique.create({ name: chance.hash() });
       await Unique.findOneAndUpdate(
         { _id: record._id },
@@ -64,8 +64,8 @@ describe('plugin', function() {
     });
   });
 
-  describe(`post('save')`, function() {
-    it('properly formats a unique MongoError', async function() {
+  describe(`post('save')`, function () {
+    it('properly formats a unique MongoError', async function () {
       const name = chance.hash();
       await Unique.create({ name });
 
@@ -83,7 +83,7 @@ describe('plugin', function() {
       throw new Error('Expected error to be thrown.');
     });
 
-    it('allows other errors to propagate', async function() {
+    it('allows other errors to propagate', async function () {
       try {
         await Unique.create({});
       } catch (e) {
@@ -100,7 +100,7 @@ describe('plugin', function() {
       throw new Error('Expected error to be thrown.');
     });
 
-    it('does not interrupt a successful save', async function() {
+    it('does not interrupt a successful save', async function () {
       await Unique.create({ name: chance.hash() });
     });
   });

@@ -1,6 +1,5 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   getModelForClass,
   index,
@@ -8,13 +7,9 @@ import {
   plugin,
   prop,
 } from '@typegoose/typegoose';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
 import * as mongoose from 'mongoose';
 
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 import { WorkflowSpecSchema } from './spec';
 import { WorkflowStatusSchema } from './status';
@@ -22,11 +17,11 @@ import { WorkflowStatusSchema } from './status';
 export const WorkflowEvent = new EventEmitter<IDatabasePayload<WorkflowDocument>>();
 
 // Delete Workflows if associated Namespace is deleted.
-NamespaceEvent.sync(async payload => {
+NamespaceEvent.sync(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Workflow.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map(r => r.remove());
+      const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }
 });
@@ -55,7 +50,7 @@ export class WorkflowSchema {
   public name: string;
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
-  public namespaceId: Ref<NamespaceDocument>;
+  public namespaceId: mongoose.Types.ObjectId;
 
   @prop({ immutable: true })
   public preemptible: boolean;
@@ -84,7 +79,7 @@ export class WorkflowSchema {
   public static async checkNamespaceLimits(
     cpu: number,
     memory: number,
-    namespaceId: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>,
+    namespaceId: string | mongoose.Types.ObjectId,
     parallelism: number,
     preemptible: boolean,
     storage: number,

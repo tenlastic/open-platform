@@ -18,7 +18,7 @@ export class QueueMock {
       gameServerTemplate: GameServerTemplateMock.create(),
       memory: chance.integer({ max: 1 * 1000 * 1000 * 1000, min: 100 * 1000 * 1000 }),
       name: chance.hash(),
-      namespaceId: mongoose.Types.ObjectId(),
+      namespaceId: new mongoose.Types.ObjectId(),
       replicas: chance.pickone([1, 3, 5]),
       teams: chance.integer({ min: 1 }),
       usersPerTeam: chance.integer({ min: 1 }),

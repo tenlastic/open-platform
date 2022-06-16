@@ -242,7 +242,7 @@ spec:
         workingDir: /workspace/open-platform/
       sidecars:
         - name: mongodb
-          image: bitnami/mongodb:4.4
+          image: bitnami/mongodb:5.0.9
           imagePullPolicy: IfNotPresent
           env:
             - name: MONGODB_ADVERTISED_HOSTNAME

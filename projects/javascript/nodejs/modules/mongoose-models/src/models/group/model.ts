@@ -1,27 +1,20 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   index,
   modelOptions,
   plugin,
   prop,
 } from '@typegoose/typegoose';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
 import * as mongoose from 'mongoose';
 
-import { UserDocument } from '../user';
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 
 export const GroupEvent = new EventEmitter<IDatabasePayload<GroupDocument>>();
 
 // Delete the group if empty.
-GroupEvent.sync(payload => {
+GroupEvent.sync((payload) => {
   if (payload.operationType === 'delete') {
     return;
   }
@@ -49,8 +42,8 @@ export class GroupSchema {
 
   public updatedAt: Date;
 
-  @arrayProp({ itemsRef: 'UserSchema' })
-  public userIds: Array<Ref<UserDocument>>;
+  @prop({ ref: 'UserSchema', type: new mongoose.Types.ObjectId() })
+  public userIds: mongoose.Types.ObjectId[];
 
   public get userCount() {
     return this.userIds.length;

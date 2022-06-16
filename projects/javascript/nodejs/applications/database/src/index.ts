@@ -21,7 +21,7 @@ const podName = process.env.POD_NAME;
       connectionString: mongoConnectionString,
       databaseName: 'database',
     });
-    mongoose.connection.on('error', e => {
+    mongoose.connection.on('error', (e) => {
       console.error(e.message);
       process.exit(1);
     });
@@ -64,6 +64,6 @@ const podName = process.env.POD_NAME;
 
 async function deleteStaleWebSockets() {
   const webSockets = await mongooseModels.WebSocket.find({ nodeId: podName });
-  const promises = webSockets.map(ws => ws.remove());
+  const promises = webSockets.map((ws) => ws.remove());
   return Promise.all(promises);
 }

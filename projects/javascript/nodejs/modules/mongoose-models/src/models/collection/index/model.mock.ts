@@ -12,7 +12,7 @@ export class CollectionIndexMock {
     const chance = new Chance();
 
     const defaults = {
-      collectionId: mongoose.Types.ObjectId(),
+      collectionId: new mongoose.Types.ObjectId(),
       key: { [chance.hash()]: chance.integer({ max: 1, min: 0 }) },
     };
 

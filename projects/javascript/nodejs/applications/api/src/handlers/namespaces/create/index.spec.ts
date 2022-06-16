@@ -8,14 +8,14 @@ import { handler } from '.';
 
 const chance = new Chance();
 
-describe('handlers/namespaces/create', function() {
+describe('handlers/namespaces/create', function () {
   let user: any;
 
-  beforeEach(async function() {
-    user = { _id: mongoose.Types.ObjectId(), roles: ['namespaces'] };
+  beforeEach(async function () {
+    user = { _id: new mongoose.Types.ObjectId(), roles: ['namespaces'] };
   });
 
-  it('creates a new record', async function() {
+  it('creates a new record', async function () {
     const ctx = new ContextMock({
       request: {
         body: {

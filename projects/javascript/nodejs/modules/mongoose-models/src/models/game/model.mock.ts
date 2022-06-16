@@ -13,7 +13,7 @@ export class GameMock {
 
     const defaults = {
       access: GameAccess.Private,
-      namespaceId: mongoose.Types.ObjectId(),
+      namespaceId: new mongoose.Types.ObjectId(),
       title: chance.hash(),
     };
 

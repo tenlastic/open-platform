@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { validate } from './';
 
-describe('validate', function() {
+describe('json-schema/validate', function () {
   const jsonSchema = {
     properties: {
       email: { type: 'string' },
@@ -19,8 +19,8 @@ describe('validate', function() {
     type: 'object',
   };
 
-  context('when the object is invalid', function() {
-    it('returns an array of errors', function() {
+  context('when the object is invalid', function () {
+    it('returns an array of errors', function () {
       const data = { name: { first: 3 } };
       const results = validate(jsonSchema, data);
 
@@ -50,8 +50,8 @@ describe('validate', function() {
     });
   });
 
-  context('when the object is valid', function() {
-    it('returns an empty array', function() {
+  context('when the object is valid', function () {
+    it('returns an empty array', function () {
       const data = { email: 'test@example.com', name: { first: 'Test', last: 'User' } };
       const results = validate(jsonSchema, data);
 

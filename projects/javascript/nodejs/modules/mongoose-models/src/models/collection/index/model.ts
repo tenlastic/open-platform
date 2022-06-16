@@ -4,6 +4,7 @@ import {
   getModelForClass,
   modelOptions,
   prop,
+  Severity,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
@@ -17,7 +18,10 @@ export interface CollectionIndexOptions {
   unique?: boolean;
 }
 
-@modelOptions({ schemaOptions: { minimize: false } })
+@modelOptions({
+  options: { allowMixed: Severity.ALLOW },
+  schemaOptions: { minimize: false },
+})
 export class CollectionIndexSchema {
   public _id: mongoose.Types.ObjectId;
 

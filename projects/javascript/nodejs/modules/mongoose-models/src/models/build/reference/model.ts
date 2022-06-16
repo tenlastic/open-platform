@@ -1,21 +1,18 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   modelOptions,
   prop,
+  mongoose,
 } from '@typegoose/typegoose';
-
-import { BuildDocument } from '../';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class BuildReferenceSchema {
   @prop({ ref: 'BuildSchema', required: true })
-  public _id: Ref<BuildDocument>;
+  public _id: mongoose.Types.ObjectId;
 
-  @arrayProp({ items: String })
+  @prop({ type: String })
   public files: string[];
 }
 

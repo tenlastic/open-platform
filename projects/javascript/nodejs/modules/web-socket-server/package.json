@@ -28,7 +28,7 @@
     "ws": "7.2.1"
   },
   "devDependencies": {
-    "@tenlastic/mongoose-change-stream": "0.0.290",
+    "@tenlastic/mongoose-models": "0.0.290",
     "@tenlastic/mongoose-permissions": "0.0.290",
     "mocha": "7.1.2",
     "nyc": "15.0.0",

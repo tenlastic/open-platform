@@ -15,7 +15,7 @@ export class DatabaseMock {
       cpu: chance.floating({ max: 1, min: 0.1 }),
       memory: chance.integer({ max: 1 * 1000 * 1000 * 1000, min: 250 * 1000 * 1000 }),
       name: chance.hash(),
-      namespaceId: mongoose.Types.ObjectId(),
+      namespaceId: new mongoose.Types.ObjectId(),
       replicas: chance.pickone([1, 3, 5]),
       storage: chance.integer({ max: 25 * 1000 * 1000 * 1000, min: 5 * 1000 * 1000 * 1000 }),
     };

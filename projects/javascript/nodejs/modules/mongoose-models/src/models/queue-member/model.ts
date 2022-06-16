@@ -1,8 +1,6 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   index,
   modelOptions,
@@ -11,15 +9,11 @@ import {
   pre,
   prop,
 } from '@typegoose/typegoose';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
-import * as mongooseUniqueError from '@tenlastic/mongoose-unique-error';
 import { MongoError } from 'mongodb';
 import * as mongoose from 'mongoose';
 
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import * as errors from '../../errors';
 import { namespaceValidator } from '../../validators';
 import { GameAccess } from '../game';
 import { GameAuthorization, GameAuthorizationStatus } from '../game-authorization';
@@ -30,9 +24,9 @@ import { UserDocument } from '../user';
 import { WebSocketDocument, WebSocketEvent } from '../web-socket';
 
 export class QueueMemberAuthorizationError extends Error {
-  public userIds: string[] | mongoose.Types.ObjectId[] | Array<Ref<UserDocument>>;
+  public userIds: string[] | mongoose.Types.ObjectId[];
 
-  constructor(userIds: string[] | mongoose.Types.ObjectId[] | Array<Ref<UserDocument>>) {
+  constructor(userIds: string[] | mongoose.Types.ObjectId[]) {
     super(`The following Users are missing a Game Invitation: ${userIds.join(', ')}.`);
 
     this.name = 'QueueMemberAuthorizationError';
@@ -40,9 +34,9 @@ export class QueueMemberAuthorizationError extends Error {
   }
 }
 export class QueueMemberUniquenessError extends Error {
-  public userIds: string[] | mongoose.Types.ObjectId[] | Array<Ref<UserDocument>>;
+  public userIds: string[] | mongoose.Types.ObjectId[];
 
-  constructor(userIds: string[] | mongoose.Types.ObjectId[] | Array<Ref<UserDocument>>) {
+  constructor(userIds: string[] | mongoose.Types.ObjectId[]) {
     super(`The following Users are already in this Queue: ${userIds.join(', ')}.`);
 
     this.name = 'QueueMemberUniquenessError';
@@ -52,33 +46,33 @@ export class QueueMemberUniquenessError extends Error {
 export const QueueMemberEvent = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
 
 // Delete QueueMember when associated Group is deleted or updated.
-GroupEvent.sync(async payload => {
+GroupEvent.sync(async (payload) => {
   if (payload.operationType === 'insert') {
     return;
   }
 
   const queueMembers = await QueueMember.find({ groupId: payload.fullDocument._id });
-  return Promise.all(queueMembers.map(qm => qm.remove()));
+  return Promise.all(queueMembers.map((qm) => qm.remove()));
 });
 
 // Delete QueueMember when associated Queue is deleted.
-QueueEvent.sync(async payload => {
+QueueEvent.sync(async (payload) => {
   if (payload.operationType !== 'delete') {
     return;
   }
 
   const queueMembers = await QueueMember.find({ queueId: payload.fullDocument._id });
-  return Promise.all(queueMembers.map(qm => qm.remove()));
+  return Promise.all(queueMembers.map((qm) => qm.remove()));
 });
 
 // Delete QueueMember when associated WebSocket is deleted.
-WebSocketEvent.sync(async payload => {
+WebSocketEvent.sync(async (payload) => {
   if (payload.operationType !== 'delete') {
     return;
   }
 
   const queueMembers = await QueueMember.find({ webSocketId: payload.fullDocument._id });
-  return Promise.all(queueMembers.map(qm => qm.remove()));
+  return Promise.all(queueMembers.map((qm) => qm.remove()));
 });
 
 @index({ namespaceId: 1, queueId: 1, userIds: 1 }, { unique: true })
@@ -91,15 +85,15 @@ WebSocketEvent.sync(async payload => {
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: QueueMemberEvent })
-@plugin(mongooseUniqueError.plugin)
-@pre('save', async function(this: QueueMemberDocument) {
+@plugin(errors.unique.plugin)
+@pre('save', async function (this: QueueMemberDocument) {
   await this.setUserIds();
   await this.checkPlayersPerTeam();
   await this.checkUserAuthorization();
 })
-@pre('validate', async function(this: QueueMemberDocument) {
+@pre('validate', async function (this: QueueMemberDocument) {
   if (!this.populated('webSocketDocument')) {
-    await this.populate('webSocketDocument').execPopulate();
+    await this.populate('webSocketDocument');
   }
 
   if (this.userId.toString() !== this.webSocketDocument.userId.toString()) {
@@ -107,14 +101,14 @@ WebSocketEvent.sync(async payload => {
     this.invalidate('webSocketId', message, this.webSocketId);
   }
 })
-@post('findOneAndUpdate', function(err: MongoError, doc: QueueMemberDocument, next) {
+@post('findOneAndUpdate', function (err: MongoError, doc: QueueMemberDocument, next) {
   if (err.name === 'MongoError' && err.code === 11000) {
     const update = this.getUpdate();
-    const uniquenessError = mongooseUniqueError.getValidationError(
+    const uniquenessError = errors.unique.getValidationError(
       err,
       doc.schema,
       update,
-    ) as mongooseUniqueError.UniquenessError;
+    ) as errors.unique.UniquenessError;
 
     const i = uniquenessError.paths.indexOf('userIds');
     const userIds = uniquenessError.values[i];
@@ -125,13 +119,13 @@ WebSocketEvent.sync(async payload => {
 
   return next(err);
 })
-@post('save', function(err: MongoError, doc: QueueMemberDocument, next) {
+@post('save', function (err: MongoError, doc: QueueMemberDocument, next) {
   if (err.name === 'MongoError' && err.code === 11000) {
-    const uniquenessError = mongooseUniqueError.getValidationError(
+    const uniquenessError = errors.unique.getValidationError(
       err,
       doc.schema,
       doc,
-    ) as mongooseUniqueError.UniquenessError;
+    ) as errors.unique.UniquenessError;
 
     const i = uniquenessError.paths.indexOf('userIds');
     const userIds = uniquenessError.values[i];
@@ -150,10 +144,10 @@ export class QueueMemberSchema {
     immutable: true,
     ref: 'GroupSchema',
   })
-  public groupId: Ref<GroupDocument>;
+  public groupId: mongoose.Types.ObjectId;
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
-  public namespaceId: Ref<NamespaceDocument>;
+  public namespaceId: mongoose.Types.ObjectId;
 
   @prop({
     immutable: true,
@@ -161,18 +155,18 @@ export class QueueMemberSchema {
     required: true,
     validate: namespaceValidator('queueDocument', 'queueId'),
   })
-  public queueId: Ref<QueueDocument>;
+  public queueId: mongoose.Types.ObjectId;
 
   public updatedAt: Date;
 
   @prop({ immutable: true, ref: 'UserSchema', required: true })
-  public userId: Ref<UserDocument>;
+  public userId: mongoose.Types.ObjectId;
 
-  @arrayProp({ itemsRef: 'UserSchema' })
-  public userIds: Array<Ref<UserDocument>>;
+  @prop({ ref: 'UserSchema', type: new mongoose.Types.ObjectId() })
+  public userIds: mongoose.Types.ObjectId[];
 
   @prop({ ref: 'WebSocketSchema', required: true })
-  public webSocketId: Ref<WebSocketDocument>;
+  public webSocketId: mongoose.Types.ObjectId;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'groupId', ref: 'GroupSchema' })
   public groupDocument: GroupDocument;
@@ -204,7 +198,7 @@ export class QueueMemberSchema {
 
   private async checkPlayersPerTeam(this: QueueMemberDocument) {
     if (!this.populated('queueDocument')) {
-      await this.populate('queueDocument').execPopulate();
+      await this.populate('queueDocument');
     }
 
     if (this.userIds.length > this.queueDocument.usersPerTeam) {
@@ -214,7 +208,7 @@ export class QueueMemberSchema {
 
   private async checkUserAuthorization(this: QueueMemberDocument) {
     if (!this.populated('queueDocument')) {
-      await this.populate('queueDocument').execPopulate();
+      await this.populate('queueDocument');
     }
 
     if (!this.queueDocument.gameId) {
@@ -222,7 +216,7 @@ export class QueueMemberSchema {
     }
 
     if (!this.queueDocument.populated('gameDocument')) {
-      await this.queueDocument.populate('gameDocument').execPopulate();
+      await this.queueDocument.populate('gameDocument');
     }
 
     const game = this.queueDocument.gameDocument;
@@ -231,15 +225,15 @@ export class QueueMemberSchema {
       userId: { $in: this.userIds },
     });
 
-    const unauthorizedUserIds = this.userIds.filter(ui => {
+    const unauthorizedUserIds = this.userIds.filter((ui) => {
       if (game.access === GameAccess.Public) {
         return gameAuthorizations
-          .filter(ga => ga.status === GameAuthorizationStatus.Revoked)
-          .some(ga => ga.userId.equals(ui));
+          .filter((ga) => ga.status === GameAuthorizationStatus.Revoked)
+          .some((ga) => ga.userId.equals(ui));
       } else {
         return !gameAuthorizations
-          .filter(ga => ga.status === GameAuthorizationStatus.Granted)
-          .some(ga => ga.userId.equals(ui));
+          .filter((ga) => ga.status === GameAuthorizationStatus.Granted)
+          .some((ga) => ga.userId.equals(ui));
       }
     });
 
@@ -251,7 +245,7 @@ export class QueueMemberSchema {
   private async setUserIds(this: QueueMemberDocument) {
     if (this.groupId) {
       if (!this.populated('groupDocument')) {
-        await this.populate('groupDocument').execPopulate();
+        await this.populate('groupDocument');
       }
 
       this.userIds = this.groupDocument ? this.groupDocument.userIds : [];
@@ -261,6 +255,6 @@ export class QueueMemberSchema {
   }
 }
 
-export type QueueMemberDocument = DocumentType<QueueMemberSchema>;
+export type QueueMemberDocument = mongoose.Document & DocumentType<QueueMemberSchema>;
 export type QueueMemberModel = ReturnModelType<typeof QueueMemberSchema>;
 export const QueueMember = getModelForClass(QueueMemberSchema);

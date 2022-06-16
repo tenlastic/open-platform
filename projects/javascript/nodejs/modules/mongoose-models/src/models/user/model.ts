@@ -1,7 +1,6 @@
 import {
   DocumentType,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   index,
   modelOptions,
@@ -9,17 +8,13 @@ import {
   pre,
   prop,
 } from '@typegoose/typegoose';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
-import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import emails from '../../emails';
+import * as errors from '../../errors';
 import { alphanumericValidator, emailValidator, stringLengthValidator } from '../../validators';
 import { RefreshToken, RefreshTokenDocument } from '../refresh-token/model';
 import { UserPermissions } from './';
@@ -50,7 +45,7 @@ export enum UserRole {
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: UserEvent })
-@plugin(uniqueErrorPlugin)
+@plugin(errors.unique.plugin)
 @pre('save', async function (this: UserDocument) {
   if (!this.isNew && this._original.password !== this.password) {
     await emails.sendPasswordResetConfirmation(this);
@@ -75,7 +70,7 @@ export class UserSchema {
   @prop({ required: true })
   public password: string;
 
-  @arrayProp({ enum: UserRole, items: String })
+  @prop({ enum: UserRole, type: String })
   public roles: string[];
 
   public updatedAt: Date;
@@ -107,7 +102,7 @@ export class UserSchema {
   /**
    * Creates an access and refresh token.
    */
-  public async logIn(this: UserDocument, jti?: string) {
+  public async logIn(this: UserDocument, jti?: string | mongoose.Types.ObjectId) {
     // Save the RefreshToken for renewal and revocation.
     const expiresAt = new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000);
 

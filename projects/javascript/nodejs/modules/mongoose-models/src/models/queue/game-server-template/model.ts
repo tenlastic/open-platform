@@ -1,24 +1,28 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   getModelForClass,
   modelOptions,
   prop,
+  Severity,
 } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import { namespaceValidator } from '../../../validators';
 import { BuildDocument } from '../../build';
 import { NamespaceDocument } from '../../namespace';
 
-@modelOptions({ schemaOptions: { _id: false } })
+@modelOptions({
+  options: { allowMixed: Severity.ALLOW },
+  schemaOptions: { _id: false },
+})
 export class GameServerTemplateSchema {
   @prop({
     ref: 'BuildSchema',
     required: true,
     validate: namespaceValidator('gameServerTemplate.buildDocument', 'gameServerTemplate.buildId'),
   })
-  public buildId: Ref<BuildDocument>;
+  public buildId: mongoose.Types.ObjectId;
 
   @prop({ min: 0.1, required: true })
   public cpu: number;

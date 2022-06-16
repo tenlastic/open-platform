@@ -26,7 +26,7 @@ spec:
           mountPath: /usr/src/
       workingDir: /usr/src/
     - name: mongodb
-      image: bitnami/mongodb:4.4
+      image: bitnami/mongodb:5.0.9
       env:
         - name: MONGODB_ADVERTISED_HOSTNAME
           value: localhost

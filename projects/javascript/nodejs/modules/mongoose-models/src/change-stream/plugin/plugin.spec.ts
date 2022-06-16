@@ -7,14 +7,14 @@ import { IDatabasePayload } from './plugin';
 
 const chance = new Chance();
 
-describe('plugin', function() {
-  describe(`post('findOneAndDelete')`, function() {
-    it('emits an event', async function() {
+describe('change-stream/plugin', function () {
+  describe(`post('findOneAndDelete')`, function () {
+    it('emits an event', async function () {
       const record = await Example.create({ name: chance.hash() });
 
       const spy = sinon.spy();
       const stub = async (value: any) => {
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
         return spy(value);
       };
       ExampleEvent.async(stub);
@@ -24,18 +24,18 @@ describe('plugin', function() {
       const args: IDatabasePayload<ExampleDocument> = spy.getCall(0).args[0];
       expect(args.documentKey._id.toString()).to.eql(record._id.toString());
       expect(args.fullDocument._id.toString()).to.eql(record._id.toString());
-      expect(args.ns).to.eql({ db: 'mongoose-change-stream-test', coll: 'examples' });
+      expect(args.ns).to.eql({ db: 'mongoose-models-test', coll: 'examples' });
       expect(args.operationType).to.eql('delete');
     });
   });
 
-  describe(`post('findOneAndUpdate')`, function() {
-    it('emits an event', async function() {
+  describe(`post('findOneAndUpdate')`, function () {
+    it('emits an event', async function () {
       const initialRecord = await Example.create({ age: chance.integer() });
 
       const spy = sinon.spy();
       const stub = async (value: any) => {
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
         return spy(value);
       };
       ExampleEvent.async(stub);
@@ -50,7 +50,7 @@ describe('plugin', function() {
       const args: IDatabasePayload<ExampleDocument> = spy.getCall(0).args[0];
       expect(args.documentKey._id.toString()).to.eql(record._id.toString());
       expect(args.fullDocument.toObject()).to.eql({ ...record.toObject(), name });
-      expect(args.ns).to.eql({ db: 'mongoose-change-stream-test', coll: 'examples' });
+      expect(args.ns).to.eql({ db: 'mongoose-models-test', coll: 'examples' });
       expect(args.operationType).to.eql('update');
       expect(args.updateDescription.removedFields).to.eql(['age']);
       expect(args.updateDescription.updatedFields).to.eql({
@@ -60,12 +60,12 @@ describe('plugin', function() {
     });
   });
 
-  describe(`post('init')`, function() {
-    beforeEach(async function() {
+  describe(`post('init')`, function () {
+    beforeEach(async function () {
       await Example.create({});
     });
 
-    it(`copies the document's properties to _original`, async function() {
+    it(`copies the document's properties to _original`, async function () {
       const record = await Example.findOne();
 
       expect(record['_original']).to.exist;
@@ -73,13 +73,13 @@ describe('plugin', function() {
     });
   });
 
-  describe(`post('remove')`, function() {
-    it('emits an event', async function() {
+  describe(`post('remove')`, function () {
+    it('emits an event', async function () {
       const record = await Example.create({ name: chance.hash() });
 
       const spy = sinon.spy();
       const stub = async (value: any) => {
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
         return spy(value);
       };
       ExampleEvent.async(stub);
@@ -89,14 +89,14 @@ describe('plugin', function() {
       const args: IDatabasePayload<ExampleDocument> = spy.getCall(0).args[0];
       expect(args.documentKey._id.toString()).to.eql(record._id.toString());
       expect(args.fullDocument._id.toString()).to.eql(record._id.toString());
-      expect(args.ns).to.eql({ db: 'mongoose-change-stream-test', coll: 'examples' });
+      expect(args.ns).to.eql({ db: 'mongoose-models-test', coll: 'examples' });
       expect(args.operationType).to.eql('delete');
     });
   });
 
-  describe(`post('save')`, function() {
-    context('when the document is new', function() {
-      it('emits an event', async function() {
+  describe(`post('save')`, function () {
+    context('when the document is new', function () {
+      it('emits an event', async function () {
         const spy = sinon.spy();
         ExampleEvent.async(spy);
 
@@ -105,18 +105,18 @@ describe('plugin', function() {
         const args: IDatabasePayload<ExampleDocument> = spy.getCall(0).args[0];
         expect(args.documentKey._id.toString()).to.eql(record._id.toString());
         expect(args.fullDocument.toObject()).to.eql(record.toObject());
-        expect(args.ns).to.eql({ db: 'mongoose-change-stream-test', coll: 'examples' });
+        expect(args.ns).to.eql({ db: 'mongoose-models-test', coll: 'examples' });
         expect(args.operationType).to.eql('insert');
       });
     });
 
-    context('when the document is not new', function() {
-      it('emits an event', async function() {
+    context('when the document is not new', function () {
+      it('emits an event', async function () {
         const initialRecord = await Example.create({ age: chance.integer() });
 
         const spy = sinon.spy();
         const stub = async (value: any) => {
-          await new Promise(resolve => setTimeout(resolve, 0));
+          await new Promise((resolve) => setTimeout(resolve, 0));
           return spy(value);
         };
         ExampleEvent.async(stub);
@@ -136,7 +136,7 @@ describe('plugin', function() {
           ...initialRecord.toObject(),
           ...record.toObject(),
         });
-        expect(args.ns).to.eql({ db: 'mongoose-change-stream-test', coll: 'examples' });
+        expect(args.ns).to.eql({ db: 'mongoose-models-test', coll: 'examples' });
         expect(args.operationType).to.eql('update');
         expect(args.updateDescription.removedFields).to.eql([]);
         expect(args.updateDescription.updatedFields).to.eql({

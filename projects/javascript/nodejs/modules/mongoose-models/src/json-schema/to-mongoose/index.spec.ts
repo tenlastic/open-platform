@@ -1,19 +1,20 @@
 import { expect } from 'chai';
+import * as mongoose from 'mongoose';
 
-import { toMongo } from '../to-mongo';
+import { toMongoose } from '../to-mongoose';
 
-describe('toMongo()', function () {
+describe('json-schema/toMongoose', function () {
   context('when the schema is invalid', function () {
     it('throws an error', function () {
       const input = { type: 'objectttt' };
-      const func = () => toMongo(input);
+      const func = () => toMongoose(input);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
 
     it('throws an error', function () {
       const input = { type: 'object', properties: 'not an object' };
-      const func = () => toMongo(input);
+      const func = () => toMongoose(input);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
@@ -23,14 +24,14 @@ describe('toMongo()', function () {
         properties: { email: { type: 'not a type' } },
         type: 'object',
       };
-      const func = () => toMongo(input);
+      const func = () => toMongoose(input);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
   });
 
   context('when the schema is valid', function () {
-    it('converts the schema to mongoose', function () {
+    it('converts the schema to a valid mongoose schema', function () {
       const json = {
         properties: {
           address: {
@@ -38,7 +39,6 @@ describe('toMongo()', function () {
               builtAt: { type: 'string', format: 'date-time' },
               street: { type: 'number', default: 44, minimum: 0, maximum: 50 },
             },
-            required: ['builtAt'],
             type: 'object',
           },
           anyValue: { a: 'b' },
@@ -55,33 +55,22 @@ describe('toMongo()', function () {
         type: 'object',
       };
 
-      const result = toMongo(json);
+      const result = toMongoose(json);
 
       expect(result).to.eql({
-        bsonType: ['null', 'object'],
-        properties: {
-          address: {
-            bsonType: ['null', 'object'],
-            properties: {
-              builtAt: { bsonType: ['date', 'null'] },
-              street: { bsonType: ['double', 'int', 'null'], minimum: 0, maximum: 50 },
-            },
-            required: ['builtAt'],
-          },
-          anyValue: { bsonType: ['null', 'object'] },
-          arr: {
-            bsonType: ['array', 'null'],
-            items: {
-              bsonType: ['null', 'object'],
-              properties: {
-                num: { bsonType: ['double', 'int', 'null'] },
-                str: { bsonType: ['null', 'string'] },
-              },
-            },
-          },
-          id: { bsonType: ['null', 'string'], pattern: /^\d{3}$/ },
-          name: { bsonType: ['null', 'object'] },
+        address: {
+          builtAt: Date,
+          street: { type: Number, default: 44, min: 0, max: 50 },
         },
+        anyValue: mongoose.Schema.Types.Mixed,
+        arr: [
+          {
+            num: { type: Number },
+            str: { type: String },
+          },
+        ],
+        id: { type: String, match: /^\d{3}$/ },
+        name: mongoose.Schema.Types.Mixed,
       });
     });
   });

@@ -20,9 +20,7 @@ export async function handler(ctx: Context) {
 
   const result = await Permissions.create(ctx.request.body, override, user);
 
-  const populatedResult = await result
-    .populate(Permissions.accessControl.options.populate)
-    .execPopulate();
+  const populatedResult = await result.populate(Permissions.accessControl.options.populate);
   const record = await Permissions.read(populatedResult, user);
 
   ctx.response.body = { record };

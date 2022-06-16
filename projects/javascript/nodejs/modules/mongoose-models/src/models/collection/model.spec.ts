@@ -22,7 +22,7 @@ describe('models/collection/model', function () {
   describe(`pre('save')`, function () {
     it('creates an index on the collection within MongoDB', async () => {
       const index = await CollectionIndexMock.new({
-        _id: mongoose.Types.ObjectId(),
+        _id: new mongoose.Types.ObjectId(),
         key: { properties: 1 },
         options: { unique: true },
       });
@@ -37,7 +37,7 @@ describe('models/collection/model', function () {
 
     it('deletes the index on the collection within MongoDB', async function () {
       const index = await CollectionIndexMock.new({
-        _id: mongoose.Types.ObjectId(),
+        _id: new mongoose.Types.ObjectId(),
         key: { properties: 1 },
         options: { unique: true },
       });
@@ -94,7 +94,7 @@ describe('models/collection/model', function () {
       await collection.setValidator();
 
       const collections = await mongoose.connection.db
-        .listCollections({ name: collection.mongoName })
+        .listCollections({ name: collection.mongoName }, { nameOnly: false })
         .toArray();
       const { $jsonSchema } = collections[0].options.validator;
       const { properties } = $jsonSchema.properties;

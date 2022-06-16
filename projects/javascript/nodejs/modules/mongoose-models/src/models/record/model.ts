@@ -1,23 +1,18 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   buildSchema,
   modelOptions,
   plugin,
   prop,
 } from '@typegoose/typegoose';
-import * as jsonSchema from '@tenlastic/json-schema';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
 import { IOptions, MongoosePermissions } from '@tenlastic/mongoose-permissions';
-import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
-import { namespaceValidator } from '../../validators';
 
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import * as errors from '../../errors';
+import { namespaceValidator } from '../../validators';
+import { toMongoose } from '../../json-schema';
 import { CollectionDocument } from '../collection';
 import { DatabaseDocument } from '../database';
 import { NamespaceDocument } from '../namespace';
@@ -33,7 +28,7 @@ export const RecordEvent = new EventEmitter<IDatabasePayload<RecordDocument>>();
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: RecordEvent })
-@plugin(uniqueErrorPlugin)
+@plugin(errors.unique.plugin)
 export class RecordSchema {
   public _id: mongoose.Types.ObjectId;
 
@@ -42,7 +37,7 @@ export class RecordSchema {
     required: true,
     validate: namespaceValidator('collectionDocument', 'collectionId'),
   })
-  public collectionId: Ref<CollectionDocument>;
+  public collectionId: mongoose.Types.ObjectId;
 
   public createdAt: Date;
 
@@ -51,16 +46,16 @@ export class RecordSchema {
     required: true,
     validate: namespaceValidator('databaseDocument', 'databaseId'),
   })
-  public databaseId: Ref<DatabaseDocument>;
+  public databaseId: mongoose.Types.ObjectId;
 
   @prop({ ref: 'NamespaceSchema', required: true })
-  public namespaceId: Ref<NamespaceDocument>;
+  public namespaceId: mongoose.Types.ObjectId;
 
   public properties: any;
   public updatedAt: Date;
 
   @prop({ ref: 'UserSchema' })
-  public userId: Ref<UserDocument>;
+  public userId: mongoose.Types.ObjectId;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', ref: 'CollectionSchema' })
   public collectionDocument: CollectionDocument;
@@ -77,12 +72,12 @@ export class RecordSchema {
   public static getModel(collection: CollectionDocument) {
     // Build schema from Collection's properties.
     const schema = buildSchema(RecordSchema).clone();
-    schema.add({ properties: jsonSchema.toMongoose(collection.jsonSchema) });
+    schema.add({ properties: toMongoose(collection.jsonSchema) });
     schema.set('collection', collection.mongoName);
 
     // Register indexes with Mongoose.
-    collection.indexes.forEach(i => {
-      schema.index(i.key, { ...i.options, name: i._id.toHexString() });
+    collection.indexes.forEach((i) => {
+      schema.index(i.key as any, { ...i.options, name: i._id.toHexString() });
     });
 
     // Remove cached Model from Mongoose.
@@ -90,7 +85,8 @@ export class RecordSchema {
       mongoose.connection.deleteModel(collection.mongoName);
     } catch {}
 
-    return mongoose.model(collection.mongoName, schema) as RecordModel;
+    const model = mongoose.model(collection.mongoName, schema) as unknown;
+    return model as RecordModel;
   }
 
   public static getPermissions(Model: RecordModel, collection: CollectionDocument) {
@@ -104,7 +100,7 @@ export class RecordSchema {
     if (collection.permissions.find) {
       const find = JSON.parse(JSON.stringify(collection.permissions.find));
 
-      Object.keys(permissions.find).forEach(key => {
+      Object.keys(permissions.find).forEach((key) => {
         if (key in find) {
           find[key] = { $or: [find[key], permissions.find[key]] };
         }

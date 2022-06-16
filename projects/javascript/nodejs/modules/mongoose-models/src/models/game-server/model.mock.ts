@@ -13,11 +13,11 @@ export class GameServerMock {
     const chance = new Chance();
 
     const defaults = {
-      buildId: mongoose.Types.ObjectId(),
+      buildId: new mongoose.Types.ObjectId(),
       cpu: chance.floating({ max: 1, min: 0.1 }),
       memory: chance.integer({ max: 1 * 1000 * 1000 * 1000, min: 100 * 1000 * 1000 }),
       name: chance.hash(),
-      namespaceId: mongoose.Types.ObjectId(),
+      namespaceId: new mongoose.Types.ObjectId(),
     };
 
     if (!params.buildId) {

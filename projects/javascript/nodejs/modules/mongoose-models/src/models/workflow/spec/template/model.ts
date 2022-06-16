@@ -1,11 +1,11 @@
 import {
   DocumentType,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   modelOptions,
   prop,
 } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import { WorkflowSpecTemplateDagSchema } from './dag';
 import { WorkflowSpecTemplateInputsSchema } from './inputs';
@@ -30,7 +30,7 @@ export class WorkflowSpecTemplateSchema {
   @prop()
   public script: WorkflowSpecTemplateScriptSchema;
 
-  @arrayProp({ items: WorkflowSpecTemplateSidecarSchema })
+  @prop({ type: WorkflowSpecTemplateSidecarSchema })
   public sidecars: WorkflowSpecTemplateSidecarSchema[];
 }
 

@@ -5,34 +5,26 @@ export interface ConnectionOptions {
   databaseName: string;
 }
 
-export function connect(options: ConnectionOptions) {
-  return mongoose.connect(
-    options.connectionString,
-    {
-      config: { autoIndex: false },
+export async function connect(options: ConnectionOptions) {
+  try {
+    await mongoose.connect(options.connectionString, {
+      autoCreate: true,
+      autoIndex: false,
       dbName: options.databaseName,
-      useCreateIndex: true,
-      useFindAndModify: false,
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    },
-    err => {
-      if (err) {
-        console.error(err);
-      } else {
-        console.log('Connected to MongoDB.');
-      }
-    },
-  );
+    });
+  } catch (e) {
+    console.error(e);
+  }
+
+  console.log('Connected to MongoDB.');
+
+  return mongoose;
 }
 
 export function createConnection(options: ConnectionOptions) {
   return mongoose.createConnection(options.connectionString, {
-    config: { autoIndex: false },
+    autoCreate: true,
+    autoIndex: false,
     dbName: options.databaseName,
-    useCreateIndex: true,
-    useFindAndModify: false,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
   });
 }

@@ -1,3 +1,4 @@
+export * from './change-stream';
 export * from './models';
 
 export * from './connect';

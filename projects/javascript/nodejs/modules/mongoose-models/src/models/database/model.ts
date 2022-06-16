@@ -1,6 +1,5 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   getModelForClass,
   index,
@@ -9,13 +8,14 @@ import {
   pre,
   prop,
 } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
+
 import {
   EventEmitter,
   IDatabasePayload,
+  IOriginalDocument,
   changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
-import * as mongoose from 'mongoose';
-
+} from '../../change-stream';
 import { decrementalValidator, enumValidator, namespaceValidator } from '../../validators';
 import { GameDocument } from '../game';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
@@ -86,7 +86,7 @@ export class DatabaseSchema {
   public description: string;
 
   @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
-  public gameId: Ref<GameDocument>;
+  public gameId: mongoose.Types.ObjectId;
 
   @prop({ min: 250 * 1000 * 1000, required: true })
   public memory: number;
@@ -95,7 +95,7 @@ export class DatabaseSchema {
   public name: string;
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
-  public namespaceId: Ref<NamespaceDocument>;
+  public namespaceId: mongoose.Types.ObjectId;
 
   @prop()
   public preemptible: boolean;
@@ -127,7 +127,7 @@ export class DatabaseSchema {
     _id: string | mongoose.Types.ObjectId,
     cpu: number,
     memory: number,
-    namespaceId: string | mongoose.Types.ObjectId | Ref<NamespaceDocument>,
+    namespaceId: string | mongoose.Types.ObjectId,
     preemptible: boolean,
     replicas: number,
     storage: number,

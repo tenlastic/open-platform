@@ -1,16 +1,16 @@
 import {
   DocumentType,
-  Ref,
-  arrayProp,
   getModelForClass,
   modelOptions,
   prop,
   ReturnModelType,
+  Severity,
 } from '@typegoose/typegoose';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
 @modelOptions({
+  options: { allowMixed: Severity.ALLOW },
   schemaOptions: {
     collection: 'examples',
     timestamps: true,
@@ -31,15 +31,15 @@ export class ExampleSchema {
   public name: string;
 
   @prop({ ref: 'ExampleSchema' })
-  public parentId: Ref<ExampleDocument>;
+  public parentId: mongoose.Types.ObjectId;
 
   public updatedAt: Date;
 
-  @arrayProp({ items: String })
+  @prop({ type: String })
   public urls: string[];
 
   @prop({ ref: 'ExampleSchema' })
-  public userId: Ref<ExampleDocument>;
+  public userId: mongoose.Types.ObjectId;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'parentId', ref: 'ExampleSchema' })
   public parent: ExampleDocument;

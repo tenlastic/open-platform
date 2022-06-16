@@ -1,8 +1,7 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
-  arrayProp,
+  Severity,
   getModelForClass,
   index,
   modelOptions,
@@ -11,18 +10,18 @@ import {
   pre,
   prop,
 } from '@typegoose/typegoose';
-import * as jsonSchema from '@tenlastic/json-schema';
+import { IOptions } from '@tenlastic/mongoose-permissions';
+import * as mongoose from 'mongoose';
+
 import {
   EventEmitter,
   IDatabasePayload,
   IOriginalDocument,
   changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
-import { IOptions } from '@tenlastic/mongoose-permissions';
-import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
-import * as mongoose from 'mongoose';
-
+} from '../../change-stream';
+import * as errors from '../../errors';
 import { jsonSchemaPropertiesValidator, namespaceValidator } from '../../validators';
+import { toMongo } from '../../json-schema';
 import { DatabaseDocument, DatabaseEvent } from '../database';
 import { NamespaceDocument } from '../namespace';
 import { RecordSchema } from '../record';
@@ -42,6 +41,7 @@ DatabaseEvent.sync(async (payload) => {
 
 @index({ namespaceId: 1, name: 1 }, { unique: true })
 @modelOptions({
+  options: { allowMixed: Severity.ALLOW },
   schemaOptions: {
     collection: 'collections',
     minimize: false,
@@ -51,7 +51,7 @@ DatabaseEvent.sync(async (payload) => {
   },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: CollectionEvent })
-@plugin(uniqueErrorPlugin)
+@plugin(errors.unique.plugin)
 @pre('save', async function (this: CollectionDocument) {
   const Record = RecordSchema.getModel(this);
   await Record.syncIndexes({ background: true });
@@ -74,9 +74,9 @@ export class CollectionSchema implements IOriginalDocument {
     required: true,
     validate: namespaceValidator('databaseDocument', 'databaseId'),
   })
-  public databaseId: Ref<DatabaseDocument>;
+  public databaseId: mongoose.Types.ObjectId;
 
-  @arrayProp({ items: CollectionIndexSchema })
+  @prop({ type: CollectionIndexSchema })
   public indexes: CollectionIndexSchema[];
 
   @prop({
@@ -88,11 +88,11 @@ export class CollectionSchema implements IOriginalDocument {
   })
   public jsonSchema: any;
 
-  @prop({ required: 'true' })
+  @prop({ required: true })
   public name: string;
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
-  public namespaceId: Ref<NamespaceDocument>;
+  public namespaceId: mongoose.Types.ObjectId;
 
   @prop({
     _id: false,
@@ -180,7 +180,7 @@ export class CollectionSchema implements IOriginalDocument {
           namespaceId: {
             bsonType: 'objectId',
           },
-          properties: jsonSchema.toMongo(this.jsonSchema),
+          properties: toMongo(this.jsonSchema),
           updatedAt: {
             bsonType: 'date',
           },

@@ -12,7 +12,7 @@ export const namespaceValidator = (documentField: string, idField: string) => {
       }
 
       if (!record.populated(documentField)) {
-        await record.populate(documentField).execPopulate();
+        await record.populate(documentField);
       }
 
       const document = documentField.split('.').reduce((a, b) => a[b], record);

@@ -5,15 +5,15 @@ import * as mongoose from 'mongoose';
 import { Namespace, NamespaceDocument, NamespaceRole } from './model';
 import { NamespaceMock } from './model.mock';
 
-describe('models/namespace/model', function() {
-  describe('getAccessToken()', function() {
+describe('models/namespace/model', function () {
+  describe('getAccessToken()', function () {
     let namespace: NamespaceDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       namespace = await NamespaceMock.create();
     });
 
-    it('returns an accessToken', async function() {
+    it('returns an accessToken', async function () {
       const roles = [NamespaceRole.Namespaces];
       const accessToken = Namespace.getAccessToken(namespace._id, roles);
       const { user } = jwt.decode(accessToken) as any;
@@ -24,10 +24,10 @@ describe('models/namespace/model', function() {
     });
   });
 
-  describe('getDefaultUsers()', function() {
-    context('when the ACL is empty', function() {
-      it('returns an array with the current user as an Namespace administrator', function() {
-        const user = { _id: mongoose.Types.ObjectId() };
+  describe('getDefaultUsers()', function () {
+    context('when the ACL is empty', function () {
+      it('returns an array with the current user as an Namespace administrator', function () {
+        const user = { _id: new mongoose.Types.ObjectId() };
 
         const result = Namespace.getDefaultUsers(null, user);
 
@@ -37,9 +37,9 @@ describe('models/namespace/model', function() {
       });
     });
 
-    context('when the ACL includes an Namespace administrator', function() {
-      it('returns a copy of the original array', function() {
-        const user = { _id: mongoose.Types.ObjectId() };
+    context('when the ACL includes an Namespace administrator', function () {
+      it('returns a copy of the original array', function () {
+        const user = { _id: new mongoose.Types.ObjectId() };
         const acl = [{ _id: user._id, roles: [NamespaceRole.Namespaces] }];
 
         const result = Namespace.getDefaultUsers(acl, user);
@@ -48,10 +48,10 @@ describe('models/namespace/model', function() {
       });
     });
 
-    context('when the ACL does not includes an Namespace administrator', function() {
-      context('when the ACL includes the current user', function() {
-        it('grants the Namespace administrator role to the current user', function() {
-          const user = { _id: mongoose.Types.ObjectId() };
+    context('when the ACL does not includes an Namespace administrator', function () {
+      context('when the ACL includes the current user', function () {
+        it('grants the Namespace administrator role to the current user', function () {
+          const user = { _id: new mongoose.Types.ObjectId() };
           const acl = [{ _id: user._id, roles: ['Owner'] }];
 
           const result = Namespace.getDefaultUsers(acl, user);
@@ -62,10 +62,10 @@ describe('models/namespace/model', function() {
         });
       });
 
-      context('when the ACL does not include the current user', function() {
-        it('grants the Namespace administrator role to the current user', function() {
-          const user = { _id: mongoose.Types.ObjectId() };
-          const acl = [{ _id: mongoose.Types.ObjectId(), roles: ['Owner'] }];
+      context('when the ACL does not include the current user', function () {
+        it('grants the Namespace administrator role to the current user', function () {
+          const user = { _id: new mongoose.Types.ObjectId() };
+          const acl = [{ _id: new mongoose.Types.ObjectId(), roles: ['Owner'] }];
 
           const result = Namespace.getDefaultUsers(acl, user);
 

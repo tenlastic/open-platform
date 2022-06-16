@@ -1,6 +1,5 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   getModelForClass,
   index,
@@ -8,13 +7,9 @@ import {
   plugin,
   prop,
 } from '@typegoose/typegoose';
-import {
-  EventEmitter,
-  IDatabasePayload,
-  changeStreamPlugin,
-} from '@tenlastic/mongoose-change-stream';
 import * as mongoose from 'mongoose';
 
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import { UserDocument } from '../user';
 
 export const IgnorationEvent = new EventEmitter<IDatabasePayload<IgnorationDocument>>();
@@ -36,10 +31,10 @@ export class IgnorationSchema {
   public createdAt: Date;
 
   @prop({ immutable: true, ref: 'UserSchema', required: true })
-  public fromUserId: Ref<UserDocument>;
+  public fromUserId: mongoose.Types.ObjectId;
 
   @prop({ immutable: true, ref: 'UserSchema', required: true })
-  public toUserId: Ref<UserDocument>;
+  public toUserId: mongoose.Types.ObjectId;
 
   public updatedAt: Date;
 

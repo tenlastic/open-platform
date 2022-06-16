@@ -9,7 +9,7 @@ export class NamespaceUserMock {
    */
   public static create(params: Partial<NamespaceUserSchema> = {}) {
     const defaults = {
-      userId: mongoose.Types.ObjectId(),
+      userId: new mongoose.Types.ObjectId(),
     };
 
     return new NamespaceUser({ ...defaults, ...params });

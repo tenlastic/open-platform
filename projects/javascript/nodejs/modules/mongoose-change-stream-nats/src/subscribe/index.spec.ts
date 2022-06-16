@@ -1,4 +1,4 @@
-import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
+import { IDatabasePayload } from '@tenlastic/mongoose-models';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
@@ -15,14 +15,14 @@ const schema = new mongoose.Schema({
 });
 const Model = mongoose.model('example', schema);
 
-describe('subscribe()', function() {
-  beforeEach(async function() {
+describe('subscribe()', function () {
+  beforeEach(async function () {
     await Model.deleteMany({});
   });
 
-  context('when the operationType is delete', function() {
-    it('deletes the document from MongoDB', async function() {
-      const record = await Model.create({ _id: mongoose.Types.ObjectId() });
+  context('when the operationType is delete', function () {
+    it('deletes the document from MongoDB', async function () {
+      const record = await Model.create({ _id: new mongoose.Types.ObjectId() });
       const payload: IDatabasePayload<any> = {
         documentKey: { _id: record._id },
         ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
@@ -39,9 +39,9 @@ describe('subscribe()', function() {
     });
   });
 
-  context('when the operationType is insert', function() {
-    it('inserts the fullDocument into MongoDB', async function() {
-      const _id = mongoose.Types.ObjectId();
+  context('when the operationType is insert', function () {
+    it('inserts the fullDocument into MongoDB', async function () {
+      const _id = new mongoose.Types.ObjectId();
       const payload: IDatabasePayload<any> = {
         documentKey: { _id },
         fullDocument: {
@@ -65,10 +65,10 @@ describe('subscribe()', function() {
     });
   });
 
-  context('when the operationType is update', function() {
-    context('when useUpdateDescription is true', function() {
-      it('updates the document within MongoDB', async function() {
-        const record = await Model.create({ _id: mongoose.Types.ObjectId() });
+  context('when the operationType is update', function () {
+    context('when useUpdateDescription is true', function () {
+      it('updates the document within MongoDB', async function () {
+        const record = await Model.create({ _id: new mongoose.Types.ObjectId() });
         const payload: IDatabasePayload<any> = {
           documentKey: { _id: record._id },
           fullDocument: {
@@ -100,9 +100,9 @@ describe('subscribe()', function() {
       });
     });
 
-    context('when useUpdateDescription is false', function() {
-      it('updates the document within MongoDB', async function() {
-        const record = await Model.create({ _id: mongoose.Types.ObjectId() });
+    context('when useUpdateDescription is false', function () {
+      it('updates the document within MongoDB', async function () {
+        const record = await Model.create({ _id: new mongoose.Types.ObjectId() });
         const payload: IDatabasePayload<any> = {
           documentKey: { _id: record._id },
           fullDocument: {

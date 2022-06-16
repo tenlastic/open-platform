@@ -14,8 +14,8 @@
   "dependencies": {
     "@tenlastic/logging": "0.0.290",
     "@tenlastic/mongoose-models": "0.0.290",
-    "@typegoose/typegoose": "6.4.0",
-    "mongoose": "5.9.13",
+    "@typegoose/typegoose": "9.9.0",
+    "mongoose": "6.3.5",
     "source-map-support": "0.5.12"
   },
   "devDependencies": {

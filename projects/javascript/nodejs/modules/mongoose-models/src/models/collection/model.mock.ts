@@ -2,14 +2,14 @@ import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
 import { DatabaseMock } from '../database';
-import { Collection, CollectionModel } from './model';
+import { Collection, CollectionSchema } from './model';
 
 export class CollectionMock {
   /**
    * Creates a record with randomized required parameters if not specified.
    * @param {Object} params The parameters to initialize the record with.
    */
-  public static async create(params: Partial<CollectionModel> = {}) {
+  public static async create(params: Partial<CollectionSchema> = {}) {
     const chance = new Chance();
 
     const defaults = {

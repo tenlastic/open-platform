@@ -1,7 +1,6 @@
 import {
   DocumentType,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   modelOptions,
   prop,
@@ -20,10 +19,10 @@ export enum DatabaseStatusPhase {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class DatabaseStatusSchema {
-  @arrayProp({ items: DatabaseStatusComponentSchema })
+  @prop({ type: DatabaseStatusComponentSchema })
   public components: DatabaseStatusComponentSchema[];
 
-  @arrayProp({ items: DatabaseStatusNodeSchema })
+  @prop({ type: DatabaseStatusNodeSchema })
   public nodes: DatabaseStatusNodeSchema[];
 
   @prop({ enum: DatabaseStatusPhase, required: true })

@@ -9,9 +9,9 @@ export class GroupInvitationMock {
    */
   public static async create(params: Partial<GroupInvitationSchema> = {}) {
     const defaults = {
-      fromUserId: mongoose.Types.ObjectId(),
-      groupId: mongoose.Types.ObjectId(),
-      toUserId: mongoose.Types.ObjectId(),
+      fromUserId: new mongoose.Types.ObjectId(),
+      groupId: new mongoose.Types.ObjectId(),
+      toUserId: new mongoose.Types.ObjectId(),
     };
 
     return GroupInvitation.create({ ...defaults, ...params });

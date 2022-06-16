@@ -3,11 +3,11 @@ import * as mongoose from 'mongoose';
 
 import { AccessControl } from './';
 
-describe('access-control', function() {
-  describe(`['getRole']()`, function() {
+describe('access-control', function () {
+  describe(`['getRole']()`, function () {
     let accessControl: AccessControl;
 
-    beforeEach(function() {
+    beforeEach(function () {
       accessControl = new AccessControl({
         roles: [
           {
@@ -22,23 +22,23 @@ describe('access-control', function() {
       });
     });
 
-    it('returns the first role', function() {
+    it('returns the first role', function () {
       const result = accessControl['getRole']({}, { roles: ['Admin'] });
 
       expect(result).to.eql('admin');
     });
 
-    it('returns the second role', function() {
-      const _id = mongoose.Types.ObjectId();
+    it('returns the second role', function () {
+      const _id = new mongoose.Types.ObjectId();
       const result = accessControl['getRole']({ userId: _id }, { _id });
 
       expect(result).to.eql('owner');
     });
 
-    it('returns default', function() {
-      const _id = mongoose.Types.ObjectId();
+    it('returns default', function () {
+      const _id = new mongoose.Types.ObjectId();
       const result = accessControl['getRole'](
-        { userId: mongoose.Types.ObjectId() },
+        { userId: new mongoose.Types.ObjectId() },
         {
           _id,
         },

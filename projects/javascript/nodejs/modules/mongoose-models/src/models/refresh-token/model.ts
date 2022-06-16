@@ -1,6 +1,5 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   getModelForClass,
   index,
@@ -8,10 +7,9 @@ import {
   plugin,
   prop,
 } from '@typegoose/typegoose';
-import { plugin as uniqueErrorPlugin } from '@tenlastic/mongoose-unique-error';
 import * as mongoose from 'mongoose';
 
-import { UserDocument } from '../user';
+import * as errors from '../../errors';
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ userId: 1 })
@@ -22,7 +20,7 @@ import { UserDocument } from '../user';
     timestamps: true,
   },
 })
-@plugin(uniqueErrorPlugin)
+@plugin(errors.unique.plugin)
 export class RefreshTokenSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
@@ -36,7 +34,7 @@ export class RefreshTokenSchema {
   public updatedAt: Date;
 
   @prop({ immutable: true, ref: 'UserSchema', required: true })
-  public userId: Ref<UserDocument>;
+  public userId: mongoose.Types.ObjectId;
 }
 
 export type RefreshTokenDocument = DocumentType<RefreshTokenSchema>;

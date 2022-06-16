@@ -1,7 +1,6 @@
 import {
   DocumentType,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   modelOptions,
   prop,
@@ -23,7 +22,7 @@ export class GameServerStatusSchema {
   @prop()
   public endpoints: GameServerStatusEndpointsSchema;
 
-  @arrayProp({ items: GameServerStatusNodeSchema })
+  @prop({ type: GameServerStatusNodeSchema })
   public nodes: GameServerStatusNodeSchema[];
 
   @prop({ enum: GameServerStatusPhase, required: true })

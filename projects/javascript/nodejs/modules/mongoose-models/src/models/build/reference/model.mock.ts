@@ -9,7 +9,7 @@ export class BuildReferenceMock {
    */
   public static create(params: Partial<BuildReferenceSchema> = {}) {
     const defaults = {
-      _id: mongoose.Types.ObjectId(),
+      _id: new mongoose.Types.ObjectId(),
     };
 
     return new BuildReference({ ...defaults, ...params });

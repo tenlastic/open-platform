@@ -1,7 +1,6 @@
 import {
   DocumentType,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   modelOptions,
   prop,
@@ -14,7 +13,7 @@ export class NamespaceKeySchema {
   @prop({ required: true })
   public description: string;
 
-  @arrayProp({ enum: NamespaceRole, items: String })
+  @prop({ enum: NamespaceRole, type: String })
   public roles: string[];
 
   @prop({ required: true })

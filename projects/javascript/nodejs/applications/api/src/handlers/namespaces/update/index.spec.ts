@@ -16,17 +16,17 @@ import { handler } from '.';
 const chance = new Chance();
 use(chaiAsExpected);
 
-describe('handlers/namespaces/update', function() {
+describe('handlers/namespaces/update', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  context('when permission is granted', function() {
+  context('when permission is granted', function () {
     let record: NamespaceDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       const userRole = await NamespaceUserMock.create({
         _id: user._id,
         roles: ['namespaces'],
@@ -34,7 +34,7 @@ describe('handlers/namespaces/update', function() {
       record = await NamespaceMock.create({ users: [userRole] });
     });
 
-    it('returns the updated record', async function() {
+    it('returns the updated record', async function () {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
@@ -58,14 +58,14 @@ describe('handlers/namespaces/update', function() {
     });
   });
 
-  context('when permission is denied', function() {
+  context('when permission is denied', function () {
     let record: NamespaceDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       record = await NamespaceMock.create();
     });
 
-    it('throws an error', async function() {
+    it('throws an error', async function () {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
@@ -75,7 +75,7 @@ describe('handlers/namespaces/update', function() {
             name: chance.hash(),
           },
         },
-        state: { user: { _id: mongoose.Types.ObjectId() } },
+        state: { user: { _id: new mongoose.Types.ObjectId() } },
       });
 
       const promise = handler(ctx as any);

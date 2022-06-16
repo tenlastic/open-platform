@@ -1,4 +1,4 @@
-import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
+import { IDatabasePayload } from '@tenlastic/mongoose-models';
 import nats from '@tenlastic/nats';
 import { Document } from 'mongoose';
 

@@ -6,14 +6,14 @@ import { EventEmitter } from './';
 
 const chance = new Chance();
 
-describe('event-emitter', function() {
-  describe('emit()', function() {
-    it('emits functions registered with async()', async function() {
+describe('change-stream/event-emitter', function () {
+  describe('emit()', function () {
+    it('emits functions registered with async()', async function () {
       const eventEmitter = new EventEmitter();
 
       const spy = sinon.spy();
       const stub = async (value: string) => {
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
         return spy(value);
       };
       eventEmitter.async(stub);
@@ -27,7 +27,7 @@ describe('event-emitter', function() {
       expect(spy.getCall(1).args[0]).to.eql(hash);
     });
 
-    it('emits functions registered with sync()', async function() {
+    it('emits functions registered with sync()', async function () {
       const eventEmitter = new EventEmitter();
 
       const spy = sinon.spy();

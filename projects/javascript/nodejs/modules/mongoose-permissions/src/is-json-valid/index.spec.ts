@@ -3,10 +3,10 @@ import * as mongoose from 'mongoose';
 
 import { isJsonValid } from './';
 
-describe('is-json-valid', function() {
-  describe('isJsonValid()', function() {
-    describe('$and', function() {
-      it('returns true', function() {
+describe('is-json-valid', function () {
+  describe('isJsonValid()', function () {
+    describe('$and', function () {
+      it('returns true', function () {
         const json = {
           user: {
             age: 5,
@@ -22,7 +22,7 @@ describe('is-json-valid', function() {
         expect(result).to.eql(true);
       });
 
-      it('returns false', function() {
+      it('returns false', function () {
         const json = {
           user: {
             age: 5,
@@ -39,8 +39,8 @@ describe('is-json-valid', function() {
       });
     });
 
-    describe('$elemMatch', function() {
-      it('returns true', function() {
+    describe('$elemMatch', function () {
+      it('returns true', function () {
         const json = {
           user: {
             names: [
@@ -63,7 +63,7 @@ describe('is-json-valid', function() {
         expect(result).to.eql(true);
       });
 
-      it('returns false', function() {
+      it('returns false', function () {
         const json = {
           user: {
             names: [
@@ -87,9 +87,9 @@ describe('is-json-valid', function() {
       });
     });
 
-    describe('$eq', function() {
-      context('when the reference is an array', function() {
-        it('returns true', function() {
+    describe('$eq', function () {
+      context('when the reference is an array', function () {
+        it('returns true', function () {
           const json = {
             user: {
               roles: ['Admin'],
@@ -104,7 +104,7 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns false', function() {
+        it('returns false', function () {
           const json = {
             user: {
               roles: ['Admin'],
@@ -120,11 +120,11 @@ describe('is-json-valid', function() {
         });
       });
 
-      context('when the reference is an ObjectId', function() {
-        it('returns true', function() {
+      context('when the reference is an ObjectId', function () {
+        it('returns true', function () {
           const json = {
             user: {
-              _id: mongoose.Types.ObjectId(),
+              _id: new mongoose.Types.ObjectId(),
             },
           };
           const query = {
@@ -136,14 +136,14 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns false', function() {
+        it('returns false', function () {
           const json = {
             user: {
-              _id: mongoose.Types.ObjectId(),
+              _id: new mongoose.Types.ObjectId(),
             },
           };
           const query = {
-            'user._id': { $eq: mongoose.Types.ObjectId() },
+            'user._id': { $eq: new mongoose.Types.ObjectId() },
           };
 
           const result = isJsonValid(json, query);
@@ -152,8 +152,8 @@ describe('is-json-valid', function() {
         });
       });
 
-      context('when the reference is anything else', function() {
-        it('returns true', function() {
+      context('when the reference is anything else', function () {
+        it('returns true', function () {
           const json = {
             user: {
               _id: '123',
@@ -168,7 +168,7 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns false', function() {
+        it('returns false', function () {
           const json = {
             user: {
               _id: '123',
@@ -185,9 +185,9 @@ describe('is-json-valid', function() {
       });
     });
 
-    describe('$exists', function() {
-      context('when value is true', function() {
-        it('returns true', function() {
+    describe('$exists', function () {
+      context('when value is true', function () {
+        it('returns true', function () {
           const json = {
             user: {
               roles: ['Admin'],
@@ -202,7 +202,7 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns false', function() {
+        it('returns false', function () {
           const json = {
             user: {},
           };
@@ -216,8 +216,8 @@ describe('is-json-valid', function() {
         });
       });
 
-      context('when value is false', function() {
-        it('returns true', function() {
+      context('when value is false', function () {
+        it('returns true', function () {
           const json = {
             user: {},
           };
@@ -230,7 +230,7 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns false', function() {
+        it('returns false', function () {
           const json = {
             user: {
               roles: ['Admin'],
@@ -247,9 +247,9 @@ describe('is-json-valid', function() {
       });
     });
 
-    describe('$in', function() {
-      context('when the reference is an array', function() {
-        it('returns true', function() {
+    describe('$in', function () {
+      context('when the reference is an array', function () {
+        it('returns true', function () {
           const json = {
             user: {
               roles: ['Admin'],
@@ -264,7 +264,7 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns false', function() {
+        it('returns false', function () {
           const json = {
             user: {
               roles: ['Admin'],
@@ -280,11 +280,11 @@ describe('is-json-valid', function() {
         });
       });
 
-      context('when the reference is an ObjectId', function() {
-        it('returns true', function() {
+      context('when the reference is an ObjectId', function () {
+        it('returns true', function () {
           const json = {
             user: {
-              _id: mongoose.Types.ObjectId(),
+              _id: new mongoose.Types.ObjectId(),
             },
           };
           const query = {
@@ -296,14 +296,14 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns false', function() {
+        it('returns false', function () {
           const json = {
             user: {
-              _id: mongoose.Types.ObjectId(),
+              _id: new mongoose.Types.ObjectId(),
             },
           };
           const query = {
-            'user._id': { $in: [mongoose.Types.ObjectId()] },
+            'user._id': { $in: [new mongoose.Types.ObjectId()] },
           };
 
           const result = isJsonValid(json, query);
@@ -312,8 +312,8 @@ describe('is-json-valid', function() {
         });
       });
 
-      context('when the reference is anything else', function() {
-        it('returns true', function() {
+      context('when the reference is anything else', function () {
+        it('returns true', function () {
           const json = {
             user: {
               _id: '123',
@@ -328,7 +328,7 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns false', function() {
+        it('returns false', function () {
           const json = {
             user: {
               _id: '123',
@@ -345,9 +345,9 @@ describe('is-json-valid', function() {
       });
     });
 
-    describe('$ne', function() {
-      context('when the reference is an array', function() {
-        it('returns false', function() {
+    describe('$ne', function () {
+      context('when the reference is an array', function () {
+        it('returns false', function () {
           const json = {
             user: {
               roles: ['Admin'],
@@ -362,7 +362,7 @@ describe('is-json-valid', function() {
           expect(result).to.eql(false);
         });
 
-        it('returns true', function() {
+        it('returns true', function () {
           const json = {
             user: {
               roles: ['Admin'],
@@ -378,11 +378,11 @@ describe('is-json-valid', function() {
         });
       });
 
-      context('when the reference is an ObjectId', function() {
-        it('returns false', function() {
+      context('when the reference is an ObjectId', function () {
+        it('returns false', function () {
           const json = {
             user: {
-              _id: mongoose.Types.ObjectId(),
+              _id: new mongoose.Types.ObjectId(),
             },
           };
           const query = {
@@ -394,14 +394,14 @@ describe('is-json-valid', function() {
           expect(result).to.eql(false);
         });
 
-        it('returns true', function() {
+        it('returns true', function () {
           const json = {
             user: {
-              _id: mongoose.Types.ObjectId(),
+              _id: new mongoose.Types.ObjectId(),
             },
           };
           const query = {
-            'user._id': { $ne: mongoose.Types.ObjectId() },
+            'user._id': { $ne: new mongoose.Types.ObjectId() },
           };
 
           const result = isJsonValid(json, query);
@@ -410,8 +410,8 @@ describe('is-json-valid', function() {
         });
       });
 
-      context('when the reference is anything else', function() {
-        it('returns false', function() {
+      context('when the reference is anything else', function () {
+        it('returns false', function () {
           const json = {
             user: {
               _id: '123',
@@ -426,7 +426,7 @@ describe('is-json-valid', function() {
           expect(result).to.eql(false);
         });
 
-        it('returns true', function() {
+        it('returns true', function () {
           const json = {
             user: {
               _id: '123',
@@ -443,9 +443,9 @@ describe('is-json-valid', function() {
       });
     });
 
-    describe('$nin', function() {
-      context('when the reference is an array', function() {
-        it('returns true', function() {
+    describe('$nin', function () {
+      context('when the reference is an array', function () {
+        it('returns true', function () {
           const json = {
             user: {
               roles: ['Admin'],
@@ -460,7 +460,7 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns false', function() {
+        it('returns false', function () {
           const json = {
             user: {
               roles: ['Admin'],
@@ -476,15 +476,15 @@ describe('is-json-valid', function() {
         });
       });
 
-      context('when the reference is an ObjectId', function() {
-        it('returns true', function() {
+      context('when the reference is an ObjectId', function () {
+        it('returns true', function () {
           const json = {
             user: {
-              _id: mongoose.Types.ObjectId(),
+              _id: new mongoose.Types.ObjectId(),
             },
           };
           const query = {
-            'user._id': { $nin: [mongoose.Types.ObjectId()] },
+            'user._id': { $nin: [new mongoose.Types.ObjectId()] },
           };
 
           const result = isJsonValid(json, query);
@@ -492,10 +492,10 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns false', function() {
+        it('returns false', function () {
           const json = {
             user: {
-              _id: mongoose.Types.ObjectId(),
+              _id: new mongoose.Types.ObjectId(),
             },
           };
           const query = {
@@ -508,8 +508,8 @@ describe('is-json-valid', function() {
         });
       });
 
-      context('when the reference is anything else', function() {
-        it('returns true', function() {
+      context('when the reference is anything else', function () {
+        it('returns true', function () {
           const json = {
             user: {
               _id: '123',
@@ -524,7 +524,7 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns false', function() {
+        it('returns false', function () {
           const json = {
             user: {
               _id: '123',
@@ -541,8 +541,8 @@ describe('is-json-valid', function() {
       });
     });
 
-    describe('$or', function() {
-      it('returns true', function() {
+    describe('$or', function () {
+      it('returns true', function () {
         const json = {
           user: {
             age: 5,
@@ -558,7 +558,7 @@ describe('is-json-valid', function() {
         expect(result).to.eql(true);
       });
 
-      it('returns false', function() {
+      it('returns false', function () {
         const json = {
           user: {
             age: 5,
@@ -575,8 +575,8 @@ describe('is-json-valid', function() {
       });
     });
 
-    describe('inferred value', function() {
-      it('returns true', function() {
+    describe('inferred value', function () {
+      it('returns true', function () {
         const json = {
           record: {
             userId: '123',
@@ -594,7 +594,7 @@ describe('is-json-valid', function() {
         expect(result).to.eql(true);
       });
 
-      it('returns false', function() {
+      it('returns false', function () {
         const json = {
           record: {
             userId: '123',
@@ -613,9 +613,9 @@ describe('is-json-valid', function() {
       });
     });
 
-    describe('default', function() {
-      context('when the reference is an array', function() {
-        it('returns true', function() {
+    describe('default', function () {
+      context('when the reference is an array', function () {
+        it('returns true', function () {
           const json = {
             user: {
               roles: ['Admin'],
@@ -630,7 +630,7 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns false', function() {
+        it('returns false', function () {
           const json = {
             user: {
               roles: ['Admin'],
@@ -646,11 +646,11 @@ describe('is-json-valid', function() {
         });
       });
 
-      context('when the reference is an ObjectId', function() {
-        it('returns true', function() {
+      context('when the reference is an ObjectId', function () {
+        it('returns true', function () {
           const json = {
             user: {
-              _id: mongoose.Types.ObjectId(),
+              _id: new mongoose.Types.ObjectId(),
             },
           };
           const query = {
@@ -662,14 +662,14 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns false', function() {
+        it('returns false', function () {
           const json = {
             user: {
-              _id: mongoose.Types.ObjectId(),
+              _id: new mongoose.Types.ObjectId(),
             },
           };
           const query = {
-            'user._id': mongoose.Types.ObjectId(),
+            'user._id': new mongoose.Types.ObjectId(),
           };
 
           const result = isJsonValid(json, query);
@@ -678,8 +678,8 @@ describe('is-json-valid', function() {
         });
       });
 
-      context('when the reference is anything else', function() {
-        it('returns true', function() {
+      context('when the reference is anything else', function () {
+        it('returns true', function () {
           const json = {
             user: {
               _id: '123',
@@ -694,7 +694,7 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns true', function() {
+        it('returns true', function () {
           const json = {
             user: {
               _id: '123',
@@ -709,7 +709,7 @@ describe('is-json-valid', function() {
           expect(result).to.eql(true);
         });
 
-        it('returns false', function() {
+        it('returns false', function () {
           const json = {
             user: {
               _id: '123',
@@ -726,8 +726,8 @@ describe('is-json-valid', function() {
       });
     });
 
-    describe('multiple operators', function() {
-      it('returns true', function() {
+    describe('multiple operators', function () {
+      it('returns true', function () {
         const json = {
           user: {
             age: 5,
@@ -746,7 +746,7 @@ describe('is-json-valid', function() {
         expect(result).to.eql(true);
       });
 
-      it('returns false', function() {
+      it('returns false', function () {
         const json = {
           user: {
             age: 5,

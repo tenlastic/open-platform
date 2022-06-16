@@ -30,76 +30,77 @@ export function changeStreamPlugin<T extends mongoose.Document>(
   schema: mongoose.Schema,
   options: IOptions<T>,
 ) {
-  schema.pre('findOneAndUpdate', async function(
-    this: mongoose.DocumentQuery<mongoose.Document, mongoose.Document, {}>,
-  ) {
-    this.setOptions({ ...this.getOptions(), new: true });
-  });
+  schema.pre(
+    'findOneAndUpdate',
+    async function (this: mongoose.Query<mongoose.Document, mongoose.Document, {}>) {
+      this.setOptions({ ...this.getOptions(), new: true });
+    },
+  );
 
-  schema.pre('save', function(this: T & IOriginalDocument) {
+  schema.pre('save', function (this: T & IOriginalDocument) {
     this.wasModified = this.modifiedPaths();
     this.wasNew = this.isNew;
   });
 
-  schema.post('findOneAndDelete', function(
-    this: mongoose.DocumentQuery<mongoose.Document, mongoose.Document, {}>,
-    document: T,
-  ) {
-    if (!document) {
-      return;
-    }
+  schema.post(
+    'findOneAndDelete',
+    function (this: mongoose.Query<mongoose.Document, mongoose.Document, {}>, document: T) {
+      if (!document) {
+        return;
+      }
 
-    const documentKeys = options.documentKeys || ['_id'];
-    const query = this.getQuery();
-    const documentKey = documentKeys.reduce((agg: any, key: string) => {
-      agg[key] = query[key];
-      return agg;
-    }, {});
+      const documentKeys = options.documentKeys || ['_id'];
+      const query = this.getQuery();
+      const documentKey = documentKeys.reduce((agg: any, key: string) => {
+        agg[key] = query[key];
+        return agg;
+      }, {});
 
-    const payload = {
-      documentKey,
-      fullDocument: document,
-      ns: { coll: document.collection.name, db: document.db.db.databaseName },
-      operationType: 'delete',
-    } as IDatabasePayload<T>;
-    return options.eventEmitter.emit(payload);
-  });
+      const payload = {
+        documentKey,
+        fullDocument: document,
+        ns: { coll: document.collection.name, db: document.db.db.databaseName },
+        operationType: 'delete',
+      } as IDatabasePayload<T>;
+      return options.eventEmitter.emit(payload);
+    },
+  );
 
-  schema.post('findOneAndUpdate', async function(
-    this: mongoose.DocumentQuery<mongoose.Document, mongoose.Document, {}>,
-    document: T,
-  ) {
-    if (!document) {
-      return;
-    }
+  schema.post(
+    'findOneAndUpdate',
+    async function (this: mongoose.Query<mongoose.Document, mongoose.Document, {}>, document: T) {
+      if (!document) {
+        return;
+      }
 
-    const documentKeys = options.documentKeys || ['_id'];
-    const query = this.getQuery();
-    const documentKey = documentKeys.reduce((agg: any, key: string) => {
-      agg[key] = query[key];
-      return agg;
-    }, {});
+      const documentKeys = options.documentKeys || ['_id'];
+      const query = this.getQuery();
+      const documentKey = documentKeys.reduce((agg: any, key: string) => {
+        agg[key] = query[key];
+        return agg;
+      }, {});
 
-    const update = this.getUpdate();
-    const removedFields = update.$unset ? Object.keys(update.$unset) : [];
-    const updatedFields = update.$set;
+      const update = this.getUpdate() as any;
+      const removedFields = update.$unset ? Object.keys(update.$unset) : [];
+      const updatedFields = update.$set;
 
-    const payload = {
-      documentKey,
-      fullDocument: document,
-      ns: { coll: document.collection.name, db: document.db.db.databaseName },
-      operationType: 'update',
-      updateDescription: { removedFields, updatedFields },
-    } as IDatabasePayload<T>;
+      const payload = {
+        documentKey,
+        fullDocument: document,
+        ns: { coll: document.collection.name, db: document.db.db.databaseName },
+        operationType: 'update',
+        updateDescription: { removedFields, updatedFields },
+      } as IDatabasePayload<T>;
 
-    return options.eventEmitter.emit(payload);
-  });
+      return options.eventEmitter.emit(payload);
+    },
+  );
 
-  schema.post('init', function(this: T & IOriginalDocument) {
+  schema.post('init', function (this: T & IOriginalDocument) {
     this._original = this.toObject();
   });
 
-  schema.post('remove', async function(this: T & IOriginalDocument) {
+  schema.post('remove', async function (this: T & IOriginalDocument) {
     const documentKeys = options.documentKeys || ['_id'];
     const documentKey = documentKeys.reduce((agg: any, key: string) => {
       agg[key] = this[key];
@@ -115,7 +116,7 @@ export function changeStreamPlugin<T extends mongoose.Document>(
     return options.eventEmitter.emit(payload);
   });
 
-  schema.post('save', async function(this: T & IOriginalDocument) {
+  schema.post('save', async function (this: T & IOriginalDocument) {
     const documentKeys = options.documentKeys || ['_id'];
     const documentKey = documentKeys.reduce((agg: any, key: string) => {
       agg[key] = this[key];

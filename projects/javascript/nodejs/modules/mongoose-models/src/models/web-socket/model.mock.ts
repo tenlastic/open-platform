@@ -13,7 +13,7 @@ export class WebSocketMock {
 
     const defaults = {
       nodeId: chance.hash(),
-      userId: mongoose.Types.ObjectId(),
+      userId: new mongoose.Types.ObjectId(),
     };
 
     return WebSocket.create({ ...defaults, ...params });

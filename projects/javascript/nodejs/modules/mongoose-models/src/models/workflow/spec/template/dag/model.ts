@@ -1,16 +1,17 @@
 import {
   DocumentType,
   ReturnModelType,
-  arrayProp,
   getModelForClass,
   modelOptions,
+  prop,
 } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import { WorkflowSpecTemplateDagTaskSchema } from './task';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateDagSchema {
-  @arrayProp({ items: WorkflowSpecTemplateDagTaskSchema, required: true })
+  @prop({ required: true, type: WorkflowSpecTemplateDagTaskSchema })
   public tasks: WorkflowSpecTemplateDagTaskSchema[];
 }
 

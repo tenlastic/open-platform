@@ -24,7 +24,7 @@ export function getValidationError(err: MongoError, schema: Schema, doc: any) {
   const indexName = err.message.match(/index: ([A-Za-z0-9\_\.]+) (collation|dup key)/)[1];
 
   // Get names of unique indexes defined within Mongoose schema.
-  const uniqueIndexes = schema.indexes().filter((i) => i[1] && i[1].unique);
+  const uniqueIndexes = schema.indexes().filter((i) => i[1] && (i[1] as any).unique);
   const uniqueIndexNames = getIndexNames(uniqueIndexes);
 
   // Find the Mongoose index that matches the MongoError's index name.

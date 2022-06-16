@@ -1,4 +1,4 @@
-import { IDatabasePayload } from '@tenlastic/mongoose-change-stream';
+import { IDatabasePayload } from '@tenlastic/mongoose-models';
 import nats from '@tenlastic/nats';
 import { expect } from 'chai';
 import * as Chance from 'chance';
@@ -8,8 +8,8 @@ import { publish } from './';
 
 const chance = new Chance();
 
-describe('publish()', function() {
-  it('publishes the payload to NATS', async function() {
+describe('publish()', function () {
+  it('publishes the payload to NATS', async function () {
     const payload: IDatabasePayload<any> = {
       documentKey: { _id: chance.hash() },
       fullDocument: { _id: chance.hash(), createdAt: new Date(), updatedAt: new Date() },

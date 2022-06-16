@@ -20,9 +20,7 @@ export class WorkflowSpecTemplateRetryStrategySchema {
   public retryPolicy: string;
 }
 
-export type WorkflowSpecTemplateRetryStrategyDocument = DocumentType<
-  WorkflowSpecTemplateRetryStrategySchema
->;
+export type WorkflowSpecTemplateRetryStrategyDocument = DocumentType<WorkflowSpecTemplateRetryStrategySchema>;
 export type WorkflowSpecTemplateRetryStrategyModel = ReturnModelType<
   typeof WorkflowSpecTemplateRetryStrategySchema
 >;

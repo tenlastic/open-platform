@@ -9,8 +9,8 @@ export class FriendMock {
    */
   public static async create(params: Partial<FriendSchema> = {}) {
     const defaults = {
-      fromUserId: mongoose.Types.ObjectId(),
-      toUserId: mongoose.Types.ObjectId(),
+      fromUserId: new mongoose.Types.ObjectId(),
+      toUserId: new mongoose.Types.ObjectId(),
     };
 
     return Friend.create({ ...defaults, ...params });
