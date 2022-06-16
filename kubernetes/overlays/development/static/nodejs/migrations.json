@@ -4,16 +4,10 @@
     "path": "/spec/template/spec/volumes",
     "value": [
       {
-        "name": "node-modules",
-        "persistentVolumeClaim": {
-          "claimName": "node-modules"
-        }
-      },
-      {
         "hostPath": {
-          "path": "/run/desktop/mnt/host/c/open-platform/"
+          "path": "/run/desktop/mnt/host/wsl/open-platform/"
         },
-        "name": "source"
+        "name": "workspace"
       }
     ]
   },
@@ -33,12 +27,8 @@
       "name": "migrations",
       "volumeMounts": [
         {
-          "mountPath": "/usr/src/projects/javascript/node_modules/",
-          "name": "node-modules"
-        },
-        {
           "mountPath": "/usr/src/",
-          "name": "source"
+          "name": "workspace"
         }
       ],
       "workingDir": "/usr/src/projects/javascript/nodejs/applications/migrations/"

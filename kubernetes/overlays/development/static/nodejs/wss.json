@@ -4,16 +4,10 @@
     "path": "/spec/template/spec/volumes",
     "value": [
       {
-        "name": "node-modules",
-        "persistentVolumeClaim": {
-          "claimName": "node-modules"
-        }
-      },
-      {
         "hostPath": {
-          "path": "/run/desktop/mnt/host/c/open-platform/"
+          "path": "/run/desktop/mnt/host/wsl/open-platform/"
         },
-        "name": "source"
+        "name": "workspace"
       }
     ]
   },
@@ -45,19 +39,15 @@
           "path": "/",
           "port": 3000
         },
-        "initialDelaySeconds": 60,
-        "periodSeconds": 60
+        "initialDelaySeconds": 30,
+        "periodSeconds": 30
       },
       "name": "wss",
       "ports": [{ "containerPort": 3000 }],
       "volumeMounts": [
         {
-          "mountPath": "/usr/src/projects/javascript/node_modules/",
-          "name": "node-modules"
-        },
-        {
           "mountPath": "/usr/src/",
-          "name": "source"
+          "name": "workspace"
         }
       ],
       "workingDir": "/usr/src/projects/javascript/nodejs/applications/wss/"

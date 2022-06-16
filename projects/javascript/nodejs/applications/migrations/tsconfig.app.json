@@ -11,5 +11,8 @@
   "references": [
     { "path": "../../modules/logging/tsconfig.app.json" },
     { "path": "../../modules/mongoose-models/tsconfig.app.json" },
-  ]
+  ],
+  "ts-node": {
+    "files": true,
+  },
 }

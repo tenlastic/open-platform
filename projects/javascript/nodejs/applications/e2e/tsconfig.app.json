@@ -10,5 +10,8 @@
   "include": ["./src"],
   "references": [
     { "path": "../../modules/http/tsconfig.app.json" }
-  ]
+  ],
+  "ts-node": {
+    "files": true,
+  },
 }

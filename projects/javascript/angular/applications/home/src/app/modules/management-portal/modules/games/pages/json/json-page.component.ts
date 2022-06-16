@@ -109,7 +109,7 @@ export class GamesJsonPageComponent implements OnInit {
     this.errors = err.error.errors.map((e) => {
       if (e.name === 'CastError' || e.name === 'ValidatorError') {
         return `(${e.path}) ${e.message}`;
-      } else if (e.name === 'UniquenessError') {
+      } else if (e.name === 'UniqueError') {
         const combination = e.paths.length > 1 ? 'combination ' : '';
         return `${e.paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
       } else {

@@ -26,5 +26,5 @@
     "target": "es2015",
     "types": ["mocha", "node"]
   },
-  "exclude": ["./node_modules/*"]
+  "exclude": ["./node_modules/*"],
 }

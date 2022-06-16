@@ -6,15 +6,10 @@ export interface ConnectionOptions {
 }
 
 export async function connect(options: ConnectionOptions) {
-  try {
-    await mongoose.connect(options.connectionString, {
-      autoCreate: true,
-      autoIndex: false,
-      dbName: options.databaseName,
-    });
-  } catch (e) {
-    console.error(e);
-  }
+  await mongoose.connect(options.connectionString, {
+    autoIndex: false,
+    dbName: options.databaseName,
+  });
 
   console.log('Connected to MongoDB.');
 
@@ -23,7 +18,6 @@ export async function connect(options: ConnectionOptions) {
 
 export function createConnection(options: ConnectionOptions) {
   return mongoose.createConnection(options.connectionString, {
-    autoCreate: true,
     autoIndex: false,
     dbName: options.databaseName,
   });

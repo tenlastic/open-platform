@@ -12,5 +12,8 @@
     { "path": "../mongoose-models/tsconfig.app.json" },
     { "path": "../mongoose-permissions/tsconfig.app.json" },
     { "path": "../nats/tsconfig.app.json" }
-  ]
+  ],
+  "ts-node": {
+    "files": true,
+  },
 }

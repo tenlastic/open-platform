@@ -37,7 +37,7 @@ async function executeQuery(mongoose: Connection, options: SubqueryOptions) {
     throw new Error('Model not found.');
   }
 
-  const Model = mongoose.model(options.model);
+  const Model = mongoose.model(options.model) as any;
   const where = await substituteSubqueryValues(mongoose, options.where);
 
   let query = Model.find(where);

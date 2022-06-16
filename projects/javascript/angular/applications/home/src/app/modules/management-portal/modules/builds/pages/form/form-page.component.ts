@@ -243,7 +243,7 @@ export class BuildsFormPageComponent implements OnInit {
   private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
     if (err.error.errors) {
       this.errors = err.error.errors.map((e) => {
-        if (e.name === 'UniquenessError') {
+        if (e.name === 'UniqueError') {
           const combination = e.paths.length > 1 ? 'combination ' : '';
           const paths = e.paths.map((p) => pathMap[p]);
           return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;

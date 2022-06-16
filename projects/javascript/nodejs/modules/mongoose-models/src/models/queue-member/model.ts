@@ -9,7 +9,6 @@ import {
   pre,
   prop,
 } from '@typegoose/typegoose';
-import { MongoError } from 'mongodb';
 import * as mongoose from 'mongoose';
 
 import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
@@ -33,13 +32,13 @@ export class QueueMemberAuthorizationError extends Error {
     this.userIds = userIds;
   }
 }
-export class QueueMemberUniquenessError extends Error {
+export class QueueMemberUniqueError extends Error {
   public userIds: string[] | mongoose.Types.ObjectId[];
 
   constructor(userIds: string[] | mongoose.Types.ObjectId[]) {
     super(`The following Users are already in this Queue: ${userIds.join(', ')}.`);
 
-    this.name = 'QueueMemberUniquenessError';
+    this.name = 'QueueMemberUniqueError';
     this.userIds = userIds;
   }
 }
@@ -101,35 +100,26 @@ WebSocketEvent.sync(async (payload) => {
     this.invalidate('webSocketId', message, this.webSocketId);
   }
 })
-@post('findOneAndUpdate', function (err: MongoError, doc: QueueMemberDocument, next) {
-  if (err.name === 'MongoError' && err.code === 11000) {
-    const update = this.getUpdate();
-    const uniquenessError = errors.unique.getValidationError(
-      err,
-      doc.schema,
-      update,
-    ) as errors.unique.UniquenessError;
+@post('findOneAndUpdate', function (err: any, doc: QueueMemberDocument, next) {
+  if (err.code === 11000) {
+    const uniqueError = new errors.unique.UniqueError(err.keyValue);
 
-    const i = uniquenessError.paths.indexOf('userIds');
-    const userIds = uniquenessError.values[i];
-    const duplicateQueueMemberError = new QueueMemberUniquenessError(userIds);
+    const i = uniqueError.paths.indexOf('userIds');
+    const userIds = uniqueError.values[i];
+    const duplicateQueueMemberError = new QueueMemberUniqueError(userIds);
 
     return next(duplicateQueueMemberError);
   }
 
   return next(err);
 })
-@post('save', function (err: MongoError, doc: QueueMemberDocument, next) {
+@post('save', function (err: any, doc: QueueMemberDocument, next) {
   if (err.name === 'MongoError' && err.code === 11000) {
-    const uniquenessError = errors.unique.getValidationError(
-      err,
-      doc.schema,
-      doc,
-    ) as errors.unique.UniquenessError;
+    const uniqueError = new errors.unique.UniqueError(err.keyValue);
 
-    const i = uniquenessError.paths.indexOf('userIds');
-    const userIds = uniquenessError.values[i];
-    const duplicateQueueMemberError = new QueueMemberUniquenessError(userIds);
+    const i = uniqueError.paths.indexOf('userIds');
+    const userIds = uniqueError.values[i];
+    const duplicateQueueMemberError = new QueueMemberUniqueError(userIds);
 
     return next(duplicateQueueMemberError);
   }

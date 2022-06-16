@@ -17,5 +17,8 @@
     { "path": "../../modules/nats/tsconfig.app.json" },
     { "path": "../../modules/web-server/tsconfig.app.json" },
     { "path": "../../modules/web-socket-server/tsconfig.app.json" }
-  ]
+  ],
+  "ts-node": {
+    "files": true,
+  },
 }

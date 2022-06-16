@@ -11,5 +11,8 @@
   "references": [
     { "path": "../../modules/kubernetes/tsconfig.app.json" },
     { "path": "../../modules/web-server/tsconfig.app.json" }
-  ]
+  ],
+  "ts-node": {
+    "files": true,
+  },
 }

@@ -17,15 +17,10 @@ spec:
       ports:
         - containerPort: 3000
       volumeMounts:
-        - name: node-modules
-          mountPath: /usr/src/projects/javascript/node_modules/
-        - name: source
+        - name: workspace
           mountPath: /usr/src/
       workingDir: /usr/src/
   volumes:
-    - name: node-modules
-      persistentVolumeClaim:
-        claimName: node-modules
-    - name: source
+    - name: workspace
       hostPath:
-        path: /run/desktop/mnt/host/c/open-platform/
+        path: /run/desktop/mnt/host/wsl/open-platform/
