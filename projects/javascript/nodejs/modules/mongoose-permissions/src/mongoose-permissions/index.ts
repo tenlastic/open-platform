@@ -106,7 +106,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       throw new PermissionError();
     }
 
-    let query = this.Model.find(where)
+    const query = this.Model.find(where)
       .sort(override.sort || params.sort)
       .skip(override.skip || params.skip)
       .limit(override.limit || params.limit || 100)
