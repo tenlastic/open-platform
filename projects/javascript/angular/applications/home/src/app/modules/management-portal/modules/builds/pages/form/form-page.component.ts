@@ -186,6 +186,7 @@ export class BuildsFormPageComponent implements OnInit {
         {
           compression: 'DEFLATE',
           compressionOptions: { level: 1 },
+          streamFiles: true,
           type: 'blob',
         },
         (metadata) => {
