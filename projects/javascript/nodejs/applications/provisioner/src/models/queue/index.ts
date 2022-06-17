@@ -232,19 +232,12 @@ export const KubernetesQueue = {
               name: 'main',
               readinessProbe,
               resources: { requests: resources.requests },
-              volumeMounts: [
-                {
-                  mountPath: '/usr/src/projects/javascript/node_modules/',
-                  name: 'node-modules',
-                },
-                { mountPath: '/usr/src/', name: 'source' },
-              ],
+              volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
               workingDir: '/usr/src/projects/javascript/nodejs/applications/queue/',
             },
           ],
           volumes: [
-            { name: 'node-modules', persistentVolumeClaim: { claimName: 'node-modules' } },
-            { hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'source' },
+            { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
           ],
         },
       };

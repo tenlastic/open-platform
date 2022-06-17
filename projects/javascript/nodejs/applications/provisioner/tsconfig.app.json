@@ -13,10 +13,9 @@
     { "path": "../../modules/logging/tsconfig.app.json" },
     { "path": "../../modules/mongoose-models/tsconfig.app.json" },
     { "path": "../../modules/nats/tsconfig.app.json" },
-    { "path": "../../modules/rabbitmq/tsconfig.app.json" },
     { "path": "../../modules/web-server/tsconfig.app.json" }
   ],
   "ts-node": {
-    "files": true,
-  },
+    "files": true
+  }
 }

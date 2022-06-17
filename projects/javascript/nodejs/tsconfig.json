@@ -16,7 +16,6 @@
       "@tenlastic/mongoose-models": ["./modules/mongoose-models/src"],
       "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],
       "@tenlastic/nats": ["./modules/nats/src"],
-      "@tenlastic/rabbitmq": ["./modules/rabbitmq/src"],
       "@tenlastic/web-server": ["./modules/web-server/src"],
       "@tenlastic/web-socket-server": ["./modules/web-socket-server/src"]
     },
@@ -26,5 +25,5 @@
     "target": "es2015",
     "types": ["mocha", "node"]
   },
-  "exclude": ["./node_modules/*"],
+  "exclude": ["./node_modules/*"]
 }

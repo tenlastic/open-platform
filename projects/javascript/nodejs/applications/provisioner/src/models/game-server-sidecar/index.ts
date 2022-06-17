@@ -98,20 +98,13 @@ export const KubernetesGameServerSidecar = {
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
               name: 'game-server-sidecar',
               resources: { requests: { cpu: '50m', memory: '50M' } },
-              volumeMounts: [
-                {
-                  mountPath: '/usr/src/projects/javascript/node_modules/',
-                  name: 'node-modules',
-                },
-                { mountPath: '/usr/src/', name: 'source' },
-              ],
+              volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
               workingDir: '/usr/src/projects/javascript/nodejs/applications/game-server-sidecar/',
             },
           ],
           serviceAccountName: 'game-server-sidecar',
           volumes: [
-            { name: 'node-modules', persistentVolumeClaim: { claimName: 'node-modules' } },
-            { hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'source' },
+            { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
           ],
         },
       };

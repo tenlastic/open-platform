@@ -9,7 +9,7 @@ spec:
   chart:
     git: https://github.com/nats-io/k8s.git
     path: helm/charts/nats
-    ref: 846d13603357cc0e4c76f78bb5887c051a7b08e9
+    ref: d1beccca2b0b15f79c592be138b25cdc92ed7216
   releaseName: nats
   values:
     affinity:

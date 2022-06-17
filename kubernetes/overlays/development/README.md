@@ -8,7 +8,6 @@ Add the following lines to your `hosts` file to properly route to your local Kub
 127.0.0.1 docker-registry.localhost
 127.0.0.1 minio.localhost
 127.0.0.1 mongo.localhost
-127.0.0.1 rabbitmq.localhost
 127.0.0.1 registry.localhost
 127.0.0.1 verdaccio.localhost
 127.0.0.1 www.localhost
@@ -43,6 +42,5 @@ kubectl label node $(kubectl get nodes -o jsonpath={..metadata.name}) tenlastic.
 To make Javascript development easier, you can SSH into the Workspace Pod with the following command:
 
 ```bash
-kubectl exec -it -n dynamic workspace -- /bin/bash
-kubectl exec -it -n static workspace -- /bin/bash
+kubectl exec -it -c workspace -n static workspace -- /bin/bash
 ```

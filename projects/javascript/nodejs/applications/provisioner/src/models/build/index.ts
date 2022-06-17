@@ -144,13 +144,7 @@ export const KubernetesBuild = {
                 envFrom: [{ secretRef: { name } }],
                 image: 'node:14',
                 resources: { requests: { cpu: '100m', memory: '100M' } },
-                volumeMounts: [
-                  {
-                    mountPath: '/usr/src/projects/javascript/node_modules/',
-                    name: 'node-modules',
-                  },
-                  { mountPath: '/usr/src/', name: 'source' },
-                ],
+                volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
                 workingDir: `${workingDir}/build/`,
               },
               metadata: { labels: podLabels },
@@ -159,8 +153,7 @@ export const KubernetesBuild = {
           ],
           ttlStrategy: { secondsAfterCompletion: 3 * 60 * 60 },
           volumes: [
-            { name: 'node-modules', persistentVolumeClaim: { claimName: 'node-modules' } },
-            { hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'source' },
+            { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
           ],
         },
       };

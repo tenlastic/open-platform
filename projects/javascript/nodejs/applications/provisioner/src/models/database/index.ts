@@ -211,7 +211,7 @@ export const KubernetesDatabase = {
         chart: {
           git: 'https://github.com/nats-io/k8s.git',
           path: 'helm/charts/nats',
-          ref: '846d13603357cc0e4c76f78bb5887c051a7b08e9',
+          ref: 'd1beccca2b0b15f79c592be138b25cdc92ed7216',
         },
         releaseName: `${name}-nats`,
         values: {
@@ -354,19 +354,12 @@ export const KubernetesDatabase = {
               ports: [{ containerPort: 3000, protocol: 'TCP' }],
               readinessProbe,
               resources: { requests: resources.requests },
-              volumeMounts: [
-                {
-                  mountPath: '/usr/src/projects/javascript/node_modules/',
-                  name: 'node-modules',
-                },
-                { mountPath: '/usr/src/', name: 'source' },
-              ],
+              volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
               workingDir: '/usr/src/projects/javascript/nodejs/applications/database/',
             },
           ],
           volumes: [
-            { name: 'node-modules', persistentVolumeClaim: { claimName: 'node-modules' } },
-            { hostPath: { path: '/run/desktop/mnt/host/c/open-platform/' }, name: 'source' },
+            { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
           ],
         },
       };
@@ -549,7 +542,7 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
       hidden: false,
       host: `${primary.metadata.name}.${service}.${namespace}.svc.cluster.local:27017`,
       priority: 5,
-      slaveDelay: 0,
+      secondaryDelaySecs: 0,
       tags: {},
       votes: 1,
     },

@@ -2,7 +2,6 @@ import 'source-map-support/register';
 
 import '@tenlastic/logging';
 import nats from '@tenlastic/nats';
-import * as rabbitmq from '@tenlastic/rabbitmq';
 import { WebServer } from '@tenlastic/web-server';
 
 import * as events from './events';
@@ -11,9 +10,6 @@ import * as events from './events';
   try {
     // NATS.
     await nats.connect({ connectionString: process.env.NATS_CONNECTION_STRING });
-
-    // RabbitMQ.
-    await rabbitmq.connect({ url: process.env.RABBITMQ_CONNECTION_STRING });
 
     // Subscribe to NATS events.
     events.builds();
@@ -25,7 +21,7 @@ import * as events from './events';
 
     // Web Server.
     const webServer = new WebServer();
-    webServer.use(ctx => (ctx.status = 200));
+    webServer.use((ctx) => (ctx.status = 200));
     webServer.start();
   } catch (e) {
     console.error(e);
@@ -33,4 +29,4 @@ import * as events from './events';
   }
 })();
 
-process.on('unhandledRejection', err => console.error(JSON.stringify(err)));
+process.on('unhandledRejection', (err) => console.error(JSON.stringify(err)));

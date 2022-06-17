@@ -20,7 +20,7 @@
     "prepublishOnly": "../../scripts/build.sh"
   },
   "dependencies": {
-    "nats": "2.2.0"
+    "nats": "2.7.1"
   },
   "devDependencies": {
     "eslint": "^7.26.0",

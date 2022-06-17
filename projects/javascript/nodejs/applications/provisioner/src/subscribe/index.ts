@@ -1,50 +1,36 @@
 import { IDatabasePayload } from '@tenlastic/mongoose-models';
 import nats from '@tenlastic/nats';
-import * as rabbitmq from '@tenlastic/rabbitmq';
 import * as mongoose from 'mongoose';
+import { AckPolicy } from 'nats';
 import { TextDecoder } from 'util';
 
 /**
- * Copies NATS events to RabbitMQ.
+ * Copies NATS events to a separate queue.
  */
 export async function subscribe<TDocument extends mongoose.Document>(
   Model: mongoose.Model<mongoose.Document>,
   queue: string,
   callback: (payload: IDatabasePayload<TDocument>) => Promise<void>,
 ) {
-  return Promise.all([subscribeToNats(Model, queue), subscribeToRabbitMQ(queue, callback)]);
-}
-
-/**
- * Copies NATS messages to RabbitMQ.
- */
-async function subscribeToNats(Model: mongoose.Model<mongoose.Document>, queue: string) {
+  const durable = `provisioner-${queue}`;
   const subject = `api.${Model.collection.name}`;
 
-  const subscription = await nats.subscribe(`provisioner-${queue}`, subject);
+  const subscription = await nats.subscribe(durable, subject, {
+    ack_policy: AckPolicy.Explicit,
+    max_deliver: 5,
+  });
+  console.log(`Subscribed to ${subject} with group ${durable}.`);
+
   for await (const message of subscription) {
     const data = new TextDecoder().decode(message.data);
     const json = JSON.parse(data);
 
-    rabbitmq.publish(`provisioner.${queue}`, json);
-  }
-}
-
-/**
- * Subscribes to RabbitMQ and executes the callback with returned messages.
- */
-function subscribeToRabbitMQ<TDocument extends mongoose.Document>(
-  queue: string,
-  callback: (payload: IDatabasePayload<TDocument>) => Promise<void>,
-) {
-  return rabbitmq.consume(`provisioner.${queue}`, async (channel, content, msg) => {
     try {
-      await callback(content);
+      await callback(json);
+      message.ack();
     } catch (e) {
       console.error(e);
-      await rabbitmq.requeue(channel, msg, { delay: 15 * 1000, retries: 3 });
-    } finally {
-      channel.ack(msg);
+      message.nak(15 * 1000);
     }
-  });
+  }
 }
