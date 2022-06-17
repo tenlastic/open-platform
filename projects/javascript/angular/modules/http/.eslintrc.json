@@ -5,7 +5,6 @@
     {
       "files": ["*.ts"],
       "parserOptions": {
-        "project": ["modules/http/tsconfig.lib.json", "modules/http/tsconfig.spec.json"],
         "createDefaultProgram": true
       },
       "rules": {

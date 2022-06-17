@@ -5,11 +5,6 @@
     {
       "files": ["*.ts"],
       "parserOptions": {
-        "project": [
-          "applications/home/tsconfig.app.json",
-          "applications/home/tsconfig.spec.json",
-          "applications/home/e2e/tsconfig.json"
-        ],
         "createDefaultProgram": true
       },
       "rules": {
