@@ -5,7 +5,6 @@ import {
   modelOptions,
   prop,
 } from '@typegoose/typegoose';
-import * as mongoose from 'mongoose';
 
 import { WorkflowSpecTemplateDagSchema } from './dag';
 import { WorkflowSpecTemplateInputsSchema } from './inputs';

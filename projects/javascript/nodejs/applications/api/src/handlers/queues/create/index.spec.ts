@@ -13,7 +13,6 @@ import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
-import * as mongoose from 'mongoose';
 
 import { handler } from './';
 

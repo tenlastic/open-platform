@@ -1,5 +1,4 @@
 import * as minio from '@tenlastic/minio';
-import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -10,8 +9,8 @@ import { handler } from './';
 
 use(chaiAsPromised);
 
-describe('handlers/games/icon/download', function() {
-  it('returns a stream with the requested file', async function() {
+describe('handlers/games/icon/download', function () {
+  it('returns a stream with the requested file', async function () {
     const user = await UserMock.create();
     const namespaceUser = NamespaceUserMock.create({
       _id: user._id,

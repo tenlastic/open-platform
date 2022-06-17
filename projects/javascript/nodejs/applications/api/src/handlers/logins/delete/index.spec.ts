@@ -6,21 +6,19 @@ import {
   RefreshToken,
   RefreshTokenDocument,
   RefreshTokenMock,
-  UserDocument,
   UserMock,
 } from '@tenlastic/mongoose-models';
 import { handler } from '.';
 
 use(chaiAsPromised);
 
-describe('handlers/logins/delete', function() {
+describe('handlers/logins/delete', function () {
   let ctx: Context;
   let refreshToken: RefreshTokenDocument;
-  let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     refreshToken = await RefreshTokenMock.create();
-    user = await UserMock.create({ password: 'password' });
+    await UserMock.create({ password: 'password' });
 
     ctx = new ContextMock({
       state: {
@@ -33,11 +31,11 @@ describe('handlers/logins/delete', function() {
     await handler(ctx);
   });
 
-  it('returns a 200 status code', async function() {
+  it('returns a 200 status code', async function () {
     expect(ctx.response.status).to.eql(200);
   });
 
-  it('deletes the associated RefreshToken', async function() {
+  it('deletes the associated RefreshToken', async function () {
     const result = await RefreshToken.findOne({ _id: refreshToken._id });
 
     expect(result).to.eql(null);

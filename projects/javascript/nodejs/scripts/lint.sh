@@ -1,4 +1,9 @@
 #!/bin/bash
 set -e
 
-tslint -c ../../tslint.json 'e2e/**/*.ts' 'src/**/*.ts'
+eslint \
+  -c "../../.eslintrc.js" \
+  --ext ".ts" \
+  --no-error-on-unmatched-pattern \
+  --parser-options "{ project: ['tsconfig.app.json', 'tsconfig.spec.json'], tsconfigRootDir: './' }" \
+  'src/**/*.ts'

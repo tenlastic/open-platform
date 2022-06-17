@@ -3,7 +3,13 @@ import { UserPermissionsHelpers, UserRole } from '../user';
 
 export const RecordPermissions = {
   create: {
-    'namespace-administrator': ['collectionId', 'databaseId', 'namespaceId', 'properties.*', 'userId'],
+    'namespace-administrator': [
+      'collectionId',
+      'databaseId',
+      'namespaceId',
+      'properties.*',
+      'userId',
+    ],
     'user-administrator': ['collectionId', 'databaseId', 'namespaceId', 'properties.*', 'userId'],
   },
   delete: {

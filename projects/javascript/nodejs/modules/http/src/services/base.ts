@@ -15,7 +15,18 @@ export declare interface ServiceEventEmitter<T extends BaseModel> {
   on<U extends keyof ServiceEvents<T>>(event: U, listener: ServiceEvents<T>[U]);
 }
 
-export class ServiceEventEmitter<T extends BaseModel> extends EventEmitter {}
+export class ServiceEventEmitter<T extends BaseModel> extends EventEmitter {
+  public emit<U extends keyof ServiceEvents<T>>(
+    event: U,
+    ...args: Parameters<ServiceEvents<T>[U]>
+  ) {
+    super.emit(event, ...args);
+  }
+
+  public on<U extends keyof ServiceEvents<T>>(event: U, listener: ServiceEvents<T>[U]) {
+    super.emit(event, listener);
+  }
+}
 
 export class BaseService<T extends BaseModel> {
   private emitter: ServiceEventEmitter<T>;
@@ -73,7 +84,7 @@ export class BaseService<T extends BaseModel> {
       qs: { query: JSON.stringify(query) },
     });
 
-    const records = response.records.map(r => new this.Model(r));
+    const records = response.records.map((r) => new this.Model(r));
     this.emitter.emit('set', records);
 
     return records;

@@ -4,11 +4,11 @@ import * as mongoose from 'mongoose';
 import { Example } from '../example-model';
 import { substituteSubqueryValues } from './';
 
-describe('substitute-subquery-values', function() {
-  it('executes multiple queries', async function() {
+describe('substitute-subquery-values', function () {
+  it('executes multiple queries', async function () {
     const parentOfParent = await Example.mock();
     const parent = await Example.mock({ parentId: parentOfParent._id });
-    const record = await Example.mock({ parentId: parent._id });
+    await Example.mock({ parentId: parent._id });
 
     const query = {
       $and: [

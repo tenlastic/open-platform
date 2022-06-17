@@ -26,7 +26,7 @@ function getInvalidKeys(object: any) {
     return arr;
   }
 
-  Object.keys(object).forEach(key => {
+  Object.keys(object).forEach((key) => {
     const value = object[key];
 
     if (!/^[0-9A-Za-z\-]{2,40}$/.test(key)) {

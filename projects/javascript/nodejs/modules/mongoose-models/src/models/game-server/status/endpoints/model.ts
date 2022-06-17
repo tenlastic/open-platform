@@ -1,6 +1,5 @@
 import {
   DocumentType,
-  Ref,
   ReturnModelType,
   getModelForClass,
   modelOptions,

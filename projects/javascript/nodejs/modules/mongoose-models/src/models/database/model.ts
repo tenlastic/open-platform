@@ -10,12 +10,7 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import {
-  EventEmitter,
-  IDatabasePayload,
-  IOriginalDocument,
-  changeStreamPlugin,
-} from '../../change-stream';
+import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import { decrementalValidator, enumValidator, namespaceValidator } from '../../validators';
 import { GameDocument } from '../game';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';

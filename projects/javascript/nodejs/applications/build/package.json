@@ -24,11 +24,11 @@
     "unzipper": "0.10.11"
   },
   "devDependencies": {
+    "eslint": "8.17.0",
     "mocha": "7.1.2",
     "nyc": "15.0.0",
     "ts-node": "8.9.1",
     "ts-node-dev": "1.0.0-pre.44",
-    "tslint": "6.1.3",
     "typescript": "4.3.5"
   }
 }

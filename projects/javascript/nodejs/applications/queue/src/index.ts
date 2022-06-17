@@ -4,7 +4,6 @@ import {
   queueMemberService,
   queueQuery,
   queueService,
-  queueStore,
   setAccessToken,
   setApiUrl,
   WebSocket,
@@ -32,10 +31,10 @@ const wssUrl = process.env.WSS_URL;
     await queueService.findOne(queue._id);
 
     // Log Queue Member changes.
-    queueMemberService.emitter.on('create', record =>
+    queueMemberService.emitter.on('create', (record) =>
       console.log(`Created Queue Member with User IDs: ${record.userIds.join(',')}.`),
     );
-    queueMemberService.emitter.on('delete', _id =>
+    queueMemberService.emitter.on('delete', (_id) =>
       console.log(`Deleted Queue Member User IDs: ${_id}.`),
     );
 
@@ -71,7 +70,7 @@ const wssUrl = process.env.WSS_URL;
 
     // Web Server.
     const webServer = new WebServer();
-    webServer.use(ctx => (ctx.status = 200));
+    webServer.use((ctx) => (ctx.status = 200));
     webServer.start();
 
     // Wait for changes from web socket to catch up.
@@ -91,7 +90,7 @@ async function main() {
     return main();
   } catch (e) {
     if (e.name === 'StatusCodeError') {
-      e.error.errors.forEach(error => console.error(error.message));
+      e.error.errors.forEach((error) => console.error(error.message));
     } else if (!e.message.includes('Not enough QueueMembers.')) {
       console.error(e.message);
     }

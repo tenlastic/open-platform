@@ -1,10 +1,8 @@
 import * as minio from '@tenlastic/minio';
 import {
   BuildDocument,
-  BuildFile,
   BuildFileMock,
   BuildMock,
-  BuildPlatform,
   NamespaceMock,
   NamespaceUserMock,
   UserDocument,
@@ -18,13 +16,12 @@ import { copy } from './';
 
 use(chaiAsPromised);
 
-describe('copy', function() {
+describe('copy', function () {
   let build: BuildDocument;
-  let platform: BuildPlatform;
   let referenceBuild: BuildDocument;
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
 
     const namespaceUser = NamespaceUserMock.create({
@@ -34,7 +31,6 @@ describe('copy', function() {
     const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
     build = await BuildMock.create({ namespaceId: namespace._id });
-    platform = BuildMock.getPlatform();
 
     // Set up reference Build.
     referenceBuild = await BuildMock.create({
@@ -50,7 +46,7 @@ describe('copy', function() {
     );
   });
 
-  it('copies files within Minio', async function() {
+  it('copies files within Minio', async function () {
     const buildFile = await copy(build, 'index.spec.ts', referenceBuild);
 
     const minioKey = build.getFilePath(buildFile.path);

@@ -1,4 +1,4 @@
-import { BaseWatchAction, nodeApiV1, podApiV1, V1Pod } from '@tenlastic/kubernetes';
+import { nodeApiV1, podApiV1, V1Pod } from '@tenlastic/kubernetes';
 import * as requestPromiseNative from 'request-promise-native';
 
 const accessToken = process.env.ACCESS_TOKEN;
@@ -42,7 +42,7 @@ export async function status() {
         process.exit(1);
       }
     },
-    err => {
+    (err) => {
       console.error(err?.message);
       process.exit(err ? 1 : 0);
     },
@@ -66,12 +66,12 @@ async function getEndpoints(pod: V1Pod) {
   }
 
   const response = await nodeApiV1.read(pod.spec.nodeName);
-  const address = response.body.status.addresses.find(a => a.type === 'ExternalIP');
+  const address = response.body.status.addresses.find((a) => a.type === 'ExternalIP');
   const ip = address ? address.address : '127.0.0.1';
 
-  const ports = pod.spec.containers.find(cs => cs.name === container).ports;
-  const tcp = ports.find(p => p.protocol === 'TCP').hostPort;
-  const udp = ports.find(p => p.protocol === 'UDP').hostPort;
+  const ports = pod.spec.containers.find((cs) => cs.name === container).ports;
+  const tcp = ports.find((p) => p.protocol === 'TCP').hostPort;
+  const udp = ports.find((p) => p.protocol === 'UDP').hostPort;
 
   return {
     tcp: `tcp://${ip}:${tcp}`,
@@ -82,7 +82,7 @@ async function getEndpoints(pod: V1Pod) {
 
 function getPodStatus(pod: V1Pod) {
   const isReady = pod.status.conditions?.find(
-    c => c.status === 'True' && c.type === 'ContainersReady',
+    (c) => c.status === 'True' && c.type === 'ContainersReady',
   );
 
   let phase = pod.status.phase;
@@ -104,22 +104,23 @@ async function updateGameServer() {
 
   // Endpoints.
   const pod = Object.values(pods).find(
-    p => !p.metadata.deletionTimestamp && p.metadata.labels['tenlastic.com/role'] === 'application',
+    (p) =>
+      !p.metadata.deletionTimestamp && p.metadata.labels['tenlastic.com/role'] === 'application',
   );
   const endpoints = await getEndpoints(pod);
 
   // Nodes.
   const nodes = Object.values(pods)
-    .filter(p => !p.metadata.deletionTimestamp)
+    .filter((p) => !p.metadata.deletionTimestamp)
     .map(getPodStatus);
 
   // Phase.
   let phase = 'Pending';
-  if (nodes.every(n => n.phase === 'Running')) {
+  if (nodes.every((n) => n.phase === 'Running')) {
     phase = 'Running';
-  } else if (nodes.some(n => n.phase === 'Error')) {
+  } else if (nodes.some((n) => n.phase === 'Error')) {
     phase = 'Error';
-  } else if (nodes.some(n => n.phase === 'Failed')) {
+  } else if (nodes.some((n) => n.phase === 'Failed')) {
     phase = 'Failed';
   }
 

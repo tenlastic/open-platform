@@ -6,7 +6,7 @@ export interface ConnectionOptions {
 }
 
 export let connection: amqp.Connection;
-export let events = new EventEmitter();
+export const events = new EventEmitter();
 
 export async function connect(options: ConnectionOptions) {
   try {
@@ -14,7 +14,7 @@ export async function connect(options: ConnectionOptions) {
   } catch (err) {
     console.error(`Could not connect to RabbitMQ: ${err.message}.`);
 
-    await new Promise(res => setTimeout(res, 5000));
+    await new Promise((res) => setTimeout(res, 5000));
     return connect(options);
   }
 

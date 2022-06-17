@@ -2,7 +2,6 @@ import {
   AuthenticationData,
   MessageData,
   ping,
-  unsubscribe,
   WebSocket as WS,
 } from '@tenlastic/web-socket-server';
 

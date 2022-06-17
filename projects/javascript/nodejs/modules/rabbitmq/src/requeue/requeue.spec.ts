@@ -1,4 +1,4 @@
-import { expect, use } from 'chai';
+import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as sinon from 'sinon';
 
@@ -8,19 +8,19 @@ import { requeue } from './requeue';
 
 const chance = new Chance();
 
-describe('requeue', function() {
+describe('requeue', function () {
   let sandbox: sinon.SinonSandbox;
 
-  beforeEach(function() {
+  beforeEach(function () {
     sandbox = sinon.createSandbox();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     sandbox.restore();
   });
 
-  context('when the message should not be retried', function() {
-    it('returns false', async function() {
+  context('when the message should not be retried', function () {
+    it('returns false', async function () {
       const msg = { key: 'value' };
       const queue = chance.hash();
 
@@ -40,7 +40,7 @@ describe('requeue', function() {
       });
     });
 
-    it('does not publish the message to another queue', async function() {
+    it('does not publish the message to another queue', async function () {
       const msg = { key: 'value' };
       const queue = chance.hash();
 
@@ -64,8 +64,8 @@ describe('requeue', function() {
     });
   });
 
-  context('when the message should be retried', function() {
-    it('returns true', async function() {
+  context('when the message should be retried', function () {
+    it('returns true', async function () {
       const msg = { key: 'value' };
       const queue = chance.hash();
 
@@ -85,8 +85,8 @@ describe('requeue', function() {
       });
     });
 
-    context('when the message should be delayed', function() {
-      it('publishes the message to a TTL queue', async function() {
+    context('when the message should be delayed', function () {
+      it('publishes the message to a TTL queue', async function () {
         const msg = { key: 'value' };
         const queue = chance.hash();
 
@@ -112,8 +112,8 @@ describe('requeue', function() {
       });
     });
 
-    context('when the message should not be delayed', function() {
-      it('publishes the message back to the original queue', async function() {
+    context('when the message should not be delayed', function () {
+      it('publishes the message back to the original queue', async function () {
         const msg = { key: 'value' };
         const queue = chance.hash();
 

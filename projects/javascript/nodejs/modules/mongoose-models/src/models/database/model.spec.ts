@@ -1,12 +1,11 @@
 import { expect } from 'chai';
 import { NamespaceDatabaseLimitsMock, NamespaceLimitsMock, NamespaceMock } from '../namespace';
 
-import { DatabaseMock } from './model.mock';
 import { Database } from './model';
 
-describe('models/database/model', function() {
-  describe('checkNamespaceLimits()', function() {
-    it('enforces the databases.cpu Namespace limit', async function() {
+describe('models/database/model', function () {
+  describe('checkNamespaceLimits()', function () {
+    it('enforces the databases.cpu Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           databases: NamespaceDatabaseLimitsMock.create({ cpu: 1 }),
@@ -20,7 +19,7 @@ describe('models/database/model', function() {
       );
     });
 
-    it('enforces the databases.memory Namespace limit', async function() {
+    it('enforces the databases.memory Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           databases: NamespaceDatabaseLimitsMock.create({ memory: 1 }),
@@ -34,7 +33,7 @@ describe('models/database/model', function() {
       );
     });
 
-    it('enforces the databases.preemptible Namespace limit', async function() {
+    it('enforces the databases.preemptible Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           databases: NamespaceDatabaseLimitsMock.create({ preemptible: true }),
@@ -48,7 +47,7 @@ describe('models/database/model', function() {
       );
     });
 
-    it('enforces the databases.replicas Namespace limit', async function() {
+    it('enforces the databases.replicas Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           databases: NamespaceDatabaseLimitsMock.create({ replicas: 1 }),
@@ -62,7 +61,7 @@ describe('models/database/model', function() {
       );
     });
 
-    it('enforces the databases.storage Namespace limit', async function() {
+    it('enforces the databases.storage Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           databases: NamespaceDatabaseLimitsMock.create({ storage: 1 }),
