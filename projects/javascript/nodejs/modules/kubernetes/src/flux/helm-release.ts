@@ -22,7 +22,7 @@ export interface V1HelmRelease {
   spec: {
     chart: ChartRepository | GitRepository;
     releaseName: string;
-    values?: object;
+    values?: any;
   };
 }
 

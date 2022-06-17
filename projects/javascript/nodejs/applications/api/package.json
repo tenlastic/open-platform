@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "cpx": "1.5.0",
-    "eslint": "8.17.0",
+    "eslint": "^7.26.0",
     "merge-yaml-cli": "1.1.2",
     "mocha": "7.1.2",
     "nyc": "15.0.0",

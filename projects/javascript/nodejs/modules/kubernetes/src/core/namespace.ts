@@ -7,7 +7,7 @@ kc.loadFromDefault();
 const coreV1Api = kc.makeApiClient(k8s.CoreV1Api);
 
 export class NamespaceApiV1 {
-  protected api: object;
+  protected api: any;
   protected singular: string;
 
   public create(body: k8s.V1Namespace) {

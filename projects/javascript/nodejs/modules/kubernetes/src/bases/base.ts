@@ -35,7 +35,7 @@ export interface BaseWatchOptions {
 }
 
 export abstract class BaseApiV1<T extends BaseBody> {
-  protected api: object;
+  protected api: any;
   protected singular: string;
 
   public create(namespace: string, body: T): Promise<BaseResponse<T>> {
@@ -123,7 +123,7 @@ export abstract class BaseApiV1<T extends BaseBody> {
     const req = await watch.watch(endpoint, options, callback, done);
 
     // Abort the request after 15 minutes.
-    await new Promise(res => setTimeout(res, 15 * 60 * 1000));
+    await new Promise((res) => setTimeout(res, 15 * 60 * 1000));
     req.abort();
 
     return this.watch(namespace, options, callback, done);

@@ -30,10 +30,12 @@
           }
         },
         "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
+          "builder": "@angular-eslint/builder:lint",
           "options": {
-            "tsConfig": ["modules/http/tsconfig.lib.json", "modules/http/tsconfig.spec.json"],
-            "exclude": ["**/node_modules/**"]
+            "lintFilePatterns": [
+              "modules/http/**/*.ts",
+              "modules/http/**/*.html"
+            ]
           }
         }
       }
@@ -58,7 +60,10 @@
             "polyfills": "applications/home/src/polyfills.ts",
             "tsConfig": "applications/home/tsconfig.app.json",
             "aot": true,
-            "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets"],
+            "assets": [
+              "applications/home/src/favicon.ico",
+              "applications/home/src/assets"
+            ],
             "styles": [
               "../node_modules/swagger-ui-dist/swagger-ui.css",
               "applications/home/src/assets/scss/index.scss",
@@ -169,21 +174,23 @@
             "polyfills": "applications/home/src/polyfills.ts",
             "tsConfig": "applications/home/tsconfig.spec.json",
             "karmaConfig": "applications/home/karma.conf.js",
-            "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets"],
-            "styles": ["applications/home/src/assets/scss/index.scss"],
+            "assets": [
+              "applications/home/src/favicon.ico",
+              "applications/home/src/assets"
+            ],
+            "styles": [
+              "applications/home/src/assets/scss/index.scss"
+            ],
             "scripts": []
           }
         },
         "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
+          "builder": "@angular-eslint/builder:lint",
           "options": {
-            "tsConfig": [
-              "applications/home/tsconfig.app.json",
-              "applications/home/tsconfig.spec.json",
-              "applications/home/e2e/tsconfig.json",
-              "applications/home/tsconfig.worker.json"
-            ],
-            "exclude": ["**/node_modules/**"]
+            "lintFilePatterns": [
+              "applications/home/**/*.ts",
+              "applications/home/**/*.html"
+            ]
           }
         },
         "e2e": {
@@ -201,5 +208,8 @@
       }
     }
   },
-  "defaultProject": "home"
+  "defaultProject": "home",
+  "cli": {
+    "defaultCollection": "@angular-eslint/schematics"
+  }
 }

@@ -14,7 +14,7 @@ export interface ClusterBaseResponse<T> {
 }
 
 export class ClusterBaseApiV1<T extends ClusterBaseBody> {
-  protected api: object;
+  protected api: any;
   protected singular: string;
 
   public create(body: T): Promise<ClusterBaseResponse<T>> {
