@@ -8,6 +8,7 @@
     "**/*",
     "!**/*.ts",
     "!*.code-workspace",
+    "!.eslintrc.json",
     "!LICENSE.md",
     "!package.json",
     "!package-lock.json",
@@ -17,8 +18,7 @@
     "!angular.json",
     "!_config.yml",
     "!karma.conf.js",
-    "!tsconfig.json",
-    "!tslint.json"
+    "!tsconfig.json"
   ],
   "linux": {
     "icon": "./dist/angular/assets/images/favicon-256x256.png",
