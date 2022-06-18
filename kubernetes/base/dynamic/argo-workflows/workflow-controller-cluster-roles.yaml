@@ -66,10 +66,12 @@ rules:
   - apiGroups:
       - argoproj.io
     resources:
-      - workflowtemplates
-      - workflowtemplates/finalizers
       - clusterworkflowtemplates
       - clusterworkflowtemplates/finalizers
+      - workflowtaskresults
+      - workflowtasksets
+      - workflowtemplates
+      - workflowtemplates/finalizers
     verbs:
       - get
       - list

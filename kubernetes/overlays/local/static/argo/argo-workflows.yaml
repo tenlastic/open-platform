@@ -1,0 +1,9 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: argo-workflows
+  namespace: static
+spec:
+  values:
+    server:
+      replicas: 1

@@ -170,7 +170,7 @@ export const KubernetesBuild = {
           podMetadata: { labels: { 'tenlastic.com/app': name } },
           retryStrategy: {
             backoff: { duration: '15', factor: '2' },
-            limit: 4,
+            limit: 2,
             retryStrategy: 'Always',
           },
           serviceAccountName: 'build',

@@ -25,6 +25,7 @@ patchesStrategicMerge:
   - ./cluster/storage-classes/ssd-expandable.yaml
   - ./cluster/storage-classes/standard-expandable.yaml
   - ./static/angular/home-ui.yaml
+  - ./static/argo/argo-workflows.yaml
   - ./static/docker-registry/docker-registry-ui.yaml
   - ./static/grafana/grafana.yaml
   - ./static/ingress-nginx/ingress-nginx.yaml
