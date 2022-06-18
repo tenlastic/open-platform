@@ -28,7 +28,7 @@ export class CollectionIndexSchema {
   @prop({ required: true })
   public key: CollectionIndexKey;
 
-  @prop({ default: {} })
+  @prop()
   public options?: CollectionIndexOptions;
 }
 

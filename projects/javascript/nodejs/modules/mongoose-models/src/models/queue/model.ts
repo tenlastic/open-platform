@@ -92,7 +92,7 @@ export class QueueSchema {
   @prop({ min: 100 * 1000 * 1000, required: true })
   public memory: number;
 
-  @prop({ default: {} })
+  @prop()
   public metadata: any;
 
   @prop({ required: true })
@@ -205,6 +205,7 @@ export class QueueSchema {
       'teams',
       'usersPerTeam',
     ];
+
     return immutableFields.some((i) => fields.includes(i));
   }
 }

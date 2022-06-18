@@ -79,7 +79,7 @@ export class GameSchema {
   @prop({ type: String })
   public images: string[];
 
-  @prop({ default: {} })
+  @prop()
   public metadata: any;
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })

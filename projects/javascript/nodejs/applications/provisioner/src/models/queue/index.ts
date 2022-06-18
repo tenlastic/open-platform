@@ -111,7 +111,7 @@ export const KubernetesQueue = {
         chart: {
           name: 'redis',
           repository: 'https://charts.bitnami.com/bitnami',
-          version: '14.6.2',
+          version: '16.11.3',
         },
         releaseName: `${name}-redis`,
         values: {
@@ -119,7 +119,6 @@ export const KubernetesQueue = {
             existingSecret: `${name}-redis`,
             existingSecretPasswordKey: 'password',
           },
-          image: { tag: '6.2.4' },
           replica: {
             affinity: getAffinity(queue, 'redis'),
             persistence: { storageClass: 'standard-expandable' },
@@ -131,7 +130,6 @@ export const KubernetesQueue = {
           sentinel: {
             downAfterMilliseconds: 10000,
             enabled: true,
-            image: { tag: '6.0.12' },
             quorum: Math.floor(queue.replicas / 2 + 1),
             resources: {
               limits: { cpu: '50m', memory: '50M' },
