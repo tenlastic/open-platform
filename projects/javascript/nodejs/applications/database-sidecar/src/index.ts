@@ -5,43 +5,27 @@ import {
   setApiUrl,
   WebSocket,
 } from '@tenlastic/http';
-import * as mongooseModels from '@tenlastic/mongoose-models';
 import { WebServer } from '@tenlastic/web-server';
 import * as mongoose from 'mongoose';
 
-import { indexes } from './indexes';
+import { mongodb } from './mongodb';
 import { status } from './status';
-import { sync } from './sync';
 
 const accessToken = process.env.ACCESS_TOKEN;
 const apiUrl = process.env.API_URL;
 const database = JSON.parse(process.env.DATABASE_JSON);
-const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 const wssUrl = process.env.WSS_URL;
 
 (async () => {
+  // Set API information.
   setAccessToken(accessToken);
   setApiUrl(apiUrl);
 
-  // MongoDB.
-  try {
-    await mongooseModels.connect({
-      connectionString: mongoConnectionString,
-      databaseName: 'database',
-    });
+  // Start background tasks.
+  mongodb();
+  status();
 
-    // Background Tasks.
-    await indexes();
-    await sync();
-  } catch (e) {
-    console.error(e.message);
-  }
-
-  // Background Tasks.
-  await databaseService.findOne(database._id);
-  await status();
-
-  // Web Socket.
+  // Open web socket.
   const webSocket = new WebSocket();
   webSocket.emitter.on('open', () => {
     console.log('Web socket connected.');
@@ -62,7 +46,7 @@ const wssUrl = process.env.WSS_URL;
   });
   await webSocket.connect(wssUrl);
 
-  // Web Server.
+  // Start web server.
   const webServer = new WebServer();
   webServer.use((ctx) => (ctx.status = mongoose.connection.readyState === 1 ? 200 : 500));
   webServer.start();

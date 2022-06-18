@@ -13,7 +13,8 @@ const wssUrl = process.env.WSS_URL;
   setApiUrl(apiUrl);
 
   // Add initial Queue data.
-  await queueService.findOne(queue._id);
+  const result = await queueService.findOne(queue._id);
+  console.log(`Initial Queue state: ${result}.`);
 
   // Background Tasks.
   await status();
@@ -34,6 +35,6 @@ const wssUrl = process.env.WSS_URL;
 
   // Web Server.
   const webServer = new WebServer();
-  webServer.use(ctx => (ctx.status = 200));
+  webServer.use((ctx) => (ctx.status = 200));
   webServer.start();
 })();

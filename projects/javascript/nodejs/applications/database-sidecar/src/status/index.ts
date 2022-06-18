@@ -1,4 +1,4 @@
-import { databaseQuery, IDatabase } from '@tenlastic/http';
+import { databaseQuery, databaseService, IDatabase } from '@tenlastic/http';
 import { podApiV1, V1Pod } from '@tenlastic/kubernetes';
 import * as requestPromiseNative from 'request-promise-native';
 
@@ -15,6 +15,10 @@ const pods: { [key: string]: V1Pod } = {};
  * Checks the status of the pod and saves it to the Database's database.
  */
 export async function status() {
+  // Fetch initial Database value.
+  const result = await databaseService.findOne(database._id);
+  console.log(`Initial Database state: ${result}.`);
+
   podApiV1.watch(
     'dynamic',
     { labelSelector: podLabelSelector },
@@ -34,7 +38,7 @@ export async function status() {
         process.exit(1);
       }
     },
-    err => {
+    (err) => {
       console.error(err?.message);
       process.exit(err ? 1 : 0);
     },
@@ -43,7 +47,7 @@ export async function status() {
 
 function getPodStatus(pod: V1Pod) {
   const isReady = pod.status.conditions?.find(
-    c => c.status === 'True' && c.type === 'ContainersReady',
+    (c) => c.status === 'True' && c.type === 'ContainersReady',
   );
 
   let phase = pod.status.phase;
@@ -65,7 +69,7 @@ async function updateDatabase() {
 
   // Nodes.
   const nodes = Object.values(pods)
-    .filter(p => !p.metadata.deletionTimestamp)
+    .filter((p) => !p.metadata.deletionTimestamp)
     .map(getPodStatus);
 
   // Components.
@@ -78,13 +82,13 @@ async function updateDatabase() {
 
       let component: IDatabase.StatusComponent;
       if (current._id.includes('mongodb')) {
-        component = previous.find(p => p.name === 'mongodb');
+        component = previous.find((p) => p.name === 'mongodb');
       } else if (current._id.includes('nats')) {
-        component = previous.find(p => p.name === 'nats');
+        component = previous.find((p) => p.name === 'nats');
       } else if (current._id.includes('sidecar')) {
-        component = previous.find(p => p.name === 'sidecar');
+        component = previous.find((p) => p.name === 'sidecar');
       } else {
-        component = previous.find(p => p.name === 'application');
+        component = previous.find((p) => p.name === 'application');
       }
 
       component.current++;
@@ -105,11 +109,11 @@ async function updateDatabase() {
 
   // Phase.
   let phase = 'Pending';
-  if (components.every(c => c.phase === 'Running')) {
+  if (components.every((c) => c.phase === 'Running')) {
     phase = 'Running';
-  } else if (nodes.some(n => n.phase === 'Error')) {
+  } else if (nodes.some((n) => n.phase === 'Error')) {
     phase = 'Error';
-  } else if (nodes.some(n => n.phase === 'Failed')) {
+  } else if (nodes.some((n) => n.phase === 'Failed')) {
     phase = 'Failed';
   }
 

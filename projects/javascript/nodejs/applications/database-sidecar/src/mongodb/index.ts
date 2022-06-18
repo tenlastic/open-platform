@@ -1,9 +1,39 @@
 import { databaseService, namespaceService } from '@tenlastic/http';
-import { Database, Namespace } from '@tenlastic/mongoose-models';
+import { Collection, connect, Database, Namespace, WebSocket } from '@tenlastic/mongoose-models';
 
 const { _id, namespaceId } = JSON.parse(process.env.DATABASE_JSON);
+const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
-export async function sync() {
+export async function mongodb() {
+  try {
+    // Connect to MongoDB.
+    console.log('Connecting to MongoDB...');
+    await connect({ connectionString: mongoConnectionString, databaseName: 'database' });
+
+    // Background Tasks.
+    await indexes();
+    await sync();
+  } catch (e) {
+    console.error(e.message);
+  }
+}
+
+async function indexes() {
+  try {
+    console.log('Syncing indexes...');
+    await Collection.syncIndexes({ background: true });
+    await WebSocket.syncIndexes({ background: true });
+    console.log('Indexes synced successfully!');
+
+    // Run every 24 hours.
+    setTimeout(indexes, 24 * 60 * 60 * 1000);
+  } catch (e) {
+    console.error(e.message);
+    process.exit(1);
+  }
+}
+
+async function sync() {
   try {
     // Fetch Namespace from API and MongoDB.
     let localNamespace = await Namespace.findOne({ _id: namespaceId });
