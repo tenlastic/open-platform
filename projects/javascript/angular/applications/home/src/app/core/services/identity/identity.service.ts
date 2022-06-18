@@ -98,7 +98,7 @@ export class IdentityService {
 
     // If we do not have a refresh token or it is expired, return nothing.
     const refreshToken = this.getRefreshToken();
-    if (!refreshToken || refreshToken.isExpired) {
+    if (!refreshToken) {
       return null;
     }
 
