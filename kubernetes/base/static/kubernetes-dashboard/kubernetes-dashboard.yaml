@@ -1,21 +1,74 @@
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard
+rules:
+  # Allow Dashboard to get namespaces, nodes, and persistent volumes.
+  - apiGroups: [""]
+    resources: ["namespaces", "nodes", "persistentvolumes"]
+    verbs: ["get", "list", "watch"]
+  # Allow Metrics Scraper to get metrics from the Metrics server
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["pods", "nodes"]
+    verbs: ["get", "list", "watch"]
+  # Allow Dashboard to get cluster roles and cluster role bindings.
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["clusterroles", "clusterrolebindings"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubernetes-dashboard
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubernetes-dashboard
+subjects:
+  - kind: ServiceAccount
+    name: kubernetes-dashboard
+    namespace: static
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: kubernetes-dashboard
   namespace: static
 rules:
-  - apiGroups:
-      - "*"
-    resources:
-      - "*"
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
+  # Allow Dashboard to get, update and delete Dashboard exclusive secrets.
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames:
+      - "kubernetes-dashboard-key-holder"
+      - "kubernetes-dashboard-certs"
+      - "kubernetes-dashboard-csrf"
+    verbs: ["get", "update", "delete"]
+  # Allow Dashboard to get and update 'kubernetes-dashboard-settings' config map.
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["kubernetes-dashboard-settings"]
+    verbs: ["get", "update"]
+  # Allow Dashboard to get metrics.
+  - apiGroups: [""]
+    resources: ["services"]
+    resourceNames: ["heapster", "dashboard-metrics-scraper"]
+    verbs: ["proxy"]
+  # Allow Dashboard to access service proxies.
+  - apiGroups: [""]
+    resources: ["services/proxy"]
+    resourceNames:
+      - "heapster"
+      - "http:heapster:"
+      - "https:heapster:"
+      - "dashboard-metrics-scraper"
+      - "http:dashboard-metrics-scraper"
+    verbs: ["get"]
+  # Grant all access.
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -30,6 +83,14 @@ subjects:
   - kind: ServiceAccount
     name: kubernetes-dashboard
     namespace: static
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard
+  namespace: static
 ---
 apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
@@ -67,6 +128,8 @@ spec:
       - --disable-settings-authorizer
       - --enable-insecure-login
       - --enable-skip-login
+    metricsScraper:
+      enabled: true
     protocolHttp: true
     rbac:
       create: false
@@ -74,3 +137,6 @@ spec:
     resources:
       requests:
         cpu: 50m
+    serviceAccount:
+      create: false
+      name: kubernetes-dashboard
