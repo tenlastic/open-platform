@@ -12,8 +12,6 @@ export async function connect(options: ConnectionOptions) {
   });
 
   console.log('Connected to MongoDB.');
-
-  return mongoose;
 }
 
 export function createConnection(options: ConnectionOptions) {

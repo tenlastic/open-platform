@@ -5,6 +5,7 @@ import * as mongooseModels from '@tenlastic/mongoose-models';
 import nats from '@tenlastic/nats';
 import { loggingMiddleware, WebServer } from '@tenlastic/web-server';
 import { WebSocketServer } from '@tenlastic/web-socket-server';
+import * as mongoose from 'mongoose';
 
 import { router as collectionsRouter } from './handlers/collections';
 import { router as recordsRouter } from './handlers/records';
@@ -17,7 +18,7 @@ const podName = process.env.POD_NAME;
 (async () => {
   try {
     // MongoDB.
-    const mongoose = await mongooseModels.connect({
+    await mongooseModels.connect({
       connectionString: mongoConnectionString,
       databaseName: 'database',
     });

@@ -7,6 +7,7 @@ import {
 } from '@tenlastic/http';
 import * as mongooseModels from '@tenlastic/mongoose-models';
 import { WebServer } from '@tenlastic/web-server';
+import * as mongoose from 'mongoose';
 
 import { indexes } from './indexes';
 import { status } from './status';
@@ -23,22 +24,22 @@ const wssUrl = process.env.WSS_URL;
   setApiUrl(apiUrl);
 
   // MongoDB.
-  const mongoose = await mongooseModels.connect({
-    connectionString: mongoConnectionString,
-    databaseName: 'database',
-  });
-  mongoose.connection.on('error', (e) => {
-    console.error(e.message);
-    process.exit(1);
-  });
+  try {
+    await mongooseModels.connect({
+      connectionString: mongoConnectionString,
+      databaseName: 'database',
+    });
 
-  // Add initial Database data.
-  await databaseService.findOne(database._id);
+    // Background Tasks.
+    await indexes();
+    await sync();
+  } catch (e) {
+    console.error(e.message);
+  }
 
   // Background Tasks.
-  await indexes();
+  await databaseService.findOne(database._id);
   await status();
-  await sync();
 
   // Web Socket.
   const webSocket = new WebSocket();
@@ -63,6 +64,6 @@ const wssUrl = process.env.WSS_URL;
 
   // Web Server.
   const webServer = new WebServer();
-  webServer.use((ctx) => (ctx.status = 200));
+  webServer.use((ctx) => (ctx.status = mongoose.connection.readyState === 1 ? 200 : 500));
   webServer.start();
 })();
