@@ -1,5 +1,5 @@
 import { Title } from '@angular/platform-browser';
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { resetStores } from '@datorama/akita';
 import {
@@ -49,6 +49,11 @@ import { TITLE } from './shared/constants';
 export class AppComponent implements OnInit {
   private socket: Socket;
 
+  @HostListener('window:focus', ['$event'])
+  private onFocus(event: any) {
+    this.connectSocket();
+  }
+
   constructor(
     private articleQuery: ArticleQuery,
     private buildQuery: BuildQuery,
@@ -85,22 +90,15 @@ export class AppComponent implements OnInit {
     this.loginService.onLogout.subscribe(() => this.navigateToLogin());
 
     // Handle websockets when logging in and out.
-    this.loginService.onLogin.subscribe(async () => {
-      this.socket = await this.socketService.connect(environment.apiBaseUrl);
-      this.socket.addEventListener('open', () => this.subscribe());
-    });
+    this.loginService.onLogin.subscribe(() => this.connectSocket());
     this.loginService.onLogout.subscribe(() => this.socket?.close());
 
     // Handle websockets when access token is set.
-    this.identityService.OnAccessTokenSet.subscribe(async () => {
-      this.socket = await this.socketService.connect(environment.apiBaseUrl);
-      this.socket.addEventListener('open', () => this.subscribe());
-    });
+    this.identityService.OnAccessTokenSet.subscribe(() => this.connectSocket());
 
     // Connect to websockets.
     try {
-      this.socket = await this.socketService.connect(environment.apiBaseUrl);
-      this.socket.addEventListener('open', () => this.subscribe());
+      await this.connectSocket();
     } catch {}
 
     // Load previous url if set.
@@ -110,7 +108,7 @@ export class AppComponent implements OnInit {
     }
 
     // Remember url when changing pages.
-    this.router.events.subscribe(event => {
+    this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         localStorage.setItem('url', event.url);
       }
@@ -123,34 +121,42 @@ export class AppComponent implements OnInit {
   }
 
   public fetchMissingRecords() {
-    this.articleQuery.selectAll().subscribe(records => {
-      const ids = records.map(r => r.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
-      if (ids.length > 0) {
-        this.gameService.find({ where: { _id: { $in: ids } } });
-      }
-    });
-    this.buildQuery.selectAll().subscribe(records => {
-      const ids = records.map(r => r.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
-      if (ids.length > 0) {
-        this.gameService.find({ where: { _id: { $in: ids } } });
-      }
-    });
-    this.gameServerQuery.selectAll().subscribe(records => {
-      const ids = records.map(r => r.gameId).filter(gameId => !this.gameQuery.hasEntity(gameId));
-      if (ids.length > 0) {
-        this.gameService.find({ where: { _id: { $in: ids } } });
-      }
-    });
-    this.gameServerQuery.selectAll().subscribe(records => {
+    this.articleQuery.selectAll().subscribe((records) => {
       const ids = records
-        .map(r => r.queueId)
-        .filter(queueId => !this.queueQuery.hasEntity(queueId));
+        .map((r) => r.gameId)
+        .filter((gameId) => !this.gameQuery.hasEntity(gameId));
+      if (ids.length > 0) {
+        this.gameService.find({ where: { _id: { $in: ids } } });
+      }
+    });
+    this.buildQuery.selectAll().subscribe((records) => {
+      const ids = records
+        .map((r) => r.gameId)
+        .filter((gameId) => !this.gameQuery.hasEntity(gameId));
+      if (ids.length > 0) {
+        this.gameService.find({ where: { _id: { $in: ids } } });
+      }
+    });
+    this.gameServerQuery.selectAll().subscribe((records) => {
+      const ids = records
+        .map((r) => r.gameId)
+        .filter((gameId) => !this.gameQuery.hasEntity(gameId));
+      if (ids.length > 0) {
+        this.gameService.find({ where: { _id: { $in: ids } } });
+      }
+    });
+    this.gameServerQuery.selectAll().subscribe((records) => {
+      const ids = records
+        .map((r) => r.queueId)
+        .filter((queueId) => !this.queueQuery.hasEntity(queueId));
       if (ids.length > 0) {
         this.queueService.find({ where: { _id: { $in: ids } } });
       }
     });
-    this.queueMemberQuery.selectAll().subscribe(records => {
-      const ids = records.map(r => r.userId).filter(userId => !this.userQuery.hasEntity(userId));
+    this.queueMemberQuery.selectAll().subscribe((records) => {
+      const ids = records
+        .map((r) => r.userId)
+        .filter((userId) => !this.userQuery.hasEntity(userId));
       if (ids.length > 0) {
         this.userService.find({ where: { _id: { $in: ids } } });
       }
@@ -159,6 +165,11 @@ export class AppComponent implements OnInit {
 
   public navigateToLogin() {
     this.router.navigateByUrl('/authentication/log-in');
+  }
+
+  private async connectSocket() {
+    this.socket = await this.socketService.connect(environment.apiBaseUrl);
+    this.socket.addEventListener('open', () => this.subscribe());
   }
 
   private subscribe() {
