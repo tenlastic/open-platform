@@ -7,7 +7,7 @@ metadata:
 rules:
   # Allow Dashboard to get namespaces, nodes, persistent volumes, and pods.
   - apiGroups: [""]
-    resources: ["namespaces", "nodes", "persistentvolumes", "pods"]
+    resources: ["events", "namespaces", "nodes", "persistentvolumes", "pods"]
     verbs: ["get", "list", "watch"]
   # Allow Metrics Scraper to get metrics from the Metrics server
   - apiGroups: ["metrics.k8s.io"]
