@@ -177,13 +177,16 @@ export const KubernetesDatabase = {
         chart: {
           name: 'mongodb',
           repository: 'https://charts.bitnami.com/bitnami',
-          version: '12.1.20',
+          version: '11.1.10',
         },
         releaseName: `${name}-mongodb`,
         values: {
           affinity: getAffinity(database, 'mongodb'),
           architecture: 'replicaset',
           auth: { existingSecret: `${name}-mongodb` },
+          image: {
+            tag: '5.0.6',
+          },
           persistence: {
             size: `${database.storage}`,
             storageClass: 'balanced-expandable',
