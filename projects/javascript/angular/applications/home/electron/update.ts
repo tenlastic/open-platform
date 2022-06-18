@@ -13,7 +13,14 @@ function sendStatusToWindow(text) {
 
 app.on('ready', () => {
   autoUpdater.checkForUpdates();
-  setInterval(autoUpdater.checkForUpdates, 15 * 60 * 1000);
+
+  setInterval(() => {
+    const window = getWindow();
+
+    if (window.isVisible) {
+      autoUpdater.checkForUpdates();
+    }
+  }, 15 * 60 * 1000);
 });
 
 autoUpdater.logger = log;
