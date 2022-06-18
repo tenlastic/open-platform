@@ -11,7 +11,10 @@ function sendStatusToWindow(text) {
   window?.webContents.send('message', text);
 }
 
-app.on('ready', () => autoUpdater.checkForUpdates());
+app.on('ready', () => {
+  autoUpdater.checkForUpdates();
+  setInterval(autoUpdater.checkForUpdates, 15 * 60 * 1000);
+});
 
 autoUpdater.logger = log;
 autoUpdater.on('checking-for-update', () => sendStatusToWindow('Checking for update...'));

@@ -32,10 +32,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "modules/http/**/*.ts",
-              "modules/http/**/*.html"
-            ]
+            "lintFilePatterns": ["modules/http/**/*.ts", "modules/http/**/*.html"]
           }
         }
       }
@@ -60,10 +57,7 @@
             "polyfills": "applications/home/src/polyfills.ts",
             "tsConfig": "applications/home/tsconfig.app.json",
             "aot": true,
-            "assets": [
-              "applications/home/src/favicon.ico",
-              "applications/home/src/assets"
-            ],
+            "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets"],
             "styles": [
               "../node_modules/swagger-ui-dist/swagger-ui.css",
               "applications/home/src/assets/scss/index.scss",
@@ -174,35 +168,15 @@
             "polyfills": "applications/home/src/polyfills.ts",
             "tsConfig": "applications/home/tsconfig.spec.json",
             "karmaConfig": "applications/home/karma.conf.js",
-            "assets": [
-              "applications/home/src/favicon.ico",
-              "applications/home/src/assets"
-            ],
-            "styles": [
-              "applications/home/src/assets/scss/index.scss"
-            ],
+            "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets"],
+            "styles": ["applications/home/src/assets/scss/index.scss"],
             "scripts": []
           }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "applications/home/**/*.ts",
-              "applications/home/**/*.html"
-            ]
-          }
-        },
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "applications/home/e2e/protractor.conf.js",
-            "devServerTarget": "home:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "home:serve:production"
-            }
+            "lintFilePatterns": ["applications/home/**/*.ts", "applications/home/**/*.html"]
           }
         }
       }
