@@ -15,10 +15,10 @@ app.on('ready', () => {
   autoUpdater.checkForUpdates();
 
   setInterval(() => {
-    const window = getWindow();
-
-    if (window.isVisible) {
+    try {
       autoUpdater.checkForUpdates();
+    } catch (e) {
+      console.error(e);
     }
   }, 15 * 60 * 1000);
 });
