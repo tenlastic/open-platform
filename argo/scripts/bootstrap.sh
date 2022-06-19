@@ -2,4 +2,4 @@
 set -e
 
 # Install NPM dependencies.
-lerna bootstrap
+lerna bootstrap --ci --registry "https://verdaccio.tenlastic.com"
