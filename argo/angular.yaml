@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: continuous-integration-
+  generateName: continuous-integration-angular-
 spec:
   affinity:
     nodeAffinity:
@@ -77,20 +77,6 @@ spec:
               parameters:
                 - name: branch
                   value: "{{steps.get-branch.outputs.result}}"
-          - name: docker
-            when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
-            template: docker
-            arguments:
-              parameters:
-                - name: branch
-                  value: "{{steps.get-branch.outputs.result}}"
-          - name: nodejs
-            when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
-            template: nodejs
-            arguments:
-              parameters:
-                - name: branch
-                  value: "{{steps.get-branch.outputs.result}}"
 
     - name: angular
       inputs:
@@ -105,7 +91,7 @@ spec:
                 - name: workingDir
                   value: /workspace/open-platform/angular/
         - - name: continuous-integration
-            template: continuous-integration-angular
+            template: continuous-integration
         - - name: publish-npm-modules
             when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: publish-npm-modules
@@ -148,96 +134,12 @@ spec:
             when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: publish-electron-applications
 
-    - name: docker
-      inputs:
-        parameters:
-          - name: branch
-      steps:
-        - - name: publish-miscellaneous-docker-images
-            template: publish-docker-image
-            arguments:
-              parameters:
-                - name: context
-                  value: "{{item.context}}"
-                - name: dockerfile
-                  value: Dockerfile
-                - name: image
-                  value: "{{item.image}}"
-                - name: tag
-                  value: latest
-            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
-            withItems:
-              - context: /workspace/open-platform/dockerfiles/development-cli/
-                image: development-cli
-              - context: /workspace/open-platform/dockerfiles/mongo-replica-set/
-                image: mongo-replica-set
-              - context: /workspace/open-platform/dockerfiles/node-chrome-lerna/
-                image: node-chrome-lerna
-
-    - name: nodejs
-      inputs:
-        parameters:
-          - name: branch
-      parallelism: 5
-      steps:
-        - - name: bootstrap
-            template: bootstrap
-            arguments:
-              parameters:
-                - name: workingDir
-                  value: /workspace/open-platform/nodejs/
-        - - name: continuous-integration
-            template: continuous-integration-nodejs
-        - - name: migrations
-            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
-            template: migrations
-          - name: terraform
-            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
-            template: terraform
-        - - name: publish-npm-modules
-            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
-            template: publish-npm-modules
-            arguments:
-              parameters:
-                - name: workingDir
-                  value: /workspace/open-platform/nodejs/
-        - - name: get-docker-images
-            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
-            template: get-docker-images
-            arguments:
-              parameters:
-                - name: workingDir
-                  value: /workspace/open-platform/nodejs/
-        - - name: build-docker-images
-            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
-            template: build-docker-image
-            arguments:
-              parameters:
-                - name: context
-                  value: "{{item.location}}"
-                - name: image
-                  value: "{{item.name}}"
-            withParam: "{{steps.get-docker-images.outputs.result}}"
-        - - name: publish-docker-images
-            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
-            template: publish-docker-image
-            arguments:
-              parameters:
-                - name: context
-                  value: "{{item.location}}"
-                - name: dockerfile
-                  value: Dockerfile
-                - name: image
-                  value: "{{item.name}}"
-                - name: tag
-                  value: "{{item.version}}"
-            withParam: "{{steps.get-docker-images.outputs.result}}"
-
     - name: bootstrap
       container:
         image: tenlastic/node-chrome-lerna:latest
         command: [bash]
-        args: [./.argo-ci/bootstrap.sh]
+        args:
+          - /workspace/open-platform/argo/scripts/bootstrap.sh
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
@@ -251,7 +153,8 @@ spec:
       container:
         image: tenlastic/node-chrome-lerna:latest
         command: [bash]
-        args: [./.argo-ci/build-docker-image.sh]
+        args:
+          - /workspace/open-platform/argo/scripts/build-docker-image.sh
         env:
           - name: CONTEXT
             value: "{{inputs.parameters.context}}"
@@ -298,11 +201,12 @@ spec:
           - name: repo
           - name: revision
 
-    - name: continuous-integration-angular
+    - name: continuous-integration
       container:
         image: tenlastic/node-chrome-lerna:latest
         command: [bash]
-        args: [./.argo-ci/continuous-integration-angular.sh]
+        args:
+          - /workspace/open-platform/argo/scripts/continuous-integration-angular.sh
         envFrom:
           - secretRef:
               name: ci-environment-variables
@@ -311,48 +215,6 @@ spec:
           - name: workspace
             mountPath: /workspace/
         workingDir: /workspace/open-platform/angular/
-
-    - name: continuous-integration-nodejs
-      container:
-        image: tenlastic/node-chrome-lerna:latest
-        command: [bash]
-        args: [./.argo-ci/continuous-integration-nodejs.sh]
-        envFrom:
-          - secretRef:
-              name: ci-environment-variables
-        imagePullPolicy: IfNotPresent
-        volumeMounts:
-          - name: workspace
-            mountPath: /workspace/
-        workingDir: /workspace/open-platform/nodejs/
-      sidecars:
-        - name: mongodb
-          image: bitnami/mongodb:5.0.9
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: MONGODB_ADVERTISED_HOSTNAME
-              value: localhost
-            - name: MONGODB_REPLICA_SET_KEY
-              value: "1234567890"
-            - name: MONGODB_REPLICA_SET_MODE
-              value: primary
-            - name: MONGODB_ROOT_PASSWORD
-              value: password
-        - name: minio
-          image: bitnami/minio:2022
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: MINIO_ROOT_PASSWORD
-              value: minioadmin
-            - name: MINIO_ROOT_USER
-              value: minioadmin
-        - name: nats
-          image: nats:2.8.4-alpine
-          imagePullPolicy: IfNotPresent
-          command:
-            - /bin/sh
-            - -c
-            - trap "exit 0" SIGKILL && docker-entrypoint.sh --js
 
     - name: get-branch
       script:
@@ -386,20 +248,6 @@ spec:
       inputs:
         parameters:
           - name: workingDir
-
-    - name: migrations
-      container:
-        image: tenlastic/node-chrome-lerna:latest
-        command: [bash]
-        args: [./.argo-ci/migrations.sh]
-        envFrom:
-          - secretRef:
-              name: cd-environment-variables
-        imagePullPolicy: IfNotPresent
-        volumeMounts:
-          - name: workspace
-            mountPath: /workspace/
-        workingDir: /workspace/open-platform/nodejs/
 
     - name: publish-docker-image
       container:
@@ -436,7 +284,8 @@ spec:
       container:
         image: electronuserland/builder:wine
         command: [sh]
-        args: [./.argo-ci/publish-electron-applications.sh]
+        args:
+          - /workspace/open-platform/argo/scripts/publish-electron-applications.sh
         envFrom:
           - secretRef:
               name: cd-environment-variables
@@ -450,7 +299,8 @@ spec:
       container:
         image: tenlastic/node-chrome-lerna:latest
         command: [bash]
-        args: [./.argo-ci/publish-npm-modules.sh]
+        args:
+          - /workspace/open-platform/argo/scripts/publish-npm-modules.sh
         envFrom:
           - secretRef:
               name: cd-environment-variables
@@ -475,20 +325,6 @@ spec:
             *\[skip\ ci\]*) echo "true" ;;
             *) echo "false";; 
           esac
-        imagePullPolicy: IfNotPresent
-        volumeMounts:
-          - name: workspace
-            mountPath: /workspace/
-        workingDir: /workspace/open-platform/
-
-    - name: terraform
-      container:
-        image: hashicorp/terraform:0.14.5
-        command: [sh]
-        args: [./.argo-ci/terraform.sh]
-        envFrom:
-          - secretRef:
-              name: cd-environment-variables
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
