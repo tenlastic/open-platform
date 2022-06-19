@@ -64,14 +64,15 @@ QueueEvent.sync(async (payload) => {
   return Promise.all(queueMembers.map((qm) => qm.remove()));
 });
 
-// Delete QueueMember when associated WebSocket is deleted.
+// Delete QueueMember when associated WebSocket is deleted or disconnected.
 WebSocketEvent.sync(async (payload) => {
-  if (payload.operationType !== 'delete') {
-    return;
+  if (
+    payload.operationType === 'delete' ||
+    payload.updateDescription?.updatedFields?.disconnectedAt
+  ) {
+    const queueMembers = await QueueMember.find({ webSocketId: payload.fullDocument._id });
+    return Promise.all(queueMembers.map((qm) => qm.remove()));
   }
-
-  const queueMembers = await QueueMember.find({ webSocketId: payload.fullDocument._id });
-  return Promise.all(queueMembers.map((qm) => qm.remove()));
 });
 
 @index({ namespaceId: 1, queueId: 1, userIds: 1 }, { unique: true })
