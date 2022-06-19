@@ -42,7 +42,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: wss
-          image: tenlastic/wss:0.0.298
+          image: tenlastic/wss:0.0.299
           env:
             - name: POD_NAME
               valueFrom:
