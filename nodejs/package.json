@@ -6,7 +6,8 @@
     "google:tokens": "ts-node ./scripts/get-google-tokens.ts",
     "merge:coverage": "./scripts/merge-coverage.sh",
     "merge:junit": "./scripts/merge-junit.sh",
-    "merge:mochawesome": "./scripts/merge-mochawesome.sh"
+    "merge:mochawesome": "./scripts/merge-mochawesome.sh",
+    "package-lock": "lerna exec -- npm i --package-lock-only"
   },
   "dependencies": {
     "node-pre-gyp": "0.13.0"
@@ -69,7 +70,7 @@
     "jsonwebtoken": "8.5.1",
     "jszip": "3.10.0",
     "junit-merge": "2.0.0",
-    "lerna": "^3.20.2",
+    "lerna": "5.1.4",
     "mocha": "7.1.2",
     "mocha-junit-reporter": "1.18.0",
     "mocha-multi-reporters": "1.1.7",
