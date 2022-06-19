@@ -290,7 +290,7 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
-        workingDir: /workspace/open-platform/nodejs/
+        workingDir: /workspace/open-platform/nodejs/applications/migrations/
 
     - name: publish-docker-image
       container:

@@ -2,5 +2,5 @@
 set -e
 
 # Build and run MongoDB migrations.
-lerna run build --ci --include-dependencies --scope @tenlastic/migrations --scope nodejs
+lerna run build --include-dependencies --scope @tenlastic/migrations
 npm run start
