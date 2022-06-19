@@ -16,6 +16,9 @@
     }
   },
   "npmClient": "npm",
-  "packages": ["applications/*", "modules/*"],
-  "version": "0.0.297"
+  "packages": [
+    "applications/*",
+    "modules/*"
+  ],
+  "version": "0.0.298"
 }
