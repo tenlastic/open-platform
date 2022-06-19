@@ -50,7 +50,7 @@
           "name": "workspace"
         }
       ],
-      "workingDir": "/usr/src/projects/javascript/nodejs/applications/wss/"
+      "workingDir": "/usr/src/nodejs/applications/wss/"
     }
   }
 ]

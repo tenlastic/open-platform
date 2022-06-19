@@ -31,7 +31,7 @@
           "name": "workspace"
         }
       ],
-      "workingDir": "/usr/src/projects/javascript/nodejs/applications/migrations/"
+      "workingDir": "/usr/src/nodejs/applications/migrations/"
     }
   }
 ]

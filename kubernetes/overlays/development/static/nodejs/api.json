@@ -40,7 +40,7 @@
           "name": "workspace"
         }
       ],
-      "workingDir": "/usr/src/projects/javascript/nodejs/applications/api/"
+      "workingDir": "/usr/src/nodejs/applications/api/"
     }
   }
 ]

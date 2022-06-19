@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e
 
-ROOT=$(pwd)
-cd "${ROOT}/projects/javascript/"
-
 # Add Host Key for Github.
 mkdir -p /root/.ssh/
 ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts

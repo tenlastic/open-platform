@@ -1,0 +1,21 @@
+{
+  "command": {
+    "bootstrap": {
+      "hoist": true,
+      "strict": true
+    },
+    "publish": {
+      "exact": true,
+      "message": "nodejs-v%v [skip ci]",
+      "tagVersionPrefix": "nodejs-v"
+    },
+    "version": {
+      "exact": true,
+      "message": "nodejs-v%v [skip ci]",
+      "tagVersionPrefix": "nodejs-v"
+    }
+  },
+  "npmClient": "npm",
+  "packages": ["applications/*", "modules/*"],
+  "version": "0.0.297"
+}

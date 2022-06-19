@@ -26,7 +26,7 @@ spec:
       - name: repo
         value: git@github.com:tenlastic/open-platform.git
       - name: revision
-  entrypoint: pipeline
+  entrypoint: entrypoint
   podGC:
     strategy: OnWorkflowSuccess
   serviceAccountName: argo-workflow
@@ -47,14 +47,15 @@ spec:
         secretName: cd-ssh-keys
         defaultMode: 0600
   templates:
-    - name: pipeline
+    - name: entrypoint
       inputs:
         parameters:
           - name: repo
           - name: revision
       parallelism: 5
-      steps:
-        - - name: checkout
+      dag:
+        tasks:
+          - name: checkout
             template: checkout
             arguments:
               parameters:
@@ -62,45 +63,76 @@ spec:
                   value: "{{inputs.parameters.repo}}"
                 - name: revision
                   value: "{{inputs.parameters.revision}}"
-
-        - - name: get-branch
+          - name: get-branch
+            depends: checkout
             template: get-branch
             arguments:
               parameters:
                 - name: revision
                   value: "{{inputs.parameters.revision}}"
-
           - name: skip-ci
+            depends: checkout
             template: skip-ci
+          - name: angular
+            depends: [get-branch, skip-ci]
+            when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
+            template: angular
+            arguments:
+              parameters:
+                - name: branch
+                  value: "{{steps.get-branch.outputs.result}}"
+          - name: docker
+            depends: [get-branch, skip-ci]
+            when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
+            template: docker
+            arguments:
+              parameters:
+                - name: branch
+                  value: "{{steps.get-branch.outputs.result}}"
+          - name: nodejs
+            depends: [get-branch, skip-ci]
+            when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
+            template: nodejs
+            arguments:
+              parameters:
+                - name: branch
+                  value: "{{steps.get-branch.outputs.result}}"
 
-        - - name: bootstrap
+    - name: angular
+      inputs:
+        parameters:
+          - name: branch
+      parallelism: 5
+      dag:
+        tasks:
+          - name: bootstrap
             template: bootstrap
-            when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
-
-        - - name: continuous-integration-angular
+            arguments:
+              parameters:
+                - name: workingDir
+                  value: /workspace/open-platform/angular/
+          - name: continuous-integration
+            depends: bootstrap
             template: continuous-integration-angular
-            when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
-
-          - name: continuous-integration-nodejs
-            template: continuous-integration-nodejs
-            when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
-
-        - - name: migrations
-            template: migrations
-            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
-
-          - name: terraform
-            template: terraform
-            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
-
-        - - name: publish-npm-modules
+          - name: publish-npm-modules
+            depends: continuous-integration
+            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
             template: publish-npm-modules
-            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
-
-        - - name: get-docker-images
+            arguments:
+              parameters:
+                - name: workingDir
+                  value: /workspace/open-platform/angular/
+          - name: get-docker-images
+            depends: publish-npm-modules
+            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
             template: get-docker-images
-
-        - - name: build-docker-images
+            arguments:
+              parameters:
+                - name: workingDir
+                  value: /workspace/open-platform/angular/
+          - name: build-docker-images
+            depends: get-docker-images
+            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
             template: build-docker-image
             arguments:
               parameters:
@@ -108,10 +140,10 @@ spec:
                   value: "{{item.location}}"
                 - name: image
                   value: "{{item.name}}"
-            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
             withParam: "{{steps.get-docker-images.outputs.result}}"
-
-        - - name: publish-docker-images
+          - name: publish-docker-images
+            depends: build-docker-images
+            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
             template: publish-docker-image
             arguments:
               parameters:
@@ -123,13 +155,18 @@ spec:
                   value: "{{item.name}}"
                 - name: tag
                   value: "{{item.version}}"
-            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
             withParam: "{{steps.get-docker-images.outputs.result}}"
-
-        - - name: publish-electron-applications
+          - name: publish-electron-applications
+            depends: publish-electron-applications
+            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
             template: publish-electron-applications
-            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
 
+    - name: docker
+      inputs:
+        parameters:
+          - name: branch
+      dag:
+        tasks:
           - name: publish-miscellaneous-docker-images
             template: publish-docker-image
             arguments:
@@ -142,7 +179,7 @@ spec:
                   value: "{{item.image}}"
                 - name: tag
                   value: latest
-            when: "('{{steps.skip-ci.outputs.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
+            when: "('{{inputs.parameters.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
             withItems:
               - context: /workspace/open-platform/dockerfiles/development-cli/
                 image: development-cli
@@ -150,6 +187,73 @@ spec:
                 image: mongo-replica-set
               - context: /workspace/open-platform/dockerfiles/node-chrome-lerna/
                 image: node-chrome-lerna
+
+    - name: nodejs
+      inputs:
+        parameters:
+          - name: branch
+      parallelism: 5
+      dag:
+        tasks:
+          - name: bootstrap
+            template: bootstrap
+            arguments:
+              parameters:
+                - name: workingDir
+                  value: /workspace/open-platform/nodejs/
+          - name: continuous-integration
+            depends: bootstrap
+            template: continuous-integration-nodejs
+          - name: migrations
+            depends: continuous-integration
+            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+            template: migrations
+          - name: terraform
+            depends: continuous-integration
+            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+            template: terraform
+          - name: publish-npm-modules
+            depends: [migrations, terraform]
+            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+            template: publish-npm-modules
+            arguments:
+              parameters:
+                - name: workingDir
+                  value: /workspace/open-platform/nodejs/
+          - name: get-docker-images
+            depends: publish-npm-modules
+            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+            template: get-docker-images
+            arguments:
+              parameters:
+                - name: workingDir
+                  value: /workspace/open-platform/nodejs/
+          - name: build-docker-images
+            depends: get-docker-images
+            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+            template: build-docker-image
+            arguments:
+              parameters:
+                - name: context
+                  value: "{{item.location}}"
+                - name: image
+                  value: "{{item.name}}"
+            withParam: "{{steps.get-docker-images.outputs.result}}"
+          - name: publish-docker-images
+            depends: build-docker-images
+            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+            template: publish-docker-image
+            arguments:
+              parameters:
+                - name: context
+                  value: "{{item.location}}"
+                - name: dockerfile
+                  value: Dockerfile
+                - name: image
+                  value: "{{item.name}}"
+                - name: tag
+                  value: "{{item.version}}"
+            withParam: "{{steps.get-docker-images.outputs.result}}"
 
     - name: bootstrap
       container:
@@ -160,7 +264,10 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
-        workingDir: /workspace/open-platform/
+        workingDir: "{{inputs.parameters.workingDir}}"
+      inputs:
+        parameters:
+          - name: workingDir
 
     - name: build-docker-image
       container:
@@ -225,7 +332,7 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
-        workingDir: /workspace/open-platform/
+        workingDir: /workspace/open-platform/angular/
 
     - name: continuous-integration-nodejs
       container:
@@ -239,7 +346,7 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
-        workingDir: /workspace/open-platform/
+        workingDir: /workspace/open-platform/nodejs/
       sidecars:
         - name: mongodb
           image: bitnami/mongodb:5.0.9
@@ -297,7 +404,10 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
-        workingDir: /workspace/open-platform/projects/javascript/
+        workingDir: "{{inputs.parameters.workingDir}}"
+      inputs:
+        parameters:
+          - name: workingDir
 
     - name: migrations
       container:
@@ -311,7 +421,7 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
-        workingDir: /workspace/open-platform/
+        workingDir: /workspace/open-platform/nodejs/
 
     - name: publish-docker-image
       container:
@@ -356,7 +466,7 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
-        workingDir: /workspace/open-platform/
+        workingDir: /workspace/open-platform/angular/
 
     - name: publish-npm-modules
       container:
@@ -373,7 +483,10 @@ spec:
             readonly: true
           - name: workspace
             mountPath: /workspace/
-        workingDir: /workspace/open-platform/
+        workingDir: "{{inputs.parameters.workingDir}}"
+      inputs:
+        parameters:
+          - name: workingDir
 
     - name: skip-ci
       script:
