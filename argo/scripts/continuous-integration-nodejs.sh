@@ -2,6 +2,6 @@
 set -e
 
 # Lint, build, and test NodeJS applications.
-lerna run lint --ci --since 
-lerna run build --ci --include-dependencies --since
-lerna run test --ci --since
+lerna run lint --since 
+lerna run build --include-dependencies --since
+lerna run test --since
