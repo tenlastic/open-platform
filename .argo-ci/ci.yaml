@@ -53,9 +53,8 @@ spec:
           - name: repo
           - name: revision
       parallelism: 5
-      dag:
-        tasks:
-          - name: checkout
+      steps:
+        - - name: checkout
             template: checkout
             arguments:
               parameters:
@@ -63,18 +62,15 @@ spec:
                   value: "{{inputs.parameters.repo}}"
                 - name: revision
                   value: "{{inputs.parameters.revision}}"
-          - name: get-branch
-            depends: checkout
+        - - name: get-branch
             template: get-branch
             arguments:
               parameters:
                 - name: revision
                   value: "{{inputs.parameters.revision}}"
           - name: skip-ci
-            depends: checkout
             template: skip-ci
-          - name: angular
-            depends: [get-branch, skip-ci]
+        - - name: angular
             when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
             template: angular
             arguments:
@@ -82,7 +78,6 @@ spec:
                 - name: branch
                   value: "{{steps.get-branch.outputs.result}}"
           - name: docker
-            depends: [get-branch, skip-ci]
             when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
             template: docker
             arguments:
@@ -90,7 +85,6 @@ spec:
                 - name: branch
                   value: "{{steps.get-branch.outputs.result}}"
           - name: nodejs
-            depends: [get-branch, skip-ci]
             when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
             template: nodejs
             arguments:
@@ -103,36 +97,31 @@ spec:
         parameters:
           - name: branch
       parallelism: 5
-      dag:
-        tasks:
-          - name: bootstrap
+      steps:
+        - - name: bootstrap
             template: bootstrap
             arguments:
               parameters:
                 - name: workingDir
                   value: /workspace/open-platform/angular/
-          - name: continuous-integration
-            depends: bootstrap
+        - - name: continuous-integration
             template: continuous-integration-angular
-          - name: publish-npm-modules
-            depends: continuous-integration
-            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+        - - name: publish-npm-modules
+            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: publish-npm-modules
             arguments:
               parameters:
                 - name: workingDir
                   value: /workspace/open-platform/angular/
-          - name: get-docker-images
-            depends: publish-npm-modules
-            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+        - - name: get-docker-images
+            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: get-docker-images
             arguments:
               parameters:
                 - name: workingDir
                   value: /workspace/open-platform/angular/
-          - name: build-docker-images
-            depends: get-docker-images
-            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+        - - name: build-docker-images
+            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: build-docker-image
             arguments:
               parameters:
@@ -141,9 +130,8 @@ spec:
                 - name: image
                   value: "{{item.name}}"
             withParam: "{{steps.get-docker-images.outputs.result}}"
-          - name: publish-docker-images
-            depends: build-docker-images
-            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+        - - name: publish-docker-images
+            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: publish-docker-image
             arguments:
               parameters:
@@ -156,18 +144,16 @@ spec:
                 - name: tag
                   value: "{{item.version}}"
             withParam: "{{steps.get-docker-images.outputs.result}}"
-          - name: publish-electron-applications
-            depends: publish-electron-applications
-            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+        - - name: publish-electron-applications
+            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: publish-electron-applications
 
     - name: docker
       inputs:
         parameters:
           - name: branch
-      dag:
-        tasks:
-          - name: publish-miscellaneous-docker-images
+      steps:
+        - - name: publish-miscellaneous-docker-images
             template: publish-docker-image
             arguments:
               parameters:
@@ -179,7 +165,7 @@ spec:
                   value: "{{item.image}}"
                 - name: tag
                   value: latest
-            when: "('{{inputs.parameters.result}}' == 'false') && ('{{steps.get-branch.outputs.result}}' == 'origin/master')"
+            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             withItems:
               - context: /workspace/open-platform/dockerfiles/development-cli/
                 image: development-cli
@@ -193,44 +179,37 @@ spec:
         parameters:
           - name: branch
       parallelism: 5
-      dag:
-        tasks:
-          - name: bootstrap
+      steps:
+        - - name: bootstrap
             template: bootstrap
             arguments:
               parameters:
                 - name: workingDir
                   value: /workspace/open-platform/nodejs/
-          - name: continuous-integration
-            depends: bootstrap
+        - - name: continuous-integration
             template: continuous-integration-nodejs
-          - name: migrations
-            depends: continuous-integration
-            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+        - - name: migrations
+            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: migrations
           - name: terraform
-            depends: continuous-integration
-            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: terraform
-          - name: publish-npm-modules
-            depends: [migrations, terraform]
-            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+        - - name: publish-npm-modules
+            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: publish-npm-modules
             arguments:
               parameters:
                 - name: workingDir
                   value: /workspace/open-platform/nodejs/
-          - name: get-docker-images
-            depends: publish-npm-modules
-            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+        - - name: get-docker-images
+            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: get-docker-images
             arguments:
               parameters:
                 - name: workingDir
                   value: /workspace/open-platform/nodejs/
-          - name: build-docker-images
-            depends: get-docker-images
-            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+        - - name: build-docker-images
+            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: build-docker-image
             arguments:
               parameters:
@@ -239,9 +218,8 @@ spec:
                 - name: image
                   value: "{{item.name}}"
             withParam: "{{steps.get-docker-images.outputs.result}}"
-          - name: publish-docker-images
-            depends: build-docker-images
-            when: "'{{steps.get-branch.outputs.result}}' == 'origin/master'"
+        - - name: publish-docker-images
+            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: publish-docker-image
             arguments:
               parameters:
