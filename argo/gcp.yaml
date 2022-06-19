@@ -160,4 +160,4 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
-        workingDir: /workspace/open-platform/
+        workingDir: /workspace/open-platform/gcp/terraform/
