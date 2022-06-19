@@ -24,7 +24,7 @@ export class ServiceEventEmitter<T extends BaseModel> extends EventEmitter {
   }
 
   public on<U extends keyof ServiceEvents<T>>(event: U, listener: ServiceEvents<T>[U]) {
-    super.emit(event, listener);
+    super.on(event, listener);
   }
 }
 

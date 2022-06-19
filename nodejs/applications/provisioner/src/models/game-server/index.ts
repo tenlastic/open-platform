@@ -175,7 +175,7 @@ export const KubernetesGameServer = {
      * DEVELOPMENT SERVICE
      * =======================
      */
-    if (process.env.PWD && process.env.PWD.includes('/usr/src/projects/')) {
+    if (process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/')) {
       await serviceApiV1.createOrReplace('dynamic', {
         metadata: {
           labels: { ...labels, 'tenlastic.com/role': 'application' },

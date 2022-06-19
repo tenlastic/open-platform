@@ -185,7 +185,7 @@ export const KubernetesQueue = {
       periodSeconds: 5,
     };
 
-    const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/projects/');
+    const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
     let manifest: V1PodTemplateSpec;
     if (isDevelopment && queue.buildId) {
       const url = new URL(process.env.DOCKER_REGISTRY_URL);

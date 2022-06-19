@@ -329,7 +329,7 @@ export const KubernetesDatabase = {
     };
 
     let manifest: V1PodTemplateSpec;
-    if (process.env.PWD && process.env.PWD.includes('/usr/src/projects/')) {
+    if (process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/')) {
       manifest = {
         metadata: {
           labels: { ...labels, 'tenlastic.com/role': 'application' },

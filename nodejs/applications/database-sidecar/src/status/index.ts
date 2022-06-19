@@ -16,8 +16,7 @@ const pods: { [key: string]: V1Pod } = {};
  */
 export async function status() {
   // Fetch initial Database value.
-  const result = await databaseService.findOne(database._id);
-  console.log(`Initial Database state: ${result}.`);
+  await databaseService.findOne(database._id);
 
   podApiV1.watch(
     'dynamic',

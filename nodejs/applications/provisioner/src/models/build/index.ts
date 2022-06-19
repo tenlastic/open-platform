@@ -103,7 +103,7 @@ export const KubernetesBuild = {
     const { version } = require('../../../package.json');
 
     let manifest: V1Workflow;
-    if (process.env.PWD && process.env.PWD.includes('/usr/src/projects/')) {
+    if (process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/')) {
       const workingDir = '/usr/src/nodejs/applications';
       manifest = {
         metadata: {
