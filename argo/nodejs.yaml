@@ -206,7 +206,7 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [bash]
         args:
-          - /workspace/open-platform/argo/scripts/continuous-integration-nodejs.sh]
+          - /workspace/open-platform/argo/scripts/continuous-integration-nodejs.sh
         envFrom:
           - secretRef:
               name: ci-environment-variables
