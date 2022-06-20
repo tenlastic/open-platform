@@ -11,9 +11,19 @@ import * as mongoose from 'mongoose';
 
 import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import * as errors from '../../errors';
-import { UserDocument } from '../user/model';
+import { UserDocument, UserEvent } from '../user/model';
 
 export const WebSocketEvent = new EventEmitter<IDatabasePayload<WebSocketDocument>>();
+
+// Delete Web Sockets if associated User is deleted.
+UserEvent.sync(async (payload) => {
+  switch (payload.operationType) {
+    case 'delete':
+      const records = await WebSocket.find({ userId: payload.fullDocument._id });
+      const promises = records.map((r) => r.remove());
+      return Promise.all(promises);
+  }
+});
 
 @index({ nodeId: 1 })
 @index({ userId: 1 })
