@@ -10,11 +10,12 @@ export async function subscribe(
 ) {
   await upsertStream(subject);
 
-  const consumerOptions = {
+  const consumerOptions: Partial<nats.ConsumerConfig> = {
     ack_policy: nats.AckPolicy.None,
     deliver_policy: nats.DeliverPolicy.New,
     deliver_subject: nats.createInbox(),
     durable_name: durable,
+    max_ack_pending: 10,
     ...options,
   };
   const opts = nats.consumerOpts(consumerOptions);
