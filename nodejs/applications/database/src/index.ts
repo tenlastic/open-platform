@@ -64,7 +64,11 @@ const podName = process.env.POD_NAME;
 })();
 
 async function deleteStaleWebSockets() {
-  const webSockets = await mongooseModels.WebSocket.find({ nodeId: podName });
+  const webSockets = await mongooseModels.WebSocket.find({
+    disconnectedAt: { $exists: false },
+    nodeId: podName,
+  });
+
   const promises = webSockets.map(async (ws) => {
     ws.disconnectedAt = new Date();
     return ws.save();
