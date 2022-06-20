@@ -534,6 +534,7 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
 
   // Get current replica set configuration.
   const { config } = await primaryConnection.db.admin().command({ replSetGetConfig: 1 });
+  const { version } = await primaryConnection.db.admin().serverInfo();
 
   // Update the configuration, bumping its version number
   const service = `${name}-mongodb-headless`;
@@ -545,7 +546,7 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
       hidden: false,
       host: `${primary.metadata.name}.${service}.${namespace}.svc.cluster.local:27017`,
       priority: 5,
-      secondaryDelaySecs: 0,
+      [version.startsWith('5') ? 'secondaryDelaySecs' : 'slaveDelay']: 0,
       tags: {},
       votes: 1,
     },
