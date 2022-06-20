@@ -48,7 +48,7 @@ export class MessagesComponent implements OnChanges, OnDestroy {
   }
   public get $canKick() {
     return this.$currentUserGroup.pipe(
-      map(currentUserGroup => {
+      map((currentUserGroup) => {
         if (!currentUserGroup || !currentUserGroup.userIds.includes(this.user._id)) {
           return false;
         }
@@ -59,20 +59,22 @@ export class MessagesComponent implements OnChanges, OnDestroy {
   }
   public get $currentUserGroup() {
     return this.groupQuery
-      .selectAll({ filterBy: g => g.userIds.includes(this.identityService.user._id) })
-      .pipe(map(groups => groups[0]));
+      .selectAll({ filterBy: (g) => g.userIds.includes(this.identityService.user._id) })
+      .pipe(map((groups) => groups[0]));
   }
   public $friends: Observable<Friend[]>;
   public get $group() {
     return this.groupQuery
-      .selectAll({ filterBy: g => g.userIds.includes(this.user._id) })
-      .pipe(map(groups => groups[0]));
+      .selectAll({ filterBy: (g) => g.userIds.includes(this.user._id) })
+      .pipe(map((groups) => groups[0]));
   }
   public $ignorations: Observable<Ignoration[]>;
   public $messages: Observable<Message[]>;
   public $showJoinGroupButton: Observable<boolean>;
   public get $webSocket() {
-    return this.webSocketQuery.selectCount(c => c.userId === this.user._id);
+    return this.webSocketQuery.selectCount(
+      (ws) => !ws.disconnectedAt && ws.userId === this.user._id,
+    );
   }
   public $webSockets: Observable<WebSocket[]>;
   public readUnreadMessages$ = new Subscription();
@@ -184,10 +186,12 @@ export class MessagesComponent implements OnChanges, OnDestroy {
     }
 
     this.$friends = this.friendQuery.selectAll({
-      filterBy: f => f.fromUserId === this.identityService.user._id && f.toUserId === this.user._id,
+      filterBy: (f) =>
+        f.fromUserId === this.identityService.user._id && f.toUserId === this.user._id,
     });
     this.$ignorations = this.ignorationQuery.selectAll({
-      filterBy: f => f.fromUserId === this.identityService.user._id && f.toUserId === this.user._id,
+      filterBy: (f) =>
+        f.fromUserId === this.identityService.user._id && f.toUserId === this.user._id,
     });
     this.$messages = this.messageQuery.selectAllInConversation(
       this.identityService.user._id,
@@ -213,13 +217,14 @@ export class MessagesComponent implements OnChanges, OnDestroy {
     // Mark unread messages as read.
     this.readUnreadMessages$ = this.messageQuery
       .selectAllUnreadInConversation(this.identityService.user._id, this.user._id)
-      .pipe(map(messages => messages[0]))
-      .subscribe(message => (message ? this.messageService.read(message._id) : null));
+      .pipe(map((messages) => messages[0]))
+      .subscribe((message) => (message ? this.messageService.read(message._id) : null));
 
     // Scroll to the bottom when new message received.
     this.scrollToBottom$ = this.$messages.subscribe(() =>
       this.messagesScrollContainer
-        ? (this.messagesScrollContainer.nativeElement.scrollTop = this.messagesScrollContainer.nativeElement.scrollHeight)
+        ? (this.messagesScrollContainer.nativeElement.scrollTop =
+            this.messagesScrollContainer.nativeElement.scrollHeight)
         : null,
     );
   }

@@ -94,7 +94,11 @@ export class AppComponent implements OnInit {
     this.loginService.onLogout.subscribe(() => this.socket?.close());
 
     // Handle websockets when access token is set.
-    this.identityService.OnAccessTokenSet.subscribe(() => this.connectSocket());
+    this.identityService.OnAccessTokenSet.subscribe((accessToken) => {
+      if (accessToken) {
+        this.connectSocket();
+      }
+    });
 
     // Connect to websockets.
     try {

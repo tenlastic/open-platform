@@ -39,20 +39,20 @@ export class MessageGroupComponent {
 
   public $getWebSocket(userId: string) {
     return this.webSocketQuery
-      .selectAll({ filterBy: c => c.userId === userId })
-      .pipe(map(webSockets => webSockets[0]));
+      .selectAll({ filterBy: (ws) => !ws.disconnectedAt && ws.userId === userId })
+      .pipe(map((webSockets) => webSockets[0]));
   }
 
   public $getGroup(userId: string) {
     return this.groupQuery
-      .selectAll({ filterBy: g => this.showGroup && g.userIds.includes(userId) })
-      .pipe(map(groups => groups[0]));
+      .selectAll({ filterBy: (g) => this.showGroup && g.userIds.includes(userId) })
+      .pipe(map((groups) => groups[0]));
   }
 
   public $getUnreadMessagesCount(userId: string) {
     return this.messageQuery
       .selectAllUnreadInConversation(this.identityService.user._id, userId)
-      .pipe(map(messages => messages.length));
+      .pipe(map((messages) => messages.length));
   }
 
   public setUser(user: User) {

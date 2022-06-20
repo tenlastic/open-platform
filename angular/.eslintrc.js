@@ -2,6 +2,9 @@
 module.exports = {
   root: true,
   ignorePatterns: ['applications/**/*', 'modules/**/*'],
+  rules: {
+    curly: 'error',
+  },
   overrides: [
     {
       files: ['*.ts'],

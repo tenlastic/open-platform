@@ -92,13 +92,15 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
       this.webSocketService.find({ where: { userId: { $in: users.map((u) => u._id) } } }),
     );
     this.updateDataSource$ = this.$users.subscribe((users) => (this.dataSource.data = users));
-    this.updateWebSockets$ = this.webSocketQuery.selectAll().subscribe((webSockets) => {
-      this.webSockets = {};
+    this.updateWebSockets$ = this.webSocketQuery
+      .selectAll({ filterBy: (ws) => !ws.disconnectedAt })
+      .subscribe((webSockets) => {
+        this.webSockets = {};
 
-      for (const webSocket of webSockets) {
-        this.webSockets[webSocket.userId] = webSocket;
-      }
-    });
+        for (const webSocket of webSockets) {
+          this.webSockets[webSocket.userId] = webSocket;
+        }
+      });
 
     this.dataSource.filterPredicate = (data: User, filter: string) => {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');

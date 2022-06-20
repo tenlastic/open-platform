@@ -30,8 +30,6 @@ import {
   UserQuery,
   UserService,
   UserStore,
-  WebSocket,
-  WebSocketQuery,
   WebSocketService,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription, combineLatest } from 'rxjs';
@@ -64,14 +62,13 @@ export class SocialComponent implements OnDestroy, OnInit {
   public $groupInvitation: Observable<GroupInvitation>;
   public get $groupUsersWithoutCurrentUser() {
     return this.$group.pipe(
-      map(group => group && group.users.filter(u => u._id !== this.identityService.user._id)),
+      map((group) => group && group.users.filter((u) => u._id !== this.identityService.user._id)),
     );
   }
   public $ignorations: Observable<Ignoration[]>;
   public $messages: Observable<Message[]>;
   public $queueMembers: Observable<QueueMember[]>;
   public $users: Observable<User[]>;
-  public $webSockets: Observable<WebSocket[]>;
   public fetchFriendUser$ = new Subscription();
   public fetchGroupInvitationUser$ = new Subscription();
   public fetchIgnorationUser$ = new Subscription();
@@ -93,8 +90,6 @@ export class SocialComponent implements OnDestroy, OnInit {
   public isWaitingForGameServer = false;
 
   constructor(
-    private webSocketQuery: WebSocketQuery,
-    private webSocketService: WebSocketService,
     public electronService: ElectronService,
     private friendQuery: FriendQuery,
     private friendService: FriendService,
@@ -119,6 +114,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     public userQuery: UserQuery,
     private userService: UserService,
     private userStore: UserStore,
+    private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
@@ -126,85 +122,84 @@ export class SocialComponent implements OnDestroy, OnInit {
       return;
     }
 
-    this.$webSockets = this.webSocketQuery.selectAll();
     this.$friends = this.friendQuery.selectAll();
     this.$friends = this.friendQuery.populateUsers(this.$friends);
     const $gameServers = this.gameServerQuery.selectAll({
-      filterBy: g =>
+      filterBy: (g) =>
         g.authorizedUserIds.includes(this.identityService.user._id) && Boolean(g.queueId),
     });
     this.$gameServers = this.gameServerQuery.populate($gameServers);
     const $groups = this.groupQuery.selectAll({
-      filterBy: g => g.userIds.includes(this.identityService.user._id),
+      filterBy: (g) => g.userIds.includes(this.identityService.user._id),
     });
-    this.$group = this.groupQuery.populate($groups).pipe(map(groups => groups[0]));
+    this.$group = this.groupQuery.populate($groups).pipe(map((groups) => groups[0]));
     const $groupInvitations = this.groupInvitationQuery.selectAll({
-      filterBy: gi => gi.toUserId === this.identityService.user._id,
+      filterBy: (gi) => gi.toUserId === this.identityService.user._id,
       sortBy: 'createdAt',
     });
     this.$groupInvitation = this.groupInvitationQuery
       .populate($groupInvitations)
-      .pipe(map(groupInvitations => groupInvitations[0]));
+      .pipe(map((groupInvitations) => groupInvitations[0]));
     this.$ignorations = this.ignorationQuery.selectAll();
     this.$ignorations = this.ignorationQuery.populateUsers(this.$ignorations);
     this.$messages = this.messageQuery.selectAll();
     this.$queueMembers = this.queueMemberQuery.selectAll({ filterBy: () => false });
     this.$users = this.userQuery.selectAll();
 
-    this.fetchFriendUser$ = this.$friends.subscribe(friends => {
+    this.fetchFriendUser$ = this.$friends.subscribe((friends) => {
       const missingUserIds = friends
-        .map(f => f.toUserId)
-        .filter(toUserId => !this.userQuery.hasEntity(toUserId));
+        .map((f) => f.toUserId)
+        .filter((toUserId) => !this.userQuery.hasEntity(toUserId));
 
       return missingUserIds.length > 0
         ? this.userService.find({ where: { _id: { $in: missingUserIds } } })
         : null;
     });
-    this.fetchGroupInvitationUser$ = this.$groupInvitation.subscribe(groupInvitation => {
+    this.fetchGroupInvitationUser$ = this.$groupInvitation.subscribe((groupInvitation) => {
       if (groupInvitation && !this.userQuery.hasEntity(groupInvitation.fromUserId)) {
         return this.userService.find({ where: { _id: groupInvitation.fromUserId } });
       }
     });
-    this.fetchIgnorationUser$ = this.$ignorations.subscribe(ignorations => {
+    this.fetchIgnorationUser$ = this.$ignorations.subscribe((ignorations) => {
       const missingUserIds = ignorations
-        .map(f => f.toUserId)
-        .filter(toUserId => !this.userQuery.hasEntity(toUserId));
+        .map((f) => f.toUserId)
+        .filter((toUserId) => !this.userQuery.hasEntity(toUserId));
 
       return missingUserIds.length > 0
         ? this.userService.find({ where: { _id: { $in: missingUserIds } } })
         : null;
     });
-    this.fetchMessageUser$ = this.$messages.subscribe(messages => {
-      const fromUserIds = messages.map(m => m.fromUserId);
-      const toUserIds = messages.map(m => m.toUserId).filter(toUserId => toUserId);
+    this.fetchMessageUser$ = this.$messages.subscribe((messages) => {
+      const fromUserIds = messages.map((m) => m.fromUserId);
+      const toUserIds = messages.map((m) => m.toUserId).filter((toUserId) => toUserId);
       const missingUserIds = fromUserIds
         .concat(toUserIds)
-        .filter(toUserId => !this.userQuery.hasEntity(toUserId));
+        .filter((toUserId) => !this.userQuery.hasEntity(toUserId));
 
       return missingUserIds.length > 0
         ? this.userService.find({ where: { _id: { $in: missingUserIds } } })
         : null;
     });
-    this.fetchQueueMembersQueues$ = this.$queueMembers.subscribe(queueMembers => {
+    this.fetchQueueMembersQueues$ = this.$queueMembers.subscribe((queueMembers) => {
       const missingQueueIds = queueMembers
-        .map(qm => qm.queueId)
-        .filter(queueId => !this.queueQuery.hasEntity(queueId));
+        .map((qm) => qm.queueId)
+        .filter((queueId) => !this.queueQuery.hasEntity(queueId));
 
       return missingQueueIds.length > 0
         ? this.queueService.find({ where: { _id: { $in: missingQueueIds } } })
         : null;
     });
-    this.fetchUserWebSockets$ = this.$users.subscribe(users => {
-      return this.webSocketService.find({ where: { userId: { $in: users.map(u => u._id) } } });
+    this.fetchUserWebSockets$ = this.$users.subscribe((users) => {
+      return this.webSocketService.find({ where: { userId: { $in: users.map((u) => u._id) } } });
     });
-    this.fetchUserGroup$ = this.$users.subscribe(users => {
-      return this.groupService.find({ where: { userIds: { $in: users.map(u => u._id) } } });
+    this.fetchUserGroup$ = this.$users.subscribe((users) => {
+      return this.groupService.find({ where: { userIds: { $in: users.map((u) => u._id) } } });
     });
 
-    this.newMessageNotification$ = this.messageService.onCreate.subscribe(message =>
+    this.newMessageNotification$ = this.messageService.onCreate.subscribe((message) =>
       this.newMessageNotification(message),
     );
-    this.newMatchNotification$ = this.gameServerService.onCreate.subscribe(gameServer =>
+    this.newMatchNotification$ = this.gameServerService.onCreate.subscribe((gameServer) =>
       this.newMatchNotification(gameServer),
     );
 
@@ -213,7 +208,7 @@ export class SocialComponent implements OnDestroy, OnInit {
       this.$messages,
       this.$users,
     ]).subscribe(([friends, messages, users]) => {
-      const friendIds = friends.map(f => f.toUserId);
+      const friendIds = friends.map((f) => f.toUserId);
 
       const conversationsMap = messages.reduce((previous, current) => {
         if (current.toGroupId) {
@@ -242,15 +237,15 @@ export class SocialComponent implements OnDestroy, OnInit {
         return previous;
       }, {});
 
-      this.conversations = Object.keys(conversationsMap).map(key => ({
+      this.conversations = Object.keys(conversationsMap).map((key) => ({
         messages: conversationsMap[key],
-        user: users.find(u => u._id === key),
+        user: users.find((u) => u._id === key),
       }));
     });
 
-    this.updateQueueMembers$ = this.$group.subscribe(group => {
+    this.updateQueueMembers$ = this.$group.subscribe((group) => {
       const $queueMembers = this.queueMemberQuery.selectAll({
-        filterBy: qm =>
+        filterBy: (qm) =>
           this.electronService.isElectron &&
           ((group && group._id === qm.groupId) || qm.userId === this.identityService.user._id),
       });
@@ -289,7 +284,7 @@ export class SocialComponent implements OnDestroy, OnInit {
   public $getUnreadGroupMessagesCount(groupId: string) {
     return this.messageQuery
       .selectAllUnreadInGroup(groupId, this.identityService.user._id)
-      .pipe(map(messages => messages.length));
+      .pipe(map((messages) => messages.length));
   }
 
   public async acceptGroupInvitation() {
@@ -300,7 +295,7 @@ export class SocialComponent implements OnDestroy, OnInit {
   public async joinGameServer(gameServer: GameServer) {
     this.isWaitingForGameServer = true;
 
-    this.waitForGameServer$ = this.gameServerQuery.selectEntity(gameServer._id).subscribe(gs => {
+    this.waitForGameServer$ = this.gameServerQuery.selectEntity(gameServer._id).subscribe((gs) => {
       // If the Game Server is not ready yet, do nothing.
       if (!gs.status || gs.status.phase !== 'Running') {
         return;
@@ -337,7 +332,7 @@ export class SocialComponent implements OnDestroy, OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async username => {
+    dialogRef.afterClosed().subscribe(async (username) => {
       if (!username) {
         return;
       }
@@ -378,7 +373,7 @@ export class SocialComponent implements OnDestroy, OnInit {
       },
     });
 
-    return users.map(u => ({ label: u.username, value: u.username }));
+    return users.map((u) => ({ label: u.username, value: u.username }));
   }
 
   private async newMatchNotification(gameServer: GameServer) {
