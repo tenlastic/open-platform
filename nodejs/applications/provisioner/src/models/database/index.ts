@@ -536,8 +536,15 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
   const { config } = await primaryConnection.db.admin().command({ replSetGetConfig: 1 });
   const { version } = await primaryConnection.db.admin().serverInfo();
 
+  // Update the feature compatibility version.
+  const [major, minor] = version.split('.').map((s) => parseInt(s, 10));
+  await primaryConnection.db.admin().command({
+    setFeatureCompatibilityVersion: `${major}.${minor}`,
+    writeConcern: { wtimeout: 0 },
+  });
+
   // Update the configuration, bumping its version number
-  const delayKey = version.startsWith('5') ? 'secondaryDelaySecs' : 'slaveDelay';
+  const delayKey = major >= 5 ? 'secondaryDelaySecs' : 'slaveDelay';
   const service = `${name}-mongodb-headless`;
   config.members = [
     {
