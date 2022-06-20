@@ -26,10 +26,10 @@ spec:
               podAffinityTerm:
                 labelSelector:
                   matchExpressions:
-                    - key: app
+                    - key: app.kubernetes.io/name
                       operator: In
                       values:
-                        - argo-workflow-controller
+                        - argo-workflows-workflow-controller
                 topologyKey: kubernetes.io/hostname
       containerRuntimeExecutor: pns
       image:
@@ -56,10 +56,10 @@ spec:
               podAffinityTerm:
                 labelSelector:
                   matchExpressions:
-                    - key: app
+                    - key: app.kubernetes.io/name
                       operator: In
                       values:
-                        - argo-server
+                        - argo-workflows-server
                 topologyKey: kubernetes.io/hostname
       extraArgs:
         - --auth-mode=server

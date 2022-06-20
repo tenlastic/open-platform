@@ -182,6 +182,20 @@ export const KubernetesDatabase = {
         releaseName: `${name}-mongodb`,
         values: {
           affinity: getAffinity(database, 'mongodb'),
+          arbiter: {
+            affinity: getAffinity(database, 'mongodb'),
+            podLabels: { ...labels, 'tenlastic.com/role': 'mongodb' },
+            resources: {
+              limits: {
+                cpu: '50m',
+                memory: '250Mi',
+              },
+              requests: {
+                cpu: '50m',
+                memory: '250Mi',
+              },
+            },
+          },
           architecture: 'replicaset',
           auth: { existingSecret: `${name}-mongodb` },
           image: {
@@ -248,6 +262,19 @@ export const KubernetesDatabase = {
             limits: { lameDuckDuration: '30s' },
             resources,
             terminationGracePeriodSeconds: 30,
+          },
+          natsbox: {
+            affinity: getAffinity(database, 'nats'),
+            resources: {
+              limits: {
+                cpu: '50m',
+                memory: '50Mi',
+              },
+              requests: {
+                cpu: '50m',
+                memory: '50Mi',
+              },
+            },
           },
           statefulSetPodLabels: { ...labels, 'tenlastic.com/role': 'nats' },
         },
