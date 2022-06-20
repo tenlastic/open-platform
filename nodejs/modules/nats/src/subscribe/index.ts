@@ -15,9 +15,13 @@ export async function subscribe(
     deliver_policy: nats.DeliverPolicy.New,
     deliver_subject: nats.createInbox(),
     durable_name: durable,
-    max_ack_pending: 10,
     ...options,
   };
+
+  if (consumerOptions.ack_policy !== nats.AckPolicy.None) {
+    consumerOptions.max_ack_pending = options.max_ack_pending || 10;
+  }
+
   const opts = nats.consumerOpts(consumerOptions);
   opts.queue(durable);
 
