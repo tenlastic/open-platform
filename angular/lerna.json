@@ -2,7 +2,10 @@
   "command": {
     "bootstrap": {
       "hoist": true,
-      "nohoist": ["**/electron*", "**/electron*/**"],
+      "nohoist": [
+        "**/electron*",
+        "**/electron*/**"
+      ],
       "strict": true
     },
     "publish": {
@@ -15,7 +18,10 @@
     }
   },
   "npmClient": "npm",
-  "packages": ["applications/*", "modules/*"],
+  "packages": [
+    "applications/*",
+    "modules/*"
+  ],
   "tagVersionPrefix": "angular-v",
-  "version": "0.0.297"
+  "version": "0.0.298"
 }
