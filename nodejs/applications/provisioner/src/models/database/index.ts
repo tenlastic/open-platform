@@ -537,16 +537,17 @@ async function setMongoPrimary(database: DatabaseDocument, namespace: string, pa
   const { version } = await primaryConnection.db.admin().serverInfo();
 
   // Update the configuration, bumping its version number
+  const delayKey = version.startsWith('5') ? 'secondaryDelaySecs' : 'slaveDelay';
   const service = `${name}-mongodb-headless`;
   config.members = [
     {
       _id: 0,
       arbiterOnly: false,
       buildIndexes: true,
+      [delayKey]: 0,
       hidden: false,
       host: `${primary.metadata.name}.${service}.${namespace}.svc.cluster.local:27017`,
       priority: 5,
-      [version.startsWith('5') ? 'secondaryDelaySecs' : 'slaveDelay']: 0,
       tags: {},
       votes: 1,
     },
