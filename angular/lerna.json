@@ -7,16 +7,15 @@
     },
     "publish": {
       "exact": true,
-      "message": "angular-v%v [skip ci]",
-      "tagVersionPrefix": "angular-v"
+      "message": "angular-v%v [skip ci]"
     },
     "version": {
       "exact": true,
-      "message": "angular-v%v [skip ci]",
-      "tagVersionPrefix": "angular-v"
+      "message": "angular-v%v [skip ci]"
     }
   },
   "npmClient": "npm",
   "packages": ["applications/*", "modules/*"],
+  "tagVersionPrefix": "angular-v",
   "version": "0.0.297"
 }
