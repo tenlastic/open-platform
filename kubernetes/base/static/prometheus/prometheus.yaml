@@ -48,3 +48,4 @@ spec:
       resources:
         requests:
           cpu: 50m
+          memory: 3Gi

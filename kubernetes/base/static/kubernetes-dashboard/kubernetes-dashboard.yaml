@@ -133,10 +133,11 @@ spec:
     protocolHttp: true
     rbac:
       create: false
-    replicaCount: 1
+    replicaCount: 3
     resources:
       requests:
-        cpu: 50m
+        cpu: 75m
+        memory: 50Mi
     serviceAccount:
       create: false
       name: kubernetes-dashboard

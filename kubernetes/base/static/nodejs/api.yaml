@@ -55,7 +55,8 @@ spec:
             - containerPort: 3000
           resources:
             requests:
-              cpu: 50m
+              cpu: 25m
+              memory: 75Mi
       serviceAccountName: api
 ---
 apiVersion: v1

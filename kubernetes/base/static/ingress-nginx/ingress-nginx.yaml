@@ -34,4 +34,5 @@ spec:
       replicaCount: 3
       resources:
         requests:
-          cpu: 50m
+          cpu: 25m
+          memory: 100Mi

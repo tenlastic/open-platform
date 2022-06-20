@@ -656,7 +656,8 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: 50m
+              cpu: 100m
+              memory: 100Mi
           volumeMounts:
             - name: config
               mountPath: /root/.kube

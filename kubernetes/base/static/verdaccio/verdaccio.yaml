@@ -68,7 +68,8 @@ spec:
             initialDelaySeconds: 5
           resources:
             requests:
-              cpu: 100m
+              cpu: 25m
+              memory: 75Mi
           securityContext:
             runAsUser: 10001
           volumeMounts:
