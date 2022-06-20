@@ -25,28 +25,30 @@ resource "google_container_cluster" "primary" {
   }
 }
 
-module "default_pool" {
+module "high_priority_pool" {
   source = "./modules/node-pool"
 
   cluster_name   = google_container_cluster.primary.name
+  disk_size_gb   = 50
   machine_type   = "n2d-standard-2"
-  max_node_count = 3
-  min_node_count = 1
+  max_node_count = 5
+  min_node_count = 0
+  name           = "high-priority-pool"
 
   labels = {
     "tenlastic.com/high-priority" = "true"
   }
 }
 
-module "preemptible_pool" {
+module "low_priority_pool" {
   source = "./modules/node-pool"
 
   cluster_name   = google_container_cluster.primary.name
   disk_size_gb   = 50
-  machine_type   = "e2-standard-4"
-  max_node_count = 7
-  min_node_count = 0
-  name           = "preemptible-pool"
+  machine_type   = "n2d-standard-4"
+  max_node_count = 10
+  min_node_count = 5
+  name           = "low-priority-pool"
   preemptible    = true
 
   labels = {

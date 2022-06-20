@@ -63,7 +63,9 @@ export const KubernetesGameServerSidecar = {
             {
               matchExpressions: [
                 {
-                  key: 'tenlastic.com/high-priority',
+                  key: gameServer.preemptible
+                    ? 'tenlastic.com/low-priority'
+                    : 'tenlastic.com/high-priority',
                   operator: 'Exists',
                 },
               ],

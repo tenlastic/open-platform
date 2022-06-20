@@ -62,7 +62,9 @@ export const KubernetesQueueSidecar = {
             {
               matchExpressions: [
                 {
-                  key: 'tenlastic.com/high-priority',
+                  key: queue.preemptible
+                    ? 'tenlastic.com/low-priority'
+                    : 'tenlastic.com/high-priority',
                   operator: 'Exists',
                 },
               ],
