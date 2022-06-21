@@ -8,8 +8,8 @@ metadata:
 spec:
   chart:
     git: git@github.com:tenlastic/open-platform
+    path: kubernetes/helm/argo-workflows/
     ref: master
-    path: /kubernetes/helm/argo-workflows/
   releaseName: argo-workflows
   values:
     controller:
