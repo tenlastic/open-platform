@@ -61,6 +61,10 @@ export const KubernetesDatabaseSidecar = {
       NamespaceRole.Databases,
       NamespaceRole.Namespaces,
     ]);
+    const labelSelectors = [
+      `tenlastic.com/app=${databaseName}`,
+      'tenlastic.com/role!=mongodb-arbiter',
+    ];
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...databaseLabels, 'tenlastic.com/role': 'sidecar' },
@@ -72,7 +76,7 @@ export const KubernetesDatabaseSidecar = {
         API_URL: 'http://api.static:3000',
         DATABASE_ENDPOINT: `http://api.static:3000/databases/${database._id}`,
         DATABASE_JSON: JSON.stringify(database),
-        DATABASE_POD_LABEL_SELECTOR: `tenlastic.com/app=${databaseName}`,
+        DATABASE_POD_LABEL_SELECTOR: labelSelectors.join(','),
         WSS_URL: 'ws://wss.static:3000',
       },
     });
