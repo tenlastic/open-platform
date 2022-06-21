@@ -184,7 +184,7 @@ export const KubernetesDatabase = {
           affinity: getAffinity(database, 'mongodb'),
           arbiter: {
             affinity: getAffinity(database, 'mongodb'),
-            podLabels: { ...labels, 'tenlastic.com/role': 'mongodb' },
+            podLabels: { ...labels, 'tenlastic.com/role': 'mongodb-arbiter' },
             resources: {
               limits: {
                 cpu: '50m',

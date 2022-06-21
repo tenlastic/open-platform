@@ -100,7 +100,7 @@ async function updateDatabase() {
     },
     [
       { current: 0, name: 'application', phase: 'Pending', total: replicas },
-      { current: 0, name: 'mongodb', phase: 'Pending', total: replicas + 1 },
+      { current: 0, name: 'mongodb', phase: 'Pending', total: replicas },
       { current: 0, name: 'nats', phase: 'Pending', total: replicas },
       { current: 0, name: 'sidecar', phase: 'Pending', total: 1 },
     ],
