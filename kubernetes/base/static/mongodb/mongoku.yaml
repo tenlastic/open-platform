@@ -44,10 +44,10 @@ spec:
                 name: mongoku
           livenessProbe:
             httpGet:
-              path: /servers
+              path: /api/servers/mongodb-0.mongodb-headless/databases
               port: 3100
             initialDelaySeconds: 30
-            periodSeconds: 30
+            periodSeconds: 10
           ports:
             - containerPort: 3100
           resources:

@@ -7,6 +7,7 @@ export interface ConnectionOptions {
 
 export async function connect(options: ConnectionOptions) {
   await mongoose.connect(options.connectionString, {
+    autoCreate: false,
     autoIndex: false,
     dbName: options.databaseName,
   });
@@ -16,6 +17,7 @@ export async function connect(options: ConnectionOptions) {
 
 export function createConnection(options: ConnectionOptions) {
   return mongoose.createConnection(options.connectionString, {
+    autoCreate: false,
     autoIndex: false,
     dbName: options.databaseName,
   });

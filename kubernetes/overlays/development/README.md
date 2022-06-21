@@ -23,6 +23,10 @@ Default Location per Platform:
 If you would like to modify the Open Platform's Javascript source code, run the following command:
 
 ```bash
+# Bind local directory to directory accessible within Docker containers.
+mkdir /mnt/wsl/open-platform/
+sudo mount --bind /open-platform/ /mnt/wsl/open-platform/
+
 # Set default namespace to "static".
 kubectl config set-context --current --namespace=static
 
