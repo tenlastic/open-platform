@@ -7,9 +7,9 @@ metadata:
   namespace: static
 spec:
   chart:
-    name: argo-workflows
-    repository: https://argoproj.github.io/argo-helm
-    version: 0.16.3
+    git: git@github.com:tenlastic/open-platform
+    ref: master
+    path: /kubernetes/helm/argo-workflows/
   releaseName: argo-workflows
   values:
     controller:
