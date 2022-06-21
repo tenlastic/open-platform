@@ -7,9 +7,10 @@ metadata:
   namespace: static
 spec:
   chart:
-    name: cert-manager
-    repository: https://charts.jetstack.io
-    version: 1.1.0
+    git: https://github.com/tenlastic/open-platform
+    path: kubernetes/helm/cert-manager/
+    ref: master
+    skipDepUpdate: true
   releaseName: cert-manager
   values:
     affinity:

@@ -5,9 +5,10 @@ metadata:
   namespace: static
 spec:
   chart:
-    name: flux
-    repository: https://charts.fluxcd.io
-    version: 1.6.0
+    git: https://github.com/tenlastic/open-platform
+    path: kubernetes/helm/flux/
+    ref: master
+    skipDepUpdate: true
   releaseName: flux
   values:
     affinity:

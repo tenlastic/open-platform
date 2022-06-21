@@ -7,9 +7,10 @@ metadata:
   namespace: static
 spec:
   chart:
-    name: mongodb
-    repository: https://charts.bitnami.com/bitnami
-    version: 11.1.10
+    git: https://github.com/tenlastic/open-platform
+    path: kubernetes/helm/mongodb/
+    ref: master
+    skipDepUpdate: true
   releaseName: mongodb
   values:
     affinity:

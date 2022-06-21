@@ -7,9 +7,10 @@ metadata:
   namespace: static
 spec:
   chart:
-    name: grafana
-    repository: https://grafana.github.io/helm-charts
-    version: 6.17.2
+    git: https://github.com/tenlastic/open-platform
+    path: kubernetes/helm/grafana/
+    ref: master
+    skipDepUpdate: true
   releaseName: grafana
   values:
     admin:

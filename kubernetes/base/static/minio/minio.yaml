@@ -7,9 +7,10 @@ metadata:
   namespace: static
 spec:
   chart:
-    name: minio
-    repository: https://helm.min.io
-    version: 8.0.9
+    git: https://github.com/tenlastic/open-platform
+    path: kubernetes/helm/minio/
+    ref: master
+    skipDepUpdate: true
   releaseName: minio
   values:
     affinity:

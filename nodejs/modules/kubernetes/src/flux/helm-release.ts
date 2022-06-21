@@ -10,6 +10,7 @@ export interface GitRepository {
   git: string;
   path: string;
   ref: string;
+  skipDepUpdate?: boolean;
 }
 
 export interface V1HelmRelease {

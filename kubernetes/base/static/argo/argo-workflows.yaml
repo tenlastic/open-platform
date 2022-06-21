@@ -10,6 +10,7 @@ spec:
     git: https://github.com/tenlastic/open-platform
     path: kubernetes/helm/argo-workflows/
     ref: master
+    skipDepUpdate: true
   releaseName: argo-workflows
   values:
     controller:

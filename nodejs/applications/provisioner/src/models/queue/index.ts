@@ -109,9 +109,10 @@ export const KubernetesQueue = {
       },
       spec: {
         chart: {
-          name: 'redis',
-          repository: 'https://charts.bitnami.com/bitnami',
-          version: '16.11.3',
+          git: 'https://github.com/tenlastic/open-platform',
+          path: 'kubernetes/helm/redis/',
+          ref: 'master',
+          skipDepUpdate: true,
         },
         releaseName: `${name}-redis`,
         values: {

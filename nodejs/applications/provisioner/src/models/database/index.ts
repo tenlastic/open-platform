@@ -175,9 +175,10 @@ export const KubernetesDatabase = {
       },
       spec: {
         chart: {
-          name: 'mongodb',
-          repository: 'https://charts.bitnami.com/bitnami',
-          version: '11.1.10',
+          git: 'https://github.com/tenlastic/open-platform',
+          path: 'kubernetes/helm/mongodb/',
+          ref: 'master',
+          skipDepUpdate: true,
         },
         releaseName: `${name}-mongodb`,
         values: {
@@ -226,9 +227,10 @@ export const KubernetesDatabase = {
       },
       spec: {
         chart: {
-          git: 'https://github.com/nats-io/k8s.git',
-          path: 'helm/charts/nats',
-          ref: 'd1beccca2b0b15f79c592be138b25cdc92ed7216',
+          git: 'https://github.com/tenlastic/open-platform',
+          path: 'kubernetes/helm/nats/',
+          ref: 'master',
+          skipDepUpdate: true,
         },
         releaseName: `${name}-nats`,
         values: {
