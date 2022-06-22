@@ -75,9 +75,7 @@ export const KubernetesQueue = {
       },
       spec: {
         egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
-        podSelector: {
-          matchLabels: { 'tenlastic.com/app': name, 'tenlastic.com/role': 'application' },
-        },
+        podSelector: { matchLabels: { 'tenlastic.com/app': name } },
         policyTypes: ['Egress'],
       },
     });
