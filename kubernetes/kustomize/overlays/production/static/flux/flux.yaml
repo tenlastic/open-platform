@@ -32,7 +32,7 @@ spec:
     helmOperator:
       create: false
     git:
-      path: kubernetes/overlays/production/
+      path: kubernetes/kustomize/overlays/production/
       readonly: true
       url: https://github.com/tenlastic/open-platform
     manifestGeneration: true
