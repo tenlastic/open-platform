@@ -1,3 +1,152 @@
+## 1.13.1 (2022-05-26)
+
+### Improvements
+
+ - Updated Flux to `1.25.2`
+   [fluxcd/flux#3615](https://github.com/fluxcd/flux/pull/3615)
+
+## 1.13.0 (2022-05-05)
+
+### Improvements
+
+ - Updated Flux to `1.25.1`
+   [fluxcd/flux#3607](https://github.com/fluxcd/flux/pull/3607)
+ - Add access to `--git-verify-signatures-mode`
+   [fluxcd/flux#3603](https://github.com/fluxcd/flux/pull/3603)
+
+## 1.12.0 (2022-03-30)
+
+### Improvements
+
+ - Updated Flux to `1.25.0`
+   [fluxcd/flux#3598](https://github.com/fluxcd/flux/pull/3598)
+
+## 1.11.4 (2021-12-08)
+
+### Improvements
+
+ - Updated Flux to `1.24.3`
+   [fluxcd/flux#3572](https://github.com/fluxcd/flux/pull/3572)
+
+## 1.11.3 (2021-11-02)
+
+### Improvements
+
+ - Updated Flux to `1.24.2`
+   [fluxcd/flux#3565](https://github.com/fluxcd/flux/pull/3565)
+ - Update Memcached to `1.6.12`
+   [fluxcd/flux#3566](https://github.com/fluxcd/flux/pull/3566)
+
+## 1.11.2 (2021-09-10)
+
+Single-tenant Flux users reported a regression that affected automated image
+updates in certain configurations from this chart fix, so it is reverted to
+preserve backwards compatibility.
+
+### Fixes
+
+ - Revert [#3482](https://github.com/fluxcd/flux/pull/3482) (undo chart-1.11.0)
+   [fluxcd/flux#3553](https://github.com/fluxcd/flux/pull/3553)
+
+## 1.11.1 (2021-09-09)
+
+### Improvements
+
+ - Updated Flux to `1.24.1`
+   [fluxcd/flux#3551](https://github.com/fluxcd/flux/pull/3551)
+
+## 1.11.0 (2021-08-20)
+
+### Fixes
+
+ - Always honor the allowedNamespaces setting (or absence), for use with
+   dynamically created namespaces
+   [fluxcd/flux#3482](https://github.com/fluxcd/flux/pull/3482)
+
+### Improvements
+
+ - Updated Flux to `1.24.0`
+   [fluxcd/flux#3539](https://github.com/fluxcd/flux/pull/3539)
+
+## 1.10.2 (2021-08-04)
+
+### Improvements
+
+ - Updated Flux to `1.23.2`
+   [fluxcd/flux#3521](https://github.com/fluxcd/flux/pull/3521)
+
+## 1.10.1 (2021-07-23)
+
+### Improvements
+
+ - Updated Flux to `1.23.1`
+   [fluxcd/flux#3509](https://github.com/fluxcd/flux/pull/3509)
+
+## 1.10.0 (2021-06-25)
+
+**Kubernetes Upgrade Required**: Kubernetes `<v1.16` are out of support.
+This release drops beta APIs and adds support for Kubernetes `>=v1.22.0`.
+
+### Improvements
+
+ - Updated Flux to `1.23.0`
+   [fluxcd/flux#3495](https://github.com/fluxcd/flux/pull/3495)
+ - update Role,ClusterRole,..Bindings to v1
+   [fluxcd/flux#3493](https://github.com/fluxcd/flux/pull/3493)
+
+## 1.9.0 (2021-04-23)
+
+### Improvements
+
+ - Updated Flux to `1.22.2`
+   [fluxcd/flux#3473](https://github.com/fluxcd/flux/pull/3473)
+ - Add support for headless service for Flux
+   [fluxcd/flux#3101](https://github.com/fluxcd/flux/pull/3101)
+ - Allow specifying k8s-default-namespace
+   [fluxcd/flux#3131](https://github.com/fluxcd/flux/pull/3131)
+ - Update nodeSelector from beta.kubernetes.io to kubernetes.io
+   [fluxcd/flux#3472](https://github.com/fluxcd/flux/pull/3472)
+
+## 1.8.0 (2021-04-01)
+
+### Improvements
+
+ - Updated Flux to `1.22.1`
+   [fluxcd/flux#3455](https://github.com/fluxcd/flux/pull/3455)
+ - Updated memcached to `1.6.9-alpine`
+   [fluxcd/flux#3459](https://github.com/fluxcd/flux/pull/3459)
+
+## 1.7.0 (2021-03-17)
+
+### Improvements
+
+ - Updated Flux to `1.22.0`
+   [fluxcd/flux#3447](https://github.com/fluxcd/flux/pull/3447)
+
+## 1.6.2 (2021-02-16)
+
+### Improvements
+
+ - Updated Flux to `1.21.2`
+   [fluxcd/flux#3421](https://github.com/fluxcd/flux/pull/3421)
+
+### Fixes
+
+ - Set Rollout strategy type: Recreate
+   [fluxcd/flux#3325](https://github.com/fluxcd/flux/pull/3325)
+
+## 1.6.1 (2021-02-04)
+
+### Improvements
+
+ - Updated Flux to `1.21.1`
+   [fluxcd/flux#3393](https://github.com/fluxcd/flux/pull/3393)
+
+### Fixes
+
+ - Sets namespace on memcached service
+   [fluxcd/flux#3346](https://github.com/fluxcd/flux/pull/3346)
+
 ## 1.6.0 (2020-11-20)
 
 ### Improvements

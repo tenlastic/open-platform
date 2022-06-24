@@ -14,6 +14,8 @@ spec:
     matchLabels:
       app: {{ template "flux.name" . }}
       release: {{ .Release.Name }}
+  strategy:
+    type: Recreate
   template:
     metadata:
       annotations:
@@ -196,6 +198,9 @@ spec:
           {{- if not .Values.clusterRole.create }}
           - --k8s-allow-namespace={{ join "," (append .Values.allowedNamespaces .Release.Namespace) }}
           {{- end}}
+          {{- if .Values.defaultNamespace }}
+          - --k8s-default-namespace={{ .Values.defaultNamespace }}
+          {{- end }}
           {{- if .Values.logFormat }}
           - --log-format={{ .Values.logFormat }}
           {{end}}
@@ -229,7 +234,11 @@ spec:
           {{- if .Values.git.signingKey }}
           - --git-signing-key={{ .Values.git.signingKey }}
           {{- end }}
+          {{- if .Values.git.verifySignaturesMode }}
+          - --git-verify-signatures-mode={{ .Values.git.verifySignaturesMode }}
+          {{ else }}
           - --git-verify-signatures={{ .Values.git.verifySignatures }}
+          {{ end }}
           - --git-set-author={{ .Values.git.setAuthor }}
           {{- if .Values.git.secret.enabled }}
           - --git-secret
@@ -313,7 +322,7 @@ spec:
 {{ toYaml .Values.dnsConfig | indent 8 }}
 {{- end }}
       nodeSelector:
-        beta.kubernetes.io/os: linux
+        kubernetes.io/os: linux
       {{- with .Values.nodeSelector }}
 {{ toYaml . | indent 8 }}
     {{- end }}

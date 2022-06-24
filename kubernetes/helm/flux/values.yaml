@@ -9,16 +9,21 @@ logFormat: fmt
 
 image:
   repository: docker.io/fluxcd/flux
-  tag: 1.21.0
+  tag: 1.25.2
   pullPolicy: IfNotPresent
   pullSecret:
 
 service:
   type: ClusterIP
+  createClusterIP: true
   port: 3030
 
 # Specifies which namespaces flux should have access to
 allowedNamespaces: []
+
+# Specifies which namespace flux should use for resources where a namespace is not
+# specified. If none is provided here, the default namespace in kubeconfig is used.
+defaultNamespace: ""
 
 rbac:
   # Specifies whether RBAC resources should be created
@@ -111,8 +116,10 @@ git:
   email: "support@weave.works"
   # If set, commits will be signed with this GPG key.
   signingKey: ""
-  # If set, the signatures of the sync tag and commits will be verified.
+  # If set, the signatures of the sync tag and commits will be verified (deprecated)
   verifySignatures: false
+  # If set, takes precendence over verifySignatures and sets which strategy to use for signature verification (one of "all", "none", "first-parent")
+  verifySignaturesMode: ""
   # If set, the author of git commits will reflect the user who initiated the commit and will differ from the git committer.
   setAuthor: false
   # Label to keep track of sync progress
@@ -203,7 +210,7 @@ memcached:
   enabled: true
   hostnameOverride:
   repository: memcached
-  tag: 1.5.20
+  tag: 1.6.12-alpine
   pullSecret:
   createClusterIP: true
   verbose: false
