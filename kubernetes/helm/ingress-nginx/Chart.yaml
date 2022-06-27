@@ -9,22 +9,24 @@ annotations:
     - "[8624](https://github.com/kubernetes/ingress-nginx/pull/8624) Add patch to remove root and alias directives"
     - "[8623](https://github.com/kubernetes/ingress-nginx/pull/8623) Improve path rule"
   artifacthub.io/prerelease: "false"
+  repository: https://kubernetes.github.io/ingress-nginx
 apiVersion: v2
 appVersion: 1.2.1
-description: Ingress controller for Kubernetes using NGINX as a reverse proxy and
+description:
+  Ingress controller for Kubernetes using NGINX as a reverse proxy and
   load balancer
 home: https://github.com/kubernetes/ingress-nginx
 icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
 keywords:
-- ingress
-- nginx
-kubeVersion: '>=1.19.0-0'
+  - ingress
+  - nginx
+kubeVersion: ">=1.19.0-0"
 maintainers:
-- name: rikatz
-- name: strongjz
-- name: tao12345666333
+  - name: rikatz
+  - name: strongjz
+  - name: tao12345666333
 name: ingress-nginx
 sources:
-- https://github.com/kubernetes/ingress-nginx
+  - https://github.com/kubernetes/ingress-nginx
 type: application
 version: 4.1.4
