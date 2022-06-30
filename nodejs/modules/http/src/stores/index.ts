@@ -8,6 +8,7 @@ export * from './game';
 export * from './game-server-log';
 export * from './game-server';
 export * from './group';
+export * from './module';
 export * from './namespace';
 export * from './queue-log';
 export * from './queue-member';

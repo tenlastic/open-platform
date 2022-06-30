@@ -2,6 +2,7 @@ export * from './base';
 
 export * from './article';
 export * from './build-log';
+export * from './build-module';
 export * from './build';
 export * from './collection';
 export * from './database-log';
@@ -15,6 +16,7 @@ export * from './group-invitation';
 export * from './group';
 export * from './ignoration';
 export * from './message';
+export * from './module';
 export * from './namespace';
 export * from './queue-log';
 export * from './queue-member';

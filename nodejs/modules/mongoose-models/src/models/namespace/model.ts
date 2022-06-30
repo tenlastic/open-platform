@@ -47,6 +47,7 @@ export enum NamespaceRole {
   Databases = 'databases',
   GameServers = 'game-servers',
   Games = 'games',
+  Modules = 'modules',
   Namespaces = 'namespaces',
   Queues = 'queues',
   Workflows = 'workflows',

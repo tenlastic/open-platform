@@ -1,7 +1,7 @@
 import * as request from 'request';
 import * as requestPromiseNative from 'request-promise-native';
 
-import { getAccessToken } from '../tokens';
+import { getAccessToken } from './tokens';
 
 export async function promise(url: string, options?: requestPromiseNative.RequestPromiseOptions) {
   const headers = await getHeaders(url, options);

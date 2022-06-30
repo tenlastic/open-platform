@@ -28,6 +28,7 @@ export enum UserRole {
   GameServers = 'game-servers',
   Games = 'games',
   Namespaces = 'namespaces',
+  Modules = 'modules',
   Queues = 'queues',
   Users = 'users',
   Workflows = 'workflows',

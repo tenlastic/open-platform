@@ -22,6 +22,7 @@ import { router as groupInvitationsRouter } from './handlers/group-invitations';
 import { router as ignorationsRouter } from './handlers/ignorations';
 import { router as loginsRouter } from './handlers/logins';
 import { router as messagesRouter } from './handlers/messages';
+import { router as modulesRouter } from './handlers/modules';
 import { router as namespacesRouter } from './handlers/namespaces';
 import { router as passwordResetsRouter } from './handlers/password-resets';
 import { router as publicKeysRouter } from './handlers/public-keys';
@@ -99,6 +100,7 @@ import { router as workflowsRouter } from './handlers/workflows';
     webServer.use(ignorationsRouter.routes());
     webServer.use(loginsRouter.routes());
     webServer.use(messagesRouter.routes());
+    webServer.use(modulesRouter.routes());
     webServer.use(namespacesRouter.routes());
     webServer.use(passwordResetsRouter.routes());
     webServer.use(publicKeysRouter.routes());
@@ -118,4 +120,4 @@ import { router as workflowsRouter } from './handlers/workflows';
   }
 })();
 
-process.on('unhandledRejection', err => console.error(JSON.stringify(err)));
+process.on('unhandledRejection', (err) => console.error(JSON.stringify(err)));

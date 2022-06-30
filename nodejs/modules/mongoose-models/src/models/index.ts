@@ -10,6 +10,7 @@ export * from './group';
 export * from './group-invitation';
 export * from './ignoration';
 export * from './message';
+export * from './module';
 export * from './namespace';
 export * from './password-reset';
 export * from './queue';
