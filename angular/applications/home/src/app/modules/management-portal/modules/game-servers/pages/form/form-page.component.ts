@@ -39,7 +39,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public builds: Build[];
   public get cpus() {
-    const limits = this.selectedNamespaceService.namespace.limits.gameServers;
+    const limits = this.selectedNamespaceService.namespace.limits;
     const limit = limits.cpu ? limits.cpu : Infinity;
     return limits.cpu ? IGameServer.Cpu.filter((r) => r.value <= limit) : IGameServer.Cpu;
   }
@@ -48,7 +48,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public form: FormGroup;
   public games: Game[];
   public get memories() {
-    const limits = this.selectedNamespaceService.namespace.limits.gameServers;
+    const limits = this.selectedNamespaceService.namespace.limits;
     const limit = limits.memory ? limits.memory : Infinity;
     return limits.memory ? IGameServer.Memory.filter((r) => r.value <= limit) : IGameServer.Memory;
   }

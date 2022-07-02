@@ -11,7 +11,6 @@ export * from './game-server-log';
 export * from './game-server';
 export * from './group';
 export * from './login';
-export * from './module';
 export * from './namespace';
 export * from './password-reset';
 export * from './queue-log';

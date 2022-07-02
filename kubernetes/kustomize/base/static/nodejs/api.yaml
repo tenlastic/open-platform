@@ -47,7 +47,7 @@ spec:
                 name: nodejs-environment-variables
           livenessProbe:
             httpGet:
-              path: /articles
+              path: /namespaces
               port: 3000
             initialDelaySeconds: 30
             periodSeconds: 30

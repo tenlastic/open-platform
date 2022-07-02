@@ -1,0 +1,22 @@
+paths:
+  /namespaces/{namespaceId}/games/{_id}/icon:
+    get:
+      summary: Download Icon Image
+      tags: [Games]
+      description: Returns a stream containing the icon image.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary

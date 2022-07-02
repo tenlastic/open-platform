@@ -144,48 +144,7 @@ export class GameServerSchema implements IOriginalDocument {
     memory: number,
     namespaceId: string | mongoose.Types.ObjectId,
     preemptible: boolean,
-  ) {
-    const namespace = await Namespace.findOne({ _id: namespaceId });
-    if (!namespace) {
-      throw new Error('Record not found.');
-    }
-
-    const limits = namespace.limits.gameServers;
-
-    // Preemptible.
-    if (limits.preemptible && preemptible === false) {
-      throw new NamespaceLimitError('gameServers.preemptible', limits.preemptible);
-    }
-
-    // Skip MongoDB query if no limits are set.
-    if (!limits.cpu && !limits.memory) {
-      return;
-    }
-
-    // Aggregate the sum of existing records.
-    const results = await GameServer.aggregate([
-      { $match: { _id: { $ne: _id }, namespaceId: namespace._id } },
-      {
-        $group: {
-          _id: null,
-          cpu: { $sum: '$cpu' },
-          memory: { $sum: '$memory' },
-        },
-      },
-    ]);
-
-    // CPU.
-    const cpuSum = results.length ? results[0].cpu : 0;
-    if (limits.cpu && cpuSum + cpu > limits.cpu) {
-      throw new NamespaceLimitError('gameServers.cpu', limits.cpu);
-    }
-
-    // Memory.
-    const memorySum = results.length ? results[0].memory : 0;
-    if (limits.memory && memorySum + memory > limits.memory) {
-      throw new NamespaceLimitError('gameServers.memory', limits.memory);
-    }
-  }
+  ) {}
 
   /**
    * Returns true if a restart is required on an update.

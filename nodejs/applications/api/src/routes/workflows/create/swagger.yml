@@ -1,0 +1,23 @@
+paths:
+  /namespaces/{namespaceId}/workflows:
+    post:
+      summary: Create
+      tags: [Workflows]
+      description: Creates a new record.
+      security:
+        - AccessToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Workflow'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Workflow'

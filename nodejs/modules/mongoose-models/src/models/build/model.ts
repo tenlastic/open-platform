@@ -19,11 +19,9 @@ import {
   IOriginalDocument,
   changeStreamPlugin,
 } from '../../change-stream';
-import { BuildModule, BuildModuleDiscriminatorValue } from '../../discriminators';
 import * as errors from '../../errors';
 import { namespaceValidator } from '../../validators';
 import { GameDocument, GameEvent } from '../game';
-import { ModuleEvent } from '../module';
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { WorkflowStatusSchema } from '../workflow';
 import { BuildFileSchema } from './file';
@@ -83,20 +81,6 @@ GameEvent.sync(async (payload) => {
   }
 });
 
-// Delete Builds if associated Build Module is deleted.
-ModuleEvent.sync(async (payload) => {
-  if (payload.fullDocument.type !== BuildModuleDiscriminatorValue) {
-    return;
-  }
-
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await Build.find({ namespaceId: payload.fullDocument.namespaceId });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
-  }
-});
-
 // Delete Builds if associated Namespace is deleted.
 NamespaceEvent.sync(async (payload) => {
   switch (payload.operationType) {
@@ -118,17 +102,6 @@ NamespaceEvent.sync(async (payload) => {
 @modelOptions({ schemaOptions: { collection: 'builds', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: BuildEvent })
 @plugin(errors.unique.plugin)
-@pre('validate', async function (this: BuildDocument) {
-  const buildModule = await BuildModule.findOne({ namespaceId: this.namespaceId });
-  if (!buildModule) {
-    this.invalidate(
-      'namespaceId',
-      'Build Module must be enabled within Namespace.',
-      undefined,
-      'BuildModule',
-    );
-  }
-})
 export class BuildSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

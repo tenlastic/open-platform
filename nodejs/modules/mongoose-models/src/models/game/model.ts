@@ -106,47 +106,7 @@ export class GameSchema {
     _id: string | mongoose.Types.ObjectId,
     access: GameAccess,
     namespaceId: string | mongoose.Types.ObjectId,
-  ) {
-    const namespace = await Namespace.findOne({ _id: namespaceId });
-    if (!namespace) {
-      throw new Error('Record not found.');
-    }
-
-    const limits = namespace.limits.games;
-    if (limits.count > 0 || limits.public >= 0) {
-      const results = await Game.aggregate([
-        { $match: { _id: { $ne: _id }, namespaceId: namespace._id } },
-        {
-          $group: {
-            _id: null,
-            count: { $sum: 1 },
-            public: {
-              $sum: {
-                $cond: {
-                  else: 0,
-                  if: { $ne: ['$access', GameAccess.Private] },
-                  then: 1,
-                },
-              },
-            },
-          },
-        },
-      ]);
-
-      // Count.
-      const countSum = results.length > 0 ? results[0].count : 0;
-      if (limits.count > 0 && countSum >= limits.count) {
-        throw new NamespaceLimitError('games.count', limits.count);
-      }
-
-      // Public.
-      const isPublic = [GameAccess.PrivatePublic, GameAccess.Public].includes(access);
-      const publicSum = results.length > 0 ? results[0].public : 0;
-      if (isPublic && publicSum + 1 > limits.public) {
-        throw new NamespaceLimitError('games.public', limits.public);
-      }
-    }
-  }
+  ) {}
 
   /**
    * Get the path for the property within Minio.

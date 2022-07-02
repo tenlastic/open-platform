@@ -120,43 +120,10 @@ export class NamespacesJsonPageComponent implements OnInit {
     this.data ??= new Namespace({
       keys: [],
       limits: {
-        builds: {
-          count: 0,
-          size: 0,
-        },
-        databases: {
-          cpu: 0,
-          memory: 0,
-          preemptible: false,
-          replicas: 0,
-          storage: 0,
-        },
-        gameServers: {
-          cpu: 0,
-          memory: 0,
-          preemptible: false,
-        },
-        games: {
-          count: 0,
-          images: 0,
-          public: 0,
-          size: 0,
-          videos: 0,
-        },
-        queues: {
-          cpu: 0,
-          memory: 0,
-          preemptible: false,
-          replicas: 0,
-        },
-        workflows: {
-          count: 0,
-          cpu: 0,
-          memory: 0,
-          parallelism: 0,
-          preemptible: false,
-          storage: 0,
-        },
+        cpu: 1,
+        memory: 4 * 1000 * 1000 * 1000,
+        preemptible: true,
+        storage: 10 * 1000 * 1000 * 1000,
       },
       name: '',
       users: [{ _id: this.identityService.user._id, roles: [INamespace.Role.Namespaces] }],

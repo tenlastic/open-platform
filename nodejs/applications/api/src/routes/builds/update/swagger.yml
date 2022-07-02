@@ -1,0 +1,29 @@
+paths:
+  /namespaces/{namespaceId}/builds/{_id}:
+    put:
+      summary: Update
+      tags: [Builds]
+      description: Updates an existing record.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Build'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Build'

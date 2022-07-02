@@ -1,0 +1,24 @@
+components:
+  schemas:
+    NamespaceResources:
+      type: object
+      properties:
+        minio:
+          $ref: '#/components/schemas/NamespaceStatefulSet'
+        mongodb:
+          $ref: '#/components/schemas/NamespaceStatefulSet'
+        nats:
+          $ref: '#/components/schemas/NamespaceStatefulSet'
+    NamespaceStatefulSet:
+      type: object
+      properties:
+        cpu:
+          type: integer
+        memory:
+          type: integer
+        preemptible:
+          type: boolean
+        replicas:
+          type: integer
+        storage:
+          type: integer

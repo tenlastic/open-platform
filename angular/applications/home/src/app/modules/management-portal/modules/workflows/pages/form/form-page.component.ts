@@ -30,33 +30,29 @@ interface StatusNode {
 export class WorkflowsFormPageComponent implements OnInit {
   public $data: Observable<Workflow>;
   public get cpus() {
-    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limits = this.selectedNamespaceService.namespace.limits;
     const limit = limits.cpu ? limits.cpu : Infinity;
-    return limits.cpu ? IWorkflow.Cpu.filter(r => r.value <= limit) : IWorkflow.Cpu;
+    return limits.cpu ? IWorkflow.Cpu.filter((r) => r.value <= limit) : IWorkflow.Cpu;
   }
   public data: Workflow;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
   public errors: string[] = [];
   public form: FormGroup;
   public get memories() {
-    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limits = this.selectedNamespaceService.namespace.limits;
     const limit = limits.memory ? limits.memory : Infinity;
-    return limits.memory ? IWorkflow.Memory.filter(r => r.value <= limit) : IWorkflow.Memory;
+    return limits.memory ? IWorkflow.Memory.filter((r) => r.value <= limit) : IWorkflow.Memory;
   }
   public get parallelisms() {
-    const limits = this.selectedNamespaceService.namespace.limits.workflows;
-    const limit = limits.parallelism ? limits.parallelism : Infinity;
-    return limits.parallelism
-      ? IWorkflow.Parallelisms.filter(r => r.value <= limit)
-      : IWorkflow.Parallelisms;
+    return IWorkflow.Parallelisms;
   }
   public readonly separatorKeysCodes: number[] = [ENTER];
   public get storages() {
-    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limits = this.selectedNamespaceService.namespace.limits;
     const limit = limits.storage ? limits.storage : Infinity;
-    return limits.storage ? IWorkflow.Storage.filter(r => r.value <= limit) : IWorkflow.Storage;
+    return limits.storage ? IWorkflow.Storage.filter((r) => r.value <= limit) : IWorkflow.Storage;
   }
-  public treeControl = new NestedTreeControl<StatusNode>(node => node.children);
+  public treeControl = new NestedTreeControl<StatusNode>((node) => node.children);
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -70,7 +66,7 @@ export class WorkflowsFormPageComponent implements OnInit {
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
       const _id = params.get('_id');
       if (_id !== 'new') {
         this.data = await this.workflowService.findOne(_id);
@@ -128,8 +124,8 @@ export class WorkflowsFormPageComponent implements OnInit {
 
       return task;
     });
-    const templates = raw.templates.map(t => {
-      const sidecars = t.sidecars.map(s => {
+    const templates = raw.templates.map((t) => {
+      const sidecars = t.sidecars.map((s) => {
         const sidecar: IWorkflow.Sidecar = {
           env: s.env,
           image: s.image,
@@ -221,7 +217,7 @@ export class WorkflowsFormPageComponent implements OnInit {
     });
 
     // Only allow alphanumeric characters and dashes.
-    group.valueChanges.subscribe(value => {
+    group.valueChanges.subscribe((value) => {
       const name = value.name.replace(/[^A-Za-z0-9\-]/g, '');
       group.get('name').setValue(name, { emitEvent: false });
     });
@@ -274,8 +270,8 @@ export class WorkflowsFormPageComponent implements OnInit {
     }
 
     this.data.spec.templates
-      .filter(t => t.script)
-      .forEach(t => {
+      .filter((t) => t.script)
+      .forEach((t) => {
         const template = this.formBuilder.group({
           name: [t.name, Validators.required],
           script: this.formBuilder.group({
@@ -295,10 +291,10 @@ export class WorkflowsFormPageComponent implements OnInit {
   }
 
   private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map(e => {
+    this.errors = err.error.errors.map((e) => {
       if (e.name === 'UniqueError') {
         const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map(p => pathMap[p]);
+        const paths = e.paths.map((p) => pathMap[p]);
         return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
       } else {
         return e.message;
@@ -323,8 +319,8 @@ export class WorkflowsFormPageComponent implements OnInit {
     if (this.data._id) {
       this.form.disable({ emitEvent: false });
 
-      this.$data = this.workflowQuery.selectAll({ filterBy: w => w._id === this.data._id }).pipe(
-        map(workflows => {
+      this.$data = this.workflowQuery.selectAll({ filterBy: (w) => w._id === this.data._id }).pipe(
+        map((workflows) => {
           const workflow = new Workflow(workflows[0]);
           workflow.status = workflow.status || { nodes: [], phase: 'Pending' };
           this.dataSource.data = workflow.getNestedStatusNodes();

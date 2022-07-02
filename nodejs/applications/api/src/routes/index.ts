@@ -1,0 +1,53 @@
+import * as Router from 'koa-router';
+
+import articleRoutes from './articles';
+import buildRoutes from './builds';
+import collectionRoutes from './collections';
+import databaseRoutes from './databases';
+import friendRoutes from './friends';
+import gameAuthorizationRoutes from './game-authorizations';
+import gameServerRoutes from './game-servers';
+import gameRoutes from './games';
+import groupRoutes from './groups';
+import groupInvitationRoutes from './group-invitations';
+import ignorationRoutes from './ignorations';
+import loginRoutes from './logins';
+import messageRoutes from './messages';
+import namespaceRoutes from './namespaces';
+import passwordResetRoutes from './password-resets';
+import publicKeyRoutes from './public-keys';
+import queueRoutes from './queues';
+import queueMemberRoutes from './queue-members';
+import recordRoutes from './records';
+import refreshTokenRoutes from './refresh-tokens';
+import userRoutes from './users';
+import webSocketRoutes from './web-sockets';
+import workflowRoutes from './workflows';
+
+const router = new Router();
+
+router.use(articleRoutes);
+router.use(buildRoutes);
+router.use(collectionRoutes);
+router.use(databaseRoutes);
+router.use(friendRoutes);
+router.use(gameAuthorizationRoutes);
+router.use(gameServerRoutes);
+router.use(gameRoutes);
+router.use(groupRoutes);
+router.use(groupInvitationRoutes);
+router.use(ignorationRoutes);
+router.use(loginRoutes);
+router.use(messageRoutes);
+router.use(namespaceRoutes);
+router.use(passwordResetRoutes);
+router.use(publicKeyRoutes);
+router.use(queueRoutes);
+router.use(queueMemberRoutes);
+router.use(recordRoutes);
+router.use(refreshTokenRoutes);
+router.use(userRoutes);
+router.use(webSocketRoutes);
+router.use(workflowRoutes);
+
+export default router.routes();

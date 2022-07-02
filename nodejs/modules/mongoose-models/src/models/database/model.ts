@@ -13,7 +13,7 @@ import * as mongoose from 'mongoose';
 import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import { decrementalValidator, enumValidator, namespaceValidator } from '../../validators';
 import { GameDocument } from '../game';
-import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
+import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import {
   DatabaseStatusComponent,
   DatabaseStatusComponentName,
@@ -126,62 +126,7 @@ export class DatabaseSchema {
     preemptible: boolean,
     replicas: number,
     storage: number,
-  ) {
-    const namespace = await Namespace.findOne({ _id: namespaceId });
-    if (!namespace) {
-      throw new Error('Record not found.');
-    }
-
-    const limits = namespace.limits.databases;
-
-    // Preemptible.
-    if (limits.preemptible && preemptible === false) {
-      throw new NamespaceLimitError('databases.preemptible', limits.preemptible);
-    }
-
-    // Skip MongoDB query if no limits are set.
-    if (!limits.cpu && !limits.memory && !limits.replicas && !limits.storage) {
-      return;
-    }
-
-    // Aggregate the sum of existing records.
-    const results = await Database.aggregate([
-      { $match: { _id: { $ne: _id }, namespaceId: namespace._id } },
-      {
-        $group: {
-          _id: null,
-          cpu: { $sum: { $multiply: ['$cpu', '$replicas'] } },
-          memory: { $sum: { $multiply: ['$memory', '$replicas'] } },
-          replicas: { $sum: '$replicas' },
-          storage: { $sum: { $multiply: ['$storage', '$replicas'] } },
-        },
-      },
-    ]);
-
-    // CPU.
-    const cpuSum = results.length ? results[0].cpu : 0;
-    if (limits.cpu && cpuSum + cpu * replicas > limits.cpu) {
-      throw new NamespaceLimitError('databases.cpu', limits.cpu);
-    }
-
-    // Memory.
-    const memorySum = results.length ? results[0].memory : 0;
-    if (limits.memory && memorySum + memory * replicas > limits.memory) {
-      throw new NamespaceLimitError('databases.memory', limits.memory);
-    }
-
-    // Replicas.
-    const replicasSum = results.length ? results[0].replicas : 0;
-    if (limits.replicas && replicasSum + replicas > limits.replicas) {
-      throw new NamespaceLimitError('databases.replicas', limits.replicas);
-    }
-
-    // Storage.
-    const storageSum = results.length ? results[0].storage : 0;
-    if (limits.storage && storageSum + storage * replicas > limits.storage) {
-      throw new NamespaceLimitError('databases.storage', limits.storage);
-    }
-  }
+  ) {}
 
   /**
    * Returns true if a restart is required on an update.

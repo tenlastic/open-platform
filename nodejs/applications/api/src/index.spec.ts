@@ -6,7 +6,7 @@ import { URL } from 'url';
 
 let sandbox: sinon.SinonSandbox;
 
-before(async function() {
+before(async function () {
   const minioConnectionUrl = new URL(process.env.MINIO_CONNECTION_STRING);
   minio.connect({
     accessKey: minioConnectionUrl.username,
@@ -29,13 +29,13 @@ before(async function() {
   await mongooseModels.syncIndexes();
 });
 
-beforeEach(async function() {
+beforeEach(async function () {
   sandbox = sinon.createSandbox();
   mailgun.stub(sandbox);
 
   await mongooseModels.deleteAll();
 });
 
-afterEach(function() {
+afterEach(function () {
   sandbox.restore();
 });

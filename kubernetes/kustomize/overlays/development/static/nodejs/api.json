@@ -26,7 +26,7 @@
       "image": "node:14",
       "livenessProbe": {
         "httpGet": {
-          "path": "/articles",
+          "path": "/namespaces",
           "port": 3000
         },
         "initialDelaySeconds": 30,

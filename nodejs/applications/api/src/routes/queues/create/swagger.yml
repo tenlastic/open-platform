@@ -1,0 +1,23 @@
+paths:
+  /namespaces/{namespaceId}/queues:
+    post:
+      summary: Create
+      tags: [Queues]
+      description: Creates a new record.
+      security:
+        - AccessToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Queue'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Queue'

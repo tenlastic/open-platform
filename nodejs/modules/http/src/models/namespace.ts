@@ -12,33 +12,6 @@ export namespace INamespace {
     Workflows = 'workflows',
   }
 
-  export interface BuildLimits {
-    count: number;
-    size: number;
-  }
-
-  export interface DatabaseLimits {
-    cpu: number;
-    memory: number;
-    preemptible: boolean;
-    replicas: number;
-    storage: number;
-  }
-
-  export interface GameLimits {
-    count: number;
-    images: number;
-    public: number;
-    size: number;
-    videos: number;
-  }
-
-  export interface GameServerLimits {
-    cpu: number;
-    memory: number;
-    preemptible: boolean;
-  }
-
   export interface Key {
     description: string;
     roles: string[];
@@ -46,33 +19,48 @@ export namespace INamespace {
   }
 
   export interface Limits {
-    builds: BuildLimits;
-    databases: DatabaseLimits;
-    gameServers: GameServerLimits;
-    games: GameLimits;
-    queues: QueueLimits;
-    workflows: WorkflowLimits;
+    cpu: number;
+    memory: number;
+    preemptible: boolean;
+    storage: number;
   }
 
-  export interface QueueLimits {
+  export interface Resource {
     cpu: number;
     memory: number;
     preemptible: boolean;
     replicas: number;
+    storage: number;
+  }
+
+  export interface Resources {
+    minio: Resource;
+    mongodb: Resource;
+    nats: Resource;
+  }
+
+  export interface Status {
+    components?: StatusComponent[];
+    nodes?: StatusNode[];
+    phase: string;
+    version?: string;
+  }
+
+  export interface StatusComponent {
+    name: string;
+    phase: string;
+    replicas: { current: number; total: number };
+  }
+
+  export interface StatusNode {
+    _id: string;
+    displayName: string;
+    phase: string;
   }
 
   export interface User {
     _id: string;
     roles: string[];
-  }
-
-  export interface WorkflowLimits {
-    count: number;
-    cpu: number;
-    memory: number;
-    parallelism: number;
-    preemptible: boolean;
-    storage: number;
   }
 }
 
@@ -80,6 +68,8 @@ export class NamespaceModel extends BaseModel {
   public keys: INamespace.Key[];
   public limits: INamespace.Limits;
   public name: string;
+  public resources: INamespace.Resources;
+  public status: INamespace.Status;
   public users: INamespace.User[];
 
   constructor(parameters: Partial<NamespaceModel> = {}) {

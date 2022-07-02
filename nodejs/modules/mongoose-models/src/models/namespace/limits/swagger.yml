@@ -3,76 +3,11 @@ components:
     NamespaceLimits:
       type: object
       properties:
-        builds:
-          type: object
-          properties:
-            count:
-              type: integer
-            size:
-              type: integer
-        databases:
-          type: object
-          properties:
-            cpu:
-              type: integer
-            memory:
-              type: integer
-            preemptible:
-              type: boolean
-            replicas:
-              type: number
-            storage:
-              type: number
-        gameServers:
-          type: object
-          properties:
-            cpu:
-              type: integer
-            memory:
-              type: integer
-            preemptible:
-              type: boolean
-        games:
-          type: object
-          properties:
-            count:
-              type: integer
-            images:
-              type: integer
-            size:
-              type: integer
-            videos:
-              type: integer
-        queues:
-          type: object
-          properties:
-            cpu:
-              type: integer
-            memory:
-              type: integer
-            preemptible:
-              type: boolean
-            replicas:
-              type: integer
-        workflows:
-          type: object
-          properties:
-            count:
-              type: integer
-            cpu:
-              type: integer
-            memory:
-              type: integer
-            parallelism:
-              type: integer
-            preemptible:
-              type: boolean
-            storage:
-              type: integer
-      required:
-        - builds
-        - databases
-        - gameServers
-        - games
-        - queues
-        - workflows
+        cpu:
+          type: integer
+        memory:
+          type: integer
+        preemptible:
+          type: boolean
+        storage:
+          type: integer

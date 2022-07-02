@@ -43,7 +43,7 @@ export const NamespacePermissionsHelpers = {
 
 export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(Namespace, {
   create: {
-    'user-administrator': ['keys.*', 'limits.*', 'name', 'users.*'],
+    'user-administrator': ['keys.*', 'limits.*', 'name', 'resources.*', 'users.*'],
   },
   delete: {
     default: false,
@@ -52,6 +52,8 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
   find: {
     default: {
       $or: [
+        NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Queues),
+        NamespacePermissionsHelpers.getNamespaceUserFindQuery(NamespaceRole.Queues),
         { 'keys.value': { $ref: 'key' } },
         { 'users._id': { $ref: 'user._id' } },
         {
@@ -71,7 +73,11 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
       'createdAt',
       'keys.*',
       'limits.*',
+      'logs',
       'name',
+      'resources.*',
+      'restartedAt',
+      'status.*',
       'updatedAt',
       'users.*',
     ],
@@ -81,7 +87,11 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
       'createdAt',
       'keys.*',
       'limits.*',
+      'logs',
       'name',
+      'resources.*',
+      'restartedAt',
+      'status.*',
       'updatedAt',
       'users.*',
     ],
@@ -90,7 +100,11 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
       'createdAt',
       'keys.*',
       'limits.*',
+      'logs',
       'name',
+      'resources.*',
+      'restartedAt',
+      'status.*',
       'updatedAt',
       'users.*',
     ],
@@ -122,7 +136,8 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     },
   ],
   update: {
-    'namespace-administrator': ['keys.*', 'name', 'users.*'],
-    'user-administrator': ['keys.*', 'limits.*', 'name', 'users.*'],
+    'namespace-administrator': ['keys.*', 'name', 'resources.*', 'restartedAt', 'users.*'],
+    'system-administrator': ['status.*'],
+    'user-administrator': ['keys.*', 'limits.*', 'name', 'resources.*', 'restartedAt', 'users.*'],
   },
 });

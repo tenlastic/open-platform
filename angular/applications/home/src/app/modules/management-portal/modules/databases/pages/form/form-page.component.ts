@@ -26,7 +26,7 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
     sidecar: 'Sidecar',
   };
   public get cpus() {
-    const limits = this.selectedNamespaceService.namespace.limits.databases;
+    const limits = this.selectedNamespaceService.namespace?.limits;
     const limit = limits.cpu ? limits.cpu : Infinity;
     return limits.cpu ? IDatabase.Cpu.filter((r) => r.value <= limit) : IDatabase.Cpu;
   }
@@ -34,19 +34,15 @@ export class DatabasesFormPageComponent implements OnDestroy, OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public get memories() {
-    const limits = this.selectedNamespaceService.namespace.limits.databases;
+    const limits = this.selectedNamespaceService.namespace.limits;
     const limit = limits.memory ? limits.memory : Infinity;
     return limits.memory ? IDatabase.Memory.filter((r) => r.value <= limit) : IDatabase.Memory;
   }
   public get replicas() {
-    const limits = this.selectedNamespaceService.namespace.limits.databases;
-    const limit = limits.replicas ? limits.replicas : Infinity;
-    return limits.replicas
-      ? IDatabase.Replicas.filter((r) => r.value <= limit)
-      : IDatabase.Replicas;
+    return IDatabase.Replicas;
   }
   public get storages() {
-    const limits = this.selectedNamespaceService.namespace.limits.databases;
+    const limits = this.selectedNamespaceService.namespace.limits;
     const limit = limits.storage ? limits.storage : Infinity;
     return this.data && this.data.storage
       ? IDatabase.Storage.filter((r) => r.value <= limit && r.value >= this.data.storage)

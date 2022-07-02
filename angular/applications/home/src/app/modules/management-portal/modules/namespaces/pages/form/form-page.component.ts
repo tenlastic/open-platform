@@ -4,7 +4,8 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { INamespace, Namespace, NamespaceService, UserService } from '@tenlastic/ng-http';
+import { INamespace, Namespace, NamespaceQuery, NamespaceService, UserService } from '@tenlastic/ng-http';
+import { Observable } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
 import {
@@ -17,7 +18,19 @@ import {
   styleUrls: ['./form-page.component.scss'],
 })
 export class NamespacesFormPageComponent implements OnInit {
+  public $namespace: Observable<Namespace>;
   public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
+  public components = {
+    api: 'API',
+    'docker-registry': 'Docker Registry',
+    minio: 'Minio',
+    mongodb: 'MongoDB',
+    nats: 'NATS',
+    provisioner: 'Provisioner',
+    sidecar: 'Sidecar',
+    'workflow-controller': 'Workflow Controller',
+    wss: 'Web Socket Server',
+  };
   public data: Namespace;
   public errors: string[] = [];
   public form: FormGroup;
@@ -35,6 +48,7 @@ export class NamespacesFormPageComponent implements OnInit {
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
     private router: Router,
     private snackBar: MatSnackBar,
@@ -51,6 +65,7 @@ export class NamespacesFormPageComponent implements OnInit {
       ];
 
       if (_id !== 'new') {
+        this.$namespace = this.namespaceQuery.selectEntity(_id);
         this.data = await this.namespaceService.findOne(_id);
       }
 
@@ -110,6 +125,11 @@ export class NamespacesFormPageComponent implements OnInit {
     });
   }
 
+  public getStatus(component: INamespace.StatusComponent) {
+    const { current, total } = component.replicas;
+    return `${component.phase} (${current} / ${total})`;
+  }
+
   public getUser() {
     return this.formBuilder.group({ roles: null, user: null });
   }
@@ -162,6 +182,7 @@ export class NamespacesFormPageComponent implements OnInit {
       keys,
       limits: this.form.get('limits').value,
       name: this.form.get('name').value,
+      resources: this.form.get('resources').value,
       users,
     };
 
@@ -220,199 +241,152 @@ export class NamespacesFormPageComponent implements OnInit {
       );
     }
 
-    const { limits } = this.data;
     this.form = this.formBuilder.group({
       keys: this.formBuilder.array(keys),
       limits: this.formBuilder.group({
-        builds: this.formBuilder.group({
-          count: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.builds && limits.builds.count) || 0,
-            },
-            Validators.required,
-          ],
-          size: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.builds && limits.builds.size) || 0,
-            },
-            Validators.required,
-          ],
-        }),
-        databases: this.formBuilder.group({
+        cpu: [
+          {
+            disabled: !this.identityService.user.roles.includes('namespaces'),
+            value: this.data?.limits?.cpu || 1,
+          },
+          Validators.required,
+        ],
+        memory: [
+          {
+            disabled: !this.identityService.user.roles.includes('namespaces'),
+            value: this.data?.limits?.memory || 4 * 1000 * 1000 * 1000,
+          },
+          Validators.required,
+        ],
+        preemptible: [
+          {
+            disabled: !this.identityService.user.roles.includes('namespaces'),
+            value: this.data.limits ? this.data.limits.preemptible : true,
+          },
+          Validators.required,
+        ],
+        storage: [
+          {
+            disabled: !this.identityService.user.roles.includes('namespaces'),
+            value: this.data?.limits?.storage || 10 * 1000 * 1000 * 1000,
+          },
+          Validators.required,
+        ],
+      }),
+      name: [this.data.name, Validators.required],
+      resources: this.formBuilder.group({
+        minio: this.formBuilder.group({
           cpu: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.databases && limits.databases.cpu) || 0,
+              value: this.data?.resources?.minio?.cpu || 0.1,
             },
             Validators.required,
           ],
           memory: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.databases && limits.databases.memory) || 0,
+              value: this.data?.resources?.minio?.memory || 250 * 1000 * 1000,
             },
             Validators.required,
           ],
           preemptible: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.databases && limits.databases.preemptible) || false,
+              value: this.data.resources?.minio ? this.data.resources.minio.preemptible : true,
             },
             Validators.required,
           ],
           replicas: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.databases && limits.databases.replicas) || 0,
+              value: this.data?.resources?.minio?.replicas || 1,
             },
             Validators.required,
           ],
           storage: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.databases && limits.databases.storage) || 0,
+              value: this.data?.resources?.minio?.storage || 5 * 1000 * 1000 * 1000,
             },
             Validators.required,
           ],
         }),
-        gameServers: this.formBuilder.group({
+        mongodb: this.formBuilder.group({
           cpu: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.gameServers && limits.gameServers.cpu) || 0,
+              value: this.data?.resources?.mongodb?.cpu || 0.1,
             },
             Validators.required,
           ],
           memory: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.gameServers && limits.gameServers.memory) || 0,
+              value: this.data?.resources?.mongodb?.memory || 250 * 1000 * 1000,
             },
             Validators.required,
           ],
           preemptible: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.gameServers && limits.gameServers.preemptible) || false,
-            },
-            Validators.required,
-          ],
-        }),
-        games: this.formBuilder.group({
-          count: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.games && limits.games.count) || 0,
-            },
-            Validators.required,
-          ],
-          images: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.games && limits.games.images) || 0,
-            },
-            Validators.required,
-          ],
-          public: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.games && limits.games.public) || 0,
-            },
-            Validators.required,
-          ],
-          size: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.games && limits.games.size) || 0,
-            },
-            Validators.required,
-          ],
-          videos: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.games && limits.games.videos) || 0,
-            },
-            Validators.required,
-          ],
-        }),
-        queues: this.formBuilder.group({
-          cpu: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.queues && limits.queues.cpu) || 0,
-            },
-            Validators.required,
-          ],
-          memory: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.queues && limits.queues.memory) || 0,
-            },
-            Validators.required,
-          ],
-          preemptible: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.queues && limits.queues.preemptible) || false,
+              value: this.data.resources?.mongodb ? this.data.resources.mongodb.preemptible : true,
             },
             Validators.required,
           ],
           replicas: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.queues && limits.queues.replicas) || 0,
-            },
-            Validators.required,
-          ],
-        }),
-        workflows: this.formBuilder.group({
-          count: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.workflows && limits.workflows.count) || 0,
-            },
-            Validators.required,
-          ],
-          cpu: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.workflows && limits.workflows.cpu) || 0,
-            },
-            Validators.required,
-          ],
-          memory: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.workflows && limits.workflows.memory) || 0,
-            },
-            Validators.required,
-          ],
-          parallelism: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.workflows && limits.workflows.parallelism) || 0,
-            },
-            Validators.required,
-          ],
-          preemptible: [
-            {
-              disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.workflows && limits.workflows.preemptible) || false,
+              value: this.data?.resources?.mongodb?.replicas || 1,
             },
             Validators.required,
           ],
           storage: [
             {
               disabled: !this.identityService.user.roles.includes('namespaces'),
-              value: (limits && limits.workflows && limits.workflows.storage) || 0,
+              value: this.data?.resources?.mongodb?.storage || 5 * 1000 * 1000 * 1000,
+            },
+            Validators.required,
+          ],
+        }),
+        nats: this.formBuilder.group({
+          cpu: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: this.data?.resources?.nats?.cpu || 0.1,
+            },
+            Validators.required,
+          ],
+          memory: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: this.data?.resources?.nats?.memory || 250 * 1000 * 1000,
+            },
+            Validators.required,
+          ],
+          preemptible: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: this.data.resources?.nats ? this.data.resources.nats.preemptible : true,
+            },
+            Validators.required,
+          ],
+          replicas: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: this.data?.resources?.nats?.replicas || 1,
+            },
+            Validators.required,
+          ],
+          storage: [
+            {
+              disabled: !this.identityService.user.roles.includes('namespaces'),
+              value: this.data?.resources?.nats?.storage || 5 * 1000 * 1000 * 1000,
             },
             Validators.required,
           ],
         }),
       }),
-      name: [this.data.name, Validators.required],
       users: this.formBuilder.array(users),
     });
 

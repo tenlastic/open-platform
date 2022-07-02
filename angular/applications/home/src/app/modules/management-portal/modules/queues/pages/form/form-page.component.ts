@@ -42,7 +42,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     sidecar: 'Sidecar',
   };
   public get cpus() {
-    const limits = this.selectedNamespaceService.namespace.limits.queues;
+    const limits = this.selectedNamespaceService.namespace.limits;
     const limit = limits.cpu ? limits.cpu : Infinity;
     return limits.cpu ? IQueue.Cpu.filter((r) => r.value <= limit) : IQueue.Cpu;
   }
@@ -50,25 +50,23 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public get gameServerCpus() {
-    const limits = this.selectedNamespaceService.namespace.limits.gameServers;
+    const limits = this.selectedNamespaceService.namespace.limits;
     const limit = limits.cpu ? limits.cpu : Infinity;
     return limits.cpu ? IGameServer.Cpu.filter((r) => r.value <= limit) : IGameServer.Cpu;
   }
   public get gameServerMemories() {
-    const limits = this.selectedNamespaceService.namespace.limits.gameServers;
+    const limits = this.selectedNamespaceService.namespace.limits;
     const limit = limits.memory ? limits.memory : Infinity;
     return limits.memory ? IGameServer.Memory.filter((r) => r.value <= limit) : IGameServer.Memory;
   }
   public games: Game[];
   public get memories() {
-    const limits = this.selectedNamespaceService.namespace.limits.queues;
+    const limits = this.selectedNamespaceService.namespace.limits;
     const limit = limits.memory ? limits.memory : Infinity;
     return limits.memory ? IQueue.Memory.filter((r) => r.value <= limit) : IQueue.Memory;
   }
   public get replicas() {
-    const limits = this.selectedNamespaceService.namespace.limits.queues;
-    const limit = limits.replicas ? limits.replicas : Infinity;
-    return limits.replicas ? IQueue.Replicas.filter((r) => r.value <= limit) : IQueue.Replicas;
+    return IQueue.Replicas;
   }
 
   private updateQueue$ = new Subscription();

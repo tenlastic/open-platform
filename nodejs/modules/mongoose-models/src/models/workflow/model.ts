@@ -83,39 +83,7 @@ export class WorkflowSchema {
     parallelism: number,
     preemptible: boolean,
     storage: number,
-  ) {
-    const namespace = await Namespace.findOne({ _id: namespaceId });
-    if (!namespace) {
-      throw new Error('Record not found.');
-    }
-
-    const limits = namespace.limits.workflows;
-
-    // CPU.
-    if (limits.cpu && cpu > limits.cpu) {
-      throw new NamespaceLimitError('workflows.cpu', limits.cpu);
-    }
-
-    // Memory.
-    if (limits.memory && memory > limits.memory) {
-      throw new NamespaceLimitError('workflows.memory', limits.memory);
-    }
-
-    // Parallelism.
-    if (limits.parallelism && parallelism > limits.parallelism) {
-      throw new NamespaceLimitError('workflows.parallelism', limits.parallelism);
-    }
-
-    // Preemptible.
-    if (limits.preemptible && preemptible === false) {
-      throw new NamespaceLimitError('workflows.preemptible', limits.preemptible);
-    }
-
-    // Storage.
-    if (limits.storage && storage > limits.storage) {
-      throw new NamespaceLimitError('workflows.storage', limits.storage);
-    }
-  }
+  ) {}
 }
 
 export type WorkflowDocument = DocumentType<WorkflowSchema>;

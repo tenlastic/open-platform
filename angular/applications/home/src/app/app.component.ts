@@ -24,6 +24,8 @@ import {
   LoginService,
   Message,
   MessageService,
+  Namespace,
+  NamespaceService,
   Queue,
   QueueMember,
   QueueMemberQuery,
@@ -70,6 +72,7 @@ export class AppComponent implements OnInit {
     private identityService: IdentityService,
     private loginService: LoginService,
     private messageService: MessageService,
+    private namespaceService: NamespaceService,
     private queueMemberQuery: QueueMemberQuery,
     private queueMemberService: QueueMemberService,
     private queueQuery: QueueQuery,
@@ -185,6 +188,7 @@ export class AppComponent implements OnInit {
     this.socket.subscribe('groups', Group, this.groupService);
     this.socket.subscribe('group-invitations', GroupInvitation, this.groupInvitationService);
     this.socket.subscribe('messages', Message, this.messageService);
+    this.socket.subscribe('namespaces', Namespace, this.namespaceService);
     this.socket.subscribe('queue-members', QueueMember, this.queueMemberService);
     this.socket.subscribe('queues', Queue, this.queueService);
     this.socket.subscribe('workflows', Workflow, this.workflowService);

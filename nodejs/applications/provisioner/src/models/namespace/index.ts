@@ -1,132 +1,126 @@
-import { configMapApiV1, deploymentApiV1 } from '@tenlastic/kubernetes';
+import { networkPolicyApiV1 } from '@tenlastic/kubernetes';
 import { NamespaceDocument } from '@tenlastic/mongoose-models';
 import { mongoose } from '@typegoose/typegoose';
+
+import { KubernetesApi } from './api';
+import { KubernetesMinio } from './minio';
+import { KubernetesMongodb } from './mongodb';
+import { KubernetesNats } from './nats';
+import { KubernetesProvisioner } from './provisioner';
+import { KubernetesSidecar } from './sidecar';
+import { KubernetesWorkflowController } from './workflow-controller';
+import { KubernetesWss } from './wss';
 
 export const KubernetesNamespace = {
   delete: async (namespace: NamespaceDocument) => {
     const name = KubernetesNamespace.getName(namespace._id);
 
     /**
+     * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    await networkPolicyApiV1.delete(name, 'dynamic');
+
+    /**
      * ========================
-     * ARGO WORKFLOW CONTROLLER
+     * INFRASTRUCTURE
      * ========================
      */
-    await configMapApiV1.delete(`${name}-argo-workflow-controller`, 'dynamic');
-    await deploymentApiV1.delete(`${name}-argo-workflow-controller`, 'dynamic');
+    await KubernetesMinio.delete(namespace);
+    await KubernetesMongodb.delete(namespace);
+    await KubernetesNats.delete(namespace);
+    await KubernetesWorkflowController.delete(namespace);
+
+    /**
+     * ========================
+     * APPLICATIONS
+     * ========================
+     */
+    await KubernetesApi.delete(namespace);
+    await KubernetesProvisioner.delete(namespace);
+    await KubernetesSidecar.delete(namespace);
+    await KubernetesWss.delete(namespace);
+  },
+  getAffinity: (namespace: NamespaceDocument, preemptible: boolean, role: string) => {
+    const name = KubernetesNamespace.getName(namespace._id);
+
+    return {
+      nodeAffinity: {
+        requiredDuringSchedulingIgnoredDuringExecution: {
+          nodeSelectorTerms: [
+            {
+              matchExpressions: [
+                {
+                  key: preemptible ? 'tenlastic.com/low-priority' : 'tenlastic.com/high-priority',
+                  operator: 'Exists',
+                },
+              ],
+            },
+          ],
+        },
+      },
+      podAntiAffinity: {
+        preferredDuringSchedulingIgnoredDuringExecution: [
+          {
+            podAffinityTerm: {
+              labelSelector: {
+                matchExpressions: [
+                  { key: 'tenlastic.com/app', operator: 'In', values: [name] },
+                  { key: 'tenlastic.com/role', operator: 'In', values: [role] },
+                ],
+              },
+              topologyKey: 'kubernetes.io/hostname',
+            },
+            weight: 1,
+          },
+        ],
+      },
+    };
+  },
+  getLabels: (namespace: NamespaceDocument) => {
+    const name = KubernetesNamespace.getName(namespace._id);
+    return { 'tenlastic.com/app': name, 'tenlastic.com/namespaceId': `${namespace._id}` };
   },
   getName: (_id: string | mongoose.Types.ObjectId) => {
     return `namespace-${_id}`;
   },
   upsert: async (namespace: NamespaceDocument) => {
+    const labels = KubernetesNamespace.getLabels(namespace);
     const name = KubernetesNamespace.getName(namespace._id);
 
     /**
+     * =======================
+     * NETWORK POLICY
+     * =======================
+     */
+    await networkPolicyApiV1.createOrReplace('dynamic', {
+      metadata: { labels: { ...labels }, name },
+      spec: {
+        egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
+        podSelector: { matchLabels: { 'tenlastic.com/app': name } },
+        policyTypes: ['Egress'],
+      },
+    });
+
+    /**
      * ========================
-     * ARGO WORKFLOW CONTROLLER
+     * INFRASTRUCTURE
      * ========================
      */
-    const configMap = [
-      'containerRuntimeExecutor: k8sapi',
-      `instanceID: ${name}`,
-      `parallelism: ${namespace.limits.workflows.count}`,
-    ];
-    await configMapApiV1.createOrReplace('dynamic', {
-      data: { config: configMap.join('\n') },
-      metadata: {
-        labels: {
-          'tenlastic.com/app': `${name}-argo-workflow-controller`,
-          'tenlastic.com/namespaceId': `${namespace._id}`,
-        },
-        name: `${name}-argo-workflow-controller`,
-      },
-    });
-    await deploymentApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: {
-          'tenlastic.com/app': `${name}-argo-workflow-controller`,
-          'tenlastic.com/namespaceId': `${namespace._id}`,
-        },
-        name: `${name}-argo-workflow-controller`,
-      },
-      spec: {
-        replicas: 1,
-        selector: {
-          matchLabels: {
-            'tenlastic.com/app': `${name}-argo-workflow-controller`,
-            'tenlastic.com/namespaceId': `${namespace._id}`,
-          },
-        },
-        template: {
-          metadata: {
-            labels: {
-              'tenlastic.com/app': `${name}-argo-workflow-controller`,
-              'tenlastic.com/namespaceId': `${namespace._id}`,
-            },
-          },
-          spec: {
-            affinity: {
-              nodeAffinity: {
-                requiredDuringSchedulingIgnoredDuringExecution: {
-                  nodeSelectorTerms: [
-                    {
-                      matchExpressions: [
-                        {
-                          key: 'tenlastic.com/low-priority',
-                          operator: 'Exists',
-                        },
-                      ],
-                    },
-                  ],
-                },
-              },
-            },
-            containers: [
-              {
-                args: [
-                  '--configmap',
-                  `${name}-argo-workflow-controller`,
-                  '--executor-image',
-                  'quay.io/argoproj/argoexec:v3.3.6',
-                  '--loglevel',
-                  'info',
-                  '--gloglevel',
-                  '0',
-                  '--namespaced',
-                ],
-                command: ['workflow-controller'],
-                env: [
-                  {
-                    name: 'ARGO_NAMESPACE',
-                    valueFrom: {
-                      fieldRef: {
-                        apiVersion: 'v1',
-                        fieldPath: 'metadata.namespace',
-                      },
-                    },
-                  },
-                  { name: 'LEADER_ELECTION_DISABLE', value: 'true' },
-                ],
-                image: 'quay.io/argoproj/workflow-controller:v3.3.6',
-                livenessProbe: {
-                  httpGet: { path: '/metrics', port: 'metrics' as any },
-                  initialDelaySeconds: 30,
-                  periodSeconds: 30,
-                },
-                name: 'controller',
-                ports: [{ name: 'metrics', containerPort: 9090 }],
-                resources: { requests: { cpu: '50m' } },
-                securityContext: {
-                  allowPrivilegeEscalation: false,
-                  capabilities: { drop: ['ALL'] },
-                  readOnlyRootFilesystem: true,
-                  runAsNonRoot: true,
-                },
-              },
-            ],
-            serviceAccountName: 'argo',
-          },
-        },
-      },
-    });
+    await KubernetesMinio.upsert(namespace);
+    await KubernetesMongodb.upsert(namespace);
+    await KubernetesNats.upsert(namespace);
+    await KubernetesWorkflowController.upsert(namespace);
+
+    /**
+     * ========================
+     * APPLICATIONS
+     * ========================
+     */
+    await KubernetesApi.upsert(namespace);
+    await KubernetesProvisioner.upsert(namespace);
+    await KubernetesSidecar.upsert(namespace);
+    await KubernetesWss.upsert(namespace);
   },
 };

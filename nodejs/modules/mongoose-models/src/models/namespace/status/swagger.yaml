@@ -1,0 +1,37 @@
+components:
+  schemas:
+    NamespaceStatus:
+      type: object
+      properties:
+        components:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              phase:
+                type: string
+                enum: [Error, Failed, Pending, Running, Succeeded]
+              replicas:
+                type: object
+                properties:
+                  current:
+                    type: integer
+                  total:
+                    type: integer
+        nodes:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+              phase:
+                type: string
+                enum: [Error, Failed, Pending, Running, Succeeded]
+        phase:
+          type: string
+          enum: [Error, Failed, Pending, Running, Succeeded]
+        version:
+          type: string

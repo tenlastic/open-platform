@@ -14,16 +14,9 @@ import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change
 import * as errors from '../../errors';
 import { UserDocument } from '../user';
 import { NamespaceKeySchema } from './key';
-import {
-  NamespaceBuildLimits,
-  NamespaceDatabaseLimits,
-  NamespaceGameLimits,
-  NamespaceGameServerLimits,
-  NamespaceLimits,
-  NamespaceLimitsSchema,
-  NamespaceQueueLimits,
-  NamespaceWorkflowLimits,
-} from './limits';
+import { NamespaceLimitsSchema } from './limits';
+import { Resources, ResourcesSchema } from './resources';
+import { StatusSchema } from './status';
 import { NamespaceUser, NamespaceUserDocument, NamespaceUserSchema } from './user';
 
 export class NamespaceLimitError extends Error {
@@ -47,7 +40,6 @@ export enum NamespaceRole {
   Databases = 'databases',
   GameServers = 'game-servers',
   Games = 'games',
-  Modules = 'modules',
   Namespaces = 'namespaces',
   Queues = 'queues',
   Workflows = 'workflows',
@@ -55,48 +47,36 @@ export enum NamespaceRole {
 
 @index(
   { 'keys.value': 1 },
-  {
-    partialFilterExpression: {
-      'keys.value': { $type: 'string' },
-    },
-    unique: true,
-  },
+  { partialFilterExpression: { 'keys.value': { $type: 'string' } }, unique: true },
 )
 @index({ name: 1 }, { unique: true })
 @index({ 'keys.roles': 1 })
 @index({ 'users._id': 1 })
 @index({ 'users.roles': 1 })
-@modelOptions({
-  schemaOptions: {
-    collection: 'namespaces',
-    minimize: false,
-    timestamps: true,
-  },
-})
+@modelOptions({ schemaOptions: { collection: 'namespaces', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: NamespaceEvent })
 @plugin(errors.unique.plugin)
 export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
-
   public createdAt: Date;
 
   @prop({ type: NamespaceKeySchema })
   public keys: NamespaceKeySchema[];
 
-  @prop({
-    default: new NamespaceLimits({
-      builds: new NamespaceBuildLimits(),
-      databases: new NamespaceDatabaseLimits(),
-      gameServers: new NamespaceGameServerLimits(),
-      games: new NamespaceGameLimits(),
-      queues: new NamespaceQueueLimits(),
-      workflows: new NamespaceWorkflowLimits(),
-    }),
-  })
+  @prop()
   public limits: NamespaceLimitsSchema;
 
   @prop({ required: true })
   public name: string;
+
+  @prop({ default: () => new Resources() })
+  public resources: ResourcesSchema;
+
+  @prop()
+  public restartedAt: Date;
+
+  @prop()
+  public status: StatusSchema;
 
   public updatedAt: Date;
 
@@ -128,10 +108,7 @@ export class NamespaceSchema {
     const copy = users ? users.concat() : [];
 
     if (copy.length === 0) {
-      const namespaceUser = new NamespaceUser({
-        _id: user._id,
-        roles: [NamespaceRole.Namespaces],
-      });
+      const namespaceUser = new NamespaceUser({ _id: user._id, roles: [NamespaceRole.Namespaces] });
       copy.push(namespaceUser);
 
       return copy;
@@ -145,14 +122,19 @@ export class NamespaceSchema {
     if (result) {
       result.roles.push(NamespaceRole.Namespaces);
     } else {
-      const namespaceUser = new NamespaceUser({
-        _id: user._id,
-        roles: [NamespaceRole.Namespaces],
-      });
+      const namespaceUser = new NamespaceUser({ _id: user._id, roles: [NamespaceRole.Namespaces] });
       copy.push(namespaceUser);
     }
 
     return copy;
+  }
+
+  /**
+   * Returns true if a restart is required on an update.
+   */
+  public static isRestartRequired(fields: string[]) {
+    const immutableFields = ['resources', 'restartedAt'];
+    return immutableFields.some((i) => fields.includes(i));
   }
 }
 

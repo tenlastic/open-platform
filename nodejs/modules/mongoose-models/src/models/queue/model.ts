@@ -15,7 +15,7 @@ import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change
 import { enumValidator, namespaceValidator } from '../../validators';
 import { BuildDocument } from '../build';
 import { GameDocument } from '../game';
-import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
+import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { GameServerTemplateSchema } from './game-server-template';
 import {
   QueueStatusComponent,
@@ -140,55 +140,7 @@ export class QueueSchema {
     namespaceId: string | mongoose.Types.ObjectId,
     preemptible: boolean,
     replicas: number,
-  ) {
-    const namespace = await Namespace.findOne({ _id: namespaceId });
-    if (!namespace) {
-      throw new Error('Record not found.');
-    }
-
-    const limits = namespace.limits.queues;
-
-    // Preemptible.
-    if (limits.preemptible && preemptible === false) {
-      throw new NamespaceLimitError('queues.preemptible', limits.preemptible);
-    }
-
-    // Skip MongoDB query if no limits are set.
-    if (!limits.cpu && !limits.memory && !limits.replicas) {
-      return;
-    }
-
-    // Aggregate the sum of existing records.
-    const results = await Queue.aggregate([
-      { $match: { _id: { $ne: _id }, namespaceId: namespace._id } },
-      {
-        $group: {
-          _id: null,
-          cpu: { $sum: { $multiply: ['$cpu', '$replicas'] } },
-          memory: { $sum: { $multiply: ['$memory', '$replicas'] } },
-          replicas: { $sum: '$replicas' },
-        },
-      },
-    ]);
-
-    // CPU.
-    const cpuSum = results.length ? results[0].cpu : 0;
-    if (limits.cpu && cpuSum + cpu * replicas > limits.cpu) {
-      throw new NamespaceLimitError('queues.cpu', limits.cpu);
-    }
-
-    // Memory.
-    const memorySum = results.length ? results[0].memory : 0;
-    if (limits.memory && memorySum + memory * replicas > limits.memory) {
-      throw new NamespaceLimitError('queues.memory', limits.memory);
-    }
-
-    // Replicas.
-    const replicasSum = results.length ? results[0].replicas : 0;
-    if (limits.replicas && replicasSum + replicas > limits.replicas) {
-      throw new NamespaceLimitError('queues.replicas', limits.replicas);
-    }
-  }
+  ) {}
 
   /**
    * Returns true if a restart is required on an update.

@@ -7,6 +7,7 @@ export interface LogsParameters {
   buildId?: string;
   databaseId?: string;
   gameServerId?: string;
+  namespaceId?: string;
   nodeId: string;
   queueId?: string;
   since?: Date;
