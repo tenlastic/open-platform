@@ -133,62 +133,6 @@
       </div>
 
       <div class="row"
-           formGroupName="databases">
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Database CPU</mat-label>
-          <input matInput
-                 required
-                 formControlName="cpu"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Database Memory (B)</mat-label>
-          <input matInput
-                 required
-                 formControlName="memory"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Only Preemptible Databases</mat-label>
-          <input *ngIf="form.get('limits').get('databases').get('preemptible').disabled"
-                 disabled
-                 matInput
-                 [value]="form.get('limits').get('databases').get('preemptible').value ? 'Yes' : 'No'" />
-          <mat-select *ngIf="!form.get('limits').get('databases').get('preemptible').disabled"
-                      formControlName="preemptible">
-            <mat-option [value]="true">Yes</mat-option>
-            <mat-option [value]="false">No</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Database Replicas</mat-label>
-          <input matInput
-                 required
-                 formControlName="replicas"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Database Storage (B)</mat-label>
-          <input matInput
-                 required
-                 formControlName="storage"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-      </div>
-
-      <div class="row"
            formGroupName="games">
         <mat-form-field floatLabel="always">
           <mat-label>Total Games</mat-label>
