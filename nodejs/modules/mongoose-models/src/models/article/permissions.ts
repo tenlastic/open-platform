@@ -6,8 +6,8 @@ import { UserPermissionsHelpers, UserRole } from '../user';
 import { Article, ArticleDocument } from './model';
 
 const administrator = {
-  create: ['body', 'caption', 'gameId', 'namespaceId', 'publishedAt', 'title', 'type'],
-  update: ['body', 'caption', 'gameId', 'namespaceId', 'publishedAt', 'title', 'type'],
+  create: ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
+  update: ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
 };
 
 export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Article, {
@@ -24,7 +24,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
       $or: [
         NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Articles),
         {
-          gameId: { $in: GamePermissionsHelpers.getAuthorizedGameIds() },
+          namespaceId: { $in: GamePermissionsHelpers.getAuthorizedNamespaceIds() },
           publishedAt: { $exists: true, $ne: null },
         },
       ],
@@ -38,7 +38,6 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
       'body',
       'caption',
       'createdAt',
-      'gameId',
       'namespaceId',
       'publishedAt',
       'title',

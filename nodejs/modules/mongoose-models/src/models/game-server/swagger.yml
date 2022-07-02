@@ -27,9 +27,6 @@ components:
             format: ^[0-9a-f]{24}$
         description:
           type: string
-        gameId:
-          type: string
-          format: ^[0-9a-f]{24}$
         memory:
           type: number
           minimum: 100000000

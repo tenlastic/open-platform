@@ -19,20 +19,6 @@
         autocomplete="off">
     <div class="row">
       <mat-form-field floatLabel="always">
-        <mat-label>Game</mat-label>
-        <mat-select formControlName="gameId"
-                    required>
-          <mat-option *ngFor="let game of ($games | async)"
-                      [value]="game._id">
-            {{ game.fullTitle }}
-          </mat-option>
-        </mat-select>
-        <mat-error>Select a game.</mat-error>
-      </mat-form-field>
-    </div>
-
-    <div class="row">
-      <mat-form-field floatLabel="always">
         <mat-label>Title</mat-label>
         <input matInput
                required

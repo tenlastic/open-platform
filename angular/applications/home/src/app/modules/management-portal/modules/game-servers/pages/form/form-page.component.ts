@@ -7,11 +7,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   Build,
   BuildService,
-  Game,
   GameServer,
   GameServerQuery,
   GameServerService,
-  GameService,
   IGameServer,
   Queue,
   QueueService,
@@ -46,7 +44,6 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public data: GameServer;
   public errors: string[] = [];
   public form: FormGroup;
-  public games: Game[];
   public get memories() {
     const limits = this.selectedNamespaceService.namespace.limits.gameServers;
     const limit = limits.memory ? limits.memory : Infinity;
@@ -60,7 +57,6 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     private formBuilder: FormBuilder,
     private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
-    private gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
@@ -86,10 +82,6 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
         select: '-files',
         sort: '-publishedAt',
         where: { namespaceId: this.selectedNamespaceService.namespaceId, platform: 'server64' },
-      });
-      this.games = await this.gameService.find({
-        sort: 'title',
-        where: { namespaceId: this.selectedNamespaceService.namespaceId },
       });
 
       if (this.data && this.data.queueId) {
@@ -141,7 +133,6 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       buildId: this.form.get('buildId').value,
       cpu: this.form.get('cpu').value,
       description: this.form.get('description').value,
-      gameId: this.form.get('gameId').value,
       memory: this.form.get('memory').value,
       metadata,
       name: this.form.get('name').value,
@@ -235,7 +226,6 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       buildId: [this.data.buildId || (this.builds[0] && this.builds[0]._id), Validators.required],
       cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
       description: [this.data.description],
-      gameId: [this.data.gameId],
       memory: [this.data.memory || this.memories[0].value, Validators.required],
       metadata: this.formBuilder.array(metadata),
       name: [this.data.name, Validators.required],

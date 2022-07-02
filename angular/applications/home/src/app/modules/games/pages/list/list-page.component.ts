@@ -48,7 +48,7 @@ export class GamesListPageComponent implements OnDestroy, OnInit {
   }
 
   public select(record: Game) {
-    localStorage.setItem('games.gameId', record._id);
+    localStorage.setItem('games._id', record._id);
     this.gameStore.setActive(record._id);
     this.router.navigate(['games', record._id]);
   }
@@ -63,13 +63,13 @@ export class GamesListPageComponent implements OnDestroy, OnInit {
     }
 
     // If a Game was selected during a previous session, restore that selection.
-    const gameId = localStorage.getItem('games.gameId');
-    const game = games.find(g => g._id === gameId);
+    const _id = localStorage.getItem('games._id');
+    const game = games.find((g) => g._id === _id);
     if (game && this.gameQuery.getActiveId() !== game._id) {
       this.select(game);
     }
 
-    this.updateDataSource$ = this.$games.subscribe(g => (this.dataSource.data = g));
+    this.updateDataSource$ = this.$games.subscribe((g) => (this.dataSource.data = g));
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;

@@ -18,7 +18,7 @@ export class NewsPageComponent implements OnInit {
     this.articles = await this.articleService.find({
       sort: '-publishedAt',
       where: {
-        gameId: game._id,
+        namespaceId: game.namespaceId,
         publishedAt: { $exists: true, $ne: null },
         type: 'News',
       },

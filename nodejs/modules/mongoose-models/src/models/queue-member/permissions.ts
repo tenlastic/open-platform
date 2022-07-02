@@ -31,7 +31,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
               $query: {
                 model: 'QueueSchema',
                 select: '_id',
-                where: { gameId: { $in: GamePermissionsHelpers.getAuthorizedGameIds() } },
+                where: { namespaceId: { $in: GamePermissionsHelpers.getAuthorizedNamespaceIds() } },
               },
             },
           },

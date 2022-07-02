@@ -21,15 +21,7 @@
          [dataSource]="dataSource"
          matSort
          matSortActive="name"
-         matSortDirection="desc">
-    <ng-container matColumnDef="game">
-      <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Game</th>
-      <td mat-cell
-          *matCellDef="let element">{{ element.game?.fullTitle }}</td>
-    </ng-container>
-
+         matSortDirection="asc">
     <ng-container matColumnDef="name">
       <th mat-header-cell
           *matHeaderCellDef

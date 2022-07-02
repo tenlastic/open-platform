@@ -1,4 +1,3 @@
-import { gameQuery } from '../stores/game';
 import { BaseModel } from './base';
 import { IWorkflow } from './workflow';
 
@@ -40,10 +39,6 @@ export class BuildModel extends BaseModel {
   public createdAt: Date;
   public entrypoint: string;
   public files: IBuild.File[];
-  public get game() {
-    return gameQuery.getEntity(this.gameId);
-  }
-  public gameId: string;
   public name: string;
   public namespaceId: string;
   public platform: IBuild.Platform;
@@ -68,7 +63,7 @@ export class BuildModel extends BaseModel {
     for (const node of nodes) {
       if (node.children) {
         for (const childId of node.children) {
-          const child = nodes.find(n => n._id === childId);
+          const child = nodes.find((n) => n._id === childId);
           child.parent = node._id;
         }
       }

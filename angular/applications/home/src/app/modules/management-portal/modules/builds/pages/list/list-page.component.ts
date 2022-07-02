@@ -30,14 +30,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
 
   public $builds: Observable<Build[]>;
   public dataSource = new MatTableDataSource<Build>();
-  public displayedColumns: string[] = [
-    'game',
-    'name',
-    'platform',
-    'status',
-    'publishedAt',
-    'actions',
-  ];
+  public displayedColumns: string[] = ['name', 'platform', 'status', 'publishedAt', 'actions'];
 
   private updateDataSource$ = new Subscription();
 
@@ -150,10 +143,9 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
   }
 
   private async fetchBuilds() {
-    const $builds = this.buildQuery.selectAll({
+    this.$builds = this.buildQuery.selectAll({
       filterBy: (build) => build.namespaceId === this.selectedNamespaceService.namespaceId,
     });
-    this.$builds = this.buildQuery.populate($builds);
 
     await this.buildService.find({
       select: '-files -reference',
@@ -173,7 +165,6 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
       const published = data.publishedAt ? 'Published' : 'Unpublished';
 
       return (
-        regex.test(data.game?.fullTitle) ||
         regex.test(data.name) ||
         regex.test(data.status?.phase) ||
         regex.test(platform) ||

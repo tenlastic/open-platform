@@ -6,13 +6,12 @@ import { UserPermissionsHelpers, UserRole } from '../user';
 import { Build, BuildDocument } from './model';
 
 const administrator = {
-  create: ['entrypoint', 'gameId', 'name', 'namespaceId', 'platform', 'publishedAt', 'reference.*'],
+  create: ['entrypoint', 'name', 'namespaceId', 'platform', 'publishedAt', 'reference.*'],
   read: [
     '_id',
     'createdAt',
     'entrypoint',
     'files.*',
-    'gameId',
     'logs',
     'name',
     'namespaceId',
@@ -39,11 +38,9 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
         NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Builds),
         NamespacePermissionsHelpers.getNamespaceUserFindQuery(NamespaceRole.Builds),
         {
-          gameId: { $in: GamePermissionsHelpers.getAuthorizedGameIds() },
+          namespaceId: { $in: GamePermissionsHelpers.getAuthorizedNamespaceIds() },
           publishedAt: { $exists: true, $ne: null },
         },
-        { gameId: null, publishedAt: { $exists: true, $ne: null } },
-        { gameId: { $exists: false }, publishedAt: { $exists: true, $ne: null } },
       ],
     },
     'user-administrator': {},
@@ -55,7 +52,6 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
       'createdAt',
       'entrypoint',
       'files.*',
-      'gameId',
       'name',
       'namespaceId',
       'platform',
@@ -81,8 +77,8 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
     },
   ],
   update: {
-    'namespace-administrator': ['entrypoint', 'gameId', 'name', 'publishedAt'],
+    'namespace-administrator': ['entrypoint', 'name', 'publishedAt'],
     'system-administrator': ['files.*', 'status.*'],
-    'user-administrator': ['entrypoint', 'gameId', 'name', 'publishedAt'],
+    'user-administrator': ['entrypoint', 'name', 'publishedAt'],
   },
 });

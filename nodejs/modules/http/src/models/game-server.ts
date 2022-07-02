@@ -1,4 +1,3 @@
-import { gameQuery } from '../stores/game';
 import { queueQuery } from '../stores/queue';
 import { BaseModel } from './base';
 
@@ -42,10 +41,6 @@ export class GameServerModel extends BaseModel {
   public cpu: number;
   public currentUserIds: string[];
   public description: string;
-  public get game() {
-    return gameQuery.getEntity(this.gameId);
-  }
-  public gameId: string;
   public memory: number;
   public metadata: any;
   public name: string;
@@ -66,6 +61,6 @@ export class GameServerModel extends BaseModel {
   public static isRestartRequired(fields: string[]) {
     const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible'];
 
-    return immutableFields.some(i => fields.includes(i));
+    return immutableFields.some((i) => fields.includes(i));
   }
 }

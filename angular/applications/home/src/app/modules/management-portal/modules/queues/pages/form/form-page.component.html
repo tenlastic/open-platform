@@ -105,19 +105,6 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
-
-      <mat-form-field *ngIf="games.length"
-                      floatLabel="always">
-        <mat-label>Game</mat-label>
-        <mat-select formControlName="gameId"
-                    placeholder="No Game">
-          <mat-option [value]="null">No Game</mat-option>
-          <mat-option *ngFor="let game of games"
-                      [value]="game._id">
-            {{ game.fullTitle }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
     </div>
 
     <app-toggle-section title="Queue Metadata"

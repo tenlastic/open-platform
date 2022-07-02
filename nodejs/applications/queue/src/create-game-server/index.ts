@@ -29,7 +29,7 @@ export async function createGameServer(queue: QueueModel): Promise<GameServerMod
   // Get QueueMembers from team assignments.
   const set = new Set<QueueMemberModel>();
   for (const teamAssignment of teamAssignments) {
-    const queueMember = queueMembers.find(qm => qm.userIds.includes(teamAssignment));
+    const queueMember = queueMembers.find((qm) => qm.userIds.includes(teamAssignment));
 
     if (queueMember) {
       set.add(queueMember);
@@ -39,17 +39,16 @@ export async function createGameServer(queue: QueueModel): Promise<GameServerMod
   // If any QueueMembers have been removed, retry team assignments.
   const removedQueueMembers = await removeConflictedUsers(queue, Array.from(set));
   if (removedQueueMembers.length) {
-    removedQueueMembers.forEach(rqm => queueMemberStore.remove(rqm._id));
+    removedQueueMembers.forEach((rqm) => queueMemberStore.remove(rqm._id));
     return createGameServer(queue);
   }
 
   // Create the GameServer.
   const gameServer = await gameServerService.create({
-    authorizedUserIds: teamAssignments.filter(ta => ta),
+    authorizedUserIds: teamAssignments.filter((ta) => ta),
     buildId: queue.gameServerTemplate.buildId,
     cpu: queue.gameServerTemplate.cpu,
     description: queue.description,
-    gameId: queue.gameId,
     memory: queue.gameServerTemplate.memory,
     metadata: {
       ...queue.gameServerTemplate.metadata,
@@ -65,7 +64,7 @@ export async function createGameServer(queue: QueueModel): Promise<GameServerMod
   });
 
   // Remove matched QueueMembers.
-  const promises = Array.from(set).map(qm => queueMemberService.delete(qm._id));
+  const promises = Array.from(set).map((qm) => queueMemberService.delete(qm._id));
   await Promise.all(promises);
 
   // Return the GameServer.

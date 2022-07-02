@@ -121,7 +121,7 @@ export class BuildsJsonPageComponent implements OnInit {
   private setupForm(): void {
     this.data ??= new Build({ name: '', platform: IBuild.Platform.Server64 });
 
-    const keys = ['entrypoint', 'gameId', 'name', 'publishedAt'];
+    const keys = ['entrypoint', 'name', 'publishedAt'];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))
       .sort()

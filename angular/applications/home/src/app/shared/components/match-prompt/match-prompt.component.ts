@@ -5,6 +5,7 @@ import {
   GameQuery,
   GameServer,
   GameServerQuery,
+  GameService,
   Queue,
   QueueQuery,
 } from '@tenlastic/ng-http';
@@ -33,8 +34,8 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: MatchPromptComponentData,
     public dialogRef: MatDialogRef<MatchPromptComponent>,
-    private gameQuery: GameQuery,
     private gameServerQuery: GameServerQuery,
+    private gameService: GameService,
     private queueQuery: QueueQuery,
     private updateService: UpdateService,
   ) {}
@@ -43,7 +44,10 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
     this.dialogRef.disableClose = true;
     this.timeout = setTimeout(() => this.dialogRef.close(), 30000);
 
-    this.game = new Game(this.gameQuery.getEntity(this.data.gameServer.gameId));
+    const games = await this.gameService.find({
+      where: { namespaceId: this.data.gameServer.namespaceId },
+    });
+    this.game = games[0];
     this.queue = new Queue(this.queueQuery.getEntity(this.data.gameServer.queueId));
   }
 
@@ -60,7 +64,7 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
 
     this.waitForGameServer$ = this.gameServerQuery
       .selectEntity(this.data.gameServer._id)
-      .subscribe(gameServer => {
+      .subscribe((gameServer) => {
         // If the Game Server is not ready yet, do nothing.
         if (!gameServer.status || gameServer.status.phase !== 'Running') {
           return;
@@ -71,7 +75,7 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
           return;
         }
 
-        this.updateService.play(gameServer.gameId, { gameServer });
+        this.updateService.play(gameServer.namespaceId, { gameServer });
         this.dialogRef.close();
       });
   }

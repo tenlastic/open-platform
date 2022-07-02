@@ -307,7 +307,7 @@ export class SocialComponent implements OnDestroy, OnInit {
       }
 
       this.isWaitingForGameServer = false;
-      this.updateService.play(gs.gameId, { gameServer: gs });
+      this.updateService.play(gs.namespaceId, { gameServer: gs });
     });
   }
 

@@ -113,11 +113,11 @@ export const GamePermissions = new MongoosePermissions<GameDocument>(Game, {
 });
 
 export const GamePermissionsHelpers = {
-  getAuthorizedGameIds() {
+  getAuthorizedNamespaceIds() {
     return {
       $query: {
         model: 'GameSchema',
-        select: '_id',
+        select: 'namespaceId',
         where: {
           $or: [
             {

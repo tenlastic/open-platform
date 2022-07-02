@@ -1,6 +1,5 @@
 import {
   ArticlePermissions,
-  GameMock,
   NamespaceMock,
   NamespaceUserMock,
   UserDocument,
@@ -30,13 +29,11 @@ describe('handlers/create', function () {
         roles: ['articles'],
       });
       const namespace = await NamespaceMock.create({ users: [namespaceUser] });
-      const game = await GameMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
         request: {
           body: {
             body: chance.hash(),
-            gameId: game._id,
             namespaceId: namespace._id,
             title: chance.hash(),
           },

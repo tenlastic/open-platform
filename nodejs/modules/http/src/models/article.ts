@@ -1,14 +1,9 @@
-import { gameQuery } from '../stores/game';
 import { namespaceQuery } from '../stores/namespace';
 import { BaseModel } from './base';
 
 export class ArticleModel extends BaseModel {
   public body: string;
   public caption: string;
-  public get game() {
-    return gameQuery.getEntity(this.gameId);
-  }
-  public gameId: string;
   public get namespace() {
     return namespaceQuery.getEntity(this.namespaceId);
   }

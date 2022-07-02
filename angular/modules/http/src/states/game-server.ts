@@ -5,7 +5,6 @@ import { map } from 'rxjs/operators';
 
 import { GameServer } from '../models/game-server';
 import { GameServerService } from '../services/game-server/game-server.service';
-import { GameQuery } from './game';
 import { QueueQuery } from './queue';
 
 export interface GameServerState extends EntityState<GameServer> {}
@@ -16,34 +15,25 @@ export class GameServerStore extends EntityStore<GameServerState, GameServer> {
   constructor(private gameServerService: GameServerService) {
     super();
 
-    this.gameServerService.onCreate.subscribe(record => this.add(record));
-    this.gameServerService.onDelete.subscribe(record => this.remove(record._id));
-    this.gameServerService.onRead.subscribe(records => this.upsertMany(records));
-    this.gameServerService.onUpdate.subscribe(record => this.upsert(record._id, record));
+    this.gameServerService.onCreate.subscribe((record) => this.add(record));
+    this.gameServerService.onDelete.subscribe((record) => this.remove(record._id));
+    this.gameServerService.onRead.subscribe((records) => this.upsertMany(records));
+    this.gameServerService.onUpdate.subscribe((record) => this.upsert(record._id, record));
   }
 }
 
 @Injectable({ providedIn: 'root' })
 export class GameServerQuery extends QueryEntity<GameServerState, GameServer> {
-  constructor(
-    protected gameQuery: GameQuery,
-    protected store: GameServerStore,
-    private queueQuery: QueueQuery,
-  ) {
+  constructor(private queueQuery: QueueQuery, protected store: GameServerStore) {
     super(store);
   }
 
   public populate($input: Observable<GameServer[]>) {
-    return combineLatest([
-      $input,
-      this.gameQuery.selectAll({ asObject: true }),
-      this.queueQuery.selectAll({ asObject: true }),
-    ]).pipe(
-      map(([gameServers, games, queues]) => {
-        return gameServers.map(gameServer => {
+    return combineLatest([$input, this.queueQuery.selectAll({ asObject: true })]).pipe(
+      map(([gameServers, queues]) => {
+        return gameServers.map((gameServer) => {
           return new GameServer({
             ...gameServer,
-            game: games[gameServer.gameId],
             queue: queues[gameServer.queueId],
           });
         });

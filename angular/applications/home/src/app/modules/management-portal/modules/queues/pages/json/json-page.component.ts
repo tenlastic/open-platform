@@ -123,7 +123,6 @@ export class QueuesJsonPageComponent implements OnInit {
       buildId: '',
       cpu: IQueue.Cpu[0].value,
       description: '',
-      gameId: '',
       gameServerTemplate: {
         buildId: '',
         cpu: IGameServer.Cpu[0].value,
@@ -144,7 +143,6 @@ export class QueuesJsonPageComponent implements OnInit {
       'buildId',
       'cpu',
       'description',
-      'gameId',
       'gameServerTemplate',
       'memory',
       'metadata',

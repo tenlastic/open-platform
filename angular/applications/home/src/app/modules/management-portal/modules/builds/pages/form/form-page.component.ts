@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Build, BuildQuery, BuildService, Game, GameQuery, GameService } from '@tenlastic/ng-http';
+import { Build, BuildQuery, BuildService } from '@tenlastic/ng-http';
 import JSZip from 'jszip';
 import { EMPTY, Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -50,7 +50,6 @@ interface StatusNode {
 })
 export class BuildsFormPageComponent implements OnInit {
   public $data: Observable<Build>;
-  public $games: Observable<Game[]>;
   public Status = Status;
   public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public data: Build;
@@ -72,8 +71,6 @@ export class BuildsFormPageComponent implements OnInit {
     private changeDetectorRef: ChangeDetectorRef,
     private fileReaderService: FileReaderService,
     private formBuilder: FormBuilder,
-    private gameQuery: GameQuery,
-    private gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
@@ -94,11 +91,6 @@ export class BuildsFormPageComponent implements OnInit {
         this.data = await this.buildService.findOne(_id);
         this.dataSource.data = this.data.getNestedStatusNodes();
       }
-
-      this.$games = this.gameQuery
-        .selectAll({ filterBy: (g) => g.namespaceId === this.selectedNamespaceService.namespaceId })
-        .pipe(map((games) => games.map((g) => new Game(g))));
-      this.gameService.find({ where: { namespaceId: this.selectedNamespaceService.namespaceId } });
 
       this.setupForm();
     });
@@ -142,7 +134,6 @@ export class BuildsFormPageComponent implements OnInit {
 
     const values: Partial<Build> = {
       entrypoint: this.form.get('entrypoint').value,
-      gameId: this.form.get('gameId').value || null,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
       platform: this.form.get('platform').value,
@@ -267,7 +258,6 @@ export class BuildsFormPageComponent implements OnInit {
     this.form = this.formBuilder.group({
       entrypoint: [this.data.entrypoint, Validators.required],
       files: [this.data.files || []],
-      gameId: [this.data.gameId],
       name: [this.data.name, Validators.required],
       namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
       platform: [this.data.platform || this.platforms[0].value, Validators.required],

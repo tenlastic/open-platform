@@ -38,7 +38,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
 
   public $queues: Observable<Queue[]>;
   public dataSource = new MatTableDataSource<Queue>();
-  public displayedColumns: string[] = ['game', 'name', 'description', 'status', 'actions'];
+  public displayedColumns: string[] = ['name', 'description', 'status', 'actions'];
 
   private updateDataSource$ = new Subscription();
 
@@ -141,10 +141,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
 
       return (
-        regex.test(data.description) ||
-        regex.test(data.game?.fullTitle) ||
-        regex.test(data.name) ||
-        regex.test(data.status?.phase)
+        regex.test(data.description) || regex.test(data.name) || regex.test(data.status?.phase)
       );
     };
 

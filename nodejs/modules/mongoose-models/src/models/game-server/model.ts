@@ -18,7 +18,6 @@ import {
 } from '../../change-stream';
 import { namespaceValidator } from '../../validators';
 import { BuildDocument } from '../build';
-import { GameDocument } from '../game';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 import { QueueDocument, QueueEvent } from '../queue';
 import { UserDocument } from '../user';
@@ -49,7 +48,6 @@ QueueEvent.sync(async (payload) => {
 @index({ authorizedUserIds: 1 })
 @index({ buildId: 1 })
 @index({ currentUserIds: 1 })
-@index({ gameId: 1 })
 @index({ namespaceId: 1 })
 @index({ queueId: 1 })
 @modelOptions({
@@ -80,9 +78,6 @@ export class GameServerSchema implements IOriginalDocument {
 
   @prop()
   public description: string;
-
-  @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
-  public gameId: mongoose.Types.ObjectId;
 
   @prop({ min: 100 * 1000 * 1000, required: true })
   public memory: number;
@@ -121,9 +116,6 @@ export class GameServerSchema implements IOriginalDocument {
 
   @prop({ foreignField: '_id', justOne: false, localField: 'currentUserIds', ref: 'UserSchema' })
   public currentUserDocuments: UserDocument[];
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: 'GameSchema' })
-  public gameDocument: GameDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;

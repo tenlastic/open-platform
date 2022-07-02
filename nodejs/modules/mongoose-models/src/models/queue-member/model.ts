@@ -14,7 +14,7 @@ import * as mongoose from 'mongoose';
 import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import * as errors from '../../errors';
 import { namespaceValidator } from '../../validators';
-import { GameAccess } from '../game';
+import { Game, GameAccess } from '../game';
 import { Authorization, AuthorizationStatus } from '../authorization';
 import { GroupDocument, GroupEvent } from '../group';
 import { NamespaceDocument } from '../namespace';
@@ -198,21 +198,13 @@ export class QueueMemberSchema {
   }
 
   private async checkUserAuthorization(this: QueueMemberDocument) {
-    if (!this.populated('queueDocument')) {
-      await this.populate('queueDocument');
-    }
-
-    if (!this.queueDocument.gameId) {
+    const game = await Game.findOne({ namespaceId: this.namespaceId });
+    if (!game) {
       return;
     }
 
-    if (!this.queueDocument.populated('gameDocument')) {
-      await this.queueDocument.populate('gameDocument');
-    }
-
-    const game = this.queueDocument.gameDocument;
     const authorizations = await Authorization.find({
-      namespaceId: game.namespaceId,
+      namespaceId: this.namespaceId,
       userId: { $in: this.userIds },
     });
 

@@ -58,9 +58,6 @@ export class AuthorizationSchema {
   @prop({ ref: 'UserSchema', required: true })
   public userId: mongoose.Types.ObjectId;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: 'GameSchema' })
-  public gameDocument: GameDocument;
-
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
 

@@ -19,8 +19,6 @@ import {
   changeStreamPlugin,
 } from '../../change-stream';
 import * as errors from '../../errors';
-import { namespaceValidator } from '../../validators';
-import { GameDocument, GameEvent } from '../game';
 import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { WorkflowStatusSchema } from '../workflow';
 import { BuildFileSchema } from './file';
@@ -70,16 +68,6 @@ BuildEvent.sync(async (payload) => {
   });
 });
 
-// Delete Builds if associated Game is deleted.
-GameEvent.sync(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await Build.find({ gameId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
-  }
-});
-
 // Delete Builds if associated Namespace is deleted.
 NamespaceEvent.sync(async (payload) => {
   switch (payload.operationType) {
@@ -90,13 +78,6 @@ NamespaceEvent.sync(async (payload) => {
   }
 });
 
-@index(
-  { gameId: 1, name: 1, namespaceId: 1, platform: 1 },
-  {
-    partialFilterExpression: { gameId: { $type: 'objectId' } },
-    unique: true,
-  },
-)
 @index({ name: 1, namespaceId: 1, platform: 1 }, { unique: true })
 @modelOptions({ schemaOptions: { collection: 'builds', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: BuildEvent })
@@ -110,9 +91,6 @@ export class BuildSchema implements IOriginalDocument {
 
   @prop({ type: BuildFileSchema })
   public files: BuildFileSchema[];
-
-  @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
-  public gameId: mongoose.Types.ObjectId;
 
   @prop({ required: true })
   public name: string;
@@ -133,9 +111,6 @@ export class BuildSchema implements IOriginalDocument {
   public status: WorkflowStatusSchema;
 
   public updatedAt: Date;
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: 'GameSchema' })
-  public gameDocument: GameDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;

@@ -1,5 +1,4 @@
 import { buildQuery } from '../stores/build';
-import { gameQuery } from '../stores/game';
 import { BaseModel } from './base';
 import { GameServerModel } from './game-server';
 
@@ -51,10 +50,6 @@ export class QueueModel extends BaseModel {
   public cpu: number;
   public createdAt: Date;
   public description: string;
-  public get game() {
-    return gameQuery.getEntity(this.gameId);
-  }
-  public gameId: string;
   public gameServerTemplate: Partial<GameServerModel>;
   public memory: number;
   public metadata: any;
@@ -82,6 +77,6 @@ export class QueueModel extends BaseModel {
       'teams',
       'usersPerTeam',
     ];
-    return immutableFields.some(i => fields.includes(i));
+    return immutableFields.some((i) => fields.includes(i));
   }
 }

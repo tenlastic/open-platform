@@ -17,9 +17,6 @@ components:
           format: date-time
         description:
           type: string
-        gameId:
-          type: string
-          format: ^[0-9a-f]{24}$
         gameServerTemplate:
           $ref: '#/components/schemas/GameServer'
         memory:

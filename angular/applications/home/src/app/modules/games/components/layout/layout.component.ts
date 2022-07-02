@@ -71,15 +71,16 @@ export class LayoutComponent implements OnDestroy, OnInit {
       }
 
       this.$guides = this.articleQuery.selectAll({
-        filterBy: (a) => a.gameId === game._id && a.publishedAt && a.type === 'Guide',
+        filterBy: (a) => a.namespaceId === game.namespaceId && a.publishedAt && a.type === 'Guide',
       });
       this.$news = this.articleQuery.selectAll({
-        filterBy: (a) => a.gameId === game._id && a.publishedAt && a.type === 'News',
+        filterBy: (a) => a.namespaceId === game.namespaceId && a.publishedAt && a.type === 'News',
       });
       this.$patchNotes = this.articleQuery.selectAll({
-        filterBy: (a) => a.gameId === game._id && a.publishedAt && a.type === 'Patch Notes',
+        filterBy: (a) =>
+          a.namespaceId === game.namespaceId && a.publishedAt && a.type === 'Patch Notes',
       });
-      return this.fetchArticles(game._id);
+      return this.fetchArticles(game.namespaceId);
     });
 
     await this.gameService.find({ sort: 'title' });
@@ -109,12 +110,12 @@ export class LayoutComponent implements OnDestroy, OnInit {
     this.document.body.style.backgroundImage = `url('/assets/images/background.jpg')`;
   }
 
-  private fetchArticles(gameId: string) {
+  private fetchArticles(namespaceId: string) {
     const promises = [
       this.articleService.find({
         limit: 1,
         where: {
-          gameId,
+          namespaceId,
           publishedAt: { $exists: true, $ne: null },
           type: 'News',
         },
@@ -122,7 +123,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.articleService.find({
         limit: 1,
         where: {
-          gameId,
+          namespaceId,
           publishedAt: { $exists: true, $ne: null },
           type: 'Patch Notes',
         },

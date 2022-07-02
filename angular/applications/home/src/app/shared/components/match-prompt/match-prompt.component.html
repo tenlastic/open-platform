@@ -8,7 +8,7 @@
   <div mat-dialog-title>Match Found</div>
 
   <div mat-dialog-content>
-    <p>Game: {{ game.fullTitle }}</p>
+    <p *ngIf="game">Game: {{ game.fullTitle }}</p>
     <p>
       Queue: {{ queue.name }}
       <ng-container *ngIf="queue.description">- {{ queue.description }}</ng-container>

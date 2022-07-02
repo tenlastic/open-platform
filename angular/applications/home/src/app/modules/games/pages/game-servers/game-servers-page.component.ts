@@ -22,8 +22,8 @@ export class GameServersPageComponent implements OnInit {
   public $group: Observable<Group>;
   public displayedColumns = ['name', 'description', 'currentUsers', 'actions'];
   public get status() {
-    const activeGameId = this.gameQuery.getActiveId();
-    return this.updateService.getStatus(activeGameId);
+    const activeGame = this.gameQuery.getActive() as Game;
+    return this.updateService.getStatus(activeGame.namespaceId);
   }
 
   constructor(
@@ -38,16 +38,15 @@ export class GameServersPageComponent implements OnInit {
   public async ngOnInit() {
     const game = this.gameQuery.getActive() as Game;
     this.$gameServers = this.gameServerQuery.selectAll({
-      filterBy: gs =>
-        gs.gameId === game._id &&
+      filterBy: (gs) =>
         gs.namespaceId === game.namespaceId &&
         !gs.queueId &&
         gs.status &&
         gs.status.phase === 'Running',
     });
     this.$group = this.groupQuery
-      .selectAll({ filterBy: g => g.userIds.includes(this.identityService.user._id) })
-      .pipe(map(groups => groups[0]));
+      .selectAll({ filterBy: (g) => g.userIds.includes(this.identityService.user._id) })
+      .pipe(map((groups) => groups[0]));
 
     await this.gameServerService.find({
       where: {

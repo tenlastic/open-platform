@@ -7,8 +7,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   Build,
   BuildService,
-  Game,
-  GameService,
   IGameServer,
   IQueue,
   Queue,
@@ -59,7 +57,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     const limit = limits.memory ? limits.memory : Infinity;
     return limits.memory ? IGameServer.Memory.filter((r) => r.value <= limit) : IGameServer.Memory;
   }
-  public games: Game[];
   public get memories() {
     const limits = this.selectedNamespaceService.namespace.limits.queues;
     const limit = limits.memory ? limits.memory : Infinity;
@@ -77,7 +74,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     private activatedRoute: ActivatedRoute,
     private buildService: BuildService,
     private formBuilder: FormBuilder,
-    private gameService: GameService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
@@ -104,10 +100,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         select: '-files',
         sort: '-publishedAt',
         where: { namespaceId: this.selectedNamespaceService.namespaceId, platform: 'server64' },
-      });
-      this.games = await this.gameService.find({
-        sort: 'title',
-        where: { namespaceId: this.selectedNamespaceService.namespaceId },
       });
 
       this.setupForm();
@@ -163,7 +155,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       buildId: this.form.get('buildId').value,
       cpu: this.form.get('cpu').value,
       description: this.form.get('description').value,
-      gameId: this.form.get('gameId').value,
       gameServerTemplate: {
         buildId: this.form.get('gameServerTemplate').get('buildId').value,
         cpu: this.form.get('gameServerTemplate').get('cpu').value,
@@ -293,7 +284,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       buildId: [this.data.buildId],
       cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
       description: [this.data.description],
-      gameId: [this.data.gameId],
       gameServerTemplate: gameServerTemplateForm,
       memory: [this.data.memory || this.memories[0].value, Validators.required],
       metadata: this.formBuilder.array(metadata),

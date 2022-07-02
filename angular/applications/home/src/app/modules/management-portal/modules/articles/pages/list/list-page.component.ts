@@ -103,12 +103,7 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
 
       const published = data.publishedAt ? 'Published' : 'Unpublished';
 
-      return (
-        regex.test(data.game?.fullTitle) ||
-        regex.test(data.title) ||
-        regex.test(data.type) ||
-        exactRegex.test(published)
-      );
+      return regex.test(data.title) || regex.test(data.type) || exactRegex.test(published);
     };
 
     this.dataSource.paginator = this.paginator;

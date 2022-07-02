@@ -40,22 +40,6 @@
       </mat-form-field>
     </div>
 
-    <div *ngIf="($games | async).length"
-         class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Game</mat-label>
-        <mat-select formControlName="gameId"
-                    placeholder="No Game">
-          <mat-option>No Game</mat-option>
-          <mat-option *ngFor="let game of ($games | async)"
-                      [value]="game._id">
-            {{ game.fullTitle }}
-          </mat-option>
-        </mat-select>
-        <mat-error>Select a game.</mat-error>
-      </mat-form-field>
-    </div>
-
     <ng-container *ngIf="data._id">
       <app-button color="primary"
                   (OnClick)="save()">Save</app-button>

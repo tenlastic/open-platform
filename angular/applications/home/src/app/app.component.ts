@@ -3,16 +3,13 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { resetStores } from '@datorama/akita';
 import {
-  ArticleQuery,
   Authorization,
   AuthorizationService,
   Build,
-  BuildQuery,
   BuildService,
   Collection,
   CollectionService,
   Game,
-  GameQuery,
   GameServer,
   GameServerQuery,
   GameServerService,
@@ -55,13 +52,10 @@ export class AppComponent implements OnInit {
   }
 
   constructor(
-    private articleQuery: ArticleQuery,
     private authorizationService: AuthorizationService,
-    private buildQuery: BuildQuery,
     private buildService: BuildService,
     private collectionService: CollectionService,
     private electronService: ElectronService,
-    private gameQuery: GameQuery,
     private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
     private gameService: GameService,
@@ -125,30 +119,6 @@ export class AppComponent implements OnInit {
   }
 
   public fetchMissingRecords() {
-    this.articleQuery.selectAll().subscribe((records) => {
-      const ids = records
-        .map((r) => r.gameId)
-        .filter((gameId) => !this.gameQuery.hasEntity(gameId));
-      if (ids.length > 0) {
-        this.gameService.find({ where: { _id: { $in: ids } } });
-      }
-    });
-    this.buildQuery.selectAll().subscribe((records) => {
-      const ids = records
-        .map((r) => r.gameId)
-        .filter((gameId) => !this.gameQuery.hasEntity(gameId));
-      if (ids.length > 0) {
-        this.gameService.find({ where: { _id: { $in: ids } } });
-      }
-    });
-    this.gameServerQuery.selectAll().subscribe((records) => {
-      const ids = records
-        .map((r) => r.gameId)
-        .filter((gameId) => !this.gameQuery.hasEntity(gameId));
-      if (ids.length > 0) {
-        this.gameService.find({ where: { _id: { $in: ids } } });
-      }
-    });
     this.gameServerQuery.selectAll().subscribe((records) => {
       const ids = records
         .map((r) => r.queueId)

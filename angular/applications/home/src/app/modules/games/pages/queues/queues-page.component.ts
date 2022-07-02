@@ -49,28 +49,25 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     const game = this.gameQuery.getActive() as Game;
 
     this.$group = this.groupQuery
-      .selectAll({ filterBy: g => g.userIds.includes(this.identityService.user._id) })
-      .pipe(map(groups => groups[0]));
+      .selectAll({ filterBy: (g) => g.userIds.includes(this.identityService.user._id) })
+      .pipe(map((groups) => groups[0]));
     this.$queueMembers = this.queueMemberQuery.selectAll({
-      filterBy: qm => qm.userId === this.identityService.user._id,
+      filterBy: (qm) => qm.userId === this.identityService.user._id,
     });
     this.$queues = this.queueQuery.selectAll({
-      filterBy: q =>
-        q.gameId === game._id &&
-        q.namespaceId === game.namespaceId &&
-        q.status &&
-        q.status.phase === 'Running',
+      filterBy: (q) =>
+        q.namespaceId === game.namespaceId && q.status && q.status.phase === 'Running',
     });
 
     await this.queueService.find({ where: { namespaceId: game.namespaceId } });
 
-    this.updateQueueMembers$ = this.$group.subscribe(group => {
+    this.updateQueueMembers$ = this.$group.subscribe((group) => {
       if (!group) {
         return;
       }
 
       const $queueMembers = this.queueMemberQuery.selectAll({
-        filterBy: qm =>
+        filterBy: (qm) =>
           (group && qm.groupId === group._id) || qm.userId === this.identityService.user._id,
       });
       this.$queueMembers = this.queueMemberQuery.populate($queueMembers);
@@ -95,16 +92,16 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   public $getGroupQueueMember(queueId: string) {
     return combineLatest([this.$group, this.$queueMembers]).pipe(
       map(([group, queueMembers]) =>
-        queueMembers.find(qm => group && qm.groupId === group._id && qm.queueId === queueId),
+        queueMembers.find((qm) => group && qm.groupId === group._id && qm.queueId === queueId),
       ),
     );
   }
 
   public $getSoloQueueMember(queueId: string) {
     return this.$queueMembers.pipe(
-      map(queueMembers =>
+      map((queueMembers) =>
         queueMembers.find(
-          qm => qm.queueId === queueId && qm.userId === this.identityService.user._id,
+          (qm) => qm.queueId === queueId && qm.userId === this.identityService.user._id,
         ),
       ),
     );
@@ -112,12 +109,12 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
   public $isGroupLeader() {
     return this.$group.pipe(
-      map(group => group && group.userIds[0] === this.identityService.user._id),
+      map((group) => group && group.userIds[0] === this.identityService.user._id),
     );
   }
 
   public $isGroupSmallEnough(queue: Queue) {
-    return this.$group.pipe(map(group => group && group.userIds.length <= queue.usersPerTeam));
+    return this.$group.pipe(map((group) => group && group.userIds.length <= queue.usersPerTeam));
   }
 
   public async joinAsGroup(queue: Queue) {
@@ -179,7 +176,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
   private async getCurrentUsers() {
     const queues = await this.$queues.pipe(first()).toPromise();
-    const _ids = queues.map(q => q._id);
+    const _ids = queues.map((q) => q._id);
 
     for (const _id of _ids) {
       this.currentUsers[_id] = await this.queueMemberService.count({

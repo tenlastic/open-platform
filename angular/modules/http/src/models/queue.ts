@@ -1,7 +1,5 @@
 import { Model } from './model';
 import { Build } from './build';
-import { Game } from './game';
-import { GameServer } from './game-server';
 
 export namespace IQueue {
   export const Cpu = [
@@ -58,8 +56,6 @@ export class Queue extends Model {
   public buildId: string;
   public cpu: number;
   public description: string;
-  public game: Game;
-  public gameId: string;
   public gameServerTemplate: IQueue.GameServerTemplate;
   public memory: number;
   public metadata: any;
@@ -76,7 +72,6 @@ export class Queue extends Model {
     super(params);
 
     this.build = this.build ? new Build(this.build) : null;
-    this.game = this.game ? new Game(this.game) : null;
   }
 
   public static isRestartRequired(fields: string[]) {

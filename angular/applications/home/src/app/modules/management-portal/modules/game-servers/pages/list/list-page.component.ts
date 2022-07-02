@@ -47,7 +47,6 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public dataSource = new MatTableDataSource<GameServer>();
   public displayedColumns: string[] = [
-    'game',
     'name',
     'description',
     'status',
@@ -170,7 +169,6 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
       return (
         regex.test(data.description) ||
-        regex.test(data.game?.fullTitle) ||
         regex.test(data.name) ||
         regex.test(data.status?.phase)
       );

@@ -1,4 +1,3 @@
-import { Game } from './game';
 import { Model } from './model';
 import { Queue } from './queue';
 
@@ -44,8 +43,6 @@ export class GameServer extends Model {
   public cpu: number;
   public currentUserIds: string[];
   public description: string;
-  public game: Game;
-  public gameId: string;
   public memory: number;
   public metadata: any;
   public name: string;
@@ -59,8 +56,6 @@ export class GameServer extends Model {
 
   constructor(params: Partial<GameServer> = {}) {
     super(params);
-
-    this.game = this.game ? new Game(this.game) : null;
   }
 
   public static isRestartRequired(fields: string[]) {

@@ -14,7 +14,6 @@ import * as mongoose from 'mongoose';
 import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import { enumValidator, namespaceValidator } from '../../validators';
 import { BuildDocument } from '../build';
-import { GameDocument } from '../game';
 import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
 import { GameServerTemplateSchema } from './game-server-template';
 import {
@@ -36,7 +35,6 @@ NamespaceEvent.sync(async (payload) => {
   }
 });
 
-@index({ gameId: 1 })
 @index({ namespaceId: 1 })
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
@@ -83,9 +81,6 @@ export class QueueSchema {
   @prop()
   public description: string;
 
-  @prop({ ref: 'GameSchema', validate: namespaceValidator('gameDocument', 'gameId') })
-  public gameId: mongoose.Types.ObjectId;
-
   @prop({ required: true })
   public gameServerTemplate: GameServerTemplateSchema;
 
@@ -123,9 +118,6 @@ export class QueueSchema {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })
   public buildDocument: BuildDocument;
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'gameId', ref: 'GameSchema' })
-  public gameDocument: GameDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;

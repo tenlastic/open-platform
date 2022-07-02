@@ -1,7 +1,6 @@
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
-import { GameMock } from '../game';
 import { Article, ArticleSchema } from './model';
 
 export class ArticleMock {
@@ -14,17 +13,9 @@ export class ArticleMock {
 
     const defaults = {
       body: chance.hash(),
-      gameId: new mongoose.Types.ObjectId(),
       namespaceId: new mongoose.Types.ObjectId(),
       title: chance.hash(),
     };
-
-    if (!params.gameId) {
-      const game = await GameMock.create({
-        namespaceId: params.namespaceId ?? defaults.namespaceId,
-      });
-      defaults.gameId = game._id;
-    }
 
     return Article.create({ ...defaults, ...params });
   }
