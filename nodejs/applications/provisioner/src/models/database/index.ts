@@ -256,8 +256,8 @@ export const KubernetesDatabase = {
               fileStorage: {
                 enabled: true,
                 size: getNatsUnit(database.storage),
-                storageDirectory: '/data/',
                 storageClassName: 'balanced-expandable',
+                storageDirectory: '/data/',
               },
               memStorage: { enabled: true, size: getNatsUnit(database.memory) },
             },

@@ -13,7 +13,7 @@ describe('json-schema/toMongoose', function () {
     });
 
     it('throws an error', function () {
-      const input = { type: 'object', properties: 'not an object' };
+      const input = { properties: 'not an object', type: 'object' };
       const func = () => toMongoose(input);
 
       expect(func).to.throw(/Unsupported JSON schema/);
@@ -36,8 +36,8 @@ describe('json-schema/toMongoose', function () {
         properties: {
           address: {
             properties: {
-              builtAt: { type: 'string', format: 'date-time' },
-              street: { type: 'number', default: 44, minimum: 0, maximum: 50 },
+              builtAt: { format: 'date-time', type: 'string' },
+              street: { default: 44, maximum: 50, minimum: 0, type: 'number' },
             },
             type: 'object',
           },
@@ -49,7 +49,7 @@ describe('json-schema/toMongoose', function () {
             },
             type: 'array',
           },
-          id: { type: 'string', pattern: '^\\d{3}$' },
+          id: { pattern: '^\\d{3}$', type: 'string' },
           name: { type: 'object' },
         },
         type: 'object',
@@ -60,7 +60,7 @@ describe('json-schema/toMongoose', function () {
       expect(result).to.eql({
         address: {
           builtAt: Date,
-          street: { type: Number, default: 44, min: 0, max: 50 },
+          street: { default: 44, max: 50, min: 0, type: Number },
         },
         anyValue: mongoose.Schema.Types.Mixed,
         arr: [
@@ -69,7 +69,7 @@ describe('json-schema/toMongoose', function () {
             str: { type: String },
           },
         ],
-        id: { type: String, match: /^\d{3}$/ },
+        id: { match: /^\d{3}$/, type: String },
         name: mongoose.Schema.Types.Mixed,
       });
     });

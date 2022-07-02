@@ -13,12 +13,12 @@ import { expect } from 'chai';
 
 import { handler } from './';
 
-describe('handlers/records/find', function() {
+describe('handlers/records/find', function () {
   let collection: CollectionDocument;
   let namespace: NamespaceDocument;
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
 
     const namespaceUser = NamespaceUserMock.create({
@@ -30,7 +30,7 @@ describe('handlers/records/find', function() {
     collection = await CollectionMock.create({
       jsonSchema: {
         properties: {
-          insertedAt: { type: 'string', format: 'date-time' },
+          insertedAt: { format: 'date-time', type: 'string' },
         },
         type: 'object',
       },
@@ -52,7 +52,7 @@ describe('handlers/records/find', function() {
     });
   });
 
-  it('returns the matching records', async function() {
+  it('returns the matching records', async function () {
     const Model = RecordSchema.getModel(collection);
     await Model.create({
       collectionId: collection._id,
@@ -75,7 +75,7 @@ describe('handlers/records/find', function() {
     expect(ctx.response.body.records.length).to.eql(1);
   });
 
-  it('properly handles Dates', async function() {
+  it('properly handles Dates', async function () {
     const Model = RecordSchema.getModel(collection);
     await Model.create({
       collectionId: collection._id,

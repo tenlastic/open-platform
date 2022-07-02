@@ -39,7 +39,7 @@ DatabaseEvent.sync(async (payload) => {
   }
 });
 
-@index({ namespaceId: 1, name: 1 }, { unique: true })
+@index({ name: 1, namespaceId: 1 }, { unique: true })
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: {

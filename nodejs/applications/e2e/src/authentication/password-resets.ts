@@ -89,7 +89,7 @@ async function getMessage(query: string) {
   // Retrieve message and mark it as read.
   const { id } = res.data.messages[0];
   const msg = await gmail.users.messages.get({ format: 'full', id, userId });
-  await gmail.users.messages.modify({ requestBody: { removeLabelIds: ['UNREAD'] }, id, userId });
+  await gmail.users.messages.modify({ id, requestBody: { removeLabelIds: ['UNREAD'] }, userId });
 
   // Decode the base64-encoded body.
   const buffer = Buffer.from(msg.data.payload.body.data, 'base64');

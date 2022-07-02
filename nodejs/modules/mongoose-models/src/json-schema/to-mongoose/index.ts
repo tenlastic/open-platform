@@ -72,7 +72,7 @@ function getObjectType(jsonSchema: any) {
 function subSchemaType(parentSchema: any, subschema: any, key: any) {
   if (0 <= parentSchema.required.indexOf(key)) {
     if (subschema.constructor !== Object) {
-      return { type: subschema, required: true };
+      return { required: true, type: subschema };
     }
 
     if (subschema.hasOwnProperty('type')) {

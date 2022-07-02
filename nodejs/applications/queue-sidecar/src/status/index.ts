@@ -34,7 +34,7 @@ export async function status() {
         process.exit(1);
       }
     },
-    err => {
+    (err) => {
       console.error(err?.message);
       process.exit(err ? 1 : 0);
     },
@@ -43,7 +43,7 @@ export async function status() {
 
 function getPodStatus(pod: V1Pod) {
   const isReady = pod.status.conditions?.find(
-    c => c.status === 'True' && c.type === 'ContainersReady',
+    (c) => c.status === 'True' && c.type === 'ContainersReady',
   );
 
   let phase = pod.status.phase;
@@ -65,7 +65,7 @@ async function updateQueue() {
 
   // Nodes.
   const nodes = Object.values(pods)
-    .filter(p => !p.metadata.deletionTimestamp)
+    .filter((p) => !p.metadata.deletionTimestamp)
     .map(getPodStatus);
 
   // Components.
@@ -78,11 +78,11 @@ async function updateQueue() {
 
       let component: IQueue.StatusComponent;
       if (current._id.includes('redis')) {
-        component = previous.find(p => p.name === 'redis');
+        component = previous.find((p) => p.name === 'redis');
       } else if (current._id.includes('sidecar')) {
-        component = previous.find(p => p.name === 'sidecar');
+        component = previous.find((p) => p.name === 'sidecar');
       } else {
-        component = previous.find(p => p.name === 'application');
+        component = previous.find((p) => p.name === 'application');
       }
 
       component.current++;
@@ -102,11 +102,11 @@ async function updateQueue() {
 
   // Phase.
   let phase = 'Pending';
-  if (components.every(c => c.phase === 'Running')) {
+  if (components.every((c) => c.phase === 'Running')) {
     phase = 'Running';
-  } else if (nodes.some(n => n.phase === 'Error')) {
+  } else if (nodes.some((n) => n.phase === 'Error')) {
     phase = 'Error';
-  } else if (nodes.some(n => n.phase === 'Failed')) {
+  } else if (nodes.some((n) => n.phase === 'Failed')) {
     phase = 'Failed';
   }
 
@@ -115,7 +115,7 @@ async function updateQueue() {
 
   await requestPromiseNative.put({
     headers: { Authorization: `Bearer ${accessToken}` },
-    json: { status: { components, phase, nodes, version } },
+    json: { status: { components, nodes, phase, version } },
     url: endpoint,
   });
 

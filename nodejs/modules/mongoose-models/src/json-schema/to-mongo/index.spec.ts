@@ -12,7 +12,7 @@ describe('json-schema/toMongo', function () {
     });
 
     it('throws an error', function () {
-      const input = { type: 'object', properties: 'not an object' };
+      const input = { properties: 'not an object', type: 'object' };
       const func = () => toMongo(input);
 
       expect(func).to.throw(/Unsupported JSON schema/);
@@ -35,8 +35,8 @@ describe('json-schema/toMongo', function () {
         properties: {
           address: {
             properties: {
-              builtAt: { type: 'string', format: 'date-time' },
-              street: { type: 'number', default: 44, minimum: 0, maximum: 50 },
+              builtAt: { format: 'date-time', type: 'string' },
+              street: { default: 44, maximum: 50, minimum: 0, type: 'number' },
             },
             required: ['builtAt'],
             type: 'object',
@@ -49,7 +49,7 @@ describe('json-schema/toMongo', function () {
             },
             type: 'array',
           },
-          id: { type: 'string', pattern: '^\\d{3}$' },
+          id: { pattern: '^\\d{3}$', type: 'string' },
           name: { type: 'object' },
         },
         type: 'object',
@@ -64,7 +64,7 @@ describe('json-schema/toMongo', function () {
             bsonType: ['null', 'object'],
             properties: {
               builtAt: { bsonType: ['date', 'null'] },
-              street: { bsonType: ['double', 'int', 'null'], minimum: 0, maximum: 50 },
+              street: { bsonType: ['double', 'int', 'null'], maximum: 50, minimum: 0 },
             },
             required: ['builtAt'],
           },

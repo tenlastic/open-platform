@@ -121,7 +121,7 @@ async function updateDatabase() {
 
   await requestPromiseNative.put({
     headers: { Authorization: `Bearer ${accessToken}` },
-    json: { status: { components, phase, nodes, version } },
+    json: { status: { components, nodes, phase, version } },
     url: endpoint,
   });
 

@@ -164,7 +164,6 @@ module.exports = {
         markers: ['/'],
       },
     ],
-    'sort-keys': 'error',
     'use-isnan': 'error',
     'valid-typeof': 'off',
   },
