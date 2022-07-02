@@ -86,10 +86,13 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
   private async fetchUsers() {
     this.$users = this.userQuery.selectAll();
 
-    await this.userService.find({ sort: 'username' });
-
     this.fetchWebSockets$ = this.$users.subscribe((users) =>
-      this.webSocketService.find({ where: { userId: { $in: users.map((u) => u._id) } } }),
+      this.webSocketService.find({
+        where: {
+          disconnectedAt: { $exists: false },
+          userId: { $in: users.map((u) => u._id) },
+        },
+      }),
     );
     this.updateDataSource$ = this.$users.subscribe((users) => (this.dataSource.data = users));
     this.updateWebSockets$ = this.webSocketQuery
@@ -101,6 +104,14 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
           this.webSockets[webSocket.userId] = webSocket;
         }
       });
+
+    const users = await this.userService.find({ sort: 'username' });
+    await this.webSocketService.find({
+      where: {
+        disconnectedAt: { $exists: false },
+        userId: { $in: users.map((u) => u._id) },
+      },
+    });
 
     this.dataSource.filterPredicate = (data: User, filter: string) => {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
