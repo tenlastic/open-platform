@@ -12,9 +12,6 @@ components:
         createdAt:
           type: string
           format: date-time
-        databaseId:
-          type: string
-          format: ^[0-9a-f]{24}$
         namespaceId:
           type: string
           format: ^[0-9a-f]{24}$

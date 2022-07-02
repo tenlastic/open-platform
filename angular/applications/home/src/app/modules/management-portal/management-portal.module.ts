@@ -25,10 +25,10 @@ export const ROUTES: Routes = [
           import('./modules/collections/collections.module').then((m) => m.CollectionModule),
       },
       {
-        path: 'game-authorizations',
+        path: 'authorizations',
         loadChildren: () =>
-          import('./modules/game-authorizations/game-authorizations.module').then(
-            (m) => m.GameAuthorizationModule,
+          import('./modules/authorizations/authorizations.module').then(
+            (m) => m.AuthorizationModule,
           ),
       },
       {

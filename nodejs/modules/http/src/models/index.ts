@@ -1,11 +1,11 @@
 export * from './base';
 
 export * from './article';
+export * from './authorization';
 export * from './build-log';
 export * from './build';
 export * from './collection';
 export * from './friend';
-export * from './game-authorization';
 export * from './game-server-log';
 export * from './game-server';
 export * from './game';

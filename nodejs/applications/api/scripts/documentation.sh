@@ -5,7 +5,6 @@ set -e
 merge-yaml \
   -i swagger.yml \
   ../../modules/mongoose-models/src/**/swagger.yml \
-  ../database/src/**/swagger.yml \
   ./src/handlers/**/swagger.yml \
   -o ./src/public/swagger.yml
 

@@ -1,10 +1,10 @@
 import {
   Article,
+  Authorization,
   Build,
   Collection,
   Friend,
   Game,
-  GameAuthorization,
   GameServer,
   Group,
   GroupInvitation,
@@ -23,11 +23,11 @@ import {
 export function syncIndexes() {
   return Promise.all([
     Article.syncIndexes({ background: true }),
+    Authorization.syncIndexes({ background: true }),
     Build.syncIndexes({ background: true }),
     Collection.syncIndexes({ background: true }),
     Friend.syncIndexes({ background: true }),
     Game.syncIndexes({ background: true }),
-    GameAuthorization.syncIndexes({ background: true }),
     GameServer.syncIndexes({ background: true }),
     Group.syncIndexes({ background: true }),
     GroupInvitation.syncIndexes({ background: true }),

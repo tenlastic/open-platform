@@ -151,6 +151,17 @@
             <span>Articles</span>
           </app-button>
 
+          <app-button *ngIf="hasPermission('authorizations')"
+                      color="accent"
+                      layout="vertical"
+                      routerLink="authorizations"
+                      routerLinkActive="active"
+                      text="left"
+                      width="full">
+            <mat-icon>vpn_key</mat-icon>
+            <span>Authorizations</span>
+          </app-button>
+
           <app-button *ngIf="hasPermission('games')"
                       color="accent"
                       layout="vertical"
@@ -160,17 +171,6 @@
                       width="full">
             <mat-icon>sports_esports</mat-icon>
             <span>Games</span>
-          </app-button>
-
-          <app-button *ngIf="hasPermission('games')"
-                      color="accent"
-                      layout="vertical"
-                      routerLink="game-authorizations"
-                      routerLinkActive="active"
-                      text="left"
-                      width="full">
-            <mat-icon>vpn_key</mat-icon>
-            <span>Game Authorizations</span>
           </app-button>
         </ng-container>
       </div>

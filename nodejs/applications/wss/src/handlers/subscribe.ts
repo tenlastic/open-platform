@@ -1,9 +1,9 @@
 import {
+  Authorization,
+  AuthorizationPermissions,
   Build,
   BuildPermissions,
   Game,
-  GameAuthorization,
-  GameAuthorizationPermissions,
   GamePermissions,
   GameServer,
   GameServerPermissions,
@@ -42,6 +42,9 @@ export async function subscribe(
   }
 
   switch (data.parameters.collection) {
+    case 'authorizations':
+      return webSocketServer.subscribe(auth, data, Authorization, AuthorizationPermissions, ws);
+
     case 'builds':
       return webSocketServer.subscribe(auth, data, Build, BuildPermissions, ws);
 
@@ -50,15 +53,6 @@ export async function subscribe(
 
     case 'games':
       return webSocketServer.subscribe(auth, data, Game, GamePermissions, ws);
-
-    case 'game-authorizations':
-      return webSocketServer.subscribe(
-        auth,
-        data,
-        GameAuthorization,
-        GameAuthorizationPermissions,
-        ws,
-      );
 
     case 'game-servers':
       return webSocketServer.subscribe(auth, data, GameServer, GameServerPermissions, ws);

@@ -1,5 +1,5 @@
 paths:
-  /databases/{databaseId}/collections/{collectionId}/records/count:
+  /collections/{collectionId}/records/count:
     get:
       summary: Count
       tags: [DatabaseCollectionRecords]
@@ -9,11 +9,6 @@ paths:
       parameters:
         - in: path
           name: collectionId
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: databaseId
           schema:
             type: string
           required: true

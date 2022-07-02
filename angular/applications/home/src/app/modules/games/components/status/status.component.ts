@@ -7,7 +7,7 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
-import { Game, GameAuthorizationService } from '@tenlastic/ng-http';
+import { AuthorizationService, Game } from '@tenlastic/ng-http';
 
 import {
   IdentityService,
@@ -155,8 +155,8 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   private interval: NodeJS.Timer;
 
   constructor(
+    private authorizationService: AuthorizationService,
     private changeDetectorRef: ChangeDetectorRef,
-    private gameAuthorizationService: GameAuthorizationService,
     private identityService: IdentityService,
     private updateService: UpdateService,
   ) {}
@@ -195,8 +195,7 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
     } else if (this.status.state === UpdateServiceState.Ready && !this.status.childProcess) {
       this.updateService.play(this.game._id);
     } else if (this.status.state === UpdateServiceState.NotAuthorized) {
-      this.gameAuthorizationService.create({
-        gameId: this.game._id,
+      this.authorizationService.create({
         namespaceId: this.game.namespaceId,
         userId: this.identityService.user._id,
       });

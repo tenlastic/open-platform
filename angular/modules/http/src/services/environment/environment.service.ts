@@ -2,11 +2,11 @@ import { Inject, Injectable, InjectionToken } from '@angular/core';
 
 export interface Environment {
   articleApiBaseUrl: string;
+  authorizationApiBaseUrl: string;
   buildApiBaseUrl: string;
   collectionApiBaseUrl: string;
   friendApiBaseUrl: string;
   gameApiBaseUrl: string;
-  gameAuthorizationApiBaseUrl: string;
   gameServerApiBaseUrl: string;
   groupApiBaseUrl: string;
   groupInvitationApiBaseUrl: string;
@@ -28,11 +28,11 @@ export const EnvironmentServiceConfig = new InjectionToken<Environment>('Environ
 @Injectable({ providedIn: 'root' })
 export class EnvironmentService implements Environment {
   public articleApiBaseUrl: string;
+  public authorizationApiBaseUrl: string;
   public buildApiBaseUrl: string;
   public collectionApiBaseUrl: string;
   public friendApiBaseUrl: string;
   public gameApiBaseUrl: string;
-  public gameAuthorizationApiBaseUrl: string;
   public gameServerApiBaseUrl: string;
   public groupApiBaseUrl: string;
   public groupInvitationApiBaseUrl: string;

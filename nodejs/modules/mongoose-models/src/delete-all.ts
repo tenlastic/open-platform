@@ -1,10 +1,10 @@
 import {
   Article,
+  Authorization,
   Build,
   Collection,
   Friend,
   Game,
-  GameAuthorization,
   GameServer,
   Group,
   GroupInvitation,
@@ -23,11 +23,11 @@ import {
 export function deleteAll() {
   return Promise.all([
     Article.deleteMany({}),
+    Authorization.deleteMany({}),
     Build.deleteMany({}),
     Collection.deleteMany({}),
     Friend.deleteMany({}),
     Game.deleteMany({}),
-    GameAuthorization.deleteMany({}),
     GameServer.deleteMany({}),
     Group.deleteMany({}),
     GroupInvitation.deleteMany({}),

@@ -1,0 +1,26 @@
+components:
+  schemas:
+    Authorization:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[0-9a-f]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        namespaceId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        status:
+          type: string
+          enum: [authorized, pending, unauthorized]
+        updatedAt:
+          type: string
+          format: date-time
+        userId:
+          type: string
+          format: ^[0-9a-f]{24}$
+      required:
+        - namespaceId
+        - userId

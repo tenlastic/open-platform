@@ -11,10 +11,10 @@ import * as path from 'path';
 import { URL } from 'url';
 
 import { router as articlesRouter } from './handlers/articles';
+import { router as authorizationsRouter } from './handlers/authorizations';
 import { router as buildsRouter } from './handlers/builds';
 import { router as collectionsRouter } from './handlers/collections';
 import { router as friendsRouter } from './handlers/friends';
-import { router as gameAuthorizationsRouter } from './handlers/game-authorizations';
 import { router as gameServersRouter } from './handlers/game-servers';
 import { router as gamesRouter } from './handlers/games';
 import { router as groupsRouter } from './handlers/groups';
@@ -65,11 +65,11 @@ import { router as workflowsRouter } from './handlers/workflows';
 
     // Send changes from MongoDB to NATS.
     mongooseModels.ArticleEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.AuthorizationEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.BuildEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.CollectionEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.FriendEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.GameEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.GameAuthorizationEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.GameServerEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.GroupEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.GroupInvitationEvent.sync(mongooseChangeStreamNats.publish);
@@ -90,10 +90,10 @@ import { router as workflowsRouter } from './handlers/workflows';
 
     // Register web server routes.
     webServer.use(articlesRouter.routes());
+    webServer.use(authorizationsRouter.routes());
     webServer.use(buildsRouter.routes());
     webServer.use(collectionsRouter.routes());
     webServer.use(friendsRouter.routes());
-    webServer.use(gameAuthorizationsRouter.routes());
     webServer.use(gameServersRouter.routes());
     webServer.use(gamesRouter.routes());
     webServer.use(groupsRouter.routes());

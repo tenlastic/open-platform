@@ -4,14 +4,14 @@ import { Router, NavigationEnd } from '@angular/router';
 import { resetStores } from '@datorama/akita';
 import {
   ArticleQuery,
+  Authorization,
+  AuthorizationService,
   Build,
   BuildQuery,
   BuildService,
   Collection,
   CollectionService,
   Game,
-  GameAuthorization,
-  GameAuthorizationService,
   GameQuery,
   GameServer,
   GameServerQuery,
@@ -56,11 +56,11 @@ export class AppComponent implements OnInit {
 
   constructor(
     private articleQuery: ArticleQuery,
+    private authorizationService: AuthorizationService,
     private buildQuery: BuildQuery,
     private buildService: BuildService,
     private collectionService: CollectionService,
     private electronService: ElectronService,
-    private gameAuthorizationService: GameAuthorizationService,
     private gameQuery: GameQuery,
     private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
@@ -177,9 +177,9 @@ export class AppComponent implements OnInit {
   }
 
   private subscribe() {
+    this.socket.subscribe('authorizations', Authorization, this.authorizationService);
     this.socket.subscribe('builds', Build, this.buildService);
     this.socket.subscribe('collections', Collection, this.collectionService);
-    this.socket.subscribe('game-authorizations', GameAuthorization, this.gameAuthorizationService);
     this.socket.subscribe('game-servers', GameServer, this.gameServerService);
     this.socket.subscribe('games', Game, this.gameService);
     this.socket.subscribe('groups', Group, this.groupService);

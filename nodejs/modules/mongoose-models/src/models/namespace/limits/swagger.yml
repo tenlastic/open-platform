@@ -10,19 +10,6 @@ components:
               type: integer
             size:
               type: integer
-        databases:
-          type: object
-          properties:
-            cpu:
-              type: integer
-            memory:
-              type: integer
-            preemptible:
-              type: boolean
-            replicas:
-              type: number
-            storage:
-              type: number
         gameServers:
           type: object
           properties:
@@ -71,7 +58,6 @@ components:
               type: integer
       required:
         - builds
-        - databases
         - gameServers
         - games
         - queues

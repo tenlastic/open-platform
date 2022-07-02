@@ -1,6 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { GameAuthorizationStatus } from '../game-authorization';
+import { AuthorizationStatus } from '../authorization';
 import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
 import { UserPermissionsHelpers, UserRole } from '../user';
 import { Game, GameAccess, GameDocument } from './model';
@@ -45,34 +45,34 @@ export const GamePermissions = new MongoosePermissions<GameDocument>(Game, {
       $or: [
         NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Games),
         {
-          _id: {
+          access: GameAccess.Private,
+          namespaceId: {
             $in: {
               $query: {
-                model: 'GameAuthorizationSchema',
-                select: 'gameId',
+                model: 'AuthorizationSchema',
+                select: 'namespaceId',
                 where: {
-                  status: GameAuthorizationStatus.Granted,
+                  status: AuthorizationStatus.Granted,
                   userId: { $ref: 'user._id' },
                 },
               },
             },
           },
-          access: GameAccess.Private,
         },
         {
-          _id: {
+          access: { $ne: GameAccess.Private },
+          namespaceId: {
             $nin: {
               $query: {
-                model: 'GameAuthorizationSchema',
-                select: 'gameId',
+                model: 'AuthorizationSchema',
+                select: 'namespaceId',
                 where: {
-                  status: GameAuthorizationStatus.Revoked,
+                  status: AuthorizationStatus.Revoked,
                   userId: { $ref: 'user._id' },
                 },
               },
             },
           },
-          access: { $ne: GameAccess.Private },
         },
       ],
     },
@@ -121,34 +121,34 @@ export const GamePermissionsHelpers = {
         where: {
           $or: [
             {
-              _id: {
+              access: GameAccess.Private,
+              namespaceId: {
                 $in: {
                   $query: {
-                    model: 'GameAuthorizationSchema',
-                    select: 'gameId',
+                    model: 'AuthorizationSchema',
+                    select: 'namespaceId',
                     where: {
-                      status: GameAuthorizationStatus.Granted,
+                      status: AuthorizationStatus.Granted,
                       userId: { $ref: 'user._id' },
                     },
                   },
                 },
               },
-              access: GameAccess.Private,
             },
             {
-              _id: {
+              access: { $ne: GameAccess.Private },
+              namespaceId: {
                 $nin: {
                   $query: {
-                    model: 'GameAuthorizationSchema',
-                    select: 'gameId',
+                    model: 'AuthorizationSchema',
+                    select: 'namespaceId',
                     where: {
-                      status: GameAuthorizationStatus.Revoked,
+                      status: AuthorizationStatus.Revoked,
                       userId: { $ref: 'user._id' },
                     },
                   },
                 },
               },
-              access: { $ne: GameAccess.Private },
             },
             NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Games),
           ],

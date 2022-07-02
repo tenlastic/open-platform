@@ -12,7 +12,6 @@ components:
             enum:
               - articles
               - builds
-              - databases
               - game-servers
               - games
               - namespaces

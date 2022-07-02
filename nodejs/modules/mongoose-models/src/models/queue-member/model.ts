@@ -15,7 +15,7 @@ import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change
 import * as errors from '../../errors';
 import { namespaceValidator } from '../../validators';
 import { GameAccess } from '../game';
-import { GameAuthorization, GameAuthorizationStatus } from '../game-authorization';
+import { Authorization, AuthorizationStatus } from '../authorization';
 import { GroupDocument, GroupEvent } from '../group';
 import { NamespaceDocument } from '../namespace';
 import { QueueDocument, QueueEvent } from '../queue';
@@ -211,19 +211,19 @@ export class QueueMemberSchema {
     }
 
     const game = this.queueDocument.gameDocument;
-    const gameAuthorizations = await GameAuthorization.find({
-      gameId: game._id,
+    const authorizations = await Authorization.find({
+      namespaceId: game.namespaceId,
       userId: { $in: this.userIds },
     });
 
     const unauthorizedUserIds = this.userIds.filter((ui) => {
       if (game.access === GameAccess.Public) {
-        return gameAuthorizations
-          .filter((ga) => ga.status === GameAuthorizationStatus.Revoked)
+        return authorizations
+          .filter((ga) => ga.status === AuthorizationStatus.Revoked)
           .some((ga) => ga.userId.equals(ui));
       } else {
-        return !gameAuthorizations
-          .filter((ga) => ga.status === GameAuthorizationStatus.Granted)
+        return !authorizations
+          .filter((ga) => ga.status === AuthorizationStatus.Granted)
           .some((ga) => ga.userId.equals(ui));
       }
     });

@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import {
+  Authorization,
+  AuthorizationService,
   Build,
   BuildService,
   Game,
-  GameAuthorization,
-  GameAuthorizationService,
   GameQuery,
   GameServer,
   GameService,
+  IAuthorization,
   IBuild,
   IGame,
-  IGameAuthorization,
   IUser,
   LoginService,
   Namespace,
@@ -89,11 +89,11 @@ export class UpdateService {
   private status = new Map<string, UpdateServiceStatus>();
 
   constructor(
+    private authorizationService: AuthorizationService,
     private buildService: BuildService,
     private electronService: ElectronService,
     private gameQuery: GameQuery,
     private gameService: GameService,
-    private gameAuthorizationService: GameAuthorizationService,
     private identityService: IdentityService,
     private loginService: LoginService,
     private namespaceService: NamespaceService,
@@ -114,24 +114,22 @@ export class UpdateService {
     status.progress = null;
     status.state = UpdateServiceState.Checking;
 
-    // Check Game Authorization...
+    // Check Authorization...
     status.text = 'Checking authorization...';
     const { Games } = IUser.Role;
-    const { game, gameAuthorization, namespaceUser } = await this.getAuthorization(gameId);
+    const { game, authorization, namespaceUser } = await this.getAuthorization(gameId);
     const { user } = this.identityService;
     if (!user.roles.includes(Games) && !namespaceUser?.roles.includes(Games)) {
-      if (gameAuthorization?.status === IGameAuthorization.GameAuthorizationStatus.Revoked) {
+      if (authorization?.status === IAuthorization.AuthorizationStatus.Revoked) {
         status.state = UpdateServiceState.Banned;
         return;
       }
 
       if (game.access !== IGame.Access.Public) {
-        if (gameAuthorization?.status === IGameAuthorization.GameAuthorizationStatus.Pending) {
+        if (authorization?.status === IAuthorization.AuthorizationStatus.Pending) {
           status.state = UpdateServiceState.PendingAuthorization;
           return;
-        } else if (
-          gameAuthorization?.status !== IGameAuthorization.GameAuthorizationStatus.Granted
-        ) {
+        } else if (authorization?.status !== IAuthorization.AuthorizationStatus.Granted) {
           status.state = UpdateServiceState.NotAuthorized;
           return;
         }
@@ -356,7 +354,7 @@ export class UpdateService {
 
   private async getAuthorization(gameId: string) {
     const game = await this.gameService.findOne(gameId);
-    const gameAuthorizations = await this.gameAuthorizationService.find({
+    const authorizations = await this.authorizationService.find({
       where: { gameId, userId: this.identityService.user._id },
     });
 
@@ -366,7 +364,7 @@ export class UpdateService {
     } catch {}
     const namespaceUser = namespace?.users.find((u) => u._id === this.identityService.user._id);
 
-    return { game, gameAuthorization: gameAuthorizations[0], namespaceUser };
+    return { game, authorization: authorizations[0], namespaceUser };
   }
 
   private async getCachedFiles(gameId: string) {
@@ -439,12 +437,12 @@ export class UpdateService {
     this.checkForUpdates(record._id);
   }
 
-  private onGameAuthorizationChange(record: GameAuthorization) {
+  private onAuthorizationChange(record: Authorization) {
     if (record.userId !== this.identityService.user._id) {
       return;
     }
 
-    this.checkForUpdates(record.gameId);
+    this.checkForUpdates(record.namespaceId);
   }
 
   private subscribeToServices() {
@@ -459,14 +457,14 @@ export class UpdateService {
     this.gameService.onCreate.subscribe((record: Game) => this.onGameChange(record));
     this.gameService.onDelete.subscribe((record: Game) => this.onGameChange(record));
     this.gameService.onUpdate.subscribe((record: Game) => this.onGameChange(record));
-    this.gameAuthorizationService.onCreate.subscribe((record: GameAuthorization) =>
-      this.onGameAuthorizationChange(record),
+    this.authorizationService.onCreate.subscribe((record: Authorization) =>
+      this.onAuthorizationChange(record),
     );
-    this.gameAuthorizationService.onDelete.subscribe((record: GameAuthorization) =>
-      this.onGameAuthorizationChange(record),
+    this.authorizationService.onDelete.subscribe((record: Authorization) =>
+      this.onAuthorizationChange(record),
     );
-    this.gameAuthorizationService.onUpdate.subscribe((record: GameAuthorization) =>
-      this.onGameAuthorizationChange(record),
+    this.authorizationService.onUpdate.subscribe((record: Authorization) =>
+      this.onAuthorizationChange(record),
     );
   }
 }

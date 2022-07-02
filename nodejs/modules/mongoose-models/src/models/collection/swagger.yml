@@ -9,9 +9,6 @@ components:
         createdAt:
           type: string
           format: date-time
-        databaseId:
-          type: string
-          format: ^[0-9a-f]{24}$
         indexes:
           type: array
           items:
@@ -54,7 +51,6 @@ components:
           type: string
           format: date-time
       required:
-        - databaseId
         - name
         - namespaceId
     CollectionAttributeRoles:
