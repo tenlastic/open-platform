@@ -7,28 +7,20 @@ import { Collection, CollectionDocument } from './model';
 export const CollectionPermissions = new MongoosePermissions<CollectionDocument>(Collection, {
   create: {
     'namespace-administrator': [
-      'databaseId',
       'indexes.*',
       'jsonSchema.*',
       'name',
       'namespaceId',
       'permissions.*',
     ],
-    'user-administrator': [
-      'databaseId',
-      'indexes.*',
-      'jsonSchema.*',
-      'name',
-      'namespaceId',
-      'permissions.*',
-    ],
+    'user-administrator': ['indexes.*', 'jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
   },
   delete: {
     'namespace-administrator': true,
     'user-administrator': true,
   },
   find: {
-    default: NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Databases),
+    default: NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Collections),
     'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
@@ -36,7 +28,6 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
     default: [
       '_id',
       'createdAt',
-      'databaseId',
       'indexes.*',
       'jsonSchema.*',
       'name',
@@ -48,15 +39,15 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
   roles: [
     {
       name: 'user-administrator',
-      query: UserPermissionsHelpers.getRoleQuery(UserRole.Databases),
+      query: UserPermissionsHelpers.getRoleQuery(UserRole.Collections),
     },
     {
       name: 'namespace-administrator',
-      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Databases),
+      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Collections),
     },
   ],
   update: {
-    'namespace-administrator': ['databaseId', 'indexes.*', 'jsonSchema.*', 'name', 'permissions.*'],
-    'user-administrator': ['databaseId', 'indexes.*', 'jsonSchema.*', 'name', 'permissions.*'],
+    'namespace-administrator': ['indexes.*', 'jsonSchema.*', 'name', 'permissions.*'],
+    'user-administrator': ['indexes.*', 'jsonSchema.*', 'name', 'permissions.*'],
   },
 });

@@ -12,7 +12,7 @@ import { URL } from 'url';
 
 import { router as articlesRouter } from './handlers/articles';
 import { router as buildsRouter } from './handlers/builds';
-import { router as databasesRouter } from './handlers/databases';
+import { router as collectionsRouter } from './handlers/collections';
 import { router as friendsRouter } from './handlers/friends';
 import { router as gameAuthorizationsRouter } from './handlers/game-authorizations';
 import { router as gameServersRouter } from './handlers/game-servers';
@@ -27,6 +27,7 @@ import { router as passwordResetsRouter } from './handlers/password-resets';
 import { router as publicKeysRouter } from './handlers/public-keys';
 import { router as queuesRouter } from './handlers/queues';
 import { router as queueMembersRouter } from './handlers/queue-members';
+import { router as recordsRouter } from './handlers/records';
 import { router as refreshTokensRouter } from './handlers/refresh-tokens';
 import { router as usersRouter } from './handlers/users';
 import { router as webSocketsRouter } from './handlers/web-sockets';
@@ -65,7 +66,7 @@ import { router as workflowsRouter } from './handlers/workflows';
     // Send changes from MongoDB to NATS.
     mongooseModels.ArticleEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.BuildEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.DatabaseEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.CollectionEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.FriendEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.GameEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.GameAuthorizationEvent.sync(mongooseChangeStreamNats.publish);
@@ -78,6 +79,7 @@ import { router as workflowsRouter } from './handlers/workflows';
     mongooseModels.PasswordResetEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.QueueEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.QueueMemberEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseModels.RecordEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.UserEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.WebSocketEvent.sync(mongooseChangeStreamNats.publish);
     mongooseModels.WorkflowEvent.sync(mongooseChangeStreamNats.publish);
@@ -89,7 +91,7 @@ import { router as workflowsRouter } from './handlers/workflows';
     // Register web server routes.
     webServer.use(articlesRouter.routes());
     webServer.use(buildsRouter.routes());
-    webServer.use(databasesRouter.routes());
+    webServer.use(collectionsRouter.routes());
     webServer.use(friendsRouter.routes());
     webServer.use(gameAuthorizationsRouter.routes());
     webServer.use(gameServersRouter.routes());
@@ -104,6 +106,7 @@ import { router as workflowsRouter } from './handlers/workflows';
     webServer.use(publicKeysRouter.routes());
     webServer.use(queuesRouter.routes());
     webServer.use(queueMembersRouter.routes());
+    webServer.use(recordsRouter.routes());
     webServer.use(refreshTokensRouter.routes());
     webServer.use(usersRouter.routes());
     webServer.use(webSocketsRouter.routes());
@@ -118,4 +121,4 @@ import { router as workflowsRouter } from './handlers/workflows';
   }
 })();
 
-process.on('unhandledRejection', err => console.error(JSON.stringify(err)));
+process.on('unhandledRejection', (err) => console.error(JSON.stringify(err)));

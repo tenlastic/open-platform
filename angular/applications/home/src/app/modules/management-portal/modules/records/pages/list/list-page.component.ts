@@ -9,7 +9,6 @@ import { ActivatedRoute } from '@angular/router';
 import {
   Collection,
   CollectionService,
-  DatabaseService,
   Record,
   RecordQuery,
   RecordService,
@@ -44,15 +43,12 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
   private get collectionId() {
     return this.activatedRoute.snapshot.paramMap.get('collectionId');
   }
-  private get databaseId() {
-    return this.activatedRoute.snapshot.paramMap.get('databaseId');
-  }
   private socket: Socket;
+  private subscription: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private collectionService: CollectionService,
-    private databaseService: DatabaseService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private recordQuery: RecordQuery,
@@ -64,11 +60,8 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
   public async ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Records`);
 
-    this.collection = await this.collectionService.findOne(this.databaseId, this.collectionId);
-    const database = await this.databaseService.findOne(this.databaseId);
+    this.collection = await this.collectionService.findOne(this.collectionId);
     this.breadcrumbs = [
-      { label: 'Databases', link: '../../../../' },
-      { label: database.name, link: '../../../' },
       { label: 'Collections', link: '../../' },
       { label: this.collection.name, link: '../' },
       { label: 'Records' },
@@ -80,13 +73,9 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
       .slice(0, 4);
     this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
 
-    const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
-    this.socket = await this.socketService.connect(url);
-    this.socket.addEventListener('open', () => {
-      this.socket.subscribe('collections', Collection, this.collectionService);
-      this.socket.subscribe('records', Record, this.recordService, {
-        collectionId: this.collectionId,
-      });
+    this.socket = await this.socketService.connect(environment.apiBaseUrl);
+    this.subscription = this.socket.subscribe('records', Record, this.recordService, {
+      collectionId: this.collectionId,
     });
 
     await this.fetchRecords();
@@ -94,7 +83,7 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
-    this.socket.close();
+    this.socket.unsubscribe(this.subscription);
   }
 
   public showDeletePrompt(record: Record) {
@@ -110,7 +99,7 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.recordService.delete(this.databaseId, this.collectionId, record._id);
+        await this.recordService.delete(this.collectionId, record._id);
         this.matSnackBar.open('Record deleted successfully.');
       }
     });
@@ -118,12 +107,10 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
   private async fetchRecords() {
     this.$records = this.recordQuery.selectAll({
-      filterBy: (gs) => gs.collectionId === this.collectionId && gs.databaseId === this.databaseId,
+      filterBy: (gs) => gs.collectionId === this.collectionId,
     });
 
-    await this.recordService.find(this.databaseId, this.collectionId, {
-      sort: 'name',
-    });
+    await this.recordService.find(this.collectionId, { sort: 'name' });
 
     this.updateDataSource$ = this.$records.subscribe((records) => (this.dataSource.data = records));
 

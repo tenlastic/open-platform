@@ -1,4 +1,4 @@
-import { databaseQuery } from '../stores/database';
+import { namespaceQuery } from '../stores/namespace';
 import { BaseModel } from './base';
 
 export namespace ICollection {
@@ -45,13 +45,12 @@ export namespace ICollection {
 }
 
 export class CollectionModel extends BaseModel {
-  public get database() {
-    return databaseQuery.getEntity(this.databaseId);
-  }
-  public databaseId: string;
   public indexes: ICollection.Index;
   public jsonSchema: ICollection.JsonSchemaProperty;
   public name: string;
+  public get namespace() {
+    return namespaceQuery.getEntity(this.namespaceId);
+  }
   public namespaceId: string;
   public permissions: ICollection.Permissions;
 

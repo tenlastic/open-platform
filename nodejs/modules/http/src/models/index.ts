@@ -4,8 +4,6 @@ export * from './article';
 export * from './build-log';
 export * from './build';
 export * from './collection';
-export * from './database-log';
-export * from './database';
 export * from './friend';
 export * from './game-authorization';
 export * from './game-server-log';

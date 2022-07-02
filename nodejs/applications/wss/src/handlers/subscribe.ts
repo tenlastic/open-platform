@@ -1,8 +1,6 @@
 import {
   Build,
   BuildPermissions,
-  Database,
-  DatabasePermissions,
   Game,
   GameAuthorization,
   GameAuthorizationPermissions,
@@ -27,6 +25,10 @@ import {
   WebSocketPermissions,
   Workflow,
   WorkflowPermissions,
+  Collection,
+  CollectionPermissions,
+  RecordSchema,
+  RecordModel,
 } from '@tenlastic/mongoose-models';
 import * as webSocketServer from '@tenlastic/web-socket-server';
 
@@ -43,8 +45,8 @@ export async function subscribe(
     case 'builds':
       return webSocketServer.subscribe(auth, data, Build, BuildPermissions, ws);
 
-    case 'databases':
-      return webSocketServer.subscribe(auth, data, Database, DatabasePermissions, ws);
+    case 'collections':
+      return webSocketServer.subscribe(auth, data, Collection, CollectionPermissions, ws);
 
     case 'games':
       return webSocketServer.subscribe(auth, data, Game, GamePermissions, ws);
@@ -78,6 +80,14 @@ export async function subscribe(
 
     case 'queues':
       return webSocketServer.subscribe(auth, data, Queue, QueuePermissions, ws);
+
+    case 'records':
+      const { where } = data.parameters;
+      const collectionId = where.collectionId.$eq || where.collectionId;
+      const collection = await Collection.findOne({ _id: collectionId });
+      const Model = RecordSchema.getModel(collection);
+      const Permissions = RecordSchema.getPermissions(Model as RecordModel, collection);
+      return webSocketServer.subscribe(auth, data, Model, Permissions, ws);
 
     case 'users':
       return webSocketServer.subscribe(auth, data, User, UserPermissions, ws);

@@ -2,8 +2,6 @@ export * from './article';
 export * from './build-log';
 export * from './build';
 export * from './collection';
-export * from './database-log';
-export * from './database';
 export * from './game';
 export * from './game-server-log';
 export * from './game-server';

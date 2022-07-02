@@ -2,7 +2,8 @@ import { Inject, Injectable, InjectionToken } from '@angular/core';
 
 export interface Environment {
   articleApiBaseUrl: string;
-  databaseApiBaseUrl: string;
+  buildApiBaseUrl: string;
+  collectionApiBaseUrl: string;
   friendApiBaseUrl: string;
   gameApiBaseUrl: string;
   gameAuthorizationApiBaseUrl: string;
@@ -17,7 +18,6 @@ export interface Environment {
   passwordResetApiBaseUrl: string;
   queueApiBaseUrl: string;
   refreshTokenApiBaseUrl: string;
-  buildApiBaseUrl: string;
   userApiBaseUrl: string;
   webSocketApiBaseUrl: string;
   workflowApiBaseUrl: string;
@@ -28,7 +28,8 @@ export const EnvironmentServiceConfig = new InjectionToken<Environment>('Environ
 @Injectable({ providedIn: 'root' })
 export class EnvironmentService implements Environment {
   public articleApiBaseUrl: string;
-  public databaseApiBaseUrl: string;
+  public buildApiBaseUrl: string;
+  public collectionApiBaseUrl: string;
   public friendApiBaseUrl: string;
   public gameApiBaseUrl: string;
   public gameAuthorizationApiBaseUrl: string;
@@ -44,7 +45,6 @@ export class EnvironmentService implements Environment {
   public queueApiBaseUrl: string;
   public queueMemberApiBaseUrl: string;
   public refreshTokenApiBaseUrl: string;
-  public buildApiBaseUrl: string;
   public userApiBaseUrl: string;
   public webSocketApiBaseUrl: string;
   public workflowApiBaseUrl: string;

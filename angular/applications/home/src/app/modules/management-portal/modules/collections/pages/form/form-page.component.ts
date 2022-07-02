@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Collection, CollectionService, DatabaseService } from '@tenlastic/ng-http';
+import { Collection, CollectionService } from '@tenlastic/ng-http';
 
 import {
   CollectionFormService,
@@ -26,13 +26,10 @@ export class CollectionsFormPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
 
-  private databaseId: string;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private collectionService: CollectionService,
     private collectionFormService: CollectionFormService,
-    private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
     private matDialog: MatDialog,
@@ -44,18 +41,14 @@ export class CollectionsFormPageComponent implements OnInit {
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async (params) => {
       const _id = params.get('_id');
-      this.databaseId = params.get('databaseId');
 
-      const database = await this.databaseService.findOne(this.databaseId);
       this.breadcrumbs = [
-        { label: 'Databases', link: '../../../' },
-        { label: database.name, link: '../../' },
         { label: 'Collections', link: '../' },
         { label: _id === 'new' ? 'Create Collection' : 'Edit Collection' },
       ];
 
       if (_id !== 'new') {
-        this.data = await this.collectionService.findOne(this.databaseId, _id);
+        this.data = await this.collectionService.findOne(_id);
       }
 
       this.setupForm();
@@ -260,9 +253,9 @@ export class CollectionsFormPageComponent implements OnInit {
   private async upsert(data: Partial<Collection>) {
     if (this.data._id) {
       data._id = this.data._id;
-      await this.collectionService.update(this.databaseId, data);
+      await this.collectionService.update(data);
     } else {
-      await this.collectionService.create(this.databaseId, data);
+      await this.collectionService.create(data);
     }
 
     this.matSnackBar.open('Collection saved successfully.');

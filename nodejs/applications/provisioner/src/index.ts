@@ -13,7 +13,6 @@ import * as events from './events';
 
     // Subscribe to NATS events.
     events.builds();
-    events.databases();
     events.gameServers();
     events.namespaces();
     events.queues();

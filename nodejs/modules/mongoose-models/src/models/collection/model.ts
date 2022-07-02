@@ -20,20 +20,19 @@ import {
   changeStreamPlugin,
 } from '../../change-stream';
 import * as errors from '../../errors';
-import { jsonSchemaPropertiesValidator, namespaceValidator } from '../../validators';
+import { jsonSchemaPropertiesValidator } from '../../validators';
 import { toMongo } from '../../json-schema';
-import { DatabaseDocument, DatabaseEvent } from '../database';
-import { NamespaceDocument } from '../namespace';
+import { NamespaceDocument, NamespaceEvent } from '../namespace';
 import { RecordSchema } from '../record';
 import { CollectionIndexSchema } from './index/index';
 
 export const CollectionEvent = new EventEmitter<IDatabasePayload<CollectionDocument>>();
 
-// Delete Collections if associated Database is deleted.
-DatabaseEvent.sync(async (payload) => {
+// Delete Collections if associated Namespace is deleted.
+NamespaceEvent.sync(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      const records = await Collection.find({ databaseId: payload.fullDocument._id });
+      const records = await Collection.find({ namespaceId: payload.fullDocument._id });
       const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }
@@ -68,14 +67,6 @@ export class CollectionSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({
-    immutable: true,
-    ref: 'NamespaceSchema',
-    required: true,
-    validate: namespaceValidator('databaseDocument', 'databaseId'),
-  })
-  public databaseId: mongoose.Types.ObjectId;
-
   @prop({ type: CollectionIndexSchema })
   public indexes: CollectionIndexSchema[];
 
@@ -103,9 +94,6 @@ export class CollectionSchema implements IOriginalDocument {
   public permissions: IOptions;
 
   public updatedAt: Date;
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', ref: 'DatabaseSchema' })
-  public databaseDocument: DatabaseDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
@@ -173,9 +161,6 @@ export class CollectionSchema implements IOriginalDocument {
           },
           createdAt: {
             bsonType: 'date',
-          },
-          databaseId: {
-            bsonType: 'objectId',
           },
           namespaceId: {
             bsonType: 'objectId',

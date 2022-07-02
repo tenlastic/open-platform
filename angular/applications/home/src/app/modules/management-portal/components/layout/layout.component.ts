@@ -17,7 +17,7 @@ export class LayoutComponent {
   public get hasInfrastructureButtons() {
     return (
       this.hasPermission('builds') ||
-      this.hasPermission('databases') ||
+      this.hasPermission('collections') ||
       this.hasPermission('game-servers') ||
       this.hasPermission('workflows') ||
       this.hasPermission('queues')

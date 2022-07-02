@@ -36,20 +36,17 @@ describe('RecordService', () => {
   describe('create()', () => {
     it('creates and returns a Record', () => {
       const collectionId = chance.hash();
-      const databaseId = chance.hash();
       const params = {
         properties: { name: chance.hash() },
       };
 
-      service.create(databaseId, collectionId, params).then(res => {
+      service.create(collectionId, params).then((res) => {
         expect(res).toEqual(jasmine.any(Record));
         expect(res._id).toBeDefined();
         expect(res.properties.name).toEqual(params.properties.name);
       });
 
-      const req = httpMock.expectOne(
-        `${service.basePath}/${databaseId}/collections/${collectionId}/records`,
-      );
+      const req = httpMock.expectOne(`${service.basePath}/${collectionId}/records`);
       expect(req.request.method).toBe('POST');
       req.flush({
         record: {
@@ -64,15 +61,12 @@ describe('RecordService', () => {
     it('deletes the Record and returns true', () => {
       const _id = chance.hash();
       const collectionId = chance.hash();
-      const databaseId = chance.hash();
 
-      service.delete(databaseId, collectionId, _id).then(res => {
+      service.delete(collectionId, _id).then((res) => {
         expect(res).toBeTruthy();
       });
 
-      const req = httpMock.expectOne(
-        `${service.basePath}/${databaseId}/collections/${collectionId}/records/${_id}`,
-      );
+      const req = httpMock.expectOne(`${service.basePath}/${collectionId}/records/${_id}`);
       expect(req.request.method).toBe('DELETE');
     });
   });
@@ -81,19 +75,18 @@ describe('RecordService', () => {
     it('returns an array of Records', () => {
       const _id = chance.hash();
       const collectionId = chance.hash();
-      const databaseId = chance.hash();
       const params = {
         where: { _id },
       };
 
-      service.find(databaseId, collectionId, params).then(res => {
+      service.find(collectionId, params).then((res) => {
         expect(res.length).toBe(1);
         expect(res[0]).toEqual(jasmine.any(Record));
         expect(res[0]._id).toBe(_id);
       });
 
       const req = httpMock.expectOne(
-        r => r.url === `${service.basePath}/${databaseId}/collections/${collectionId}/records`,
+        (r) => r.url === `${service.basePath}/${collectionId}/records`,
       );
       expect(req.request.method).toBe('GET');
       req.flush({
@@ -106,16 +99,13 @@ describe('RecordService', () => {
     it('returns a Record', () => {
       const _id = chance.hash();
       const collectionId = chance.hash();
-      const databaseId = chance.hash();
 
-      service.findOne(databaseId, collectionId, _id).then(res => {
+      service.findOne(collectionId, _id).then((res) => {
         expect(res).toEqual(jasmine.any(Record));
         expect(res._id).toBe(_id);
       });
 
-      const req = httpMock.expectOne(
-        `${service.basePath}/${databaseId}/collections/${collectionId}/records/${_id}`,
-      );
+      const req = httpMock.expectOne(`${service.basePath}/${collectionId}/records/${_id}`);
       expect(req.request.method).toBe('GET');
       req.flush({
         record: { _id },
@@ -126,21 +116,18 @@ describe('RecordService', () => {
   describe('update()', () => {
     it('updates and returns a Record', () => {
       const collectionId = chance.hash();
-      const databaseId = chance.hash();
       const params = {
         _id: chance.hash(),
         properties: { name: chance.hash() },
       };
 
-      service.update(databaseId, collectionId, params).then(res => {
+      service.update(collectionId, params).then((res) => {
         expect(res).toEqual(jasmine.any(Record));
         expect(res._id).toEqual(params._id);
         expect(res.properties.name).toEqual(params.properties.name);
       });
 
-      const req = httpMock.expectOne(
-        `${service.basePath}/${databaseId}/collections/${collectionId}/records/${params._id}`,
-      );
+      const req = httpMock.expectOne(`${service.basePath}/${collectionId}/records/${params._id}`);
       expect(req.request.method).toBe('PUT');
       req.flush({ record: params });
     });

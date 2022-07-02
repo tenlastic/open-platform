@@ -7,8 +7,8 @@ import {
   Build,
   BuildQuery,
   BuildService,
-  Database,
-  DatabaseService,
+  Collection,
+  CollectionService,
   Game,
   GameAuthorization,
   GameAuthorizationService,
@@ -58,7 +58,7 @@ export class AppComponent implements OnInit {
     private articleQuery: ArticleQuery,
     private buildQuery: BuildQuery,
     private buildService: BuildService,
-    private databaseService: DatabaseService,
+    private collectionService: CollectionService,
     private electronService: ElectronService,
     private gameAuthorizationService: GameAuthorizationService,
     private gameQuery: GameQuery,
@@ -178,7 +178,7 @@ export class AppComponent implements OnInit {
 
   private subscribe() {
     this.socket.subscribe('builds', Build, this.buildService);
-    this.socket.subscribe('databases', Database, this.databaseService);
+    this.socket.subscribe('collections', Collection, this.collectionService);
     this.socket.subscribe('game-authorizations', GameAuthorization, this.gameAuthorizationService);
     this.socket.subscribe('game-servers', GameServer, this.gameServerService);
     this.socket.subscribe('games', Game, this.gameService);

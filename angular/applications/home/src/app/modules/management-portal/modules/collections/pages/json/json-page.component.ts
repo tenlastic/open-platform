@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Collection, CollectionService, DatabaseService } from '@tenlastic/ng-http';
+import { Collection, CollectionService } from '@tenlastic/ng-http';
 
 import {
   IdentityService,
@@ -27,12 +27,9 @@ export class CollectionsJsonPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
 
-  private databaseId: string;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private collectionService: CollectionService,
-    private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
     private matDialog: MatDialog,
@@ -45,19 +42,15 @@ export class CollectionsJsonPageComponent implements OnInit {
   public ngOnInit() {
     this.activatedRoute.paramMap.subscribe(async (params) => {
       const _id = params.get('_id');
-      this.databaseId = params.get('databaseId');
 
-      const database = await this.databaseService.findOne(this.databaseId);
       this.breadcrumbs = [
-        { label: 'Databases', link: '../../../../' },
-        { label: database.name, link: '../../../' },
         { label: 'Collections', link: '../../' },
         { label: _id === 'new' ? 'Create Collection' : 'Edit Collection', link: '../' },
         { label: _id === 'new' ? 'Create Collection as JSON' : 'Edit Collection as JSON' },
       ];
 
       if (_id !== 'new') {
-        this.data = await this.collectionService.findOne(this.databaseId, _id);
+        this.data = await this.collectionService.findOne(_id);
       }
 
       this.setupForm();
@@ -103,7 +96,6 @@ export class CollectionsJsonPageComponent implements OnInit {
     const json = this.form.get('json').value;
     const values = JSON.parse(json) as Collection;
 
-    values.databaseId = this.databaseId;
     values.namespaceId = this.selectedNamespaceService.namespaceId;
 
     try {
@@ -160,9 +152,9 @@ export class CollectionsJsonPageComponent implements OnInit {
 
     if (this.data._id) {
       data._id = this.data._id;
-      result = await this.collectionService.update(this.databaseId, data);
+      result = await this.collectionService.update(data);
     } else {
-      result = await this.collectionService.create(this.databaseId, data);
+      result = await this.collectionService.create(data);
     }
 
     this.matSnackBar.open('Collection saved successfully.');

@@ -4,13 +4,7 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  Collection,
-  CollectionService,
-  DatabaseService,
-  Record,
-  RecordService,
-} from '@tenlastic/ng-http';
+import { Collection, CollectionService, Record, RecordService } from '@tenlastic/ng-http';
 
 import {
   BreadcrumbsComponentBreadcrumb,
@@ -30,12 +24,10 @@ export class RecordsFormPageComponent implements OnInit {
   public form: FormGroup;
 
   private collectionId: string;
-  private databaseId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private collectionService: CollectionService,
-    private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
@@ -47,13 +39,9 @@ export class RecordsFormPageComponent implements OnInit {
     this.activatedRoute.paramMap.subscribe(async (params) => {
       const _id = params.get('_id');
       this.collectionId = params.get('collectionId');
-      this.databaseId = params.get('databaseId');
 
-      this.collection = await this.collectionService.findOne(this.databaseId, this.collectionId);
-      const database = await this.databaseService.findOne(this.databaseId);
+      this.collection = await this.collectionService.findOne(this.collectionId);
       this.breadcrumbs = [
-        { label: 'Databases', link: '../../../../../' },
-        { label: database.name, link: '../../../../' },
         { label: 'Collections', link: '../../../' },
         { label: this.collection.name, link: '../../' },
         { label: 'Records', link: '../' },
@@ -61,7 +49,7 @@ export class RecordsFormPageComponent implements OnInit {
       ];
 
       if (_id !== 'new') {
-        this.data = await this.recordService.findOne(this.databaseId, this.collectionId, _id);
+        this.data = await this.recordService.findOne(this.collectionId, _id);
       }
 
       this.setupForm();
@@ -213,9 +201,9 @@ export class RecordsFormPageComponent implements OnInit {
   private async upsert(data: Partial<Record>) {
     if (this.data._id) {
       data._id = this.data._id;
-      await this.recordService.update(this.databaseId, this.collectionId, data);
+      await this.recordService.update(this.collectionId, data);
     } else {
-      await this.recordService.create(this.databaseId, this.collectionId, data);
+      await this.recordService.create(this.collectionId, data);
     }
 
     this.matSnackBar.open('Record saved successfully.');

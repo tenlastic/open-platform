@@ -14,7 +14,6 @@ import * as errors from '../../errors';
 import { namespaceValidator } from '../../validators';
 import { toMongoose } from '../../json-schema';
 import { CollectionDocument } from '../collection';
-import { DatabaseDocument } from '../database';
 import { NamespaceDocument } from '../namespace';
 import { UserDocument } from '../user';
 import { RecordPermissions } from './permissions';
@@ -41,13 +40,6 @@ export class RecordSchema {
 
   public createdAt: Date;
 
-  @prop({
-    ref: 'DatabaseSchema',
-    required: true,
-    validate: namespaceValidator('databaseDocument', 'databaseId'),
-  })
-  public databaseId: mongoose.Types.ObjectId;
-
   @prop({ ref: 'NamespaceSchema', required: true })
   public namespaceId: mongoose.Types.ObjectId;
 
@@ -59,9 +51,6 @@ export class RecordSchema {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', ref: 'CollectionSchema' })
   public collectionDocument: CollectionDocument;
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'databaseId', ref: 'DatabaseSchema' })
-  public databaseDocument: DatabaseDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;

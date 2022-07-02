@@ -1,5 +1,4 @@
 import { Model } from './model';
-import { Database } from './database';
 
 export namespace ICollection {
   export interface Index {
@@ -45,8 +44,6 @@ export namespace ICollection {
 }
 
 export class Collection extends Model {
-  public database: Database;
-  public databaseId: string;
   public indexes: ICollection.Index;
   public jsonSchema: ICollection.JsonSchemaProperty;
   public name: string;

@@ -1,7 +1,5 @@
 export * from './build';
 export * from './build-sidecar';
-export * from './database';
-export * from './database-sidecar';
 export * from './game-server';
 export * from './game-server-sidecar';
 export * from './namespace';

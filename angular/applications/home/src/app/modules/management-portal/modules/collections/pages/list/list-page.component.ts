@@ -5,26 +5,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
-import {
-  Collection,
-  CollectionQuery,
-  CollectionService,
-  DatabaseService,
-} from '@tenlastic/ng-http';
+import { Collection, CollectionQuery, CollectionService } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
-import { environment } from '../../../../../../../environments/environment';
-import {
-  IdentityService,
-  SelectedNamespaceService,
-  Socket,
-  SocketService,
-} from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
@@ -37,51 +22,29 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<Collection>;
 
   public $collections: Observable<Collection[]>;
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public dataSource = new MatTableDataSource<Collection>();
   public displayedColumns: string[] = ['name', 'createdAt', 'updatedAt', 'actions'];
 
   private updateDataSource$ = new Subscription();
-  private get databaseId() {
-    return this.activatedRoute.snapshot.paramMap.get('databaseId');
-  }
-  private socket: Socket;
 
   constructor(
-    private activatedRoute: ActivatedRoute,
     private collectionQuery: CollectionQuery,
     private collectionService: CollectionService,
-    private databaseService: DatabaseService,
     public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private selectedNamespaceService: SelectedNamespaceService,
-    private socketService: SocketService,
     private titleService: Title,
   ) {}
 
   public async ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Collections`);
 
-    const database = await this.databaseService.findOne(this.databaseId);
-    this.breadcrumbs = [
-      { label: 'Databases', link: '../../../' },
-      { label: database.name, link: '../../' },
-      { label: 'Collections' },
-    ];
-
-    const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
-    this.socket = await this.socketService.connect(url);
-    this.socket.addEventListener('open', () =>
-      this.socket.subscribe('collections', Collection, this.collectionService),
-    );
-
     await this.fetchCollections();
   }
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
-    this.socket.close();
   }
 
   public showDeletePrompt(record: Collection) {
@@ -97,7 +60,7 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.collectionService.delete(this.databaseId, record._id);
+        await this.collectionService.delete(record._id);
         this.matSnackBar.open('Collection deleted successfully.');
       }
     });
@@ -105,12 +68,10 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
 
   private async fetchCollections() {
     this.$collections = this.collectionQuery.selectAll({
-      filterBy: (gs) =>
-        gs.databaseId === this.databaseId &&
-        gs.namespaceId === this.selectedNamespaceService.namespaceId,
+      filterBy: (gs) => gs.namespaceId === this.selectedNamespaceService.namespaceId,
     });
 
-    await this.collectionService.find(this.databaseId, {
+    await this.collectionService.find({
       sort: 'name',
       where: { namespaceId: this.selectedNamespaceService.namespaceId },
     });

@@ -16,7 +16,6 @@ import { UserDocument } from '../user';
 import { NamespaceKeySchema } from './key';
 import {
   NamespaceBuildLimits,
-  NamespaceDatabaseLimits,
   NamespaceGameLimits,
   NamespaceGameServerLimits,
   NamespaceLimits,
@@ -44,7 +43,7 @@ export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocumen
 export enum NamespaceRole {
   Articles = 'articles',
   Builds = 'builds',
-  Databases = 'databases',
+  Collections = 'collections',
   GameServers = 'game-servers',
   Games = 'games',
   Namespaces = 'namespaces',
@@ -85,7 +84,6 @@ export class NamespaceSchema {
   @prop({
     default: new NamespaceLimits({
       builds: new NamespaceBuildLimits(),
-      databases: new NamespaceDatabaseLimits(),
       gameServers: new NamespaceGameServerLimits(),
       games: new NamespaceGameLimits(),
       queues: new NamespaceQueueLimits(),

@@ -20,9 +20,9 @@ export const ROUTES: Routes = [
         loadChildren: () => import('./modules/builds/builds.module').then((m) => m.BuildModule),
       },
       {
-        path: 'databases',
+        path: 'collections',
         loadChildren: () =>
-          import('./modules/databases/databases.module').then((m) => m.DatabaseModule),
+          import('./modules/collections/collections.module').then((m) => m.CollectionModule),
       },
       {
         path: 'game-authorizations',

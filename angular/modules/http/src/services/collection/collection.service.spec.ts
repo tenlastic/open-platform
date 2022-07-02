@@ -35,18 +35,17 @@ describe('CollectionService', () => {
 
   describe('create()', () => {
     it('creates and returns a Collection', () => {
-      const databaseId = chance.hash();
       const params = {
         name: chance.hash(),
       };
 
-      service.create(databaseId, params).then(res => {
+      service.create(params).then((res) => {
         expect(res).toEqual(jasmine.any(Collection));
         expect(res._id).toBeDefined();
         expect(res.name).toEqual(params.name);
       });
 
-      const req = httpMock.expectOne(`${service.basePath}/${databaseId}/collections`);
+      const req = httpMock.expectOne(service.basePath);
       expect(req.request.method).toBe('POST');
       req.flush({
         record: {
@@ -60,13 +59,12 @@ describe('CollectionService', () => {
   describe('delete()', () => {
     it('deletes the Collection and returns true', () => {
       const _id = chance.hash();
-      const databaseId = chance.hash();
 
-      service.delete(databaseId, _id).then(res => {
+      service.delete(_id).then((res) => {
         expect(res).toBeTruthy();
       });
 
-      const req = httpMock.expectOne(`${service.basePath}/${databaseId}/collections/${_id}`);
+      const req = httpMock.expectOne(`${service.basePath}/${_id}`);
       expect(req.request.method).toBe('DELETE');
     });
   });
@@ -74,20 +72,17 @@ describe('CollectionService', () => {
   describe('find()', () => {
     it('returns an array of Collections', () => {
       const _id = chance.hash();
-      const databaseId = chance.hash();
       const params = {
         where: { _id },
       };
 
-      service.find(databaseId, params).then(res => {
+      service.find(params).then((res) => {
         expect(res.length).toBe(1);
         expect(res[0]).toEqual(jasmine.any(Collection));
         expect(res[0]._id).toBe(_id);
       });
 
-      const req = httpMock.expectOne(
-        r => r.url === `${service.basePath}/${databaseId}/collections`,
-      );
+      const req = httpMock.expectOne((r) => r.url === service.basePath);
       expect(req.request.method).toBe('GET');
       req.flush({
         records: [{ _id }],
@@ -98,14 +93,13 @@ describe('CollectionService', () => {
   describe('findOne()', () => {
     it('returns a Collection', () => {
       const _id = chance.hash();
-      const databaseId = chance.hash();
 
-      service.findOne(databaseId, _id).then(res => {
+      service.findOne(_id).then((res) => {
         expect(res).toEqual(jasmine.any(Collection));
         expect(res._id).toBe(_id);
       });
 
-      const req = httpMock.expectOne(`${service.basePath}/${databaseId}/collections/${_id}`);
+      const req = httpMock.expectOne(`${service.basePath}/${_id}`);
       expect(req.request.method).toBe('GET');
       req.flush({
         record: { _id },
@@ -115,19 +109,18 @@ describe('CollectionService', () => {
 
   describe('update()', () => {
     it('updates and returns a Collection', () => {
-      const databaseId = chance.hash();
       const params = {
         _id: chance.hash(),
         name: chance.hash(),
       };
 
-      service.update(databaseId, params).then(res => {
+      service.update(params).then((res) => {
         expect(res).toEqual(jasmine.any(Collection));
         expect(res._id).toEqual(params._id);
         expect(res.name).toEqual(params.name);
       });
 
-      const req = httpMock.expectOne(`${service.basePath}/${databaseId}/collections/${params._id}`);
+      const req = httpMock.expectOne(`${service.basePath}/${params._id}`);
       expect(req.request.method).toBe('PUT');
       req.flush({ record: params });
     });

@@ -7,7 +7,6 @@ import {
 } from '@typegoose/typegoose';
 
 import { NamespaceBuildLimitsSchema } from './build';
-import { NamespaceDatabaseLimitsSchema } from './database';
 import { NamespaceGameLimitsSchema } from './game';
 import { NamespaceGameServerLimitsSchema } from './game-server';
 import { NamespaceQueueLimitsSchema } from './queue';
@@ -17,9 +16,6 @@ import { NamespaceWorkflowLimitsSchema } from './workflow';
 export class NamespaceLimitsSchema {
   @prop({ required: true })
   public builds: NamespaceBuildLimitsSchema;
-
-  @prop({ required: true })
-  public databases: NamespaceDatabaseLimitsSchema;
 
   @prop({ required: true })
   public gameServers: NamespaceGameServerLimitsSchema;

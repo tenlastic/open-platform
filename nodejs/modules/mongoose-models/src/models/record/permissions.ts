@@ -3,21 +3,15 @@ import { UserPermissionsHelpers, UserRole } from '../user';
 
 export const RecordPermissions = {
   create: {
-    'namespace-administrator': [
-      'collectionId',
-      'databaseId',
-      'namespaceId',
-      'properties.*',
-      'userId',
-    ],
-    'user-administrator': ['collectionId', 'databaseId', 'namespaceId', 'properties.*', 'userId'],
+    'namespace-administrator': ['collectionId', 'namespaceId', 'properties.*', 'userId'],
+    'user-administrator': ['collectionId', 'namespaceId', 'properties.*', 'userId'],
   },
   delete: {
     'namespace-administrator': true,
     'user-administrator': true,
   },
   find: {
-    default: NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Databases),
+    default: NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Collections),
     'user-administrator': {},
   },
   populate: [{ path: 'namespaceDocument' }],
@@ -26,7 +20,6 @@ export const RecordPermissions = {
       '_id',
       'collectionId',
       'createdAt',
-      'databaseId',
       'namespaceId',
       'properties.*',
       'updatedAt',
@@ -36,7 +29,6 @@ export const RecordPermissions = {
       '_id',
       'collectionId',
       'createdAt',
-      'databaseId',
       'namespaceId',
       'properties.*',
       'updatedAt',
@@ -46,11 +38,11 @@ export const RecordPermissions = {
   roles: [
     {
       name: 'user-administrator',
-      query: UserPermissionsHelpers.getRoleQuery(UserRole.Databases),
+      query: UserPermissionsHelpers.getRoleQuery(UserRole.Collections),
     },
     {
       name: 'namespace-administrator',
-      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Databases),
+      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Collections),
     },
   ],
   update: {

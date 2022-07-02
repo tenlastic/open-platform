@@ -1,7 +1,6 @@
 import { podApiV1 } from '@tenlastic/kubernetes';
 import {
   BuildPermissions,
-  DatabasePermissions,
   GameServerPermissions,
   QueuePermissions,
   WorkflowPermissions,
@@ -20,7 +19,6 @@ export interface LogsData {
 
 export interface LogsDataParameters {
   buildId?: string;
-  databaseId?: string;
   gameServerId?: string;
   nodeId: string;
   queueId?: string;
@@ -49,9 +47,6 @@ export async function logs(
     _id = data.parameters.buildId;
     container = 'main';
     Permissions = BuildPermissions;
-  } else if ('databaseId' in data.parameters) {
-    _id = data.parameters.databaseId;
-    Permissions = DatabasePermissions;
   } else if ('gameServerId' in data.parameters) {
     _id = data.parameters.gameServerId;
     Permissions = GameServerPermissions;
@@ -75,7 +70,7 @@ export async function logs(
   }
 
   // Check if the record contains the requested node.
-  const node = record.status?.nodes?.find(n => n._id === data.parameters.nodeId);
+  const node = record.status?.nodes?.find((n) => n._id === data.parameters.nodeId);
   if (!node) {
     throw new RecordNotFoundError('Record');
   }
@@ -94,9 +89,9 @@ export async function logs(
     container || pod.body.spec.containers[0].name,
     { since: data.parameters.since, tail: data.parameters.tail },
   );
-  emitter.on('data', log => ws.send(JSON.stringify({ _id: data._id, fullDocument: log })));
+  emitter.on('data', (log) => ws.send(JSON.stringify({ _id: data._id, fullDocument: log })));
   emitter.on('end', async () => ws.send(JSON.stringify({ _id: data._id })));
-  emitter.on('error', async e => {
+  emitter.on('error', async (e) => {
     console.error(e);
 
     const { message, name } = e;

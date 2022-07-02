@@ -5,7 +5,6 @@ import { IdentityService } from '../identity/identity.service';
 
 export interface LogsParameters {
   buildId?: string;
-  databaseId?: string;
   gameServerId?: string;
   nodeId: string;
   queueId?: string;

@@ -124,13 +124,6 @@ export class NamespacesJsonPageComponent implements OnInit {
           count: 0,
           size: 0,
         },
-        databases: {
-          cpu: 0,
-          memory: 0,
-          preemptible: false,
-          replicas: 0,
-          storage: 0,
-        },
         gameServers: {
           cpu: 0,
           memory: 0,
