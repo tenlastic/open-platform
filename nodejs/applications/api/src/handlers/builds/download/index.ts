@@ -12,7 +12,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Build');
   }
 
-  const permissions = BuildPermissions.accessControl.getFieldPermissions('read', build, user);
+  const permissions = await BuildPermissions.getFieldPermissions('read', build, user);
   if (!permissions.includes('files.*')) {
     throw new PermissionError();
   }

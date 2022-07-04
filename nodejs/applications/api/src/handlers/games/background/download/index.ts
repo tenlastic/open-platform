@@ -5,18 +5,14 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import { Game, GamePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
-  const { populate } = GamePermissions.accessControl.options;
-  const game = await Game.findOne({ _id: ctx.params._id }).populate(populate);
+  const user = ctx.state.apiKey || ctx.state.user;
+  const game = await GamePermissions.findOne({}, { where: { _id: ctx.params._id } }, user);
   if (!game) {
     throw new RecordNotFoundError('Game');
   }
 
   // Get permissions for the Game
-  const permissions = GamePermissions.accessControl.getFieldPermissions(
-    'read',
-    game,
-    ctx.state.apiKey || ctx.state.user,
-  );
+  const permissions = await GamePermissions.getFieldPermissions('read', game, user);
   if (!permissions.includes('background')) {
     throw new PermissionError();
   }

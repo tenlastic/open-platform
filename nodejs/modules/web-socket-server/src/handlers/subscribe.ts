@@ -68,16 +68,13 @@ export async function subscribe(
       }
 
       // Strip document of unauthorized information.
-      const { accessControl } = Permissions;
-      const document = await new Model(json.fullDocument).populate(
-        accessControl.options.populate || [],
-      );
+      const document = await new Model(json.fullDocument).populate(Permissions.populate || []);
       const fullDocument = await Permissions.read(document, user);
 
       // Strip update description of unauthorized information.
       let updateDescription;
       if (json.updateDescription) {
-        const permissions = accessControl.getFieldPermissions('read', json.fullDocument, user);
+        const permissions = await Permissions.getFieldPermissions('read', json.fullDocument, user);
         const { removedFields, updatedFields } = json.updateDescription;
 
         updateDescription = {

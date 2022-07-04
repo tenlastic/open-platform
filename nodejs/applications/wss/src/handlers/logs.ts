@@ -76,7 +76,7 @@ export async function logs(
   }
 
   // Check if the user can access the record's logs.
-  const permissions = Permissions.accessControl.getFieldPermissions('read', record, user);
+  const permissions = await Permissions.getFieldPermissions('read', record, user);
   if (!permissions.includes('logs')) {
     throw new PermissionError();
   }

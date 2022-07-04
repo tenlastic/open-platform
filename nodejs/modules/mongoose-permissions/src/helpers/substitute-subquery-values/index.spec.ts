@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 
-import { Example } from '../example-model';
+import { Example } from '../../models';
 import { substituteSubqueryValues } from './';
 
 describe('substitute-subquery-values', function () {

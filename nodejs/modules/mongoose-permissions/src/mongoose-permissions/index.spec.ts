@@ -1,48 +1,49 @@
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { Chance } from 'chance';
+import mongoose from 'mongoose';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 
-import { Example, ExampleDocument, ExamplePermissions } from '../example-model';
-import { PermissionError } from './';
+import { Example, ExampleDocument, ExamplePermissions } from '../models';
+import { IOptions, MongoosePermissions, PermissionError } from './';
 
 const chance = new Chance();
 use(chaiAsPromised);
 use(sinonChai);
 
-describe('permissions', function() {
+describe('permissions', function () {
   let admin: any;
   let sandbox: sinon.SinonSandbox;
   let user: any;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     sandbox = sinon.createSandbox();
 
     admin = { roles: ['Admin'] };
     user = { roles: [] };
   });
 
-  afterEach(function() {
+  afterEach(function () {
     sandbox.restore();
   });
 
-  describe('count()', function() {
-    beforeEach(async function() {
+  describe('count()', function () {
+    beforeEach(async function () {
       await Example.mock({ name: chance.hash() });
       await Example.mock({ name: null });
     });
 
-    context('when user is an admin', function() {
-      it('returns all the records', async function() {
+    context('when user is an admin', function () {
+      it('returns all the records', async function () {
         const results = await ExamplePermissions.count({}, {}, admin);
 
         expect(results).to.eql(2);
       });
     });
 
-    context('when user is not an admin', function() {
-      it('throws an error', async function() {
+    context('when user is not an admin', function () {
+      it('throws an error', async function () {
         const promise = ExamplePermissions.count({}, {}, user);
 
         return expect(promise).to.be.rejectedWith(PermissionError);
@@ -50,9 +51,9 @@ describe('permissions', function() {
     });
   });
 
-  describe('create()', function() {
-    context('when user is an admin', function() {
-      it('creates a new record', async function() {
+  describe('create()', function () {
+    context('when user is an admin', function () {
+      it('creates a new record', async function () {
         const params = {
           name: chance.hash(),
           properties: {
@@ -72,8 +73,8 @@ describe('permissions', function() {
       });
     });
 
-    context('when user is not an admin', function() {
-      it('throws an error', async function() {
+    context('when user is not an admin', function () {
+      it('throws an error', async function () {
         const params = { name: chance.hash() };
 
         const promise = ExamplePermissions.create(params, {}, user);
@@ -83,15 +84,15 @@ describe('permissions', function() {
     });
   });
 
-  describe('delete()', function() {
+  describe('delete()', function () {
     let record: ExampleDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       record = await Example.mock();
     });
 
-    context('when the user is an admin', function() {
-      it('returns the user', async function() {
+    context('when the user is an admin', function () {
+      it('returns the user', async function () {
         const results = await ExamplePermissions.delete(record, admin);
 
         expect(results._id.toString()).to.eql(record._id.toString());
@@ -101,8 +102,8 @@ describe('permissions', function() {
       });
     });
 
-    context('when the user is not an admin', function() {
-      it('throws an error', async function() {
+    context('when the user is not an admin', function () {
+      it('throws an error', async function () {
         const promise = ExamplePermissions.delete(record, user);
 
         return expect(promise).to.be.rejectedWith(PermissionError);
@@ -110,21 +111,21 @@ describe('permissions', function() {
     });
   });
 
-  describe('find()', function() {
-    beforeEach(async function() {
+  describe('find()', function () {
+    beforeEach(async function () {
       await Example.mock({ name: chance.hash() });
     });
 
-    context('when user is an admin', function() {
-      it('returns all the records', async function() {
+    context('when user is an admin', function () {
+      it('returns all the records', async function () {
         const results = await ExamplePermissions.find({}, {}, admin);
 
         expect(results.length).to.eql(1);
       });
     });
 
-    context('when user is not an admin', function() {
-      it('throws an error', async function() {
+    context('when user is not an admin', function () {
+      it('throws an error', async function () {
         const promise = ExamplePermissions.find({}, {}, user);
 
         return expect(promise).to.be.rejectedWith(PermissionError);
@@ -132,10 +133,10 @@ describe('permissions', function() {
     });
   });
 
-  describe('read()', function() {
+  describe('read()', function () {
     let record: ExampleDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       record = await Example.mock({
         properties: {
           age: chance.integer(),
@@ -144,8 +145,8 @@ describe('permissions', function() {
       });
     });
 
-    context('when user is an admin', function() {
-      it('returns the record', async function() {
+    context('when user is an admin', function () {
+      it('returns the record', async function () {
         const result = await ExamplePermissions.read(record, admin);
 
         expect(result._id).to.exist;
@@ -157,8 +158,8 @@ describe('permissions', function() {
       });
     });
 
-    context('when user is not an admin', function() {
-      it('returns the record', async function() {
+    context('when user is not an admin', function () {
+      it('returns the record', async function () {
         const result = await ExamplePermissions.read(record, user);
 
         expect(result._id).to.exist;
@@ -169,10 +170,10 @@ describe('permissions', function() {
     });
   });
 
-  describe('update()', function() {
+  describe('update()', function () {
     let record: ExampleDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       record = await Example.mock({
         jsonSchema: {
           properties: {
@@ -190,8 +191,8 @@ describe('permissions', function() {
       });
     });
 
-    context('when the user is an admin', function() {
-      it('updates and returns the record', async function() {
+    context('when the user is an admin', function () {
+      it('updates and returns the record', async function () {
         const params = {
           jsonSchema: {
             properties: {
@@ -226,8 +227,8 @@ describe('permissions', function() {
       });
     });
 
-    context('when the user is not an admin', function() {
-      it('throws an error', async function() {
+    context('when the user is not an admin', function () {
+      it('throws an error', async function () {
         const params = { name: chance.hash() };
 
         const promise = ExamplePermissions.update(record, params, {}, user);
@@ -237,21 +238,65 @@ describe('permissions', function() {
     });
   });
 
-  describe('where()', function() {
-    context('when the user is an admin', function() {
-      it('returns a valid where query', async function() {
+  describe('where()', function () {
+    context('when the user is an admin', function () {
+      it('returns a valid where query', async function () {
         const query = await ExamplePermissions.where({}, admin);
 
         expect(query).to.be.empty;
       });
     });
 
-    context('when the user is not an admin', function() {
-      it('returns null', async function() {
+    context('when the user is not an admin', function () {
+      it('returns null', async function () {
         const result = await ExamplePermissions.where({}, user);
 
         expect(result).to.eql(null);
       });
+    });
+  });
+
+  describe(`['getRole']()`, function () {
+    let options: IOptions;
+    let permissions: MongoosePermissions<any>;
+
+    beforeEach(function () {
+      options = {
+        roles: [
+          {
+            name: 'admin',
+            query: { 'user.roles': { $eq: 'Admin' } },
+          },
+          {
+            name: 'owner',
+            query: { 'record.userId': { $eq: { $ref: 'user._id' } } },
+          },
+        ],
+      };
+      permissions = new MongoosePermissions(null, options);
+    });
+
+    it('returns the first role', function () {
+      const result = permissions['getRole']({ user: { roles: ['Admin'] } });
+
+      expect(result).to.eql('admin');
+    });
+
+    it('returns the second role', function () {
+      const _id = new mongoose.Types.ObjectId();
+      const result = permissions['getRole']({ record: { userId: _id }, user: { _id } });
+
+      expect(result).to.eql('owner');
+    });
+
+    it('returns default', function () {
+      const _id = new mongoose.Types.ObjectId();
+      const result = permissions['getRole']({
+        record: { userId: new mongoose.Types.ObjectId() },
+        user: { _id },
+      });
+
+      expect(result).to.eql('default');
     });
   });
 });

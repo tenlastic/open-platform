@@ -11,8 +11,7 @@ import {
   UserDocument,
   UserMock,
 } from '@tenlastic/mongoose-models';
-import { PermissionError } from '@tenlastic/mongoose-permissions';
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as FormData from 'form-data';
@@ -21,20 +20,20 @@ import { handler } from './';
 
 use(chaiAsPromised);
 
-describe('handlers/games/background/upload', function() {
+describe('handlers/games/background/upload', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  context('when permission is granted', function() {
+  context('when permission is granted', function () {
     let ctx: ContextMock;
     let form: FormData;
     let game: GameDocument;
     let namespace: NamespaceDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       const namespaceUser = NamespaceUserMock.create({
         _id: user._id,
         roles: ['games'],
@@ -64,7 +63,7 @@ describe('handlers/games/background/upload', function() {
       } as any);
     });
 
-    it('creates a new record', async function() {
+    it('creates a new record', async function () {
       await handler(ctx as any);
 
       expect(ctx.response.body.record.background).to.eql(
@@ -72,9 +71,9 @@ describe('handlers/games/background/upload', function() {
       );
     });
 
-    it('uploads file to Minio', async function() {
+    it('uploads file to Minio', async function () {
       await handler(ctx as any);
-      await new Promise(res => setTimeout(res, 100));
+      await new Promise((res) => setTimeout(res, 100));
 
       const result = await minio.statObject(
         process.env.MINIO_BUCKET,
@@ -84,7 +83,7 @@ describe('handlers/games/background/upload', function() {
       expect(result).to.exist;
     });
 
-    it('does not allow large files', async function() {
+    it('does not allow large files', async function () {
       namespace.limits.games.size = 1;
       namespace.markModified('limits');
       await namespace.save();
@@ -94,7 +93,7 @@ describe('handlers/games/background/upload', function() {
       return expect(promise).to.be.rejectedWith(NamespaceLimitError);
     });
 
-    it('does not allow invalid mimetypes', async function() {
+    it('does not allow invalid mimetypes', async function () {
       form.append('invalid', 'invalid', { contentType: 'image/x-icon', filename: 'invalid.ico' });
 
       const promise = handler(ctx as any);
@@ -105,8 +104,8 @@ describe('handlers/games/background/upload', function() {
     });
   });
 
-  context('when permission is denied', function() {
-    it('throws an error', async function() {
+  context('when permission is denied', function () {
+    it('throws an error', async function () {
       const namespace = await NamespaceMock.create();
       const game = await GameMock.create({ namespaceId: namespace._id });
 
@@ -119,7 +118,7 @@ describe('handlers/games/background/upload', function() {
 
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejectedWith(PermissionError);
+      return expect(promise).to.be.rejectedWith(RecordNotFoundError);
     });
   });
 });

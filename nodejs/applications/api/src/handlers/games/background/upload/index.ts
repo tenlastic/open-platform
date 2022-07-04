@@ -7,14 +7,13 @@ import * as Busboy from 'busboy';
 export async function handler(ctx: Context) {
   const user = ctx.state.apiKey || ctx.state.user;
 
-  const { populate } = GamePermissions.accessControl.options;
-  const game = await Game.findOne({ _id: ctx.params._id }).populate(populate);
+  const game = await GamePermissions.findOne({}, { where: { _id: ctx.params._id } }, user);
   if (!game) {
     throw new RecordNotFoundError('Game');
   }
 
   // Get permissions for the Game
-  const permissions = GamePermissions.accessControl.getFieldPermissions('update', game, user);
+  const permissions = await GamePermissions.getFieldPermissions('update', game, user);
   if (!permissions.includes('background')) {
     throw new PermissionError();
   }

@@ -1,5 +1,5 @@
+import { MongoosePermissions } from '../../mongoose-permissions';
 import { Example, ExampleDocument } from './model';
-import { MongoosePermissions } from '../mongoose-permissions';
 
 export const ExamplePermissions = new MongoosePermissions<ExampleDocument>(Example, {
   create: {

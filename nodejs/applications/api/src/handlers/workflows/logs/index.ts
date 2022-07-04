@@ -14,13 +14,13 @@ export async function handler(ctx: Context) {
   }
 
   // Check if the record contains the requested node.
-  const node = workflow.status?.nodes?.find(n => n._id === ctx.params.nodeId);
+  const node = workflow.status?.nodes?.find((n) => n._id === ctx.params.nodeId);
   if (!node) {
     throw new RecordNotFoundError('Record');
   }
 
   // Check if the user can access the record's logs.
-  const permissions = WorkflowPermissions.accessControl.getFieldPermissions('read', workflow, user);
+  const permissions = await WorkflowPermissions.getFieldPermissions('read', workflow, user);
   if (!permissions.includes('logs')) {
     throw new PermissionError();
   }
