@@ -2,8 +2,9 @@ import {
   ArticleDocument,
   ArticleMock,
   ArticlePermissions,
+  AuthorizationMock,
+  AuthorizationRole,
   NamespaceMock,
-  NamespaceUserMock,
   UserDocument,
   UserMock,
 } from '@tenlastic/mongoose-models';
@@ -26,11 +27,12 @@ describe('handlers/delete-one', function () {
     let record: ArticleDocument;
 
     beforeEach(async function () {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['articles'],
+      const namespace = await NamespaceMock.create();
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.ArticlesReadWrite],
+        userId: user._id,
       });
-      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       record = await ArticleMock.create({ namespaceId: namespace._id });
     });

@@ -1,9 +1,10 @@
 import {
+  AuthorizationMock,
+  AuthorizationRole,
   GameMock,
   NamespaceGameLimitsMock,
   NamespaceLimitsMock,
   NamespaceMock,
-  NamespaceUserMock,
   UserDocument,
   UserMock,
 } from '@tenlastic/mongoose-models';
@@ -17,20 +18,21 @@ import { handler } from './';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/games/create', function() {
+describe('handlers/games/create', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  context('when permission is granted', function() {
-    it('creates a new record', async function() {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['games'],
+  context('when permission is granted', function () {
+    it('creates a new record', async function () {
+      const namespace = await NamespaceMock.create();
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.GamesReadWrite],
+        userId: user._id,
       });
-      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       const ctx = new ContextMock({
         request: {
@@ -47,16 +49,16 @@ describe('handlers/games/create', function() {
       expect(ctx.response.body.record).to.exist;
     });
 
-    it('enforces the games.count Namespace limit', async function() {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['games'],
-      });
+    it('enforces the games.count Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           games: NamespaceGameLimitsMock.create({ count: 1 }),
         }),
-        users: [namespaceUser],
+      });
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.GamesReadWrite],
+        userId: user._id,
       });
       await GameMock.create({ namespaceId: namespace._id });
 
@@ -76,8 +78,8 @@ describe('handlers/games/create', function() {
     });
   });
 
-  context('when permission is denied', function() {
-    it('throws an error', async function() {
+  context('when permission is denied', function () {
+    it('throws an error', async function () {
       const namespace = await NamespaceMock.create();
 
       const ctx = new ContextMock({

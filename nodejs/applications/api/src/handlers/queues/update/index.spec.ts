@@ -1,7 +1,8 @@
 import {
+  AuthorizationMock,
+  AuthorizationRole,
   NamespaceDocument,
   NamespaceMock,
-  NamespaceUserMock,
   QueueDocument,
   QueueMock,
   UserDocument,
@@ -17,28 +18,29 @@ import { handler } from './';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/queues/update', function() {
+describe('handlers/queues/update', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  context('when permission is granted', function() {
+  context('when permission is granted', function () {
     let namespace: NamespaceDocument;
     let record: QueueDocument;
 
-    beforeEach(async function() {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['queues'],
+    beforeEach(async function () {
+      namespace = await NamespaceMock.create();
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.QueuesReadWrite],
+        userId: user._id,
       });
 
-      namespace = await NamespaceMock.create({ users: [namespaceUser] });
       record = await QueueMock.create({ namespaceId: namespace._id });
     });
 
-    it('returns the record', async function() {
+    it('returns the record', async function () {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
@@ -56,7 +58,7 @@ describe('handlers/queues/update', function() {
       expect(ctx.response.body.record).to.exist;
     });
 
-    it('enforces the Namespace limits', async function() {
+    it('enforces the Namespace limits', async function () {
       namespace.limits.queues.cpu = 1;
       namespace.markModified('limits');
       await namespace.save();
@@ -79,15 +81,15 @@ describe('handlers/queues/update', function() {
     });
   });
 
-  context('when permission is denied', function() {
+  context('when permission is denied', function () {
     let record: QueueDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       const namespace = await NamespaceMock.create();
       record = await QueueMock.create({ namespaceId: namespace._id });
     });
 
-    it('throws an error', async function() {
+    it('throws an error', async function () {
       const ctx = new ContextMock({
         params: {
           _id: record._id,

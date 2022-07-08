@@ -10,9 +10,9 @@
   "include": ["./src"],
   "references": [
     { "path": "../mongoose-models/tsconfig.app.json" },
-    { "path": "../mongoose-permissions/tsconfig.app.json" },
+    { "path": "../mongoose-permissions/tsconfig.app.json" }
   ],
   "ts-node": {
-    "files": true,
-  },
+    "files": true
+  }
 }

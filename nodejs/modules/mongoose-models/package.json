@@ -32,7 +32,8 @@
     "jsonwebtoken": "8.5.1",
     "mongoose": "6.3.5",
     "request": "2.88.0",
-    "request-promise-native": "1.0.7"
+    "request-promise-native": "1.0.7",
+    "uuid": "8.3.0"
   },
   "devDependencies": {
     "eslint": "^7.26.0",

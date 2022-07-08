@@ -1,47 +1,36 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { GamePermissionsHelpers } from '../game';
-import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
-import { UserPermissionsHelpers, UserRole } from '../user';
+import { AuthorizationPermissionsHelpers, AuthorizationRole } from '../authorization';
 import { QueueMember, QueueMemberDocument } from './model';
 
 export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocument>(QueueMember, {
   create: {
     'group-leader': ['groupId', 'namespaceId', 'queueId', 'userId', 'webSocketId'],
-    'namespace-administrator': ['groupId', 'namespaceId', 'queueId', 'userId', 'webSocketId'],
+    'namespace-write': ['groupId', 'namespaceId', 'queueId', 'userId', 'webSocketId'],
     owner: ['namespaceId', 'queueId', 'userId', 'webSocketId'],
-    'user-administrator': ['groupId', 'namespaceId', 'queueId', 'userId', 'webSocketId'],
+    'user-write': ['groupId', 'namespaceId', 'queueId', 'userId', 'webSocketId'],
   },
   delete: {
     'group-leader': true,
-    'namespace-administrator': true,
+    'namespace-write': true,
     owner: true,
-    'system-administrator': true,
-    'user-administrator': true,
+    'system-write': true,
+    'user-write': true,
   },
   find: {
     default: {
       $or: [
-        NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Queues),
-        NamespacePermissionsHelpers.getNamespaceUserFindQuery(NamespaceRole.Queues),
-        {
-          queueId: {
-            $in: {
-              // Find all Queues associated with the returned Games.
-              $query: {
-                model: 'QueueSchema',
-                select: '_id',
-                where: { namespaceId: { $in: GamePermissionsHelpers.getAuthorizedNamespaceIds() } },
-              },
-            },
-          },
-        },
-        { userIds: { $ref: 'user._id' } },
+        AuthorizationPermissionsHelpers.getFindQuery([
+          AuthorizationRole.QueuesRead,
+          AuthorizationRole.QueuesReadWrite,
+        ]),
+        { userId: { $ref: 'user._id' } },
       ],
     },
-    'user-administrator': {},
+    'user-read': {},
+    'user-write': {},
   },
-  populate: [{ path: 'groupDocument' }, { path: 'namespaceDocument' }],
+  populate: [{ path: 'groupDocument' }, AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
     default: [
       '_id',
@@ -56,16 +45,41 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
   },
   roles: [
     {
-      name: 'system-administrator',
-      query: NamespacePermissionsHelpers.getNamespaceUserRoleQuery(NamespaceRole.Queues),
+      name: 'system-write',
+      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
+        AuthorizationRole.QueuesReadWrite,
+      ]),
     },
     {
-      name: 'user-administrator',
-      query: UserPermissionsHelpers.getRoleQuery(UserRole.Queues),
+      name: 'system-read',
+      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
+        AuthorizationRole.QueuesRead,
+        AuthorizationRole.QueuesReadWrite,
+      ]),
     },
     {
-      name: 'namespace-administrator',
-      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Queues),
+      name: 'user-write',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.QueuesReadWrite]),
+    },
+    {
+      name: 'user-read',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.QueuesRead,
+        AuthorizationRole.QueuesReadWrite,
+      ]),
+    },
+    {
+      name: 'namespace-write',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.QueuesReadWrite,
+      ]),
+    },
+    {
+      name: 'namespace-read',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.QueuesRead,
+        AuthorizationRole.QueuesReadWrite,
+      ]),
     },
     {
       name: 'group-leader',

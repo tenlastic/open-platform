@@ -19,9 +19,7 @@ export async function handler(ctx: Context) {
   }
 
   const result = await Permissions.create(ctx.request.body, override, user);
-
-  const populatedResult = await result.populate(Permissions.populate);
-  const record = await Permissions.read(populatedResult, user);
+  const record = await Permissions.read(result, user);
 
   ctx.response.body = { record };
 }

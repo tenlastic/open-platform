@@ -1,8 +1,9 @@
 import {
+  AuthorizationMock,
+  AuthorizationRole,
   GroupMock,
   NamespaceDocument,
   NamespaceMock,
-  NamespaceUserMock,
   QueueMemberMock,
   QueueMock,
   UserDocument,
@@ -13,11 +14,11 @@ import { expect } from 'chai';
 
 import { handler } from './';
 
-describe('handlers/queue-members/count', function() {
+describe('handlers/queue-members/count', function () {
   let namespace: NamespaceDocument;
   let users: UserDocument[];
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     users = await Promise.all([
       UserMock.create(),
       UserMock.create(),
@@ -25,14 +26,15 @@ describe('handlers/queue-members/count', function() {
       UserMock.create(),
     ]);
 
-    const namespaceUser = NamespaceUserMock.create({
-      _id: users[0]._id,
-      roles: ['queues'],
+    namespace = await NamespaceMock.create();
+    await AuthorizationMock.create({
+      namespaceId: namespace._id,
+      roles: [AuthorizationRole.QueuesRead],
+      userId: users[0]._id,
     });
-    namespace = await NamespaceMock.create({ users: [namespaceUser] });
   });
 
-  it('returns the number of matching records', async function() {
+  it('returns the number of matching records', async function () {
     const group = await GroupMock.create({ userIds: [users[1]._id, users[2]._id] });
     const queue = await QueueMock.create({ namespaceId: namespace._id, usersPerTeam: 2 });
     await Promise.all([

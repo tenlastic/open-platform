@@ -1,3 +1,4 @@
+import { UserDocument } from '@tenlastic/mongoose-models';
 import * as koa from 'koa';
 
 export interface Request extends koa.Request {
@@ -12,7 +13,7 @@ interface Response {
 export interface State {
   apiKey?: string;
   jwt?: any;
-  user?: any;
+  user?: UserDocument;
 }
 
 export interface Context extends koa.Context {

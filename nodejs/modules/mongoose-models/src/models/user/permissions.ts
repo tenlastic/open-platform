@@ -1,38 +1,43 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { User, UserDocument, UserRole } from './model';
+import { AuthorizationRole } from '../authorization/model';
+import { AuthorizationPermissionsHelpers } from '../authorization/permissions.helpers';
+import { User, UserDocument } from './model';
 
 export const UserPermissions = new MongoosePermissions<UserDocument>(User, {
   create: {
-    administrator: ['email', 'password', 'roles', 'username'],
     default: ['email', 'password', 'username'],
+    'user-write': ['email', 'password', 'username'],
   },
   delete: {
-    administrator: true,
-    default: false,
-    self: true,
+    owner: true,
+    'user-write': true,
   },
   find: {
     default: {},
   },
   read: {
-    administrator: ['_id', 'createdAt', 'email', 'roles', 'username', 'updatedAt'],
     default: ['_id', 'createdAt', 'username', 'updatedAt'],
-    self: ['_id', 'createdAt', 'email', 'roles', 'username', 'updatedAt'],
+    owner: ['_id', 'createdAt', 'email', 'username', 'updatedAt'],
+    'user-read': ['_id', 'createdAt', 'email', 'username', 'updatedAt'],
+    'user-write': ['_id', 'createdAt', 'email', 'username', 'updatedAt'],
   },
   roles: [
-    { name: 'administrator', query: { 'user.roles': UserRole.Users } },
-    { name: 'self', query: { 'record._id': { $ref: 'user._id' } } },
+    {
+      name: 'user-write',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.UsersReadWrite]),
+    },
+    {
+      name: 'user-read',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.UsersRead,
+        AuthorizationRole.UsersReadWrite,
+      ]),
+    },
+    { name: 'owner', query: { 'record._id': { $ref: 'user._id' } } },
   ],
   update: {
-    administrator: ['email', 'roles', 'password', 'username'],
-    default: [],
-    self: ['email', 'password', 'username'],
+    owner: ['email', 'password', 'username'],
+    'user-write': ['email', 'password', 'username'],
   },
 });
-
-export const UserPermissionsHelpers = {
-  getRoleQuery(role: UserRole) {
-    return { 'user.namespaceId': { $exists: false }, 'user.roles': role };
-  },
-};

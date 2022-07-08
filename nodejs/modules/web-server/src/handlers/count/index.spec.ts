@@ -1,8 +1,9 @@
 import {
   ArticleMock,
   ArticlePermissions,
+  AuthorizationMock,
+  AuthorizationRole,
   NamespaceMock,
-  NamespaceUserMock,
   UserDocument,
   UserMock,
 } from '@tenlastic/mongoose-models';
@@ -17,11 +18,12 @@ describe('handlers/count', function () {
   beforeEach(async function () {
     user = await UserMock.create();
 
-    const namespaceUser = NamespaceUserMock.create({
-      _id: user._id,
-      roles: ['articles'],
+    const namespace = await NamespaceMock.create();
+    await AuthorizationMock.create({
+      namespaceId: namespace._id,
+      roles: [AuthorizationRole.ArticlesRead],
+      userId: user._id,
     });
-    const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
     await ArticleMock.create({ namespaceId: namespace._id });
   });

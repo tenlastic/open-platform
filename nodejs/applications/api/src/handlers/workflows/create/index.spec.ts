@@ -1,6 +1,7 @@
 import {
+  AuthorizationMock,
+  AuthorizationRole,
   NamespaceMock,
-  NamespaceUserMock,
   UserDocument,
   UserMock,
   WorkflowMock,
@@ -25,11 +26,12 @@ describe('handlers/workflows/create', function () {
 
   context('when permission is granted', function () {
     it('creates a new record', async function () {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['workflows'],
+      const namespace = await NamespaceMock.create();
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.WorkflowsReadWrite],
+        userId: user._id,
       });
-      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
       const workflow = await WorkflowMock.new({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({

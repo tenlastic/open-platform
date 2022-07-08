@@ -1,8 +1,9 @@
 import { podApiV1 } from '@tenlastic/kubernetes';
 import {
+  AuthorizationMock,
+  AuthorizationRole,
   BuildMock,
   NamespaceMock,
-  NamespaceUserMock,
   UserDocument,
   UserMock,
   WorkflowStatusMock,
@@ -19,30 +20,31 @@ import { handler } from './';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/builds/logs', function() {
+describe('handlers/builds/logs', function () {
   let sandbox: sinon.SinonSandbox;
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     sandbox = sinon.createSandbox();
     user = await UserMock.create();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     sandbox.restore();
   });
 
-  context('when permission is granted', function() {
-    it('returns log records', async function() {
+  context('when permission is granted', function () {
+    it('returns log records', async function () {
       sandbox
         .stub(podApiV1, 'readNamespacedPodLog')
         .resolves([{ body: chance.hash(), unix: chance.floating() }]);
 
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['builds'],
+      const namespace = await NamespaceMock.create();
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.BuildsRead],
+        userId: user._id,
       });
-      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
       const build = await BuildMock.create({
         namespaceId: namespace._id,
         status: WorkflowStatusMock.create({
@@ -61,12 +63,13 @@ describe('handlers/builds/logs', function() {
       expect(ctx.response.body.records.length).to.eql(1);
     });
 
-    it('throws an error', async function() {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['builds'],
+    it('throws an error', async function () {
+      const namespace = await NamespaceMock.create();
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.BuildsRead],
+        userId: user._id,
       });
-      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
       const build = await BuildMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
@@ -80,8 +83,8 @@ describe('handlers/builds/logs', function() {
     });
   });
 
-  context('when permission is denied', function() {
-    it('throws an error', async function() {
+  context('when permission is denied', function () {
+    it('throws an error', async function () {
       const build = await BuildMock.create();
 
       const ctx = new ContextMock({

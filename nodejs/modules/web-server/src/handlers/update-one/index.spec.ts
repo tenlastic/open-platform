@@ -2,10 +2,11 @@ import {
   ArticleDocument,
   ArticleMock,
   ArticlePermissions,
+  AuthorizationMock,
+  AuthorizationRole,
   NamespaceMock,
   UserDocument,
   UserMock,
-  NamespaceUserMock,
 } from '@tenlastic/mongoose-models';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -28,11 +29,12 @@ describe('handlers/update-one', function () {
     let record: ArticleDocument;
 
     beforeEach(async function () {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['articles'],
+      const namespace = await NamespaceMock.create();
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.ArticlesReadWrite],
+        userId: user._id,
       });
-      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       record = await ArticleMock.create({ namespaceId: namespace._id });
     });

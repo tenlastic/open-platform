@@ -1,7 +1,6 @@
+import { Login, User } from '@tenlastic/mongoose-models';
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
 import * as jsonwebtoken from 'jsonwebtoken';
-
-import { User } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const { token } = ctx.request.body;
@@ -28,8 +27,10 @@ export async function handler(ctx: Context) {
   }
 
   try {
-    const { accessToken, refreshToken } = await user.logIn(jwt.jti);
-    ctx.response.body = { accessToken, refreshToken };
+    ctx.response.body = await Login.createWithAccessAndRefreshTokens(
+      { refreshTokenId: jwt.jti },
+      user,
+    );
   } catch {
     throw new Error('Invalid refresh token.');
   }

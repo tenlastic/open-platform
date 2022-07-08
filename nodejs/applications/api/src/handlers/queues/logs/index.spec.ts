@@ -1,7 +1,8 @@
 import { podApiV1 } from '@tenlastic/kubernetes';
 import {
+  AuthorizationMock,
+  AuthorizationRole,
   NamespaceMock,
-  NamespaceUserMock,
   QueueMock,
   QueueStatusMock,
   QueueStatusNodeMock,
@@ -19,21 +20,21 @@ import { handler } from './';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/queues/logs', function() {
+describe('handlers/queues/logs', function () {
   let sandbox: sinon.SinonSandbox;
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     sandbox = sinon.createSandbox();
     user = await UserMock.create();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     sandbox.restore();
   });
 
-  context('when permission is granted', function() {
-    it('returns log records', async function() {
+  context('when permission is granted', function () {
+    it('returns log records', async function () {
       sandbox
         .stub(podApiV1, 'read')
         .resolves({ body: { spec: { containers: [{ name: chance.hash() }] } } });
@@ -41,11 +42,12 @@ describe('handlers/queues/logs', function() {
         .stub(podApiV1, 'readNamespacedPodLog')
         .resolves([{ body: chance.hash(), unix: chance.floating() }]);
 
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['queues'],
+      const namespace = await NamespaceMock.create();
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.QueuesRead],
+        userId: user._id,
       });
-      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
       const queue = await QueueMock.create({
         namespaceId: namespace._id,
         status: QueueStatusMock.create({
@@ -64,12 +66,13 @@ describe('handlers/queues/logs', function() {
       expect(ctx.response.body.records.length).to.eql(1);
     });
 
-    it('throws an error', async function() {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['queues'],
+    it('throws an error', async function () {
+      const namespace = await NamespaceMock.create();
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.QueuesRead],
+        userId: user._id,
       });
-      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
       const queue = await QueueMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
@@ -83,8 +86,8 @@ describe('handlers/queues/logs', function() {
     });
   });
 
-  context('when permission is denied', function() {
-    it('throws an error', async function() {
+  context('when permission is denied', function () {
+    it('throws an error', async function () {
       const queue = await QueueMock.create();
 
       const ctx = new ContextMock({

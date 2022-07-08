@@ -7,15 +7,15 @@ import { handler } from '.';
 
 use(chaiAsPromised);
 
-describe('handlers/logins/create', function() {
+describe('handlers/logins/create', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create({ password: 'password' });
   });
 
-  context('when credentials are correct', function() {
-    it('returns the access and refresh tokens', async function() {
+  context('when credentials are correct', function () {
+    it('returns the access and refresh tokens', async function () {
       const ctx: any = new ContextMock({
         request: {
           body: {
@@ -29,12 +29,13 @@ describe('handlers/logins/create', function() {
       await handler(ctx);
 
       expect(ctx.response.body.accessToken).to.exist;
+      expect(ctx.response.body.record).to.exist;
       expect(ctx.response.body.refreshToken).to.exist;
     });
   });
 
-  context('when credentials are incorrect', function() {
-    it('returns an error message', function() {
+  context('when credentials are incorrect', function () {
+    it('returns an error message', function () {
       const ctx: any = new ContextMock({
         request: {
           body: {

@@ -1,5 +1,7 @@
 import * as minio from '@tenlastic/minio';
 import {
+  AuthorizationMock,
+  AuthorizationRole,
   GameDocument,
   GameMock,
   NamespaceDocument,
@@ -7,7 +9,6 @@ import {
   NamespaceLimitError,
   NamespaceLimitsMock,
   NamespaceMock,
-  NamespaceUserMock,
   UserDocument,
   UserMock,
 } from '@tenlastic/mongoose-models';
@@ -36,15 +37,15 @@ describe('handlers/games/images/upload', function () {
     let namespace: NamespaceDocument;
 
     beforeEach(async function () {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['games'],
-      });
       namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           games: NamespaceGameLimitsMock.create({ size: 50 * 1000 * 1000 }),
         }),
-        users: [namespaceUser],
+      });
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.GamesReadWrite],
+        userId: user._id,
       });
       game = await GameMock.create({ namespaceId: namespace._id });
 

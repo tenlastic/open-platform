@@ -1,3 +1,4 @@
+import { User } from '@tenlastic/mongoose-models';
 import * as jsonwebtoken from 'jsonwebtoken';
 import * as requestPromiseNative from 'request-promise-native';
 
@@ -37,7 +38,7 @@ export async function jwtMiddleware(ctx: Context, next: () => Promise<void>) {
   }
 
   ctx.state.jwt = jwt;
-  ctx.state.user = jwt.user;
+  ctx.state.user = jwt.user ? User.hydrate(jwt.user) : null;
 
   await next();
 }

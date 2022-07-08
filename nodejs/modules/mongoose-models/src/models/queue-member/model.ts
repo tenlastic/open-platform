@@ -14,8 +14,6 @@ import * as mongoose from 'mongoose';
 import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import * as errors from '../../errors';
 import { namespaceValidator } from '../../validators';
-import { Game, GameAccess } from '../game';
-import { Authorization, AuthorizationStatus } from '../authorization';
 import { GroupDocument, GroupEvent } from '../group';
 import { NamespaceDocument } from '../namespace';
 import { QueueDocument, QueueEvent } from '../queue';
@@ -89,7 +87,6 @@ WebSocketEvent.sync(async (payload) => {
 @pre('save', async function (this: QueueMemberDocument) {
   await this.setUserIds();
   await this.checkPlayersPerTeam();
-  await this.checkUserAuthorization();
 })
 @pre('validate', async function (this: QueueMemberDocument) {
   if (!this.populated('webSocketDocument')) {
@@ -171,7 +168,7 @@ export class QueueMemberSchema {
   @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'UserSchema' })
   public userDocument: UserDocument;
 
-  @prop({ foreignField: '_id', justOne: false, localField: 'userIds', ref: 'UserSchema' })
+  @prop({ foreignField: '_id', localField: 'userIds', ref: 'UserSchema' })
   public userDocuments: UserDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'webSocketId', ref: 'WebSocketSchema' })
@@ -194,34 +191,6 @@ export class QueueMemberSchema {
 
     if (this.userIds.length > this.queueDocument.usersPerTeam) {
       throw new Error('Group size is too large for this Queue.');
-    }
-  }
-
-  private async checkUserAuthorization(this: QueueMemberDocument) {
-    const game = await Game.findOne({ namespaceId: this.namespaceId });
-    if (!game) {
-      return;
-    }
-
-    const authorizations = await Authorization.find({
-      namespaceId: this.namespaceId,
-      userId: { $in: this.userIds },
-    });
-
-    const unauthorizedUserIds = this.userIds.filter((ui) => {
-      if (game.access === GameAccess.Public) {
-        return authorizations
-          .filter((ga) => ga.status === AuthorizationStatus.Revoked)
-          .some((ga) => ga.userId.equals(ui));
-      } else {
-        return !authorizations
-          .filter((ga) => ga.status === AuthorizationStatus.Granted)
-          .some((ga) => ga.userId.equals(ui));
-      }
-    });
-
-    if (unauthorizedUserIds.length > 0) {
-      throw new QueueMemberAuthorizationError(unauthorizedUserIds);
     }
   }
 

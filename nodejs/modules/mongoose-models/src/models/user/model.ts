@@ -9,15 +9,13 @@ import {
   prop,
 } from '@typegoose/typegoose';
 import * as bcrypt from 'bcryptjs';
-import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
 import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import emails from '../../emails';
 import * as errors from '../../errors';
 import { alphanumericValidator, emailValidator, stringLengthValidator } from '../../validators';
-import { RefreshToken, RefreshTokenDocument } from '../refresh-token/model';
-import { UserPermissions } from './';
+import { AuthorizationDocument } from '../authorization/model';
 
 export const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
 
@@ -83,6 +81,15 @@ export class UserSchema {
   })
   public username: string;
 
+  @prop({
+    foreignField: 'userId',
+    justOne: true,
+    localField: '_id',
+    match: { namespaceId: { $exists: false } },
+    ref: 'AuthorizationSchema',
+  })
+  public authorizationDocument: AuthorizationDocument;
+
   private _original: Partial<UserDocument>;
 
   /**
@@ -98,49 +105,6 @@ export class UserSchema {
    */
   public isValidPassword(this: UserDocument, plaintext: string) {
     return bcrypt.compare(plaintext, this.password);
-  }
-
-  /**
-   * Creates an access and refresh token.
-   */
-  public async logIn(this: UserDocument, jti?: string | mongoose.Types.ObjectId) {
-    // Save the RefreshToken for renewal and revocation.
-    const expiresAt = new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000);
-
-    let token: RefreshTokenDocument;
-    if (jti) {
-      token = await RefreshToken.findOneAndUpdate(
-        { _id: jti, userId: this._id },
-        { expiresAt, updatedAt: new Date() },
-        { new: true },
-      );
-    } else {
-      token = await RefreshToken.create({ expiresAt, userId: this._id });
-    }
-
-    // Remove unauthorized fields from the User.
-    const filteredUser = await UserPermissions.read(this, this);
-
-    const accessToken = jwt.sign(
-      { type: 'access', user: filteredUser },
-      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      {
-        algorithm: 'RS256',
-        expiresIn: '30m',
-        jwtid: token._id.toString(),
-      },
-    );
-    const refreshToken = jwt.sign(
-      { type: 'refresh', user: filteredUser },
-      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      {
-        algorithm: 'RS256',
-        expiresIn: '14d',
-        jwtid: token._id.toString(),
-      },
-    );
-
-    return { accessToken, refreshToken };
   }
 }
 

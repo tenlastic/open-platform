@@ -1,7 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
-import { UserPermissionsHelpers, UserRole } from '../user';
+import { AuthorizationPermissionsHelpers, AuthorizationRole } from '../authorization';
 import { Workflow, WorkflowDocument } from './model';
 
 const administrator = {
@@ -40,23 +39,22 @@ const administrator = {
 
 export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Workflow, {
   create: {
-    'namespace-administrator': administrator.create,
-    'user-administrator': administrator.create,
+    'namespace-write': administrator.create,
+    'user-write': administrator.create,
   },
   delete: {
-    'namespace-administrator': true,
-    'user-administrator': true,
+    'namespace-write': true,
+    'user-write': true,
   },
   find: {
-    default: {
-      $or: [
-        NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Workflows),
-        NamespacePermissionsHelpers.getNamespaceUserFindQuery(NamespaceRole.Workflows),
-      ],
-    },
-    'user-administrator': {},
+    default: AuthorizationPermissionsHelpers.getFindQuery([
+      AuthorizationRole.WorkflowsRead,
+      AuthorizationRole.WorkflowsReadWrite,
+    ]),
+    'user-read': {},
+    'user-write': {},
   },
-  populate: [{ path: 'namespaceDocument' }],
+  populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
     default: [
       '_id',
@@ -75,19 +73,46 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
   },
   roles: [
     {
-      name: 'system-administrator',
-      query: NamespacePermissionsHelpers.getNamespaceUserRoleQuery(NamespaceRole.Workflows),
+      name: 'system-write',
+      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
+        AuthorizationRole.WorkflowsReadWrite,
+      ]),
     },
     {
-      name: 'user-administrator',
-      query: UserPermissionsHelpers.getRoleQuery(UserRole.Workflows),
+      name: 'system-read',
+      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
+        AuthorizationRole.WorkflowsRead,
+        AuthorizationRole.WorkflowsReadWrite,
+      ]),
     },
     {
-      name: 'namespace-administrator',
-      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Workflows),
+      name: 'user-write',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.WorkflowsReadWrite,
+      ]),
+    },
+    {
+      name: 'user-read',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.WorkflowsRead,
+        AuthorizationRole.WorkflowsReadWrite,
+      ]),
+    },
+    {
+      name: 'namespace-write',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.WorkflowsReadWrite,
+      ]),
+    },
+    {
+      name: 'namespace-read',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.WorkflowsRead,
+        AuthorizationRole.WorkflowsReadWrite,
+      ]),
     },
   ],
   update: {
-    'system-administrator': ['finishedAt', 'status.*'],
+    'system-write': ['finishedAt', 'status.*'],
   },
 });

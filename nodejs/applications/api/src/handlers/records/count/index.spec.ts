@@ -1,9 +1,9 @@
 import {
+  AuthorizationMock,
+  AuthorizationRole,
   CollectionDocument,
   CollectionMock,
   NamespaceMock,
-  NamespaceRole,
-  NamespaceUserMock,
   RecordSchema,
   UserDocument,
   UserMock,
@@ -20,11 +20,12 @@ describe('handlers/records/count', function () {
   beforeEach(async function () {
     user = await UserMock.create();
 
-    const namespaceUser = NamespaceUserMock.create({
-      _id: user._id,
-      roles: [NamespaceRole.Collections],
+    const namespace = await NamespaceMock.create();
+    await AuthorizationMock.create({
+      namespaceId: namespace._id,
+      roles: [AuthorizationRole.CollectionsRead],
+      userId: user._id,
     });
-    const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
     collection = await CollectionMock.create({
       jsonSchema: {

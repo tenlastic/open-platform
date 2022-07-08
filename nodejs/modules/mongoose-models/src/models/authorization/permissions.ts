@@ -1,55 +1,67 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
-import { UserPermissionsHelpers, UserRole } from '../user';
-import { Authorization, AuthorizationDocument, AuthorizationStatus } from './model';
+import { Authorization, AuthorizationDocument, AuthorizationRole } from './model';
+import { AuthorizationPermissionsHelpers } from './permissions.helpers';
 
 export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDocument>(
   Authorization,
   {
     create: {
-      'namespace-administrator': ['namespaceId', 'status', 'userId'],
-      owner: ['namespaceId', 'userId'],
-      'user-administrator': ['namespaceId', 'status', 'userId'],
+      'namespace-write': ['namespaceId', 'roles', 'userId'],
+      'user-write': ['namespaceId', 'roles', 'userId'],
     },
     delete: {
-      'namespace-administrator': true,
-      owner: true,
-      'user-administrator': true,
+      'namespace-write': true,
+      'user-write': true,
     },
     find: {
       default: {
         $or: [
-          NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Authorizations),
+          AuthorizationPermissionsHelpers.getFindQuery([
+            AuthorizationRole.AuthorizationsRead,
+            AuthorizationRole.AuthorizationsReadWrite,
+          ]),
           { userId: { $ref: 'user._id' } },
         ],
       },
-      'user-administrator': {},
+      'user-read': {},
+      'user-write': {},
     },
-    populate: [{ path: 'namespaceDocument' }],
+    populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
     read: {
-      default: ['_id', 'createdAt', 'namespaceId', 'status', 'updatedAt', 'userId'],
+      default: ['_id', 'createdAt', 'key', 'namespaceId', 'roles', 'system', 'updatedAt', 'userId'],
     },
     roles: [
       {
-        name: 'user-administrator',
-        query: UserPermissionsHelpers.getRoleQuery(UserRole.Authorizations),
+        name: 'user-write',
+        query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+          AuthorizationRole.AuthorizationsReadWrite,
+        ]),
       },
       {
-        name: 'namespace-administrator',
-        query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Authorizations),
+        name: 'user-read',
+        query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+          AuthorizationRole.AuthorizationsRead,
+          AuthorizationRole.AuthorizationsReadWrite,
+        ]),
       },
       {
-        name: 'owner',
-        query: {
-          'record.status': AuthorizationStatus.Pending,
-          'record.userId': { $ref: 'user._id' },
-        },
+        name: 'namespace-write',
+        query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+          AuthorizationRole.AuthorizationsReadWrite,
+        ]),
+      },
+      {
+        name: 'namespace-read',
+        query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+          AuthorizationRole.AuthorizationsRead,
+          AuthorizationRole.AuthorizationsReadWrite,
+        ]),
       },
     ],
     update: {
-      'namespace-administrator': ['status'],
-      'user-administrator': ['status'],
+      'namespace-write': ['roles'],
+      'user-write': ['roles'],
     },
   },
 );

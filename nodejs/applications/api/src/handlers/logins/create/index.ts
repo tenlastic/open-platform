@@ -1,6 +1,5 @@
+import { Login, User } from '@tenlastic/mongoose-models';
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
-
-import { User } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
   const { password, username } = ctx.request.body;
@@ -18,7 +17,5 @@ export async function handler(ctx: Context) {
     throw new Error('Invalid username or password.');
   }
 
-  const { accessToken, refreshToken } = await user.logIn();
-
-  ctx.response.body = { accessToken, refreshToken };
+  ctx.response.body = await Login.createWithAccessAndRefreshTokens({}, user);
 }

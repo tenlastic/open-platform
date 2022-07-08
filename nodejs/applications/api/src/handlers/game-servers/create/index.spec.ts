@@ -1,10 +1,11 @@
 import {
+  AuthorizationMock,
+  AuthorizationRole,
   BuildMock,
   GameServerMock,
   NamespaceGameServerLimitsMock,
   NamespaceLimitsMock,
   NamespaceMock,
-  NamespaceUserMock,
   UserDocument,
   UserMock,
 } from '@tenlastic/mongoose-models';
@@ -28,11 +29,12 @@ describe('handlers/game-servers/create', function () {
 
   context('when permission is granted', function () {
     it('creates a new record', async function () {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['game-servers'],
+      const namespace = await NamespaceMock.create();
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.GameServersReadWrite],
+        userId: user._id,
       });
-      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
       const build = await BuildMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
@@ -54,15 +56,15 @@ describe('handlers/game-servers/create', function () {
     });
 
     it('enforces the Namespace limits', async function () {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['game-servers'],
-      });
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           gameServers: NamespaceGameServerLimitsMock.create({ cpu: 1 }),
         }),
-        users: [namespaceUser],
+      });
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.BuildsReadWrite],
+        userId: user._id,
       });
       await GameServerMock.create({ namespaceId: namespace._id });
 

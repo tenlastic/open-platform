@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@koa/cors": "3.0.0",
+    "@tenlastic/mongoose-models": "0.0.310",
     "@tenlastic/mongoose-permissions": "0.0.310",
     "jsonwebtoken": "8.5.1",
     "koa": "2.7.0",

@@ -22,5 +22,7 @@ paths:
                 properties:
                   accessToken:
                     type: string
+                  record:
+                    $ref: '#/components/schemas/Login'
                   refreshToken:
                     type: string

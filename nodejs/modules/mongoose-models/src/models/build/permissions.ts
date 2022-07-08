@@ -1,8 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
-import { GamePermissionsHelpers } from '../game';
 
-import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
-import { UserPermissionsHelpers, UserRole } from '../user';
+import { AuthorizationPermissionsHelpers, AuthorizationRole } from '../authorization';
 import { Build, BuildDocument } from './model';
 
 const administrator = {
@@ -25,27 +23,31 @@ const administrator = {
 
 export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
   create: {
-    'namespace-administrator': administrator.create,
-    'user-administrator': administrator.create,
+    'namespace-write': administrator.create,
+    'user-write': administrator.create,
   },
   delete: {
-    'namespace-administrator': true,
-    'user-administrator': true,
+    'namespace-write': true,
+    'user-write': true,
   },
   find: {
     default: {
       $or: [
-        NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Builds),
-        NamespacePermissionsHelpers.getNamespaceUserFindQuery(NamespaceRole.Builds),
+        AuthorizationPermissionsHelpers.getFindQuery([
+          AuthorizationRole.BuildsRead,
+          AuthorizationRole.BuildsReadWrite,
+        ]),
         {
-          namespaceId: { $in: GamePermissionsHelpers.getAuthorizedNamespaceIds() },
-          publishedAt: { $exists: true, $ne: null },
+          ...AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.BuildsReadPublished]),
+          publishedAt: { $ne: null },
         },
       ],
     },
-    'user-administrator': {},
+    'user-read': {},
+    'user-read-published': { publishedAt: { $ne: null } },
+    'user-write': {},
   },
-  populate: [{ path: 'namespaceDocument' }],
+  populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
     default: [
       '_id',
@@ -58,27 +60,75 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
       'publishedAt',
       'updatedAt',
     ],
-    'namespace-administrator': administrator.read,
-    'system-administrator': administrator.read,
-    'user-administrator': administrator.read,
+    'namespace-read': administrator.read,
+    'namespace-write': administrator.read,
+    'system-read': administrator.read,
+    'system-write': administrator.read,
+    'user-read': administrator.read,
+    'user-write': administrator.read,
   },
   roles: [
     {
-      name: 'system-administrator',
-      query: NamespacePermissionsHelpers.getNamespaceUserRoleQuery(NamespaceRole.Builds),
+      name: 'system-write',
+      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
+        AuthorizationRole.BuildsReadWrite,
+      ]),
     },
     {
-      name: 'user-administrator',
-      query: UserPermissionsHelpers.getRoleQuery(UserRole.Builds),
+      name: 'system-read',
+      query: {
+        $or: [
+          AuthorizationPermissionsHelpers.getSystemRoleQuery([
+            AuthorizationRole.BuildsRead,
+            AuthorizationRole.BuildsReadWrite,
+          ]),
+          {
+            ...AuthorizationPermissionsHelpers.getSystemRoleQuery([
+              AuthorizationRole.BuildsReadPublished,
+            ]),
+            publishedAt: { $ne: null },
+          },
+        ],
+      },
     },
     {
-      name: 'namespace-administrator',
-      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Builds),
+      name: 'user-write',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.BuildsReadWrite]),
+    },
+    {
+      name: 'user-read',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.BuildsRead,
+        AuthorizationRole.BuildsReadWrite,
+      ]),
+    },
+    {
+      name: 'namespace-write',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.BuildsReadWrite,
+      ]),
+    },
+    {
+      name: 'namespace-read',
+      query: {
+        $or: [
+          AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+            AuthorizationRole.BuildsRead,
+            AuthorizationRole.BuildsReadWrite,
+          ]),
+          {
+            ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+              AuthorizationRole.BuildsReadPublished,
+            ]),
+            publishedAt: { $ne: null },
+          },
+        ],
+      },
     },
   ],
   update: {
-    'namespace-administrator': ['entrypoint', 'name', 'publishedAt'],
-    'system-administrator': ['files.*', 'status.*'],
-    'user-administrator': ['entrypoint', 'name', 'publishedAt'],
+    'namespace-write': ['entrypoint', 'name', 'publishedAt'],
+    'system-write': ['files.*', 'status.*'],
+    'user-write': ['entrypoint', 'name', 'publishedAt'],
   },
 });

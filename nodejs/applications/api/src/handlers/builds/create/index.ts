@@ -13,7 +13,6 @@ export async function handler(ctx: Context) {
     busboy.on('error', reject);
     busboy.on('file', (field, stream) => {
       stream.on('error', reject);
-      console.log(field);
 
       if (field === 'zip') {
         minio.putObject(process.env.MINIO_BUCKET, build.getZipPath(), stream);

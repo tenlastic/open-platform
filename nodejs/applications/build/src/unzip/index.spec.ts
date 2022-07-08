@@ -1,12 +1,5 @@
 import * as minio from '@tenlastic/minio';
-import {
-  BuildDocument,
-  BuildMock,
-  NamespaceMock,
-  NamespaceUserMock,
-  UserDocument,
-  UserMock,
-} from '@tenlastic/mongoose-models';
+import { BuildDocument, BuildMock, NamespaceMock } from '@tenlastic/mongoose-models';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as crypto from 'crypto';
@@ -19,17 +12,9 @@ use(chaiAsPromised);
 
 describe('unzip', function () {
   let build: BuildDocument;
-  let user: UserDocument;
 
   beforeEach(async function () {
-    user = await UserMock.create();
-
-    const namespaceUser = NamespaceUserMock.create({
-      _id: user._id,
-      roles: ['builds'],
-    });
-    const namespace = await NamespaceMock.create({ users: [namespaceUser] });
-
+    const namespace = await NamespaceMock.create();
     build = await BuildMock.create({ namespaceId: namespace._id });
 
     // Upload zip to Minio.

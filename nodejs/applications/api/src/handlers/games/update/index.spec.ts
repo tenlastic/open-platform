@@ -1,10 +1,11 @@
 import {
+  AuthorizationMock,
+  AuthorizationRole,
   GameAccess,
   GameDocument,
   GameMock,
   NamespaceDocument,
   NamespaceMock,
-  NamespaceUserMock,
   UserDocument,
   UserMock,
 } from '@tenlastic/mongoose-models';
@@ -18,28 +19,29 @@ import { handler } from './';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/games/update', function() {
+describe('handlers/games/update', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  context('when permission is granted', function() {
+  context('when permission is granted', function () {
     let namespace: NamespaceDocument;
     let record: GameDocument;
 
-    beforeEach(async function() {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['games'],
+    beforeEach(async function () {
+      namespace = await NamespaceMock.create();
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.GamesReadWrite],
+        userId: user._id,
       });
 
-      namespace = await NamespaceMock.create({ users: [namespaceUser] });
       record = await GameMock.create({ namespaceId: namespace._id });
     });
 
-    it('returns the record', async function() {
+    it('returns the record', async function () {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
@@ -57,7 +59,7 @@ describe('handlers/games/update', function() {
       expect(ctx.response.body.record).to.exist;
     });
 
-    it('enforces the Namespace limits', async function() {
+    it('enforces the Namespace limits', async function () {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
@@ -76,15 +78,15 @@ describe('handlers/games/update', function() {
     });
   });
 
-  context('when permission is denied', function() {
+  context('when permission is denied', function () {
     let record: GameDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       const namespace = await NamespaceMock.create();
       record = await GameMock.create({ namespaceId: namespace._id });
     });
 
-    it('throws an error', async function() {
+    it('throws an error', async function () {
       const ctx = new ContextMock({
         params: {
           _id: record._id,

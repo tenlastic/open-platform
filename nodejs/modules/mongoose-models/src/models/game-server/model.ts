@@ -108,13 +108,13 @@ export class GameServerSchema implements IOriginalDocument {
 
   public updatedAt: Date;
 
-  @prop({ foreignField: '_id', justOne: false, localField: 'authorizedUserIds', ref: 'UserSchema' })
+  @prop({ foreignField: '_id', localField: 'authorizedUserIds', ref: 'UserSchema' })
   public authorizedUserDocuments: UserDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })
   public buildDocument: BuildDocument;
 
-  @prop({ foreignField: '_id', justOne: false, localField: 'currentUserIds', ref: 'UserSchema' })
+  @prop({ foreignField: '_id', localField: 'currentUserIds', ref: 'UserSchema' })
   public currentUserDocuments: UserDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })

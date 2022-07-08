@@ -1,8 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { GamePermissionsHelpers } from '../game';
-import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
-import { UserPermissionsHelpers, UserRole } from '../user';
+import { AuthorizationPermissionsHelpers, AuthorizationRole } from '../authorization';
 import { Article, ArticleDocument } from './model';
 
 const administrator = {
@@ -12,26 +10,33 @@ const administrator = {
 
 export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Article, {
   create: {
-    'namespace-administrator': administrator.create,
-    'user-administrator': administrator.create,
+    'namespace-write': administrator.create,
+    'user-write': administrator.create,
   },
   delete: {
-    'namespace-administrator': true,
-    'user-administrator': true,
+    'namespace-write': true,
+    'user-write': true,
   },
   find: {
     default: {
       $or: [
-        NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Articles),
+        AuthorizationPermissionsHelpers.getFindQuery([
+          AuthorizationRole.ArticlesRead,
+          AuthorizationRole.ArticlesReadWrite,
+        ]),
         {
-          namespaceId: { $in: GamePermissionsHelpers.getAuthorizedNamespaceIds() },
-          publishedAt: { $exists: true, $ne: null },
+          ...AuthorizationPermissionsHelpers.getFindQuery([
+            AuthorizationRole.ArticlesReadPublished,
+          ]),
+          publishedAt: { $ne: null },
         },
       ],
     },
-    'user-administrator': {},
+    'user-read': {},
+    'user-read-published': { publishedAt: { $ne: null } },
+    'user-write': {},
   },
-  populate: [{ path: 'namespaceDocument' }],
+  populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
     default: [
       '_id',
@@ -47,16 +52,50 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
   },
   roles: [
     {
-      name: 'user-administrator',
-      query: UserPermissionsHelpers.getRoleQuery(UserRole.Articles),
+      name: 'user-write',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.ArticlesReadWrite,
+      ]),
     },
     {
-      name: 'namespace-administrator',
-      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Articles),
+      name: 'user-read',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.ArticlesRead,
+        AuthorizationRole.ArticlesReadWrite,
+      ]),
+    },
+    {
+      name: 'user-read-published',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.ArticlesReadPublished,
+      ]),
+    },
+    {
+      name: 'namespace-write',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.ArticlesReadWrite,
+      ]),
+    },
+    {
+      name: 'namespace-read',
+      query: {
+        $or: [
+          AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+            AuthorizationRole.ArticlesRead,
+            AuthorizationRole.ArticlesReadWrite,
+          ]),
+          {
+            ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+              AuthorizationRole.ArticlesReadPublished,
+            ]),
+            publishedAt: { $ne: null },
+          },
+        ],
+      },
     },
   ],
   update: {
-    'namespace-administrator': administrator.update,
-    'user-administrator': administrator.update,
+    'namespace-write': administrator.update,
+    'user-write': administrator.update,
   },
 });

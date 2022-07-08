@@ -68,7 +68,7 @@ export async function subscribe(
       }
 
       // Strip document of unauthorized information.
-      const document = await new Model(json.fullDocument).populate(Permissions.populate || []);
+      const document = new Model(json.fullDocument);
       const fullDocument = await Permissions.read(document, user);
 
       // Strip update description of unauthorized information.

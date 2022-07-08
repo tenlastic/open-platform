@@ -6,9 +6,9 @@ import { NamespaceGameLimitsMock, NamespaceLimitsMock, NamespaceMock } from '../
 import { GameMock } from './model.mock';
 import { Game, GameAccess } from './model';
 
-describe('models/game.model', function() {
-  describe('checkNamespaceLimits()', function() {
-    it('enforces the games.count Namespace limit', async function() {
+describe('models/game/model', function () {
+  describe('checkNamespaceLimits()', function () {
+    it('enforces the games.count Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           games: NamespaceGameLimitsMock.create({ count: 1 }),
@@ -21,7 +21,7 @@ describe('models/game.model', function() {
       return expect(promise).to.be.rejectedWith('Namespace limit reached: games.count. Value: 1.');
     });
 
-    it('enforces the games.public Namespace limit', async function() {
+    it('enforces the games.public Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           games: NamespaceGameLimitsMock.create({ public: 0 }),
@@ -34,8 +34,8 @@ describe('models/game.model', function() {
     });
   });
 
-  describe('removeMinioImages()', function() {
-    it('removes unused minio images', async function() {
+  describe('removeMinioImages()', function () {
+    it('removes unused minio images', async function () {
       const game = await GameMock.create();
 
       // Upload background image.
@@ -55,8 +55,8 @@ describe('models/game.model', function() {
     });
   });
 
-  describe('removeMinioObjects()', function() {
-    it('removes all minio objects', async function() {
+  describe('removeMinioObjects()', function () {
+    it('removes all minio objects', async function () {
       const game = await GameMock.create();
 
       // Upload background image.
@@ -78,8 +78,8 @@ describe('models/game.model', function() {
     });
   });
 
-  describe('removeMinioVideos()', function() {
-    it('removes unused minio videos', async function() {
+  describe('removeMinioVideos()', function () {
+    it('removes unused minio videos', async function () {
       const game = await GameMock.create();
 
       // Upload background image.

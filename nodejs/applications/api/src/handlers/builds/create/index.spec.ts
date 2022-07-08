@@ -1,9 +1,10 @@
 import * as minio from '@tenlastic/minio';
 import {
+  AuthorizationMock,
+  AuthorizationRole,
   BuildDocument,
   BuildMock,
   NamespaceMock,
-  NamespaceUserMock,
   UserDocument,
   UserMock,
 } from '@tenlastic/mongoose-models';
@@ -31,11 +32,12 @@ describe('handlers/builds/create', function () {
     let form: FormData;
 
     beforeEach(async function () {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['builds'],
+      const namespace = await NamespaceMock.create();
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.BuildsReadWrite],
+        userId: user._id,
       });
-      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       build = await BuildMock.new({ namespaceId: namespace._id });
 

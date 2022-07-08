@@ -1,52 +1,65 @@
-import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
-import { UserPermissionsHelpers, UserRole } from '../user';
+import { AuthorizationPermissionsHelpers, AuthorizationRole } from '../authorization';
+
+const administrator = {
+  create: ['collectionId', 'namespaceId', 'properties.*', 'userId'],
+  read: ['_id', 'collectionId', 'createdAt', 'namespaceId', 'properties.*', 'updatedAt', 'userId'],
+  update: ['properties.*', 'userId'],
+};
 
 export const RecordPermissions = {
   create: {
-    'namespace-administrator': ['collectionId', 'namespaceId', 'properties.*', 'userId'],
-    'user-administrator': ['collectionId', 'namespaceId', 'properties.*', 'userId'],
+    'namespace-write': administrator.create,
+    'user-write': administrator.create,
   },
   delete: {
-    'namespace-administrator': true,
-    'user-administrator': true,
+    'namespace-write': true,
+    'user-write': true,
   },
   find: {
-    default: NamespacePermissionsHelpers.getFindQuery(NamespaceRole.Collections),
-    'user-administrator': {},
+    default: AuthorizationPermissionsHelpers.getFindQuery([
+      AuthorizationRole.CollectionsRead,
+      AuthorizationRole.CollectionsReadWrite,
+    ]),
+    'user-read': {},
+    'user-write': {},
   },
-  populate: [{ path: 'namespaceDocument' }],
+  populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
-    'namespace-administrator': [
-      '_id',
-      'collectionId',
-      'createdAt',
-      'namespaceId',
-      'properties.*',
-      'updatedAt',
-      'userId',
-    ],
-    'user-administrator': [
-      '_id',
-      'collectionId',
-      'createdAt',
-      'namespaceId',
-      'properties.*',
-      'updatedAt',
-      'userId',
-    ],
+    'namespace-read': administrator.read,
+    'namespace-write': administrator.read,
+    'user-read': administrator.read,
+    'user-write': administrator.read,
   },
   roles: [
     {
-      name: 'user-administrator',
-      query: UserPermissionsHelpers.getRoleQuery(UserRole.Collections),
+      name: 'user-write',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.CollectionsReadWrite,
+      ]),
     },
     {
-      name: 'namespace-administrator',
-      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Collections),
+      name: 'user-read',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.CollectionsRead,
+        AuthorizationRole.CollectionsReadWrite,
+      ]),
+    },
+    {
+      name: 'namespace-write',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.CollectionsReadWrite,
+      ]),
+    },
+    {
+      name: 'namespace-read',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.CollectionsRead,
+        AuthorizationRole.CollectionsReadWrite,
+      ]),
     },
   ],
   update: {
-    'namespace-administrator': ['properties.*', 'userId'],
-    'user-administrator': ['properties.*', 'userId'],
+    'namespace-write': administrator.update,
+    'user-write': administrator.update,
   },
 };

@@ -1,7 +1,8 @@
 import {
   ArticlePermissions,
+  AuthorizationMock,
+  AuthorizationRole,
   NamespaceMock,
-  NamespaceUserMock,
   UserDocument,
   UserMock,
 } from '@tenlastic/mongoose-models';
@@ -24,11 +25,12 @@ describe('handlers/create', function () {
 
   context('when permission is granted', function () {
     it('creates a new record', async function () {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['articles'],
+      const namespace = await NamespaceMock.create();
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.ArticlesReadWrite],
+        userId: user._id,
       });
-      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       const ctx = new ContextMock({
         request: {

@@ -1,128 +1,75 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { UserPermissionsHelpers, UserRole } from '../user';
-import { Namespace, NamespaceDocument, NamespaceRole } from './model';
+import { AuthorizationRole } from '../authorization/model';
+import { AuthorizationPermissionsHelpers } from '../authorization/permissions.helpers';
+import { Namespace, NamespaceDocument } from './model';
 
-export const NamespacePermissionsHelpers = {
-  getFindQuery(role: NamespaceRole) {
-    return {
-      namespaceId: {
-        $in: {
-          $query: {
-            model: 'NamespaceSchema',
-            select: '_id',
-            where: {
-              $or: [
-                { keys: { $elemMatch: { roles: role, value: { $ref: 'key' } } } },
-                { users: { $elemMatch: { _id: { $ref: 'user._id' }, roles: role } } },
-              ],
-            },
-          },
-        },
-      },
-    };
-  },
-  getNamespaceUserFindQuery(role: NamespaceRole) {
-    return {
-      _id: { $exists: { $ref: { 'user.roles': role } } },
-      namespaceId: { $ref: 'user.namespaceId' },
-    };
-  },
-  getNamespaceUserRoleQuery(role: NamespaceRole, selector = 'record.namespaceId') {
-    return { 'user.namespaceId': { $ref: selector }, 'user.roles': role };
-  },
-  getRoleQuery(role: NamespaceRole, selector = 'record.namespaceDocument') {
-    return {
-      $or: [
-        { [`${selector}.keys`]: { $elemMatch: { roles: role, value: { $ref: 'key' } } } },
-        { [`${selector}.users`]: { $elemMatch: { _id: { $ref: 'user._id' }, roles: role } } },
-      ],
-    };
-  },
+const administrator = {
+  read: ['_id', 'createdAt', 'limits.*', 'name', 'updatedAt'],
 };
 
 export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(Namespace, {
   create: {
-    'user-administrator': ['keys.*', 'limits.*', 'name', 'users.*'],
+    'user-write': ['limits.*', 'name'],
   },
   delete: {
     default: false,
-    'user-administrator': true,
+    'user-write': true,
   },
   find: {
-    default: {
-      $or: [
-        { 'keys.value': { $ref: 'key' } },
-        { 'users._id': { $ref: 'user._id' } },
-        {
-          $and: [
-            { _id: { $exists: { $ref: { 'user.roles': NamespaceRole.Namespaces } } } },
-            { _id: { $ref: 'user.namespaceId' } },
-          ],
-        },
-      ],
-    },
-    'user-administrator': {},
+    default: AuthorizationPermissionsHelpers.getFindQuery([
+      AuthorizationRole.NamespacesRead,
+      AuthorizationRole.NamespacesReadWrite,
+    ]),
+    'user-read': {},
+    'user-write': {},
   },
+  populate: [
+    {
+      match: { $or: [{ key: { $ref: 'key' } }, { userId: { $ref: 'user._id' } }] },
+      path: 'authorizationDocuments',
+    },
+  ],
   read: {
     default: ['_id', 'createdAt', 'name', 'updatedAt'],
-    'namespace-administrator': [
-      '_id',
-      'createdAt',
-      'keys.*',
-      'limits.*',
-      'name',
-      'updatedAt',
-      'users.*',
-    ],
-    'namespace-member': ['_id', 'createdAt', 'name', 'updatedAt', 'users.*'],
-    'system-administrator': [
-      '_id',
-      'createdAt',
-      'keys.*',
-      'limits.*',
-      'name',
-      'updatedAt',
-      'users.*',
-    ],
-    'user-administrator': [
-      '_id',
-      'createdAt',
-      'keys.*',
-      'limits.*',
-      'name',
-      'updatedAt',
-      'users.*',
-    ],
+    'namespace-read': administrator.read,
+    'namespace-write': administrator.read,
+    'system-read': administrator.read,
+    'system-write': administrator.read,
+    'user-read': administrator.read,
+    'user-write': administrator.read,
   },
   roles: [
     {
-      name: 'system-administrator',
-      query: NamespacePermissionsHelpers.getNamespaceUserRoleQuery(
-        NamespaceRole.Namespaces,
-        'record._id',
+      name: 'user-write',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.NamespacesReadWrite,
+      ]),
+    },
+    {
+      name: 'user-read',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.NamespacesRead,
+        AuthorizationRole.NamespacesReadWrite,
+      ]),
+    },
+    {
+      name: 'namespace-write',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery(
+        [AuthorizationRole.NamespacesReadWrite],
+        'record',
       ),
     },
     {
-      name: 'user-administrator',
-      query: UserPermissionsHelpers.getRoleQuery(UserRole.Namespaces),
-    },
-    {
-      name: 'namespace-administrator',
-      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.Namespaces, 'record'),
-    },
-    {
-      name: 'namespace-member',
-      query: {
-        $or: [
-          { [`record.keys.value`]: { $ref: 'key' } },
-          { [`record.users._id`]: { $ref: 'user._id' } },
-        ],
-      },
+      name: 'namespace-read',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery(
+        [AuthorizationRole.NamespacesRead, AuthorizationRole.NamespacesReadWrite],
+        'record',
+      ),
     },
   ],
   update: {
-    'namespace-administrator': ['keys.*', 'name', 'users.*'],
-    'user-administrator': ['keys.*', 'limits.*', 'name', 'users.*'],
+    'namespace-write': ['keys.*', 'name', 'users.*'],
+    'user-write': ['keys.*', 'limits.*', 'name', 'users.*'],
   },
 });

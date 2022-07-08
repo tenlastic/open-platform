@@ -1,8 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { GamePermissionsHelpers } from '../game';
-import { NamespacePermissionsHelpers, NamespaceRole } from '../namespace';
-import { UserPermissionsHelpers, UserRole } from '../user';
+import { AuthorizationPermissionsHelpers, AuthorizationRole } from '../authorization';
 import { GameServer, GameServerDocument } from './model';
 
 const administrator = {
@@ -56,26 +54,24 @@ const administrator = {
 
 export const GameServerPermissions = new MongoosePermissions<GameServerDocument>(GameServer, {
   create: {
-    'namespace-administrator': administrator.create,
-    'system-administrator': administrator.create,
-    'user-administrator': administrator.create,
+    'namespace-write': administrator.create,
+    'system-write': administrator.create,
+    'user-write': administrator.create,
   },
   delete: {
-    'namespace-administrator': true,
-    'system-administrator': true,
-    'user-administrator': true,
+    'namespace-write': true,
+    'system-write': true,
+    'user-write': true,
   },
   find: {
-    default: {
-      $or: [
-        NamespacePermissionsHelpers.getFindQuery(NamespaceRole.GameServers),
-        NamespacePermissionsHelpers.getNamespaceUserFindQuery(NamespaceRole.GameServers),
-        { namespaceId: { $in: GamePermissionsHelpers.getAuthorizedNamespaceIds() } },
-      ],
-    },
-    'user-administrator': {},
+    default: AuthorizationPermissionsHelpers.getFindQuery([
+      AuthorizationRole.GameServersRead,
+      AuthorizationRole.GameServersReadWrite,
+    ]),
+    'user-read': {},
+    'user-write': {},
   },
-  populate: [{ path: 'namespaceDocument' }],
+  populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
     default: [
       '_id',
@@ -93,27 +89,57 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'status.phase',
       'updatedAt',
     ],
-    'namespace-administrator': administrator.read,
-    'system-administrator': administrator.read,
-    'user-administrator': administrator.read,
+    'namespace-read': administrator.read,
+    'namespace-write': administrator.read,
+    'system-read': administrator.read,
+    'system-write': administrator.read,
+    'user-read': administrator.read,
+    'user-write': administrator.read,
   },
   roles: [
     {
-      name: 'system-administrator',
-      query: NamespacePermissionsHelpers.getNamespaceUserRoleQuery(NamespaceRole.GameServers),
+      name: 'system-write',
+      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
+        AuthorizationRole.GameServersReadWrite,
+      ]),
     },
     {
-      name: 'user-administrator',
-      query: UserPermissionsHelpers.getRoleQuery(UserRole.GameServers),
+      name: 'system-read',
+      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
+        AuthorizationRole.GameServersRead,
+        AuthorizationRole.GameServersReadWrite,
+      ]),
     },
     {
-      name: 'namespace-administrator',
-      query: NamespacePermissionsHelpers.getRoleQuery(NamespaceRole.GameServers),
+      name: 'user-write',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.GameServersReadWrite,
+      ]),
+    },
+    {
+      name: 'user-read',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.GameServersRead,
+        AuthorizationRole.GameServersReadWrite,
+      ]),
+    },
+    {
+      name: 'namespace-write',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.GameServersReadWrite,
+      ]),
+    },
+    {
+      name: 'namespace-read',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.GameServersRead,
+        AuthorizationRole.GameServersReadWrite,
+      ]),
     },
   ],
   update: {
-    'namespace-administrator': administrator.update,
-    'system-administrator': [
+    'namespace-write': administrator.update,
+    'system-write': [
       'authorizedUserIds',
       'buildId',
       'cpu',
@@ -126,6 +152,6 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'restartedAt',
       'status.*',
     ],
-    'user-administrator': administrator.update,
+    'user-write': administrator.update,
   },
 });

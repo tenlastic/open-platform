@@ -12,15 +12,38 @@ components:
         namespaceId:
           type: string
           format: ^[0-9a-f]{24}$
-        status:
-          type: string
-          enum: [authorized, pending, unauthorized]
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+              - Articles:Read
+              - Articles:ReadPublished
+              - Articles:ReadWrite
+              - Authorizations:Read
+              - Authorizations:ReadWrite
+              - Builds:Read
+              - Builds:ReadPublished
+              - Builds:ReadWrite
+              - Collections:Read
+              - Collections:ReadWrite
+              - GameServers:Read
+              - GameServers:ReadWrite
+              - Games:Read
+              - Games:ReadWrite
+              - Namespaces:Read
+              - Namespaces:ReadWrite
+              - Queues:Read
+              - Queues:ReadWrite
+              - Users:Read
+              - Users:ReadWrite
+              - Workflows:Read
+              - Workflows:ReadWrite
+        system:
+          type: boolean
         updatedAt:
           type: string
           format: date-time
         userId:
           type: string
           format: ^[0-9a-f]{24}$
-      required:
-        - namespaceId
-        - userId

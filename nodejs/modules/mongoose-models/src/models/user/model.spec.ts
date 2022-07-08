@@ -1,19 +1,16 @@
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
-import * as jwt from 'jsonwebtoken';
-import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
 import emails from '../../emails';
-import { RefreshToken, RefreshTokenMock } from '../refresh-token';
 import { UserMock } from './model.mock';
-import { User, UserDocument } from './model';
+import { User } from './model';
 
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('models/user.model', function () {
+describe('models/user/model', function () {
   let sandbox: sinon.SinonSandbox;
 
   beforeEach(function () {
@@ -66,47 +63,6 @@ describe('models/user.model', function () {
       const isValidPassword = await user.isValidPassword(password);
 
       expect(isValidPassword).to.eql(true);
-    });
-  });
-
-  describe('logIn()', function () {
-    let user: UserDocument;
-
-    beforeEach(async function () {
-      user = await UserMock.create();
-    });
-
-    it('returns an accessToken and refreshToken', async function () {
-      const { accessToken, refreshToken } = await user.logIn();
-
-      expect(accessToken).to.exist;
-      expect(refreshToken).to.exist;
-    });
-
-    it('creates and returns a refreshToken', async function () {
-      const { refreshToken } = await user.logIn();
-
-      const { jti } = jwt.decode(refreshToken) as any;
-      const count = await RefreshToken.countDocuments({ _id: jti, userId: user._id });
-
-      expect(count).to.eql(1);
-    });
-
-    it('updates an existing refreshToken', async function () {
-      const existingRefreshToken = await RefreshTokenMock.create({ userId: user._id });
-      const { refreshToken } = await user.logIn(existingRefreshToken._id);
-
-      const { jti } = jwt.decode(refreshToken) as any;
-      const count = await RefreshToken.countDocuments({ _id: jti, userId: user._id });
-
-      expect(count).to.eql(1);
-    });
-
-    it('throws an error', async function () {
-      const jti = new mongoose.Types.ObjectId().toHexString();
-      const promise = user.logIn(jti);
-
-      return expect(promise).to.be.rejectedWith(`Cannot read property '_id' of null`);
     });
   });
 });

@@ -1,10 +1,11 @@
 import * as minio from '@tenlastic/minio';
 import {
+  AuthorizationMock,
+  AuthorizationRole,
   BuildDocument,
   BuildFileMock,
   BuildMock,
   NamespaceMock,
-  NamespaceUserMock,
   UserDocument,
   UserMock,
 } from '@tenlastic/mongoose-models';
@@ -18,23 +19,24 @@ import { handler } from './';
 
 use(chaiAsPromised);
 
-describe('handlers/files/download', function() {
+describe('handlers/files/download', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  context('when permission is granted', async function() {
+  context('when permission is granted', async function () {
     let ctx: ContextMock;
     let build: BuildDocument;
 
-    beforeEach(async function() {
-      const namespaceUser = NamespaceUserMock.create({
-        _id: user._id,
-        roles: ['builds'],
+    beforeEach(async function () {
+      const namespace = await NamespaceMock.create();
+      await AuthorizationMock.create({
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.BuildsRead],
+        userId: user._id,
       });
-      const namespace = await NamespaceMock.create({ users: [namespaceUser] });
 
       build = await BuildMock.create({
         files: [
@@ -70,7 +72,7 @@ describe('handlers/files/download', function() {
       } as any);
     });
 
-    it('returns a stream with the zipped files', async function() {
+    it('returns a stream with the zipped files', async function () {
       await handler(ctx as any);
 
       const results = await new Promise<string[]>((resolve, reject) => {
@@ -78,7 +80,7 @@ describe('handlers/files/download', function() {
 
         ctx.response.body
           .pipe(unzipper.Parse())
-          .on('entry', async entry => {
+          .on('entry', async (entry) => {
             const { path, type } = entry;
             if (type === 'Directory') {
               return;
@@ -95,8 +97,8 @@ describe('handlers/files/download', function() {
     });
   });
 
-  context('when permission is denied', function() {
-    it('throws an error', async function() {
+  context('when permission is denied', function () {
+    it('throws an error', async function () {
       const namespace = await NamespaceMock.create();
       const build = await BuildMock.create({ namespaceId: namespace._id });
 
