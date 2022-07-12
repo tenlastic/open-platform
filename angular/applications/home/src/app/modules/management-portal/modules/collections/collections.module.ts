@@ -3,7 +3,12 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../../../shared/shared.module';
 
-import { CriterionFieldComponent, PropertyFieldComponent, RoleFieldComponent } from './components';
+import {
+  CriterionFieldComponent,
+  LayoutComponent,
+  PropertyFieldComponent,
+  RoleFieldComponent,
+} from './components';
 import {
   CollectionsFormPageComponent,
   CollectionsJsonPageComponent,
@@ -13,16 +18,23 @@ import {
 export const ROUTES: Routes = [
   { path: '', component: CollectionsListPageComponent },
   {
-    path: ':collectionId/records',
-    loadChildren: () => import('../records/records.module').then(m => m.RecordModule),
+    path: ':collectionId',
+    component: LayoutComponent,
+    children: [
+      { path: '', component: CollectionsFormPageComponent },
+      { path: 'json', component: CollectionsJsonPageComponent },
+      {
+        path: 'records',
+        loadChildren: () => import('../records/records.module').then((m) => m.RecordModule),
+      },
+    ],
   },
-  { path: ':_id', component: CollectionsFormPageComponent },
-  { path: ':_id/json', component: CollectionsJsonPageComponent },
 ];
 
 @NgModule({
   declarations: [
     CriterionFieldComponent,
+    LayoutComponent,
     PropertyFieldComponent,
     RoleFieldComponent,
 

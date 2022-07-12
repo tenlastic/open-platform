@@ -58,6 +58,12 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
       ]),
     },
     {
+      name: 'namespace-write',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.ArticlesReadWrite,
+      ]),
+    },
+    {
       name: 'user-read',
       query: AuthorizationPermissionsHelpers.getUserRoleQuery([
         AuthorizationRole.ArticlesRead,
@@ -70,12 +76,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
         AuthorizationRole.ArticlesReadPublished,
       ]),
     },
-    {
-      name: 'namespace-write',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.ArticlesReadWrite,
-      ]),
-    },
+
     {
       name: 'namespace-read',
       query: {

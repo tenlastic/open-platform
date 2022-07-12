@@ -53,13 +53,13 @@ describe('AuthorizationService', () => {
   describe('create()', () => {
     it('creates and returns a Authorization', () => {
       const params = {
-        status: IAuthorization.AuthorizationStatus.Granted,
+        name: chance.hash(),
       };
 
       service.create(params).then((res) => {
         expect(res).toEqual(jasmine.any(Authorization));
         expect(res._id).toBeDefined();
-        expect(res.status).toEqual(params.status);
+        expect(res.name).toEqual(params.name);
       });
 
       const req = httpMock.expectOne(service.basePath);
@@ -67,7 +67,7 @@ describe('AuthorizationService', () => {
       req.flush({
         record: {
           _id: chance.hash(),
-          status: params.status,
+          name: params.name,
         },
       });
     });
@@ -128,13 +128,13 @@ describe('AuthorizationService', () => {
     it('updates and returns a Authorization', () => {
       const params = {
         _id: chance.hash(),
-        status: IAuthorization.AuthorizationStatus.Granted,
+        name: chance.hash(),
       };
 
       service.update(params).then((res) => {
         expect(res).toEqual(jasmine.any(Authorization));
         expect(res._id).toEqual(params._id);
-        expect(res.status).toEqual(params.status);
+        expect(res.name).toEqual(params.name);
       });
 
       const req = httpMock.expectOne(`${service.basePath}/${params._id}`);

@@ -5,10 +5,17 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { Article, ArticleQuery, ArticleService } from '@tenlastic/ng-http';
+import { ActivatedRoute, Params } from '@angular/router';
+import {
+  Article,
+  ArticleQuery,
+  ArticleService,
+  AuthorizationQuery,
+  IAuthorization,
+} from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -21,32 +28,36 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Article>;
 
-  public $articles: Observable<Article[]>;
   public dataSource = new MatTableDataSource<Article>();
-  public displayedColumns: string[] = [
-    'game',
-    'type',
-    'title',
-    'publishedAt',
-    'createdAt',
-    'actions',
-  ];
+  public displayedColumns: string[] = ['type', 'title', 'publishedAt', 'createdAt', 'actions'];
+  public hasWriteAuthorization: boolean;
 
+  private $articles: Observable<Article[]>;
   private updateDataSource$ = new Subscription();
 
   constructor(
+    private activatedRoute: ActivatedRoute,
     private articleQuery: ArticleQuery,
     private articleService: ArticleService,
-    public identityService: IdentityService,
+    private authorizationQuery: AuthorizationQuery,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
   public ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Articles`);
-    this.fetchArticles();
+    this.activatedRoute.params.subscribe((params) => {
+      this.titleService.setTitle(`${TITLE} | Articles`);
+
+      const roles = [IAuthorization.AuthorizationRole.ArticlesReadWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+
+      this.fetchArticles(params);
+    });
   }
 
   public ngOnDestroy() {
@@ -80,15 +91,15 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
     return this.articleService.update({ ...article, publishedAt: null });
   }
 
-  private async fetchArticles() {
+  private async fetchArticles(params: Params) {
     const $articles = this.articleQuery.selectAll({
-      filterBy: (article) => article.namespaceId === this.selectedNamespaceService.namespaceId,
+      filterBy: (article) => article.namespaceId === params.namespaceId,
     });
     this.$articles = this.articleQuery.populate($articles);
 
     await this.articleService.find({
       sort: '-createdAt',
-      where: { namespaceId: this.selectedNamespaceService.namespaceId },
+      where: { namespaceId: params.namespaceId },
     });
 
     this.updateDataSource$ = this.$articles.subscribe(

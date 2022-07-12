@@ -1,16 +1,12 @@
 <div class="page">
-  <app-breadcrumbs *ngIf="queueId"
-                   [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
   <app-title>Game Servers</app-title>
 
   <div class="row">
     <div class="col-sm-3">
-      <app-data-source-filter [dataSource]="dataSource">
-        Filter Game Servers
-      </app-data-source-filter>
+      <app-data-source-filter [dataSource]="dataSource">Filter Game Servers</app-data-source-filter>
     </div>
 
-    <div *ngIf="!queue"
+    <div *ngIf="hasWriteAuthorization && !queueId"
          class="offset-sm-6 col-sm-3">
       <app-button color="accent"
                   [routerLink]="['new']">
@@ -76,24 +72,34 @@
           <mat-icon>subject</mat-icon>
         </app-button>
 
-        <app-button *ngIf="element.persistent"
-                    color="accent"
-                    matTooltip="Restart"
-                    (click)="restart(element)">
-          <mat-icon>sync</mat-icon>
-        </app-button>
+        <ng-container *ngIf="hasWriteAuthorization">
+          <app-button *ngIf="element.persistent"
+                      color="accent"
+                      matTooltip="Restart"
+                      (click)="restart(element)">
+            <mat-icon>sync</mat-icon>
+          </app-button>
 
-        <app-button color="accent"
-                    matTooltip="Edit"
-                    [routerLink]="[element._id]">
-          <mat-icon>create</mat-icon>
-        </app-button>
+          <app-button color="accent"
+                      matTooltip="Edit"
+                      [routerLink]="[element._id]">
+            <mat-icon>create</mat-icon>
+          </app-button>
 
-        <app-button color="accent"
-                    matTooltip="Delete"
-                    (OnClick)="showDeletePrompt(element)">
-          <mat-icon>delete</mat-icon>
-        </app-button>
+          <app-button color="accent"
+                      matTooltip="Delete"
+                      (OnClick)="showDeletePrompt(element)">
+            <mat-icon>delete</mat-icon>
+          </app-button>
+        </ng-container>
+
+        <ng-container *ngIf="!hasWriteAuthorization">
+          <app-button color="accent"
+                      matTooltip="View"
+                      [routerLink]="[element._id]">
+            <mat-icon>visibility</mat-icon>
+          </app-button>
+        </ng-container>
       </td>
     </ng-container>
 

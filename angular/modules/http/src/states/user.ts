@@ -12,10 +12,10 @@ export class UserStore extends EntityStore<UserState, User> {
   constructor(private userService: UserService) {
     super();
 
-    this.userService.onCreate.subscribe(record => this.add(record));
-    this.userService.onDelete.subscribe(record => this.remove(record._id));
-    this.userService.onRead.subscribe(records => this.upsertMany(records));
-    this.userService.onUpdate.subscribe(record => this.upsert(record._id, record));
+    this.userService.onCreate.subscribe((record) => this.add(record));
+    this.userService.onDelete.subscribe((record) => this.remove(record._id));
+    this.userService.onRead.subscribe((records) => this.upsertMany(records));
+    this.userService.onUpdate.subscribe((record) => this.upsert(record._id, record));
   }
 }
 

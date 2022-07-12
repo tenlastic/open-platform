@@ -28,7 +28,7 @@ resources:
   - ./static/ingress-nginx/default.ingress.yaml
   - ./static/minio/minio.sealedsecret.yaml
   - ./static/mongodb/mongodb.sealedsecret.yaml
-  - ./static/mongodb/mongoku.sealedsecret.yaml
+  - ./static/mongodb/mongodb-gui.sealedsecret.yaml
   - ./static/nats/nats.sealedsecret.yaml
   - ./static/nodejs/e2e.sealedsecret.yaml
   - ./static/nodejs/environment-variables.sealedsecret.yaml

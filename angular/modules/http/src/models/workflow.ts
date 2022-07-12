@@ -78,7 +78,7 @@ export namespace IWorkflow {
 
   export interface Spec {
     entrypoint: string;
-    parallelism: number;
+    parallelism?: number;
     templates?: Template[];
   }
 
@@ -101,7 +101,7 @@ export namespace IWorkflow {
     dag?: Dag;
     name: string;
     retryStrategy?: RetryStrategy;
-    script: Script;
+    script?: Script;
     sidecars?: Sidecar[];
   }
 }
@@ -136,7 +136,7 @@ export class Workflow extends Model {
     for (const node of sortedNodes) {
       if (node.children) {
         for (const childId of node.children) {
-          const child = sortedNodes.find(n => n._id === childId);
+          const child = sortedNodes.find((n) => n._id === childId);
           child.parent = node._id;
         }
       }

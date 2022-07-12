@@ -1,0 +1,28 @@
+<app-sidenav>
+  <div *ngIf="($queue | async) as queue"
+       class="nav">
+    <app-button color="accent"
+                layout="vertical"
+                [routerLink]="['./']"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{exact:true}"
+                text="left"
+                width="full">
+      <mat-icon>hourglass_bottom</mat-icon>
+      <span>{{ queue.name }}</span>
+    </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.gameServerRoles) | async"
+                color="accent"
+                layout="vertical"
+                [routerLink]="['game-servers']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>public</mat-icon>
+      <span>Game Servers</span>
+    </app-button>
+  </div>
+
+  <router-outlet></router-outlet>
+</app-sidenav>

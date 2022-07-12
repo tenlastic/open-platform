@@ -72,6 +72,11 @@ UserEvent.sync(async (payload) => {
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: AuthorizationEvent })
 @plugin(errors.unique.plugin)
+@pre('save', function (this: AuthorizationDocument) {
+  if (this.isNew && !this.userId) {
+    this.key = uuid();
+  }
+})
 @pre('validate', function (this: AuthorizationDocument) {
   if (!this.namespaceId && !this.userId) {
     const message = 'Namespace and/or User must be defined.';
@@ -85,8 +90,11 @@ export class AuthorizationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ default: () => uuid() })
+  @prop()
   public key: string;
+
+  @prop()
+  public name: string;
 
   @prop({ ref: 'NamespaceSchema' })
   public namespaceId: mongoose.Types.ObjectId;

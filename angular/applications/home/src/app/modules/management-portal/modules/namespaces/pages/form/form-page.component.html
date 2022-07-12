@@ -1,11 +1,14 @@
 <div class="page">
-  <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
-
   <div class="row">
     <div class="col-sm-6">
-      <app-title>{{ data?._id ? 'Edit' : 'Create' }} Namespace</app-title>
+      <app-title *ngIf="hasWriteAuthorization || hasWriteAuthorizationForNamespace">
+        {{ data?._id ? 'Edit' : 'Create' }} Namespace
+      </app-title>
+      <app-title *ngIf="!hasWriteAuthorization && !hasWriteAuthorizationForNamespace">View Namespace</app-title>
     </div>
-    <div class="col-sm-6 align-right">
+
+    <div *ngIf="hasWriteAuthorization || hasWriteAuthorizationForNamespace"
+         class="col-sm-6 align-right">
       <app-button color="accent"
                   (OnClick)="navigateToJson()">
         <mat-icon>code</mat-icon>
@@ -27,88 +30,8 @@
       </mat-form-field>
     </div>
 
-    <app-toggle-section title="Users"
-                        formArrayName="users">
-      <div class="row"
-           *ngFor="
-          let user of users.controls;
-          let i = index
-        ">
-        <app-namespace-user-field [form]="user"
-                                  [roles]="roles"
-                                  (remove)="removeUser(i)"></app-namespace-user-field>
-      </div>
-
-      <div class="row">
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="addUser()">
-          <mat-icon>add</mat-icon>
-          <span>Add User</span>
-        </app-button>
-      </div>
-    </app-toggle-section>
-
-    <app-toggle-section title="API Keys"
-                        formArrayName="keys"
-                        [isVisible]="false">
-      <div class="row"
-           *ngFor="
-          let key of keys.controls;
-          let i = index
-        "
-           [formGroupName]="i">
-        <mat-form-field floatLabel="always">
-          <mat-label>Value</mat-label>
-          <input matInput
-                 formControlName="value" />
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Description</mat-label>
-          <input matInput
-                 formControlName="description" />
-          <mat-error>Enter a valid name.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Roles</mat-label>
-          <mat-select placeholder="None"
-                      multiple
-                      formControlName="roles">
-            <mat-option *ngFor="let role of roles"
-                        [value]="role.value">{{ role.label }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="copyToClipboard(i)">
-          <mat-icon>content_paste</mat-icon>
-          <span>Copy to Clipboard</span>
-        </app-button>
-
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="removeKey(i)">
-          <mat-icon>close</mat-icon>
-          <span>Remove</span>
-        </app-button>
-      </div>
-
-      <div class="row">
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="addKey()">
-          <mat-icon>add</mat-icon>
-          <span>Add API Key</span>
-        </app-button>
-      </div>
-    </app-toggle-section>
-
     <app-toggle-section title="Limits"
-                        formArrayName="limits"
-                        [isVisible]="false">
+                        formArrayName="limits">
       <div class="row"
            formGroupName="builds">
         <mat-form-field floatLabel="always">

@@ -9,12 +9,16 @@ import {
   WorkflowSidecarsFormComponent,
   WorkflowStatusNodeComponent,
 } from './components';
-import { WorkflowsFormPageComponent } from './pages/form/form-page.component';
-import { WorkflowsListPageComponent } from './pages/list/list-page.component';
+import {
+  WorkflowsFormPageComponent,
+  WorkflowsJsonPageComponent,
+  WorkflowsListPageComponent,
+} from './pages';
 
 export const ROUTES: Routes = [
   { path: '', component: WorkflowsListPageComponent },
-  { path: ':_id', component: WorkflowsFormPageComponent },
+  { path: ':workflowId', component: WorkflowsFormPageComponent },
+  { path: ':workflowId/json', component: WorkflowsJsonPageComponent },
 ];
 
 @NgModule({
@@ -25,6 +29,7 @@ export const ROUTES: Routes = [
     WorkflowStatusNodeComponent,
 
     WorkflowsFormPageComponent,
+    WorkflowsJsonPageComponent,
     WorkflowsListPageComponent,
   ],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],

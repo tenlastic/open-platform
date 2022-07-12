@@ -21,6 +21,10 @@ div.col-sm-6 {
   }
 }
 
+div.row {
+  align-items: baseline;
+}
+
 form {
   & > app-button {
     margin-bottom: 16px;

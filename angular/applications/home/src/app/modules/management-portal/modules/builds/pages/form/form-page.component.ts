@@ -2,24 +2,21 @@ import { NestedTreeControl } from '@angular/cdk/tree';
 import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Build, BuildQuery, BuildService } from '@tenlastic/ng-http';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import {
+  AuthorizationQuery,
+  Build,
+  BuildQuery,
+  BuildService,
+  IAuthorization,
+} from '@tenlastic/ng-http';
 import JSZip from 'jszip';
 import { EMPTY, Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import {
-  FileReaderService,
-  IdentityService,
-  SelectedNamespaceService,
-} from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { FileReaderService, FormService, IdentityService } from '../../../../../../core/services';
 import { UpdatedFile } from '../../components';
 
 enum Status {
@@ -51,11 +48,11 @@ interface StatusNode {
 export class BuildsFormPageComponent implements OnInit {
   public $data: Observable<Build>;
   public Status = Status;
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public data: Build;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
   public errors: string[] = [];
   public form: FormGroup;
+  public hasWriteAuthorization: boolean;
   public platforms = [
     { label: 'Linux Server (x64)', value: 'server64' },
     { label: 'Windows Client (x64)', value: 'windows64' },
@@ -64,31 +61,34 @@ export class BuildsFormPageComponent implements OnInit {
   public status = Status.Ready;
   public treeControl = new NestedTreeControl<StatusNode>((node) => node.children);
 
+  private params: Params;
+
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private buildQuery: BuildQuery,
     private buildService: BuildService,
     private changeDetectorRef: ChangeDetectorRef,
     private fileReaderService: FileReaderService,
     private formBuilder: FormBuilder,
-    public identityService: IdentityService,
-    private matDialog: MatDialog,
+    private formService: FormService,
+    private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private router: Router,
-    private selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const _id = params.get('_id');
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
 
-      this.breadcrumbs = [
-        { label: 'Builds', link: '../' },
-        { label: _id === 'new' ? 'Create Build' : 'Edit Build' },
-      ];
+      const roles = [IAuthorization.AuthorizationRole.BuildsReadWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      if (_id !== 'new') {
-        this.data = await this.buildService.findOne(_id);
+      if (params.buildId !== 'new') {
+        this.data = await this.buildService.findOne(params.buildId);
         this.dataSource.data = this.data.getNestedStatusNodes();
       }
 
@@ -101,25 +101,7 @@ export class BuildsFormPageComponent implements OnInit {
   }
 
   public navigateToJson() {
-    if (this.form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
-          buttons: [
-            { color: 'primary', label: 'No' },
-            { color: 'accent', label: 'Yes' },
-          ],
-          message: 'Changes will not be saved. Is this OK?',
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(async (result) => {
-        if (result === 'Yes') {
-          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-        }
-      });
-    } else {
-      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-    }
+    this.formService.navigateToJson(this.form);
   }
 
   public async save() {
@@ -259,10 +241,14 @@ export class BuildsFormPageComponent implements OnInit {
       entrypoint: [this.data.entrypoint, Validators.required],
       files: [this.data.files || []],
       name: [this.data.name, Validators.required],
-      namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
+      namespaceId: [this.params.namespaceId, Validators.required],
       platform: [this.data.platform || this.platforms[0].value, Validators.required],
       reference: this.formBuilder.group({ _id: [null], files: [[]] }),
     });
+
+    if (!this.hasWriteAuthorization) {
+      this.form.disable({ emitEvent: false });
+    }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
@@ -290,9 +276,9 @@ export class BuildsFormPageComponent implements OnInit {
       this.data = await this.buildService.update(data);
     } else {
       this.data = await this.create(data);
-      this.router.navigate(['../', this.data._id], { relativeTo: this.activatedRoute });
     }
 
     this.matSnackBar.open('Build saved successfully.');
+    this.router.navigate(['../', this.data._id], { relativeTo: this.activatedRoute });
   }
 }

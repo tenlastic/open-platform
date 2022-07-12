@@ -7,7 +7,6 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../material.module';
 import {
   AutocompleteUserFieldComponent,
-  BreadcrumbsComponent,
   ButtonComponent,
   DataSourceFilterComponent,
   FormMessageComponent,
@@ -46,7 +45,6 @@ import {
 
 const components = [
   AutocompleteUserFieldComponent,
-  BreadcrumbsComponent,
   ButtonComponent,
   DataSourceFilterComponent,
   FormMessageComponent,

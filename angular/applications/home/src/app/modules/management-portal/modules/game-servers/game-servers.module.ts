@@ -11,8 +11,8 @@ import {
 
 export const ROUTES: Routes = [
   { path: '', component: GameServersListPageComponent },
-  { path: ':_id', component: GameServersFormPageComponent },
-  { path: ':_id/json', component: GameServersJsonPageComponent },
+  { path: ':gameServerId', component: GameServersFormPageComponent },
+  { path: ':gameServerId/json', component: GameServersJsonPageComponent },
 ];
 
 const pages = [

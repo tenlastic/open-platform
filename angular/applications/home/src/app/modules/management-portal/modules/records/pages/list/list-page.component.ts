@@ -5,10 +5,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import {
+  AuthorizationQuery,
   Collection,
   CollectionService,
+  IAuthorization,
   Record,
   RecordQuery,
   RecordService,
@@ -16,11 +18,8 @@ import {
 import { Observable, Subscription } from 'rxjs';
 
 import { environment } from '../../../../../../../environments/environment';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
-import { Socket, SocketService } from '../../../../../../core/services';
+import { PromptComponent } from '../../../../../../shared/components';
+import { IdentityService, Socket, SocketService } from '../../../../../../core/services';
 import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
@@ -32,23 +31,23 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Record>;
 
-  public $records: Observable<Record[]>;
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public collection: Collection;
   public dataSource = new MatTableDataSource<Record>();
   public displayedColumns: string[];
+  public hasWriteAuthorization: boolean;
   public propertyColumns: string[];
 
+  private $records: Observable<Record[]>;
   private updateDataSource$ = new Subscription();
-  private get collectionId() {
-    return this.activatedRoute.snapshot.paramMap.get('collectionId');
-  }
+  private params: Params;
   private socket: Socket;
   private subscription: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private collectionService: CollectionService,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private recordQuery: RecordQuery,
@@ -58,27 +57,31 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public async ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Records`);
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
+      this.titleService.setTitle(`${TITLE} | Records`);
 
-    this.collection = await this.collectionService.findOne(this.collectionId);
-    this.breadcrumbs = [
-      { label: 'Collections', link: '../../' },
-      { label: this.collection.name, link: '../' },
-      { label: 'Records' },
-    ];
+      const roles = [IAuthorization.AuthorizationRole.CollectionsReadWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-    this.propertyColumns = Object.entries(this.collection.jsonSchema.properties)
-      .map(([key, value]) => (value.type === 'array' || value.type === 'object' ? null : key))
-      .filter((p) => p)
-      .slice(0, 4);
-    this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
+      this.collection = await this.collectionService.findOne(params.collectionId);
 
-    this.socket = await this.socketService.connect(environment.apiBaseUrl);
-    this.subscription = this.socket.subscribe('records', Record, this.recordService, {
-      collectionId: this.collectionId,
+      this.propertyColumns = Object.entries(this.collection.jsonSchema.properties)
+        .map(([key, value]) => (value.type === 'array' || value.type === 'object' ? null : key))
+        .filter((p) => p)
+        .slice(0, 4);
+      this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
+
+      this.socket = await this.socketService.connect(environment.apiBaseUrl);
+      this.subscription = this.socket.subscribe('records', Record, this.recordService, {
+        collectionId: this.params.collectionId,
+      });
+
+      await this.fetchRecords(params);
     });
-
-    await this.fetchRecords();
   }
 
   public ngOnDestroy() {
@@ -99,18 +102,18 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.recordService.delete(this.collectionId, record._id);
+        await this.recordService.delete(this.params.collectionId, record._id);
         this.matSnackBar.open('Record deleted successfully.');
       }
     });
   }
 
-  private async fetchRecords() {
+  private async fetchRecords(params: Params) {
     this.$records = this.recordQuery.selectAll({
-      filterBy: (gs) => gs.collectionId === this.collectionId,
+      filterBy: (gs) => gs.collectionId === params.collectionId,
     });
 
-    await this.recordService.find(this.collectionId, { sort: 'name' });
+    await this.recordService.find(params.collectionId, { sort: 'name' });
 
     this.updateDataSource$ = this.$records.subscribe((records) => (this.dataSource.data = records));
 

@@ -56,6 +56,10 @@
         text-align: center;
       }
     }
+
+    > app-sidenav > div.nav {
+      box-shadow: -2px 0px 3px black !important;
+    }
   }
 }
 

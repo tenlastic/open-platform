@@ -5,10 +5,17 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { Collection, CollectionQuery, CollectionService } from '@tenlastic/ng-http';
+import { ActivatedRoute, Params } from '@angular/router';
+import {
+  AuthorizationQuery,
+  Collection,
+  CollectionQuery,
+  CollectionService,
+  IAuthorization,
+} from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -21,26 +28,36 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Collection>;
 
-  public $collections: Observable<Collection[]>;
   public dataSource = new MatTableDataSource<Collection>();
   public displayedColumns: string[] = ['name', 'createdAt', 'updatedAt', 'actions'];
+  public hasWriteAuthorization: boolean;
 
+  private $collections: Observable<Collection[]>;
   private updateDataSource$ = new Subscription();
 
   constructor(
+    private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private collectionQuery: CollectionQuery,
     private collectionService: CollectionService,
-    public identityService: IdentityService,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
   public async ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Collections`);
+    this.activatedRoute.params.subscribe((params) => {
+      this.titleService.setTitle(`${TITLE} | Collections`);
 
-    await this.fetchCollections();
+      const roles = [IAuthorization.AuthorizationRole.CollectionsReadWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+
+      this.fetchCollections(params);
+    });
   }
 
   public ngOnDestroy() {
@@ -66,14 +83,14 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
     });
   }
 
-  private async fetchCollections() {
+  private async fetchCollections(params: Params) {
     this.$collections = this.collectionQuery.selectAll({
-      filterBy: (gs) => gs.namespaceId === this.selectedNamespaceService.namespaceId,
+      filterBy: (gs) => gs.namespaceId === params.namespaceId,
     });
 
     await this.collectionService.find({
       sort: 'name',
-      where: { namespaceId: this.selectedNamespaceService.namespaceId },
+      where: { namespaceId: params.namespaceId },
     });
 
     this.updateDataSource$ = this.$collections.subscribe(

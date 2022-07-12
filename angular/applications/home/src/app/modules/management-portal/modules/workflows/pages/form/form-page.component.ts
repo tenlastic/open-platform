@@ -1,16 +1,23 @@
 import { ENTER } from '@angular/cdk/keycodes';
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
-import { ActivatedRoute, Router } from '@angular/router';
-import { IWorkflow, Workflow, WorkflowQuery, WorkflowService } from '@tenlastic/ng-http';
-import { Observable } from 'rxjs';
+import { ActivatedRoute, Params } from '@angular/router';
+import {
+  AuthorizationQuery,
+  IAuthorization,
+  IWorkflow,
+  Namespace,
+  NamespaceService,
+  Workflow,
+  WorkflowQuery,
+  WorkflowService,
+} from '@tenlastic/ng-http';
+import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { FormService, IdentityService } from '../../../../../../core/services';
 
 interface StatusNode {
   children?: StatusNode[];
@@ -30,50 +37,63 @@ interface StatusNode {
 export class WorkflowsFormPageComponent implements OnInit {
   public $data: Observable<Workflow>;
   public get cpus() {
-    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limits = this.namespace.limits.workflows;
     const limit = limits.cpu ? limits.cpu : Infinity;
-    return limits.cpu ? IWorkflow.Cpu.filter(r => r.value <= limit) : IWorkflow.Cpu;
+    return limits.cpu ? IWorkflow.Cpu.filter((r) => r.value <= limit) : IWorkflow.Cpu;
   }
   public data: Workflow;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
   public errors: string[] = [];
   public form: FormGroup;
+  public hasWriteAuthorization: boolean;
   public get memories() {
-    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limits = this.namespace.limits.workflows;
     const limit = limits.memory ? limits.memory : Infinity;
-    return limits.memory ? IWorkflow.Memory.filter(r => r.value <= limit) : IWorkflow.Memory;
+    return limits.memory ? IWorkflow.Memory.filter((r) => r.value <= limit) : IWorkflow.Memory;
   }
   public get parallelisms() {
-    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limits = this.namespace.limits.workflows;
     const limit = limits.parallelism ? limits.parallelism : Infinity;
     return limits.parallelism
-      ? IWorkflow.Parallelisms.filter(r => r.value <= limit)
+      ? IWorkflow.Parallelisms.filter((r) => r.value <= limit)
       : IWorkflow.Parallelisms;
   }
   public readonly separatorKeysCodes: number[] = [ENTER];
   public get storages() {
-    const limits = this.selectedNamespaceService.namespace.limits.workflows;
+    const limits = this.namespace.limits.workflows;
     const limit = limits.storage ? limits.storage : Infinity;
-    return limits.storage ? IWorkflow.Storage.filter(r => r.value <= limit) : IWorkflow.Storage;
+    return limits.storage ? IWorkflow.Storage.filter((r) => r.value <= limit) : IWorkflow.Storage;
   }
-  public treeControl = new NestedTreeControl<StatusNode>(node => node.children);
+  public treeControl = new NestedTreeControl<StatusNode>((node) => node.children);
+
+  private namespace: Namespace;
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private formBuilder: FormBuilder,
-    public identityService: IdentityService,
-    private matSnackBar: MatSnackBar,
+    private formService: FormService,
+    private identityService: IdentityService,
+    private namespaceService: NamespaceService,
     private workflowQuery: WorkflowQuery,
     private workflowService: WorkflowService,
-    private router: Router,
-    public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
-      const _id = params.get('_id');
-      if (_id !== 'new') {
-        this.data = await this.workflowService.findOne(_id);
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
+
+      const roles = [IAuthorization.AuthorizationRole.QueuesReadWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+
+      this.namespace = await this.namespaceService.findOne(params.namespaceId);
+
+      if (params.workflowId !== 'new') {
+        this.data = await this.workflowService.findOne(params.workflowId);
       }
 
       this.setupForm();
@@ -104,6 +124,10 @@ export class WorkflowsFormPageComponent implements OnInit {
     roles.insert(index + change, role);
   }
 
+  public navigateToJson() {
+    this.formService.navigateToJson(this.form);
+  }
+
   public removeTemplate(index: number) {
     const formArray = this.form.get('templates') as FormArray;
     formArray.removeAt(index);
@@ -128,8 +152,8 @@ export class WorkflowsFormPageComponent implements OnInit {
 
       return task;
     });
-    const templates = raw.templates.map(t => {
-      const sidecars = t.sidecars.map(s => {
+    const templates = raw.templates.map((t) => {
+      const sidecars = t.sidecars.map((s) => {
         const sidecar: IWorkflow.Sidecar = {
           env: s.env,
           image: s.image,
@@ -190,21 +214,14 @@ export class WorkflowsFormPageComponent implements OnInit {
     };
 
     try {
-      await this.create(values);
+      this.data = await this.formService.upsert(this.workflowService, values);
     } catch (e) {
-      this.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
+      this.formService.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
     }
   }
 
   public showStatusNode(node: StatusNode) {
     return ['Pod', 'Workflow'].includes(node.type);
-  }
-
-  private async create(data: Partial<Workflow>) {
-    const result = await this.workflowService.create(data);
-
-    this.matSnackBar.open('Workflow saved successfully.');
-    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
   }
 
   private getDefaultTemplateFormGroup() {
@@ -221,7 +238,7 @@ export class WorkflowsFormPageComponent implements OnInit {
     });
 
     // Only allow alphanumeric characters and dashes.
-    group.valueChanges.subscribe(value => {
+    group.valueChanges.subscribe((value) => {
       const name = value.name.replace(/[^A-Za-z0-9\-]/g, '');
       group.get('name').setValue(name, { emitEvent: false });
     });
@@ -274,8 +291,8 @@ export class WorkflowsFormPageComponent implements OnInit {
     }
 
     this.data.spec.templates
-      .filter(t => t.script)
-      .forEach(t => {
+      .filter((t) => t.script)
+      .forEach((t) => {
         const template = this.formBuilder.group({
           name: [t.name, Validators.required],
           script: this.formBuilder.group({
@@ -294,18 +311,6 @@ export class WorkflowsFormPageComponent implements OnInit {
     return formArray;
   }
 
-  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map(e => {
-      if (e.name === 'UniqueError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map(p => pathMap[p]);
-        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
-    });
-  }
-
   private setupForm(): void {
     this.data = this.data || new Workflow();
 
@@ -313,18 +318,22 @@ export class WorkflowsFormPageComponent implements OnInit {
       cpu: [this.data.cpu || this.cpus[0].value],
       memory: [this.data.memory || this.memories[0].value],
       name: [this.data.name, Validators.required],
-      namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
+      namespaceId: [this.params.namespaceId, Validators.required],
       parallelism: [(this.data.spec && this.data.spec.parallelism) || this.parallelisms[0].value],
       preemptible: [this.data.preemptible === false ? false : true],
       storage: [this.data.storage || this.storages[0].value],
       templates: this.getTemplatesFormArray(this.data.spec && this.data.spec.templates),
     });
 
+    if (!this.hasWriteAuthorization) {
+      this.form.disable({ emitEvent: false });
+    }
+
     if (this.data._id) {
       this.form.disable({ emitEvent: false });
 
-      this.$data = this.workflowQuery.selectAll({ filterBy: w => w._id === this.data._id }).pipe(
-        map(workflows => {
+      this.$data = this.workflowQuery.selectAll({ filterBy: (w) => w._id === this.data._id }).pipe(
+        map((workflows) => {
           const workflow = new Workflow(workflows[0]);
           workflow.status = workflow.status || { nodes: [], phase: 'Pending' };
           this.dataSource.data = workflow.getNestedStatusNodes();

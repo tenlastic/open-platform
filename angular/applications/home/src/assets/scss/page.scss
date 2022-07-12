@@ -9,13 +9,21 @@ div.form-error {
   }
 }
 
+div.page {
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 16px;
+}
+
 form {
   & > app-button {
     margin-right: 8px;
   }
 }
 
-h2 {
+h2,
+h3,
+h4 {
   margin: 0px 0px 16px;
 }
 

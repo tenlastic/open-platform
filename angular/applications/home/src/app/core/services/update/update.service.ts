@@ -5,16 +5,11 @@ import {
   Build,
   BuildService,
   Game,
-  GameQuery,
   GameServer,
   GameService,
   IAuthorization,
   IBuild,
-  IGame,
-  IUser,
   LoginService,
-  Namespace,
-  NamespaceService,
 } from '@tenlastic/ng-http';
 import { ChildProcess } from 'child_process';
 import { Subject } from 'rxjs';
@@ -92,11 +87,9 @@ export class UpdateService {
     private authorizationService: AuthorizationService,
     private buildService: BuildService,
     private electronService: ElectronService,
-    private gameQuery: GameQuery,
     private gameService: GameService,
     private identityService: IdentityService,
     private loginService: LoginService,
-    private namespaceService: NamespaceService,
   ) {
     this.subscribeToServices();
     this.loginService.onLogout.subscribe(() => this.status.clear());
@@ -116,24 +109,15 @@ export class UpdateService {
 
     // Check Authorization...
     status.text = 'Checking authorization...';
-    const { Games } = IUser.Role;
-    const { game, authorization, namespaceUser } = await this.getAuthorization(namespaceId);
-    const { user } = this.identityService;
-    if (!user.roles.includes(Games) && !namespaceUser?.roles.includes(Games)) {
-      if (authorization?.status === IAuthorization.AuthorizationStatus.Revoked) {
-        status.state = UpdateServiceState.Banned;
-        return;
-      }
-
-      if (!game || game.access !== IGame.Access.Public) {
-        if (authorization?.status === IAuthorization.AuthorizationStatus.Pending) {
-          status.state = UpdateServiceState.PendingAuthorization;
-          return;
-        } else if (authorization?.status !== IAuthorization.AuthorizationStatus.Granted) {
-          status.state = UpdateServiceState.NotAuthorized;
-          return;
-        }
-      }
+    const authorization = await this.getAuthorization(namespaceId);
+    const roles = [
+      IAuthorization.AuthorizationRole.BuildsRead,
+      IAuthorization.AuthorizationRole.BuildsReadPublished,
+      IAuthorization.AuthorizationRole.BuildsReadWrite,
+    ];
+    if (!authorization || !authorization.roles.some((r) => roles.includes(r))) {
+      status.state = UpdateServiceState.NotAuthorized;
+      return;
     }
 
     // Get the latest Build from the server.
@@ -349,18 +333,12 @@ export class UpdateService {
   }
 
   private async getAuthorization(namespaceId: string) {
-    const games = await this.gameService.find({ where: { namespaceId } });
-    const authorizations = await this.authorizationService.find({
-      where: { namespaceId, userId: this.identityService.user._id },
-    });
+    const authorizations = await this.authorizationService.findUserAuthorizations(
+      namespaceId,
+      this.identityService.user._id,
+    );
 
-    let namespace: Namespace;
-    try {
-      namespace = await this.namespaceService.findOne(namespaceId);
-    } catch {}
-    const namespaceUser = namespace?.users.find((u) => u._id === this.identityService.user._id);
-
-    return { authorization: authorizations[0], game: games[0], namespaceUser };
+    return authorizations[0];
   }
 
   private async getCachedFiles(namespaceId: string) {

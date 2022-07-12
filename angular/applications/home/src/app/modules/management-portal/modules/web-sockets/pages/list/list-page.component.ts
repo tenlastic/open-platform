@@ -6,7 +6,6 @@ import { Title } from '@angular/platform-browser';
 import { WebSocket, WebSocketQuery, WebSocketService } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
-import { IdentityService } from '../../../../../../core/services';
 import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
@@ -25,14 +24,13 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
   private updateDataSource$ = new Subscription();
 
   constructor(
-    public identityService: IdentityService,
     private titleService: Title,
     private webSocketQuery: WebSocketQuery,
     private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | WebSockets`);
+    this.titleService.setTitle(`${TITLE} | Web Sockets`);
     this.fetchWebSockets();
   }
 
@@ -44,7 +42,7 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
     const $webSockets = this.webSocketQuery.selectAll();
     this.$webSockets = this.webSocketQuery.populate($webSockets);
 
-    await this.webSocketService.find({ sort: '-createdAt' });
+    const webSockets = await this.webSocketService.find({ sort: '-createdAt' });
 
     this.updateDataSource$ = this.$webSockets.subscribe(
       (webSockets) => (this.dataSource.data = webSockets),

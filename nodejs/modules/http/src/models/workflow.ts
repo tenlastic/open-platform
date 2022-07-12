@@ -78,7 +78,7 @@ export namespace IWorkflow {
 
   export interface Spec {
     entrypoint: string;
-    parallelism: number;
+    parallelism?: number;
     templates?: Template[];
   }
 
@@ -109,10 +109,10 @@ export class WorkflowModel extends BaseModel {
   public _id: string;
   public cpu: number;
   public createdAt: Date;
-  public preemptible: boolean;
   public memory: number;
   public name: string;
   public namespaceId: string;
+  public preemptible: boolean;
   public spec: IWorkflow.Spec;
   public status: IWorkflow.Status;
   public storage: number;
@@ -128,7 +128,7 @@ export class WorkflowModel extends BaseModel {
     for (const node of nodes) {
       if (node.children) {
         for (const childId of node.children) {
-          const child = nodes.find(n => n._id === childId);
+          const child = nodes.find((n) => n._id === childId);
           child.parent = node._id;
         }
       }

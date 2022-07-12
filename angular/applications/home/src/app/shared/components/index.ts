@@ -1,5 +1,4 @@
 export * from './autocomplete-user-field/autocomplete-user-field.component';
-export * from './breadcrumbs/breadcrumbs.component';
 export * from './button/button.component';
 export * from './data-source-filter/data-source-filter.component';
 export * from './form-message/form-message.component';

@@ -4,6 +4,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { resetStores } from '@datorama/akita';
 import {
   Authorization,
+  AuthorizationQuery,
   AuthorizationService,
   Build,
   BuildService,
@@ -30,6 +31,7 @@ import {
   UserQuery,
   UserService,
   WebSocket,
+  WebSocketQuery,
   WebSocketService,
   Workflow,
   WorkflowService,
@@ -52,6 +54,7 @@ export class AppComponent implements OnInit {
   }
 
   constructor(
+    private authorizationQuery: AuthorizationQuery,
     private authorizationService: AuthorizationService,
     private buildService: BuildService,
     private collectionService: CollectionService,
@@ -73,6 +76,7 @@ export class AppComponent implements OnInit {
     private titleService: Title,
     private userQuery: UserQuery,
     private userService: UserService,
+    private webSocketQuery: WebSocketQuery,
     private webSocketService: WebSocketService,
     private workflowService: WorkflowService,
   ) {}
@@ -119,21 +123,21 @@ export class AppComponent implements OnInit {
   }
 
   public fetchMissingRecords() {
+    this.authorizationQuery.selectAll().subscribe((records) => {
+      const ids = records.map((r) => r.userId).filter((ui) => !this.userQuery.hasEntity(ui));
+      return ids.length > 0 ? this.userService.find({ where: { _id: { $in: ids } } }) : null;
+    });
     this.gameServerQuery.selectAll().subscribe((records) => {
-      const ids = records
-        .map((r) => r.queueId)
-        .filter((queueId) => !this.queueQuery.hasEntity(queueId));
-      if (ids.length > 0) {
-        this.queueService.find({ where: { _id: { $in: ids } } });
-      }
+      const ids = records.map((r) => r.queueId).filter((qi) => !this.queueQuery.hasEntity(qi));
+      return ids.length > 0 ? this.queueService.find({ where: { _id: { $in: ids } } }) : null;
     });
     this.queueMemberQuery.selectAll().subscribe((records) => {
-      const ids = records
-        .map((r) => r.userId)
-        .filter((userId) => !this.userQuery.hasEntity(userId));
-      if (ids.length > 0) {
-        this.userService.find({ where: { _id: { $in: ids } } });
-      }
+      const ids = records.map((r) => r.userId).filter((ui) => !this.userQuery.hasEntity(ui));
+      return ids.length > 0 ? this.queueService.find({ where: { _id: { $in: ids } } }) : null;
+    });
+    this.webSocketQuery.selectAll().subscribe((records) => {
+      const ids = records.map((r) => r.userId).filter((ui) => !this.userQuery.hasEntity(ui));
+      return ids.length > 0 ? this.userService.find({ where: { _id: { $in: ids } } }) : null;
     });
   }
 

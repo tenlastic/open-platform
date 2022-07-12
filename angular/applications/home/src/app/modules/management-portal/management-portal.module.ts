@@ -1,19 +1,24 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { NamespaceGuard } from '../../core/guards';
 import { SharedModule } from '../../shared/shared.module';
 import { LayoutComponent } from './components';
 
 export const ROUTES: Routes = [
   {
-    canActivate: [NamespaceGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'namespaces' },
       {
         path: 'articles',
         loadChildren: () =>
           import('./modules/articles/articles.module').then((m) => m.ArticleModule),
+      },
+      {
+        path: 'authorizations',
+        loadChildren: () =>
+          import('./modules/authorizations/authorizations.module').then(
+            (m) => m.AuthorizationModule,
+          ),
       },
       {
         path: 'builds',
@@ -23,13 +28,6 @@ export const ROUTES: Routes = [
         path: 'collections',
         loadChildren: () =>
           import('./modules/collections/collections.module').then((m) => m.CollectionModule),
-      },
-      {
-        path: 'authorizations',
-        loadChildren: () =>
-          import('./modules/authorizations/authorizations.module').then(
-            (m) => m.AuthorizationModule,
-          ),
       },
       {
         path: 'game-servers',

@@ -64,6 +64,23 @@ export class AuthorizationService {
     return record;
   }
 
+  public async findUserAuthorizations(namespaceId: string, userId: string) {
+    let where = {};
+
+    if (namespaceId) {
+      where = {
+        $or: [
+          { namespaceId, userId },
+          { namespaceId: { $exists: false }, userId },
+        ],
+      };
+    } else {
+      where = { userId };
+    }
+
+    return this.find({ where });
+  }
+
   public async update(parameters: Partial<Authorization>): Promise<Authorization> {
     const response = await this.apiService.request(
       'put',

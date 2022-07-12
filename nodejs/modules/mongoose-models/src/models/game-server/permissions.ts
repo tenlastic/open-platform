@@ -104,6 +104,18 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       ]),
     },
     {
+      name: 'user-write',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.GameServersReadWrite,
+      ]),
+    },
+    {
+      name: 'namespace-write',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.GameServersReadWrite,
+      ]),
+    },
+    {
       name: 'system-read',
       query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
         AuthorizationRole.GameServersRead,
@@ -111,21 +123,9 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       ]),
     },
     {
-      name: 'user-write',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.GameServersReadWrite,
-      ]),
-    },
-    {
       name: 'user-read',
       query: AuthorizationPermissionsHelpers.getUserRoleQuery([
         AuthorizationRole.GameServersRead,
-        AuthorizationRole.GameServersReadWrite,
-      ]),
-    },
-    {
-      name: 'namespace-write',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.GameServersReadWrite,
       ]),
     },

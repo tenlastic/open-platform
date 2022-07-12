@@ -1,0 +1,41 @@
+<app-sidenav>
+  <div *ngIf="($user | async) as user"
+       class="nav">
+    <app-button color="accent"
+                layout="vertical"
+                [routerLink]="['./']"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{exact:true}"
+                text="left"
+                width="full">
+      <mat-icon>person</mat-icon>
+      <span>{{ user.username }}</span>
+    </app-button>
+
+    <ng-container *ngIf="$hasPermission(IAuthorization.authorizationRoles) | async">
+      <app-button *ngIf="$authorization | async as authorization"
+                  color="accent"
+                  layout="vertical"
+                  [routerLink]="['authorizations', authorization._id]"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>vpn_key</mat-icon>
+        <span>Authorization</span>
+      </app-button>
+
+      <app-button *ngIf="!($authorization | async)"
+                  color="accent"
+                  layout="vertical"
+                  [routerLink]="['authorizations', 'new']"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>vpn_key</mat-icon>
+        <span>Authorization</span>
+      </app-button>
+    </ng-container>
+  </div>
+
+  <router-outlet></router-outlet>
+</app-sidenav>

@@ -1,20 +1,9 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import { Article, ArticleService } from '@tenlastic/ng-http';
 
-import {
-  IdentityService,
-  SelectedNamespaceService,
-  TextareaService,
-} from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
 
 @Component({
@@ -22,35 +11,26 @@ import { jsonValidator } from '../../../../../../shared/validators';
   styleUrls: ['./json-page.component.scss'],
 })
 export class ArticlesJsonPageComponent implements OnInit {
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public data: Article;
   public errors: string[] = [];
   public form: FormGroup;
+
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private articleService: ArticleService,
     private formBuilder: FormBuilder,
-    public identityService: IdentityService,
-    private matDialog: MatDialog,
-    private matSnackBar: MatSnackBar,
-    private router: Router,
-    private selectedNamespaceService: SelectedNamespaceService,
+    private formService: FormService,
     private textareaService: TextareaService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const _id = params.get('_id');
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
 
-      this.breadcrumbs = [
-        { label: 'Articles', link: '../../' },
-        { label: _id === 'new' ? 'Create Article' : 'Edit Article', link: '../' },
-        { label: _id === 'new' ? 'Create Article as JSON' : 'Edit Article as JSON' },
-      ];
-
-      if (_id !== 'new') {
-        this.data = await this.articleService.findOne(_id);
+      if (params.articleId !== 'new') {
+        this.data = await this.articleService.findOne(params.articleId);
       }
 
       this.setupForm();
@@ -58,25 +38,7 @@ export class ArticlesJsonPageComponent implements OnInit {
   }
 
   public navigateToForm() {
-    if (this.form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
-          buttons: [
-            { color: 'primary', label: 'No' },
-            { color: 'accent', label: 'Yes' },
-          ],
-          message: 'Changes will not be saved. Is this OK?',
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(async (result) => {
-        if (result === 'Yes') {
-          this.router.navigate([`../`], { relativeTo: this.activatedRoute });
-        }
-      });
-    } else {
-      this.router.navigate([`../`], { relativeTo: this.activatedRoute });
-    }
+    this.formService.navigateToForm(this.form);
   }
 
   public onKeyDown(event: any) {
@@ -96,26 +58,13 @@ export class ArticlesJsonPageComponent implements OnInit {
     const json = this.form.get('json').value;
     const values = JSON.parse(json) as Article;
 
-    values.namespaceId = this.selectedNamespaceService.namespaceId;
+    values.namespaceId = this.params.namespaceId;
 
     try {
-      await this.upsert(values);
+      this.data = await this.formService.upsert(this.articleService, values);
     } catch (e) {
-      this.handleHttpError(e);
+      this.formService.handleHttpError(e);
     }
-  }
-
-  private async handleHttpError(err: HttpErrorResponse) {
-    this.errors = err.error.errors.map((e) => {
-      if (e.name === 'CastError' || e.name === 'ValidatorError') {
-        return `(${e.path}) ${e.message}`;
-      } else if (e.name === 'UniqueError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        return `${e.paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
-    });
   }
 
   private setupForm(): void {
@@ -132,19 +81,5 @@ export class ArticlesJsonPageComponent implements OnInit {
     });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
-  }
-
-  private async upsert(data: Partial<Article>) {
-    let result: Article;
-
-    if (this.data._id) {
-      data._id = this.data._id;
-      result = await this.articleService.update(data);
-    } else {
-      result = await this.articleService.create(data);
-    }
-
-    this.matSnackBar.open('Article saved successfully.');
-    this.router.navigate([`../../${result._id}`], { relativeTo: this.activatedRoute });
   }
 }

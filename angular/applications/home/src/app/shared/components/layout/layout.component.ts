@@ -25,18 +25,26 @@ import { PromptComponent } from '../prompt/prompt.component';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
+  public get $activeGameId() {
+    return this.gameQuery.selectActiveId();
+  }
   public $games: Observable<Game[]>;
   public $namespaces: Observable<Namespace[]>;
+  public get isElectron() {
+    return this.electronService.isElectron;
+  }
   public get socket() {
     return this.socketService.sockets[environment.apiBaseUrl];
   }
-  public UpdateStatus = UpdateStatus;
+  public get user() {
+    return this.identityService.user;
+  }
 
   constructor(
-    public electronService: ElectronService,
-    public gameQuery: GameQuery,
-    public gameService: GameService,
-    public identityService: IdentityService,
+    private electronService: ElectronService,
+    private gameQuery: GameQuery,
+    private gameService: GameService,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,

@@ -1,12 +1,12 @@
 export abstract class Model {
-  public _id: string;
-  public createdAt: Date;
-  public updatedAt: Date;
+  public _id?: string;
+  public createdAt?: Date;
+  public updatedAt?: Date;
 
   constructor(params?: Partial<Model>) {
     params = params || {};
 
-    Object.keys(params).forEach(key => {
+    Object.keys(params).forEach((key) => {
       this[key] = params[key];
     });
 

@@ -5,8 +5,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
+import { ActivatedRoute, Params } from '@angular/router';
 import { Order } from '@datorama/akita';
 import {
+  AuthorizationQuery,
+  IAuthorization,
   Queue,
   QueueLog,
   QueueLogQuery,
@@ -18,12 +21,7 @@ import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
-import {
-  IdentityService,
-  SelectedNamespaceService,
-  SocketService,
-  VersionService,
-} from '../../../../../../core/services';
+import { IdentityService, SocketService } from '../../../../../../core/services';
 import { LogsDialogComponent, PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -36,29 +34,39 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Queue>;
 
-  public $queues: Observable<Queue[]>;
   public dataSource = new MatTableDataSource<Queue>();
   public displayedColumns: string[] = ['name', 'description', 'status', 'actions'];
+  public hasWriteAuthorization: boolean;
 
+  private $queues: Observable<Queue[]>;
   private updateDataSource$ = new Subscription();
 
   constructor(
-    public identityService: IdentityService,
+    private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private queueLogQuery: QueueLogQuery,
     private queueLogStore: QueueLogStore,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
-    private selectedNamespaceService: SelectedNamespaceService,
     private socketService: SocketService,
     private titleService: Title,
-    public versionService: VersionService,
   ) {}
 
   public ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Queues`);
-    this.fetchQueues();
+    this.activatedRoute.params.subscribe((params) => {
+      this.titleService.setTitle(`${TITLE} | Queues`);
+
+      const roles = [IAuthorization.AuthorizationRole.QueuesReadWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+
+      this.fetchQueues(params);
+    });
   }
 
   public ngOnDestroy() {
@@ -124,15 +132,15 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     dialogRef.afterClosed().subscribe(() => this.queueLogStore.reset());
   }
 
-  private async fetchQueues() {
+  private async fetchQueues(params: Params) {
     const $queues = this.queueQuery.selectAll({
-      filterBy: (gs) => gs.namespaceId === this.selectedNamespaceService.namespaceId,
+      filterBy: (gs) => gs.namespaceId === params.namespaceId,
     });
     this.$queues = this.queueQuery.populate($queues);
 
     await this.queueService.find({
       sort: 'name',
-      where: { namespaceId: this.selectedNamespaceService.namespaceId },
+      where: { namespaceId: params.namespaceId },
     });
 
     this.updateDataSource$ = this.$queues.subscribe((queues) => (this.dataSource.data = queues));
@@ -159,7 +167,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
           displayName = 'Sidecar';
         }
 
-        const index = isNaN(n._id.substr(-1) as any) ? '0' : n._id.substr(-1);
+        const index = isNaN(n._id.slice(-1) as any) ? '0' : n._id.slice(-1);
         return { label: `${displayName} (${index})`, value: n._id };
       })
       .sort((a, b) => (a.label > b.label ? 1 : -1));

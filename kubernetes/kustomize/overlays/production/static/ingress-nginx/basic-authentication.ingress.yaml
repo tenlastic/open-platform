@@ -63,9 +63,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: mongoku
+                name: mongodb-gui
                 port:
-                  number: 3100
+                  number: 4321
     - host: prometheus.tenlastic.com
       http:
         paths:

@@ -1,18 +1,6 @@
 import { Model } from './model';
 
 export namespace INamespace {
-  export enum Role {
-    Articles = 'articles',
-    Authorizations = 'authorizations',
-    Builds = 'builds',
-    Collections = 'collections',
-    GameServers = 'game-servers',
-    Games = 'games',
-    Namespaces = 'namespaces',
-    Queues = 'queues',
-    Workflows = 'workflows',
-  }
-
   export interface BuildLimits {
     count: number;
     size: number;
@@ -32,12 +20,6 @@ export namespace INamespace {
     preemptible: boolean;
   }
 
-  export interface Key {
-    description: string;
-    roles: string[];
-    value: string;
-  }
-
   export interface Limits {
     builds: BuildLimits;
     gameServers: GameServerLimits;
@@ -53,11 +35,6 @@ export namespace INamespace {
     replicas: number;
   }
 
-  export interface User {
-    _id: string;
-    roles: string[];
-  }
-
   export interface WorkflowLimits {
     count: number;
     cpu: number;
@@ -69,10 +46,8 @@ export namespace INamespace {
 }
 
 export class Namespace extends Model {
-  public keys: INamespace.Key[];
   public limits: INamespace.Limits;
   public name: string;
-  public users: INamespace.User[];
 
   constructor(params?: Partial<Namespace>) {
     super(params);

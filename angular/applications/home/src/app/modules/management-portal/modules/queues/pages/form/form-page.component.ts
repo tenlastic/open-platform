@@ -1,25 +1,24 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import {
+  AuthorizationQuery,
   Build,
   BuildService,
+  IAuthorization,
   IGameServer,
   IQueue,
+  Namespace,
+  NamespaceService,
   Queue,
   QueueQuery,
   QueueService,
 } from '@tenlastic/ng-http';
 import { Subscription } from 'rxjs';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { FormService, IdentityService } from '../../../../../../core/services';
+import { PromptComponent } from '../../../../../../shared/components';
 
 interface PropertyFormGroup {
   key?: string;
@@ -32,7 +31,6 @@ interface PropertyFormGroup {
   styleUrls: ['./form-page.component.scss'],
 })
 export class QueuesFormPageComponent implements OnDestroy, OnInit {
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public builds: Build[];
   public components = {
     application: 'Application',
@@ -40,7 +38,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     sidecar: 'Sidecar',
   };
   public get cpus() {
-    const limits = this.selectedNamespaceService.namespace.limits.queues;
+    const limits = this.namespace.limits.queues;
     const limit = limits.cpu ? limits.cpu : Infinity;
     return limits.cpu ? IQueue.Cpu.filter((r) => r.value <= limit) : IQueue.Cpu;
   }
@@ -48,59 +46,64 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public get gameServerCpus() {
-    const limits = this.selectedNamespaceService.namespace.limits.gameServers;
+    const limits = this.namespace.limits.gameServers;
     const limit = limits.cpu ? limits.cpu : Infinity;
     return limits.cpu ? IGameServer.Cpu.filter((r) => r.value <= limit) : IGameServer.Cpu;
   }
   public get gameServerMemories() {
-    const limits = this.selectedNamespaceService.namespace.limits.gameServers;
+    const limits = this.namespace.limits.gameServers;
     const limit = limits.memory ? limits.memory : Infinity;
     return limits.memory ? IGameServer.Memory.filter((r) => r.value <= limit) : IGameServer.Memory;
   }
+  public hasWriteAuthorization: boolean;
   public get memories() {
-    const limits = this.selectedNamespaceService.namespace.limits.queues;
+    const limits = this.namespace.limits.queues;
     const limit = limits.memory ? limits.memory : Infinity;
     return limits.memory ? IQueue.Memory.filter((r) => r.value <= limit) : IQueue.Memory;
   }
   public get replicas() {
-    const limits = this.selectedNamespaceService.namespace.limits.queues;
+    const limits = this.namespace.limits.queues;
     const limit = limits.replicas ? limits.replicas : Infinity;
     return limits.replicas ? IQueue.Replicas.filter((r) => r.value <= limit) : IQueue.Replicas;
   }
 
   private updateQueue$ = new Subscription();
+  private namespace: Namespace;
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private buildService: BuildService,
     private formBuilder: FormBuilder,
-    public identityService: IdentityService,
+    private formService: FormService,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
-    private matSnackBar: MatSnackBar,
+    private namespaceService: NamespaceService,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
-    private router: Router,
-    public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const _id = params.get('_id');
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
 
-      this.breadcrumbs = [
-        { label: 'Game Servers', link: '../' },
-        { label: _id === 'new' ? 'Create Game Server' : 'Edit Game Server' },
-      ];
-
-      if (_id !== 'new') {
-        this.data = await this.queueService.findOne(_id);
-      }
+      const roles = [IAuthorization.AuthorizationRole.QueuesReadWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
       this.builds = await this.buildService.find({
         select: '-files',
         sort: '-publishedAt',
-        where: { namespaceId: this.selectedNamespaceService.namespaceId, platform: 'server64' },
+        where: { namespaceId: params.namespaceId, platform: 'server64' },
       });
+      this.namespace = await this.namespaceService.findOne(params.namespaceId);
+
+      if (params.queueId !== 'new') {
+        this.data = await this.queueService.findOne(params.queueId);
+      }
 
       this.setupForm();
     });
@@ -111,25 +114,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   }
 
   public navigateToJson() {
-    if (this.form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
-          buttons: [
-            { color: 'primary', label: 'No' },
-            { color: 'accent', label: 'Yes' },
-          ],
-          message: 'Changes will not be saved. Is this OK?',
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(async (result) => {
-        if (result === 'Yes') {
-          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-        }
-      });
-    } else {
-      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-    }
+    this.formService.navigateToJson(this.form);
   }
 
   public async save() {
@@ -187,17 +172,17 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       dialogRef.afterClosed().subscribe(async (result: string) => {
         if (result === 'Yes') {
           try {
-            await this.upsert(values);
+            this.data = await this.formService.upsert(this.queueService, values);
           } catch (e) {
-            this.handleHttpError(e, { name: 'Name' });
+            this.formService.handleHttpError(e, { name: 'Name' });
           }
         }
       });
     } else {
       try {
-        await this.upsert(values);
+        this.data = await this.formService.upsert(this.queueService, values);
       } catch (e) {
-        this.handleHttpError(e, { name: 'Name' });
+        this.formService.handleHttpError(e, { name: 'Name' });
       }
     }
   }
@@ -233,18 +218,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         value: property,
         type,
       });
-    });
-  }
-
-  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map((e) => {
-      if (e.name === 'UniqueError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map((p) => pathMap[p]);
-        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
     });
   }
 
@@ -288,12 +261,16 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       memory: [this.data.memory || this.memories[0].value, Validators.required],
       metadata: this.formBuilder.array(metadata),
       name: [this.data.name, Validators.required],
-      namespaceId: [this.selectedNamespaceService.namespaceId],
+      namespaceId: [this.params.namespaceId],
       preemptible: [this.data.preemptible === false ? false : true],
       replicas: [this.data.replicas || this.replicas[0].value, Validators.required],
       usersPerTeam: [this.data.usersPerTeam || 1, Validators.required],
       teams: [this.data.teams || 2, Validators.required],
     });
+
+    if (!this.hasWriteAuthorization) {
+      this.form.disable({ emitEvent: false });
+    }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
@@ -302,17 +279,5 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         .selectAll({ filterBy: (q) => q._id === this.data._id })
         .subscribe((queues) => (this.data = queues[0]));
     }
-  }
-
-  private async upsert(data: Partial<Queue>) {
-    if (this.data._id) {
-      data._id = this.data._id;
-      await this.queueService.update(data);
-    } else {
-      await this.queueService.create(data);
-    }
-
-    this.matSnackBar.open('Queue saved successfully.');
-    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
   }
 }

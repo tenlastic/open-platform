@@ -5,21 +5,18 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import {
-  Queue,
+  AuthorizationQuery,
+  IAuthorization,
   QueueMember,
   QueueMemberQuery,
   QueueMemberService,
-  QueueService,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
@@ -32,35 +29,35 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<QueueMember>;
 
   public $queueMembers: Observable<QueueMember[]>;
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public dataSource = new MatTableDataSource<QueueMember>();
   public displayedColumns: string[] = ['username', 'createdAt', 'actions'];
+  public hasWriteAuthorization: boolean;
 
   private updateDataSource$ = new Subscription();
-  private queue: Queue;
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    public identityService: IdentityService,
+    private authorizationQuery: AuthorizationQuery,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private queueMemberQuery: QueueMemberQuery,
     private queueMemberService: QueueMemberService,
-    private queueService: QueueService,
     private titleService: Title,
   ) {}
 
   public async ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | QueueMembers`);
+    this.activatedRoute.params.subscribe((params) => {
+      this.titleService.setTitle(`${TITLE} | Queue Members`);
 
-    await this.fetchQueue();
-    await this.fetchQueueMembers();
+      const roles = [IAuthorization.AuthorizationRole.QueuesReadWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-    this.breadcrumbs = [
-      { label: 'Queues', link: '../../' },
-      { label: this.queue.name, link: '../' },
-      { label: 'Queue Members' },
-    ];
+      this.fetchQueueMembers(params);
+    });
   }
 
   public ngOnDestroy() {
@@ -74,11 +71,11 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
           { color: 'primary', label: 'No' },
           { color: 'accent', label: 'Yes' },
         ],
-        message: `Are you sure you want to delete this QueueMember?`,
+        message: `Are you sure you want to delete this Queue Member?`,
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         await this.queueMemberService.delete(record._id);
         this.matSnackBar.open('Queue Member deleted successfully.');
@@ -86,26 +83,19 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
     });
   }
 
-  private async fetchQueue() {
-    const queueId = this.activatedRoute.snapshot.paramMap.get('queueId');
-    this.queue = await this.queueService.findOne(queueId);
-  }
-
-  private async fetchQueueMembers() {
-    const queueId = this.activatedRoute.snapshot.paramMap.get('queueId');
-
+  private async fetchQueueMembers(params: Params) {
     const $queueMembers = this.queueMemberQuery.selectAll({
-      filterBy: qm => qm.queueId === queueId,
+      filterBy: (qm) => qm.queueId === params.queueId,
     });
     this.$queueMembers = this.queueMemberQuery.populate($queueMembers);
 
     await this.queueMemberService.find({
       sort: 'createdAt',
-      where: { queueId },
+      where: { queueId: params.queueId },
     });
 
     this.updateDataSource$ = this.$queueMembers.subscribe(
-      queueMembers => (this.dataSource.data = queueMembers),
+      (queueMembers) => (this.dataSource.data = queueMembers),
     );
 
     this.dataSource.paginator = this.paginator;

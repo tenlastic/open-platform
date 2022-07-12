@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { Game, GameService, GameStore } from '@tenlastic/ng-http';
+import { Game, GameService } from '@tenlastic/ng-http';
 
 import { PromptComponent } from '../../../../../../shared/components';
 import { MediaDialogComponent } from '../../components';
@@ -36,9 +36,8 @@ export class GamesMultimediaFormPageComponent implements OnInit {
   ) {}
 
   public async ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
-      const _id = params.get('_id');
-      this.data = await this.gameService.findOne(_id);
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.data = await this.gameService.findOne(params.gameId);
     });
   }
 
@@ -78,7 +77,7 @@ export class GamesMultimediaFormPageComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         if (index >= 0) {
           this.data = await this.gameService.update({
@@ -104,6 +103,6 @@ export class GamesMultimediaFormPageComponent implements OnInit {
   }
 
   private async handleHttpError(err: HttpErrorResponse) {
-    return err.error.errors.map(e => e.message);
+    return err.error.errors.map((e) => e.message);
   }
 }

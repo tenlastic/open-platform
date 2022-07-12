@@ -1,20 +1,9 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
-import { INamespace, Namespace, NamespaceService } from '@tenlastic/ng-http';
+import { ActivatedRoute } from '@angular/router';
+import { Namespace, NamespaceService } from '@tenlastic/ng-http';
 
-import {
-  IdentityService,
-  SelectedNamespaceService,
-  TextareaService,
-} from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
 
 @Component({
@@ -22,7 +11,6 @@ import { jsonValidator } from '../../../../../../shared/validators';
   styleUrls: ['./json-page.component.scss'],
 })
 export class NamespacesJsonPageComponent implements OnInit {
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public data: Namespace;
   public errors: string[] = [];
   public form: FormGroup;
@@ -30,24 +18,14 @@ export class NamespacesJsonPageComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
-    public identityService: IdentityService,
-    private matDialog: MatDialog,
-    private matSnackBar: MatSnackBar,
+    private formService: FormService,
     private namespaceService: NamespaceService,
-    private router: Router,
-    private selectedNamespaceService: SelectedNamespaceService,
     private textareaService: TextareaService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const _id = params.get('_id');
-
-      this.breadcrumbs = [
-        { label: 'Namespaces', link: '../../' },
-        { label: _id === 'new' ? 'Create Namespace' : 'Edit Namespace', link: '../' },
-        { label: _id === 'new' ? 'Create Namespace as JSON' : 'Edit Namespace as JSON' },
-      ];
+    this.activatedRoute.params.subscribe(async (params) => {
+      const _id = params.namespaceId;
 
       if (_id !== 'new') {
         this.data = await this.namespaceService.findOne(_id);
@@ -58,25 +36,7 @@ export class NamespacesJsonPageComponent implements OnInit {
   }
 
   public navigateToForm() {
-    if (this.form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
-          buttons: [
-            { color: 'primary', label: 'No' },
-            { color: 'accent', label: 'Yes' },
-          ],
-          message: 'Changes will not be saved. Is this OK?',
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(async (result) => {
-        if (result === 'Yes') {
-          this.router.navigate([`../`], { relativeTo: this.activatedRoute });
-        }
-      });
-    } else {
-      this.router.navigate([`../`], { relativeTo: this.activatedRoute });
-    }
+    this.formService.navigateToForm(this.form);
   }
 
   public onKeyDown(event: any) {
@@ -97,28 +57,14 @@ export class NamespacesJsonPageComponent implements OnInit {
     const values = JSON.parse(json) as Namespace;
 
     try {
-      await this.upsert(values);
+      this.data = await this.formService.upsert(this.namespaceService, values, { path: '../../' });
     } catch (e) {
-      this.handleHttpError(e);
+      this.formService.handleHttpError(e);
     }
-  }
-
-  private async handleHttpError(err: HttpErrorResponse) {
-    this.errors = err.error.errors.map((e) => {
-      if (e.name === 'CastError' || e.name === 'ValidatorError') {
-        return `(${e.path}) ${e.message}`;
-      } else if (e.name === 'UniqueError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        return `${e.paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
-    });
   }
 
   private setupForm(): void {
     this.data ??= new Namespace({
-      keys: [],
       limits: {
         builds: {
           count: 0,
@@ -152,10 +98,9 @@ export class NamespacesJsonPageComponent implements OnInit {
         },
       },
       name: '',
-      users: [{ _id: this.identityService.user._id, roles: [INamespace.Role.Namespaces] }],
     });
 
-    const keys = ['keys', 'limits', 'name', 'users'];
+    const keys = ['limits', 'name'];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))
       .sort()
@@ -166,19 +111,5 @@ export class NamespacesJsonPageComponent implements OnInit {
     });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
-  }
-
-  private async upsert(data: Partial<Namespace>) {
-    let result: Namespace;
-
-    if (this.data._id) {
-      data._id = this.data._id;
-      result = await this.namespaceService.update(data);
-    } else {
-      result = await this.namespaceService.create(data);
-    }
-
-    this.matSnackBar.open('Namespace saved successfully.');
-    this.router.navigate([`../../${result._id}`], { relativeTo: this.activatedRoute });
   }
 }

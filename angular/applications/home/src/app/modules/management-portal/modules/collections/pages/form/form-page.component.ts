@@ -1,54 +1,53 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Collection, CollectionService } from '@tenlastic/ng-http';
+import { ActivatedRoute, Params } from '@angular/router';
+import {
+  AuthorizationQuery,
+  Collection,
+  CollectionService,
+  IAuthorization,
+} from '@tenlastic/ng-http';
 
 import {
   CollectionFormService,
+  FormService,
   IdentityService,
-  SelectedNamespaceService,
 } from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
 
 @Component({
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
 export class CollectionsFormPageComponent implements OnInit {
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public data: Collection;
   public errors: string[] = [];
   public form: FormGroup;
+  public hasWriteAuthorization: boolean;
+
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private collectionService: CollectionService,
     private collectionFormService: CollectionFormService,
     private formBuilder: FormBuilder,
-    public identityService: IdentityService,
-    private matDialog: MatDialog,
-    private matSnackBar: MatSnackBar,
-    private router: Router,
-    private selectedNamespaceService: SelectedNamespaceService,
+    private formService: FormService,
+    private identityService: IdentityService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const _id = params.get('_id');
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
 
-      this.breadcrumbs = [
-        { label: 'Collections', link: '../' },
-        { label: _id === 'new' ? 'Create Collection' : 'Edit Collection' },
-      ];
+      const roles = [IAuthorization.AuthorizationRole.CollectionsReadWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      if (_id !== 'new') {
-        this.data = await this.collectionService.findOne(_id);
+      if (params.collectionId !== 'new') {
+        this.data = await this.collectionService.findOne(params.collectionId);
       }
 
       this.setupForm();
@@ -95,25 +94,7 @@ export class CollectionsFormPageComponent implements OnInit {
   }
 
   public navigateToJson() {
-    if (this.form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
-          buttons: [
-            { color: 'primary', label: 'No' },
-            { color: 'accent', label: 'Yes' },
-          ],
-          message: 'Changes will not be saved. Is this OK?',
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(async (result) => {
-        if (result === 'Yes') {
-          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-        }
-      });
-    } else {
-      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-    }
+    this.formService.navigateToJson(this.form);
   }
 
   public removeProperty(index: number) {
@@ -138,14 +119,14 @@ export class CollectionsFormPageComponent implements OnInit {
     const values: Partial<Collection> = {
       jsonSchema,
       name: this.form.get('name').value,
-      namespaceId: this.selectedNamespaceService.namespaceId,
+      namespaceId: this.params.namespaceId,
       permissions,
     };
 
     try {
-      await this.upsert(values);
+      this.data = await this.formService.upsert(this.collectionService, values);
     } catch (e) {
-      this.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
+      this.formService.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
     }
   }
 
@@ -179,18 +160,6 @@ export class CollectionsFormPageComponent implements OnInit {
     });
 
     return { ...permissions, roles };
-  }
-
-  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map((e) => {
-      if (e.name === 'UniqueError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map((p) => pathMap[p]);
-        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
-    });
   }
 
   private setupForm(): void {
@@ -243,22 +212,14 @@ export class CollectionsFormPageComponent implements OnInit {
       roles: this.formBuilder.array(roles),
     });
 
+    if (!this.hasWriteAuthorization) {
+      this.form.disable({ emitEvent: false });
+    }
+
+    this.form.valueChanges.subscribe(() => (this.errors = []));
+
     const formArray = this.form.get('roles') as FormArray;
     const defaultRole = formArray.at(formArray.length - 1);
     defaultRole.get('key').disable();
-
-    this.form.valueChanges.subscribe(() => (this.errors = []));
-  }
-
-  private async upsert(data: Partial<Collection>) {
-    if (this.data._id) {
-      data._id = this.data._id;
-      await this.collectionService.update(data);
-    } else {
-      await this.collectionService.create(data);
-    }
-
-    this.matSnackBar.open('Collection saved successfully.');
-    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
   }
 }

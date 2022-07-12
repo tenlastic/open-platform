@@ -1,80 +1,54 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import {
   Authorization,
+  AuthorizationQuery,
   AuthorizationService,
-  Game,
-  GameQuery,
-  GameService,
   IAuthorization,
+  User,
+  UserService,
 } from '@tenlastic/ng-http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { FormService, IdentityService } from '../../../../../../core/services';
 
 @Component({
-  templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
+  templateUrl: 'form-page.component.html',
 })
 export class AuthorizationsFormPageComponent implements OnInit {
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
+  public AuthorizationRole = IAuthorization.AuthorizationRole;
   public data: Authorization;
   public errors: string[] = [];
   public form: FormGroup;
-  public statuses = [
-    { label: 'Granted', value: IAuthorization.AuthorizationStatus.Granted },
-    { label: 'Revoked', value: IAuthorization.AuthorizationStatus.Revoked },
-  ];
+  public hasWriteAuthorization: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private authorizationService: AuthorizationService,
     private formBuilder: FormBuilder,
-    public identityService: IdentityService,
-    private matDialog: MatDialog,
-    private matSnackBar: MatSnackBar,
-    private router: Router,
-    public selectedNamespaceService: SelectedNamespaceService,
+    private formService: FormService,
+    private identityService: IdentityService,
+    private userService: UserService,
   ) {}
 
   public async ngOnInit() {
-    this.breadcrumbs = [
-      { label: 'Authorizations', link: '../' },
-      { label: 'Create Authorization' },
-    ];
+    this.activatedRoute.params.subscribe(async (params) => {
+      const roles = [IAuthorization.AuthorizationRole.AuthorizationsReadWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 
-    this.setupForm();
+      if (params.authorizationId !== 'new') {
+        this.data = await this.authorizationService.findOne(params.authorizationId);
+      }
+
+      await this.setupForm();
+    });
   }
 
   public navigateToJson() {
-    if (this.form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
-          buttons: [
-            { color: 'primary', label: 'No' },
-            { color: 'accent', label: 'Yes' },
-          ],
-          message: 'Changes will not be saved. Is this OK?',
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(async (result) => {
-        if (result === 'Yes') {
-          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-        }
-      });
-    } else {
-      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-    }
+    this.formService.navigateToJson(this.form);
   }
 
   public async save() {
@@ -83,46 +57,50 @@ export class AuthorizationsFormPageComponent implements OnInit {
       return;
     }
 
+    const roles = Object.values<IAuthorization.AuthorizationRole>(
+      this.form.get('roles').value,
+    ).filter((v) => v);
+
     const values: Partial<Authorization> = {
-      namespaceId: this.form.get('namespaceId').value,
-      status: this.form.get('status').value,
+      roles,
       userId: this.form.get('user').value._id,
     };
 
     try {
-      await this.create(values);
+      this.data = await this.formService.upsert(this.authorizationService, values);
     } catch (e) {
-      this.handleHttpError(e, { namespaceId: 'Namespace', userId: 'User' });
+      this.formService.handleHttpError(e, { namespaceId: 'Namespace', userId: 'User' });
     }
   }
 
-  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map((e) => {
-      if (e.name === 'UniqueError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map((p) => pathMap[p]);
-        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
-    });
-  }
-
-  private async create(data: Partial<Authorization>) {
-    await this.authorizationService.create(data);
-
-    this.matSnackBar.open('Authorization saved successfully.');
-    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-  }
-
-  private setupForm(): void {
+  private async setupForm() {
     this.data = this.data || new Authorization();
+    this.form = null;
+
+    let user: User = null;
+    if (this.data.userId) {
+      user = await this.userService.findOne(this.data.userId);
+    }
 
     this.form = this.formBuilder.group({
-      namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
-      status: [this.data.status || IAuthorization.AuthorizationStatus.Granted, Validators.required],
-      user: [null, Validators.required],
+      roles: this.formBuilder.group({
+        articles: this.data.roles?.find((r) => r.startsWith('Articles')),
+        authorizations: this.data.roles?.find((r) => r.startsWith('Authorizations')),
+        builds: this.data.roles?.find((r) => r.startsWith('Builds')),
+        collections: this.data.roles?.find((r) => r.startsWith('Collections')),
+        gameServers: this.data.roles?.find((r) => r.startsWith('GameServers')),
+        games: this.data.roles?.find((r) => r.startsWith('Games')),
+        namespaces: this.data.roles?.find((r) => r.startsWith('Namespaces')),
+        queues: this.data.roles?.find((r) => r.startsWith('Queues')),
+        users: this.data.roles?.find((r) => r.startsWith('Users')),
+        workflows: this.data.roles?.find((r) => r.startsWith('Workflows')),
+      }),
+      user,
     });
+
+    if (!this.hasWriteAuthorization) {
+      this.form.disable({ emitEvent: false });
+    }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }

@@ -8,7 +8,6 @@ import { Title } from '@angular/platform-browser';
 import { RefreshToken, RefreshTokenQuery, RefreshTokenService } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
-import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -28,7 +27,6 @@ export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
   private updateDataSource$ = new Subscription();
 
   constructor(
-    public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private refreshTokenQuery: RefreshTokenQuery,
@@ -38,8 +36,7 @@ export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Refresh Tokens`);
-
-    await this.fetchRefreshTokens();
+    this.fetchRefreshTokens();
   }
 
   public ngOnDestroy() {
@@ -57,11 +54,9 @@ export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         await this.refreshTokenService.delete(record._id);
-        this.deleteRefreshToken(record);
-
         this.matSnackBar.open('Refresh Token deleted successfully.');
       }
     });
@@ -73,18 +68,10 @@ export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
     await this.refreshTokenService.find({});
 
     this.updateDataSource$ = this.$refreshTokens.subscribe(
-      refreshTokens => (this.dataSource.data = refreshTokens),
+      (refreshTokens) => (this.dataSource.data = refreshTokens),
     );
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  private deleteRefreshToken(record: RefreshToken) {
-    const index = this.dataSource.data.findIndex(u => u._id === record._id);
-    this.dataSource.data.splice(index, 1);
-
-    this.dataSource.data = [].concat(this.dataSource.data);
-    this.table.renderRows();
   }
 }

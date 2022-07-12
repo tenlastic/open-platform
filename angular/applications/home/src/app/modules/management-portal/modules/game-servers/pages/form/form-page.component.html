@@ -1,11 +1,12 @@
 <div class="page">
-  <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
-
   <div class="row">
     <div class="col-sm-6">
-      <app-title>{{ data?._id ? 'Edit' : 'Create' }} Game Server</app-title>
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Game Server</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Game Server</app-title>
     </div>
-    <div class="col-sm-6 align-right">
+
+    <div *ngIf="hasWriteAuthorization"
+         class="col-sm-6 align-right">
       <app-button color="accent"
                   (OnClick)="navigateToJson()">
         <mat-icon>code</mat-icon>
@@ -72,14 +73,6 @@
             <ng-container *ngIf="!build.publishedAt">(Unpublished)</ng-container>
           </mat-option>
         </mat-select>
-      </mat-form-field>
-
-      <mat-form-field *ngIf="data?.queueId"
-                      floatLabel="always">
-        <mat-label>Queue</mat-label>
-        <input matInput
-               disabled
-               [value]="queue" />
       </mat-form-field>
     </div>
 

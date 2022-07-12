@@ -1,11 +1,12 @@
 <div class="page">
-  <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
-
   <div class="row">
     <div class="col-sm-6">
-      <app-title>{{ data?._id ? 'Edit' : 'Create' }} User</app-title>
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} User</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View User</app-title>
     </div>
-    <div class="col-sm-6 align-right">
+
+    <div *ngIf="hasWriteAuthorization"
+         class="col-sm-6 align-right">
       <app-button color="accent"
                   (OnClick)="navigateToJson()">
         <mat-icon>code</mat-icon>
@@ -13,8 +14,6 @@
       </app-button>
     </div>
   </div>
-
-  <app-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</app-loading-message>
 
   <form *ngIf="form"
         [formGroup]="form"
@@ -26,19 +25,6 @@
                type="email"
                formControlName="email" />
         <mat-error>Enter a valid email address.</mat-error>
-      </mat-form-field>
-    </div>
-
-    <div class="row">
-      <mat-form-field *ngIf="identityService.user.roles.includes('users')"
-                      floatLabel="always">
-        <mat-label>Roles</mat-label>
-        <mat-select placeholder="None"
-                    formControlName="roles"
-                    multiple>
-          <mat-option *ngFor="let role of roles"
-                      [value]="role.value">{{ role.label }}</mat-option>
-        </mat-select>
       </mat-form-field>
     </div>
 

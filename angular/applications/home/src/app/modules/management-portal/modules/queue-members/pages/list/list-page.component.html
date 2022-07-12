@@ -1,12 +1,9 @@
 <div class="page">
-  <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
   <app-title>Queue Members</app-title>
 
   <div class="row">
     <div class="col-sm-3">
-      <app-data-source-filter [dataSource]="dataSource">
-        Filter Queue Members
-      </app-data-source-filter>
+      <app-data-source-filter [dataSource]="dataSource">Filter Queue Members</app-data-source-filter>
     </div>
   </div>
 
@@ -36,7 +33,8 @@
           *matHeaderCellDef></th>
       <td mat-cell
           *matCellDef="let element">
-        <app-button color="accent"
+        <app-button *ngIf="hasWriteAuthorization"
+                    color="accent"
                     matTooltip="Delete"
                     (OnClick)="showDeletePrompt(element)">
           <mat-icon>delete</mat-icon>

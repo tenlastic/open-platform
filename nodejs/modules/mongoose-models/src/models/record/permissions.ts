@@ -38,15 +38,15 @@ export const RecordPermissions = {
       ]),
     },
     {
-      name: 'user-read',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.CollectionsRead,
+      name: 'namespace-write',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.CollectionsReadWrite,
       ]),
     },
     {
-      name: 'namespace-write',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      name: 'user-read',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.CollectionsRead,
         AuthorizationRole.CollectionsReadWrite,
       ]),
     },

@@ -15,6 +15,10 @@ export class AutocompleteUserFieldComponent implements OnInit {
   public $users = new Observable<User[]>();
   public isLoading = false;
   public get isRequired() {
+    if (!this.control.validator) {
+      return false;
+    }
+
     const validator = this.control.validator({} as AbstractControl);
     return validator?.required;
   }
@@ -24,7 +28,7 @@ export class AutocompleteUserFieldComponent implements OnInit {
   constructor(private userQuery: UserQuery, private userService: UserService) {}
 
   public ngOnInit() {
-    this.subject.pipe(debounceTime(300)).subscribe(username => this.findUsers(username));
+    this.subject.pipe(debounceTime(300)).subscribe((username) => this.findUsers(username));
   }
 
   public displayWith(user: User) {
@@ -33,7 +37,7 @@ export class AutocompleteUserFieldComponent implements OnInit {
 
   public async onFocusOut() {
     // Wait 100ms for autocomplete selection.
-    await new Promise(res => setTimeout(res, 100));
+    await new Promise((res) => setTimeout(res, 100));
 
     if (!this.control.value || !this.control.value.username) {
       this.control.setValue(null);
@@ -47,7 +51,7 @@ export class AutocompleteUserFieldComponent implements OnInit {
   private async findUsers(username: string) {
     this.isLoading = true;
 
-    this.$users = this.userQuery.selectAll({ filterBy: u => u.username.startsWith(username) });
+    this.$users = this.userQuery.selectAll({ filterBy: (u) => u.username.startsWith(username) });
     await this.userService.find({
       sort: 'username',
       where: {

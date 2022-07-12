@@ -31,7 +31,7 @@ patchesStrategicMerge:
   - ./static/ingress-nginx/ingress-nginx.yaml
   - ./static/minio/minio.yaml
   - ./static/mongodb/mongodb.yaml
-  - ./static/mongodb/mongoku.yaml
+  - ./static/mongodb/mongodb-gui.yaml
   - ./static/nats/nats.yaml
   - ./static/nodejs/api.yaml
   - ./static/nodejs/provisioner.yaml
@@ -49,7 +49,7 @@ resources:
   - ./static/ingress-nginx/default.ingress.yaml
   - ./static/minio/minio.secret.example.yaml
   - ./static/mongodb/mongodb.secret.example.yaml
-  - ./static/mongodb/mongoku.secret.example.yaml
+  - ./static/mongodb/mongodb-gui.secret.example.yaml
   - ./static/nats/nats.secret.example.yaml
   - ./static/nodejs/e2e.secret.example.yaml
   - ./static/nodejs/environment-variables.secret.example.yaml

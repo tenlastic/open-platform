@@ -5,10 +5,16 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { Namespace, NamespaceQuery, NamespaceService } from '@tenlastic/ng-http';
+import {
+  AuthorizationQuery,
+  IAuthorization,
+  Namespace,
+  NamespaceQuery,
+  NamespaceService,
+} from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -21,24 +27,30 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Namespace>;
 
-  public $namespaces: Observable<Namespace[]>;
   public dataSource = new MatTableDataSource<Namespace>();
   public displayedColumns: string[] = ['name', 'createdAt', 'updatedAt', 'actions'];
+  public hasWriteAuthorization: boolean;
 
+  private $namespaces: Observable<Namespace[]>;
   private updateDataSource$ = new Subscription();
 
   constructor(
-    public identityService: IdentityService,
+    private authorizationQuery: AuthorizationQuery,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
-    public selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
   public ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Namespaces`);
+
+    const roles = [IAuthorization.AuthorizationRole.NamespacesReadWrite];
+    const userId = this.identityService.user?._id;
+    this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
+
     this.fetchNamespaces();
   }
 
@@ -46,15 +58,10 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public hasPermission(namespace: Namespace) {
-    const namespaceUser = namespace.users?.find((u) => u._id === this.identityService.user._id);
-    const user = this.identityService.user;
-
-    return namespaceUser?.roles.includes('namespaces') || user.roles.includes('namespaces');
-  }
-
-  public select(record: Namespace) {
-    this.selectedNamespaceService.namespace = record;
+  public hasWriteAuthorizationForNamespace(namespaceId: string) {
+    const roles = [IAuthorization.AuthorizationRole.NamespacesReadWrite];
+    const userId = this.identityService.user?._id;
+    return this.authorizationQuery.hasRoles(namespaceId, roles, userId);
   }
 
   public showDeletePrompt(record: Namespace) {

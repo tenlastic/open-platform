@@ -5,17 +5,20 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
+import { ActivatedRoute, Params } from '@angular/router';
 import {
+  AuthorizationQuery,
   Build,
   BuildQuery,
   BuildService,
   GameServerService,
+  IAuthorization,
   IBuild,
   QueueService,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -28,27 +31,38 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<Build>;
 
-  public $builds: Observable<Build[]>;
   public dataSource = new MatTableDataSource<Build>();
   public displayedColumns: string[] = ['name', 'platform', 'status', 'publishedAt', 'actions'];
+  public hasWriteAuthorization: boolean;
 
+  private $builds: Observable<Build[]>;
   private updateDataSource$ = new Subscription();
 
   constructor(
+    private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private buildQuery: BuildQuery,
     private buildService: BuildService,
     private gameServerService: GameServerService,
-    public identityService: IdentityService,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private queueService: QueueService,
-    private selectedNamespaceService: SelectedNamespaceService,
     private titleService: Title,
   ) {}
 
   public ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Builds`);
-    this.fetchBuilds();
+    this.activatedRoute.params.subscribe((params) => {
+      this.titleService.setTitle(`${TITLE} | Builds`);
+
+      const roles = [IAuthorization.AuthorizationRole.BuildsReadWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+
+      this.fetchBuilds(params);
+    });
   }
 
   public ngOnDestroy() {
@@ -56,11 +70,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
   }
 
   public getPlatform(platform: string) {
-    const map = {
-      server64: 'Linux Server (x64)',
-      windows64: 'Windows Client (x64)',
-    };
-
+    const map = { server64: 'Linux Server (x64)', windows64: 'Windows Client (x64)' };
     return map[platform];
   }
 
@@ -142,15 +152,15 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     return this.buildService.update({ ...build, publishedAt: null });
   }
 
-  private async fetchBuilds() {
+  private async fetchBuilds(params: Params) {
     this.$builds = this.buildQuery.selectAll({
-      filterBy: (build) => build.namespaceId === this.selectedNamespaceService.namespaceId,
+      filterBy: (build) => build.namespaceId === params.namespaceId,
     });
 
     await this.buildService.find({
       select: '-files -reference',
       sort: '-createdAt',
-      where: { namespaceId: this.selectedNamespaceService.namespaceId },
+      where: { namespaceId: params.namespaceId },
     });
 
     this.updateDataSource$ = this.$builds.subscribe((builds) => (this.dataSource.data = builds));

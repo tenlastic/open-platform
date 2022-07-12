@@ -5,33 +5,24 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import { Order } from '@datorama/akita';
 import {
+  AuthorizationQuery,
   GameServer,
   GameServerLog,
   GameServerLogQuery,
   GameServerLogStore,
   GameServerQuery,
   GameServerService,
-  Queue,
-  QueueService,
+  IAuthorization,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
-import {
-  IdentityService,
-  SelectedNamespaceService,
-  SocketService,
-  VersionService,
-} from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  LogsDialogComponent,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { IdentityService, SocketService } from '../../../../../../core/services';
+import { LogsDialogComponent, PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
@@ -43,52 +34,43 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: true }) table: MatTable<GameServer>;
 
-  public $gameServers: Observable<GameServer[]>;
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public dataSource = new MatTableDataSource<GameServer>();
-  public displayedColumns: string[] = [
-    'name',
-    'description',
-    'status',
-    'createdAt',
-    'actions',
-  ];
-  public queue: Queue;
+  public displayedColumns: string[] = ['name', 'description', 'status', 'createdAt', 'actions'];
+  public hasWriteAuthorization: boolean;
   public get queueId() {
-    return this.activatedRoute.snapshot.paramMap.get('queueId');
+    return this.params?.queueId;
   }
 
+  private $gameServers: Observable<GameServer[]>;
+  private params: Params;
   private updateDataSource$ = new Subscription();
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private gameServerLogQuery: GameServerLogQuery,
     private gameServerLogStore: GameServerLogStore,
     private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
-    public identityService: IdentityService,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private queueService: QueueService,
-    private selectedNamespaceService: SelectedNamespaceService,
     private socketService: SocketService,
     private titleService: Title,
-    public versionService: VersionService,
   ) {}
 
   public async ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Game Servers`);
+    this.activatedRoute.params.subscribe((params) => {
+      this.titleService.setTitle(`${TITLE} | Game Servers`);
 
-    await this.fetchQueue();
-    await this.fetchGameServers();
+      const roles = [IAuthorization.AuthorizationRole.GameServersReadWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-    if (this.queue) {
-      this.breadcrumbs = [
-        { label: 'Queues', link: '../../' },
-        { label: this.queue.name, link: '../' },
-        { label: 'Game Servers' },
-      ];
-    }
+      this.fetchGameServers(params);
+    });
   }
 
   public ngOnDestroy() {
@@ -147,18 +129,14 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     dialogRef.afterClosed().subscribe(() => this.gameServerLogStore.reset());
   }
 
-  private async fetchGameServers() {
+  private async fetchGameServers(params: Params) {
     const $gameServers = this.gameServerQuery.selectAll({
       filterBy: (gs) =>
-        gs.namespaceId === this.selectedNamespaceService.namespaceId &&
-        ((this.queue && this.queue._id === gs.queueId) || (!this.queue && !gs.queueId)),
+        gs.namespaceId === params.namespaceId && (!this.queueId || this.queueId === gs.queueId),
     });
     this.$gameServers = this.gameServerQuery.populate($gameServers);
 
-    await this.gameServerService.find({
-      sort: 'name',
-      where: { namespaceId: this.selectedNamespaceService.namespaceId },
-    });
+    await this.gameServerService.find({ sort: 'name', where: { namespaceId: params.namespaceId } });
 
     this.updateDataSource$ = this.$gameServers.subscribe(
       (gameServers) => (this.dataSource.data = gameServers),
@@ -168,20 +146,12 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
 
       return (
-        regex.test(data.description) ||
-        regex.test(data.name) ||
-        regex.test(data.status?.phase)
+        regex.test(data.description) || regex.test(data.name) || regex.test(data.status?.phase)
       );
     };
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  private async fetchQueue() {
-    if (this.queueId) {
-      this.queue = await this.queueService.findOne(this.queueId);
-    }
   }
 
   private getNodeIds(gameServer: GameServer) {

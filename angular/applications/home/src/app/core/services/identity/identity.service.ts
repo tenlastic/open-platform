@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { IOnLogin, LoginService, User } from '@tenlastic/ng-http';
+import { AuthorizationQuery, IOnLogin, LoginService, User } from '@tenlastic/ng-http';
 
 export class ExpiredRefreshTokenError extends Error {
   constructor(message?: string) {
@@ -50,6 +50,9 @@ export class IdentityService {
   public OnAccessTokenSet = new EventEmitter<string>();
   public OnRefreshTokenSet = new EventEmitter<string>();
 
+  public authorization = this.authorizationQuery.getAll({
+    filterBy: (a) => !a.namespaceId && a.userId === this.user?._id,
+  })[0];
   public get user() {
     const refreshToken = this.getRefreshToken();
 
@@ -66,7 +69,7 @@ export class IdentityService {
   private refreshToken: Jwt;
   private startedRefreshingAt: Date;
 
-  constructor(private loginService: LoginService) {
+  constructor(private authorizationQuery: AuthorizationQuery, private loginService: LoginService) {
     this.loginService.onLogin.subscribe(this.login.bind(this));
     this.loginService.onLogout.subscribe(this.clear.bind(this));
     this.loginService.onRefresh.subscribe(this.login.bind(this));

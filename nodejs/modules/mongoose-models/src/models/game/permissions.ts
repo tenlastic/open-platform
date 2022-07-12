@@ -70,15 +70,15 @@ export const GamePermissions = new MongoosePermissions<GameDocument>(Game, {
       query: AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.GamesReadWrite]),
     },
     {
-      name: 'user-read',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.GamesRead,
+      name: 'namespace-write',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.GamesReadWrite,
       ]),
     },
     {
-      name: 'namespace-write',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      name: 'user-read',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.GamesRead,
         AuthorizationRole.GamesReadWrite,
       ]),
     },

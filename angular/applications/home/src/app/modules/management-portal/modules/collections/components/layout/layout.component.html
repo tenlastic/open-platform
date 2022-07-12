@@ -1,0 +1,28 @@
+<app-sidenav>
+  <div *ngIf="($collection | async) as collection"
+       class="nav">
+    <app-button color="accent"
+                layout="vertical"
+                [routerLink]="['./']"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{exact:true}"
+                text="left"
+                width="full">
+      <mat-icon>category</mat-icon>
+      <span>{{ collection.name }}</span>
+    </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.collectionRoles) | async"
+                color="accent"
+                layout="vertical"
+                [routerLink]="['records']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>description</mat-icon>
+      <span>Records</span>
+    </app-button>
+  </div>
+
+  <router-outlet></router-outlet>
+</app-sidenav>

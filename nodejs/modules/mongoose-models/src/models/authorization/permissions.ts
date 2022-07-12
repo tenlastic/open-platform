@@ -7,8 +7,8 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
   Authorization,
   {
     create: {
-      'namespace-write': ['namespaceId', 'roles', 'userId'],
-      'user-write': ['namespaceId', 'roles', 'userId'],
+      'namespace-write': ['name', 'namespaceId', 'roles', 'userId'],
+      'user-write': ['name', 'namespaceId', 'roles', 'userId'],
     },
     delete: {
       'namespace-write': true,
@@ -29,19 +29,22 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
     },
     populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
     read: {
-      default: ['_id', 'createdAt', 'key', 'namespaceId', 'roles', 'system', 'updatedAt', 'userId'],
+      default: [
+        '_id',
+        'createdAt',
+        'key',
+        'name',
+        'namespaceId',
+        'roles',
+        'system',
+        'updatedAt',
+        'userId',
+      ],
     },
     roles: [
       {
         name: 'user-write',
         query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-          AuthorizationRole.AuthorizationsReadWrite,
-        ]),
-      },
-      {
-        name: 'user-read',
-        query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-          AuthorizationRole.AuthorizationsRead,
           AuthorizationRole.AuthorizationsReadWrite,
         ]),
       },
@@ -52,6 +55,14 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
         ]),
       },
       {
+        name: 'user-read',
+        query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+          AuthorizationRole.AuthorizationsRead,
+          AuthorizationRole.AuthorizationsReadWrite,
+        ]),
+      },
+
+      {
         name: 'namespace-read',
         query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
           AuthorizationRole.AuthorizationsRead,
@@ -60,8 +71,8 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
       },
     ],
     update: {
-      'namespace-write': ['roles'],
-      'user-write': ['roles'],
+      'namespace-write': ['name', 'roles'],
+      'user-write': ['name', 'roles'],
     },
   },
 );

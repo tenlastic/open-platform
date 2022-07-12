@@ -368,6 +368,32 @@ mat-pseudo-checkbox.mat-pseudo-checkbox {
   color: rgba(255, 255, 255, 0.5);
 }
 
+mat-radio-button.mat-radio-button.mat-accent {
+  &.mat-radio-checked {
+    span.mat-radio-inner-circle {
+      background-color: white;
+      border-radius: 4px;
+      filter: drop-shadow(2px 2px 3px black);
+    }
+
+    span.mat-radio-outer-circle {
+      border-color: white;
+      border-radius: 4px;
+      filter: drop-shadow(2px 2px 3px black);
+    }
+
+    span.mat-ripple {
+      display: none;
+    }
+  }
+
+  span.mat-radio-outer-circle {
+    border-color: white;
+    border-radius: 4px;
+    filter: drop-shadow(2px 2px 3px black);
+  }
+}
+
 mat-select.mat-select {
   &.mat-select-disabled {
     div.mat-select-arrow {

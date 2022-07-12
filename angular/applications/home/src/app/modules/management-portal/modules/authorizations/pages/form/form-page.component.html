@@ -1,11 +1,11 @@
 <div class="page">
-  <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
-
   <div class="row">
     <div class="col-sm-6">
-      <app-title>{{ data?._id ? 'Edit' : 'Create' }} Authorization</app-title>
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Authorization</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Authorization</app-title>
     </div>
-    <div class="col-sm-6 align-right">
+    <div *ngIf="hasWriteAuthorization"
+         class="col-sm-6 align-right">
       <app-button color="accent"
                   (OnClick)="navigateToJson()">
         <mat-icon>code</mat-icon>
@@ -21,18 +21,100 @@
       <app-autocomplete-user-field [control]="form.get('user')"></app-autocomplete-user-field>
     </div>
 
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Status</mat-label>
-        <mat-select formControlName="status"
-                    required>
-          <mat-option *ngFor="let status of statuses"
-                      [value]="status.value">
-            {{ status.label }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
+    <app-toggle-section formGroupName="roles"
+                        title="Roles">
+      <h4>Articles</h4>
+      <div class="row">
+        <mat-radio-group formControlName="articles">
+          <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.ArticlesRead">Read</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.ArticlesReadPublished">Read (Published)</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.ArticlesReadWrite">Read / Write</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <h4>Authorizations</h4>
+      <div class="row">
+        <mat-radio-group formControlName="authorizations">
+          <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.AuthorizationsRead">Read</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.AuthorizationsReadWrite">Read / Write</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <h4>Builds</h4>
+      <div class="row">
+        <mat-radio-group formControlName="builds">
+          <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.BuildsRead">Read</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.BuildsReadPublished">Read (Published)</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.BuildsReadWrite">Read / Write</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <h4>Collections</h4>
+      <div class="row">
+        <mat-radio-group formControlName="collections">
+          <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.CollectionsRead">Read</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.CollectionsReadWrite">Read / Write</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <h4>Games</h4>
+      <div class="row">
+        <mat-radio-group formControlName="games">
+          <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.GamesRead">Read</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.GamesReadWrite">Read / Write</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <h4>Game Servers</h4>
+      <div class="row">
+        <mat-radio-group formControlName="gameServers">
+          <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.GameServersRead">Read</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.GameServersReadWrite">Read / Write</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <h4>Namespaces</h4>
+      <div class="row">
+        <mat-radio-group formControlName="namespaces">
+          <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.NamespacesRead">Read</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.NamespacesReadWrite">Read / Write</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <h4>Queues</h4>
+      <div class="row">
+        <mat-radio-group formControlName="queues">
+          <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.QueuesRead">Read</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.QueuesReadWrite">Read / Write</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <h4>Users</h4>
+      <div class="row">
+        <mat-radio-group formControlName="users">
+          <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.UsersRead">Read</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.UsersReadWrite">Read / Write</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <h4>Workflows</h4>
+      <div class="row">
+        <mat-radio-group formControlName="workflows">
+          <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.WorkflowsRead">Read</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.WorkflowsReadWrite">Read / Write</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </app-toggle-section>
 
     <div *ngFor="let error of errors"
          class="form-error">

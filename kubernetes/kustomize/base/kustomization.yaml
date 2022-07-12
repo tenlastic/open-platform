@@ -37,7 +37,7 @@ resources:
   - ./static/maintenance/garbage-collect-docker-registry.yaml
   - ./static/minio/minio.yaml
   - ./static/mongodb/mongodb.yaml
-  - ./static/mongodb/mongoku.yaml
+  - ./static/mongodb/mongodb-gui.yaml
   - ./static/nats/nats.yaml
   - ./static/nodejs/api.yaml
   - ./static/nodejs/e2e.yaml

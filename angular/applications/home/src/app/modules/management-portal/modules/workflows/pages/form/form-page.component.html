@@ -1,5 +1,19 @@
 <div class="page">
-  <app-title>{{ data && data._id ? 'Edit' : 'Create' }} Workflow</app-title>
+  <div class="row">
+    <div class="col-sm-6">
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Workflow</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Workflow</app-title>
+    </div>
+
+    <div *ngIf="hasWriteAuthorization"
+         class="col-sm-6 align-right">
+      <app-button color="accent"
+                  (OnClick)="navigateToJson()">
+        <mat-icon>code</mat-icon>
+        <span>{{ data?._id ? 'Edit' : 'Create' }} as JSON</span>
+      </app-button>
+    </div>
+  </div>
 
   <form *ngIf="form"
         [formGroup]="form"

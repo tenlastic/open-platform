@@ -13,7 +13,6 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     'user-write': ['limits.*', 'name'],
   },
   delete: {
-    default: false,
     'user-write': true,
   },
   find: {
@@ -47,19 +46,20 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
       ]),
     },
     {
-      name: 'user-read',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.NamespacesRead,
-        AuthorizationRole.NamespacesReadWrite,
-      ]),
-    },
-    {
       name: 'namespace-write',
       query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery(
         [AuthorizationRole.NamespacesReadWrite],
         'record',
       ),
     },
+    {
+      name: 'user-read',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.NamespacesRead,
+        AuthorizationRole.NamespacesReadWrite,
+      ]),
+    },
+
     {
       name: 'namespace-read',
       query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery(
@@ -69,7 +69,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     },
   ],
   update: {
-    'namespace-write': ['keys.*', 'name', 'users.*'],
-    'user-write': ['keys.*', 'limits.*', 'name', 'users.*'],
+    'namespace-write': ['name'],
+    'user-write': ['limits.*', 'name'],
   },
 });

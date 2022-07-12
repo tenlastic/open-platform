@@ -79,6 +79,18 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
       ]),
     },
     {
+      name: 'user-write',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.WorkflowsReadWrite,
+      ]),
+    },
+    {
+      name: 'namespace-write',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.WorkflowsReadWrite,
+      ]),
+    },
+    {
       name: 'system-read',
       query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
         AuthorizationRole.WorkflowsRead,
@@ -86,21 +98,9 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
       ]),
     },
     {
-      name: 'user-write',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.WorkflowsReadWrite,
-      ]),
-    },
-    {
       name: 'user-read',
       query: AuthorizationPermissionsHelpers.getUserRoleQuery([
         AuthorizationRole.WorkflowsRead,
-        AuthorizationRole.WorkflowsReadWrite,
-      ]),
-    },
-    {
-      name: 'namespace-write',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.WorkflowsReadWrite,
       ]),
     },

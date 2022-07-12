@@ -14,18 +14,18 @@ export const ROUTES: Routes = [
   {
     canActivate: [LoginGuard],
     component: LayoutComponent,
-    loadChildren: () => import('./modules/account/account.module').then(m => m.AccountModule),
+    loadChildren: () => import('./modules/account/account.module').then((m) => m.AccountModule),
     path: 'account',
   },
   {
     component: LayoutComponent,
     loadChildren: () =>
-      import('./modules/authentication/authentication.module').then(m => m.AuthenticationModule),
+      import('./modules/authentication/authentication.module').then((m) => m.AuthenticationModule),
     path: 'authentication',
   },
   {
     component: LayoutComponent,
-    loadChildren: () => import('./modules/games/games.module').then(m => m.GamesModule),
+    loadChildren: () => import('./modules/games/games.module').then((m) => m.GamesModule),
     path: 'games',
   },
   {
@@ -33,13 +33,13 @@ export const ROUTES: Routes = [
     component: LayoutComponent,
     loadChildren: () =>
       import('./modules/management-portal/management-portal.module').then(
-        m => m.ManagementPortalModule,
+        (m) => m.ManagementPortalModule,
       ),
     path: 'management-portal',
   },
   {
     component: LayoutComponent,
-    loadChildren: () => import('./modules/home/home.module').then(m => m.HomeModule),
+    loadChildren: () => import('./modules/home/home.module').then((m) => m.HomeModule),
     path: '',
   },
   { path: '**', redirectTo: '' },
@@ -54,6 +54,7 @@ export const ROUTES: Routes = [
     HttpModule.forRoot(environment),
     SharedModule,
     RouterModule.forRoot(ROUTES, {
+      paramsInheritanceStrategy: 'always',
       relativeLinkResolution: 'corrected',
       useHash: environment.useHash,
     }),

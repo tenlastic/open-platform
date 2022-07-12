@@ -101,6 +101,16 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
       ]),
     },
     {
+      name: 'user-write',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.QueuesReadWrite]),
+    },
+    {
+      name: 'namespace-write',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.QueuesReadWrite,
+      ]),
+    },
+    {
       name: 'system-read',
       query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
         AuthorizationRole.QueuesRead,
@@ -108,19 +118,9 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
       ]),
     },
     {
-      name: 'user-write',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.QueuesReadWrite]),
-    },
-    {
       name: 'user-read',
       query: AuthorizationPermissionsHelpers.getUserRoleQuery([
         AuthorizationRole.QueuesRead,
-        AuthorizationRole.QueuesReadWrite,
-      ]),
-    },
-    {
-      name: 'namespace-write',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.QueuesReadWrite,
       ]),
     },

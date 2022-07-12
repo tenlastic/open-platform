@@ -6,6 +6,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import {
+  AuthorizationQuery,
+  IAuthorization,
   User,
   UserQuery,
   UserService,
@@ -13,7 +15,7 @@ import {
   WebSocketQuery,
   WebSocketService,
 } from '@tenlastic/ng-http';
-import { combineLatest, Observable, Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -30,7 +32,18 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
 
   public $users: Observable<User[]>;
   public dataSource = new MatTableDataSource<User>();
-  public displayedColumns: string[] = ['webSocket', 'username', 'email', 'createdAt', 'updatedAt'];
+  public displayedColumns: string[] = [
+    'webSocket',
+    'username',
+    'email',
+    'createdAt',
+    'updatedAt',
+    'actions',
+  ];
+  public hasWriteAuthorization: boolean;
+  public get user() {
+    return this.identityService.user;
+  }
   public webSockets: { [key: string]: WebSocket } = {};
 
   private fetchWebSockets$ = new Subscription();
@@ -38,7 +51,8 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
   private updateWebSockets$ = new Subscription();
 
   constructor(
-    public identityService: IdentityService,
+    private authorizationQuery: AuthorizationQuery,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private titleService: Title,
@@ -51,9 +65,9 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
   public ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Users`);
 
-    if (this.identityService.user.roles.includes('users')) {
-      this.displayedColumns.push('actions');
-    }
+    const roles = [IAuthorization.AuthorizationRole.NamespacesReadWrite];
+    const userId = this.identityService.user?._id;
+    this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 
     this.fetchUsers();
   }

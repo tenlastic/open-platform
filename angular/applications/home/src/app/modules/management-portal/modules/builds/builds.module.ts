@@ -8,8 +8,8 @@ import { BuildsFormPageComponent, BuildsJsonPageComponent, BuildsListPageCompone
 
 export const ROUTES: Routes = [
   { path: '', component: BuildsListPageComponent },
-  { path: ':_id', component: BuildsFormPageComponent },
-  { path: ':_id/json', component: BuildsJsonPageComponent },
+  { path: ':buildId', component: BuildsFormPageComponent },
+  { path: ':buildId/json', component: BuildsJsonPageComponent },
 ];
 
 @NgModule({

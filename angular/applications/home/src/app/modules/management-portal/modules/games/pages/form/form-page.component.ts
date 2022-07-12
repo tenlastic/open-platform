@@ -1,16 +1,10 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Game, GameService, IGame } from '@tenlastic/ng-http';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { AuthorizationQuery, Game, GameService, IAuthorization, IGame } from '@tenlastic/ng-http';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { FormService, IdentityService } from '../../../../../../core/services';
 import { MediaDialogComponent } from '../../components';
 
 interface PropertyFormGroup {
@@ -29,10 +23,10 @@ export class GamesFormPageComponent implements OnInit {
     { label: 'Public w/ Authorization', value: 'private-public' },
     { label: 'Public', value: 'public' },
   ];
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public data: Game;
   public errors: string[] = [];
   public form: FormGroup;
+  public hasWriteAuthorization: boolean;
   public pending = {
     background: [],
     icon: [],
@@ -46,28 +40,30 @@ export class GamesFormPageComponent implements OnInit {
     videos: [],
   };
 
+  private params: Params;
+
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private formBuilder: FormBuilder,
+    private formService: FormService,
     private gameService: GameService,
-    public identityService: IdentityService,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
-    private matSnackBar: MatSnackBar,
-    private router: Router,
-    public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public async ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const _id = params.get('_id');
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
 
-      this.breadcrumbs = [
-        { label: 'Games', link: '../' },
-        { label: _id === 'new' ? 'Create Game' : 'Edit Game' },
-      ];
+      const roles = [IAuthorization.AuthorizationRole.GamesReadWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      if (_id !== 'new') {
-        this.data = await this.gameService.findOne(_id);
+      if (params.gameId !== 'new') {
+        this.data = await this.gameService.findOne(params.gameId);
       }
 
       this.setupForm();
@@ -79,73 +75,7 @@ export class GamesFormPageComponent implements OnInit {
   }
 
   public navigateToJson() {
-    if (this.form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
-          buttons: [
-            { color: 'primary', label: 'No' },
-            { color: 'accent', label: 'Yes' },
-          ],
-          message: 'Changes will not be saved. Is this OK?',
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(async (result) => {
-        if (result === 'Yes') {
-          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-        }
-      });
-    } else {
-      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-    }
-  }
-
-  public async onFieldChanged($event, field: string) {
-    const files: any[] = Array.from($event.target.files);
-    if (!files.length) {
-      return;
-    }
-
-    this.pending[field].push(...files);
-    this.uploadErrors[field] = [];
-
-    try {
-      const { body } = await this.gameService.upload(this.data._id, field, files).toPromise();
-      this.data = body.record;
-    } catch (e) {
-      this.uploadErrors[field] = this.handleUploadHttpError(e);
-    } finally {
-      for (const file of files) {
-        const index = this.pending[field].indexOf(file);
-        this.pending[field].splice(index, 1);
-      }
-    }
-  }
-
-  public async remove(field: string, index = -1) {
-    const dialogRef = this.matDialog.open(PromptComponent, {
-      data: {
-        buttons: [
-          { color: 'primary', label: 'No' },
-          { color: 'accent', label: 'Yes' },
-        ],
-        message: `Are you sure you want to remove this item?`,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(async (result) => {
-      if (result === 'Yes') {
-        if (index >= 0) {
-          this.data[field] = this.data[field].filter((f, i) => i !== index);
-          this.data = await this.gameService.update(this.data);
-        } else {
-          this.data[field] = null;
-          this.data = await this.gameService.update(this.data);
-        }
-
-        this.uploadErrors[field] = [];
-      }
-    });
+    this.formService.navigateToJson(this.form);
   }
 
   public async save() {
@@ -163,15 +93,19 @@ export class GamesFormPageComponent implements OnInit {
       access: this.form.get('access').value,
       description: this.form.get('description').value,
       metadata,
-      namespaceId: this.selectedNamespaceService.namespaceId,
+      namespaceId: this.params.namespaceId,
       subtitle: this.form.get('subtitle').value,
       title: this.form.get('title').value,
     };
 
     try {
-      await this.upsert(values);
+      this.data = await this.formService.upsert(this.gameService, values);
     } catch (e) {
-      this.handleHttpError(e, { namespaceId: 'Namespace', subtitle: 'Subtitle', title: 'Title' });
+      this.formService.handleHttpError(e, {
+        namespaceId: 'Namespace',
+        subtitle: 'Subtitle',
+        title: 'Title',
+      });
     }
   }
 
@@ -190,22 +124,6 @@ export class GamesFormPageComponent implements OnInit {
       default:
         return property.value || '';
     }
-  }
-
-  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map((e) => {
-      if (e.name === 'UniqueError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map((p) => pathMap[p]);
-        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
-    });
-  }
-
-  private handleUploadHttpError(err: HttpErrorResponse) {
-    return err.error.errors.map((e) => e.message);
   }
 
   private setupForm(): void {
@@ -239,17 +157,10 @@ export class GamesFormPageComponent implements OnInit {
       title: [this.data.title, Validators.required],
     });
 
-    this.form.valueChanges.subscribe(() => (this.errors = []));
-  }
-
-  private async upsert(data: Partial<Game>) {
-    if (this.data._id) {
-      data._id = this.data._id;
-      this.data = await this.gameService.update(data);
-    } else {
-      this.data = await this.gameService.create(data);
+    if (!this.hasWriteAuthorization) {
+      this.form.disable({ emitEvent: false });
     }
 
-    this.matSnackBar.open('Game saved successfully.');
+    this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 }

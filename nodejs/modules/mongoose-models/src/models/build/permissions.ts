@@ -75,6 +75,16 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
       ]),
     },
     {
+      name: 'user-write',
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.BuildsReadWrite]),
+    },
+    {
+      name: 'namespace-write',
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.BuildsReadWrite,
+      ]),
+    },
+    {
       name: 'system-read',
       query: {
         $or: [
@@ -92,19 +102,9 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
       },
     },
     {
-      name: 'user-write',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.BuildsReadWrite]),
-    },
-    {
       name: 'user-read',
       query: AuthorizationPermissionsHelpers.getUserRoleQuery([
         AuthorizationRole.BuildsRead,
-        AuthorizationRole.BuildsReadWrite,
-      ]),
-    },
-    {
-      name: 'namespace-write',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.BuildsReadWrite,
       ]),
     },

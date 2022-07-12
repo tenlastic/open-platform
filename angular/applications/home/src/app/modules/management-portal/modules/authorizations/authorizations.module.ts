@@ -11,8 +11,8 @@ import {
 
 export const ROUTES: Routes = [
   { path: '', component: AuthorizationsListPageComponent },
-  { path: ':_id', component: AuthorizationsFormPageComponent },
-  { path: ':_id/json', component: AuthorizationsJsonPageComponent },
+  { path: ':authorizationId', component: AuthorizationsFormPageComponent },
+  { path: ':authorizationId/json', component: AuthorizationsJsonPageComponent },
 ];
 
 @NgModule({

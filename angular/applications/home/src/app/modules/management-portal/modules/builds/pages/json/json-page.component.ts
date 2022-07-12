@@ -1,20 +1,10 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Build, BuildService, IBuild } from '@tenlastic/ng-http';
 
-import {
-  IdentityService,
-  SelectedNamespaceService,
-  TextareaService,
-} from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
 
 @Component({
@@ -22,35 +12,28 @@ import { jsonValidator } from '../../../../../../shared/validators';
   styleUrls: ['./json-page.component.scss'],
 })
 export class BuildsJsonPageComponent implements OnInit {
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
   public data: Build;
   public errors: string[] = [];
   public form: FormGroup;
+
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private buildService: BuildService,
     private formBuilder: FormBuilder,
-    public identityService: IdentityService,
-    private matDialog: MatDialog,
+    private formService: FormService,
     private matSnackBar: MatSnackBar,
     private router: Router,
-    private selectedNamespaceService: SelectedNamespaceService,
     private textareaService: TextareaService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const _id = params.get('_id');
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
 
-      this.breadcrumbs = [
-        { label: 'Builds', link: '../../' },
-        { label: _id === 'new' ? 'Create Build' : 'Edit Build', link: '../' },
-        { label: _id === 'new' ? 'Create Build as JSON' : 'Edit Build as JSON' },
-      ];
-
-      if (_id !== 'new') {
-        this.data = await this.buildService.findOne(_id);
+      if (params.buildId !== 'new') {
+        this.data = await this.buildService.findOne(params.buildId);
       }
 
       this.setupForm();
@@ -58,25 +41,7 @@ export class BuildsJsonPageComponent implements OnInit {
   }
 
   public navigateToForm() {
-    if (this.form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
-          buttons: [
-            { color: 'primary', label: 'No' },
-            { color: 'accent', label: 'Yes' },
-          ],
-          message: 'Changes will not be saved. Is this OK?',
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(async (result) => {
-        if (result === 'Yes') {
-          this.router.navigate([`../`], { relativeTo: this.activatedRoute });
-        }
-      });
-    } else {
-      this.router.navigate([`../`], { relativeTo: this.activatedRoute });
-    }
+    this.formService.navigateToForm(this.form);
   }
 
   public onKeyDown(event: any) {
@@ -96,26 +61,13 @@ export class BuildsJsonPageComponent implements OnInit {
     const json = this.form.get('json').value;
     const values = JSON.parse(json) as Build;
 
-    values.namespaceId = this.selectedNamespaceService.namespaceId;
+    values.namespaceId = this.params.namespaceId;
 
     try {
       await this.upsert(values);
     } catch (e) {
-      this.handleHttpError(e);
+      this.formService.handleHttpError(e);
     }
-  }
-
-  private async handleHttpError(err: HttpErrorResponse) {
-    this.errors = err.error.errors.map((e) => {
-      if (e.name === 'CastError' || e.name === 'ValidatorError') {
-        return `(${e.path}) ${e.message}`;
-      } else if (e.name === 'UniqueError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        return `${e.paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
-    });
   }
 
   private setupForm(): void {
