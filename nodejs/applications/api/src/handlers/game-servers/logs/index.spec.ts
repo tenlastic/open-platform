@@ -57,7 +57,7 @@ describe('handlers/game-servers/logs', function () {
 
       const ctx = new ContextMock({
         params: { _id: gameServer._id, nodeId: gameServer.status.nodes[0]._id },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       await handler(ctx as any);
@@ -77,7 +77,7 @@ describe('handlers/game-servers/logs', function () {
 
       const ctx = new ContextMock({
         params: { _id: gameServer._id, nodeId: chance.hash() },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const promise = handler(ctx as any);
@@ -92,7 +92,7 @@ describe('handlers/game-servers/logs', function () {
 
       const ctx = new ContextMock({
         params: { _id: gameServer._id, nodeId: chance.hash() },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const promise = handler(ctx as any);

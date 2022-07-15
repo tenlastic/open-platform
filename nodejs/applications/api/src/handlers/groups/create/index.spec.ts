@@ -4,17 +4,17 @@ import { expect } from 'chai';
 
 import { handler } from './';
 
-describe('handlers/groups/create', function() {
+describe('handlers/groups/create', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  it('creates a new record', async function() {
+  it('creates a new record', async function () {
     const ctx = new ContextMock({
       request: { body: {} },
-      state: { user: user.toObject() },
+      state: { user },
     });
 
     await handler(ctx as any);

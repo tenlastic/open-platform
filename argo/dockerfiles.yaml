@@ -29,7 +29,7 @@ spec:
   entrypoint: entrypoint
   podGC:
     strategy: OnWorkflowSuccess
-  serviceAccountName: argo-workflow
+  serviceAccountName: argo-workflows
   ttlStrategy:
     secondsAfterSuccess: 86400
   volumeClaimTemplates:
@@ -152,6 +152,7 @@ spec:
     - name: publish-docker-image
       container:
         image: gcr.io/kaniko-project/executor:v1.8.0
+        command: [/kaniko/executor]
         args:
           - --context=dir://{{inputs.parameters.context}}
           - --dockerfile={{inputs.parameters.dockerfile}}

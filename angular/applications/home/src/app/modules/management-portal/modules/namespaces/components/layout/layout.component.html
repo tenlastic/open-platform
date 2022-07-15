@@ -12,146 +12,102 @@
       <span>{{ namespace.name }}</span>
     </app-button>
 
-    <app-button *ngIf="$hasAuthorizationButtons | async"
-                color="accent"
-                layout="vertical"
-                text="left"
-                width="full"
-                (OnClick)="showAuthorizationButtons = !showAuthorizationButtons">
-      <span>Authorization</span>
-      <mat-icon>
-        {{ showAuthorizationButtons ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
-      </mat-icon>
-    </app-button>
-
-    <ng-container *ngIf="showAuthorizationButtons">
-      <app-button *ngIf="$hasPermission(IAuthorization.buildRoles) | async"
-                  color="accent"
+    <ng-container *ngIf="$hasRelated | async">
+      <app-button color="accent"
+                  disabled
                   layout="vertical"
-                  [routerLink]="['api-keys']"
-                  routerLinkActive="active"
-                  text="left"
                   width="full">
-        <mat-icon>vpn_key</mat-icon>
-        <span>API Keys</span>
-      </app-button>
-
-      <app-button *ngIf="$hasPermission(IAuthorization.collectionRoles) | async"
-                  color="accent"
-                  layout="vertical"
-                  [routerLink]="['users']"
-                  routerLinkActive="active"
-                  text="left"
-                  width="full">
-        <mat-icon>person</mat-icon>
-        <span>Users</span>
+        <span>&nbsp;</span>
       </app-button>
     </ng-container>
 
-    <app-button *ngIf="$hasInfrastructureButtons | async"
+    <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
                 color="accent"
                 layout="vertical"
+                [routerLink]="['articles']"
+                routerLinkActive="active"
                 text="left"
-                width="full"
-                (OnClick)="showInfrastructureButtons = !showInfrastructureButtons">
-      <span>Infrastructure</span>
-      <mat-icon>
-        {{ showInfrastructureButtons ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
-      </mat-icon>
+                width="full">
+      <mat-icon>description</mat-icon>
+      <span>Articles</span>
     </app-button>
 
-    <ng-container *ngIf="showInfrastructureButtons">
-      <app-button *ngIf="$hasPermission(IAuthorization.buildRoles) | async"
-                  color="accent"
-                  layout="vertical"
-                  [routerLink]="['builds']"
-                  routerLinkActive="active"
-                  text="left"
-                  width="full">
-        <mat-icon>unarchive</mat-icon>
-        <span>Builds</span>
-      </app-button>
-
-      <app-button *ngIf="$hasPermission(IAuthorization.collectionRoles) | async"
-                  color="accent"
-                  layout="vertical"
-                  [routerLink]="['collections']"
-                  routerLinkActive="active"
-                  text="left"
-                  width="full">
-        <mat-icon>category</mat-icon>
-        <span>Collections</span>
-      </app-button>
-
-      <app-button *ngIf="$hasPermission(IAuthorization.gameServerRoles) | async"
-                  color="accent"
-                  layout="vertical"
-                  [routerLink]="['game-servers']"
-                  routerLinkActive="active"
-                  text="left"
-                  width="full">
-        <mat-icon>public</mat-icon>
-        <span>Game Servers</span>
-      </app-button>
-
-      <app-button *ngIf="$hasPermission(IAuthorization.queueRoles) | async"
-                  color="accent"
-                  layout="vertical"
-                  [routerLink]="['queues']"
-                  routerLinkActive="active"
-                  text="left"
-                  width="full">
-        <mat-icon>hourglass_bottom</mat-icon>
-        <span>Queues</span>
-      </app-button>
-
-      <app-button *ngIf="$hasPermission(IAuthorization.workflowRoles) | async"
-                  color="accent"
-                  layout="vertical"
-                  [routerLink]="['workflows']"
-                  routerLinkActive="active"
-                  text="left"
-                  width="full">
-        <mat-icon>rule</mat-icon>
-        <span>Workflows</span>
-      </app-button>
-    </ng-container>
-
-    <app-button *ngIf="$hasLauncherButtons | async"
+    <app-button *ngIf="$hasPermission(IAuthorization.authorizationRoles) | async"
                 color="accent"
                 layout="vertical"
+                [routerLink]="['api-keys']"
+                routerLinkActive="active"
                 text="left"
-                width="full"
-                (OnClick)="showLauncherButtons = !showLauncherButtons">
-      <span>Launcher</span>
-      <mat-icon>
-        {{ showLauncherButtons ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
-      </mat-icon>
+                width="full">
+      <mat-icon>vpn_key</mat-icon>
+      <span>Authorizations</span>
     </app-button>
 
-    <ng-container *ngIf="showLauncherButtons">
-      <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
-                  color="accent"
-                  layout="vertical"
-                  [routerLink]="['articles']"
-                  routerLinkActive="active"
-                  text="left"
-                  width="full">
-        <mat-icon>description</mat-icon>
-        <span>Articles</span>
-      </app-button>
+    <app-button *ngIf="$hasPermission(IAuthorization.buildRoles) | async"
+                color="accent"
+                layout="vertical"
+                [routerLink]="['builds']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>unarchive</mat-icon>
+      <span>Builds</span>
+    </app-button>
 
-      <app-button *ngIf="$hasPermission(IAuthorization.gameRoles) | async"
-                  color="accent"
-                  layout="vertical"
-                  [routerLink]="['games']"
-                  routerLinkActive="active"
-                  text="left"
-                  width="full">
-        <mat-icon>sports_esports</mat-icon>
-        <span>Games</span>
-      </app-button>
-    </ng-container>
+    <app-button *ngIf="$hasPermission(IAuthorization.collectionRoles) | async"
+                color="accent"
+                layout="vertical"
+                [routerLink]="['collections']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>category</mat-icon>
+      <span>Collections</span>
+    </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.gameRoles) | async"
+                color="accent"
+                layout="vertical"
+                [routerLink]="['games']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>sports_esports</mat-icon>
+      <span>Games</span>
+    </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.gameServerRoles) | async"
+                color="accent"
+                layout="vertical"
+                [routerLink]="['game-servers']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>public</mat-icon>
+      <span>Game Servers</span>
+    </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.queueRoles) | async"
+                color="accent"
+                layout="vertical"
+                [routerLink]="['queues']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>hourglass_bottom</mat-icon>
+      <span>Queues</span>
+    </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.workflowRoles) | async"
+                color="accent"
+                layout="vertical"
+                [routerLink]="['workflows']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>rule</mat-icon>
+      <span>Workflows</span>
+    </app-button>
   </div>
 
   <router-outlet></router-outlet>

@@ -117,6 +117,7 @@ export class CollectionsFormPageComponent implements OnInit {
     const permissions = this.getPermissions();
 
     const values: Partial<Collection> = {
+      _id: this.data._id,
       jsonSchema,
       name: this.form.get('name').value,
       namespaceId: this.params.namespaceId,

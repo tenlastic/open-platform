@@ -68,7 +68,7 @@ describe('handlers/files/download', function () {
             files: '10',
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       } as any);
     });
 
@@ -111,7 +111,7 @@ describe('handlers/files/download', function () {
             files: '10',
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       } as any);
 
       const promise = handler(ctx as any);

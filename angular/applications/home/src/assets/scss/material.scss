@@ -395,6 +395,8 @@ mat-radio-button.mat-radio-button.mat-accent {
 }
 
 mat-select.mat-select {
+  margin-bottom: -2px;
+
   &.mat-select-disabled {
     div.mat-select-arrow {
       color: white !important;
@@ -537,9 +539,19 @@ table.mat-table {
 
   .mat-row:nth-child(odd) {
     background: rgba(0, 0, 0, 0.125);
+
+    &.highlight {
+      background: rgba(255, 255, 255, 0.125);
+      cursor: pointer;
+    }
   }
 
   .mat-row:nth-child(even) {
     background: rgba(0, 0, 0, 0.25);
+
+    &.highlight {
+      background: rgba(255, 255, 255, 0.125);
+      cursor: pointer;
+    }
   }
 }

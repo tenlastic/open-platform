@@ -56,6 +56,8 @@ export class NamespacesJsonPageComponent implements OnInit {
     const json = this.form.get('json').value;
     const values = JSON.parse(json) as Namespace;
 
+    values._id = this.data._id;
+
     try {
       this.data = await this.formService.upsert(this.namespaceService, values, { path: '../../' });
     } catch (e) {

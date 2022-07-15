@@ -18,19 +18,12 @@ import { IdentityService } from '../../../../../../core/services';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
-  public get $hasAuthorizationButtons() {
-    const roles = [...IAuthorization.authorizationRoles];
-    const userId = this.identityService.user?._id;
-
-    return combineLatest([
-      this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
-    ]).pipe(map((a, b) => a || b));
-  }
-  public get $hasInfrastructureButtons() {
+  public get $hasRelated() {
     const roles = [
+      ...IAuthorization.articleRoles,
       ...IAuthorization.buildRoles,
       ...IAuthorization.collectionRoles,
+      ...IAuthorization.gameRoles,
       ...IAuthorization.gameServerRoles,
       ...IAuthorization.queueRoles,
       ...IAuthorization.workflowRoles,
@@ -42,20 +35,8 @@ export class LayoutComponent implements OnInit {
       this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
     ]).pipe(map((a, b) => a || b));
   }
-  public get $hasLauncherButtons() {
-    const roles = [...IAuthorization.articleRoles, ...IAuthorization.gameRoles];
-    const userId = this.identityService.user?._id;
-
-    return combineLatest([
-      this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
-    ]).pipe(map((a, b) => a || b));
-  }
   public $namespace: Observable<Namespace>;
   public IAuthorization = IAuthorization;
-  public showAuthorizationButtons = true;
-  public showInfrastructureButtons = true;
-  public showLauncherButtons = true;
 
   private get namespaceId() {
     return this.activatedRoute.snapshot.params.namespaceId;

@@ -27,11 +27,10 @@ export async function handler(ctx: Context) {
   }
 
   try {
-    ctx.response.body = await Login.createWithAccessAndRefreshTokens(
-      { refreshTokenId: jwt.jti },
-      user,
-    );
-  } catch {
+    const { accessToken, refreshToken } = await Login.createAccessAndRefreshTokens(user, jwt.jti);
+    ctx.response.body = { accessToken, refreshToken };
+  } catch (e) {
+    throw e;
     throw new Error('Invalid refresh token.');
   }
 }

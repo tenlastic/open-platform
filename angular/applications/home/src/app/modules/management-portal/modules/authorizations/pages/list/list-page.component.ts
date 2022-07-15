@@ -28,7 +28,7 @@ export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<Authorization>;
 
   public dataSource = new MatTableDataSource<Authorization>();
-  public displayedColumns: string[] = ['user', 'createdAt', 'actions'];
+  public displayedColumns = ['name', 'user', 'roles', 'createdAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
   private $authorizations: Observable<Authorization[]>;
@@ -48,6 +48,12 @@ export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
     this.activatedRoute.params.subscribe((params) => {
       this.titleService.setTitle(`${TITLE} | Authorizations`);
 
+      if (params.namespaceId) {
+        this.displayedColumns = ['name', 'user', 'roles', 'createdAt', 'actions'];
+      } else {
+        this.displayedColumns = ['user', 'roles', 'createdAt', 'actions'];
+      }
+
       const roles = [IAuthorization.AuthorizationRole.AuthorizationsReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
@@ -60,7 +66,9 @@ export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public showDeletePrompt(record: Authorization) {
+  public showDeletePrompt($event: Event, record: Authorization) {
+    $event.stopPropagation();
+    
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [

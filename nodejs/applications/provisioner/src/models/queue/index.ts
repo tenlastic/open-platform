@@ -8,7 +8,7 @@ import {
   V1PodTemplateSpec,
   V1Probe,
 } from '@tenlastic/kubernetes';
-import { Namespace, NamespaceRole, QueueDocument } from '@tenlastic/mongoose-models';
+import { Authorization, AuthorizationRole, QueueDocument } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 import { URL } from 'url';
 
@@ -17,6 +17,13 @@ const chance = new Chance();
 export const KubernetesQueue = {
   delete: async (queue: QueueDocument) => {
     const name = KubernetesQueue.getName(queue);
+
+    /**
+     * =======================
+     * AUTHORIZATION
+     * =======================
+     */
+    await Authorization.findOneAndDelete({ name, namespaceId: queue.namespaceId });
 
     /**
      * =======================
@@ -62,6 +69,20 @@ export const KubernetesQueue = {
   upsert: async (queue: QueueDocument) => {
     const labels = KubernetesQueue.getLabels(queue);
     const name = KubernetesQueue.getName(queue);
+
+    /**
+     * =======================
+     * AUTHORIZATION
+     * =======================
+     */
+    const apiKey = chance.hash({ length: 64 });
+    await Authorization.create({
+      apiKey,
+      name,
+      namespaceId: queue.namespaceId,
+      roles: [AuthorizationRole.QueuesReadWrite],
+      system: true,
+    });
 
     /**
      * =======================
@@ -145,10 +166,6 @@ export const KubernetesQueue = {
      * SECRET
      * ======================
      */
-    const accessToken = Namespace.getAccessToken(queue.namespaceId, [
-      NamespaceRole.GameServers,
-      NamespaceRole.Queues,
-    ]);
     const array = Array(queue.replicas).fill(0);
     const sentinels = array.map((a, i) => `${name}-redis-node-${i}.${name}-redis-headless:26379`);
     await secretApiV1.createOrReplace('dynamic', {
@@ -157,7 +174,7 @@ export const KubernetesQueue = {
         name,
       },
       stringData: {
-        ACCESS_TOKEN: queue.buildId ? undefined : accessToken,
+        API_KEY: queue.buildId ? undefined : apiKey,
         API_URL: 'http://api.static:3000',
         QUEUE_JSON: JSON.stringify(queue),
         REDIS_SENTINEL_PASSWORD: `${redisPassword}`,

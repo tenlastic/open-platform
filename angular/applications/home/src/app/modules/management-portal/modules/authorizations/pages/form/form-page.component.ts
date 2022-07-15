@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Params } from '@angular/router';
 import {
   Authorization,
   AuthorizationQuery,
@@ -11,6 +12,15 @@ import {
 } from '@tenlastic/ng-http';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
+import {
+  ApiKeyDialogComponent,
+  ApiKeyDialogComponentData,
+} from '../../../../../../shared/components';
+
+export enum AuthorizationType {
+  ApiKey = 'API Key',
+  User = 'User',
+}
 
 @Component({
   styleUrls: ['./form-page.component.scss'],
@@ -18,10 +28,16 @@ import { FormService, IdentityService } from '../../../../../../core/services';
 })
 export class AuthorizationsFormPageComponent implements OnInit {
   public AuthorizationRole = IAuthorization.AuthorizationRole;
+  public AuthorizationType = AuthorizationType;
   public data: Authorization;
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
+  public get type() {
+    return this.form.get('type').value;
+  }
+
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -30,11 +46,14 @@ export class AuthorizationsFormPageComponent implements OnInit {
     private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
+    private matDialog: MatDialog,
     private userService: UserService,
   ) {}
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
+
       const roles = [IAuthorization.AuthorizationRole.AuthorizationsReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
@@ -62,15 +81,39 @@ export class AuthorizationsFormPageComponent implements OnInit {
     ).filter((v) => v);
 
     const values: Partial<Authorization> = {
+      _id: this.data._id,
+      namespaceId: this.params.namespaceId,
       roles,
-      userId: this.form.get('user').value._id,
     };
+
+    if (this.type === AuthorizationType.ApiKey) {
+      values.apiKey = this.form.get('apiKey').value;
+      values.name = this.form.get('name').value;
+    } else if (this.type === AuthorizationType.User) {
+      values.userId = this.form.get('user').value._id;
+    }
 
     try {
       this.data = await this.formService.upsert(this.authorizationService, values);
+      this.openApiKeyDialog(values.apiKey);
     } catch (e) {
       this.formService.handleHttpError(e, { namespaceId: 'Namespace', userId: 'User' });
     }
+  }
+
+  private getRandomCharacter() {
+    return Math.random().toString(36).charAt(2);
+  }
+
+  private openApiKeyDialog(apiKey: string) {
+    if (!apiKey) {
+      return;
+    }
+
+    this.matDialog.open<ApiKeyDialogComponent, ApiKeyDialogComponentData>(ApiKeyDialogComponent, {
+      autoFocus: false,
+      data: { apiKey },
+    });
   }
 
   private async setupForm() {
@@ -82,7 +125,12 @@ export class AuthorizationsFormPageComponent implements OnInit {
       user = await this.userService.findOne(this.data.userId);
     }
 
+    const apiKey = Array(64).fill(0).map(this.getRandomCharacter).join('');
+    const type = this.data.userId ? AuthorizationType.User : AuthorizationType.ApiKey;
+
     this.form = this.formBuilder.group({
+      apiKey: [this.data._id ? undefined : apiKey],
+      name: [this.data.name, type === AuthorizationType.ApiKey ? [Validators.required] : []],
       roles: this.formBuilder.group({
         articles: this.data.roles?.find((r) => r.startsWith('Articles')),
         authorizations: this.data.roles?.find((r) => r.startsWith('Authorizations')),
@@ -95,7 +143,24 @@ export class AuthorizationsFormPageComponent implements OnInit {
         users: this.data.roles?.find((r) => r.startsWith('Users')),
         workflows: this.data.roles?.find((r) => r.startsWith('Workflows')),
       }),
-      user,
+      type: { disabled: this.data._id || !this.params.namespaceId, value: type },
+      user: [
+        { disabled: this.data._id, value: user },
+        type === AuthorizationType.User ? [Validators.required] : [],
+      ],
+    });
+
+    this.form.get('type').valueChanges.subscribe((t) => {
+      if (t === AuthorizationType.ApiKey) {
+        this.form.get('name').setValidators([Validators.required]);
+        this.form.get('user').setValidators([]);
+      } else if (t === AuthorizationType.User) {
+        this.form.get('name').setValidators([]);
+        this.form.get('user').setValidators([Validators.required]);
+      }
+
+      this.form.get('name').updateValueAndValidity({ emitEvent: false });
+      this.form.get('user').updateValueAndValidity({ emitEvent: false });
     });
 
     if (!this.hasWriteAuthorization) {

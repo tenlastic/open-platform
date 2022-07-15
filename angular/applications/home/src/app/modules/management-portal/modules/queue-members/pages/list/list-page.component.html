@@ -35,8 +35,9 @@
           *matCellDef="let element">
         <app-button *ngIf="hasWriteAuthorization"
                     color="accent"
+                    highlight
                     matTooltip="Delete"
-                    (OnClick)="showDeletePrompt(element)">
+                    (OnClick)="showDeletePrompt($event, element)">
           <mat-icon>delete</mat-icon>
         </app-button>
       </td>

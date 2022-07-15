@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 
 import { MaterialModule } from '../material.module';
 import {
+  ApiKeyDialogComponent,
   AutocompleteUserFieldComponent,
   ButtonComponent,
   DataSourceFilterComponent,
@@ -23,13 +24,13 @@ import {
   MetadataFieldComponent,
   MetadataFieldsComponent,
   PromptComponent,
-  RefreshTokenPromptComponent,
   SidenavComponent,
   SocialComponent,
   TextAreaDialogComponent,
   TitleComponent,
   ToggleSectionComponent,
 } from './components';
+import { HighlightDirective } from './directives';
 import {
   AsAnyPipe,
   CamelCaseToTitleCasePipe,
@@ -44,6 +45,7 @@ import {
 } from './pipes';
 
 const components = [
+  ApiKeyDialogComponent,
   AutocompleteUserFieldComponent,
   ButtonComponent,
   DataSourceFilterComponent,
@@ -61,13 +63,13 @@ const components = [
   MetadataFieldComponent,
   MetadataFieldsComponent,
   PromptComponent,
-  RefreshTokenPromptComponent,
   SidenavComponent,
   SocialComponent,
   TextAreaDialogComponent,
   TitleComponent,
   ToggleSectionComponent,
 ];
+const directives = [HighlightDirective];
 const modules = [
   CommonModule,
   FormsModule,
@@ -90,16 +92,8 @@ const pipes = [
 ];
 
 @NgModule({
-  declarations: [...components, ...pipes],
-  entryComponents: [
-    InputDialogComponent,
-    LogsDialogComponent,
-    MatchPromptComponent,
-    PromptComponent,
-    RefreshTokenPromptComponent,
-    TextAreaDialogComponent,
-  ],
-  exports: [...components, ...modules, ...pipes],
+  declarations: [...components, ...directives, ...pipes],
+  exports: [...components, ...directives, ...modules, ...pipes],
   imports: [...modules],
 })
 export class SharedModule {}

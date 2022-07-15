@@ -35,7 +35,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<GameServer>;
 
   public dataSource = new MatTableDataSource<GameServer>();
-  public displayedColumns: string[] = ['name', 'description', 'status', 'createdAt', 'actions'];
+  public displayedColumns = ['name', 'description', 'status', 'createdAt', 'actions'];
   public hasWriteAuthorization: boolean;
   public get queueId() {
     return this.params?.queueId;
@@ -82,7 +82,9 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     this.matSnackBar.open('Game Server is restarting...');
   }
 
-  public showDeletePrompt(record: GameServer) {
+  public showDeletePrompt($event: Event, record: GameServer) {
+    $event.stopPropagation();
+    
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [

@@ -1,11 +1,21 @@
 import { deploymentApiV1, secretApiV1, V1PodTemplateSpec, V1Probe } from '@tenlastic/kubernetes';
-import { GameServerDocument, Namespace, NamespaceRole } from '@tenlastic/mongoose-models';
+import { Authorization, AuthorizationRole, GameServerDocument } from '@tenlastic/mongoose-models';
+import * as Chance from 'chance';
 
 import { KubernetesGameServer } from '../game-server';
+
+const chance = new Chance();
 
 export const KubernetesGameServerSidecar = {
   delete: async (gameServer: GameServerDocument) => {
     const name = KubernetesGameServerSidecar.getName(gameServer);
+
+    /**
+     * =======================
+     * AUTHORIZATION
+     * =======================
+     */
+    await Authorization.findOneAndDelete({ name, namespaceId: gameServer.namespaceId });
 
     /**
      * ======================
@@ -30,20 +40,31 @@ export const KubernetesGameServerSidecar = {
     const name = KubernetesGameServerSidecar.getName(gameServer);
 
     /**
+     * =======================
+     * AUTHORIZATION
+     * =======================
+     */
+    const apiKey = chance.hash({ length: 64 });
+    await Authorization.create({
+      apiKey,
+      name,
+      namespaceId: gameServer.namespaceId,
+      roles: [AuthorizationRole.GameServersReadWrite],
+      system: true,
+    });
+
+    /**
      * ======================
      * SECRET
      * ======================
      */
-    const accessToken = Namespace.getAccessToken(gameServer.namespaceId, [
-      NamespaceRole.GameServers,
-    ]);
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },
         name,
       },
       stringData: {
-        ACCESS_TOKEN: accessToken,
+        API_KEY: apiKey,
         GAME_SERVER_CONTAINER: 'main',
         GAME_SERVER_ENDPOINT: `http://api.static:3000/game-servers/${gameServer._id}`,
         GAME_SERVER_PERSISTENT: gameServer.persistent ? 'true' : 'false',

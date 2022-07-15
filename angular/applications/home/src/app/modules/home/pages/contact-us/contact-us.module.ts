@@ -7,7 +7,6 @@ import { ContactUsComponent } from './contact-us.component';
 export const ROUTES: Routes = [{ path: '', component: ContactUsComponent }];
 
 @NgModule({
-  entryComponents: [],
   declarations: [ContactUsComponent],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })

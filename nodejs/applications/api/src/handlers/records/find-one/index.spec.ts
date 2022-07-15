@@ -61,7 +61,7 @@ describe('handlers/records/find-one', function () {
         _id: record._id.toString(),
         collectionId: collection._id,
       },
-      state: { user: user.toObject() },
+      state: { user },
     });
 
     await handler(ctx as any);

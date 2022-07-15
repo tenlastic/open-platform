@@ -3,9 +3,8 @@ import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context } from 'koa';
 
 export async function handler(ctx: Context) {
-  const user = ctx.state.apiKey || ctx.state.user;
-
-  const $match = await QueueMemberPermissions.where(ctx.request.query.where, user);
+  const credentials = { ...ctx.state };
+  const $match = await QueueMemberPermissions.where(credentials, ctx.request.query.where);
   if ($match === null) {
     throw new PermissionError();
   }

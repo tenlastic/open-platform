@@ -33,7 +33,7 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
   public collection: Collection;
   public dataSource = new MatTableDataSource<Record>();
-  public displayedColumns: string[];
+  public displayedColumns;
   public hasWriteAuthorization: boolean;
   public propertyColumns: string[];
 
@@ -89,7 +89,9 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
     this.socket.unsubscribe(this.subscription);
   }
 
-  public showDeletePrompt(record: Record) {
+  public showDeletePrompt($event: Event, record: Record) {
+    $event.stopPropagation();
+    
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [

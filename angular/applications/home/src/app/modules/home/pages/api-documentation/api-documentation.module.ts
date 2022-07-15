@@ -7,7 +7,6 @@ import { ApiDocumentationComponent } from './api-documentation.component';
 export const ROUTES: Routes = [{ path: '', component: ApiDocumentationComponent }];
 
 @NgModule({
-  entryComponents: [],
   declarations: [ApiDocumentationComponent],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })

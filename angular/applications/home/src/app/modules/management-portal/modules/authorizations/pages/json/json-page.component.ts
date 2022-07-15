@@ -56,6 +56,8 @@ export class AuthorizationsJsonPageComponent implements OnInit {
     const json = this.form.get('json').value;
     const values = JSON.parse(json) as Authorization;
 
+    values._id = this.data._id;
+
     try {
       this.data = await this.formService.upsert(this.authorizationService, values, {
         path: '../../',
@@ -66,9 +68,9 @@ export class AuthorizationsJsonPageComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.data ??= new Authorization({ roles: [], userId: '' });
+    this.data ??= new Authorization({ apiKey: '', name: '', roles: [], userId: '' });
 
-    const keys = ['roles', 'userId'];
+    const keys = ['apiKey', 'name', 'roles', 'userId'];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))
       .sort()

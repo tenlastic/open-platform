@@ -2,11 +2,10 @@ import { GameServer, GameServerPermissions } from '@tenlastic/mongoose-models';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
-  const user = ctx.state.apiKey || ctx.state.user;
-
   const { cpu, memory, preemptible } = ctx.request.body;
 
-  const existing = await GameServerPermissions.findOne({}, { where: ctx.params }, user);
+  const credentials = { ...ctx.state };
+  const existing = await GameServerPermissions.findOne(credentials, { where: ctx.params }, {});
   if (!existing) {
     throw new RecordNotFoundError('Record');
   }
@@ -19,8 +18,13 @@ export async function handler(ctx: Context) {
     preemptible || existing.preemptible,
   );
 
-  const result = await GameServerPermissions.update(existing, ctx.request.body, ctx.params, user);
-  const record = await GameServerPermissions.read(result, user);
+  const result = await GameServerPermissions.update(
+    credentials,
+    ctx.params,
+    ctx.request.body,
+    existing,
+  );
+  const record = await GameServerPermissions.read(credentials, result);
 
   ctx.response.body = { record };
 }

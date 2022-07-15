@@ -3,7 +3,6 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
   const { collectionId } = ctx.params;
-  const user = ctx.state.apiKey || ctx.state.user;
 
   const collection = await Collection.findOne({ _id: collectionId });
   if (!collection) {
@@ -13,8 +12,13 @@ export async function handler(ctx: Context) {
   const Model = RecordSchema.getModel(collection);
   const Permissions = RecordSchema.getPermissions(Model, collection);
 
-  const results = await Permissions.find(ctx.request.query, { where: { collectionId } }, user);
-  const records = await Promise.all(results.map((r) => Permissions.read(r, user)));
+  const credentials = { ...ctx.state };
+  const results = await Permissions.find(
+    credentials,
+    { where: { collectionId } },
+    ctx.request.query,
+  );
+  const records = await Promise.all(results.map((r) => Permissions.read(credentials, r)));
 
   ctx.response.body = { records };
 }

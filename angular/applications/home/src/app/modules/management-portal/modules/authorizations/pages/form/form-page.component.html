@@ -18,7 +18,30 @@
         [formGroup]="form"
         autocomplete="off">
     <div class="row">
-      <app-autocomplete-user-field [control]="form.get('user')"></app-autocomplete-user-field>
+      <mat-form-field floatLabel="always">
+        <mat-label>Type</mat-label>
+        <mat-select formControlName="type">
+          <mat-option *ngFor="let type of AuthorizationType | keyvalue"
+                      [value]="type.value">
+            {{ type.value }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Choose a type.</mat-error>
+      </mat-form-field>
+
+      <ng-container *ngIf="type === AuthorizationType.ApiKey">
+        <mat-form-field floatLabel="always">
+          <mat-label>Name</mat-label>
+          <input matInput
+                 formControlName="name"
+                 required />
+          <mat-error>Enter a name.</mat-error>
+        </mat-form-field>
+      </ng-container>
+
+      <ng-container *ngIf="type === AuthorizationType.User">
+        <app-autocomplete-user-field [control]="form.get('user')"></app-autocomplete-user-field>
+      </ng-container>
     </div>
 
     <app-toggle-section formGroupName="roles"

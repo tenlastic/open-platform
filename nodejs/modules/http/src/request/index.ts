@@ -1,6 +1,7 @@
 import * as request from 'request';
 import * as requestPromiseNative from 'request-promise-native';
 
+import { getApiKey } from '../api-key';
 import { getAccessToken } from '../tokens';
 
 export async function promise(url: string, options?: requestPromiseNative.RequestPromiseOptions) {
@@ -20,7 +21,10 @@ async function getHeaders(url: string, options?: request.CoreOptions) {
     headers['Content-Type'] = 'application/json';
   }
 
-  if (!url.includes('/logins/refresh-token')) {
+  const apiKey = getApiKey();
+  if (apiKey) {
+    headers['X-Api-Key'] = apiKey;
+  } else if (!url.includes('/logins/refresh-token')) {
     const accessToken = await getAccessToken();
     headers.Authorization = `Bearer ${accessToken}`;
   }

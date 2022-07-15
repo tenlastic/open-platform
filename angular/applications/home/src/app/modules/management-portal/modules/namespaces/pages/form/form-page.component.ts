@@ -60,6 +60,7 @@ export class NamespacesFormPageComponent implements OnInit {
     }
 
     const values: Partial<Namespace> = {
+      _id: this.data._id,
       limits: this.form.get('limits').value,
       name: this.form.get('name').value,
     };

@@ -38,7 +38,7 @@ describe('handlers/find-one', function () {
       params: {
         _id: record._id,
       },
-      state: { user: user.toObject() },
+      state: { user },
     });
 
     const handler = findOne(ArticlePermissions);

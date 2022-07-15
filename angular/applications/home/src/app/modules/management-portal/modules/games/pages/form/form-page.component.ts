@@ -90,6 +90,7 @@ export class GamesFormPageComponent implements OnInit {
     }, {});
 
     const values: Partial<Game> = {
+      _id: this.data._id,
       access: this.form.get('access').value,
       description: this.form.get('description').value,
       metadata,

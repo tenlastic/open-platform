@@ -101,7 +101,7 @@ export class BuildSchema implements IOriginalDocument {
   @prop({ enum: BuildPlatform, immutable: true, required: true })
   public platform: BuildPlatform;
 
-  @prop()
+  @prop({ default: null })
   public publishedAt: Date;
 
   @prop()

@@ -9,7 +9,7 @@ import { URL } from 'url';
 import { copy } from './copy';
 import { unzip } from './unzip';
 
-const accessToken = process.env.ACCESS_TOKEN;
+const apiKey = process.env.API_KEY;
 const buildId = process.env.BUILD_ID;
 const minioBucket = process.env.MINIO_BUCKET;
 const minioConnectionString = process.env.MINIO_CONNECTION_STRING;
@@ -26,7 +26,7 @@ minio.connect({
 (async () => {
   try {
     const response = await requestPromiseNative.get({
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: { 'X-Api-Key': apiKey },
       json: true,
       url: `http://api.static:3000/builds/${buildId}`,
     });
@@ -35,7 +35,7 @@ minio.connect({
     // Copy unmodified Files from previous Build.
     if (build.reference) {
       const referenceBuildResponse = await requestPromiseNative.get({
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: { 'X-Api-Key': apiKey },
         json: true,
         url: `http://api.static:3000/builds/${build.reference._id}`,
       });
@@ -76,7 +76,7 @@ minio.connect({
     // Update the Build.
     await requestPromiseNative.put({
       body: { files: build.files },
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: { 'X-Api-Key': apiKey },
       json: true,
       url: `http://api.static:3000/builds/${buildId}`,
     });

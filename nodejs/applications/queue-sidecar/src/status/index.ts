@@ -2,7 +2,7 @@ import { IQueue, queueQuery } from '@tenlastic/http';
 import { podApiV1, V1Pod } from '@tenlastic/kubernetes';
 import * as requestPromiseNative from 'request-promise-native';
 
-const accessToken = process.env.ACCESS_TOKEN;
+const apiKey = process.env.API_KEY;
 const endpoint = process.env.QUEUE_ENDPOINT;
 const podLabelSelector = process.env.QUEUE_POD_LABEL_SELECTOR;
 const queue = JSON.parse(process.env.QUEUE_JSON);
@@ -114,7 +114,7 @@ async function updateQueue() {
   const { version } = require('../../package.json');
 
   await requestPromiseNative.put({
-    headers: { Authorization: `Bearer ${accessToken}` },
+    headers: { 'X-Api-Key': apiKey },
     json: { status: { components, nodes, phase, version } },
     url: endpoint,
   });

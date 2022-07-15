@@ -65,7 +65,7 @@ export namespace IAuthorization {
 }
 
 export class Authorization extends Model {
-  public key: string;
+  public apiKey: string;
   public name: string;
   public namespace: Namespace;
   public namespaceId: string;

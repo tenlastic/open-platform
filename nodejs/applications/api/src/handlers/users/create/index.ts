@@ -3,15 +3,12 @@ import { Context } from '@tenlastic/web-server';
 import { UserPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
-  const user = await UserPermissions.create(
-    ctx.request.body,
-    {},
-    ctx.state.apiKey || ctx.state.user,
-  );
+  const credentials = { ...ctx.state };
+  const user = await UserPermissions.create(credentials, {}, ctx.request.body);
 
   // Refresh the User's accessible fields.
-  const result = await UserPermissions.findOne({}, { where: { _id: user._id } }, user);
-  const record = await UserPermissions.read(result, user);
+  const result = await UserPermissions.findOne(credentials, { where: { _id: user._id } }, {});
+  const record = await UserPermissions.read(credentials, result);
 
   ctx.response.body = { record };
 }

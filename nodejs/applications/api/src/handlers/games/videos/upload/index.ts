@@ -5,15 +5,14 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
 export async function handler(ctx: Context) {
-  const user = ctx.state.apiKey || ctx.state.user;
-
-  const game = await GamePermissions.findOne({}, { where: { _id: ctx.params._id } }, user);
+  const credentials = { ...ctx.state };
+  const game = await GamePermissions.findOne(credentials, { where: { _id: ctx.params._id } }, {});
   if (!game) {
     throw new RecordNotFoundError('Game');
   }
 
   // Get permissions for the Game
-  const permissions = await GamePermissions.getFieldPermissions('update', game, user);
+  const permissions = await GamePermissions.getFieldPermissions(credentials, 'update', game);
   if (!permissions.includes('videos')) {
     throw new PermissionError();
   }
@@ -56,7 +55,7 @@ export async function handler(ctx: Context) {
   }
 
   const result = await Game.findOneAndUpdate({ _id: game._id }, { $addToSet: { videos: urls } });
-  const record = await GamePermissions.read(result, user);
+  const record = await GamePermissions.read(credentials, result);
 
   ctx.response.body = { record };
 }

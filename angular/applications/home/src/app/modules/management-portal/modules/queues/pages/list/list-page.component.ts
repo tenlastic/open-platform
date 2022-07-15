@@ -35,7 +35,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<Queue>;
 
   public dataSource = new MatTableDataSource<Queue>();
-  public displayedColumns: string[] = ['name', 'description', 'status', 'actions'];
+  public displayedColumns = ['name', 'description', 'status', 'actions'];
   public hasWriteAuthorization: boolean;
 
   private $queues: Observable<Queue[]>;
@@ -85,7 +85,9 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     this.matSnackBar.open('Queue is restarting...');
   }
 
-  public showDeletePrompt(record: Queue) {
+  public showDeletePrompt($event: Event, record: Queue) {
+    $event.stopPropagation();
+    
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [

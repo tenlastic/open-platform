@@ -1,11 +1,21 @@
 import { deploymentApiV1, secretApiV1, V1PodTemplateSpec, V1Probe } from '@tenlastic/kubernetes';
-import { Namespace, NamespaceRole, QueueDocument } from '@tenlastic/mongoose-models';
+import { Authorization, AuthorizationRole, QueueDocument } from '@tenlastic/mongoose-models';
+import * as Chance from 'chance';
 
 import { KubernetesQueue } from '../queue';
+
+const chance = new Chance();
 
 export const KubernetesQueueSidecar = {
   delete: async (queue: QueueDocument) => {
     const name = KubernetesQueueSidecar.getName(queue);
+
+    /**
+     * =======================
+     * AUTHORIZATION
+     * =======================
+     */
+    await Authorization.findOneAndDelete({ name, namespaceId: queue.namespaceId });
 
     /**
      * ======================
@@ -30,18 +40,31 @@ export const KubernetesQueueSidecar = {
     const name = KubernetesQueueSidecar.getName(queue);
 
     /**
+     * =======================
+     * AUTHORIZATION
+     * =======================
+     */
+    const apiKey = chance.hash({ length: 64 });
+    await Authorization.create({
+      apiKey,
+      name,
+      namespaceId: queue.namespaceId,
+      roles: [AuthorizationRole.QueuesReadWrite],
+      system: true,
+    });
+
+    /**
      * ======================
      * SECRET
      * ======================
      */
-    const accessToken = Namespace.getAccessToken(queue.namespaceId, [NamespaceRole.Queues]);
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' },
         name,
       },
       stringData: {
-        ACCESS_TOKEN: accessToken,
+        API_KEY: apiKey,
         API_URL: 'http://api.static:3000',
         QUEUE_ENDPOINT: `http://api.static:3000/queues/${queue._id}`,
         QUEUE_JSON: JSON.stringify(queue),

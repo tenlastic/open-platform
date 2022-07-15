@@ -58,6 +58,7 @@ export class WorkflowsJsonPageComponent implements OnInit {
     const json = this.form.get('json').value;
     const values = JSON.parse(json) as Workflow;
 
+    values._id = this.data._id;
     values.namespaceId = this.params.namespaceId;
 
     try {

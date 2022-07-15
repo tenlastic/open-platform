@@ -18,14 +18,15 @@ describe('models/login/model', function () {
     });
 
     it('returns an accessToken and refreshToken', async function () {
-      const { accessToken, refreshToken } = await Login.createWithAccessAndRefreshTokens({}, user);
+      const result = await Login.createAccessAndRefreshTokens(user);
 
-      expect(accessToken).to.exist;
-      expect(refreshToken).to.exist;
+      expect(result.accessToken).to.exist;
+      expect(result.refreshToken).to.exist;
+      expect(result.refreshTokenId).to.exist;
     });
 
     it('creates and returns a refreshToken', async function () {
-      const { refreshToken } = await Login.createWithAccessAndRefreshTokens({}, user);
+      const { refreshToken } = await Login.createAccessAndRefreshTokens(user);
 
       const { jti } = jwt.decode(refreshToken) as any;
       const count = await RefreshToken.countDocuments({ _id: jti, userId: user._id });
@@ -35,9 +36,9 @@ describe('models/login/model', function () {
 
     it('updates an existing refreshToken', async function () {
       const existingRefreshToken = await RefreshTokenMock.create({ userId: user._id });
-      const { refreshToken } = await Login.createWithAccessAndRefreshTokens(
-        { refreshTokenId: existingRefreshToken._id },
+      const { refreshToken } = await Login.createAccessAndRefreshTokens(
         user,
+        existingRefreshToken._id,
       );
 
       const { jti } = jwt.decode(refreshToken) as any;
@@ -48,7 +49,7 @@ describe('models/login/model', function () {
 
     it('throws an error', async function () {
       const jti = new mongoose.Types.ObjectId();
-      const promise = Login.createWithAccessAndRefreshTokens({ refreshTokenId: jti }, user);
+      const promise = Login.createAccessAndRefreshTokens(user, jti);
 
       return expect(promise).to.be.rejectedWith(`Cannot read property '_id' of null`);
     });

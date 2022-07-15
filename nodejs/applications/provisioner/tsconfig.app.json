@@ -11,6 +11,7 @@
   "references": [
     { "path": "../../modules/kubernetes/tsconfig.app.json" },
     { "path": "../../modules/logging/tsconfig.app.json" },
+    { "path": "../../modules/mongoose-change-stream-nats/tsconfig.app.json" },
     { "path": "../../modules/mongoose-models/tsconfig.app.json" },
     { "path": "../../modules/nats/tsconfig.app.json" },
     { "path": "../../modules/web-server/tsconfig.app.json" }

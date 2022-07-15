@@ -4,8 +4,6 @@ import { Context } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
 export async function handler(ctx: Context) {
-  const user = ctx.state.apiKey || ctx.state.user;
-
   const build = new Build();
   await new Promise((resolve, reject) => {
     const busboy = new Busboy({ headers: ctx.request.headers });
@@ -31,8 +29,9 @@ export async function handler(ctx: Context) {
   });
 
   try {
-    const result = await BuildPermissions.create(build.toObject(), { _id: build._id }, user);
-    const record = await BuildPermissions.read(result, user);
+    const credentials = { ...ctx.state };
+    const result = await BuildPermissions.create(credentials, { _id: build._id }, build.toObject());
+    const record = await BuildPermissions.read(credentials, result);
 
     ctx.response.body = { record };
   } catch (e) {

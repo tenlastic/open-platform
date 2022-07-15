@@ -4,11 +4,10 @@ import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
-  const user = ctx.state.apiKey || ctx.state.user;
-
   // Check if the user can access the record.
+  const credentials = { ...ctx.state };
   const override = { where: { _id: ctx.params._id } };
-  const queue = await QueuePermissions.findOne({}, override, user);
+  const queue = await QueuePermissions.findOne(credentials, override, {});
   if (!queue) {
     throw new RecordNotFoundError('Record');
   }
@@ -20,7 +19,7 @@ export async function handler(ctx: Context) {
   }
 
   // Check if the user can access the record's logs.
-  const permissions = await QueuePermissions.getFieldPermissions('read', queue, user);
+  const permissions = await QueuePermissions.getFieldPermissions(credentials, 'read', queue);
   if (!permissions.includes('logs')) {
     throw new PermissionError();
   }

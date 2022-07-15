@@ -1,3 +1,4 @@
+export { getApiKey, setApiKey } from './api-key';
 export { getApiUrl, setApiUrl } from './api-url';
 export { getAccessToken, getRefreshToken, setAccessToken, setRefreshToken } from './tokens';
 

@@ -194,6 +194,7 @@ export class WorkflowsFormPageComponent implements OnInit {
     });
 
     const values: Partial<Workflow> = {
+      _id: this.data._id,
       cpu: raw.cpu,
       memory: raw.memory,
       name: raw.name,

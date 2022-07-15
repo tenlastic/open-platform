@@ -7,8 +7,8 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
   Authorization,
   {
     create: {
-      'namespace-write': ['name', 'namespaceId', 'roles', 'userId'],
-      'user-write': ['name', 'namespaceId', 'roles', 'userId'],
+      'namespace-write': ['apiKey', 'name', 'namespaceId', 'roles', 'userId'],
+      'user-write': ['apiKey', 'name', 'namespaceId', 'roles', 'userId'],
     },
     delete: {
       'namespace-write': true,
@@ -23,23 +23,14 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
           ]),
           { userId: { $ref: 'user._id' } },
         ],
+        system: { $exists: false },
       },
       'user-read': {},
       'user-write': {},
     },
     populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
     read: {
-      default: [
-        '_id',
-        'createdAt',
-        'key',
-        'name',
-        'namespaceId',
-        'roles',
-        'system',
-        'updatedAt',
-        'userId',
-      ],
+      default: ['_id', 'createdAt', 'name', 'namespaceId', 'roles', 'updatedAt', 'userId'],
     },
     roles: [
       {

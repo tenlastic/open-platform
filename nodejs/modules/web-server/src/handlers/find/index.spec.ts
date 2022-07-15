@@ -32,7 +32,7 @@ describe('handlers/find', function () {
 
   it('returns the number of matching records', async function () {
     const ctx = new ContextMock({
-      state: { user: user.toObject() },
+      state: { user },
     });
 
     const handler = find(ArticlePermissions);

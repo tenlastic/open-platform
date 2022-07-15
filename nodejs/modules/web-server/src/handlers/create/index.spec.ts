@@ -40,7 +40,7 @@ describe('handlers/create', function () {
             title: chance.hash(),
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const handler = create(ArticlePermissions);
@@ -61,7 +61,7 @@ describe('handlers/create', function () {
             title: chance.hash(),
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const handler = create(ArticlePermissions);

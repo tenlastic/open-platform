@@ -54,7 +54,7 @@ describe('handlers/workflows/logs', function () {
 
       const ctx = new ContextMock({
         params: { _id: workflow._id, nodeId: workflow.status.nodes[0]._id },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       await handler(ctx as any);
@@ -74,7 +74,7 @@ describe('handlers/workflows/logs', function () {
 
       const ctx = new ContextMock({
         params: { _id: workflow._id, nodeId: chance.hash() },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const promise = handler(ctx as any);
@@ -89,7 +89,7 @@ describe('handlers/workflows/logs', function () {
 
       const ctx = new ContextMock({
         params: { _id: workflow._id, nodeId: chance.hash() },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const promise = handler(ctx as any);

@@ -10,9 +10,10 @@ export const AuthorizationPermissionsHelpers = {
             select: 'namespaceId',
             where: {
               $or: [
-                { key: { $ref: 'key' }, roles: { $in: roles } },
+                { apiKey: { $ref: 'apiKey' }, roles: { $in: roles } },
                 { roles: { $in: roles }, userId: { $ref: 'user._id' } },
               ],
+              namespaceId: { $exists: true },
             },
           },
         },
@@ -24,7 +25,7 @@ export const AuthorizationPermissionsHelpers = {
       $or: [
         {
           [`${selector}.authorizationDocuments`]: {
-            $elemMatch: { key: { $ref: 'key' }, roles: { $in: roles } },
+            $elemMatch: { apiKey: { $ref: 'apiKey' }, roles: { $in: roles } },
           },
         },
         {
@@ -40,7 +41,7 @@ export const AuthorizationPermissionsHelpers = {
       path,
       populate: [
         {
-          match: { $or: [{ key: { $ref: 'key' } }, { userId: { $ref: 'user._id' } }] },
+          match: { $or: [{ apiKey: { $ref: 'apiKey' } }, { userId: { $ref: 'user._id' } }] },
           path: 'authorizationDocuments',
         },
       ],
@@ -49,11 +50,11 @@ export const AuthorizationPermissionsHelpers = {
   getSystemRoleQuery(roles: AuthorizationRole[], selector = 'record.namespaceDocument') {
     return {
       [`${selector}.authorizationDocuments`]: {
-        $elemMatch: { key: { $ref: 'key' }, roles: { $in: roles }, system: true },
+        $elemMatch: { apiKey: { $ref: 'apiKey' }, roles: { $in: roles }, system: true },
       },
     };
   },
   getUserRoleQuery(roles: AuthorizationRole[]) {
-    return { [`user.authorizationDocument.roles`]: { $in: roles } };
+    return { 'authorization.roles': { $in: roles } };
   },
 };

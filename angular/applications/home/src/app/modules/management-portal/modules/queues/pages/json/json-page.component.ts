@@ -58,6 +58,7 @@ export class QueuesJsonPageComponent implements OnInit {
     const json = this.form.get('json').value;
     const values = JSON.parse(json) as Queue;
 
+    values._id = this.data._id;
     values.namespaceId = this.params.namespaceId;
 
     try {

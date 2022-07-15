@@ -2,17 +2,17 @@ import * as minio from '@tenlastic/minio';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
-import { Game, GamePermissions } from '@tenlastic/mongoose-models';
+import { GamePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
-  const user = ctx.state.apiKey || ctx.state.user;
-  const game = await GamePermissions.findOne({}, { where: { _id: ctx.params._id } }, user);
+  const credentials = { ...ctx.state };
+  const game = await GamePermissions.findOne(credentials, { where: { _id: ctx.params._id } }, {});
   if (!game) {
     throw new RecordNotFoundError('Game');
   }
 
   // Get permissions for the Game
-  const permissions = await GamePermissions.getFieldPermissions('read', game, user);
+  const permissions = await GamePermissions.getFieldPermissions(credentials, 'read', game);
   if (!permissions.includes('background')) {
     throw new PermissionError();
   }

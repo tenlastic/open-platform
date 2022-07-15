@@ -49,7 +49,7 @@ describe('handlers/update-one', function () {
             name: chance.hash(),
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const handler = updateOne(ArticlePermissions);
@@ -77,7 +77,7 @@ describe('handlers/update-one', function () {
             name: chance.hash(),
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const handler = updateOne(ArticlePermissions);

@@ -19,7 +19,7 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
 
   public $webSockets: Observable<WebSocket[]>;
   public dataSource = new MatTableDataSource<WebSocket>();
-  public displayedColumns: string[] = ['user', 'createdAt', 'disconnectedAt', 'duration'];
+  public displayedColumns = ['user', 'createdAt', 'disconnectedAt', 'duration'];
 
   private updateDataSource$ = new Subscription();
 

@@ -1,4 +1,4 @@
-import { IDatabasePayload, DatabaseOperationType } from '@tenlastic/mongoose-models';
+import { IDatabasePayload, DatabaseOperationType, Authorization } from '@tenlastic/mongoose-models';
 import { filterObject, isJsonValid, MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import nats from '@tenlastic/nats';
 import { JetStreamSubscription } from 'nats';
@@ -33,11 +33,15 @@ export async function subscribe(
   const coll = Model.collection.name;
   const db = Model.db.db.databaseName;
   const subject = `${db}.${coll}`;
-  const user = auth.key || auth.jwt.user;
 
   // Generate group ID for NATS consumer.
+  const authorization = await Authorization.findOne({
+    namespaceId: { $exists: false },
+    userId: auth.jwt?.user?._id,
+  });
+  const credentials = { apiKey: auth.key, authorization, user: auth.jwt.user };
   const resumeToken = data.parameters.resumeToken || new mongoose.Types.ObjectId();
-  const username = typeof user === 'string' ? user : user.username;
+  const username = credentials.apiKey || credentials.user.username;
   const durable = `${subject}-${username}-${resumeToken}`.replace(/\./g, '-');
 
   // Create a NATS consumer.
@@ -55,6 +59,8 @@ export async function subscribe(
       const decoding = new TextDecoder().decode(message.data);
       const json = JSON.parse(decoding) as IDatabasePayload<any>;
 
+      console.log(json.operationType);
+
       // Filter by operation type.
       const { parameters } = data;
       if (parameters.operationType && !parameters.operationType.includes(json.operationType)) {
@@ -62,19 +68,20 @@ export async function subscribe(
       }
 
       // Handle the where clause.
-      const where = await Permissions.where(parameters.where || {}, user);
+      const where = await Permissions.where(credentials, parameters.where || {});
       if (!isJsonValid(json.fullDocument, where)) {
+        console.log('JSON is invalid.');
         continue;
       }
 
       // Strip document of unauthorized information.
       const document = new Model(json.fullDocument);
-      const fullDocument = await Permissions.read(document, user);
+      const fullDocument = await Permissions.read(credentials, document);
 
       // Strip update description of unauthorized information.
       let updateDescription;
       if (json.updateDescription) {
-        const permissions = await Permissions.getFieldPermissions('read', json.fullDocument, user);
+        const permissions = await Permissions.getFieldPermissions(credentials, 'read', document);
         const { removedFields, updatedFields } = json.updateDescription;
 
         updateDescription = {

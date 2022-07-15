@@ -66,7 +66,7 @@ describe('handlers/records/create', function () {
       request: {
         body: { properties },
       },
-      state: { user: user.toObject() },
+      state: { user },
     });
 
     await handler(ctx as any);

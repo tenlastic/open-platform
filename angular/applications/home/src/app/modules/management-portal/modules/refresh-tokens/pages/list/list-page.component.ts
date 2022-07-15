@@ -22,7 +22,7 @@ export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
 
   public $refreshTokens: Observable<RefreshToken[]>;
   public dataSource = new MatTableDataSource<RefreshToken>();
-  public displayedColumns: string[] = ['_id', 'createdAt', 'updatedAt', 'expiresAt', 'actions'];
+  public displayedColumns = ['_id', 'createdAt', 'updatedAt', 'expiresAt', 'actions'];
 
   private updateDataSource$ = new Subscription();
 
@@ -43,7 +43,9 @@ export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public showDeletePrompt(record: RefreshToken) {
+  public showDeletePrompt($event: Event, record: RefreshToken) {
+    $event.stopPropagation();
+    
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [

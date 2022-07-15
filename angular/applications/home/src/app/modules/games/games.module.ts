@@ -72,7 +72,6 @@ export const ROUTES: Routes = [
     QueuesPageComponent,
     StatusComponent,
   ],
-  entryComponents: [ArticleComponent],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })
 export class GamesModule {}

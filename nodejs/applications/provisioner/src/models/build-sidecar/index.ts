@@ -1,18 +1,21 @@
-import {
-  deploymentApiV1,
-  secretApiV1,
-  V1PodTemplateSpec,
-  V1Probe,
-  workflowApiV1,
-} from '@tenlastic/kubernetes';
-import { BuildDocument, Namespace, NamespaceRole } from '@tenlastic/mongoose-models';
+import { deploymentApiV1, secretApiV1, V1PodTemplateSpec, V1Probe } from '@tenlastic/kubernetes';
+import { Authorization, AuthorizationRole, BuildDocument } from '@tenlastic/mongoose-models';
+import * as Chance from 'chance';
 
-import { wait } from '../../wait';
 import { KubernetesBuild } from '../build';
+
+const chance = new Chance();
 
 export const KubernetesBuildSidecar = {
   delete: async (build: BuildDocument) => {
     const name = KubernetesBuildSidecar.getName(build);
+
+    /**
+     * =======================
+     * AUTHORIZATION
+     * =======================
+     */
+    await Authorization.findOneAndDelete({ name, namespaceId: build.namespaceId });
 
     /**
      * ======================
@@ -36,34 +39,32 @@ export const KubernetesBuildSidecar = {
     const buildName = KubernetesBuild.getName(build);
     const name = KubernetesBuildSidecar.getName(build);
 
-    const uid = await wait(1000, 15 * 1000, async () => {
-      const response = await workflowApiV1.read(KubernetesBuild.getName(build), 'dynamic');
-      return response.body.metadata.uid;
+    /**
+     * =======================
+     * AUTHORIZATION
+     * =======================
+     */
+    const apiKey = chance.hash({ length: 64 });
+    await Authorization.create({
+      apiKey,
+      name,
+      namespaceId: build.namespaceId,
+      roles: [AuthorizationRole.BuildsReadWrite],
+      system: true,
     });
-    const ownerReferences = [
-      {
-        apiVersion: 'argoproj.io/v1alpha1',
-        controller: true,
-        kind: 'Workflow',
-        name: buildName,
-        uid,
-      },
-    ];
 
     /**
      * ======================
      * SECRET
      * ======================
      */
-    const accessToken = Namespace.getAccessToken(build.namespaceId, [NamespaceRole.Builds]);
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...buildLabels, 'tenlastic.com/role': 'sidecar' },
         name,
-        ownerReferences,
       },
       stringData: {
-        ACCESS_TOKEN: accessToken,
+        API_KEY: apiKey,
         WORKFLOW_ENDPOINT: `http://api.static:3000/builds/${build._id}`,
         WORKFLOW_NAME: buildName,
       },
@@ -153,7 +154,6 @@ export const KubernetesBuildSidecar = {
       metadata: {
         labels: { ...buildLabels, 'tenlastic.com/role': 'sidecar' },
         name,
-        ownerReferences,
       },
       spec: {
         replicas: 1,

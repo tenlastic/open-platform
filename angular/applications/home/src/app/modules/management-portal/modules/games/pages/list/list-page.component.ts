@@ -29,7 +29,7 @@ export class GamesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<Game>;
 
   public dataSource = new MatTableDataSource<Game>();
-  public displayedColumns: string[] = ['title', 'subtitle', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns = ['title', 'subtitle', 'createdAt', 'updatedAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
   private $games: Observable<Game[]>;
@@ -64,7 +64,9 @@ export class GamesListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public showDeletePrompt(record: Game) {
+  public showDeletePrompt($event: Event, record: Game) {
+    $event.stopPropagation();
+    
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [

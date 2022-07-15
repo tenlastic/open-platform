@@ -5,26 +5,12 @@ metadata:
   namespace: dynamic
 rules:
   - apiGroups:
-      - ""
+      - argoproj.io
     resources:
-      - pods
-    verbs:
-      - get
-      - patch
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - pods/exec
+      - workflowtaskresults
     verbs:
       - create
-  - apiGroups:
-      - ""
-    resources:
-      - pods/log
-    verbs:
-      - get
-      - watch
+      - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

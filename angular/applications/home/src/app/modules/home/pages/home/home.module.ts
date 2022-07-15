@@ -7,7 +7,6 @@ import { HomeComponent } from './home.component';
 export const ROUTES: Routes = [{ path: '', component: HomeComponent }];
 
 @NgModule({
-  entryComponents: [],
   declarations: [HomeComponent],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })

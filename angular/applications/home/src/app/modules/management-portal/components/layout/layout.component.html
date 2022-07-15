@@ -14,6 +14,17 @@
   <app-social>
     <app-sidenav>
       <div class="nav">
+        <app-button *ngIf="$hasPermission(IAuthorization.authorizationRoles) | async"
+                    color="accent"
+                    layout="vertical"
+                    routerLink="authorizations"
+                    routerLinkActive="active"
+                    text="left"
+                    width="full">
+          <mat-icon>vpn_key</mat-icon>
+          <span>Authorizations</span>
+        </app-button>
+
         <app-button *ngIf="$hasPermission(IAuthorization.namespaceRoles) | async"
                     color="accent"
                     layout="vertical"

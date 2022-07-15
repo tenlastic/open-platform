@@ -62,7 +62,7 @@ describe('handlers/games/images/upload', function () {
           host: 'localhost:3000',
           protocol: 'http',
         },
-        state: { user: user.toObject() },
+        state: { user },
       } as any);
     });
 
@@ -130,7 +130,7 @@ describe('handlers/games/images/upload', function () {
         params: {
           _id: game._id,
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const promise = handler(ctx as any);

@@ -36,7 +36,7 @@ describe('permissions', function () {
 
     context('when user is an admin', function () {
       it('returns all the records', async function () {
-        const results = await ExamplePermissions.count({}, {}, admin);
+        const results = await ExamplePermissions.count({ user: admin }, {}, {});
 
         expect(results).to.eql(2);
       });
@@ -44,7 +44,7 @@ describe('permissions', function () {
 
     context('when user is not an admin', function () {
       it('throws an error', async function () {
-        const promise = ExamplePermissions.count({}, {}, user);
+        const promise = ExamplePermissions.count({ user }, {}, {});
 
         return expect(promise).to.be.rejectedWith(PermissionError);
       });
@@ -62,7 +62,7 @@ describe('permissions', function () {
           },
         };
 
-        const record = await ExamplePermissions.create(params, {}, admin);
+        const record = await ExamplePermissions.create({ user: admin }, {}, params);
 
         expect(record._id).to.exist;
         expect(record.createdAt).to.exist;
@@ -77,7 +77,7 @@ describe('permissions', function () {
       it('throws an error', async function () {
         const params = { name: chance.hash() };
 
-        const promise = ExamplePermissions.create(params, {}, user);
+        const promise = ExamplePermissions.create({ user }, {}, params);
 
         return expect(promise).to.be.rejectedWith(PermissionError);
       });
@@ -93,7 +93,7 @@ describe('permissions', function () {
 
     context('when the user is an admin', function () {
       it('returns the user', async function () {
-        const results = await ExamplePermissions.delete(record, admin);
+        const results = await ExamplePermissions.delete({ user: admin }, record);
 
         expect(results._id.toString()).to.eql(record._id.toString());
         expect(results.createdAt).to.eql(record.createdAt);
@@ -104,7 +104,7 @@ describe('permissions', function () {
 
     context('when the user is not an admin', function () {
       it('throws an error', async function () {
-        const promise = ExamplePermissions.delete(record, user);
+        const promise = ExamplePermissions.delete({ user }, record);
 
         return expect(promise).to.be.rejectedWith(PermissionError);
       });
@@ -118,7 +118,7 @@ describe('permissions', function () {
 
     context('when user is an admin', function () {
       it('returns all the records', async function () {
-        const results = await ExamplePermissions.find({}, {}, admin);
+        const results = await ExamplePermissions.find({ user: admin }, {}, {});
 
         expect(results.length).to.eql(1);
       });
@@ -126,7 +126,7 @@ describe('permissions', function () {
 
     context('when user is not an admin', function () {
       it('throws an error', async function () {
-        const promise = ExamplePermissions.find({}, {}, user);
+        const promise = ExamplePermissions.find({ user }, {}, {});
 
         return expect(promise).to.be.rejectedWith(PermissionError);
       });
@@ -147,7 +147,7 @@ describe('permissions', function () {
 
     context('when user is an admin', function () {
       it('returns the record', async function () {
-        const result = await ExamplePermissions.read(record, admin);
+        const result = await ExamplePermissions.read({ user: admin }, record);
 
         expect(result._id).to.exist;
         expect(result.createdAt).to.exist;
@@ -160,7 +160,7 @@ describe('permissions', function () {
 
     context('when user is not an admin', function () {
       it('returns the record', async function () {
-        const result = await ExamplePermissions.read(record, user);
+        const result = await ExamplePermissions.read({ user }, record);
 
         expect(result._id).to.exist;
         expect(result.createdAt).to.exist;
@@ -211,7 +211,9 @@ describe('permissions', function () {
           urls: [chance.url()],
         };
 
-        record = await ExamplePermissions.update(record, params, {}, admin, ['properties']);
+        record = await ExamplePermissions.update({ user: admin }, {}, params, record, [
+          'properties',
+        ]);
 
         expect(record._id.toString()).to.eql(record._id.toString());
         expect(record.createdAt).to.exist;
@@ -231,7 +233,7 @@ describe('permissions', function () {
       it('throws an error', async function () {
         const params = { name: chance.hash() };
 
-        const promise = ExamplePermissions.update(record, params, {}, user);
+        const promise = ExamplePermissions.update({ user }, {}, params, record);
 
         return expect(promise).to.be.rejectedWith(PermissionError);
       });
@@ -241,7 +243,7 @@ describe('permissions', function () {
   describe('where()', function () {
     context('when the user is an admin', function () {
       it('returns a valid where query', async function () {
-        const query = await ExamplePermissions.where({}, admin);
+        const query = await ExamplePermissions.where({ user: admin }, {});
 
         expect(query).to.be.empty;
       });
@@ -249,7 +251,7 @@ describe('permissions', function () {
 
     context('when the user is not an admin', function () {
       it('returns null', async function () {
-        const result = await ExamplePermissions.where({}, user);
+        const result = await ExamplePermissions.where({ user }, {});
 
         expect(result).to.eql(null);
       });

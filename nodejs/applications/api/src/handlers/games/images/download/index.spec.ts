@@ -41,7 +41,7 @@ describe('handlers/games/images/download', function () {
         _id,
         gameId: game._id,
       },
-      state: { user: user.toObject() },
+      state: { user },
     } as any);
 
     await handler(ctx as any);

@@ -2,7 +2,6 @@ export * from './build';
 export * from './build-sidecar';
 export * from './game-server';
 export * from './game-server-sidecar';
-export * from './namespace';
 export * from './queue';
 export * from './queue-sidecar';
 export * from './workflow';

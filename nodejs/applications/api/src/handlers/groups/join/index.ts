@@ -17,7 +17,9 @@ export async function handler(ctx: Context) {
     { _id: ctx.params._id },
     { $addToSet: { userIds: ctx.state.user._id } },
   );
-  const filteredRecord = await GroupPermissions.read(record, ctx.state.apiKey || ctx.state.user);
+
+  const credentials = { ...ctx.state };
+  const filteredRecord = await GroupPermissions.read(credentials, record);
 
   const groupInvitations = await GroupInvitation.find({ toUserId: ctx.state.user._id });
   for (const groupInvitation of groupInvitations) {

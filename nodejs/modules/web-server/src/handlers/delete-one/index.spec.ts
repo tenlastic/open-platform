@@ -42,7 +42,7 @@ describe('handlers/delete-one', function () {
         params: {
           _id: record._id,
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const handler = deleteOne(ArticlePermissions);
@@ -65,7 +65,7 @@ describe('handlers/delete-one', function () {
         params: {
           _id: record._id,
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const handler = deleteOne(ArticlePermissions);

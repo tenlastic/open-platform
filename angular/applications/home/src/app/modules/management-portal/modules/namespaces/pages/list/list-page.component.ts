@@ -28,7 +28,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<Namespace>;
 
   public dataSource = new MatTableDataSource<Namespace>();
-  public displayedColumns: string[] = ['name', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns = ['name', 'createdAt', 'updatedAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
   private $namespaces: Observable<Namespace[]>;
@@ -64,7 +64,9 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
     return this.authorizationQuery.hasRoles(namespaceId, roles, userId);
   }
 
-  public showDeletePrompt(record: Namespace) {
+  public showDeletePrompt($event: Event, record: Namespace) {
+    $event.stopPropagation();
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [

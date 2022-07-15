@@ -1,14 +1,13 @@
 import { networkPolicyApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
 import {
+  DatabaseOperationType,
   WorkflowDocument,
   WorkflowSpecTemplate,
   WorkflowSpecTemplateSchema,
 } from '@tenlastic/mongoose-models';
 
-import { KubernetesNamespace } from '../namespace';
-
 export const KubernetesWorkflow = {
-  delete: async (workflow: WorkflowDocument) => {
+  delete: async (workflow: WorkflowDocument, operationType?: DatabaseOperationType) => {
     const name = KubernetesWorkflow.getName(workflow);
 
     /**
@@ -23,7 +22,9 @@ export const KubernetesWorkflow = {
      * WORKFLOW
      * ======================
      */
-    await workflowApiV1.delete(name, 'dynamic');
+    if (operationType === 'delete') {
+      await workflowApiV1.delete(name, 'dynamic');
+    }
   },
   getLabels: (workflow: WorkflowDocument) => {
     const name = KubernetesWorkflow.getName(workflow);
@@ -39,7 +40,6 @@ export const KubernetesWorkflow = {
   upsert: async (workflow: WorkflowDocument) => {
     const labels = KubernetesWorkflow.getLabels(workflow);
     const name = KubernetesWorkflow.getName(workflow);
-    const namespace = KubernetesNamespace.getName(workflow.namespaceId);
 
     /**
      * =======================
@@ -106,7 +106,6 @@ export const KubernetesWorkflow = {
         labels: {
           ...labels,
           'tenlastic.com/role': 'application',
-          'workflows.argoproj.io/controller-instanceid': namespace,
         },
         name,
       },

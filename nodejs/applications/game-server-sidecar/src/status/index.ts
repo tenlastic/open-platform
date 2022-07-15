@@ -1,7 +1,7 @@
 import { nodeApiV1, podApiV1, V1Pod } from '@tenlastic/kubernetes';
 import * as requestPromiseNative from 'request-promise-native';
 
-const accessToken = process.env.ACCESS_TOKEN;
+const apiKey = process.env.API_KEY;
 const container = process.env.GAME_SERVER_CONTAINER;
 const endpoint = process.env.GAME_SERVER_ENDPOINT;
 const persistent = process.env.GAME_SERVER_PERSISTENT === 'true';
@@ -52,10 +52,7 @@ export async function status() {
 async function deleteGameServer() {
   console.log(`Deleting Game Server...`);
 
-  await requestPromiseNative.delete({
-    headers: { Authorization: `Bearer ${accessToken}` },
-    url: endpoint,
-  });
+  await requestPromiseNative.delete({ headers: { 'X-Api-Key': apiKey }, url: endpoint });
 
   console.log('Game Server deleted successfully.');
 }
@@ -128,7 +125,7 @@ async function updateGameServer() {
   const { version } = require('../../package.json');
 
   await requestPromiseNative.put({
-    headers: { Authorization: `Bearer ${accessToken}` },
+    headers: { 'X-Api-Key': apiKey },
     json: { status: { endpoints, nodes, phase, version } },
     url: endpoint,
   });

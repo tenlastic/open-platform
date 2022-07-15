@@ -61,7 +61,7 @@ describe('handlers/records/count', function () {
       params: {
         collectionId: collection._id,
       },
-      state: { user: user.toObject() },
+      state: { user },
     });
 
     await handler(ctx as any);

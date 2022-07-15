@@ -32,7 +32,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<Build>;
 
   public dataSource = new MatTableDataSource<Build>();
-  public displayedColumns: string[] = ['name', 'platform', 'status', 'publishedAt', 'actions'];
+  public displayedColumns = ['name', 'platform', 'status', 'publishedAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
   private $builds: Observable<Build[]>;
@@ -129,7 +129,9 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     }
   }
 
-  public showDeletePrompt(record: Build) {
+  public showDeletePrompt($event: Event, record: Build) {
+    $event.stopPropagation();
+    
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [

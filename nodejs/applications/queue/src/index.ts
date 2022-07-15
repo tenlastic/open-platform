@@ -4,7 +4,7 @@ import {
   queueMemberService,
   queueQuery,
   queueService,
-  setAccessToken,
+  setApiKey,
   setApiUrl,
   WebSocket,
 } from '@tenlastic/http';
@@ -13,7 +13,7 @@ import { WebServer } from '@tenlastic/web-server';
 import { createGameServer } from './create-game-server';
 import * as redis from './redis';
 
-const accessToken = process.env.ACCESS_TOKEN;
+const apiKey = process.env.API_KEY;
 const apiUrl = process.env.API_URL;
 const podName = process.env.POD_NAME;
 const queue = JSON.parse(process.env.QUEUE_JSON);
@@ -21,7 +21,7 @@ const wssUrl = process.env.WSS_URL;
 
 (async () => {
   try {
-    setAccessToken(accessToken);
+    setApiKey(apiKey);
     setApiUrl(apiUrl);
 
     // Redis.

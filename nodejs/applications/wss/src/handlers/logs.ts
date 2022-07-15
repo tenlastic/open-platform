@@ -1,5 +1,6 @@
 import { podApiV1 } from '@tenlastic/kubernetes';
 import {
+  Authorization,
   BuildPermissions,
   GameServerPermissions,
   QueuePermissions,
@@ -62,9 +63,13 @@ export async function logs(
   }
 
   // Check if the user can access the record.
+  const authorization = await Authorization.findOne({
+    namespaceId: { $exists: false },
+    userId: auth.jwt?.user?._id,
+  });
+  const credentials = { apiKey: auth.key, authorization, user: auth.jwt.user };
   const override = { where: { _id } };
-  const user = auth.key || auth.jwt.user;
-  const record = await Permissions.findOne({}, override, user);
+  const record = await Permissions.findOne(credentials, override, {});
   if (!record) {
     throw new RecordNotFoundError('Record');
   }
@@ -76,7 +81,7 @@ export async function logs(
   }
 
   // Check if the user can access the record's logs.
-  const permissions = await Permissions.getFieldPermissions('read', record, user);
+  const permissions = await Permissions.getFieldPermissions(credentials, 'read', record);
   if (!permissions.includes('logs')) {
     throw new PermissionError();
   }

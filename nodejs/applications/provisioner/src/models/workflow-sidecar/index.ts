@@ -1,18 +1,21 @@
-import {
-  deploymentApiV1,
-  secretApiV1,
-  V1PodTemplateSpec,
-  V1Probe,
-  workflowApiV1,
-} from '@tenlastic/kubernetes';
-import { Namespace, NamespaceRole, WorkflowDocument } from '@tenlastic/mongoose-models';
+import { deploymentApiV1, secretApiV1, V1PodTemplateSpec, V1Probe } from '@tenlastic/kubernetes';
+import { Authorization, AuthorizationRole, WorkflowDocument } from '@tenlastic/mongoose-models';
+import * as Chance from 'chance';
 
-import { wait } from '../../wait';
 import { KubernetesWorkflow } from '../workflow';
 
+const chance = new Chance();
+
 export const KubernetesWorkflowSidecar = {
-  delete: async (build: WorkflowDocument) => {
-    const name = KubernetesWorkflowSidecar.getName(build);
+  delete: async (workflow: WorkflowDocument) => {
+    const name = KubernetesWorkflowSidecar.getName(workflow);
+
+    /**
+     * =======================
+     * AUTHORIZATION
+     * =======================
+     */
+    await Authorization.findOneAndDelete({ name, namespaceId: workflow.namespaceId });
 
     /**
      * ======================
@@ -36,34 +39,32 @@ export const KubernetesWorkflowSidecar = {
     const workflowLabels = KubernetesWorkflow.getLabels(workflow);
     const workflowName = KubernetesWorkflow.getName(workflow);
 
-    const uid = await wait(1000, 15 * 1000, async () => {
-      const response = await workflowApiV1.read(KubernetesWorkflow.getName(workflow), 'dynamic');
-      return response.body.metadata.uid;
+    /**
+     * =======================
+     * AUTHORIZATION
+     * =======================
+     */
+    const apiKey = chance.hash({ length: 64 });
+    await Authorization.create({
+      apiKey,
+      name,
+      namespaceId: workflow.namespaceId,
+      roles: [AuthorizationRole.WorkflowsReadWrite],
+      system: true,
     });
-    const ownerReferences = [
-      {
-        apiVersion: 'argoproj.io/v1alpha1',
-        controller: true,
-        kind: 'Workflow',
-        name: workflowName,
-        uid,
-      },
-    ];
 
     /**
      * ======================
      * SECRET
      * ======================
      */
-    const accessToken = Namespace.getAccessToken(workflow.namespaceId, [NamespaceRole.Workflows]);
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' },
         name,
-        ownerReferences,
       },
       stringData: {
-        ACCESS_TOKEN: accessToken,
+        API_KEY: apiKey,
         WORKFLOW_ENDPOINT: `http://api.static:3000/workflows/${workflow._id}`,
         WORKFLOW_NAME: workflowName,
       },
@@ -154,7 +155,6 @@ export const KubernetesWorkflowSidecar = {
       metadata: {
         labels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' },
         name,
-        ownerReferences,
       },
       spec: {
         replicas: 1,

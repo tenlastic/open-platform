@@ -26,7 +26,6 @@ export const ROUTES: Routes = [
     GamesMultimediaFormPageComponent,
     MediaDialogComponent,
   ],
-  entryComponents: [MediaDialogComponent],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })
 export class GameModule {}

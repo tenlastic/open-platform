@@ -47,7 +47,7 @@ describe('handlers/game-servers/create', function () {
             namespaceId: namespace._id,
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       await handler(ctx as any);
@@ -78,7 +78,7 @@ describe('handlers/game-servers/create', function () {
             namespaceId: namespace._id,
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const promise = handler(ctx as any);
@@ -103,7 +103,7 @@ describe('handlers/game-servers/create', function () {
             namespaceId: namespace._id,
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const promise = handler(ctx as any);

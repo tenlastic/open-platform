@@ -2,11 +2,10 @@ import { Queue, QueuePermissions } from '@tenlastic/mongoose-models';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
-  const user = ctx.state.apiKey || ctx.state.user;
-
   const { cpu, memory, preemptible, replicas } = ctx.request.body;
 
-  const existing = await QueuePermissions.findOne({}, { where: ctx.params }, user);
+  const credentials = { ...ctx.state };
+  const existing = await QueuePermissions.findOne(credentials, { where: ctx.params }, {});
   if (!existing) {
     throw new RecordNotFoundError('Record');
   }
@@ -20,8 +19,8 @@ export async function handler(ctx: Context) {
     replicas || existing.replicas,
   );
 
-  const result = await QueuePermissions.update(existing, ctx.request.body, ctx.params, user);
-  const record = await QueuePermissions.read(result, user);
+  const result = await QueuePermissions.update(credentials, ctx.params, ctx.request.body, existing);
+  const record = await QueuePermissions.read(credentials, result);
 
   ctx.response.body = { record };
 }

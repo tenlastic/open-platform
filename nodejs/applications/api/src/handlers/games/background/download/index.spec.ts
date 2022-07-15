@@ -38,7 +38,7 @@ describe('handlers/games/background/download', function () {
         _id: game._id,
         field: 'background',
       },
-      state: { user: user.toObject() },
+      state: { user },
     } as any);
 
     await handler(ctx as any);

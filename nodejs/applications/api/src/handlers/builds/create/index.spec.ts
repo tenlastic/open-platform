@@ -62,7 +62,7 @@ describe('handlers/builds/create', function () {
         request: {
           headers: form.getHeaders(),
         },
-        state: { user: user.toObject() },
+        state: { user },
       } as any);
     });
 
@@ -89,11 +89,9 @@ describe('handlers/builds/create', function () {
       form.append('record', JSON.stringify(build));
 
       const ctx = new ContextMock({
-        params: {
-          _id: build._id,
-        },
+        params: { _id: build._id },
         req: form,
-        state: { user: user.toObject() },
+        state: { user },
       } as any);
 
       const promise = handler(ctx as any);

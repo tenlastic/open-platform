@@ -2,8 +2,6 @@ import { Workflow, WorkflowPermissions } from '@tenlastic/mongoose-models';
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
-  const user = ctx.state.apiKey || ctx.state.user;
-
   await new Workflow(ctx.request.body).validate();
 
   const { cpu, memory, namespaceId, preemptible, spec, storage } = ctx.request.body;
@@ -20,8 +18,9 @@ export async function handler(ctx: Context) {
     storage,
   );
 
-  const result = await WorkflowPermissions.create(ctx.request.body, ctx.params, user);
-  const record = await WorkflowPermissions.read(result, user);
+  const credentials = { ...ctx.state };
+  const result = await WorkflowPermissions.create(credentials, ctx.params, ctx.request.body);
+  const record = await WorkflowPermissions.read(credentials, result);
 
   ctx.response.body = { record };
 }

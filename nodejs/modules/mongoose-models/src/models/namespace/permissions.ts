@@ -25,7 +25,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
   },
   populate: [
     {
-      match: { $or: [{ key: { $ref: 'key' } }, { userId: { $ref: 'user._id' } }] },
+      match: { $or: [{ apiKey: { $ref: 'apiKey' } }, { userId: { $ref: 'user._id' } }] },
       path: 'authorizationDocuments',
     },
   ],

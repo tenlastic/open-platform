@@ -5,14 +5,13 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as JSZip from 'jszip';
 
 export async function handler(ctx: Context) {
-  const user = ctx.state.apiKey || ctx.state.user;
-
-  const build = await BuildPermissions.findOne({}, { where: { _id: ctx.params._id } }, user);
+  const credentials = { ...ctx.state };
+  const build = await BuildPermissions.findOne(credentials, { where: { _id: ctx.params._id } }, {});
   if (!build) {
     throw new RecordNotFoundError('Build');
   }
 
-  const permissions = await BuildPermissions.getFieldPermissions('read', build, user);
+  const permissions = await BuildPermissions.getFieldPermissions(credentials, 'read', build);
   if (!permissions.includes('files.*')) {
     throw new PermissionError();
   }

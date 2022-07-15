@@ -1,15 +1,15 @@
-import { queueService, setAccessToken, setApiUrl, WebSocket } from '@tenlastic/http';
+import { queueService, setApiKey, setApiUrl, WebSocket } from '@tenlastic/http';
 import { WebServer } from '@tenlastic/web-server';
 
 import { status } from './status';
 
-const accessToken = process.env.ACCESS_TOKEN;
+const apiKey = process.env.API_KEY;
 const apiUrl = process.env.API_URL;
 const queue = JSON.parse(process.env.QUEUE_JSON);
 const wssUrl = process.env.WSS_URL;
 
 (async () => {
-  setAccessToken(accessToken);
+  setApiKey(apiKey);
   setApiUrl(apiUrl);
 
   // Add initial Queue data.

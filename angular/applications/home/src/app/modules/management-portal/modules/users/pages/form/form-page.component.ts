@@ -49,6 +49,7 @@ export class UsersFormPageComponent implements OnInit {
     }
 
     const values: Partial<User> = {
+      _id: this.data._id,
       email: this.form.get('email').value,
       username: this.form.get('username').value,
     };

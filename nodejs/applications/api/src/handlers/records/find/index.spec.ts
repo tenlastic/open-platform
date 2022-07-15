@@ -66,7 +66,7 @@ describe('handlers/records/find', function () {
       params: {
         collectionId: collection._id,
       },
-      state: { user: user.toObject() },
+      state: { user },
     });
 
     await handler(ctx as any);
@@ -100,7 +100,7 @@ describe('handlers/records/find', function () {
           },
         },
       },
-      state: { user: user.toObject() },
+      state: { user },
     });
 
     await handler(ctx as any);

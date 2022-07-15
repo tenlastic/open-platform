@@ -3,10 +3,11 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import { Message, MessagePermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
+  const credentials = { ...ctx.state };
   const message = await MessagePermissions.findOne(
+    credentials,
     { where: { _id: ctx.params._id } },
     {},
-    ctx.state.user,
   );
   if (!message) {
     throw new RecordNotFoundError('Message');
@@ -16,7 +17,7 @@ export async function handler(ctx: Context) {
     { _id: ctx.params._id },
     { $addToSet: { readByUserIds: ctx.state.user._id } },
   );
-  const record = await MessagePermissions.read(result, ctx.state.user);
+  const record = await MessagePermissions.read(credentials, result);
 
   ctx.response.body = { record };
 }

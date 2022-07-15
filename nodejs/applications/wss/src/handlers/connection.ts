@@ -1,4 +1,9 @@
-import { WebSocket, WebSocketDocument, WebSocketPermissions } from '@tenlastic/mongoose-models';
+import {
+  Authorization,
+  WebSocket,
+  WebSocketDocument,
+  WebSocketPermissions,
+} from '@tenlastic/mongoose-models';
 import { AuthenticationData, WebSocket as WS } from '@tenlastic/web-socket-server';
 
 const podName = process.env.POD_NAME;
@@ -12,7 +17,12 @@ export async function connection(auth: AuthenticationData, ws: WS) {
   const webSocket = await WebSocket.create({ nodeId: podName, userId: auth.jwt.user._id });
 
   // Send the web socket ID to the client.
-  const response = await WebSocketPermissions.read(webSocket, auth.jwt.user);
+  const authorization = await Authorization.findOne({
+    namespaceId: { $exists: false },
+    userId: auth.jwt.user._id,
+  });
+  const credentials = { apiKey: auth.key, authorization, user: auth.jwt.user };
+  const response = await WebSocketPermissions.read(credentials, webSocket);
   ws.send(JSON.stringify({ fullDocument: response, operationType: 'insert' }));
 
   // Update the WebSocket's disconnectedAt timestamp in MongoDB.

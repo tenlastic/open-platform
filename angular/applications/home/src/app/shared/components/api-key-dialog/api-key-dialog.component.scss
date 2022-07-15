@@ -1,4 +1,4 @@
-.refresh-token-prompt {
+.api-key-dialog {
   div.mat-dialog-actions {
     ::ng-deep {
       app-button {
@@ -18,11 +18,13 @@
 
   div.mat-dialog-content {
     p {
+      text-align: center;
       word-break: break-all;
     }
   }
 
   div.mat-dialog-title {
+    font-family: 'Oswald';
     margin-bottom: 4px;
   }
 }

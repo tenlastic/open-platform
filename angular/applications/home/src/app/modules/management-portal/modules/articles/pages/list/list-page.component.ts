@@ -29,7 +29,7 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<Article>;
 
   public dataSource = new MatTableDataSource<Article>();
-  public displayedColumns: string[] = ['type', 'title', 'publishedAt', 'createdAt', 'actions'];
+  public displayedColumns = ['type', 'title', 'publishedAt', 'createdAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
   private $articles: Observable<Article[]>;
@@ -68,7 +68,9 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
     return this.articleService.update({ ...article, publishedAt: new Date() });
   }
 
-  public showDeletePrompt(record: Article) {
+  public showDeletePrompt($event: Event, record: Article) {
+    $event.stopPropagation();
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [

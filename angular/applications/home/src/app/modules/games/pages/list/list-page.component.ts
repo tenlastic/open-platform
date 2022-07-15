@@ -24,7 +24,7 @@ export class GamesListPageComponent implements OnDestroy, OnInit {
   }
   public $games: Observable<Game[]>;
   public dataSource = new MatTableDataSource<Game>();
-  public displayedColumns: string[] = ['title', 'subtitle', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns = ['title', 'subtitle', 'createdAt', 'updatedAt', 'actions'];
 
   private updateDataSource$ = new Subscription();
 

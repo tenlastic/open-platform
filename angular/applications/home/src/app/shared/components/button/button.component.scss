@@ -81,6 +81,14 @@
     }
   }
 
+  &.highlight {
+    background: rgba(255, 255, 255, 0.125);
+
+    :hover {
+      background: transparent !important;
+    }
+  }
+
   a.mat-button {
     border-radius: 0px;
     display: block;

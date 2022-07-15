@@ -1,3 +1,4 @@
+export * from './api-key-dialog/api-key-dialog.component';
 export * from './autocomplete-user-field/autocomplete-user-field.component';
 export * from './button/button.component';
 export * from './data-source-filter/data-source-filter.component';
@@ -15,7 +16,6 @@ export * from './messages/messages.component';
 export * from './metadata-field/metadata-field.component';
 export * from './metadata-fields/metadata-fields.component';
 export * from './prompt/prompt.component';
-export * from './refresh-token-prompt/refresh-token-prompt.component';
 export * from './sidenav/sidenav.component';
 export * from './social/social.component';
 export * from './text-area-dialog/text-area-dialog.component';

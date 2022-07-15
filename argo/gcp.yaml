@@ -29,7 +29,7 @@ spec:
   entrypoint: entrypoint
   podGC:
     strategy: OnWorkflowSuccess
-  serviceAccountName: argo-workflow
+  serviceAccountName: argo-workflows
   ttlStrategy:
     secondsAfterSuccess: 86400
   volumeClaimTemplates:

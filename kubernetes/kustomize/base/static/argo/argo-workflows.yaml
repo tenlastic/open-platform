@@ -32,7 +32,7 @@ spec:
                       values:
                         - argo-workflows-workflow-controller
                 topologyKey: kubernetes.io/hostname
-      containerRuntimeExecutor: pns
+      containerRuntimeExecutor: emissary
       image:
         tag: v3.3.6
       replicas: 1
@@ -40,6 +40,9 @@ spec:
         requests:
           cpu: 25m
           memory: 25Mi
+      workflowNamespaces:
+        - dynamic
+        - static
     executor:
       image:
         tag: v3.3.6
@@ -71,35 +74,23 @@ spec:
         requests:
           cpu: 25m
           memory: 25Mi
-    singleNamespace: true
+    workflow:
+      rbac:
+        create: false
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: argo-workflow
+  name: argo-workflows
   namespace: static
 rules:
   - apiGroups:
-      - ""
+      - argoproj.io
     resources:
-      - pods
-    verbs:
-      - get
-      - watch
-      - patch
-  - apiGroups:
-      - ""
-    resources:
-      - pods/exec
+      - workflowtaskresults
     verbs:
       - create
-  - apiGroups:
-      - ""
-    resources:
-      - pods/log
-    verbs:
-      - get
-      - watch
+      - patch
   - apiGroups:
       - ""
     resources:
@@ -110,19 +101,19 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: argo-workflow
+  name: argo-workflows
   namespace: static
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: argo-workflow
+  name: argo-workflows
 subjects:
   - kind: ServiceAccount
-    name: argo-workflow
+    name: argo-workflows
     namespace: static
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: argo-workflow
+  name: argo-workflows
   namespace: static

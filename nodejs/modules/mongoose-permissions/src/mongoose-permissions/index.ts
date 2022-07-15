@@ -17,6 +17,12 @@ export class PermissionError extends Error {
   }
 }
 
+export interface ICredentials {
+  apiKey?: string;
+  authorization?: mongoose.Document;
+  user?: mongoose.Document;
+}
+
 export interface IFindQuery<TDocument extends mongoose.Document> {
   limit?: number;
   select?: string;
@@ -42,7 +48,8 @@ export interface IPopulate {
 }
 
 export interface IReferences<TDocument extends mongoose.Document> {
-  key?: string;
+  apiKey?: string;
+  authorization?: any;
   record?: TDocument;
   user?: any;
 }
@@ -63,12 +70,12 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
 
   /**
    * Allows a user to retrive the count of a query.
-   * @param where The user's where query.
+   * @param credentials The credentials for the query.
    * @param override The system's where query.
-   * @param user The user performing the query.
+   * @param where The user's where query.
    */
-  public async count(where: any, override: any, user: mongoose.Document | string) {
-    const filteredWhere = await this.where(where, user);
+  public async count(credentials: ICredentials, override: any, where: any) {
+    const filteredWhere = await this.where(credentials, where);
 
     if (filteredWhere === null) {
       throw new PermissionError();
@@ -79,24 +86,24 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
 
   /**
    * Allows a user to create a record with only the fields they are authorized to set.
-   * @param params The parameters to initialize on the record.
+   * @param credentials The credentials for creating the record.
    * @param override Parameters to apply regardless of filtering rules.
-   * @param user The user creating the record.
+   * @param params The parameters to initialize on the record.
    */
   public async create(
-    params: Partial<TDocument>,
+    credentials: ICredentials,
     override: Partial<TDocument>,
-    user: mongoose.Document | string,
+    params: Partial<TDocument>,
   ) {
     let stubRecord = new this.Model({ ...params, ...override } as any);
 
     if (this.options.populate) {
-      const references = this.getReferences(null, user);
+      const references = this.getReferences(credentials, null);
       const populate = substituteReferenceValues(this.options.populate, references);
       stubRecord = await stubRecord.populate(populate);
     }
 
-    const createPermissions = await this.getFieldPermissions('create', stubRecord, user);
+    const createPermissions = await this.getFieldPermissions(credentials, 'create', stubRecord);
     if (createPermissions.length === 0) {
       throw new PermissionError();
     }
@@ -113,14 +120,13 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
 
   /**
    * Removes a record if the user is authorized to do so.
+   * @param credentials The credentials for removing the record.
    * @param record The record to remove.
-   * @param user The user removing the record.
    */
-  public async delete(record: TDocument, user: mongoose.Document | string) {
-    await this.populateRecord(record, user);
-    await this.populateUser(user);
+  public async delete(credentials: ICredentials, record: TDocument) {
+    await this.populateRecord(credentials, record);
 
-    const references = this.getReferences(record, user);
+    const references = this.getReferences(credentials, record);
     const removePermissions = await this.canDelete(references);
     if (!removePermissions) {
       throw new PermissionError();
@@ -132,16 +138,16 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
   /**
    * Allows a user to retrieve records they are allowed to access.
    * Performs query population to provide any related documents for access-level calculations.
-   * @param params The user's params.
+   * @param credentials The credentials for the query.
    * @param override The system's params.
-   * @param user The user performing the query.
+   * @param params The user's params.
    */
   public async find(
-    params: IFindQuery<TDocument>,
+    credentials: ICredentials,
     override: IFindQuery<TDocument>,
-    user: mongoose.Document | string,
+    params: IFindQuery<TDocument>,
   ): Promise<TDocument[]> {
-    const where = await this.where({ ...params.where, ...override.where }, user);
+    const where = await this.where(credentials, { ...params.where, ...override.where });
     if (where === null) {
       throw new PermissionError();
     }
@@ -153,7 +159,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       .select(override.select || params.select);
 
     if (this.options.populate) {
-      const references = this.getReferences(null, user);
+      const references = this.getReferences(credentials, null);
       const populate = substituteReferenceValues(this.options.populate, references);
       return query.populate(populate);
     }
@@ -164,39 +170,38 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
   /**
    * Allows a user to retrieve records they are allowed to access.
    * Performs query population to provide any related documents for access-level calculations.
-   * @param params The user's params.
+   * @param credentials The credentials for the query.
    * @param override The system's params.
-   * @param user The user performing the query.
+   * @param params The user's params.
    */
   public async findOne(
-    params: IFindQuery<TDocument>,
+    credentials: ICredentials,
     override: IFindQuery<TDocument>,
-    user: mongoose.Document | string,
+    params: IFindQuery<TDocument>,
   ) {
-    const results = await this.find(params, { ...override, limit: 1 }, user);
+    const results = await this.find(credentials, { ...override, limit: 1 }, params);
     return results[0];
   }
 
   /**
    * Returns the fields the user has permission to access.
+   * @param credentials The credentials for accessing the record.
    * @param key The key within the permissions configuration.
    * @param record The record being accessed.
-   * @param user The user accessing the record.
    */
   public async getFieldPermissions(
+    credentials: ICredentials,
     key: 'create' | 'read' | 'update',
     record: TDocument,
-    user: mongoose.Document | string,
   ) {
-    await this.populateRecord(record, user);
-    await this.populateUser(user);
+    await this.populateRecord(credentials, record);
 
     const roles = this.options[key];
     if (!roles) {
       return [];
     }
 
-    const references = this.getReferences(record, user);
+    const references = this.getReferences(credentials, record);
     const role = this.getRole(references);
     const roleAttributes = roles ? roles[role] : undefined;
 
@@ -205,14 +210,15 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
 
   /**
    * Removes any unauthorized fields from a record.
+   * @param credentials The credentials for accessing the record.
    * @param record The record to filter attributes from.
-   * @param user The user accessing the record.
    */
-  public async read(
-    record: TDocument,
-    user: mongoose.Document | string,
-  ): Promise<Partial<TDocument>> {
-    const readPermissions = await this.getFieldPermissions('read', record, user);
+  public async read(credentials: ICredentials, record: TDocument): Promise<Partial<TDocument>> {
+    if (!record) {
+      return record;
+    }
+
+    const readPermissions = await this.getFieldPermissions(credentials, 'read', record);
     if (readPermissions.length === 0) {
       throw new PermissionError();
     }
@@ -223,19 +229,19 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
 
   /**
    * Allows a user to update a record with only the fields they are authorized to set.
-   * @param record The record to update.
-   * @param params The parameters to update on the record.
+   * @param credentials THe credentials for updating the record.
    * @param override Parameters to apply regardless of filtering rules.
-   * @param user The user updating the record.
+   * @param params The parameters to update on the record.
+   * @param record The record to update.
    */
   public async update(
-    record: TDocument,
-    params: Partial<TDocument>,
+    credentials: ICredentials,
     override: Partial<TDocument>,
-    user: mongoose.Document | string,
+    params: Partial<TDocument>,
+    record: TDocument,
     merge: string[] = [],
   ) {
-    const updatePermissions = await this.getFieldPermissions('update', record, user);
+    const updatePermissions = await this.getFieldPermissions(credentials, 'update', record);
 
     if (updatePermissions.length === 0) {
       throw new PermissionError();
@@ -262,13 +268,11 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
 
   /**
    * Creates a where query that filters out unauthorized records.
+   * @param credentials The credentials for the query.
    * @param where The where clause for the query.
-   * @param user The user performing the query.
    */
-  public async where(where: mongoose.FilterQuery<TDocument>, user: mongoose.Document | string) {
-    await this.populateUser(user);
-
-    const references = this.getReferences(null, user);
+  public async where(credentials: ICredentials, where: mongoose.FilterQuery<TDocument>) {
+    const references = this.getReferences(credentials, null);
     const query = await this.getFindQuery(references);
     if (query === null) {
       return null;
@@ -352,11 +356,14 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
   /**
    * Gets the query references.
    */
-  private getReferences(record: TDocument, user: mongoose.Document | string) {
+  private getReferences(credentials: ICredentials, record: TDocument) {
+    const { apiKey, authorization, user } = credentials;
+
     return {
-      key: typeof user === 'string' ? user : null,
+      apiKey: apiKey ?? null,
+      authorization: authorization ? toPlainObject(authorization, true) : null,
       record: record ? toPlainObject(record, true) : null,
-      user: typeof user !== 'string' ? toPlainObject(user, true) : null,
+      user: user ? toPlainObject(user, true) : null,
     } as IReferences<TDocument>;
   }
 
@@ -382,7 +389,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
   /**
    * Populates a record if paths have not been populated already.
    */
-  private populateRecord(record: mongoose.Document, user: mongoose.Document | string) {
+  private populateRecord(credentials: ICredentials, record: mongoose.Document) {
     if (!this.options.populate) {
       return Promise.resolve(record);
     }
@@ -391,23 +398,12 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
 
     for (const path of paths) {
       if (!record.populated(path)) {
-        const references = this.getReferences(null, user);
+        const references = this.getReferences(credentials, null);
         const populate = substituteReferenceValues(this.options.populate, references);
         return record.populate(populate);
       }
     }
 
     return Promise.resolve(record);
-  }
-
-  /**
-   * Populates a user if paths have not been populated already.
-   */
-  private async populateUser(user: mongoose.Document | string) {
-    if (user instanceof mongoose.Document && !user.populated('authorizationDocument')) {
-      user = await user.populate('authorizationDocument');
-    }
-
-    return user;
   }
 }

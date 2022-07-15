@@ -137,6 +137,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     }, {});
 
     const values: Partial<Queue> = {
+      _id: this.data._id,
       buildId: this.form.get('buildId').value,
       cpu: this.form.get('cpu').value,
       description: this.form.get('description').value,

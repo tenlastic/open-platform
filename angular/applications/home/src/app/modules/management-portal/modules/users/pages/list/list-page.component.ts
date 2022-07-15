@@ -32,14 +32,7 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
 
   public $users: Observable<User[]>;
   public dataSource = new MatTableDataSource<User>();
-  public displayedColumns: string[] = [
-    'webSocket',
-    'username',
-    'email',
-    'createdAt',
-    'updatedAt',
-    'actions',
-  ];
+  public displayedColumns = ['webSocket', 'username', 'email', 'createdAt', 'updatedAt', 'actions'];
   public hasWriteAuthorization: boolean;
   public get user() {
     return this.identityService.user;
@@ -78,7 +71,9 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
     this.updateWebSockets$.unsubscribe();
   }
 
-  public showDeletePrompt(user: User) {
+  public showDeletePrompt($event: Event, user: User) {
+    $event.stopPropagation();
+    
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [

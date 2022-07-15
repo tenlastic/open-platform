@@ -17,5 +17,10 @@ export async function handler(ctx: Context) {
     throw new Error('Invalid username or password.');
   }
 
-  ctx.response.body = await Login.createWithAccessAndRefreshTokens({}, user);
+  const { accessToken, refreshToken, refreshTokenId } = await Login.createAccessAndRefreshTokens(
+    user,
+  );
+  const record = await Login.create({ refreshTokenId, userId: user._id });
+
+  ctx.response.body = { accessToken, record, refreshToken };
 }

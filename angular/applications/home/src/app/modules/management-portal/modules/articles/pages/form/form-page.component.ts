@@ -60,6 +60,7 @@ export class ArticlesFormPageComponent implements OnInit {
     }
 
     const values: Partial<Article> = {
+      _id: this.data._id,
       body: this.form.get('body').value,
       caption: this.form.get('caption').value,
       namespaceId: this.form.get('namespaceId').value,

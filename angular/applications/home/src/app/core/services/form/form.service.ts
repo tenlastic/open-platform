@@ -3,14 +3,13 @@ import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Model } from '@tenlastic/ng-http';
 import { PromptComponent } from '../../../shared/components';
 
 @Injectable({ providedIn: 'root' })
 export class FormService {
   constructor(
-    private activatedRoute: ActivatedRoute,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private router: Router,
@@ -78,7 +77,7 @@ export class FormService {
   public async upsert<T extends Model>(
     service: { create: (data: Partial<T>) => Promise<T>; update: (data: Partial<T>) => Promise<T> },
     values: Partial<T>,
-    options?: { name?: string; path?: string },
+    options?: { name?: string; navigate?: boolean; path?: string },
   ) {
     const result = values._id ? await service.update(values) : await service.create(values);
 
@@ -87,7 +86,11 @@ export class FormService {
 
     const path = options?.path ?? '../';
     const url = this.getUrl(this.router.url.concat('/', path, result._id));
-    this.router.navigateByUrl(url);
+
+    const navigate = options?.navigate ?? true;
+    if (navigate) {
+      this.router.navigateByUrl(url);
+    }
 
     return result;
   }

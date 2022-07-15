@@ -29,7 +29,7 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<Workflow>;
 
   public dataSource = new MatTableDataSource<Workflow>();
-  public displayedColumns: string[] = ['name', 'status', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns = ['name', 'status', 'createdAt', 'updatedAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
   private $workflows: Observable<Workflow[]>;
@@ -64,7 +64,9 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public showDeletePrompt(record: Workflow) {
+  public showDeletePrompt($event: Event, record: Workflow) {
+    $event.stopPropagation();
+    
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [

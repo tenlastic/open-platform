@@ -47,7 +47,6 @@ export const ROUTES: Routes = [
 
 @NgModule({
   declarations: [AppComponent],
-  entryComponents: [AppComponent],
   imports: [
     environment.production ? [] : AkitaNgDevtools,
     CoreModule,

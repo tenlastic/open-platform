@@ -51,7 +51,7 @@ describe('handlers/games/update', function () {
             title: chance.hash(),
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       await handler(ctx as any);
@@ -69,7 +69,7 @@ describe('handlers/games/update', function () {
             access: GameAccess.Public,
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const promise = handler(ctx as any);
@@ -96,7 +96,7 @@ describe('handlers/games/update', function () {
             title: chance.hash(),
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const promise = handler(ctx as any);

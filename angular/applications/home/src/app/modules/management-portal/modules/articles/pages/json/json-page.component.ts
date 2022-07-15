@@ -58,6 +58,7 @@ export class ArticlesJsonPageComponent implements OnInit {
     const json = this.form.get('json').value;
     const values = JSON.parse(json) as Article;
 
+    values._id = this.data._id;
     values.namespaceId = this.params.namespaceId;
 
     try {

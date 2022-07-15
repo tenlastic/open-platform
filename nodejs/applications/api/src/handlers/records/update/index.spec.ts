@@ -70,7 +70,7 @@ describe('handlers/records/update', function () {
       request: {
         body: { properties },
       },
-      state: { user: user.toObject() },
+      state: { user },
     });
 
     await handler(ctx as any);

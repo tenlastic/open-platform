@@ -4,9 +4,8 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import { Group, GroupPermissions } from '@tenlastic/mongoose-models';
 
 export async function handler(ctx: Context) {
-  const user = ctx.state.apiKey || ctx.state.user;
-
-  const group = await GroupPermissions.findOne({}, { where: { _id: ctx.params._id } }, user);
+  const credentials = { ...ctx.state };
+  const group = await GroupPermissions.findOne(credentials, { where: { _id: ctx.params._id } }, {});
   if (!group) {
     throw new RecordNotFoundError();
   }
@@ -20,7 +19,7 @@ export async function handler(ctx: Context) {
     { _id: ctx.params._id },
     { $pull: { userIds: ctx.params.userId } },
   );
-  const record = await GroupPermissions.read(result, user);
+  const record = await GroupPermissions.read(credentials, result);
 
   ctx.response.body = { record };
 }

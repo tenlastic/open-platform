@@ -65,25 +65,12 @@
       <td mat-cell
           *matCellDef="let element">
         <ng-container *ngIf="hasWriteAuthorization">
-          <app-button color="accent"
-                      matTooltip="Edit"
-                      [routerLink]="[element._id]">
-            <mat-icon>create</mat-icon>
-          </app-button>
-
           <app-button *ngIf="element._id !== user._id"
                       color="accent"
+                      highlight
                       matTooltip="Delete"
-                      (OnClick)="showDeletePrompt(element)">
+                      (OnClick)="showDeletePrompt($event, element)">
             <mat-icon>delete</mat-icon>
-          </app-button>
-        </ng-container>
-
-        <ng-container *ngIf="!hasWriteAuthorization">
-          <app-button color="accent"
-                      matTooltip="View"
-                      [routerLink]="[element._id]">
-            <mat-icon>visibility</mat-icon>
           </app-button>
         </ng-container>
       </td>
@@ -92,7 +79,9 @@
     <tr mat-header-row
         *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row
-        *matRowDef="let row; columns: displayedColumns"></tr>
+        *matRowDef="let row; columns: displayedColumns"
+        highlight
+        [routerLink]="[row._id]"></tr>
   </table>
 
   <mat-paginator [pageSizeOptions]="[10, 25, 100]"

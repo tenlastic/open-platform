@@ -29,7 +29,7 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<Collection>;
 
   public dataSource = new MatTableDataSource<Collection>();
-  public displayedColumns: string[] = ['name', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns = ['name', 'createdAt', 'updatedAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
   private $collections: Observable<Collection[]>;
@@ -64,7 +64,9 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public showDeletePrompt(record: Collection) {
+  public showDeletePrompt($event: Event, record: Collection) {
+    $event.stopPropagation();
+    
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [

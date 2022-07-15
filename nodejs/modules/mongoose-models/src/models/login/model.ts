@@ -11,6 +11,7 @@ import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
 import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import { Authorization, AuthorizationPermissions } from '../authorization';
 import { RefreshToken, RefreshTokenDocument } from '../refresh-token';
 import { UserDocument, UserEvent, UserPermissions } from '../user';
 
@@ -53,17 +54,22 @@ export class LoginSchema {
   /**
    * Creates an access and refresh token.
    */
-  public static async createWithAccessAndRefreshTokens(
-    parameters: Partial<LoginDocument>,
+  public static async createAccessAndRefreshTokens(
     user: UserDocument,
+    refreshTokenId?: mongoose.Types.ObjectId | string,
   ) {
+    // Get the User's Authorization.
+    const authorization = await Authorization.findOne({
+      namespaceId: { $exists: false },
+      userId: user._id,
+    });
+
     // Save the RefreshToken for renewal and revocation.
     const expiresAt = new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000);
-
     let token: RefreshTokenDocument;
-    if (parameters.refreshTokenId) {
+    if (refreshTokenId) {
       token = await RefreshToken.findOneAndUpdate(
-        { _id: parameters.refreshTokenId, userId: user._id },
+        { _id: refreshTokenId, userId: user._id },
         { expiresAt, updatedAt: new Date() },
         { new: true },
       );
@@ -71,35 +77,22 @@ export class LoginSchema {
       token = await RefreshToken.create({ expiresAt, userId: user._id });
     }
 
-    // Remove unauthorized fields from the User.
-    const filteredUser = await UserPermissions.read(user, user);
+    // Remove unauthorized fields from the Authorization and User.
+    const credentials = { authorization, user };
+    const filteredAuthorization = await AuthorizationPermissions.read(credentials, authorization);
+    const filteredUser = await UserPermissions.read(credentials, user);
+
+    const options = { algorithm: 'RS256', expiresIn: '14d', jwtid: token._id.toString() };
+    const privateKey = process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n');
 
     const accessToken = jwt.sign(
-      { type: 'access', user: filteredUser },
-      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      {
-        algorithm: 'RS256',
-        expiresIn: '30m',
-        jwtid: token._id.toString(),
-      },
+      { authorization: filteredAuthorization ?? undefined, type: 'access', user: filteredUser },
+      privateKey,
+      { ...options, expiresIn: '30m' },
     );
-    const refreshToken = jwt.sign(
-      { type: 'refresh', user: filteredUser },
-      process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      {
-        algorithm: 'RS256',
-        expiresIn: '14d',
-        jwtid: token._id.toString(),
-      },
-    );
+    const refreshToken = jwt.sign({ type: 'refresh', user: filteredUser }, privateKey, options);
 
-    const record = await Login.create({
-      ...parameters,
-      refreshTokenId: token._id,
-      userId: user._id,
-    });
-
-    return { accessToken, record, refreshToken };
+    return { accessToken, refreshToken, refreshTokenId: token._id };
   }
 }
 

@@ -50,7 +50,7 @@ describe('handlers/queues/update', function () {
             name: chance.hash(),
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       await handler(ctx as any);
@@ -72,7 +72,7 @@ describe('handlers/queues/update', function () {
             cpu: 2,
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const promise = handler(ctx as any);
@@ -99,7 +99,7 @@ describe('handlers/queues/update', function () {
             name: chance.hash(),
           },
         },
-        state: { user: user.toObject() },
+        state: { user },
       });
 
       const promise = handler(ctx as any);

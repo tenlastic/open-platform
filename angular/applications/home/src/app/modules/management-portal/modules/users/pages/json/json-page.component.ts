@@ -54,6 +54,8 @@ export class UsersJsonPageComponent implements OnInit {
     const json = this.form.get('json').value;
     const values = JSON.parse(json) as User;
 
+    values._id = this.data._id;
+
     try {
       this.data = await this.formService.upsert(this.userService, values, { path: '../../' });
     } catch (e) {

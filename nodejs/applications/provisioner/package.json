@@ -17,6 +17,7 @@
   "dependencies": {
     "@tenlastic/kubernetes": "0.0.310",
     "@tenlastic/logging": "0.0.310",
+    "@tenlastic/mongoose-change-stream-nats": "0.0.310",
     "@tenlastic/mongoose-models": "0.0.310",
     "@tenlastic/nats": "0.0.310",
     "@tenlastic/web-server": "0.0.310",

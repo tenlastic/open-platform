@@ -1,12 +1,25 @@
 import { networkPolicyApiV1, secretApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
-import { BuildDocument, Namespace, NamespaceRole } from '@tenlastic/mongoose-models';
+import {
+  Authorization,
+  AuthorizationRole,
+  BuildDocument,
+  DatabaseOperationType,
+} from '@tenlastic/mongoose-models';
+import * as Chance from 'chance';
 import { URL } from 'url';
 
-import { KubernetesNamespace } from '../namespace';
+const chance = new Chance();
 
 export const KubernetesBuild = {
-  delete: async (build: BuildDocument) => {
+  delete: async (build: BuildDocument, operationType?: DatabaseOperationType) => {
     const name = KubernetesBuild.getName(build);
+
+    /**
+     * =======================
+     * AUTHORIZATION
+     * =======================
+     */
+    await Authorization.findOneAndDelete({ name, namespaceId: build.namespaceId });
 
     /**
      * =======================
@@ -17,10 +30,19 @@ export const KubernetesBuild = {
 
     /**
      * ======================
+     * SECRET
+     * ======================
+     */
+    await secretApiV1.delete(name, 'dynamic');
+
+    /**
+     * ======================
      * WORKFLOW
      * ======================
      */
-    await workflowApiV1.delete(name, 'dynamic');
+    if (operationType === 'delete') {
+      await workflowApiV1.delete(name, 'dynamic');
+    }
   },
   getLabels: (build: BuildDocument) => {
     const name = KubernetesBuild.getName(build);
@@ -36,7 +58,20 @@ export const KubernetesBuild = {
   upsert: async (build: BuildDocument) => {
     const labels = KubernetesBuild.getLabels(build);
     const name = KubernetesBuild.getName(build);
-    const namespace = KubernetesNamespace.getName(build.namespaceId);
+
+    /**
+     * =======================
+     * AUTHORIZATION
+     * =======================
+     */
+    const apiKey = chance.hash({ length: 64 });
+    await Authorization.create({
+      apiKey,
+      name,
+      namespaceId: build.namespaceId,
+      roles: [AuthorizationRole.BuildsReadWrite],
+      system: true,
+    });
 
     /**
      * =======================
@@ -60,14 +95,13 @@ export const KubernetesBuild = {
      * SECRET
      * ======================
      */
-    const accessToken = Namespace.getAccessToken(build.namespaceId, [NamespaceRole.Builds]);
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,
       },
       stringData: {
-        ACCESS_TOKEN: accessToken,
+        API_KEY: apiKey,
         BUILD_ID: `${build._id}`,
         MINIO_BUCKET: process.env.MINIO_BUCKET,
         MINIO_CONNECTION_STRING: process.env.MINIO_CONNECTION_STRING,
@@ -100,6 +134,11 @@ export const KubernetesBuild = {
       'tenlastic.com/nodeId': `{{pod.name}}`,
       'tenlastic.com/role': 'application',
     };
+    const retryStrategy = {
+      backoff: { duration: '15', factor: '2' },
+      limit: 2,
+      retryStrategy: 'Always',
+    };
     const { version } = require('../../../package.json');
 
     let manifest: V1Workflow;
@@ -110,7 +149,6 @@ export const KubernetesBuild = {
           labels: {
             ...labels,
             'tenlastic.com/role': 'application',
-            'workflows.argoproj.io/controller-instanceid': namespace,
           },
           name,
         },
@@ -119,11 +157,6 @@ export const KubernetesBuild = {
           affinity,
           entrypoint: 'entrypoint',
           podMetadata: { labels: { 'tenlastic.com/app': name } },
-          retryStrategy: {
-            backoff: { duration: '15', factor: '2' },
-            limit: 4,
-            retryStrategy: 'Always',
-          },
           serviceAccountName: 'build',
           templates: [
             {
@@ -149,6 +182,7 @@ export const KubernetesBuild = {
               },
               metadata: { labels: podLabels },
               name: 'copy-and-unzip-files',
+              retryStrategy,
             },
           ],
           ttlStrategy: { secondsAfterCompletion: 3 * 60 * 60 },
@@ -160,7 +194,6 @@ export const KubernetesBuild = {
     } else {
       manifest = {
         metadata: {
-          labels: { 'workflows.argoproj.io/controller-instanceid': namespace },
           name,
         },
         spec: {
@@ -168,11 +201,6 @@ export const KubernetesBuild = {
           affinity,
           entrypoint: 'entrypoint',
           podMetadata: { labels: { 'tenlastic.com/app': name } },
-          retryStrategy: {
-            backoff: { duration: '15', factor: '2' },
-            limit: 2,
-            retryStrategy: 'Always',
-          },
           serviceAccountName: 'build',
           templates: [
             {
@@ -189,6 +217,8 @@ export const KubernetesBuild = {
             },
             {
               container: {
+                args: ['node', './dist/index.js'],
+                command: ['/sbin/tini --', '--'],
                 envFrom: [{ secretRef: { name } }],
                 image: `tenlastic/build:${version}`,
                 resources: { requests: { cpu: '100m', memory: '100M' } },
@@ -197,6 +227,7 @@ export const KubernetesBuild = {
               },
               metadata: { labels: podLabels },
               name: 'copy-and-unzip-files',
+              retryStrategy,
             },
           ],
           ttlStrategy: { secondsAfterCompletion: 3 * 60 * 60 },
@@ -228,7 +259,8 @@ export const KubernetesBuild = {
             '--push-retry=2',
             ...args,
           ],
-          image: `gcr.io/kaniko-project/executor:v1.8.0`,
+          command: ['/kaniko/executor'],
+          image: `gcr.io/kaniko-project/executor:v1.8.1`,
           resources: { requests: { cpu: '100m', memory: '100M' } },
           volumeMounts: [
             { mountPath: '/kaniko/.docker/', name: 'docker-registry', readOnly: true },
@@ -237,6 +269,7 @@ export const KubernetesBuild = {
         },
         metadata: { labels: podLabels },
         name: 'build-docker-image',
+        retryStrategy,
         volumes: [
           {
             name: 'docker-registry',
@@ -264,22 +297,6 @@ export const KubernetesBuild = {
       ];
     }
 
-    const response = await workflowApiV1.createOrReplace('dynamic', manifest);
-
-    /**
-     * ======================
-     * OWNER REFERENCES
-     * ======================
-     */
-    const ownerReferences = [
-      {
-        apiVersion: 'argoproj.io/v1alpha1',
-        controller: true,
-        kind: 'Workflow',
-        name,
-        uid: response.body.metadata.uid,
-      },
-    ];
-    await secretApiV1.patch(name, 'dynamic', { metadata: { ownerReferences } });
+    await workflowApiV1.createOrReplace('dynamic', manifest);
   },
 };

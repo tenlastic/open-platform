@@ -30,7 +30,7 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
 
   public $queueMembers: Observable<QueueMember[]>;
   public dataSource = new MatTableDataSource<QueueMember>();
-  public displayedColumns: string[] = ['username', 'createdAt', 'actions'];
+  public displayedColumns = ['username', 'createdAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
   private updateDataSource$ = new Subscription();
@@ -64,7 +64,9 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public showDeletePrompt(record: QueueMember) {
+  public showDeletePrompt($event: Event, record: QueueMember) {
+    $event.stopPropagation();
+    
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [

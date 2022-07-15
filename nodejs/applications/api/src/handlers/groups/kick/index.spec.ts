@@ -7,8 +7,8 @@ import { handler } from './';
 
 use(chaiAsPromised);
 
-describe('handlers/groups/kick', function() {
-  it('returns the record', async function() {
+describe('handlers/groups/kick', function () {
+  it('returns the record', async function () {
     const otherUser = await UserMock.create();
     const user = await UserMock.create();
     const record = await GroupMock.create({ isOpen: true, userIds: [user._id, otherUser._id] });
@@ -18,7 +18,7 @@ describe('handlers/groups/kick', function() {
         _id: record._id,
         userId: otherUser._id,
       },
-      state: { user: user.toObject() },
+      state: { user },
     });
 
     await handler(ctx as any);
