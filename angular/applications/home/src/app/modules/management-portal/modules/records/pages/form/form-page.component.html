@@ -47,7 +47,8 @@
             <mat-error>Enter a valid {{ key }}.</mat-error>
           </mat-form-field>
 
-          <app-button color="accent"
+          <app-button *ngIf="!form.disabled"
+                      color="accent"
                       layout="left"
                       (OnClick)="removeArrayItem(key, i)">
             <mat-icon>remove</mat-icon>
@@ -55,7 +56,8 @@
           </app-button>
         </div>
 
-        <div class="row">
+        <div *ngIf="!form.disabled"
+             class="row">
           <app-button color="accent"
                       layout="left"
                       (OnClick)="addArrayItem(key)">
@@ -91,15 +93,16 @@
         </mat-form-field>
       </div>
     </ng-container>
-
-    <div *ngFor="let error of errors"
-         class="form-error">
-      {{ error }}
-    </div>
-
-    <app-button color="primary"
-                (click)="save()">Save</app-button>
-    <app-button color="accent"
-                routerLink="../">Cancel</app-button>
   </form>
+</div>
+
+<div *ngIf="!form?.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              (OnClick)="save()">Save</app-button>
 </div>

@@ -41,13 +41,6 @@
       </mat-form-field>
     </div>
 
-    <ng-container *ngIf="data._id">
-      <app-button color="primary"
-                  (OnClick)="save()">Save</app-button>
-      <app-button color="accent"
-                  routerLink="../">Cancel</app-button>
-    </ng-container>
-
     <app-toggle-section *ngIf="form.get('platform').value"
                         title="Files">
       <app-files-form [build]="data"
@@ -84,24 +77,6 @@
       </mat-tree>
     </app-toggle-section>
 
-    <div *ngFor="let error of errors"
-         class="form-error">
-      {{ error }}
-    </div>
-
-    <ng-container *ngIf="
-                    !data._id && 
-                    (
-                      form.get('files').enabled && form.get('files').value.length > 0 && status === Status.Ready ||
-                      form.get('reference').get('_id').value && status === Status.Ready
-                    )
-                  ">
-      <app-button color="primary"
-                  (OnClick)="save()">Save</app-button>
-      <app-button color="accent"
-                  routerLink="../">Cancel</app-button>
-    </ng-container>
-
     <ng-container *ngIf="status !== Status.Ready">
       <app-button color="primary"
                   [disabled]="status">
@@ -116,4 +91,15 @@
       </app-button>
     </ng-container>
   </form>
+</div>
+
+<div *ngIf="!form?.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              (OnClick)="save()">Save</app-button>
 </div>

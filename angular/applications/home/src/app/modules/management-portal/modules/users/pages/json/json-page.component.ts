@@ -59,7 +59,7 @@ export class UsersJsonPageComponent implements OnInit {
     try {
       this.data = await this.formService.upsert(this.userService, values, { path: '../../' });
     } catch (e) {
-      this.formService.handleHttpError(e);
+      this.errors = this.formService.handleHttpError(e);
     }
   }
 

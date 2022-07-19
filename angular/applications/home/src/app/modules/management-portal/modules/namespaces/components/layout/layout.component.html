@@ -1,5 +1,6 @@
 <app-sidenav>
   <div *ngIf="($namespace | async) as namespace"
+       appNav
        class="nav">
     <app-button color="accent"
                 layout="vertical"
@@ -12,14 +13,7 @@
       <span>{{ namespace.name }}</span>
     </app-button>
 
-    <ng-container *ngIf="$hasRelated | async">
-      <app-button color="accent"
-                  disabled
-                  layout="vertical"
-                  width="full">
-        <span>&nbsp;</span>
-      </app-button>
-    </ng-container>
+    <hr *ngIf="$hasRelated | async">
 
     <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
                 color="accent"

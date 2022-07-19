@@ -63,7 +63,7 @@ export class AuthorizationsJsonPageComponent implements OnInit {
         path: '../../',
       });
     } catch (e) {
-      this.formService.handleHttpError(e);
+      this.errors = this.formService.handleHttpError(e);
     }
   }
 

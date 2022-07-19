@@ -64,7 +64,7 @@ export class CollectionsJsonPageComponent implements OnInit {
     try {
       this.data = await this.formService.upsert(this.collectionService, values);
     } catch (e) {
-      this.formService.handleHttpError(e);
+      this.errors = this.formService.handleHttpError(e);
     }
   }
 

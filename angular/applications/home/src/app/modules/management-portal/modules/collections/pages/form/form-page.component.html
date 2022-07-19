@@ -35,7 +35,8 @@
                             (remove)="removeProperty(i)"></app-property-field>
       </div>
 
-      <div class="row">
+      <div *ngIf="!form.disabled"
+           class="row">
         <app-button color="accent"
                     layout="left"
                     (OnClick)="addProperty()">
@@ -59,7 +60,8 @@
                         (remove)="removeRole(i)"></app-role-field>
       </div>
 
-      <div class="row">
+      <div *ngIf="!form.disabled"
+           class="row">
         <app-button color="accent"
                     layout="left"
                     (OnClick)="addRole()">
@@ -68,15 +70,16 @@
         </app-button>
       </div>
     </app-toggle-section>
-
-    <div *ngFor="let error of errors"
-         class="form-error">
-      {{ error }}
-    </div>
-
-    <app-button color="primary"
-                (OnClick)="save()">Save</app-button>
-    <app-button color="accent"
-                routerLink="../">Cancel</app-button>
   </form>
+</div>
+
+<div *ngIf="!form?.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              (OnClick)="save()">Save</app-button>
 </div>

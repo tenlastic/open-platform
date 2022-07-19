@@ -80,14 +80,16 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     return `${record.status.phase} (${current} / ${total})`;
   }
 
-  public async restart(record: Queue) {
+  public async restart($event: Event, record: Queue) {
+    $event.stopPropagation();
+
     await this.queueService.update({ _id: record._id, restartedAt: new Date() });
     this.matSnackBar.open('Queue is restarting...');
   }
 
   public showDeletePrompt($event: Event, record: Queue) {
     $event.stopPropagation();
-    
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
@@ -106,7 +108,9 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     });
   }
 
-  public showLogsDialog(record: Queue) {
+  public showLogsDialog($event: Event, record: Queue) {
+    $event.stopPropagation();
+
     const dialogRef = this.matDialog.open(LogsDialogComponent, {
       autoFocus: false,
       data: {

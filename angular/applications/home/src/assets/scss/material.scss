@@ -372,18 +372,28 @@ mat-radio-button.mat-radio-button.mat-accent {
   &.mat-radio-checked {
     span.mat-radio-inner-circle {
       background-color: white;
-      border-radius: 4px;
+      border-radius: 2px;
       filter: drop-shadow(2px 2px 3px black);
     }
 
     span.mat-radio-outer-circle {
       border-color: white;
-      border-radius: 4px;
+      border-radius: 2px;
       filter: drop-shadow(2px 2px 3px black);
     }
 
     span.mat-ripple {
       display: none;
+    }
+  }
+
+  &.mat-radio-disabled {
+    span.mat-radio-label-content {
+      color: white;
+    }
+
+    span.mat-radio-outer-circle {
+      border-style: dashed;
     }
   }
 

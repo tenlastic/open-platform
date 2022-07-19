@@ -68,21 +68,21 @@
           *matCellDef="let element">
         <app-button color="accent"
                     matTooltip="Logs"
-                    (OnClick)="showLogsDialog(element)">
+                    (OnClick)="showLogsDialog($event, element)">
           <mat-icon>subject</mat-icon>
         </app-button>
 
         <ng-container *ngIf="hasWriteAuthorization">
           <app-button *ngIf="element.persistent"
                       color="accent"
-                      highlight
+                      appHighlight
                       matTooltip="Restart"
-                      (click)="restart(element)">
+                      (click)="restart($event, element)">
             <mat-icon>sync</mat-icon>
           </app-button>
 
           <app-button color="accent"
-                      highlight
+                      appHighlight
                       matTooltip="Delete"
                       (OnClick)="showDeletePrompt($event, element)">
             <mat-icon>delete</mat-icon>
@@ -95,7 +95,7 @@
         *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row
         *matRowDef="let row; columns: displayedColumns"
-        highlight
+        appHighlight
         [routerLink]="[row._id]"></tr>
   </table>
 

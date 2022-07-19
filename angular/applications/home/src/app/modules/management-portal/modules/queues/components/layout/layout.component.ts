@@ -3,9 +3,9 @@ import { ActivatedRoute } from '@angular/router';
 import {
   AuthorizationQuery,
   IAuthorization,
-  Namespace,
-  NamespaceQuery,
-  NamespaceService,
+  Queue,
+  QueueQuery,
+  QueueService,
 } from '@tenlastic/ng-http';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -18,7 +18,16 @@ import { IdentityService } from '../../../../../../core/services';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
-  public $queue: Observable<Namespace>;
+  public get $hasRelated() {
+    const roles = [...IAuthorization.gameServerRoles];
+    const userId = this.identityService.user?._id;
+
+    return combineLatest([
+      this.authorizationQuery.selectHasRoles(null, roles, userId),
+      this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
+    ]).pipe(map(([a, b]) => a || b));
+  }
+  public $queue: Observable<Queue>;
   public IAuthorization = IAuthorization;
 
   private get namespaceId() {
@@ -32,8 +41,8 @@ export class LayoutComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
     private identityService: IdentityService,
-    private queueQuery: NamespaceQuery,
-    private queueService: NamespaceService,
+    private queueQuery: QueueQuery,
+    private queueService: QueueService,
   ) {}
 
   public async ngOnInit() {
@@ -47,6 +56,6 @@ export class LayoutComponent implements OnInit {
     return combineLatest([
       this.authorizationQuery.selectHasRoles(null, roles, userId),
       this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
-    ]).pipe(map((a, b) => a || b));
+    ]).pipe(map(([a, b]) => a || b));
   }
 }

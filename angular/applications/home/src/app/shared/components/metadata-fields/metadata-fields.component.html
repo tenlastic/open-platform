@@ -4,7 +4,8 @@
                       (remove)="removeProperty(i)"></app-metadata-field>
 </div>
 
-<div class="row">
+<div *ngIf="!formArray?.disabled"
+     class="row">
   <app-button color="accent"
               layout="left"
               (OnClick)="addProperty()">

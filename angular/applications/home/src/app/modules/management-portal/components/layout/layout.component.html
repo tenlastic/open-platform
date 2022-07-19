@@ -13,7 +13,8 @@
 <div class="content">
   <app-social>
     <app-sidenav>
-      <div class="nav">
+      <div appNav
+           class="nav">
         <app-button *ngIf="$hasPermission(IAuthorization.authorizationRoles) | async"
                     color="accent"
                     layout="vertical"
@@ -25,8 +26,7 @@
           <span>Authorizations</span>
         </app-button>
 
-        <app-button *ngIf="$hasPermission(IAuthorization.namespaceRoles) | async"
-                    color="accent"
+        <app-button color="accent"
                     layout="vertical"
                     routerLink="namespaces"
                     routerLinkActive="active"
@@ -37,7 +37,6 @@
         </app-button>
 
         <app-button color="accent"
-                    [hidden]="!($hasPermission(IAuthorization.userRoles) | async)"
                     layout="vertical"
                     routerLink="users"
                     routerLinkActive="active"

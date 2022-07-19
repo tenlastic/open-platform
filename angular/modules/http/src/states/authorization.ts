@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { EntityState, EntityStore, QueryEntity, StoreConfig } from '@datorama/akita';
 import { combineLatest, Observable } from 'rxjs';
-import { map, reduce } from 'rxjs/operators';
+import { map, startWith } from 'rxjs/operators';
 
 import { Authorization, IAuthorization } from '../models/authorization';
 import { AuthorizationService } from '../services/authorization/authorization.service';
@@ -88,6 +88,15 @@ export class AuthorizationQuery extends QueryEntity<AuthorizationState, Authoriz
       authorization.namespaceId === namespaceId &&
       userId &&
       authorization.userId === userId
+    ) {
+      return true;
+    }
+
+    if (
+      authorization.namespaceId &&
+      namespaceId &&
+      authorization.namespaceId === namespaceId &&
+      !authorization.userId
     ) {
       return true;
     }

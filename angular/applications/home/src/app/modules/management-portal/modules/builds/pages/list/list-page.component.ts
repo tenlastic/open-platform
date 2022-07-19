@@ -74,7 +74,9 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     return map[platform];
   }
 
-  public async publish(build: Build) {
+  public async publish($event: Event, build: Build) {
+    $event.stopPropagation();
+
     await this.buildService.update({ ...build, publishedAt: new Date() });
 
     if (build.platform === IBuild.Platform.Server64 && build.reference) {
@@ -131,7 +133,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
 
   public showDeletePrompt($event: Event, record: Build) {
     $event.stopPropagation();
-    
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
@@ -150,7 +152,8 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     });
   }
 
-  public async unpublish(build: Build) {
+  public async unpublish($event: Event, build: Build) {
+    $event.stopPropagation();
     return this.buildService.update({ ...build, publishedAt: null });
   }
 

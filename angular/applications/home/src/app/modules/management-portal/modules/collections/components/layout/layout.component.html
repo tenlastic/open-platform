@@ -1,5 +1,6 @@
 <app-sidenav>
   <div *ngIf="($collection | async) as collection"
+       appNav
        class="nav">
     <app-button color="accent"
                 layout="vertical"
@@ -11,6 +12,8 @@
       <mat-icon>category</mat-icon>
       <span>{{ collection.name }}</span>
     </app-button>
+
+    <hr *ngIf="$hasRelated | async">
 
     <app-button *ngIf="$hasPermission(IAuthorization.collectionRoles) | async"
                 color="accent"

@@ -13,12 +13,21 @@ import { map } from 'rxjs/operators';
 import { IdentityService } from '../../../../../../core/services';
 
 @Component({
-  selector: 'collections-layout',
+  selector: 'app-collections-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
   public $collection: Observable<Collection>;
+  public get $hasRelated() {
+    const roles = [...IAuthorization.collectionRoles];
+    const userId = this.identityService.user?._id;
+
+    return combineLatest([
+      this.authorizationQuery.selectHasRoles(null, roles, userId),
+      this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
+    ]).pipe(map(([a, b]) => a || b));
+  }
   public IAuthorization = IAuthorization;
 
   private get collectionId() {
@@ -47,6 +56,6 @@ export class LayoutComponent implements OnInit {
     return combineLatest([
       this.authorizationQuery.selectHasRoles(null, roles, userId),
       this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
-    ]).pipe(map((a, b) => a || b));
+    ]).pipe(map(([a, b]) => a || b));
   }
 }

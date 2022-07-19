@@ -25,6 +25,8 @@ export namespace IAuthorization {
     QueuesReadWrite = 'Queues:ReadWrite',
     UsersRead = 'Users:Read',
     UsersReadWrite = 'Users:ReadWrite',
+    WebSocketsRead = 'WebSockets:Read',
+    WebSocketsReadWrite = 'WebSockets:ReadWrite',
     WorkflowsRead = 'Workflows:Read',
     WorkflowsReadWrite = 'Workflows:ReadWrite',
   }
@@ -58,6 +60,10 @@ export namespace IAuthorization {
   ];
   export const queueRoles = [AuthorizationRole.QueuesRead, AuthorizationRole.QueuesReadWrite];
   export const userRoles = [AuthorizationRole.UsersRead, AuthorizationRole.UsersReadWrite];
+  export const webSocketRoles = [
+    AuthorizationRole.WebSocketsRead,
+    AuthorizationRole.WebSocketsReadWrite,
+  ];
   export const workflowRoles = [
     AuthorizationRole.WorkflowsRead,
     AuthorizationRole.WorkflowsReadWrite,

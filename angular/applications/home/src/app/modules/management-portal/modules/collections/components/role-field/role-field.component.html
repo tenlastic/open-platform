@@ -30,7 +30,8 @@
                            (remove)="removeCriterion(i)"></app-criterion-field>
     </div>
 
-    <div class="row">
+    <div *ngIf="!form.disabled"
+         class="row">
       <app-button color="accent"
                   layout="left"
                   (OnClick)="addCriterion()">
@@ -104,7 +105,8 @@
                            (remove)="removeFindCriterion(i)"></app-criterion-field>
     </div>
 
-    <div class="row">
+    <div *ngIf="!form.disabled"
+         class="row">
       <app-button color="accent"
                   layout="left"
                   (OnClick)="addFindCriterion()">
@@ -115,7 +117,7 @@
   </app-toggle-section>
 </div>
 
-<div *ngIf="!isDefault"
+<div *ngIf="!form.disabled && !isDefault"
      class="row remove-button">
   <app-button *ngIf="index > 0"
               color="accent"

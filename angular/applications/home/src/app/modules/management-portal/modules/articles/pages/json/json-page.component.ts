@@ -64,7 +64,7 @@ export class ArticlesJsonPageComponent implements OnInit {
     try {
       this.data = await this.formService.upsert(this.articleService, values);
     } catch (e) {
-      this.formService.handleHttpError(e);
+      this.errors = this.formService.handleHttpError(e);
     }
   }
 

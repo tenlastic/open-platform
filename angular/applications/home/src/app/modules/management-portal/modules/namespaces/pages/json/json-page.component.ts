@@ -61,7 +61,7 @@ export class NamespacesJsonPageComponent implements OnInit {
     try {
       this.data = await this.formService.upsert(this.namespaceService, values, { path: '../../' });
     } catch (e) {
-      this.formService.handleHttpError(e);
+      this.errors = this.formService.handleHttpError(e);
     }
   }
 

@@ -38,7 +38,7 @@
         <ng-container *ngIf="$group | async">
           <app-button mat-button
                       color="primary"
-                      highlight
+                      appHighlight
                       [disabled]="status.childProcess"
                       (OnClick)="joinAsGroup(element)">
             <span>Join as Group</span>
@@ -51,7 +51,7 @@
         *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row
         *matRowDef="let row; columns: displayedColumns"
-        highlight
+        appHighlight
         (OnClick)="joinAsIndividual(row)"></tr>
   </table>
 

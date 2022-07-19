@@ -68,7 +68,7 @@ export class NamespacesFormPageComponent implements OnInit {
     try {
       this.data = await this.formService.upsert(this.namespaceService, values);
     } catch (e) {
-      this.formService.handleHttpError(e, { name: 'Name' });
+      this.errors = this.formService.handleHttpError(e, { name: 'Name' });
     }
   }
 

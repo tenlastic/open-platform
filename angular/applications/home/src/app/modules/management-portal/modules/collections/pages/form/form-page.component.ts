@@ -127,7 +127,7 @@ export class CollectionsFormPageComponent implements OnInit {
     try {
       this.data = await this.formService.upsert(this.collectionService, values);
     } catch (e) {
-      this.formService.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
+      this.errors = this.formService.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
     }
   }
 

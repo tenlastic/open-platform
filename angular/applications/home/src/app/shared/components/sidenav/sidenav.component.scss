@@ -15,13 +15,37 @@
       display: flex;
       flex: 0 0 auto;
       flex-direction: column;
-      min-width: 200px;
       overflow: auto;
       padding: 8px;
       z-index: 2;
 
+      &[appNav]:not(.last):not(:hover) {
+        min-width: 0px;
+
+        app-button span.mat-button-wrapper {
+          mat-icon {
+            margin-right: 0px;
+          }
+
+          span {
+            display: none;
+          }
+        }
+      }
+
       > * {
         margin-bottom: 4px;
+      }
+
+      app-button {
+        height: 36.8px;
+      }
+
+      hr {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.25);
+        border-width: 0.5px;
+        margin-top: 0px;
       }
     }
   }

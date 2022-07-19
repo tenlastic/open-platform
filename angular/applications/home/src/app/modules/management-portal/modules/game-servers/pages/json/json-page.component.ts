@@ -67,7 +67,7 @@ export class GameServersJsonPageComponent implements OnInit {
         name: 'Game Server',
       });
     } catch (e) {
-      this.formService.handleHttpError(e);
+      this.errors = this.formService.handleHttpError(e);
     }
   }
 

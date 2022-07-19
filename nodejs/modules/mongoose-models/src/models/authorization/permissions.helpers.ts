@@ -1,17 +1,18 @@
 import { AuthorizationRole } from './model';
 
 export const AuthorizationPermissionsHelpers = {
-  getFindQuery(roles: AuthorizationRole[]) {
+  getFindQuery(roles: AuthorizationRole[], selector = 'namespaceId') {
     return {
-      namespaceId: {
+      [selector]: {
         $in: {
           $query: {
             model: 'AuthorizationSchema',
             select: 'namespaceId',
             where: {
               $or: [
-                { apiKey: { $ref: 'apiKey' }, roles: { $in: roles } },
-                { roles: { $in: roles }, userId: { $ref: 'user._id' } },
+                { apiKey: { $ref: 'apiKey' }, roles: { $in: roles }, userId: { $exists: false } },
+                { apiKey: { $exists: false }, roles: { $in: roles }, userId: { $ref: 'user._id' } },
+                { apiKey: { $exists: false }, roles: { $in: roles }, userId: { $exists: false } },
               ],
               namespaceId: { $exists: true },
             },
@@ -33,6 +34,15 @@ export const AuthorizationPermissionsHelpers = {
             $elemMatch: { roles: { $in: roles }, userId: { $ref: 'user._id' } },
           },
         },
+        {
+          [`${selector}.authorizationDocuments`]: {
+            $elemMatch: {
+              apiKey: { $exists: false },
+              roles: { $in: roles },
+              userId: { $exists: false },
+            },
+          },
+        },
       ],
     };
   },
@@ -41,7 +51,13 @@ export const AuthorizationPermissionsHelpers = {
       path,
       populate: [
         {
-          match: { $or: [{ apiKey: { $ref: 'apiKey' } }, { userId: { $ref: 'user._id' } }] },
+          match: {
+            $or: [
+              { apiKey: { $ref: 'apiKey' } },
+              { userId: { $ref: 'user._id' } },
+              { apiKey: { $exists: false }, userId: { $exists: false } },
+            ],
+          },
           path: 'authorizationDocuments',
         },
       ],

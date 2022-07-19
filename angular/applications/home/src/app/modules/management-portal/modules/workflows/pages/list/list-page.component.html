@@ -60,7 +60,7 @@
           *matCellDef="let element">
         <ng-container *ngIf="hasWriteAuthorization">
           <app-button color="accent"
-                      highlight
+                      appHighlight
                       matTooltip="Delete"
                       (OnClick)="showDeletePrompt($event, element)">
             <mat-icon>delete</mat-icon>
@@ -73,7 +73,7 @@
         *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row
         *matRowDef="let row; columns: displayedColumns"
-        highlight
+        appHighlight
         [routerLink]="[row._id]"></tr>
   </table>
 

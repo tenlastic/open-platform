@@ -129,6 +129,15 @@
         </mat-radio-group>
       </div>
 
+      <h4>Web Sockets</h4>
+      <div class="row">
+        <mat-radio-group formControlName="webSockets">
+          <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.WebSocketsRead">Read</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.WebSocketsReadWrite">Read / Write</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
       <h4>Workflows</h4>
       <div class="row">
         <mat-radio-group formControlName="workflows">
@@ -138,15 +147,16 @@
         </mat-radio-group>
       </div>
     </app-toggle-section>
-
-    <div *ngFor="let error of errors"
-         class="form-error">
-      {{ error }}
-    </div>
-
-    <app-button color="primary"
-                (OnClick)="save()">Save</app-button>
-    <app-button color="accent"
-                routerLink="../">Cancel</app-button>
   </form>
+</div>
+
+<div *ngIf="!form?.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              (OnClick)="save()">Save</app-button>
 </div>

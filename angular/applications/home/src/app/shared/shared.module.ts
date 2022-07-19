@@ -30,7 +30,7 @@ import {
   TitleComponent,
   ToggleSectionComponent,
 } from './components';
-import { HighlightDirective } from './directives';
+import { HighlightDirective, NavDirective } from './directives';
 import {
   AsAnyPipe,
   CamelCaseToTitleCasePipe,
@@ -69,7 +69,7 @@ const components = [
   TitleComponent,
   ToggleSectionComponent,
 ];
-const directives = [HighlightDirective];
+const directives = [HighlightDirective, NavDirective];
 const modules = [
   CommonModule,
   FormsModule,

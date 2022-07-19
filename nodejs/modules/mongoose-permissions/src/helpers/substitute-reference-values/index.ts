@@ -6,13 +6,13 @@ import { isJsonValid } from '../is-json-valid';
  */
 export function substituteReferenceValues(json: any, references: any) {
   if (json && json.constructor === Array) {
-    return json.map(j => substituteReferenceValues(j, references));
+    return json.map((j) => substituteReferenceValues(j, references));
   } else if (json && json.constructor === Object) {
     const { $ref } = json;
 
     if ($ref) {
       if (typeof $ref === 'string') {
-        return getPropertyByDotNotation(references, $ref);
+        return getPropertyByDotNotation(references, $ref) ?? { $type: 10 };
       } else if (typeof $ref === 'object' && $ref !== null && !Array.isArray($ref)) {
         return isJsonValid(references, $ref);
       } else {

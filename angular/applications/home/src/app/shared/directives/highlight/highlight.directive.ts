@@ -1,9 +1,7 @@
 import { Directive, ElementRef, HostListener } from '@angular/core';
 
-@Directive({ selector: '[highlight]' })
+@Directive({ selector: '[appHighlight]' })
 export class HighlightDirective {
-  private static elements = new Set<Element>();
-
   constructor(private elementRef: ElementRef) {}
 
   @HostListener('mouseenter')
@@ -11,12 +9,10 @@ export class HighlightDirective {
     let element = this.elementRef.nativeElement as Element;
     element.classList.add('highlight');
 
-    HighlightDirective.elements.add(element);
-
     while (element.parentNode) {
       element = element.parentNode as Element;
 
-      if (HighlightDirective.elements.has(element)) {
+      if (element.hasAttribute && element.hasAttribute('appHighlight')) {
         element.classList.remove('highlight');
       }
     }
@@ -27,12 +23,10 @@ export class HighlightDirective {
     let element = this.elementRef.nativeElement as Element;
     element.classList.remove('highlight');
 
-    HighlightDirective.elements.delete(element);
-
     while (element.parentNode) {
       element = element.parentNode as Element;
 
-      if (HighlightDirective.elements.has(element)) {
+      if (element.hasAttribute && element.hasAttribute('appHighlight')) {
         element.classList.add('highlight');
       }
     }

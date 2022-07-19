@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
   AuthorizationQuery,
+  AuthorizationService,
   IAuthorization,
   Namespace,
   NamespaceQuery,
@@ -13,7 +14,7 @@ import { map } from 'rxjs/operators';
 import { IdentityService } from '../../../../../../core/services';
 
 @Component({
-  selector: 'namespace-layout',
+  selector: 'app-namespace-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
@@ -33,7 +34,7 @@ export class LayoutComponent implements OnInit {
     return combineLatest([
       this.authorizationQuery.selectHasRoles(null, roles, userId),
       this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
-    ]).pipe(map((a, b) => a || b));
+    ]).pipe(map(([a, b]) => a || b));
   }
   public $namespace: Observable<Namespace>;
   public IAuthorization = IAuthorization;
@@ -45,6 +46,7 @@ export class LayoutComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
+    private authorizationService: AuthorizationService,
     private identityService: IdentityService,
     private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
@@ -52,7 +54,11 @@ export class LayoutComponent implements OnInit {
 
   public async ngOnInit() {
     this.$namespace = this.namespaceQuery.selectEntity(this.namespaceId);
-    await this.namespaceService.findOne(this.namespaceId);
+
+    await Promise.all([
+      this.authorizationService.findUserAuthorizations(this.namespaceId, null),
+      this.namespaceService.findOne(this.namespaceId),
+    ]);
   }
 
   public $hasPermission(roles: IAuthorization.AuthorizationRole[]) {
@@ -61,6 +67,6 @@ export class LayoutComponent implements OnInit {
     return combineLatest([
       this.authorizationQuery.selectHasRoles(null, roles, userId),
       this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
-    ]).pipe(map((a, b) => a || b));
+    ]).pipe(map(([a, b]) => a || b));
   }
 }

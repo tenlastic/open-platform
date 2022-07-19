@@ -102,7 +102,7 @@ export class GamesFormPageComponent implements OnInit {
     try {
       this.data = await this.formService.upsert(this.gameService, values);
     } catch (e) {
-      this.formService.handleHttpError(e, {
+      this.errors = this.formService.handleHttpError(e, {
         namespaceId: 'Namespace',
         subtitle: 'Subtitle',
         title: 'Title',

@@ -256,15 +256,16 @@
         </mat-form-field>
       </div>
     </app-toggle-section>
-
-    <div *ngFor="let error of errors"
-         class="form-error">
-      {{ error }}
-    </div>
-
-    <app-button color="primary"
-                (click)="save()">Save</app-button>
-    <app-button color="accent"
-                routerLink="../">Cancel</app-button>
   </form>
+</div>
+
+<div *ngIf="!form?.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              (OnClick)="save()">Save</app-button>
 </div>

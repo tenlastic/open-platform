@@ -72,6 +72,7 @@ export class AuthorizationService {
         $or: [
           { namespaceId, userId },
           { namespaceId: { $exists: false }, userId },
+          { apiKey: { $exists: false }, namespaceId, userId: { $exists: false } },
         ],
       };
     } else {

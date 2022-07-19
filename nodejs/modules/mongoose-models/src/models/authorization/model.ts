@@ -15,7 +15,6 @@ import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change
 import * as errors from '../../errors';
 import { NamespaceDocument, NamespaceEvent } from '../namespace/model';
 import { UserDocument, UserEvent } from '../user/model';
-import { AuthorizationPermissions } from './permissions';
 
 export const AuthorizationEvent = new EventEmitter<IDatabasePayload<AuthorizationDocument>>();
 
@@ -41,6 +40,8 @@ export enum AuthorizationRole {
   QueuesReadWrite = 'Queues:ReadWrite',
   UsersRead = 'Users:Read',
   UsersReadWrite = 'Users:ReadWrite',
+  WebSocketsRead = 'WebSockets:Read',
+  WebSocketsReadWrite = 'WebSockets:ReadWrite',
   WorkflowsRead = 'Workflows:Read',
   WorkflowsReadWrite = 'Workflows:ReadWrite',
 }
@@ -70,7 +71,7 @@ UserEvent.sync(async (payload) => {
   { name: 1, namespaceId: 1 },
   { partialFilterExpression: { name: { $exists: true } }, unique: true },
 )
-@index({ namespaceId: 1, userId: 1 }, { unique: true })
+@index({ namespaceId: 1, userId: 1 }, { partialFilterExpression: { apiKey: null }, unique: true })
 @index({ roles: 1 })
 @modelOptions({
   schemaOptions: { collection: 'authorizations', minimize: false, timestamps: true },

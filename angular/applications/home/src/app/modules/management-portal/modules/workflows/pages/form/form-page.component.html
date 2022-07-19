@@ -88,7 +88,7 @@
             <mat-error>Enter a valid name.</mat-error>
           </mat-form-field>
 
-          <div *ngIf="!form.disabled"
+          <div *ngIf="!form?.disabled"
                class="row">
             <app-button *ngIf="i > 0"
                         color="accent"
@@ -121,7 +121,7 @@
         </div>
       </div>
 
-      <div *ngIf="!form.disabled"
+      <div *ngIf="!form?.disabled"
            class="row">
         <app-button color="accent"
                     layout="left"
@@ -162,17 +162,16 @@
         </mat-tree>
       </app-toggle-section>
     </ng-container>
-
-    <div *ngFor="let error of errors"
-         class="form-error">
-      {{ error }}
-    </div>
-
-    <ng-container *ngIf="!form.disabled">
-      <app-button color="primary"
-                  (OnClick)="save()">Save</app-button>
-      <app-button color="accent"
-                  routerLink="../">Cancel</app-button>
-    </ng-container>
   </form>
+</div>
+
+<div *ngIf="!form?.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              (OnClick)="save()">Save</app-button>
 </div>

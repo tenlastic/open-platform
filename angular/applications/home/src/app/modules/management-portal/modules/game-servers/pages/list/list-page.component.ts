@@ -61,6 +61,8 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe((params) => {
+      this.params = params;
+
       this.titleService.setTitle(`${TITLE} | Game Servers`);
 
       const roles = [IAuthorization.AuthorizationRole.GameServersReadWrite];
@@ -77,14 +79,16 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public async restart(record: GameServer) {
+  public async restart($event: Event, record: GameServer) {
+    $event.stopPropagation();
+
     await this.gameServerService.update({ _id: record._id, restartedAt: new Date() });
     this.matSnackBar.open('Game Server is restarting...');
   }
 
   public showDeletePrompt($event: Event, record: GameServer) {
     $event.stopPropagation();
-    
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
@@ -103,7 +107,9 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     });
   }
 
-  public showLogsDialog(record: GameServer) {
+  public showLogsDialog($event: Event, record: GameServer) {
+    $event.stopPropagation();
+
     const dialogRef = this.matDialog.open(LogsDialogComponent, {
       autoFocus: false,
       data: {

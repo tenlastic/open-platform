@@ -37,9 +37,9 @@ interface StatusNode {
 export class WorkflowsFormPageComponent implements OnInit {
   public $data: Observable<Workflow>;
   public get cpus() {
-    const limits = this.namespace.limits.workflows;
-    const limit = limits.cpu ? limits.cpu : Infinity;
-    return limits.cpu ? IWorkflow.Cpu.filter((r) => r.value <= limit) : IWorkflow.Cpu;
+    const limits = this.namespace.limits?.workflows;
+    const limit = limits?.cpu ? limits.cpu : Infinity;
+    return limits?.cpu ? IWorkflow.Cpu.filter((r) => r.value <= limit) : IWorkflow.Cpu;
   }
   public data: Workflow;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
@@ -47,22 +47,22 @@ export class WorkflowsFormPageComponent implements OnInit {
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public get memories() {
-    const limits = this.namespace.limits.workflows;
-    const limit = limits.memory ? limits.memory : Infinity;
-    return limits.memory ? IWorkflow.Memory.filter((r) => r.value <= limit) : IWorkflow.Memory;
+    const limits = this.namespace.limits?.workflows;
+    const limit = limits?.memory ? limits.memory : Infinity;
+    return limits?.memory ? IWorkflow.Memory.filter((r) => r.value <= limit) : IWorkflow.Memory;
   }
   public get parallelisms() {
-    const limits = this.namespace.limits.workflows;
-    const limit = limits.parallelism ? limits.parallelism : Infinity;
-    return limits.parallelism
+    const limits = this.namespace.limits?.workflows;
+    const limit = limits?.parallelism ? limits.parallelism : Infinity;
+    return limits?.parallelism
       ? IWorkflow.Parallelisms.filter((r) => r.value <= limit)
       : IWorkflow.Parallelisms;
   }
   public readonly separatorKeysCodes: number[] = [ENTER];
   public get storages() {
-    const limits = this.namespace.limits.workflows;
-    const limit = limits.storage ? limits.storage : Infinity;
-    return limits.storage ? IWorkflow.Storage.filter((r) => r.value <= limit) : IWorkflow.Storage;
+    const limits = this.namespace.limits?.workflows;
+    const limit = limits?.storage ? limits.storage : Infinity;
+    return limits?.storage ? IWorkflow.Storage.filter((r) => r.value <= limit) : IWorkflow.Storage;
   }
   public treeControl = new NestedTreeControl<StatusNode>((node) => node.children);
 
@@ -217,7 +217,7 @@ export class WorkflowsFormPageComponent implements OnInit {
     try {
       this.data = await this.formService.upsert(this.workflowService, values);
     } catch (e) {
-      this.formService.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
+      this.errors = this.formService.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
     }
   }
 

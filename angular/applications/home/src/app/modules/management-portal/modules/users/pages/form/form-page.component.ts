@@ -28,7 +28,8 @@ export class UsersFormPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       const roles = [IAuthorization.AuthorizationRole.UsersReadWrite];
       const userId = this.identityService.user?._id;
-      this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) || params.userId === userId;
 
       if (params.userId !== 'new') {
         this.data = await this.userService.findOne(params.userId);
@@ -57,7 +58,10 @@ export class UsersFormPageComponent implements OnInit {
     try {
       this.data = await this.formService.upsert(this.userService, values);
     } catch (e) {
-      this.formService.handleHttpError(e, { email: 'Email Address', username: 'Username' });
+      this.errors = this.formService.handleHttpError(e, {
+        email: 'Email Address',
+        username: 'Username',
+      });
     }
   }
 
@@ -71,6 +75,10 @@ export class UsersFormPageComponent implements OnInit {
         [Validators.required, Validators.pattern(/^[A-Za-z0-9]+$/), Validators.maxLength(20)],
       ],
     });
+
+    if (!this.hasWriteAuthorization) {
+      this.form.disable({ emitEvent: false });
+    }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }

@@ -13,9 +13,9 @@ import {
 
 export const ROUTES: Routes = [
   { path: '', component: GamesListPageComponent },
-  { path: ':_id', component: GamesFormPageComponent },
-  { path: ':_id/json', component: GamesJsonPageComponent },
-  { path: ':_id/multimedia', component: GamesMultimediaFormPageComponent },
+  { path: ':gameId', component: GamesFormPageComponent },
+  { path: ':gameId/json', component: GamesJsonPageComponent },
+  { path: ':gameId/multimedia', component: GamesMultimediaFormPageComponent },
 ];
 
 @NgModule({

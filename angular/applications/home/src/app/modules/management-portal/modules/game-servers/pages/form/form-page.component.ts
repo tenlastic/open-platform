@@ -32,18 +32,18 @@ interface PropertyFormGroup {
 export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public builds: Build[];
   public get cpus() {
-    const limits = this.namespace.limits.gameServers;
-    const limit = limits.cpu ? limits.cpu : Infinity;
-    return limits.cpu ? IGameServer.Cpu.filter((r) => r.value <= limit) : IGameServer.Cpu;
+    const limits = this.namespace.limits?.gameServers;
+    const limit = limits?.cpu ? limits.cpu : Infinity;
+    return limits?.cpu ? IGameServer.Cpu.filter((r) => r.value <= limit) : IGameServer.Cpu;
   }
   public data: GameServer;
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public get memories() {
-    const limits = this.namespace.limits.gameServers;
-    const limit = limits.memory ? limits.memory : Infinity;
-    return limits.memory ? IGameServer.Memory.filter((r) => r.value <= limit) : IGameServer.Memory;
+    const limits = this.namespace.limits?.gameServers;
+    const limit = limits?.memory ? limits.memory : Infinity;
+    return limits?.memory ? IGameServer.Memory.filter((r) => r.value <= limit) : IGameServer.Memory;
   }
 
   private updateGameServer$ = new Subscription();
@@ -137,7 +137,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
           try {
             this.data = await this.formService.upsert(this.gameServerService, values);
           } catch (e) {
-            this.formService.handleHttpError(e);
+            this.errors = this.formService.handleHttpError(e);
           }
         }
       });
@@ -145,7 +145,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       try {
         this.data = await this.formService.upsert(this.gameServerService, values);
       } catch (e) {
-        this.formService.handleHttpError(e);
+        this.errors = this.formService.handleHttpError(e);
       }
     }
   }

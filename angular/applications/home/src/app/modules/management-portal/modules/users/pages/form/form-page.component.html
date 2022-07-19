@@ -38,13 +38,16 @@
         <mat-error>Enter a valid alphanumeric username.</mat-error>
       </mat-form-field>
     </div>
-
-    <div *ngFor="let error of errors"
-         class="form-error">
-      {{ error }}
-    </div>
-
-    <app-button color="primary"
-                (OnClick)="save()">Save</app-button>
   </form>
+</div>
+
+<div *ngIf="!form?.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              (OnClick)="save()">Save</app-button>
 </div>

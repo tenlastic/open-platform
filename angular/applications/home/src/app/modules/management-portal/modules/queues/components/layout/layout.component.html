@@ -1,5 +1,6 @@
 <app-sidenav>
   <div *ngIf="($queue | async) as queue"
+       appNav
        class="nav">
     <app-button color="accent"
                 layout="vertical"
@@ -11,6 +12,8 @@
       <mat-icon>hourglass_bottom</mat-icon>
       <span>{{ queue.name }}</span>
     </app-button>
+
+    <hr *ngIf="$hasRelated | async">
 
     <app-button *ngIf="$hasPermission(IAuthorization.gameServerRoles) | async"
                 color="accent"

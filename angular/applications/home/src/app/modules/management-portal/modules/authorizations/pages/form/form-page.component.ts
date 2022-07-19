@@ -19,6 +19,7 @@ import {
 
 export enum AuthorizationType {
   ApiKey = 'API Key',
+  Default = 'Default',
   User = 'User',
 }
 
@@ -97,7 +98,10 @@ export class AuthorizationsFormPageComponent implements OnInit {
       this.data = await this.formService.upsert(this.authorizationService, values);
       this.openApiKeyDialog(values.apiKey);
     } catch (e) {
-      this.formService.handleHttpError(e, { namespaceId: 'Namespace', userId: 'User' });
+      this.errors = this.formService.handleHttpError(e, {
+        namespaceId: 'Namespace',
+        userId: 'User',
+      });
     }
   }
 
@@ -126,7 +130,12 @@ export class AuthorizationsFormPageComponent implements OnInit {
     }
 
     const apiKey = Array(64).fill(0).map(this.getRandomCharacter).join('');
-    const type = this.data.userId ? AuthorizationType.User : AuthorizationType.ApiKey;
+    let type = AuthorizationType.Default;
+    if (this.data.name && this.params.namespaceId) {
+      type = AuthorizationType.ApiKey;
+    } else if (this.data.userId || !this.params.namespaceId) {
+      type = AuthorizationType.User;
+    }
 
     this.form = this.formBuilder.group({
       apiKey: [this.data._id ? undefined : apiKey],
@@ -141,6 +150,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
         namespaces: this.data.roles?.find((r) => r.startsWith('Namespaces')),
         queues: this.data.roles?.find((r) => r.startsWith('Queues')),
         users: this.data.roles?.find((r) => r.startsWith('Users')),
+        webSockets: this.data.roles?.find((r) => r.startsWith('WebSockets')),
         workflows: this.data.roles?.find((r) => r.startsWith('Workflows')),
       }),
       type: { disabled: this.data._id || !this.params.namespaceId, value: type },

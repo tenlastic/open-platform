@@ -61,22 +61,22 @@
         <ng-container *ngIf="hasWriteAuthorization">
           <app-button *ngIf="element.publishedAt"
                       color="accent"
-                      highlight
+                      appHighlight
                       matTooltip="Unpublish"
-                      (OnClick)="unpublish(element)">
+                      (OnClick)="unpublish($event, element)">
             <mat-icon>visibility_off</mat-icon>
           </app-button>
 
           <app-button *ngIf="!element.publishedAt"
                       color="accent"
-                      highlight
+                      appHighlight
                       matTooltip="Publish"
-                      (OnClick)="publish(element)">
+                      (OnClick)="publish($event, element)">
             <mat-icon>visibility</mat-icon>
           </app-button>
 
           <app-button color="accent"
-                      highlight
+                      appHighlight
                       matTooltip="Delete"
                       (OnClick)="showDeletePrompt($event, element)">
             <mat-icon>delete</mat-icon>
@@ -89,7 +89,7 @@
         *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row
         *matRowDef="let row; columns: displayedColumns"
-        highlight
+        appHighlight
         [routerLink]="[row._id]"></tr>
   </table>
 

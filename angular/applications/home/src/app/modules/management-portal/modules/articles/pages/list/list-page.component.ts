@@ -64,7 +64,8 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public async publish(article: Article) {
+  public async publish($event: Event, article: Article) {
+    $event.stopPropagation();
     return this.articleService.update({ ...article, publishedAt: new Date() });
   }
 
@@ -89,7 +90,8 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
     });
   }
 
-  public async unpublish(article: Article) {
+  public async unpublish($event: Event, article: Article) {
+    $event.stopPropagation();
     return this.articleService.update({ ...article, publishedAt: null });
   }
 

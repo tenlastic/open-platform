@@ -16,10 +16,10 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     'user-write': true,
   },
   find: {
-    default: AuthorizationPermissionsHelpers.getFindQuery([
-      AuthorizationRole.NamespacesRead,
-      AuthorizationRole.NamespacesReadWrite,
-    ]),
+    default: AuthorizationPermissionsHelpers.getFindQuery(
+      [AuthorizationRole.NamespacesRead, AuthorizationRole.NamespacesReadWrite],
+      '_id',
+    ),
     'user-read': {},
     'user-write': {},
   },

@@ -15,7 +15,7 @@ export class FormService {
     private router: Router,
   ) {}
 
-  public async handleHttpError(err: HttpErrorResponse, pathMap?: { [key: string]: string }) {
+  public handleHttpError(err: HttpErrorResponse, pathMap?: { [key: string]: string }) {
     return err.error.errors.map((e) => {
       if (e.name === 'CastError' || e.name === 'ValidatorError') {
         const path = pathMap ? pathMap[e.path] : e.path;

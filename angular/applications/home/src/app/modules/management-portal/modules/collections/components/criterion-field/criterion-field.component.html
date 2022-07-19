@@ -65,7 +65,8 @@
   <mat-error>Enter a valid value.</mat-error>
 </mat-form-field>
 
-<app-button color="accent"
+<app-button *ngIf="!form.disabled"
+            color="accent"
             (OnClick)="remove.emit()">
   <mat-icon>close</mat-icon>
   <span>Remove Criterion</span>

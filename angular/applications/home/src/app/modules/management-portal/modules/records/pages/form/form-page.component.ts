@@ -116,7 +116,7 @@ export class RecordsFormPageComponent implements OnInit {
         {},
       );
 
-      this.formService.handleHttpError(e, pathMap);
+      this.errors = this.formService.handleHttpError(e, pathMap);
     }
   }
 

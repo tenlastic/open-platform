@@ -70,7 +70,7 @@ export class RecordsJsonPageComponent implements OnInit {
     try {
       await this.upsert(values);
     } catch (e) {
-      this.formService.handleHttpError(e);
+      this.errors = this.formService.handleHttpError(e);
     }
   }
 
