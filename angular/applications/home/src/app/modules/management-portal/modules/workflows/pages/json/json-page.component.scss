@@ -1,27 +1,2 @@
-@import '../../../../../../../assets/scss/page.scss';
-
-app-role-field {
-  margin-bottom: 16px;
-  width: 100%;
-}
-
-div.col-sm-6 {
-  padding: 0px;
-
-  &:nth-child(2) {
-    text-align: right;
-
-    app-button {
-      margin-left: 8px;
-      margin-right: 0px;
-    }
-  }
-}
-
-div.row {
-  align-items: baseline;
-}
-
-mat-form-field.mat-form-field {
-  width: 100%;
-}
+@import '../../../../../../../assets/scss/form.scss';
+@import '../../../../../../../assets/scss/json.scss';

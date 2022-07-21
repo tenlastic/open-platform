@@ -1,4 +1,4 @@
-@import '../../../../../../../assets/scss/page.scss';
+@import '../../../../../../../assets/scss/form.scss';
 
 div.col-sm-6 {
   margin: 0px;
@@ -21,19 +21,9 @@ div.col-sm-6 {
   }
 }
 
-div.row {
-  align-items: baseline;
-}
-
 div.row:last-of-type {
   mat-radio-group {
     margin-bottom: 0.75em;
-  }
-}
-
-form {
-  app-button {
-    margin-right: 8px;
   }
 }
 

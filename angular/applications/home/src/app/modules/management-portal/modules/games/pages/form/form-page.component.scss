@@ -1,4 +1,4 @@
-@import '../../../../../../../assets/scss/page.scss';
+@import '../../../../../../../assets/scss/form.scss';
 
 app-toggle-section {
   ::ng-deep {
@@ -35,8 +35,6 @@ div.col-sm-6 {
 }
 
 div.row {
-  align-items: baseline;
-
   div.col-sm-3 {
     &:not(:last-of-type) {
       padding-right: 8px;

@@ -1,18 +1,5 @@
 @import './theme.scss';
 
-div.form-error {
-  color: #f44336;
-  text-align: left;
-
-  &:first-of-type {
-    margin-top: -4px;
-  }
-
-  &:last-of-type {
-    margin-bottom: 16px;
-  }
-}
-
 div.page {
   height: 100%;
   overflow-x: hidden;
@@ -20,22 +7,9 @@ div.page {
   padding: 16px;
 }
 
-div.page-actions {
-  background: rgba(0, 0, 0, 0.5);
-  box-shadow: 2px -2px 3px black;
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  padding: 8px;
-
-  app-button {
-    flex: 1 1 auto;
-  }
-}
-
-form {
-  & > app-button {
-    margin-right: 8px;
+div.row {
+  &:first-of-type {
+    align-items: baseline;
   }
 }
 
@@ -43,10 +17,6 @@ h2,
 h3,
 h4 {
   margin: 0px 0px 16px;
-}
-
-mat-form-field.mat-form-field {
-  display: inline-block;
 }
 
 span {

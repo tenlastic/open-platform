@@ -1,4 +1,4 @@
-@import '../../../../../../../assets/scss/page.scss';
+@import '../../../../../../../assets/scss/form.scss';
 
 div.col-sm-6 {
   margin: 0px;
@@ -20,16 +20,6 @@ div.col-sm-6 {
 
   & > mat-label {
     font-size: 12px;
-  }
-}
-
-div.row {
-  align-items: baseline;
-}
-
-form {
-  app-button {
-    margin-right: 8px;
   }
 }
 

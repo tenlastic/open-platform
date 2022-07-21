@@ -1,4 +1,4 @@
-@import '../../../../../../../assets/scss/page.scss';
+@import '../../../../../../../assets/scss/form.scss';
 
 app-toggle-section {
   app-button {
@@ -9,10 +9,6 @@ app-toggle-section {
 div.col-sm-6 {
   margin: 0px;
   padding: 0px;
-}
-
-div.row {
-  align-items: baseline;
 }
 
 mat-form-field.mat-form-field {

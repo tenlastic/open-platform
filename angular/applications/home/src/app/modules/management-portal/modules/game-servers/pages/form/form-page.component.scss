@@ -1,4 +1,4 @@
-@import '../../../../../../../assets/scss/page.scss';
+@import '../../../../../../../assets/scss/form.scss';
 
 ::ng-deep {
   app-toggle-section[title='Status'] {
@@ -18,10 +18,6 @@ div.col-sm-6 {
 div.loading {
   display: flex;
   margin-bottom: 8px;
-}
-
-div.row {
-  align-items: baseline;
 }
 
 mat-form-field.mat-form-field {
