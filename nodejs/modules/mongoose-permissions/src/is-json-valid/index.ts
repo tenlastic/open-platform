@@ -18,7 +18,7 @@ export function isJsonValid(json: any, query: any, and = true) {
       return operations.map((o) => isJsonValid(json, o, false)).includes(true);
     }
 
-    const map = { $elemMatch, $eq, $exists, $in, $ne, $nin };
+    const map = { $elemMatch, $eq, $exists, $gt, $gte, $in, $lt, $lte, $ne, $nin };
 
     const isNotOperator = Object.keys(map).includes(key) === false;
     if (
@@ -93,6 +93,40 @@ function $exists(json: any, key: string, value: any) {
 }
 
 /**
+ * Determines if the referenced value is greater than a comparitor.
+ */
+function $gt(json: any, key: string, value: any) {
+  const reference = getPropertyByDotNotation(json, key);
+  if (reference === undefined) {
+    return false;
+  }
+
+  if (reference instanceof Date) {
+    const date = value instanceof Date ? value : new Date(value);
+    return reference.getTime() > date.getTime();
+  } else {
+    return reference > value;
+  }
+}
+
+/**
+ * Determines if the referenced value is greater than or equal to a comparitor.
+ */
+function $gte(json: any, key: string, value: any) {
+  const reference = getPropertyByDotNotation(json, key);
+  if (reference === undefined) {
+    return false;
+  }
+
+  if (reference instanceof Date) {
+    const date = value instanceof Date ? value : new Date(value);
+    return reference.getTime() >= date.getTime();
+  } else {
+    return reference >= value;
+  }
+}
+
+/**
  * Determines if the referenced value is included within the given array.
  */
 function $in(json: any, key: string, value: any[]) {
@@ -107,6 +141,40 @@ function $in(json: any, key: string, value: any[]) {
     return Boolean(value.find((v) => reference.equals(v)));
   } else {
     return value.some((v) => (v.equals ? v.equals(reference) : v === reference));
+  }
+}
+
+/**
+ * Determines if the referenced value is greater than a comparitor.
+ */
+function $lt(json: any, key: string, value: any) {
+  const reference = getPropertyByDotNotation(json, key);
+  if (reference === undefined) {
+    return false;
+  }
+
+  if (reference instanceof Date) {
+    const date = value instanceof Date ? value : new Date(value);
+    return reference.getTime() < date.getTime();
+  } else {
+    return reference < value;
+  }
+}
+
+/**
+ * Determines if the referenced value is greater than or equal to a comparitor.
+ */
+function $lte(json: any, key: string, value: any) {
+  const reference = getPropertyByDotNotation(json, key);
+  if (reference === undefined) {
+    return false;
+  }
+
+  if (reference instanceof Date) {
+    const date = value instanceof Date ? value : new Date(value);
+    return reference.getTime() <= date.getTime();
+  } else {
+    return reference <= value;
   }
 }
 
