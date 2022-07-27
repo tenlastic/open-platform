@@ -18,7 +18,7 @@ export function isJsonValid(json: any, query: any, and = true) {
       return operations.map((o) => isJsonValid(json, o, false)).includes(true);
     }
 
-    const map = { $elemMatch, $eq, $exists, $gt, $gte, $in, $lt, $lte, $ne, $nin };
+    const map = { $elemMatch, $eq, $exists, $gt, $gte, $in, $lt, $lte, $ne, $nin, $regex };
 
     const isNotOperator = Object.keys(map).includes(key) === false;
     if (
@@ -201,6 +201,19 @@ function $ne(json: any, key: string, value: any) {
  */
 function $nin(json: any, key: string, value: any[]) {
   return !$in(json, key, value);
+}
+
+/**
+ * Determines if the referenced value matches a regular expression.
+ */
+function $regex(json: any, key: string, value: any) {
+  const reference = getPropertyByDotNotation(json, key);
+  if (reference === null || reference === undefined || typeof reference !== 'string') {
+    return false;
+  }
+
+  const regex = new RegExp(value);
+  return regex.test(reference);
 }
 
 /**

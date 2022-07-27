@@ -543,6 +543,48 @@ describe('is-json-valid', function () {
       });
     });
 
+    describe('$regex', function () {
+      context('when the reference is a string', function () {
+        it('returns true', function () {
+          const json = { user: { name: 'valid name' } };
+          const query = { 'user.name': { $regex: 'valid' } };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function () {
+          const json = { user: { name: 'invalid name' } };
+          const query = { 'user.name': { $regex: '^invalid$' } };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+      });
+
+      context('when the reference is anything else', function () {
+        it('returns false', function () {
+          const json = { user: { name: null } };
+          const query = { 'user.name': { $regex: 'valid' } };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+
+        it('returns false', function () {
+          const json = { user: { name: 0 } };
+          const query = { 'user.name': { $regex: '^invalid$' } };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+      });
+    });
+
     describe('inferred value', function () {
       it('returns true', function () {
         const json = { record: { userId: '123' }, user: { _id: '123' } };
