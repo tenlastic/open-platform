@@ -6,14 +6,6 @@ export namespace INamespace {
     size: number;
   }
 
-  export interface GameLimits {
-    count: number;
-    images: number;
-    public: number;
-    size: number;
-    videos: number;
-  }
-
   export interface GameServerLimits {
     cpu: number;
     memory: number;
@@ -23,8 +15,8 @@ export namespace INamespace {
   export interface Limits {
     builds: BuildLimits;
     gameServers: GameServerLimits;
-    games: GameLimits;
     queues: QueueLimits;
+    storefronts: StorefrontLimits;
     workflows: WorkflowLimits;
   }
 
@@ -33,6 +25,14 @@ export namespace INamespace {
     memory: number;
     preemptible: boolean;
     replicas: number;
+  }
+
+  export interface StorefrontLimits {
+    count: number;
+    images: number;
+    public: number;
+    size: number;
+    videos: number;
   }
 
   export interface WorkflowLimits {

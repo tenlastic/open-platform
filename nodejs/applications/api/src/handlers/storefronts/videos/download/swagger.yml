@@ -1,0 +1,27 @@
+paths:
+  /storefronts/{storefrontId}/videos/{_id}:
+    get:
+      summary: Download Video
+      tags: [Storefront]
+      description: Returns a stream containing the video.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: storefrontId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary

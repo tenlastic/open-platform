@@ -127,7 +127,6 @@ describe('handlers/logins/refresh-token', function () {
               await handler(ctx);
 
               expect(ctx.response.body.accessToken).to.exist;
-              expect(ctx.response.body.record).to.exist;
               expect(ctx.response.body.refreshToken).to.exist;
             });
           });

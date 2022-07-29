@@ -14,11 +14,11 @@ import * as errors from '../../errors';
 import { AuthorizationDocument } from '../authorization/model';
 import {
   NamespaceBuildLimits,
-  NamespaceGameLimits,
   NamespaceGameServerLimits,
   NamespaceLimits,
   NamespaceLimitsSchema,
   NamespaceQueueLimits,
+  NamespaceStorefrontLimits,
   NamespaceWorkflowLimits,
 } from './limits';
 
@@ -55,8 +55,8 @@ export class NamespaceSchema {
     default: new NamespaceLimits({
       builds: new NamespaceBuildLimits(),
       gameServers: new NamespaceGameServerLimits(),
-      games: new NamespaceGameLimits(),
       queues: new NamespaceQueueLimits(),
+      storefronts: new NamespaceStorefrontLimits(),
       workflows: new NamespaceWorkflowLimits(),
     }),
   })

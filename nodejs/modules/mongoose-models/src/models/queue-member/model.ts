@@ -20,16 +20,6 @@ import { QueueDocument, QueueEvent } from '../queue';
 import { UserDocument } from '../user';
 import { WebSocketDocument, WebSocketEvent } from '../web-socket';
 
-export class QueueMemberAuthorizationError extends Error {
-  public userIds: string[] | mongoose.Types.ObjectId[];
-
-  constructor(userIds: string[] | mongoose.Types.ObjectId[]) {
-    super(`The following Users are missing a Game Invitation: ${userIds.join(', ')}.`);
-
-    this.name = 'QueueMemberAuthorizationError';
-    this.userIds = userIds;
-  }
-}
 export class QueueMemberUniqueError extends Error {
   public userIds: string[] | mongoose.Types.ObjectId[];
 

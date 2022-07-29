@@ -30,7 +30,6 @@ export async function handler(ctx: Context) {
     const { accessToken, refreshToken } = await Login.createAccessAndRefreshTokens(user, jwt.jti);
     ctx.response.body = { accessToken, refreshToken };
   } catch (e) {
-    throw e;
     throw new Error('Invalid refresh token.');
   }
 }

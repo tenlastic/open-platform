@@ -1,8 +1,8 @@
 import { NamespaceBuildLimitsMock } from './build';
-import { NamespaceGameLimitsMock } from './game';
 import { NamespaceGameServerLimitsMock } from './game-server';
 import { NamespaceLimits, NamespaceLimitsSchema } from './model';
 import { NamespaceQueueLimitsMock } from './queue';
+import { NamespaceStorefrontLimitsMock } from './storefront';
 import { NamespaceWorkflowLimitsMock } from './workflow';
 
 export class NamespaceLimitsMock {
@@ -14,8 +14,8 @@ export class NamespaceLimitsMock {
     const defaults = {
       builds: NamespaceBuildLimitsMock.create(),
       gameServers: NamespaceGameServerLimitsMock.create(),
-      games: NamespaceGameLimitsMock.create(),
       queues: NamespaceQueueLimitsMock.create(),
+      storefronts: NamespaceStorefrontLimitsMock.create(),
       workflows: NamespaceWorkflowLimitsMock.create(),
     };
 

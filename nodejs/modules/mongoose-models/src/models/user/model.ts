@@ -19,19 +19,6 @@ import { AuthorizationDocument } from '../authorization/model';
 
 export const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
 
-export enum UserRole {
-  Articles = 'articles',
-  Authorizations = 'authorizations',
-  Builds = 'builds',
-  Collections = 'collections',
-  GameServers = 'game-servers',
-  Games = 'games',
-  Namespaces = 'namespaces',
-  Queues = 'queues',
-  Users = 'users',
-  Workflows = 'workflows',
-}
-
 @index({ email: 1 }, { partialFilterExpression: { email: { $type: 'string' } }, unique: true })
 @index({ username: 1 }, { collation: { locale: 'en_US', strength: 1 }, unique: true })
 @index({ roles: 1 })
@@ -68,9 +55,6 @@ export class UserSchema {
 
   @prop({ required: true })
   public password: string;
-
-  @prop({ enum: UserRole, type: String })
-  public roles: string[];
 
   public updatedAt: Date;
 

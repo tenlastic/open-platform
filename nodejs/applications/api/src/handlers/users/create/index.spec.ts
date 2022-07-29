@@ -7,14 +7,8 @@ import { handler } from '.';
 
 const chance = new Chance();
 
-describe('handlers/users/create', function() {
-  let user: UserDocument;
-
-  beforeEach(async function() {
-    user = await UserMock.create({ roles: ['users'] });
-  });
-
-  it('creates a new record', async function() {
+describe('handlers/users/create', function () {
+  it('creates a new record', async function () {
     const ctx = new ContextMock({
       request: {
         body: {
@@ -22,9 +16,6 @@ describe('handlers/users/create', function() {
           password: chance.hash(),
           username: chance.hash({ length: 20 }),
         },
-      },
-      state: {
-        user,
       },
     });
 

@@ -1,0 +1,30 @@
+paths:
+  /storefronts/{_id}/background:
+    post:
+      summary: Upload Background Image
+      tags: [Storefront]
+      description: Uploads the background image for a Storefront.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+              format: binary
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Storefront'

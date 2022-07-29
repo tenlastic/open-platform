@@ -14,19 +14,6 @@ components:
           format: email
         password:
           type: string
-        roles:
-          type: array
-          items:
-            type: string
-            enum:
-              - articles
-              - builds
-              - game-servers
-              - games
-              - namespaces
-              - queues
-              - users
-              - workflows
         updatedAt:
           type: string
           format: date-time

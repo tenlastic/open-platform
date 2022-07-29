@@ -7,9 +7,9 @@ import {
 } from '@typegoose/typegoose';
 
 import { NamespaceBuildLimitsSchema } from './build';
-import { NamespaceGameLimitsSchema } from './game';
 import { NamespaceGameServerLimitsSchema } from './game-server';
 import { NamespaceQueueLimitsSchema } from './queue';
+import { NamespaceStorefrontLimitsSchema } from './storefront';
 import { NamespaceWorkflowLimitsSchema } from './workflow';
 
 @modelOptions({ schemaOptions: { _id: false } })
@@ -21,10 +21,10 @@ export class NamespaceLimitsSchema {
   public gameServers: NamespaceGameServerLimitsSchema;
 
   @prop({ required: true })
-  public games: NamespaceGameLimitsSchema;
+  public queues: NamespaceQueueLimitsSchema;
 
   @prop({ required: true })
-  public queues: NamespaceQueueLimitsSchema;
+  public storefronts: NamespaceStorefrontLimitsSchema;
 
   @prop({ required: true })
   public workflows: NamespaceWorkflowLimitsSchema;

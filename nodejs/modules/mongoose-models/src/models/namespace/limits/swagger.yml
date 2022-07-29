@@ -19,17 +19,6 @@ components:
               type: integer
             preemptible:
               type: boolean
-        games:
-          type: object
-          properties:
-            count:
-              type: integer
-            images:
-              type: integer
-            size:
-              type: integer
-            videos:
-              type: integer
         queues:
           type: object
           properties:
@@ -40,6 +29,17 @@ components:
             preemptible:
               type: boolean
             replicas:
+              type: integer
+        storefronts:
+          type: object
+          properties:
+            count:
+              type: integer
+            images:
+              type: integer
+            size:
+              type: integer
+            videos:
               type: integer
         workflows:
           type: object
@@ -59,6 +59,6 @@ components:
       required:
         - builds
         - gameServers
-        - games
         - queues
+        - storefronts
         - workflows
