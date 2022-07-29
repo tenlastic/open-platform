@@ -59,17 +59,6 @@
       <span>Collections</span>
     </app-button>
 
-    <app-button *ngIf="$hasPermission(IAuthorization.gameRoles) | async"
-                color="accent"
-                layout="vertical"
-                [routerLink]="['games']"
-                routerLinkActive="active"
-                text="left"
-                width="full">
-      <mat-icon>sports_esports</mat-icon>
-      <span>Games</span>
-    </app-button>
-
     <app-button *ngIf="$hasPermission(IAuthorization.gameServerRoles) | async"
                 color="accent"
                 layout="vertical"
@@ -90,6 +79,17 @@
                 width="full">
       <mat-icon>hourglass_bottom</mat-icon>
       <span>Queues</span>
+    </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.storefrontRoles) | async"
+                color="accent"
+                layout="vertical"
+                [routerLink]="['storefront']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>storefront</mat-icon>
+      <span>Storefront</span>
     </app-button>
 
     <app-button *ngIf="$hasPermission(IAuthorization.workflowRoles) | async"

@@ -1,0 +1,57 @@
+<div *ngIf="!statusText"
+     class="action">
+  <app-button color="primary"
+              [disabled]="isButtonDisabled"
+              (OnClick)="click()">
+    <mat-icon *ngIf="buttonIcon">{{ buttonIcon }}</mat-icon>
+    <span class="text">{{ buttonText }}</span>
+  </app-button>
+
+  <ng-container *ngIf="status.state === UpdateServiceState.Ready">
+    <app-button color="accent"
+                [routerLink]="['/', 'storefronts', storefront._id, 'game-servers']"
+                routerLinkActive="active">
+      <mat-icon>public</mat-icon>
+      <span class="text">Game Servers</span>
+    </app-button>
+
+    <app-button color="accent"
+                [routerLink]="['/', 'storefronts', storefront._id, 'queues']"
+                routerLinkActive="active">
+      <mat-icon>hourglass_bottom</mat-icon>
+      <span class="text">Queues</span>
+    </app-button>
+
+    <app-button color="accent"
+                matTooltip="Show in Explorer"
+                (OnClick)="showInExplorer()">
+      <mat-icon>folder</mat-icon>
+      <span class="text"></span>
+    </app-button>
+
+    <app-button color="accent"
+                matTooltip="Check for Updates / Repair Installation"
+                (OnClick)="sync()">
+      <mat-icon>build</mat-icon>
+      <span class="text"></span>
+    </app-button>
+
+    <app-button color="accent"
+                matTooltip="Delete Installation"
+                (OnClick)="delete()">
+      <mat-icon>delete</mat-icon>
+      <span class="text"></span>
+    </app-button>
+  </ng-container>
+</div>
+
+<div *ngIf="statusText"
+     class="status">
+  <div>
+    <span>{{ statusText }}</span>
+    <span *ngIf="progressText">{{ progressText }}</span>
+  </div>
+
+  <mat-progress-bar [mode]="progress ? 'determinate' : 'indeterminate'"
+                    [value]="progress"></mat-progress-bar>
+</div>

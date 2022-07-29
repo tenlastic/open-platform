@@ -39,14 +39,15 @@ export const ROUTES: Routes = [
         loadChildren: () =>
           import('../game-servers/game-servers.module').then((m) => m.GameServerModule),
       },
-      {
-        path: 'games',
-        loadChildren: () => import('../games/games.module').then((m) => m.GameModule),
-      },
       { path: 'json', component: NamespacesJsonPageComponent },
       {
         path: 'queues',
         loadChildren: () => import('../queues/queues.module').then((m) => m.QueueModule),
+      },
+      {
+        path: 'storefront',
+        loadChildren: () =>
+          import('../storefronts/storefronts.module').then((m) => m.StorefrontModule),
       },
       {
         path: 'users',

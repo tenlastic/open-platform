@@ -77,18 +77,18 @@ export class NamespacesJsonPageComponent implements OnInit {
           memory: 0,
           preemptible: false,
         },
-        games: {
-          count: 0,
-          images: 0,
-          public: 0,
-          size: 0,
-          videos: 0,
-        },
         queues: {
           cpu: 0,
           memory: 0,
           preemptible: false,
           replicas: 0,
+        },
+        storefronts: {
+          count: 0,
+          images: 0,
+          public: 0,
+          size: 0,
+          videos: 0,
         },
         workflows: {
           count: 0,

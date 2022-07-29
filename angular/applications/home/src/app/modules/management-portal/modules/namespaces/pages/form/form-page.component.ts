@@ -87,18 +87,18 @@ export class NamespacesFormPageComponent implements OnInit {
           memory: [limits?.gameServers?.memory || 0, Validators.required],
           preemptible: [limits?.gameServers?.preemptible || false, Validators.required],
         }),
-        games: this.formBuilder.group({
-          count: [limits?.games?.count || 0, Validators.required],
-          images: [limits?.games?.images || 0, Validators.required],
-          public: [limits?.games?.public || 0, Validators.required],
-          size: [limits?.games?.size || 0, Validators.required],
-          videos: [limits?.games?.videos || 0, Validators.required],
-        }),
         queues: this.formBuilder.group({
           cpu: [limits?.queues?.cpu || 0, Validators.required],
           memory: [limits?.queues?.memory || 0, Validators.required],
           preemptible: [limits?.queues?.preemptible || false, Validators.required],
           replicas: [limits?.queues?.replicas || 0, Validators.required],
+        }),
+        storefronts: this.formBuilder.group({
+          count: [limits?.storefronts?.count || 0, Validators.required],
+          images: [limits?.storefronts?.images || 0, Validators.required],
+          public: [limits?.storefronts?.public || 0, Validators.required],
+          size: [limits?.storefronts?.size || 0, Validators.required],
+          videos: [limits?.storefronts?.videos || 0, Validators.required],
         }),
         workflows: this.formBuilder.group({
           count: [limits?.workflows?.count || 0, Validators.required],

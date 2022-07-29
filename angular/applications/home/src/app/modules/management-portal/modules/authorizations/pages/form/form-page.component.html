@@ -1,4 +1,5 @@
-<div class="page">
+<div *ngIf="form"
+     class="page">
   <div class="row">
     <div class="col-sm-6">
       <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Authorization</app-title>
@@ -14,8 +15,7 @@
     </div>
   </div>
 
-  <form *ngIf="form"
-        [formGroup]="form"
+  <form [formGroup]="form"
         autocomplete="off">
     <div class="row">
       <mat-form-field floatLabel="always">
@@ -84,15 +84,6 @@
         </mat-radio-group>
       </div>
 
-      <h4>Games</h4>
-      <div class="row">
-        <mat-radio-group formControlName="games">
-          <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.GamesRead">Read</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.GamesReadWrite">Read / Write</mat-radio-button>
-        </mat-radio-group>
-      </div>
-
       <h4>Game Servers</h4>
       <div class="row">
         <mat-radio-group formControlName="gameServers">
@@ -117,6 +108,15 @@
           <mat-radio-button>None</mat-radio-button>
           <mat-radio-button [value]="AuthorizationRole.QueuesRead">Read</mat-radio-button>
           <mat-radio-button [value]="AuthorizationRole.QueuesReadWrite">Read / Write</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <h4>Storefronts</h4>
+      <div class="row">
+        <mat-radio-group formControlName="storefronts">
+          <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.StorefrontsRead">Read</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.StorefrontsReadWrite">Read / Write</mat-radio-button>
         </mat-radio-group>
       </div>
 

@@ -10,11 +10,9 @@ import {
   BuildService,
   Collection,
   CollectionService,
-  Game,
   GameServer,
   GameServerQuery,
   GameServerService,
-  GameService,
   Group,
   GroupInvitation,
   GroupInvitationService,
@@ -28,6 +26,8 @@ import {
   QueueMemberService,
   QueueQuery,
   QueueService,
+  Storefront,
+  StorefrontService,
   UserQuery,
   UserService,
   WebSocket,
@@ -61,7 +61,6 @@ export class AppComponent implements OnInit {
     private electronService: ElectronService,
     private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
-    private gameService: GameService,
     private groupService: GroupService,
     private groupInvitationService: GroupInvitationService,
     private identityService: IdentityService,
@@ -73,6 +72,7 @@ export class AppComponent implements OnInit {
     private queueService: QueueService,
     private router: Router,
     private socketService: SocketService,
+    private storefrontService: StorefrontService,
     private titleService: Title,
     private userQuery: UserQuery,
     private userService: UserService,
@@ -155,12 +155,12 @@ export class AppComponent implements OnInit {
     this.socket.subscribe('builds', Build, this.buildService);
     this.socket.subscribe('collections', Collection, this.collectionService);
     this.socket.subscribe('game-servers', GameServer, this.gameServerService);
-    this.socket.subscribe('games', Game, this.gameService);
     this.socket.subscribe('groups', Group, this.groupService);
     this.socket.subscribe('group-invitations', GroupInvitation, this.groupInvitationService);
     this.socket.subscribe('messages', Message, this.messageService);
     this.socket.subscribe('queue-members', QueueMember, this.queueMemberService);
     this.socket.subscribe('queues', Queue, this.queueService);
+    this.socket.subscribe('storefronts', Storefront, this.storefrontService);
     this.socket.subscribe('workflows', Workflow, this.workflowService);
     this.socket.subscribe('web-sockets', WebSocket, this.webSocketService);
   }

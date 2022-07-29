@@ -1,13 +1,12 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
-  Game,
-  GameQuery,
   GameServer,
   GameServerQuery,
-  GameService,
   Queue,
   QueueQuery,
+  Storefront,
+  StorefrontService,
 } from '@tenlastic/ng-http';
 import { Subscription } from 'rxjs';
 
@@ -24,9 +23,9 @@ export interface MatchPromptComponentData {
 })
 export class MatchPromptComponent implements OnDestroy, OnInit {
   public accepted = false;
-  public game: Game;
   public message: string;
   public queue: Queue;
+  public storefront: Storefront;
 
   private waitForGameServer$ = new Subscription();
   private timeout: any;
@@ -35,8 +34,8 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
     @Inject(MAT_DIALOG_DATA) public data: MatchPromptComponentData,
     public dialogRef: MatDialogRef<MatchPromptComponent>,
     private gameServerQuery: GameServerQuery,
-    private gameService: GameService,
     private queueQuery: QueueQuery,
+    private storefrontService: StorefrontService,
     private updateService: UpdateService,
   ) {}
 
@@ -44,10 +43,10 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
     this.dialogRef.disableClose = true;
     this.timeout = setTimeout(() => this.dialogRef.close(), 30000);
 
-    const games = await this.gameService.find({
+    const storefront = await this.storefrontService.find({
       where: { namespaceId: this.data.gameServer.namespaceId },
     });
-    this.game = games[0];
+    this.storefront = storefront[0];
     this.queue = new Queue(this.queueQuery.getEntity(this.data.gameServer.queueId));
   }
 

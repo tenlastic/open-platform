@@ -6,7 +6,7 @@ export interface Environment {
   buildApiBaseUrl: string;
   collectionApiBaseUrl: string;
   friendApiBaseUrl: string;
-  gameApiBaseUrl: string;
+  storefrontApiBaseUrl: string;
   gameServerApiBaseUrl: string;
   groupApiBaseUrl: string;
   groupInvitationApiBaseUrl: string;
@@ -32,7 +32,7 @@ export class EnvironmentService implements Environment {
   public buildApiBaseUrl: string;
   public collectionApiBaseUrl: string;
   public friendApiBaseUrl: string;
-  public gameApiBaseUrl: string;
+  public storefrontApiBaseUrl: string;
   public gameServerApiBaseUrl: string;
   public groupApiBaseUrl: string;
   public groupInvitationApiBaseUrl: string;

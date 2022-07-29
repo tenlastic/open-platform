@@ -24,11 +24,6 @@ export const ROUTES: Routes = [
     path: 'authentication',
   },
   {
-    component: LayoutComponent,
-    loadChildren: () => import('./modules/games/games.module').then((m) => m.GamesModule),
-    path: 'games',
-  },
-  {
     canActivate: [LoginGuard],
     component: LayoutComponent,
     loadChildren: () =>
@@ -36,6 +31,11 @@ export const ROUTES: Routes = [
         (m) => m.ManagementPortalModule,
       ),
     path: 'management-portal',
+  },
+  {
+    component: LayoutComponent,
+    loadChildren: () => import('./modules/store/store.module').then((m) => m.StoreModule),
+    path: 'store',
   },
   {
     component: LayoutComponent,

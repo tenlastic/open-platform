@@ -7,6 +7,9 @@ import {
   Namespace,
   NamespaceQuery,
   NamespaceService,
+  Storefront,
+  StorefrontQuery,
+  StorefrontService,
 } from '@tenlastic/ng-http';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -24,9 +27,9 @@ export class LayoutComponent implements OnInit {
       ...IAuthorization.articleRoles,
       ...IAuthorization.buildRoles,
       ...IAuthorization.collectionRoles,
-      ...IAuthorization.gameRoles,
       ...IAuthorization.gameServerRoles,
       ...IAuthorization.queueRoles,
+      ...IAuthorization.storefrontRoles,
       ...IAuthorization.workflowRoles,
     ];
     const userId = this.identityService.user?._id;
@@ -37,6 +40,7 @@ export class LayoutComponent implements OnInit {
     ]).pipe(map(([a, b]) => a || b));
   }
   public $namespace: Observable<Namespace>;
+  public $storefront: Observable<Storefront>;
   public IAuthorization = IAuthorization;
 
   private get namespaceId() {
@@ -50,14 +54,20 @@ export class LayoutComponent implements OnInit {
     private identityService: IdentityService,
     private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
+    private storefrontQuery: StorefrontQuery,
+    private storefrontService: StorefrontService,
   ) {}
 
   public async ngOnInit() {
     this.$namespace = this.namespaceQuery.selectEntity(this.namespaceId);
+    this.$storefront = this.storefrontQuery
+      .selectAll({ filterBy: (s) => s.namespaceId === this.namespaceId })
+      .pipe(map((s) => s[0]));
 
     await Promise.all([
       this.authorizationService.findUserAuthorizations(this.namespaceId, null),
       this.namespaceService.findOne(this.namespaceId),
+      this.storefrontService.find({ limit: 1, where: { namespaceId: this.namespaceId } }),
     ]);
   }
 

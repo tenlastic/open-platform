@@ -1,4 +1,5 @@
-<div class="page">
+<div *ngIf="form"
+     class="page">
   <div class="row">
     <div class="col-sm-6">
       <app-title *ngIf="hasWriteAuthorization || hasWriteAuthorizationForNamespace">
@@ -17,8 +18,7 @@
     </div>
   </div>
 
-  <form *ngIf="form"
-        [formGroup]="form"
+  <form [formGroup]="form"
         autocomplete="off">
     <div class="row">
       <mat-form-field floatLabel="always">
@@ -56,9 +56,9 @@
       </div>
 
       <div class="row"
-           formGroupName="games">
+           formGroupName="storefronts">
         <mat-form-field floatLabel="always">
-          <mat-label>Total Games</mat-label>
+          <mat-label>Total Storefronts</mat-label>
           <input matInput
                  required
                  formControlName="count"
@@ -68,7 +68,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Total Public Games</mat-label>
+          <mat-label>Total Public Storefronts</mat-label>
           <input matInput
                  required
                  formControlName="public"
@@ -78,7 +78,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Maximum Images Per Game</mat-label>
+          <mat-label>Maximum Images Per Storefront</mat-label>
           <input matInput
                  required
                  formControlName="images"
@@ -88,7 +88,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Maximum Videos Per Game</mat-label>
+          <mat-label>Maximum Videos Per Storefront</mat-label>
           <input matInput
                  required
                  formControlName="videos"
@@ -98,7 +98,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Maximum Game Image / Video Size (B)</mat-label>
+          <mat-label>Maximum Storefront Image / Video Size (B)</mat-label>
           <input matInput
                  required
                  formControlName="size"

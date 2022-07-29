@@ -1,0 +1,93 @@
+<app-header-toolbar>
+  <img src="/assets/images/logo.png" />
+
+  <app-button *ngIf="($storefronts | async)?.length > 1"
+              color="accent"
+              routerLinkActive="active"
+              text="left"
+              [routerLink]="['/', 'storefronts']"
+              [routerLinkActiveOptions]="{ exact: true }">
+    <mat-icon>sports_esports</mat-icon>
+
+    <div *ngIf="$activeStorefront | async as activeStorefront; else selectAStorefront">
+      {{ activeStorefront.title }}
+
+      <div *ngIf="activeStorefront.subtitle">
+        {{ activeStorefront.subtitle }}
+      </div>
+    </div>
+    <ng-template #selectAStorefront>
+      <span>Select a Storefront</span>
+    </ng-template>
+
+    <mat-icon>keyboard_arrow_down</mat-icon>
+  </app-button>
+
+  <app-button *ngIf="($storefronts | async)?.length <= 1"
+              color="accent"
+              disabled
+              routerLinkActive="active"
+              text="left">
+    <mat-icon>sports_esports</mat-icon>
+
+    <div *ngIf="$activeStorefront | async as activeStorefront">
+      {{ activeStorefront.title }}
+
+      <div *ngIf="activeStorefront.subtitle">
+        {{ activeStorefront.subtitle }}
+      </div>
+    </div>
+  </app-button>
+
+  <ng-container *ngIf="$activeStorefront | async as activeStorefront">
+    <app-button color="accent"
+                routerLinkActive="active"
+                [routerLink]="['/', 'storefronts', activeStorefront._id]"
+                [routerLinkActiveOptions]="{ exact: true }">
+      <mat-icon fontSet="material-icons-outlined">info</mat-icon>
+      <span>Information</span>
+    </app-button>
+
+    <app-button *ngIf="($news | async).length"
+                color="accent"
+                routerLinkActive="active"
+                [routerLink]="['/', 'storefronts', activeStorefront._id, 'news']">
+      <mat-icon fontSet="material-icons-outlined">campaign</mat-icon>
+      <span>News</span>
+    </app-button>
+
+    <app-button *ngIf="($patchNotes | async).length"
+                color="accent"
+                routerLinkActive="active"
+                [routerLink]="['/', 'storefronts', activeStorefront._id, 'patch-notes']">
+      <mat-icon>healing</mat-icon>
+      <span>Patch Notes</span>
+    </app-button>
+
+    <app-button *ngIf="($guides | async).length"
+                color="accent"
+                routerLinkActive="active"
+                [routerLink]="['/', 'storefronts', activeStorefront._id, 'guides']">
+      <mat-icon fontSet="material-icons-outlined">format_list_bulleted</mat-icon>
+      <span>Guides</span>
+    </app-button>
+  </ng-container>
+
+  <span class="space"></span>
+
+  <app-button *ngIf="!isElectron"
+              color="primary"
+              [href]="launcherUrl">
+    <span>Download Launcher</span>
+  </app-button>
+</app-header-toolbar>
+
+<div class="content">
+  <app-social>
+    <div class="content">
+      <router-outlet></router-outlet>
+      <app-status *ngIf="$showStatusComponent | async as storefront"
+                  [storefront]="storefront"></app-status>
+    </div>
+  </app-social>
+</div>

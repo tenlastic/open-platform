@@ -77,15 +77,18 @@ export class FormService {
   public async upsert<T extends Model>(
     service: { create: (data: Partial<T>) => Promise<T>; update: (data: Partial<T>) => Promise<T> },
     values: Partial<T>,
-    options?: { name?: string; navigate?: boolean; path?: string },
+    options?: { addIdToPath?: boolean; name?: string; navigate?: boolean; path?: string },
   ) {
     const result = values._id ? await service.update(values) : await service.create(values);
 
     const name = options?.name ?? result.constructor.name;
     this.matSnackBar.open(`${name} saved successfully.`);
 
+    const addIdToPath = options?.addIdToPath ?? true;
     const path = options?.path ?? '../';
-    const url = this.getUrl(this.router.url.concat('/', path, result._id));
+    const url = addIdToPath
+      ? this.getUrl(this.router.url.concat('/', path, result._id))
+      : this.getUrl(this.router.url.concat('/', path));
 
     const navigate = options?.navigate ?? true;
     if (navigate) {

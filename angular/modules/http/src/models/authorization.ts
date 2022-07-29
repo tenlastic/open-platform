@@ -16,13 +16,13 @@ export namespace IAuthorization {
     CollectionsReadWrite = 'Collections:ReadWrite',
     GameServersRead = 'GameServers:Read',
     GameServersReadWrite = 'GameServers:ReadWrite',
-    GamesRead = 'Games:Read',
-    GamesReadWrite = 'Games:ReadWrite',
     LoginsRead = 'Logins:Read',
     NamespacesRead = 'Namespaces:Read',
     NamespacesReadWrite = 'Namespaces:ReadWrite',
     QueuesRead = 'Queues:Read',
     QueuesReadWrite = 'Queues:ReadWrite',
+    StorefrontsRead = 'Storefronts:Read',
+    StorefrontsReadWrite = 'Storefronts:ReadWrite',
     UsersRead = 'Users:Read',
     UsersReadWrite = 'Users:ReadWrite',
     WebSocketsRead = 'WebSockets:Read',
@@ -49,7 +49,6 @@ export namespace IAuthorization {
     AuthorizationRole.CollectionsRead,
     AuthorizationRole.CollectionsReadWrite,
   ];
-  export const gameRoles = [AuthorizationRole.GamesRead, AuthorizationRole.GamesReadWrite];
   export const gameServerRoles = [
     AuthorizationRole.GameServersRead,
     AuthorizationRole.GameServersReadWrite,
@@ -59,6 +58,10 @@ export namespace IAuthorization {
     AuthorizationRole.NamespacesReadWrite,
   ];
   export const queueRoles = [AuthorizationRole.QueuesRead, AuthorizationRole.QueuesReadWrite];
+  export const storefrontRoles = [
+    AuthorizationRole.StorefrontsRead,
+    AuthorizationRole.StorefrontsReadWrite,
+  ];
   export const userRoles = [AuthorizationRole.UsersRead, AuthorizationRole.UsersReadWrite];
   export const webSocketRoles = [
     AuthorizationRole.WebSocketsRead,

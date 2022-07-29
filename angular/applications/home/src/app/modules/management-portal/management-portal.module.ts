@@ -35,10 +35,6 @@ export const ROUTES: Routes = [
           import('./modules/game-servers/game-servers.module').then((m) => m.GameServerModule),
       },
       {
-        path: 'games',
-        loadChildren: () => import('./modules/games/games.module').then((m) => m.GameModule),
-      },
-      {
         path: 'namespaces',
         loadChildren: () =>
           import('./modules/namespaces/namespaces.module').then((m) => m.NamespaceModule),
@@ -53,6 +49,11 @@ export const ROUTES: Routes = [
           import('./modules/refresh-tokens/refresh-tokens.module').then(
             (m) => m.RefreshTokenModule,
           ),
+      },
+      {
+        path: 'storefronts',
+        loadChildren: () =>
+          import('./modules/storefronts/storefronts.module').then((m) => m.StorefrontModule),
       },
       {
         path: 'users',

@@ -4,12 +4,12 @@ import {
   AuthorizationService,
   Build,
   BuildService,
-  Game,
   GameServer,
-  GameService,
   IAuthorization,
   IBuild,
   LoginService,
+  Storefront,
+  StorefrontService,
 } from '@tenlastic/ng-http';
 import { ChildProcess } from 'child_process';
 import { Subject } from 'rxjs';
@@ -60,7 +60,7 @@ export interface UpdateServiceStatus {
 
 @Injectable({ providedIn: 'root' })
 export class UpdateService {
-  public OnChange = new Subject<Map<Game, UpdateServiceStatus>>();
+  public OnChange = new Subject<Map<Storefront, UpdateServiceStatus>>();
 
   private get installPath() {
     return this.electronService.remote.app.getPath('userData').replace(/\\/g, '/') + '/Tenlastic';
@@ -87,9 +87,9 @@ export class UpdateService {
     private authorizationService: AuthorizationService,
     private buildService: BuildService,
     private electronService: ElectronService,
-    private gameService: GameService,
     private identityService: IdentityService,
     private loginService: LoginService,
+    private storefrontService: StorefrontService,
   ) {
     this.subscribeToServices();
     this.loginService.onLogout.subscribe(() => this.status.clear());
@@ -232,13 +232,13 @@ export class UpdateService {
     }
 
     const accessToken = await this.identityService.getAccessToken();
-    const games = await this.gameService.find({ where: { namespaceId } });
     const refreshToken = this.identityService.getRefreshToken();
 
+    const storefronts = await this.storefrontService.find({ where: { namespaceId } });
     const env = {
       ...process.env,
       ACCESS_TOKEN: accessToken.value,
-      GAME_JSON: games.length > 0 ? JSON.stringify(games[0]) : null,
+      GAME_JSON: storefronts.length > 0 ? JSON.stringify(storefronts[0]) : null,
       GAME_SERVER_JSON: JSON.stringify(options.gameServer),
       GROUP_ID: options.groupId,
       REFRESH_TOKEN: refreshToken.value,
@@ -407,7 +407,7 @@ export class UpdateService {
     return updatedFiles;
   }
 
-  private onGameChange(record: Game) {
+  private onStorefrontChange(record: Storefront) {
     this.checkForUpdates(record.namespaceId);
   }
 
@@ -428,9 +428,15 @@ export class UpdateService {
       this.checkForUpdates(record.namespaceId);
     });
 
-    this.gameService.onCreate.subscribe((record: Game) => this.onGameChange(record));
-    this.gameService.onDelete.subscribe((record: Game) => this.onGameChange(record));
-    this.gameService.onUpdate.subscribe((record: Game) => this.onGameChange(record));
+    this.storefrontService.onDelete.subscribe((record: Storefront) =>
+      this.onStorefrontChange(record),
+    );
+    this.storefrontService.onUpdate.subscribe((record: Storefront) =>
+      this.onStorefrontChange(record),
+    );
+    this.storefrontService.onCreate.subscribe((record: Storefront) =>
+      this.onStorefrontChange(record),
+    );
     this.authorizationService.onCreate.subscribe((record: Authorization) =>
       this.onAuthorizationChange(record),
     );

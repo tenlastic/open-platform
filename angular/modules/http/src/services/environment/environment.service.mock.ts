@@ -5,9 +5,9 @@ import { Environment } from './environment.service';
 @Injectable()
 export class EnvironmentServiceMock implements Environment {
   public articleApiBaseUrl = 'http://api.localhost/articles';
+  public buildApiBaseUrl = 'http://api.localhost/builds';
   public collectionApiBaseUrl = 'http://api.localhost/collections';
   public friendApiBaseUrl = 'http://api.localhost/friends';
-  public gameApiBaseUrl = 'http://api.localhost/games';
   public authorizationApiBaseUrl = 'http://api.localhost/authorizations';
   public gameServerApiBaseUrl = 'http://api.localhost/game-servers';
   public groupApiBaseUrl = 'http://api.localhost/groups';
@@ -21,7 +21,7 @@ export class EnvironmentServiceMock implements Environment {
   public queueApiBaseUrl = 'http://api.localhost/queues';
   public queueMemberApiBaseUrl = 'http://api.localhost/queue-members';
   public refreshTokenApiBaseUrl = 'http://api.localhost/refresh-tokens';
-  public buildApiBaseUrl = 'http://api.localhost/builds';
+  public storefrontApiBaseUrl = 'http://api.localhost/storefronts';
   public userApiBaseUrl = 'http://api.localhost/users';
   public webSocketApiBaseUrl = 'http://api.localhost/web-sockets';
   public workflowApiBaseUrl = 'http://api.localhost/workflows';

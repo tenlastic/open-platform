@@ -6,7 +6,7 @@ export namespace INamespace {
     size: number;
   }
 
-  export interface GameLimits {
+  export interface StorefrontLimits {
     count: number;
     images: number;
     public: number;
@@ -23,8 +23,8 @@ export namespace INamespace {
   export interface Limits {
     builds: BuildLimits;
     gameServers: GameServerLimits;
-    games: GameLimits;
     queues: QueueLimits;
+    storefronts: StorefrontLimits;
     workflows: WorkflowLimits;
   }
 

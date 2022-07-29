@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-  Game,
-  GameQuery,
-  GameService,
   Namespace,
   NamespaceQuery,
   NamespaceService,
+  Storefront,
+  StorefrontQuery,
+  StorefrontService,
 } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
 
@@ -25,10 +25,10 @@ import { PromptComponent } from '../prompt/prompt.component';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
-  public get $activeGameId() {
-    return this.gameQuery.selectActiveId();
+  public get $activeStorefrontId() {
+    return this.storefrontQuery.selectActiveId();
   }
-  public $games: Observable<Game[]>;
+  public $storefronts: Observable<Storefront[]>;
   public $namespaces: Observable<Namespace[]>;
   public get isElectron() {
     return this.electronService.isElectron;
@@ -42,20 +42,20 @@ export class LayoutComponent implements OnInit {
 
   constructor(
     private electronService: ElectronService,
-    private gameQuery: GameQuery,
-    private gameService: GameService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
     private socketService: SocketService,
+    private storefrontQuery: StorefrontQuery,
+    private storefrontService: StorefrontService,
   ) {}
 
   public async ngOnInit() {
-    this.$games = this.$games || this.gameQuery.selectAll();
+    this.$storefronts = this.$storefronts || this.storefrontQuery.selectAll();
     this.$namespaces = this.$namespaces || this.namespaceQuery.selectAll();
 
-    await Promise.all([this.gameService.find({}), this.namespaceService.find({})]);
+    await Promise.all([this.storefrontService.find({}), this.namespaceService.find({})]);
   }
 
   public close() {
