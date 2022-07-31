@@ -1,7 +1,7 @@
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
-import { Storefront, StorefrontAccess, StorefrontSchema } from './model';
+import { Storefront, StorefrontSchema } from './model';
 
 export class StorefrontMock {
   /**
@@ -12,7 +12,6 @@ export class StorefrontMock {
     const chance = new Chance();
 
     const defaults = {
-      access: StorefrontAccess.Private,
       namespaceId: new mongoose.Types.ObjectId(),
       title: chance.hash(),
     };

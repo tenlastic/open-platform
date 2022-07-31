@@ -1,16 +1,7 @@
 import { BaseModel } from './base';
 
-export namespace IStorefront {
-  export enum Access {
-    Private = 'private',
-    PrivatePublic = 'private-public',
-    Public = 'public',
-  }
-}
-
 export class StorefrontModel extends BaseModel {
   public _id: string;
-  public access: IStorefront.Access;
   public background: string;
   public createdAt: Date;
   public description: string;

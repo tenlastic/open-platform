@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
-import { Storefront, StorefrontService, IStorefront } from '@tenlastic/ng-http';
+import { Storefront, StorefrontService } from '@tenlastic/ng-http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
@@ -72,14 +72,13 @@ export class StorefrontsJsonPageComponent implements OnInit {
 
   private setupForm(): void {
     this.data ??= new Storefront({
-      access: IStorefront.Access.Private,
       description: '',
       metadata: {},
       subtitle: '',
       title: '',
     });
 
-    const keys = ['access', 'description', 'metadata', 'subtitle', 'title'];
+    const keys = ['description', 'metadata', 'subtitle', 'title'];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))
       .sort()

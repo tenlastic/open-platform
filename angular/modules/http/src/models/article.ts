@@ -1,6 +1,14 @@
 import { Model } from './model';
 import { Namespace } from './namespace';
 
+export namespace IArticle {
+  export enum Type {
+    Guide = 'Guide',
+    News = 'News',
+    PatchNotes = 'Patch Notes',
+  }
+}
+
 export class Article extends Model {
   public body: string;
   public caption: string;

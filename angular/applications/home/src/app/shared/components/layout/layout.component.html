@@ -10,20 +10,20 @@
       <span>Home</span>
     </app-button>
 
-    <app-button *ngIf="($storefronts | async)?.length > 0"
-                color="accent"
-                [routerLink]="['/store', ($activeStorefrontId | async)]"
-                routerLinkActive="active">
-      <mat-icon>sports_esports</mat-icon>
-      <span>Store</span>
-    </app-button>
-
     <app-button *ngIf="($namespaces | async)?.length > 0"
                 color="accent"
                 routerLink="/management-portal"
                 routerLinkActive="active">
       <mat-icon>admin_panel_settings</mat-icon>
       <span>Management Portal</span>
+    </app-button>
+
+    <app-button *ngIf="($storefronts | async)?.length > 0"
+                color="accent"
+                [routerLink]="['/store']"
+                routerLinkActive="active">
+      <mat-icon>sports_esports</mat-icon>
+      <span>Store</span>
     </app-button>
 
     <app-button color="accent"

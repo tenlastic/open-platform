@@ -5,7 +5,6 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
   IAuthorization,
-  IStorefront,
   Storefront,
   StorefrontService,
 } from '@tenlastic/ng-http';
@@ -24,11 +23,6 @@ interface PropertyFormGroup {
   styleUrls: ['./form-page.component.scss'],
 })
 export class StorefrontsFormPageComponent implements OnInit {
-  public accesses = [
-    { label: 'Private', value: 'private' },
-    { label: 'Public w/ Authorization', value: 'private-public' },
-    { label: 'Public', value: 'public' },
-  ];
   public data: Storefront;
   public errors: string[] = [];
   public form: FormGroup;
@@ -99,7 +93,6 @@ export class StorefrontsFormPageComponent implements OnInit {
 
     const values: Partial<Storefront> = {
       _id: this.data._id,
-      access: this.form.get('access').value,
       description: this.form.get('description').value,
       metadata,
       namespaceId: this.params.namespaceId,
@@ -161,7 +154,6 @@ export class StorefrontsFormPageComponent implements OnInit {
     }
 
     this.form = this.formBuilder.group({
-      access: [this.data.access || IStorefront.Access.Private],
       description: [this.data.description, Validators.required],
       icon: [this.data.icon],
       metadata: this.formBuilder.array(metadata),

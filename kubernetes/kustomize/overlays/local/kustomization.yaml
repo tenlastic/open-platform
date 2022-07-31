@@ -29,6 +29,7 @@ patchesStrategicMerge:
   - ./static/docker-registry/docker-registry-ui.yaml
   - ./static/grafana/grafana.yaml
   - ./static/ingress-nginx/ingress-nginx.yaml
+  - ./static/kubernetes-dashboard/kubernetes-dashboard.yaml
   - ./static/minio/minio.yaml
   - ./static/mongodb/mongodb.yaml
   - ./static/mongodb/mongodb-gui.yaml

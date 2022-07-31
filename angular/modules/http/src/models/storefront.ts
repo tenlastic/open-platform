@@ -1,15 +1,6 @@
 import { Model } from './model';
 
-export namespace IStorefront {
-  export enum Access {
-    Private = 'private',
-    PrivatePublic = 'private-public',
-    Public = 'public',
-  }
-}
-
 export class Storefront extends Model {
-  public access: IStorefront.Access;
   public background: string;
   public description: string;
   public icon: string;

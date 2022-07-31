@@ -5,7 +5,6 @@ import { Storefront, StorefrontDocument } from './model';
 
 const administrator = {
   create: [
-    'access',
     'background',
     'description',
     'icon',
@@ -17,7 +16,6 @@ const administrator = {
     'videos',
   ],
   update: [
-    'access',
     'background',
     'description',
     'icon',
@@ -50,7 +48,6 @@ export const StorefrontPermissions = new MongoosePermissions<StorefrontDocument>
   read: {
     default: [
       '_id',
-      'access',
       'background',
       'createdAt',
       'description',

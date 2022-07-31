@@ -1,0 +1,8 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: kubernetes-dashboard
+  namespace: static
+spec:
+  values:
+    replicaCount: 1

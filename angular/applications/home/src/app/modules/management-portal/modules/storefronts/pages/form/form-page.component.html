@@ -1,6 +1,6 @@
-<div class="page">
-  <div *ngIf="form"
-       class="row">
+<div *ngIf="form"
+     class="page">
+  <div class="row">
     <div class="col-sm-6">
       <app-title>{{ data?._id ? 'Edit' : 'Create' }} Storefront</app-title>
     </div>
@@ -31,14 +31,6 @@
         <input matInput
                formControlName="subtitle" />
         <mat-error>Enter a valid subtitle.</mat-error>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>Access</mat-label>
-        <mat-select formControlName="access">
-          <mat-option *ngFor="let access of accesses"
-                      [value]="access.value">{{ access.label }}</mat-option>
-        </mat-select>
       </mat-form-field>
     </div>
 

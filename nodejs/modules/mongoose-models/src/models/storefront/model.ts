@@ -13,15 +13,9 @@ import * as mongoose from 'mongoose';
 
 import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
 import * as errors from '../../errors';
-import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
+import { NamespaceDocument, NamespaceEvent } from '../namespace';
 
 export const StorefrontEvent = new EventEmitter<IDatabasePayload<StorefrontDocument>>();
-
-export enum StorefrontAccess {
-  Private = 'private',
-  PrivatePublic = 'private-public',
-  Public = 'public',
-}
 
 // Delete Storefronts if associated Namespace is deleted.
 NamespaceEvent.sync(async (payload) => {
@@ -46,7 +40,6 @@ StorefrontEvent.sync(async (payload) => {
   }
 });
 
-@index({ access: 1 })
 @index({ namespaceId: 1 }, { unique: true })
 @index({ subtitle: 1, title: 1 }, { unique: true })
 @modelOptions({
@@ -57,9 +50,6 @@ StorefrontEvent.sync(async (payload) => {
 @plugin(errors.unique.plugin)
 export class StorefrontSchema {
   public _id: mongoose.Types.ObjectId;
-
-  @prop({ default: StorefrontAccess.Private, enum: StorefrontAccess })
-  public access: StorefrontAccess;
 
   @prop()
   public background: string;
@@ -94,55 +84,6 @@ export class StorefrontSchema {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
-
-  /**
-   * Throws an error if a NamespaceLimit is exceeded.
-   */
-  public static async checkNamespaceLimits(
-    _id: string | mongoose.Types.ObjectId,
-    access: StorefrontAccess,
-    namespaceId: string | mongoose.Types.ObjectId,
-  ) {
-    const namespace = await Namespace.findOne({ _id: namespaceId });
-    if (!namespace) {
-      throw new Error('Record not found.');
-    }
-
-    const limits = namespace.limits.storefronts;
-    if (limits.count > 0 || limits.public >= 0) {
-      const results = await Storefront.aggregate([
-        { $match: { _id: { $ne: _id }, namespaceId: namespace._id } },
-        {
-          $group: {
-            _id: null,
-            count: { $sum: 1 },
-            public: {
-              $sum: {
-                $cond: {
-                  else: 0,
-                  if: { $ne: ['$access', StorefrontAccess.Private] },
-                  then: 1,
-                },
-              },
-            },
-          },
-        },
-      ]);
-
-      // Count.
-      const countSum = results.length > 0 ? results[0].count : 0;
-      if (limits.count > 0 && countSum >= limits.count) {
-        throw new NamespaceLimitError('storefronts.count', limits.count);
-      }
-
-      // Public.
-      const isPublic = [StorefrontAccess.PrivatePublic, StorefrontAccess.Public].includes(access);
-      const publicSum = results.length > 0 ? results[0].public : 0;
-      if (isPublic && publicSum + 1 > limits.public) {
-        throw new NamespaceLimitError('storefronts.public', limits.public);
-      }
-    }
-  }
 
   /**
    * Get the path for the property within Minio.

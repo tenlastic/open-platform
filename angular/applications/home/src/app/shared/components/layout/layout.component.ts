@@ -25,9 +25,6 @@ import { PromptComponent } from '../prompt/prompt.component';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
-  public get $activeStorefrontId() {
-    return this.storefrontQuery.selectActiveId();
-  }
   public $storefronts: Observable<Storefront[]>;
   public $namespaces: Observable<Namespace[]>;
   public get isElectron() {

@@ -2,46 +2,9 @@ import * as minio from '@tenlastic/minio';
 import { expect } from 'chai';
 import * as fs from 'fs';
 
-import { NamespaceLimitsMock, NamespaceMock, NamespaceStorefrontLimitsMock } from '../namespace';
 import { StorefrontMock } from './model.mock';
-import { Storefront, StorefrontAccess } from './model';
 
 describe('models/storefront/model', function () {
-  describe('checkNamespaceLimits()', function () {
-    it('enforces the storefronts.count Namespace limit', async function () {
-      const namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({
-          storefronts: NamespaceStorefrontLimitsMock.create({ count: 1 }),
-        }),
-      });
-      await StorefrontMock.create({ namespaceId: namespace._id });
-
-      const promise = Storefront.checkNamespaceLimits(
-        null,
-        StorefrontAccess.Private,
-        namespace._id,
-      );
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: storefronts.count. Value: 1.',
-      );
-    });
-
-    it('enforces the storefronts.public Namespace limit', async function () {
-      const namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({
-          storefronts: NamespaceStorefrontLimitsMock.create({ public: 0 }),
-        }),
-      });
-
-      const promise = Storefront.checkNamespaceLimits(null, StorefrontAccess.Public, namespace._id);
-
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: storefronts.public. Value: 0.',
-      );
-    });
-  });
-
   describe('removeMinioImages()', function () {
     it('removes unused minio images', async function () {
       const storefront = await StorefrontMock.create();
