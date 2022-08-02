@@ -28,7 +28,7 @@ const wssUrl = process.env.WSS_URL;
     await redis.start();
 
     // Add initial Queue data.
-    await queueService.findOne(queue._id);
+    await queueService.findOne(queue.namespaceId, queue._id);
 
     // Log Queue Member changes.
     queueMemberService.emitter.on('create', (record) =>

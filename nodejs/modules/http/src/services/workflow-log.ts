@@ -9,16 +9,16 @@ export class WorkflowLogService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(workflowId: string, nodeId: string, query: any) {
-    const url = this.getUrl(workflowId);
+  public async find(namespaceId: string, workflowId: string, nodeId: string, query: any) {
+    const url = this.getUrl(namespaceId, workflowId);
     return this.baseService.find(query, `${url}/${nodeId}`);
   }
 
   /**
    * Returns the base URL for this Model.
    */
-  private getUrl(workflowId: string) {
-    return `${apiUrl}/workflows/${workflowId}/logs`;
+  private getUrl(namespaceId: string, workflowId: string) {
+    return `${apiUrl}/namespaces/${namespaceId}/workflows/${workflowId}/logs`;
   }
 }
 

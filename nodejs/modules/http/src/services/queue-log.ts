@@ -9,16 +9,16 @@ export class QueueLogService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(queueId: string, nodeId: string, query: any) {
-    const url = this.getUrl(queueId);
+  public async find(namespaceId: string, queueId: string, nodeId: string, query: any) {
+    const url = this.getUrl(namespaceId, queueId);
     return this.baseService.find(query, `${url}/${nodeId}`);
   }
 
   /**
    * Returns the base URL for this Model.
    */
-  private getUrl(queueId: string) {
-    return `${apiUrl}/queues/${queueId}/logs`;
+  private getUrl(namespaceId: string, queueId: string) {
+    return `${apiUrl}/namespaces/${namespaceId}/queues/${queueId}/logs`;
   }
 }
 

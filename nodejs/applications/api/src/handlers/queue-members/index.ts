@@ -7,7 +7,7 @@ import { handler as deleteHandler } from './delete';
 import { handler as findHandler } from './find';
 import { handler as findOneHandler } from './find-one';
 
-export const router = new Router({ prefix: '/queue-members' });
+export const router = new Router({ prefix: '/namespaces/:namespaceId/queue-members' });
 
 router.delete('/:_id', authenticationMiddleware, deleteHandler);
 router.get('/', findHandler);

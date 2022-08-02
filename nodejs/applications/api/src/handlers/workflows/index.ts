@@ -8,7 +8,7 @@ import { handler as findOneHandler } from './find-one';
 import { handler as logsHandler } from './logs';
 import { handler as updateHandler } from './update';
 
-export const router = new Router({ prefix: '/workflows' });
+export const router = new Router({ prefix: '/namespaces/:namespaceId/workflows' });
 
 router.delete('/:_id', deleteHandler);
 router.get('/', findHandler);

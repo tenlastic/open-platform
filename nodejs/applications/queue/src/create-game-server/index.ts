@@ -44,7 +44,7 @@ export async function createGameServer(queue: QueueModel): Promise<GameServerMod
   }
 
   // Create the GameServer.
-  const gameServer = await gameServerService.create({
+  const gameServer = await gameServerService.create(queue.namespaceId, {
     authorizedUserIds: teamAssignments.filter((ta) => ta),
     buildId: queue.gameServerTemplate.buildId,
     cpu: queue.gameServerTemplate.cpu,
@@ -64,7 +64,9 @@ export async function createGameServer(queue: QueueModel): Promise<GameServerMod
   });
 
   // Remove matched QueueMembers.
-  const promises = Array.from(set).map((qm) => queueMemberService.delete(qm._id));
+  const promises = Array.from(set).map((qm) =>
+    queueMemberService.delete(queue.namespaceId, qm._id),
+  );
   await Promise.all(promises);
 
   // Return the GameServer.

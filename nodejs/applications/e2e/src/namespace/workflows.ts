@@ -15,20 +15,20 @@ import { wait } from '../wait';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('workflows', function() {
+describe('workflows', function () {
   let namespace: NamespaceModel;
   let workflow: WorkflowModel;
 
-  before(async function() {
+  before(async function () {
     namespace = await namespaceService.create({ name: chance.hash() });
   });
 
-  after(async function() {
+  after(async function () {
     await namespaceService.delete(namespace._id);
   });
 
-  step('creates a workflow', async function() {
-    workflow = await workflowService.create({
+  step('creates a workflow', async function () {
+    workflow = await workflowService.create(namespace._id, {
       cpu: 0.1,
       memory: 100 * 1000 * 1000,
       name: chance.hash(),
@@ -56,15 +56,15 @@ describe('workflows', function() {
     });
 
     await wait(10000, 10 * 60 * 1000, async () => {
-      workflow = await workflowService.findOne(workflow._id);
+      workflow = await workflowService.findOne(namespace._id, workflow._id);
       return workflow.status?.phase === 'Succeeded';
     });
   });
 
-  step('generates logs', async function() {
+  step('generates logs', async function () {
     const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
-      const node = workflow.status.nodes.find(n => n.type === 'Pod');
-      const response = await workflowLogService.find(workflow._id, node._id, {});
+      const node = workflow.status.nodes.find((n) => n.type === 'Pod');
+      const response = await workflowLogService.find(namespace._id, workflow._id, node._id, {});
       return response.length > 0 ? response : null;
     });
 

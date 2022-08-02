@@ -65,7 +65,7 @@ export const KubernetesWorkflowSidecar = {
       },
       stringData: {
         API_KEY: apiKey,
-        WORKFLOW_ENDPOINT: `http://api.static:3000/workflows/${workflow._id}`,
+        WORKFLOW_ENDPOINT: `http://api.static:3000/namespace/${workflow.namespaceId}/workflows/${workflow._id}`,
         WORKFLOW_NAME: workflowName,
       },
     });

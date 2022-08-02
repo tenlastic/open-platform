@@ -29,12 +29,12 @@ const wssUrl = process.env.E2E_WSS_URL;
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('queues', function() {
+describe('queues', function () {
   let build: BuildModel;
   let queue: QueueModel;
   let namespace: NamespaceModel;
 
-  before(async function() {
+  before(async function () {
     namespace = await namespaceService.create({ name: chance.hash() });
 
     // Generate a zip stream.
@@ -49,6 +49,7 @@ describe('queues', function() {
 
     // Create a Build.
     build = await buildService.create(
+      namespace._id,
       {
         entrypoint: 'Dockerfile',
         name: chance.hash(),
@@ -60,17 +61,17 @@ describe('queues', function() {
 
     // Wait for Build to finish.
     await wait(10000, 180000, async () => {
-      const response = await buildService.findOne(build._id);
+      const response = await buildService.findOne(namespace._id, build._id);
       return response.status?.phase === 'Succeeded';
     });
   });
 
-  after(async function() {
+  after(async function () {
     await namespaceService.delete(namespace._id);
   });
 
-  step('creates a Queue', async function() {
-    queue = await queueService.create({
+  step('creates a Queue', async function () {
+    queue = await queueService.create(namespace._id, {
       cpu: 0.1,
       gameServerTemplate: {
         buildId: build._id,
@@ -89,25 +90,30 @@ describe('queues', function() {
 
     // Wait for Queue to be running.
     await wait(10000, 180000, async () => {
-      queue = await queueService.findOne(queue._id);
+      queue = await queueService.findOne(namespace._id, queue._id);
       return queue.status?.phase === 'Running';
     });
   });
 
-  step('generates logs', async function() {
+  step('generates logs', async function () {
     const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
-      const response = await queueLogService.find(queue._id, queue.status.nodes[0]._id, {});
+      const response = await queueLogService.find(
+        namespace._id,
+        queue._id,
+        queue.status.nodes[0]._id,
+        {},
+      );
       return response.length > 0 ? response : null;
     });
 
     expect(logs.length).to.be.greaterThan(0);
   });
 
-  step('removes disconnected Users', async function() {
+  step('removes disconnected Users', async function () {
     const user = await createUser();
 
     // Add Queue Members.
-    await queueMemberService.create({
+    await queueMemberService.create(namespace._id, {
       namespaceId: namespace._id,
       queueId: queue._id,
       userId: user.user._id,
@@ -117,9 +123,11 @@ describe('queues', function() {
     try {
       // Close WebSocket and wait for asynchronous Queue Member deletion.
       user.webSocket.close();
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
 
-      const queueMembers = await queueMemberService.find({ where: { queueId: queue._id } });
+      const queueMembers = await queueMemberService.find(namespace._id, {
+        where: { queueId: queue._id },
+      });
       expect(queueMembers.length).to.eql(0);
     } finally {
       user.webSocket.close();
@@ -127,19 +135,19 @@ describe('queues', function() {
     }
   });
 
-  step('creates a Game Server', async function() {
+  step('creates a Game Server', async function () {
     const firstUser = await createUser();
     const secondUser = await createUser();
     const users = [firstUser, secondUser];
 
     // Add Queue Members.
-    await queueMemberService.create({
+    await queueMemberService.create(namespace._id, {
       namespaceId: namespace._id,
       queueId: queue._id,
       userId: users[0].user._id,
       webSocketId: users[0].webSocketId,
     });
-    await queueMemberService.create({
+    await queueMemberService.create(namespace._id, {
       namespaceId: namespace._id,
       queueId: queue._id,
       userId: users[1].user._id,
@@ -149,21 +157,25 @@ describe('queues', function() {
     try {
       // Wait for Game Server to be created.
       const gameServer: GameServerModel = await wait(10000, 180000, async () => {
-        const gameServers = await gameServerService.find({ where: { queueId: queue._id } });
+        const gameServers = await gameServerService.find(namespace._id, {
+          where: { queueId: queue._id },
+        });
         return gameServers[0];
       });
 
       expect(gameServer.buildId).to.eql(build._id);
-      expect(gameServer.metadata.teamAssignments).to.eql(users.map(u => u.user._id).join(','));
+      expect(gameServer.metadata.teamAssignments).to.eql(users.map((u) => u.user._id).join(','));
       expect(gameServer.metadata.teams).to.eql(2);
       expect(gameServer.metadata.usersPerTeam).to.eql(1);
       expect(gameServer.queueId).to.eql(queue._id);
 
-      const queueMembers = await queueMemberService.find({ where: { queueId: queue._id } });
+      const queueMembers = await queueMemberService.find(namespace._id, {
+        where: { queueId: queue._id },
+      });
       expect(queueMembers.length).to.eql(0);
     } finally {
-      users.forEach(u => u.webSocket.close());
-      await Promise.all(users.map(u => userService.delete(u.user._id)));
+      users.forEach((u) => u.webSocket.close());
+      await Promise.all(users.map((u) => userService.delete(u.user._id)));
     }
   });
 });
@@ -183,8 +195,8 @@ async function createUser() {
   await webSocket.connect(wssUrl);
 
   // Wait for the Web Socket to be returned.
-  const webSocketId = await new Promise<string>(resolve => {
-    webSocket.emitter.on('message', payload => {
+  const webSocketId = await new Promise<string>((resolve) => {
+    webSocket.emitter.on('message', (payload) => {
       if (!payload._id && payload.fullDocument && payload.operationType === 'insert') {
         return resolve(payload.fullDocument._id);
       }

@@ -41,6 +41,7 @@ describe('game-servers', function () {
 
     // Create a Build.
     build = await buildService.create(
+      namespace._id,
       {
         entrypoint: 'Dockerfile',
         name: chance.hash(),
@@ -52,7 +53,7 @@ describe('game-servers', function () {
 
     // Wait for Build to finish.
     await wait(10000, 180000, async () => {
-      const response = await buildService.findOne(build._id);
+      const response = await buildService.findOne(namespace._id, build._id);
       return response.status?.phase === 'Succeeded';
     });
   });
@@ -62,7 +63,7 @@ describe('game-servers', function () {
   });
 
   step('creates a Game Server', async function () {
-    gameServer = await gameServerService.create({
+    gameServer = await gameServerService.create(namespace._id, {
       buildId: build._id,
       cpu: 0.1,
       memory: 500 * 1000 * 1000,
@@ -73,7 +74,7 @@ describe('game-servers', function () {
 
     // Wait for Game Server to be running.
     await wait(10000, 180000, async () => {
-      gameServer = await gameServerService.findOne(gameServer._id);
+      gameServer = await gameServerService.findOne(namespace._id, gameServer._id);
       return gameServer.status?.endpoints && gameServer.status?.phase === 'Running';
     });
   });
@@ -81,6 +82,7 @@ describe('game-servers', function () {
   step('generates logs', async function () {
     const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
       const response = await gameServerLogService.find(
+        namespace._id,
         gameServer._id,
         gameServer.status.nodes[0]._id,
         {},

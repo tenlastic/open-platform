@@ -28,7 +28,7 @@ describe('collections', function () {
   });
 
   step('creates a collection, and record', async function () {
-    collection = await collectionService.create({
+    collection = await collectionService.create(namespace._id, {
       jsonSchema: {
         additionalProperties: false,
         properties: {
@@ -53,7 +53,7 @@ describe('collections', function () {
     });
     expect(collection).to.exist;
 
-    record = await recordService.create(collection._id, {
+    record = await recordService.create(namespace._id, collection._id, {
       properties: { email: chance.email(), name: chance.hash() },
     });
     expect(record).to.exist;

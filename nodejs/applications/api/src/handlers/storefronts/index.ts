@@ -9,7 +9,7 @@ import { handler as findOneHandler } from './find-one';
 import { handler as updateHandler } from './update';
 import { handler as uploadHandler } from './upload';
 
-export const router = new Router({ prefix: '/storefronts' });
+export const router = new Router({ prefix: '/namespaces/:namespaceId/storefronts' });
 
 router.delete('/:_id', deleteHandler);
 router.get('/', findHandler);

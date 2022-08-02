@@ -7,7 +7,7 @@ import { handler as findHandler } from './find';
 import { handler as findOneHandler } from './find-one';
 import { handler as updateHandler } from './update';
 
-export const router = new Router({ prefix: '/collections' });
+export const router = new Router({ prefix: '/namespaces/:namespaceId/collections' });
 
 router.delete('/:_id', deleteHandler);
 router.get('/', findHandler);

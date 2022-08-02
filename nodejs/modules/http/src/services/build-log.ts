@@ -9,16 +9,16 @@ export class BuildLogService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(buildId: string, nodeId: string, query: any) {
-    const url = this.getUrl(buildId);
+  public async find(namespaceId: string, buildId: string, nodeId: string, query: any) {
+    const url = this.getUrl(namespaceId, buildId);
     return this.baseService.find(query, `${url}/${nodeId}`);
   }
 
   /**
    * Returns the base URL for this Model.
    */
-  private getUrl(buildId: string) {
-    return `${apiUrl}/builds/${buildId}/logs`;
+  private getUrl(namespaceId: string, buildId: string) {
+    return `${apiUrl}/namespaces/${namespaceId}/builds/${buildId}/logs`;
   }
 }
 

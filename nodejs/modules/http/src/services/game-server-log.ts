@@ -9,16 +9,16 @@ export class GameServerLogService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(gameServerId: string, nodeId: string, query: any) {
-    const url = this.getUrl(gameServerId);
+  public async find(namespaceId: string, gameServerId: string, nodeId: string, query: any) {
+    const url = this.getUrl(namespaceId, gameServerId);
     return this.baseService.find(query, `${url}/${nodeId}`);
   }
 
   /**
    * Returns the base URL for this Model.
    */
-  private getUrl(gameServerId: string) {
-    return `${apiUrl}/game-servers/${gameServerId}/logs`;
+  private getUrl(namespaceId: string, gameServerId: string) {
+    return `${apiUrl}/namespaces/${namespaceId}/game-servers/${gameServerId}/logs`;
   }
 }
 

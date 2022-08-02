@@ -65,7 +65,7 @@ export const KubernetesBuildSidecar = {
       },
       stringData: {
         API_KEY: apiKey,
-        WORKFLOW_ENDPOINT: `http://api.static:3000/builds/${build._id}`,
+        WORKFLOW_ENDPOINT: `http://api.static:3000/namespace/${build.namespaceId}/builds/${build._id}`,
         WORKFLOW_NAME: buildName,
       },
     });
