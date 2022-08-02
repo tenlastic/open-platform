@@ -5,6 +5,7 @@ export class Storefront extends Model {
   public description: string;
   public icon: string;
   public images: string[];
+  public logo: string;
   public metadata: any;
   public namespaceId: string;
   public subtitle: string;

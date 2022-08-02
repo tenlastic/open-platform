@@ -1,6 +1,14 @@
 import { namespaceQuery } from '../stores/namespace';
 import { BaseModel } from './base';
 
+export namespace IArticle {
+  export enum Type {
+    Guide = 'Guide',
+    News = 'News',
+    PatchNotes = 'Patch Notes',
+  }
+}
+
 export class ArticleModel extends BaseModel {
   public body: string;
   public caption: string;
@@ -10,7 +18,7 @@ export class ArticleModel extends BaseModel {
   public namespaceId: string;
   public publishedAt: Date;
   public title: string;
-  public type: string;
+  public type: IArticle.Type;
 
   constructor(parameters: Partial<ArticleModel> = {}) {
     super(parameters);

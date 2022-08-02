@@ -21,16 +21,6 @@ spec:
                 name: api
                 port:
                   number: 3000
-    - host: cdn.localhost
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: api
-                port:
-                  number: 3000
     - host: docker-registry.localhost
       http:
         paths:

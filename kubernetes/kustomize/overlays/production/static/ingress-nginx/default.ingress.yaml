@@ -35,16 +35,6 @@ spec:
                 name: api
                 port:
                   number: 3000
-    - host: cdn.tenlastic.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: api
-                port:
-                  number: 3000
     - host: docker-registry.tenlastic.com
       http:
         paths:

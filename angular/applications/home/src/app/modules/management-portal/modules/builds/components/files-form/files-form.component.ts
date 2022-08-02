@@ -26,7 +26,7 @@ export class FilesFormComponent implements OnInit {
     return !this.build._id;
   }
   public get modifiedFiles() {
-    return this.form.get('files').value.filter(f => f.status === 'modified');
+    return this.form.get('files').value.filter((f) => f.status === 'modified');
   }
   public referenceBuild: Build;
   public get referenceFiles() {
@@ -35,7 +35,7 @@ export class FilesFormComponent implements OnInit {
   public removedFiles: IBuild.File[] = [];
   public status: string;
   public get unmodifiedFiles() {
-    return this.form.get('files').value.filter(f => f.status === 'unmodified');
+    return this.form.get('files').value.filter((f) => f.status === 'unmodified');
   }
 
   constructor(private buildService: BuildService) {}
@@ -49,8 +49,8 @@ export class FilesFormComponent implements OnInit {
     this.form
       .get('reference')
       .get('_id')
-      .valueChanges.subscribe(value => {
-        const build = this.builds.find(b => b._id === value);
+      .valueChanges.subscribe((value) => {
+        const build = this.builds.find((b) => b._id === value);
         this.setReferenceBuild(build);
       });
   }
@@ -75,15 +75,16 @@ export class FilesFormComponent implements OnInit {
     this.status = 'Calculating file changes...';
 
     this.form.get('files').setValue([]);
-    await new Promise<void>(resolve => {
+    await new Promise<void>((resolve) => {
       const worker = new Worker(
         new URL('../../../../../../workers/file-reader.worker', import.meta.url),
         { type: 'module' },
       );
+
       worker.onmessage = ({ data }) => {
         if (data.file) {
           if (this.referenceBuild) {
-            const referenceFile = this.referenceBuild.files.find(f => f.path === data.file.path);
+            const referenceFile = this.referenceBuild.files.find((f) => f.path === data.file.path);
 
             if (referenceFile) {
               data.file.status = data.file.md5 === referenceFile.md5 ? 'unmodified' : 'modified';
@@ -101,6 +102,7 @@ export class FilesFormComponent implements OnInit {
           return resolve();
         }
       };
+
       worker.postMessage({
         files,
         referenceFiles: this.referenceBuild ? this.referenceBuild.files : [],
@@ -110,7 +112,7 @@ export class FilesFormComponent implements OnInit {
     this.removedFiles = [];
     if (this.referenceBuild) {
       for (const referenceFile of this.referenceBuild.files) {
-        const file = this.form.get('files').value.find(f => f.path === referenceFile.path);
+        const file = this.form.get('files').value.find((f) => f.path === referenceFile.path);
 
         if (!file) {
           this.removedFiles.push(referenceFile);
@@ -135,14 +137,14 @@ export class FilesFormComponent implements OnInit {
     this.form
       .get('reference')
       .get('files')
-      .setValue(this.referenceBuild ? this.referenceBuild.files.map(f => f.path) : [], {
+      .setValue(this.referenceBuild ? this.referenceBuild.files.map((f) => f.path) : [], {
         emitEvent: false,
       });
 
     if (this.form.get('files').value.length > 0) {
       for (const file of this.form.get('files').value) {
         if (this.referenceBuild) {
-          const referenceFile = this.referenceBuild.files.find(f => f.path === file.path);
+          const referenceFile = this.referenceBuild.files.find((f) => f.path === file.path);
 
           if (referenceFile) {
             file.status = file.md5 === referenceFile.md5 ? 'unmodified' : 'modified';
@@ -157,7 +159,7 @@ export class FilesFormComponent implements OnInit {
       this.removedFiles = [];
       if (this.referenceBuild) {
         for (const referenceFile of this.referenceBuild.files) {
-          const file = this.form.get('files').value.find(f => f.path === referenceFile.path);
+          const file = this.form.get('files').value.find((f) => f.path === referenceFile.path);
 
           if (!file) {
             this.removedFiles.push(referenceFile);
@@ -192,7 +194,7 @@ export class FilesFormComponent implements OnInit {
       },
     });
 
-    const build = this.builds.find(r => r.publishedAt);
+    const build = this.builds.find((r) => r.publishedAt);
     this.setReferenceBuild(build || this.builds[0]);
   }
 

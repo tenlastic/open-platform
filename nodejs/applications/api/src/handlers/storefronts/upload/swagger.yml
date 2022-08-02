@@ -1,14 +1,19 @@
 paths:
-  /storefronts/{_id}/images:
+  /storefronts/{_id}/{field}:
     post:
-      summary: Upload Images
+      summary: Upload Image / Video
       tags: [Storefront]
-      description: Uploads images for a Storefront.
+      description: Uploads the image or video for a Storefront.
       security:
         - AccessToken: []
       parameters:
         - in: path
           name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: field
           schema:
             type: string
           required: true

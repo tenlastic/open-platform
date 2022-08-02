@@ -58,6 +58,50 @@
     <app-toggle-section title="Metadata">
       <app-metadata-fields [formArray]="form['controls'].metadata"></app-metadata-fields>
     </app-toggle-section>
+
+    <app-toggle-section title="Images">
+      <div class="row">
+        <div class="col-sm-4">
+          <mat-label>Background</mat-label>
+
+          <mat-grid-list cols="1"
+                         gutterSize="8"
+                         rowHeight="1920:1080">
+            <mat-grid-tile *ngIf="getImage('background')"
+                           [ngStyle]="{ 'background-image': 'url(' + getImage('background') + ')' }"
+                           [appDownload]
+                           [src]="getImage('background')">
+              <app-button color="accent"
+                          (OnClick)="view(getImage('background'))">
+                <mat-icon>fullscreen</mat-icon>
+                <span>View</span>
+              </app-button>
+
+              <app-button color="accent"
+                          (OnClick)="remove('background')">
+                <mat-icon>delete</mat-icon>
+                <span>Remove</span>
+              </app-button>
+            </mat-grid-tile>
+
+            <mat-grid-tile *ngIf="!getImage('background')"
+                           class="pending">
+              <app-button color="accent"
+                          (OnClick)="backgroundInput.click()">
+                <mat-icon>folder</mat-icon>
+                <span>Browse</span>
+              </app-button>
+            </mat-grid-tile>
+          </mat-grid-list>
+
+          <input #backgroundInput
+                 accept=".jpg,.jpeg,.png"
+                 hidden
+                 type="file"
+                 (change)="onFieldChanged($event, 'background')" />
+        </div>
+      </div>
+    </app-toggle-section>
   </form>
 </div>
 

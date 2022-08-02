@@ -15,15 +15,13 @@ import {
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
 import * as FormData from 'form-data';
 
 import { handler } from './';
 
-const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/storefronts/images/upload', function () {
+describe('handlers/storefronts/upload', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
@@ -33,8 +31,8 @@ describe('handlers/storefronts/images/upload', function () {
   context('when permission is granted', function () {
     let ctx: ContextMock;
     let form: FormData;
-    let namespace: NamespaceDocument;
     let storefront: StorefrontDocument;
+    let namespace: NamespaceDocument;
 
     beforeEach(async function () {
       namespace = await NamespaceMock.create({
@@ -53,7 +51,7 @@ describe('handlers/storefronts/images/upload', function () {
       form.append('valid', 'valid', { contentType: 'image/jpeg', filename: 'valid.jpg' });
 
       ctx = new ContextMock({
-        params: { _id: storefront._id },
+        params: { _id: storefront._id, field: 'background' },
         req: form,
         request: {
           headers: form.getHeaders(),
@@ -64,25 +62,21 @@ describe('handlers/storefronts/images/upload', function () {
       } as any);
     });
 
-    it('updates the record', async function () {
+    it('creates a new record', async function () {
       await handler(ctx as any);
 
-      const { images } = ctx.response.body.record;
-      expect(images[0]).to.include(`http://localhost:3000/storefronts/${storefront._id}/images`);
+      expect(ctx.response.body.record.background).to.eql(
+        `http://localhost:3000/storefronts/${storefront._id}/background`,
+      );
     });
 
     it('uploads file to Minio', async function () {
       await handler(ctx as any);
       await new Promise((res) => setTimeout(res, 100));
 
-      const { images } = ctx.response.body.record;
-      const _id = images[0].replace(
-        `http://localhost:3000/storefronts/${storefront._id}/images/`,
-        '',
-      );
       const result = await minio.statObject(
         process.env.MINIO_BUCKET,
-        storefront.getMinioKey('images', _id),
+        storefront.getMinioKey('background'),
       );
 
       expect(result).to.exist;
@@ -95,9 +89,7 @@ describe('handlers/storefronts/images/upload', function () {
 
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejectedWith(
-        'Namespace limit reached: storefronts.size. Value: 1.',
-      );
+      return expect(promise).to.be.rejectedWith(NamespaceLimitError);
     });
 
     it('does not allow invalid mimetypes', async function () {
@@ -109,19 +101,6 @@ describe('handlers/storefronts/images/upload', function () {
         'Mimetype must be: image/gif, image/jpeg, image/png.',
       );
     });
-
-    it('does not allow too many images', async function () {
-      storefront.images.push(chance.hash());
-      await storefront.save();
-
-      namespace.limits.storefronts.images = 1;
-      namespace.markModified('limits');
-      await namespace.save();
-
-      const promise = handler(ctx as any);
-
-      return expect(promise).to.be.rejectedWith(NamespaceLimitError);
-    });
   });
 
   context('when permission is denied', function () {
@@ -130,7 +109,7 @@ describe('handlers/storefronts/images/upload', function () {
       const storefront = await StorefrontMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
-        params: { _id: storefront._id },
+        params: { _id: storefront._id, field: 'background' },
         state: { user },
       });
 

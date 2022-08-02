@@ -1,14 +1,18 @@
 paths:
-  /storefronts/{storefrontId}/videos/{_id}:
+  /storefronts/{storefrontId}/{field}/{_id}:
     get:
-      summary: Download Video
+      summary: Download Image or Video
       tags: [Storefront]
-      description: Returns a stream containing the video.
+      description: Returns a stream containing the image or video.
       security:
         - AccessToken: []
       parameters:
         - in: path
           name: _id
+          schema:
+            type: string
+        - in: path
+          name: field
           schema:
             type: string
           required: true

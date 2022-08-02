@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../../../shared/shared.module';
 
-import { MediaDialogComponent } from './components';
+import { LayoutComponent, MediaDialogComponent } from './components';
 import {
   StorefrontsFormPageComponent,
   StorefrontsJsonPageComponent,
@@ -11,14 +11,21 @@ import {
 } from './pages';
 
 export const ROUTES: Routes = [
-  { path: '', component: StorefrontsFormPageComponent },
-  { path: 'json', component: StorefrontsJsonPageComponent },
-  { path: 'multimedia', component: StorefrontsMultimediaFormPageComponent },
+  {
+    path: '',
+    component: LayoutComponent,
+    children: [
+      { path: '', component: StorefrontsFormPageComponent },
+      { path: 'json', component: StorefrontsJsonPageComponent },
+    ],
+  },
 ];
 
 @NgModule({
   declarations: [
+    LayoutComponent,
     MediaDialogComponent,
+
     StorefrontsFormPageComponent,
     StorefrontsJsonPageComponent,
     StorefrontsMultimediaFormPageComponent,

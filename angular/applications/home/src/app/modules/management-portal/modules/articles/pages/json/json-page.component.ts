@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
-import { Article, ArticleService } from '@tenlastic/ng-http';
+import { Article, ArticleService, IArticle } from '@tenlastic/ng-http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
@@ -69,7 +69,7 @@ export class ArticlesJsonPageComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.data ??= new Article({ body: '', caption: '', title: '', type: 'News' });
+    this.data ??= new Article({ body: '', caption: '', title: '', type: IArticle.Type.News });
 
     const keys = ['body', 'caption', 'title', 'type'];
     const data = Object.keys(this.data)

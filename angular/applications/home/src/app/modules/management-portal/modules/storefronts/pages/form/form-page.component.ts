@@ -12,6 +12,11 @@ import {
 import { FormService, IdentityService } from '../../../../../../core/services';
 import { MediaDialogComponent } from '../../components';
 
+interface Pending {
+  file: Blob;
+  url: string | ArrayBuffer;
+}
+
 interface PropertyFormGroup {
   key?: string;
   type?: string;
@@ -27,17 +32,13 @@ export class StorefrontsFormPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
-  public pending = {
+  public pending: { [key: string]: Pending[] } = {
     background: [],
     icon: [],
-    images: [],
-    videos: [],
+    logo: [],
   };
   public uploadErrors = {
     background: [],
-    icon: [],
-    images: [],
-    videos: [],
   };
 
   private params: Params;
@@ -76,8 +77,42 @@ export class StorefrontsFormPageComponent implements OnInit {
     formArray.push(this.formBuilder.control(null, [Validators.required]));
   }
 
+  public getImage(field: string, index = 0) {
+    if (this.data[field]) {
+      return this.data[field];
+    }
+
+    if (this.pending[field] && this.pending[field][index]) {
+      return this.pending[field][index].url;
+    }
+
+    return null;
+  }
+
   public navigateToJson() {
     this.formService.navigateToJson(this.form);
+  }
+
+  public async onFieldChanged($event, field: string) {
+    const files: any[] = Array.from($event.target.files);
+    if (!files.length) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => this.pending[field].push({ file: files[0], url: e.target.result });
+    reader.readAsDataURL(files[0]);
+
+    $event.target.value = '';
+  }
+
+  public async remove(field: string, index = 0) {
+    if (this.data[field]) {
+    }
+
+    if (this.pending[field] && this.pending[field][index]) {
+      this.pending[field].splice(index);
+    }
   }
 
   public async save() {
@@ -101,10 +136,7 @@ export class StorefrontsFormPageComponent implements OnInit {
     };
 
     try {
-      this.data = await this.formService.upsert(this.storefrontService, values, {
-        addIdToPath: false,
-        path: './',
-      });
+      await this.upsert(values);
     } catch (e) {
       this.errors = this.formService.handleHttpError(e, {
         namespaceId: 'Namespace',
@@ -166,5 +198,19 @@ export class StorefrontsFormPageComponent implements OnInit {
     }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+  }
+
+  private async upsert(values: Partial<Storefront>) {
+    this.data = await this.formService.upsert(this.storefrontService, values, {
+      addIdToPath: false,
+      path: './',
+    });
+
+    for (const background of this.pending.background) {
+      const { body } = await this.storefrontService
+        .upload(this.data._id, 'background', [background.file])
+        .toPromise();
+      this.data = body.record;
+    }
   }
 }

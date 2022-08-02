@@ -1,0 +1,40 @@
+<app-sidenav>
+  <div *ngIf="($storefront | async) as storefront"
+       appNav
+       class="nav">
+    <app-button color="accent"
+                layout="vertical"
+                [routerLink]="['./']"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{exact:true}"
+                text="left"
+                width="full">
+      <mat-icon>storefront</mat-icon>
+      <span>{{ storefront.title }}</span>
+    </app-button>
+
+    <hr>
+
+    <app-button color="accent"
+                layout="vertical"
+                [routerLink]="['background']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>image</mat-icon>
+      <span>Background</span>
+    </app-button>
+
+    <app-button color="accent"
+                layout="vertical"
+                [routerLink]="['multimedia']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>video_library</mat-icon>
+      <span>Icon</span>
+    </app-button>
+  </div>
+
+  <router-outlet></router-outlet>
+</app-sidenav>

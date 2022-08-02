@@ -66,6 +66,9 @@ export class StorefrontSchema {
   public images: string[];
 
   @prop()
+  public logo: string;
+
+  @prop()
   public metadata: any;
 
   @prop({ immutable: true, ref: 'NamespaceSchema', required: true })

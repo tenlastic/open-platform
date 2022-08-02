@@ -5,12 +5,10 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
 export async function handler(ctx: Context) {
+  const { _id, field } = ctx.params;
+
   const credentials = { ...ctx.state };
-  const storefront = await StorefrontPermissions.findOne(
-    credentials,
-    { where: { _id: ctx.params._id } },
-    {},
-  );
+  const storefront = await StorefrontPermissions.findOne(credentials, { where: { _id } }, {});
   if (!storefront) {
     throw new RecordNotFoundError('Storefront');
   }
@@ -21,23 +19,23 @@ export async function handler(ctx: Context) {
     'update',
     storefront,
   );
-  if (!permissions.includes('icon')) {
+  if (!permissions.includes(field)) {
     throw new PermissionError();
   }
 
   const limits = storefront.namespaceDocument.limits.storefronts;
   const fileSize = limits.size || Infinity;
-  const path = storefront.getMinioKey('icon');
 
   // Parse files from request body.
+  const paths: string[] = [];
   await new Promise((resolve, reject) => {
-    const busboy = new Busboy({
-      headers: ctx.request.headers,
-      limits: { fileSize },
-    });
+    const busboy = new Busboy({ headers: ctx.request.headers, limits: { fileSize } });
 
     busboy.on('error', reject);
-    busboy.on('file', (field, stream, filename, encoding, mimetype) => {
+    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+      const path = storefront.getMinioKey(field);
+      paths.push(path);
+
       // Make sure the file is an image.
       if (mimetype !== 'image/gif' && mimetype !== 'image/jpeg' && mimetype !== 'image/png') {
         busboy.emit('error', new Error('Mimetype must be: image/gif, image/jpeg, image/png.'));
@@ -45,21 +43,30 @@ export async function handler(ctx: Context) {
       }
 
       // Make sure the file is a valid size.
-      stream.on('limit', () =>
+      file.on('limit', () =>
         busboy.emit('error', new NamespaceLimitError('storefronts.size', limits.size)),
       );
 
-      minio.putObject(process.env.MINIO_BUCKET, path, stream, { 'content-type': mimetype });
+      minio.putObject(process.env.MINIO_BUCKET, path, file, { 'content-type': mimetype });
     });
     busboy.on('finish', resolve);
 
     ctx.req.pipe(busboy);
   });
 
-  const host = ctx.request.host.replace('api', 'cdn');
-  const url = storefront.getUrl(host, ctx.request.protocol, path);
+  const urls = paths.map((p) => storefront.getUrl(ctx.request.host, ctx.request.protocol, p));
+  if (
+    limits[field] &&
+    limits[field] > 0 &&
+    storefront[field].length + urls.length > limits[field]
+  ) {
+    throw new NamespaceLimitError(`storefronts.${field}`, limits[field]);
+  }
 
-  const result = await Storefront.findOneAndUpdate({ _id: storefront._id }, { icon: url });
+  const result = await Storefront.findOneAndUpdate(
+    { _id: storefront._id },
+    ['images', 'videos'].includes(field) ? { $addToSet: { [field]: urls } } : { [field]: urls[0] },
+  );
   const record = await StorefrontPermissions.read(credentials, result);
 
   ctx.response.body = { record };

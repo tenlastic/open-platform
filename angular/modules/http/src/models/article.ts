@@ -16,7 +16,7 @@ export class Article extends Model {
   public namespaceId: string;
   public publishedAt: Date;
   public title: string;
-  public type: string;
+  public type: IArticle.Type;
 
   constructor(params: Partial<Article> = {}) {
     super(params);

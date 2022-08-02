@@ -9,15 +9,13 @@ import {
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
 import * as fs from 'fs';
 
 import { handler } from './';
 
-const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/storefronts/videos/download', function () {
+describe('handlers/storefronts/download', function () {
   it('returns a stream with the requested file', async function () {
     const user = await UserMock.create();
     const namespace = await NamespaceMock.create();
@@ -29,15 +27,14 @@ describe('handlers/storefronts/videos/download', function () {
     const storefront = await StorefrontMock.create({ namespaceId: namespace._id });
 
     // Upload test file to Minio.
-    const _id = chance.hash();
     await minio.putObject(
       process.env.MINIO_BUCKET,
-      storefront.getMinioKey('videos', _id),
+      storefront.getMinioKey('background'),
       fs.createReadStream(__filename),
     );
 
     const ctx = new ContextMock({
-      params: { _id, storefrontId: storefront._id },
+      params: { field: 'background', storefrontId: storefront._id },
       state: { user },
     } as any);
 

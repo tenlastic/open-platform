@@ -7,6 +7,7 @@ export class StorefrontModel extends BaseModel {
   public description: string;
   public icon: string;
   public images: string[];
+  public logo: string;
   public namespaceId: string;
   public subtitle: string;
   public title: string;

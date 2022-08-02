@@ -37,7 +37,12 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.data = await this.storefrontService.findOne(params.storefrontId);
+      const storefronts = await this.storefrontService.find({
+        limit: 1,
+        where: { namespaceId: params.namespaceId },
+      });
+
+      this.data = storefronts[0];
     });
   }
 
