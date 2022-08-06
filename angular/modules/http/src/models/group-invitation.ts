@@ -1,16 +1,11 @@
-import { Group } from './group';
-import { Model } from './model';
-import { User } from './user';
+import { BaseModel } from './base';
 
-export class GroupInvitation extends Model {
-  public fromUser: User;
+export class GroupInvitationModel extends BaseModel {
   public fromUserId: string;
-  public group: Group;
   public groupId: string;
-  public toUser: User;
   public toUserId: string;
 
-  constructor(params?: Partial<GroupInvitation>) {
-    super(params);
+  constructor(parameters?: Partial<GroupInvitationModel>) {
+    super(parameters);
   }
 }

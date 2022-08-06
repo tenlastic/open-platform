@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
   IAuthorization,
-  Storefront,
+  StorefrontModel,
   StorefrontService,
 } from '@tenlastic/ng-http';
 
@@ -28,7 +29,7 @@ interface PropertyFormGroup {
   styleUrls: ['./form-page.component.scss'],
 })
 export class StorefrontsFormPageComponent implements OnInit {
-  public data: Storefront;
+  public data: StorefrontModel;
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
@@ -50,6 +51,8 @@ export class StorefrontsFormPageComponent implements OnInit {
     private formService: FormService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
+    private router: Router,
     private storefrontService: StorefrontService,
   ) {}
 
@@ -57,13 +60,13 @@ export class StorefrontsFormPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const roles = [IAuthorization.AuthorizationRole.StorefrontsReadWrite];
+      const roles = [IAuthorization.Role.StorefrontsReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      const storefronts = await this.storefrontService.find({
+      const storefronts = await this.storefrontService.find(params.namespaceId, {
         limit: 1,
         where: { namespaceId: params.namespaceId },
       });
@@ -126,7 +129,7 @@ export class StorefrontsFormPageComponent implements OnInit {
       return accumulator;
     }, {});
 
-    const values: Partial<Storefront> = {
+    const values: Partial<StorefrontModel> = {
       _id: this.data._id,
       description: this.form.get('description').value,
       metadata,
@@ -164,7 +167,7 @@ export class StorefrontsFormPageComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.data = this.data || new Storefront();
+    this.data = this.data || new StorefrontModel();
 
     const metadata = [];
     if (this.data.metadata) {
@@ -200,17 +203,21 @@ export class StorefrontsFormPageComponent implements OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async upsert(values: Partial<Storefront>) {
-    this.data = await this.formService.upsert(this.storefrontService, values, {
-      addIdToPath: false,
-      path: './',
-    });
+  private async upsert(values: Partial<StorefrontModel>) {
+    const result = values._id
+      ? await this.storefrontService.update(this.params.namespaceId, values._id, values)
+      : await this.storefrontService.create(this.params.namespaceId, values);
 
     for (const background of this.pending.background) {
       const { body } = await this.storefrontService
-        .upload(this.data._id, 'background', [background.file])
+        .upload(this.params.namespaceId, this.data._id, 'background', [background.file])
         .toPromise();
       this.data = body.record;
     }
+
+    this.matSnackBar.open(`Storefront saved successfully.`);
+    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

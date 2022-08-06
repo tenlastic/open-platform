@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import {
   AuthorizationQuery,
   IAuthorization,
-  Queue,
+  QueueModel,
   QueueQuery,
   QueueService,
 } from '@tenlastic/ng-http';
@@ -13,7 +13,6 @@ import { map } from 'rxjs/operators';
 import { IdentityService } from '../../../../../../core/services';
 
 @Component({
-  selector: 'namespace-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
@@ -27,7 +26,7 @@ export class LayoutComponent implements OnInit {
       this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
-  public $queue: Observable<Queue>;
+  public $queue: Observable<QueueModel>;
   public IAuthorization = IAuthorization;
 
   private get namespaceId() {
@@ -47,10 +46,10 @@ export class LayoutComponent implements OnInit {
 
   public async ngOnInit() {
     this.$queue = this.queueQuery.selectEntity(this.queueId);
-    await this.queueService.findOne(this.queueId);
+    await this.queueService.findOne(this.namespaceId, this.queueId);
   }
 
-  public $hasPermission(roles: IAuthorization.AuthorizationRole[]) {
+  public $hasPermission(roles: IAuthorization.Role[]) {
     const userId = this.identityService.user?._id;
 
     return combineLatest([

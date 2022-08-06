@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Article } from '@tenlastic/ng-http';
+import { ArticleModel } from '@tenlastic/ng-http';
 
 @Component({
   selector: 'app-article',
@@ -7,5 +7,5 @@ import { Article } from '@tenlastic/ng-http';
   templateUrl: 'article.component.html',
 })
 export class ArticleComponent {
-  @Input() public article: Article;
+  @Input() public article: ArticleModel;
 }

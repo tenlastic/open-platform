@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
-import { ActivatedRoute, Params } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
-  Collection,
+  CollectionModel,
   CollectionService,
   IAuthorization,
 } from '@tenlastic/ng-http';
@@ -19,7 +20,7 @@ import {
   styleUrls: ['./form-page.component.scss'],
 })
 export class CollectionsFormPageComponent implements OnInit {
-  public data: Collection;
+  public data: CollectionModel;
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
@@ -34,20 +35,22 @@ export class CollectionsFormPageComponent implements OnInit {
     private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
+    private matSnackBar: MatSnackBar,
+    private router: Router,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const roles = [IAuthorization.AuthorizationRole.CollectionsReadWrite];
+      const roles = [IAuthorization.Role.CollectionsReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
       if (params.collectionId !== 'new') {
-        this.data = await this.collectionService.findOne(params.collectionId);
+        this.data = await this.collectionService.findOne(params.namespaceId, params.collectionId);
       }
 
       this.setupForm();
@@ -116,7 +119,7 @@ export class CollectionsFormPageComponent implements OnInit {
     const jsonSchema = this.getJsonSchema();
     const permissions = this.getPermissions();
 
-    const values: Partial<Collection> = {
+    const values: Partial<CollectionModel> = {
       _id: this.data._id,
       jsonSchema,
       name: this.form.get('name').value,
@@ -125,7 +128,7 @@ export class CollectionsFormPageComponent implements OnInit {
     };
 
     try {
-      this.data = await this.formService.upsert(this.collectionService, values);
+      this.data = await this.upsert(values);
     } catch (e) {
       this.errors = this.formService.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
     }
@@ -164,7 +167,7 @@ export class CollectionsFormPageComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.data = this.data || new Collection();
+    this.data = this.data || new CollectionModel();
 
     const properties = [];
     if (this.data.jsonSchema && this.data.jsonSchema.properties) {
@@ -222,5 +225,16 @@ export class CollectionsFormPageComponent implements OnInit {
     const formArray = this.form.get('roles') as FormArray;
     const defaultRole = formArray.at(formArray.length - 1);
     defaultRole.get('key').disable();
+  }
+
+  private async upsert(values: Partial<CollectionModel>) {
+    const result = values._id
+      ? await this.collectionService.update(this.params.namespaceId, values._id, values)
+      : await this.collectionService.create(this.params.namespaceId, values);
+
+    this.matSnackBar.open(`Collection saved successfully.`);
+    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

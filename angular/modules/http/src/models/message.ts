@@ -1,19 +1,13 @@
-import { Model } from './model';
-import { Group } from './group';
-import { User } from './user';
+import { BaseModel } from './base';
 
-export class Message extends Model {
+export class MessageModel extends BaseModel {
   public body: string;
-  public fromUser: User;
   public fromUserId: string;
   public readByUserIds: string[];
-  public readByUsers: string;
-  public toGroup: Group;
   public toGroupId: string;
-  public toUser: User;
   public toUserId: string;
 
-  constructor(params?: Partial<Message>) {
-    super(params);
+  constructor(parameters?: Partial<MessageModel>) {
+    super(parameters);
   }
 }

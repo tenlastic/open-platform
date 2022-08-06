@@ -4,7 +4,7 @@ import { ElectronService, IdentityService } from '../../../../core/services';
 import { environment } from '../../../../../environments/environment';
 import {
   AuthorizationService,
-  Storefront,
+  StorefrontModel,
   StorefrontQuery,
   StorefrontService,
 } from '@tenlastic/ng-http';
@@ -12,12 +12,11 @@ import { Observable } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
-  selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
-  public $storefronts: Observable<Storefront[]>;
+  public $storefronts: Observable<StorefrontModel[]>;
   public get isElectron() {
     return this.electronService.isElectron;
   }
@@ -38,10 +37,10 @@ export class LayoutComponent implements OnInit {
 
     const [authorizations, storefronts] = await Promise.all([
       this.authorizationService.findUserAuthorizations(null, this.identityService.user?._id),
-      this.storefrontService.find({}),
+      this.storefrontService.find(null, {}),
     ]);
 
-    // If only one Storefront is available, automatically select it.
+    // If only one StorefrontModel is available, automatically select it.
     if (storefronts.length === 1) {
       const storefront = storefronts[0];
       this.router.navigate([storefront.namespaceId], { relativeTo: this.activatedRoute });

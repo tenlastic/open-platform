@@ -3,12 +3,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { Order } from '@datorama/akita';
 import {
   IWorkflow,
-  Workflow,
-  WorkflowLog,
+  WorkflowModel,
+  WorkflowLogModel,
   WorkflowLogQuery,
   WorkflowLogStore,
   WorkflowQuery,
   WorkflowService,
+  WorkflowLogService,
 } from '@tenlastic/ng-http';
 import { map } from 'rxjs/operators';
 
@@ -25,7 +26,7 @@ type WorkflowStatusNodeWithParent = IWorkflow.Node & { parent: string };
 })
 export class WorkflowStatusNodeComponent {
   @Input() public node: WorkflowStatusNodeWithParent;
-  @Input() public workflow: Workflow;
+  @Input() public workflow: WorkflowModel;
 
   public phaseToIcon = {
     Error: 'close',
@@ -38,6 +39,7 @@ export class WorkflowStatusNodeComponent {
     private matDialog: MatDialog,
     private socketService: SocketService,
     private workflowLogQuery: WorkflowLogQuery,
+    private workflowLogService: WorkflowLogService,
     private workflowLogStore: WorkflowLogStore,
     private workflowQuery: WorkflowQuery,
     private workflowService: WorkflowService,
@@ -47,7 +49,7 @@ export class WorkflowStatusNodeComponent {
     return displayName
       .toLowerCase()
       .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
       .replace(/\(0\)$/, '')
       .replace(/\(([0-9]+)\)$/, (match, p1) => ` (Retry #${p1})`);
@@ -58,21 +60,24 @@ export class WorkflowStatusNodeComponent {
       autoFocus: false,
       data: {
         $logs: this.workflowLogQuery.selectAll({
-          filterBy: log => log.workflowId === this.workflow._id,
+          filterBy: (log) => log.workflowId === this.workflow._id,
           sortBy: 'unix',
           sortByOrder: Order.DESC,
         }),
         $nodeIds: this.workflowQuery
           .selectEntity(this.workflow._id)
-          .pipe(map(workflow => this.getNodeIds(workflow))),
-        find: nodeId => this.workflowService.logs(this.workflow._id, nodeId, { tail: 500 }),
+          .pipe(map((workflow) => this.getNodeIds(workflow))),
+        find: (nodeId) =>
+          this.workflowLogService.find(this.workflow.namespaceId, this.workflow._id, nodeId, {
+            tail: 500,
+          }),
         nodeId: this.node._id,
         subscribe: async (nodeId, unix) => {
-          const socket = await this.socketService.connect(environment.apiBaseUrl);
+          const socket = await this.socketService.connect(environment.wssUrl);
           return socket.logs(
-            WorkflowLog,
+            WorkflowLogModel,
             { nodeId, since: unix ? new Date(unix) : new Date(), workflowId: this.workflow._id },
-            this.workflowService,
+            this.workflowLogService,
           );
         },
       },
@@ -81,10 +86,10 @@ export class WorkflowStatusNodeComponent {
     dialogRef.afterClosed().subscribe(() => this.workflowLogStore.reset());
   }
 
-  private getNodeIds(workflow: Workflow) {
-    const nodes = workflow.status?.nodes?.filter(n => n.type === 'Pod');
+  private getNodeIds(workflow: WorkflowModel) {
+    const nodes = workflow.status?.nodes?.filter((n) => n.type === 'Pod');
     return nodes
-      .map(n => ({ label: this.getDisplayName(n.displayName), value: n._id }))
+      .map((n) => ({ label: this.getDisplayName(n.displayName), value: n._id }))
       .sort((a, b) => (a.label > b.label ? 1 : -1));
   }
 }

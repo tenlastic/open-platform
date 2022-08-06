@@ -1,17 +1,9 @@
-import { Model } from './model';
+import { BaseModel } from './base';
 
 export namespace INamespace {
   export interface BuildLimits {
     count: number;
     size: number;
-  }
-
-  export interface StorefrontLimits {
-    count: number;
-    images: number;
-    public: number;
-    size: number;
-    videos: number;
   }
 
   export interface GameServerLimits {
@@ -35,6 +27,14 @@ export namespace INamespace {
     replicas: number;
   }
 
+  export interface StorefrontLimits {
+    count: number;
+    images: number;
+    public: number;
+    size: number;
+    videos: number;
+  }
+
   export interface WorkflowLimits {
     count: number;
     cpu: number;
@@ -45,11 +45,11 @@ export namespace INamespace {
   }
 }
 
-export class Namespace extends Model {
+export class NamespaceModel extends BaseModel {
   public limits: INamespace.Limits;
   public name: string;
 
-  constructor(params?: Partial<Namespace>) {
-    super(params);
+  constructor(parameters?: Partial<NamespaceModel>) {
+    super(parameters);
   }
 }

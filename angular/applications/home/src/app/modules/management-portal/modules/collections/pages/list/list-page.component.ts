@@ -8,7 +8,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
   AuthorizationQuery,
-  Collection,
+  CollectionModel,
   CollectionQuery,
   CollectionService,
   IAuthorization,
@@ -26,13 +26,13 @@ import { TITLE } from '../../../../../../shared/constants';
 export class CollectionsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<Collection>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<CollectionModel>;
 
-  public dataSource = new MatTableDataSource<Collection>();
+  public dataSource = new MatTableDataSource<CollectionModel>();
   public displayedColumns = ['name', 'createdAt', 'updatedAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
-  private $collections: Observable<Collection[]>;
+  private $collections: Observable<CollectionModel[]>;
   private updateDataSource$ = new Subscription();
 
   constructor(
@@ -50,7 +50,7 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
     this.activatedRoute.params.subscribe((params) => {
       this.titleService.setTitle(`${TITLE} | Collections`);
 
-      const roles = [IAuthorization.AuthorizationRole.CollectionsReadWrite];
+      const roles = [IAuthorization.Role.CollectionsReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
@@ -64,9 +64,9 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public showDeletePrompt($event: Event, record: Collection) {
+  public showDeletePrompt($event: Event, record: CollectionModel) {
     $event.stopPropagation();
-    
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
@@ -79,7 +79,7 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.collectionService.delete(record._id);
+        await this.collectionService.delete(record.namespaceId, record._id);
         this.matSnackBar.open('Collection deleted successfully.');
       }
     });
@@ -90,16 +90,13 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
       filterBy: (gs) => gs.namespaceId === params.namespaceId,
     });
 
-    await this.collectionService.find({
-      sort: 'name',
-      where: { namespaceId: params.namespaceId },
-    });
+    await this.collectionService.find(params.namespaceId, { sort: 'name' });
 
     this.updateDataSource$ = this.$collections.subscribe(
       (collections) => (this.dataSource.data = collections),
     );
 
-    this.dataSource.filterPredicate = (data: Collection, filter: string) => {
+    this.dataSource.filterPredicate = (data: CollectionModel, filter: string) => {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
       return regex.test(data.name);
     };

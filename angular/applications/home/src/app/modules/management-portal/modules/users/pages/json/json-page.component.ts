@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { User, UserService } from '@tenlastic/ng-http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
+import { UserModel, UserService } from '@tenlastic/ng-http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
@@ -11,7 +12,7 @@ import { jsonValidator } from '../../../../../../shared/validators';
   styleUrls: ['./json-page.component.scss'],
 })
 export class UsersJsonPageComponent implements OnInit {
-  public data: User;
+  public data: UserModel;
   public errors: string[] = [];
   public form: FormGroup;
 
@@ -19,6 +20,8 @@ export class UsersJsonPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private formService: FormService,
+    private matSnackBar: MatSnackBar,
+    private router: Router,
     private textareaService: TextareaService,
     private userService: UserService,
   ) {}
@@ -52,19 +55,19 @@ export class UsersJsonPageComponent implements OnInit {
     }
 
     const json = this.form.get('json').value;
-    const values = JSON.parse(json) as User;
+    const values = JSON.parse(json) as UserModel;
 
     values._id = this.data._id;
 
     try {
-      this.data = await this.formService.upsert(this.userService, values, { path: '../../' });
+      this.data = await this.upsert(values);
     } catch (e) {
       this.errors = this.formService.handleHttpError(e);
     }
   }
 
   private setupForm(): void {
-    this.data ??= new User({ username: '' });
+    this.data ??= new UserModel({ username: '' });
 
     const keys = ['email', 'roles', 'username'];
     const data = Object.keys(this.data)
@@ -77,5 +80,16 @@ export class UsersJsonPageComponent implements OnInit {
     });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+  }
+
+  private async upsert(values: Partial<UserModel>) {
+    const result = values._id
+      ? await this.userService.update(values._id, values)
+      : await this.userService.create(values);
+
+    this.matSnackBar.open(`User saved successfully.`);
+    this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

@@ -5,7 +5,6 @@ import { environment } from '../../../../../environments/environment';
 import { ElectronService, IdentityService } from '../../../../core/services';
 
 @Component({
-  selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
@@ -30,7 +29,7 @@ export class LayoutComponent implements OnInit {
     this.isLoading = false;
   }
 
-  public $hasPermission(roles: IAuthorization.AuthorizationRole[]) {
+  public $hasPermission(roles: IAuthorization.Role[]) {
     return this.authorizationQuery.selectHasRoles(null, roles, this.identityService.user?._id);
   }
 }

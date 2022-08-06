@@ -7,5 +7,6 @@
     "rootDir": "./src"
   },
   "exclude": ["./src/**/*.spec.ts"],
-  "include": ["./src"]
+  "include": ["./src"],
+  "references": [{ "path": "../../modules/wait/tsconfig.app.json" }]
 }

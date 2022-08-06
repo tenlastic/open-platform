@@ -10,14 +10,14 @@ import {
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import {
-  Group,
+  GroupModel,
   GroupInvitationService,
   GroupService,
   GroupStore,
-  Message,
+  MessageModel,
   MessageQuery,
   MessageService,
-  User,
+  UserModel,
   UserQuery,
   UserService,
 } from '@tenlastic/ng-http';
@@ -34,12 +34,12 @@ import { PromptComponent } from '../prompt/prompt.component';
   templateUrl: 'group-messages.component.html',
 })
 export class GroupMessagesComponent implements OnChanges, OnDestroy {
-  @Input() public group: Group;
+  @Input() public group: GroupModel;
   @ViewChild('messagesScrollContainer')
   public messagesScrollContainer: ElementRef;
 
-  public $messages: Observable<Message[]>;
-  public $users: Observable<User[]>;
+  public $messages: Observable<MessageModel[]>;
+  public $users: Observable<UserModel[]>;
   public readUnreadMessages$ = new Subscription();
   public scrollToBottom$ = new Subscription();
   public setGroup$ = new Subscription();
@@ -51,7 +51,9 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
   }
   public loadingMessage: string;
   public get usernames() {
-    return this.group.users ? this.group.users.map(u => u.username).join('\n') : null;
+    return this.group.userIds
+      ? this.group.userIds.map((ui) => this.getUser(ui).username).join('\n')
+      : null;
   }
 
   constructor(
@@ -91,6 +93,10 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
     await this.groupService.delete(this.group._id);
   }
 
+  public getUser(_id: string) {
+    return this.userQuery.getEntity(_id);
+  }
+
   public invite() {
     const dialogRef = this.matDialog.open(InputDialogComponent, {
       data: {
@@ -103,7 +109,7 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async username => {
+    dialogRef.afterClosed().subscribe(async (username) => {
       if (!username) {
         return;
       }
@@ -144,7 +150,7 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         const { _id } = this.group;
         await this.groupService.delete(_id);
@@ -160,8 +166,8 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
   }
 
   public async toggleIsOpen() {
-    const group = new Group({ ...this.group, isOpen: !this.group.isOpen });
-    return this.groupService.update(group);
+    const group = new GroupModel({ ...this.group, isOpen: !this.group.isOpen });
+    return this.groupService.update(group._id, group);
   }
 
   private async autocomplete(value: string) {
@@ -176,7 +182,7 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
       },
     });
 
-    return users.map(u => ({ label: u.username, value: u.username }));
+    return users.map((u) => ({ label: u.username, value: u.username }));
   }
 
   private async setGroup() {
@@ -188,7 +194,6 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
     }
 
     this.$messages = this.messageQuery.selectAllInGroup(this.group._id);
-    this.$messages = this.messageQuery.populateUsers(this.$messages);
     this.$users = this.userQuery.selectAll();
 
     this.loadingMessage = 'Loading conversation...';
@@ -198,13 +203,14 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
     // Mark unread messages as read.
     this.readUnreadMessages$ = this.messageQuery
       .selectAllUnreadInGroup(this.group._id, this.identityService.user._id)
-      .pipe(map(messages => messages[0]))
-      .subscribe(message => (message ? this.messageService.read(message._id) : null));
+      .pipe(map((messages) => messages[0]))
+      .subscribe((message) => (message ? this.messageService.read(message._id) : null));
 
     // Scroll to the bottom when new message received.
     this.scrollToBottom$ = this.$messages.subscribe(() =>
       this.messagesScrollContainer
-        ? (this.messagesScrollContainer.nativeElement.scrollTop = this.messagesScrollContainer.nativeElement.scrollHeight)
+        ? (this.messagesScrollContainer.nativeElement.scrollTop =
+            this.messagesScrollContainer.nativeElement.scrollHeight)
         : null,
     );
   }

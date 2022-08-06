@@ -88,11 +88,11 @@ export class Socket extends WebSocket {
 
       const record = new Model(payload.fullDocument);
       if (payload.operationType === 'delete') {
-        service.onDelete.emit(record);
+        service.emitter.emit('delete', record);
       } else if (payload.operationType === 'insert') {
-        service.onCreate.emit(record);
+        service.emitter.emit('create', record);
       } else if (payload.operationType === 'update') {
-        service.onUpdate.emit(record);
+        service.emitter.emit('update', record);
       }
     });
 

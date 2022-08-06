@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { User, UserService } from '@tenlastic/ng-http';
+import { UserModel, UserService } from '@tenlastic/ng-http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -15,7 +15,7 @@ export class NamespaceUserFieldComponent implements OnInit {
   @Output() public remove = new EventEmitter();
 
   public isLoading = false;
-  public users: User[] = [];
+  public users: UserModel[] = [];
 
   private subject: Subject<string> = new Subject();
 
@@ -27,7 +27,7 @@ export class NamespaceUserFieldComponent implements OnInit {
     this.subject.pipe(debounceTime(300)).subscribe(this.findUsers.bind(this));
   }
 
-  public displayWith(user: User) {
+  public displayWith(user: UserModel) {
     if (user) {
       return user.username;
     }
@@ -35,7 +35,7 @@ export class NamespaceUserFieldComponent implements OnInit {
 
   public async onFocusOut() {
     // Wait 100ms for autocomplete selection.
-    await new Promise(res => setTimeout(res, 100));
+    await new Promise((res) => setTimeout(res, 100));
 
     this.users = [];
 

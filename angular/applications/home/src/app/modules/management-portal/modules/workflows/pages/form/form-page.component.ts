@@ -2,15 +2,16 @@ import { ENTER } from '@angular/cdk/keycodes';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
   IAuthorization,
   IWorkflow,
-  Namespace,
+  NamespaceModel,
   NamespaceService,
-  Workflow,
+  WorkflowModel,
   WorkflowQuery,
   WorkflowService,
 } from '@tenlastic/ng-http';
@@ -35,13 +36,13 @@ interface StatusNode {
   styleUrls: ['./form-page.component.scss'],
 })
 export class WorkflowsFormPageComponent implements OnInit {
-  public $data: Observable<Workflow>;
+  public $data: Observable<WorkflowModel>;
   public get cpus() {
     const limits = this.namespace.limits?.workflows;
     const limit = limits?.cpu ? limits.cpu : Infinity;
     return limits?.cpu ? IWorkflow.Cpu.filter((r) => r.value <= limit) : IWorkflow.Cpu;
   }
-  public data: Workflow;
+  public data: WorkflowModel;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
   public errors: string[] = [];
   public form: FormGroup;
@@ -66,7 +67,7 @@ export class WorkflowsFormPageComponent implements OnInit {
   }
   public treeControl = new NestedTreeControl<StatusNode>((node) => node.children);
 
-  private namespace: Namespace;
+  private namespace: NamespaceModel;
   private params: Params;
 
   constructor(
@@ -75,7 +76,9 @@ export class WorkflowsFormPageComponent implements OnInit {
     private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
+    private matSnackBar: MatSnackBar,
     private namespaceService: NamespaceService,
+    private router: Router,
     private workflowQuery: WorkflowQuery,
     private workflowService: WorkflowService,
   ) {}
@@ -84,7 +87,7 @@ export class WorkflowsFormPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const roles = [IAuthorization.AuthorizationRole.QueuesReadWrite];
+      const roles = [IAuthorization.Role.QueuesReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
@@ -93,7 +96,7 @@ export class WorkflowsFormPageComponent implements OnInit {
       this.namespace = await this.namespaceService.findOne(params.namespaceId);
 
       if (params.workflowId !== 'new') {
-        this.data = await this.workflowService.findOne(params.workflowId);
+        this.data = await this.workflowService.findOne(params.namespaceId, params.workflowId);
       }
 
       this.setupForm();
@@ -193,7 +196,7 @@ export class WorkflowsFormPageComponent implements OnInit {
       return template;
     });
 
-    const values: Partial<Workflow> = {
+    const values: Partial<WorkflowModel> = {
       _id: this.data._id,
       cpu: raw.cpu,
       memory: raw.memory,
@@ -215,7 +218,7 @@ export class WorkflowsFormPageComponent implements OnInit {
     };
 
     try {
-      this.data = await this.formService.upsert(this.workflowService, values);
+      this.data = await this.upsert(values);
     } catch (e) {
       this.errors = this.formService.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
     }
@@ -313,7 +316,7 @@ export class WorkflowsFormPageComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.data = this.data || new Workflow();
+    this.data = this.data || new WorkflowModel();
 
     this.form = this.formBuilder.group({
       cpu: [this.data.cpu || this.cpus[0].value],
@@ -335,7 +338,7 @@ export class WorkflowsFormPageComponent implements OnInit {
 
       this.$data = this.workflowQuery.selectAll({ filterBy: (w) => w._id === this.data._id }).pipe(
         map((workflows) => {
-          const workflow = new Workflow(workflows[0]);
+          const workflow = new WorkflowModel(workflows[0]);
           workflow.status = workflow.status || { nodes: [], phase: 'Pending' };
           this.dataSource.data = workflow.getNestedStatusNodes();
           return workflow;
@@ -344,5 +347,16 @@ export class WorkflowsFormPageComponent implements OnInit {
     }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+  }
+
+  private async upsert(values: Partial<WorkflowModel>) {
+    const result = values._id
+      ? await this.workflowService.update(this.params.namespaceId, values._id, values)
+      : await this.workflowService.create(this.params.namespaceId, values);
+
+    this.matSnackBar.open(`Workflow saved successfully.`);
+    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

@@ -68,9 +68,7 @@
                          gutterSize="8"
                          rowHeight="1920:1080">
             <mat-grid-tile *ngIf="getImage('background')"
-                           [ngStyle]="{ 'background-image': 'url(' + getImage('background') + ')' }"
-                           [appDownload]
-                           [src]="getImage('background')">
+                           [ngStyle]="{ 'background-image': 'url(' + getImage('background') + ')' }">
               <app-button color="accent"
                           (OnClick)="view(getImage('background'))">
                 <mat-icon>fullscreen</mat-icon>

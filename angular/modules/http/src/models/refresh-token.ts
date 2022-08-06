@@ -1,13 +1,13 @@
-import { Model } from './model';
+import { BaseModel } from './base';
 
-export class RefreshToken extends Model {
+export class RefreshTokenModel extends BaseModel {
   public description: string;
   public expiresAt: Date;
   public userId: string;
 
-  constructor(params: Partial<RefreshToken> = {}) {
-    super(params);
+  constructor(parameters?: Partial<RefreshTokenModel>) {
+    super(parameters);
 
-    this.expiresAt = params.expiresAt ? new Date(params.expiresAt) : null;
+    this.expiresAt = parameters.expiresAt ? new Date(parameters.expiresAt) : null;
   }
 }

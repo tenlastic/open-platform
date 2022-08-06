@@ -1,4 +1,3 @@
-import { queueQuery } from '../stores/queue';
 import { BaseModel } from './base';
 
 export namespace IGameServer {
@@ -27,10 +26,12 @@ export namespace IGameServer {
     endpoints?: Endpoints;
     nodes?: StatusNode[];
     phase: string;
+    version?: string;
   }
 
   export interface StatusNode {
     _id: string;
+    displayName: string;
     phase: string;
   }
 }
@@ -46,20 +47,17 @@ export class GameServerModel extends BaseModel {
   public name: string;
   public namespaceId: string;
   public persistent: boolean;
-  public port: number;
   public preemptible: boolean;
-  public get queue() {
-    return queueQuery.getEntity(this.queueId);
-  }
   public queueId: string;
+  public restartedAt: Date;
   public status: IGameServer.Status;
 
-  constructor(parameters: Partial<GameServerModel> = {}) {
+  constructor(parameters?: Partial<GameServerModel>) {
     super(parameters);
   }
 
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible'];
+    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible', 'restartedAt'];
 
     return immutableFields.some((i) => fields.includes(i));
   }

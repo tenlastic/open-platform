@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Build, BuildService, IBuild } from '@tenlastic/ng-http';
+import { BuildModel, BuildService, IBuild } from '@tenlastic/ng-http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
@@ -12,7 +12,7 @@ import { jsonValidator } from '../../../../../../shared/validators';
   styleUrls: ['./json-page.component.scss'],
 })
 export class BuildsJsonPageComponent implements OnInit {
-  public data: Build;
+  public data: BuildModel;
   public errors: string[] = [];
   public form: FormGroup;
 
@@ -33,7 +33,7 @@ export class BuildsJsonPageComponent implements OnInit {
       this.params = params;
 
       if (params.buildId !== 'new') {
-        this.data = await this.buildService.findOne(params.buildId);
+        this.data = await this.buildService.findOne(params.namespaceId, params.buildId);
       }
 
       this.setupForm();
@@ -59,7 +59,7 @@ export class BuildsJsonPageComponent implements OnInit {
     }
 
     const json = this.form.get('json').value;
-    const values = JSON.parse(json) as Build;
+    const values = JSON.parse(json) as BuildModel;
 
     values.namespaceId = this.params.namespaceId;
 
@@ -71,7 +71,7 @@ export class BuildsJsonPageComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.data ??= new Build({ name: '', platform: IBuild.Platform.Server64 });
+    this.data ??= new BuildModel({ name: '', platform: IBuild.Platform.Server64 });
 
     const keys = ['entrypoint', 'name', 'publishedAt'];
     const data = Object.keys(this.data)
@@ -86,17 +86,17 @@ export class BuildsJsonPageComponent implements OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async upsert(data: Partial<Build>) {
-    let result: Build;
+  private async upsert(data: Partial<BuildModel>) {
+    let result: BuildModel;
 
     if (this.data._id) {
       data._id = this.data._id;
-      result = await this.buildService.update(data);
+      result = await this.buildService.update(this.params.namespaceId, this.data._id, data);
     } else {
-      result = await this.buildService.create(data).toPromise();
+      result = await this.buildService.create(this.params.namespaceId, data).toPromise();
     }
 
     this.matSnackBar.open('Build saved successfully.');
-    this.router.navigate([`../../${result._id}`], { relativeTo: this.activatedRoute });
+    this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });
   }
 }

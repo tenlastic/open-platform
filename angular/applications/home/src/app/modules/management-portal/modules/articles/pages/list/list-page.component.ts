@@ -7,7 +7,7 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
-  Article,
+  ArticleModel,
   ArticleQuery,
   ArticleService,
   AuthorizationQuery,
@@ -26,13 +26,13 @@ import { TITLE } from '../../../../../../shared/constants';
 export class ArticlesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<Article>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<ArticleModel>;
 
-  public dataSource = new MatTableDataSource<Article>();
+  public dataSource = new MatTableDataSource<ArticleModel>();
   public displayedColumns = ['type', 'title', 'publishedAt', 'createdAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
-  private $articles: Observable<Article[]>;
+  private $articles: Observable<ArticleModel[]>;
   private updateDataSource$ = new Subscription();
 
   constructor(
@@ -50,7 +50,7 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
     this.activatedRoute.params.subscribe((params) => {
       this.titleService.setTitle(`${TITLE} | Articles`);
 
-      const roles = [IAuthorization.AuthorizationRole.ArticlesReadWrite];
+      const roles = [IAuthorization.Role.ArticlesReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
@@ -64,12 +64,15 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public async publish($event: Event, article: Article) {
+  public async publish($event: Event, article: ArticleModel) {
     $event.stopPropagation();
-    return this.articleService.update({ ...article, publishedAt: new Date() });
+    return this.articleService.update(article.namespaceId, article._id, {
+      ...article,
+      publishedAt: new Date(),
+    });
   }
 
-  public showDeletePrompt($event: Event, record: Article) {
+  public showDeletePrompt($event: Event, record: ArticleModel) {
     $event.stopPropagation();
 
     const dialogRef = this.matDialog.open(PromptComponent, {
@@ -84,24 +87,26 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.articleService.delete(record._id);
+        await this.articleService.delete(record.namespaceId, record._id);
         this.matSnackBar.open('Article deleted successfully.');
       }
     });
   }
 
-  public async unpublish($event: Event, article: Article) {
+  public async unpublish($event: Event, article: ArticleModel) {
     $event.stopPropagation();
-    return this.articleService.update({ ...article, publishedAt: null });
+    return this.articleService.update(article.namespaceId, article._id, {
+      ...article,
+      publishedAt: null,
+    });
   }
 
   private async fetchArticles(params: Params) {
-    const $articles = this.articleQuery.selectAll({
+    this.$articles = this.articleQuery.selectAll({
       filterBy: (article) => article.namespaceId === params.namespaceId,
     });
-    this.$articles = this.articleQuery.populate($articles);
 
-    await this.articleService.find({
+    await this.articleService.find(params.namespaceId, {
       sort: '-createdAt',
       where: { namespaceId: params.namespaceId },
     });
@@ -110,7 +115,7 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
       (articles) => (this.dataSource.data = articles),
     );
 
-    this.dataSource.filterPredicate = (data: Article, filter: string) => {
+    this.dataSource.filterPredicate = (data: ArticleModel, filter: string) => {
       filter = filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 
       const regex = new RegExp(filter, 'i');

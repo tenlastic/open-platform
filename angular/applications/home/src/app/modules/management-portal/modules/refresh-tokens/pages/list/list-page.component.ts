@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { RefreshToken, RefreshTokenQuery, RefreshTokenService } from '@tenlastic/ng-http';
+import { RefreshTokenModel, RefreshTokenQuery, RefreshTokenService } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
 import { PromptComponent } from '../../../../../../shared/components';
@@ -18,10 +18,10 @@ import { TITLE } from '../../../../../../shared/constants';
 export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<RefreshToken>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<RefreshTokenModel>;
 
-  public $refreshTokens: Observable<RefreshToken[]>;
-  public dataSource = new MatTableDataSource<RefreshToken>();
+  public $refreshTokens: Observable<RefreshTokenModel[]>;
+  public dataSource = new MatTableDataSource<RefreshTokenModel>();
   public displayedColumns = ['_id', 'createdAt', 'updatedAt', 'expiresAt', 'actions'];
 
   private updateDataSource$ = new Subscription();
@@ -43,9 +43,9 @@ export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public showDeletePrompt($event: Event, record: RefreshToken) {
+  public showDeletePrompt($event: Event, record: RefreshTokenModel) {
     $event.stopPropagation();
-    
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [

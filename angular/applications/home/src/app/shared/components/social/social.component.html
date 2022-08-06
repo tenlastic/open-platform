@@ -7,9 +7,9 @@
     <ng-content></ng-content>
   </div>
 
-  <div *ngIf="identityService.user"
+  <div *ngIf="isLoggedIn"
        class="nav">
-    <ng-container *ngIf="electronService.isElectron">
+    <ng-container *ngIf="isElectron">
       <div *ngFor="let gameServer of $gameServers | async"
            class="group-invitation queue">
         <div class="hover-off">
@@ -51,7 +51,7 @@
 
       <div class="hover-on">
         <app-button color="primary"
-                    (OnClick)="leaveQueue(queueMember._id)">
+                    (OnClick)="leaveQueue(queueMember)">
           Leave Queue
         </app-button>
       </div>

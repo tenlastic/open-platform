@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params } from '@angular/router';
-import { IWorkflow, Workflow, WorkflowService } from '@tenlastic/ng-http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { IWorkflow, WorkflowModel, WorkflowService } from '@tenlastic/ng-http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
@@ -11,7 +12,7 @@ import { jsonValidator } from '../../../../../../shared/validators';
   styleUrls: ['./json-page.component.scss'],
 })
 export class WorkflowsJsonPageComponent implements OnInit {
-  public data: Workflow;
+  public data: WorkflowModel;
   public errors: string[] = [];
   public form: FormGroup;
 
@@ -21,6 +22,8 @@ export class WorkflowsJsonPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private formService: FormService,
+    private matSnackBar: MatSnackBar,
+    private router: Router,
     private textareaService: TextareaService,
     private workflowService: WorkflowService,
   ) {}
@@ -30,7 +33,7 @@ export class WorkflowsJsonPageComponent implements OnInit {
       this.params = params;
 
       if (params.workflowId !== 'new') {
-        this.data = await this.workflowService.findOne(params.workflowId);
+        this.data = await this.workflowService.findOne(params.namespaceId, params.workflowId);
       }
 
       this.setupForm();
@@ -56,20 +59,20 @@ export class WorkflowsJsonPageComponent implements OnInit {
     }
 
     const json = this.form.get('json').value;
-    const values = JSON.parse(json) as Workflow;
+    const values = JSON.parse(json) as WorkflowModel;
 
     values._id = this.data._id;
     values.namespaceId = this.params.namespaceId;
 
     try {
-      this.data = await this.formService.upsert(this.workflowService, values);
+      this.data = await this.upsert(values);
     } catch (e) {
       this.errors = this.formService.handleHttpError(e);
     }
   }
 
   private setupForm(): void {
-    this.data ??= new Workflow({
+    this.data ??= new WorkflowModel({
       cpu: IWorkflow.Cpu[0].value,
       memory: IWorkflow.Memory[0].value,
       name: '',
@@ -89,5 +92,16 @@ export class WorkflowsJsonPageComponent implements OnInit {
     });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+  }
+
+  private async upsert(values: Partial<WorkflowModel>) {
+    const result = values._id
+      ? await this.workflowService.update(this.params.namespaceId, values._id, values)
+      : await this.workflowService.create(this.params.namespaceId, values);
+
+    this.matSnackBar.open(`Workflow saved successfully.`);
+    this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

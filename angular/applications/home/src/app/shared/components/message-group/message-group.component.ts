@@ -3,7 +3,7 @@ import {
   GroupQuery,
   GroupStore,
   MessageQuery,
-  User,
+  UserModel,
   UserQuery,
   UserStore,
   WebSocketQuery,
@@ -22,9 +22,9 @@ export class MessageGroupComponent {
   @Input() public header: string;
   @Input() public isVisible: boolean;
   @Input() public showGroup = true;
-  @Input() public users: User[];
+  @Input() public users: UserModel[];
   public get $activeUser() {
-    return this.userQuery.selectActive() as Observable<User>;
+    return this.userQuery.selectActive() as Observable<UserModel>;
   }
 
   constructor(
@@ -55,7 +55,7 @@ export class MessageGroupComponent {
       .pipe(map((messages) => messages.length));
   }
 
-  public setUser(user: User) {
+  public setUser(user: UserModel) {
     if (this.groupQuery.hasActive()) {
       this.groupStore.removeActive(this.groupQuery.getActiveId());
     }

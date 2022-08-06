@@ -36,7 +36,7 @@
         <app-button *ngIf="$getSoloQueueMember(element._id) | async as queueMember"
                     mat-button
                     color="accent"
-                    (OnClick)="leaveQueue(queueMember._id)">
+                    (OnClick)="leaveQueue(queueMember)">
           <span>Leave Solo Queue</span>
         </app-button>
 
@@ -46,7 +46,7 @@
                     "
                     mat-button
                     color="accent"
-                    (OnClick)="leaveQueue(queueMember._id)">
+                    (OnClick)="leaveQueue(queueMember)">
           <span>Leave Group Queue</span>
         </app-button>
 

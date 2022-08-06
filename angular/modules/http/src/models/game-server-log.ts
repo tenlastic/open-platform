@@ -1,12 +1,12 @@
-import { Model } from './model';
+import { BaseModel } from './base';
 
-export class GameServerLog extends Model {
+export class GameServerLogModel extends BaseModel {
   public body: string;
   public gameServerId: string;
   public nodeId: string;
   public unix: number;
 
-  constructor(params?: Partial<GameServerLog>) {
-    super(params);
+  constructor(parameters?: Partial<GameServerLogModel>) {
+    super(parameters);
   }
 }

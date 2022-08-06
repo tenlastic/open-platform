@@ -1,12 +1,12 @@
-import { Model } from './model';
+import { BaseModel } from './base';
 
-export class Record extends Model {
+export class RecordModel extends BaseModel {
   public collectionId: string;
   public namespaceId: string;
   public properties: any;
   public userId: string;
 
-  constructor(params?: Partial<Record>) {
-    super(params);
+  constructor(parameters?: Partial<RecordModel>) {
+    super(parameters);
   }
 }

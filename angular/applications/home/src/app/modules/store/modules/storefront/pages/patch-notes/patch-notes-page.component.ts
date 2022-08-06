@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Article, ArticleService } from '@tenlastic/ng-http';
+import { ArticleModel, ArticleService } from '@tenlastic/ng-http';
 
 @Component({
   styleUrls: ['./patch-notes-page.component.scss'],
   templateUrl: 'patch-notes-page.component.html',
 })
 export class PatchNotesPageComponent implements OnInit {
-  public articles: Article[];
+  public articles: ArticleModel[];
   public loadingMessage: string;
 
   constructor(private activatedRoute: ActivatedRoute, private articleService: ArticleService) {}
@@ -16,7 +16,7 @@ export class PatchNotesPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.loadingMessage = 'Loading Articles...';
 
-      this.articles = await this.articleService.find({
+      this.articles = await this.articleService.find(params.namespaceId, {
         sort: '-publishedAt',
         where: {
           namespaceId: params.namespaceId,

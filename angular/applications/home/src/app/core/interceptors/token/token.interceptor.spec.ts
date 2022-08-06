@@ -4,6 +4,7 @@ import { fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { HttpModule, UserService } from '@tenlastic/ng-http';
 import { Chance } from 'chance';
 
+import { environment } from '../../../../environments/environment';
 import { IdentityService } from '../../services/identity/identity.service';
 import { TokenInterceptor } from './token.interceptor';
 
@@ -17,10 +18,7 @@ describe('TokenInterceptor', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        HttpClientTestingModule,
-        HttpModule.forRoot({ userApiBaseUrl: 'http://localhost:3000/users' }),
-      ],
+      imports: [HttpClientTestingModule, HttpModule.forRoot({ apiUrl: environment.apiUrl })],
       providers: [
         IdentityService,
         TokenInterceptor,
@@ -47,13 +45,13 @@ describe('TokenInterceptor', () => {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjIxNDc0ODM2NDd9._flG9gy9n7JKFZTfZX5a3oUiwOM2fAI0ul6dAT8mbKU';
     identityService.setAccessToken(token);
 
-    userService.find({}).then(response => {
+    userService.find({}).then((response) => {
       expect(response).toBeTruthy();
     });
 
     tick();
 
-    const httpRequest = httpMock.expectOne(req => req.url === userService.basePath);
+    const httpRequest = httpMock.expectOne((req) => req.url === `${environment.apiUrl}/users`);
     expect(httpRequest.request.headers.get('Authorization')).toEqual(`Bearer ${token}`);
 
     flush();

@@ -12,7 +12,7 @@ export class LoginGuard implements CanActivate {
     const refreshToken = this.identityService.getRefreshToken();
 
     if (!refreshToken || refreshToken.isExpired) {
-      this.loginService.onLogout.emit();
+      this.loginService.emitter.emit('logout');
       return false;
     }
 

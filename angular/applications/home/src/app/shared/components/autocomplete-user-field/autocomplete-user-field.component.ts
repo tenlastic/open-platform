@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormControl } from '@angular/forms';
-import { User, UserQuery, UserService } from '@tenlastic/ng-http';
+import { UserModel, UserQuery, UserService } from '@tenlastic/ng-http';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -12,7 +12,7 @@ import { debounceTime } from 'rxjs/operators';
 export class AutocompleteUserFieldComponent implements OnInit {
   @Input() public control: FormControl;
 
-  public $users = new Observable<User[]>();
+  public $users = new Observable<UserModel[]>();
   public isLoading = false;
   public get isRequired() {
     if (!this.control.validator) {
@@ -31,7 +31,7 @@ export class AutocompleteUserFieldComponent implements OnInit {
     this.subject.pipe(debounceTime(300)).subscribe((username) => this.findUsers(username));
   }
 
-  public displayWith(user: User) {
+  public displayWith(user: UserModel) {
     return user?.username;
   }
 

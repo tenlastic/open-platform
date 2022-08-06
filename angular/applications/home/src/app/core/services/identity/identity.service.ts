@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { AuthorizationQuery, IOnLogin, LoginService, User } from '@tenlastic/ng-http';
+import { AuthorizationQuery, LoginService, UserModel } from '@tenlastic/ng-http';
 
 export class ExpiredRefreshTokenError extends Error {
   constructor(message?: string) {
@@ -32,7 +32,7 @@ export class Jwt {
       exp: decodedValue.exp ? new Date(decodedValue.exp * 1000) : null,
       iat: decodedValue.iat ? new Date(decodedValue.iat * 1000) : null,
       jti: decodedValue.jti,
-      user: decodedValue.user ? new User(decodedValue.user) : null,
+      user: decodedValue.user ? new UserModel(decodedValue.user) : null,
     };
     this._value = value;
   }
@@ -42,7 +42,7 @@ export interface JwtPayload {
   exp?: Date;
   iat?: Date;
   jti?: string;
-  user?: User;
+  user?: UserModel;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -70,9 +70,9 @@ export class IdentityService {
   private startedRefreshingAt: Date;
 
   constructor(private authorizationQuery: AuthorizationQuery, private loginService: LoginService) {
-    this.loginService.onLogin.subscribe(this.login.bind(this));
-    this.loginService.onLogout.subscribe(this.clear.bind(this));
-    this.loginService.onRefresh.subscribe(this.login.bind(this));
+    this.loginService.emitter.on('login', this.login.bind(this));
+    this.loginService.emitter.on('logout', this.clear.bind(this));
+    this.loginService.emitter.on('refresh', this.login.bind(this));
   }
 
   public clear() {
@@ -154,7 +154,7 @@ export class IdentityService {
     this.OnRefreshTokenSet.emit(value);
   }
 
-  private login(data: IOnLogin) {
+  private login(data: { accessToken: string; refreshToken: string }) {
     this.setAccessToken(data.accessToken);
     this.setRefreshToken(data.refreshToken);
   }

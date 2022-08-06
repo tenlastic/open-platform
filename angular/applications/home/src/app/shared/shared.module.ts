@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
+import { HttpModule } from '../http.module';
 import { MaterialModule } from '../material.module';
 import {
   ApiKeyDialogComponent,
@@ -30,7 +31,7 @@ import {
   TitleComponent,
   ToggleSectionComponent,
 } from './components';
-import { DownloadDirective, HighlightDirective, NavDirective } from './directives';
+import { HighlightDirective, NavDirective } from './directives';
 import {
   AsAnyPipe,
   CamelCaseToTitleCasePipe,
@@ -69,10 +70,11 @@ const components = [
   TitleComponent,
   ToggleSectionComponent,
 ];
-const directives = [DownloadDirective, HighlightDirective, NavDirective];
+const directives = [HighlightDirective, NavDirective];
 const modules = [
   CommonModule,
   FormsModule,
+  HttpModule,
   LayoutModule,
   MaterialModule,
   ReactiveFormsModule,

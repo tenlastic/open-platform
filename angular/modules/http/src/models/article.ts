@@ -1,5 +1,4 @@
-import { Model } from './model';
-import { Namespace } from './namespace';
+import { BaseModel } from './base';
 
 export namespace IArticle {
   export enum Type {
@@ -9,19 +8,17 @@ export namespace IArticle {
   }
 }
 
-export class Article extends Model {
+export class ArticleModel extends BaseModel {
   public body: string;
   public caption: string;
-  public namespace: Namespace;
   public namespaceId: string;
   public publishedAt: Date;
   public title: string;
   public type: IArticle.Type;
 
-  constructor(params: Partial<Article> = {}) {
-    super(params);
+  constructor(parameters?: Partial<ArticleModel>) {
+    super(parameters);
 
-    this.namespace = this.namespace ? new Namespace(this.namespace) : null;
-    this.publishedAt = params.publishedAt ? new Date(params.publishedAt) : null;
+    this.publishedAt = parameters.publishedAt ? new Date(parameters.publishedAt) : null;
   }
 }

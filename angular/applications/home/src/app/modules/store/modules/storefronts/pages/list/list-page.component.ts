@@ -3,7 +3,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { Storefront, StorefrontQuery, StorefrontService } from '@tenlastic/ng-http';
+import { StorefrontModel, StorefrontQuery, StorefrontService } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
 import { TITLE } from '../../../../../../shared/constants';
@@ -15,10 +15,10 @@ import { TITLE } from '../../../../../../shared/constants';
 export class ListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<Storefront>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<StorefrontModel>;
 
-  public $storefronts: Observable<Storefront[]>;
-  public dataSource = new MatTableDataSource<Storefront>();
+  public $storefronts: Observable<StorefrontModel[]>;
+  public dataSource = new MatTableDataSource<StorefrontModel>();
   public displayedColumns = ['title', 'subtitle', 'createdAt', 'updatedAt'];
 
   private updateDataSource$ = new Subscription();
@@ -41,7 +41,7 @@ export class ListPageComponent implements OnDestroy, OnInit {
 
   private async fetchStorefronts() {
     this.$storefronts = this.storefrontQuery.selectAll({ sortBy: 'title' });
-    await this.storefrontService.find({ sort: 'title' });
+    await this.storefrontService.find(null, { sort: 'title' });
 
     this.updateDataSource$ = this.$storefronts.subscribe((g) => (this.dataSource.data = g));
 

@@ -1,13 +1,10 @@
-import { Model } from './model';
-import { User } from './user';
+import { BaseModel } from './base';
 
-export class Ignoration extends Model {
-  public fromUser: User;
+export class IgnorationModel extends BaseModel {
   public fromUserId: string;
-  public toUser: User;
   public toUserId: string;
 
-  constructor(params?: Partial<Ignoration>) {
-    super(params);
+  constructor(parameters?: Partial<IgnorationModel>) {
+    super(parameters);
   }
 }

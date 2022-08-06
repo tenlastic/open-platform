@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Params } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  Authorization,
+  AuthorizationModel,
   AuthorizationQuery,
   AuthorizationService,
   IAuthorization,
-  User,
+  UserModel,
   UserService,
 } from '@tenlastic/ng-http';
 
@@ -28,9 +29,9 @@ export enum AuthorizationType {
   templateUrl: 'form-page.component.html',
 })
 export class AuthorizationsFormPageComponent implements OnInit {
-  public AuthorizationRole = IAuthorization.AuthorizationRole;
+  public AuthorizationRole = IAuthorization.Role;
   public AuthorizationType = AuthorizationType;
-  public data: Authorization;
+  public data: AuthorizationModel;
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
@@ -48,6 +49,8 @@ export class AuthorizationsFormPageComponent implements OnInit {
     private formService: FormService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
+    private router: Router,
     private userService: UserService,
   ) {}
 
@@ -55,7 +58,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const roles = [IAuthorization.AuthorizationRole.AuthorizationsReadWrite];
+      const roles = [IAuthorization.Role.AuthorizationsReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 
@@ -77,11 +80,9 @@ export class AuthorizationsFormPageComponent implements OnInit {
       return;
     }
 
-    const roles = Object.values<IAuthorization.AuthorizationRole>(
-      this.form.get('roles').value,
-    ).filter((v) => v);
+    const roles = Object.values<IAuthorization.Role>(this.form.get('roles').value).filter((v) => v);
 
-    const values: Partial<Authorization> = {
+    const values: Partial<AuthorizationModel> = {
       _id: this.data._id,
       namespaceId: this.params.namespaceId,
       roles,
@@ -95,7 +96,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
     }
 
     try {
-      this.data = await this.formService.upsert(this.authorizationService, values);
+      this.data = await this.upsert(values);
       this.openApiKeyDialog(values.apiKey);
     } catch (e) {
       this.errors = this.formService.handleHttpError(e, {
@@ -121,10 +122,10 @@ export class AuthorizationsFormPageComponent implements OnInit {
   }
 
   private async setupForm() {
-    this.data = this.data || new Authorization();
+    this.data = this.data || new AuthorizationModel();
     this.form = null;
 
-    let user: User = null;
+    let user: UserModel = null;
     if (this.data.userId) {
       user = await this.userService.findOne(this.data.userId);
     }
@@ -178,5 +179,16 @@ export class AuthorizationsFormPageComponent implements OnInit {
     }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+  }
+
+  private async upsert(values: Partial<AuthorizationModel>) {
+    const result = values._id
+      ? await this.authorizationService.update(values._id, values)
+      : await this.authorizationService.create(values);
+
+    this.matSnackBar.open(`Authorization saved successfully.`);
+    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

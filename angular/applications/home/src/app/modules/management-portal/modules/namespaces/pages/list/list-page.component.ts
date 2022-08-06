@@ -8,7 +8,7 @@ import { Title } from '@angular/platform-browser';
 import {
   AuthorizationQuery,
   IAuthorization,
-  Namespace,
+  NamespaceModel,
   NamespaceQuery,
   NamespaceService,
 } from '@tenlastic/ng-http';
@@ -25,13 +25,13 @@ import { TITLE } from '../../../../../../shared/constants';
 export class NamespacesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<Namespace>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<NamespaceModel>;
 
-  public dataSource = new MatTableDataSource<Namespace>();
+  public dataSource = new MatTableDataSource<NamespaceModel>();
   public displayedColumns = ['name', 'createdAt', 'updatedAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
-  private $namespaces: Observable<Namespace[]>;
+  private $namespaces: Observable<NamespaceModel[]>;
   private updateDataSource$ = new Subscription();
 
   constructor(
@@ -47,7 +47,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
   public ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Namespaces`);
 
-    const roles = [IAuthorization.AuthorizationRole.NamespacesReadWrite];
+    const roles = [IAuthorization.Role.NamespacesReadWrite];
     const userId = this.identityService.user?._id;
     this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 
@@ -59,12 +59,12 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
   }
 
   public hasWriteAuthorizationForNamespace(namespaceId: string) {
-    const roles = [IAuthorization.AuthorizationRole.NamespacesReadWrite];
+    const roles = [IAuthorization.Role.NamespacesReadWrite];
     const userId = this.identityService.user?._id;
     return this.authorizationQuery.hasRoles(namespaceId, roles, userId);
   }
 
-  public showDeletePrompt($event: Event, record: Namespace) {
+  public showDeletePrompt($event: Event, record: NamespaceModel) {
     $event.stopPropagation();
 
     const dialogRef = this.matDialog.open(PromptComponent, {
@@ -93,7 +93,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
       (namespaces) => (this.dataSource.data = namespaces),
     );
 
-    this.dataSource.filterPredicate = (data: Namespace, filter: string) => {
+    this.dataSource.filterPredicate = (data: NamespaceModel, filter: string) => {
       return new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i').test(data.name);
     };
 

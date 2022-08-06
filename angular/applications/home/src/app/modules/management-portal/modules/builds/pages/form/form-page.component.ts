@@ -7,7 +7,7 @@ import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
-  Build,
+  BuildModel,
   BuildQuery,
   BuildService,
   IAuthorization,
@@ -46,9 +46,9 @@ interface StatusNode {
   styleUrls: ['./form-page.component.scss'],
 })
 export class BuildsFormPageComponent implements OnInit {
-  public $data: Observable<Build>;
+  public $data: Observable<BuildModel>;
   public Status = Status;
-  public data: Build;
+  public data: BuildModel;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
   public errors: string[] = [];
   public form: FormGroup;
@@ -81,14 +81,14 @@ export class BuildsFormPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const roles = [IAuthorization.AuthorizationRole.BuildsReadWrite];
+      const roles = [IAuthorization.Role.BuildsReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
       if (params.buildId !== 'new') {
-        this.data = await this.buildService.findOne(params.buildId);
+        this.data = await this.buildService.findOne(params.namespaceId, params.buildId);
         this.dataSource.data = this.data.getNestedStatusNodes();
       }
 
@@ -114,7 +114,7 @@ export class BuildsFormPageComponent implements OnInit {
     const unmodifiedFiles = this.form.get('files').value.filter((f) => f.status === 'unmodified');
     const reference = { _id: referenceId, files: unmodifiedFiles.map((uf) => uf.path) };
 
-    const values: Partial<Build> = {
+    const values: Partial<BuildModel> = {
       entrypoint: this.form.get('entrypoint').value,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
@@ -138,7 +138,7 @@ export class BuildsFormPageComponent implements OnInit {
     return ['Pod', 'Workflow'].includes(node.type);
   }
 
-  private async create(data: Partial<Build>) {
+  private async create(data: Partial<BuildModel>) {
     this.form.disable({ emitEvent: false });
 
     const files: UpdatedFile[] = this.form.get('files').value;
@@ -180,9 +180,9 @@ export class BuildsFormPageComponent implements OnInit {
     // Upload files.
     this.progress = { current: 0, total: zipBlob?.size };
     this.status = Status.Uploading;
-    const result = await new Promise<Build>((resolve, reject) => {
+    const result = await new Promise<BuildModel>((resolve, reject) => {
       this.buildService
-        .create(data, zipBlob)
+        .create(data._id, data, zipBlob)
         .pipe(
           catchError((err: HttpErrorResponse) => {
             reject(err);
@@ -211,7 +211,7 @@ export class BuildsFormPageComponent implements OnInit {
     this.progress = null;
     this.status = Status.Ready;
 
-    return new Build(result);
+    return new BuildModel(result);
   }
 
   private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
@@ -235,7 +235,7 @@ export class BuildsFormPageComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.data = this.data || new Build();
+    this.data = this.data || new BuildModel();
 
     this.form = this.formBuilder.group({
       entrypoint: [this.data.entrypoint, Validators.required],
@@ -260,7 +260,7 @@ export class BuildsFormPageComponent implements OnInit {
 
       this.$data = this.buildQuery.selectAll({ filterBy: (b) => b._id === this.data._id }).pipe(
         map((builds) => {
-          const build = new Build(builds[0]);
+          const build = new BuildModel(builds[0]);
           build.status = build.status || { nodes: [], phase: 'Pending' };
           this.dataSource.data = build.getNestedStatusNodes();
           this.form.get('files').setValue(build.files);
@@ -270,10 +270,10 @@ export class BuildsFormPageComponent implements OnInit {
     }
   }
 
-  private async upsert(data: Partial<Build>) {
+  private async upsert(data: Partial<BuildModel>) {
     if (this.data._id) {
       data._id = this.data._id;
-      this.data = await this.buildService.update(data);
+      this.data = await this.buildService.update(data.namespaceId, data._id, data);
     } else {
       this.data = await this.create(data);
     }

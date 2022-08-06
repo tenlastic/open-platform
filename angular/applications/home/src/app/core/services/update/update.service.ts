@@ -1,19 +1,20 @@
 import { Injectable } from '@angular/core';
 import {
-  Authorization,
+  AuthorizationModel,
   AuthorizationService,
-  Build,
+  BuildModel,
   BuildService,
-  GameServer,
+  GameServerModel,
   IAuthorization,
   IBuild,
   LoginService,
-  Storefront,
+  StorefrontModel,
   StorefrontService,
 } from '@tenlastic/ng-http';
 import { ChildProcess } from 'child_process';
 import { Subject } from 'rxjs';
 
+import { environment } from '../../../../environments/environment';
 import { ElectronService } from '../../services/electron/electron.service';
 import { IdentityService } from '../../services/identity/identity.service';
 
@@ -38,7 +39,7 @@ export interface UpdateServiceLocalFile {
 }
 
 export interface UpdateServicePlayOptions {
-  gameServer?: GameServer;
+  gameServer?: GameServerModel;
   groupId?: string;
 }
 
@@ -49,7 +50,7 @@ export interface UpdateServiceProgress {
 }
 
 export interface UpdateServiceStatus {
-  build?: Build;
+  build?: BuildModel;
   childProcess?: ChildProcess;
   isInstalled?: boolean;
   modifiedFiles?: IBuild.File[];
@@ -60,7 +61,7 @@ export interface UpdateServiceStatus {
 
 @Injectable({ providedIn: 'root' })
 export class UpdateService {
-  public OnChange = new Subject<Map<Storefront, UpdateServiceStatus>>();
+  public OnChange = new Subject<Map<StorefrontModel, UpdateServiceStatus>>();
 
   private get installPath() {
     return this.electronService.remote.app.getPath('userData').replace(/\\/g, '/') + '/Tenlastic';
@@ -92,7 +93,7 @@ export class UpdateService {
     private storefrontService: StorefrontService,
   ) {
     this.subscribeToServices();
-    this.loginService.onLogout.subscribe(() => this.status.clear());
+    this.loginService.emitter.on('logout', () => this.status.clear());
   }
 
   public async checkForUpdates(namespaceId: string, useCache = false) {
@@ -111,9 +112,9 @@ export class UpdateService {
     status.text = 'Checking authorization...';
     const authorization = await this.getAuthorization(namespaceId);
     const roles = [
-      IAuthorization.AuthorizationRole.BuildsRead,
-      IAuthorization.AuthorizationRole.BuildsReadPublished,
-      IAuthorization.AuthorizationRole.BuildsReadWrite,
+      IAuthorization.Role.BuildsRead,
+      IAuthorization.Role.BuildsReadPublished,
+      IAuthorization.Role.BuildsReadWrite,
     ];
     if (!authorization || !authorization.roles.some((r) => roles.includes(r))) {
       status.state = UpdateServiceState.NotAuthorized;
@@ -122,7 +123,7 @@ export class UpdateService {
 
     // Get the latest Build from the server.
     status.text = 'Retrieving latest build...';
-    const builds = await this.buildService.find({
+    const builds = await this.buildService.find(namespaceId, {
       limit: 1,
       sort: '-publishedAt',
       where: { namespaceId, platform: this.platform, publishedAt: { $exists: true, $ne: null } },
@@ -234,7 +235,7 @@ export class UpdateService {
     const accessToken = await this.identityService.getAccessToken();
     const refreshToken = this.identityService.getRefreshToken();
 
-    const storefronts = await this.storefrontService.find({ where: { namespaceId } });
+    const storefronts = await this.storefrontService.find(namespaceId, {});
     const env = {
       ...process.env,
       ACCESS_TOKEN: accessToken.value,
@@ -282,7 +283,7 @@ export class UpdateService {
     }
   }
 
-  private async download(build: Build, namespaceId: string) {
+  private async download(build: BuildModel, namespaceId: string) {
     const status = this.getStatus(namespaceId);
 
     let downloadedBytes = 0;
@@ -303,7 +304,7 @@ export class UpdateService {
         .get({
           headers: { Authorization: `Bearer ${accessToken.value}` },
           qs: { query: JSON.stringify({ files: files.join('') }) },
-          url: `${this.buildService.basePath}/${status.build._id}/files`,
+          url: `${environment}/${status.build._id}/files`,
         })
         .on('data', (data) => {
           downloadedBytes += data.length;
@@ -407,11 +408,11 @@ export class UpdateService {
     return updatedFiles;
   }
 
-  private onStorefrontChange(record: Storefront) {
+  private onStorefrontChange(record: StorefrontModel) {
     this.checkForUpdates(record.namespaceId);
   }
 
-  private onAuthorizationChange(record: Authorization) {
+  private onAuthorizationChange(record: AuthorizationModel) {
     if (record.userId !== this.identityService.user._id) {
       return;
     }
@@ -420,7 +421,7 @@ export class UpdateService {
   }
 
   private subscribeToServices() {
-    this.buildService.onUpdate.subscribe((record: Build) => {
+    this.buildService.emitter.on('update', (record: BuildModel) => {
       if (!record.namespaceId) {
         return;
       }
@@ -428,22 +429,22 @@ export class UpdateService {
       this.checkForUpdates(record.namespaceId);
     });
 
-    this.storefrontService.onDelete.subscribe((record: Storefront) =>
+    this.storefrontService.emitter.on('delete', (record: StorefrontModel) =>
       this.onStorefrontChange(record),
     );
-    this.storefrontService.onUpdate.subscribe((record: Storefront) =>
+    this.storefrontService.emitter.on('update', (record: StorefrontModel) =>
       this.onStorefrontChange(record),
     );
-    this.storefrontService.onCreate.subscribe((record: Storefront) =>
+    this.storefrontService.emitter.on('create', (record: StorefrontModel) =>
       this.onStorefrontChange(record),
     );
-    this.authorizationService.onCreate.subscribe((record: Authorization) =>
+    this.authorizationService.emitter.on('create', (record: AuthorizationModel) =>
       this.onAuthorizationChange(record),
     );
-    this.authorizationService.onDelete.subscribe((record: Authorization) =>
+    this.authorizationService.emitter.on('delete', (record: AuthorizationModel) =>
       this.onAuthorizationChange(record),
     );
-    this.authorizationService.onUpdate.subscribe((record: Authorization) =>
+    this.authorizationService.emitter.on('update', (record: AuthorizationModel) =>
       this.onAuthorizationChange(record),
     );
   }

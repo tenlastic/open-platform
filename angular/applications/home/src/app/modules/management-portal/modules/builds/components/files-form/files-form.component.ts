@@ -1,6 +1,6 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { Build, BuildService, IBuild } from '@tenlastic/ng-http';
+import { BuildModel, BuildService, IBuild } from '@tenlastic/ng-http';
 
 export interface UpdatedFile {
   arrayBuffer?: ArrayBuffer;
@@ -16,11 +16,11 @@ export interface UpdatedFile {
   styleUrls: ['files-form.component.scss'],
 })
 export class FilesFormComponent implements OnInit {
-  @Input() public build = new Build();
+  @Input() public build = new BuildModel();
   @Input() public form: FormGroup;
   @ViewChild('selectFilesInput', { static: true }) public selectFilesInput: ElementRef;
 
-  public builds: Build[] = [];
+  public builds: BuildModel[] = [];
   public files: UpdatedFile[] = [];
   public get isNew() {
     return !this.build._id;
@@ -28,7 +28,7 @@ export class FilesFormComponent implements OnInit {
   public get modifiedFiles() {
     return this.form.get('files').value.filter((f) => f.status === 'modified');
   }
-  public referenceBuild: Build;
+  public referenceBuild: BuildModel;
   public get referenceFiles() {
     return this.form.get('reference').get('files').value;
   }
@@ -128,7 +128,7 @@ export class FilesFormComponent implements OnInit {
     this.status = null;
   }
 
-  public setReferenceBuild(build: Build) {
+  public setReferenceBuild(build: BuildModel) {
     this.referenceBuild = build;
     this.form
       .get('reference')
@@ -186,12 +186,11 @@ export class FilesFormComponent implements OnInit {
   }
 
   private async getReferenceBuilds() {
-    this.builds = await this.buildService.find({
+    const namespaceId = this.form.get('namespaceId').value;
+
+    this.builds = await this.buildService.find(namespaceId, {
       sort: '-publishedAt -createdAt',
-      where: {
-        namespaceId: this.form.get('namespaceId').value,
-        platform: this.form.get('platform').value,
-      },
+      where: { platform: this.form.get('platform').value },
     });
 
     const build = this.builds.find((r) => r.publishedAt);

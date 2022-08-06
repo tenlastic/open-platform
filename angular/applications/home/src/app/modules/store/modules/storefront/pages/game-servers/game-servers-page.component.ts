@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
-  GameServer,
+  GameServerModel,
   GameServerQuery,
   GameServerService,
-  Group,
+  GroupModel,
   GroupQuery,
 } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
@@ -17,8 +17,8 @@ import { IdentityService, UpdateService } from '../../../../../../core/services'
   templateUrl: 'game-servers-page.component.html',
 })
 export class GameServersPageComponent implements OnInit {
-  public $gameServers: Observable<GameServer[]>;
-  public $group: Observable<Group>;
+  public $gameServers: Observable<GameServerModel[]>;
+  public $group: Observable<GroupModel>;
   public displayedColumns = ['name', 'description', 'currentUsers', 'actions'];
   public get status() {
     return this.params ? this.updateService.getStatus(this.params.namespaceId) : null;
@@ -50,18 +50,18 @@ export class GameServersPageComponent implements OnInit {
         .selectAll({ filterBy: (g) => g.userIds.includes(this.identityService.user._id) })
         .pipe(map((groups) => groups[0]));
 
-      await this.gameServerService.find({
-        where: { namespaceId: params.namespaceId, 'metadata.matchId': { $exists: false } },
+      await this.gameServerService.find(params.namespaceId, {
+        where: { 'metadata.matchId': { $exists: false } },
       });
     });
   }
 
-  public async joinAsGroup(gameServer: GameServer) {
+  public async joinAsGroup(gameServer: GameServerModel) {
     const group = await this.$group.pipe(first()).toPromise();
     this.updateService.play(this.params.namespaceId, { gameServer, groupId: group._id });
   }
 
-  public joinAsIndividual(gameServer: GameServer) {
+  public joinAsIndividual(gameServer: GameServerModel) {
     this.updateService.play(this.params.namespaceId, { gameServer });
   }
 }

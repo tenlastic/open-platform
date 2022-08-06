@@ -1,5 +1,4 @@
-import { Model } from './model';
-import { Queue } from './queue';
+import { BaseModel } from './base';
 
 export namespace IGameServer {
   export const Cpu = [
@@ -37,7 +36,7 @@ export namespace IGameServer {
   }
 }
 
-export class GameServer extends Model {
+export class GameServerModel extends BaseModel {
   public authorizedUserIds: string[];
   public buildId: string;
   public cpu: number;
@@ -49,13 +48,12 @@ export class GameServer extends Model {
   public namespaceId: string;
   public persistent: boolean;
   public preemptible: boolean;
-  public queue: Queue;
   public queueId: string;
   public restartedAt: Date;
   public status: IGameServer.Status;
 
-  constructor(params: Partial<GameServer> = {}) {
-    super(params);
+  constructor(parameters?: Partial<GameServerModel>) {
+    super(parameters);
   }
 
   public static isRestartRequired(fields: string[]) {

@@ -1,7 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params } from '@angular/router';
-import { Article, ArticleService, AuthorizationQuery, IAuthorization } from '@tenlastic/ng-http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import {
+  ArticleModel,
+  ArticleService,
+  AuthorizationQuery,
+  IAuthorization,
+} from '@tenlastic/ng-http';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 
@@ -10,7 +16,7 @@ import { FormService, IdentityService } from '../../../../../../core/services';
   styleUrls: ['./form-page.component.scss'],
 })
 export class ArticlesFormPageComponent implements OnInit {
-  public data: Article;
+  public data: ArticleModel;
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
@@ -29,20 +35,22 @@ export class ArticlesFormPageComponent implements OnInit {
     private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
+    private matSnackBar: MatSnackBar,
+    private router: Router,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const roles = [IAuthorization.AuthorizationRole.ArticlesReadWrite];
+      const roles = [IAuthorization.Role.ArticlesReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
       if (params.articleId !== 'new') {
-        this.data = await this.articleService.findOne(params.articleId);
+        this.data = await this.articleService.findOne(params.namespaceId, params.articleId);
       }
 
       this.setupForm();
@@ -59,7 +67,7 @@ export class ArticlesFormPageComponent implements OnInit {
       return;
     }
 
-    const values: Partial<Article> = {
+    const values: Partial<ArticleModel> = {
       _id: this.data._id,
       body: this.form.get('body').value,
       caption: this.form.get('caption').value,
@@ -69,14 +77,14 @@ export class ArticlesFormPageComponent implements OnInit {
     };
 
     try {
-      this.data = await this.formService.upsert(this.articleService, values);
+      this.data = await this.upsert(values);
     } catch (e) {
       this.errors = this.formService.handleHttpError(e, { name: 'Name' });
     }
   }
 
   private setupForm(): void {
-    this.data = this.data || new Article();
+    this.data = this.data || new ArticleModel();
 
     this.form = this.formBuilder.group({
       body: [this.data.body, Validators.required],
@@ -91,5 +99,16 @@ export class ArticlesFormPageComponent implements OnInit {
     }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+  }
+
+  private async upsert(values: Partial<ArticleModel>) {
+    const result = values._id
+      ? await this.articleService.update(this.params.namespaceId, values._id, values)
+      : await this.articleService.create(this.params.namespaceId, values);
+
+    this.matSnackBar.open(`Article saved successfully.`);
+    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

@@ -1,13 +1,10 @@
-import { Model } from './model';
-import { User } from './user';
+import { BaseModel } from './base';
 
-export class Friend extends Model {
-  public fromUser: User;
+export class FriendModel extends BaseModel {
   public fromUserId: string;
-  public toUser: User;
   public toUserId: string;
 
-  constructor(params?: Partial<Friend>) {
-    super(params);
+  constructor(parameters?: Partial<FriendModel>) {
+    super(parameters);
   }
 }

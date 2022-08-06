@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Authorization, AuthorizationService } from '@tenlastic/ng-http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthorizationModel, AuthorizationService } from '@tenlastic/ng-http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
@@ -11,7 +12,7 @@ import { jsonValidator } from '../../../../../../shared/validators';
   styleUrls: ['./json-page.component.scss'],
 })
 export class AuthorizationsJsonPageComponent implements OnInit {
-  public data: Authorization;
+  public data: AuthorizationModel;
   public errors: string[] = [];
   public form: FormGroup;
 
@@ -20,6 +21,8 @@ export class AuthorizationsJsonPageComponent implements OnInit {
     private authorizationService: AuthorizationService,
     private formBuilder: FormBuilder,
     private formService: FormService,
+    private matSnackBar: MatSnackBar,
+    private router: Router,
     private textareaService: TextareaService,
   ) {}
 
@@ -54,21 +57,19 @@ export class AuthorizationsJsonPageComponent implements OnInit {
     }
 
     const json = this.form.get('json').value;
-    const values = JSON.parse(json) as Authorization;
+    const values = JSON.parse(json) as AuthorizationModel;
 
     values._id = this.data._id;
 
     try {
-      this.data = await this.formService.upsert(this.authorizationService, values, {
-        path: '../../',
-      });
+      this.data = await this.upsert(values);
     } catch (e) {
       this.errors = this.formService.handleHttpError(e);
     }
   }
 
   private setupForm(): void {
-    this.data ??= new Authorization({ apiKey: '', name: '', roles: [], userId: '' });
+    this.data ??= new AuthorizationModel({ apiKey: '', name: '', roles: [], userId: '' });
 
     const keys = ['apiKey', 'name', 'roles', 'userId'];
     const data = Object.keys(this.data)
@@ -81,5 +82,16 @@ export class AuthorizationsJsonPageComponent implements OnInit {
     });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+  }
+
+  private async upsert(values: Partial<AuthorizationModel>) {
+    const result = values._id
+      ? await this.authorizationService.update(values._id, values)
+      : await this.authorizationService.create(values);
+
+    this.matSnackBar.open(`Authorization saved successfully.`);
+    this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

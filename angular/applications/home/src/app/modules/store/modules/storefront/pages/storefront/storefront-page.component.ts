@@ -1,6 +1,11 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Article, ArticleService, Storefront, StorefrontService } from '@tenlastic/ng-http';
+import {
+  ArticleModel,
+  ArticleService,
+  StorefrontModel,
+  StorefrontService,
+} from '@tenlastic/ng-http';
 
 @Component({
   styleUrls: ['./storefront-page.component.scss'],
@@ -9,14 +14,14 @@ import { Article, ArticleService, Storefront, StorefrontService } from '@tenlast
 export class StorefrontPageComponent implements OnInit {
   @ViewChild('video') private video: ElementRef;
 
-  public articles: Article[];
+  public articles: ArticleModel[];
   public error: string;
   public get images() {
     return this.storefront.images.filter((i) => i !== this.mainMedia?.src);
   }
   public loadingMessage: string;
   public mainMedia: { src: string; type: 'image' | 'video' };
-  public storefront: Storefront;
+  public storefront: StorefrontModel;
   public get timestamp() {
     return new Date().getTime();
   }
@@ -32,12 +37,9 @@ export class StorefrontPageComponent implements OnInit {
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.loadingMessage = 'Loading Storefront information...';
+      this.loadingMessage = 'Loading StorefrontModel information...';
 
-      const storefronts = await this.storefrontService.find({
-        limit: 1,
-        where: { namespaceId: params.namespaceId },
-      });
+      const storefronts = await this.storefrontService.find(params.namespaceId, { limit: 1 });
       this.storefront = storefronts[0];
 
       if (this.storefront.videos.length > 0) {
@@ -46,7 +48,7 @@ export class StorefrontPageComponent implements OnInit {
         this.selectMedia(0, 'image', true);
       }
 
-      this.articles = await this.articleService.find({
+      this.articles = await this.articleService.find(params.namespaceId, {
         sort: '-publishedAt',
         where: {
           namespaceId: this.storefront.namespaceId,

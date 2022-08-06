@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-  Namespace,
+  NamespaceModel,
   NamespaceQuery,
   NamespaceService,
-  Storefront,
+  StorefrontModel,
   StorefrontQuery,
   StorefrontService,
 } from '@tenlastic/ng-http';
@@ -20,18 +20,17 @@ import {
 import { PromptComponent } from '../prompt/prompt.component';
 
 @Component({
-  selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
-  public $storefronts: Observable<Storefront[]>;
-  public $namespaces: Observable<Namespace[]>;
+  public $storefronts: Observable<StorefrontModel[]>;
+  public $namespaces: Observable<NamespaceModel[]>;
   public get isElectron() {
     return this.electronService.isElectron;
   }
   public get socket() {
-    return this.socketService.sockets[environment.apiBaseUrl];
+    return this.socketService.sockets[environment.wssUrl];
   }
   public get user() {
     return this.identityService.user;
@@ -52,7 +51,7 @@ export class LayoutComponent implements OnInit {
     this.$storefronts = this.$storefronts || this.storefrontQuery.selectAll();
     this.$namespaces = this.$namespaces || this.namespaceQuery.selectAll();
 
-    await Promise.all([this.storefrontService.find({}), this.namespaceService.find({})]);
+    await Promise.all([this.storefrontService.find(null, {}), this.namespaceService.find({})]);
   }
 
   public close() {

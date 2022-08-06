@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-import { BaseModel } from '../models';
+import { BaseModel } from '../models/base';
 import * as request from '../request';
 
 export interface ServiceEvents<T extends BaseModel> {

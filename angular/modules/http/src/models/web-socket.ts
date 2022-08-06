@@ -1,16 +1,14 @@
-import { Model } from './model';
-import { User } from './user';
+import { BaseModel } from './base';
 
-export class WebSocket extends Model {
+export class WebSocketModel extends BaseModel {
   public disconnectedAt: Date;
   public namespaceId: string;
-  public user: User;
   public userId: string;
 
-  constructor(params?: Partial<WebSocket>) {
-    super(params);
+  constructor(parameters?: Partial<WebSocketModel>) {
+    super(parameters);
 
-    this.disconnectedAt = params.disconnectedAt ? new Date(params.disconnectedAt) : null;
+    this.disconnectedAt = parameters.disconnectedAt ? new Date(parameters.disconnectedAt) : null;
   }
 
   public get duration() {

@@ -6,13 +6,12 @@ import {
   NamespaceModel,
   namespaceService,
 } from '@tenlastic/http';
+import wait from '@tenlastic/wait';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import * as JSZip from 'jszip';
 import { step } from 'mocha-steps';
-
-import { wait } from '../wait';
 
 const chance = new Chance();
 use(chaiAsPromised);

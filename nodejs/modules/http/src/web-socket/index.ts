@@ -2,8 +2,8 @@ import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 import * as WS from 'ws';
 
-import { BaseModel } from '../models';
-import { ServiceEventEmitter } from '../services';
+import { BaseModel } from '../models/base';
+import { ServiceEventEmitter } from '../services/base';
 import { getAccessToken } from '../tokens';
 
 export interface SubscribeParameters {
@@ -36,7 +36,7 @@ export class WebSocket {
     const data = { _id: uuid(), method: 'ping' };
     const interval = setInterval(() => this.socket.send(JSON.stringify(data)), 5000);
 
-    this.socket.addEventListener('close', e => {
+    this.socket.addEventListener('close', (e) => {
       clearInterval(interval);
       this.socket = null;
 
@@ -44,11 +44,11 @@ export class WebSocket {
         setTimeout(() => this.connect(url), 5000);
       }
     });
-    this.socket.addEventListener('error', e => {
+    this.socket.addEventListener('error', (e) => {
       console.error('Socket error:', e.message);
       this.socket.close();
     });
-    this.socket.addEventListener('message', msg => {
+    this.socket.addEventListener('message', (msg) => {
       const payload = JSON.parse(msg.data as string);
       this.emitter.emit('message', payload);
     });
@@ -62,7 +62,7 @@ export class WebSocket {
     const data = { _id, method: 'subscribe', parameters };
 
     this.socket.send(JSON.stringify(data));
-    this.socket.addEventListener('message', msg => {
+    this.socket.addEventListener('message', (msg) => {
       const payload = JSON.parse(msg.data as string);
 
       // If the response is for a different request, ignore it.

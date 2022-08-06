@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Collection, CollectionService, Record, RecordService } from '@tenlastic/ng-http';
+import { CollectionModel, CollectionService, RecordModel, RecordService } from '@tenlastic/ng-http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
@@ -12,11 +12,11 @@ import { jsonValidator } from '../../../../../../shared/validators';
   styleUrls: ['./json-page.component.scss'],
 })
 export class RecordsJsonPageComponent implements OnInit {
-  public data: Record;
+  public data: RecordModel;
   public errors: string[] = [];
   public form: FormGroup;
 
-  private collection: Collection;
+  private collection: CollectionModel;
   private params: Params;
 
   constructor(
@@ -34,10 +34,17 @@ export class RecordsJsonPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      this.collection = await this.collectionService.findOne(params.collectionId);
+      this.collection = await this.collectionService.findOne(
+        params.namespaceId,
+        params.collectionId,
+      );
 
       if (params.recordId !== 'new') {
-        this.data = await this.recordService.findOne(params.collectionId, params.recordId);
+        this.data = await this.recordService.findOne(
+          params.namespaceId,
+          params.collectionId,
+          params.recordId,
+        );
       }
 
       this.setupForm();
@@ -63,7 +70,7 @@ export class RecordsJsonPageComponent implements OnInit {
     }
 
     const json = this.form.get('json').value;
-    const values = JSON.parse(json) as Record;
+    const values = JSON.parse(json) as RecordModel;
 
     values.namespaceId = this.params.namespaceId;
 
@@ -104,7 +111,7 @@ export class RecordsJsonPageComponent implements OnInit {
       }, this);
     }
 
-    this.data ??= new Record({ properties });
+    this.data ??= new RecordModel({ properties });
 
     const keys = ['properties', 'userId'];
     const data = Object.keys(this.data)
@@ -119,17 +126,26 @@ export class RecordsJsonPageComponent implements OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async upsert(data: Partial<Record>) {
-    let result: Record;
+  private async upsert(data: Partial<RecordModel>) {
+    let result: RecordModel;
 
     if (this.data._id) {
       data._id = this.data._id;
-      result = await this.recordService.update(this.params.collectionId, data);
+      result = await this.recordService.update(
+        this.params.namespaceId,
+        this.params.collectionId,
+        this.data._id,
+        data,
+      );
     } else {
-      result = await this.recordService.create(this.params.collectionId, data);
+      result = await this.recordService.create(
+        this.params.namespaceId,
+        this.params.collectionId,
+        data,
+      );
     }
 
     this.matSnackBar.open('Record saved successfully.');
-    this.router.navigate([`../../${result._id}`], { relativeTo: this.activatedRoute });
+    this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });
   }
 }

@@ -2,14 +2,11 @@ import { DOCUMENT } from '@angular/common';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { EnvironmentService, HttpModule, LoginService } from '@tenlastic/ng-http';
-import { Chance } from 'chance';
 
 import { IdentityService } from '../../services';
 import { LoginGuard } from './login.guard';
 
 describe('LoginGuard', () => {
-  const chance = new Chance();
-
   let document: Document;
   let identityService: IdentityService;
   let loginService: LoginService;
@@ -48,7 +45,7 @@ describe('LoginGuard', () => {
         identityService.setAccessToken(token);
         identityService.setRefreshToken(token);
 
-        spy = spyOn(loginService.onLogout, 'emit');
+        spy = spyOn(loginService.emitter, 'emit');
       });
 
       it('it returns true', async () => {
@@ -61,7 +58,7 @@ describe('LoginGuard', () => {
     describe('when user is not authenticated', () => {
       beforeEach(() => {
         identityService.setRefreshToken(null);
-        spy = spyOn(loginService.onLogout, 'emit');
+        spy = spyOn(loginService.emitter, 'emit');
       });
 
       it('it navigates to the login page', async () => {

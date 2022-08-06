@@ -4,10 +4,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
-  Collection,
+  CollectionModel,
   CollectionService,
   IAuthorization,
-  Record,
+  RecordModel,
   RecordService,
 } from '@tenlastic/ng-http';
 
@@ -19,8 +19,8 @@ import { CamelCaseToTitleCasePipe } from '../../../../../../shared/pipes';
   styleUrls: ['./form-page.component.scss'],
 })
 export class RecordsFormPageComponent implements OnInit {
-  public collection: Collection;
-  public data: Record;
+  public collection: CollectionModel;
+  public data: RecordModel;
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
@@ -43,16 +43,23 @@ export class RecordsFormPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const roles = [IAuthorization.AuthorizationRole.BuildsReadWrite];
+      const roles = [IAuthorization.Role.BuildsReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.collection = await this.collectionService.findOne(params.collectionId);
+      this.collection = await this.collectionService.findOne(
+        params.namespaceId,
+        params.collectionId,
+      );
 
       if (params.recordId !== 'new') {
-        this.data = await this.recordService.findOne(params.collectionId, params.recordId);
+        this.data = await this.recordService.findOne(
+          params.namespaceId,
+          params.collectionId,
+          params.recordId,
+        );
       }
 
       this.setupForm();
@@ -137,7 +144,7 @@ export class RecordsFormPageComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.data = this.data || new Record();
+    this.data = this.data || new RecordModel();
 
     const arrays = {};
     const options = {};
@@ -175,12 +182,17 @@ export class RecordsFormPageComponent implements OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async upsert(data: Partial<Record>) {
+  private async upsert(data: Partial<RecordModel>) {
     if (this.data._id) {
       data._id = this.data._id;
-      await this.recordService.update(this.params.collectionId, data);
+      await this.recordService.update(
+        this.params.namespaceId,
+        this.params.collectionId,
+        data._id,
+        data,
+      );
     } else {
-      await this.recordService.create(this.params.collectionId, data);
+      await this.recordService.create(this.params.namespaceId, this.params.collectionId, data);
     }
 
     this.matSnackBar.open('Record saved successfully.');

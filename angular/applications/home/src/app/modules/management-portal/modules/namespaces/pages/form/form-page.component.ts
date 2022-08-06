@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   AuthorizationQuery,
   IAuthorization,
-  Namespace,
+  NamespaceModel,
   NamespaceService,
 } from '@tenlastic/ng-http';
 
@@ -15,7 +16,7 @@ import { FormService, IdentityService } from '../../../../../../core/services';
   styleUrls: ['./form-page.component.scss'],
 })
 export class NamespacesFormPageComponent implements OnInit {
-  public data: Namespace;
+  public data: NamespaceModel;
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
@@ -27,12 +28,14 @@ export class NamespacesFormPageComponent implements OnInit {
     private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
+    private matSnackBar: MatSnackBar,
     private namespaceService: NamespaceService,
+    private router: Router,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      const roles = [IAuthorization.AuthorizationRole.NamespacesReadWrite];
+      const roles = [IAuthorization.Role.NamespacesReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
       this.hasWriteAuthorizationForNamespace = this.authorizationQuery.hasRoles(
@@ -59,21 +62,21 @@ export class NamespacesFormPageComponent implements OnInit {
       return;
     }
 
-    const values: Partial<Namespace> = {
+    const values: Partial<NamespaceModel> = {
       _id: this.data._id,
       limits: this.form.get('limits').value,
       name: this.form.get('name').value,
     };
 
     try {
-      this.data = await this.formService.upsert(this.namespaceService, values);
+      this.data = await this.upsert(values);
     } catch (e) {
       this.errors = this.formService.handleHttpError(e, { name: 'Name' });
     }
   }
 
   private setupForm() {
-    this.data = this.data || new Namespace();
+    this.data = this.data || new NamespaceModel();
 
     const { limits } = this.data;
     this.form = this.formBuilder.group({
@@ -119,5 +122,16 @@ export class NamespacesFormPageComponent implements OnInit {
     }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+  }
+
+  private async upsert(values: Partial<NamespaceModel>) {
+    const result = values._id
+      ? await this.namespaceService.update(values._id, values)
+      : await this.namespaceService.create(values);
+
+    this.matSnackBar.open(`Namespace saved successfully.`);
+    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

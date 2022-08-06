@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import {
-  Article,
+  ArticleModel,
   ArticleQuery,
   ArticleService,
   AuthorizationQuery,
@@ -16,15 +16,14 @@ import { ElectronService, IdentityService, UpdateService } from '../../../../../
 import { ActivatedRoute, Params } from '@angular/router';
 
 @Component({
-  selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnDestroy, OnInit {
   public IAuthorization = IAuthorization;
-  public $guides: Observable<Article[]>;
-  public $news: Observable<Article[]>;
-  public $patchNotes: Observable<Article[]>;
+  public $guides: Observable<ArticleModel[]>;
+  public $news: Observable<ArticleModel[]>;
+  public $patchNotes: Observable<ArticleModel[]>;
   public get isElectron() {
     return this.electronService.isElectron;
   }
@@ -64,7 +63,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
           this.identityService.user?._id,
         ),
         this.fetchArticles(this.namespaceId),
-        this.storefrontService.find({
+        this.storefrontService.find(this.namespaceId, {
           limit: 1,
           where: { namespaceId: this.namespaceId },
         }),
@@ -94,7 +93,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     this.document.body.style.backgroundImage = `url('/assets/images/background.jpg')`;
   }
 
-  public $hasPermission(roles: IAuthorization.AuthorizationRole[]) {
+  public $hasPermission(roles: IAuthorization.Role[]) {
     const userId = this.identityService.user?._id;
 
     return combineLatest([
@@ -105,7 +104,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   private fetchArticles(namespaceId: string) {
     const promises = [
-      this.articleService.find({
+      this.articleService.find(namespaceId, {
         limit: 1,
         where: {
           namespaceId,
@@ -113,7 +112,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
           type: 'Guide',
         },
       }),
-      this.articleService.find({
+      this.articleService.find(namespaceId, {
         limit: 1,
         where: {
           namespaceId,
@@ -121,7 +120,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
           type: 'News',
         },
       }),
-      this.articleService.find({
+      this.articleService.find(namespaceId, {
         limit: 1,
         where: {
           namespaceId,

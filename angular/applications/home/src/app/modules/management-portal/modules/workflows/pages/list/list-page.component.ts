@@ -9,7 +9,7 @@ import { ActivatedRoute, Params } from '@angular/router';
 import {
   AuthorizationQuery,
   IAuthorization,
-  Workflow,
+  WorkflowModel,
   WorkflowQuery,
   WorkflowService,
 } from '@tenlastic/ng-http';
@@ -26,13 +26,13 @@ import { TITLE } from '../../../../../../shared/constants';
 export class WorkflowsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<Workflow>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<WorkflowModel>;
 
-  public dataSource = new MatTableDataSource<Workflow>();
+  public dataSource = new MatTableDataSource<WorkflowModel>();
   public displayedColumns = ['name', 'status', 'createdAt', 'updatedAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
-  private $workflows: Observable<Workflow[]>;
+  private $workflows: Observable<WorkflowModel[]>;
   private updateDataSource$ = new Subscription();
 
   constructor(
@@ -50,7 +50,7 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
     this.activatedRoute.params.subscribe((params) => {
       this.titleService.setTitle(`${TITLE} | Workflows`);
 
-      const roles = [IAuthorization.AuthorizationRole.CollectionsReadWrite];
+      const roles = [IAuthorization.Role.CollectionsReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
@@ -64,9 +64,9 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public showDeletePrompt($event: Event, record: Workflow) {
+  public showDeletePrompt($event: Event, record: WorkflowModel) {
     $event.stopPropagation();
-    
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
@@ -79,7 +79,7 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.workflowService.delete(record._id);
+        await this.workflowService.delete(record.namespaceId, record._id);
         this.matSnackBar.open('Workflow  deleted successfully.');
       }
     });
@@ -90,7 +90,7 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
       filterBy: (gs) => gs.namespaceId === params.namespaceId,
     });
 
-    await this.workflowService.find({ where: { namespaceId: params.namespaceId } });
+    await this.workflowService.find(params.namespaceId, {});
 
     this.updateDataSource$ = this.$workflows.subscribe(
       (workflows) => (this.dataSource.data = workflows),

@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
-import { HttpModule } from '@tenlastic/ng-http';
 
 import { environment } from '../environments/environment';
 import { CoreModule } from './core/core.module';
@@ -50,7 +49,6 @@ export const ROUTES: Routes = [
   imports: [
     environment.production ? [] : AkitaNgDevtools,
     CoreModule,
-    HttpModule.forRoot(environment),
     SharedModule,
     RouterModule.forRoot(ROUTES, {
       paramsInheritanceStrategy: 'always',

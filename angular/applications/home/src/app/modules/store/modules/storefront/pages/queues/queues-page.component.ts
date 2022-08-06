@@ -3,10 +3,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import {
-  Group,
+  GroupModel,
   GroupQuery,
-  Queue,
-  QueueMember,
+  QueueModel,
+  QueueMemberModel,
   QueueMemberQuery,
   QueueMemberService,
   QueueQuery,
@@ -23,9 +23,9 @@ import { IdentityService, SocketService } from '../../../../../../core/services'
   templateUrl: 'queues-page.component.html',
 })
 export class QueuesPageComponent implements OnDestroy, OnInit {
-  public $group: Observable<Group>;
-  public $queueMembers: Observable<QueueMember[]>;
-  public $queues: Observable<Queue[]>;
+  public $group: Observable<GroupModel>;
+  public $queueMembers: Observable<QueueMemberModel[]>;
+  public $queues: Observable<QueueModel[]>;
   public updateQueueMembers$ = new Subscription();
   public currentUsers: { [key: string]: number } = {};
   public displayedColumns = ['name', 'description', 'currentUsers', 'actions'];
@@ -57,20 +57,19 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
           q.namespaceId === params.namespaceId && q.status && q.status.phase === 'Running',
       });
 
-      await this.queueService.find({ where: { namespaceId: params.namespaceId } });
+      await this.queueService.find(params.namespaceId, {});
 
       this.updateQueueMembers$ = this.$group.subscribe((group) => {
         if (!group) {
           return;
         }
 
-        const $queueMembers = this.queueMemberQuery.selectAll({
+        this.$queueMembers = this.queueMemberQuery.selectAll({
           filterBy: (qm) =>
             (group && qm.groupId === group._id) || qm.userId === this.identityService.user._id,
         });
-        this.$queueMembers = this.queueMemberQuery.populate($queueMembers);
 
-        return this.queueMemberService.find({
+        return this.queueMemberService.find(params.namespaceId, {
           where: {
             $or: [{ groupId: group._id }, { userId: this.identityService.user._id }],
             userId: this.identityService.user._id,
@@ -112,16 +111,16 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     );
   }
 
-  public $isGroupSmallEnough(queue: Queue) {
+  public $isGroupSmallEnough(queue: QueueModel) {
     return this.$group.pipe(map((group) => group && group.userIds.length <= queue.usersPerTeam));
   }
 
-  public async joinAsGroup(queue: Queue) {
+  public async joinAsGroup(queue: QueueModel) {
     const group = await this.$group.pipe(first()).toPromise();
-    const socket = await this.socketService.connect(environment.apiBaseUrl);
+    const socket = await this.socketService.connect(environment.wssUrl);
 
     try {
-      await this.queueMemberService.create({
+      await this.queueMemberService.create(queue.namespaceId, {
         groupId: group._id,
         namespaceId: queue.namespaceId,
         queueId: queue._id,
@@ -131,7 +130,9 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
         if (e.error.errors[0].name === 'QueueMemberAuthorizationError') {
-          this.matSnackBar.open('A User in your Group is not authorized to play this Storefront.');
+          this.matSnackBar.open(
+            'A User in your Group is not authorized to play this StorefrontModel.',
+          );
         }
 
         if (e.error.errors[0].name === 'QueueMemberUniqueError') {
@@ -143,11 +144,11 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     await this.getCurrentUsers();
   }
 
-  public async joinAsIndividual(queue: Queue) {
-    const socket = await this.socketService.connect(environment.apiBaseUrl);
+  public async joinAsIndividual(queue: QueueModel) {
+    const socket = await this.socketService.connect(environment.wssUrl);
 
     try {
-      await this.queueMemberService.create({
+      await this.queueMemberService.create(queue.namespaceId, {
         namespaceId: queue.namespaceId,
         queueId: queue._id,
         userId: this.identityService.user._id,
@@ -156,7 +157,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
         if (e.error.errors[0].name === 'QueueMemberAuthorizationError') {
-          this.matSnackBar.open('You are not authorized to play this Storefront.');
+          this.matSnackBar.open('You are not authorized to play this StorefrontModel.');
         }
 
         if (e.error.errors[0].name === 'QueueMemberUniqueError') {
@@ -168,18 +169,17 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     await this.getCurrentUsers();
   }
 
-  public async leaveQueue(queueMemberId: string) {
-    await this.queueMemberService.delete(queueMemberId);
+  public async leaveQueue(queueMember: QueueMemberModel) {
+    await this.queueMemberService.delete(queueMember.namespaceId, queueMember._id);
     await this.getCurrentUsers();
   }
 
   private async getCurrentUsers() {
     const queues = await this.$queues.pipe(first()).toPromise();
-    const _ids = queues.map((q) => q._id);
 
-    for (const _id of _ids) {
-      this.currentUsers[_id] = await this.queueMemberService.count({
-        where: { queueId: _id },
+    for (const queue of queues) {
+      this.currentUsers[queue._id] = await this.queueMemberService.count(queue.namespaceId, {
+        where: { queueId: queue._id },
       });
     }
   }

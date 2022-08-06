@@ -1,4 +1,4 @@
-import { Model } from './model';
+import { BaseModel } from './base';
 
 export namespace IWorkflow {
   export const Cpu = [
@@ -106,7 +106,7 @@ export namespace IWorkflow {
   }
 }
 
-export class Workflow extends Model {
+export class WorkflowModel extends BaseModel {
   public _id: string;
   public cpu: number;
   public createdAt: Date;
@@ -119,8 +119,8 @@ export class Workflow extends Model {
   public storage: number;
   public updatedAt: Date;
 
-  constructor(params: Partial<Workflow> = {}) {
-    super(params);
+  constructor(parameters?: Partial<WorkflowModel>) {
+    super(parameters);
   }
 
   public getNestedStatusNodes() {

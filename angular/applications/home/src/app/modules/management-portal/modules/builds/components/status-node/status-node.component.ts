@@ -3,12 +3,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { Order } from '@datorama/akita';
 import {
   IBuild,
-  Build,
-  BuildLog,
+  BuildModel,
+  BuildLogModel,
   BuildLogQuery,
   BuildService,
   BuildLogStore,
   BuildQuery,
+  BuildLogService,
 } from '@tenlastic/ng-http';
 import { map } from 'rxjs/operators';
 
@@ -24,7 +25,7 @@ type BuildStatusNodeWithParent = IBuild.Node & { parent: string };
   styleUrls: ['./status-node.component.scss'],
 })
 export class BuildStatusNodeComponent {
-  @Input() public build: Build;
+  @Input() public build: BuildModel;
   @Input() public node: BuildStatusNodeWithParent;
 
   public phaseToIcon = {
@@ -36,6 +37,7 @@ export class BuildStatusNodeComponent {
 
   constructor(
     private buildLogQuery: BuildLogQuery,
+    private buildLogService: BuildLogService,
     private buildLogStore: BuildLogStore,
     private buildQuery: BuildQuery,
     private buildService: BuildService,
@@ -47,7 +49,7 @@ export class BuildStatusNodeComponent {
     return displayName
       .toLowerCase()
       .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
       .replace(/\(0\)$/, '')
       .replace(/\(([0-9]+)\)$/, (match, p1) => ` (Retry #${p1})`);
@@ -58,21 +60,22 @@ export class BuildStatusNodeComponent {
       autoFocus: false,
       data: {
         $logs: this.buildLogQuery.selectAll({
-          filterBy: log => log.buildId === this.build._id,
+          filterBy: (log) => log.buildId === this.build._id,
           sortBy: 'unix',
           sortByOrder: Order.DESC,
         }),
         $nodeIds: this.buildQuery
           .selectEntity(this.build._id)
-          .pipe(map(build => this.getNodeIds(build))),
-        find: nodeId => this.buildService.logs(this.build._id, nodeId, { tail: 500 }),
+          .pipe(map((build) => this.getNodeIds(build))),
+        find: (nodeId) =>
+          this.buildLogService.find(this.build.namespaceId, this.build._id, nodeId, { tail: 500 }),
         nodeId: this.node._id,
         subscribe: async (nodeId, unix) => {
-          const socket = await this.socketService.connect(environment.apiBaseUrl);
+          const socket = await this.socketService.connect(environment.wssUrl);
           return socket.logs(
-            BuildLog,
+            BuildLogModel,
             { buildId: this.build._id, nodeId, since: unix ? new Date(unix) : new Date() },
-            this.buildService,
+            this.buildLogService,
           );
         },
       },
@@ -81,10 +84,10 @@ export class BuildStatusNodeComponent {
     dialogRef.afterClosed().subscribe(() => this.buildLogStore.reset());
   }
 
-  private getNodeIds(build: Build) {
-    const nodes = build.status?.nodes?.filter(n => n.type === 'Pod');
+  private getNodeIds(build: BuildModel) {
+    const nodes = build.status?.nodes?.filter((n) => n.type === 'Pod');
     return nodes
-      .map(n => ({ label: this.getDisplayName(n.displayName), value: n._id }))
+      .map((n) => ({ label: this.getDisplayName(n.displayName), value: n._id }))
       .sort((a, b) => (a.label > b.label ? 1 : -1));
   }
 }

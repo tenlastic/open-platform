@@ -49,7 +49,7 @@ export class NamespaceModel extends BaseModel {
   public limits: INamespace.Limits;
   public name: string;
 
-  constructor(parameters: Partial<NamespaceModel> = {}) {
+  constructor(parameters?: Partial<NamespaceModel>) {
     super(parameters);
   }
 }

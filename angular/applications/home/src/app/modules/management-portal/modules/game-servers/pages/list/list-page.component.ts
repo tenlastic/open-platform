@@ -9,13 +9,14 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { Order } from '@datorama/akita';
 import {
   AuthorizationQuery,
-  GameServer,
-  GameServerLog,
+  GameServerModel,
+  GameServerLogModel,
   GameServerLogQuery,
   GameServerLogStore,
   GameServerQuery,
   GameServerService,
   IAuthorization,
+  GameServerLogService,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -32,16 +33,16 @@ import { TITLE } from '../../../../../../shared/constants';
 export class GameServersListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<GameServer>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<GameServerModel>;
 
-  public dataSource = new MatTableDataSource<GameServer>();
+  public dataSource = new MatTableDataSource<GameServerModel>();
   public displayedColumns = ['name', 'description', 'status', 'createdAt', 'actions'];
   public hasWriteAuthorization: boolean;
   public get queueId() {
     return this.params?.queueId;
   }
 
-  private $gameServers: Observable<GameServer[]>;
+  private $gameServers: Observable<GameServerModel[]>;
   private params: Params;
   private updateDataSource$ = new Subscription();
 
@@ -49,6 +50,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
     private gameServerLogQuery: GameServerLogQuery,
+    private gameServerLogService: GameServerLogService,
     private gameServerLogStore: GameServerLogStore,
     private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
@@ -65,7 +67,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
       this.titleService.setTitle(`${TITLE} | Game Servers`);
 
-      const roles = [IAuthorization.AuthorizationRole.GameServersReadWrite];
+      const roles = [IAuthorization.Role.GameServersReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
@@ -79,14 +81,16 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public async restart($event: Event, record: GameServer) {
+  public async restart($event: Event, record: GameServerModel) {
     $event.stopPropagation();
 
-    await this.gameServerService.update({ _id: record._id, restartedAt: new Date() });
+    await this.gameServerService.update(record.namespaceId, record._id, {
+      restartedAt: new Date(),
+    });
     this.matSnackBar.open('Game Server is restarting...');
   }
 
-  public showDeletePrompt($event: Event, record: GameServer) {
+  public showDeletePrompt($event: Event, record: GameServerModel) {
     $event.stopPropagation();
 
     const dialogRef = this.matDialog.open(PromptComponent, {
@@ -101,13 +105,13 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.gameServerService.delete(record._id);
+        await this.gameServerService.delete(record.namespaceId, record._id);
         this.matSnackBar.open('Game Server deleted successfully.');
       }
     });
   }
 
-  public showLogsDialog($event: Event, record: GameServer) {
+  public showLogsDialog($event: Event, record: GameServerModel) {
     $event.stopPropagation();
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, {
@@ -121,14 +125,15 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
         $nodeIds: this.gameServerQuery
           .selectEntity(record._id)
           .pipe(map((gameServer) => this.getNodeIds(gameServer))),
-        find: (nodeId) => this.gameServerService.logs(record._id, nodeId, { tail: 500 }),
+        find: (nodeId) =>
+          this.gameServerLogService.find(record.namespaceId, record._id, nodeId, { tail: 500 }),
         nodeIds: record.status?.nodes?.map((n) => n._id),
         subscribe: async (nodeId, unix) => {
-          const socket = await this.socketService.connect(environment.apiBaseUrl);
+          const socket = await this.socketService.connect(environment.wssUrl);
           return socket.logs(
-            GameServerLog,
+            GameServerLogModel,
             { gameServerId: record._id, nodeId, since: unix ? new Date(unix) : new Date() },
-            this.gameServerService,
+            this.gameServerLogService,
           );
         },
       },
@@ -138,19 +143,18 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   }
 
   private async fetchGameServers(params: Params) {
-    const $gameServers = this.gameServerQuery.selectAll({
+    this.$gameServers = this.gameServerQuery.selectAll({
       filterBy: (gs) =>
         gs.namespaceId === params.namespaceId && (!this.queueId || this.queueId === gs.queueId),
     });
-    this.$gameServers = this.gameServerQuery.populate($gameServers);
 
-    await this.gameServerService.find({ sort: 'name', where: { namespaceId: params.namespaceId } });
+    await this.gameServerService.find(params.namespaceId, { sort: 'name' });
 
     this.updateDataSource$ = this.$gameServers.subscribe(
       (gameServers) => (this.dataSource.data = gameServers),
     );
 
-    this.dataSource.filterPredicate = (data: GameServer, filter: string) => {
+    this.dataSource.filterPredicate = (data: GameServerModel, filter: string) => {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
 
       return (
@@ -162,7 +166,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     this.dataSource.sort = this.sort;
   }
 
-  private getNodeIds(gameServer: GameServer) {
+  private getNodeIds(gameServer: GameServerModel) {
     return gameServer.status?.nodes
       .map((n) => {
         let displayName = 'Game Server';

@@ -4,10 +4,10 @@ import {
   AuthorizationQuery,
   AuthorizationService,
   IAuthorization,
-  Namespace,
+  NamespaceModel,
   NamespaceQuery,
   NamespaceService,
-  Storefront,
+  StorefrontModel,
   StorefrontQuery,
   StorefrontService,
 } from '@tenlastic/ng-http';
@@ -17,7 +17,6 @@ import { map } from 'rxjs/operators';
 import { IdentityService } from '../../../../../../core/services';
 
 @Component({
-  selector: 'app-namespace-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
@@ -39,8 +38,8 @@ export class LayoutComponent implements OnInit {
       this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
-  public $namespace: Observable<Namespace>;
-  public $storefront: Observable<Storefront>;
+  public $namespace: Observable<NamespaceModel>;
+  public $storefront: Observable<StorefrontModel>;
   public IAuthorization = IAuthorization;
 
   private get namespaceId() {
@@ -67,11 +66,11 @@ export class LayoutComponent implements OnInit {
     await Promise.all([
       this.authorizationService.findUserAuthorizations(this.namespaceId, null),
       this.namespaceService.findOne(this.namespaceId),
-      this.storefrontService.find({ limit: 1, where: { namespaceId: this.namespaceId } }),
+      this.storefrontService.find(this.namespaceId, { limit: 1 }),
     ]);
   }
 
-  public $hasPermission(roles: IAuthorization.AuthorizationRole[]) {
+  public $hasPermission(roles: IAuthorization.Role[]) {
     const userId = this.identityService.user?._id;
 
     return combineLatest([

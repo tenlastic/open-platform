@@ -6,6 +6,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { HttpModule, UserService } from '@tenlastic/ng-http';
 import { Chance } from 'chance';
 
+import { environment } from '../../../../environments/environment';
 import { IdentityService } from '../../services/identity/identity.service';
 import { UnauthorizedInterceptor } from './unauthorized.interceptor';
 
@@ -21,10 +22,7 @@ describe('UnauthorizedInterceptor', () => {
     TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
-        HttpModule.forRoot({
-          loginApiBaseUrl: 'http://localhost:3000/logins',
-          userApiBaseUrl: 'http://localhost:3000/users',
-        }),
+        HttpModule.forRoot({ apiUrl: environment.apiUrl }),
         RouterTestingModule.withRoutes([{ path: 'authentication/log-in', redirectTo: '' }]),
       ],
       providers: [
@@ -54,11 +52,11 @@ describe('UnauthorizedInterceptor', () => {
 
   describe('when the request is successful', () => {
     it('does not alter the response', () => {
-      userService.find({}).then(response => {
+      userService.find({}).then((response) => {
         expect(response).toBeTruthy();
       });
 
-      httpMock.expectOne(req => req.url === userService.basePath);
+      httpMock.expectOne((req) => req.url === `${environment.apiUrl}/users`);
       expect(document.location.href).toBe('http://localhost');
     });
   });
@@ -67,7 +65,7 @@ describe('UnauthorizedInterceptor', () => {
     it('redirects the user to the login URL', () => {
       userService.find({}).catch(() => {});
 
-      const httpRequest = httpMock.expectOne(req => req.url === userService.basePath);
+      const httpRequest = httpMock.expectOne((req) => req.url === `${environment.apiUrl}/users`);
       httpRequest.flush({}, { status: 401, statusText: 'Unauthorized' });
     });
   });

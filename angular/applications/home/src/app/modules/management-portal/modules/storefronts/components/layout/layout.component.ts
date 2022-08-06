@@ -1,16 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Storefront, StorefrontQuery, StorefrontService } from '@tenlastic/ng-http';
+import { StorefrontModel, StorefrontQuery, StorefrontService } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-storefront-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
-  public $storefront: Observable<Storefront>;
+  public $storefront: Observable<StorefrontModel>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -24,7 +23,7 @@ export class LayoutComponent implements OnInit {
         .selectAll({ filterBy: (s) => s.namespaceId === params.namespaceId })
         .pipe(map((s) => s[0]));
 
-      await this.storefrontService.find({ limit: 1, where: { namespaceId: params.namespaceId } });
+      await this.storefrontService.find(params.namespaceId, { limit: 1 });
     });
   }
 }

@@ -1,6 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 
-import { UserModel } from './models';
+import { UserModel } from './models/user';
 
 export interface JwtPayload {
   exp?: number;

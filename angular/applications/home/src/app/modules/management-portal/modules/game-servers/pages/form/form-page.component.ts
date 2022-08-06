@@ -1,17 +1,18 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Params } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
-  Build,
+  BuildModel,
   BuildService,
-  GameServer,
+  GameServerModel,
   GameServerQuery,
   GameServerService,
   IAuthorization,
   IGameServer,
-  Namespace,
+  NamespaceModel,
   NamespaceService,
 } from '@tenlastic/ng-http';
 import { Subscription } from 'rxjs';
@@ -30,13 +31,13 @@ interface PropertyFormGroup {
   styleUrls: ['./form-page.component.scss'],
 })
 export class GameServersFormPageComponent implements OnDestroy, OnInit {
-  public builds: Build[];
+  public builds: BuildModel[];
   public get cpus() {
     const limits = this.namespace.limits?.gameServers;
     const limit = limits?.cpu ? limits.cpu : Infinity;
     return limits?.cpu ? IGameServer.Cpu.filter((r) => r.value <= limit) : IGameServer.Cpu;
   }
-  public data: GameServer;
+  public data: GameServerModel;
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
@@ -47,7 +48,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   }
 
   private updateGameServer$ = new Subscription();
-  private namespace: Namespace;
+  private namespace: NamespaceModel;
   private params: Params;
 
   constructor(
@@ -60,20 +61,22 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     private gameServerService: GameServerService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private namespaceService: NamespaceService,
+    private router: Router,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const roles = [IAuthorization.AuthorizationRole.GameServersReadWrite];
+      const roles = [IAuthorization.Role.GameServersReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.builds = await this.buildService.find({
+      this.builds = await this.buildService.find(params.namespaceId, {
         select: '-files',
         sort: '-publishedAt',
         where: { namespaceId: params.namespaceId, platform: 'server64' },
@@ -81,7 +84,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       this.namespace = await this.namespaceService.findOne(params.namespaceId);
 
       if (params.gameServerId !== 'new') {
-        this.data = await this.gameServerService.findOne(params.gameServerId);
+        this.data = await this.gameServerService.findOne(params.namespaceId, params.gameServerId);
       }
 
       this.setupForm();
@@ -107,7 +110,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       return accumulator;
     }, {});
 
-    const values: Partial<GameServer> = {
+    const values: Partial<GameServerModel> = {
       _id: this.data._id,
       buildId: this.form.get('buildId').value,
       cpu: this.form.get('cpu').value,
@@ -121,7 +124,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     };
 
     const dirtyFields = this.getDirtyFields();
-    if (this.data._id && GameServer.isRestartRequired(dirtyFields)) {
+    if (this.data._id && GameServerModel.isRestartRequired(dirtyFields)) {
       const dialogRef = this.matDialog.open(PromptComponent, {
         data: {
           buttons: [
@@ -135,7 +138,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       dialogRef.afterClosed().subscribe(async (result: string) => {
         if (result === 'Yes') {
           try {
-            this.data = await this.formService.upsert(this.gameServerService, values);
+            this.data = await this.upsert(values);
           } catch (e) {
             this.errors = this.formService.handleHttpError(e);
           }
@@ -143,7 +146,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       });
     } else {
       try {
-        this.data = await this.formService.upsert(this.gameServerService, values);
+        this.data = await this.upsert(values);
       } catch (e) {
         this.errors = this.formService.handleHttpError(e);
       }
@@ -168,7 +171,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   }
 
   private setupForm(): void {
-    this.data = this.data || new GameServer();
+    this.data = this.data || new GameServerModel();
 
     const metadata = [];
     if (this.data.metadata) {
@@ -212,5 +215,16 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
         .selectAll({ filterBy: (gs) => gs._id === this.data._id })
         .subscribe((gameServers) => (this.data = gameServers[0]));
     }
+  }
+
+  private async upsert(values: Partial<GameServerModel>) {
+    const result = values._id
+      ? await this.gameServerService.update(this.params.namespaceId, values._id, values)
+      : await this.gameServerService.create(this.params.namespaceId, values);
+
+    this.matSnackBar.open(`Game Server saved successfully.`);
+    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

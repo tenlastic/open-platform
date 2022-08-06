@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params } from '@angular/router';
-import { Article, ArticleService, IArticle } from '@tenlastic/ng-http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ArticleModel, ArticleService, IArticle } from '@tenlastic/ng-http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
@@ -11,7 +12,7 @@ import { jsonValidator } from '../../../../../../shared/validators';
   styleUrls: ['./json-page.component.scss'],
 })
 export class ArticlesJsonPageComponent implements OnInit {
-  public data: Article;
+  public data: ArticleModel;
   public errors: string[] = [];
   public form: FormGroup;
 
@@ -22,6 +23,8 @@ export class ArticlesJsonPageComponent implements OnInit {
     private articleService: ArticleService,
     private formBuilder: FormBuilder,
     private formService: FormService,
+    private matSnackBar: MatSnackBar,
+    private router: Router,
     private textareaService: TextareaService,
   ) {}
 
@@ -30,7 +33,7 @@ export class ArticlesJsonPageComponent implements OnInit {
       this.params = params;
 
       if (params.articleId !== 'new') {
-        this.data = await this.articleService.findOne(params.articleId);
+        this.data = await this.articleService.findOne(params.namespaceId, params.articleId);
       }
 
       this.setupForm();
@@ -56,20 +59,20 @@ export class ArticlesJsonPageComponent implements OnInit {
     }
 
     const json = this.form.get('json').value;
-    const values = JSON.parse(json) as Article;
+    const values = JSON.parse(json) as ArticleModel;
 
     values._id = this.data._id;
     values.namespaceId = this.params.namespaceId;
 
     try {
-      this.data = await this.formService.upsert(this.articleService, values);
+      this.data = await this.upsert(values);
     } catch (e) {
       this.errors = this.formService.handleHttpError(e);
     }
   }
 
   private setupForm(): void {
-    this.data ??= new Article({ body: '', caption: '', title: '', type: IArticle.Type.News });
+    this.data ??= new ArticleModel({ body: '', caption: '', title: '', type: IArticle.Type.News });
 
     const keys = ['body', 'caption', 'title', 'type'];
     const data = Object.keys(this.data)
@@ -82,5 +85,16 @@ export class ArticlesJsonPageComponent implements OnInit {
     });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+  }
+
+  private async upsert(values: Partial<ArticleModel>) {
+    const result = values._id
+      ? await this.articleService.update(this.params.namespaceId, values._id, values)
+      : await this.articleService.create(this.params.namespaceId, values);
+
+    this.matSnackBar.open(`Article saved successfully.`);
+    this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
   AuthorizationQuery,
-  Collection,
+  CollectionModel,
   CollectionQuery,
   CollectionService,
   IAuthorization,
@@ -13,12 +13,11 @@ import { map } from 'rxjs/operators';
 import { IdentityService } from '../../../../../../core/services';
 
 @Component({
-  selector: 'app-collections-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
-  public $collection: Observable<Collection>;
+  public $collection: Observable<CollectionModel>;
   public get $hasRelated() {
     const roles = [...IAuthorization.collectionRoles];
     const userId = this.identityService.user?._id;
@@ -47,10 +46,10 @@ export class LayoutComponent implements OnInit {
 
   public async ngOnInit() {
     this.$collection = this.collectionQuery.selectEntity(this.collectionId);
-    await this.collectionService.findOne(this.collectionId);
+    await this.collectionService.findOne(this.namespaceId, this.collectionId);
   }
 
-  public $hasPermission(roles: IAuthorization.AuthorizationRole[]) {
+  public $hasPermission(roles: IAuthorization.Role[]) {
     const userId = this.identityService.user?._id;
 
     return combineLatest([

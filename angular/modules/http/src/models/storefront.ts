@@ -1,6 +1,6 @@
-import { Model } from './model';
+import { BaseModel } from './base';
 
-export class Storefront extends Model {
+export class StorefrontModel extends BaseModel {
   public background: string;
   public description: string;
   public icon: string;
@@ -12,8 +12,8 @@ export class Storefront extends Model {
   public title: string;
   public videos: string[];
 
-  constructor(params?: Partial<Storefront>) {
-    super(params);
+  constructor(parameters?: Partial<StorefrontModel>) {
+    super(parameters);
   }
 
   public get fullTitle() {

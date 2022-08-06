@@ -1,6 +1,6 @@
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { GameServerLog } from '@tenlastic/ng-http';
+import { GameServerLogModel } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
@@ -30,8 +30,8 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
 
   public get $logs() {
     return this.data.$logs.pipe(
-      map(logs => {
-        return this.nodeId ? logs.filter(l => l.nodeId === this.nodeId) : logs;
+      map((logs) => {
+        return this.nodeId ? logs.filter((l) => l.nodeId === this.nodeId) : logs;
       }),
     );
   }
@@ -57,7 +57,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     const nodeIds = await this.data.$nodeIds.pipe(first()).toPromise();
     this.nodeId = this.data.nodeId || nodeIds[0]?.value;
 
-    this.setDefaultNodeId$ = this.data.$nodeIds.subscribe(nis => {
+    this.setDefaultNodeId$ = this.data.$nodeIds.subscribe((nis) => {
       if (!this.nodeId && !this.data.nodeId && nis.length > 0) {
         this.setNodeId(nis[0].value);
       }
@@ -71,12 +71,12 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     this.setDefaultNodeId$.unsubscribe();
 
     if (this.socket) {
-      const socket = await this.socketService.connect(environment.apiBaseUrl);
+      const socket = await this.socketService.connect(environment.wssUrl);
       socket.unsubscribe(this.socket);
     }
   }
 
-  public getJson(log: GameServerLog) {
+  public getJson(log: GameServerLogModel) {
     if (this.logJson[log._id]) {
       return this.logJson[log._id];
     }
@@ -111,12 +111,12 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
       const mostRecentLog = logs.length > 0 ? logs[0] : null;
       this.socket = await this.data.subscribe(this.nodeId, mostRecentLog?.unix);
     } else {
-      const socket = await this.socketService.connect(environment.apiBaseUrl);
+      const socket = await this.socketService.connect(environment.wssUrl);
       socket.unsubscribe(this.socket);
     }
   }
 
-  public toggleVisibility(logs: GameServerLog[]) {
+  public toggleVisibility(logs: GameServerLogModel[]) {
     this.isVisible = !this.isVisible;
 
     for (const log of logs) {

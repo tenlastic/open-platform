@@ -7,10 +7,11 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
-  Authorization,
+  AuthorizationModel,
   AuthorizationQuery,
   AuthorizationService,
   IAuthorization,
+  UserQuery,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
@@ -25,13 +26,13 @@ import { TITLE } from '../../../../../../shared/constants';
 export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<Authorization>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<AuthorizationModel>;
 
-  public dataSource = new MatTableDataSource<Authorization>();
+  public dataSource = new MatTableDataSource<AuthorizationModel>();
   public displayedColumns = ['name', 'user', 'roles', 'createdAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
-  private $authorizations: Observable<Authorization[]>;
+  private $authorizations: Observable<AuthorizationModel[]>;
   private updateDataSource$ = new Subscription();
 
   constructor(
@@ -42,6 +43,7 @@ export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private titleService: Title,
+    private userQuery: UserQuery,
   ) {}
 
   public ngOnInit() {
@@ -54,7 +56,7 @@ export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
         this.displayedColumns = ['user', 'roles', 'createdAt', 'actions'];
       }
 
-      const roles = [IAuthorization.AuthorizationRole.AuthorizationsReadWrite];
+      const roles = [IAuthorization.Role.AuthorizationsReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 
@@ -66,9 +68,13 @@ export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public showDeletePrompt($event: Event, record: Authorization) {
+  public getUser(_id: string) {
+    return this.userQuery.getEntity(_id);
+  }
+
+  public showDeletePrompt($event: Event, record: AuthorizationModel) {
     $event.stopPropagation();
-    
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
@@ -88,7 +94,7 @@ export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
   }
 
   private async fetchAuthorizations(params: Params) {
-    const $authorizations = this.authorizationQuery.selectAll({
+    this.$authorizations = this.authorizationQuery.selectAll({
       filterBy: (a) => {
         if (params.namespaceId) {
           return a.namespaceId === params.namespaceId;
@@ -97,7 +103,6 @@ export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
         }
       },
     });
-    this.$authorizations = this.authorizationQuery.populate($authorizations);
 
     await this.authorizationService.find({ sort: '-createdAt', where: params });
 
@@ -105,9 +110,10 @@ export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
       (authorizations) => (this.dataSource.data = authorizations),
     );
 
-    this.dataSource.filterPredicate = (data: Authorization, filter: string) => {
+    this.dataSource.filterPredicate = (data: AuthorizationModel, filter: string) => {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
-      return regex.test(data.user?.username);
+      const user = this.getUser(data.userId);
+      return regex.test(user.username);
     };
 
     this.dataSource.paginator = this.paginator;

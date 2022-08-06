@@ -1,5 +1,4 @@
-import { Model } from './model';
-import { Build } from './build';
+import { BaseModel } from './base';
 
 export namespace IQueue {
   export const Cpu = [
@@ -51,8 +50,7 @@ export namespace IQueue {
   }
 }
 
-export class Queue extends Model {
-  public build: Build;
+export class QueueModel extends BaseModel {
   public buildId: string;
   public cpu: number;
   public description: string;
@@ -68,10 +66,8 @@ export class Queue extends Model {
   public teams: number;
   public usersPerTeam: number;
 
-  constructor(params: Partial<Queue> = {}) {
-    super(params);
-
-    this.build = this.build ? new Build(this.build) : null;
+  constructor(parameters?: Partial<QueueModel>) {
+    super(parameters);
   }
 
   public static isRestartRequired(fields: string[]) {

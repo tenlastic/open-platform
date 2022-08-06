@@ -8,10 +8,10 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
   AuthorizationQuery,
-  Collection,
+  CollectionModel,
   CollectionService,
   IAuthorization,
-  Record,
+  RecordModel,
   RecordQuery,
   RecordService,
 } from '@tenlastic/ng-http';
@@ -29,15 +29,15 @@ import { TITLE } from '../../../../../../shared/constants';
 export class RecordsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<Record>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<RecordModel>;
 
-  public collection: Collection;
-  public dataSource = new MatTableDataSource<Record>();
+  public collection: CollectionModel;
+  public dataSource = new MatTableDataSource<RecordModel>();
   public displayedColumns;
   public hasWriteAuthorization: boolean;
   public propertyColumns: string[];
 
-  private $records: Observable<Record[]>;
+  private $records: Observable<RecordModel[]>;
   private updateDataSource$ = new Subscription();
   private params: Params;
   private socket: Socket;
@@ -61,13 +61,16 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
       this.params = params;
       this.titleService.setTitle(`${TITLE} | Records`);
 
-      const roles = [IAuthorization.AuthorizationRole.CollectionsReadWrite];
+      const roles = [IAuthorization.Role.CollectionsReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.collection = await this.collectionService.findOne(params.collectionId);
+      this.collection = await this.collectionService.findOne(
+        params.namespaceId,
+        params.collectionId,
+      );
 
       this.propertyColumns = Object.entries(this.collection.jsonSchema.properties)
         .map(([key, value]) => (value.type === 'array' || value.type === 'object' ? null : key))
@@ -75,8 +78,8 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
         .slice(0, 4);
       this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
 
-      this.socket = await this.socketService.connect(environment.apiBaseUrl);
-      this.subscription = this.socket.subscribe('records', Record, this.recordService, {
+      this.socket = await this.socketService.connect(environment.wssUrl);
+      this.subscription = this.socket.subscribe('records', RecordModel, this.recordService, {
         collectionId: this.params.collectionId,
       });
 
@@ -89,9 +92,9 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
     this.socket.unsubscribe(this.subscription);
   }
 
-  public showDeletePrompt($event: Event, record: Record) {
+  public showDeletePrompt($event: Event, record: RecordModel) {
     $event.stopPropagation();
-    
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
@@ -104,7 +107,11 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.recordService.delete(this.params.collectionId, record._id);
+        await this.recordService.delete(
+          this.params.namespaceId,
+          this.params.collectionId,
+          record._id,
+        );
         this.matSnackBar.open('Record deleted successfully.');
       }
     });
@@ -115,11 +122,11 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
       filterBy: (gs) => gs.collectionId === params.collectionId,
     });
 
-    await this.recordService.find(params.collectionId, { sort: 'name' });
+    await this.recordService.find(params.namespaceId, params.collectionId, { sort: 'name' });
 
     this.updateDataSource$ = this.$records.subscribe((records) => (this.dataSource.data = records));
 
-    this.dataSource.filterPredicate = (data: Record, filter: string) => {
+    this.dataSource.filterPredicate = (data: RecordModel, filter: string) => {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
       const json = JSON.stringify(data);
 

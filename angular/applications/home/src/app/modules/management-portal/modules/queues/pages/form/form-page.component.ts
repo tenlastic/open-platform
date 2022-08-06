@@ -1,17 +1,18 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Params } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
-  Build,
+  BuildModel,
   BuildService,
   IAuthorization,
   IGameServer,
   IQueue,
-  Namespace,
+  NamespaceModel,
   NamespaceService,
-  Queue,
+  QueueModel,
   QueueQuery,
   QueueService,
 } from '@tenlastic/ng-http';
@@ -31,7 +32,7 @@ interface PropertyFormGroup {
   styleUrls: ['./form-page.component.scss'],
 })
 export class QueuesFormPageComponent implements OnDestroy, OnInit {
-  public builds: Build[];
+  public builds: BuildModel[];
   public components = {
     application: 'Application',
     redis: 'Redis',
@@ -42,7 +43,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     const limit = limits?.cpu ? limits.cpu : Infinity;
     return limits?.cpu ? IQueue.Cpu.filter((r) => r.value <= limit) : IQueue.Cpu;
   }
-  public data: Queue;
+  public data: QueueModel;
   public errors: string[] = [];
   public form: FormGroup;
   public get gameServerCpus() {
@@ -68,7 +69,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   }
 
   private updateQueue$ = new Subscription();
-  private namespace: Namespace;
+  private namespace: NamespaceModel;
   private params: Params;
 
   constructor(
@@ -79,22 +80,24 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     private formService: FormService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private namespaceService: NamespaceService,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
+    private router: Router,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const roles = [IAuthorization.AuthorizationRole.QueuesReadWrite];
+      const roles = [IAuthorization.Role.QueuesReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.builds = await this.buildService.find({
+      this.builds = await this.buildService.find(params.namespaceId, {
         select: '-files',
         sort: '-publishedAt',
         where: { namespaceId: params.namespaceId, platform: 'server64' },
@@ -102,7 +105,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       this.namespace = await this.namespaceService.findOne(params.namespaceId);
 
       if (params.queueId !== 'new') {
-        this.data = await this.queueService.findOne(params.queueId);
+        this.data = await this.queueService.findOne(params.namespaceId, params.queueId);
       }
 
       this.setupForm();
@@ -136,7 +139,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       return accumulator;
     }, {});
 
-    const values: Partial<Queue> = {
+    const values: Partial<QueueModel> = {
       _id: this.data._id,
       buildId: this.form.get('buildId').value,
       cpu: this.form.get('cpu').value,
@@ -159,7 +162,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     };
 
     const dirtyFields = this.getDirtyFields();
-    if (this.data._id && Queue.isRestartRequired(dirtyFields)) {
+    if (this.data._id && QueueModel.isRestartRequired(dirtyFields)) {
       const dialogRef = this.matDialog.open(PromptComponent, {
         data: {
           buttons: [
@@ -173,7 +176,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       dialogRef.afterClosed().subscribe(async (result: string) => {
         if (result === 'Yes') {
           try {
-            this.data = await this.formService.upsert(this.queueService, values);
+            this.data = await this.upsert(values);
           } catch (e) {
             this.errors = this.formService.handleHttpError(e, { name: 'Name' });
           }
@@ -181,7 +184,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       });
     } else {
       try {
-        this.data = await this.formService.upsert(this.queueService, values);
+        this.data = await this.upsert(values);
       } catch (e) {
         this.errors = this.formService.handleHttpError(e, { name: 'Name' });
       }
@@ -223,7 +226,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   }
 
   private setupForm(): void {
-    this.data = this.data || new Queue();
+    this.data = this.data || new QueueModel();
 
     const gameServerMetadata = [];
     if (this.data.gameServerTemplate && this.data.gameServerTemplate.metadata) {
@@ -280,5 +283,16 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         .selectAll({ filterBy: (q) => q._id === this.data._id })
         .subscribe((queues) => (this.data = queues[0]));
     }
+  }
+
+  private async upsert(values: Partial<QueueModel>) {
+    const result = values._id
+      ? await this.queueService.update(this.params.namespaceId, values._id, values)
+      : await this.queueService.create(this.params.namespaceId, values);
+
+    this.matSnackBar.open(`Queue saved successfully.`);
+    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

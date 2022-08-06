@@ -1,10 +1,9 @@
 import { loginService, passwordResetService, UserModel, userService } from '@tenlastic/http';
+import wait from '@tenlastic/wait';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import { google } from 'googleapis';
-
-import { wait } from '../wait';
 
 const chance = new Chance();
 use(chaiAsPromised);

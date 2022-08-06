@@ -1,4 +1,4 @@
-import { Model } from './model';
+import { BaseModel } from './base';
 import { IWorkflow } from './workflow';
 
 export namespace IBuild {
@@ -34,7 +34,7 @@ export namespace IBuild {
   }
 }
 
-export class Build extends Model {
+export class BuildModel extends BaseModel {
   public _id: string;
   public createdAt: Date;
   public entrypoint: string;
@@ -47,10 +47,10 @@ export class Build extends Model {
   public status: IWorkflow.Status;
   public updatedAt: Date;
 
-  constructor(params: Partial<Build> = {}) {
-    super(params);
+  constructor(parameters?: Partial<BuildModel>) {
+    super(parameters);
 
-    this.publishedAt = params.publishedAt ? new Date(params.publishedAt) : null;
+    this.publishedAt = parameters.publishedAt ? new Date(parameters.publishedAt) : null;
   }
 
   public getNestedStatusNodes() {

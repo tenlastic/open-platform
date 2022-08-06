@@ -5,7 +5,6 @@ import { environment } from '../../../../../environments/environment';
 import { ElectronService, IdentityService } from '../../../../core/services';
 
 @Component({
-  selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })

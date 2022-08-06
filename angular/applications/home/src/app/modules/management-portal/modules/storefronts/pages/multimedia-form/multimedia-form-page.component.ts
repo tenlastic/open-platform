@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { Storefront, StorefrontService } from '@tenlastic/ng-http';
+import { StorefrontModel, StorefrontService } from '@tenlastic/ng-http';
 
 import { PromptComponent } from '../../../../../../shared/components';
 import { MediaDialogComponent } from '../../components';
@@ -13,7 +13,7 @@ import { MediaDialogComponent } from '../../components';
   styleUrls: ['./multimedia-form-page.component.scss'],
 })
 export class StorefrontsMultimediaFormPageComponent implements OnInit {
-  public data: Storefront;
+  public data: StorefrontModel;
   public errors: string[] = [];
   public pending = {
     background: [],
@@ -37,11 +37,7 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      const storefronts = await this.storefrontService.find({
-        limit: 1,
-        where: { namespaceId: params.namespaceId },
-      });
-
+      const storefronts = await this.storefrontService.find(params.namespaceId, { limit: 1 });
       this.data = storefronts[0];
     });
   }
@@ -56,7 +52,9 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
     this.uploadErrors[field] = [];
 
     try {
-      const { body } = await this.storefrontService.upload(this.data._id, field, files).toPromise();
+      const { body } = await this.storefrontService
+        .upload(this.data.namespaceId, this.data._id, field, files)
+        .toPromise();
       this.data = body.record;
 
       const fieldTitleCase = field.charAt(0).toUpperCase() + field.substring(1);
@@ -85,12 +83,14 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         if (index >= 0) {
-          this.data = await this.storefrontService.update({
+          this.data = await this.storefrontService.update(this.data.namespaceId, this.data._id, {
             _id: this.data._id,
             [field]: this.data[field].filter((f, i) => i !== index),
           });
         } else {
-          this.data = await this.storefrontService.update({ _id: this.data._id, [field]: null });
+          this.data = await this.storefrontService.update(this.data.namespaceId, this.data._id, {
+            [field]: null,
+          });
         }
 
         const fieldTitleCase =

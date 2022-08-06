@@ -1,9 +1,7 @@
-import { Model } from './model';
-import { Namespace } from './namespace';
-import { User } from './user';
+import { BaseModel } from './base';
 
 export namespace IAuthorization {
-  export enum AuthorizationRole {
+  export enum Role {
     ArticlesRead = 'Articles:Read',
     ArticlesReadPublished = 'Articles:ReadPublished',
     ArticlesReadWrite = 'Articles:ReadWrite',
@@ -32,61 +30,34 @@ export namespace IAuthorization {
   }
 
   export const articleRoles = [
-    AuthorizationRole.ArticlesRead,
-    AuthorizationRole.ArticlesReadPublished,
-    AuthorizationRole.ArticlesReadWrite,
+    Role.ArticlesRead,
+    Role.ArticlesReadPublished,
+    Role.ArticlesReadWrite,
   ];
-  export const authorizationRoles = [
-    AuthorizationRole.AuthorizationsRead,
-    AuthorizationRole.AuthorizationsReadWrite,
-  ];
-  export const buildRoles = [
-    AuthorizationRole.BuildsRead,
-    AuthorizationRole.BuildsReadPublished,
-    AuthorizationRole.BuildsReadWrite,
-  ];
-  export const collectionRoles = [
-    AuthorizationRole.CollectionsRead,
-    AuthorizationRole.CollectionsReadWrite,
-  ];
-  export const gameServerRoles = [
-    AuthorizationRole.GameServersRead,
-    AuthorizationRole.GameServersReadWrite,
-  ];
-  export const namespaceRoles = [
-    AuthorizationRole.NamespacesRead,
-    AuthorizationRole.NamespacesReadWrite,
-  ];
-  export const queueRoles = [AuthorizationRole.QueuesRead, AuthorizationRole.QueuesReadWrite];
-  export const storefrontRoles = [
-    AuthorizationRole.StorefrontsRead,
-    AuthorizationRole.StorefrontsReadWrite,
-  ];
-  export const userRoles = [AuthorizationRole.UsersRead, AuthorizationRole.UsersReadWrite];
-  export const webSocketRoles = [
-    AuthorizationRole.WebSocketsRead,
-    AuthorizationRole.WebSocketsReadWrite,
-  ];
-  export const workflowRoles = [
-    AuthorizationRole.WorkflowsRead,
-    AuthorizationRole.WorkflowsReadWrite,
-  ];
+  export const authorizationRoles = [Role.AuthorizationsRead, Role.AuthorizationsReadWrite];
+  export const buildRoles = [Role.BuildsRead, Role.BuildsReadPublished, Role.BuildsReadWrite];
+  export const collectionRoles = [Role.CollectionsRead, Role.CollectionsReadWrite];
+  export const gameServerRoles = [Role.GameServersRead, Role.GameServersReadWrite];
+  export const namespaceRoles = [Role.NamespacesRead, Role.NamespacesReadWrite];
+  export const queueRoles = [Role.QueuesRead, Role.QueuesReadWrite];
+  export const storefrontRoles = [Role.StorefrontsRead, Role.StorefrontsReadWrite];
+  export const userRoles = [Role.UsersRead, Role.UsersReadWrite];
+  export const webSocketRoles = [Role.WebSocketsRead, Role.WebSocketsReadWrite];
+  export const workflowRoles = [Role.WorkflowsRead, Role.WorkflowsReadWrite];
 }
 
-export class Authorization extends Model {
+export class AuthorizationModel extends BaseModel {
   public apiKey: string;
   public name: string;
-  public namespace: Namespace;
   public namespaceId: string;
-  public roles: IAuthorization.AuthorizationRole[];
-  public user: User;
+  public roles: IAuthorization.Role[];
   public userId: string;
 
-  constructor(params?: Partial<Authorization>) {
-    super(params);
+  constructor(parameters?: Partial<AuthorizationModel>) {
+    super(parameters);
   }
 
-  public hasRoles(roles: IAuthorization.AuthorizationRole[]) {
+  public hasRoles(roles: IAuthorization.Role[]) {
     return this.roles?.some((r) => roles.includes(r));
   }
 }

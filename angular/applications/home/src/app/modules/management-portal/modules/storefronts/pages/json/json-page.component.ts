@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params } from '@angular/router';
-import { Storefront, StorefrontService } from '@tenlastic/ng-http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { StorefrontModel, StorefrontService } from '@tenlastic/ng-http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
@@ -11,7 +12,7 @@ import { jsonValidator } from '../../../../../../shared/validators';
   styleUrls: ['./json-page.component.scss'],
 })
 export class StorefrontsJsonPageComponent implements OnInit {
-  public data: Storefront;
+  public data: StorefrontModel;
   public errors: string[] = [];
   public form: FormGroup;
 
@@ -21,6 +22,8 @@ export class StorefrontsJsonPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private formService: FormService,
+    private matSnackBar: MatSnackBar,
+    private router: Router,
     private storefrontService: StorefrontService,
     private textareaService: TextareaService,
   ) {}
@@ -29,7 +32,7 @@ export class StorefrontsJsonPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const storefronts = await this.storefrontService.find({
+      const storefronts = await this.storefrontService.find(params.namespaceId, {
         limit: 1,
         where: { namespaceId: params.namespaceId },
       });
@@ -58,20 +61,20 @@ export class StorefrontsJsonPageComponent implements OnInit {
     }
 
     const json = this.form.get('json').value;
-    const values = JSON.parse(json) as Storefront;
+    const values = JSON.parse(json) as StorefrontModel;
 
     values._id = this.data._id;
     values.namespaceId = this.params.namespaceId;
 
     try {
-      this.data = await this.formService.upsert(this.storefrontService, values);
+      this.data = await this.upsert(values);
     } catch (e) {
       this.errors = this.formService.handleHttpError(e);
     }
   }
 
   private setupForm(): void {
-    this.data ??= new Storefront({
+    this.data ??= new StorefrontModel({
       description: '',
       metadata: {},
       subtitle: '',
@@ -89,5 +92,16 @@ export class StorefrontsJsonPageComponent implements OnInit {
     });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+  }
+
+  private async upsert(values: Partial<StorefrontModel>) {
+    const result = values._id
+      ? await this.storefrontService.update(this.params.namespaceId, values._id, values)
+      : await this.storefrontService.create(this.params.namespaceId, values);
+
+    this.matSnackBar.open(`Storefront saved successfully.`);
+    this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

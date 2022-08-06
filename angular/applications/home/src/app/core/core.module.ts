@@ -7,15 +7,17 @@ import { RouterModule } from '@angular/router';
 
 import { TokenInterceptor, UnauthorizedInterceptor } from './interceptors';
 
+import { HttpModule } from '../http.module';
 import { MaterialModule } from '../material.module';
 
 @NgModule({
-  exports: [MaterialModule],
+  exports: [HttpModule, MaterialModule],
   imports: [
     BrowserAnimationsModule,
     BrowserModule,
     CommonModule,
     HttpClientModule,
+    HttpModule,
     MaterialModule,
     RouterModule,
   ],

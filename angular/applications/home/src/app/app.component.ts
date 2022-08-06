@@ -3,37 +3,35 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { resetStores } from '@datorama/akita';
 import {
-  Authorization,
+  AuthorizationModel,
   AuthorizationQuery,
   AuthorizationService,
-  Build,
+  BuildModel,
   BuildService,
-  Collection,
+  CollectionModel,
   CollectionService,
-  GameServer,
-  GameServerQuery,
+  GameServerModel,
   GameServerService,
-  Group,
-  GroupInvitation,
+  GroupModel,
+  GroupInvitationModel,
   GroupInvitationService,
   GroupService,
   LoginService,
-  Message,
+  MessageModel,
   MessageService,
-  Queue,
-  QueueMember,
+  QueueModel,
+  QueueMemberModel,
   QueueMemberQuery,
   QueueMemberService,
-  QueueQuery,
   QueueService,
-  Storefront,
+  StorefrontModel,
   StorefrontService,
   UserQuery,
   UserService,
-  WebSocket,
+  WebSocketModel,
   WebSocketQuery,
   WebSocketService,
-  Workflow,
+  WorkflowModel,
   WorkflowService,
 } from '@tenlastic/ng-http';
 
@@ -59,7 +57,6 @@ export class AppComponent implements OnInit {
     private buildService: BuildService,
     private collectionService: CollectionService,
     private electronService: ElectronService,
-    private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
     private groupService: GroupService,
     private groupInvitationService: GroupInvitationService,
@@ -68,7 +65,6 @@ export class AppComponent implements OnInit {
     private messageService: MessageService,
     private queueMemberQuery: QueueMemberQuery,
     private queueMemberService: QueueMemberService,
-    private queueQuery: QueueQuery,
     private queueService: QueueService,
     private router: Router,
     private socketService: SocketService,
@@ -85,11 +81,11 @@ export class AppComponent implements OnInit {
     this.titleService.setTitle(`${TITLE}`);
 
     // Navigate to login page on logout.
-    this.loginService.onLogout.subscribe(() => this.navigateToLogin());
+    this.loginService.emitter.on('logout', () => this.navigateToLogin());
 
     // Handle websockets when logging in and out.
-    this.loginService.onLogin.subscribe(() => this.connectSocket());
-    this.loginService.onLogout.subscribe(() => this.socket?.close());
+    this.loginService.emitter.on('login', () => this.connectSocket());
+    this.loginService.emitter.on('logout', () => this.socket?.close());
 
     // Handle websockets when access token is set.
     this.identityService.OnAccessTokenSet.subscribe((accessToken) => {
@@ -117,7 +113,7 @@ export class AppComponent implements OnInit {
     });
 
     // Clear stores on logout.
-    this.loginService.onLogout.subscribe(() => resetStores());
+    this.loginService.emitter.on('logout', () => resetStores());
 
     this.fetchMissingRecords();
   }
@@ -127,13 +123,9 @@ export class AppComponent implements OnInit {
       const ids = records.map((r) => r.userId).filter((ui) => !this.userQuery.hasEntity(ui));
       return ids.length > 0 ? this.userService.find({ where: { _id: { $in: ids } } }) : null;
     });
-    this.gameServerQuery.selectAll().subscribe((records) => {
-      const ids = records.map((r) => r.queueId).filter((qi) => !this.queueQuery.hasEntity(qi));
-      return ids.length > 0 ? this.queueService.find({ where: { _id: { $in: ids } } }) : null;
-    });
     this.queueMemberQuery.selectAll().subscribe((records) => {
       const ids = records.map((r) => r.userId).filter((ui) => !this.userQuery.hasEntity(ui));
-      return ids.length > 0 ? this.queueService.find({ where: { _id: { $in: ids } } }) : null;
+      return ids.length > 0 ? this.userService.find({ where: { _id: { $in: ids } } }) : null;
     });
     this.webSocketQuery.selectAll().subscribe((records) => {
       const ids = records.map((r) => r.userId).filter((ui) => !this.userQuery.hasEntity(ui));
@@ -146,22 +138,22 @@ export class AppComponent implements OnInit {
   }
 
   private async connectSocket() {
-    this.socket = await this.socketService.connect(environment.apiBaseUrl);
+    this.socket = await this.socketService.connect(environment.wssUrl);
     this.socket.addEventListener('open', () => this.subscribe());
   }
 
   private subscribe() {
-    this.socket.subscribe('authorizations', Authorization, this.authorizationService);
-    this.socket.subscribe('builds', Build, this.buildService);
-    this.socket.subscribe('collections', Collection, this.collectionService);
-    this.socket.subscribe('game-servers', GameServer, this.gameServerService);
-    this.socket.subscribe('groups', Group, this.groupService);
-    this.socket.subscribe('group-invitations', GroupInvitation, this.groupInvitationService);
-    this.socket.subscribe('messages', Message, this.messageService);
-    this.socket.subscribe('queue-members', QueueMember, this.queueMemberService);
-    this.socket.subscribe('queues', Queue, this.queueService);
-    this.socket.subscribe('storefronts', Storefront, this.storefrontService);
-    this.socket.subscribe('workflows', Workflow, this.workflowService);
-    this.socket.subscribe('web-sockets', WebSocket, this.webSocketService);
+    this.socket.subscribe('authorizations', AuthorizationModel, this.authorizationService);
+    this.socket.subscribe('builds', BuildModel, this.buildService);
+    this.socket.subscribe('collections', CollectionModel, this.collectionService);
+    this.socket.subscribe('game-servers', GameServerModel, this.gameServerService);
+    this.socket.subscribe('groups', GroupModel, this.groupService);
+    this.socket.subscribe('group-invitations', GroupInvitationModel, this.groupInvitationService);
+    this.socket.subscribe('messages', MessageModel, this.messageService);
+    this.socket.subscribe('queue-members', QueueMemberModel, this.queueMemberService);
+    this.socket.subscribe('queues', QueueModel, this.queueService);
+    this.socket.subscribe('storefronts', StorefrontModel, this.storefrontService);
+    this.socket.subscribe('workflows', WorkflowModel, this.workflowService);
+    this.socket.subscribe('web-sockets', WebSocketModel, this.webSocketService);
   }
 }

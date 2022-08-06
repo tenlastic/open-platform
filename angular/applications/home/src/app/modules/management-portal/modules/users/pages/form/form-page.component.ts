@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { AuthorizationQuery, IAuthorization, User, UserService } from '@tenlastic/ng-http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthorizationQuery, IAuthorization, UserModel, UserService } from '@tenlastic/ng-http';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 
@@ -10,7 +11,7 @@ import { FormService, IdentityService } from '../../../../../../core/services';
   styleUrls: ['./form-page.component.scss'],
 })
 export class UsersFormPageComponent implements OnInit {
-  public data: User;
+  public data: UserModel;
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
@@ -21,12 +22,14 @@ export class UsersFormPageComponent implements OnInit {
     private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
+    private matSnackBar: MatSnackBar,
+    private router: Router,
     private userService: UserService,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      const roles = [IAuthorization.AuthorizationRole.UsersReadWrite];
+      const roles = [IAuthorization.Role.UsersReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) || params.userId === userId;
@@ -49,14 +52,14 @@ export class UsersFormPageComponent implements OnInit {
       return;
     }
 
-    const values: Partial<User> = {
+    const values: Partial<UserModel> = {
       _id: this.data._id,
       email: this.form.get('email').value,
       username: this.form.get('username').value,
     };
 
     try {
-      this.data = await this.formService.upsert(this.userService, values);
+      this.data = await this.upsert(values);
     } catch (e) {
       this.errors = this.formService.handleHttpError(e, {
         email: 'Email Address',
@@ -66,7 +69,7 @@ export class UsersFormPageComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.data = this.data || new User();
+    this.data = this.data || new UserModel();
 
     this.form = this.formBuilder.group({
       email: [this.data.email, Validators.email],
@@ -81,5 +84,16 @@ export class UsersFormPageComponent implements OnInit {
     }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+  }
+
+  private async upsert(values: Partial<UserModel>) {
+    const result = values._id
+      ? await this.userService.update(values._id, values)
+      : await this.userService.create(values);
+
+    this.matSnackBar.open(`User saved successfully.`);
+    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

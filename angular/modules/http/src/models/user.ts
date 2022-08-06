@@ -1,11 +1,11 @@
-import { Model } from './model';
+import { BaseModel } from './base';
 
-export class User extends Model {
+export class UserModel extends BaseModel {
   public email?: string;
   public password?: string;
   public username?: string;
 
-  constructor(params?: Partial<User>) {
-    super(params);
+  constructor(parameters?: Partial<UserModel>) {
+    super(parameters);
   }
 }

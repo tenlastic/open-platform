@@ -1,12 +1,10 @@
-import { Model } from './model';
-import { User } from './user';
+import { BaseModel } from './base';
 
-export class Group extends Model {
+export class GroupModel extends BaseModel {
   public isOpen: boolean;
   public userIds: string[];
-  public users: User[];
 
-  constructor(params?: Partial<Group>) {
-    super(params);
+  constructor(parameters?: Partial<GroupModel>) {
+    super(parameters);
   }
 }

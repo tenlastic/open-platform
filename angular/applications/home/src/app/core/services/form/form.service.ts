@@ -2,18 +2,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { Model } from '@tenlastic/ng-http';
 import { PromptComponent } from '../../../shared/components';
 
 @Injectable({ providedIn: 'root' })
 export class FormService {
-  constructor(
-    private matDialog: MatDialog,
-    private matSnackBar: MatSnackBar,
-    private router: Router,
-  ) {}
+  constructor(private matDialog: MatDialog, private router: Router) {}
 
   public handleHttpError(err: HttpErrorResponse, pathMap?: { [key: string]: string }) {
     return err.error.errors.map((e) => {
@@ -72,30 +66,6 @@ export class FormService {
     } else {
       this.router.navigateByUrl(this.getUrl(this.router.url.concat('/', 'json')));
     }
-  }
-
-  public async upsert<T extends Model>(
-    service: { create: (data: Partial<T>) => Promise<T>; update: (data: Partial<T>) => Promise<T> },
-    values: Partial<T>,
-    options?: { addIdToPath?: boolean; name?: string; navigate?: boolean; path?: string },
-  ) {
-    const result = values._id ? await service.update(values) : await service.create(values);
-
-    const name = options?.name ?? result.constructor.name;
-    this.matSnackBar.open(`${name} saved successfully.`);
-
-    const addIdToPath = options?.addIdToPath ?? true;
-    const path = options?.path ?? '../';
-    const url = addIdToPath
-      ? this.getUrl(this.router.url.concat('/', path, result._id))
-      : this.getUrl(this.router.url.concat('/', path));
-
-    const navigate = options?.navigate ?? true;
-    if (navigate) {
-      this.router.navigateByUrl(url);
-    }
-
-    return result;
   }
 
   private getUrl(url: string) {

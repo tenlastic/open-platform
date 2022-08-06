@@ -3,25 +3,25 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as jwt from 'jsonwebtoken';
 import * as sinon from 'sinon';
 
-import { loginService } from '../services';
+import { loginService } from '../services/login';
 import { ExpiredRefreshTokenError, getAccessToken, setAccessToken, setRefreshToken } from './';
 
 use(chaiAsPromised);
 
-describe('tokens', function() {
+describe('tokens', function () {
   let sandbox: sinon.SinonSandbox;
 
-  beforeEach(function() {
+  beforeEach(function () {
     sandbox = sinon.createSandbox();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     sandbox.restore();
   });
 
-  describe('getAccessToken()', function() {
-    context('when the access token is not expired', function() {
-      it('returns the access token', async function() {
+  describe('getAccessToken()', function () {
+    context('when the access token is not expired', function () {
+      it('returns the access token', async function () {
         const accessToken = jwt.sign({}, 'secret', { expiresIn: 60 });
         setAccessToken(accessToken);
 
@@ -31,8 +31,8 @@ describe('tokens', function() {
       });
     });
 
-    context('when the access token is expired and there is no refresh token', function() {
-      it('returns null', async function() {
+    context('when the access token is expired and there is no refresh token', function () {
+      it('returns null', async function () {
         const accessToken = jwt.sign({}, 'secret', { expiresIn: 0 });
         setAccessToken(accessToken);
 
@@ -42,8 +42,8 @@ describe('tokens', function() {
       });
     });
 
-    context('when the access token is expired and the refresh token is expired', function() {
-      it('throws an error', async function() {
+    context('when the access token is expired and the refresh token is expired', function () {
+      it('throws an error', async function () {
         const accessToken = jwt.sign({}, 'secret', { expiresIn: 0 });
         setAccessToken(accessToken);
 
@@ -56,8 +56,8 @@ describe('tokens', function() {
       });
     });
 
-    context('when the access token is expired and the refresh token is not expired', function() {
-      it('returns a new access token', async function() {
+    context('when the access token is expired and the refresh token is not expired', function () {
+      it('returns a new access token', async function () {
         const accessToken = jwt.sign({}, 'secret', { expiresIn: 0 });
         setAccessToken(accessToken);
 

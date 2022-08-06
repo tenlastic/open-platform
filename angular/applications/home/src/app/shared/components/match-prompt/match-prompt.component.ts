@@ -1,11 +1,11 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
-  GameServer,
+  GameServerModel,
   GameServerQuery,
-  Queue,
+  QueueModel,
   QueueQuery,
-  Storefront,
+  StorefrontModel,
   StorefrontService,
 } from '@tenlastic/ng-http';
 import { Subscription } from 'rxjs';
@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
 import { UpdateService } from '../../../core/services';
 
 export interface MatchPromptComponentData {
-  gameServer: GameServer;
+  gameServer: GameServerModel;
 }
 
 @Component({
@@ -24,8 +24,8 @@ export interface MatchPromptComponentData {
 export class MatchPromptComponent implements OnDestroy, OnInit {
   public accepted = false;
   public message: string;
-  public queue: Queue;
-  public storefront: Storefront;
+  public queue: QueueModel;
+  public storefront: StorefrontModel;
 
   private waitForGameServer$ = new Subscription();
   private timeout: any;
@@ -43,11 +43,9 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
     this.dialogRef.disableClose = true;
     this.timeout = setTimeout(() => this.dialogRef.close(), 30000);
 
-    const storefront = await this.storefrontService.find({
-      where: { namespaceId: this.data.gameServer.namespaceId },
-    });
+    const storefront = await this.storefrontService.find(this.data.gameServer.namespaceId, {});
     this.storefront = storefront[0];
-    this.queue = new Queue(this.queueQuery.getEntity(this.data.gameServer.queueId));
+    this.queue = new QueueModel(this.queueQuery.getEntity(this.data.gameServer.queueId));
   }
 
   public ngOnDestroy() {

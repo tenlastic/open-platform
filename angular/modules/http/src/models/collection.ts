@@ -1,4 +1,4 @@
-import { Model } from './model';
+import { BaseModel } from './base';
 
 export namespace ICollection {
   export interface Index {
@@ -17,7 +17,7 @@ export namespace ICollection {
     default?: any;
     format?: string;
     items?: JsonSchemaProperty;
-    properties?: JsonSchemaProperty;
+    properties?: { [key: string]: JsonSchemaProperty };
     required?: string[];
     type?: string;
   }
@@ -43,14 +43,14 @@ export namespace ICollection {
   }
 }
 
-export class Collection extends Model {
+export class CollectionModel extends BaseModel {
   public indexes: ICollection.Index;
   public jsonSchema: ICollection.JsonSchemaProperty;
   public name: string;
   public namespaceId: string;
   public permissions: ICollection.Permissions;
 
-  constructor(params?: Partial<Collection>) {
-    super(params);
+  constructor(parameters?: Partial<CollectionModel>) {
+    super(parameters);
   }
 }

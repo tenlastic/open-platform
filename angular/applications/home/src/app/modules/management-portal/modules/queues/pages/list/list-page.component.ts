@@ -10,12 +10,13 @@ import { Order } from '@datorama/akita';
 import {
   AuthorizationQuery,
   IAuthorization,
-  Queue,
-  QueueLog,
+  QueueModel,
+  QueueLogModel,
   QueueLogQuery,
   QueueLogStore,
   QueueQuery,
   QueueService,
+  QueueLogService,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -32,13 +33,13 @@ import { TITLE } from '../../../../../../shared/constants';
 export class QueuesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<Queue>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<QueueModel>;
 
-  public dataSource = new MatTableDataSource<Queue>();
+  public dataSource = new MatTableDataSource<QueueModel>();
   public displayedColumns = ['name', 'description', 'status', 'actions'];
   public hasWriteAuthorization: boolean;
 
-  private $queues: Observable<Queue[]>;
+  private $queues: Observable<QueueModel[]>;
   private updateDataSource$ = new Subscription();
 
   constructor(
@@ -48,6 +49,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private queueLogQuery: QueueLogQuery,
+    private queueLogService: QueueLogService,
     private queueLogStore: QueueLogStore,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
@@ -59,7 +61,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     this.activatedRoute.params.subscribe((params) => {
       this.titleService.setTitle(`${TITLE} | Queues`);
 
-      const roles = [IAuthorization.AuthorizationRole.QueuesReadWrite];
+      const roles = [IAuthorization.Role.QueuesReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
@@ -73,21 +75,21 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public getStatus(record: Queue) {
+  public getStatus(record: QueueModel) {
     const current = record.status.components.reduce((a, b) => a + b.current, 0);
     const total = record.status.components.reduce((a, b) => a + b.total, 0);
 
     return `${record.status.phase} (${current} / ${total})`;
   }
 
-  public async restart($event: Event, record: Queue) {
+  public async restart($event: Event, record: QueueModel) {
     $event.stopPropagation();
 
-    await this.queueService.update({ _id: record._id, restartedAt: new Date() });
+    await this.queueService.update(record.namespaceId, record._id, { restartedAt: new Date() });
     this.matSnackBar.open('Queue is restarting...');
   }
 
-  public showDeletePrompt($event: Event, record: Queue) {
+  public showDeletePrompt($event: Event, record: QueueModel) {
     $event.stopPropagation();
 
     const dialogRef = this.matDialog.open(PromptComponent, {
@@ -102,13 +104,13 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.queueService.delete(record._id);
+        await this.queueService.delete(record.namespaceId, record._id);
         this.matSnackBar.open('Queue deleted successfully.');
       }
     });
   }
 
-  public showLogsDialog($event: Event, record: Queue) {
+  public showLogsDialog($event: Event, record: QueueModel) {
     $event.stopPropagation();
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, {
@@ -122,14 +124,15 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
         $nodeIds: this.queueQuery
           .selectEntity(record._id)
           .pipe(map((queue) => this.getNodeIds(queue))),
-        find: (nodeId) => this.queueService.logs(record._id, nodeId, { tail: 500 }),
+        find: (nodeId) =>
+          this.queueLogService.find(record.namespaceId, record._id, nodeId, { tail: 500 }),
         nodeIds: record.status?.nodes?.map((n) => n._id),
         subscribe: async (nodeId, unix) => {
-          const socket = await this.socketService.connect(environment.apiBaseUrl);
+          const socket = await this.socketService.connect(environment.wssUrl);
           return socket.logs(
-            QueueLog,
+            QueueLogModel,
             { nodeId, queueId: record._id, since: unix ? new Date(unix) : new Date() },
-            this.queueService,
+            this.queueLogService,
           );
         },
       },
@@ -139,19 +142,15 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   }
 
   private async fetchQueues(params: Params) {
-    const $queues = this.queueQuery.selectAll({
+    this.$queues = this.queueQuery.selectAll({
       filterBy: (gs) => gs.namespaceId === params.namespaceId,
     });
-    this.$queues = this.queueQuery.populate($queues);
 
-    await this.queueService.find({
-      sort: 'name',
-      where: { namespaceId: params.namespaceId },
-    });
+    await this.queueService.find(params.namespaceId, { sort: 'name' });
 
     this.updateDataSource$ = this.$queues.subscribe((queues) => (this.dataSource.data = queues));
 
-    this.dataSource.filterPredicate = (data: Queue, filter: string) => {
+    this.dataSource.filterPredicate = (data: QueueModel, filter: string) => {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
 
       return (
@@ -163,7 +162,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     this.dataSource.sort = this.sort;
   }
 
-  private getNodeIds(queue: Queue) {
+  private getNodeIds(queue: QueueModel) {
     return queue.status?.nodes
       .map((n) => {
         let displayName = 'Queue';

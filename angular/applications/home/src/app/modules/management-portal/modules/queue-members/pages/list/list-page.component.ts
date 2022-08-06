@@ -9,9 +9,10 @@ import { ActivatedRoute, Params } from '@angular/router';
 import {
   AuthorizationQuery,
   IAuthorization,
-  QueueMember,
+  QueueMemberModel,
   QueueMemberQuery,
   QueueMemberService,
+  UserQuery,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
@@ -26,10 +27,10 @@ import { TITLE } from '../../../../../../shared/constants';
 export class QueueMembersListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<QueueMember>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<QueueMemberModel>;
 
-  public $queueMembers: Observable<QueueMember[]>;
-  public dataSource = new MatTableDataSource<QueueMember>();
+  public $queueMembers: Observable<QueueMemberModel[]>;
+  public dataSource = new MatTableDataSource<QueueMemberModel>();
   public displayedColumns = ['username', 'createdAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
@@ -44,13 +45,14 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
     private queueMemberQuery: QueueMemberQuery,
     private queueMemberService: QueueMemberService,
     private titleService: Title,
+    private userQuery: UserQuery,
   ) {}
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe((params) => {
       this.titleService.setTitle(`${TITLE} | Queue Members`);
 
-      const roles = [IAuthorization.AuthorizationRole.QueuesReadWrite];
+      const roles = [IAuthorization.Role.QueuesReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
@@ -64,9 +66,13 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public showDeletePrompt($event: Event, record: QueueMember) {
+  public getUser(_id: string) {
+    return this.userQuery.getEntity(_id);
+  }
+
+  public showDeletePrompt($event: Event, record: QueueMemberModel) {
     $event.stopPropagation();
-    
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
@@ -79,19 +85,18 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.queueMemberService.delete(record._id);
+        await this.queueMemberService.delete(record.namespaceId, record._id);
         this.matSnackBar.open('Queue Member deleted successfully.');
       }
     });
   }
 
   private async fetchQueueMembers(params: Params) {
-    const $queueMembers = this.queueMemberQuery.selectAll({
+    this.$queueMembers = this.queueMemberQuery.selectAll({
       filterBy: (qm) => qm.queueId === params.queueId,
     });
-    this.$queueMembers = this.queueMemberQuery.populate($queueMembers);
 
-    await this.queueMemberService.find({
+    await this.queueMemberService.find(params.namespaceId, {
       sort: 'createdAt',
       where: { queueId: params.queueId },
     });

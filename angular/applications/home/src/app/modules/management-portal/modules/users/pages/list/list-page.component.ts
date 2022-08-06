@@ -8,10 +8,10 @@ import { Title } from '@angular/platform-browser';
 import {
   AuthorizationQuery,
   IAuthorization,
-  User,
+  UserModel,
   UserQuery,
   UserService,
-  WebSocket,
+  WebSocketModel,
   WebSocketQuery,
   WebSocketService,
 } from '@tenlastic/ng-http';
@@ -28,16 +28,16 @@ import { TITLE } from '../../../../../../shared/constants';
 export class UsersListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<User>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<UserModel>;
 
-  public $users: Observable<User[]>;
-  public dataSource = new MatTableDataSource<User>();
+  public $users: Observable<UserModel[]>;
+  public dataSource = new MatTableDataSource<UserModel>();
   public displayedColumns = ['webSocket', 'username', 'email', 'createdAt', 'updatedAt', 'actions'];
   public hasWriteAuthorization: boolean;
   public get user() {
     return this.identityService.user;
   }
-  public webSockets: { [key: string]: WebSocket } = {};
+  public webSockets: { [key: string]: WebSocketModel } = {};
 
   private fetchWebSockets$ = new Subscription();
   private updateDataSource$ = new Subscription();
@@ -58,7 +58,7 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
   public ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Users`);
 
-    const roles = [IAuthorization.AuthorizationRole.NamespacesReadWrite];
+    const roles = [IAuthorization.Role.NamespacesReadWrite];
     const userId = this.identityService.user?._id;
     this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 
@@ -71,9 +71,9 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
     this.updateWebSockets$.unsubscribe();
   }
 
-  public showDeletePrompt($event: Event, user: User) {
+  public showDeletePrompt($event: Event, user: UserModel) {
     $event.stopPropagation();
-    
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
@@ -122,7 +122,7 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    this.dataSource.filterPredicate = (data: User, filter: string) => {
+    this.dataSource.filterPredicate = (data: UserModel, filter: string) => {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
       const status = this.webSockets[data._id] ? 'Online' : 'Offline';
 

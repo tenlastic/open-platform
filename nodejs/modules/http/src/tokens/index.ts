@@ -1,6 +1,7 @@
+import wait from '@tenlastic/wait';
+
 import { Jwt } from '../jwt';
-import { loginService } from '../services';
-import { wait } from '../wait';
+import { loginService } from '../services/login';
 
 export class ExpiredRefreshTokenError extends Error {}
 

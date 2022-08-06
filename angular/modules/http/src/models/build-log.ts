@@ -1,12 +1,12 @@
-import { Model } from './model';
+import { BaseModel } from './base';
 
-export class BuildLog extends Model {
+export class BuildLogModel extends BaseModel {
   public body: string;
   public buildId: string;
   public nodeId: string;
   public unix: number;
 
-  constructor(params?: Partial<BuildLog>) {
-    super(params);
+  constructor(parameters?: Partial<BuildLogModel>) {
+    super(parameters);
   }
 }

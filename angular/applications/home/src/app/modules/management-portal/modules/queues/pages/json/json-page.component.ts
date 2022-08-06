@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params } from '@angular/router';
-import { Queue, QueueService, IQueue, IGameServer } from '@tenlastic/ng-http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { QueueModel, QueueService, IQueue, IGameServer } from '@tenlastic/ng-http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
@@ -11,7 +12,7 @@ import { jsonValidator } from '../../../../../../shared/validators';
   styleUrls: ['./json-page.component.scss'],
 })
 export class QueuesJsonPageComponent implements OnInit {
-  public data: Queue;
+  public data: QueueModel;
   public errors: string[] = [];
   public form: FormGroup;
 
@@ -21,7 +22,9 @@ export class QueuesJsonPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private formService: FormService,
+    private matSnackBar: MatSnackBar,
     private queueService: QueueService,
+    private router: Router,
     private textareaService: TextareaService,
   ) {}
 
@@ -30,7 +33,7 @@ export class QueuesJsonPageComponent implements OnInit {
       this.params = params;
 
       if (params.queueId !== 'new') {
-        this.data = await this.queueService.findOne(params.queueId);
+        this.data = await this.queueService.findOne(params.namespaceId, params.queueId);
       }
 
       this.setupForm();
@@ -56,20 +59,20 @@ export class QueuesJsonPageComponent implements OnInit {
     }
 
     const json = this.form.get('json').value;
-    const values = JSON.parse(json) as Queue;
+    const values = JSON.parse(json) as QueueModel;
 
     values._id = this.data._id;
     values.namespaceId = this.params.namespaceId;
 
     try {
-      this.data = await this.formService.upsert(this.queueService, values);
+      this.data = await this.upsert(values);
     } catch (e) {
       this.errors = this.formService.handleHttpError(e);
     }
   }
 
   private setupForm(): void {
-    this.data ??= new Queue({
+    this.data ??= new QueueModel({
       buildId: '',
       cpu: IQueue.Cpu[0].value,
       description: '',
@@ -112,5 +115,16 @@ export class QueuesJsonPageComponent implements OnInit {
     });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+  }
+
+  private async upsert(values: Partial<QueueModel>) {
+    const result = values._id
+      ? await this.queueService.update(this.params.namespaceId, values._id, values)
+      : await this.queueService.create(this.params.namespaceId, values);
+
+    this.matSnackBar.open(`Queue saved successfully.`);
+    this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

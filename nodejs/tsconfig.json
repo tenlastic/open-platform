@@ -16,6 +16,7 @@
       "@tenlastic/mongoose-models": ["./modules/mongoose-models/src"],
       "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],
       "@tenlastic/nats": ["./modules/nats/src"],
+      "@tenlastic/wait": ["./modules/wait/src"],
       "@tenlastic/web-server": ["./modules/web-server/src"],
       "@tenlastic/web-socket-server": ["./modules/web-socket-server/src"]
     },
