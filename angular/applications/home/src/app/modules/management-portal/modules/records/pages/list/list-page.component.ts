@@ -14,12 +14,14 @@ import {
   RecordModel,
   RecordQuery,
   RecordService,
+  RecordStore,
+  StreamService,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 
 import { environment } from '../../../../../../../environments/environment';
 import { PromptComponent } from '../../../../../../shared/components';
-import { IdentityService, Socket, SocketService } from '../../../../../../core/services';
+import { IdentityService } from '../../../../../../core/services';
 import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
@@ -40,7 +42,6 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
   private $records: Observable<RecordModel[]>;
   private updateDataSource$ = new Subscription();
   private params: Params;
-  private socket: Socket;
   private subscription: string;
 
   constructor(
@@ -52,7 +53,8 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
     private matSnackBar: MatSnackBar,
     private recordQuery: RecordQuery,
     private recordService: RecordService,
-    private socketService: SocketService,
+    private recordStore: RecordStore,
+    private streamService: StreamService,
     private titleService: Title,
   ) {}
 
@@ -78,10 +80,14 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
         .slice(0, 4);
       this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
 
-      this.socket = await this.socketService.connect(environment.wssUrl);
-      this.subscription = this.socket.subscribe('records', RecordModel, this.recordService, {
-        collectionId: this.params.collectionId,
-      });
+      this.subscription = await this.streamService.subscribe(
+        'records',
+        RecordModel,
+        this.recordService,
+        this.recordStore,
+        environment.wssUrl,
+        { collectionId: this.params.collectionId },
+      );
 
       await this.fetchRecords(params);
     });
@@ -89,7 +95,7 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
-    this.socket.unsubscribe(this.subscription);
+    this.streamService.unsubscribe(this.subscription, environment.wssUrl);
   }
 
   public showDeletePrompt($event: Event, record: RecordModel) {

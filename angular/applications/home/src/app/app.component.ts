@@ -3,41 +3,18 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { resetStores } from '@datorama/akita';
 import {
-  AuthorizationModel,
   AuthorizationQuery,
-  AuthorizationService,
-  BuildModel,
-  BuildService,
-  CollectionModel,
-  CollectionService,
-  GameServerModel,
-  GameServerService,
-  GroupModel,
-  GroupInvitationModel,
-  GroupInvitationService,
-  GroupService,
   LoginService,
-  MessageModel,
-  MessageService,
-  QueueModel,
-  QueueMemberModel,
   QueueMemberQuery,
-  QueueMemberService,
-  QueueService,
-  StorefrontModel,
-  StorefrontService,
+  StreamService,
   UserQuery,
   UserService,
-  WebSocketModel,
   WebSocketQuery,
-  WebSocketService,
-  WorkflowModel,
-  WorkflowService,
   TokenService,
 } from '@tenlastic/ng-http';
 
 import { environment } from '../environments/environment';
-import { ElectronService, Socket, SocketService } from './core/services';
+import { ElectronService } from './core/services';
 import { TITLE } from './shared/constants';
 
 @Component({
@@ -45,8 +22,6 @@ import { TITLE } from './shared/constants';
   templateUrl: './app.component.html',
 })
 export class AppComponent implements OnInit {
-  private socket: Socket;
-
   @HostListener('window:focus', ['$event'])
   private onFocus(event: any) {
     this.connectSocket();
@@ -54,28 +29,16 @@ export class AppComponent implements OnInit {
 
   constructor(
     private authorizationQuery: AuthorizationQuery,
-    private authorizationService: AuthorizationService,
-    private buildService: BuildService,
-    private collectionService: CollectionService,
     private electronService: ElectronService,
-    private gameServerService: GameServerService,
-    private groupService: GroupService,
-    private groupInvitationService: GroupInvitationService,
     private loginService: LoginService,
-    private messageService: MessageService,
     private queueMemberQuery: QueueMemberQuery,
-    private queueMemberService: QueueMemberService,
-    private queueService: QueueService,
     private router: Router,
-    private socketService: SocketService,
-    private storefrontService: StorefrontService,
+    private streamService: StreamService,
     private titleService: Title,
     private tokenService: TokenService,
     private userQuery: UserQuery,
     private userService: UserService,
     private webSocketQuery: WebSocketQuery,
-    private webSocketService: WebSocketService,
-    private workflowService: WorkflowService,
   ) {}
 
   public async ngOnInit() {
@@ -86,7 +49,7 @@ export class AppComponent implements OnInit {
 
     // Handle websockets when logging in and out.
     this.loginService.emitter.on('login', () => this.connectSocket());
-    this.loginService.emitter.on('logout', () => this.socket?.close());
+    this.loginService.emitter.on('logout', () => this.streamService.close(environment.wssUrl));
 
     // Handle websockets when access token is set.
     this.tokenService.emitter.on('accessToken', (accessToken) => {
@@ -139,22 +102,6 @@ export class AppComponent implements OnInit {
   }
 
   private async connectSocket() {
-    this.socket = await this.socketService.connect(environment.wssUrl);
-    this.socket.addEventListener('open', () => this.subscribe());
-  }
-
-  private subscribe() {
-    this.socket.subscribe('authorizations', AuthorizationModel, this.authorizationService);
-    this.socket.subscribe('builds', BuildModel, this.buildService);
-    this.socket.subscribe('collections', CollectionModel, this.collectionService);
-    this.socket.subscribe('game-servers', GameServerModel, this.gameServerService);
-    this.socket.subscribe('groups', GroupModel, this.groupService);
-    this.socket.subscribe('group-invitations', GroupInvitationModel, this.groupInvitationService);
-    this.socket.subscribe('messages', MessageModel, this.messageService);
-    this.socket.subscribe('queue-members', QueueMemberModel, this.queueMemberService);
-    this.socket.subscribe('queues', QueueModel, this.queueService);
-    this.socket.subscribe('storefronts', StorefrontModel, this.storefrontService);
-    this.socket.subscribe('workflows', WorkflowModel, this.workflowService);
-    this.socket.subscribe('web-sockets', WebSocketModel, this.webSocketService);
+    return this.streamService.connect(environment.wssUrl);
   }
 }

@@ -1,11 +1,10 @@
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { GameServerLogModel } from '@tenlastic/ng-http';
+import { GameServerLogModel, StreamService } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
-import { IdentityService, SocketService } from '../../../core/services';
 
 export interface LogsDialogComponentData {
   $logs: Observable<any[]>;
@@ -42,13 +41,12 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
 
   private setDefaultNodeId$ = new Subscription();
   private logJson: { [_id: string]: any } = {};
-  private socket: string;
+  private subscription: string;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: LogsDialogComponentData,
-    public identityService: IdentityService,
-    public matDialogRef: MatDialogRef<LogsDialogComponent>,
-    private socketService: SocketService,
+    private matDialogRef: MatDialogRef<LogsDialogComponent>,
+    private streamService: StreamService,
   ) {}
 
   public async ngOnInit() {
@@ -69,11 +67,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
 
   public async ngOnDestroy() {
     this.setDefaultNodeId$.unsubscribe();
-
-    if (this.socket) {
-      const socket = await this.socketService.connect(environment.wssUrl);
-      socket.unsubscribe(this.socket);
-    }
+    this.streamService.unsubscribe(this.subscription, environment.wssUrl);
   }
 
   public getJson(log: GameServerLogModel) {
@@ -109,10 +103,9 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
 
       const logs = await this.$logs.pipe(first()).toPromise();
       const mostRecentLog = logs.length > 0 ? logs[0] : null;
-      this.socket = await this.data.subscribe(this.nodeId, mostRecentLog?.unix);
+      this.subscription = await this.data.subscribe(this.nodeId, mostRecentLog?.unix);
     } else {
-      const socket = await this.socketService.connect(environment.wssUrl);
-      socket.unsubscribe(this.socket);
+      this.streamService.unsubscribe(this.subscription, environment.wssUrl);
     }
   }
 

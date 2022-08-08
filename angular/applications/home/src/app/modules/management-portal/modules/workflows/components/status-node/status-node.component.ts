@@ -3,18 +3,17 @@ import { MatDialog } from '@angular/material/dialog';
 import { Order } from '@datorama/akita';
 import {
   IWorkflow,
-  WorkflowModel,
+  StreamService,
   WorkflowLogModel,
   WorkflowLogQuery,
-  WorkflowLogStore,
-  WorkflowQuery,
-  WorkflowService,
   WorkflowLogService,
+  WorkflowLogStore,
+  WorkflowModel,
+  WorkflowQuery,
 } from '@tenlastic/ng-http';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
-import { SocketService } from '../../../../../../core/services';
 import { LogsDialogComponent } from '../../../../../../shared/components';
 
 type WorkflowStatusNodeWithParent = IWorkflow.Node & { parent: string };
@@ -37,12 +36,11 @@ export class WorkflowStatusNodeComponent {
 
   constructor(
     private matDialog: MatDialog,
-    private socketService: SocketService,
+    private streamService: StreamService,
     private workflowLogQuery: WorkflowLogQuery,
     private workflowLogService: WorkflowLogService,
     private workflowLogStore: WorkflowLogStore,
     private workflowQuery: WorkflowQuery,
-    private workflowService: WorkflowService,
   ) {}
 
   public getDisplayName(displayName: string) {
@@ -73,11 +71,11 @@ export class WorkflowStatusNodeComponent {
           }),
         nodeId: this.node._id,
         subscribe: async (nodeId, unix) => {
-          const socket = await this.socketService.connect(environment.wssUrl);
-          return socket.logs(
+          return this.streamService.logs(
             WorkflowLogModel,
             { nodeId, since: unix ? new Date(unix) : new Date(), workflowId: this.workflow._id },
-            this.workflowLogService,
+            this.workflowLogStore,
+            environment.wssUrl,
           );
         },
       },

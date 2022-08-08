@@ -6,15 +6,14 @@ import {
   BuildModel,
   BuildLogModel,
   BuildLogQuery,
-  BuildService,
   BuildLogStore,
   BuildQuery,
   BuildLogService,
+  StreamService,
 } from '@tenlastic/ng-http';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
-import { SocketService } from '../../../../../../core/services';
 import { LogsDialogComponent } from '../../../../../../shared/components';
 
 type BuildStatusNodeWithParent = IBuild.Node & { parent: string };
@@ -40,9 +39,8 @@ export class BuildStatusNodeComponent {
     private buildLogService: BuildLogService,
     private buildLogStore: BuildLogStore,
     private buildQuery: BuildQuery,
-    private buildService: BuildService,
     private matDialog: MatDialog,
-    private socketService: SocketService,
+    private streamService: StreamService,
   ) {}
 
   public getDisplayName(displayName: string) {
@@ -71,11 +69,11 @@ export class BuildStatusNodeComponent {
           this.buildLogService.find(this.build.namespaceId, this.build._id, nodeId, { tail: 500 }),
         nodeId: this.node._id,
         subscribe: async (nodeId, unix) => {
-          const socket = await this.socketService.connect(environment.wssUrl);
-          return socket.logs(
+          return this.streamService.logs(
             BuildLogModel,
             { buildId: this.build._id, nodeId, since: unix ? new Date(unix) : new Date() },
-            this.buildLogService,
+            this.buildLogStore,
+            environment.wssUrl,
           );
         },
       },

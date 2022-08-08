@@ -17,12 +17,13 @@ import {
   QueueQuery,
   QueueService,
   QueueLogService,
+  StreamService,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
-import { IdentityService, SocketService } from '../../../../../../core/services';
+import { IdentityService } from '../../../../../../core/services';
 import { LogsDialogComponent, PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -53,7 +54,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     private queueLogStore: QueueLogStore,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
-    private socketService: SocketService,
+    private streamService: StreamService,
     private titleService: Title,
   ) {}
 
@@ -128,11 +129,11 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
           this.queueLogService.find(record.namespaceId, record._id, nodeId, { tail: 500 }),
         nodeIds: record.status?.nodes?.map((n) => n._id),
         subscribe: async (nodeId, unix) => {
-          const socket = await this.socketService.connect(environment.wssUrl);
-          return socket.logs(
+          return this.streamService.logs(
             QueueLogModel,
             { nodeId, queueId: record._id, since: unix ? new Date(unix) : new Date() },
-            this.queueLogService,
+            this.queueLogStore,
+            environment.wssUrl,
           );
         },
       },

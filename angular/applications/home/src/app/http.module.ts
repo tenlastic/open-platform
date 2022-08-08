@@ -61,6 +61,7 @@ import {
   StorefrontQuery,
   StorefrontService,
   StorefrontStore,
+  StreamService,
   TokenService,
   UnauthorizedInterceptor,
   UserQuery,
@@ -400,6 +401,11 @@ const services: Provider[] = [
       environmentService: EnvironmentService,
       store: StorefrontStore,
     ) => new StorefrontService(apiService, environmentService, store),
+  },
+  {
+    deps: [TokenService],
+    provide: StreamService,
+    useFactory: (tokenService: TokenService) => new StreamService(tokenService),
   },
   {
     deps: [LoginService],

@@ -7,16 +7,12 @@ import {
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
+  StreamService,
 } from '@tenlastic/ng-http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import {
-  ElectronService,
-  IdentityService,
-  SocketService,
-  UpdateStatus,
-} from '../../../core/services';
+import { ElectronService, IdentityService, UpdateStatus } from '../../../core/services';
 import { PromptComponent } from '../prompt/prompt.component';
 
 @Component({
@@ -30,7 +26,7 @@ export class LayoutComponent implements OnInit {
     return this.electronService.isElectron;
   }
   public get socket() {
-    return this.socketService.sockets[environment.wssUrl];
+    return this.streamService.webSockets[environment.wssUrl];
   }
   public get user() {
     return this.identityService.user;
@@ -42,9 +38,9 @@ export class LayoutComponent implements OnInit {
     private matDialog: MatDialog,
     private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
-    private socketService: SocketService,
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
+    private streamService: StreamService,
   ) {}
 
   public async ngOnInit() {

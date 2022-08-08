@@ -17,12 +17,13 @@ import {
   GameServerService,
   IAuthorization,
   GameServerLogService,
+  StreamService,
 } from '@tenlastic/ng-http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
-import { IdentityService, SocketService } from '../../../../../../core/services';
+import { IdentityService } from '../../../../../../core/services';
 import { LogsDialogComponent, PromptComponent } from '../../../../../../shared/components';
 import { TITLE } from '../../../../../../shared/constants';
 
@@ -43,8 +44,8 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   }
 
   private $gameServers: Observable<GameServerModel[]>;
-  private params: Params;
   private updateDataSource$ = new Subscription();
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -57,7 +58,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private socketService: SocketService,
+    private streamService: StreamService,
     private titleService: Title,
   ) {}
 
@@ -129,11 +130,11 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
           this.gameServerLogService.find(record.namespaceId, record._id, nodeId, { tail: 500 }),
         nodeIds: record.status?.nodes?.map((n) => n._id),
         subscribe: async (nodeId, unix) => {
-          const socket = await this.socketService.connect(environment.wssUrl);
-          return socket.logs(
+          return this.streamService.logs(
             GameServerLogModel,
             { gameServerId: record._id, nodeId, since: unix ? new Date(unix) : new Date() },
-            this.gameServerLogService,
+            this.gameServerLogStore,
+            environment.wssUrl,
           );
         },
       },

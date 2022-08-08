@@ -11,12 +11,13 @@ import {
   QueueMemberService,
   QueueQuery,
   QueueService,
+  StreamService,
 } from '@tenlastic/ng-http';
 import { environment } from 'applications/home/src/environments/environment';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
-import { IdentityService, SocketService } from '../../../../../../core/services';
+import { IdentityService } from '../../../../../../core/services';
 
 @Component({
   styleUrls: ['./queues-page.component.scss'],
@@ -31,6 +32,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   public displayedColumns = ['name', 'description', 'currentUsers', 'actions'];
 
   private getCurrentUsersInterval: any;
+  private subscription: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -41,7 +43,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     private queueMemberService: QueueMemberService,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
-    private socketService: SocketService,
+    private streamService: StreamService,
   ) {}
 
   public async ngOnInit() {
@@ -85,6 +87,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   public ngOnDestroy() {
     clearInterval(this.getCurrentUsersInterval);
     this.updateQueueMembers$.unsubscribe();
+    this.streamService.unsubscribe(this.subscription, environment.wssUrl);
   }
 
   public $getGroupQueueMember(queueId: string) {
@@ -117,7 +120,6 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
   public async joinAsGroup(queue: QueueModel) {
     const group = await this.$group.pipe(first()).toPromise();
-    const socket = await this.socketService.connect(environment.wssUrl);
 
     try {
       await this.queueMemberService.create(queue.namespaceId, {
@@ -125,7 +127,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
         namespaceId: queue.namespaceId,
         queueId: queue._id,
         userId: this.identityService.user._id,
-        webSocketId: socket._id,
+        webSocketId: this.streamService._ids[environment.wssUrl],
       });
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
@@ -145,14 +147,12 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   }
 
   public async joinAsIndividual(queue: QueueModel) {
-    const socket = await this.socketService.connect(environment.wssUrl);
-
     try {
       await this.queueMemberService.create(queue.namespaceId, {
         namespaceId: queue.namespaceId,
         queueId: queue._id,
         userId: this.identityService.user._id,
-        webSocketId: socket._id,
+        webSocketId: this.streamService._ids[environment.wssUrl],
       });
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
