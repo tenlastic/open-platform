@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { RefreshTokenModel, RefreshTokenQuery, RefreshTokenService } from '@tenlastic/ng-http';
+import { RefreshTokenModel, RefreshTokenQuery, RefreshTokenService } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 
 import { PromptComponent } from '../../../../../../shared/components';

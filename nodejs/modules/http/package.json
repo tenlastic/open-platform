@@ -1,7 +1,4 @@
 {
-  "engines": {
-    "node": "^14"
-  },
   "license": "ISC",
   "main": "./dist/index.js",
   "name": "@tenlastic/http",
@@ -14,22 +11,17 @@
     "access": "public"
   },
   "scripts": {
-    "build": "../../scripts/build.sh",
-    "build:watch": "watch ../../scripts/build.sh ./src",
-    "lint": "../../scripts/lint.sh",
-    "prepublishOnly": "../../scripts/build.sh",
-    "test": "../../scripts/test.sh",
-    "test:watch": "../../scripts/test.sh --watch"
+    "build": "../../../nodejs/scripts/build.sh",
+    "build:watch": "watch ../../../nodejs/scripts/build.sh ./src",
+    "lint": "../../../nodejs/scripts/lint.sh",
+    "prepublishOnly": "../../../nodejs/scripts/build.sh"
   },
   "dependencies": {
     "@datorama/akita": "6.2.4",
     "@tenlastic/wait": "0.0.314",
-    "jsonwebtoken": "8.5.1",
-    "request": "2.88.0",
-    "request-promise-native": "1.0.7",
-    "unzipper": "0.10.11",
-    "uuid": "8.3.0",
-    "ws": "7.2.1"
+    "events": "3.3.0",
+    "jwt-decode": "3.1.2",
+    "uuid": "8.3.0"
   },
   "devDependencies": {
     "eslint": "^7.26.0",

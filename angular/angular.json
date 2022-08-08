@@ -3,40 +3,6 @@
   "version": 1,
   "newProjectRoot": "modules",
   "projects": {
-    "http": {
-      "projectType": "library",
-      "root": "modules/http",
-      "sourceRoot": "modules/http/src",
-      "prefix": "ten",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
-          "options": {
-            "tsConfig": "modules/http/tsconfig.lib.json",
-            "project": "modules/http/ng-package.json"
-          },
-          "configurations": {
-            "production": {
-              "tsConfig": "modules/http/tsconfig.lib.prod.json"
-            }
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "modules/http/src/test.ts",
-            "tsConfig": "modules/http/tsconfig.spec.json",
-            "karmaConfig": "modules/http/karma.conf.js"
-          }
-        },
-        "lint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": ["modules/http/**/*.ts", "modules/http/**/*.html"]
-          }
-        }
-      }
-    },
     "home": {
       "projectType": "application",
       "schematics": {

@@ -13,7 +13,7 @@ import {
   QueueMemberQuery,
   QueueMemberService,
   UserQuery,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';

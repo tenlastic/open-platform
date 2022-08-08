@@ -1,25 +1,25 @@
-import { RefreshTokenModel } from '../models/refresh-token';
-import { RefreshTokenStore } from '../states/refresh-token';
-import { ApiService } from './api/api';
+import { AuthorizationModel } from '../models/authorization';
+import { AuthorizationStore } from '../states/authorization';
+import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
-export class RefreshTokenService {
+export class AuthorizationService {
   public get emitter() {
     return this.baseService.emitter;
   }
 
-  private baseService: BaseService<RefreshTokenModel>;
+  private baseService: BaseService<AuthorizationModel>;
 
   constructor(
     private apiService: ApiService,
+    private authorizationStore: AuthorizationStore,
     private environmentService: EnvironmentService,
-    private refreshTokenStore: RefreshTokenStore,
   ) {
-    this.baseService = new BaseService<RefreshTokenModel>(
+    this.baseService = new BaseService<AuthorizationModel>(
       this.apiService,
-      RefreshTokenModel,
-      this.refreshTokenStore,
+      AuthorizationModel,
+      this.authorizationStore,
     );
   }
 
@@ -34,7 +34,7 @@ export class RefreshTokenService {
   /**
    * Creates a Record.
    */
-  public async create(json: Partial<RefreshTokenModel>) {
+  public async create(json: Partial<AuthorizationModel>) {
     const url = this.getUrl();
     return this.baseService.create(json, url);
   }
@@ -64,9 +64,30 @@ export class RefreshTokenService {
   }
 
   /**
+   * Returns Authorizations associated with the User.
+   */
+  public async findUserAuthorizations(namespaceId: string, userId: string) {
+    let where = {};
+
+    if (namespaceId) {
+      where = {
+        $or: [
+          { namespaceId, userId },
+          { namespaceId: { $exists: false }, userId },
+          { apiKey: { $exists: false }, namespaceId, userId: { $exists: false } },
+        ],
+      };
+    } else {
+      where = { userId };
+    }
+
+    return this.find({ where });
+  }
+
+  /**
    * Updates a Record.
    */
-  public async update(_id: string, json: Partial<RefreshTokenModel>) {
+  public async update(_id: string, json: Partial<AuthorizationModel>) {
     const url = this.getUrl();
     return this.baseService.update(_id, json, url);
   }
@@ -75,6 +96,6 @@ export class RefreshTokenService {
    * Returns the base URL for this Model.
    */
   private getUrl() {
-    return `${this.environmentService.apiUrl}/refresh-tokens`;
+    return `${this.environmentService.apiUrl}/authorizations`;
   }
 }

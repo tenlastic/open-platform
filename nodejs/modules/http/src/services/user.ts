@@ -1,10 +1,23 @@
-import { apiUrl } from '../api-url';
 import { UserModel } from '../models/user';
-import { BaseService, ServiceEventEmitter } from './base';
+import { UserStore } from '../states/user';
+import { ApiService } from './api';
+import { BaseService, BaseServiceFindQuery } from './base';
+import { EnvironmentService } from './environment';
 
 export class UserService {
-  public emitter = new ServiceEventEmitter<UserModel>();
-  private baseService = new BaseService<UserModel>(this.emitter, UserModel);
+  public get emitter() {
+    return this.baseService.emitter;
+  }
+
+  private baseService: BaseService<UserModel>;
+
+  constructor(
+    private apiService: ApiService,
+    private environmentService: EnvironmentService,
+    private userStore: UserStore,
+  ) {
+    this.baseService = new BaseService<UserModel>(this.apiService, UserModel, this.userStore);
+  }
 
   /**
    * Returns the number of Records satisfying the query.
@@ -33,7 +46,7 @@ export class UserService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(query: any) {
+  public async find(query: BaseServiceFindQuery) {
     const url = this.getUrl();
     return this.baseService.find(query, url);
   }
@@ -58,8 +71,6 @@ export class UserService {
    * Returns the base URL for this Model.
    */
   private getUrl() {
-    return `${apiUrl}/users`;
+    return `${this.environmentService.apiUrl}/users`;
   }
 }
-
-export const userService = new UserService();

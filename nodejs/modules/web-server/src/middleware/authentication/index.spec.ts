@@ -10,9 +10,9 @@ const noop = async () => {};
 
 use(chaiAsPromised);
 
-describe('middleware/authentication', function() {
-  context('when the user is set', function() {
-    it('calls through', async function() {
+describe('middleware/authentication', function () {
+  context('when the user is set', function () {
+    it('calls through', async function () {
       const user = { _id: chance.hash() };
       const ctx = new ContextMock({ state: { user } });
 

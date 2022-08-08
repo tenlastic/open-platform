@@ -10,7 +10,7 @@ import {
   IAuthorization,
   UserModel,
   UserService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 import {

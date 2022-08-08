@@ -7,7 +7,7 @@ import {
   IAuthorization,
   NamespaceModel,
   NamespaceService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 

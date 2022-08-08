@@ -1,10 +1,27 @@
-import { apiUrl } from '../api-url';
 import { GameServerModel } from '../models/game-server';
-import { BaseService, ServiceEventEmitter } from './base';
+import { GameServerStore } from '../states/game-server';
+import { ApiService } from './api';
+import { BaseService, BaseServiceFindQuery } from './base';
+import { EnvironmentService } from './environment';
 
 export class GameServerService {
-  public emitter = new ServiceEventEmitter<GameServerModel>();
-  private baseService = new BaseService<GameServerModel>(this.emitter, GameServerModel);
+  public get emitter() {
+    return this.baseService.emitter;
+  }
+
+  private baseService: BaseService<GameServerModel>;
+
+  constructor(
+    private apiService: ApiService,
+    private environmentService: EnvironmentService,
+    private gameServerStore: GameServerStore,
+  ) {
+    this.baseService = new BaseService<GameServerModel>(
+      this.apiService,
+      GameServerModel,
+      this.gameServerStore,
+    );
+  }
 
   /**
    * Returns the number of Records satisfying the query.
@@ -33,7 +50,7 @@ export class GameServerService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(namespaceId: string, query: any) {
+  public async find(namespaceId: string, query: BaseServiceFindQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.find(query, url);
   }
@@ -58,8 +75,6 @@ export class GameServerService {
    * Returns the base URL for this Model.
    */
   private getUrl(namespaceId: string) {
-    return `${apiUrl}/namespaces/${namespaceId}/game-servers`;
+    return `${this.environmentService.apiUrl}/namespaces/${namespaceId}/game-servers`;
   }
 }
-
-export const gameServerService = new GameServerService();

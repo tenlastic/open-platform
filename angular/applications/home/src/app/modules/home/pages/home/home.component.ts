@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { UserService } from '@tenlastic/ng-http';
+import { UserService } from '@tenlastic/http';
 
 import { environment } from '../../../../../environments/environment';
 import { ElectronService } from '../../../../core/services';

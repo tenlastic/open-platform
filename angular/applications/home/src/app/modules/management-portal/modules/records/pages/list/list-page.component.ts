@@ -16,7 +16,7 @@ import {
   RecordService,
   RecordStore,
   StreamService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 
 import { environment } from '../../../../../../../environments/environment';

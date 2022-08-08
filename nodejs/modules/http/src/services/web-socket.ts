@@ -1,6 +1,6 @@
 import { WebSocketModel } from '../models/web-socket';
 import { WebSocketStore } from '../states/web-socket';
-import { ApiService } from './api/api';
+import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 

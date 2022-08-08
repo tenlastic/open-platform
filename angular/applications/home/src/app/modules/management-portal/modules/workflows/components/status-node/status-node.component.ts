@@ -10,7 +10,7 @@ import {
   WorkflowLogStore,
   WorkflowModel,
   WorkflowQuery,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';

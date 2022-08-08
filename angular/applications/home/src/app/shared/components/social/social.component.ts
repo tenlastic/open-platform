@@ -30,7 +30,7 @@ import {
   UserStore,
   WebSocketService,
   StorefrontQuery,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 

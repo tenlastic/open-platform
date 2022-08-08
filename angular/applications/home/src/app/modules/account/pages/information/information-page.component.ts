@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { UserModel, UserService } from '@tenlastic/ng-http';
+import { UserModel, UserService } from '@tenlastic/http';
 
 import { IdentityService } from '../../../../core/services';
 

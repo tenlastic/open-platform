@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthorizationQuery, AuthorizationService, IAuthorization } from '@tenlastic/ng-http';
+import { AuthorizationQuery, AuthorizationService, IAuthorization } from '@tenlastic/http';
 
 import { environment } from '../../../../../environments/environment';
 import { ElectronService, IdentityService } from '../../../../core/services';

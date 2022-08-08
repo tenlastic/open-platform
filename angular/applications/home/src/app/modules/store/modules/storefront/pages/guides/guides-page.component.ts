@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ArticleModel, ArticleService } from '@tenlastic/ng-http';
+import { ArticleModel, ArticleService } from '@tenlastic/http';
 
 @Component({
   styleUrls: ['./guides-page.component.scss'],

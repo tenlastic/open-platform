@@ -18,7 +18,7 @@ import {
   UserStore,
   WebSocketModel,
   WebSocketQuery,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Subscription, Observable, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 

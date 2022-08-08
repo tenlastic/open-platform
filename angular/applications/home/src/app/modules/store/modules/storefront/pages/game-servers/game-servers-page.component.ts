@@ -6,7 +6,7 @@ import {
   GameServerService,
   GroupModel,
   GroupQuery,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Observable } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 

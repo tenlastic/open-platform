@@ -58,6 +58,7 @@ export const KubernetesWorkflowSidecar = {
      * SECRET
      * ======================
      */
+    const { _id, namespaceId } = workflow;
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' },
@@ -65,7 +66,7 @@ export const KubernetesWorkflowSidecar = {
       },
       stringData: {
         API_KEY: apiKey,
-        WORKFLOW_ENDPOINT: `http://api.static:3000/namespace/${workflow.namespaceId}/workflows/${workflow._id}`,
+        WORKFLOW_ENDPOINT: `http://api.static:3000/namespace/${namespaceId}/workflows/${_id}`,
         WORKFLOW_NAME: workflowName,
       },
     });

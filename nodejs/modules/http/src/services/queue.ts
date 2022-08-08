@@ -1,10 +1,23 @@
-import { apiUrl } from '../api-url';
 import { QueueModel } from '../models/queue';
-import { BaseService, ServiceEventEmitter } from './base';
+import { QueueStore } from '../states/queue';
+import { ApiService } from './api';
+import { BaseService, BaseServiceFindQuery } from './base';
+import { EnvironmentService } from './environment';
 
 export class QueueService {
-  public emitter = new ServiceEventEmitter<QueueModel>();
-  private baseService = new BaseService<QueueModel>(this.emitter, QueueModel);
+  public get emitter() {
+    return this.baseService.emitter;
+  }
+
+  private baseService: BaseService<QueueModel>;
+
+  constructor(
+    private apiService: ApiService,
+    private environmentService: EnvironmentService,
+    private queueStore: QueueStore,
+  ) {
+    this.baseService = new BaseService<QueueModel>(this.apiService, QueueModel, this.queueStore);
+  }
 
   /**
    * Returns the number of Records satisfying the query.
@@ -33,7 +46,7 @@ export class QueueService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(namespaceId: string, query: any) {
+  public async find(namespaceId: string, query: BaseServiceFindQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.find(query, url);
   }
@@ -58,8 +71,6 @@ export class QueueService {
    * Returns the base URL for this Model.
    */
   private getUrl(namespaceId: string) {
-    return `${apiUrl}/namespaces/${namespaceId}/queues`;
+    return `${this.environmentService.apiUrl}/namespaces/${namespaceId}/queues`;
   }
 }
-
-export const queueService = new QueueService();

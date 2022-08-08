@@ -7,7 +7,7 @@ import {
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Observable } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 

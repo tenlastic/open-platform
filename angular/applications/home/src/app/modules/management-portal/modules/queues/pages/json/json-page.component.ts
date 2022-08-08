@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { QueueModel, QueueService, IQueue, IGameServer } from '@tenlastic/ng-http';
+import { QueueModel, QueueService, IQueue, IGameServer } from '@tenlastic/http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';

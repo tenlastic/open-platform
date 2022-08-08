@@ -58,6 +58,7 @@ export const KubernetesGameServerSidecar = {
      * SECRET
      * ======================
      */
+    const { _id, namespaceId } = gameServer;
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },
@@ -66,7 +67,7 @@ export const KubernetesGameServerSidecar = {
       stringData: {
         API_KEY: apiKey,
         GAME_SERVER_CONTAINER: 'main',
-        GAME_SERVER_ENDPOINT: `http://api.static:3000/namespace/${gameServer.namespaceId}/game-servers/${gameServer._id}`,
+        GAME_SERVER_ENDPOINT: `http://api.static:3000/namespace/${namespaceId}/game-servers/${_id}`,
         GAME_SERVER_PERSISTENT: gameServer.persistent ? 'true' : 'false',
         GAME_SERVER_POD_LABEL_SELECTOR: `tenlastic.com/app=${gameServerName}`,
       },

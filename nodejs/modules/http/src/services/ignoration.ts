@@ -1,25 +1,25 @@
-import { NamespaceModel } from '../models/namespace';
-import { NamespaceStore } from '../states/namespace';
-import { ApiService } from './api/api';
+import { IgnorationModel } from '../models/ignoration';
+import { IgnorationStore } from '../states/ignoration';
+import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
-export class NamespaceService {
+export class IgnorationService {
   public get emitter() {
     return this.baseService.emitter;
   }
 
-  private baseService: BaseService<NamespaceModel>;
+  private baseService: BaseService<IgnorationModel>;
 
   constructor(
     private apiService: ApiService,
     private environmentService: EnvironmentService,
-    private namespaceStore: NamespaceStore,
+    private ignorationStore: IgnorationStore,
   ) {
-    this.baseService = new BaseService<NamespaceModel>(
+    this.baseService = new BaseService<IgnorationModel>(
       this.apiService,
-      NamespaceModel,
-      this.namespaceStore,
+      IgnorationModel,
+      this.ignorationStore,
     );
   }
 
@@ -34,7 +34,7 @@ export class NamespaceService {
   /**
    * Creates a Record.
    */
-  public async create(json: Partial<NamespaceModel>) {
+  public async create(json: Partial<IgnorationModel>) {
     const url = this.getUrl();
     return this.baseService.create(json, url);
   }
@@ -56,25 +56,9 @@ export class NamespaceService {
   }
 
   /**
-   * Returns a Record by ID.
-   */
-  public async findOne(_id: string) {
-    const url = this.getUrl();
-    return this.baseService.findOne(_id, url);
-  }
-
-  /**
-   * Updates a Record.
-   */
-  public async update(_id: string, json: Partial<NamespaceModel>) {
-    const url = this.getUrl();
-    return this.baseService.update(_id, json, url);
-  }
-
-  /**
    * Returns the base URL for this Model.
    */
   private getUrl() {
-    return `${this.environmentService.apiUrl}/namespaces`;
+    return `${this.environmentService.apiUrl}/ignorations`;
   }
 }

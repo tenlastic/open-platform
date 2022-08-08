@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ArticleModel } from '@tenlastic/ng-http';
+import { ArticleModel } from '@tenlastic/http';
 
 @Component({
   selector: 'app-article',

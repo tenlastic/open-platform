@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { StorefrontModel, StorefrontQuery, StorefrontService } from '@tenlastic/ng-http';
+import { StorefrontModel, StorefrontQuery, StorefrontService } from '@tenlastic/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 

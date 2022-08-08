@@ -7,23 +7,23 @@ import { handler } from './';
 
 use(chaiAsPromised);
 
-describe('handlers/message/read', function() {
+describe('handlers/message/read', function () {
   let otherUser: UserDocument;
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     otherUser = await UserMock.create();
     user = await UserMock.create();
   });
 
-  context('when permission is granted', function() {
+  context('when permission is granted', function () {
     let record: MessageDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       record = await MessageMock.create({ fromUserId: user._id, toUserId: otherUser._id });
     });
 
-    it('returns the record', async function() {
+    it('returns the record', async function () {
       const ctx = new ContextMock({
         params: {
           _id: record._id,
@@ -33,19 +33,19 @@ describe('handlers/message/read', function() {
 
       await handler(ctx as any);
 
-      const readByUserIds = ctx.response.body.record.readByUserIds.map(id => id.toString());
+      const readByUserIds = ctx.response.body.record.readByUserIds.map((id) => id.toString());
       expect(readByUserIds).to.include(otherUser._id.toString());
     });
   });
 
-  context('when permission is denied', function() {
+  context('when permission is denied', function () {
     let record: MessageDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       record = await MessageMock.create({ fromUserId: user._id, toUserId: user._id });
     });
 
-    it('throws an error', async function() {
+    it('throws an error', async function () {
       const ctx = new ContextMock({
         params: {
           _id: record._id,

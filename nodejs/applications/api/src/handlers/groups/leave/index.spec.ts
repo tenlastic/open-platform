@@ -7,8 +7,8 @@ import { handler } from './';
 
 use(chaiAsPromised);
 
-describe('handlers/groups/leave', function() {
-  it('returns the record', async function() {
+describe('handlers/groups/leave', function () {
+  it('returns the record', async function () {
     const otherUser = await UserMock.create();
     const user = await UserMock.create();
     const record = await GroupMock.create({ isOpen: true, userIds: [user._id, otherUser._id] });

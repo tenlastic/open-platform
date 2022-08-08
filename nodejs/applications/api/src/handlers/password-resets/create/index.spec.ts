@@ -10,15 +10,15 @@ import { handler } from '.';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/password-resets/create', function() {
+describe('handlers/password-resets/create', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  context('when email is not provided', function() {
-    it('throws an error', async function() {
+  context('when email is not provided', function () {
+    it('throws an error', async function () {
       const ctx = new ContextMock({
         request: {
           body: {},
@@ -34,11 +34,11 @@ describe('handlers/password-resets/create', function() {
     });
   });
 
-  context('when email is provided', function() {
-    context('when User exists', function() {
+  context('when email is provided', function () {
+    context('when User exists', function () {
       let ctx: Context;
 
-      beforeEach(async function() {
+      beforeEach(async function () {
         ctx = new ContextMock({
           request: {
             body: {
@@ -50,18 +50,18 @@ describe('handlers/password-resets/create', function() {
         await handler(ctx);
       });
 
-      it('returns a 200 status code', function() {
+      it('returns a 200 status code', function () {
         expect(ctx.response.status).to.eql(200);
       });
 
-      it('creates a PasswordReset', async function() {
+      it('creates a PasswordReset', async function () {
         const passwordReset = await PasswordReset.findOne({ userId: user._id });
         expect(passwordReset).to.exist;
       });
     });
 
-    context('when User does not exist', function() {
-      it('returns a 200 status', async function() {
+    context('when User does not exist', function () {
+      it('returns a 200 status', async function () {
         const ctx = new ContextMock({
           request: {
             body: {

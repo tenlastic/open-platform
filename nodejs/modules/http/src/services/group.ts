@@ -1,10 +1,23 @@
-import { apiUrl } from '../api-url';
 import { GroupModel } from '../models/group';
-import { BaseService, ServiceEventEmitter } from './base';
+import { GroupStore } from '../states/group';
+import { ApiService } from './api';
+import { BaseService, BaseServiceFindQuery } from './base';
+import { EnvironmentService } from './environment';
 
 export class GroupService {
-  public emitter = new ServiceEventEmitter<GroupModel>();
-  private baseService = new BaseService<GroupModel>(this.emitter, GroupModel);
+  public get emitter() {
+    return this.baseService.emitter;
+  }
+
+  private baseService: BaseService<GroupModel>;
+
+  constructor(
+    private apiService: ApiService,
+    private environmentService: EnvironmentService,
+    private groupStore: GroupStore,
+  ) {
+    this.baseService = new BaseService<GroupModel>(this.apiService, GroupModel, this.groupStore);
+  }
 
   /**
    * Returns the number of Records satisfying the query.
@@ -33,7 +46,7 @@ export class GroupService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(query: any) {
+  public async find(query: BaseServiceFindQuery) {
     const url = this.getUrl();
     return this.baseService.find(query, url);
   }
@@ -44,6 +57,57 @@ export class GroupService {
   public async findOne(_id: string) {
     const url = this.getUrl();
     return this.baseService.findOne(_id, url);
+  }
+
+  /**
+   * Joins a Group.
+   */
+  public async join(_id: string): Promise<GroupModel> {
+    const url = this.getUrl();
+    const response = await this.apiService.request({
+      method: 'post',
+      url: `${url}/${_id}/user-ids`,
+    });
+
+    const record = new GroupModel(response.data.record);
+    this.emitter.emit('update', record);
+    this.groupStore.upsert(_id, record);
+
+    return record;
+  }
+
+  /**
+   * Kicks a User from a Group.
+   */
+  public async kick(_id: string, userId: string): Promise<GroupModel> {
+    const url = this.getUrl();
+    const response = await this.apiService.request({
+      method: 'delete',
+      url: `${url}/${_id}/user-ids/${userId}`,
+    });
+
+    const record = new GroupModel(response.data.record);
+    this.emitter.emit('update', record);
+    this.groupStore.upsert(_id, record);
+
+    return record;
+  }
+
+  /**
+   * Leaves a Group.
+   */
+  public async leave(_id: string): Promise<GroupModel> {
+    const url = this.getUrl();
+    const response = await this.apiService.request({
+      method: 'delete',
+      url: `${url}/${_id}/user-ids`,
+    });
+
+    const record = new GroupModel(response.data.record);
+    this.emitter.emit('update', record);
+    this.groupStore.upsert(_id, record);
+
+    return record;
   }
 
   /**
@@ -58,8 +122,6 @@ export class GroupService {
    * Returns the base URL for this Model.
    */
   private getUrl() {
-    return `${apiUrl}/groups`;
+    return `${this.environmentService.apiUrl}/groups`;
   }
 }
-
-export const groupService = new GroupService();

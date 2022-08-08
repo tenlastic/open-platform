@@ -6,9 +6,9 @@ import { Workflow } from './model';
 
 use(chaiAsPromised);
 
-describe('models/workflow/model', function() {
-  describe('checkNamespaceLimits()', function() {
-    it('enforces the workflows.cpu Namespace limit', async function() {
+describe('models/workflow/model', function () {
+  describe('checkNamespaceLimits()', function () {
+    it('enforces the workflows.cpu Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           workflows: NamespaceWorkflowLimitsMock.create({ cpu: 1 }),
@@ -22,7 +22,7 @@ describe('models/workflow/model', function() {
       );
     });
 
-    it('enforces the workflows.memory Namespace limit', async function() {
+    it('enforces the workflows.memory Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           workflows: NamespaceWorkflowLimitsMock.create({ memory: 1 }),
@@ -36,7 +36,7 @@ describe('models/workflow/model', function() {
       );
     });
 
-    it('enforces the workflows.parallelism Namespace limit', async function() {
+    it('enforces the workflows.parallelism Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           workflows: NamespaceWorkflowLimitsMock.create({ parallelism: 1 }),
@@ -50,7 +50,7 @@ describe('models/workflow/model', function() {
       );
     });
 
-    it('enforces the workflows.preemptible Namespace limit', async function() {
+    it('enforces the workflows.preemptible Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           workflows: NamespaceWorkflowLimitsMock.create({ preemptible: true }),
@@ -64,7 +64,7 @@ describe('models/workflow/model', function() {
       );
     });
 
-    it('enforces the workflows.storage Namespace limit', async function() {
+    it('enforces the workflows.storage Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           workflows: NamespaceWorkflowLimitsMock.create({ storage: 1 }),

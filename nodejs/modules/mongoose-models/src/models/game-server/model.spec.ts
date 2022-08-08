@@ -6,9 +6,9 @@ import { GameServer } from './model';
 
 use(chaiAsPromised);
 
-describe('models/game-server/model', function() {
-  describe('checkNamespaceLimits()', function() {
-    it('enforces the gameServers.cpu Namespace limit', async function() {
+describe('models/game-server/model', function () {
+  describe('checkNamespaceLimits()', function () {
+    it('enforces the gameServers.cpu Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           gameServers: NamespaceGameServerLimitsMock.create({ cpu: 1 }),
@@ -22,7 +22,7 @@ describe('models/game-server/model', function() {
       );
     });
 
-    it('enforces the gameServers.memory Namespace limit', async function() {
+    it('enforces the gameServers.memory Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           gameServers: NamespaceGameServerLimitsMock.create({ memory: 1 }),
@@ -36,7 +36,7 @@ describe('models/game-server/model', function() {
       );
     });
 
-    it('enforces the gameServers.preemptible Namespace limit', async function() {
+    it('enforces the gameServers.preemptible Namespace limit', async function () {
       const namespace = await NamespaceMock.create({
         limits: NamespaceLimitsMock.create({
           gameServers: NamespaceGameServerLimitsMock.create({ preemptible: true }),

@@ -58,6 +58,7 @@ export const KubernetesBuildSidecar = {
      * SECRET
      * ======================
      */
+    const { _id, namespaceId } = build;
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...buildLabels, 'tenlastic.com/role': 'sidecar' },
@@ -65,7 +66,7 @@ export const KubernetesBuildSidecar = {
       },
       stringData: {
         API_KEY: apiKey,
-        WORKFLOW_ENDPOINT: `http://api.static:3000/namespace/${build.namespaceId}/builds/${build._id}`,
+        WORKFLOW_ENDPOINT: `http://api.static:3000/namespace/${namespaceId}/builds/${_id}`,
         WORKFLOW_NAME: buildName,
       },
     });

@@ -19,6 +19,7 @@
   },
   "private": true,
   "dependencies": {
+    "@tenlastic/http": "^0.0.314",
     "axios": "0.27.2",
     "electron-log": "4.0.2",
     "electron-updater": "4.2.0",
@@ -29,7 +30,6 @@
   },
   "devDependencies": {
     "@angular/cli": "~12.2.9",
-    "@tenlastic/ng-http": "0.0.299",
     "electron": "13.5.1",
     "electron-builder": "21.2.0",
     "electron-reload": "1.5.0",

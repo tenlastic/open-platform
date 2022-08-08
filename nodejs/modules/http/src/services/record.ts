@@ -1,10 +1,23 @@
-import { apiUrl } from '../api-url';
 import { RecordModel } from '../models/record';
-import { BaseService, ServiceEventEmitter } from './base';
+import { RecordStore } from '../states/record';
+import { ApiService } from './api';
+import { BaseService, BaseServiceFindQuery } from './base';
+import { EnvironmentService } from './environment';
 
 export class RecordService {
-  public emitter = new ServiceEventEmitter<RecordModel>();
-  private baseService = new BaseService<RecordModel>(this.emitter, RecordModel);
+  public get emitter() {
+    return this.baseService.emitter;
+  }
+
+  private baseService: BaseService<RecordModel>;
+
+  constructor(
+    private apiService: ApiService,
+    private environmentService: EnvironmentService,
+    private recordStore: RecordStore,
+  ) {
+    this.baseService = new BaseService<RecordModel>(this.apiService, RecordModel, this.recordStore);
+  }
 
   /**
    * Returns the number of Records satisfying the query.
@@ -33,7 +46,7 @@ export class RecordService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(namespaceId: string, collectionId: string, query: any) {
+  public async find(namespaceId: string, collectionId: string, query: BaseServiceFindQuery) {
     const url = this.getUrl(namespaceId, collectionId);
     return this.baseService.find(query, url);
   }
@@ -63,8 +76,7 @@ export class RecordService {
    * Returns the base URL for this Model.
    */
   private getUrl(namespaceId: string, collectionId: string) {
+    const { apiUrl } = this.environmentService;
     return `${apiUrl}/namespaces/${namespaceId}/collections/${collectionId}/records`;
   }
 }
-
-export const recordService = new RecordService();

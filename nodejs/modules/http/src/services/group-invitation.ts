@@ -1,25 +1,25 @@
-import { MessageModel } from '../models/message';
-import { MessageStore } from '../states/message';
-import { ApiService } from './api/api';
+import { GroupInvitationModel } from '../models/group-invitation';
+import { GroupInvitationStore } from '../states/group-invitation';
+import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
-export class MessageService {
+export class GroupInvitationService {
   public get emitter() {
     return this.baseService.emitter;
   }
 
-  private baseService: BaseService<MessageModel>;
+  private baseService: BaseService<GroupInvitationModel>;
 
   constructor(
     private apiService: ApiService,
     private environmentService: EnvironmentService,
-    private messageStore: MessageStore,
+    private groupInvitationStore: GroupInvitationStore,
   ) {
-    this.baseService = new BaseService<MessageModel>(
+    this.baseService = new BaseService<GroupInvitationModel>(
       this.apiService,
-      MessageModel,
-      this.messageStore,
+      GroupInvitationModel,
+      this.groupInvitationStore,
     );
   }
 
@@ -34,7 +34,7 @@ export class MessageService {
   /**
    * Creates a Record.
    */
-  public async create(json: Partial<MessageModel>) {
+  public async create(json: Partial<GroupInvitationModel>) {
     const url = this.getUrl();
     return this.baseService.create(json, url);
   }
@@ -64,34 +64,9 @@ export class MessageService {
   }
 
   /**
-   * Marks a Message as read by the current User.
-   */
-  public async read(_id: string): Promise<MessageModel> {
-    const url = this.getUrl();
-    const response = await this.apiService.request({
-      method: 'post',
-      url: `${url}/${_id}/read-by-user-ids`,
-    });
-
-    const record = new MessageModel(response.data.record);
-    this.emitter.emit('update', record);
-    this.messageStore.upsert(_id, record);
-
-    return record;
-  }
-
-  /**
-   * Updates a Record.
-   */
-  public async update(_id: string, json: Partial<MessageModel>) {
-    const url = this.getUrl();
-    return this.baseService.update(_id, json, url);
-  }
-
-  /**
    * Returns the base URL for this Model.
    */
   private getUrl() {
-    return `${this.environmentService.apiUrl}/messages`;
+    return `${this.environmentService.apiUrl}/group-invitations`;
   }
 }

@@ -1,11 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import {
-  ArticleModel,
-  ArticleService,
-  StorefrontModel,
-  StorefrontService,
-} from '@tenlastic/ng-http';
+import { ArticleModel, ArticleService, StorefrontModel, StorefrontService } from '@tenlastic/http';
 
 @Component({
   styleUrls: ['./storefront-page.component.scss'],

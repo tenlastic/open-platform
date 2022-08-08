@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { LoginService, UserService } from '@tenlastic/ng-http';
+import { LoginService, UserService } from '@tenlastic/http';
 
 import { TITLE } from '../../../../shared/constants';
 import { IOnRegister, RegistrationFormComponent } from '../../components';

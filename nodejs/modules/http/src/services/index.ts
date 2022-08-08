@@ -1,4 +1,4 @@
-export * from './api/api';
+export * from './api';
 export * from './article';
 export * from './authorization';
 export * from './build';

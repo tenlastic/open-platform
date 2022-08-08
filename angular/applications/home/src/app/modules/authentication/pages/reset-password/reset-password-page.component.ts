@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { PasswordResetService } from '@tenlastic/ng-http';
+import { PasswordResetService } from '@tenlastic/http';
 
 import { TITLE } from '../../../../shared/constants';
 import { IPasswordReset, PasswordResetFormComponent } from '../../components';

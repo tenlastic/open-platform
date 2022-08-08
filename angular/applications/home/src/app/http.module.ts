@@ -76,7 +76,7 @@ import {
   WorkflowQuery,
   WorkflowService,
   WorkflowStore,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Axios } from 'axios';
 
 import { environment } from '../environments/environment';

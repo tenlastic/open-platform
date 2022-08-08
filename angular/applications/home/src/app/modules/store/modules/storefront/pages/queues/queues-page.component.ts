@@ -12,7 +12,7 @@ import {
   QueueQuery,
   QueueService,
   StreamService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { environment } from 'applications/home/src/environments/environment';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';

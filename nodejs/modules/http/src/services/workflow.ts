@@ -1,10 +1,27 @@
-import { apiUrl } from '../api-url';
 import { WorkflowModel } from '../models/workflow';
-import { BaseService, ServiceEventEmitter } from './base';
+import { WorkflowStore } from '../states/workflow';
+import { ApiService } from './api';
+import { BaseService, BaseServiceFindQuery } from './base';
+import { EnvironmentService } from './environment';
 
 export class WorkflowService {
-  public emitter = new ServiceEventEmitter<WorkflowModel>();
-  private baseService = new BaseService<WorkflowModel>(this.emitter, WorkflowModel);
+  public get emitter() {
+    return this.baseService.emitter;
+  }
+
+  private baseService: BaseService<WorkflowModel>;
+
+  constructor(
+    private apiService: ApiService,
+    private environmentService: EnvironmentService,
+    private workflowStore: WorkflowStore,
+  ) {
+    this.baseService = new BaseService<WorkflowModel>(
+      this.apiService,
+      WorkflowModel,
+      this.workflowStore,
+    );
+  }
 
   /**
    * Returns the number of Records satisfying the query.
@@ -33,7 +50,7 @@ export class WorkflowService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(namespaceId: string, query: any) {
+  public async find(namespaceId: string, query: BaseServiceFindQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.find(query, url);
   }
@@ -58,8 +75,6 @@ export class WorkflowService {
    * Returns the base URL for this Model.
    */
   private getUrl(namespaceId: string) {
-    return `${apiUrl}/namespaces/${namespaceId}/workflows`;
+    return `${this.environmentService.apiUrl}/namespaces/${namespaceId}/workflows`;
   }
 }
-
-export const workflowService = new WorkflowService();

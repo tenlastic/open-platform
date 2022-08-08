@@ -11,7 +11,7 @@ import {
   BuildQuery,
   BuildService,
   IAuthorization,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Axios } from 'axios';
 import JSZip from 'jszip';
 import { EMPTY, Observable } from 'rxjs';

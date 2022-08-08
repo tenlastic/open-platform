@@ -1,6 +1,6 @@
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { GameServerLogModel, StreamService } from '@tenlastic/ng-http';
+import { GameServerLogModel, StreamService } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 

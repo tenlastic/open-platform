@@ -7,7 +7,7 @@ import {
   CollectionModel,
   CollectionService,
   IAuthorization,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 
 import {
   CollectionFormService,

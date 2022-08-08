@@ -6,8 +6,8 @@ import { handler } from '.';
 
 use(chaiAsPromised);
 
-describe('handlers/miscellaneous/public-keys', function() {
-  it('returns the access and refresh tokens', async function() {
+describe('handlers/miscellaneous/public-keys', function () {
+  it('returns the access and refresh tokens', async function () {
     const ctx: any = new ContextMock();
     const publicKey = process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n')
       .replace(/\n/g, '')

@@ -8,7 +8,7 @@ import {
   IAuthorization,
   StorefrontModel,
   StorefrontService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 import { MediaDialogComponent } from '../../components';

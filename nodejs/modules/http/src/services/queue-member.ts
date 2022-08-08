@@ -1,10 +1,27 @@
-import { apiUrl } from '../api-url';
 import { QueueMemberModel } from '../models/queue-member';
-import { BaseService, ServiceEventEmitter } from './base';
+import { QueueMemberStore } from '../states/queue-member';
+import { ApiService } from './api';
+import { BaseService, BaseServiceFindQuery } from './base';
+import { EnvironmentService } from './environment';
 
 export class QueueMemberService {
-  public emitter = new ServiceEventEmitter<QueueMemberModel>();
-  private baseService = new BaseService<QueueMemberModel>(this.emitter, QueueMemberModel);
+  public get emitter() {
+    return this.baseService.emitter;
+  }
+
+  private baseService: BaseService<QueueMemberModel>;
+
+  constructor(
+    private apiService: ApiService,
+    private environmentService: EnvironmentService,
+    private queueMemberStore: QueueMemberStore,
+  ) {
+    this.baseService = new BaseService<QueueMemberModel>(
+      this.apiService,
+      QueueMemberModel,
+      this.queueMemberStore,
+    );
+  }
 
   /**
    * Returns the number of Records satisfying the query.
@@ -33,7 +50,7 @@ export class QueueMemberService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(namespaceId: string, query: any) {
+  public async find(namespaceId: string, query: BaseServiceFindQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.find(query, url);
   }
@@ -47,19 +64,9 @@ export class QueueMemberService {
   }
 
   /**
-   * Updates a Record.
-   */
-  public async update(namespaceId: string, _id: string, json: Partial<QueueMemberModel>) {
-    const url = this.getUrl(namespaceId);
-    return this.baseService.update(_id, json, url);
-  }
-
-  /**
    * Returns the base URL for this Model.
    */
   private getUrl(namespaceId: string) {
-    return `${apiUrl}/namespaces/${namespaceId}/queue-members`;
+    return `${this.environmentService.apiUrl}/namespaces/${namespaceId}/queue-members`;
   }
 }
-
-export const queueMemberService = new QueueMemberService();

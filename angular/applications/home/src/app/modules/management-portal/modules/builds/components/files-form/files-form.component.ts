@@ -1,6 +1,6 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { BuildModel, BuildService, IBuild } from '@tenlastic/ng-http';
+import { BuildModel, BuildService, IBuild } from '@tenlastic/http';
 
 export interface UpdatedFile {
   arrayBuffer?: ArrayBuffer;

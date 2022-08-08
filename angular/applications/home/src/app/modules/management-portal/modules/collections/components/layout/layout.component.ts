@@ -6,7 +6,7 @@ import {
   CollectionQuery,
   CollectionService,
   IAuthorization,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 

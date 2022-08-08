@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { StorefrontModel, StorefrontService } from '@tenlastic/ng-http';
+import { StorefrontModel, StorefrontService } from '@tenlastic/http';
 
 import { PromptComponent } from '../../../../../../shared/components';
 import { MediaDialogComponent } from '../../components';

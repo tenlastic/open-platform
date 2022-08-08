@@ -1,25 +1,43 @@
-import { apiUrl } from '../api-url';
 import { QueueLogModel } from '../models/queue-log';
-import { BaseService, ServiceEventEmitter } from './base';
+import { QueueLogStore } from '../states/queue-log';
+import { ApiService } from './api';
+import { EnvironmentService } from './environment';
+
+export interface QueueLogsQuery {
+  since?: string;
+  tail?: number;
+}
 
 export class QueueLogService {
-  public emitter = new ServiceEventEmitter<QueueLogModel>();
-  private baseService = new BaseService<QueueLogModel>(this.emitter, QueueLogModel);
+  constructor(
+    private apiService: ApiService,
+    private environmentService: EnvironmentService,
+    private queueLogStore: QueueLogStore,
+  ) {}
 
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(namespaceId: string, queueId: string, nodeId: string, query: any) {
+  public async find(namespaceId: string, queueId: string, nodeId: string, query: QueueLogsQuery) {
     const url = this.getUrl(namespaceId, queueId);
-    return this.baseService.find(query, `${url}/${nodeId}`);
+    const response = await this.apiService.request({
+      method: 'get',
+      params: query,
+      url: `${url}/${nodeId}`,
+    });
+
+    const records = response.data.records.map(
+      (record) => new QueueLogModel({ ...record, queueId, nodeId }),
+    );
+    this.queueLogStore.upsertMany(records);
+
+    return records;
   }
 
   /**
    * Returns the base URL for this Model.
    */
   private getUrl(namespaceId: string, queueId: string) {
-    return `${apiUrl}/namespaces/${namespaceId}/queues/${queueId}/logs`;
+    return `${this.environmentService.apiUrl}/namespaces/${namespaceId}/queues/${queueId}/logs`;
   }
 }
-
-export const queueLogService = new QueueLogService();

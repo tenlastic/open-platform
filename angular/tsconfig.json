@@ -14,8 +14,7 @@
     "module": "es2020",
     "moduleResolution": "node",
     "paths": {
-      "@tenlastic/ng-http": ["./modules/http/src"],
-      "@tenlastic/ng-http/*": ["./modules/http/src/*"]
+      "@tenlastic/http": ["../nodejs/modules/http/src"]
     },
     "resolveJsonModule": true,
     "target": "es2015",

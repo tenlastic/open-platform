@@ -1,30 +1,33 @@
-import { apiUrl } from '../api-url';
-import * as request from '../request';
+import { ApiService } from './api';
+import { EnvironmentService } from './environment';
 
 export class PasswordResetService {
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {}
+
   /**
-   * Sends a Password Reset to the email address
+   * Requests a Password Reset.
    */
   public async create(email: string) {
     const url = this.getUrl();
-    return request.promise(url, { json: { email }, method: 'post' });
+    return this.apiService.request({ data: { email }, method: 'post', url });
   }
 
   /**
-   * Resets the password of the User matching the hash.
+   * Completes a Password Reset.
    */
   public async delete(hash: string, password: string) {
     const url = this.getUrl();
-    return request.promise(`${url}/${hash}`, {
-      json: true,
+    return this.apiService.request({
       method: 'delete',
-      qs: { query: JSON.stringify({ password }) },
+      params: { password },
+      url: `${url}/${hash}`,
     });
   }
 
+  /**
+   * Returns the base URL for this Model.
+   */
   private getUrl() {
-    return `${apiUrl}/password-resets`;
+    return `${this.environmentService.apiUrl}/namespaces`;
   }
 }
-
-export const passwordResetService = new PasswordResetService();

@@ -1,26 +1,22 @@
-import { GroupInvitationModel } from '../models/group-invitation';
-import { GroupInvitationStore } from '../states/group-invitation';
-import { ApiService } from './api/api';
+import { FriendModel } from '../models/friend';
+import { FriendStore } from '../states/friend';
+import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
-export class GroupInvitationService {
+export class FriendService {
   public get emitter() {
     return this.baseService.emitter;
   }
 
-  private baseService: BaseService<GroupInvitationModel>;
+  private baseService: BaseService<FriendModel>;
 
   constructor(
     private apiService: ApiService,
     private environmentService: EnvironmentService,
-    private groupInvitationStore: GroupInvitationStore,
+    private friendStore: FriendStore,
   ) {
-    this.baseService = new BaseService<GroupInvitationModel>(
-      this.apiService,
-      GroupInvitationModel,
-      this.groupInvitationStore,
-    );
+    this.baseService = new BaseService<FriendModel>(this.apiService, FriendModel, this.friendStore);
   }
 
   /**
@@ -34,7 +30,7 @@ export class GroupInvitationService {
   /**
    * Creates a Record.
    */
-  public async create(json: Partial<GroupInvitationModel>) {
+  public async create(json: Partial<FriendModel>) {
     const url = this.getUrl();
     return this.baseService.create(json, url);
   }
@@ -56,17 +52,9 @@ export class GroupInvitationService {
   }
 
   /**
-   * Returns a Record by ID.
-   */
-  public async findOne(_id: string) {
-    const url = this.getUrl();
-    return this.baseService.findOne(_id, url);
-  }
-
-  /**
    * Returns the base URL for this Model.
    */
   private getUrl() {
-    return `${this.environmentService.apiUrl}/group-invitations`;
+    return `${this.environmentService.apiUrl}/friends`;
   }
 }

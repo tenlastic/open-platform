@@ -2,7 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { Component, OnInit, Inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LoginService, TokenService } from '@tenlastic/ng-http';
+import { LoginService, TokenService } from '@tenlastic/http';
 
 import { TITLE } from '../../../../shared/constants';
 

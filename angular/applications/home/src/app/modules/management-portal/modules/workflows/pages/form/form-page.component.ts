@@ -14,7 +14,7 @@ import {
   WorkflowModel,
   WorkflowQuery,
   WorkflowService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 

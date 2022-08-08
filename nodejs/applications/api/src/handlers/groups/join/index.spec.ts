@@ -7,21 +7,21 @@ import { handler } from './';
 
 use(chaiAsPromised);
 
-describe('handlers/groups/join', function() {
+describe('handlers/groups/join', function () {
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
   });
 
-  context('when permission is granted', function() {
+  context('when permission is granted', function () {
     let record: GroupDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       record = await GroupMock.create({ isOpen: true, userIds: [user._id] });
     });
 
-    it('returns the record', async function() {
+    it('returns the record', async function () {
       const otherUser = await UserMock.create();
       const ctx = new ContextMock({
         params: {
@@ -32,21 +32,21 @@ describe('handlers/groups/join', function() {
 
       await handler(ctx as any);
 
-      const userIds = ctx.response.body.record.userIds.map(u => u.toString());
+      const userIds = ctx.response.body.record.userIds.map((u) => u.toString());
       expect(userIds).to.include(otherUser._id.toString());
     });
   });
 
-  context('when permission is denied', function() {
+  context('when permission is denied', function () {
     let otherUser: UserDocument;
     let record: GroupDocument;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       otherUser = await UserMock.create({});
       record = await GroupMock.create({ isOpen: false, userIds: [user._id, otherUser._id] });
     });
 
-    it('throws an error', async function() {
+    it('throws an error', async function () {
       const ctx = new ContextMock({
         params: {
           _id: record._id,

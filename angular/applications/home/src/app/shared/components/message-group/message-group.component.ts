@@ -7,7 +7,7 @@ import {
   UserQuery,
   UserStore,
   WebSocketQuery,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 

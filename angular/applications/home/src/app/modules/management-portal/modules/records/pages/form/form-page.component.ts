@@ -9,7 +9,7 @@ import {
   IAuthorization,
   RecordModel,
   RecordService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 import { CamelCaseToTitleCasePipe } from '../../../../../../shared/pipes';

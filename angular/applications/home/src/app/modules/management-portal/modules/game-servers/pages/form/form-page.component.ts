@@ -14,7 +14,7 @@ import {
   IGameServer,
   NamespaceModel,
   NamespaceService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';

@@ -18,17 +18,17 @@ import { Context } from 'koa';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/password-resets/delete', function() {
+describe('handlers/password-resets/delete', function () {
   let record: PasswordResetDocument;
   let user: UserDocument;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     user = await UserMock.create();
     record = await PasswordResetMock.create({ userId: user._id });
   });
 
-  context('when password is not provided', function() {
-    it('throws an error', async function() {
+  context('when password is not provided', function () {
+    it('throws an error', async function () {
       const ctx = new ContextMock({
         params: {
           hash: record.hash,
@@ -44,9 +44,9 @@ describe('handlers/password-resets/delete', function() {
     });
   });
 
-  context('when password is provided', function() {
-    context('when hash is invalid', function() {
-      it('returns a 200 status code', async function() {
+  context('when password is provided', function () {
+    context('when hash is invalid', function () {
+      it('returns a 200 status code', async function () {
         const ctx = new ContextMock({
           params: {
             hash: chance.hash({ length: 128 }),
@@ -64,11 +64,11 @@ describe('handlers/password-resets/delete', function() {
       });
     });
 
-    context('when hash is valid', function() {
+    context('when hash is valid', function () {
       let ctx: Context;
       let previousPassword: string;
 
-      beforeEach(async function() {
+      beforeEach(async function () {
         ctx = new ContextMock({
           params: {
             hash: record.hash,
@@ -89,16 +89,16 @@ describe('handlers/password-resets/delete', function() {
         await handler(ctx);
       });
 
-      it('returns a 200 status code', async function() {
+      it('returns a 200 status code', async function () {
         expect(ctx.response.status).to.eql(200);
       });
 
-      it(`updates the User's password`, async function() {
+      it(`updates the User's password`, async function () {
         const updatedUser = await User.findOne({ _id: user._id });
         expect(updatedUser.password).to.not.eql(previousPassword);
       });
 
-      it(`removes all the User's RefreshTokens`, async function() {
+      it(`removes all the User's RefreshTokens`, async function () {
         const count = await RefreshToken.countDocuments({ userId: user._id });
         expect(count).to.eql(0);
       });

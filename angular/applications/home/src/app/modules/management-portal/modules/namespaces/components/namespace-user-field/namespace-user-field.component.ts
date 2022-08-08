@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { UserModel, UserService } from '@tenlastic/ng-http';
+import { UserModel, UserService } from '@tenlastic/http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 

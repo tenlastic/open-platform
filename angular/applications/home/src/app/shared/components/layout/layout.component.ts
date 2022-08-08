@@ -8,7 +8,7 @@ import {
   StorefrontQuery,
   StorefrontService,
   StreamService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';

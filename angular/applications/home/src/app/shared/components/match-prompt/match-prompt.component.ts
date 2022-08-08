@@ -7,7 +7,7 @@ import {
   QueueQuery,
   StorefrontModel,
   StorefrontService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Subscription } from 'rxjs';
 
 import { UpdateService } from '../../../core/services';

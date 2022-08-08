@@ -20,7 +20,7 @@ import {
   UserModel,
   UserQuery,
   UserService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Subscription, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 

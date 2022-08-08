@@ -3,7 +3,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { StorefrontModel, StorefrontQuery, StorefrontService } from '@tenlastic/ng-http';
+import { StorefrontModel, StorefrontQuery, StorefrontService } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 
 import { TITLE } from '../../../../../../shared/constants';

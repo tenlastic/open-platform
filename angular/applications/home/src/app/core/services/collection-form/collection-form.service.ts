@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { ICollection } from '@tenlastic/ng-http';
+import { ICollection } from '@tenlastic/http';
 
 export interface CriterionFormGroup {
   field?: string;
@@ -120,7 +120,7 @@ export class CollectionFormService {
     ) {
       const operator = '$and' in permissions.find[name] ? '$and' : '$or';
 
-      permissions.find[name][operator].forEach(criterion => {
+      permissions.find[name][operator].forEach((criterion) => {
         const formGroup = this.getFormGroupFromCriterion(criterion);
         findCriteria.push(formGroup);
       });
@@ -166,7 +166,7 @@ export class CollectionFormService {
 
     if (Object.keys(role.query).length > 0) {
       const operator = '$and' in role.query ? '$and' : '$or';
-      const criteria = role.query[operator].map(criterion =>
+      const criteria = role.query[operator].map((criterion) =>
         this.getFormGroupFromCriterion(criterion),
       );
 
@@ -233,7 +233,7 @@ export class CollectionFormService {
     role: RoleFormGroup,
     properties: PropertyFormGroup[],
   ): ICollection.RolePermissions {
-    const criteria = role.criteria.map(c => this.getJsonFromCriterion(c, properties));
+    const criteria = role.criteria.map((c) => this.getJsonFromCriterion(c, properties));
     return { name: role.key, query: { [role.operator]: criteria } };
   }
 
@@ -246,7 +246,7 @@ export class CollectionFormService {
         accumulator.update[role.key] = role.permissions.update;
 
         if (role.permissions.find) {
-          const criteria = role.permissions.find.map(criterion => {
+          const criteria = role.permissions.find.map((criterion) => {
             return this.getJsonFromCriterion(criterion, properties);
           });
 
@@ -260,7 +260,7 @@ export class CollectionFormService {
   }
 
   public getPropertyType(key: string, properties: PropertyFormGroup[]) {
-    const property = properties.find(v => `properties.${v.key}` === key);
+    const property = properties.find((v) => `properties.${v.key}` === key);
     return property ? property.type : 'string';
   }
 }

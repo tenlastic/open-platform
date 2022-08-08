@@ -12,25 +12,25 @@ import * as Chance from 'chance';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('logins', function() {
+describe('logins', function () {
   let password: string;
   let user: UserModel;
   let username: string;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     password = chance.hash();
     username = chance.hash({ length: 20 });
 
     user = await userService.create({ password, username });
   });
 
-  afterEach(async function() {
+  afterEach(async function () {
     await userService.delete(user._id);
   });
 
-  describe('login with credentials', function() {
-    context('when password is valid', function() {
-      it('returns an access and refresh token', async function() {
+  describe('login with credentials', function () {
+    context('when password is valid', function () {
+      it('returns an access and refresh token', async function () {
         const { accessToken, refreshToken } = await loginService.createWithCredentials(
           username,
           password,
@@ -41,8 +41,8 @@ describe('logins', function() {
       });
     });
 
-    context('when password is invalid', function() {
-      it('throws an error', async function() {
+    context('when password is invalid', function () {
+      it('throws an error', async function () {
         const promise = loginService.createWithCredentials(username, chance.hash());
 
         return expect(promise).to.be.rejected;
@@ -50,16 +50,16 @@ describe('logins', function() {
     });
   });
 
-  describe('login with refresh token', function() {
+  describe('login with refresh token', function () {
     let refreshToken: string;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       const response = await loginService.createWithCredentials(username, password);
       refreshToken = response.refreshToken;
     });
 
-    context('when refreshToken is valid', function() {
-      it('returns an access and refresh token', async function() {
+    context('when refreshToken is valid', function () {
+      it('returns an access and refresh token', async function () {
         const response = await loginService.createWithRefreshToken(refreshToken);
 
         expect(response.accessToken).to.exist;
@@ -67,8 +67,8 @@ describe('logins', function() {
       });
     });
 
-    context('when refreshToken is invalid', function() {
-      it('throws an error', async function() {
+    context('when refreshToken is invalid', function () {
+      it('throws an error', async function () {
         const promise = loginService.createWithRefreshToken(chance.hash());
 
         return expect(promise).to.be.rejected;
@@ -76,11 +76,11 @@ describe('logins', function() {
     });
   });
 
-  describe('logout', function() {
+  describe('logout', function () {
     let accessToken: string;
     let refreshToken: string;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       const response = await loginService.createWithCredentials(username, password);
       refreshToken = response.refreshToken;
 
@@ -88,11 +88,11 @@ describe('logins', function() {
       setAccessToken(response.accessToken);
     });
 
-    afterEach(async function() {
+    afterEach(async function () {
       setAccessToken(accessToken);
     });
 
-    it('invalidates the associated refresh token', async function() {
+    it('invalidates the associated refresh token', async function () {
       await loginService.delete();
 
       const promise = loginService.createWithRefreshToken(refreshToken);

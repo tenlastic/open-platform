@@ -1,10 +1,27 @@
-import { apiUrl } from '../api-url';
 import { ArticleModel } from '../models/article';
-import { BaseService, ServiceEventEmitter } from './base';
+import { ArticleStore } from '../states/article';
+import { ApiService } from './api';
+import { BaseService, BaseServiceFindQuery } from './base';
+import { EnvironmentService } from './environment';
 
 export class ArticleService {
-  public emitter = new ServiceEventEmitter<ArticleModel>();
-  private baseService = new BaseService<ArticleModel>(this.emitter, ArticleModel);
+  public get emitter() {
+    return this.baseService.emitter;
+  }
+
+  private baseService: BaseService<ArticleModel>;
+
+  constructor(
+    private apiService: ApiService,
+    private articleStore: ArticleStore,
+    private environmentService: EnvironmentService,
+  ) {
+    this.baseService = new BaseService<ArticleModel>(
+      this.apiService,
+      ArticleModel,
+      this.articleStore,
+    );
+  }
 
   /**
    * Returns the number of Records satisfying the query.
@@ -33,7 +50,7 @@ export class ArticleService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(namespaceId: string, query: any) {
+  public async find(namespaceId: string, query: BaseServiceFindQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.find(query, url);
   }
@@ -58,8 +75,6 @@ export class ArticleService {
    * Returns the base URL for this Model.
    */
   private getUrl(namespaceId: string) {
-    return `${apiUrl}/namespaces/${namespaceId}/articles`;
+    return `${this.environmentService.apiUrl}/namespaces/${namespaceId}/articles`;
   }
 }
-
-export const articleService = new ArticleService();

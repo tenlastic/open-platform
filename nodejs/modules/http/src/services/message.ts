@@ -1,25 +1,25 @@
-import { AuthorizationModel } from '../models/authorization';
-import { AuthorizationStore } from '../states/authorization';
-import { ApiService } from './api/api';
+import { MessageModel } from '../models/message';
+import { MessageStore } from '../states/message';
+import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
-export class AuthorizationService {
+export class MessageService {
   public get emitter() {
     return this.baseService.emitter;
   }
 
-  private baseService: BaseService<AuthorizationModel>;
+  private baseService: BaseService<MessageModel>;
 
   constructor(
     private apiService: ApiService,
-    private authorizationStore: AuthorizationStore,
     private environmentService: EnvironmentService,
+    private messageStore: MessageStore,
   ) {
-    this.baseService = new BaseService<AuthorizationModel>(
+    this.baseService = new BaseService<MessageModel>(
       this.apiService,
-      AuthorizationModel,
-      this.authorizationStore,
+      MessageModel,
+      this.messageStore,
     );
   }
 
@@ -34,7 +34,7 @@ export class AuthorizationService {
   /**
    * Creates a Record.
    */
-  public async create(json: Partial<AuthorizationModel>) {
+  public async create(json: Partial<MessageModel>) {
     const url = this.getUrl();
     return this.baseService.create(json, url);
   }
@@ -64,30 +64,26 @@ export class AuthorizationService {
   }
 
   /**
-   * Returns Authorizations associated with the User.
+   * Marks a Message as read by the current User.
    */
-  public async findUserAuthorizations(namespaceId: string, userId: string) {
-    let where = {};
+  public async read(_id: string): Promise<MessageModel> {
+    const url = this.getUrl();
+    const response = await this.apiService.request({
+      method: 'post',
+      url: `${url}/${_id}/read-by-user-ids`,
+    });
 
-    if (namespaceId) {
-      where = {
-        $or: [
-          { namespaceId, userId },
-          { namespaceId: { $exists: false }, userId },
-          { apiKey: { $exists: false }, namespaceId, userId: { $exists: false } },
-        ],
-      };
-    } else {
-      where = { userId };
-    }
+    const record = new MessageModel(response.data.record);
+    this.emitter.emit('update', record);
+    this.messageStore.upsert(_id, record);
 
-    return this.find({ where });
+    return record;
   }
 
   /**
    * Updates a Record.
    */
-  public async update(_id: string, json: Partial<AuthorizationModel>) {
+  public async update(_id: string, json: Partial<MessageModel>) {
     const url = this.getUrl();
     return this.baseService.update(_id, json, url);
   }
@@ -96,6 +92,6 @@ export class AuthorizationService {
    * Returns the base URL for this Model.
    */
   private getUrl() {
-    return `${this.environmentService.apiUrl}/authorizations`;
+    return `${this.environmentService.apiUrl}/messages`;
   }
 }

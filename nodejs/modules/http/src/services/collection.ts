@@ -1,10 +1,27 @@
-import { apiUrl } from '../api-url';
 import { CollectionModel } from '../models/collection';
-import { BaseService, ServiceEventEmitter } from './base';
+import { CollectionStore } from '../states/collection';
+import { ApiService } from './api';
+import { BaseService, BaseServiceFindQuery } from './base';
+import { EnvironmentService } from './environment';
 
 export class CollectionService {
-  public emitter = new ServiceEventEmitter<CollectionModel>();
-  private baseService = new BaseService<CollectionModel>(this.emitter, CollectionModel);
+  public get emitter() {
+    return this.baseService.emitter;
+  }
+
+  private baseService: BaseService<CollectionModel>;
+
+  constructor(
+    private apiService: ApiService,
+    private collectionStore: CollectionStore,
+    private environmentService: EnvironmentService,
+  ) {
+    this.baseService = new BaseService<CollectionModel>(
+      this.apiService,
+      CollectionModel,
+      this.collectionStore,
+    );
+  }
 
   /**
    * Returns the number of Records satisfying the query.
@@ -33,7 +50,7 @@ export class CollectionService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(namespaceId: string, query: any) {
+  public async find(namespaceId: string, query: BaseServiceFindQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.find(query, url);
   }
@@ -58,8 +75,6 @@ export class CollectionService {
    * Returns the base URL for this Model.
    */
   private getUrl(namespaceId: string) {
-    return `${apiUrl}/namespaces/${namespaceId}/collections`;
+    return `${this.environmentService.apiUrl}/namespaces/${namespaceId}/collections`;
   }
 }
-
-export const collectionService = new CollectionService();

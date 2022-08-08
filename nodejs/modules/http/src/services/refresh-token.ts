@@ -1,22 +1,26 @@
-import { UserModel } from '../models/user';
-import { UserStore } from '../states/user';
-import { ApiService } from './api/api';
+import { RefreshTokenModel } from '../models/refresh-token';
+import { RefreshTokenStore } from '../states/refresh-token';
+import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
-export class UserService {
+export class RefreshTokenService {
   public get emitter() {
     return this.baseService.emitter;
   }
 
-  private baseService: BaseService<UserModel>;
+  private baseService: BaseService<RefreshTokenModel>;
 
   constructor(
     private apiService: ApiService,
     private environmentService: EnvironmentService,
-    private userStore: UserStore,
+    private refreshTokenStore: RefreshTokenStore,
   ) {
-    this.baseService = new BaseService<UserModel>(this.apiService, UserModel, this.userStore);
+    this.baseService = new BaseService<RefreshTokenModel>(
+      this.apiService,
+      RefreshTokenModel,
+      this.refreshTokenStore,
+    );
   }
 
   /**
@@ -30,7 +34,7 @@ export class UserService {
   /**
    * Creates a Record.
    */
-  public async create(json: Partial<UserModel>) {
+  public async create(json: Partial<RefreshTokenModel>) {
     const url = this.getUrl();
     return this.baseService.create(json, url);
   }
@@ -62,7 +66,7 @@ export class UserService {
   /**
    * Updates a Record.
    */
-  public async update(_id: string, json: Partial<UserModel>) {
+  public async update(_id: string, json: Partial<RefreshTokenModel>) {
     const url = this.getUrl();
     return this.baseService.update(_id, json, url);
   }
@@ -71,6 +75,6 @@ export class UserService {
    * Returns the base URL for this Model.
    */
   private getUrl() {
-    return `${this.environmentService.apiUrl}/users`;
+    return `${this.environmentService.apiUrl}/refresh-tokens`;
   }
 }

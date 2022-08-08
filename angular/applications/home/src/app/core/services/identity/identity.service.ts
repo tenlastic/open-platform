@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AuthorizationQuery, TokenService, UserModel } from '@tenlastic/ng-http';
+import { AuthorizationQuery, TokenService, UserModel } from '@tenlastic/http';
 
 @Injectable({ providedIn: 'root' })
 export class IdentityService {

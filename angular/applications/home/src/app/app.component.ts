@@ -11,7 +11,7 @@ import {
   UserService,
   WebSocketQuery,
   TokenService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 
 import { environment } from '../environments/environment';
 import { ElectronService } from './core/services';

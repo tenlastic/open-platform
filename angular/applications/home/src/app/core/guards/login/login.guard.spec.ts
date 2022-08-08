@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { EnvironmentService, HttpModule, LoginService } from '@tenlastic/ng-http';
+import { EnvironmentService, HttpModule, LoginService } from '@tenlastic/http';
 
 import { IdentityService } from '../../services';
 import { LoginGuard } from './login.guard';

@@ -1,3 +1,4 @@
+import wait from '@tenlastic/wait';
 import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
 
@@ -35,7 +36,7 @@ export class TokenService {
 
   public async getAccessToken() {
     try {
-      await this.wait(250, 15 * 1000, () => {
+      await wait(250, 15 * 1000, () => {
         if (!this.startedRefreshingAt) {
           return true;
         }
@@ -110,15 +111,5 @@ export class TokenService {
   private login(data: LoginServiceResponse) {
     this.setAccessToken(data.accessToken);
     this.setRefreshToken(data.refreshToken);
-  }
-
-  private async wait(frequency: number, timeout: number, condition: () => any) {
-    const wait = async () => {
-      while (!condition()) {
-        await new Promise((res) => setTimeout(res, frequency));
-      }
-    };
-
-    return Promise.race([wait(), new Promise((res, rej) => setTimeout(rej, timeout))]);
   }
 }

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormControl } from '@angular/forms';
-import { UserModel, UserQuery, UserService } from '@tenlastic/ng-http';
+import { UserModel, UserQuery, UserService } from '@tenlastic/http';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 

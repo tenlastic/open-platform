@@ -11,7 +11,7 @@ import {
   StorefrontModel,
   StorefrontService,
   TokenService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { ChildProcess } from 'child_process';
 import { Subject } from 'rxjs';
 
