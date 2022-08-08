@@ -93,7 +93,10 @@ export class BuildsJsonPageComponent implements OnInit {
       data._id = this.data._id;
       result = await this.buildService.update(this.params.namespaceId, this.data._id, data);
     } else {
-      result = await this.buildService.create(this.params.namespaceId, data).toPromise();
+      const formData = new FormData();
+      formData.append('record', JSON.stringify(data));
+
+      result = await this.buildService.create(this.params.namespaceId, formData);
     }
 
     this.matSnackBar.open('Build saved successfully.');

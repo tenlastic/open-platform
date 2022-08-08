@@ -20,9 +20,13 @@ export class QueueLogService {
    */
   public async find(namespaceId: string, queueId: string, nodeId: string, query: QueueLogsQuery) {
     const url = this.getUrl(namespaceId, queueId);
-    const response = await this.apiService.observable('get', `${url}/${nodeId}`, query);
+    const response = await this.apiService.request({
+      method: 'get',
+      params: query,
+      url: `${url}/${nodeId}`,
+    });
 
-    const records = response.records.map(
+    const records = response.data.records.map(
       (record) => new QueueLogModel({ ...record, queueId, nodeId }),
     );
     this.queueLogStore.upsertMany(records);

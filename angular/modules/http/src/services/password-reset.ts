@@ -9,7 +9,7 @@ export class PasswordResetService {
    */
   public async create(email: string) {
     const url = this.getUrl();
-    return this.apiService.observable('post', url, { email });
+    return this.apiService.request({ data: { email }, method: 'post', url });
   }
 
   /**
@@ -17,7 +17,11 @@ export class PasswordResetService {
    */
   public async delete(hash: string, password: string) {
     const url = this.getUrl();
-    return this.apiService.observable('delete', `${url}/${hash}`, { password });
+    return this.apiService.request({
+      method: 'delete',
+      params: { password },
+      url: `${url}/${hash}`,
+    });
   }
 
   /**

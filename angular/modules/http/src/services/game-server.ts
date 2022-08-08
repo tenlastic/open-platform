@@ -1,11 +1,13 @@
 import { GameServerModel } from '../models/game-server';
 import { GameServerStore } from '../states/game-server';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class GameServerService {
-  public emitter = new ServiceEventEmitter<GameServerModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<GameServerModel>;
 
@@ -16,7 +18,6 @@ export class GameServerService {
   ) {
     this.baseService = new BaseService<GameServerModel>(
       this.apiService,
-      this.emitter,
       GameServerModel,
       this.gameServerStore,
     );

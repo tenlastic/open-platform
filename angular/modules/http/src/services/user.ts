@@ -1,11 +1,13 @@
 import { UserModel } from '../models/user';
 import { UserStore } from '../states/user';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class UserService {
-  public emitter = new ServiceEventEmitter<UserModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<UserModel>;
 
@@ -14,12 +16,7 @@ export class UserService {
     private environmentService: EnvironmentService,
     private userStore: UserStore,
   ) {
-    this.baseService = new BaseService<UserModel>(
-      this.apiService,
-      this.emitter,
-      UserModel,
-      this.userStore,
-    );
+    this.baseService = new BaseService<UserModel>(this.apiService, UserModel, this.userStore);
   }
 
   /**

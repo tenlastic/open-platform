@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
+import { TokenService } from '@tenlastic/ng-http';
 import { v4 as uuid } from 'uuid';
-
-import { IdentityService } from '../identity/identity.service';
 
 export interface LogsParameters {
   buildId?: string;
@@ -126,14 +125,14 @@ export class SocketService {
 
   private _sockets: { [key: string]: Socket } = {};
 
-  constructor(private identityService: IdentityService) {}
+  constructor(private tokenService: TokenService) {}
 
   public async connect(
     url: string,
     resumeTokens: { [key: string]: string } = {},
     subscriptions: Subscription[] = [],
   ) {
-    const accessToken = await this.identityService.getAccessToken();
+    const accessToken = await this.tokenService.getAccessToken();
     if (!accessToken || accessToken.isExpired) {
       return;
     }

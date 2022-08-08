@@ -1,11 +1,13 @@
 import { FriendModel } from '../models/friend';
 import { FriendStore } from '../states/friend';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class FriendService {
-  public emitter = new ServiceEventEmitter<FriendModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<FriendModel>;
 
@@ -14,12 +16,7 @@ export class FriendService {
     private environmentService: EnvironmentService,
     private friendStore: FriendStore,
   ) {
-    this.baseService = new BaseService<FriendModel>(
-      this.apiService,
-      this.emitter,
-      FriendModel,
-      this.friendStore,
-    );
+    this.baseService = new BaseService<FriendModel>(this.apiService, FriendModel, this.friendStore);
   }
 
   /**

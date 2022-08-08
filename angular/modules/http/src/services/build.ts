@@ -1,16 +1,13 @@
-import { HttpEventType } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-
 import { BuildModel } from '../models/build';
 import { BuildStore } from '../states/build';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class BuildService {
-  public emitter = new ServiceEventEmitter<BuildModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<BuildModel>;
 
@@ -19,12 +16,7 @@ export class BuildService {
     private buildStore: BuildStore,
     private environmentService: EnvironmentService,
   ) {
-    this.baseService = new BaseService<BuildModel>(
-      this.apiService,
-      this.emitter,
-      BuildModel,
-      this.buildStore,
-    );
+    this.baseService = new BaseService<BuildModel>(this.apiService, BuildModel, this.buildStore);
   }
 
   /**
@@ -38,33 +30,24 @@ export class BuildService {
   /**
    * Creates a Record.
    */
-  public create(namespaceId: string, parameters: Partial<BuildModel>, zip?: Blob) {
-    const formData = new FormData();
-    formData.append('record', JSON.stringify(parameters));
-
-    // Only append zip field if supplied.
-    if (zip) {
-      formData.append('zip', zip);
-    }
-
+  public async create(
+    namespaceId: string,
+    formData: FormData,
+    options: { onUploadProgress?: (progressEvent: any) => void } = {},
+  ) {
     const url = this.getUrl(namespaceId);
-    const observable = this.apiService.observable('post', url, formData, {
-      observe: 'events',
-      reportProgress: true,
-    }) as Observable<any>;
-    observable.pipe(
-      map((event) => {
-        if (event.type === HttpEventType.Response) {
-          const record = new BuildModel(event.body.record);
-          this.emitter.emit('create', record);
-          this.buildStore.add(record);
-        }
+    const response = await this.apiService.request({
+      data: formData,
+      method: 'post',
+      onUploadProgress: options?.onUploadProgress,
+      url,
+    });
 
-        return event;
-      }),
-    );
+    const record = new BuildModel(response.data.record);
+    this.emitter.emit('create', record);
+    this.buildStore.add(record);
 
-    return observable;
+    return record;
   }
 
   /**
@@ -76,15 +59,15 @@ export class BuildService {
   }
 
   /**
-   * Downloads a Build.
+   * Downloads a Build as a Blob.
    */
   public download(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
-    return this.apiService.observable('get', `${url}/${_id}`, null, {
-      observe: 'events',
-      reportProgress: true,
+    return this.apiService.request({
+      method: 'get',
       responseType: 'blob',
-    }) as Observable<any>;
+      url: `${url}/${_id}`,
+    });
   }
 
   /**

@@ -1,11 +1,13 @@
 import { IgnorationModel } from '../models/ignoration';
 import { IgnorationStore } from '../states/ignoration';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class IgnorationService {
-  public emitter = new ServiceEventEmitter<IgnorationModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<IgnorationModel>;
 
@@ -16,7 +18,6 @@ export class IgnorationService {
   ) {
     this.baseService = new BaseService<IgnorationModel>(
       this.apiService,
-      this.emitter,
       IgnorationModel,
       this.ignorationStore,
     );

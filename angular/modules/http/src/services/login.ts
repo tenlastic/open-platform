@@ -1,35 +1,26 @@
-import { Injectable } from '@angular/core';
 import { EventEmitter } from 'events';
+import TypedEmitter from 'typed-emitter';
 
 import { ApiService } from './api/api';
 import { EnvironmentService } from './environment';
 
-export class LoginServiceEventEmitter extends EventEmitter {
-  public emit<U extends keyof LoginServiceEvents>(
-    event: U,
-    ...args: Parameters<LoginServiceEvents[U]>
-  ) {
-    super.emit(event, ...args);
-  }
-
-  public on<U extends keyof LoginServiceEvents>(event: U, listener: LoginServiceEvents[U]) {
-    super.on(event, listener);
-  }
-}
-
-export declare interface LoginServiceEventEmitter {
-  emit<U extends keyof LoginServiceEvents>(event: U, ...args: Parameters<LoginServiceEvents[U]>);
-  on<U extends keyof LoginServiceEvents>(event: U, listener: LoginServiceEvents[U]);
-}
-
-export interface LoginServiceEvents {
-  login: (record: { accessToken: string; refreshToken: string }) => void;
+export type LoginServiceEvents = {
+  login: (response: LoginServiceResponse) => void;
   logout: () => void;
-  refresh: (record: { accessToken: string; refreshToken: string }) => void;
+  refresh: (response: LoginServiceResponse) => void;
+};
+
+export interface LoginServiceResponse {
+  accessToken: string;
+  refreshToken: string;
 }
 
 export class LoginService {
-  public emitter = new LoginServiceEventEmitter();
+  public get emitter() {
+    return this._emitter;
+  }
+
+  private _emitter = new EventEmitter() as TypedEmitter<LoginServiceEvents>;
 
   constructor(private apiService: ApiService, private environmentService: EnvironmentService) {}
 
@@ -39,9 +30,9 @@ export class LoginService {
   public async createWithCredentials(username: string, password: string) {
     const parameters = { password, username };
     const url = this.getUrl();
-    const response = await this.apiService.observable('post', url, parameters);
+    const response = await this.apiService.request({ data: parameters, method: 'post', url });
 
-    const { accessToken, refreshToken } = response;
+    const { accessToken, refreshToken } = response.data;
     this.emitter.emit('login', { accessToken, refreshToken });
 
     return { accessToken, refreshToken };
@@ -53,9 +44,13 @@ export class LoginService {
   public async createWithRefreshToken(token: string) {
     const parameters = { token };
     const url = this.getUrl();
-    const response = await this.apiService.observable('post', url + '/refresh-token', parameters);
+    const response = await this.apiService.request({
+      data: parameters,
+      method: 'post',
+      url: `${url}/refresh-token`,
+    });
 
-    const { accessToken, refreshToken } = response;
+    const { accessToken, refreshToken } = response.data;
     this.emitter.emit('refresh', { accessToken, refreshToken });
 
     return { accessToken, refreshToken };
@@ -66,7 +61,7 @@ export class LoginService {
    */
   public async delete() {
     const url = this.getUrl();
-    await this.apiService.observable('delete', url);
+    await this.apiService.request({ method: 'delete', url });
 
     this.emitter.emit('logout');
   }

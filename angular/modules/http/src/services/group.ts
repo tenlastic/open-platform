@@ -1,11 +1,13 @@
 import { GroupModel } from '../models/group';
 import { GroupStore } from '../states/group';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class GroupService {
-  public emitter = new ServiceEventEmitter<GroupModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<GroupModel>;
 
@@ -14,12 +16,7 @@ export class GroupService {
     private environmentService: EnvironmentService,
     private groupStore: GroupStore,
   ) {
-    this.baseService = new BaseService<GroupModel>(
-      this.apiService,
-      this.emitter,
-      GroupModel,
-      this.groupStore,
-    );
+    this.baseService = new BaseService<GroupModel>(this.apiService, GroupModel, this.groupStore);
   }
 
   /**
@@ -67,9 +64,12 @@ export class GroupService {
    */
   public async join(_id: string): Promise<GroupModel> {
     const url = this.getUrl();
-    const response = await this.apiService.observable('post', `${url}/${_id}/user-ids`);
+    const response = await this.apiService.request({
+      method: 'post',
+      url: `${url}/${_id}/user-ids`,
+    });
 
-    const record = new GroupModel(response.record);
+    const record = new GroupModel(response.data.record);
     this.emitter.emit('update', record);
     this.groupStore.upsert(_id, record);
 
@@ -81,13 +81,12 @@ export class GroupService {
    */
   public async kick(_id: string, userId: string): Promise<GroupModel> {
     const url = this.getUrl();
-    const response = await this.apiService.observable(
-      'delete',
-      `${url}/${_id}/user-ids/${userId}`,
-      null,
-    );
+    const response = await this.apiService.request({
+      method: 'delete',
+      url: `${url}/${_id}/user-ids/${userId}`,
+    });
 
-    const record = new GroupModel(response.record);
+    const record = new GroupModel(response.data.record);
     this.emitter.emit('update', record);
     this.groupStore.upsert(_id, record);
 
@@ -99,9 +98,12 @@ export class GroupService {
    */
   public async leave(_id: string): Promise<GroupModel> {
     const url = this.getUrl();
-    const response = await this.apiService.observable('delete', `${url}/${_id}/user-ids`, null);
+    const response = await this.apiService.request({
+      method: 'delete',
+      url: `${url}/${_id}/user-ids`,
+    });
 
-    const record = new GroupModel(response.record);
+    const record = new GroupModel(response.data.record);
     this.emitter.emit('update', record);
     this.groupStore.upsert(_id, record);
 

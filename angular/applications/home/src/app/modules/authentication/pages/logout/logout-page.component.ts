@@ -2,9 +2,8 @@ import { DOCUMENT } from '@angular/common';
 import { Component, OnInit, Inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LoginService } from '@tenlastic/ng-http';
+import { LoginService, TokenService } from '@tenlastic/ng-http';
 
-import { IdentityService } from '../../../../core/services';
 import { TITLE } from '../../../../shared/constants';
 
 @Component({
@@ -15,10 +14,10 @@ export class LogoutPageComponent implements OnInit {
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private activatedRoute: ActivatedRoute,
-    private identityService: IdentityService,
     private loginService: LoginService,
     private router: Router,
     private titleService: Title,
+    private tokenService: TokenService,
   ) {
     this.titleService.setTitle(`${TITLE} | Logout`);
   }
@@ -28,7 +27,7 @@ export class LogoutPageComponent implements OnInit {
   }
 
   private async logOut() {
-    this.identityService.clear();
+    this.tokenService.clear();
     await this.loginService.delete();
 
     const { snapshot } = this.activatedRoute;

@@ -1,11 +1,13 @@
 import { AuthorizationModel } from '../models/authorization';
 import { AuthorizationStore } from '../states/authorization';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class AuthorizationService {
-  public emitter = new ServiceEventEmitter<AuthorizationModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<AuthorizationModel>;
 
@@ -16,7 +18,6 @@ export class AuthorizationService {
   ) {
     this.baseService = new BaseService<AuthorizationModel>(
       this.apiService,
-      this.emitter,
       AuthorizationModel,
       this.authorizationStore,
     );

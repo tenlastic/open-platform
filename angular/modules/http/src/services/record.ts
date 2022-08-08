@@ -1,11 +1,13 @@
 import { RecordModel } from '../models/record';
 import { RecordStore } from '../states/record';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class RecordService {
-  public emitter = new ServiceEventEmitter<RecordModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<RecordModel>;
 
@@ -14,12 +16,7 @@ export class RecordService {
     private environmentService: EnvironmentService,
     private recordStore: RecordStore,
   ) {
-    this.baseService = new BaseService<RecordModel>(
-      this.apiService,
-      this.emitter,
-      RecordModel,
-      this.recordStore,
-    );
+    this.baseService = new BaseService<RecordModel>(this.apiService, RecordModel, this.recordStore);
   }
 
   /**

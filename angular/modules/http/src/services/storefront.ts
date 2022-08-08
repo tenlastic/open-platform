@@ -1,14 +1,13 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-
 import { StorefrontModel } from '../models/storefront';
 import { StorefrontStore } from '../states/storefront';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class StorefrontService {
-  public emitter = new ServiceEventEmitter<StorefrontModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<StorefrontModel>;
 
@@ -19,7 +18,6 @@ export class StorefrontService {
   ) {
     this.baseService = new BaseService<StorefrontModel>(
       this.apiService,
-      this.emitter,
       StorefrontModel,
       this.storefrontStore,
     );
@@ -76,18 +74,19 @@ export class StorefrontService {
   /**
    * Uploads an image or video for the Storefront.
    */
-  public upload(namespaceId: string, _id: string, key: string, blobs: Blob[]) {
-    const formData = new FormData();
-
-    for (const blob of blobs) {
-      formData.append(key, blob);
-    }
-
+  public async upload(namespaceId: string, _id: string, key: string, formData: FormData) {
     const url = this.getUrl(namespaceId);
-    return this.apiService.observable('post', `${url}/${_id}/${key}`, formData, {
-      observe: 'events',
-      reportProgress: true,
-    }) as Observable<any>;
+    const response = await this.apiService.request({
+      data: formData,
+      method: 'post',
+      url: `${url}/${_id}/${key}`,
+    });
+
+    const record = new StorefrontModel(response.data.record);
+    this.emitter.emit('update', record);
+    this.storefrontStore.upsert(_id, record);
+
+    return record;
   }
 
   /**

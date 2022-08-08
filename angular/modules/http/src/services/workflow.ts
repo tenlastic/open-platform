@@ -1,11 +1,13 @@
 import { WorkflowModel } from '../models/workflow';
 import { WorkflowStore } from '../states/workflow';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class WorkflowService {
-  public emitter = new ServiceEventEmitter<WorkflowModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<WorkflowModel>;
 
@@ -16,7 +18,6 @@ export class WorkflowService {
   ) {
     this.baseService = new BaseService<WorkflowModel>(
       this.apiService,
-      this.emitter,
       WorkflowModel,
       this.workflowStore,
     );

@@ -2,9 +2,8 @@ import { DOCUMENT } from '@angular/common';
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LoginService } from '@tenlastic/ng-http';
+import { LoginService, TokenService } from '@tenlastic/ng-http';
 
-import { IdentityService } from '../../../../core/services';
 import { TITLE } from '../../../../shared/constants';
 import { ILogIn, LoginFormComponent } from '../../components';
 
@@ -24,16 +23,16 @@ export class LoginPageComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     @Inject(DOCUMENT) private document: Document,
-    private identityService: IdentityService,
     private loginService: LoginService,
     private router: Router,
     private titleService: Title,
+    private tokenService: TokenService,
   ) {
     this.titleService.setTitle(`${TITLE} | Log In`);
   }
 
   public ngOnInit() {
-    if (this.identityService.getRefreshToken()) {
+    if (this.tokenService.getRefreshToken()) {
       this.refreshToken();
     }
   }
@@ -54,8 +53,8 @@ export class LoginPageComponent implements OnInit {
     const { snapshot } = this.activatedRoute;
 
     if (snapshot.queryParamMap.has('redirectUrl')) {
-      const accessToken = await this.identityService.getAccessToken();
-      const refreshToken = this.identityService.getRefreshToken();
+      const accessToken = await this.tokenService.getAccessToken();
+      const refreshToken = this.tokenService.getRefreshToken();
 
       const redirectUrl = snapshot.queryParamMap.get('redirectUrl');
       const url = new URL(redirectUrl);
@@ -74,7 +73,7 @@ export class LoginPageComponent implements OnInit {
     this.loadingMessage = 'Logging in...';
 
     try {
-      const refreshToken = this.identityService.getRefreshToken();
+      const refreshToken = this.tokenService.getRefreshToken();
       await this.loginService.createWithRefreshToken(refreshToken.value);
 
       return this.logIn();

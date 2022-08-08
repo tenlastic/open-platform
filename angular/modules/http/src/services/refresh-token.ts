@@ -1,11 +1,13 @@
 import { RefreshTokenModel } from '../models/refresh-token';
 import { RefreshTokenStore } from '../states/refresh-token';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class RefreshTokenService {
-  public emitter = new ServiceEventEmitter<RefreshTokenModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<RefreshTokenModel>;
 
@@ -16,7 +18,6 @@ export class RefreshTokenService {
   ) {
     this.baseService = new BaseService<RefreshTokenModel>(
       this.apiService,
-      this.emitter,
       RefreshTokenModel,
       this.refreshTokenStore,
     );

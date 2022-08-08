@@ -1,11 +1,13 @@
 import { NamespaceModel } from '../models/namespace';
 import { NamespaceStore } from '../states/namespace';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class NamespaceService {
-  public emitter = new ServiceEventEmitter<NamespaceModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<NamespaceModel>;
 
@@ -16,7 +18,6 @@ export class NamespaceService {
   ) {
     this.baseService = new BaseService<NamespaceModel>(
       this.apiService,
-      this.emitter,
       NamespaceModel,
       this.namespaceStore,
     );

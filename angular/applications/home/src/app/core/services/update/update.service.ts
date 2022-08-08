@@ -10,6 +10,7 @@ import {
   LoginService,
   StorefrontModel,
   StorefrontService,
+  TokenService,
 } from '@tenlastic/ng-http';
 import { ChildProcess } from 'child_process';
 import { Subject } from 'rxjs';
@@ -91,6 +92,7 @@ export class UpdateService {
     private identityService: IdentityService,
     private loginService: LoginService,
     private storefrontService: StorefrontService,
+    private tokenService: TokenService,
   ) {
     this.subscribeToServices();
     this.loginService.emitter.on('logout', () => this.status.clear());
@@ -232,8 +234,8 @@ export class UpdateService {
       return;
     }
 
-    const accessToken = await this.identityService.getAccessToken();
-    const refreshToken = this.identityService.getRefreshToken();
+    const accessToken = await this.tokenService.getAccessToken();
+    const refreshToken = this.tokenService.getRefreshToken();
 
     const storefronts = await this.storefrontService.find(namespaceId, {});
     const env = {
@@ -298,7 +300,7 @@ export class UpdateService {
     const { fs, request, unzipper } = this.electronService;
 
     return new Promise(async (resolve, reject) => {
-      const accessToken = await this.identityService.getAccessToken();
+      const accessToken = await this.tokenService.getAccessToken();
 
       request
         .get({

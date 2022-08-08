@@ -25,9 +25,13 @@ export class WorkflowLogService {
     query: WorkflowLogsQuery,
   ) {
     const url = this.getUrl(namespaceId, workflowId);
-    const response = await this.apiService.observable('get', `${url}/${nodeId}`, query);
+    const response = await this.apiService.request({
+      method: 'get',
+      params: query,
+      url: `${url}/${nodeId}`,
+    });
 
-    const records = response.records.map(
+    const records = response.data.records.map(
       (record) => new WorkflowLogModel({ ...record, workflowId, nodeId }),
     );
     this.workflowLogStore.upsertMany(records);

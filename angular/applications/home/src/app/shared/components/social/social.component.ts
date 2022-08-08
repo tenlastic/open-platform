@@ -24,8 +24,6 @@ import {
   QueueMemberModel,
   QueueMemberQuery,
   QueueMemberService,
-  QueueQuery,
-  QueueService,
   UserModel,
   UserQuery,
   UserService,
@@ -78,8 +76,6 @@ export class SocialComponent implements OnDestroy, OnInit {
   public fetchQueueMembersQueues$ = new Subscription();
   public fetchUserWebSockets$ = new Subscription();
   public fetchUserGroup$ = new Subscription();
-  public newMatchNotification$ = new Subscription();
-  public newMessageNotification$ = new Subscription();
   public updateConversations$ = new Subscription();
   public updateQueueMembers$ = new Subscription();
   public waitForGameServer$ = new Subscription();
@@ -95,6 +91,9 @@ export class SocialComponent implements OnDestroy, OnInit {
     return this.identityService.user;
   }
   public isWaitingForGameServer = false;
+
+  private onGameServerServiceCreate = this.newMatchNotification.bind(this);
+  private onMessageServiceCreate = this.newMessageNotification.bind(this);
 
   constructor(
     private electronService: ElectronService,
@@ -115,8 +114,6 @@ export class SocialComponent implements OnDestroy, OnInit {
     private messageService: MessageService,
     private queueMemberQuery: QueueMemberQuery,
     private queueMemberService: QueueMemberService,
-    private queueQuery: QueueQuery,
-    private queueService: QueueService,
     private storefrontQuery: StorefrontQuery,
     private updateService: UpdateService,
     private userQuery: UserQuery,
@@ -192,12 +189,8 @@ export class SocialComponent implements OnDestroy, OnInit {
       return this.groupService.find({ where: { userIds: { $in: users.map((u) => u._id) } } });
     });
 
-    this.newMessageNotification$ = this.messageService.emitter.on('create', (message) =>
-      this.newMessageNotification(message),
-    );
-    this.newMatchNotification$ = this.gameServerService.emitter.on('create', (gameServer) =>
-      this.newMatchNotification(gameServer),
-    );
+    this.gameServerService.emitter.on('create', this.onGameServerServiceCreate);
+    this.messageService.emitter.on('create', this.onMessageServiceCreate);
 
     this.updateConversations$ = combineLatest([
       this.$friends,
@@ -267,11 +260,12 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.fetchQueueMembersQueues$.unsubscribe();
     this.fetchUserWebSockets$.unsubscribe();
     this.fetchUserGroup$.unsubscribe();
-    this.newMatchNotification$.unsubscribe();
-    this.newMessageNotification$.unsubscribe();
     this.updateConversations$.unsubscribe();
     this.updateQueueMembers$.unsubscribe();
     this.waitForGameServer$.unsubscribe();
+
+    this.gameServerService.emitter.off('create', this.onGameServerServiceCreate);
+    this.messageService.emitter.off('create', this.onMessageServiceCreate);
   }
 
   public $getUnreadGroupMessagesCount(groupId: string) {

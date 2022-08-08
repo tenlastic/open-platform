@@ -1,11 +1,13 @@
 import { MessageModel } from '../models/message';
 import { MessageStore } from '../states/message';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class MessageService {
-  public emitter = new ServiceEventEmitter<MessageModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<MessageModel>;
 
@@ -16,7 +18,6 @@ export class MessageService {
   ) {
     this.baseService = new BaseService<MessageModel>(
       this.apiService,
-      this.emitter,
       MessageModel,
       this.messageStore,
     );
@@ -67,13 +68,12 @@ export class MessageService {
    */
   public async read(_id: string): Promise<MessageModel> {
     const url = this.getUrl();
-    const response = await this.apiService.observable(
-      'post',
-      `${url}/${_id}/read-by-user-ids`,
-      null,
-    );
+    const response = await this.apiService.request({
+      method: 'post',
+      url: `${url}/${_id}/read-by-user-ids`,
+    });
 
-    const record = new MessageModel(response.record);
+    const record = new MessageModel(response.data.record);
     this.emitter.emit('update', record);
     this.messageStore.upsert(_id, record);
 

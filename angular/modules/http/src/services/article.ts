@@ -1,11 +1,13 @@
 import { ArticleModel } from '../models/article';
 import { ArticleStore } from '../states/article';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class ArticleService {
-  public emitter = new ServiceEventEmitter<ArticleModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<ArticleModel>;
 
@@ -16,7 +18,6 @@ export class ArticleService {
   ) {
     this.baseService = new BaseService<ArticleModel>(
       this.apiService,
-      this.emitter,
       ArticleModel,
       this.articleStore,
     );

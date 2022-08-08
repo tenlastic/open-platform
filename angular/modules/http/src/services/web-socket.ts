@@ -1,11 +1,13 @@
 import { WebSocketModel } from '../models/web-socket';
 import { WebSocketStore } from '../states/web-socket';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class WebSocketService {
-  public emitter = new ServiceEventEmitter<WebSocketModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<WebSocketModel>;
 
@@ -16,7 +18,6 @@ export class WebSocketService {
   ) {
     this.baseService = new BaseService<WebSocketModel>(
       this.apiService,
-      this.emitter,
       WebSocketModel,
       this.webSocketStore,
     );

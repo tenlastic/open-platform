@@ -1,11 +1,13 @@
 import { QueueModel } from '../models/queue';
 import { QueueStore } from '../states/queue';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class QueueService {
-  public emitter = new ServiceEventEmitter<QueueModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<QueueModel>;
 
@@ -14,12 +16,7 @@ export class QueueService {
     private environmentService: EnvironmentService,
     private queueStore: QueueStore,
   ) {
-    this.baseService = new BaseService<QueueModel>(
-      this.apiService,
-      this.emitter,
-      QueueModel,
-      this.queueStore,
-    );
+    this.baseService = new BaseService<QueueModel>(this.apiService, QueueModel, this.queueStore);
   }
 
   /**

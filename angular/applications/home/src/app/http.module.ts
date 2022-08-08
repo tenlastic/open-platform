@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
 import { NgModule, Provider } from '@angular/core';
 import {
+  AccessTokenInterceptor,
   ApiService,
   ArticleQuery,
   ArticleService,
@@ -61,6 +61,8 @@ import {
   StorefrontQuery,
   StorefrontService,
   StorefrontStore,
+  TokenService,
+  UnauthorizedInterceptor,
   UserQuery,
   UserService,
   UserStore,
@@ -74,9 +76,24 @@ import {
   WorkflowService,
   WorkflowStore,
 } from '@tenlastic/ng-http';
+import { Axios } from 'axios';
 
 import { environment } from '../environments/environment';
 
+const interceptors: Provider[] = [
+  {
+    deps: [Axios, TokenService],
+    provide: AccessTokenInterceptor,
+    useFactory: (axios: Axios, tokenService: TokenService) =>
+      new AccessTokenInterceptor(axios, tokenService),
+  },
+  {
+    deps: [Axios, LoginService],
+    provide: UnauthorizedInterceptor,
+    useFactory: (axios: Axios, loginService: LoginService) =>
+      new UnauthorizedInterceptor(axios, loginService),
+  },
+];
 const queries: Provider[] = [
   {
     deps: [ArticleStore],
@@ -199,6 +216,11 @@ const queries: Provider[] = [
 ];
 const services: Provider[] = [
   {
+    deps: [Axios],
+    provide: ApiService,
+    useFactory: (axios: Axios) => new ApiService(axios),
+  },
+  {
     deps: [ApiService, ArticleStore, EnvironmentService],
     provide: ArticleService,
     useFactory: (
@@ -242,6 +264,10 @@ const services: Provider[] = [
       store: CollectionStore,
       environmentService: EnvironmentService,
     ) => new CollectionService(apiService, store, environmentService),
+  },
+  {
+    provide: EnvironmentService,
+    useValue: new EnvironmentService({ apiUrl: environment.apiUrl }),
   },
   {
     deps: [ApiService, EnvironmentService, FriendStore],
@@ -296,6 +322,12 @@ const services: Provider[] = [
       environmentService: EnvironmentService,
       store: IgnorationStore,
     ) => new IgnorationService(apiService, environmentService, store),
+  },
+  {
+    deps: [ApiService, EnvironmentService],
+    provide: LoginService,
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new LoginService(apiService, environmentService),
   },
   {
     deps: [ApiService, EnvironmentService, MessageStore],
@@ -370,6 +402,11 @@ const services: Provider[] = [
     ) => new StorefrontService(apiService, environmentService, store),
   },
   {
+    deps: [LoginService],
+    provide: TokenService,
+    useFactory: (loginService: LoginService) => new TokenService(localStorage, loginService),
+  },
+  {
     deps: [ApiService, EnvironmentService, UserStore],
     provide: UserService,
     useFactory: (
@@ -434,21 +471,8 @@ const stores: Provider[] = [
 
 @NgModule({
   providers: [
-    {
-      deps: [HttpClient],
-      provide: ApiService,
-      useFactory: (httpClient) => new ApiService(httpClient),
-    },
-    {
-      provide: EnvironmentService,
-      useValue: new EnvironmentService({ apiUrl: environment.apiUrl }),
-    },
-    {
-      deps: [ApiService, EnvironmentService],
-      provide: LoginService,
-      useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
-        new LoginService(apiService, environmentService),
-    },
+    { provide: Axios, useValue: new Axios({}) },
+    ...interceptors,
     ...queries,
     ...services,
     ...stores,

@@ -25,9 +25,13 @@ export class GameServerLogService {
     query: GameServerLogsQuery,
   ) {
     const url = this.getUrl(namespaceId, gameServerId);
-    const response = await this.apiService.observable('get', `${url}/${nodeId}`, query);
+    const response = await this.apiService.request({
+      method: 'get',
+      params: query,
+      url: `${url}/${nodeId}`,
+    });
 
-    const records = response.records.map(
+    const records = response.data.records.map(
       (record) => new GameServerLogModel({ ...record, gameServerId, nodeId }),
     );
     this.gameServerLogStore.upsertMany(records);

@@ -33,10 +33,11 @@ import {
   WebSocketService,
   WorkflowModel,
   WorkflowService,
+  TokenService,
 } from '@tenlastic/ng-http';
 
 import { environment } from '../environments/environment';
-import { ElectronService, IdentityService, Socket, SocketService } from './core/services';
+import { ElectronService, Socket, SocketService } from './core/services';
 import { TITLE } from './shared/constants';
 
 @Component({
@@ -60,7 +61,6 @@ export class AppComponent implements OnInit {
     private gameServerService: GameServerService,
     private groupService: GroupService,
     private groupInvitationService: GroupInvitationService,
-    private identityService: IdentityService,
     private loginService: LoginService,
     private messageService: MessageService,
     private queueMemberQuery: QueueMemberQuery,
@@ -70,6 +70,7 @@ export class AppComponent implements OnInit {
     private socketService: SocketService,
     private storefrontService: StorefrontService,
     private titleService: Title,
+    private tokenService: TokenService,
     private userQuery: UserQuery,
     private userService: UserService,
     private webSocketQuery: WebSocketQuery,
@@ -88,7 +89,7 @@ export class AppComponent implements OnInit {
     this.loginService.emitter.on('logout', () => this.socket?.close());
 
     // Handle websockets when access token is set.
-    this.identityService.OnAccessTokenSet.subscribe((accessToken) => {
+    this.tokenService.emitter.on('accessToken', (accessToken) => {
       if (accessToken) {
         this.connectSocket();
       }

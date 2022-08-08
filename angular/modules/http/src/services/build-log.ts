@@ -20,9 +20,13 @@ export class BuildLogService {
    */
   public async find(namespaceId: string, buildId: string, nodeId: string, query: BuildLogsQuery) {
     const url = this.getUrl(namespaceId, buildId);
-    const response = await this.apiService.observable('get', `${url}/${nodeId}`, query);
+    const response = await this.apiService.request({
+      method: 'get',
+      params: query,
+      url: `${url}/${nodeId}`,
+    });
 
-    const records = response.records.map(
+    const records = response.data.records.map(
       (record) => new BuildLogModel({ ...record, buildId, nodeId }),
     );
     this.buildLogStore.upsertMany(records);

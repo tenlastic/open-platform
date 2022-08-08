@@ -1,33 +1,37 @@
 {
-  "main": "./dist/angular/bundles/tenlastic-ng-http.umd.js",
+  "license": "ISC",
+  "main": "./dist/index.js",
   "name": "@tenlastic/ng-http",
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": {
     "type": "git",
     "url": "ssh://git@github.com/tenlastic/open-platform.git"
   },
-  "typings": "./dist/angular/module.d.ts",
   "version": "0.0.299",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "ng build http --configuration production",
-    "lint": "ng lint http",
-    "prepublishOnly": "ng build http --configuration production",
-    "test": "ng test --code-coverage --watch false http",
-    "test:watch": "ng test http"
+    "build": "../../../nodejs/scripts/build.sh",
+    "build:watch": "watch ../../../nodejs/scripts/build.sh ./src",
+    "lint": "../../../nodejs/scripts/lint.sh",
+    "prepublishOnly": "../../../nodejs/scripts/build.sh",
+    "test": "../../../nodejs/scripts/test.sh",
+    "test:watch": "../../../nodejs/scripts/test.sh --watch"
   },
   "dependencies": {
-    "tslib": "^2.0.0"
-  },
-  "peerDependencies": {
-    "@angular/common": "^8.2.14",
-    "@angular/core": "^8.2.14",
-    "@datorama/akita": "^6.2.4",
-    "events": "^3.3.0",
-    "jwt-decode": "^3.1.2"
+    "@datorama/akita": "6.2.4",
+    "events": "3.3.0",
+    "jwt-decode": "3.1.2"
   },
   "devDependencies": {
-    "@angular/cli": "~12.2.9"
+    "@types/mocha": "9.1.1",
+    "axios": "0.27.2",
+    "eslint": "^7.26.0",
+    "mocha": "7.1.2",
+    "nyc": "15.0.0",
+    "ts-node": "8.9.1",
+    "typed-emitter": "2.1.0",
+    "typescript": "4.3.5",
+    "watch": "1.0.2"
   }
 }

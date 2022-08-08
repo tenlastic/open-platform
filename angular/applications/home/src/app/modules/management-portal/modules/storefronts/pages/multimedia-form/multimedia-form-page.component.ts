@@ -43,7 +43,7 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
   }
 
   public async onFieldChanged($event, field: string) {
-    const files: any[] = Array.from($event.target.files);
+    const files: Blob[] = Array.from($event.target.files);
     if (!files.length) {
       return;
     }
@@ -52,10 +52,17 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
     this.uploadErrors[field] = [];
 
     try {
-      const { body } = await this.storefrontService
-        .upload(this.data.namespaceId, this.data._id, field, files)
-        .toPromise();
-      this.data = body.record;
+      const formData = new FormData();
+      for (const file of files) {
+        formData.append(field, file);
+      }
+
+      this.data = await this.storefrontService.upload(
+        this.data.namespaceId,
+        this.data._id,
+        field,
+        formData,
+      );
 
       const fieldTitleCase = field.charAt(0).toUpperCase() + field.substring(1);
       this.matSnackBar.open(`${fieldTitleCase} uploaded successfully.`);

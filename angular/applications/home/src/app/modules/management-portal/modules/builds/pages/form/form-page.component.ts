@@ -12,6 +12,7 @@ import {
   BuildService,
   IAuthorization,
 } from '@tenlastic/ng-http';
+import { Axios } from 'axios';
 import JSZip from 'jszip';
 import { EMPTY, Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -66,6 +67,7 @@ export class BuildsFormPageComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
+    private axios: Axios,
     private buildQuery: BuildQuery,
     private buildService: BuildService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -180,31 +182,15 @@ export class BuildsFormPageComponent implements OnInit {
     // Upload files.
     this.progress = { current: 0, total: zipBlob?.size };
     this.status = Status.Uploading;
-    const result = await new Promise<BuildModel>((resolve, reject) => {
-      this.buildService
-        .create(data._id, data, zipBlob)
-        .pipe(
-          catchError((err: HttpErrorResponse) => {
-            reject(err);
-            return EMPTY;
-          }),
-        )
-        .subscribe((event) => {
-          const file = new File([zipBlob], 'file');
 
-          switch (event.type) {
-            case HttpEventType.Sent:
-              this.progress = { current: 0, total: file.size };
-              return;
+    const formData = new FormData();
+    formData.append('record', JSON.stringify(data));
+    formData.append('zip', zipBlob);
 
-            case HttpEventType.UploadProgress:
-              this.progress = { current: event.loaded, total: event.total };
-              return;
-
-            case HttpEventType.Response:
-              return resolve(event.body.record);
-          }
-        });
+    const result = await this.buildService.create(data._id, formData, {
+      onUploadProgress: (progressEvent) => {
+        this.progress = { current: progressEvent.loaded * 100, total: progressEvent.total };
+      },
     });
 
     this.form.enable({ emitEvent: false });

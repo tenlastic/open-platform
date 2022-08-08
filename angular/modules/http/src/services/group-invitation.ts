@@ -1,11 +1,13 @@
 import { GroupInvitationModel } from '../models/group-invitation';
 import { GroupInvitationStore } from '../states/group-invitation';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class GroupInvitationService {
-  public emitter = new ServiceEventEmitter<GroupInvitationModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<GroupInvitationModel>;
 
@@ -16,7 +18,6 @@ export class GroupInvitationService {
   ) {
     this.baseService = new BaseService<GroupInvitationModel>(
       this.apiService,
-      this.emitter,
       GroupInvitationModel,
       this.groupInvitationStore,
     );

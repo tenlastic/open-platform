@@ -1,11 +1,13 @@
 import { CollectionModel } from '../models/collection';
 import { CollectionStore } from '../states/collection';
 import { ApiService } from './api/api';
-import { BaseService, BaseServiceFindQuery, ServiceEventEmitter } from './base';
+import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class CollectionService {
-  public emitter = new ServiceEventEmitter<CollectionModel>();
+  public get emitter() {
+    return this.baseService.emitter;
+  }
 
   private baseService: BaseService<CollectionModel>;
 
@@ -16,7 +18,6 @@ export class CollectionService {
   ) {
     this.baseService = new BaseService<CollectionModel>(
       this.apiService,
-      this.emitter,
       CollectionModel,
       this.collectionStore,
     );

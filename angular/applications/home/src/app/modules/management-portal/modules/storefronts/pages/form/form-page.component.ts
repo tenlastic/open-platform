@@ -97,7 +97,7 @@ export class StorefrontsFormPageComponent implements OnInit {
   }
 
   public async onFieldChanged($event, field: string) {
-    const files: any[] = Array.from($event.target.files);
+    const files: Blob[] = Array.from($event.target.files);
     if (!files.length) {
       return;
     }
@@ -209,10 +209,15 @@ export class StorefrontsFormPageComponent implements OnInit {
       : await this.storefrontService.create(this.params.namespaceId, values);
 
     for (const background of this.pending.background) {
-      const { body } = await this.storefrontService
-        .upload(this.params.namespaceId, this.data._id, 'background', [background.file])
-        .toPromise();
-      this.data = body.record;
+      const formData = new FormData();
+      formData.append('background', background.file);
+
+      this.data = await this.storefrontService.upload(
+        this.params.namespaceId,
+        this.data._id,
+        'background',
+        formData,
+      );
     }
 
     this.matSnackBar.open(`Storefront saved successfully.`);

@@ -1,11 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule, Optional, SkipSelf } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-
-import { TokenInterceptor, UnauthorizedInterceptor } from './interceptors';
 
 import { HttpModule } from '../http.module';
 import { MaterialModule } from '../material.module';
@@ -20,18 +18,6 @@ import { MaterialModule } from '../material.module';
     HttpModule,
     MaterialModule,
     RouterModule,
-  ],
-  providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: TokenInterceptor,
-      multi: true,
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: UnauthorizedInterceptor,
-      multi: true,
-    },
   ],
 })
 export class CoreModule {
