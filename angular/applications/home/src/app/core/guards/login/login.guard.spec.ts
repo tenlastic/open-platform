@@ -1,4 +1,3 @@
-import { DOCUMENT } from '@angular/common';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { LoginService, TokenService } from '@tenlastic/http';
@@ -7,7 +6,6 @@ import { HttpModule } from '../../../http.module';
 import { LoginGuard } from './login.guard';
 
 describe('LoginGuard', () => {
-  let document: Document;
   let loginService: LoginService;
   let service: LoginGuard;
   let tokenService: TokenService;
@@ -15,15 +13,8 @@ describe('LoginGuard', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, HttpModule],
-      providers: [
-        {
-          provide: DOCUMENT,
-          useValue: { location: { href: 'http://localhost' } },
-        },
-      ],
     });
 
-    document = TestBed.inject(DOCUMENT);
     loginService = TestBed.inject(LoginService);
     service = TestBed.inject(LoginGuard);
     tokenService = TestBed.inject(TokenService);
