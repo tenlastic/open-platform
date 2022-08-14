@@ -1,27 +1,13 @@
-import {
-  BuildModel,
-  buildService,
-  GameServerModel,
-  gameServerService,
-  getAccessToken,
-  IBuild,
-  loginService,
-  NamespaceModel,
-  namespaceService,
-  queueLogService,
-  queueMemberService,
-  QueueModel,
-  queueService,
-  setAccessToken,
-  userService,
-  WebSocket,
-} from '@tenlastic/http';
+import { BuildModel, GameServerModel, IBuild, NamespaceModel, QueueModel } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
+import * as FormData from 'form-data';
 import * as JSZip from 'jszip';
 import { step } from 'mocha-steps';
+
+import dependencies from '../dependencies';
 
 const wssUrl = process.env.E2E_WSS_URL;
 
@@ -34,7 +20,7 @@ describe('queues', function () {
   let namespace: NamespaceModel;
 
   before(async function () {
-    namespace = await namespaceService.create({ name: chance.hash() });
+    namespace = await dependencies.namespaceService.create({ name: chance.hash() });
 
     // Generate a zip stream.
     const zip = new JSZip();
@@ -47,30 +33,32 @@ describe('queues', function () {
     });
 
     // Create a Build.
-    build = await buildService.create(
-      namespace._id,
-      {
+    const formData = new FormData();
+    formData.append(
+      'record',
+      JSON.stringify({
         entrypoint: 'Dockerfile',
         name: chance.hash(),
         namespaceId: namespace._id,
         platform: IBuild.Platform.Server64,
-      },
-      buffer,
+      } as BuildModel),
     );
+    formData.append('zip', buffer);
+    build = await dependencies.buildService.create(namespace._id, formData);
 
     // Wait for Build to finish.
     await wait(10000, 180000, async () => {
-      const response = await buildService.findOne(namespace._id, build._id);
+      const response = await dependencies.buildService.findOne(namespace._id, build._id);
       return response.status?.phase === 'Succeeded';
     });
   });
 
   after(async function () {
-    await namespaceService.delete(namespace._id);
+    await dependencies.namespaceService.delete(namespace._id);
   });
 
   step('creates a Queue', async function () {
-    queue = await queueService.create(namespace._id, {
+    queue = await dependencies.queueService.create(namespace._id, {
       cpu: 0.1,
       gameServerTemplate: {
         buildId: build._id,
@@ -89,14 +77,14 @@ describe('queues', function () {
 
     // Wait for Queue to be running.
     await wait(10000, 180000, async () => {
-      queue = await queueService.findOne(namespace._id, queue._id);
+      queue = await dependencies.queueService.findOne(namespace._id, queue._id);
       return queue.status?.phase === 'Running';
     });
   });
 
   step('generates logs', async function () {
     const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
-      const response = await queueLogService.find(
+      const response = await dependencies.queueLogService.find(
         namespace._id,
         queue._id,
         queue.status.nodes[0]._id,
@@ -112,7 +100,7 @@ describe('queues', function () {
     const user = await createUser();
 
     // Add Queue Members.
-    await queueMemberService.create(namespace._id, {
+    await dependencies.queueMemberService.create(namespace._id, {
       namespaceId: namespace._id,
       queueId: queue._id,
       userId: user.user._id,
@@ -121,16 +109,16 @@ describe('queues', function () {
 
     try {
       // Close WebSocket and wait for asynchronous Queue Member deletion.
-      user.webSocket.close();
+      dependencies.streamService.close(wssUrl);
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
-      const queueMembers = await queueMemberService.find(namespace._id, {
+      const queueMembers = await dependencies.queueMemberService.find(namespace._id, {
         where: { queueId: queue._id },
       });
       expect(queueMembers.length).to.eql(0);
     } finally {
-      user.webSocket.close();
-      await userService.delete(user.user._id);
+      dependencies.streamService.close(wssUrl);
+      await dependencies.userService.delete(user.user._id);
     }
   });
 
@@ -140,13 +128,13 @@ describe('queues', function () {
     const users = [firstUser, secondUser];
 
     // Add Queue Members.
-    await queueMemberService.create(namespace._id, {
+    await dependencies.queueMemberService.create(namespace._id, {
       namespaceId: namespace._id,
       queueId: queue._id,
       userId: users[0].user._id,
       webSocketId: users[0].webSocketId,
     });
-    await queueMemberService.create(namespace._id, {
+    await dependencies.queueMemberService.create(namespace._id, {
       namespaceId: namespace._id,
       queueId: queue._id,
       userId: users[1].user._id,
@@ -156,7 +144,7 @@ describe('queues', function () {
     try {
       // Wait for Game Server to be created.
       const gameServer: GameServerModel = await wait(10000, 180000, async () => {
-        const gameServers = await gameServerService.find(namespace._id, {
+        const gameServers = await dependencies.gameServerService.find(namespace._id, {
           where: { queueId: queue._id },
         });
         return gameServers[0];
@@ -168,13 +156,13 @@ describe('queues', function () {
       expect(gameServer.metadata.usersPerTeam).to.eql(1);
       expect(gameServer.queueId).to.eql(queue._id);
 
-      const queueMembers = await queueMemberService.find(namespace._id, {
+      const queueMembers = await dependencies.queueMemberService.find(namespace._id, {
         where: { queueId: queue._id },
       });
       expect(queueMembers.length).to.eql(0);
     } finally {
-      users.forEach((u) => u.webSocket.close());
-      await Promise.all(users.map((u) => userService.delete(u.user._id)));
+      dependencies.streamService.close(wssUrl);
+      await Promise.all(users.map((u) => dependencies.userService.delete(u.user._id)));
     }
   });
 });
@@ -182,28 +170,20 @@ describe('queues', function () {
 async function createUser() {
   // Create a new User.
   const password = chance.hash();
-  const user = await userService.create({ password, username: chance.hash({ length: 20 }) });
-  const login = await loginService.createWithCredentials(user.username, password);
-
-  // Update access token to new User.
-  const accessToken = await getAccessToken();
-  setAccessToken(login.accessToken);
-
-  // Connect to the web socket server.
-  const webSocket = new WebSocket();
-  await webSocket.connect(wssUrl);
-
-  // Wait for the Web Socket to be returned.
-  const webSocketId = await new Promise<string>((resolve) => {
-    webSocket.emitter.on('message', (payload) => {
-      if (!payload._id && payload.fullDocument && payload.operationType === 'insert') {
-        return resolve(payload.fullDocument._id);
-      }
-    });
+  const user = await dependencies.userService.create({
+    password,
+    username: chance.hash({ length: 20 }),
   });
 
-  // Restore original access token.
-  setAccessToken(accessToken);
+  const accessToken = await dependencies.tokenService.getAccessToken();
+  await dependencies.loginService.createWithCredentials(user.username, password);
 
-  return { user, webSocket, webSocketId };
+  // Connect to the web socket server.
+  await dependencies.streamService.connect(wssUrl);
+  const webSocketId = await dependencies.streamService.getId(wssUrl);
+
+  // Restore original access token.
+  dependencies.tokenService.setAccessToken(accessToken.value);
+
+  return { user, webSocketId };
 }

@@ -1,9 +1,11 @@
-import { loginService, passwordResetService, UserModel, userService } from '@tenlastic/http';
+import { UserModel } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import { google } from 'googleapis';
+
+import dependencies from '../dependencies';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -29,23 +31,23 @@ describe('password-resets', function () {
     const password = chance.hash();
 
     // Delete existing User if exists;
-    const users = await userService.find({ where: { email } });
+    const users = await dependencies.userService.find({ where: { email } });
     if (users.length > 0) {
-      await userService.delete(users[0]._id);
+      await dependencies.userService.delete(users[0]._id);
     }
 
-    user = await userService.create({ email, password, username });
+    user = await dependencies.userService.create({ email, password, username });
 
-    const response = await loginService.createWithCredentials(username, password);
+    const response = await dependencies.loginService.createWithCredentials(username, password);
     refreshToken = response.refreshToken;
   });
 
   afterEach(async function () {
-    await userService.delete(user._id);
+    await dependencies.userService.delete(user._id);
   });
 
   it('sends a password reset email', async function () {
-    await passwordResetService.create(email);
+    await dependencies.passwordResetService.create(email);
 
     const hash = await wait(2.5 * 1000, 30 * 1000, getPasswordResetHash);
     expect(hash).to.match(/[A-Za-z0-9]+/);
@@ -55,23 +57,23 @@ describe('password-resets', function () {
     let hash: string;
 
     beforeEach(async function () {
-      await passwordResetService.create(email);
+      await dependencies.passwordResetService.create(email);
       hash = await wait(2.5 * 1000, 30 * 1000, getPasswordResetHash);
     });
 
     it('resets the password', async function () {
       const password = chance.hash();
-      await passwordResetService.delete(hash, password);
+      await dependencies.passwordResetService.delete(hash, password);
 
-      const response = await loginService.createWithCredentials(username, password);
+      const response = await dependencies.loginService.createWithCredentials(username, password);
       expect(response.accessToken).to.exist;
       expect(response.refreshToken).to.exist;
     });
 
     it('invalidates the old refresh token', async function () {
-      await passwordResetService.delete(hash, chance.hash());
+      await dependencies.passwordResetService.delete(hash, chance.hash());
 
-      const promise = loginService.createWithRefreshToken(refreshToken);
+      const promise = dependencies.loginService.createWithRefreshToken(refreshToken);
       return expect(promise).to.be.rejected;
     });
   });

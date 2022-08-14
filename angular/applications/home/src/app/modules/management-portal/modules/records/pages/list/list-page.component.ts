@@ -81,12 +81,11 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
       this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
 
       this.subscription = await this.streamService.subscribe(
-        'records',
         RecordModel,
+        { collection: 'records', where: { collectionId: this.params.collection } },
         this.recordService,
         this.recordStore,
         environment.wssUrl,
-        { collectionId: this.params.collectionId },
       );
 
       await this.fetchRecords(params);

@@ -10,6 +10,7 @@ export * from './game-server-log';
 export * from './group';
 export * from './group-invitation';
 export * from './ignoration';
+export * from './jwt';
 export * from './message';
 export * from './namespace';
 export * from './queue';

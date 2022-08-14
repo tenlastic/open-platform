@@ -1,72 +1,72 @@
 import 'source-map-support/register';
 
-import {
-  queueMemberService,
-  queueQuery,
-  queueService,
-  setApiKey,
-  setApiUrl,
-  WebSocket,
-} from '@tenlastic/http';
+import { QueueMemberModel, QueueModel } from '@tenlastic/http';
 import { WebServer } from '@tenlastic/web-server';
+
+import dependencies from './dependencies';
 
 import { createGameServer } from './create-game-server';
 import * as redis from './redis';
 
-const apiKey = process.env.API_KEY;
-const apiUrl = process.env.API_URL;
 const podName = process.env.POD_NAME;
 const queue = JSON.parse(process.env.QUEUE_JSON);
 const wssUrl = process.env.WSS_URL;
 
 (async () => {
   try {
-    setApiKey(apiKey);
-    setApiUrl(apiUrl);
-
     // Redis.
     await redis.start();
 
     // Add initial Queue data.
-    await queueService.findOne(queue.namespaceId, queue._id);
+    await dependencies.queueService.findOne(queue.namespaceId, queue._id);
 
     // Log Queue Member changes.
-    queueMemberService.emitter.on('create', (record) =>
+    dependencies.queueMemberService.emitter.on('create', (record) =>
       console.log(`Created Queue Member with User IDs: ${record.userIds.join(',')}.`),
     );
-    queueMemberService.emitter.on('delete', (_id) =>
+    dependencies.queueMemberService.emitter.on('delete', (_id) =>
       console.log(`Deleted Queue Member User IDs: ${_id}.`),
     );
 
     // Web Socket.
-    const webSocket = new WebSocket();
-    webSocket.emitter.on('open', () => {
-      console.log('Web socket connected.');
+    await dependencies.streamService.connect(wssUrl);
 
-      // Watch for updates to the Queue.
-      webSocket.subscribe(queueService.emitter, {
-        collection: 'queues',
-        resumeToken: podName,
-        where: { _id: queue._id },
-      });
+    // Watch for updates to the Queue.
+    await dependencies.streamService.subscribe(
+      QueueModel,
+      { collection: 'queues', resumeToken: podName, where: { _id: queue._id } },
+      dependencies.queueService,
+      dependencies.queueStore,
+      wssUrl,
+    );
 
-      // Distribute new Queue Members among replicas.
-      webSocket.subscribe(queueMemberService.emitter, {
+    // Distribute new Queue Members among replicas.
+    await dependencies.streamService.subscribe(
+      QueueMemberModel,
+      {
         collection: 'queue-members',
         operationType: ['insert'],
         resumeToken: `queue-${queue._id}`,
         where: { queueId: queue._id },
-      });
+      },
+      dependencies.queueMemberService,
+      dependencies.queueMemberStore,
+      wssUrl,
+    );
 
-      // Get all Queue Member deletions.
-      webSocket.subscribe(queueMemberService.emitter, {
+    // Get all Queue Member deletions.
+    await dependencies.streamService.subscribe(
+      QueueMemberModel,
+      {
         collection: 'queue-members',
         operationType: ['delete'],
         resumeToken: podName,
         where: { queueId: queue._id },
-      });
-    });
-    await webSocket.connect(wssUrl);
+      },
+      dependencies.queueMemberService,
+      dependencies.queueMemberStore,
+      wssUrl,
+    );
 
     // Web Server.
     const webServer = new WebServer();
@@ -83,7 +83,7 @@ const wssUrl = process.env.WSS_URL;
 
 async function main() {
   try {
-    const q = queueQuery.getEntity(queue._id);
+    const q = dependencies.queueQuery.getEntity(queue._id);
     const result = await createGameServer(q);
     console.log(`GameServer created successfully: ${result._id}.`);
 

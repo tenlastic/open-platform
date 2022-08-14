@@ -1,7 +1,9 @@
+import WebSocket from 'isomorphic-ws';
 import TypedEmitter from 'typed-emitter';
 import { v4 as uuid } from 'uuid';
 
 import { BaseModel } from '../models/base';
+import { EnvironmentService } from './environment';
 import { TokenService } from './token';
 
 interface LogsParameters {
@@ -25,6 +27,8 @@ interface Store {
 
 interface SubscribeParameters {
   collection: string;
+  operationType?: string[];
+  resumeToken?: string;
   where?: any;
 }
 
@@ -46,7 +50,7 @@ export class StreamService {
   private resumeTokens: { [key: string]: string } = {};
   private subscriptions: Subscription[] = [];
 
-  constructor(private tokenService: TokenService) {}
+  constructor(private environmentService: EnvironmentService, private tokenService: TokenService) {}
 
   public close(url: string) {
     const socket = this.webSockets[url];
@@ -54,16 +58,24 @@ export class StreamService {
   }
 
   public async connect(url: string) {
-    const accessToken = await this.tokenService.getAccessToken();
-    if (!accessToken || accessToken.isExpired) {
-      return;
-    }
-
     if (this.webSockets[url]) {
       return this.webSockets[url];
     }
 
-    const socket = new WebSocket(`${url}?access_token=${accessToken.value}`);
+    let connectionString = url;
+
+    if (this.environmentService?.apiKey) {
+      connectionString += `?api_key=${this.environmentService.apiKey}`;
+    } else if (this.tokenService) {
+      const accessToken = await this.tokenService.getAccessToken();
+      if (!accessToken || accessToken.isExpired) {
+        return;
+      }
+
+      connectionString += `?access_token=${accessToken.value}`;
+    }
+
+    const socket = new WebSocket(connectionString);
     this.webSockets[url] = socket;
 
     const data = { _id: uuid(), method: 'ping' };
@@ -98,17 +110,38 @@ export class StreamService {
 
       for (const subscription of subscribe) {
         this.subscribe(
-          subscription.subscribe.collection,
           subscription.Model,
+          subscription.subscribe,
           subscription.service,
           subscription.store,
           subscription.url,
-          subscription.subscribe.where,
         );
       }
     });
 
-    return socket;
+    return new Promise<WebSocket>((resolve, reject) => {
+      socket.addEventListener('close', reject);
+      socket.addEventListener('error', reject);
+      socket.addEventListener('open', () => resolve(socket));
+    });
+  }
+
+  public async getId(url: string) {
+    if (this._ids[url]) {
+      return this._ids[url];
+    }
+
+    return new Promise<string>((resolve) => {
+      const socket = this.webSockets[url];
+
+      socket.addEventListener('message', (msg) => {
+        const payload = JSON.parse(msg.data);
+
+        if (!payload._id && payload.fullDocument && payload.operationType === 'insert') {
+          return resolve(payload.fullDocument._id);
+        }
+      });
+    });
   }
 
   public async logs(
@@ -143,18 +176,17 @@ export class StreamService {
   }
 
   public async subscribe(
-    collection: string,
     Model: new (parameters?: Partial<BaseModel>) => BaseModel,
+    parameters: SubscribeParameters,
     service: Service,
     store: Store,
     url: string,
-    where: any = {},
   ) {
     const _id = uuid();
     const data = {
       _id,
       method: 'subscribe',
-      parameters: { collection, resumeToken: this.resumeTokens[collection], where },
+      parameters: { resumeToken: this.resumeTokens[parameters.collection], ...parameters },
     };
     const socket = this.webSockets[url];
 
@@ -168,8 +200,8 @@ export class StreamService {
       }
 
       // Save the resume token if available.
-      if (payload.resumeToken) {
-        this.resumeTokens[collection] = payload.resumeToken;
+      if (payload.resumeToken && !parameters.resumeToken) {
+        this.resumeTokens[parameters.collection] = payload.resumeToken;
       }
 
       const record = new Model(payload.fullDocument);
@@ -190,7 +222,7 @@ export class StreamService {
       method: 'subscribe',
       Model,
       service,
-      subscribe: { collection, where },
+      subscribe: parameters,
       url,
     });
 

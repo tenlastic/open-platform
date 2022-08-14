@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ApiService } from '@tenlastic/http';
 import { Chance } from 'chance';
 
+import { HttpModule } from '../../../http.module';
 import { CollectionFormService } from './collection-form.service';
 
 const chance = new Chance();
@@ -13,8 +13,8 @@ describe('CollectionFormService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [FormsModule, ReactiveFormsModule],
-      providers: [ApiService, CollectionFormService],
+      imports: [FormsModule, HttpModule, ReactiveFormsModule],
+      providers: [CollectionFormService],
     });
 
     service = TestBed.inject(CollectionFormService);

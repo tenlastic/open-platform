@@ -1,13 +1,9 @@
-import {
-  getAccessToken,
-  loginService,
-  setAccessToken,
-  UserModel,
-  userService,
-} from '@tenlastic/http';
+import { Jwt, UserModel } from '@tenlastic/http';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
+
+import dependencies from '../dependencies';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -21,17 +17,17 @@ describe('logins', function () {
     password = chance.hash();
     username = chance.hash({ length: 20 });
 
-    user = await userService.create({ password, username });
+    user = await dependencies.userService.create({ password, username });
   });
 
   afterEach(async function () {
-    await userService.delete(user._id);
+    await dependencies.userService.delete(user._id);
   });
 
   describe('login with credentials', function () {
     context('when password is valid', function () {
       it('returns an access and refresh token', async function () {
-        const { accessToken, refreshToken } = await loginService.createWithCredentials(
+        const { accessToken, refreshToken } = await dependencies.loginService.createWithCredentials(
           username,
           password,
         );
@@ -43,7 +39,7 @@ describe('logins', function () {
 
     context('when password is invalid', function () {
       it('throws an error', async function () {
-        const promise = loginService.createWithCredentials(username, chance.hash());
+        const promise = dependencies.loginService.createWithCredentials(username, chance.hash());
 
         return expect(promise).to.be.rejected;
       });
@@ -54,13 +50,13 @@ describe('logins', function () {
     let refreshToken: string;
 
     beforeEach(async function () {
-      const response = await loginService.createWithCredentials(username, password);
+      const response = await dependencies.loginService.createWithCredentials(username, password);
       refreshToken = response.refreshToken;
     });
 
     context('when refreshToken is valid', function () {
       it('returns an access and refresh token', async function () {
-        const response = await loginService.createWithRefreshToken(refreshToken);
+        const response = await dependencies.loginService.createWithRefreshToken(refreshToken);
 
         expect(response.accessToken).to.exist;
         expect(response.refreshToken).to.exist;
@@ -69,7 +65,7 @@ describe('logins', function () {
 
     context('when refreshToken is invalid', function () {
       it('throws an error', async function () {
-        const promise = loginService.createWithRefreshToken(chance.hash());
+        const promise = dependencies.loginService.createWithRefreshToken(chance.hash());
 
         return expect(promise).to.be.rejected;
       });
@@ -77,25 +73,25 @@ describe('logins', function () {
   });
 
   describe('logout', function () {
-    let accessToken: string;
+    let accessToken: Jwt;
     let refreshToken: string;
 
     beforeEach(async function () {
-      const response = await loginService.createWithCredentials(username, password);
-      refreshToken = response.refreshToken;
+      accessToken = await dependencies.tokenService.getAccessToken();
 
-      accessToken = await getAccessToken();
-      setAccessToken(response.accessToken);
+      const response = await dependencies.loginService.createWithCredentials(username, password);
+      dependencies.tokenService.setAccessToken(response.accessToken);
+      refreshToken = response.refreshToken;
     });
 
     afterEach(async function () {
-      setAccessToken(accessToken);
+      dependencies.tokenService.setAccessToken(accessToken.value);
     });
 
     it('invalidates the associated refresh token', async function () {
-      await loginService.delete();
+      await dependencies.loginService.delete();
 
-      const promise = loginService.createWithRefreshToken(refreshToken);
+      const promise = dependencies.loginService.createWithRefreshToken(refreshToken);
       return expect(promise).to.be.rejected;
     });
   });

@@ -1,6 +1,8 @@
-import { IQueue, queueQuery } from '@tenlastic/http';
+import { IQueue } from '@tenlastic/http';
 import { podApiV1, V1Pod } from '@tenlastic/kubernetes';
 import * as requestPromiseNative from 'request-promise-native';
+
+import dependencies from '../dependencies';
 
 const apiKey = process.env.API_KEY;
 const endpoint = process.env.QUEUE_ENDPOINT;
@@ -69,7 +71,7 @@ async function updateQueue() {
     .map(getPodStatus);
 
   // Components.
-  const replicas = queueQuery.getEntity(queue._id).replicas;
+  const replicas = dependencies.queueQuery.getEntity(queue._id).replicas;
   const components = nodes.reduce(
     (previous, current) => {
       if (current.phase !== 'Running') {

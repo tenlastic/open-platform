@@ -11,37 +11,40 @@ import { AppComponent } from './app.component';
 
 export const ROUTES: Routes = [
   {
-    canActivate: [LoginGuard],
+    children: [
+      {
+        canActivate: [LoginGuard],
+        loadChildren: () => import('./modules/account/account.module').then((m) => m.AccountModule),
+        path: 'account',
+      },
+      {
+        loadChildren: () =>
+          import('./modules/authentication/authentication.module').then(
+            (m) => m.AuthenticationModule,
+          ),
+        path: 'authentication',
+      },
+      {
+        canActivate: [LoginGuard],
+        loadChildren: () =>
+          import('./modules/management-portal/management-portal.module').then(
+            (m) => m.ManagementPortalModule,
+          ),
+        path: 'management-portal',
+      },
+      {
+        loadChildren: () => import('./modules/store/store.module').then((m) => m.StoreModule),
+        path: 'store',
+      },
+      {
+        loadChildren: () => import('./modules/home/home.module').then((m) => m.HomeModule),
+        path: '',
+      },
+      { path: '**', redirectTo: '' },
+    ],
     component: LayoutComponent,
-    loadChildren: () => import('./modules/account/account.module').then((m) => m.AccountModule),
-    path: 'account',
-  },
-  {
-    component: LayoutComponent,
-    loadChildren: () =>
-      import('./modules/authentication/authentication.module').then((m) => m.AuthenticationModule),
-    path: 'authentication',
-  },
-  {
-    canActivate: [LoginGuard],
-    component: LayoutComponent,
-    loadChildren: () =>
-      import('./modules/management-portal/management-portal.module').then(
-        (m) => m.ManagementPortalModule,
-      ),
-    path: 'management-portal',
-  },
-  {
-    component: LayoutComponent,
-    loadChildren: () => import('./modules/store/store.module').then((m) => m.StoreModule),
-    path: 'store',
-  },
-  {
-    component: LayoutComponent,
-    loadChildren: () => import('./modules/home/home.module').then((m) => m.HomeModule),
     path: '',
   },
-  { path: '**', redirectTo: '' },
 ];
 
 @NgModule({

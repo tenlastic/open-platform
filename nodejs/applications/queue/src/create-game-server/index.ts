@@ -1,12 +1,6 @@
-import {
-  GameServerModel,
-  gameServerService,
-  QueueModel,
-  QueueMemberModel,
-  queueMemberService,
-  queueMemberStore,
-  queueMemberQuery,
-} from '@tenlastic/http';
+import { GameServerModel, QueueModel, QueueMemberModel } from '@tenlastic/http';
+
+import dependencies from '../dependencies';
 
 import { getTeamAssignments } from '../get-team-assignments';
 import { removeConflictedUsers } from '../remove-conflicted-users';
@@ -16,7 +10,7 @@ import { removeConflictedUsers } from '../remove-conflicted-users';
  */
 export async function createGameServer(queue: QueueModel): Promise<GameServerModel> {
   // Assign QueueMembers to teams.
-  const queueMembers = queueMemberQuery.getAll();
+  const queueMembers = dependencies.queueMemberQuery.getAll();
   const teamAssignments = getTeamAssignments(queue, queueMembers);
 
   // Throw an error if not enough teams were found.
@@ -39,12 +33,12 @@ export async function createGameServer(queue: QueueModel): Promise<GameServerMod
   // If any QueueMembers have been removed, retry team assignments.
   const removedQueueMembers = await removeConflictedUsers(queue, Array.from(set));
   if (removedQueueMembers.length) {
-    removedQueueMembers.forEach((rqm) => queueMemberStore.remove(rqm._id));
+    removedQueueMembers.forEach((rqm) => dependencies.queueMemberStore.remove(rqm._id));
     return createGameServer(queue);
   }
 
   // Create the GameServer.
-  const gameServer = await gameServerService.create(queue.namespaceId, {
+  const gameServer = await dependencies.gameServerService.create(queue.namespaceId, {
     authorizedUserIds: teamAssignments.filter((ta) => ta),
     buildId: queue.gameServerTemplate.buildId,
     cpu: queue.gameServerTemplate.cpu,
@@ -65,7 +59,7 @@ export async function createGameServer(queue: QueueModel): Promise<GameServerMod
 
   // Remove matched QueueMembers.
   const promises = Array.from(set).map((qm) =>
-    queueMemberService.delete(queue.namespaceId, qm._id),
+    dependencies.queueMemberService.delete(queue.namespaceId, qm._id),
   );
   await Promise.all(promises);
 

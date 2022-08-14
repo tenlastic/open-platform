@@ -1,3 +1,4 @@
+import { AxiosRequestConfig } from 'axios';
 import { BuildModel } from '../models/build';
 import { BuildStore } from '../states/build';
 import { ApiService } from './api';
@@ -61,12 +62,16 @@ export class BuildService {
   /**
    * Downloads a Build as a Blob.
    */
-  public download(namespaceId: string, _id: string) {
+  public download(
+    namespaceId: string,
+    _id: string,
+    config: AxiosRequestConfig = { responseType: 'blob' },
+  ) {
     const url = this.getUrl(namespaceId);
     return this.apiService.request({
       method: 'get',
-      responseType: 'blob',
       url: `${url}/${_id}`,
+      ...config,
     });
   }
 

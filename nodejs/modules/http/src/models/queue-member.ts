@@ -8,6 +8,7 @@ export class QueueMemberModel extends BaseModel {
   public queueId: string;
   public updatedAt: Date;
   public userId: string;
+  public userIds: string[];
   public webSocketId: string;
 
   constructor(parameters?: Partial<QueueMemberModel>) {

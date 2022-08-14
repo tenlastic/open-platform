@@ -1,21 +1,15 @@
-import {
-  BuildModel,
-  buildService,
-  gameServerLogService,
-  GameServerModel,
-  gameServerService,
-  IBuild,
-  NamespaceModel,
-  namespaceService,
-} from '@tenlastic/http';
+import { BuildModel, GameServerModel, IBuild, NamespaceModel } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
+import * as FormData from 'form-data';
 import * as JSZip from 'jszip';
 import { step } from 'mocha-steps';
 import * as requestPromiseNative from 'request-promise-native';
 import { URL } from 'url';
+
+import dependencies from '../dependencies';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -26,7 +20,7 @@ describe('game-servers', function () {
   let namespace: NamespaceModel;
 
   before(async function () {
-    namespace = await namespaceService.create({ name: chance.hash() });
+    namespace = await dependencies.namespaceService.create({ name: chance.hash() });
 
     // Generate a zip stream.
     const zip = new JSZip();
@@ -39,30 +33,32 @@ describe('game-servers', function () {
     });
 
     // Create a Build.
-    build = await buildService.create(
-      namespace._id,
-      {
+    const formData = new FormData();
+    formData.append(
+      'record',
+      JSON.stringify({
         entrypoint: 'Dockerfile',
         name: chance.hash(),
         namespaceId: namespace._id,
         platform: IBuild.Platform.Server64,
-      },
-      buffer,
+      } as BuildModel),
     );
+    formData.append('zip', buffer);
+    build = await dependencies.buildService.create(namespace._id, formData);
 
     // Wait for Build to finish.
     await wait(10000, 180000, async () => {
-      const response = await buildService.findOne(namespace._id, build._id);
+      const response = await dependencies.buildService.findOne(namespace._id, build._id);
       return response.status?.phase === 'Succeeded';
     });
   });
 
   after(async function () {
-    await namespaceService.delete(namespace._id);
+    await dependencies.namespaceService.delete(namespace._id);
   });
 
   step('creates a Game Server', async function () {
-    gameServer = await gameServerService.create(namespace._id, {
+    gameServer = await dependencies.gameServerService.create(namespace._id, {
       buildId: build._id,
       cpu: 0.1,
       memory: 500 * 1000 * 1000,
@@ -73,14 +69,14 @@ describe('game-servers', function () {
 
     // Wait for Game Server to be running.
     await wait(10000, 180000, async () => {
-      gameServer = await gameServerService.findOne(namespace._id, gameServer._id);
+      gameServer = await dependencies.gameServerService.findOne(namespace._id, gameServer._id);
       return gameServer.status?.endpoints && gameServer.status?.phase === 'Running';
     });
   });
 
   step('generates logs', async function () {
     const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
-      const response = await gameServerLogService.find(
+      const response = await dependencies.gameServerLogService.find(
         namespace._id,
         gameServer._id,
         gameServer.status.nodes[0]._id,

@@ -1,5 +1,6 @@
-import { queueMemberService, queueMemberStore } from '@tenlastic/http';
 import * as Redis from 'ioredis';
+
+import dependencies from '../dependencies';
 
 const podName = process.env.POD_NAME;
 const queue = JSON.parse(process.env.QUEUE_JSON);
@@ -11,25 +12,25 @@ export async function start() {
   const client = new Redis({
     name: 'mymaster',
     password: redisSentinelPassword,
-    retryStrategy: times => Math.min(times * 1000, 5000),
+    retryStrategy: (times) => Math.min(times * 1000, 5000),
     sentinelPassword: redisSentinelPassword,
-    sentinels: sentinels.map(s => {
+    sentinels: sentinels.map((s) => {
       const [host, port] = s.split(':');
       return { host, port: Number(port) };
     }),
   });
   client.on('connect', () => console.log('Connected to Redis.'));
-  client.on('error', err => console.error(err.message));
+  client.on('error', (err) => console.error(err.message));
 
   // Deterministically get keys that do not have a replica.
   const keys = await client.keys('*');
   const results = keys
-    .filter(k => {
+    .filter((k) => {
       const index = podName.replace(`queue-${queue._id}-`, '');
       const key = k.replace(`queue-${queue._id}-`, '');
       return Number(key) % queue.replicas === Number(index);
     })
-    .filter(k => k !== podName);
+    .filter((k) => k !== podName);
 
   // Merge orphan keys.
   console.log(`Merging ${results.length} orphans...`);
@@ -46,18 +47,18 @@ export async function start() {
   // Add existing QueueMembers to the store.
   for (const queueMember of queueMembers) {
     const json = JSON.parse(queueMember);
-    queueMemberStore.upsert(json._id, json);
+    dependencies.queueMemberStore.upsert(json._id, json);
   }
 
   // Sync QueueMembers with Redis.
-  queueMemberService.emitter.on('create', qm =>
+  dependencies.queueMemberService.emitter.on('create', (qm) =>
     client.zadd(podName, getScore(qm._id), JSON.stringify(qm)),
   );
-  queueMemberService.emitter.on('delete', _id => {
-    const score = getScore(_id);
+  dependencies.queueMemberService.emitter.on('delete', (qm) => {
+    const score = getScore(qm._id);
     return client.zremrangebyscore(podName, score, score);
   });
-  queueMemberService.emitter.on('update', qm =>
+  dependencies.queueMemberService.emitter.on('update', (qm) =>
     client.zadd(podName, getScore(qm._id), JSON.stringify(qm)),
   );
 }

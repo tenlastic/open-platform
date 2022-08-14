@@ -1,26 +1,23 @@
-import {
-  gameServerService,
-  QueueMemberModel,
-  queueMemberService,
-  QueueModel,
-} from '@tenlastic/http';
+import { QueueMemberModel, QueueModel } from '@tenlastic/http';
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
+import dependencies from '../dependencies';
+
 import { removeConflictedUsers } from './';
 
-describe('remove-conflicted-users', function() {
+describe('remove-conflicted-users', function () {
   let sandbox: sinon.SinonSandbox;
 
-  beforeEach(function() {
+  beforeEach(function () {
     sandbox = sinon.createSandbox();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     sandbox.restore();
   });
 
-  it('removes the User from all Queues', async function() {
+  it('removes the User from all Queues', async function () {
     const queue = new QueueModel({ namespaceId: '1' });
     const queueMembers = [
       new QueueMemberModel({ _id: '1', userIds: ['1'] }),
@@ -28,9 +25,11 @@ describe('remove-conflicted-users', function() {
     ];
 
     const gameServerSpy = sandbox
-      .stub(gameServerService, 'find')
+      .stub(dependencies.gameServerService, 'find')
       .resolves([{ authorizedUserIds: [queueMembers[0].userIds[0]] }]);
-    const queueMemberSpy = sandbox.stub(queueMemberService, 'delete').resolves(queueMembers[0]);
+    const queueMemberSpy = sandbox
+      .stub(dependencies.queueMemberService, 'delete')
+      .resolves(queueMembers[0]);
 
     const result = await removeConflictedUsers(queue, queueMembers);
 

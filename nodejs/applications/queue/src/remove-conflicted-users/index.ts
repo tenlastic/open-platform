@@ -1,9 +1,6 @@
-import {
-  gameServerService,
-  QueueModel,
-  QueueMemberModel,
-  queueMemberService,
-} from '@tenlastic/http';
+import { QueueModel, QueueMemberModel } from '@tenlastic/http';
+
+import dependencies from '../dependencies';
 
 /**
  * If a User is already in a match, remove them from other Queues.
@@ -17,7 +14,7 @@ export async function removeConflictedUsers(queue: QueueModel, queueMembers: Que
     namespaceId: queue.namespaceId,
     queueId: { $exists: true },
   };
-  const gameServers = await gameServerService.find(queue.namespaceId, { where });
+  const gameServers = await dependencies.gameServerService.find(queue.namespaceId, { where });
 
   // Find which Users are already in a match.
   const authorizedUserIds = gameServers.map((gs) => gs.authorizedUserIds).flat();
@@ -27,6 +24,8 @@ export async function removeConflictedUsers(queue: QueueModel, queueMembers: Que
     .map((qm) => qm._id);
 
   // Remove conflicted Users from queues.
-  const promises = queueMemberIds.map((qmi) => queueMemberService.delete(queue.namespaceId, qmi));
+  const promises = queueMemberIds.map((qmi) =>
+    dependencies.queueMemberService.delete(queue.namespaceId, qmi),
+  );
   return Promise.all(promises);
 }

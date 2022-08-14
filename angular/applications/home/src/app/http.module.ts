@@ -43,6 +43,7 @@ import {
   NamespaceQuery,
   NamespaceService,
   NamespaceStore,
+  PasswordResetService,
   QueueLogQuery,
   QueueLogService,
   QueueLogStore,
@@ -376,6 +377,12 @@ const services: Provider[] = [
     ) => new QueueService(apiService, environmentService, store),
   },
   {
+    deps: [ApiService, EnvironmentService],
+    provide: PasswordResetService,
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new PasswordResetService(apiService, environmentService),
+  },
+  {
     deps: [ApiService, EnvironmentService, RecordStore],
     provide: RecordService,
     useFactory: (
@@ -403,9 +410,10 @@ const services: Provider[] = [
     ) => new StorefrontService(apiService, environmentService, store),
   },
   {
-    deps: [TokenService],
+    deps: [EnvironmentService, TokenService],
     provide: StreamService,
-    useFactory: (tokenService: TokenService) => new StreamService(tokenService),
+    useFactory: (environmentService: EnvironmentService, tokenService: TokenService) =>
+      new StreamService(environmentService, tokenService),
   },
   {
     deps: [LoginService],
@@ -484,4 +492,6 @@ const stores: Provider[] = [
     ...stores,
   ],
 })
-export class HttpModule {}
+export class HttpModule {
+  constructor(private accessTokenInterceptor: AccessTokenInterceptor) {}
+}

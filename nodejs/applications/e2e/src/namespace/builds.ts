@@ -1,17 +1,14 @@
-import {
-  buildLogService,
-  BuildModel,
-  buildService,
-  IBuild,
-  NamespaceModel,
-  namespaceService,
-} from '@tenlastic/http';
+import { BuildModel, IBuild, NamespaceModel } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
+import * as FormData from 'form-data';
 import * as JSZip from 'jszip';
 import { step } from 'mocha-steps';
+import * as unzipper from 'unzipper';
+
+import dependencies from '../dependencies';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -21,11 +18,11 @@ describe('builds', function () {
   let namespace: NamespaceModel;
 
   before(async function () {
-    namespace = await namespaceService.create({ name: chance.hash() });
+    namespace = await dependencies.namespaceService.create({ name: chance.hash() });
   });
 
   after(async function () {
-    await namespaceService.delete(namespace._id);
+    await dependencies.namespaceService.delete(namespace._id);
   });
 
   step('creates a build', async function () {
@@ -40,31 +37,36 @@ describe('builds', function () {
     });
 
     // Create the Build.
-    build = await buildService.create(
-      namespace._id,
-      {
+    const formData = new FormData();
+    formData.append(
+      'record',
+      JSON.stringify({
         entrypoint: 'Dockerfile',
         name: chance.hash(),
         namespaceId: namespace._id,
         platform: IBuild.Platform.Server64,
-      },
-      buffer,
+      } as BuildModel),
     );
+    formData.append('zip', buffer);
+    build = await dependencies.buildService.create(namespace._id, formData);
     expect(build).to.exist;
 
     // Wait for Build to finish.
     const phase = await wait(1000, 180000, async () => {
-      build = await buildService.findOne(namespace._id, build._id);
+      build = await dependencies.buildService.findOne(namespace._id, build._id);
       return build.status?.finishedAt ? build.status.phase : null;
     });
     expect(phase).to.eql('Succeeded');
   });
 
   step('can be downloaded', async function () {
-    const stream = await buildService.download(namespace._id, build._id);
+    const response = await dependencies.buildService.download(namespace._id, build._id, {
+      responseType: 'stream',
+    });
 
     const result = await new Promise<{ content: string; path: string }>((resolve, reject) => {
-      stream
+      response.data
+        .pipe(unzipper.Parse())
         .on('close', resolve)
         .on('entry', async (entry) => {
           if (entry.type !== 'File') {
@@ -91,7 +93,12 @@ describe('builds', function () {
   step('generates logs', async function () {
     const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
       const node = build.status.nodes.find((n) => n.type === 'Pod');
-      const response = await buildLogService.find(namespace._id, build._id, node._id, {});
+      const response = await dependencies.buildLogService.find(
+        namespace._id,
+        build._id,
+        node._id,
+        {},
+      );
       return response.length > 0 ? response : null;
     });
 

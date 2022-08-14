@@ -25,7 +25,7 @@ export namespace IQueue {
     buildId: string;
     cpu: number;
     memory: number;
-    metadata: any;
+    metadata?: any;
     preemptible: boolean;
   }
 

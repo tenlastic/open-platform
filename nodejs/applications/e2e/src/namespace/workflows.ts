@@ -1,15 +1,11 @@
-import {
-  NamespaceModel,
-  namespaceService,
-  workflowLogService,
-  WorkflowModel,
-  workflowService,
-} from '@tenlastic/http';
+import { NamespaceModel, WorkflowModel } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import { step } from 'mocha-steps';
+
+import dependencies from '../dependencies';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -19,15 +15,15 @@ describe('workflows', function () {
   let workflow: WorkflowModel;
 
   before(async function () {
-    namespace = await namespaceService.create({ name: chance.hash() });
+    namespace = await dependencies.namespaceService.create({ name: chance.hash() });
   });
 
   after(async function () {
-    await namespaceService.delete(namespace._id);
+    await dependencies.namespaceService.delete(namespace._id);
   });
 
   step('creates a workflow', async function () {
-    workflow = await workflowService.create(namespace._id, {
+    workflow = await dependencies.workflowService.create(namespace._id, {
       cpu: 0.1,
       memory: 100 * 1000 * 1000,
       name: chance.hash(),
@@ -55,7 +51,7 @@ describe('workflows', function () {
     });
 
     await wait(10000, 10 * 60 * 1000, async () => {
-      workflow = await workflowService.findOne(namespace._id, workflow._id);
+      workflow = await dependencies.workflowService.findOne(namespace._id, workflow._id);
       return workflow.status?.phase === 'Succeeded';
     });
   });
@@ -63,7 +59,12 @@ describe('workflows', function () {
   step('generates logs', async function () {
     const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
       const node = workflow.status.nodes.find((n) => n.type === 'Pod');
-      const response = await workflowLogService.find(namespace._id, workflow._id, node._id, {});
+      const response = await dependencies.workflowLogService.find(
+        namespace._id,
+        workflow._id,
+        node._id,
+        {},
+      );
       return response.length > 0 ? response : null;
     });
 

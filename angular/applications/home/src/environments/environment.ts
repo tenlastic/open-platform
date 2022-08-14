@@ -4,5 +4,5 @@ export const environment = {
   production: false,
   swaggerUrl: 'http://api.localhost/swagger.json',
   useHash: false,
-  wssUrl: 'http://wss.localhost',
+  wssUrl: 'ws://wss.localhost',
 };

@@ -1,37 +1,32 @@
 import { DOCUMENT } from '@angular/common';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { EnvironmentService, HttpModule, LoginService } from '@tenlastic/http';
+import { LoginService, TokenService } from '@tenlastic/http';
 
-import { IdentityService } from '../../services';
+import { HttpModule } from '../../../http.module';
 import { LoginGuard } from './login.guard';
 
 describe('LoginGuard', () => {
   let document: Document;
-  let identityService: IdentityService;
   let loginService: LoginService;
   let service: LoginGuard;
+  let tokenService: TokenService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, HttpModule],
       providers: [
-        IdentityService,
         {
           provide: DOCUMENT,
           useValue: { location: { href: 'http://localhost' } },
-        },
-        {
-          provide: EnvironmentService,
-          useValue: { loginApiBaseUrl: 'http://localhost:3000/logins' },
         },
       ],
     });
 
     document = TestBed.inject(DOCUMENT);
-    identityService = TestBed.inject(IdentityService);
     loginService = TestBed.inject(LoginService);
     service = TestBed.inject(LoginGuard);
+    tokenService = TestBed.inject(TokenService);
   });
 
   describe('canActivate()', () => {
@@ -42,8 +37,8 @@ describe('LoginGuard', () => {
         const token =
           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjIxNDc0ODM2NDd9._flG9gy9n7JKFZTfZX5a3oUiwOM2fAI0ul6dAT8mbKU';
 
-        identityService.setAccessToken(token);
-        identityService.setRefreshToken(token);
+        tokenService.setAccessToken(token);
+        tokenService.setRefreshToken(token);
 
         spy = spyOn(loginService.emitter, 'emit');
       });
@@ -57,7 +52,7 @@ describe('LoginGuard', () => {
 
     describe('when user is not authenticated', () => {
       beforeEach(() => {
-        identityService.setRefreshToken(null);
+        tokenService.setRefreshToken(null);
         spy = spyOn(loginService.emitter, 'emit');
       });
 

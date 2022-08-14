@@ -20,6 +20,10 @@ export class LoginPageComponent implements OnInit {
   public isLoggingIn = false;
   public loadingMessage: string;
 
+  private get isOAuth() {
+    return this.activatedRoute.snapshot.queryParamMap.has('redirectUrl');
+  }
+
   constructor(
     private activatedRoute: ActivatedRoute,
     @Inject(DOCUMENT) private document: Document,
@@ -32,7 +36,7 @@ export class LoginPageComponent implements OnInit {
   }
 
   public ngOnInit() {
-    if (this.tokenService.getRefreshToken()) {
+    if (this.isOAuth && this.tokenService.getRefreshToken()) {
       this.refreshToken();
     }
   }
@@ -50,13 +54,11 @@ export class LoginPageComponent implements OnInit {
   }
 
   private async logIn() {
-    const { snapshot } = this.activatedRoute;
-
-    if (snapshot.queryParamMap.has('redirectUrl')) {
+    if (this.isOAuth) {
       const accessToken = await this.tokenService.getAccessToken();
       const refreshToken = this.tokenService.getRefreshToken();
 
-      const redirectUrl = snapshot.queryParamMap.get('redirectUrl');
+      const redirectUrl = this.activatedRoute.snapshot.queryParamMap.get('redirectUrl');
       const url = new URL(redirectUrl);
       url.searchParams.delete('accessToken');
       url.searchParams.append('accessToken', accessToken.value);
