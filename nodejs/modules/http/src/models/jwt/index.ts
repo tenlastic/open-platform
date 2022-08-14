@@ -38,7 +38,13 @@ export class Jwt {
 
   private getPayload(value: string) {
     const splits = value.split('.');
-    const json = Buffer.from(splits[1], 'base64').toString('utf-8');
+
+    let json: string;
+    try {
+      json = atob(splits[1]);
+    } catch {
+      json = Buffer.from(splits[1], 'base64').toString('utf-8');
+    }
 
     return JSON.parse(json);
   }

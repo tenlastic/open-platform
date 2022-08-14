@@ -4,7 +4,6 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
-import { HttpModule } from '../http.module';
 import { MaterialModule } from '../material.module';
 import {
   ApiKeyDialogComponent,
@@ -74,7 +73,6 @@ const directives = [HighlightDirective, NavDirective];
 const modules = [
   CommonModule,
   FormsModule,
-  HttpModule,
   LayoutModule,
   MaterialModule,
   ReactiveFormsModule,
