@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { ICollection } from '@tenlastic/http';
 
 export interface CriterionFormGroup {
@@ -43,7 +43,7 @@ export interface RoleFormGroup {
   providedIn: 'root',
 })
 export class CollectionFormService {
-  constructor(private formBuilder: FormBuilder) {}
+  constructor(private formBuilder: UntypedFormBuilder) {}
 
   public getDefaultCriterionFormGroup() {
     return this.formBuilder.group({

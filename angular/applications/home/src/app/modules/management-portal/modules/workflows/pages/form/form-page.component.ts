@@ -1,7 +1,7 @@
 import { ENTER } from '@angular/cdk/keycodes';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -45,7 +45,7 @@ export class WorkflowsFormPageComponent implements OnInit {
   public data: WorkflowModel;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: UntypedFormGroup;
   public hasWriteAuthorization: boolean;
   public get memories() {
     const limits = this.namespace.limits?.workflows;
@@ -73,7 +73,7 @@ export class WorkflowsFormPageComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
@@ -105,7 +105,7 @@ export class WorkflowsFormPageComponent implements OnInit {
 
   public addTemplate() {
     const template = this.getDefaultTemplateFormGroup();
-    const formArray = this.form.get('templates') as FormArray;
+    const formArray = this.form.get('templates') as UntypedFormArray;
 
     formArray.push(template);
   }
@@ -115,7 +115,7 @@ export class WorkflowsFormPageComponent implements OnInit {
   }
 
   public moveTemplate(index: number, change: number) {
-    const roles = this.form.get('templates') as FormArray;
+    const roles = this.form.get('templates') as UntypedFormArray;
 
     if (index + change < 0 || index + change >= roles.length) {
       return;
@@ -132,7 +132,7 @@ export class WorkflowsFormPageComponent implements OnInit {
   }
 
   public removeTemplate(index: number) {
-    const formArray = this.form.get('templates') as FormArray;
+    const formArray = this.form.get('templates') as UntypedFormArray;
     formArray.removeAt(index);
   }
 

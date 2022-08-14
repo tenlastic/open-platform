@@ -39,7 +39,14 @@
             "customWebpackConfig": {
               "path": "applications/home/electron.webpack.js"
             },
-            "webWorkerTsConfig": "applications/home/tsconfig.worker.json"
+            "webWorkerTsConfig": "applications/home/tsconfig.worker.json",
+            "allowedCommonJsDependencies": [
+              "@tenlastic/wait",
+              "events",
+              "jszip",
+              "marked",
+              "spark-md5"
+            ]
           },
           "configurations": {
             "development": {
@@ -148,8 +155,10 @@
       }
     }
   },
-  "defaultProject": "home",
   "cli": {
-    "defaultCollection": "@angular-eslint/schematics"
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ],
+    "analytics": "fb2676a1-46f6-433b-8d97-92756ca071fe"
   }
 }

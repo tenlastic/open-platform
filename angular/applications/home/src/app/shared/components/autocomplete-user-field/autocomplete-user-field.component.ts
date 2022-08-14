@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { AbstractControl, FormControl } from '@angular/forms';
+import { AbstractControl, UntypedFormControl } from '@angular/forms';
 import { UserModel, UserQuery, UserService } from '@tenlastic/http';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -10,7 +10,7 @@ import { debounceTime } from 'rxjs/operators';
   templateUrl: 'autocomplete-user-field.component.html',
 })
 export class AutocompleteUserFieldComponent implements OnInit {
-  @Input() public control: FormControl;
+  @Input() public control: UntypedFormControl;
 
   public $users = new Observable<UserModel[]>();
   public isLoading = false;

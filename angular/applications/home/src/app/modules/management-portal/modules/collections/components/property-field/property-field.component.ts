@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-property-field',
@@ -7,7 +7,7 @@ import { FormGroup } from '@angular/forms';
   templateUrl: 'property-field.component.html',
 })
 export class PropertyFieldComponent implements OnInit {
-  @Input() public form: FormGroup;
+  @Input() public form: UntypedFormGroup;
   @Output() public remove = new EventEmitter();
 
   public ngOnInit() {

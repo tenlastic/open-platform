@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validator } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validator } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -26,7 +26,7 @@ export interface InputDialogComponentOption {
   styleUrls: ['./input-dialog.component.scss'],
 })
 export class InputDialogComponent implements OnInit {
-  public form: FormGroup;
+  public form: UntypedFormGroup;
   public options: InputDialogComponentOption[] = [];
 
   private subject: Subject<string> = new Subject();
@@ -34,7 +34,7 @@ export class InputDialogComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<InputDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: InputDialogComponentData,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
   ) {}
 
   public ngOnInit() {

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthorizationModel, AuthorizationService } from '@tenlastic/http';
@@ -14,12 +14,12 @@ import { jsonValidator } from '../../../../../../shared/validators';
 export class AuthorizationsJsonPageComponent implements OnInit {
   public data: AuthorizationModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: UntypedFormGroup;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationService: AuthorizationService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private formService: FormService,
     private matSnackBar: MatSnackBar,
     private router: Router,

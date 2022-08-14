@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthorizationQuery, IAuthorization, UserModel, UserService } from '@tenlastic/http';
@@ -13,13 +13,13 @@ import { FormService, IdentityService } from '../../../../../../core/services';
 export class UsersFormPageComponent implements OnInit {
   public data: UserModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: UntypedFormGroup;
   public hasWriteAuthorization: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,

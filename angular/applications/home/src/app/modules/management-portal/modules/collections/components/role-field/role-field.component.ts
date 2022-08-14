@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormGroup, FormArray } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormArray } from '@angular/forms';
 
 import { CollectionFormService } from '../../../../../../core/services';
 
@@ -9,11 +9,11 @@ import { CollectionFormService } from '../../../../../../core/services';
   templateUrl: 'role-field.component.html',
 })
 export class RoleFieldComponent {
-  @Input() public form: FormGroup;
+  @Input() public form: UntypedFormGroup;
   @Input() public index: number;
   @Input() public isDefault: boolean;
   @Input() public length: number;
-  @Input() public properties: FormArray;
+  @Input() public properties: UntypedFormArray;
   @Output() public moveDown = new EventEmitter();
   @Output() public moveUp = new EventEmitter();
   @Output() public remove = new EventEmitter();
@@ -49,25 +49,25 @@ export class RoleFieldComponent {
 
   public addCriterion() {
     const criterion = this.collectionFormService.getDefaultCriterionFormGroup();
-    const formArray = this.form.get('criteria') as FormArray;
+    const formArray = this.form.get('criteria') as UntypedFormArray;
 
     formArray.push(criterion);
   }
 
   public addFindCriterion() {
     const criterion = this.collectionFormService.getDefaultCriterionFormGroup();
-    const formArray = this.form.get('permissions.find') as FormArray;
+    const formArray = this.form.get('permissions.find') as UntypedFormArray;
 
     formArray.push(criterion);
   }
 
   public removeCriterion(index: number) {
-    const formArray = this.form.get('criteria') as FormArray;
+    const formArray = this.form.get('criteria') as UntypedFormArray;
     formArray.removeAt(index);
   }
 
   public removeFindCriterion(index: number) {
-    const formArray = this.form.get('permissions.find') as FormArray;
+    const formArray = this.form.get('permissions.find') as UntypedFormArray;
     formArray.removeAt(index);
   }
 }

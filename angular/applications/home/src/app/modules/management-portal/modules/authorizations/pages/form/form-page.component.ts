@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -33,7 +33,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
   public AuthorizationType = AuthorizationType;
   public data: AuthorizationModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: UntypedFormGroup;
   public hasWriteAuthorization: boolean;
   public get type() {
     return this.form.get('type').value;
@@ -45,7 +45,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
     private authorizationService: AuthorizationService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
     private matDialog: MatDialog,

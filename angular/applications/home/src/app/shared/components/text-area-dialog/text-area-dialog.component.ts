@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validator } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validator } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 export interface TextAreaDialogComponentData {
@@ -23,13 +23,13 @@ export interface TextAreaDialogComponentOption {
   styleUrls: ['./text-area-dialog.component.scss'],
 })
 export class TextAreaDialogComponent implements OnInit {
-  public form: FormGroup;
+  public form: UntypedFormGroup;
   public options: TextAreaDialogComponentOption[] = [];
 
   constructor(
     public dialogRef: MatDialogRef<TextAreaDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: TextAreaDialogComponentData,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
   ) {}
 
   public ngOnInit() {

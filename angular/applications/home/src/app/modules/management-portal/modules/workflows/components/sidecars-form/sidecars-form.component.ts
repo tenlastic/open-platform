@@ -1,6 +1,6 @@
 import { ENTER } from '@angular/cdk/keycodes';
 import { Component, Input } from '@angular/core';
-import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
 
 @Component({
@@ -9,7 +9,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
   styleUrls: ['./sidecars-form.component.scss'],
 })
 export class WorkflowSidecarsFormComponent {
-  @Input() public formArray: FormArray;
+  @Input() public formArray: UntypedFormArray;
 
   public readonly separatorKeysCodes: number[] = [ENTER];
 
@@ -18,14 +18,14 @@ export class WorkflowSidecarsFormComponent {
     this.formArray.push(sidecar);
   }
 
-  public addStringToFormArray($event: MatChipInputEvent, formArray: FormArray) {
+  public addStringToFormArray($event: MatChipInputEvent, formArray: UntypedFormArray) {
     const { input, value } = $event;
 
     if (!value) {
       return;
     }
 
-    const control = new FormControl(value);
+    const control = new UntypedFormControl(value);
     formArray.push(control);
 
     if (input) {
@@ -48,17 +48,17 @@ export class WorkflowSidecarsFormComponent {
     this.formArray.removeAt(index);
   }
 
-  public removeStringFromFormArray(formArray: FormArray, index: number) {
+  public removeStringFromFormArray(formArray: UntypedFormArray, index: number) {
     formArray.removeAt(index);
   }
 
   private getDefaultSidecarFormGroup() {
-    const group = new FormGroup({
-      args: new FormArray([]),
-      command: new FormArray([]),
-      env: new FormArray([]),
-      image: new FormControl('', Validators.required),
-      name: new FormControl(''),
+    const group = new UntypedFormGroup({
+      args: new UntypedFormArray([]),
+      command: new UntypedFormArray([]),
+      env: new UntypedFormArray([]),
+      image: new UntypedFormControl('', Validators.required),
+      name: new UntypedFormControl(''),
     });
 
     // Only allow alphanumeric characters and dashes.

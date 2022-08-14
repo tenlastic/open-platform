@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -31,7 +31,7 @@ interface PropertyFormGroup {
 export class StorefrontsFormPageComponent implements OnInit {
   public data: StorefrontModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: UntypedFormGroup;
   public hasWriteAuthorization: boolean;
   public pending: { [key: string]: Pending[] } = {
     background: [],
@@ -47,7 +47,7 @@ export class StorefrontsFormPageComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
@@ -76,7 +76,7 @@ export class StorefrontsFormPageComponent implements OnInit {
     });
   }
 
-  public addUser(formArray: FormArray) {
+  public addUser(formArray: UntypedFormArray) {
     formArray.push(this.formBuilder.control(null, [Validators.required]));
   }
 

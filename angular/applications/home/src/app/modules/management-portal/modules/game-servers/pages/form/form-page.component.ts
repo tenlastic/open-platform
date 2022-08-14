@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -39,7 +39,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   }
   public data: GameServerModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: UntypedFormGroup;
   public hasWriteAuthorization: boolean;
   public get memories() {
     const limits = this.namespace.limits?.gameServers;
@@ -55,7 +55,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
     private buildService: BuildService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private formService: FormService,
     private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,

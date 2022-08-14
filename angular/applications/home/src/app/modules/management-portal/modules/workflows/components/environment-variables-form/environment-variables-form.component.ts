@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 
 @Component({
   templateUrl: 'environment-variables-form.component.html',
@@ -7,7 +7,7 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./environment-variables-form.component.scss'],
 })
 export class WorkflowEnvironmentVariablesFormComponent {
-  @Input() public formArray: FormArray;
+  @Input() public formArray: UntypedFormArray;
 
   public addEnvironmentVariable() {
     const env = this.getDefaultEnvironmentVariableFormGroup();
@@ -19,9 +19,9 @@ export class WorkflowEnvironmentVariablesFormComponent {
   }
 
   private getDefaultEnvironmentVariableFormGroup() {
-    const group = new FormGroup({
-      name: new FormControl('', Validators.required),
-      value: new FormControl('', Validators.required),
+    const group = new UntypedFormGroup({
+      name: new UntypedFormControl('', Validators.required),
+      value: new UntypedFormControl('', Validators.required),
     });
 
     // Transform name to uppercase and only allow alphanumeric characters and underscores.

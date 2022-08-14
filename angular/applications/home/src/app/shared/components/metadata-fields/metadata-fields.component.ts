@@ -1,14 +1,14 @@
 import { Component, Input } from '@angular/core';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-metadata-fields',
   templateUrl: 'metadata-fields.component.html',
 })
 export class MetadataFieldsComponent {
-  @Input() public formArray: FormArray;
+  @Input() public formArray: UntypedFormArray;
 
-  constructor(private formBuilder: FormBuilder) {}
+  constructor(private formBuilder: UntypedFormBuilder) {}
 
   public addProperty() {
     const property = this.getDefaultPropertyFormGroup();

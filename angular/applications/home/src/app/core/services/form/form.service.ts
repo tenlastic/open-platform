@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { PromptComponent } from '../../../shared/components';
@@ -24,7 +24,7 @@ export class FormService {
     });
   }
 
-  public navigateToForm(form: FormGroup) {
+  public navigateToForm(form: UntypedFormGroup) {
     if (form.dirty) {
       const dialogRef = this.matDialog.open(PromptComponent, {
         data: {
@@ -46,7 +46,7 @@ export class FormService {
     }
   }
 
-  public navigateToJson(form: FormGroup) {
+  public navigateToJson(form: UntypedFormGroup) {
     if (form.dirty) {
       const dialogRef = this.matDialog.open(PromptComponent, {
         data: {

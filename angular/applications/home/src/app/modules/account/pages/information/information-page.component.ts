@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { UserModel, UserService } from '@tenlastic/http';
@@ -13,12 +13,12 @@ import { IdentityService } from '../../../../core/services';
 export class InformationPageComponent implements OnInit {
   public data: UserModel;
   public error: string;
-  public form: FormGroup;
+  public form: UntypedFormGroup;
   public loadingMessage: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     public identityService: IdentityService,
     private matSnackbar: MatSnackBar,
     private userService: UserService,

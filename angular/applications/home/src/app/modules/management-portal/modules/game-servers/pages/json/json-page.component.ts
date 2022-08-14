@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { GameServerModel, GameServerService, IGameServer } from '@tenlastic/http';
@@ -14,13 +14,13 @@ import { jsonValidator } from '../../../../../../shared/validators';
 export class GameServersJsonPageComponent implements OnInit {
   public data: GameServerModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: UntypedFormGroup;
 
   private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private formService: FormService,
     private gameServerService: GameServerService,
     private matSnackBar: MatSnackBar,

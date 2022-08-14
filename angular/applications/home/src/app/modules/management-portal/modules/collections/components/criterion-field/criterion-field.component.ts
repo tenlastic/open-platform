@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormGroup, FormArray } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormArray } from '@angular/forms';
 
 import { CollectionFormService } from '../../../../../../core/services';
 
@@ -15,9 +15,9 @@ export interface CriterionFieldComponentOperator {
 })
 export class CriterionFieldComponent {
   @Input() public fields: string[];
-  @Input() public form: FormGroup;
+  @Input() public form: UntypedFormGroup;
   @Input() public operators: CriterionFieldComponentOperator[];
-  @Input() public properties: FormArray;
+  @Input() public properties: UntypedFormArray;
   @Input() public referenceFields: string[];
   @Output() public remove = new EventEmitter();
 
