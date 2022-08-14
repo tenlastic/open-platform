@@ -14,13 +14,14 @@
     "build": "../../../nodejs/scripts/build.sh",
     "build:watch": "watch ../../../nodejs/scripts/build.sh ./src",
     "lint": "../../../nodejs/scripts/lint.sh",
-    "prepublishOnly": "../../../nodejs/scripts/build.sh"
+    "prepublishOnly": "../../../nodejs/scripts/build.sh",
+    "test": "../../scripts/test.sh",
+    "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
     "@datorama/akita": "7.1.1",
     "@tenlastic/wait": "0.0.314",
     "events": "3.3.0",
-    "jwt-decode": "3.1.2",
     "uuid": "8.3.0",
     "ws": "7.2.1"
   },
