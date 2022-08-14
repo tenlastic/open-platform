@@ -1,5 +1,5 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 export interface IPasswordResetRequested {
   email: string;
@@ -14,7 +14,7 @@ export class PasswordResetRequestFormComponent implements OnInit {
   @Output() public passwordResetRequested = new EventEmitter<IPasswordResetRequested>();
 
   public error: string;
-  public form: UntypedFormGroup;
+  public form: FormGroup;
   public message: string;
 
   public ngOnInit() {
@@ -35,8 +35,8 @@ export class PasswordResetRequestFormComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.form = new UntypedFormGroup({
-      email: new UntypedFormControl('', [Validators.required, Validators.email]),
+    this.form = new FormGroup({
+      email: new FormControl('', [Validators.required, Validators.email]),
     });
   }
 }

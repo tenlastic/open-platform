@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 
 import { TITLE } from '../../../../shared/constants';
@@ -9,10 +9,10 @@ import { TITLE } from '../../../../shared/constants';
   templateUrl: 'contact-us.component.html',
 })
 export class ContactUsComponent implements OnInit {
-  public form: UntypedFormGroup;
+  public form: FormGroup;
   public isSubmitted: boolean;
 
-  constructor(private formBuilder: UntypedFormBuilder, private titleService: Title) {}
+  constructor(private formBuilder: FormBuilder, private titleService: Title) {}
 
   public ngOnInit() {
     this.titleService.setTitle(`${TITLE} | Contact Us`);

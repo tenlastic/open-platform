@@ -1,6 +1,6 @@
 import { ENTER } from '@angular/cdk/keycodes';
 import { Component, Input } from '@angular/core';
-import { UntypedFormArray, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
 
 @Component({
@@ -9,21 +9,21 @@ import { MatChipInputEvent } from '@angular/material/chips';
   styleUrls: ['./script-form.component.scss'],
 })
 export class WorkflowScriptFormComponent {
-  @Input() public formGroup: UntypedFormGroup;
+  @Input() public formGroup: FormGroup;
 
   public readonly separatorKeysCodes: number[] = [ENTER];
   public get command() {
-    return this.formGroup.get('command') as UntypedFormArray;
+    return this.formGroup.get('command') as FormArray;
   }
 
-  public addStringToFormArray($event: MatChipInputEvent, formArray: UntypedFormArray) {
+  public addStringToFormArray($event: MatChipInputEvent, formArray: FormArray) {
     const { input, value } = $event;
 
     if (!value) {
       return;
     }
 
-    const control = new UntypedFormControl(value);
+    const control = new FormControl(value);
     formArray.push(control);
 
     if (input) {
@@ -31,7 +31,7 @@ export class WorkflowScriptFormComponent {
     }
   }
 
-  public removeStringFromFormArray(formArray: UntypedFormArray, index: number) {
+  public removeStringFromFormArray(formArray: FormArray, index: number) {
     formArray.removeAt(index);
   }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ArticleModel, ArticleService, AuthorizationQuery, IAuthorization } from '@tenlastic/http';
@@ -13,7 +13,7 @@ import { FormService, IdentityService } from '../../../../../../core/services';
 export class ArticlesFormPageComponent implements OnInit {
   public data: ArticleModel;
   public errors: string[] = [];
-  public form: UntypedFormGroup;
+  public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public types = [
     { label: 'Guide', value: 'Guide' },
@@ -27,7 +27,7 @@ export class ArticlesFormPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private articleService: ArticleService,
     private authorizationQuery: AuthorizationQuery,
-    private formBuilder: UntypedFormBuilder,
+    private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,

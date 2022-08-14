@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { UntypedFormGroup, UntypedFormArray } from '@angular/forms';
+import { FormGroup, FormArray } from '@angular/forms';
 
 import { CollectionFormService } from '../../../../../../core/services';
 
@@ -9,18 +9,18 @@ import { CollectionFormService } from '../../../../../../core/services';
   templateUrl: 'role-field.component.html',
 })
 export class RoleFieldComponent {
-  @Input() public form: UntypedFormGroup;
+  @Input() public form: FormGroup;
   @Input() public index: number;
   @Input() public isDefault: boolean;
   @Input() public length: number;
-  @Input() public properties: UntypedFormArray;
+  @Input() public properties: FormArray;
   @Output() public moveDown = new EventEmitter();
   @Output() public moveUp = new EventEmitter();
   @Output() public remove = new EventEmitter();
 
   public get criteriaFields() {
-    const propertyFields = this.propertyFields.map(f => `record.${f}`);
-    const recordFields = this.recordFields.map(f => `record.${f}`);
+    const propertyFields = this.propertyFields.map((f) => `record.${f}`);
+    const recordFields = this.recordFields.map((f) => `record.${f}`);
 
     return propertyFields.concat(recordFields, this.userFields).sort();
   }
@@ -34,7 +34,7 @@ export class RoleFieldComponent {
     { label: 'Not Equal', value: '$ne' },
   ];
   public get propertyFields() {
-    return this.validProperties.map(v => `properties.${v.key}`);
+    return this.validProperties.map((v) => `properties.${v.key}`);
   }
   public recordFields = ['_id', 'createdAt', 'updatedAt', 'userId'];
   public get recordFieldsWithProperties() {
@@ -42,32 +42,32 @@ export class RoleFieldComponent {
   }
   public userFields = ['user._id', 'user.email', 'user.roles', 'user.username'];
   public get validProperties() {
-    return this.properties.value.filter(v => v.key);
+    return this.properties.value.filter((v) => v.key);
   }
 
   constructor(private collectionFormService: CollectionFormService) {}
 
   public addCriterion() {
     const criterion = this.collectionFormService.getDefaultCriterionFormGroup();
-    const formArray = this.form.get('criteria') as UntypedFormArray;
+    const formArray = this.form.get('criteria') as FormArray;
 
     formArray.push(criterion);
   }
 
   public addFindCriterion() {
     const criterion = this.collectionFormService.getDefaultCriterionFormGroup();
-    const formArray = this.form.get('permissions.find') as UntypedFormArray;
+    const formArray = this.form.get('permissions.find') as FormArray;
 
     formArray.push(criterion);
   }
 
   public removeCriterion(index: number) {
-    const formArray = this.form.get('criteria') as UntypedFormArray;
+    const formArray = this.form.get('criteria') as FormArray;
     formArray.removeAt(index);
   }
 
   public removeFindCriterion(index: number) {
-    const formArray = this.form.get('permissions.find') as UntypedFormArray;
+    const formArray = this.form.get('permissions.find') as FormArray;
     formArray.removeAt(index);
   }
 }

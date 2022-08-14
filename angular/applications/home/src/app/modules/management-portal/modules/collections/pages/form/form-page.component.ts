@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators, UntypedFormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
@@ -22,7 +22,7 @@ import {
 export class CollectionsFormPageComponent implements OnInit {
   public data: CollectionModel;
   public errors: string[] = [];
-  public form: UntypedFormGroup;
+  public form: FormGroup;
   public hasWriteAuthorization: boolean;
 
   private params: Params;
@@ -32,7 +32,7 @@ export class CollectionsFormPageComponent implements OnInit {
     private authorizationQuery: AuthorizationQuery,
     private collectionService: CollectionService,
     private collectionFormService: CollectionFormService,
-    private formBuilder: UntypedFormBuilder,
+    private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
@@ -59,20 +59,20 @@ export class CollectionsFormPageComponent implements OnInit {
 
   public addProperty() {
     const property = this.collectionFormService.getDefaultPropertyFormGroup();
-    const formArray = this.form.get('properties') as UntypedFormArray;
+    const formArray = this.form.get('properties') as FormArray;
 
     formArray.push(property);
   }
 
   public addRole() {
     const role = this.collectionFormService.getDefaultRoleFormGroup();
-    const formArray = this.form.get('roles') as UntypedFormArray;
+    const formArray = this.form.get('roles') as FormArray;
 
     formArray.insert(formArray.length - 1, role);
   }
 
   public moveRoleDown(index: number) {
-    const roles = this.form.get('roles') as UntypedFormArray;
+    const roles = this.form.get('roles') as FormArray;
 
     if (index >= roles.length - 2) {
       return;
@@ -89,7 +89,7 @@ export class CollectionsFormPageComponent implements OnInit {
       return;
     }
 
-    const roles = this.form.get('roles') as UntypedFormArray;
+    const roles = this.form.get('roles') as FormArray;
     const role = roles.at(index);
 
     roles.removeAt(index);
@@ -101,12 +101,12 @@ export class CollectionsFormPageComponent implements OnInit {
   }
 
   public removeProperty(index: number) {
-    const formArray = this.form.get('properties') as UntypedFormArray;
+    const formArray = this.form.get('properties') as FormArray;
     formArray.removeAt(index);
   }
 
   public removeRole(index: number) {
-    const formArray = this.form.get('roles') as UntypedFormArray;
+    const formArray = this.form.get('roles') as FormArray;
     formArray.removeAt(index);
   }
 
@@ -222,7 +222,7 @@ export class CollectionsFormPageComponent implements OnInit {
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
-    const formArray = this.form.get('roles') as UntypedFormArray;
+    const formArray = this.form.get('roles') as FormArray;
     const defaultRole = formArray.at(formArray.length - 1);
     defaultRole.get('key').disable();
   }

@@ -1,5 +1,5 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 export interface IPasswordReset {
   password: string;
@@ -14,7 +14,7 @@ export class PasswordResetFormComponent implements OnInit {
   @Output() public passwordReset = new EventEmitter<IPasswordReset>();
 
   public error: string;
-  public form: UntypedFormGroup;
+  public form: FormGroup;
   public message: string;
 
   public ngOnInit() {
@@ -33,7 +33,7 @@ export class PasswordResetFormComponent implements OnInit {
     this.passwordReset.emit(values);
   }
 
-  private confirmPassword(form: UntypedFormGroup) {
+  private confirmPassword(form: FormGroup) {
     if (form.get('password').value !== form.get('confirmPassword').value) {
       form.get('confirmPassword').setErrors({ required: true });
     }
@@ -42,15 +42,15 @@ export class PasswordResetFormComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.form = new UntypedFormGroup(
+    this.form = new FormGroup(
       {
-        confirmPassword: new UntypedFormControl('', [Validators.required]),
-        password: new UntypedFormControl('', [Validators.required]),
+        confirmPassword: new FormControl('', [Validators.required]),
+        password: new FormControl('', [Validators.required]),
       },
       this.confirmPassword,
     );
 
-    this.form.valueChanges.subscribe(data => {
+    this.form.valueChanges.subscribe((data) => {
       this.error = null;
     });
   }

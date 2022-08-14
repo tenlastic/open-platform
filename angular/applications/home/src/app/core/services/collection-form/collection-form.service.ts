@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { UntypedFormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { ICollection } from '@tenlastic/http';
 
 export interface CriterionFormGroup {
@@ -11,8 +11,8 @@ export interface CriterionFormGroup {
 }
 
 export interface CriterionValueFormGroup {
-  boolean?: string;
-  number?: string;
+  boolean?: boolean;
+  number?: number;
   string?: string;
 }
 
@@ -43,17 +43,17 @@ export interface RoleFormGroup {
   providedIn: 'root',
 })
 export class CollectionFormService {
-  constructor(private formBuilder: UntypedFormBuilder) {}
+  constructor(private formBuilder: FormBuilder) {}
 
   public getDefaultCriterionFormGroup() {
     return this.formBuilder.group({
-      field: [null, Validators.required],
+      field: [null as string, Validators.required],
       operator: '$eq',
-      reference: null,
+      reference: null as string,
       type: 'reference',
       value: this.formBuilder.group({
         boolean: false,
-        number: '0',
+        number: 0,
         string: '',
       }),
     });
@@ -62,7 +62,7 @@ export class CollectionFormService {
   public getDefaultPropertyFormGroup() {
     return this.formBuilder.group({
       arrayType: 'boolean',
-      default: false,
+      default: false as any,
       key: ['', [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
       required: false,
       type: 'boolean',
@@ -193,7 +193,7 @@ export class CollectionFormService {
           break;
 
         case 'number':
-          value = parseFloat(criterion.value.number || '0');
+          value = criterion.value.number || 0;
           break;
 
         case 'string':

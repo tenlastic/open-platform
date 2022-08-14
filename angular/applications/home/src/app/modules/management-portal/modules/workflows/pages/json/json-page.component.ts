@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { IWorkflow, WorkflowModel, WorkflowService } from '@tenlastic/http';
@@ -14,13 +14,13 @@ import { jsonValidator } from '../../../../../../shared/validators';
 export class WorkflowsJsonPageComponent implements OnInit {
   public data: WorkflowModel;
   public errors: string[] = [];
-  public form: UntypedFormGroup;
+  public form: FormGroup;
 
   private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private formBuilder: UntypedFormBuilder,
+    private formBuilder: FormBuilder,
     private formService: FormService,
     private matSnackBar: MatSnackBar,
     private router: Router,

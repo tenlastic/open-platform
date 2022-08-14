@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CollectionModel, CollectionService, RecordModel, RecordService } from '@tenlastic/http';
@@ -14,7 +14,7 @@ import { jsonValidator } from '../../../../../../shared/validators';
 export class RecordsJsonPageComponent implements OnInit {
   public data: RecordModel;
   public errors: string[] = [];
-  public form: UntypedFormGroup;
+  public form: FormGroup;
 
   private collection: CollectionModel;
   private params: Params;
@@ -22,7 +22,7 @@ export class RecordsJsonPageComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private collectionService: CollectionService,
-    private formBuilder: UntypedFormBuilder,
+    private formBuilder: FormBuilder,
     private formService: FormService,
     private matSnackBar: MatSnackBar,
     private recordService: RecordService,

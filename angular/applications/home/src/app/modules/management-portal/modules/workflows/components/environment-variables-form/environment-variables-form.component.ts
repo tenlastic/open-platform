@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { UntypedFormArray, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   templateUrl: 'environment-variables-form.component.html',
@@ -7,7 +7,7 @@ import { UntypedFormArray, UntypedFormControl, UntypedFormGroup, Validators } fr
   styleUrls: ['./environment-variables-form.component.scss'],
 })
 export class WorkflowEnvironmentVariablesFormComponent {
-  @Input() public formArray: UntypedFormArray;
+  @Input() public formArray: FormArray;
 
   public addEnvironmentVariable() {
     const env = this.getDefaultEnvironmentVariableFormGroup();
@@ -19,13 +19,13 @@ export class WorkflowEnvironmentVariablesFormComponent {
   }
 
   private getDefaultEnvironmentVariableFormGroup() {
-    const group = new UntypedFormGroup({
-      name: new UntypedFormControl('', Validators.required),
-      value: new UntypedFormControl('', Validators.required),
+    const group = new FormGroup({
+      name: new FormControl('', Validators.required),
+      value: new FormControl('', Validators.required),
     });
 
     // Transform name to uppercase and only allow alphanumeric characters and underscores.
-    group.valueChanges.subscribe(value => {
+    group.valueChanges.subscribe((value) => {
       const name = value.name.toUpperCase().replace(/[^A-Z0-9_]/g, '');
       group.get('name').setValue(name, { emitEvent: false });
     });

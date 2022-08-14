@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validator } from '@angular/forms';
+import { FormBuilder, FormGroup, Validator } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -26,7 +26,7 @@ export interface InputDialogComponentOption {
   styleUrls: ['./input-dialog.component.scss'],
 })
 export class InputDialogComponent implements OnInit {
-  public form: UntypedFormGroup;
+  public form: FormGroup;
   public options: InputDialogComponentOption[] = [];
 
   private subject: Subject<string> = new Subject();
@@ -34,7 +34,7 @@ export class InputDialogComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<InputDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: InputDialogComponentData,
-    private formBuilder: UntypedFormBuilder,
+    private formBuilder: FormBuilder,
   ) {}
 
   public ngOnInit() {
@@ -45,8 +45,8 @@ export class InputDialogComponent implements OnInit {
     this.setupForm();
 
     if (this.data.autocomplete) {
-      this.form.get('input').valueChanges.subscribe(value => this.subject.next(value));
-      this.subject.pipe(debounceTime(300)).subscribe(async value => {
+      this.form.get('input').valueChanges.subscribe((value) => this.subject.next(value));
+      this.subject.pipe(debounceTime(300)).subscribe(async (value) => {
         this.options = await this.data.autocomplete(value);
       });
     }

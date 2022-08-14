@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { UntypedFormGroup } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-metadata-field',
@@ -7,11 +7,11 @@ import { UntypedFormGroup } from '@angular/forms';
   templateUrl: 'metadata-field.component.html',
 })
 export class MetadataFieldComponent implements OnInit {
-  @Input() public form: UntypedFormGroup;
+  @Input() public form: FormGroup;
   @Output() public remove = new EventEmitter();
 
   public ngOnInit() {
-    this.form.controls.type.valueChanges.subscribe(val => {
+    this.form.controls.type.valueChanges.subscribe((val) => {
       switch (val) {
         case 'boolean':
           this.form.controls.value.patchValue(false);

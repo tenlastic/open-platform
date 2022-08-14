@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { UntypedFormGroup } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { BuildModel, BuildService, IBuild } from '@tenlastic/http';
 
 export interface UpdatedFile {
@@ -17,7 +17,7 @@ export interface UpdatedFile {
 })
 export class FilesFormComponent implements OnInit {
   @Input() public build = new BuildModel();
-  @Input() public form: UntypedFormGroup;
+  @Input() public form: FormGroup;
   @ViewChild('selectFilesInput', { static: true }) public selectFilesInput: ElementRef;
 
   public builds: BuildModel[] = [];

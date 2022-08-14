@@ -1,5 +1,5 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 export interface IOnRegister {
   email: string;
@@ -15,7 +15,7 @@ export class RegistrationFormComponent implements OnInit {
   @Output() public register = new EventEmitter<IOnRegister>();
 
   public error: string;
-  public form: UntypedFormGroup;
+  public form: FormGroup;
 
   public ngOnInit() {
     this.setupForm();
@@ -39,7 +39,7 @@ export class RegistrationFormComponent implements OnInit {
     this.register.emit(values);
   }
 
-  private confirmPassword(form: UntypedFormGroup) {
+  private confirmPassword(form: FormGroup) {
     if (form.get('password').value !== form.get('confirmPassword').value) {
       form.get('confirmPassword').setErrors({ required: true });
     }
@@ -48,16 +48,16 @@ export class RegistrationFormComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.form = new UntypedFormGroup({
-      email: new UntypedFormControl('', [Validators.email]),
-      passwords: new UntypedFormGroup(
+    this.form = new FormGroup({
+      email: new FormControl('', [Validators.email]),
+      passwords: new FormGroup(
         {
-          confirmPassword: new UntypedFormControl('', Validators.required),
-          password: new UntypedFormControl('', [Validators.required]),
+          confirmPassword: new FormControl('', Validators.required),
+          password: new FormControl('', [Validators.required]),
         },
         this.confirmPassword,
       ),
-      username: new UntypedFormControl('', [
+      username: new FormControl('', [
         Validators.pattern(/^[A-Za-z0-9]{0,20}$/),
         Validators.required,
       ]),

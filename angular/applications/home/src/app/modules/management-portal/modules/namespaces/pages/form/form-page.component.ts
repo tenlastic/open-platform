@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -18,14 +18,14 @@ import { FormService, IdentityService } from '../../../../../../core/services';
 export class NamespacesFormPageComponent implements OnInit {
   public data: NamespaceModel;
   public errors: string[] = [];
-  public form: UntypedFormGroup;
+  public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public hasWriteAuthorizationForNamespace: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
-    private formBuilder: UntypedFormBuilder,
+    private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,

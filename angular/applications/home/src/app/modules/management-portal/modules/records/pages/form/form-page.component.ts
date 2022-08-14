@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators, UntypedFormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
@@ -22,7 +22,7 @@ export class RecordsFormPageComponent implements OnInit {
   public collection: CollectionModel;
   public data: RecordModel;
   public errors: string[] = [];
-  public form: UntypedFormGroup;
+  public form: FormGroup;
   public hasWriteAuthorization: boolean;
 
   private params: Params;
@@ -31,7 +31,7 @@ export class RecordsFormPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
     private collectionService: CollectionService,
-    private formBuilder: UntypedFormBuilder,
+    private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
@@ -67,7 +67,7 @@ export class RecordsFormPageComponent implements OnInit {
   }
 
   public addArrayItem(key: string) {
-    const formArray = this.form.controls[key] as UntypedFormArray;
+    const formArray = this.form.controls[key] as FormArray;
 
     switch (this.collection.jsonSchema.properties[key].items.type) {
       case 'boolean':
@@ -89,7 +89,7 @@ export class RecordsFormPageComponent implements OnInit {
   }
 
   public removeArrayItem(key: string, index: number) {
-    const formArray = this.form.controls[key] as UntypedFormArray;
+    const formArray = this.form.controls[key] as FormArray;
     formArray.removeAt(index);
   }
 

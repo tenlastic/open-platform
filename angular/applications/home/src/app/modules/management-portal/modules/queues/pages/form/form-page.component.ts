@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -45,7 +45,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   }
   public data: QueueModel;
   public errors: string[] = [];
-  public form: UntypedFormGroup;
+  public form: FormGroup;
   public get gameServerCpus() {
     const limits = this.namespace.limits?.gameServers;
     const limit = limits?.cpu ? limits.cpu : Infinity;
@@ -76,7 +76,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
     private buildService: BuildService,
-    private formBuilder: UntypedFormBuilder,
+    private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
@@ -233,7 +233,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       gameServerMetadata.push(...this.getMetadataFormGroups(this.data.gameServerTemplate.metadata));
     }
 
-    let gameServerTemplateForm: UntypedFormGroup;
+    let gameServerTemplateForm: FormGroup;
     if (this.data.gameServerTemplate) {
       gameServerTemplateForm = this.formBuilder.group({
         buildId: [this.data.gameServerTemplate.buildId, Validators.required],

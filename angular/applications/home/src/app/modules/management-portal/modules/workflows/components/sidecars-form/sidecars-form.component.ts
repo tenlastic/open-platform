@@ -1,6 +1,6 @@
 import { ENTER } from '@angular/cdk/keycodes';
 import { Component, Input } from '@angular/core';
-import { UntypedFormArray, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
 
 @Component({
@@ -9,7 +9,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
   styleUrls: ['./sidecars-form.component.scss'],
 })
 export class WorkflowSidecarsFormComponent {
-  @Input() public formArray: UntypedFormArray;
+  @Input() public formArray: FormArray;
 
   public readonly separatorKeysCodes: number[] = [ENTER];
 
@@ -18,14 +18,14 @@ export class WorkflowSidecarsFormComponent {
     this.formArray.push(sidecar);
   }
 
-  public addStringToFormArray($event: MatChipInputEvent, formArray: UntypedFormArray) {
+  public addStringToFormArray($event: MatChipInputEvent, formArray: FormArray) {
     const { input, value } = $event;
 
     if (!value) {
       return;
     }
 
-    const control = new UntypedFormControl(value);
+    const control = new FormControl(value);
     formArray.push(control);
 
     if (input) {
@@ -48,21 +48,21 @@ export class WorkflowSidecarsFormComponent {
     this.formArray.removeAt(index);
   }
 
-  public removeStringFromFormArray(formArray: UntypedFormArray, index: number) {
+  public removeStringFromFormArray(formArray: FormArray, index: number) {
     formArray.removeAt(index);
   }
 
   private getDefaultSidecarFormGroup() {
-    const group = new UntypedFormGroup({
-      args: new UntypedFormArray([]),
-      command: new UntypedFormArray([]),
-      env: new UntypedFormArray([]),
-      image: new UntypedFormControl('', Validators.required),
-      name: new UntypedFormControl(''),
+    const group = new FormGroup({
+      args: new FormArray([]),
+      command: new FormArray([]),
+      env: new FormArray([]),
+      image: new FormControl('', Validators.required),
+      name: new FormControl(''),
     });
 
     // Only allow alphanumeric characters and dashes.
-    group.valueChanges.subscribe(value => {
+    group.valueChanges.subscribe((value) => {
       const name = value.name.replace(/[^A-Za-z0-9\-]/g, '');
       group.get('name').setValue(name, { emitEvent: false });
     });

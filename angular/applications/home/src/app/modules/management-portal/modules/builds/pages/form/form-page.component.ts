@@ -1,7 +1,7 @@
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -52,7 +52,7 @@ export class BuildsFormPageComponent implements OnInit {
   public data: BuildModel;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
   public errors: string[] = [];
-  public form: UntypedFormGroup;
+  public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public platforms = [
     { label: 'Linux Server (x64)', value: 'server64' },
@@ -72,7 +72,7 @@ export class BuildsFormPageComponent implements OnInit {
     private buildService: BuildService,
     private changeDetectorRef: ChangeDetectorRef,
     private fileReaderService: FileReaderService,
-    private formBuilder: UntypedFormBuilder,
+    private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,

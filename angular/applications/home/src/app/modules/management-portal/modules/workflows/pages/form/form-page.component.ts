@@ -1,7 +1,7 @@
 import { ENTER } from '@angular/cdk/keycodes';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -15,7 +15,7 @@ import {
   WorkflowQuery,
   WorkflowService,
 } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
@@ -45,7 +45,7 @@ export class WorkflowsFormPageComponent implements OnInit {
   public data: WorkflowModel;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
   public errors: string[] = [];
-  public form: UntypedFormGroup;
+  public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public get memories() {
     const limits = this.namespace.limits?.workflows;
@@ -73,7 +73,7 @@ export class WorkflowsFormPageComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
-    private formBuilder: UntypedFormBuilder,
+    private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
@@ -105,7 +105,7 @@ export class WorkflowsFormPageComponent implements OnInit {
 
   public addTemplate() {
     const template = this.getDefaultTemplateFormGroup();
-    const formArray = this.form.get('templates') as UntypedFormArray;
+    const formArray = this.form.get('templates') as FormArray;
 
     formArray.push(template);
   }
@@ -115,7 +115,7 @@ export class WorkflowsFormPageComponent implements OnInit {
   }
 
   public moveTemplate(index: number, change: number) {
-    const roles = this.form.get('templates') as UntypedFormArray;
+    const roles = this.form.get('templates') as FormArray;
 
     if (index + change < 0 || index + change >= roles.length) {
       return;
@@ -132,7 +132,7 @@ export class WorkflowsFormPageComponent implements OnInit {
   }
 
   public removeTemplate(index: number) {
-    const formArray = this.form.get('templates') as UntypedFormArray;
+    const formArray = this.form.get('templates') as FormArray;
     formArray.removeAt(index);
   }
 
@@ -251,53 +251,48 @@ export class WorkflowsFormPageComponent implements OnInit {
   }
 
   private getEnvFormArray(env: IWorkflow.Env[]) {
-    const formArray = this.formBuilder.array([]);
     if (!env) {
-      return formArray;
+      return this.formBuilder.array([]);
     }
 
-    for (const e of env) {
-      const formGroup = this.formBuilder.group({
+    const groups = env.map((e) =>
+      this.formBuilder.group({
         name: [e.name, Validators.required],
         value: [e.value, Validators.required],
-      });
-      formArray.push(formGroup);
-    }
+      }),
+    );
 
-    return formArray;
+    return this.formBuilder.array(groups);
   }
 
   private getSidecarsFormArray(sidecars: IWorkflow.Sidecar[]) {
-    const formArray = this.formBuilder.array([]);
     if (!sidecars) {
-      return formArray;
+      return this.formBuilder.array([]);
     }
 
-    for (const sidecar of sidecars) {
-      const formGroup = this.formBuilder.group({
-        args: this.formBuilder.array(sidecar.args || []),
-        command: this.formBuilder.array(sidecar.command || []),
-        env: this.getEnvFormArray(sidecar.env),
-        image: [sidecar.image, Validators.required],
-        name: [sidecar.name],
-      });
-      formArray.push(formGroup);
-    }
+    const groups = sidecars.map((s) =>
+      this.formBuilder.group({
+        args: this.formBuilder.array(s.args || []),
+        command: this.formBuilder.array(s.command || []),
+        env: this.getEnvFormArray(s.env),
+        image: [s.image, Validators.required],
+        name: [s.name],
+      }),
+    );
 
-    return formArray;
+    return this.formBuilder.array(groups);
   }
 
   private getTemplatesFormArray(templates: IWorkflow.Template[]) {
-    const formArray = this.formBuilder.array([]);
     if (!templates) {
-      formArray.push(this.getDefaultTemplateFormGroup());
-      return formArray;
+      const group = this.getDefaultTemplateFormGroup();
+      return this.formBuilder.array([group]);
     }
 
-    this.data.spec.templates
+    const groups = this.data.spec.templates
       .filter((t) => t.script)
-      .forEach((t) => {
-        const template = this.formBuilder.group({
+      .map((t) =>
+        this.formBuilder.group({
           name: [t.name, Validators.required],
           script: this.formBuilder.group({
             args: this.formBuilder.array(t.script.args || []),
@@ -308,11 +303,10 @@ export class WorkflowsFormPageComponent implements OnInit {
             workingDir: [t.script.workingDir],
           }),
           sidecars: this.getSidecarsFormArray(t.sidecars),
-        });
-        formArray.push(template);
-      });
+        }),
+      );
 
-    return formArray;
+    return this.formBuilder.array(groups);
   }
 
   private setupForm(): void {

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { UntypedFormGroup } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { UserModel, UserService } from '@tenlastic/http';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -10,7 +10,7 @@ import { debounceTime } from 'rxjs/operators';
   templateUrl: 'namespace-user-field.component.html',
 })
 export class NamespaceUserFieldComponent implements OnInit {
-  @Input() public form: UntypedFormGroup;
+  @Input() public form: FormGroup;
   @Input() public roles: any[];
   @Output() public remove = new EventEmitter();
 

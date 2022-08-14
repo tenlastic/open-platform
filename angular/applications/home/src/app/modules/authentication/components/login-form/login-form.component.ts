@@ -1,5 +1,5 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 export interface ILogIn {
   password: string;
@@ -14,7 +14,7 @@ export class LoginFormComponent implements OnInit {
   @Output() public logIn = new EventEmitter<ILogIn>();
 
   public error: string;
-  public form: UntypedFormGroup;
+  public form: FormGroup;
 
   public ngOnInit() {
     this.setupForm();
@@ -36,12 +36,12 @@ export class LoginFormComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.form = new UntypedFormGroup({
-      password: new UntypedFormControl('', Validators.required),
-      username: new UntypedFormControl('', [Validators.required]),
+    this.form = new FormGroup({
+      password: new FormControl('', Validators.required),
+      username: new FormControl('', [Validators.required]),
     });
 
-    this.form.valueChanges.subscribe(data => {
+    this.form.valueChanges.subscribe((data) => {
       this.error = null;
     });
   }
