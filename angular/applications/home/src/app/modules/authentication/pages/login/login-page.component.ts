@@ -1,10 +1,8 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoginService, TokenService } from '@tenlastic/http';
 
-import { TITLE } from '../../../../shared/constants';
 import { ILogIn, LoginFormComponent } from '../../components';
 
 @Component({
@@ -29,11 +27,8 @@ export class LoginPageComponent implements OnInit {
     @Inject(DOCUMENT) private document: Document,
     private loginService: LoginService,
     private router: Router,
-    private titleService: Title,
     private tokenService: TokenService,
-  ) {
-    this.titleService.setTitle(`${TITLE} | Log In`);
-  }
+  ) {}
 
   public ngOnInit() {
     if (this.isOAuth && this.tokenService.getRefreshToken()) {

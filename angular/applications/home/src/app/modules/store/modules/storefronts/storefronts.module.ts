@@ -5,7 +5,7 @@ import { SharedModule } from '../../../../shared/shared.module';
 import { ListPageComponent } from './pages';
 
 export const ROUTES: Routes = [
-  { path: '', component: ListPageComponent },
+  { component: ListPageComponent, path: '', title: 'Storefronts' },
   {
     path: ':namespaceId',
     loadChildren: () => import('../storefront/storefront.module').then((m) => m.StorefrontModule),

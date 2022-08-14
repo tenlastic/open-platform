@@ -2,11 +2,8 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
 import { UserQuery, WebSocketModel, WebSocketQuery, WebSocketService } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
-
-import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -24,14 +21,12 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
   private updateDataSource$ = new Subscription();
 
   constructor(
-    private titleService: Title,
     private userQuery: UserQuery,
     private webSocketQuery: WebSocketQuery,
     private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Web Sockets`);
     this.fetchWebSockets();
   }
 

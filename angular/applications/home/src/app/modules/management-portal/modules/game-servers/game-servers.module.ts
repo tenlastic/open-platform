@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { FormResolver } from '../../../../core/resolvers';
 import { SharedModule } from '../../../../shared/shared.module';
-
 import {
   GameServersFormPageComponent,
   GameServersJsonPageComponent,
@@ -10,9 +10,19 @@ import {
 } from './pages';
 
 export const ROUTES: Routes = [
-  { path: '', component: GameServersListPageComponent },
-  { path: ':gameServerId', component: GameServersFormPageComponent },
-  { path: ':gameServerId/json', component: GameServersJsonPageComponent },
+  { component: GameServersListPageComponent, path: '', title: 'Game Servers' },
+  {
+    component: GameServersFormPageComponent,
+    data: { param: 'gameServerId', title: 'Game Server' },
+    path: ':gameServerId',
+    title: FormResolver,
+  },
+  {
+    component: GameServersJsonPageComponent,
+    data: { param: 'gameServerId', title: 'Game Server' },
+    path: ':gameServerId/json',
+    title: FormResolver,
+  },
 ];
 
 const pages = [

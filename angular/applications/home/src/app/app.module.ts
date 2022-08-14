@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { Routes, RouterModule, TitleStrategy } from '@angular/router';
 import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
 
 import { environment } from '../environments/environment';
 import { CoreModule } from './core/core.module';
 import { LoginGuard } from './core/guards';
+import { DefaultTitleStrategy } from './core/title-strategies';
 import { LayoutComponent } from './shared/components';
 import { SharedModule } from './shared/shared.module';
 import { AppComponent } from './app.component';
@@ -48,6 +49,7 @@ export const ROUTES: Routes = [
 ];
 
 @NgModule({
+  bootstrap: [AppComponent],
   declarations: [AppComponent],
   imports: [
     environment.production ? [] : AkitaNgDevtools,
@@ -59,6 +61,6 @@ export const ROUTES: Routes = [
       useHash: environment.useHash,
     }),
   ],
-  bootstrap: [AppComponent],
+  providers: [{ provide: TitleStrategy, useClass: DefaultTitleStrategy }],
 })
 export class AppModule {}

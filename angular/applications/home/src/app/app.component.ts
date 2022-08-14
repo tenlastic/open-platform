@@ -1,4 +1,3 @@
-import { Title } from '@angular/platform-browser';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { resetStores } from '@datorama/akita';
@@ -15,7 +14,6 @@ import {
 
 import { environment } from '../environments/environment';
 import { ElectronService } from './core/services';
-import { TITLE } from './shared/constants';
 
 @Component({
   selector: 'app-root',
@@ -34,7 +32,6 @@ export class AppComponent implements OnInit {
     private queueMemberQuery: QueueMemberQuery,
     private router: Router,
     private streamService: StreamService,
-    private titleService: Title,
     private tokenService: TokenService,
     private userQuery: UserQuery,
     private userService: UserService,
@@ -42,8 +39,6 @@ export class AppComponent implements OnInit {
   ) {}
 
   public async ngOnInit() {
-    this.titleService.setTitle(`${TITLE}`);
-
     // Navigate to login page on logout.
     this.loginService.emitter.on('logout', () => this.navigateToLogin());
 

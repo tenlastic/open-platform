@@ -4,7 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ContactUsComponent } from './contact-us.component';
 
-export const ROUTES: Routes = [{ path: '', component: ContactUsComponent }];
+export const ROUTES: Routes = [{ component: ContactUsComponent, path: '', title: 'Contact Us' }];
 
 @NgModule({
   declarations: [ContactUsComponent],

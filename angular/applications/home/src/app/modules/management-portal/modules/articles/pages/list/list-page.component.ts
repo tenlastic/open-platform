@@ -4,7 +4,6 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
   ArticleModel,
@@ -17,7 +16,6 @@ import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -43,13 +41,10 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private titleService: Title,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe((params) => {
-      this.titleService.setTitle(`${TITLE} | Articles`);
-
       const roles = [IAuthorization.Role.ArticlesReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =

@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { FormResolver } from '../../../../core/resolvers';
 import { SharedModule } from '../../../../shared/shared.module';
 import { LayoutComponent, NamespaceUserFieldComponent } from './components';
 import {
@@ -10,55 +11,65 @@ import {
 } from './pages';
 
 export const ROUTES: Routes = [
-  { path: '', component: NamespacesListPageComponent },
+  { component: NamespacesListPageComponent, path: '', title: 'Namespaces' },
   {
-    path: ':namespaceId',
-    component: LayoutComponent,
     children: [
-      { path: '', component: NamespacesFormPageComponent },
       {
-        path: 'api-keys',
+        component: NamespacesFormPageComponent,
+        data: { param: 'namespaceId', title: 'Namespace' },
+        path: '',
+        title: FormResolver,
+      },
+      {
         loadChildren: () =>
           import('../authorizations/authorizations.module').then((m) => m.AuthorizationModule),
+        path: 'api-keys',
       },
       {
-        path: 'articles',
         loadChildren: () => import('../articles/articles.module').then((m) => m.ArticleModule),
+        path: 'articles',
       },
       {
-        path: 'builds',
         loadChildren: () => import('../builds/builds.module').then((m) => m.BuildModule),
+        path: 'builds',
       },
       {
-        path: 'collections',
         loadChildren: () =>
           import('../collections/collections.module').then((m) => m.CollectionModule),
+        path: 'collections',
       },
       {
-        path: 'game-servers',
         loadChildren: () =>
           import('../game-servers/game-servers.module').then((m) => m.GameServerModule),
+        path: 'game-servers',
       },
-      { path: 'json', component: NamespacesJsonPageComponent },
       {
-        path: 'queues',
+        component: NamespacesJsonPageComponent,
+        data: { param: 'namespaceId', title: 'Namespace' },
+        path: 'json',
+        title: FormResolver,
+      },
+      {
         loadChildren: () => import('../queues/queues.module').then((m) => m.QueueModule),
+        path: 'queues',
       },
       {
-        path: 'storefront',
         loadChildren: () =>
           import('../storefronts/storefronts.module').then((m) => m.StorefrontModule),
+        path: 'storefront',
       },
       {
-        path: 'users',
         loadChildren: () =>
           import('../authorizations/authorizations.module').then((m) => m.AuthorizationModule),
+        path: 'users',
       },
       {
-        path: 'workflows',
         loadChildren: () => import('../workflows/workflows.module').then((m) => m.WorkflowsModule),
+        path: 'workflows',
       },
     ],
+    component: LayoutComponent,
+    path: ':namespaceId',
   },
 ];
 

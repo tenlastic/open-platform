@@ -4,7 +4,6 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Order } from '@datorama/akita';
 import {
@@ -25,7 +24,6 @@ import { map } from 'rxjs/operators';
 import { environment } from '../../../../../../../environments/environment';
 import { IdentityService } from '../../../../../../core/services';
 import { LogsDialogComponent, PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -59,14 +57,11 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private streamService: StreamService,
-    private titleService: Title,
   ) {}
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe((params) => {
       this.params = params;
-
-      this.titleService.setTitle(`${TITLE} | Game Servers`);
 
       const roles = [IAuthorization.Role.GameServersReadWrite];
       const userId = this.identityService.user?._id;

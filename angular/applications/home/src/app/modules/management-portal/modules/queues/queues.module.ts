@@ -1,29 +1,40 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { FormResolver } from '../../../../core/resolvers';
 import { SharedModule } from '../../../../shared/shared.module';
 import { LayoutComponent } from './components';
 import { QueuesFormPageComponent, QueuesJsonPageComponent, QueuesListPageComponent } from './pages';
 
 export const ROUTES: Routes = [
-  { path: '', component: QueuesListPageComponent },
+  { component: QueuesListPageComponent, path: '', title: 'Queues' },
   {
-    path: ':queueId',
-    component: LayoutComponent,
     children: [
-      { path: '', component: QueuesFormPageComponent },
-      { path: 'json', component: QueuesJsonPageComponent },
       {
-        path: 'game-servers',
+        component: QueuesFormPageComponent,
+        data: { param: 'queueId', title: 'Queue' },
+        path: '',
+        title: FormResolver,
+      },
+      {
         loadChildren: () =>
           import('../game-servers/game-servers.module').then((m) => m.GameServerModule),
+        path: 'game-servers',
       },
       {
-        path: 'queue-members',
+        component: QueuesJsonPageComponent,
+        data: { param: 'queueId', title: 'Queue' },
+        path: 'json',
+        title: FormResolver,
+      },
+      {
         loadChildren: () =>
           import('../queue-members/queue-members.module').then((m) => m.QueueMemberModule),
+        path: 'queue-members',
       },
     ],
+    component: LayoutComponent,
+    path: ':queueId',
   },
 ];
 

@@ -1,9 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { LoginService, UserService } from '@tenlastic/http';
 
-import { TITLE } from '../../../../shared/constants';
 import { IOnRegister, RegistrationFormComponent } from '../../components';
 
 @Component({
@@ -22,11 +20,8 @@ export class CreateAccountPageComponent {
   constructor(
     private loginService: LoginService,
     private router: Router,
-    private titleService: Title,
     private userService: UserService,
-  ) {
-    this.titleService.setTitle(`${TITLE} | Create Account`);
-  }
+  ) {}
 
   public async onRegister(data: IOnRegister) {
     try {

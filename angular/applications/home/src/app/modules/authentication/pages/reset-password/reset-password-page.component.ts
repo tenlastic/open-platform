@@ -1,8 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { PasswordResetService } from '@tenlastic/http';
 
-import { TITLE } from '../../../../shared/constants';
 import { IPasswordReset, PasswordResetFormComponent } from '../../components';
 import { ActivatedRoute } from '@angular/router';
 
@@ -24,10 +22,7 @@ export class ResetPasswordPageComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private passwordResetService: PasswordResetService,
-    private titleService: Title,
-  ) {
-    this.titleService.setTitle(`${TITLE} | Reset Password`);
-  }
+  ) {}
 
   public ngOnInit() {
     const { snapshot } = this.activatedRoute;

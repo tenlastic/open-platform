@@ -4,7 +4,6 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Order } from '@datorama/akita';
 import {
@@ -25,7 +24,6 @@ import { map } from 'rxjs/operators';
 import { environment } from '../../../../../../../environments/environment';
 import { IdentityService } from '../../../../../../core/services';
 import { LogsDialogComponent, PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -55,13 +53,10 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     private queueQuery: QueueQuery,
     private queueService: QueueService,
     private streamService: StreamService,
-    private titleService: Title,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe((params) => {
-      this.titleService.setTitle(`${TITLE} | Queues`);
-
       const roles = [IAuthorization.Role.QueuesReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =

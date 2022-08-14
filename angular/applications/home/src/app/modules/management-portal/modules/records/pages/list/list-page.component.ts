@@ -4,7 +4,6 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
   AuthorizationQuery,
@@ -22,7 +21,6 @@ import { Observable, Subscription } from 'rxjs';
 import { environment } from '../../../../../../../environments/environment';
 import { PromptComponent } from '../../../../../../shared/components';
 import { IdentityService } from '../../../../../../core/services';
-import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -55,13 +53,11 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
     private recordService: RecordService,
     private recordStore: RecordStore,
     private streamService: StreamService,
-    private titleService: Title,
   ) {}
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
-      this.titleService.setTitle(`${TITLE} | Records`);
 
       const roles = [IAuthorization.Role.CollectionsReadWrite];
       const userId = this.identityService.user?._id;

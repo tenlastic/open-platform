@@ -4,7 +4,6 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
 import {
   AuthorizationQuery,
   IAuthorization,
@@ -16,7 +15,6 @@ import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -41,12 +39,9 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
     private matSnackBar: MatSnackBar,
     private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
-    private titleService: Title,
   ) {}
 
   public ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Namespaces`);
-
     const roles = [IAuthorization.Role.NamespacesReadWrite];
     const userId = this.identityService.user?._id;
     this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);

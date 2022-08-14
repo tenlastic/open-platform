@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { FormResolver } from '../../../../core/resolvers';
 import { SharedModule } from '../../../../shared/shared.module';
-
 import {
   CriterionFieldComponent,
   LayoutComponent,
@@ -16,18 +16,28 @@ import {
 } from './pages';
 
 export const ROUTES: Routes = [
-  { path: '', component: CollectionsListPageComponent },
+  { component: CollectionsListPageComponent, path: '', title: 'Collections' },
   {
-    path: ':collectionId',
-    component: LayoutComponent,
     children: [
-      { path: '', component: CollectionsFormPageComponent },
-      { path: 'json', component: CollectionsJsonPageComponent },
       {
-        path: 'records',
+        component: CollectionsFormPageComponent,
+        data: { param: 'collectionId', title: 'Collection' },
+        path: '',
+        title: FormResolver,
+      },
+      {
+        component: CollectionsJsonPageComponent,
+        data: { param: 'collectionId', title: 'Collection' },
+        path: 'json',
+        title: FormResolver,
+      },
+      {
         loadChildren: () => import('../records/records.module').then((m) => m.RecordModule),
+        path: 'records',
       },
     ],
+    component: LayoutComponent,
+    path: ':collectionId',
   },
 ];
 

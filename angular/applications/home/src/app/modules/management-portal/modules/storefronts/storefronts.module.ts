@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { FormResolver } from '../../../../core/resolvers';
 import { SharedModule } from '../../../../shared/shared.module';
-
 import { LayoutComponent, MediaDialogComponent } from './components';
 import {
   StorefrontsFormPageComponent,
@@ -12,12 +12,22 @@ import {
 
 export const ROUTES: Routes = [
   {
-    path: '',
-    component: LayoutComponent,
     children: [
-      { path: '', component: StorefrontsFormPageComponent },
-      { path: 'json', component: StorefrontsJsonPageComponent },
+      {
+        component: StorefrontsFormPageComponent,
+        data: { param: 'storefrontId', title: 'Storefront' },
+        path: ':storefrontId',
+        title: FormResolver,
+      },
+      {
+        component: StorefrontsJsonPageComponent,
+        data: { param: 'storefrontId', title: 'Storefront' },
+        path: ':storefrontId/json',
+        title: FormResolver,
+      },
     ],
+    component: LayoutComponent,
+    path: '',
   },
 ];
 

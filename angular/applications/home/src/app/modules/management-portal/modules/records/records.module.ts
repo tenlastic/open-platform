@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { FormResolver } from '../../../../core/resolvers';
 import { SharedModule } from '../../../../shared/shared.module';
-
 import {
   RecordsFormPageComponent,
   RecordsJsonPageComponent,
@@ -10,9 +10,19 @@ import {
 } from './pages';
 
 export const ROUTES: Routes = [
-  { path: '', component: RecordsListPageComponent },
-  { path: ':recordId', component: RecordsFormPageComponent },
-  { path: ':recordId/json', component: RecordsJsonPageComponent },
+  { component: RecordsListPageComponent, path: '', title: 'Records' },
+  {
+    component: RecordsFormPageComponent,
+    data: { param: 'recordId', title: 'Record' },
+    path: ':recordId',
+    title: FormResolver,
+  },
+  {
+    component: RecordsJsonPageComponent,
+    data: { param: 'recordId', title: 'Record' },
+    path: ':recordId/json',
+    title: FormResolver,
+  },
 ];
 
 @NgModule({

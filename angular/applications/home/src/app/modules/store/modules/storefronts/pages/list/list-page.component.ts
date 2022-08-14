@@ -2,11 +2,8 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
 import { StorefrontModel, StorefrontQuery, StorefrontService } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
-
-import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -26,12 +23,9 @@ export class ListPageComponent implements OnDestroy, OnInit {
   constructor(
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
-    private titleService: Title,
   ) {}
 
   public async ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Storefronts`);
-
     await this.fetchStorefronts();
   }
 

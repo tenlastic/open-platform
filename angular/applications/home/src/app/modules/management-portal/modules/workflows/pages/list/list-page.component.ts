@@ -4,7 +4,6 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
   AuthorizationQuery,
@@ -17,7 +16,6 @@ import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -43,13 +41,10 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
     private matSnackBar: MatSnackBar,
     private workflowQuery: WorkflowQuery,
     private workflowService: WorkflowService,
-    private titleService: Title,
   ) {}
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe((params) => {
-      this.titleService.setTitle(`${TITLE} | Workflows`);
-
       const roles = [IAuthorization.Role.CollectionsReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =

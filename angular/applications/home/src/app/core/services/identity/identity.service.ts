@@ -13,9 +13,8 @@ export class IdentityService {
   private _user: UserModel;
 
   constructor(private authorizationQuery: AuthorizationQuery, private tokenService: TokenService) {
-    this.tokenService.emitter.on(
-      'accessToken',
-      (accessToken) => (this._user = accessToken?.payload?.user),
-    );
+    this.tokenService.emitter.on('accessToken', (accessToken) => {
+      return (this._user = accessToken?.payload?.user);
+    });
   }
 }

@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { FormResolver } from '../../../../core/resolvers';
 import { SharedModule } from '../../../../shared/shared.module';
-
 import {
   WorkflowEnvironmentVariablesFormComponent,
   WorkflowScriptFormComponent,
@@ -16,9 +16,19 @@ import {
 } from './pages';
 
 export const ROUTES: Routes = [
-  { path: '', component: WorkflowsListPageComponent },
-  { path: ':workflowId', component: WorkflowsFormPageComponent },
-  { path: ':workflowId/json', component: WorkflowsJsonPageComponent },
+  { component: WorkflowsListPageComponent, path: '', title: 'Workspaces' },
+  {
+    component: WorkflowsFormPageComponent,
+    data: { param: 'workflowId', title: 'Workflow' },
+    path: ':workflowId',
+    title: FormResolver,
+  },
+  {
+    component: WorkflowsJsonPageComponent,
+    data: { param: 'workflowId', title: 'Workflow' },
+    path: ':workflowId/json',
+    title: FormResolver,
+  },
 ];
 
 @NgModule({
