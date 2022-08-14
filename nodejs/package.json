@@ -78,6 +78,7 @@
     "mocha-multi-reporters": "1.1.7",
     "mochawesome": "4.1.0",
     "mochawesome-report-generator": "4.0.1",
+    "mock-fs": "5.1.4",
     "nock": "11.9.1",
     "nyc": "15.0.0",
     "request": "2.88.0",
