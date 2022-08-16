@@ -1,6 +1,6 @@
 import { IQueue } from '@tenlastic/http';
 import { podApiV1, V1Pod } from '@tenlastic/kubernetes';
-import * as requestPromiseNative from 'request-promise-native';
+import axios from 'axios';
 
 import dependencies from '../dependencies';
 
@@ -115,9 +115,10 @@ async function updateQueue() {
   // Version
   const { version } = require('../../package.json');
 
-  await requestPromiseNative.put({
+  await axios({
+    data: { status: { components, nodes, phase, version } },
     headers: { 'X-Api-Key': apiKey },
-    json: { status: { components, nodes, phase, version } },
+    method: 'put',
     url: endpoint,
   });
 

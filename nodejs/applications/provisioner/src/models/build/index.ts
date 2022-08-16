@@ -105,6 +105,7 @@ export const KubernetesBuild = {
         BUILD_ID: `${build._id}`,
         MINIO_BUCKET: process.env.MINIO_BUCKET,
         MINIO_CONNECTION_STRING: process.env.MINIO_CONNECTION_STRING,
+        NAMESPACE_ID: `${build.namespaceId}`,
       },
     });
 

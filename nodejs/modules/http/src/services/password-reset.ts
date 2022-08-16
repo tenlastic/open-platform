@@ -28,6 +28,6 @@ export class PasswordResetService {
    * Returns the base URL for this Model.
    */
   private getUrl() {
-    return `${this.environmentService.apiUrl}/namespaces`;
+    return `${this.environmentService.apiUrl}/password-resets`;
   }
 }

@@ -9,7 +9,7 @@ import dependencies from '../dependencies';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('collections', function () {
+describe('/nodejs/namespace/collections', function () {
   let collection: CollectionModel;
   let namespace: NamespaceModel;
   let record: RecordModel;

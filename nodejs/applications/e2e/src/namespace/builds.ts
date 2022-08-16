@@ -13,7 +13,7 @@ import dependencies from '../dependencies';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('builds', function () {
+describe('/nodejs/namespace/builds', function () {
   let build: BuildModel;
   let namespace: NamespaceModel;
 

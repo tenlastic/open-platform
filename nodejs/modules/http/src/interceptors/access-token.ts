@@ -11,7 +11,7 @@ export class AccessTokenInterceptor {
 
       const accessToken = await tokenService.getAccessToken();
       if (accessToken) {
-        config.headers.Authorization = `Bearer ${accessToken}`;
+        config.headers.Authorization = `Bearer ${accessToken.value}`;
       }
 
       return config;

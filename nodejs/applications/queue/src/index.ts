@@ -24,8 +24,8 @@ const wssUrl = process.env.WSS_URL;
     dependencies.queueMemberService.emitter.on('create', (record) =>
       console.log(`Created Queue Member with User IDs: ${record.userIds.join(',')}.`),
     );
-    dependencies.queueMemberService.emitter.on('delete', (_id) =>
-      console.log(`Deleted Queue Member User IDs: ${_id}.`),
+    dependencies.queueMemberService.emitter.on('delete', (record) =>
+      console.log(`Deleted Queue Member User IDs: ${record._id}.`),
     );
 
     // Web Socket.

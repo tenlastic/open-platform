@@ -37,6 +37,10 @@ export const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
     await emails.sendPasswordResetConfirmation(this);
   }
 
+  if (this.isModified('email') && this.email === '') {
+    this.email = undefined;
+  }
+
   if (this.isModified('password')) {
     this.password = await User.hashPassword(this.password);
   }

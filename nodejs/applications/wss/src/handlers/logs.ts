@@ -67,7 +67,7 @@ export async function logs(
     namespaceId: { $exists: false },
     userId: auth.jwt?.user?._id,
   });
-  const credentials = { apiKey: auth.key, authorization, user: auth.jwt.user };
+  const credentials = { apiKey: auth.apiKey, authorization, user: auth.jwt.user };
   const override = { where: { _id } };
   const record = await Permissions.findOne(credentials, override, {});
   if (!record) {

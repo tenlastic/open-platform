@@ -2,8 +2,8 @@ import 'source-map-support/register';
 
 import { Build } from '@tenlastic/mongoose-models';
 import * as minio from '@tenlastic/minio';
+import axios from 'axios';
 import * as path from 'path';
-import * as requestPromiseNative from 'request-promise-native';
 import { URL } from 'url';
 
 import { copy } from './copy';
@@ -13,6 +13,7 @@ const apiKey = process.env.API_KEY;
 const buildId = process.env.BUILD_ID;
 const minioBucket = process.env.MINIO_BUCKET;
 const minioConnectionString = process.env.MINIO_CONNECTION_STRING;
+const namespaceId = process.env.NAMESPACE_ID;
 
 const minioConnectionUrl = new URL(minioConnectionString);
 minio.connect({
@@ -25,25 +26,25 @@ minio.connect({
 
 (async () => {
   try {
-    const response = await requestPromiseNative.get({
+    const response = await axios({
       headers: { 'X-Api-Key': apiKey },
-      json: true,
-      url: `http://api.static:3000/builds/${buildId}`,
+      method: 'get',
+      url: `http://api.static:3000/namespaces/${namespaceId}/builds/${buildId}`,
     });
-    const build = new Build(response.record);
+    const build = new Build(response.data.record);
 
     // Copy unmodified Files from previous Build.
     if (build.reference) {
-      const referenceBuildResponse = await requestPromiseNative.get({
+      const referenceBuildResponse = await axios({
         headers: { 'X-Api-Key': apiKey },
-        json: true,
-        url: `http://api.static:3000/builds/${build.reference._id}`,
+        method: 'get',
+        url: `http://api.static:3000/namespaces/${namespaceId}/builds/${build.reference._id}`,
       });
-      if (!referenceBuildResponse.record) {
+      if (!referenceBuildResponse.data.record) {
         throw new Error(`Reference Build ${buildId} not found.`);
       }
 
-      const referenceBuild = new Build(referenceBuildResponse.record);
+      const referenceBuild = new Build(referenceBuildResponse.data.record);
       const copyPromises = build.reference.files.map((f) => copy(build, f, referenceBuild));
       build.files = await Promise.all(copyPromises);
     }
@@ -74,11 +75,11 @@ minio.connect({
     }
 
     // Update the Build.
-    await requestPromiseNative.put({
-      body: { files: build.files },
+    await axios({
+      data: { files: build.files },
       headers: { 'X-Api-Key': apiKey },
-      json: true,
-      url: `http://api.static:3000/builds/${buildId}`,
+      method: 'put',
+      url: `http://api.static:3000/namespaces/${namespaceId}/builds/${buildId}`,
     });
 
     await minio.removeObject(minioBucket, build.getZipPath());

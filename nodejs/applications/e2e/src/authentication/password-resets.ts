@@ -18,7 +18,7 @@ const oauth2Client = new google.auth.OAuth2(
 oauth2Client.setCredentials({ refresh_token: process.env.E2E_GMAIL_REFRESH_TOKEN });
 google.options({ auth: oauth2Client });
 
-describe('password-resets', function () {
+describe('/nodejs/authentication/password-resets', function () {
   let email: string;
   let refreshToken: string;
   let user: UserModel;

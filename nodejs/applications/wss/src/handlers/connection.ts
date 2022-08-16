@@ -21,7 +21,7 @@ export async function connection(auth: AuthenticationData, ws: WS) {
     namespaceId: { $exists: false },
     userId: auth.jwt.user._id,
   });
-  const credentials = { apiKey: auth.key, authorization, user: auth.jwt.user };
+  const credentials = { apiKey: auth.apiKey, authorization, user: auth.jwt.user };
   const response = await WebSocketPermissions.read(credentials, webSocket);
   ws.send(JSON.stringify({ fullDocument: response, operationType: 'insert' }));
 

@@ -14,7 +14,7 @@ const wssUrl = process.env.E2E_WSS_URL;
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('queues', function () {
+describe('/nodejs/namespace/queues', function () {
   let build: BuildModel;
   let queue: QueueModel;
   let namespace: NamespaceModel;
@@ -97,14 +97,14 @@ describe('queues', function () {
   });
 
   step('removes disconnected Users', async function () {
-    const user = await createUser();
+    const { user, webSocketId } = await createUser();
 
     // Add Queue Members.
     await dependencies.queueMemberService.create(namespace._id, {
       namespaceId: namespace._id,
       queueId: queue._id,
-      userId: user.user._id,
-      webSocketId: user.webSocketId,
+      userId: user._id,
+      webSocketId,
     });
 
     try {
@@ -118,27 +118,20 @@ describe('queues', function () {
       expect(queueMembers.length).to.eql(0);
     } finally {
       dependencies.streamService.close(wssUrl);
-      await dependencies.userService.delete(user.user._id);
+      await dependencies.userService.delete(user._id);
     }
   });
 
   step('creates a Game Server', async function () {
-    const firstUser = await createUser();
-    const secondUser = await createUser();
-    const users = [firstUser, secondUser];
+    queue = await dependencies.queueService.update(namespace._id, queue._id, { teams: 1 });
+    const { user, webSocketId } = await createUser();
 
     // Add Queue Members.
     await dependencies.queueMemberService.create(namespace._id, {
       namespaceId: namespace._id,
       queueId: queue._id,
-      userId: users[0].user._id,
-      webSocketId: users[0].webSocketId,
-    });
-    await dependencies.queueMemberService.create(namespace._id, {
-      namespaceId: namespace._id,
-      queueId: queue._id,
-      userId: users[1].user._id,
-      webSocketId: users[1].webSocketId,
+      userId: user._id,
+      webSocketId,
     });
 
     try {
@@ -151,8 +144,8 @@ describe('queues', function () {
       });
 
       expect(gameServer.buildId).to.eql(build._id);
-      expect(gameServer.metadata.teamAssignments).to.eql(users.map((u) => u.user._id).join(','));
-      expect(gameServer.metadata.teams).to.eql(2);
+      expect(gameServer.metadata.teamAssignments).to.eql(user._id);
+      expect(gameServer.metadata.teams).to.eql(1);
       expect(gameServer.metadata.usersPerTeam).to.eql(1);
       expect(gameServer.queueId).to.eql(queue._id);
 
@@ -162,7 +155,7 @@ describe('queues', function () {
       expect(queueMembers.length).to.eql(0);
     } finally {
       dependencies.streamService.close(wssUrl);
-      await Promise.all(users.map((u) => dependencies.userService.delete(u.user._id)));
+      await dependencies.userService.delete(user._id);
     }
   });
 });
@@ -176,7 +169,11 @@ async function createUser() {
   });
 
   const accessToken = await dependencies.tokenService.getAccessToken();
-  await dependencies.loginService.createWithCredentials(user.username, password);
+  const credentials = await dependencies.loginService.createWithCredentials(
+    user.username,
+    password,
+  );
+  dependencies.tokenService.setAccessToken(credentials.accessToken);
 
   // Connect to the web socket server.
   await dependencies.streamService.connect(wssUrl);

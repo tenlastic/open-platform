@@ -9,8 +9,8 @@ export class WebSocket extends WS {
   public isAlive: boolean;
 }
 export interface AuthenticationData {
+  apiKey?: string;
   jwt?: any;
-  key?: string;
 }
 export interface MessageData {
   _id: string;
@@ -45,7 +45,7 @@ export class WebSocketServer {
           const auth = await this.onUpgradeRequest(request);
 
           // Approve connection request and pass user data to connection event.
-          this.wss.handleUpgrade(request, socket, head, ws => {
+          this.wss.handleUpgrade(request, socket, head, (ws) => {
             this.wss.emit('connection', auth, ws);
           });
         } catch (e) {
@@ -64,7 +64,7 @@ export class WebSocketServer {
         await connection(auth, ws);
       }
 
-      ws.on('message', async data => {
+      ws.on('message', async (data) => {
         try {
           const json = JSON.parse(data.toString());
 
@@ -114,7 +114,7 @@ export class WebSocketServer {
         algorithms: ['RS256'],
       });
     } else {
-      auth.key = apiKey;
+      auth.apiKey = apiKey;
     }
 
     // If any upgrade callbacks throw an error, kill the connection.

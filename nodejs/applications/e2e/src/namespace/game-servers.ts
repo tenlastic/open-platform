@@ -14,7 +14,7 @@ import dependencies from '../dependencies';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('game-servers', function () {
+describe('/nodejs/namespace/game-servers', function () {
   let build: BuildModel;
   let gameServer: GameServerModel;
   let namespace: NamespaceModel;

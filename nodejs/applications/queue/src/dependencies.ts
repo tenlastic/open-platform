@@ -1,5 +1,6 @@
 import * as injector from '@tenlastic/dependency-injection';
 import {
+  ApiKeyInterceptor,
   ApiService,
   EnvironmentService,
   GameServerService,
@@ -18,6 +19,12 @@ const apiKey = process.env.API_KEY;
 const apiUrl = process.env.API_URL;
 
 injector.inject([
+  {
+    deps: [Axios, EnvironmentService],
+    provide: ApiKeyInterceptor,
+    useFactory: (axios: Axios, environmentService: EnvironmentService) =>
+      new ApiKeyInterceptor(axios, environmentService),
+  },
   {
     deps: [Axios],
     provide: ApiService,

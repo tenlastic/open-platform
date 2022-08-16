@@ -194,8 +194,6 @@ export class QueueSchema {
       'preemptible',
       'replicas',
       'restartedAt',
-      'teams',
-      'usersPerTeam',
     ];
 
     return immutableFields.some((i) => fields.includes(i));

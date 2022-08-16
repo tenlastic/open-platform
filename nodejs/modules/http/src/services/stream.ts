@@ -194,6 +194,10 @@ export class StreamService {
     socket.addEventListener('message', (msg) => {
       const payload = JSON.parse(msg.data);
 
+      if (payload.error) {
+        throw new Error(payload.error);
+      }
+
       // If the response is for a different request, ignore it.
       if (payload._id !== _id) {
         return;

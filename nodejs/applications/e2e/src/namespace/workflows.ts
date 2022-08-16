@@ -10,7 +10,7 @@ import dependencies from '../dependencies';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('workflows', function () {
+describe('/nodejs/namespace/workflows', function () {
   let namespace: NamespaceModel;
   let workflow: WorkflowModel;
 

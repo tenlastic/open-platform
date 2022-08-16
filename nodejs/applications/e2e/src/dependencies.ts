@@ -38,7 +38,7 @@ import { Axios } from 'axios';
 
 const apiUrl = process.env.E2E_API_URL;
 
-const components: injector.Injection[] = [{ provide: Axios, useValue: new Axios() }];
+const components: injector.Injection[] = [{ provide: Axios, useValue: new Axios({}) }];
 
 const interceptors: injector.Injection[] = [
   {
@@ -108,6 +108,15 @@ const services: injector.Injection[] = [
       new LoginService(apiService, environmentService),
   },
   {
+    deps: [ApiService, EnvironmentService, NamespaceStore],
+    provide: NamespaceService,
+    useFactory: (
+      apiService: ApiService,
+      environmentService: EnvironmentService,
+      namespaceStore: NamespaceStore,
+    ) => new NamespaceService(apiService, environmentService, namespaceStore),
+  },
+  {
     deps: [ApiService, EnvironmentService],
     provide: PasswordResetService,
     useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
@@ -150,10 +159,10 @@ const services: injector.Injection[] = [
     ) => new RecordService(apiService, environmentService, recordStore),
   },
   {
-    deps: [EnvironmentService],
+    deps: [EnvironmentService, TokenService],
     provide: StreamService,
-    useFactory: (environmentService: EnvironmentService) =>
-      new StreamService(environmentService, null),
+    useFactory: (environmentService: EnvironmentService, tokenService: TokenService) =>
+      new StreamService(environmentService, tokenService),
   },
   {
     deps: [LoginService],

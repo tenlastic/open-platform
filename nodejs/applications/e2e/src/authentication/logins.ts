@@ -8,7 +8,7 @@ import dependencies from '../dependencies';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('logins', function () {
+describe('/nodejs/authentication/logins', function () {
   let password: string;
   let user: UserModel;
   let username: string;

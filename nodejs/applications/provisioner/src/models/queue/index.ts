@@ -80,7 +80,7 @@ export const KubernetesQueue = {
       apiKey,
       name,
       namespaceId: queue.namespaceId,
-      roles: [AuthorizationRole.QueuesReadWrite],
+      roles: [AuthorizationRole.GameServersReadWrite, AuthorizationRole.QueuesReadWrite],
       system: true,
     });
 

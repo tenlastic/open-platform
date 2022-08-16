@@ -23,11 +23,7 @@ export class TokenService {
   private refreshToken: Jwt;
   private startedRefreshingAt: Date;
 
-  constructor(private localStorage: Storage, private loginService: LoginService) {
-    this.loginService.emitter.on('login', (response) => this.login(response));
-    this.loginService.emitter.on('logout', () => this.clear());
-    this.loginService.emitter.on('refresh', (response) => this.login(response));
-  }
+  constructor(private localStorage: Storage, private loginService: LoginService) {}
 
   public clear() {
     this.setAccessToken(null);

@@ -79,8 +79,6 @@ export class QueueModel extends BaseModel {
       'preemptible',
       'replicas',
       'restartedAt',
-      'teams',
-      'usersPerTeam',
     ];
     return immutableFields.some((i) => fields.includes(i));
   }

@@ -1,5 +1,5 @@
 import { workflowApiV1 } from '@tenlastic/kubernetes';
-import * as requestPromiseNative from 'request-promise-native';
+import axios from 'axios';
 
 const apiKey = process.env.API_KEY;
 const workflowEndpoint = process.env.WORKFLOW_ENDPOINT;
@@ -12,7 +12,13 @@ export async function status() {
   workflowApiV1.watch(
     'dynamic',
     { fieldSelector: `metadata.name=${workflowName}` },
-    (type, object) => updateWorkflow(object),
+    async (type, object) => {
+      try {
+        await updateWorkflow(object);
+      } catch (e) {
+        console.error(e.message);
+      }
+    },
     (err) => {
       console.error(err?.message);
       process.exit(err ? 1 : 0);
@@ -27,9 +33,10 @@ async function updateWorkflow(object: any) {
   // Version
   const { version } = require('../../package.json');
 
-  await requestPromiseNative.put({
+  return axios({
+    data: { status: { ...object.status, nodes, version } },
     headers: { 'X-Api-Key': apiKey },
-    json: { status: { ...object.status, nodes, version } },
+    method: 'put',
     url: workflowEndpoint,
   });
 }

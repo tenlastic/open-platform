@@ -70,7 +70,7 @@ export class BuildService {
     const url = this.getUrl(namespaceId);
     return this.apiService.request({
       method: 'get',
-      url: `${url}/${_id}`,
+      url: `${url}/${_id}/files`,
       ...config,
     });
   }

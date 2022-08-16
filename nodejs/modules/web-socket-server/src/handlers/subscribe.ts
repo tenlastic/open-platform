@@ -35,13 +35,12 @@ export async function subscribe(
   const subject = `${db}.${coll}`;
 
   // Generate group ID for NATS consumer.
-  const authorization = await Authorization.findOne({
-    namespaceId: { $exists: false },
-    userId: auth.jwt?.user?._id,
-  });
-  const credentials = { apiKey: auth.key, authorization, user: auth.jwt.user };
+  const authorization = auth.apiKey
+    ? await Authorization.findOne({ apiKey: auth.apiKey })
+    : await Authorization.findOne({ namespaceId: { $exists: false }, userId: auth.jwt?.user?._id });
+  const credentials = { apiKey: auth.apiKey, authorization, user: auth.jwt?.user };
   const resumeToken = data.parameters.resumeToken || new mongoose.Types.ObjectId();
-  const username = credentials.apiKey || credentials.user.username;
+  const username = credentials.apiKey || credentials.user?.username;
   const durable = `${subject}-${username}-${resumeToken}`.replace(/\./g, '-');
 
   // Create a NATS consumer.

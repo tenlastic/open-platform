@@ -4,12 +4,13 @@ import { resetStores } from '@datorama/akita';
 import {
   AuthorizationQuery,
   LoginService,
+  LoginServiceResponse,
   QueueMemberQuery,
   StreamService,
+  TokenService,
   UserQuery,
   UserService,
   WebSocketQuery,
-  TokenService,
 } from '@tenlastic/http';
 
 import { environment } from '../environments/environment';
@@ -41,6 +42,11 @@ export class AppComponent implements OnInit {
   public async ngOnInit() {
     // Navigate to login page on logout.
     this.loginService.emitter.on('logout', () => this.navigateToLogin());
+
+    // Set tokens on login and logout.
+    this.loginService.emitter.on('login', (response) => this.setTokens(response));
+    this.loginService.emitter.on('logout', () => this.tokenService.clear());
+    this.loginService.emitter.on('refresh', (response) => this.setTokens(response));
 
     // Handle websockets when logging in and out.
     this.loginService.emitter.on('login', () => this.connectSocket());
@@ -98,5 +104,10 @@ export class AppComponent implements OnInit {
 
   private async connectSocket() {
     return this.streamService.connect(environment.wssUrl);
+  }
+
+  private setTokens(response: LoginServiceResponse) {
+    this.tokenService.setAccessToken(response.accessToken);
+    this.tokenService.setRefreshToken(response.refreshToken);
   }
 }
