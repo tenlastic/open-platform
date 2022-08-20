@@ -10,7 +10,7 @@
   </app-button>
 
   <ng-container *ngIf="user">
-    <app-button *ngIf="($namespaces | async)?.length > 0"
+    <app-button *ngIf="($authorization | async) || ($namespaces | async)?.length > 0"
                 color="accent"
                 routerLink="/management-portal"
                 routerLinkActive="active">

@@ -35,7 +35,7 @@ export function createWindow() {
     require('electron-reload')(__dirname, {
       electron: require(`${__dirname}/../../node_modules/electron`),
     });
-    window.loadURL('http://www.localhost');
+    window.loadURL('http://www.local.tenlastic.com');
 
     window.webContents.openDevTools();
   } else {

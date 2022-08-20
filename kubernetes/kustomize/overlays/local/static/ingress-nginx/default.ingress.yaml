@@ -11,7 +11,7 @@ metadata:
   namespace: static
 spec:
   rules:
-    - host: api.localhost
+    - host: api.local.tenlastic.com
       http:
         paths:
           - path: /
@@ -21,7 +21,7 @@ spec:
                 name: api
                 port:
                   number: 3000
-    - host: docker-registry.localhost
+    - host: docker-registry.local.tenlastic.com
       http:
         paths:
           - path: /v2/
@@ -31,7 +31,7 @@ spec:
                 name: docker-registry
                 port:
                   number: 5000
-    - host: grafana.localhost
+    - host: grafana.local.tenlastic.com
       http:
         paths:
           - path: /
@@ -41,7 +41,7 @@ spec:
                 name: grafana
                 port:
                   number: 80
-    - host: minio.localhost
+    - host: minio.local.tenlastic.com
       http:
         paths:
           - path: /
@@ -51,7 +51,7 @@ spec:
                 name: minio
                 port:
                   number: 9000
-    - host: verdaccio.localhost
+    - host: verdaccio.local.tenlastic.com
       http:
         paths:
           - path: /
@@ -61,7 +61,7 @@ spec:
                 name: verdaccio-internal
                 port:
                   number: 4873
-    - host: wss.localhost
+    - host: wss.local.tenlastic.com
       http:
         paths:
           - path: /
@@ -71,7 +71,7 @@ spec:
                 name: wss
                 port:
                   number: 3000
-    - host: www.localhost
+    - host: www.local.tenlastic.com
       http:
         paths:
           - path: /

@@ -2,9 +2,9 @@ import { CollectionModel, NamespaceModel, RecordModel } from '@tenlastic/http';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
-import { step } from 'mocha-steps';
 
-import dependencies from '../dependencies';
+import dependencies from '../../dependencies';
+import { step } from '../../step';
 
 const chance = new Chance();
 use(chaiAsPromised);

@@ -122,7 +122,7 @@
                        [showGroup]="false"
                        [users]="$groupUsersWithoutCurrentUser | async | truthy"></app-message-group>
 
-    <app-message-group *ngIf="($friends | async).length"
+    <app-message-group *ngIf="($friends | async)?.length"
                        header="Friends"
                        [users]="$friends | async | select: 'toUser' | truthy"></app-message-group>
 

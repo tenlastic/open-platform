@@ -1,7 +1,13 @@
-<input #selectFilesInput
-       directory
+<input #selectDirectoryInput
        hidden
+       multiple
+       type="file"
        webkitdirectory
+       (change)="onFilesChanged($event)" />
+
+<input #selectFilesInput
+       hidden
+       multiple
        type="file"
        (change)="onFilesChanged($event)" />
 
@@ -126,6 +132,15 @@
 <ng-container *ngIf="isNew">
   <app-button *ngIf="form.get('files').value.length === 0 || !referenceBuild || status"
               [color]="form.get('files').value.length && !status ? 'accent' : 'primary'"
+              [disabled]="status"
+              (OnClick)="selectFilesInput.click()">
+    <mat-spinner *ngIf="status"
+                 [diameter]="20"></mat-spinner>
+    <span>{{ status ? status : 'Select Directory from Computer' }}</span>
+  </app-button>
+
+  <app-button *ngIf="form.get('files').value.length === 0 || !referenceBuild || status"
+              color="accent"
               [disabled]="status"
               (OnClick)="selectFilesInput.click()">
     <mat-spinner *ngIf="status"

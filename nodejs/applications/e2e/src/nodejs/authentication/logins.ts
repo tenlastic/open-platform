@@ -1,9 +1,10 @@
-import { Jwt, UserModel } from '@tenlastic/http';
+import { UserModel } from '@tenlastic/http';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 
-import dependencies from '../dependencies';
+import dependencies from '../../dependencies';
+import { administratorAccessToken } from '../../';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -73,19 +74,16 @@ describe('/nodejs/authentication/logins', function () {
   });
 
   describe('logout', function () {
-    let accessToken: Jwt;
     let refreshToken: string;
 
     beforeEach(async function () {
-      accessToken = await dependencies.tokenService.getAccessToken();
-
       const response = await dependencies.loginService.createWithCredentials(username, password);
       dependencies.tokenService.setAccessToken(response.accessToken);
       refreshToken = response.refreshToken;
     });
 
     afterEach(async function () {
-      dependencies.tokenService.setAccessToken(accessToken.value);
+      dependencies.tokenService.setAccessToken(administratorAccessToken);
     });
 
     it('invalidates the associated refresh token', async function () {

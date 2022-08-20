@@ -16,7 +16,7 @@ import {
 } from './pages';
 
 export const ROUTES: Routes = [
-  { component: WorkflowsListPageComponent, path: '', title: 'Workspaces' },
+  { component: WorkflowsListPageComponent, path: '', title: 'Workflows' },
   {
     component: WorkflowsFormPageComponent,
     data: { param: 'workflowId', title: 'Workflow' },

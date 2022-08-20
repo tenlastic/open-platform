@@ -54,4 +54,4 @@ servers:
   - description: Production
     url: https://api.tenlastic.com
   - description: Development
-    url: http://api.localhost
+    url: http://api.local.tenlastic.com

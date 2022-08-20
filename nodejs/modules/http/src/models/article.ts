@@ -19,6 +19,6 @@ export class ArticleModel extends BaseModel {
   constructor(parameters?: Partial<ArticleModel>) {
     super(parameters);
 
-    this.publishedAt = parameters.publishedAt ? new Date(parameters.publishedAt) : null;
+    this.publishedAt = this.publishedAt ? new Date(this.publishedAt) : null;
   }
 }

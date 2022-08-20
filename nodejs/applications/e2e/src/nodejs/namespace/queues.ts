@@ -5,9 +5,10 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import * as FormData from 'form-data';
 import * as JSZip from 'jszip';
-import { step } from 'mocha-steps';
 
-import dependencies from '../dependencies';
+import dependencies from '../../dependencies';
+import { step } from '../../step';
+import { administratorAccessToken } from '../..';
 
 const wssUrl = process.env.E2E_WSS_URL;
 
@@ -82,20 +83,6 @@ describe('/nodejs/namespace/queues', function () {
     });
   });
 
-  step('generates logs', async function () {
-    const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
-      const response = await dependencies.queueLogService.find(
-        namespace._id,
-        queue._id,
-        queue.status.nodes[0]._id,
-        {},
-      );
-      return response.length > 0 ? response : null;
-    });
-
-    expect(logs.length).to.be.greaterThan(0);
-  });
-
   step('removes disconnected Users', async function () {
     const { user, webSocketId } = await createUser();
 
@@ -158,6 +145,20 @@ describe('/nodejs/namespace/queues', function () {
       await dependencies.userService.delete(user._id);
     }
   });
+
+  step('generates logs', async function () {
+    const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
+      const response = await dependencies.queueLogService.find(
+        namespace._id,
+        queue._id,
+        queue.status.nodes[0]._id,
+        {},
+      );
+      return response.length > 0 ? response : null;
+    });
+
+    expect(logs.length).to.be.greaterThan(0);
+  });
 });
 
 async function createUser() {
@@ -168,7 +169,6 @@ async function createUser() {
     username: chance.hash({ length: 20 }),
   });
 
-  const accessToken = await dependencies.tokenService.getAccessToken();
   const credentials = await dependencies.loginService.createWithCredentials(
     user.username,
     password,
@@ -180,7 +180,7 @@ async function createUser() {
   const webSocketId = await dependencies.streamService.getId(wssUrl);
 
   // Restore original access token.
-  dependencies.tokenService.setAccessToken(accessToken.value);
+  dependencies.tokenService.setAccessToken(administratorAccessToken);
 
   return { user, webSocketId };
 }

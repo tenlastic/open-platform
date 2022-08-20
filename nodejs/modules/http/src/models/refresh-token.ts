@@ -8,6 +8,6 @@ export class RefreshTokenModel extends BaseModel {
   constructor(parameters?: Partial<RefreshTokenModel>) {
     super(parameters);
 
-    this.expiresAt = parameters.expiresAt ? new Date(parameters.expiresAt) : null;
+    this.expiresAt = this.expiresAt ? new Date(this.expiresAt) : null;
   }
 }

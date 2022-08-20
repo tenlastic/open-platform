@@ -8,7 +8,7 @@ export class WebSocketModel extends BaseModel {
   constructor(parameters?: Partial<WebSocketModel>) {
     super(parameters);
 
-    this.disconnectedAt = parameters.disconnectedAt ? new Date(parameters.disconnectedAt) : null;
+    this.disconnectedAt = this.disconnectedAt ? new Date(this.disconnectedAt) : null;
   }
 
   public get duration() {

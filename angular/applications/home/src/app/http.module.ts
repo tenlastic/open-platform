@@ -241,7 +241,7 @@ const services: Provider[] = [
     ) => new AuthorizationService(apiService, store, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, BuildLogStore],
+    deps: [ApiService, BuildLogStore, EnvironmentService],
     provide: BuildLogService,
     useFactory: (
       apiService: ApiService,
@@ -259,7 +259,7 @@ const services: Provider[] = [
     ) => new BuildService(apiService, store, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, CollectionStore],
+    deps: [ApiService, CollectionStore, EnvironmentService],
     provide: CollectionService,
     useFactory: (
       apiService: ApiService,

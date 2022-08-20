@@ -5,7 +5,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import { google } from 'googleapis';
 
-import dependencies from '../dependencies';
+import dependencies from '../../dependencies';
 
 const chance = new Chance();
 use(chaiAsPromised);

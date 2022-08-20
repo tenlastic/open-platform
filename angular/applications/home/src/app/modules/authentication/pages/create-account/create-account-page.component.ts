@@ -27,7 +27,8 @@ export class CreateAccountPageComponent {
     try {
       await this.userService.create(data);
     } catch (e) {
-      this.registrationForm.error = 'Email address has already been registered.';
+      this.registrationForm.error = JSON.stringify(e);
+
       return;
     }
 

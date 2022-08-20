@@ -50,7 +50,7 @@ export class BuildModel extends BaseModel {
   constructor(parameters?: Partial<BuildModel>) {
     super(parameters);
 
-    this.publishedAt = parameters.publishedAt ? new Date(parameters.publishedAt) : null;
+    this.publishedAt = this.publishedAt ? new Date(this.publishedAt) : null;
   }
 
   public getNestedStatusNodes() {

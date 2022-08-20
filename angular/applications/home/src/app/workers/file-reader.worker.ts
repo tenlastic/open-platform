@@ -7,7 +7,9 @@ addEventListener('message', async ({ data }) => {
 
   for (const file of files) {
     const content = await fileToArrayBuffer(file);
-    const path = file.webkitRelativePath.substring(file.webkitRelativePath.indexOf('/') + 1);
+    const path = file.webkitRelativePath
+      ? file.webkitRelativePath.substring(file.webkitRelativePath.indexOf('/') + 1)
+      : file.name;
 
     const md5 = arrayBufferToMd5(content);
 

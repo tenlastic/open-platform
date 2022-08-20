@@ -1,20 +1,35 @@
 import { Injectable } from '@angular/core';
-import { AuthorizationQuery, TokenService, UserModel } from '@tenlastic/http';
+import {
+  AuthorizationModel,
+  AuthorizationQuery,
+  Jwt,
+  TokenService,
+  UserModel,
+} from '@tenlastic/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class IdentityService {
-  public authorization = this.authorizationQuery.getAll({
-    filterBy: (a) => !a.namespaceId && a.userId === this.user?._id,
-  })[0];
+  public get $authorization() {
+    return this._$authorization;
+  }
   public get user() {
     return this._user;
   }
 
+  private _$authorization = new Observable<AuthorizationModel>();
   private _user: UserModel;
 
   constructor(private authorizationQuery: AuthorizationQuery, private tokenService: TokenService) {
-    this.tokenService.emitter.on('accessToken', (accessToken) => {
-      return (this._user = accessToken?.payload?.user);
-    });
+    this.tokenService.emitter.on('accessToken', (accessToken) => this.setAccessToken(accessToken));
+    this.tokenService.getAccessToken().then((accessToken) => this.setAccessToken(accessToken));
+  }
+
+  private setAccessToken(accessToken: Jwt) {
+    this._user = accessToken?.payload?.user;
+    this._$authorization = this.authorizationQuery
+      .selectAll({ filterBy: (a) => !a.namespaceId && a.userId === this._user?._id })
+      .pipe(map((a) => a[0]));
   }
 }

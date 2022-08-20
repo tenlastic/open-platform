@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import {
   AuthorizationQuery,
   CollectionModel,
@@ -24,17 +24,12 @@ export class LayoutComponent implements OnInit {
 
     return combineLatest([
       this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
+      this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
   public IAuthorization = IAuthorization;
 
-  private get collectionId() {
-    return this.activatedRoute.snapshot.params.collectionId;
-  }
-  private get namespaceId() {
-    return this.activatedRoute.snapshot.params.namespaceId;
-  }
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -45,8 +40,16 @@ export class LayoutComponent implements OnInit {
   ) {}
 
   public async ngOnInit() {
-    this.$collection = this.collectionQuery.selectEntity(this.collectionId);
-    await this.collectionService.findOne(this.namespaceId, this.collectionId);
+    this.activatedRoute.params.subscribe((params) => {
+      this.params = params;
+
+      if (params.namespaceId === 'new') {
+        return;
+      }
+
+      this.$collection = this.collectionQuery.selectEntity(params.collectionId);
+      return this.collectionService.findOne(params.namespaceId, params.collectionId);
+    });
   }
 
   public $hasPermission(roles: IAuthorization.Role[]) {
@@ -54,7 +57,7 @@ export class LayoutComponent implements OnInit {
 
     return combineLatest([
       this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
+      this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
 }

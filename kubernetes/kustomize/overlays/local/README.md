@@ -3,14 +3,14 @@
 Add the following lines to your `hosts` file to properly route to your local Kubernetes cluster.
 
 ```
-127.0.0.1 api.localhost
-127.0.0.1 argo.localhost
-127.0.0.1 docker-registry.localhost
-127.0.0.1 minio.localhost
-127.0.0.1 mongo.localhost
-127.0.0.1 registry.localhost
-127.0.0.1 verdaccio.localhost
-127.0.0.1 www.localhost
+127.0.0.1 api.local.tenlastic.com
+127.0.0.1 argo.local.tenlastic.com
+127.0.0.1 docker-registry.local.tenlastic.com
+127.0.0.1 minio.local.tenlastic.com
+127.0.0.1 mongo.local.tenlastic.com
+127.0.0.1 registry.local.tenlastic.com
+127.0.0.1 verdaccio.local.tenlastic.com
+127.0.0.1 www.local.tenlastic.com
 ```
 
 Default Location per Platform:

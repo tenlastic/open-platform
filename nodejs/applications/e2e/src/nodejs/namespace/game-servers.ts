@@ -5,11 +5,11 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import * as FormData from 'form-data';
 import * as JSZip from 'jszip';
-import { step } from 'mocha-steps';
 import * as requestPromiseNative from 'request-promise-native';
 import { URL } from 'url';
 
-import dependencies from '../dependencies';
+import dependencies from '../../dependencies';
+import { step } from '../../step';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -74,6 +74,15 @@ describe('/nodejs/namespace/game-servers', function () {
     });
   });
 
+  step('allows connections', async function () {
+    const http = gameServer.status.endpoints.tcp.replace('tcp', 'http');
+    const url = new URL(http);
+    url.hostname = url.hostname === '127.0.0.1' ? 'kubernetes.local.tenlastic.com' : url.hostname;
+
+    const response = await requestPromiseNative.get(url.href);
+    expect(response).to.include('Welcome to echo-server!');
+  });
+
   step('generates logs', async function () {
     const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
       const response = await dependencies.gameServerLogService.find(
@@ -86,14 +95,5 @@ describe('/nodejs/namespace/game-servers', function () {
     });
 
     expect(logs.length).to.be.greaterThan(0);
-  });
-
-  step('allows connections', async function () {
-    const http = gameServer.status.endpoints.tcp.replace('tcp', 'http');
-    const url = new URL(http);
-    url.hostname = url.hostname === '127.0.0.1' ? 'kubernetes.localhost' : url.hostname;
-
-    const response = await requestPromiseNative.get(url.href);
-    expect(response).to.include('Welcome to echo-server!');
   });
 });

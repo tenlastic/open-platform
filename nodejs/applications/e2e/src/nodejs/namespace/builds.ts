@@ -5,10 +5,10 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import * as FormData from 'form-data';
 import * as JSZip from 'jszip';
-import { step } from 'mocha-steps';
 import * as unzipper from 'unzipper';
 
-import dependencies from '../dependencies';
+import dependencies from '../../dependencies';
+import { step } from '../../step';
 
 const chance = new Chance();
 use(chaiAsPromised);

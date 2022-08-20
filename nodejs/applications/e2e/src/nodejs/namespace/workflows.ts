@@ -3,9 +3,9 @@ import wait from '@tenlastic/wait';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
-import { step } from 'mocha-steps';
 
-import dependencies from '../dependencies';
+import dependencies from '../../dependencies';
+import { step } from '../../step';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -39,11 +39,7 @@ describe('/nodejs/namespace/workflows', function () {
           },
           {
             name: 'Echo',
-            script: {
-              command: ['/bin/sh'],
-              image: 'alpine:latest',
-              source: 'echo "Hello World!"',
-            },
+            script: { command: ['/bin/sh'], image: 'alpine:latest', source: 'echo "Hello World!"' },
           },
         ],
       },

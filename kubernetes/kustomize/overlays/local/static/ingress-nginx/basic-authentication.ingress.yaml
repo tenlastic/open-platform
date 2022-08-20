@@ -11,7 +11,7 @@ metadata:
   namespace: static
 spec:
   rules:
-    - host: argo.localhost
+    - host: argo.local.tenlastic.com
       http:
         paths:
           - path: /
@@ -21,7 +21,7 @@ spec:
                 name: argo-workflows-server
                 port:
                   number: 2746
-    - host: docker-registry.localhost
+    - host: docker-registry.local.tenlastic.com
       http:
         paths:
           - path: /
@@ -31,7 +31,7 @@ spec:
                 name: docker-registry-ui
                 port:
                   number: 80
-    - host: kubernetes-dashboard.localhost
+    - host: kubernetes-dashboard.local.tenlastic.com
       http:
         paths:
           - path: /
@@ -41,7 +41,7 @@ spec:
                 name: kubernetes-dashboard
                 port:
                   number: 443
-    - host: mongo.localhost
+    - host: mongo.local.tenlastic.com
       http:
         paths:
           - path: /
@@ -51,7 +51,7 @@ spec:
                 name: mongodb-gui
                 port:
                   number: 4321
-    - host: prometheus.localhost
+    - host: prometheus.local.tenlastic.com
       http:
         paths:
           - path: /

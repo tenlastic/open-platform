@@ -182,20 +182,13 @@ export class RecordsFormPageComponent implements OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async upsert(data: Partial<RecordModel>) {
-    if (this.data._id) {
-      data._id = this.data._id;
-      await this.recordService.update(
-        this.params.namespaceId,
-        this.params.collectionId,
-        data._id,
-        data,
-      );
-    } else {
-      await this.recordService.create(this.params.namespaceId, this.params.collectionId, data);
-    }
+  private async upsert(values: Partial<RecordModel>) {
+    const { collectionId, namespaceId } = this.params;
+    const result = values._id
+      ? await this.recordService.update(namespaceId, collectionId, values._id, values)
+      : await this.recordService.create(namespaceId, collectionId, values);
 
     this.matSnackBar.open('Record saved successfully.');
-    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
   }
 }

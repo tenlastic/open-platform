@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import {
   AuthorizationQuery,
   AuthorizationService,
@@ -35,16 +35,14 @@ export class LayoutComponent implements OnInit {
 
     return combineLatest([
       this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
+      this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
   public $namespace: Observable<NamespaceModel>;
   public $storefront: Observable<StorefrontModel>;
   public IAuthorization = IAuthorization;
 
-  private get namespaceId() {
-    return this.activatedRoute.snapshot.params.namespaceId;
-  }
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -58,16 +56,24 @@ export class LayoutComponent implements OnInit {
   ) {}
 
   public async ngOnInit() {
-    this.$namespace = this.namespaceQuery.selectEntity(this.namespaceId);
-    this.$storefront = this.storefrontQuery
-      .selectAll({ filterBy: (s) => s.namespaceId === this.namespaceId })
-      .pipe(map((s) => s[0]));
+    this.activatedRoute.params.subscribe((params) => {
+      this.params = params;
 
-    await Promise.all([
-      this.authorizationService.findUserAuthorizations(this.namespaceId, null),
-      this.namespaceService.findOne(this.namespaceId),
-      this.storefrontService.find(this.namespaceId, { limit: 1 }),
-    ]);
+      if (params.namespaceId === 'new') {
+        return;
+      }
+
+      this.$namespace = this.namespaceQuery.selectEntity(params.namespaceId);
+      this.$storefront = this.storefrontQuery
+        .selectAll({ filterBy: (s) => s.namespaceId === params.namespaceId })
+        .pipe(map((s) => s[0]));
+
+      return Promise.all([
+        this.authorizationService.findUserAuthorizations(params.namespaceId, null),
+        this.namespaceService.findOne(params.namespaceId),
+        this.storefrontService.find(params.namespaceId, { limit: 1 }),
+      ]);
+    });
   }
 
   public $hasPermission(roles: IAuthorization.Role[]) {
@@ -75,7 +81,7 @@ export class LayoutComponent implements OnInit {
 
     return combineLatest([
       this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
+      this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
 }

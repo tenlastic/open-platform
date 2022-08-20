@@ -1,8 +1,8 @@
 export const environment = {
-  apiUrl: 'http://api.localhost',
+  apiUrl: 'http://api.local.tenlastic.com',
   launcherUrl: 'https://minio.tenlastic.com/launcher/TenlasticLauncherSetup.exe',
   production: false,
-  swaggerUrl: 'http://api.localhost/swagger.json',
+  swaggerUrl: 'http://api.local.tenlastic.com/swagger.json',
   useHash: false,
-  wssUrl: 'ws://wss.localhost',
+  wssUrl: 'ws://wss.local.tenlastic.com',
 };

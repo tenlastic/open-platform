@@ -26,6 +26,7 @@
     "ws": "7.2.1"
   },
   "devDependencies": {
+    "@angular/core": "^14.1.2",
     "eslint": "^7.26.0",
     "mocha": "7.1.2",
     "nyc": "15.0.0",

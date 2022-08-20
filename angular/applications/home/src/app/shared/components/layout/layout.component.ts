@@ -1,13 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
+  AuthorizationModel,
+  AuthorizationService,
+  AuthorizationStore,
   NamespaceModel,
   NamespaceQuery,
   NamespaceService,
+  NamespaceStore,
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
+  StorefrontStore,
   StreamService,
+  TokenService,
 } from '@tenlastic/http';
 import { Observable } from 'rxjs';
 
@@ -20,8 +26,11 @@ import { PromptComponent } from '../prompt/prompt.component';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
-  public $storefronts: Observable<StorefrontModel[]>;
+  public get $authorization() {
+    return this.identityService.$authorization;
+  }
   public $namespaces: Observable<NamespaceModel[]>;
+  public $storefronts: Observable<StorefrontModel[]>;
   public get isElectron() {
     return this.electronService.isElectron;
   }
@@ -33,6 +42,7 @@ export class LayoutComponent implements OnInit {
   }
 
   constructor(
+    private authorizationService: AuthorizationService,
     private electronService: ElectronService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
@@ -41,13 +51,15 @@ export class LayoutComponent implements OnInit {
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
     private streamService: StreamService,
+    private tokenService: TokenService,
   ) {}
 
   public async ngOnInit() {
-    this.$storefronts = this.$storefronts || this.storefrontQuery.selectAll();
     this.$namespaces = this.$namespaces || this.namespaceQuery.selectAll();
+    this.$storefronts = this.$storefronts || this.storefrontQuery.selectAll();
 
-    await Promise.all([this.storefrontService.find(null, {}), this.namespaceService.find({})]);
+    this.tokenService.emitter.on('accessToken', () => this.find());
+    await this.find();
   }
 
   public close() {
@@ -97,5 +109,18 @@ export class LayoutComponent implements OnInit {
   public minimize() {
     const window = this.electronService.remote.getCurrentWindow();
     window.minimize();
+  }
+
+  private find() {
+    const promises: Promise<any>[] = [
+      this.namespaceService.find({}),
+      this.storefrontService.find(null, {}),
+    ];
+
+    if (this.user) {
+      promises.push(this.authorizationService.findUserAuthorizations(null, this.user._id));
+    }
+
+    return Promise.all(promises);
   }
 }
