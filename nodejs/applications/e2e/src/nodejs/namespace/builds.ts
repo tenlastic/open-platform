@@ -4,6 +4,7 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import * as FormData from 'form-data';
+import * as fs from 'fs';
 import * as JSZip from 'jszip';
 import * as unzipper from 'unzipper';
 
@@ -15,6 +16,7 @@ use(chaiAsPromised);
 
 describe('/nodejs/namespace/builds', function () {
   let build: BuildModel;
+  let dockerfile: string;
   let namespace: NamespaceModel;
 
   before(async function () {
@@ -26,9 +28,12 @@ describe('/nodejs/namespace/builds', function () {
   });
 
   step('creates a build', async function () {
+    // Get Dockerfile from filesystem.
+    dockerfile = fs.readFileSync('./fixtures/Dockerfile', 'utf8');
+
     // Generate a zip stream.
     const zip = new JSZip();
-    zip.file('Dockerfile', 'FROM inanimate/echo-server:latest');
+    zip.file('Dockerfile', dockerfile);
     const buffer = await zip.generateAsync({
       compression: 'DEFLATE',
       compressionOptions: { level: 1 },
@@ -86,7 +91,7 @@ describe('/nodejs/namespace/builds', function () {
         .on('error', reject);
     });
 
-    expect(result.content).to.eql('FROM inanimate/echo-server:latest');
+    expect(result.content).to.eql(dockerfile);
     expect(result.path).to.eql('Dockerfile');
   });
 

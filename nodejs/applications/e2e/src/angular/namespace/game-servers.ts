@@ -103,7 +103,7 @@ describe('/angular/namespace/game-servers', () => {
       page.waitForFileChooser(),
       selectFileFromComputerButton.click(),
     ]);
-    await fileChooser.accept(['./src/fixtures/Dockerfile']);
+    await fileChooser.accept(['./fixtures/Dockerfile']);
 
     const dockerfileListItem = await helpers.getElementByXPath(
       page,

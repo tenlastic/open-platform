@@ -1,11 +1,12 @@
 import { BuildModel, GameServerModel, IBuild, NamespaceModel } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
+import axios from 'axios';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import * as FormData from 'form-data';
+import * as fs from 'fs';
 import * as JSZip from 'jszip';
-import * as requestPromiseNative from 'request-promise-native';
 import { URL } from 'url';
 
 import dependencies from '../../dependencies';
@@ -22,9 +23,12 @@ describe('/nodejs/namespace/game-servers', function () {
   before(async function () {
     namespace = await dependencies.namespaceService.create({ name: chance.hash() });
 
+    // Get Dockerfile from filesystem.
+    const dockerfile = fs.readFileSync('./fixtures/Dockerfile', 'utf8');
+
     // Generate a zip stream.
     const zip = new JSZip();
-    zip.file('Dockerfile', 'FROM inanimate/echo-server:latest\nENV PORT 7777');
+    zip.file('Dockerfile', dockerfile);
     const buffer = await zip.generateAsync({
       compression: 'DEFLATE',
       compressionOptions: { level: 1 },
@@ -79,8 +83,8 @@ describe('/nodejs/namespace/game-servers', function () {
     const url = new URL(http);
     url.hostname = url.hostname === '127.0.0.1' ? 'kubernetes.local.tenlastic.com' : url.hostname;
 
-    const response = await requestPromiseNative.get(url.href);
-    expect(response).to.include('Welcome to echo-server!');
+    const response = await axios({ method: 'get', url: url.href });
+    expect(response.body).to.include('Welcome to echo-server!');
   });
 
   step('generates logs', async function () {

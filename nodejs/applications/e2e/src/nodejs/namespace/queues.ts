@@ -4,6 +4,7 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import * as FormData from 'form-data';
+import * as fs from 'fs';
 import * as JSZip from 'jszip';
 
 import dependencies from '../../dependencies';
@@ -23,9 +24,12 @@ describe('/nodejs/namespace/queues', function () {
   before(async function () {
     namespace = await dependencies.namespaceService.create({ name: chance.hash() });
 
+    // Get Dockerfile from filesystem.
+    const dockerfile = fs.readFileSync('./fixtures/Dockerfile', 'utf8');
+
     // Generate a zip stream.
     const zip = new JSZip();
-    zip.file('Dockerfile', 'FROM inanimate/echo-server:latest');
+    zip.file('Dockerfile', dockerfile);
     const buffer = await zip.generateAsync({
       compression: 'DEFLATE',
       compressionOptions: { level: 1 },

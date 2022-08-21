@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as fs from 'fs';
+import * as path from 'path';
 import * as puppeteer from 'puppeteer';
 
 import { step } from '../../step';
@@ -99,7 +100,7 @@ describe('/angular/namespace/builds', () => {
       page.waitForFileChooser(),
       selectFileFromComputerButton.click(),
     ]);
-    await fileChooser.accept(['./src/fixtures/Dockerfile']);
+    await fileChooser.accept(['./fixtures/Dockerfile']);
 
     const dockerfileInput = await helpers.getInputByLabel('Dockerfile', page);
     await helpers.type(dockerfileInput, page, 'Dockerfile');
