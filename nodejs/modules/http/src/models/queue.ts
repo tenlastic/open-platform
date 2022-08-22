@@ -51,7 +51,6 @@ export namespace IQueue {
 }
 
 export class QueueModel extends BaseModel {
-  public buildId: string;
   public cpu: number;
   public description: string;
   public gameServerTemplate: IQueue.GameServerTemplate;
@@ -72,7 +71,6 @@ export class QueueModel extends BaseModel {
 
   public static isRestartRequired(fields: string[]) {
     const immutableFields = [
-      'buildId',
       'cpu',
       'gameServerTemplate',
       'memory',

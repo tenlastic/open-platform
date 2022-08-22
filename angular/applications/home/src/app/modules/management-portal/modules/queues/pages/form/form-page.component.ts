@@ -141,7 +141,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
 
     const values: Partial<QueueModel> = {
       _id: this.data._id,
-      buildId: this.form.get('buildId').value,
       cpu: this.form.get('cpu').value,
       description: this.form.get('description').value,
       gameServerTemplate: {
@@ -258,7 +257,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     }
 
     this.form = this.formBuilder.group({
-      buildId: [this.data.buildId],
       cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
       description: [this.data.description],
       gameServerTemplate: gameServerTemplateForm,

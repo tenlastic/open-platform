@@ -109,25 +109,16 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
 
           // Update Queues.
           const queues = await this.queueService.find(build.namespaceId, {
-            where: { buildId: build.reference._id },
-          });
-          for (const queue of queues) {
-            await this.queueService.update(queue.namespaceId, queue._id, { buildId: build._id });
-          }
-
-          // Update Queue Game Server templates.
-          const gameServerTemplates = await this.queueService.find(build.namespaceId, {
             where: { 'gameServerTemplate.buildId': build.reference._id },
           });
-          for (const queue of gameServerTemplates) {
+          for (const queue of queues) {
             await this.queueService.update(queue.namespaceId, queue._id, {
               gameServerTemplate: { ...queue.gameServerTemplate, buildId: build._id },
             });
           }
 
-          const totalQueues = queues.length + gameServerTemplates.length;
           this.matSnackBar.open(
-            `${gameServers.length} Game Server(s) and ${totalQueues} Queue(s) updated successfully.`,
+            `${gameServers.length} Game Server(s) and ${queues.length} Queue(s) updated successfully.`,
           );
         }
       });

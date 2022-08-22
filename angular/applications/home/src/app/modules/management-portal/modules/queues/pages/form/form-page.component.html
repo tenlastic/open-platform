@@ -93,21 +93,6 @@
       </mat-form-field>
     </div>
 
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Build</mat-label>
-        <mat-select formControlName="buildId"
-                    placeholder="No Build">
-          <mat-option [value]="null">No Build</mat-option>
-          <mat-option *ngFor="let build of builds"
-                      [value]="build._id">
-            {{ build.name }}
-            <ng-container *ngIf="!build.publishedAt">(Unpublished)</ng-container>
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-
     <app-toggle-section title="Queue Metadata"
                         [isVisible]="false">
       <app-metadata-fields [formArray]="form['controls'].metadata"></app-metadata-fields>

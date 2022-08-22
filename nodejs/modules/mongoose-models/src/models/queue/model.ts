@@ -70,9 +70,6 @@ NamespaceEvent.sync(async (payload) => {
 export class QueueSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ ref: 'BuildSchema', validate: namespaceValidator('buildDocument', 'buildId') })
-  public buildId: mongoose.Types.ObjectId;
-
   @prop({ min: 0.1, required: true })
   public cpu: number;
 
@@ -115,9 +112,6 @@ export class QueueSchema {
 
   @prop({ min: 1, required: true })
   public usersPerTeam: number;
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })
-  public buildDocument: BuildDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;

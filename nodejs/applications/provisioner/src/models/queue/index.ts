@@ -174,7 +174,7 @@ export const KubernetesQueue = {
         name,
       },
       stringData: {
-        API_KEY: queue.buildId ? undefined : apiKey,
+        API_KEY: apiKey,
         API_URL: 'http://api.static:3000',
         QUEUE_JSON: JSON.stringify(queue),
         REDIS_SENTINEL_PASSWORD: `${redisPassword}`,
@@ -203,32 +203,7 @@ export const KubernetesQueue = {
 
     const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
     let manifest: V1PodTemplateSpec;
-    if (isDevelopment && queue.buildId) {
-      const url = new URL(process.env.DOCKER_REGISTRY_URL);
-      const image = `${url.host}/${queue.namespaceId}:${queue.buildId}`;
-
-      manifest = {
-        metadata: {
-          labels: { ...labels, 'tenlastic.com/role': 'application' },
-          name,
-        },
-        spec: {
-          affinity: getAffinity(queue, 'application'),
-          automountServiceAccountToken: false,
-          containers: [
-            {
-              env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
-              envFrom: [{ secretRef: { name } }],
-              image,
-              name: 'main',
-              resources,
-            },
-          ],
-          enableServiceLinks: false,
-          imagePullSecrets: [{ name: 'docker-registry' }],
-        },
-      };
-    } else if (isDevelopment && !queue.buildId) {
+    if (isDevelopment) {
       manifest = {
         metadata: {
           labels: { ...labels, 'tenlastic.com/role': 'application' },
@@ -253,31 +228,6 @@ export const KubernetesQueue = {
           volumes: [
             { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
           ],
-        },
-      };
-    } else if (queue.buildId) {
-      const url = new URL(process.env.DOCKER_REGISTRY_URL);
-      const image = `${url.host}/${queue.namespaceId}:${queue.buildId}`;
-
-      manifest = {
-        metadata: {
-          labels: { ...labels, 'tenlastic.com/role': 'application' },
-          name,
-        },
-        spec: {
-          affinity: getAffinity(queue, 'application'),
-          automountServiceAccountToken: false,
-          containers: [
-            {
-              env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
-              envFrom: [{ secretRef: { name } }],
-              image,
-              name: 'main',
-              resources,
-            },
-          ],
-          enableServiceLinks: false,
-          imagePullSecrets: [{ name: 'docker-registry' }],
         },
       };
     } else {
