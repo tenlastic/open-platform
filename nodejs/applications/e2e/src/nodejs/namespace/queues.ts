@@ -61,7 +61,7 @@ describe('/nodejs/namespace/queues', function () {
   });
 
   step('finishes the Build successfully', async function () {
-    const phase = await wait(1000, 180000, async () => {
+    const phase = await wait(1000, 180 * 1000, async () => {
       build = await dependencies.buildService.findOne(namespace._id, build._id);
       return build.status?.finishedAt ? build.status.phase : null;
     });
@@ -87,8 +87,11 @@ describe('/nodejs/namespace/queues', function () {
       usersPerTeam: 1,
     });
 
-    // Wait for Queue to be running.
-    await wait(10000, 180000, async () => {
+    expect(queue).to.exist;
+  });
+
+  step('runs the Queue successfully', async function () {
+    await wait(10 * 1000, 180 * 1000, async () => {
       queue = await dependencies.queueService.findOne(namespace._id, queue._id);
       return queue.status?.phase === 'Running';
     });
@@ -134,7 +137,7 @@ describe('/nodejs/namespace/queues', function () {
 
     try {
       // Wait for Game Server to be created.
-      const gameServer: GameServerModel = await wait(10000, 180000, async () => {
+      const gameServer: GameServerModel = await wait(10 * 1000, 180 * 1000, async () => {
         const gameServers = await dependencies.gameServerService.find(namespace._id, {
           where: { queueId: queue._id },
         });

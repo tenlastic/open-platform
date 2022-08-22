@@ -173,7 +173,7 @@ describe('/angular/namespace/queues', () => {
       `.//mat-label[contains(., 'Phase')]`,
     ];
 
-    await page.waitForXPath(`//mat-form-field[${criteria.join(' and ')}]`, { timeout: 30 * 1000 });
+    await page.waitForXPath(`//mat-form-field[${criteria.join(' and ')}]`, { timeout: 60 * 1000 });
   });
 
   step('generates logs', async function () {

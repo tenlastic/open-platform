@@ -59,7 +59,7 @@ describe('/nodejs/namespace/builds', function () {
   });
 
   step('finishes the Build successfully', async function () {
-    const phase = await wait(1000, 180000, async () => {
+    const phase = await wait(1000, 180* 1000, async () => {
       build = await dependencies.buildService.findOne(namespace._id, build._id);
       return build.status?.finishedAt ? build.status.phase : null;
     });

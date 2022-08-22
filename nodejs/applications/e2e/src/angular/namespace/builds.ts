@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as fs from 'fs';
-import * as path from 'path';
 import * as puppeteer from 'puppeteer';
 
 import { step } from '../../step';

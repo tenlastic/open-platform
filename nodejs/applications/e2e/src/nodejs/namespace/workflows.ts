@@ -48,7 +48,7 @@ describe('/nodejs/namespace/workflows', function () {
   });
 
   step('finishes the Workflow successfully', async function () {
-    const phase = await wait(10000, 10 * 60 * 1000, async () => {
+    const phase = await wait(10 * 1000, 10 * 60 * 1000, async () => {
       workflow = await dependencies.workflowService.findOne(namespace._id, workflow._id);
       return workflow.status?.finishedAt ? workflow.status.phase : null;
     });

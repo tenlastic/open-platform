@@ -60,7 +60,7 @@ describe('/nodejs/namespace/game-servers', function () {
   });
 
   step('finishes the Build successfully', async function () {
-    const phase = await wait(1000, 180000, async () => {
+    const phase = await wait(1000, 180 * 1000, async () => {
       build = await dependencies.buildService.findOne(namespace._id, build._id);
       return build.status?.finishedAt ? build.status.phase : null;
     });
@@ -78,8 +78,11 @@ describe('/nodejs/namespace/game-servers', function () {
       preemptible: true,
     });
 
-    // Wait for Game Server to be running.
-    await wait(10000, 180000, async () => {
+    expect(gameServer).to.exist;
+  });
+
+  step('runs the Game Server successfully', async function () {
+    await wait(10 * 1000, 180 * 1000, async () => {
       gameServer = await dependencies.gameServerService.findOne(namespace._id, gameServer._id);
       return gameServer.status?.endpoints && gameServer.status?.phase === 'Running';
     });
