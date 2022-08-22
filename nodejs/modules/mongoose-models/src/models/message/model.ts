@@ -10,51 +10,18 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
-import { GroupDocument, GroupEvent } from '../group';
-import { UserDocument, UserEvent } from '../user';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
+import { GroupDocument } from '../group';
+import { UserDocument } from '../user';
 
-export const MessageEvent = new EventEmitter<IDatabasePayload<MessageDocument>>();
-
-// Delete Messages if associated Group is deleted.
-GroupEvent.sync(async (payload) => {
-  const group = payload.fullDocument;
-
-  if (payload.operationType === 'delete') {
-    const records = await Message.find({ groupId: group._id });
-    const promises = records.map((r) => r.remove());
-    return Promise.all(promises);
-  } else if (payload.operationType === 'update') {
-    const records = await Message.find({ fromUserId: { $nin: group.userIds }, groupId: group._id });
-    const promises = records.map((r) => r.remove());
-    return Promise.all(promises);
-  }
-});
-
-// Delete Messages if associated User is deleted.
-UserEvent.sync(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await Message.find({
-        $or: [{ fromUserId: payload.fullDocument._id }, { toUserId: payload.fullDocument._id }],
-      });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
-  }
-});
+export const OnMessageProduced = new EventEmitter<IDatabasePayload<MessageDocument>>();
 
 @index({ fromUserId: 1 })
 @index({ readByUserIds: 1 })
 @index({ toGroupId: 1 })
 @index({ toUserId: 1 })
-@modelOptions({
-  schemaOptions: {
-    collection: 'messages',
-    minimize: false,
-    timestamps: true,
-  },
-})
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: MessageEvent })
+@modelOptions({ schemaOptions: { collection: 'messages', minimize: false, timestamps: true } })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnMessageProduced })
 @pre('validate', function (this: MessageDocument) {
   const message = 'Only one of the following fields must be specified: toGroupId or toUserId.';
 

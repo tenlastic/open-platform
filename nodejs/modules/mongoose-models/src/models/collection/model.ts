@@ -14,29 +14,19 @@ import { IOptions } from '@tenlastic/mongoose-permissions';
 import * as mongoose from 'mongoose';
 
 import {
+  changeStreamPlugin,
   EventEmitter,
   IDatabasePayload,
   IOriginalDocument,
-  changeStreamPlugin,
 } from '../../change-stream';
 import * as errors from '../../errors';
 import { jsonSchemaPropertiesValidator } from '../../validators';
 import { toMongo } from '../../json-schema';
-import { NamespaceDocument, NamespaceEvent } from '../namespace';
+import { NamespaceDocument } from '../namespace';
 import { RecordSchema } from '../record';
 import { CollectionIndexSchema } from './index/index';
 
-export const CollectionEvent = new EventEmitter<IDatabasePayload<CollectionDocument>>();
-
-// Delete Collections if associated Namespace is deleted.
-NamespaceEvent.sync(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await Collection.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
-  }
-});
+export const OnCollectionProduced = new EventEmitter<IDatabasePayload<CollectionDocument>>();
 
 @index({ name: 1, namespaceId: 1 }, { unique: true })
 @modelOptions({
@@ -49,7 +39,7 @@ NamespaceEvent.sync(async (payload) => {
     toObject: { getters: true },
   },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: CollectionEvent })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnCollectionProduced })
 @plugin(errors.unique.plugin)
 @pre('save', async function (this: CollectionDocument) {
   const Record = RecordSchema.getModel(this);

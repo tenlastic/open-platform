@@ -11,12 +11,12 @@ import {
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import * as errors from '../../errors';
-import { NamespaceDocument, NamespaceEvent } from '../namespace/model';
-import { UserDocument, UserEvent } from '../user/model';
+import { NamespaceDocument } from '../namespace/model';
+import { UserDocument } from '../user/model';
 
-export const AuthorizationEvent = new EventEmitter<IDatabasePayload<AuthorizationDocument>>();
+export const OnAuthorizationProduced = new EventEmitter<IDatabasePayload<AuthorizationDocument>>();
 
 export enum AuthorizationRole {
   ArticlesRead = 'Articles:Read',
@@ -46,26 +46,6 @@ export enum AuthorizationRole {
   WorkflowsReadWrite = 'Workflows:ReadWrite',
 }
 
-// Delete Authorizations if associated Namespace is deleted.
-NamespaceEvent.sync(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await Authorization.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
-  }
-});
-
-// Delete Authorizations if associated User is deleted.
-UserEvent.sync(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await Authorization.find({ userId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
-  }
-});
-
 @index({ apiKey: 1 }, { partialFilterExpression: { apiKey: { $exists: true } }, unique: true })
 @index(
   { name: 1, namespaceId: 1 },
@@ -76,7 +56,7 @@ UserEvent.sync(async (payload) => {
 @modelOptions({
   schemaOptions: { collection: 'authorizations', minimize: false, timestamps: true },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: AuthorizationEvent })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnAuthorizationProduced })
 @plugin(errors.unique.plugin)
 @pre('validate', function (this: AuthorizationDocument) {
   if (!this.apiKey && !this.namespaceId && !this.userId) {

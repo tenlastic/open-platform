@@ -10,23 +10,19 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import emails from '../../emails';
 import * as errors from '../../errors';
 
-export const PasswordResetEvent = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
+export const OnPasswordResetProduced = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ hash: 1 }, { unique: true })
 @index({ userId: 1 })
 @modelOptions({
-  schemaOptions: {
-    collection: 'passwordresets',
-    minimize: false,
-    timestamps: true,
-  },
+  schemaOptions: { collection: 'passwordresets', minimize: false, timestamps: true },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: PasswordResetEvent })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnPasswordResetProduced })
 @plugin(errors.unique.plugin)
 @pre('save', async function (this: PasswordResetDocument) {
   if (this.isNew) {

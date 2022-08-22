@@ -9,7 +9,7 @@ import {
 import { IOptions, MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import * as errors from '../../errors';
 import { namespaceValidator } from '../../validators';
 import { toMongoose } from '../../json-schema';
@@ -18,15 +18,10 @@ import { NamespaceDocument } from '../namespace';
 import { UserDocument } from '../user';
 import { RecordPermissions } from './permissions';
 
-export const RecordEvent = new EventEmitter<IDatabasePayload<RecordDocument>>();
+export const OnRecordProduced = new EventEmitter<IDatabasePayload<RecordDocument>>();
 
-@modelOptions({
-  schemaOptions: {
-    minimize: false,
-    timestamps: true,
-  },
-})
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: RecordEvent })
+@modelOptions({ schemaOptions: { minimize: false, timestamps: true } })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnRecordProduced })
 @plugin(errors.unique.plugin)
 export class RecordSchema {
   public _id: mongoose.Types.ObjectId;

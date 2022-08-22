@@ -10,32 +10,16 @@ import {
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import { Authorization, AuthorizationPermissions } from '../authorization';
 import { RefreshToken, RefreshTokenDocument } from '../refresh-token';
-import { UserDocument, UserEvent, UserPermissions } from '../user';
+import { UserDocument, UserPermissions } from '../user';
 
-export const LoginEvent = new EventEmitter<IDatabasePayload<LoginDocument>>();
-
-// Delete Logins if associated User is deleted.
-UserEvent.sync(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await Login.find({ userId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
-  }
-});
+export const OnLoginProduced = new EventEmitter<IDatabasePayload<LoginDocument>>();
 
 @index({ userId: 1 })
-@modelOptions({
-  schemaOptions: {
-    collection: 'logins',
-    minimize: false,
-    timestamps: true,
-  },
-})
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: LoginEvent })
+@modelOptions({ schemaOptions: { collection: 'logins', minimize: false, timestamps: true } })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnLoginProduced })
 export class LoginSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

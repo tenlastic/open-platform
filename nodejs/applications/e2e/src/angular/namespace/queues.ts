@@ -123,7 +123,7 @@ describe('/angular/namespace/queues', () => {
   step('finishes the Build successfully', async function () {
     await page.waitForXPath(
       `//app-build-status-node[contains(div, 'Workflow') and contains(div, 'Succeeded')]`,
-      { timeout: 120 * 1000 },
+      { timeout: 180 * 1000 },
     );
   });
 

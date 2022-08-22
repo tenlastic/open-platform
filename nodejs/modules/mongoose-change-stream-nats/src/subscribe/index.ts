@@ -1,65 +1,39 @@
 import nats from '@tenlastic/nats';
-import { IDatabasePayload } from '@tenlastic/mongoose-models';
+import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
 import * as mongoose from 'mongoose';
+import { AckPolicy } from 'nats';
 import { TextDecoder } from 'util';
-
-export interface SubscribeOptions {
-  durable: string;
-  subject: string;
-  useUpdateDescription?: boolean;
-}
 
 /**
  * Applies all change events from the topic to the target collection.
  */
 export async function subscribe(
+  durable: string,
+  eventEmitter: EventEmitter<IDatabasePayload<mongoose.Document>>,
   Model: mongoose.Model<mongoose.Document>,
-  options: SubscribeOptions,
 ) {
-  const subscription = await nats.subscribe(options.durable, options.subject);
+  const coll = Model.collection.name;
+  const db = Model.db.db.databaseName;
+  const subject = `${db}.${coll}`;
+
+  const subscription = await nats.subscribe(`${durable}-${coll}`, subject, {
+    ack_policy: AckPolicy.Explicit,
+    ack_wait: 5 * 60 * 1000 * 1000 * 1000,
+    max_deliver: 5,
+  });
+
   for await (const message of subscription) {
     const data = new TextDecoder().decode(message.data);
+
     const json = JSON.parse(data);
+    json.fullDocument = Model.hydrate(json.fullDocument);
 
-    await eachMessage(Model, options, json);
-  }
-}
-
-export async function eachMessage(
-  Model: mongoose.Model<mongoose.Document>,
-  options: SubscribeOptions,
-  payload: IDatabasePayload<mongoose.Model<mongoose.Document>>,
-) {
-  try {
-    if (payload.operationType === 'delete') {
-      await Model.findOneAndDelete(payload.documentKey);
-    } else if (payload.operationType === 'insert') {
-      await Model.create(payload.fullDocument);
-    } else if (options.useUpdateDescription) {
-      const { removedFields, updatedFields } = payload.updateDescription;
-      const update: any = {};
-
-      if (removedFields && removedFields.length > 0) {
-        update.$unset = payload.updateDescription.removedFields.reduce(
-          (agg: any, field: string) => {
-            agg[field] = '';
-            return agg;
-          },
-          {},
-        );
-      }
-
-      if (updatedFields && Object.keys(updatedFields).length > 0) {
-        update.$set = payload.updateDescription.updatedFields;
-      }
-
-      if (update.$set || update.$unset) {
-        await Model.findOneAndUpdate(payload.documentKey, update, { upsert: true });
-      }
-    } else {
-      await Model.findOneAndUpdate(payload.documentKey, payload.fullDocument, { upsert: true });
+    try {
+      await eventEmitter.emit(json);
+      message.ack();
+    } catch (e) {
+      console.error(e);
+      message.nak(15 * 1000);
     }
-  } catch (e) {
-    console.error(e);
   }
 }

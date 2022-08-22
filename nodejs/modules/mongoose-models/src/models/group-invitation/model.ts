@@ -9,11 +9,13 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import { GroupDocument } from '../group';
 import { UserDocument } from '../user';
 
-export const GroupInvitationEvent = new EventEmitter<IDatabasePayload<GroupInvitationDocument>>();
+export const OnGroupInvitationProduced = new EventEmitter<
+  IDatabasePayload<GroupInvitationDocument>
+>();
 
 // Delete stale GroupInvitations.
 setInterval(async () => {
@@ -29,13 +31,9 @@ setInterval(async () => {
 @index({ fromUserId: 1 })
 @index({ groupId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({
-  schemaOptions: {
-    collection: 'groupinvitations',
-    minimize: false,
-    timestamps: true,
-  },
+  schemaOptions: { collection: 'groupinvitations', minimize: false, timestamps: true },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GroupInvitationEvent })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnGroupInvitationProduced })
 export class GroupInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

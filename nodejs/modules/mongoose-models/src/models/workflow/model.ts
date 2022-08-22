@@ -9,32 +9,16 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
-import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
+import { Namespace, NamespaceDocument, NamespaceLimitError } from '../namespace';
 import { WorkflowSpecSchema } from './spec';
 import { WorkflowStatusSchema } from './status';
 
-export const WorkflowEvent = new EventEmitter<IDatabasePayload<WorkflowDocument>>();
-
-// Delete Workflows if associated Namespace is deleted.
-NamespaceEvent.sync(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await Workflow.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
-  }
-});
+export const OnWorkflowProduced = new EventEmitter<IDatabasePayload<WorkflowDocument>>();
 
 @index({ namespaceId: 1 })
-@modelOptions({
-  schemaOptions: {
-    collection: 'workflows',
-    minimize: false,
-    timestamps: true,
-  },
-})
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: WorkflowEvent })
+@modelOptions({ schemaOptions: { collection: 'workflows', minimize: false, timestamps: true } })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnWorkflowProduced })
 export class WorkflowSchema {
   public _id: mongoose.Types.ObjectId;
 

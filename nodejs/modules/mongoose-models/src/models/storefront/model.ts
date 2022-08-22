@@ -11,34 +11,11 @@ import {
 import * as minio from '@tenlastic/minio';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import * as errors from '../../errors';
-import { NamespaceDocument, NamespaceEvent } from '../namespace';
+import { NamespaceDocument } from '../namespace';
 
-export const StorefrontEvent = new EventEmitter<IDatabasePayload<StorefrontDocument>>();
-
-// Delete Storefronts if associated Namespace is deleted.
-NamespaceEvent.sync(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await Storefront.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
-  }
-});
-
-// Delete unused images and videos on update.
-StorefrontEvent.sync(async (payload) => {
-  const storefront = payload.fullDocument;
-
-  switch (payload.operationType) {
-    case 'delete':
-      return storefront.removeMinioObjects();
-
-    case 'update':
-      return Promise.all([storefront.removeMinioImages(), storefront.removeMinioVideos()]);
-  }
-});
+export const OnStorefrontProduced = new EventEmitter<IDatabasePayload<StorefrontDocument>>();
 
 @index({ namespaceId: 1 }, { unique: true })
 @index({ subtitle: 1, title: 1 }, { unique: true })
@@ -46,7 +23,7 @@ StorefrontEvent.sync(async (payload) => {
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: { collection: 'storefronts', minimize: false, timestamps: true },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: StorefrontEvent })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnStorefrontProduced })
 @plugin(errors.unique.plugin)
 export class StorefrontSchema {
   public _id: mongoose.Types.ObjectId;

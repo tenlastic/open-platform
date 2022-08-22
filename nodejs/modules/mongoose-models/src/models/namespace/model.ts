@@ -9,7 +9,7 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import * as errors from '../../errors';
 import { AuthorizationDocument } from '../authorization/model';
 import {
@@ -21,6 +21,8 @@ import {
   NamespaceStorefrontLimits,
   NamespaceWorkflowLimits,
 } from './limits';
+
+export const OnNamespaceProduced = new EventEmitter<IDatabasePayload<NamespaceDocument>>();
 
 export class NamespaceLimitError extends Error {
   public path: string;
@@ -35,17 +37,9 @@ export class NamespaceLimitError extends Error {
   }
 }
 
-export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocument>>();
-
 @index({ name: 1 }, { unique: true })
-@modelOptions({
-  schemaOptions: {
-    collection: 'namespaces',
-    minimize: false,
-    timestamps: true,
-  },
-})
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: NamespaceEvent })
+@modelOptions({ schemaOptions: { collection: 'namespaces', minimize: false, timestamps: true } })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnNamespaceProduced })
 @plugin(errors.unique.plugin)
 export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;

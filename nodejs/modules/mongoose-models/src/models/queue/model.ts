@@ -11,10 +11,9 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
-import { enumValidator, namespaceValidator } from '../../validators';
-import { BuildDocument } from '../build';
-import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
+import { enumValidator } from '../../validators';
+import { Namespace, NamespaceDocument, NamespaceLimitError } from '../namespace';
 import { GameServerTemplateSchema } from './game-server-template';
 import {
   QueueStatusComponent,
@@ -23,24 +22,14 @@ import {
   QueueStatusSchema,
 } from './status';
 
-export const QueueEvent = new EventEmitter<IDatabasePayload<QueueDocument>>();
-
-// Delete Queues if associated Namespace is deleted.
-NamespaceEvent.sync(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await Queue.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
-  }
-});
+export const OnQueueProduced = new EventEmitter<IDatabasePayload<QueueDocument>>();
 
 @index({ namespaceId: 1 })
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: { collection: 'queues', minimize: false, timestamps: true },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: QueueEvent })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnQueueProduced })
 @pre('save', async function (this: QueueDocument) {
   if (!this.isNew) {
     return;

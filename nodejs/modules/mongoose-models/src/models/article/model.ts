@@ -9,31 +9,15 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
-import { NamespaceDocument, NamespaceEvent } from '../namespace';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
+import { NamespaceDocument } from '../namespace';
 
-export const ArticleEvent = new EventEmitter<IDatabasePayload<ArticleDocument>>();
-
-// Delete Articles if associated Namespace is deleted.
-NamespaceEvent.sync(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await Article.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
-  }
-});
+export const OnArticleProduced = new EventEmitter<IDatabasePayload<ArticleDocument>>();
 
 @index({ namespaceId: 1 })
 @index({ publishedAt: 1 })
-@modelOptions({
-  schemaOptions: {
-    collection: 'articles',
-    minimize: false,
-    timestamps: true,
-  },
-})
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: ArticleEvent })
+@modelOptions({ schemaOptions: { collection: 'articles', minimize: false, timestamps: true } })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnArticleProduced })
 export class ArticleSchema {
   public _id: mongoose.Types.ObjectId;
 

@@ -11,39 +11,19 @@ import {
 import * as mongoose from 'mongoose';
 
 import {
+  changeStreamPlugin,
   EventEmitter,
   IDatabasePayload,
   IOriginalDocument,
-  changeStreamPlugin,
 } from '../../change-stream';
 import { namespaceValidator } from '../../validators';
 import { BuildDocument } from '../build';
-import { Namespace, NamespaceDocument, NamespaceEvent, NamespaceLimitError } from '../namespace';
-import { QueueDocument, QueueEvent } from '../queue';
+import { Namespace, NamespaceDocument, NamespaceLimitError } from '../namespace';
+import { QueueDocument } from '../queue';
 import { UserDocument } from '../user';
 import { GameServerStatusSchema } from './status';
 
-export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
-
-// Delete Game Servers if associated Namespace is deleted.
-NamespaceEvent.sync(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await GameServer.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
-  }
-});
-
-// Delete Game Servers if associated Queue is deleted.
-QueueEvent.sync(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await GameServer.find({ queueId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
-  }
-});
+export const OnGameServerProduced = new EventEmitter<IDatabasePayload<GameServerDocument>>();
 
 @index({ authorizedUserIds: 1 })
 @index({ buildId: 1 })
@@ -54,7 +34,7 @@ QueueEvent.sync(async (payload) => {
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: { collection: 'gameservers', minimize: false, timestamps: true },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GameServerEvent })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnGameServerProduced })
 export class GameServerSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
 

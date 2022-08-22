@@ -25,8 +25,7 @@ const podName = process.env.POD_NAME;
     await nats.connect({ connectionString: natsConnectionString });
 
     // Send changes from MongoDB to NATS.
-    mongooseModels.QueueMemberEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.WebSocketEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseChangeStreamNats.produce();
 
     // Delete stale web sockets on startup and SIGTERM.
     await deleteStaleWebSockets();

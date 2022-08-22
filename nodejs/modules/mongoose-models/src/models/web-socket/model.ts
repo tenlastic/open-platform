@@ -9,32 +9,16 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import * as errors from '../../errors';
-import { UserDocument, UserEvent } from '../user/model';
+import { UserDocument } from '../user/model';
 
-export const WebSocketEvent = new EventEmitter<IDatabasePayload<WebSocketDocument>>();
-
-// Delete Web Sockets if associated User is deleted.
-UserEvent.sync(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      const records = await WebSocket.find({ userId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
-  }
-});
+export const OnWebSocketProduced = new EventEmitter<IDatabasePayload<WebSocketDocument>>();
 
 @index({ nodeId: 1 })
 @index({ userId: 1 })
-@modelOptions({
-  schemaOptions: {
-    collection: 'websockets',
-    minimize: false,
-    timestamps: true,
-  },
-})
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: WebSocketEvent })
+@modelOptions({ schemaOptions: { collection: 'websockets', minimize: false, timestamps: true } })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnWebSocketProduced })
 @plugin(errors.unique.plugin)
 export class WebSocketSchema {
   public _id: mongoose.Types.ObjectId;

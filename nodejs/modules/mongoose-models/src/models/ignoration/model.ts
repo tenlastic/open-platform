@@ -9,22 +9,16 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import { UserDocument } from '../user';
 
-export const IgnorationEvent = new EventEmitter<IDatabasePayload<IgnorationDocument>>();
+export const OnIgnorationProduced = new EventEmitter<IDatabasePayload<IgnorationDocument>>();
 
 @index({ fromUserId: 1, toUserId: 1 }, { unique: true })
-@modelOptions({
-  schemaOptions: {
-    collection: 'ignorations',
-    minimize: false,
-    timestamps: true,
-  },
-})
+@modelOptions({ schemaOptions: { collection: 'ignorations', minimize: false, timestamps: true } })
 @plugin(changeStreamPlugin, {
   documentKeys: ['fromUserId', 'toUserId'],
-  eventEmitter: IgnorationEvent,
+  eventEmitter: OnIgnorationProduced,
 })
 export class IgnorationSchema {
   public _id: mongoose.Types.ObjectId;

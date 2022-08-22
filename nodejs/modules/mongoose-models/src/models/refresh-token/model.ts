@@ -13,13 +13,7 @@ import * as errors from '../../errors';
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ userId: 1 })
-@modelOptions({
-  schemaOptions: {
-    collection: 'refreshtokens',
-    minimize: false,
-    timestamps: true,
-  },
-})
+@modelOptions({ schemaOptions: { collection: 'refreshtokens', minimize: false, timestamps: true } })
 @plugin(errors.unique.plugin)
 export class RefreshTokenSchema {
   public _id: mongoose.Types.ObjectId;

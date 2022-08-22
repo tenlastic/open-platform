@@ -9,20 +9,17 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import { UserDocument } from '../user';
 
-export const FriendEvent = new EventEmitter<IDatabasePayload<FriendDocument>>();
+export const OnFriendProduced = new EventEmitter<IDatabasePayload<FriendDocument>>();
 
 @index({ fromUserId: 1, toUserId: 1 }, { unique: true })
-@modelOptions({
-  schemaOptions: {
-    collection: 'friends',
-    minimize: false,
-    timestamps: true,
-  },
+@modelOptions({ schemaOptions: { collection: 'friends', minimize: false, timestamps: true } })
+@plugin(changeStreamPlugin, {
+  documentKeys: ['fromUserId', 'toUserId'],
+  eventEmitter: OnFriendProduced,
 })
-@plugin(changeStreamPlugin, { documentKeys: ['fromUserId', 'toUserId'], eventEmitter: FriendEvent })
 export class FriendSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

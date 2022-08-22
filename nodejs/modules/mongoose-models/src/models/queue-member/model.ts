@@ -11,14 +11,16 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import * as errors from '../../errors';
 import { namespaceValidator } from '../../validators';
-import { GroupDocument, GroupEvent } from '../group';
+import { GroupDocument } from '../group';
 import { NamespaceDocument } from '../namespace';
-import { QueueDocument, QueueEvent } from '../queue';
+import { QueueDocument } from '../queue';
 import { UserDocument } from '../user';
-import { WebSocketDocument, WebSocketEvent } from '../web-socket';
+import { WebSocketDocument } from '../web-socket';
+
+export const OnQueueMemberProduced = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
 
 export class QueueMemberUniqueError extends Error {
   public userIds: string[] | mongoose.Types.ObjectId[];
@@ -30,49 +32,11 @@ export class QueueMemberUniqueError extends Error {
     this.userIds = userIds;
   }
 }
-export const QueueMemberEvent = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
-
-// Delete QueueMember when associated Group is deleted or updated.
-GroupEvent.sync(async (payload) => {
-  if (payload.operationType === 'insert') {
-    return;
-  }
-
-  const queueMembers = await QueueMember.find({ groupId: payload.fullDocument._id });
-  return Promise.all(queueMembers.map((qm) => qm.remove()));
-});
-
-// Delete QueueMember when associated Queue is deleted.
-QueueEvent.sync(async (payload) => {
-  if (payload.operationType !== 'delete') {
-    return;
-  }
-
-  const queueMembers = await QueueMember.find({ queueId: payload.fullDocument._id });
-  return Promise.all(queueMembers.map((qm) => qm.remove()));
-});
-
-// Delete QueueMember when associated WebSocket is deleted or disconnected.
-WebSocketEvent.sync(async (payload) => {
-  if (
-    payload.operationType === 'delete' ||
-    payload.updateDescription?.updatedFields?.disconnectedAt
-  ) {
-    const queueMembers = await QueueMember.find({ webSocketId: payload.fullDocument._id });
-    return Promise.all(queueMembers.map((qm) => qm.remove()));
-  }
-});
 
 @index({ namespaceId: 1, queueId: 1, userIds: 1 }, { unique: true })
 @index({ webSocketId: 1 })
-@modelOptions({
-  schemaOptions: {
-    collection: 'queuemembers',
-    minimize: false,
-    timestamps: true,
-  },
-})
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: QueueMemberEvent })
+@modelOptions({ schemaOptions: { collection: 'queuemembers', minimize: false, timestamps: true } })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnQueueMemberProduced })
 @plugin(errors.unique.plugin)
 @pre('save', async function (this: QueueMemberDocument) {
   await this.setUserIds();

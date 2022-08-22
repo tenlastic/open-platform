@@ -15,7 +15,7 @@ const schema = new mongoose.Schema({
 });
 const Model = mongoose.model('example', schema);
 
-describe('subscribe()', function () {
+describe('replicate()', function () {
   beforeEach(async function () {
     await Model.deleteMany({});
   });

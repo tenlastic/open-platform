@@ -11,13 +11,13 @@ import {
 import * as bcrypt from 'bcryptjs';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import emails from '../../emails';
 import * as errors from '../../errors';
 import { alphanumericValidator, emailValidator, stringLengthValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization/model';
 
-export const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
+export const OnUserProduced = new EventEmitter<IDatabasePayload<UserDocument>>();
 
 @index({ email: 1 }, { partialFilterExpression: { email: { $type: 'string' } }, unique: true })
 @index({ username: 1 }, { collation: { locale: 'en_US', strength: 1 }, unique: true })
@@ -30,7 +30,7 @@ export const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: UserEvent })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnUserProduced })
 @plugin(errors.unique.plugin)
 @pre('save', async function (this: UserDocument) {
   if (!this.isNew && this._original.password !== this.password) {

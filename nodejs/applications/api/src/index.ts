@@ -7,7 +7,6 @@ import mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import nats from '@tenlastic/nats';
 import { loggingMiddleware, WebServer } from '@tenlastic/web-server';
-import * as path from 'path';
 import { URL } from 'url';
 
 import { router as articlesRouter } from './handlers/articles';
@@ -64,25 +63,8 @@ import { router as workflowsRouter } from './handlers/workflows';
     await nats.connect({ connectionString: process.env.NATS_CONNECTION_STRING });
 
     // Send changes from MongoDB to NATS.
-    mongooseModels.ArticleEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.AuthorizationEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.BuildEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.CollectionEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.FriendEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.GameServerEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.GroupEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.GroupInvitationEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.IgnorationEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.MessageEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.NamespaceEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.PasswordResetEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.QueueEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.QueueMemberEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.RecordEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.StorefrontEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.UserEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.WebSocketEvent.sync(mongooseChangeStreamNats.publish);
-    mongooseModels.WorkflowEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseChangeStreamNats.consume('api');
+    mongooseChangeStreamNats.produce();
 
     // Web Server.
     const webServer = new WebServer();
@@ -111,7 +93,7 @@ import { router as workflowsRouter } from './handlers/workflows';
     webServer.use(usersRouter.routes());
     webServer.use(webSocketsRouter.routes());
     webServer.use(workflowsRouter.routes());
-    webServer.serve(path.resolve(__dirname, 'public'), '/', 'index.html');
+    webServer.serve('public', '/', 'index.html');
 
     // Start the web server.
     webServer.start();

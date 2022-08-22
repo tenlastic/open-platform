@@ -9,30 +9,13 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { EventEmitter, IDatabasePayload, changeStreamPlugin } from '../../change-stream';
+import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 
-export const GroupEvent = new EventEmitter<IDatabasePayload<GroupDocument>>();
-
-// Delete the group if empty.
-GroupEvent.sync((payload) => {
-  if (payload.operationType === 'delete') {
-    return;
-  }
-
-  if (payload.fullDocument.userIds.length === 0) {
-    return payload.fullDocument.remove();
-  }
-});
+export const OnGroupProduced = new EventEmitter<IDatabasePayload<GroupDocument>>();
 
 @index({ userIds: 1 }, { unique: true })
-@modelOptions({
-  schemaOptions: {
-    collection: 'groups',
-    minimize: false,
-    timestamps: true,
-  },
-})
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: GroupEvent })
+@modelOptions({ schemaOptions: { collection: 'groups', minimize: false, timestamps: true } })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnGroupProduced })
 export class GroupSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

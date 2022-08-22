@@ -20,7 +20,7 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
     await nats.connect({ connectionString: natsConnectionString });
 
     // Send changes from MongoDB to NATS.
-    mongooseModels.AuthorizationEvent.sync(mongooseChangeStreamNats.publish);
+    mongooseChangeStreamNats.produce();
 
     // Subscribe to NATS events.
     events.builds();
