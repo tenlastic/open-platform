@@ -44,7 +44,7 @@ describe('/angular/namespace/workflows', () => {
     await page.screenshot({ path: `./test-results/puppeteer/${this.currentTest.title}.png` });
   });
 
-  step('navigates to the namespaces page', async function () {
+  step('navigates to the Namespaces page', async function () {
     const button = await helpers.getButtonByText(page, 'Management Portal');
     await helpers.click(button, page);
 
@@ -52,7 +52,7 @@ describe('/angular/namespace/workflows', () => {
     expect(title).to.equal('Namespaces | Tenlastic');
   });
 
-  step('navigates to the create namespace page', async function () {
+  step('navigates to the New Namespace page', async function () {
     const button = await helpers.getButtonByText(page, 'New Namespace');
     await helpers.click(button, page);
 
@@ -60,7 +60,7 @@ describe('/angular/namespace/workflows', () => {
     expect(title).to.equal('New Namespace | Tenlastic');
   });
 
-  step('creates a namespace', async function () {
+  step('creates a Namespace', async function () {
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, namespace);
 
@@ -71,7 +71,7 @@ describe('/angular/namespace/workflows', () => {
     expect(title).to.equal('Edit Namespace | Tenlastic');
   });
 
-  step('navigates to the workflows page', async function () {
+  step('navigates to the Workflows page', async function () {
     const button = await helpers.getButtonByText(page, 'Workflows');
     await helpers.click(button, page);
 
@@ -79,7 +79,7 @@ describe('/angular/namespace/workflows', () => {
     expect(title).to.equal('Workflows | Tenlastic');
   });
 
-  step('navigates to the new workflow page', async function () {
+  step('navigates to the New Workflow page', async function () {
     const button = await helpers.getButtonByText(page, 'New Workflow');
     await helpers.click(button, page);
 
@@ -87,7 +87,7 @@ describe('/angular/namespace/workflows', () => {
     expect(title).to.equal('New Workflow | Tenlastic');
   });
 
-  step('creates a workflow', async function () {
+  step('creates a Workflow', async function () {
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, workflow);
 
@@ -124,7 +124,7 @@ describe('/angular/namespace/workflows', () => {
     expect(title).to.equal('Edit Workflow | Tenlastic');
   });
 
-  step('finishes the workflow successfully', async function () {
+  step('finishes the Workflow successfully', async function () {
     await page.waitForXPath(
       `//app-workflow-status-node[contains(div, 'Workflow') and contains(div, 'Succeeded')]`,
       { timeout: 60 * 1000 },

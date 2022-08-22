@@ -22,7 +22,7 @@ describe('/nodejs/namespace/workflows', function () {
     await dependencies.namespaceService.delete(namespace._id);
   });
 
-  step('creates a workflow', async function () {
+  step('creates a Workflow', async function () {
     workflow = await dependencies.workflowService.create(namespace._id, {
       cpu: 0.1,
       memory: 100 * 1000 * 1000,
@@ -45,11 +45,15 @@ describe('/nodejs/namespace/workflows', function () {
       },
       storage: 5 * 1000 * 1000 * 1000,
     });
+  });
 
-    await wait(10000, 10 * 60 * 1000, async () => {
+  step('finishes the Workflow successfully', async function () {
+    const phase = await wait(10000, 10 * 60 * 1000, async () => {
       workflow = await dependencies.workflowService.findOne(namespace._id, workflow._id);
-      return workflow.status?.phase === 'Succeeded';
+      return workflow.status?.finishedAt ? workflow.status.phase : null;
     });
+
+    expect(phase).to.eql('Succeeded');
   });
 
   step('generates logs', async function () {

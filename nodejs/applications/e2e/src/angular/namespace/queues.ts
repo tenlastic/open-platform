@@ -46,7 +46,7 @@ describe('/angular/namespace/queues', () => {
     await page.screenshot({ path: `./test-results/puppeteer/${this.currentTest.title}.png` });
   });
 
-  step('navigates to the namespaces page', async function () {
+  step('navigates to the Namespaces page', async function () {
     const button = await helpers.getButtonByText(page, 'Management Portal');
     await helpers.click(button, page);
 
@@ -54,7 +54,7 @@ describe('/angular/namespace/queues', () => {
     expect(title).to.equal('Namespaces | Tenlastic');
   });
 
-  step('navigates to the create namespace page', async function () {
+  step('navigates to the New Namespace page', async function () {
     const button = await helpers.getButtonByText(page, 'New Namespace');
     await helpers.click(button, page);
 
@@ -62,7 +62,7 @@ describe('/angular/namespace/queues', () => {
     expect(title).to.equal('New Namespace | Tenlastic');
   });
 
-  step('creates a namespace', async function () {
+  step('creates a Namespace', async function () {
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, namespace);
 
@@ -73,7 +73,7 @@ describe('/angular/namespace/queues', () => {
     expect(title).to.equal('Edit Namespace | Tenlastic');
   });
 
-  step('navigates to the builds page', async function () {
+  step('navigates to the Builds page', async function () {
     const button = await helpers.getButtonByText(page, 'Builds');
     await helpers.click(button, page);
 
@@ -81,7 +81,7 @@ describe('/angular/namespace/queues', () => {
     expect(title).to.equal('Builds | Tenlastic');
   });
 
-  step('navigates to the new build page', async function () {
+  step('navigates to the New Build page', async function () {
     const button = await helpers.getButtonByText(page, 'New Build');
     await helpers.click(button, page);
 
@@ -89,7 +89,7 @@ describe('/angular/namespace/queues', () => {
     expect(title).to.equal('New Build | Tenlastic');
   });
 
-  step('creates a build', async function () {
+  step('creates a Build', async function () {
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, build);
 
@@ -120,14 +120,14 @@ describe('/angular/namespace/queues', () => {
     expect(title).to.equal('Edit Build | Tenlastic');
   });
 
-  step('finishes the build successfully', async function () {
+  step('finishes the Build successfully', async function () {
     await page.waitForXPath(
       `//app-build-status-node[contains(div, 'Workflow') and contains(div, 'Succeeded')]`,
       { timeout: 120 * 1000 },
     );
   });
 
-  step('publishes the build', async function () {
+  step('publishes the Build', async function () {
     const button = await helpers.getButtonByText(page, 'Builds');
     await helpers.click(button, page);
 
@@ -138,7 +138,7 @@ describe('/angular/namespace/queues', () => {
     await publishButton.click();
   });
 
-  step('navigates to the queues page', async function () {
+  step('navigates to the Queues page', async function () {
     const button = await helpers.getButtonByText(page, 'Queues');
     await helpers.click(button, page);
 
@@ -146,7 +146,7 @@ describe('/angular/namespace/queues', () => {
     expect(title).to.equal('Queues | Tenlastic');
   });
 
-  step('navigates to the new queue page', async function () {
+  step('navigates to the New Queue page', async function () {
     const button = await helpers.getButtonByText(page, 'New Queue');
     await helpers.click(button, page);
 
@@ -154,7 +154,7 @@ describe('/angular/namespace/queues', () => {
     expect(title).to.equal('New Queue | Tenlastic');
   });
 
-  step('creates a queue', async function () {
+  step('creates a Queue', async function () {
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, queue);
 
@@ -167,11 +167,13 @@ describe('/angular/namespace/queues', () => {
     expect(title).to.equal('Edit Queue | Tenlastic');
   });
 
-  step('runs the queue successfully', async function () {
-    await page.waitForXPath(
-      `//mat-form-field[.//input[@ng-reflect-value='Running'] and .//mat-label[contains(., 'Phase')]]`,
-      { timeout: 60 * 1000 },
-    );
+  step('runs the Queue successfully', async function () {
+    const criteria = [
+      `.//input[@ng-reflect-value='Running']`,
+      `.//mat-label[contains(., 'Phase')]`,
+    ];
+
+    await page.waitForXPath(`//mat-form-field[${criteria.join(' and ')}]`, { timeout: 30 * 1000 });
   });
 
   step('generates logs', async function () {

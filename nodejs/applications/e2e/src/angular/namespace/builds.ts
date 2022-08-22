@@ -45,7 +45,7 @@ describe('/angular/namespace/builds', () => {
     await page.screenshot({ path: `./test-results/puppeteer/${this.currentTest.title}.png` });
   });
 
-  step('navigates to the namespaces page', async function () {
+  step('navigates to the Namespaces page', async function () {
     const button = await helpers.getButtonByText(page, 'Management Portal');
     await helpers.click(button, page);
 
@@ -53,7 +53,7 @@ describe('/angular/namespace/builds', () => {
     expect(title).to.equal('Namespaces | Tenlastic');
   });
 
-  step('navigates to the create namespace page', async function () {
+  step('navigates to the New Namespace page', async function () {
     const button = await helpers.getButtonByText(page, 'New Namespace');
     await helpers.click(button, page);
 
@@ -61,7 +61,7 @@ describe('/angular/namespace/builds', () => {
     expect(title).to.equal('New Namespace | Tenlastic');
   });
 
-  step('creates a namespace', async function () {
+  step('creates a Namespace', async function () {
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, namespace);
 
@@ -72,7 +72,7 @@ describe('/angular/namespace/builds', () => {
     expect(title).to.equal('Edit Namespace | Tenlastic');
   });
 
-  step('navigates to the builds page', async function () {
+  step('navigates to the Builds page', async function () {
     const button = await helpers.getButtonByText(page, 'Builds');
     await helpers.click(button, page);
 
@@ -80,7 +80,7 @@ describe('/angular/namespace/builds', () => {
     expect(title).to.equal('Builds | Tenlastic');
   });
 
-  step('navigates to the new build page', async function () {
+  step('navigates to the New Build page', async function () {
     const button = await helpers.getButtonByText(page, 'New Build');
     await helpers.click(button, page);
 
@@ -88,7 +88,7 @@ describe('/angular/namespace/builds', () => {
     expect(title).to.equal('New Build | Tenlastic');
   });
 
-  step('creates a build', async function () {
+  step('creates a Build', async function () {
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, build);
 
@@ -116,7 +116,7 @@ describe('/angular/namespace/builds', () => {
     expect(title).to.equal('Edit Build | Tenlastic');
   });
 
-  step('finishes the build successfully', async function () {
+  step('finishes the Build successfully', async function () {
     await page.waitForXPath(
       `//app-build-status-node[contains(div, 'Workflow') and contains(div, 'Succeeded')]`,
       { timeout: 60 * 1000 },

@@ -48,7 +48,7 @@ describe('/angular/namespace/game-servers', () => {
     await page.screenshot({ path: `./test-results/puppeteer/${this.currentTest.title}.png` });
   });
 
-  step('navigates to the namespaces page', async function () {
+  step('navigates to the Namespaces page', async function () {
     const button = await helpers.getButtonByText(page, 'Management Portal');
     await helpers.click(button, page);
 
@@ -56,7 +56,7 @@ describe('/angular/namespace/game-servers', () => {
     expect(title).to.equal('Namespaces | Tenlastic');
   });
 
-  step('navigates to the create namespace page', async function () {
+  step('navigates to the New Namespace page', async function () {
     const button = await helpers.getButtonByText(page, 'New Namespace');
     await helpers.click(button, page);
 
@@ -64,7 +64,7 @@ describe('/angular/namespace/game-servers', () => {
     expect(title).to.equal('New Namespace | Tenlastic');
   });
 
-  step('creates a namespace', async function () {
+  step('creates a Namespace', async function () {
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, namespace);
 
@@ -75,7 +75,7 @@ describe('/angular/namespace/game-servers', () => {
     expect(title).to.equal('Edit Namespace | Tenlastic');
   });
 
-  step('navigates to the builds page', async function () {
+  step('navigates to the Builds page', async function () {
     const button = await helpers.getButtonByText(page, 'Builds');
     await helpers.click(button, page);
 
@@ -83,7 +83,7 @@ describe('/angular/namespace/game-servers', () => {
     expect(title).to.equal('Builds | Tenlastic');
   });
 
-  step('navigates to the new build page', async function () {
+  step('navigates to the New Build page', async function () {
     const button = await helpers.getButtonByText(page, 'New Build');
     await helpers.click(button, page);
 
@@ -91,7 +91,7 @@ describe('/angular/namespace/game-servers', () => {
     expect(title).to.equal('New Build | Tenlastic');
   });
 
-  step('creates a build', async function () {
+  step('creates a Build', async function () {
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, build);
 
@@ -122,14 +122,14 @@ describe('/angular/namespace/game-servers', () => {
     expect(title).to.equal('Edit Build | Tenlastic');
   });
 
-  step('finishes the build successfully', async function () {
+  step('finishes the Build successfully', async function () {
     await page.waitForXPath(
       `//app-build-status-node[contains(div, 'Workflow') and contains(div, 'Succeeded')]`,
       { timeout: 120 * 1000 },
     );
   });
 
-  step('publishes the build', async function () {
+  step('publishes the Build', async function () {
     const button = await helpers.getButtonByText(page, 'Builds');
     await helpers.click(button, page);
 
@@ -140,7 +140,7 @@ describe('/angular/namespace/game-servers', () => {
     await publishButton.click();
   });
 
-  step('navigates to the game servers page', async function () {
+  step('navigates to the Game Servers page', async function () {
     const button = await helpers.getButtonByText(page, 'Game Servers');
     await helpers.click(button, page);
 
@@ -148,7 +148,7 @@ describe('/angular/namespace/game-servers', () => {
     expect(title).to.equal('Game Servers | Tenlastic');
   });
 
-  step('navigates to the new game server page', async function () {
+  step('navigates to the New Game Server page', async function () {
     const button = await helpers.getButtonByText(page, 'New Game Server');
     await helpers.click(button, page);
 
@@ -156,7 +156,7 @@ describe('/angular/namespace/game-servers', () => {
     expect(title).to.equal('New Game Server | Tenlastic');
   });
 
-  step('creates a game server', async function () {
+  step('creates a Game Server', async function () {
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, gameServer);
 
@@ -169,11 +169,13 @@ describe('/angular/namespace/game-servers', () => {
     expect(title).to.equal('Edit Game Server | Tenlastic');
   });
 
-  step('runs the game server successfully', async function () {
-    await page.waitForXPath(
-      `//mat-form-field[.//input[@ng-reflect-value='Running'] and .//mat-label[contains(., 'Phase')]]`,
-      { timeout: 30 * 1000 },
-    );
+  step('runs the Game Server successfully', async function () {
+    const criteria = [
+      `.//input[@ng-reflect-value='Running']`,
+      `.//mat-label[contains(., 'Phase')]`,
+    ];
+
+    await page.waitForXPath(`//mat-form-field[${criteria.join(' and ')}]`, { timeout: 30 * 1000 });
   });
 
   step('allows connections', async function () {

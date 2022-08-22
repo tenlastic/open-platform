@@ -22,14 +22,14 @@ export const KubernetesWorkflowSidecar = {
      * SECRET
      * ======================
      */
-    await secretApiV1.delete('dynamic', name);
+    await secretApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
      * DEPLOYMENT
      * ======================
      */
-    await deploymentApiV1.delete('dynamic', name);
+    await deploymentApiV1.delete(name, 'dynamic');
   },
   getName(workflow: WorkflowDocument) {
     return `workflow-${workflow._id}-sidecar`;

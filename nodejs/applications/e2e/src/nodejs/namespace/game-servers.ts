@@ -22,7 +22,13 @@ describe('/nodejs/namespace/game-servers', function () {
 
   before(async function () {
     namespace = await dependencies.namespaceService.create({ name: chance.hash() });
+  });
 
+  after(async function () {
+    await dependencies.namespaceService.delete(namespace._id);
+  });
+
+  step('creates a Build', async function () {
     // Get Dockerfile from filesystem.
     const dockerfile = fs.readFileSync('./fixtures/Dockerfile', 'utf8');
 
@@ -50,15 +56,16 @@ describe('/nodejs/namespace/game-servers', function () {
     formData.append('zip', buffer);
     build = await dependencies.buildService.create(namespace._id, formData);
 
-    // Wait for Build to finish.
-    await wait(10000, 180000, async () => {
-      const response = await dependencies.buildService.findOne(namespace._id, build._id);
-      return response.status?.phase === 'Succeeded';
-    });
+    expect(build).to.exist;
   });
 
-  after(async function () {
-    await dependencies.namespaceService.delete(namespace._id);
+  step('finishes the Build successfully', async function () {
+    const phase = await wait(1000, 180000, async () => {
+      build = await dependencies.buildService.findOne(namespace._id, build._id);
+      return build.status?.finishedAt ? build.status.phase : null;
+    });
+
+    expect(phase).to.eql('Succeeded');
   });
 
   step('creates a Game Server', async function () {
@@ -84,7 +91,7 @@ describe('/nodejs/namespace/game-servers', function () {
     url.hostname = url.hostname === '127.0.0.1' ? 'kubernetes.local.tenlastic.com' : url.hostname;
 
     const response = await axios({ method: 'get', url: url.href });
-    expect(response.body).to.include('Welcome to echo-server!');
+    expect(response.data).to.include('Welcome to echo-server!');
   });
 
   step('generates logs', async function () {

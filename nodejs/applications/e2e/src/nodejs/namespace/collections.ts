@@ -22,7 +22,7 @@ describe('/nodejs/namespace/collections', function () {
     await dependencies.namespaceService.delete(namespace._id);
   });
 
-  step('creates a collection, and record', async function () {
+  step('creates a Collection', async function () {
     collection = await dependencies.collectionService.create(namespace._id, {
       jsonSchema: {
         additionalProperties: false,
@@ -46,11 +46,15 @@ describe('/nodejs/namespace/collections', function () {
         update: { default: ['properties.*'] },
       },
     });
-    expect(collection).to.exist;
 
+    expect(collection).to.exist;
+  });
+
+  step('creates a Record', async function () {
     record = await dependencies.recordService.create(namespace._id, collection._id, {
       properties: { email: chance.email(), name: chance.hash() },
     });
+
     expect(record).to.exist;
   });
 });

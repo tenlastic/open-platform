@@ -22,14 +22,14 @@ export const KubernetesBuildSidecar = {
      * SECRET
      * ======================
      */
-    await secretApiV1.delete('dynamic', name);
+    await secretApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
      * DEPLOYMENT
      * ======================
      */
-    await deploymentApiV1.delete('dynamic', name);
+    await deploymentApiV1.delete(name, 'dynamic');
   },
   getName: (build: BuildDocument) => {
     return `build-${build._id}-sidecar`;

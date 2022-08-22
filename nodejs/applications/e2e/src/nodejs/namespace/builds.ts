@@ -27,7 +27,7 @@ describe('/nodejs/namespace/builds', function () {
     await dependencies.namespaceService.delete(namespace._id);
   });
 
-  step('creates a build', async function () {
+  step('creates a Build', async function () {
     // Get Dockerfile from filesystem.
     dockerfile = fs.readFileSync('./fixtures/Dockerfile', 'utf8');
 
@@ -54,13 +54,16 @@ describe('/nodejs/namespace/builds', function () {
     );
     formData.append('zip', buffer);
     build = await dependencies.buildService.create(namespace._id, formData);
-    expect(build).to.exist;
 
-    // Wait for Build to finish.
+    expect(build).to.exist;
+  });
+
+  step('finishes the Build successfully', async function () {
     const phase = await wait(1000, 180000, async () => {
       build = await dependencies.buildService.findOne(namespace._id, build._id);
       return build.status?.finishedAt ? build.status.phase : null;
     });
+
     expect(phase).to.eql('Succeeded');
   });
 

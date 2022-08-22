@@ -10,7 +10,7 @@ import dependencies from '../../dependencies';
 
 const chance = new Chance();
 
-describe.only('/angular/namespace/collections', () => {
+describe('/angular/namespace/collections', () => {
   let browser: puppeteer.Browser;
   let collection: string;
   let namespace: string;
@@ -44,7 +44,7 @@ describe.only('/angular/namespace/collections', () => {
     await page.screenshot({ path: `./test-results/puppeteer/${this.currentTest.title}.png` });
   });
 
-  step('navigates to the namespaces page', async function () {
+  step('navigates to the Namespaces page', async function () {
     const button = await helpers.getButtonByText(page, 'Management Portal');
     await helpers.click(button, page);
 
@@ -52,7 +52,7 @@ describe.only('/angular/namespace/collections', () => {
     expect(title).to.equal('Namespaces | Tenlastic');
   });
 
-  step('navigates to the create namespace page', async function () {
+  step('navigates to the New Namespace page', async function () {
     const button = await helpers.getButtonByText(page, 'New Namespace');
     await helpers.click(button, page);
 
@@ -60,7 +60,7 @@ describe.only('/angular/namespace/collections', () => {
     expect(title).to.equal('New Namespace | Tenlastic');
   });
 
-  step('creates a namespace', async function () {
+  step('creates a Namespace', async function () {
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, namespace);
 
@@ -71,7 +71,7 @@ describe.only('/angular/namespace/collections', () => {
     expect(title).to.equal('Edit Namespace | Tenlastic');
   });
 
-  step('navigates to the collections page', async function () {
+  step('navigates to the Collections page', async function () {
     const button = await helpers.getButtonByText(page, 'Collections');
     await helpers.click(button, page);
 
@@ -79,7 +79,7 @@ describe.only('/angular/namespace/collections', () => {
     expect(title).to.equal('Collections | Tenlastic');
   });
 
-  step('navigates to the new collection page', async function () {
+  step('navigates to the New Collection page', async function () {
     const button = await helpers.getButtonByText(page, 'New Collection');
     await helpers.click(button, page);
 
@@ -87,7 +87,7 @@ describe.only('/angular/namespace/collections', () => {
     expect(title).to.equal('New Collection | Tenlastic');
   });
 
-  step('creates a collection', async function () {
+  step('creates a Collection', async function () {
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, collection);
 
@@ -114,7 +114,7 @@ describe.only('/angular/namespace/collections', () => {
     expect(title).to.equal('Edit Collection | Tenlastic');
   });
 
-  step('navigates to the records page', async function () {
+  step('navigates to the Records page', async function () {
     const button = await helpers.getButtonByText(page, 'Records');
     await helpers.click(button, page);
 
@@ -122,7 +122,7 @@ describe.only('/angular/namespace/collections', () => {
     expect(title).to.equal('Records | Tenlastic');
   });
 
-  step('navigates to the new record page', async function () {
+  step('navigates to the New Record page', async function () {
     const button = await helpers.getButtonByText(page, 'New Record');
     await helpers.click(button, page);
 
@@ -130,7 +130,7 @@ describe.only('/angular/namespace/collections', () => {
     expect(title).to.equal('New Record | Tenlastic');
   });
 
-  step('creates a record', async function () {
+  step('creates a Record', async function () {
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, collection);
 

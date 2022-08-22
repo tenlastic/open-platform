@@ -46,14 +46,14 @@ describe('/nodejs/authentication/password-resets', function () {
     await dependencies.userService.delete(user._id);
   });
 
-  it('sends a password reset email', async function () {
+  it('sends a Password Reset email', async function () {
     await dependencies.passwordResetService.create(email);
 
     const hash = await wait(2.5 * 1000, 30 * 1000, getPasswordResetHash);
     expect(hash).to.match(/[A-Za-z0-9]+/);
   });
 
-  describe('after a password reset email has been received', function () {
+  describe('after a Password Reset email has been received', function () {
     let hash: string;
 
     beforeEach(async function () {
