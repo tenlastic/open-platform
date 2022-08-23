@@ -46,12 +46,7 @@ import { router as workflowsRouter } from './handlers/workflows';
       secretKey: minioConnectionUrl.password,
       useSSL: minioConnectionUrl.protocol === 'https:',
     });
-
-    const bucket = process.env.MINIO_BUCKET;
-    const bucketExists = await minio.bucketExists(bucket);
-    if (!bucketExists) {
-      await minio.makeBucket(bucket);
-    }
+    await minio.makeBucket(process.env.MINIO_BUCKET);
 
     // MongoDB.
     await mongooseModels.connect({

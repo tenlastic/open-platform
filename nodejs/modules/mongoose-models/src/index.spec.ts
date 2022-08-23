@@ -17,12 +17,7 @@ before(async function () {
     secretKey: minioConnectionUrl.password,
     useSSL: minioConnectionUrl.protocol === 'https:',
   });
-
-  const bucket = process.env.MINIO_BUCKET;
-  const bucketExists = await minio.bucketExists(bucket);
-  if (!bucketExists) {
-    await minio.makeBucket(bucket);
-  }
+  await minio.makeBucket(process.env.MINIO_BUCKET);
 
   await connect({
     connectionString: process.env.MONGO_CONNECTION_STRING,

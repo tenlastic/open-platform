@@ -1,6 +1,5 @@
 export * from './connect';
 
-export * from './bucket-exists';
 export * from './copy-object';
 export * from './f-get-object';
 export * from './f-put-object';
