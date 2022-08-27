@@ -4,6 +4,7 @@ mongoose.set('autoIndex', false);
 
 export * from './change-stream';
 export * from './models';
+export * from './permissions';
 
 export * from './connect';
 export * from './delete-all';

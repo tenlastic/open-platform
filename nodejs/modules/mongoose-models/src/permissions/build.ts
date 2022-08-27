@@ -1,7 +1,7 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationPermissionsHelpers, AuthorizationRole } from '../authorization';
-import { Build, BuildDocument } from './model';
+import { AuthorizationRole, Build, BuildDocument } from '../models';
+import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
   create: ['entrypoint', 'name', 'namespaceId', 'platform', 'publishedAt', 'reference.*'],

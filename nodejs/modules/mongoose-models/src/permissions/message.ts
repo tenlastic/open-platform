@@ -1,6 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { Message, MessageDocument } from './model';
+import { Message, MessageDocument } from '../models';
 
 export const MessagePermissions = new MongoosePermissions<MessageDocument>(Message, {
   create: {

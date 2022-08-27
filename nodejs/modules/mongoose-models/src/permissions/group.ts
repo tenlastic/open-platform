@@ -1,6 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { Group, GroupDocument } from './model';
+import { Group, GroupDocument } from '../models';
 
 export const GroupPermissions = new MongoosePermissions<GroupDocument>(Group, {
   create: {

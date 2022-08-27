@@ -6,7 +6,6 @@ import {
   plugin,
   prop,
 } from '@typegoose/typegoose';
-import { IOptions, MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import * as mongoose from 'mongoose';
 
 import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
@@ -16,7 +15,6 @@ import { toMongoose } from '../../json-schema';
 import { CollectionDocument } from '../collection';
 import { NamespaceDocument } from '../namespace';
 import { UserDocument } from '../user';
-import { RecordPermissions } from './permissions';
 import { AuthorizationDocument } from '../authorization';
 
 export const OnRecordProduced = new EventEmitter<IDatabasePayload<RecordDocument>>();
@@ -75,35 +73,6 @@ export class RecordSchema {
 
     const model = mongoose.model(collection.mongoName, schema) as unknown;
     return model as RecordModel;
-  }
-
-  public static getPermissions(Model: RecordModel, collection: CollectionDocument) {
-    const permissions = JSON.parse(JSON.stringify(RecordPermissions)) as IOptions;
-
-    Object.assign(permissions.create, collection.permissions.create);
-    Object.assign(permissions.delete, collection.permissions.delete);
-    Object.assign(permissions.read, collection.permissions.read);
-    Object.assign(permissions.update, collection.permissions.update);
-
-    if (collection.permissions.find) {
-      const find = JSON.parse(JSON.stringify(collection.permissions.find));
-
-      Object.keys(permissions.find).forEach((key) => {
-        if (key in find) {
-          find[key] = { $or: [find[key], permissions.find[key]] };
-        }
-      });
-
-      Object.assign(permissions.find, find);
-    }
-    if (collection.permissions.populate) {
-      permissions.populate.push(...collection.permissions.populate);
-    }
-    if (collection.permissions.roles) {
-      permissions.roles.push(...collection.permissions.roles);
-    }
-
-    return new MongoosePermissions<RecordDocument>(Model, permissions);
   }
 }
 

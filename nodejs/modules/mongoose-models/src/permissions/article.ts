@@ -1,7 +1,7 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationPermissionsHelpers, AuthorizationRole } from '../authorization';
-import { Article, ArticleDocument } from './model';
+import { Article, ArticleDocument, AuthorizationRole } from '../models';
+import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
   create: ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],

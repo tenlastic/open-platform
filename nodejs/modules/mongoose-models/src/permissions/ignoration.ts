@@ -1,8 +1,8 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { Friend, FriendDocument } from './model';
+import { Ignoration, IgnorationDocument } from '../models';
 
-export const FriendPermissions = new MongoosePermissions<FriendDocument>(Friend, {
+export const IgnorationPermissions = new MongoosePermissions<IgnorationDocument>(Ignoration, {
   create: {
     owner: ['fromUserId', 'toUserId'],
   },

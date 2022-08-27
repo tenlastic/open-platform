@@ -19,6 +19,7 @@ import {
   QueueMember,
   QueueMemberPermissions,
   QueuePermissions,
+  RecordPermissions,
   RecordSchema,
   RecordModel,
   Storefront,
@@ -77,7 +78,7 @@ export async function subscribe(
       const collectionId = where.collectionId.$eq || where.collectionId;
       const collection = await Collection.findOne({ _id: collectionId });
       const Model = RecordSchema.getModel(collection);
-      const Permissions = RecordSchema.getPermissions(Model as RecordModel, collection);
+      const Permissions = RecordPermissions(collection, Model as RecordModel);
       return webSocketServer.subscribe(auth, data, Model, Permissions, ws);
 
     case 'storefronts':

@@ -1,6 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { RefreshToken, RefreshTokenDocument } from './model';
+import { RefreshToken, RefreshTokenDocument } from '../models';
 
 export const RefreshTokenPermissions = new MongoosePermissions<RefreshTokenDocument>(RefreshToken, {
   create: {

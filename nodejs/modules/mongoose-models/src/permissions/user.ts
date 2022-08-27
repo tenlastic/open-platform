@@ -1,8 +1,7 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole } from '../authorization/model';
-import { AuthorizationPermissionsHelpers } from '../authorization/permissions.helpers';
-import { User, UserDocument } from './model';
+import { AuthorizationRole, User, UserDocument } from '../models';
+import { AuthorizationPermissionsHelpers } from './authorization';
 
 export const UserPermissions = new MongoosePermissions<UserDocument>(User, {
   create: {

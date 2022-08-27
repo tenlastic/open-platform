@@ -11,9 +11,9 @@ import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
 import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
-import { Authorization, AuthorizationPermissions } from '../authorization';
+import { Authorization } from '../authorization';
 import { RefreshToken, RefreshTokenDocument } from '../refresh-token';
-import { UserDocument, UserPermissions } from '../user';
+import { UserDocument } from '../user';
 
 export const OnLoginProduced = new EventEmitter<IDatabasePayload<LoginDocument>>();
 
@@ -62,9 +62,8 @@ export class LoginSchema {
     }
 
     // Remove unauthorized fields from the Authorization and User.
-    const credentials = { authorization, user };
-    const filteredAuthorization = await AuthorizationPermissions.read(credentials, authorization);
-    const filteredUser = await UserPermissions.read(credentials, user);
+    const filteredAuthorization = { _id: authorization._id, roles: authorization.roles };
+    const filteredUser = { _id: user._id, email: user.email, username: user.username };
 
     const options = { algorithm: 'RS256', expiresIn: '14d', jwtid: token._id.toString() };
     const privateKey = process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n');

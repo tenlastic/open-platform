@@ -1,8 +1,7 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole } from '../authorization/model';
-import { AuthorizationPermissionsHelpers } from '../authorization/permissions.helpers';
-import { Namespace, NamespaceDocument } from './model';
+import { AuthorizationRole, Namespace, NamespaceDocument } from '../models';
+import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
   read: ['_id', 'createdAt', 'limits.*', 'name', 'status.*', 'updatedAt'],

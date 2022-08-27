@@ -1,6 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { GroupInvitation, GroupInvitationDocument } from './model';
+import { GroupInvitation, GroupInvitationDocument } from '../models';
 
 export const GroupInvitationPermissions = new MongoosePermissions<GroupInvitationDocument>(
   GroupInvitation,

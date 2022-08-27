@@ -1,63 +1,61 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationPermissionsHelpers, AuthorizationRole } from '../authorization';
-import { Queue, QueueDocument } from './model';
+import { AuthorizationRole, GameServer, GameServerDocument } from '../models';
+import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
   create: [
+    'authorizedUserIds',
     'buildId',
     'cpu',
+    'currentUserIds',
     'description',
-    'gameServerTemplate.*',
     'memory',
     'metadata.*',
     'name',
     'namespaceId',
+    'persistent',
     'preemptible',
-    'replicas',
-    'restartedAt',
-    'teams',
-    'usersPerTeam',
+    'queueId',
   ],
   read: [
     '_id',
+    'authorizedUserIds',
     'buildId',
     'cpu',
     'createdAt',
+    'currentUserIds',
     'description',
-    'gameServerTemplate.*',
     'logs',
     'memory',
     'metadata.*',
     'name',
     'namespaceId',
+    'persistent',
     'preemptible',
-    'replicas',
     'restartedAt',
+    'queueId',
     'status.*',
-    'teams',
     'updatedAt',
-    'usersPerTeam',
   ],
   update: [
+    'authorizedUserIds',
     'buildId',
     'cpu',
+    'currentUserIds',
     'description',
-    'gameServerTemplate.*',
     'memory',
     'metadata.*',
     'name',
     'preemptible',
-    'replicas',
     'restartedAt',
-    'teams',
-    'usersPerTeam',
   ],
 };
 
-export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
+export const GameServerPermissions = new MongoosePermissions<GameServerDocument>(GameServer, {
   create: {
     'namespace-write': administrator.create,
+    'system-write': administrator.create,
     'user-write': administrator.create,
   },
   delete: {
@@ -67,8 +65,8 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
   },
   find: {
     default: AuthorizationPermissionsHelpers.getFindQuery([
-      AuthorizationRole.QueuesRead,
-      AuthorizationRole.QueuesReadWrite,
+      AuthorizationRole.GameServersRead,
+      AuthorizationRole.GameServersReadWrite,
     ]),
     'user-read': {},
     'user-write': {},
@@ -77,14 +75,19 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
   read: {
     default: [
       '_id',
+      'authorizedUserIds',
       'createdAt',
+      'currentUserIds',
       'description',
+      'metadata.*',
       'name',
       'namespaceId',
+      'persistent',
+      'queueId',
+      'restartedAt',
+      'status.endpoints.*',
       'status.phase',
-      'teams',
       'updatedAt',
-      'usersPerTeam',
     ],
     'namespace-read': administrator.read,
     'namespace-write': administrator.read,
@@ -97,54 +100,57 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
     {
       name: 'system-write',
       query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
-        AuthorizationRole.QueuesReadWrite,
+        AuthorizationRole.GameServersReadWrite,
       ]),
     },
     {
       name: 'user-write',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.QueuesReadWrite]),
+      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.GameServersReadWrite,
+      ]),
     },
     {
       name: 'namespace-write',
       query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.QueuesReadWrite,
+        AuthorizationRole.GameServersReadWrite,
       ]),
     },
     {
       name: 'system-read',
       query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
-        AuthorizationRole.QueuesRead,
-        AuthorizationRole.QueuesReadWrite,
+        AuthorizationRole.GameServersRead,
+        AuthorizationRole.GameServersReadWrite,
       ]),
     },
     {
       name: 'user-read',
       query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.QueuesRead,
-        AuthorizationRole.QueuesReadWrite,
+        AuthorizationRole.GameServersRead,
+        AuthorizationRole.GameServersReadWrite,
       ]),
     },
     {
       name: 'namespace-read',
       query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.QueuesRead,
-        AuthorizationRole.QueuesReadWrite,
+        AuthorizationRole.GameServersRead,
+        AuthorizationRole.GameServersReadWrite,
       ]),
     },
   ],
   update: {
     'namespace-write': administrator.update,
     'system-write': [
+      'authorizedUserIds',
       'buildId',
+      'cpu',
+      'currentUserIds',
       'description',
-      'gameServerTemplate.*',
+      'memory',
       'metadata.*',
       'name',
-      'replicas',
+      'preemptible',
       'restartedAt',
       'status.*',
-      'teams',
-      'usersPerTeam',
     ],
     'user-write': administrator.update,
   },
