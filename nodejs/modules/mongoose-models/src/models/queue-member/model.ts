@@ -14,6 +14,7 @@ import * as mongoose from 'mongoose';
 import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import * as errors from '../../errors';
 import { namespaceValidator } from '../../validators';
+import { AuthorizationDocument } from '../authorization';
 import { GroupDocument } from '../group';
 import { NamespaceDocument } from '../namespace';
 import { QueueDocument } from '../queue';
@@ -109,6 +110,9 @@ export class QueueMemberSchema {
 
   @prop({ ref: 'WebSocketSchema', required: true })
   public webSocketId: mongoose.Types.ObjectId;
+
+  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
+  public authorizationDocuments: AuthorizationDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'groupId', ref: 'GroupSchema' })
   public groupDocument: GroupDocument;

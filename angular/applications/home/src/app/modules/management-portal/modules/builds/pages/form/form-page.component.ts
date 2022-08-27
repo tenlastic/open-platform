@@ -1,11 +1,11 @@
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
+  ApiError,
   AuthorizationQuery,
   BuildModel,
   BuildQuery,
@@ -14,8 +14,8 @@ import {
 } from '@tenlastic/http';
 import { Axios } from 'axios';
 import JSZip from 'jszip';
-import { EMPTY, Observable } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { FileReaderService, FormService, IdentityService } from '../../../../../../core/services';
 import { UpdatedFile } from '../../components';
@@ -200,9 +200,9 @@ export class BuildsFormPageComponent implements OnInit {
     return new BuildModel(result);
   }
 
-  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    if (err.error.errors) {
-      this.errors = err.error.errors.map((e) => {
+  private async handleHttpError(err: ApiError, pathMap: any) {
+    if (err.errors) {
+      this.errors = err.errors.map((e) => {
         if (e.name === 'UniqueError') {
           const combination = e.paths.length > 1 ? 'combination ' : '';
           const paths = e.paths.map((p) => pathMap[p]);

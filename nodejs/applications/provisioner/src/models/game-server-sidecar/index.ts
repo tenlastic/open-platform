@@ -3,6 +3,7 @@ import { Authorization, AuthorizationRole, GameServerDocument } from '@tenlastic
 import * as Chance from 'chance';
 
 import { KubernetesGameServer } from '../game-server';
+import { KubernetesNamespace } from '../namespace';
 
 const chance = new Chance();
 
@@ -38,6 +39,7 @@ export const KubernetesGameServerSidecar = {
     const gameServerLabels = KubernetesGameServer.getLabels(gameServer);
     const gameServerName = KubernetesGameServer.getName(gameServer);
     const name = KubernetesGameServerSidecar.getName(gameServer);
+    const namespaceName = KubernetesNamespace.getName(gameServer.namespaceId);
 
     /**
      * =======================
@@ -65,7 +67,7 @@ export const KubernetesGameServerSidecar = {
       },
       stringData: {
         API_KEY: apiKey,
-        API_URL: 'http://api.static:3000',
+        API_URL: `http://${namespaceName}-api.dynamic:3000`,
         GAME_SERVER_CONTAINER: 'main',
         GAME_SERVER_JSON: JSON.stringify(gameServer),
         GAME_SERVER_POD_LABEL_SELECTOR: `tenlastic.com/app=${gameServerName}`,

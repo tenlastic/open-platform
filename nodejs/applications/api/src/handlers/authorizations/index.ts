@@ -7,17 +7,18 @@ import { handler as findHandler } from './find';
 import { handler as findOneHandler } from './find-one';
 import { handler as updateHandler } from './update';
 
-const rootRouter = new Router();
-rootRouter.delete('/:_id', deleteHandler);
-rootRouter.get('/', findHandler);
-rootRouter.get('/count', countHandler);
-rootRouter.get('/:_id', findOneHandler);
-rootRouter.post('/', createHandler);
-rootRouter.put('/:_id', updateHandler);
-
-const namespaceRouter = new Router();
-namespaceRouter.use('/', rootRouter.routes());
-
 export const router = new Router();
-router.use('/authorizations', rootRouter.routes());
-router.use('/namespaceId/:namespaceId/', namespaceRouter.routes());
+
+router.delete('/authorizations/:_id', deleteHandler);
+router.get('/authorizations', findHandler);
+router.get('/authorizations/count', countHandler);
+router.get('/authorizations/:_id', findOneHandler);
+router.post('/authorizations', createHandler);
+router.put('/authorizations/:_id', updateHandler);
+
+router.delete('/namespaces/:namespaceId/authorizations/:_id', deleteHandler);
+router.get('/namespaces/:namespaceId/authorizations', findHandler);
+router.get('/namespaces/:namespaceId/authorizations/count', countHandler);
+router.get('/namespaces/:namespaceId/authorizations/:_id', findOneHandler);
+router.post('/namespaces/:namespaceId/authorizations', createHandler);
+router.put('/namespaces/:namespaceId/authorizations/:_id', updateHandler);

@@ -62,8 +62,7 @@ import { router as workflowsRouter } from './handlers/workflows';
     mongooseChangeStreamNats.produce();
 
     // Web Server.
-    const webServer = new WebServer();
-    webServer.use(loggingMiddleware);
+    const webServer = new WebServer(loggingMiddleware);
 
     // Register web server routes.
     webServer.use(articlesRouter.routes());

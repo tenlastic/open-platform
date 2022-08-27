@@ -82,7 +82,7 @@ export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.authorizationService.delete(record._id);
+        await this.authorizationService.delete(record.namespaceId, record._id);
         this.matSnackBar.open('Authorization deleted successfully.');
       }
     });
@@ -99,7 +99,7 @@ export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    await this.authorizationService.find({ sort: '-createdAt', where: params });
+    await this.authorizationService.find(params.namespaceId, { sort: '-createdAt', where: params });
 
     this.updateDataSource$ = this.$authorizations.subscribe(
       (authorizations) => (this.dataSource.data = authorizations),

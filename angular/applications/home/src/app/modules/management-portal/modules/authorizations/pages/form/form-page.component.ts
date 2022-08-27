@@ -63,7 +63,10 @@ export class AuthorizationsFormPageComponent implements OnInit {
       this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 
       if (params.authorizationId !== 'new') {
-        this.data = await this.authorizationService.findOne(params.authorizationId);
+        this.data = await this.authorizationService.findOne(
+          params.namespaceId,
+          params.authorizationId,
+        );
       }
 
       await this.setupForm();
@@ -183,8 +186,8 @@ export class AuthorizationsFormPageComponent implements OnInit {
 
   private async upsert(values: Partial<AuthorizationModel>) {
     const result = values._id
-      ? await this.authorizationService.update(values._id, values)
-      : await this.authorizationService.create(values);
+      ? await this.authorizationService.update(this.params.namespaceId, values._id, values)
+      : await this.authorizationService.create(this.params.namespaceId, values);
 
     this.matSnackBar.open(`Authorization saved successfully.`);
     this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });

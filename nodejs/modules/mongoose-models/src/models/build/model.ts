@@ -17,6 +17,7 @@ import {
   IOriginalDocument,
 } from '../../change-stream';
 import * as errors from '../../errors';
+import { AuthorizationDocument } from '../authorization';
 import { NamespaceDocument } from '../namespace';
 import { WorkflowStatusSchema } from '../workflow';
 import { BuildFileSchema } from './file';
@@ -62,6 +63,9 @@ export class BuildSchema implements IOriginalDocument {
   public status: WorkflowStatusSchema;
 
   public updatedAt: Date;
+
+  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
+  public authorizationDocuments: AuthorizationDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;

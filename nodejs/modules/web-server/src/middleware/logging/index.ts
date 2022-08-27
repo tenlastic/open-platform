@@ -11,9 +11,7 @@ export async function loggingMiddleware(ctx: Context, next: () => Promise<void>)
 
   const start = Date.now();
 
-  try {
-    await next();
-  } catch {}
+  await next();
 
   const duration = Date.now() - start;
   const { method, path } = ctx.request;

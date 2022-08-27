@@ -13,6 +13,7 @@ import * as mongoose from 'mongoose';
 
 import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import { enumValidator } from '../../validators';
+import { AuthorizationDocument } from '../authorization';
 import { Namespace, NamespaceDocument, NamespaceLimitError } from '../namespace';
 import { GameServerTemplateSchema } from './game-server-template';
 import {
@@ -102,68 +103,11 @@ export class QueueSchema {
   @prop({ min: 1, required: true })
   public usersPerTeam: number;
 
+  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
+  public authorizationDocuments: AuthorizationDocument[];
+
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
-
-  /**
-   * Throws an error if a NamespaceLimit is exceeded.
-   */
-  public static async checkNamespaceLimits(
-    _id: string | mongoose.Types.ObjectId,
-    cpu: number,
-    memory: number,
-    namespaceId: string | mongoose.Types.ObjectId,
-    preemptible: boolean,
-    replicas: number,
-  ) {
-    const namespace = await Namespace.findOne({ _id: namespaceId });
-    if (!namespace) {
-      throw new Error('Record not found.');
-    }
-
-    const limits = namespace.limits.queues;
-
-    // Preemptible.
-    if (limits.preemptible && preemptible === false) {
-      throw new NamespaceLimitError('queues.preemptible', limits.preemptible);
-    }
-
-    // Skip MongoDB query if no limits are set.
-    if (!limits.cpu && !limits.memory && !limits.replicas) {
-      return;
-    }
-
-    // Aggregate the sum of existing records.
-    const results = await Queue.aggregate([
-      { $match: { _id: { $ne: _id }, namespaceId: namespace._id } },
-      {
-        $group: {
-          _id: null,
-          cpu: { $sum: { $multiply: ['$cpu', '$replicas'] } },
-          memory: { $sum: { $multiply: ['$memory', '$replicas'] } },
-          replicas: { $sum: '$replicas' },
-        },
-      },
-    ]);
-
-    // CPU.
-    const cpuSum = results.length ? results[0].cpu : 0;
-    if (limits.cpu && cpuSum + cpu * replicas > limits.cpu) {
-      throw new NamespaceLimitError('queues.cpu', limits.cpu);
-    }
-
-    // Memory.
-    const memorySum = results.length ? results[0].memory : 0;
-    if (limits.memory && memorySum + memory * replicas > limits.memory) {
-      throw new NamespaceLimitError('queues.memory', limits.memory);
-    }
-
-    // Replicas.
-    const replicasSum = results.length ? results[0].replicas : 0;
-    if (limits.replicas && replicasSum + replicas > limits.replicas) {
-      throw new NamespaceLimitError('queues.replicas', limits.replicas);
-    }
-  }
 
   /**
    * Returns true if a restart is required on an update.

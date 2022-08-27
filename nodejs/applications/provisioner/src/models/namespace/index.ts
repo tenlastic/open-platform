@@ -2,20 +2,23 @@ import {
   deploymentApiV1,
   ingressApiV1,
   networkPolicyApiV1,
+  roleBindingApiV1,
   secretApiV1,
+  serviceAccountApiV1,
   serviceApiV1,
   statefulSetApiV1,
   V1Affinity,
   V1Probe,
 } from '@tenlastic/kubernetes';
 import { Authorization, AuthorizationRole, NamespaceDocument } from '@tenlastic/mongoose-models';
+import * as mongoose from 'mongoose';
 import * as Chance from 'chance';
 
 const chance = new Chance();
 
 export const KubernetesNamespace = {
   delete: async (namespace: NamespaceDocument) => {
-    const name = KubernetesNamespace.getName(namespace);
+    const name = KubernetesNamespace.getName(namespace._id);
 
     /**
      * =======================
@@ -37,6 +40,16 @@ export const KubernetesNamespace = {
      * =======================
      */
     await networkPolicyApiV1.delete(name, 'dynamic');
+
+    /**
+     * ======================
+     * RBAC
+     * ======================
+     */
+    await roleBindingApiV1.delete(`${name}-api`, 'dynamic');
+    await serviceAccountApiV1.delete(`${name}-api`, 'dynamic');
+    await roleBindingApiV1.delete(`${name}-provisioner`, 'dynamic');
+    await serviceAccountApiV1.delete(`${name}-provisioner`, 'dynamic');
 
     /**
      * =======================
@@ -69,18 +82,18 @@ export const KubernetesNamespace = {
     await statefulSetApiV1.delete(`${name}-wss`, 'dynamic');
   },
   getLabels: (namespace: NamespaceDocument) => {
-    const name = KubernetesNamespace.getName(namespace);
+    const name = KubernetesNamespace.getName(namespace._id);
     return {
       'tenlastic.com/app': name,
       'tenlastic.com/namespaceId': `${namespace._id}`,
     };
   },
-  getName: (namespace: NamespaceDocument) => {
-    return `namespace-${namespace._id}`;
+  getName: (namespaceId: mongoose.Types.ObjectId | string) => {
+    return `namespace-${namespaceId}`;
   },
   upsert: async (namespace: NamespaceDocument) => {
     const labels = KubernetesNamespace.getLabels(namespace);
-    const name = KubernetesNamespace.getName(namespace);
+    const name = KubernetesNamespace.getName(namespace._id);
 
     /**
      * =======================
@@ -163,6 +176,60 @@ export const KubernetesNamespace = {
 
     /**
      * ======================
+     * RBAC
+     * ======================
+     */
+    await roleBindingApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'api' },
+        name: `${name}-api`,
+      },
+      roleRef: {
+        apiGroup: 'rbac.authorization.k8s.io',
+        kind: 'Role',
+        name: 'api',
+      },
+      subjects: [
+        {
+          kind: 'ServiceAccount',
+          name: `${name}-api`,
+          namespace: 'dynamic',
+        },
+      ],
+    });
+    await serviceAccountApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'api' },
+        name: `${name}-api`,
+      },
+    });
+    await roleBindingApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'provisioner' },
+        name: `${name}-provisioner`,
+      },
+      roleRef: {
+        apiGroup: 'rbac.authorization.k8s.io',
+        kind: 'Role',
+        name: 'provisioner',
+      },
+      subjects: [
+        {
+          kind: 'ServiceAccount',
+          name: `${name}-provisioner`,
+          namespace: 'dynamic',
+        },
+      ],
+    });
+    await serviceAccountApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'provisioner' },
+        name: `${name}-provisioner`,
+      },
+    });
+
+    /**
+     * ======================
      * SECRET
      * ======================
      */
@@ -173,6 +240,7 @@ export const KubernetesNamespace = {
       },
       stringData: {
         DOCKER_REGISTRY_URL: process.env.DOCKER_REGISTRY_URL,
+        JWK_URL: 'http://api.static:3000/public-keys/jwks',
         MINIO_BUCKET: name,
         MINIO_CONNECTION_STRING: process.env.MINIO_CONNECTION_STRING,
         MONGO_CONNECTION_STRING: process.env.MONGO_CONNECTION_STRING,
@@ -220,7 +288,7 @@ export const KubernetesNamespace = {
       spec: {
         replicas: 1,
         selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'provisioner' } },
-        template: getPodTemplate(namespace, 'provisioner'),
+        template: { ...getPodTemplate(namespace, 'provisioner') },
       },
     });
 
@@ -253,7 +321,7 @@ export const KubernetesNamespace = {
 };
 
 function getAffinity(namespace: NamespaceDocument, role: string): V1Affinity {
-  const name = KubernetesNamespace.getName(namespace);
+  const name = KubernetesNamespace.getName(namespace._id);
 
   return {
     nodeAffinity: {
@@ -290,7 +358,7 @@ function getAffinity(namespace: NamespaceDocument, role: string): V1Affinity {
 }
 
 function getPath(namespace: NamespaceDocument, path: string) {
-  const name = KubernetesNamespace.getName(namespace);
+  const name = KubernetesNamespace.getName(namespace._id);
   const prefix = `/namespaces/${namespace._id}`;
 
   return {
@@ -302,7 +370,7 @@ function getPath(namespace: NamespaceDocument, path: string) {
 
 function getPodTemplate(namespace: NamespaceDocument, role: string) {
   const labels = KubernetesNamespace.getLabels(namespace);
-  const name = KubernetesNamespace.getName(namespace);
+  const name = KubernetesNamespace.getName(namespace._id);
 
   const livenessProbe: V1Probe = {
     failureThreshold: 3,
@@ -338,9 +406,10 @@ function getPodTemplate(namespace: NamespaceDocument, role: string) {
             readinessProbe,
             resources: { requests: resources.requests },
             volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
-            workingDir: '/usr/src/nodejs/applications/api/',
+            workingDir: `/usr/src/nodejs/applications/${role}/`,
           },
         ],
+        serviceAccountName: ['api', 'provisioner'].includes(role) ? `${name}-${role}` : null,
         volumes: [
           { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
         ],
@@ -367,6 +436,7 @@ function getPodTemplate(namespace: NamespaceDocument, role: string) {
             resources,
           },
         ],
+        serviceAccountName: ['api', 'provisioner'].includes(role) ? `${name}-${role}` : null,
       },
     };
   }

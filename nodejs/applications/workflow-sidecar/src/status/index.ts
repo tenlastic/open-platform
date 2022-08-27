@@ -12,9 +12,11 @@ export async function status() {
   workflowApiV1.watch(
     'dynamic',
     { fieldSelector: `metadata.name=${workflowName}` },
-    async (type, object) => {
+    async (type, workflow) => {
+      console.log(`Event - ${type}: ${workflow.metadata.name}.`);
+
       try {
-        await updateWorkflow(object);
+        await updateWorkflow(workflow);
       } catch (e) {
         console.error(e.message);
       }

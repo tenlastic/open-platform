@@ -88,7 +88,7 @@
             <mat-error>Enter a valid name.</mat-error>
           </mat-form-field>
 
-          <div *ngIf="!form?.disabled"
+          <div *ngIf="form && !form.disabled"
                class="row">
             <app-button *ngIf="i > 0"
                         color="accent"
@@ -121,7 +121,7 @@
         </div>
       </div>
 
-      <div *ngIf="!form?.disabled"
+      <div *ngIf="form && !form.disabled"
            class="row">
         <app-button color="accent"
                     layout="left"
@@ -165,7 +165,7 @@
   </form>
 </div>
 
-<div *ngIf="!form?.disabled"
+<div *ngIf="form && !form.disabled"
      class="page-actions">
   <div *ngFor="let error of errors"
        class="form-error">

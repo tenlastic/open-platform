@@ -46,7 +46,7 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
         cancelToken: cancelTokenSource.token,
         headers: { Authorization: `Bearer ${token}` },
         httpsAgent: new https.Agent({ ca: certificate }),
-        params: { query: JSON.stringify(params) },
+        params,
         responseType: 'stream',
       });
 
@@ -101,7 +101,7 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
       headers: { Authorization: `Bearer ${token}` },
       httpsAgent: new https.Agent({ ca: certificate }),
       method: 'get',
-      params: { query: JSON.stringify(params) },
+      params,
       url: `${server}/api/v1/namespaces/${namespace}/pods/${name}/log`,
     });
 
@@ -110,7 +110,7 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
     }
 
     const results = [];
-    const lines = this.split(response.data.body);
+    const lines = this.split(response.data);
 
     for (const line of lines) {
       const body = this.getBody(line);

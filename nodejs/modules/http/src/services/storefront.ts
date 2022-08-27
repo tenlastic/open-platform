@@ -93,6 +93,8 @@ export class StorefrontService {
    * Returns the base URL for this Model.
    */
   private getUrl(namespaceId: string) {
-    return `${this.environmentService.apiUrl}/namespaces/${namespaceId}/storefronts`;
+    return namespaceId
+      ? `${this.environmentService.apiUrl}/namespaces/${namespaceId}/storefronts`
+      : `${this.environmentService.apiUrl}/storefronts`;
   }
 }

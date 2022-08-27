@@ -8,14 +8,29 @@ import {
 } from 'axios';
 
 export class ApiError extends Error {
+  public errors = [];
+  public messages: string[] = [];
+  public method = 'get';
+  public status = 500;
+  public url: string;
+
   constructor(e: AxiosError) {
-    const data = e.response?.data as any;
-    const messages: string[] = data?.errors?.map((err) => err.message) || [];
-    const method = e.request?.method;
+    let errors: any[] = [e.response.data as any];
+    if (typeof e.response?.data === 'string') {
+      errors = JSON.parse(e.response.data).errors;
+    }
+    const messages = errors.map((e) => e.message);
+    const method = e.config.method;
     const status = e.response?.status;
     const url = e.config?.url;
 
-    super(`${method} to ${url} responded with ${status}: ${messages.join(', ')}`);
+    super(`${method.toUpperCase()} to ${url} responded with ${status}: ${messages.join(', ')}`);
+
+    this.errors = errors;
+    this.messages = messages;
+    this.method = method;
+    this.status = status;
+    this.url = url;
   }
 }
 

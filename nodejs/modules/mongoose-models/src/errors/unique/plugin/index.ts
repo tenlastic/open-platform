@@ -29,7 +29,6 @@ export function plugin(schema: Schema) {
   });
 
   schema.post('save', function (err, doc, next) {
-    console.error(err.message);
     if (err.code === 11000) {
       const validationError = new UniqueError(err.keyValue);
       return next(validationError);

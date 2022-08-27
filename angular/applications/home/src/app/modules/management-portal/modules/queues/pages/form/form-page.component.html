@@ -173,7 +173,7 @@
   </form>
 </div>
 
-<div *ngIf="!form?.disabled"
+<div *ngIf="form && !form.disabled"
      class="page-actions">
   <div *ngFor="let error of errors"
        class="form-error">

@@ -2,6 +2,7 @@ import { deploymentApiV1, secretApiV1, V1PodTemplateSpec, V1Probe } from '@tenla
 import { Authorization, AuthorizationRole, WorkflowDocument } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 
+import { KubernetesNamespace } from '../namespace';
 import { KubernetesWorkflow } from '../workflow';
 
 const chance = new Chance();
@@ -36,6 +37,7 @@ export const KubernetesWorkflowSidecar = {
   },
   upsert: async (workflow: WorkflowDocument) => {
     const name = KubernetesWorkflowSidecar.getName(workflow);
+    const namespaceName = KubernetesNamespace.getName(workflow.namespaceId);
     const workflowLabels = KubernetesWorkflow.getLabels(workflow);
     const workflowName = KubernetesWorkflow.getName(workflow);
 
@@ -66,7 +68,7 @@ export const KubernetesWorkflowSidecar = {
       },
       stringData: {
         API_KEY: apiKey,
-        WORKFLOW_ENDPOINT: `http://api.static:3000/namespaces/${namespaceId}/workflows/${_id}`,
+        WORKFLOW_ENDPOINT: `http://${namespaceName}-api.dynamic:3000/namespaces/${namespaceId}/workflows/${_id}`,
         WORKFLOW_NAME: workflowName,
       },
     });

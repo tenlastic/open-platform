@@ -4,7 +4,7 @@ import { podApiV1, V1Pod } from '@tenlastic/kubernetes';
 import dependencies from '../dependencies';
 
 const namespace = JSON.parse(process.env.NAMESPACE_JSON) as Partial<NamespaceModel>;
-const podLabelSelector = process.env.QUEUE_POD_LABEL_SELECTOR;
+const podLabelSelector = process.env.NAMESPACE_POD_LABEL_SELECTOR;
 
 let isUpdateRequired = false;
 let isUpdatingStatus = false;

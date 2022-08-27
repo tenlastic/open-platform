@@ -14,6 +14,7 @@ import * as mongoose from 'mongoose';
 import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import * as errors from '../../errors';
 import { NamespaceDocument } from '../namespace';
+import { AuthorizationDocument } from '../authorization';
 
 export const OnStorefrontProduced = new EventEmitter<IDatabasePayload<StorefrontDocument>>();
 
@@ -61,6 +62,9 @@ export class StorefrontSchema {
 
   @prop({ type: String })
   public videos: string[];
+
+  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
+  public authorizationDocuments: AuthorizationDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;

@@ -1,16 +1,16 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { ApiError } from '@tenlastic/http';
 import { PromptComponent } from '../../../shared/components';
 
 @Injectable({ providedIn: 'root' })
 export class FormService {
   constructor(private matDialog: MatDialog, private router: Router) {}
 
-  public handleHttpError(err: HttpErrorResponse, pathMap?: { [key: string]: string }) {
-    return err.error.errors.map((e) => {
+  public handleHttpError(err: ApiError, pathMap?: { [key: string]: string }) {
+    return err.errors.map((e) => {
       if (e.name === 'CastError' || e.name === 'ValidatorError') {
         const path = pathMap ? pathMap[e.path] : e.path;
         return `(${path}) ${e.message}`;

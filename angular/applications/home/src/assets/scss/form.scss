@@ -9,7 +9,7 @@ div.form-error {
   }
 
   &:last-of-type {
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
 }
 
@@ -33,6 +33,7 @@ div.page-actions {
   box-shadow: 2px -2px 3px black;
   display: flex;
   flex-direction: column;
+  margin-top: auto;
   padding: 8px;
 
   app-button {

@@ -17,6 +17,7 @@ import { CollectionDocument } from '../collection';
 import { NamespaceDocument } from '../namespace';
 import { UserDocument } from '../user';
 import { RecordPermissions } from './permissions';
+import { AuthorizationDocument } from '../authorization';
 
 export const OnRecordProduced = new EventEmitter<IDatabasePayload<RecordDocument>>();
 
@@ -43,6 +44,9 @@ export class RecordSchema {
 
   @prop({ ref: 'UserSchema' })
   public userId: mongoose.Types.ObjectId;
+
+  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
+  public authorizationDocuments: AuthorizationDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', ref: 'CollectionSchema' })
   public collectionDocument: CollectionDocument;

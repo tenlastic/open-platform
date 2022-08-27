@@ -41,10 +41,9 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
   roles: [
     {
       name: 'system-write',
-      query: AuthorizationPermissionsHelpers.getSystemRoleQuery(
-        [AuthorizationRole.NamespacesReadWrite],
-        'record',
-      ),
+      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
+        AuthorizationRole.NamespacesReadWrite,
+      ]),
     },
     {
       name: 'user-write',
@@ -54,17 +53,16 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     },
     {
       name: 'namespace-write',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery(
-        [AuthorizationRole.NamespacesReadWrite],
-        'record',
-      ),
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.NamespacesReadWrite,
+      ]),
     },
     {
       name: 'system-read',
-      query: AuthorizationPermissionsHelpers.getSystemRoleQuery(
-        [AuthorizationRole.NamespacesRead, AuthorizationRole.NamespacesReadWrite],
-        'record',
-      ),
+      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
+        AuthorizationRole.NamespacesRead,
+        AuthorizationRole.NamespacesReadWrite,
+      ]),
     },
     {
       name: 'user-read',
@@ -76,10 +74,10 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
 
     {
       name: 'namespace-read',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery(
-        [AuthorizationRole.NamespacesRead, AuthorizationRole.NamespacesReadWrite],
-        'record',
-      ),
+      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.NamespacesRead,
+        AuthorizationRole.NamespacesReadWrite,
+      ]),
     },
   ],
   update: {

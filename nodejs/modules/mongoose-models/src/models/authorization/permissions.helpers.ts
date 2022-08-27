@@ -21,21 +21,21 @@ export const AuthorizationPermissionsHelpers = {
       },
     };
   },
-  getNamespaceRoleQuery(roles: AuthorizationRole[], selector = 'record.namespaceDocument') {
+  getNamespaceRoleQuery(roles: AuthorizationRole[]) {
     return {
       $or: [
         {
-          [`${selector}.authorizationDocuments`]: {
+          [`record.authorizationDocuments`]: {
             $elemMatch: { apiKey: { $ref: 'apiKey' }, roles: { $in: roles } },
           },
         },
         {
-          [`${selector}.authorizationDocuments`]: {
+          [`record.authorizationDocuments`]: {
             $elemMatch: { roles: { $in: roles }, userId: { $ref: 'user._id' } },
           },
         },
         {
-          [`${selector}.authorizationDocuments`]: {
+          [`record.authorizationDocuments`]: {
             $elemMatch: {
               apiKey: { $exists: false },
               roles: { $in: roles },
@@ -46,26 +46,21 @@ export const AuthorizationPermissionsHelpers = {
       ],
     };
   },
-  getPopulateQuery(path = 'namespaceDocument') {
+  getPopulateQuery() {
     return {
-      path,
-      populate: [
-        {
-          match: {
-            $or: [
-              { apiKey: { $ref: 'apiKey' } },
-              { userId: { $ref: 'user._id' } },
-              { apiKey: { $exists: false }, userId: { $exists: false } },
-            ],
-          },
-          path: 'authorizationDocuments',
-        },
-      ],
+      match: {
+        $or: [
+          { apiKey: { $ref: 'apiKey' } },
+          { userId: { $ref: 'user._id' } },
+          { apiKey: { $exists: false }, userId: { $exists: false } },
+        ],
+      },
+      path: 'authorizationDocuments',
     };
   },
-  getSystemRoleQuery(roles: AuthorizationRole[], selector = 'record.namespaceDocument') {
+  getSystemRoleQuery(roles: AuthorizationRole[]) {
     return {
-      [`${selector}.authorizationDocuments`]: {
+      [`record.authorizationDocuments`]: {
         $elemMatch: { apiKey: { $ref: 'apiKey' }, roles: { $in: roles }, system: true },
       },
     };

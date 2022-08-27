@@ -11,6 +11,8 @@ import {
 import { Authorization, AuthorizationRole, QueueDocument } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 
+import { KubernetesNamespace } from '../namespace';
+
 const chance = new Chance();
 
 export const KubernetesQueue = {
@@ -68,6 +70,7 @@ export const KubernetesQueue = {
   upsert: async (queue: QueueDocument) => {
     const labels = KubernetesQueue.getLabels(queue);
     const name = KubernetesQueue.getName(queue);
+    const namespaceName = KubernetesNamespace.getName(queue.namespaceId);
 
     /**
      * =======================
@@ -174,7 +177,7 @@ export const KubernetesQueue = {
       },
       stringData: {
         API_KEY: apiKey,
-        API_URL: 'http://api.static:3000',
+        API_URL: `http://${namespaceName}-api.dynamic:3000`,
         QUEUE_JSON: JSON.stringify(queue),
         REDIS_SENTINEL_PASSWORD: `${redisPassword}`,
         SENTINELS: sentinels.join(','),

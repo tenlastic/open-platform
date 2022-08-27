@@ -109,6 +109,9 @@ export class AuthorizationSchema {
   @prop({ ref: 'UserSchema' })
   public userId: mongoose.Types.ObjectId;
 
+  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
+  public authorizationDocuments: AuthorizationDocument[];
+
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
 

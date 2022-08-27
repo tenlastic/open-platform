@@ -7,6 +7,7 @@ import {
 } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 import { URL } from 'url';
+import { KubernetesNamespace } from '../namespace';
 
 const chance = new Chance();
 
@@ -58,6 +59,7 @@ export const KubernetesBuild = {
   upsert: async (build: BuildDocument) => {
     const labels = KubernetesBuild.getLabels(build);
     const name = KubernetesBuild.getName(build);
+    const namespaceName = KubernetesNamespace.getName(build.namespaceId);
 
     /**
      * =======================
@@ -102,6 +104,7 @@ export const KubernetesBuild = {
       },
       stringData: {
         API_KEY: apiKey,
+        API_URL: `http://${namespaceName}-api.dynamic:3000`,
         BUILD_ID: `${build._id}`,
         MINIO_BUCKET: process.env.MINIO_BUCKET,
         MINIO_CONNECTION_STRING: process.env.MINIO_CONNECTION_STRING,

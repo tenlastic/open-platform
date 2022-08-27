@@ -12,7 +12,7 @@ export class WebServer {
   public app: koa;
   public server: Server;
 
-  constructor() {
+  constructor(...middleware: koa.Middleware[]) {
     this.app = new koa();
 
     // Allow X-Forwarder-For headers.
@@ -25,6 +25,7 @@ export class WebServer {
     this.app.use(bodyParser({ jsonLimit: '5mb' }));
 
     // Setup middleware.
+    middleware.forEach((m) => this.app.use(m));
     this.app.use(errorMiddleware);
     this.app.use(queryMiddleware);
     this.app.use(jwtMiddleware);
@@ -34,7 +35,7 @@ export class WebServer {
   public serve(directory = 'public', path = '/', root = 'index.html') {
     // Redirect naked root URL to root document.
     const router = new Router();
-    router.get(path, ctx => ctx.redirect(`${root}`));
+    router.get(path, (ctx) => ctx.redirect(`${root}`));
     this.app.use(router.routes());
 
     // Serve static files from specified directory.

@@ -2,6 +2,7 @@ import { deploymentApiV1, secretApiV1, V1PodTemplateSpec, V1Probe } from '@tenla
 import { Authorization, AuthorizationRole, QueueDocument } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 
+import { KubernetesNamespace } from '../namespace';
 import { KubernetesQueue } from '../queue';
 
 const chance = new Chance();
@@ -38,6 +39,7 @@ export const KubernetesQueueSidecar = {
     const queueLabels = KubernetesQueue.getLabels(queue);
     const queueName = KubernetesQueue.getName(queue);
     const name = KubernetesQueueSidecar.getName(queue);
+    const namespaceName = KubernetesNamespace.getName(queue.namespaceId);
 
     /**
      * =======================
@@ -65,7 +67,7 @@ export const KubernetesQueueSidecar = {
       },
       stringData: {
         API_KEY: apiKey,
-        API_URL: 'http://api.static:3000',
+        API_URL: `http://${namespaceName}-api.dynamic:3000`,
         QUEUE_JSON: JSON.stringify(queue),
         QUEUE_POD_LABEL_SELECTOR: `tenlastic.com/app=${queueName}`,
         WSS_URL: 'ws://wss.static:3000',

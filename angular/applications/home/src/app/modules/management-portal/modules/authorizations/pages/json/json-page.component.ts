@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { AuthorizationModel, AuthorizationService } from '@tenlastic/http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
@@ -16,6 +16,8 @@ export class AuthorizationsJsonPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
 
+  private params: Params;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationService: AuthorizationService,
@@ -27,11 +29,14 @@ export class AuthorizationsJsonPageComponent implements OnInit {
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const _id = params.get('authorizationId');
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
 
-      if (_id !== 'new') {
-        this.data = await this.authorizationService.findOne(_id);
+      if (params.authorizationId !== 'new') {
+        this.data = await this.authorizationService.findOne(
+          params.namespaceId,
+          params.authorizationId,
+        );
       }
 
       this.setupForm();
@@ -86,8 +91,8 @@ export class AuthorizationsJsonPageComponent implements OnInit {
 
   private async upsert(values: Partial<AuthorizationModel>) {
     const result = values._id
-      ? await this.authorizationService.update(values._id, values)
-      : await this.authorizationService.create(values);
+      ? await this.authorizationService.update(this.params.namespaceId, values._id, values)
+      : await this.authorizationService.create(this.params.namespaceId, values);
 
     this.matSnackBar.open(`Authorization saved successfully.`);
     this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });

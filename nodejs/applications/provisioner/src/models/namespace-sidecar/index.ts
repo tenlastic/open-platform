@@ -36,7 +36,7 @@ export const KubernetesNamespaceSidecar = {
   },
   upsert: async (namespace: NamespaceDocument) => {
     const namespaceLabels = KubernetesNamespace.getLabels(namespace);
-    const namespaceName = KubernetesNamespace.getName(namespace);
+    const namespaceName = KubernetesNamespace.getName(namespace._id);
     const name = KubernetesNamespaceSidecar.getName(namespace);
 
     /**
@@ -66,6 +66,7 @@ export const KubernetesNamespaceSidecar = {
       stringData: {
         API_KEY: apiKey,
         API_URL: 'http://api.static:3000',
+        JWK_URL: 'http://api.static:3000/public-keys/jwks',
         NAMESPACE_JSON: JSON.stringify(namespace),
         NAMESPACE_POD_LABEL_SELECTOR: `tenlastic.com/app=${namespaceName}`,
         WSS_URL: 'ws://wss.static:3000',

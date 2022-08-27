@@ -108,7 +108,7 @@ export class NamespaceSchema {
   public updatedAt: Date;
 
   @prop({ foreignField: 'namespaceId', localField: '_id', ref: 'AuthorizationSchema' })
-  public authorizationDocuments: AuthorizationDocument;
+  public authorizationDocuments: AuthorizationDocument[];
 
   public _original: any;
   public wasModified: string[];

@@ -3,6 +3,7 @@ import { Authorization, AuthorizationRole, BuildDocument } from '@tenlastic/mong
 import * as Chance from 'chance';
 
 import { KubernetesBuild } from '../build';
+import { KubernetesNamespace } from '../namespace';
 
 const chance = new Chance();
 
@@ -38,6 +39,7 @@ export const KubernetesBuildSidecar = {
     const buildLabels = KubernetesBuild.getLabels(build);
     const buildName = KubernetesBuild.getName(build);
     const name = KubernetesBuildSidecar.getName(build);
+    const namespaceName = KubernetesNamespace.getName(build.namespaceId);
 
     /**
      * =======================
@@ -66,7 +68,7 @@ export const KubernetesBuildSidecar = {
       },
       stringData: {
         API_KEY: apiKey,
-        WORKFLOW_ENDPOINT: `http://api.static:3000/namespaces/${namespaceId}/builds/${_id}`,
+        WORKFLOW_ENDPOINT: `http://${namespaceName}-api.dynamic:3000/namespaces/${namespaceId}/builds/${_id}`,
         WORKFLOW_NAME: buildName,
       },
     });

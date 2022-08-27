@@ -10,6 +10,7 @@ import {
 import * as mongoose from 'mongoose';
 
 import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
+import { AuthorizationDocument } from '../authorization';
 import { Namespace, NamespaceDocument, NamespaceLimitError } from '../namespace';
 import { WorkflowSpecSchema } from './spec';
 import { WorkflowStatusSchema } from './status';
@@ -50,56 +51,15 @@ export class WorkflowSchema {
 
   public updatedAt: Date;
 
+  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
+  public authorizationDocuments: AuthorizationDocument[];
+
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
 
   public _original: any;
   public wasModified: string[];
   public wasNew: boolean;
-
-  /**
-   * Throws an error if a NamespaceLimit is exceeded.
-   */
-  public static async checkNamespaceLimits(
-    cpu: number,
-    memory: number,
-    namespaceId: string | mongoose.Types.ObjectId,
-    parallelism: number,
-    preemptible: boolean,
-    storage: number,
-  ) {
-    const namespace = await Namespace.findOne({ _id: namespaceId });
-    if (!namespace) {
-      throw new Error('Record not found.');
-    }
-
-    const limits = namespace.limits.workflows;
-
-    // CPU.
-    if (limits.cpu && cpu > limits.cpu) {
-      throw new NamespaceLimitError('workflows.cpu', limits.cpu);
-    }
-
-    // Memory.
-    if (limits.memory && memory > limits.memory) {
-      throw new NamespaceLimitError('workflows.memory', limits.memory);
-    }
-
-    // Parallelism.
-    if (limits.parallelism && parallelism > limits.parallelism) {
-      throw new NamespaceLimitError('workflows.parallelism', limits.parallelism);
-    }
-
-    // Preemptible.
-    if (limits.preemptible && preemptible === false) {
-      throw new NamespaceLimitError('workflows.preemptible', limits.preemptible);
-    }
-
-    // Storage.
-    if (limits.storage && storage > limits.storage) {
-      throw new NamespaceLimitError('workflows.storage', limits.storage);
-    }
-  }
 }
 
 export type WorkflowDocument = DocumentType<WorkflowSchema>;

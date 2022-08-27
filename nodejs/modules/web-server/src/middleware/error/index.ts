@@ -8,7 +8,6 @@ export async function errorMiddleware(ctx: Context, next: () => Promise<void>) {
     await next();
   } catch (e) {
     const status = e.status || 400;
-    console.error(e.message);
 
     switch (e.name) {
       case 'NamespaceLimitError':

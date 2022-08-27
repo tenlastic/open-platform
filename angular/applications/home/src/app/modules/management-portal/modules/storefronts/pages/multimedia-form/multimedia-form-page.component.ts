@@ -1,9 +1,8 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { StorefrontModel, StorefrontService } from '@tenlastic/http';
+import { ApiError, StorefrontModel, StorefrontService } from '@tenlastic/http';
 
 import { PromptComponent } from '../../../../../../shared/components';
 import { MediaDialogComponent } from '../../components';
@@ -114,7 +113,7 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
     this.matDialog.open(MediaDialogComponent, { autoFocus: false, data: { src, type } });
   }
 
-  private async handleHttpError(err: HttpErrorResponse) {
-    return err.error.errors.map((e) => e.message);
+  private async handleHttpError(err: ApiError) {
+    return err.errors.map((e) => e.message);
   }
 }

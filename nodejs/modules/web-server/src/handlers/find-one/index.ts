@@ -15,7 +15,6 @@ export function findOne<TDocument extends mongoose.Document>(
     }
 
     const record = await Permissions.read(credentials, result);
-
     ctx.response.body = { record };
   };
 }

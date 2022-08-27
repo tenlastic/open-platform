@@ -25,6 +25,7 @@ import { toMongo } from '../../json-schema';
 import { NamespaceDocument } from '../namespace';
 import { RecordSchema } from '../record';
 import { CollectionIndexSchema } from './index/index';
+import { AuthorizationDocument } from '../authorization';
 
 export const OnCollectionProduced = new EventEmitter<IDatabasePayload<CollectionDocument>>();
 
@@ -84,6 +85,9 @@ export class CollectionSchema implements IOriginalDocument {
   public permissions: IOptions;
 
   public updatedAt: Date;
+
+  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
+  public authorizationDocuments: AuthorizationDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'namespaceId', ref: 'NamespaceSchema' })
   public namespaceDocument: NamespaceDocument;
