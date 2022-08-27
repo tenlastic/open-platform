@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,8 +6,10 @@ import {
   AuthorizationQuery,
   IAuthorization,
   NamespaceModel,
+  NamespaceQuery,
   NamespaceService,
 } from '@tenlastic/http';
+import { Observable, Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 
@@ -15,12 +17,20 @@ import { FormService, IdentityService } from '../../../../../../core/services';
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
-export class NamespacesFormPageComponent implements OnInit {
+export class NamespacesFormPageComponent implements OnDestroy, OnInit {
+  public components = {
+    api: 'API',
+    provisioner: 'Provisioner',
+    sidecar: 'Sidecar',
+    wss: 'Web Socket Server',
+  };
   public data: NamespaceModel;
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public hasWriteAuthorizationForNamespace: boolean;
+
+  private updateNamespace$ = new Subscription();
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -29,6 +39,7 @@ export class NamespacesFormPageComponent implements OnInit {
     private formService: FormService,
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
+    private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
     private router: Router,
   ) {}
@@ -50,6 +61,10 @@ export class NamespacesFormPageComponent implements OnInit {
 
       this.setupForm();
     });
+  }
+
+  public ngOnDestroy() {
+    this.updateNamespace$.unsubscribe();
   }
 
   public navigateToJson() {
@@ -122,6 +137,12 @@ export class NamespacesFormPageComponent implements OnInit {
     }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+
+    if (this.data._id) {
+      this.updateNamespace$ = this.namespaceQuery
+        .selectAll({ filterBy: (q) => q._id === this.data._id })
+        .subscribe((namespaces) => (this.data = namespaces[0]));
+    }
   }
 
   private async upsert(values: Partial<NamespaceModel>) {

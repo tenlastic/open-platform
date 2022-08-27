@@ -66,7 +66,6 @@ export const KubernetesQueueSidecar = {
       stringData: {
         API_KEY: apiKey,
         API_URL: 'http://api.static:3000',
-        QUEUE_ENDPOINT: `http://api.static:3000/namespaces/${queue.namespaceId}/queues/${queue._id}`,
         QUEUE_JSON: JSON.stringify(queue),
         QUEUE_POD_LABEL_SELECTOR: `tenlastic.com/app=${queueName}`,
         WSS_URL: 'ws://wss.static:3000',

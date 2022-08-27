@@ -1,10 +1,10 @@
+import { GameServerModel } from '@tenlastic/http';
 import { nodeApiV1, podApiV1, V1Pod } from '@tenlastic/kubernetes';
-import * as requestPromiseNative from 'request-promise-native';
 
-const apiKey = process.env.API_KEY;
+import dependencies from '../dependencies';
+
 const container = process.env.GAME_SERVER_CONTAINER;
-const endpoint = process.env.GAME_SERVER_ENDPOINT;
-const persistent = process.env.GAME_SERVER_PERSISTENT === 'true';
+const gameServer = JSON.parse(process.env.GAME_SERVER_JSON) as Partial<GameServerModel>;
 const podLabelSelector = process.env.GAME_SERVER_POD_LABEL_SELECTOR;
 
 let isUpdateRequired = false;
@@ -29,7 +29,7 @@ export async function status() {
 
       try {
         if (
-          !persistent &&
+          !gameServer.persistent &&
           pod.metadata.labels['tenlastic.com/role'] === 'application' &&
           (pod.status?.phase === 'Failed' || pod.status?.phase === 'Succeeded')
         ) {
@@ -51,9 +51,7 @@ export async function status() {
 
 async function deleteGameServer() {
   console.log(`Deleting Game Server...`);
-
-  await requestPromiseNative.delete({ headers: { 'X-Api-Key': apiKey }, url: endpoint });
-
+  await dependencies.gameServerService.delete(gameServer.namespaceId, gameServer._id);
   console.log('Game Server deleted successfully.');
 }
 
@@ -124,10 +122,8 @@ async function updateGameServer() {
   // Version
   const { version } = require('../../package.json');
 
-  await requestPromiseNative.put({
-    headers: { 'X-Api-Key': apiKey },
-    json: { status: { endpoints, nodes, phase, version } },
-    url: endpoint,
+  await dependencies.gameServerService.update(gameServer.namespaceId, gameServer._id, {
+    status: { endpoints, nodes, phase, version },
   });
 
   console.log('Game Server updated successfully.');

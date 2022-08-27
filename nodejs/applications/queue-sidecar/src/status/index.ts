@@ -1,13 +1,10 @@
-import { IQueue } from '@tenlastic/http';
+import { IQueue, QueueModel } from '@tenlastic/http';
 import { podApiV1, V1Pod } from '@tenlastic/kubernetes';
-import axios from 'axios';
 
 import dependencies from '../dependencies';
 
-const apiKey = process.env.API_KEY;
-const endpoint = process.env.QUEUE_ENDPOINT;
 const podLabelSelector = process.env.QUEUE_POD_LABEL_SELECTOR;
-const queue = JSON.parse(process.env.QUEUE_JSON);
+const queue = JSON.parse(process.env.QUEUE_JSON) as Partial<QueueModel>;
 
 let isUpdateRequired = false;
 let isUpdatingStatus = false;
@@ -115,11 +112,8 @@ async function updateQueue() {
   // Version
   const { version } = require('../../package.json');
 
-  await axios({
-    data: { status: { components, nodes, phase, version } },
-    headers: { 'X-Api-Key': apiKey },
-    method: 'put',
-    url: endpoint,
+  await dependencies.queueService.update(queue.namespaceId, queue._id, {
+    status: { components, nodes, phase, version },
   });
 
   console.log('Queue updated successfully.');

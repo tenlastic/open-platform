@@ -10,7 +10,7 @@ import { MongoosePermissions, PermissionError } from '@tenlastic/mongoose-permis
 import { RecordNotFoundError } from '@tenlastic/web-server';
 import * as webSocketServer from '@tenlastic/web-socket-server';
 import { WebSocket } from '@tenlastic/web-socket-server';
-import { Request } from 'request';
+import { CancelTokenSource } from 'axios';
 
 export interface LogsData {
   _id: string;
@@ -28,7 +28,7 @@ export interface LogsDataParameters {
   workflowId?: string;
 }
 
-export const requests = new Map<WebSocket, Map<string, Request>>();
+export const cancelTokenSources = new Map<WebSocket, Map<string, CancelTokenSource>>();
 
 export async function logs(
   auth: webSocketServer.AuthenticationData,
@@ -88,7 +88,7 @@ export async function logs(
 
   // Start streaming the logs.
   const pod = await podApiV1.read(node._id, 'dynamic');
-  const { emitter, request } = podApiV1.followNamespacedPodLog(
+  const { cancelTokenSource, emitter } = await podApiV1.followNamespacedPodLog(
     node._id,
     'dynamic',
     container || pod.body.spec.containers[0].name,
@@ -105,21 +105,21 @@ export async function logs(
   });
 
   // Cache the request.
-  requests.set(ws, requests.has(ws) ? requests.get(ws) : new Map());
-  requests.get(ws).set(data._id, request);
+  cancelTokenSources.set(ws, cancelTokenSources.has(ws) ? cancelTokenSources.get(ws) : new Map());
+  cancelTokenSources.get(ws).set(data._id, cancelTokenSource);
 
-  ws.on('close', request.abort);
+  ws.on('close', () => cancelTokenSource.cancel());
 }
 
 function unsubscribe(data: LogsData, ws: webSocketServer.WebSocket) {
-  if (!requests.has(ws) || !requests.get(ws).has(data._id)) {
+  if (!cancelTokenSources.has(ws) || !cancelTokenSources.get(ws).has(data._id)) {
     return;
   }
 
   // Abort the request.
-  const request = requests.get(ws).get(data._id);
-  request.abort();
+  const cancelTokenSource = cancelTokenSources.get(ws).get(data._id);
+  cancelTokenSource.cancel();
 
-  // Remove the request from memory.
-  requests.get(ws).delete(data._id);
+  // Remove the Cancel Token Source from memory.
+  cancelTokenSources.get(ws).delete(data._id);
 }

@@ -10,6 +10,7 @@ import { WebSocketServer } from '@tenlastic/web-socket-server';
 import * as handlers from './handlers';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
+const mongoDatabaseName = process.env.MONGO_DATABASE_NAME || 'api';
 const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 const podName = process.env.POD_NAME;
 
@@ -18,7 +19,7 @@ const podName = process.env.POD_NAME;
     // MongoDB.
     await mongooseModels.connect({
       connectionString: mongoConnectionString,
-      databaseName: 'api',
+      databaseName: mongoDatabaseName,
     });
 
     // NATS.

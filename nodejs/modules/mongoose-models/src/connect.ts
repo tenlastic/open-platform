@@ -12,7 +12,7 @@ export async function connect(options: ConnectionOptions) {
     dbName: options.databaseName,
   });
 
-  console.log('Connected to MongoDB.');
+  console.log(`Connected to MongoDB.`);
 }
 
 export function createConnection(options: ConnectionOptions) {

@@ -19,7 +19,7 @@ export class UniqueError extends Error {
 }
 
 export function plugin(schema: Schema) {
-  schema.post('findOneAndUpdate', function(err, doc, next) {
+  schema.post('findOneAndUpdate', function (err, doc, next) {
     if (err.code === 11000) {
       const validationError = new UniqueError(err.keyValue);
       return next(validationError);
@@ -28,7 +28,8 @@ export function plugin(schema: Schema) {
     return next(err);
   });
 
-  schema.post('save', function(err, doc, next) {
+  schema.post('save', function (err, doc, next) {
+    console.error(err.message);
     if (err.code === 11000) {
       const validationError = new UniqueError(err.keyValue);
       return next(validationError);

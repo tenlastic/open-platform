@@ -9,12 +9,16 @@ import { WebServer } from '@tenlastic/web-server';
 import * as events from './events';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
+const mongoDatabaseName = process.env.MONGO_DATABASE_NAME || 'api';
 const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 
 (async () => {
   try {
     // MongoDB.
-    await mongooseModels.connect({ connectionString: mongoConnectionString, databaseName: 'api' });
+    await mongooseModels.connect({
+      connectionString: mongoConnectionString,
+      databaseName: mongoDatabaseName,
+    });
 
     // NATS.
     await nats.connect({ connectionString: natsConnectionString });
@@ -25,6 +29,7 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
     // Subscribe to NATS events.
     events.builds();
     events.gameServers();
+    events.namespaces();
     events.queues();
     events.workflows();
 

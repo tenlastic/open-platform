@@ -1,25 +1,28 @@
 import * as minio from '@tenlastic/minio';
-import { BuildDocument, BuildFileMock, BuildMock, NamespaceMock } from '@tenlastic/mongoose-models';
+import { BuildModel } from '@tenlastic/http';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
+import * as Chance from 'chance';
 import * as fs from 'fs';
 
 import { copy } from './';
 
+const chance = new Chance();
 use(chaiAsPromised);
 
 describe('copy', function () {
-  let build: BuildDocument;
-  let referenceBuild: BuildDocument;
+  let build: BuildModel;
+  let referenceBuild: BuildModel;
 
   beforeEach(async function () {
-    const namespace = await NamespaceMock.create();
-    build = await BuildMock.create({ namespaceId: namespace._id });
+    const namespaceId = chance.hash();
+    build = new BuildModel({ _id: chance.hash(), namespaceId });
 
     // Set up reference Build.
-    referenceBuild = await BuildMock.create({
-      files: [BuildFileMock.create({ path: 'index.spec.ts' })],
-      namespaceId: namespace._id,
+    referenceBuild = new BuildModel({
+      _id: chance.hash(),
+      files: [{ path: 'index.spec.ts' }],
+      namespaceId,
       publishedAt: new Date(),
     });
     const referenceBuildMinioKey = referenceBuild.getFilePath('index.spec.ts');

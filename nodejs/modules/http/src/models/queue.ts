@@ -45,7 +45,7 @@ export namespace IQueue {
 
   export interface StatusNode {
     _id: string;
-    displayName: string;
+    displayName?: string;
     phase: string;
   }
 }

@@ -1,11 +1,13 @@
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   index,
   modelOptions,
   plugin,
+  pre,
   prop,
+  ReturnModelType,
+  Severity,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
@@ -21,6 +23,12 @@ import {
   NamespaceStorefrontLimits,
   NamespaceWorkflowLimits,
 } from './limits';
+import {
+  NamespaceStatusComponent,
+  NamespaceStatusComponentName,
+  NamespaceStatusPhase,
+  NamespaceStatusSchema,
+} from './status';
 
 export const OnNamespaceProduced = new EventEmitter<IDatabasePayload<NamespaceDocument>>();
 
@@ -38,9 +46,44 @@ export class NamespaceLimitError extends Error {
 }
 
 @index({ name: 1 }, { unique: true })
-@modelOptions({ schemaOptions: { collection: 'namespaces', minimize: false, timestamps: true } })
+@modelOptions({
+  options: { allowMixed: Severity.ALLOW },
+  schemaOptions: { collection: 'namespaces', minimize: false, timestamps: true },
+})
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnNamespaceProduced })
 @plugin(errors.unique.plugin)
+@pre('save', async function (this: NamespaceDocument) {
+  if (!this.isNew) {
+    return;
+  }
+
+  this.status.components = [
+    new NamespaceStatusComponent({
+      current: 0,
+      name: NamespaceStatusComponentName.Api,
+      phase: NamespaceStatusPhase.Pending,
+      total: 1,
+    }),
+    new NamespaceStatusComponent({
+      current: 0,
+      name: NamespaceStatusComponentName.Provisioner,
+      phase: NamespaceStatusPhase.Pending,
+      total: 1,
+    }),
+    new NamespaceStatusComponent({
+      current: 0,
+      name: NamespaceStatusComponentName.Sidecar,
+      phase: NamespaceStatusPhase.Pending,
+      total: 1,
+    }),
+    new NamespaceStatusComponent({
+      current: 0,
+      name: NamespaceStatusComponentName.WebSocketServer,
+      phase: NamespaceStatusPhase.Pending,
+      total: 1,
+    }),
+  ];
+})
 export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
@@ -58,6 +101,9 @@ export class NamespaceSchema {
 
   @prop({ required: true })
   public name: string;
+
+  @prop({ default: { phase: 'Pending' } })
+  public status: NamespaceStatusSchema;
 
   public updatedAt: Date;
 

@@ -1,7 +1,7 @@
+import axios from 'axios';
 import * as http from 'http';
 import * as jsonwebtoken from 'jsonwebtoken';
 import { Socket } from 'net';
-import * as requestPromiseNative from 'request-promise-native';
 import { URLSearchParams } from 'url';
 import * as WS from 'ws';
 
@@ -104,8 +104,8 @@ export class WebSocketServer {
     if (accessToken) {
       // If the public key is not specified via environment variables, fetch it from the API.
       if (!this.jwtPublicKey) {
-        const response = await requestPromiseNative.get({ json: true, url: process.env.JWK_URL });
-        const x5c = response.keys[0].x5c[0];
+        const response = await axios({ method: 'get', url: process.env.JWK_URL });
+        const x5c = response.data.keys[0].x5c[0];
         this.jwtPublicKey = `-----BEGIN PUBLIC KEY-----\n${x5c}\n-----END PUBLIC KEY-----`;
       }
 

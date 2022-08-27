@@ -51,14 +51,14 @@ import { router as workflowsRouter } from './handlers/workflows';
     // MongoDB.
     await mongooseModels.connect({
       connectionString: process.env.MONGO_CONNECTION_STRING,
-      databaseName: 'api',
+      databaseName: process.env.MONGO_DATABASE_NAME || 'api',
     });
 
     // NATS.
     await nats.connect({ connectionString: process.env.NATS_CONNECTION_STRING });
 
     // Send changes from MongoDB to NATS.
-    mongooseChangeStreamNats.consume('api');
+    mongooseChangeStreamNats.consume(process.env.MONGO_DATABASE_NAME || 'api');
     mongooseChangeStreamNats.produce();
 
     // Web Server.

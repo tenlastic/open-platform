@@ -1,15 +1,14 @@
 import 'source-map-support/register';
 
-import { Build } from '@tenlastic/mongoose-models';
+import { BuildModel } from '@tenlastic/http';
 import * as minio from '@tenlastic/minio';
-import axios from 'axios';
 import * as path from 'path';
 import { URL } from 'url';
 
 import { copy } from './copy';
 import { unzip } from './unzip';
+import dependencies from './dependencies';
 
-const apiKey = process.env.API_KEY;
 const buildId = process.env.BUILD_ID;
 const minioBucket = process.env.MINIO_BUCKET;
 const minioConnectionString = process.env.MINIO_CONNECTION_STRING;
@@ -26,25 +25,17 @@ minio.connect({
 
 (async () => {
   try {
-    const response = await axios({
-      headers: { 'X-Api-Key': apiKey },
-      method: 'get',
-      url: `http://api.static:3000/namespaces/${namespaceId}/builds/${buildId}`,
-    });
-    const build = new Build(response.data.record);
+    const build = await dependencies.buildService.findOne(namespaceId, buildId);
 
     // Copy unmodified Files from previous Build.
     if (build.reference) {
-      const referenceBuildResponse = await axios({
-        headers: { 'X-Api-Key': apiKey },
-        method: 'get',
-        url: `http://api.static:3000/namespaces/${namespaceId}/builds/${build.reference._id}`,
-      });
-      if (!referenceBuildResponse.data.record) {
+      let referenceBuild: BuildModel;
+      try {
+        referenceBuild = await dependencies.buildService.findOne(namespaceId, build.reference._id);
+      } catch {
         throw new Error(`Reference Build ${buildId} not found.`);
       }
 
-      const referenceBuild = new Build(referenceBuildResponse.data.record);
       const copyPromises = build.reference.files.map((f) => copy(build, f, referenceBuild));
       build.files = await Promise.all(copyPromises);
     }
@@ -75,13 +66,7 @@ minio.connect({
     }
 
     // Update the Build.
-    await axios({
-      data: { files: build.files },
-      headers: { 'X-Api-Key': apiKey },
-      method: 'put',
-      url: `http://api.static:3000/namespaces/${namespaceId}/builds/${buildId}`,
-    });
-
+    await dependencies.buildService.update(namespaceId, buildId, { files: build.files });
     await minio.removeObject(minioBucket, build.getZipPath());
 
     // If building a server, download files for Docker.

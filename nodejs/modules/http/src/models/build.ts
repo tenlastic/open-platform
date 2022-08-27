@@ -3,10 +3,10 @@ import { IWorkflow } from './workflow';
 
 export namespace IBuild {
   export interface File {
-    compressedBytes: number;
-    md5: string;
-    path: string;
-    uncompressedBytes: number;
+    compressedBytes?: number;
+    md5?: string;
+    path?: string;
+    uncompressedBytes?: number;
   }
 
   export interface Node {
@@ -106,5 +106,13 @@ export class BuildModel extends BaseModel {
 
       return previous;
     }, []);
+  }
+
+  public getFilePath(path: string) {
+    return `namespaces/${this.namespaceId}/builds/${this._id}/${path}`;
+  }
+
+  public getZipPath() {
+    return `namespaces/${this.namespaceId}/builds/${this._id}/archive.zip`;
   }
 }

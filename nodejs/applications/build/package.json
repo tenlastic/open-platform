@@ -14,8 +14,9 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
+    "@tenlastic/dependency-injection": "0.0.314",
+    "@tenlastic/http": "0.0.314",
     "@tenlastic/minio": "0.0.314",
-    "@tenlastic/mongoose-models": "0.0.314",
     "@typegoose/typegoose": "9.9.0",
     "axios": "0.27.2",
     "mongoose": "6.3.5",

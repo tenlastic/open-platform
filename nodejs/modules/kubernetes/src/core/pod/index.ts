@@ -1,8 +1,9 @@
 import * as k8s from '@kubernetes/client-node';
+import axios, { AxiosError } from 'axios';
 import { EventEmitter } from 'events';
 import * as fs from 'fs';
-import * as request from 'request';
-import * as requestPromiseNative from 'request-promise-native';
+import * as https from 'https';
+import { Readable } from 'stream';
 
 import { BaseApiV1 } from '../../bases';
 import { HttpError } from '../../errors';
@@ -19,7 +20,7 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
   protected api = kc.makeApiClient(k8s.CoreV1Api);
   protected singular = 'Pod';
 
-  public followNamespacedPodLog(
+  public async followNamespacedPodLog(
     name: string,
     namespace: string,
     container: string,
@@ -30,30 +31,28 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
     const token = fs.readFileSync(kc.getCurrentUser().authProvider.config.tokenFile, 'utf8');
 
     // Construct querystring.
-    const qs: any = { container, follow: true, limitBytes: 250000, timestamps: true };
+    const params: any = { container, follow: true, limitBytes: 250000, timestamps: true };
     if (options?.since) {
-      qs.sinceTime = options.since;
+      params.sinceTime = options.since;
     } else if (options?.tail) {
-      qs.tailLines = options.tail;
+      params.tailLines = options.tail;
     }
 
     const emitter = new EventEmitter();
-    const req = request
-      .get({
-        agentOptions: { ca: certificate },
-        headers: { Authorization: `Bearer ${token}` },
-        qs,
-        url: `${server}/api/v1/namespaces/${namespace}/pods/${name}/log`,
-      })
-      .on('error', e => emitter.emit('error', e))
-      .on('response', response => {
-        if (response.statusCode !== 200) {
-          const body = response.body ? JSON.parse(response.body) : null;
-          emitter.emit('error', new HttpError(response.statusCode, body));
-          return;
-        }
+    const cancelTokenSource = axios.CancelToken.source();
 
-        response.on('data', data => {
+    try {
+      const response = await axios(`${server}/api/v1/namespaces/${namespace}/pods/${name}/log`, {
+        cancelToken: cancelTokenSource.token,
+        headers: { Authorization: `Bearer ${token}` },
+        httpsAgent: new https.Agent({ ca: certificate }),
+        params: { query: JSON.stringify(params) },
+        responseType: 'stream',
+      });
+
+      response.data
+        .on('error', (e) => emitter.emit('error', e))
+        .on('data', (data) => {
           const string = data.toString();
           const lines = this.split(string);
 
@@ -67,11 +66,17 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
 
             emitter.emit('data', json);
           }
-        });
-        response.on('end', () => emitter.emit('end'));
-      });
+        })
+        .on('end', () => emitter.emit('end'));
 
-    return { emitter, request: req };
+      return { cancelTokenSource, emitter };
+    } catch (e) {
+      if (e instanceof AxiosError) {
+        const body = await this.getStringFromStream(e.response.data);
+        const json = body ? JSON.parse(body) : null;
+        emitter.emit('error', new HttpError(e.response.status, json));
+      }
+    }
   }
 
   public async readNamespacedPodLog(
@@ -85,28 +90,27 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
     const token = fs.readFileSync(kc.getCurrentUser().authProvider.config.tokenFile, 'utf8');
 
     // Construct querystring.
-    const qs: any = { container, limitBytes: 250000, timestamps: true };
+    const params: any = { container, limitBytes: 250000, timestamps: true };
     if (options?.since) {
-      qs.sinceTime = options.since;
+      params.sinceTime = options.since;
     } else if (options?.tail) {
-      qs.tailLines = options.tail;
+      params.tailLines = options.tail;
     }
 
-    const response: requestPromiseNative.FullResponse = await requestPromiseNative.get({
-      agentOptions: { ca: certificate },
+    const response = await axios({
       headers: { Authorization: `Bearer ${token}` },
-      qs,
-      resolveWithFullResponse: true,
-      simple: false,
+      httpsAgent: new https.Agent({ ca: certificate }),
+      method: 'get',
+      params: { query: JSON.stringify(params) },
       url: `${server}/api/v1/namespaces/${namespace}/pods/${name}/log`,
     });
 
-    if (response.statusCode !== 200) {
-      throw new HttpError(response.statusCode, response.body);
+    if (response.status !== 200) {
+      throw new HttpError(response.status, response.data);
     }
 
     const results = [];
-    const lines = this.split(response.body);
+    const lines = this.split(response.data.body);
 
     for (const line of lines) {
       const body = this.getBody(line);
@@ -136,6 +140,16 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
     return matches ? parseInt(matches[1], 10) : null;
   }
 
+  private getStringFromStream(stream: Readable) {
+    const chunks = [];
+
+    return new Promise<string>((resolve, reject) => {
+      stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+      stream.on('error', (err) => reject(err));
+      stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    });
+  }
+
   private getUnix(value: string) {
     const matches = value.match(/^([0-9-]{10}T[0-9:]{8}\.[0-9]{3}[0-9]+Z)/m);
     return matches ? new Date(matches[1]).getTime() : null;
@@ -144,8 +158,8 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
   private split(value: string) {
     return value
       .split(/^([0-9-]{10}T[0-9:]{8}\.[0-9]+Z .*)$/m)
-      .map(line => line.replace(/\n/g, ''))
-      .filter(line => line);
+      .map((line) => line.replace(/\n/g, ''))
+      .filter((line) => line);
   }
 }
 

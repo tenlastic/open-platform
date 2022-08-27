@@ -21,9 +21,8 @@
   },
   "dependencies": {
     "@tenlastic/nats": "0.0.314",
+    "axios": "0.27.2",
     "jsonwebtoken": "8.5.1",
-    "request": "2.88.0",
-    "request-promise-native": "1.0.7",
     "uuid": "8.3.0",
     "ws": "7.2.1"
   },

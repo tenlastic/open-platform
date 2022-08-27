@@ -7,11 +7,17 @@ import { handler as findHandler } from './find';
 import { handler as findOneHandler } from './find-one';
 import { handler as updateHandler } from './update';
 
-export const router = new Router({ prefix: '/authorizations' });
+const rootRouter = new Router();
+rootRouter.delete('/:_id', deleteHandler);
+rootRouter.get('/', findHandler);
+rootRouter.get('/count', countHandler);
+rootRouter.get('/:_id', findOneHandler);
+rootRouter.post('/', createHandler);
+rootRouter.put('/:_id', updateHandler);
 
-router.delete('/:_id', deleteHandler);
-router.get('/', findHandler);
-router.get('/count', countHandler);
-router.get('/:_id', findOneHandler);
-router.post('/', createHandler);
-router.put('/:_id', updateHandler);
+const namespaceRouter = new Router();
+namespaceRouter.use('/', rootRouter.routes());
+
+export const router = new Router();
+router.use('/authorizations', rootRouter.routes());
+router.use('/namespaceId/:namespaceId/', namespaceRouter.routes());

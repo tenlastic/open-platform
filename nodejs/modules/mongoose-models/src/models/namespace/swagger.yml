@@ -17,6 +17,22 @@ components:
           $ref: '#/components/schemas/NamespaceLimits'
         name:
           type: string
+        status:
+          type: object
+          properties:
+            nodes:
+              type: array
+              items:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  phase:
+                    type: string
+                    enum: [Error, Failed, Pending, Running, Succeeded]
+            phase:
+              type: string
+              enum: [Error, Failed, Pending, Running, Succeeded]
         updatedAt:
           type: string
           format: date-time

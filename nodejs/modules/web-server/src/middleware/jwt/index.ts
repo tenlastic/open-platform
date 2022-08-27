@@ -1,6 +1,6 @@
 import { Authorization, User } from '@tenlastic/mongoose-models';
+import axios from 'axios';
 import * as jsonwebtoken from 'jsonwebtoken';
-import * as requestPromiseNative from 'request-promise-native';
 
 import { Context } from '../../context';
 
@@ -18,8 +18,8 @@ export async function jwtMiddleware(ctx: Context, next: () => Promise<void>) {
 
     // If the public key is not specified via environment variables, fetch it from the API.
     if (!jwtPublicKey) {
-      const response = await requestPromiseNative.get({ json: true, url: process.env.JWK_URL });
-      const x5c = response.keys[0].x5c[0];
+      const response = await axios({ method: 'get', url: process.env.JWK_URL });
+      const x5c = response.data.keys[0].x5c[0];
       jwtPublicKey = `-----BEGIN PUBLIC KEY-----\n${x5c}\n-----END PUBLIC KEY-----`;
     }
 

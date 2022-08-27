@@ -10,7 +10,6 @@ import {
 } from '@tenlastic/kubernetes';
 import { Authorization, AuthorizationRole, QueueDocument } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
-import { URL } from 'url';
 
 const chance = new Chance();
 

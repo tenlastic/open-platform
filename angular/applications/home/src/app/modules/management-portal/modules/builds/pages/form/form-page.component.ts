@@ -187,7 +187,7 @@ export class BuildsFormPageComponent implements OnInit {
     formData.append('record', JSON.stringify(data));
     formData.append('zip', zipBlob);
 
-    const result = await this.buildService.create(data._id, formData, {
+    const result = await this.buildService.create(data.namespaceId, formData, {
       onUploadProgress: (progressEvent) => {
         this.progress = { current: progressEvent.loaded * 100, total: progressEvent.total };
       },

@@ -13,12 +13,12 @@ export async function subscribe<TDocument extends mongoose.Document>(
   callback: (payload: IDatabasePayload<TDocument>) => Promise<void>,
 ) {
   const durable = `provisioner-${queue}`;
-  const subject = `api.${Model.collection.name}`;
+  const subject = `${Model.db.db.databaseName}.${Model.collection.name}`;
 
   const subscription = await nats.subscribe(durable, subject, {
     ack_policy: AckPolicy.Explicit,
     ack_wait: 60 * 1000 * 1000 * 1000,
-    max_deliver: 5,
+    max_deliver: 1,
   });
   console.log(`Subscribed to ${subject} with group ${durable}.`);
 

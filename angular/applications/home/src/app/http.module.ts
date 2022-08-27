@@ -133,10 +133,9 @@ const queries: Provider[] = [
     useFactory: (store: GameServerLogStore) => new GameServerLogQuery(store),
   },
   {
-    deps: [QueueQuery, GameServerStore],
+    deps: [GameServerStore],
     provide: GameServerQuery,
-    useFactory: (queueQuery: QueueQuery, store: GameServerStore) =>
-      new GameServerQuery(queueQuery, store),
+    useFactory: (store: GameServerStore) => new GameServerQuery(store),
   },
   {
     deps: [GroupInvitationStore],

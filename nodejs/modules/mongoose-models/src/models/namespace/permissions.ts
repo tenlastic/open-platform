@@ -5,7 +5,7 @@ import { AuthorizationPermissionsHelpers } from '../authorization/permissions.he
 import { Namespace, NamespaceDocument } from './model';
 
 const administrator = {
-  read: ['_id', 'createdAt', 'limits.*', 'name', 'updatedAt'],
+  read: ['_id', 'createdAt', 'limits.*', 'name', 'status.*', 'updatedAt'],
 };
 
 export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(Namespace, {
@@ -40,6 +40,13 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
   },
   roles: [
     {
+      name: 'system-write',
+      query: AuthorizationPermissionsHelpers.getSystemRoleQuery(
+        [AuthorizationRole.NamespacesReadWrite],
+        'record',
+      ),
+    },
+    {
       name: 'user-write',
       query: AuthorizationPermissionsHelpers.getUserRoleQuery([
         AuthorizationRole.NamespacesReadWrite,
@@ -49,6 +56,13 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
       name: 'namespace-write',
       query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery(
         [AuthorizationRole.NamespacesReadWrite],
+        'record',
+      ),
+    },
+    {
+      name: 'system-read',
+      query: AuthorizationPermissionsHelpers.getSystemRoleQuery(
+        [AuthorizationRole.NamespacesRead, AuthorizationRole.NamespacesReadWrite],
         'record',
       ),
     },
@@ -70,6 +84,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
   ],
   update: {
     'namespace-write': ['name'],
+    'system-write': ['status.*'],
     'user-write': ['limits.*', 'name'],
   },
 });
