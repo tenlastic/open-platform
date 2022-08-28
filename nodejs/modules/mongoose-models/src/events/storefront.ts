@@ -1,11 +1,11 @@
-import { EventEmitter, IDatabasePayload } from '../../change-stream';
-import { OnNamespaceConsumed } from '../namespace';
-import { Storefront, StorefrontDocument } from './model';
+import { EventEmitter, IDatabasePayload } from '../change-stream';
+import { Storefront, StorefrontDocument } from '../models';
+import { NamespaceEvent } from './namespace';
 
-export const OnStorefrontConsumed = new EventEmitter<IDatabasePayload<StorefrontDocument>>();
+export const StorefrontEvent = new EventEmitter<IDatabasePayload<StorefrontDocument>>();
 
 // Delete Storefronts if associated Namespace is deleted.
-OnNamespaceConsumed.async(async (payload) => {
+NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Storefront.find({ namespaceId: payload.fullDocument._id });
@@ -15,7 +15,7 @@ OnNamespaceConsumed.async(async (payload) => {
 });
 
 // Delete unused images and videos on update.
-OnStorefrontConsumed.async(async (payload) => {
+StorefrontEvent.async(async (payload) => {
   const storefront = payload.fullDocument;
 
   switch (payload.operationType) {

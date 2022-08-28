@@ -1,14 +1,14 @@
 import * as minio from '@tenlastic/minio';
 import axios from 'axios';
 
-import { EventEmitter, IDatabasePayload } from '../../change-stream';
-import { OnNamespaceConsumed } from '../namespace';
-import { Build, BuildDocument } from './model';
+import { EventEmitter, IDatabasePayload } from '../change-stream';
+import { Build, BuildDocument } from '../models';
+import { NamespaceEvent } from './namespace';
 
-export const OnBuildConsumed = new EventEmitter<IDatabasePayload<BuildDocument>>();
+export const BuildEvent = new EventEmitter<IDatabasePayload<BuildDocument>>();
 
 // Delete files from Minio if associated Build is deleted.
-OnBuildConsumed.async(async (payload) => {
+BuildEvent.async(async (payload) => {
   if (payload.operationType !== 'delete') {
     return;
   }
@@ -43,7 +43,7 @@ OnBuildConsumed.async(async (payload) => {
 });
 
 // Delete Builds if associated Namespace is deleted.
-OnNamespaceConsumed.async(async (payload) => {
+NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Build.find({ namespaceId: payload.fullDocument._id });

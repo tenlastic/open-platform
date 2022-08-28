@@ -3,8 +3,10 @@ mongoose.set('autoCreate', false);
 mongoose.set('autoIndex', false);
 
 export * from './change-stream';
+export * as errors from './errors';
 export * from './models';
 export * from './permissions';
+export * from './events';
 
 export * from './connect';
 export * from './delete-all';

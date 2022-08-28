@@ -1,12 +1,12 @@
-import { EventEmitter, IDatabasePayload } from '../../change-stream';
-import { OnNamespaceConsumed } from '../namespace';
-import { OnQueueConsumed } from '../queue';
-import { GameServer, GameServerDocument } from './model';
+import { EventEmitter, IDatabasePayload } from '../change-stream';
+import { GameServer, GameServerDocument } from '../models';
+import { NamespaceEvent } from './namespace';
+import { QueueEvent } from './queue';
 
-export const OnGameServerConsumed = new EventEmitter<IDatabasePayload<GameServerDocument>>();
+export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
 
 // Delete Game Servers if associated Namespace is deleted.
-OnNamespaceConsumed.async(async (payload) => {
+NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await GameServer.find({ namespaceId: payload.fullDocument._id });
@@ -16,7 +16,7 @@ OnNamespaceConsumed.async(async (payload) => {
 });
 
 // Delete Game Servers if associated Queue is deleted.
-OnQueueConsumed.async(async (payload) => {
+QueueEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await GameServer.find({ queueId: payload.fullDocument._id });

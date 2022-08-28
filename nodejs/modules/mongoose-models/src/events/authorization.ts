@@ -1,12 +1,12 @@
-import { EventEmitter, IDatabasePayload } from '../../change-stream';
-import { OnNamespaceConsumed } from '../namespace';
-import { OnUserConsumed } from '../user';
-import { Authorization, AuthorizationDocument } from './model';
+import { EventEmitter, IDatabasePayload } from '../change-stream';
+import { Authorization, AuthorizationDocument } from '../models';
+import { NamespaceEvent } from './namespace';
+import { UserEvent } from './user';
 
-export const OnAuthorizationConsumed = new EventEmitter<IDatabasePayload<AuthorizationDocument>>();
+export const AuthorizationEvent = new EventEmitter<IDatabasePayload<AuthorizationDocument>>();
 
 // Delete Authorizations if associated Namespace is deleted.
-OnNamespaceConsumed.async(async (payload) => {
+NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Authorization.find({ namespaceId: payload.fullDocument._id });
@@ -16,7 +16,7 @@ OnNamespaceConsumed.async(async (payload) => {
 });
 
 // Delete Authorizations if associated User is deleted.
-OnUserConsumed.async(async (payload) => {
+UserEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Authorization.find({ userId: payload.fullDocument._id });

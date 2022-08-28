@@ -33,7 +33,7 @@ export async function subscribe(
       message.ack();
     } catch (e) {
       console.error(e);
-      message.nak(15 * 1000);
+      message.nak();
     }
   }
 }

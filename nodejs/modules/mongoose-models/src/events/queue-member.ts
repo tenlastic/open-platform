@@ -1,13 +1,13 @@
-import { EventEmitter, IDatabasePayload } from '../../change-stream';
-import { OnGroupConsumed } from '../group';
-import { OnQueueConsumed } from '../queue';
-import { OnWebSocketConsumed } from '../web-socket';
-import { QueueMember, QueueMemberDocument } from './model';
+import { EventEmitter, IDatabasePayload } from '../change-stream';
+import { QueueMember, QueueMemberDocument } from '../models';
+import { GroupEvent } from './group';
+import { QueueEvent } from './queue';
+import { WebSocketEvent } from './web-socket';
 
-export const OnQueueMemberConsumed = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
+export const QueueMemberEvent = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
 
 // Delete QueueMember when associated Group is deleted or updated.
-OnGroupConsumed.async(async (payload) => {
+GroupEvent.async(async (payload) => {
   if (payload.operationType === 'insert') {
     return;
   }
@@ -17,7 +17,7 @@ OnGroupConsumed.async(async (payload) => {
 });
 
 // Delete QueueMember when associated Queue is deleted.
-OnQueueConsumed.async(async (payload) => {
+QueueEvent.async(async (payload) => {
   if (payload.operationType !== 'delete') {
     return;
   }
@@ -27,7 +27,7 @@ OnQueueConsumed.async(async (payload) => {
 });
 
 // Delete QueueMember when associated WebSocket is deleted or disconnected.
-OnWebSocketConsumed.async(async (payload) => {
+WebSocketEvent.async(async (payload) => {
   if (
     payload.operationType === 'delete' ||
     payload.updateDescription?.updatedFields?.disconnectedAt

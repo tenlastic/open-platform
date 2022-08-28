@@ -1,12 +1,12 @@
-import { EventEmitter, IDatabasePayload } from '../../change-stream';
-import { OnGroupConsumed } from '../group';
-import { OnUserConsumed } from '../user';
-import { Message, MessageDocument } from './model';
+import { EventEmitter, IDatabasePayload } from '../change-stream';
+import { Message, MessageDocument } from '../models';
+import { GroupEvent } from './group';
+import { UserEvent } from './user';
 
-export const OnMessageConsumed = new EventEmitter<IDatabasePayload<MessageDocument>>();
+export const MessageEvent = new EventEmitter<IDatabasePayload<MessageDocument>>();
 
 // Delete Messages if associated Group is deleted.
-OnGroupConsumed.async(async (payload) => {
+GroupEvent.async(async (payload) => {
   const group = payload.fullDocument;
 
   if (payload.operationType === 'delete') {
@@ -21,7 +21,7 @@ OnGroupConsumed.async(async (payload) => {
 });
 
 // Delete Messages if associated User is deleted.
-OnUserConsumed.async(async (payload) => {
+UserEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Message.find({
