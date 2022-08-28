@@ -1,6 +1,12 @@
 import { AuthorizationDocument, UserDocument } from '@tenlastic/mongoose-models';
 import * as koa from 'koa';
 
+export interface Jwt {
+  authorization?: { _id?: string; roles?: string[] };
+  jti?: string;
+  user?: { _id?: string; email?: string; username?: string };
+}
+
 export interface Request extends koa.Request {
   body?: any;
 }
@@ -13,7 +19,7 @@ interface Response {
 export interface State {
   apiKey?: string;
   authorization?: AuthorizationDocument;
-  jwt?: any;
+  jwt?: Jwt;
   user?: UserDocument;
 }
 

@@ -1,5 +1,16 @@
-import { IDatabasePayload, DatabaseOperationType, Authorization } from '@tenlastic/mongoose-models';
-import { filterObject, isJsonValid, MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import {
+  IDatabasePayload,
+  DatabaseOperationType,
+  Authorization,
+  AuthorizationDocument,
+  User,
+} from '@tenlastic/mongoose-models';
+import {
+  filterObject,
+  ICredentials,
+  isJsonValid,
+  MongoosePermissions,
+} from '@tenlastic/mongoose-permissions';
 import nats from '@tenlastic/nats';
 import { JetStreamSubscription } from 'nats';
 import * as mongoose from 'mongoose';
@@ -34,13 +45,23 @@ export async function subscribe(
   const db = Model.db.db.databaseName;
   const subject = `${db}.${coll}`;
 
+  let authorization: AuthorizationDocument;
+  if (auth.apiKey) {
+    authorization = await Authorization.findOne({ apiKey: auth.apiKey });
+  } else if (auth.jwt?.authorization) {
+    authorization = Authorization.hydrate(auth.jwt.authorization);
+  } else if (auth.jwt?.user) {
+    authorization = await Authorization.findOne({
+      namespaceId: { $exists: false },
+      userId: auth.jwt?.user?._id,
+    });
+  }
+  const user = auth.jwt?.user ? User.hydrate(auth.jwt.user) : null;
+
   // Generate group ID for NATS consumer.
-  const authorization = auth.apiKey
-    ? await Authorization.findOne({ apiKey: auth.apiKey })
-    : await Authorization.findOne({ namespaceId: { $exists: false }, userId: auth.jwt?.user?._id });
-  const credentials = { apiKey: auth.apiKey, authorization, user: auth.jwt?.user };
+  const credentials: ICredentials = { apiKey: auth.apiKey, authorization, user };
   const resumeToken = data.parameters.resumeToken || new mongoose.Types.ObjectId();
-  const username = credentials.apiKey || credentials.user?.username;
+  const username = credentials.apiKey || user?.username;
   const durable = `${subject}-${username}-${resumeToken}`.replace(/\./g, '-');
 
   // Create a NATS consumer.
@@ -58,8 +79,6 @@ export async function subscribe(
       const decoding = new TextDecoder().decode(message.data);
       const json = JSON.parse(decoding) as IDatabasePayload<any>;
 
-      console.log(json.operationType);
-
       // Filter by operation type.
       const { parameters } = data;
       if (parameters.operationType && !parameters.operationType.includes(json.operationType)) {
@@ -69,7 +88,6 @@ export async function subscribe(
       // Handle the where clause.
       const where = await Permissions.where(credentials, parameters.where || {});
       if (!isJsonValid(json.fullDocument, where)) {
-        console.log('JSON is invalid.');
         continue;
       }
 

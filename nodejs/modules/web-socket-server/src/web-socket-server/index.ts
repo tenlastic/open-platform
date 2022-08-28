@@ -10,7 +10,12 @@ export class WebSocket extends WS {
 }
 export interface AuthenticationData {
   apiKey?: string;
-  jwt?: any;
+  jwt?: Jwt;
+}
+export interface Jwt {
+  authorization?: { _id?: string; roles?: string[] };
+  jti?: string;
+  user?: { _id?: string; email?: string; username?: string };
 }
 export interface MessageData {
   _id: string;
@@ -112,7 +117,7 @@ export class WebSocketServer {
       // Verify it is a valid JWT.
       auth.jwt = jsonwebtoken.verify(accessToken, this.jwtPublicKey.replace(/\\n/g, '\n'), {
         algorithms: ['RS256'],
-      });
+      }) as Jwt;
     } else {
       auth.apiKey = apiKey;
     }

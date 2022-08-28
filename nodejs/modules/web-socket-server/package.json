@@ -20,6 +20,8 @@
     "prepublishOnly": "../../scripts/build.sh"
   },
   "dependencies": {
+    "@tenlastic/mongoose-models": "0.0.314",
+    "@tenlastic/mongoose-permissions": "0.0.314",
     "@tenlastic/nats": "0.0.314",
     "axios": "0.27.2",
     "jsonwebtoken": "8.5.1",
@@ -27,8 +29,6 @@
     "ws": "7.2.1"
   },
   "devDependencies": {
-    "@tenlastic/mongoose-models": "0.0.314",
-    "@tenlastic/mongoose-permissions": "0.0.314",
     "eslint": "^7.26.0",
     "mocha": "7.1.2",
     "nyc": "15.0.0",
