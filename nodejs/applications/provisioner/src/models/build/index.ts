@@ -67,13 +67,19 @@ export const KubernetesBuild = {
      * =======================
      */
     const apiKey = chance.hash({ length: 64 });
-    await Authorization.create({
-      apiKey,
-      name,
-      namespaceId: build.namespaceId,
-      roles: [AuthorizationRole.BuildsReadWrite],
-      system: true,
-    });
+    try {
+      await Authorization.create({
+        apiKey,
+        name,
+        namespaceId: build.namespaceId,
+        roles: [AuthorizationRole.BuildsReadWrite],
+        system: true,
+      });
+    } catch (e) {
+      if (e.name !== 'UniqueError') {
+        throw e;
+      }
+    }
 
     /**
      * =======================
@@ -97,7 +103,7 @@ export const KubernetesBuild = {
      * SECRET
      * ======================
      */
-    await secretApiV1.createOrReplace('dynamic', {
+    await secretApiV1.createOrRead('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,

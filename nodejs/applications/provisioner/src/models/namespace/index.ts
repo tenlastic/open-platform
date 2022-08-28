@@ -101,13 +101,19 @@ export const KubernetesNamespace = {
      * =======================
      */
     const apiKey = chance.hash({ length: 64 });
-    await Authorization.create({
-      apiKey,
-      name,
-      namespaceId: namespace._id,
-      roles: [AuthorizationRole.NamespacesReadWrite],
-      system: true,
-    });
+    try {
+      await Authorization.create({
+        apiKey,
+        name,
+        namespaceId: namespace._id,
+        roles: [AuthorizationRole.NamespacesReadWrite],
+        system: true,
+      });
+    } catch (e) {
+      if (e.name !== 'UniqueError') {
+        throw e;
+      }
+    }
 
     /**
      * ========================
@@ -233,7 +239,7 @@ export const KubernetesNamespace = {
      * SECRET
      * ======================
      */
-    await secretApiV1.createOrReplace('dynamic', {
+    await secretApiV1.createOrRead('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,

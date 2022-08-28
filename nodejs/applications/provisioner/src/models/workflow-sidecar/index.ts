@@ -47,13 +47,19 @@ export const KubernetesWorkflowSidecar = {
      * =======================
      */
     const apiKey = chance.hash({ length: 64 });
-    await Authorization.create({
-      apiKey,
-      name,
-      namespaceId: workflow.namespaceId,
-      roles: [AuthorizationRole.WorkflowsReadWrite],
-      system: true,
-    });
+    try {
+      await Authorization.create({
+        apiKey,
+        name,
+        namespaceId: workflow.namespaceId,
+        roles: [AuthorizationRole.WorkflowsReadWrite],
+        system: true,
+      });
+    } catch (e) {
+      if (e.name !== 'UniqueError') {
+        throw e;
+      }
+    }
 
     /**
      * ======================
@@ -61,7 +67,7 @@ export const KubernetesWorkflowSidecar = {
      * ======================
      */
     const { _id, namespaceId } = workflow;
-    await secretApiV1.createOrReplace('dynamic', {
+    await secretApiV1.createOrRead('dynamic', {
       metadata: {
         labels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' },
         name,

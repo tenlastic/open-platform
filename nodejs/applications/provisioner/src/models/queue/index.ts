@@ -78,13 +78,19 @@ export const KubernetesQueue = {
      * =======================
      */
     const apiKey = chance.hash({ length: 64 });
-    await Authorization.create({
-      apiKey,
-      name,
-      namespaceId: queue.namespaceId,
-      roles: [AuthorizationRole.GameServersReadWrite, AuthorizationRole.QueuesReadWrite],
-      system: true,
-    });
+    try {
+      await Authorization.create({
+        apiKey,
+        name,
+        namespaceId: queue.namespaceId,
+        roles: [AuthorizationRole.GameServersReadWrite, AuthorizationRole.QueuesReadWrite],
+        system: true,
+      });
+    } catch (e) {
+      if (e.name !== 'UniqueError') {
+        throw e;
+      }
+    }
 
     /**
      * =======================
@@ -170,7 +176,7 @@ export const KubernetesQueue = {
      */
     const array = Array(queue.replicas).fill(0);
     const sentinels = array.map((a, i) => `${name}-redis-node-${i}.${name}-redis-headless:26379`);
-    await secretApiV1.createOrReplace('dynamic', {
+    await secretApiV1.createOrRead('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,

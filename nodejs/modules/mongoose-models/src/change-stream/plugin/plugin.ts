@@ -32,7 +32,7 @@ export function changeStreamPlugin<T extends mongoose.Document>(
 ) {
   schema.pre(
     'findOneAndUpdate',
-    async function (this: mongoose.Query<mongoose.Document, mongoose.Document>) {
+    function (this: mongoose.Query<mongoose.Document, mongoose.Document>) {
       this.setOptions({ ...this.getOptions(), new: true });
     },
   );
@@ -68,7 +68,7 @@ export function changeStreamPlugin<T extends mongoose.Document>(
 
   schema.post(
     'findOneAndUpdate',
-    async function (this: mongoose.Query<mongoose.Document, mongoose.Document>, document: T) {
+    function (this: mongoose.Query<mongoose.Document, mongoose.Document>, document: T) {
       if (!document) {
         return;
       }

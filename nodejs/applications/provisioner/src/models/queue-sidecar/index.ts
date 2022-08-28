@@ -47,20 +47,26 @@ export const KubernetesQueueSidecar = {
      * =======================
      */
     const apiKey = chance.hash({ length: 64 });
-    await Authorization.create({
-      apiKey,
-      name,
-      namespaceId: queue.namespaceId,
-      roles: [AuthorizationRole.QueuesReadWrite],
-      system: true,
-    });
+    try {
+      await Authorization.create({
+        apiKey,
+        name,
+        namespaceId: queue.namespaceId,
+        roles: [AuthorizationRole.QueuesReadWrite],
+        system: true,
+      });
+    } catch (e) {
+      if (e.name !== 'UniqueError') {
+        throw e;
+      }
+    }
 
     /**
      * ======================
      * SECRET
      * ======================
      */
-    await secretApiV1.createOrReplace('dynamic', {
+    await secretApiV1.createOrRead('dynamic', {
       metadata: {
         labels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' },
         name,
