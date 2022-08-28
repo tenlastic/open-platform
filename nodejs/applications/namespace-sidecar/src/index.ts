@@ -1,49 +1,22 @@
-import { AuthorizationModel, NamespaceModel } from '@tenlastic/http';
+import * as mongooseModels from '@tenlastic/mongoose-models';
 import { WebServer } from '@tenlastic/web-server';
-
-import dependencies from './dependencies';
 
 import { status } from './status';
 
-const namespace = JSON.parse(process.env.NAMESPACE_JSON);
-const wssUrl = process.env.WSS_URL;
-
 (async () => {
   try {
-    // Add initial Namespace data.
-    await dependencies.namespaceService.findOne(namespace._id);
+    // MongoDB.
+    await mongooseModels.connect({
+      connectionString: process.env.MONGO_CONNECTION_STRING,
+      databaseName: process.env.MONGO_DATABASE_NAME,
+    });
+
+    console.log('Syncing indexes...');
+    await mongooseModels.syncIndexes();
+    console.log('Indexes synced successfully.');
 
     // Background Tasks.
     await status();
-
-    // Web Socket.
-    await dependencies.streamService.connect(wssUrl);
-
-    // Watch for updates to Authorizations.
-    await dependencies.streamService.subscribe(
-      AuthorizationModel,
-      {
-        collection: 'authorizations',
-        resumeToken: `namespace-${namespace._id}-sidecar`,
-        where: { namespaceId: namespace._id },
-      },
-      dependencies.authorizationService,
-      dependencies.authorizationStore,
-      wssUrl,
-    );
-
-    // Watch for updates to the Namespace.
-    await dependencies.streamService.subscribe(
-      NamespaceModel,
-      {
-        collection: 'namespaces',
-        resumeToken: `namespace-${namespace._id}-sidecar`,
-        where: { _id: namespace._id },
-      },
-      dependencies.namespaceService,
-      dependencies.namespaceStore,
-      wssUrl,
-    );
 
     // Web Server.
     const webServer = new WebServer();

@@ -73,9 +73,10 @@ export const KubernetesNamespaceSidecar = {
         API_KEY: apiKey,
         API_URL: 'http://api.static:3000',
         JWK_URL: 'http://api.static:3000/public-keys/jwks',
+        MONGO_CONNECTION_STRING: process.env.MONGO_CONNECTION_STRING,
+        MONGO_DATABASE_NAME: namespaceName,
         NAMESPACE_JSON: JSON.stringify(namespace),
         NAMESPACE_POD_LABEL_SELECTOR: `tenlastic.com/app=${namespaceName}`,
-        WSS_URL: 'ws://wss.static:3000',
       },
     });
 
