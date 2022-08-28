@@ -6,12 +6,7 @@ import { IDatabasePayload, changeStreamPlugin } from './plugin';
 
 export const ExampleEvent = new EventEmitter<IDatabasePayload<ExampleDocument>>();
 
-@modelOptions({
-  schemaOptions: {
-    collection: 'examples',
-    timestamps: true,
-  },
-})
+@modelOptions({ schemaOptions: { collection: 'examples', timestamps: true } })
 @plugin(changeStreamPlugin, {
   documentKeys: ['_id'],
   eventEmitter: ExampleEvent,

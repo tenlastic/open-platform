@@ -1,8 +1,3 @@
-/**
- * Typed Event Emitter
- * Source: https://basarat.gitbooks.io/typescript/docs/tips/typed-event.html
- */
-
 export type AsyncListener<T> = (event: T) => Promise<any>;
 export type SyncListener<T> = (event: T) => void;
 
@@ -24,11 +19,6 @@ export class EventEmitter<T> {
     }
   };
 
-  public async = (listener: AsyncListener<T>) => {
-    this.listeners.push({ async: true, listener });
-  };
-
-  public sync = (listener: SyncListener<T>) => {
-    this.listeners.push({ async: false, listener });
-  };
+  public async = (listener: AsyncListener<T>) => this.listeners.push({ async: true, listener });
+  public sync = (listener: SyncListener<T>) => this.listeners.push({ async: false, listener });
 }
