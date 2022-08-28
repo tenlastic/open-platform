@@ -252,6 +252,8 @@ export const KubernetesNamespace = {
         MONGO_CONNECTION_STRING: process.env.MONGO_CONNECTION_STRING,
         MONGO_DATABASE_NAME: name,
         NATS_CONNECTION_STRING: process.env.NATS_CONNECTION_STRING,
+        REDIS_CONNECTION_STRING: process.env.REDIS_CONNECTION_STRING,
+        REDIS_PASSWORD: process.env.REDIS_PASSWORD,
       },
     });
 

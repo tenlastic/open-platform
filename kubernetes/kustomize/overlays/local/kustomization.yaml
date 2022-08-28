@@ -38,6 +38,7 @@ patchesStrategicMerge:
   - ./static/nodejs/provisioner.yaml
   - ./static/nodejs/wss.yaml
   - ./static/prometheus/prometheus.yaml
+  - ./static/redis/redis.yaml
 resources:
   - ./cluster/cluster-role-bindings/docker-for-desktop-binding.yaml
   - ./dynamic/secrets/docker-registry.secret.example.yaml
@@ -55,4 +56,5 @@ resources:
   - ./static/nodejs/e2e.secret.example.yaml
   - ./static/nodejs/environment-variables.secret.example.yaml
   - ./static/nodejs/migrations.yaml
+  - ./static/redis/redis.secret.example.yaml
   - ./static/verdaccio/verdaccio.secret.example.yaml

@@ -1,0 +1,13 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  labels:
+    release: redis
+  name: redis
+  namespace: static
+spec:
+  values:
+    replica:
+      replicaCount: 1
+    sentinal:
+      quorum: 1

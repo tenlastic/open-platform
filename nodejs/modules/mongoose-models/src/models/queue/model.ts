@@ -14,7 +14,7 @@ import * as mongoose from 'mongoose';
 import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import { enumValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
-import { Namespace, NamespaceDocument, NamespaceLimitError } from '../namespace';
+import { NamespaceDocument } from '../namespace';
 import { GameServerTemplateSchema } from './game-server-template';
 import {
   QueueStatusComponent,
@@ -40,12 +40,6 @@ export const OnQueueProduced = new EventEmitter<IDatabasePayload<QueueDocument>>
     new QueueStatusComponent({
       current: 0,
       name: QueueStatusComponentName.Application,
-      phase: QueueStatusPhase.Pending,
-      total: this.replicas,
-    }),
-    new QueueStatusComponent({
-      current: 0,
-      name: QueueStatusComponentName.Redis,
       phase: QueueStatusPhase.Pending,
       total: this.replicas,
     }),

@@ -1,0 +1,74 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  annotations:
+    fluxcd.io/automated: "true"
+  name: redis
+  namespace: static
+spec:
+  chart:
+    git: https://github.com/tenlastic/open-platform
+    path: kubernetes/helm/redis/
+    ref: master
+    skipDepUpdate: true
+  releaseName: redis
+  values:
+    auth:
+      existingSecret: redis
+      existingSecretPasswordKey: password
+    master:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - redis
+                topologyKey: kubernetes.io/hostname
+    replica:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - redis
+                topologyKey: kubernetes.io/hostname
+      persistence:
+        storageClass: standard-expandable
+      podLabels:
+        release: redis
+      replicaCount: 3
+      resources:
+        requests:
+          cpu: 50m
+          memory: 250Mi
+    sentinel:
+      downAfterMilliseconds: 10000
+      enabled: true
+      quorum: 2
+      resources:
+        requests:
+          cpu: 50m
+          memory: 50Mi
+      staticID: true

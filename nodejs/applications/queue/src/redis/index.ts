@@ -4,18 +4,18 @@ import dependencies from '../dependencies';
 
 const podName = process.env.POD_NAME;
 const queue = JSON.parse(process.env.QUEUE_JSON);
-const redisSentinelPassword = process.env.REDIS_SENTINEL_PASSWORD;
-const sentinels = process.env.SENTINELS.split(',');
+const redisConnectionString = process.env.REDIS_CONNECTION_STRING.split(',');
+const redisPassword = process.env.REDIS_PASSWORD;
 
 export async function start() {
   // Connect to Sentinel.
   const client = new Redis({
     name: 'mymaster',
-    password: redisSentinelPassword,
+    password: redisPassword,
     retryStrategy: (times) => Math.min(times * 1000, 5000),
-    sentinelPassword: redisSentinelPassword,
-    sentinels: sentinels.map((s) => {
-      const [host, port] = s.split(':');
+    sentinelPassword: redisPassword,
+    sentinels: redisConnectionString.map((rcs) => {
+      const [host, port] = rcs.split(':');
       return { host, port: Number(port) };
     }),
   });

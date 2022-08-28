@@ -162,9 +162,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     return queue.status?.nodes
       .map((n) => {
         let displayName = 'Queue';
-        if (n._id.includes('redis')) {
-          displayName = 'Redis';
-        } else if (n._id.includes('sidecar')) {
+        if (n._id.includes('sidecar')) {
           displayName = 'Sidecar';
         }
 

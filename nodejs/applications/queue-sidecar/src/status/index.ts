@@ -76,9 +76,7 @@ async function updateQueue() {
       }
 
       let component: IQueue.StatusComponent;
-      if (current._id.includes('redis')) {
-        component = previous.find((p) => p.name === 'redis');
-      } else if (current._id.includes('sidecar')) {
+      if (current._id.includes('sidecar')) {
         component = previous.find((p) => p.name === 'sidecar');
       } else {
         component = previous.find((p) => p.name === 'application');
@@ -94,7 +92,6 @@ async function updateQueue() {
     },
     [
       { current: 0, name: 'application', phase: 'Pending', total: replicas },
-      { current: 0, name: 'redis', phase: 'Pending', total: replicas },
       { current: 0, name: 'sidecar', phase: 'Pending', total: 1 },
     ],
   );

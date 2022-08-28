@@ -40,5 +40,6 @@ resources:
   - ./static/nodejs/provisioner.yaml
   - ./static/nodejs/wss.yaml
   - ./static/prometheus/prometheus.yaml
+  - ./static/redis/redis.yaml
   - ./static/sealed-secrets/sealed-secrets.yaml
   - ./static/verdaccio/verdaccio.yaml

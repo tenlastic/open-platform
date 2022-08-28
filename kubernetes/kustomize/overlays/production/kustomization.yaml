@@ -32,4 +32,5 @@ resources:
   - ./static/nats/nats.sealedsecret.yaml
   - ./static/nodejs/e2e.sealedsecret.yaml
   - ./static/nodejs/environment-variables.sealedsecret.yaml
+  - ./static/redis/redis.sealedsecret.yaml
   - ./static/verdaccio/verdaccio.sealedsecret.yaml

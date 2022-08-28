@@ -110,72 +110,10 @@ export const KubernetesQueue = {
     });
 
     /**
-     * ========================
-     * REDIS
-     * ========================
-     */
-    const resources = {
-      limits: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },
-      requests: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },
-    };
-
-    const redisSecret = await secretApiV1.createOrRead('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'redis' },
-        name: `${name}-redis`,
-      },
-      stringData: { password: chance.hash({ length: 128 }) },
-    });
-    const redisPassword = Buffer.from(redisSecret.body.data.password, 'base64');
-
-    await helmReleaseApiV1.delete(`${name}-redis`, 'dynamic');
-    await helmReleaseApiV1.create('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'redis' },
-        name: `${name}-redis`,
-      },
-      spec: {
-        chart: {
-          git: 'https://github.com/tenlastic/open-platform',
-          path: 'kubernetes/helm/redis/',
-          ref: 'master',
-          skipDepUpdate: true,
-        },
-        releaseName: `${name}-redis`,
-        values: {
-          auth: {
-            existingSecret: `${name}-redis`,
-            existingSecretPasswordKey: 'password',
-          },
-          replica: {
-            affinity: getAffinity(queue, 'redis'),
-            persistence: { storageClass: 'standard-expandable' },
-            podLabels: { ...labels, 'tenlastic.com/role': 'redis' },
-            replicaCount: queue.replicas,
-            resources,
-            statefulset: { labels: { ...labels, 'tenlastic.com/role': 'redis' } },
-          },
-          sentinel: {
-            downAfterMilliseconds: 10000,
-            enabled: true,
-            quorum: Math.floor(queue.replicas / 2 + 1),
-            resources: {
-              limits: { cpu: '50m', memory: '50M' },
-              requests: { cpu: '50m', memory: '50M' },
-            },
-            staticID: true,
-          },
-        },
-      },
-    });
-
-    /**
      * ======================
      * SECRET
      * ======================
      */
-    const array = Array(queue.replicas).fill(0);
-    const sentinels = array.map((a, i) => `${name}-redis-node-${i}.${name}-redis-headless:26379`);
     await secretApiV1.createOrRead('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'application' },
@@ -185,8 +123,8 @@ export const KubernetesQueue = {
         API_KEY: apiKey,
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         QUEUE_JSON: JSON.stringify(queue),
-        REDIS_SENTINEL_PASSWORD: `${redisPassword}`,
-        SENTINELS: sentinels.join(','),
+        REDIS_CONNECTION_STRING: process.env.REDIS_CONNECTION_STRING,
+        REDIS_PASSWORD: process.env.REDIS_PASSWORD,
         WSS_URL: 'ws://wss.static:3000',
       },
     });
@@ -207,6 +145,10 @@ export const KubernetesQueue = {
       httpGet: { path: `/`, port: 3000 as any },
       initialDelaySeconds: 5,
       periodSeconds: 5,
+    };
+    const resources = {
+      limits: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },
+      requests: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },
     };
 
     const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');

@@ -35,7 +35,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public builds: BuildModel[];
   public components = {
     application: 'Application',
-    redis: 'Redis',
     sidecar: 'Sidecar',
   };
   public get cpus() {

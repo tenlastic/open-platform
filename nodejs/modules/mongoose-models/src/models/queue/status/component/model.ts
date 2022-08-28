@@ -10,7 +10,6 @@ import { QueueStatusPhase } from '../model';
 
 export enum QueueStatusComponentName {
   Application = 'application',
-  Redis = 'redis',
   Sidecar = 'sidecar',
 }
 
