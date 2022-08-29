@@ -1,13 +1,18 @@
 import { V1Affinity, V1EnvFromSource, V1Pod, V1Probe } from '@kubernetes/client-node';
 import {
+  BaseListQuery,
   deploymentApiV1,
+  helmReleaseApiV1,
   ingressApiV1,
   networkPolicyApiV1,
+  persistentVolumeClaimApiV1,
+  podApiV1,
   roleBindingApiV1,
   secretApiV1,
   serviceAccountApiV1,
   serviceApiV1,
   statefulSetApiV1,
+  workflowApiV1,
 } from '@tenlastic/kubernetes';
 import { Authorization, AuthorizationRole, NamespaceDocument } from '@tenlastic/mongoose-models';
 import * as mongoose from 'mongoose';
@@ -28,57 +33,22 @@ export const KubernetesNamespace = {
 
     /**
      * =======================
-     * INGRESS
+     * RESOURCES
      * =======================
      */
-    await ingressApiV1.delete(name, 'dynamic');
-
-    /**
-     * =======================
-     * NETWORK POLICY
-     * =======================
-     */
-    await networkPolicyApiV1.delete(name, 'dynamic');
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    await roleBindingApiV1.delete(`${name}-api`, 'dynamic');
-    await serviceAccountApiV1.delete(`${name}-api`, 'dynamic');
-    await roleBindingApiV1.delete(`${name}-provisioner`, 'dynamic');
-    await serviceAccountApiV1.delete(`${name}-provisioner`, 'dynamic');
-
-    /**
-     * =======================
-     * SECRET
-     * =======================
-     */
-    await secretApiV1.delete(name, 'dynamic');
-
-    /**
-     * ======================
-     * API
-     * ======================
-     */
-    await deploymentApiV1.delete(`${name}-api`, 'dynamic');
-    await serviceApiV1.delete(`${name}-api`, 'dynamic');
-
-    /**
-     * ======================
-     * PROVISIONER
-     * ======================
-     */
-    await deploymentApiV1.delete(`${name}-provisioner`, 'dynamic');
-
-    /**
-     * ======================
-     * WSS
-     * ======================
-     */
-    await serviceApiV1.delete(`${name}-wss`, 'dynamic');
-    await statefulSetApiV1.delete(`${name}-wss`, 'dynamic');
+    const query: BaseListQuery = { labelSelector: `tenlastic.com/namespaceId=${namespace._id}` };
+    await deploymentApiV1.deleteCollection('dynamic', query);
+    await helmReleaseApiV1.deleteCollection('dynamic', query);
+    await ingressApiV1.deleteCollection('dynamic', query);
+    await networkPolicyApiV1.deleteCollection('dynamic', query);
+    await persistentVolumeClaimApiV1.deleteCollection('dynamic', query);
+    await podApiV1.deleteCollection('dynamic', query);
+    await roleBindingApiV1.deleteCollection('dynamic', query);
+    await secretApiV1.deleteCollection('dynamic', query);
+    await serviceApiV1.deleteCollection('dynamic', query);
+    await serviceAccountApiV1.deleteCollection('dynamic', query);
+    await statefulSetApiV1.deleteCollection('dynamic', query);
+    await workflowApiV1.deleteCollection('dynamic', query);
   },
   getLabels: (namespace: NamespaceDocument) => {
     const name = KubernetesNamespace.getName(namespace._id);

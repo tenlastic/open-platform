@@ -133,7 +133,7 @@
   <app-button *ngIf="form.get('files').value.length === 0 || !referenceBuild || status"
               [color]="form.get('files').value.length && !status ? 'accent' : 'primary'"
               [disabled]="status"
-              (OnClick)="selectFilesInput.click()">
+              (OnClick)="selectDirectoryInput.click()">
     <mat-spinner *ngIf="status"
                  [diameter]="20"></mat-spinner>
     <span>{{ status ? status : 'Select Directory from Computer' }}</span>

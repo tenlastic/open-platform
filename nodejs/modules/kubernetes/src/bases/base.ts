@@ -12,7 +12,6 @@ export interface BaseBody {
 export interface BaseListQuery {
   fieldSelector?: string;
   labelSelector?: string;
-  limit?: number;
 }
 
 export interface BaseListResponse<T> {
@@ -74,6 +73,19 @@ export abstract class BaseApiV1<T extends BaseBody> {
     } catch {}
   }
 
+  public async deleteCollection(namespace: string, query: BaseListQuery): Promise<BaseResponse<T>> {
+    const method = `deleteCollectionNamespaced${this.singular}`;
+    return this.api[method](
+      namespace,
+      undefined,
+      undefined,
+      undefined,
+      query.fieldSelector,
+      undefined,
+      query.labelSelector,
+    );
+  }
+
   public list(namespace: string, query: BaseListQuery): Promise<BaseResponse<BaseListResponse<T>>> {
     const method = `listNamespaced${this.singular}`;
     return this.api[method](
@@ -83,7 +95,6 @@ export abstract class BaseApiV1<T extends BaseBody> {
       undefined,
       query.fieldSelector,
       query.labelSelector,
-      query.limit,
     );
   }
 
