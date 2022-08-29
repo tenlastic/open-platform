@@ -71,7 +71,7 @@ spec:
           image: tenlastic/provisioner:0.0.314
           envFrom:
             - secretRef:
-                name: nodejs-environment-variables
+                name: nodejs
           livenessProbe:
             httpGet:
               path: /

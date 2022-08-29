@@ -42,10 +42,12 @@ spec:
             storage: 10Gi
         storageClassName: balanced-expandable
   volumes:
-    - name: cd-ssh-keys
+    - name: continuous-deployment
       secret:
-        secretName: cd-ssh-keys
-        defaultMode: 0600
+        secretName: continuous-deployment
+        items:
+          - key: GITHUB_PRIVATE_KEY
+            path: id_rsa
   templates:
     - name: entrypoint
       inputs:
@@ -95,7 +97,7 @@ spec:
           # Add Host Key for Github.
           mkdir -p /root/.ssh/
           ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
-          cp /tmp/secrets/cd-ssh-keys/id_rsa /root/.ssh/id_rsa
+          cp /tmp/secrets/continuous-deployment/id_rsa /root/.ssh/id_rsa
 
           # Use SSH instead of HTTPS.
           git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
@@ -108,8 +110,8 @@ spec:
           git reset --hard {{inputs.parameters.revision}}
         imagePullPolicy: IfNotPresent
         volumeMounts:
-          - name: cd-ssh-keys
-            mountPath: /tmp/secrets/cd-ssh-keys/
+          - name: continuous-deployment
+            mountPath: /tmp/secrets/continuous-deployment/
             readonly: true
           - name: workspace
             mountPath: /workspace/
@@ -155,7 +157,7 @@ spec:
           - /workspace/open-platform/argo/scripts/terraform.sh
         envFrom:
           - secretRef:
-              name: cd-environment-variables
+              name: continuous-deployment
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace

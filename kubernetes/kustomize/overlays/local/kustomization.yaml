@@ -54,7 +54,7 @@ resources:
   - ./static/mongodb/mongodb-gui.secret.example.yaml
   - ./static/nats/nats.secret.example.yaml
   - ./static/nodejs/e2e.secret.example.yaml
-  - ./static/nodejs/environment-variables.secret.example.yaml
   - ./static/nodejs/migrations.yaml
+  - ./static/nodejs/nodejs.secret.example.yaml
   - ./static/redis/redis.secret.example.yaml
   - ./static/verdaccio/verdaccio.secret.example.yaml

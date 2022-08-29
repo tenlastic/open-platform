@@ -16,9 +16,8 @@ resources:
   - ./static/cert-manager/cert-manager-credentials.sealedsecret.yaml
   - ./static/cert-manager/cert-manager.yaml
   - ./static/cert-manager/letsencrypt-production.clusterissuer.yaml
-  - ./static/ci-cd/cd-environment-variables.sealedsecret.yaml
-  - ./static/ci-cd/cd-ssh-keys.sealedsecret.yaml
-  - ./static/ci-cd/ci-environment-variables.sealedsecret.yaml
+  - ./static/continuous-deployment/continuous-deployment.sealedsecret.yaml
+  - ./static/continuous-integration/continuous-integration.sealedsecret.yaml
   - ./static/docker-registry/docker-registry-image-pull-secret.sealedsecret.yaml
   - ./static/docker-registry/docker-registry.sealedsecret.yaml
   - ./static/flux/flux.yaml
@@ -31,6 +30,6 @@ resources:
   - ./static/mongodb/mongodb-gui.sealedsecret.yaml
   - ./static/nats/nats.sealedsecret.yaml
   - ./static/nodejs/e2e.sealedsecret.yaml
-  - ./static/nodejs/environment-variables.sealedsecret.yaml
+  - ./static/nodejs/nodejs.sealedsecret.yaml
   - ./static/redis/redis.sealedsecret.yaml
   - ./static/verdaccio/verdaccio.sealedsecret.yaml

@@ -44,7 +44,7 @@ spec:
           image: tenlastic/api:0.0.314
           envFrom:
             - secretRef:
-                name: nodejs-environment-variables
+                name: nodejs
           livenessProbe:
             httpGet:
               path: /namespaces

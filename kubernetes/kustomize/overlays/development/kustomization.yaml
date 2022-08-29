@@ -39,5 +39,5 @@ patches:
       namespace: static
       version: v1
 resources:
-  - ./static/workspace/environment-variables.secret.example.yaml
+  - ./static/workspace/workspace.secret.example.yaml
   - ./static/workspace/workspace.pod.yaml

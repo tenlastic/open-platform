@@ -50,7 +50,7 @@ spec:
                   fieldPath: metadata.name
           envFrom:
             - secretRef:
-                name: nodejs-environment-variables
+                name: nodejs
           livenessProbe:
             httpGet:
               path: /

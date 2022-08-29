@@ -29,7 +29,7 @@
       "envFrom": [
         {
           "secretRef": {
-            "name": "nodejs-environment-variables"
+            "name": "nodejs"
           }
         }
       ],

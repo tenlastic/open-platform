@@ -24,7 +24,7 @@ spec:
           image: tenlastic/migrations:latest
           envFrom:
             - secretRef:
-                name: nodejs-environment-variables
+                name: nodejs
           resources:
             requests:
               cpu: 50m
