@@ -13,6 +13,7 @@ patchesStrategicMerge:
   - ./static/ingress-nginx/ingress-nginx.yaml
 resources:
   - ./dynamic/secrets/docker-registry.sealedsecret.yaml
+  - ./dynamic/secrets/nodejs.sealedsecret.yaml
   - ./static/cert-manager/cert-manager-credentials.sealedsecret.yaml
   - ./static/cert-manager/cert-manager.yaml
   - ./static/cert-manager/letsencrypt-production.clusterissuer.yaml

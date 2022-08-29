@@ -5,6 +5,7 @@ import {
   secretApiV1,
   statefulSetApiV1,
   V1Affinity,
+  V1EnvFromSource,
   V1PodTemplateSpec,
   V1Probe,
 } from '@tenlastic/kubernetes';
@@ -123,8 +124,6 @@ export const KubernetesQueue = {
         API_KEY: apiKey,
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         QUEUE_JSON: JSON.stringify(queue),
-        REDIS_CONNECTION_STRING: process.env.REDIS_CONNECTION_STRING,
-        REDIS_PASSWORD: process.env.REDIS_PASSWORD,
         WSS_URL: 'ws://wss.static:3000',
       },
     });
@@ -134,6 +133,11 @@ export const KubernetesQueue = {
      * STATEFUL SET
      * ======================
      */
+    const envFrom: V1EnvFromSource[] = [
+      { secretRef: { name: 'nodejs' } },
+      { secretRef: { name: namespaceName } },
+      { secretRef: { name } },
+    ];
     const livenessProbe: V1Probe = {
       failureThreshold: 3,
       httpGet: { path: `/`, port: 3000 as any },
@@ -165,7 +169,7 @@ export const KubernetesQueue = {
             {
               command: ['npm', 'run', 'start'],
               env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
-              envFrom: [{ secretRef: { name } }],
+              envFrom,
               image: `node:14`,
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
               name: 'main',
@@ -193,7 +197,7 @@ export const KubernetesQueue = {
           containers: [
             {
               env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
-              envFrom: [{ secretRef: { name } }],
+              envFrom,
               image: `tenlastic/queue:${version}`,
               livenessProbe,
               name: 'main',

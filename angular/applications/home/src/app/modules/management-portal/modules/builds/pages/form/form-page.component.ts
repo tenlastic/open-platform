@@ -12,7 +12,6 @@ import {
   BuildService,
   IAuthorization,
 } from '@tenlastic/http';
-import { Axios } from 'axios';
 import JSZip from 'jszip';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -67,7 +66,6 @@ export class BuildsFormPageComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
-    private axios: Axios,
     private buildQuery: BuildQuery,
     private buildService: BuildService,
     private changeDetectorRef: ChangeDetectorRef,

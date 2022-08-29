@@ -1,4 +1,10 @@
-import { networkPolicyApiV1, secretApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
+import {
+  networkPolicyApiV1,
+  secretApiV1,
+  V1EnvFromSource,
+  V1Workflow,
+  workflowApiV1,
+} from '@tenlastic/kubernetes';
 import {
   Authorization,
   AuthorizationRole,
@@ -112,8 +118,6 @@ export const KubernetesBuild = {
         API_KEY: apiKey,
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         BUILD_ID: `${build._id}`,
-        MINIO_BUCKET: process.env.MINIO_BUCKET,
-        MINIO_CONNECTION_STRING: process.env.MINIO_CONNECTION_STRING,
         NAMESPACE_ID: `${build.namespaceId}`,
       },
     });
@@ -139,6 +143,11 @@ export const KubernetesBuild = {
         },
       },
     };
+    const envFrom: V1EnvFromSource[] = [
+      { secretRef: { name: 'nodejs' } },
+      { secretRef: { name: namespaceName } },
+      { secretRef: { name } },
+    ];
     const podLabels = {
       ...labels,
       'tenlastic.com/nodeId': `{{pod.name}}`,
@@ -184,7 +193,7 @@ export const KubernetesBuild = {
             {
               container: {
                 command: ['npm', 'run', 'start'],
-                envFrom: [{ secretRef: { name } }],
+                envFrom,
                 image: 'node:14',
                 resources: { requests: { cpu: '100m', memory: '100M' } },
                 volumeMounts: [{ mountPath: '/usr/src/', name: 'host' }],
@@ -229,7 +238,7 @@ export const KubernetesBuild = {
               container: {
                 args: ['node', './dist/index.js'],
                 command: ['/sbin/tini --', '--'],
-                envFrom: [{ secretRef: { name } }],
+                envFrom,
                 image: `tenlastic/build:${version}`,
                 resources: { requests: { cpu: '100m', memory: '100M' } },
                 volumeMounts: [],

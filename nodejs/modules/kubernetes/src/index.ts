@@ -1,6 +1,7 @@
 export {
   V1Affinity,
   V1ConfigMap,
+  V1EnvFromSource,
   V1EnvVar,
   V1Pod,
   V1PodTemplateSpec,

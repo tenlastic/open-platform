@@ -8,6 +8,8 @@ import {
   serviceApiV1,
   statefulSetApiV1,
   V1Affinity,
+  V1EnvFromSource,
+  V1Pod,
   V1Probe,
 } from '@tenlastic/kubernetes';
 import { Authorization, AuthorizationRole, NamespaceDocument } from '@tenlastic/mongoose-models';
@@ -245,15 +247,8 @@ export const KubernetesNamespace = {
         name,
       },
       stringData: {
-        DOCKER_REGISTRY_URL: process.env.DOCKER_REGISTRY_URL,
-        JWK_URL: 'http://api.static:3000/public-keys/jwks',
         MINIO_BUCKET: name,
-        MINIO_CONNECTION_STRING: process.env.MINIO_CONNECTION_STRING,
-        MONGO_CONNECTION_STRING: process.env.MONGO_CONNECTION_STRING,
         MONGO_DATABASE_NAME: name,
-        NATS_CONNECTION_STRING: process.env.NATS_CONNECTION_STRING,
-        REDIS_CONNECTION_STRING: process.env.REDIS_CONNECTION_STRING,
-        REDIS_PASSWORD: process.env.REDIS_PASSWORD,
       },
     });
 
@@ -376,10 +371,11 @@ function getPath(namespace: NamespaceDocument, path: string) {
   };
 }
 
-function getPodTemplate(namespace: NamespaceDocument, role: string) {
+function getPodTemplate(namespace: NamespaceDocument, role: string): V1Pod {
   const labels = KubernetesNamespace.getLabels(namespace);
   const name = KubernetesNamespace.getName(namespace._id);
 
+  const envFrom: V1EnvFromSource[] = [{ secretRef: { name: 'nodejs' } }, { secretRef: { name } }];
   const livenessProbe: V1Probe = {
     failureThreshold: 3,
     httpGet: { path: `/`, port: 3000 as any },
@@ -407,7 +403,7 @@ function getPodTemplate(namespace: NamespaceDocument, role: string) {
           {
             command: ['npm', 'run', 'start'],
             env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
-            envFrom: [{ secretRef: { name } }],
+            envFrom,
             image: `node:14`,
             livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
             name: 'main',
@@ -436,7 +432,7 @@ function getPodTemplate(namespace: NamespaceDocument, role: string) {
         containers: [
           {
             env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
-            envFrom: [{ secretRef: { name } }],
+            envFrom,
             image: `tenlastic/api:${version}`,
             livenessProbe,
             name: 'main',

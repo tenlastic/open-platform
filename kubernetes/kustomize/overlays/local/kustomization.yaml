@@ -42,6 +42,7 @@ patchesStrategicMerge:
 resources:
   - ./cluster/cluster-role-bindings/docker-for-desktop-binding.yaml
   - ./dynamic/secrets/docker-registry.secret.example.yaml
+  - ./dynamic/secrets/nodejs.secret.example.yaml
   - ./kube-system/metrics-server/metrics-server.yaml
   - ./static/docker-registry/docker-registry-image-pull-secret.secret.example.yaml
   - ./static/docker-registry/docker-registry.secret.example.yaml

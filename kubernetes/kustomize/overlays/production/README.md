@@ -33,6 +33,7 @@ export SEALED_SECRETS_CONTROLLER_NAMESPACE="static"
 
 kubeseal -o yaml < ./default/argo/argo-ci.secret.yaml > ./default/argo/argo-ci.sealedsecret.yaml
 kubeseal -o yaml < ./dynamic/secrets/docker-registry.secret.yaml > ./dynamic/secrets/docker-registry.sealedsecret.yaml
+kubeseal -o yaml < ./dynamic/secrets/nodejs.secret.yaml > ./dynamic/secrets/nodejs.sealedsecret.yaml
 kubeseal -o yaml < ./static/cert-manager/cert-manager-credentials.secret.yaml > ./static/cert-manager/cert-manager-credentials.sealedsecret.yaml
 kubeseal -o yaml < ./static/continuous-deployment/continuous-deployment.secret.yaml > ./static/continuous-deployment/continuous-deployment.sealedsecret.yaml
 kubeseal -o yaml < ./static/continuous-integration/continuous-integration.secret.yaml > ./static/continuous-integration/continuous-integration.sealedsecret.yaml

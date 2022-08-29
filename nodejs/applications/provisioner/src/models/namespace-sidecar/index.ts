@@ -1,4 +1,10 @@
-import { deploymentApiV1, secretApiV1, V1PodTemplateSpec, V1Probe } from '@tenlastic/kubernetes';
+import {
+  deploymentApiV1,
+  secretApiV1,
+  V1EnvFromSource,
+  V1PodTemplateSpec,
+  V1Probe,
+} from '@tenlastic/kubernetes';
 import { Authorization, AuthorizationRole, NamespaceDocument } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 
@@ -72,8 +78,6 @@ export const KubernetesNamespaceSidecar = {
       stringData: {
         API_KEY: apiKey,
         API_URL: 'http://api.static:3000',
-        JWK_URL: 'http://api.static:3000/public-keys/jwks',
-        MONGO_CONNECTION_STRING: process.env.MONGO_CONNECTION_STRING,
         MONGO_DATABASE_NAME: namespaceName,
         NAMESPACE_JSON: JSON.stringify(namespace),
         NAMESPACE_POD_LABEL_SELECTOR: `tenlastic.com/app=${namespaceName}`,
@@ -101,6 +105,11 @@ export const KubernetesNamespaceSidecar = {
         },
       },
     };
+    const envFrom: V1EnvFromSource[] = [
+      { secretRef: { name: 'nodejs' } },
+      { secretRef: { name: namespaceName } },
+      { secretRef: { name } },
+    ];
     const livenessProbe: V1Probe = {
       failureThreshold: 3,
       httpGet: { path: `/`, port: 3000 as any },
@@ -122,7 +131,7 @@ export const KubernetesNamespaceSidecar = {
           containers: [
             {
               command: ['npm', 'run', 'start'],
-              envFrom: [{ secretRef: { name } }],
+              envFrom,
               image: 'node:14',
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
               name: 'namespace-sidecar',
@@ -149,7 +158,7 @@ export const KubernetesNamespaceSidecar = {
           affinity,
           containers: [
             {
-              envFrom: [{ secretRef: { name } }],
+              envFrom,
               image: `tenlastic/namespace-sidecar:${version}`,
               livenessProbe,
               name: 'namespace-sidecar',
