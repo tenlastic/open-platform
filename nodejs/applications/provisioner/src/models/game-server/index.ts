@@ -1,10 +1,5 @@
-import {
-  deploymentApiV1,
-  networkPolicyApiV1,
-  podApiV1,
-  serviceApiV1,
-  V1PodTemplateSpec,
-} from '@tenlastic/kubernetes';
+import { V1PodTemplateSpec } from '@kubernetes/client-node';
+import { deploymentApiV1, networkPolicyApiV1, podApiV1, serviceApiV1 } from '@tenlastic/kubernetes';
 import { GameServerDocument } from '@tenlastic/mongoose-models';
 import { URL } from 'url';
 

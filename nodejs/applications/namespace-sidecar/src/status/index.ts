@@ -1,5 +1,6 @@
+import { V1Pod } from '@kubernetes/client-node';
 import { INamespace, NamespaceModel } from '@tenlastic/http';
-import { podApiV1, V1Pod } from '@tenlastic/kubernetes';
+import { podApiV1 } from '@tenlastic/kubernetes';
 
 import dependencies from '../dependencies';
 

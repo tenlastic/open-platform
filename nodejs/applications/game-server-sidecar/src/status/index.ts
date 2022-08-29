@@ -1,5 +1,6 @@
+import { V1Pod } from '@kubernetes/client-node';
 import { GameServerModel } from '@tenlastic/http';
-import { nodeApiV1, podApiV1, V1Pod } from '@tenlastic/kubernetes';
+import { nodeApiV1, podApiV1 } from '@tenlastic/kubernetes';
 
 import dependencies from '../dependencies';
 

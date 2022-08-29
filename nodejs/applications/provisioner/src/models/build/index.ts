@@ -1,10 +1,5 @@
-import {
-  networkPolicyApiV1,
-  secretApiV1,
-  V1EnvFromSource,
-  V1Workflow,
-  workflowApiV1,
-} from '@tenlastic/kubernetes';
+import { V1EnvFromSource } from '@kubernetes/client-node';
+import { networkPolicyApiV1, secretApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
 import {
   Authorization,
   AuthorizationRole,

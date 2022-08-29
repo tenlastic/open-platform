@@ -1,3 +1,4 @@
+import { V1Affinity, V1EnvFromSource, V1Pod, V1Probe } from '@kubernetes/client-node';
 import {
   deploymentApiV1,
   ingressApiV1,
@@ -7,10 +8,6 @@ import {
   serviceAccountApiV1,
   serviceApiV1,
   statefulSetApiV1,
-  V1Affinity,
-  V1EnvFromSource,
-  V1Pod,
-  V1Probe,
 } from '@tenlastic/kubernetes';
 import { Authorization, AuthorizationRole, NamespaceDocument } from '@tenlastic/mongoose-models';
 import * as mongoose from 'mongoose';

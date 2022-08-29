@@ -1,13 +1,10 @@
+import { V1Affinity, V1EnvFromSource, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
 import {
   helmReleaseApiV1,
   networkPolicyApiV1,
   persistentVolumeClaimApiV1,
   secretApiV1,
   statefulSetApiV1,
-  V1Affinity,
-  V1EnvFromSource,
-  V1PodTemplateSpec,
-  V1Probe,
 } from '@tenlastic/kubernetes';
 import { Authorization, AuthorizationRole, QueueDocument } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';

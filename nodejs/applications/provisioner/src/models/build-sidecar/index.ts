@@ -1,4 +1,5 @@
-import { deploymentApiV1, secretApiV1, V1PodTemplateSpec, V1Probe } from '@tenlastic/kubernetes';
+import { V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
+import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 import { Authorization, AuthorizationRole, BuildDocument } from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 
