@@ -62,7 +62,9 @@ export class LoginSchema {
     }
 
     // Remove unauthorized fields from the Authorization and User.
-    const filteredAuthorization = { _id: authorization._id, roles: authorization.roles };
+    const filteredAuthorization = authorization
+      ? { _id: authorization._id, roles: authorization.roles }
+      : null;
     const filteredUser = { _id: user._id, email: user.email, username: user.username };
 
     const options = { algorithm: 'RS256', expiresIn: '14d', jwtid: token._id.toString() };

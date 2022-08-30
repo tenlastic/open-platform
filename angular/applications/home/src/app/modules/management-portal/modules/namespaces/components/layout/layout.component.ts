@@ -33,7 +33,7 @@ import {
   WorkflowService,
   WorkflowStore,
 } from '@tenlastic/http';
-import { combineLatest, Observable } from 'rxjs';
+import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
@@ -65,6 +65,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public $storefront: Observable<StorefrontModel>;
   public IAuthorization = IAuthorization;
 
+  private subscribe$ = new Subscription();
   private params: Params;
   private get streamServiceUrl() {
     return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
@@ -110,19 +111,28 @@ export class LayoutComponent implements OnDestroy, OnInit {
         .selectAll({ filterBy: (s) => s.namespaceId === params.namespaceId })
         .pipe(map((s) => s[0]));
 
+      this.subscribe$ = this.$namespace.subscribe(async (namespace) => {
+        if (this.subscriptions.length > 0) {
+          return;
+        }
+
+        if (namespace?.status?.phase === 'Running') {
+          await this.streamService.connect(this.streamServiceUrl);
+          this.subscriptions = await this.subscribe();
+        }
+      });
+
       await Promise.all([
         this.authorizationService.findUserAuthorizations(params.namespaceId, null),
         this.namespaceService.findOne(params.namespaceId),
         this.storefrontService.find(params.namespaceId, { limit: 1 }),
       ]);
-
-      await this.streamService.connect(this.streamServiceUrl);
-      await this.subscribe();
     });
   }
 
   public ngOnDestroy() {
     this.streamService.close(this.streamServiceUrl);
+    this.subscribe$.unsubscribe();
   }
 
   public $hasPermission(roles: IAuthorization.Role[]) {
@@ -135,7 +145,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
 
   private async subscribe() {
-    this.subscriptions = await Promise.all([
+    return Promise.all([
       this.streamService.subscribe(
         AuthorizationModel,
         { collection: 'authorizations' },

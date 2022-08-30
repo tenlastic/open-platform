@@ -14,7 +14,13 @@ import {
   statefulSetApiV1,
   workflowApiV1,
 } from '@tenlastic/kubernetes';
-import { Authorization, AuthorizationRole, NamespaceDocument } from '@tenlastic/mongoose-models';
+import * as minio from '@tenlastic/minio';
+import {
+  Authorization,
+  AuthorizationRole,
+  createConnection,
+  NamespaceDocument,
+} from '@tenlastic/mongoose-models';
 import * as mongoose from 'mongoose';
 import * as Chance from 'chance';
 
@@ -30,6 +36,34 @@ export const KubernetesNamespace = {
      * =======================
      */
     await Authorization.findOneAndDelete({ name, namespaceId: namespace._id });
+
+    /**
+     * =======================
+     * MINIO
+     * =======================
+     */
+    await minio.removeBucket(name);
+
+    /**
+     * =======================
+     * MONGODB
+     * =======================
+     */
+    await new Promise<void>((resolve, reject) => {
+      const connection = createConnection({
+        connectionString: process.env.MONGO_CONNECTION_STRING,
+        databaseName: name,
+      });
+      connection.on('error', async (err) => {
+        await connection.close();
+        return reject(err);
+      });
+      connection.on('open', async function () {
+        await connection.dropDatabase();
+        await connection.close();
+        return resolve();
+      });
+    });
 
     /**
      * =======================

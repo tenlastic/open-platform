@@ -31,7 +31,7 @@ export async function subscribe<TDocument extends mongoose.Document>(
       message.ack();
     } catch (e) {
       console.error(e);
-      message.nak(15 * 1000);
+      message.nak();
     }
   }
 }

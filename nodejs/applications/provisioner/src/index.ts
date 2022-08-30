@@ -1,10 +1,12 @@
 import 'source-map-support/register';
 
 import '@tenlastic/logging';
+import * as minio from '@tenlastic/minio';
 import * as mongooseChangeStreamNats from '@tenlastic/mongoose-change-stream-nats';
 import * as mongooseModels from '@tenlastic/mongoose-models';
 import nats from '@tenlastic/nats';
 import { WebServer } from '@tenlastic/web-server';
+import { URL } from 'url';
 
 import * as events from './events';
 
@@ -14,6 +16,17 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 
 (async () => {
   try {
+    // Minio.
+    const minioConnectionUrl = new URL(process.env.MINIO_CONNECTION_STRING);
+    minio.connect({
+      accessKey: minioConnectionUrl.username,
+      endPoint: minioConnectionUrl.hostname,
+      port: Number(minioConnectionUrl.port || '443'),
+      secretKey: minioConnectionUrl.password,
+      useSSL: minioConnectionUrl.protocol === 'https:',
+    });
+    await minio.makeBucket(process.env.MINIO_BUCKET);
+
     // MongoDB.
     await mongooseModels.connect({
       connectionString: mongoConnectionString,
