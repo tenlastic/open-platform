@@ -1,4 +1,5 @@
 import { CollectionModel, NamespaceModel, RecordModel } from '@tenlastic/http';
+import wait from '@tenlastic/wait';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
@@ -14,12 +15,20 @@ describe('/nodejs/namespace/collections', function () {
   let namespace: NamespaceModel;
   let record: RecordModel;
 
-  before(async function () {
-    namespace = await dependencies.namespaceService.create({ name: chance.hash() });
-  });
-
   after(async function () {
     await dependencies.namespaceService.delete(namespace._id);
+  });
+
+  step('creates a Namespace', async function () {
+    namespace = await dependencies.namespaceService.create({ name: chance.hash() });
+    expect(namespace).to.exist;
+  });
+
+  step('runs the Namespace successfully', async function () {
+    await wait(10 * 1000, 180 * 1000, async () => {
+      namespace = await dependencies.namespaceService.findOne(namespace._id);
+      return namespace.status?.phase === 'Running';
+    });
   });
 
   step('creates a Collection', async function () {

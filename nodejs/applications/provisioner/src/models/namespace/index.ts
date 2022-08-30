@@ -15,27 +15,12 @@ import {
   workflowApiV1,
 } from '@tenlastic/kubernetes';
 import * as minio from '@tenlastic/minio';
-import {
-  Authorization,
-  AuthorizationRole,
-  createConnection,
-  NamespaceDocument,
-} from '@tenlastic/mongoose-models';
+import { createConnection, NamespaceDocument } from '@tenlastic/mongoose-models';
 import * as mongoose from 'mongoose';
-import * as Chance from 'chance';
-
-const chance = new Chance();
 
 export const KubernetesNamespace = {
   delete: async (namespace: NamespaceDocument) => {
     const name = KubernetesNamespace.getName(namespace._id);
-
-    /**
-     * =======================
-     * AUTHORIZATION
-     * =======================
-     */
-    await Authorization.findOneAndDelete({ name, namespaceId: namespace._id });
 
     /**
      * =======================
@@ -97,26 +82,6 @@ export const KubernetesNamespace = {
   upsert: async (namespace: NamespaceDocument) => {
     const labels = KubernetesNamespace.getLabels(namespace);
     const name = KubernetesNamespace.getName(namespace._id);
-
-    /**
-     * =======================
-     * AUTHORIZATION
-     * =======================
-     */
-    const apiKey = chance.hash({ length: 64 });
-    try {
-      await Authorization.create({
-        apiKey,
-        name,
-        namespaceId: namespace._id,
-        roles: [AuthorizationRole.NamespacesReadWrite],
-        system: true,
-      });
-    } catch (e) {
-      if (e.name !== 'UniqueError') {
-        throw e;
-      }
-    }
 
     /**
      * ========================
@@ -242,7 +207,7 @@ export const KubernetesNamespace = {
      * SECRET
      * ======================
      */
-    await secretApiV1.createOrRead('dynamic', {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,

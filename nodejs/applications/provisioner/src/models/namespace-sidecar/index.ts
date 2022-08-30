@@ -1,6 +1,11 @@
 import { V1EnvFromSource, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
-import { Authorization, AuthorizationRole, NamespaceDocument } from '@tenlastic/mongoose-models';
+import {
+  Authorization,
+  AuthorizationDocument,
+  AuthorizationRole,
+  NamespaceDocument,
+} from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 
 import { KubernetesNamespace } from '../namespace';
@@ -16,7 +21,10 @@ export const KubernetesNamespaceSidecar = {
      * AUTHORIZATION
      * =======================
      */
-    await Authorization.findOneAndDelete({ name, namespaceId: namespace._id });
+    const authorization = await Authorization.findOne({ name, namespaceId: namespace._id });
+    if (authorization) {
+      await authorization.remove();
+    }
 
     /**
      * ======================
@@ -45,10 +53,10 @@ export const KubernetesNamespaceSidecar = {
      * AUTHORIZATION
      * =======================
      */
-    const apiKey = chance.hash({ length: 64 });
+    let authorization: AuthorizationDocument;
     try {
-      await Authorization.create({
-        apiKey,
+      authorization = await Authorization.create({
+        apiKey: chance.hash({ length: 64 }),
         name,
         namespaceId: namespace._id,
         roles: [AuthorizationRole.NamespacesReadWrite],
@@ -58,6 +66,8 @@ export const KubernetesNamespaceSidecar = {
       if (e.name !== 'UniqueError') {
         throw e;
       }
+
+      authorization = await Authorization.findOne({ name, namespaceId: namespace._id });
     }
 
     /**
@@ -65,13 +75,13 @@ export const KubernetesNamespaceSidecar = {
      * SECRET
      * ======================
      */
-    await secretApiV1.createOrRead('dynamic', {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...namespaceLabels, 'tenlastic.com/role': 'sidecar' },
         name,
       },
       stringData: {
-        API_KEY: apiKey,
+        API_KEY: authorization.apiKey,
         API_URL: 'http://api.static:3000',
         MONGO_DATABASE_NAME: namespaceName,
         NAMESPACE_JSON: JSON.stringify(namespace),

@@ -18,7 +18,7 @@ export async function subscribe<TDocument extends mongoose.Document>(
   const subscription = await nats.subscribe(durable, subject, {
     ack_policy: AckPolicy.Explicit,
     ack_wait: 60 * 1000 * 1000 * 1000,
-    max_deliver: 1,
+    max_deliver: 3,
   });
   console.log(`Subscribed to ${subject} with group ${durable}.`);
 

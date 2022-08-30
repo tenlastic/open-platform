@@ -19,12 +19,20 @@ describe('/nodejs/namespace/builds', function () {
   let dockerfile: string;
   let namespace: NamespaceModel;
 
-  before(async function () {
-    namespace = await dependencies.namespaceService.create({ name: chance.hash() });
-  });
-
   after(async function () {
     await dependencies.namespaceService.delete(namespace._id);
+  });
+
+  step('creates a Namespace', async function () {
+    namespace = await dependencies.namespaceService.create({ name: chance.hash() });
+    expect(namespace).to.exist;
+  });
+
+  step('runs the Namespace successfully', async function () {
+    await wait(10 * 1000, 180 * 1000, async () => {
+      namespace = await dependencies.namespaceService.findOne(namespace._id);
+      return namespace.status?.phase === 'Running';
+    });
   });
 
   step('creates a Build', async function () {
@@ -59,7 +67,7 @@ describe('/nodejs/namespace/builds', function () {
   });
 
   step('finishes the Build successfully', async function () {
-    const phase = await wait(1000, 180* 1000, async () => {
+    const phase = await wait(1000, 180 * 1000, async () => {
       build = await dependencies.buildService.findOne(namespace._id, build._id);
       return build.status?.finishedAt ? build.status.phase : null;
     });

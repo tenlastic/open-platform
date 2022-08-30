@@ -71,6 +71,15 @@ describe('/angular/namespace/workflows', () => {
     expect(title).to.equal('Edit Namespace | Tenlastic');
   });
 
+  step('runs the Namespace successfully', async function () {
+    const criteria = [
+      `.//input[@ng-reflect-value='Running']`,
+      `.//mat-label[contains(., 'Phase')]`,
+    ];
+
+    await page.waitForXPath(`//mat-form-field[${criteria.join(' and ')}]`, { timeout: 30 * 1000 });
+  });
+
   step('navigates to the Workflows page', async function () {
     const button = await helpers.getButtonByText(page, 'Workflows');
     await helpers.click(button, page);

@@ -2,6 +2,7 @@ import { V1EnvFromSource } from '@kubernetes/client-node';
 import { networkPolicyApiV1, secretApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
 import {
   Authorization,
+  AuthorizationDocument,
   AuthorizationRole,
   BuildDocument,
   DatabaseOperationType,
@@ -21,7 +22,10 @@ export const KubernetesBuild = {
      * AUTHORIZATION
      * =======================
      */
-    await Authorization.findOneAndDelete({ name, namespaceId: build.namespaceId });
+    const authorization = await Authorization.findOne({ name, namespaceId: build.namespaceId });
+    if (authorization) {
+      await authorization.remove();
+    }
 
     /**
      * =======================
@@ -67,10 +71,10 @@ export const KubernetesBuild = {
      * AUTHORIZATION
      * =======================
      */
-    const apiKey = chance.hash({ length: 64 });
+    let authorization: AuthorizationDocument;
     try {
-      await Authorization.create({
-        apiKey,
+      authorization = await Authorization.create({
+        apiKey: chance.hash({ length: 64 }),
         name,
         namespaceId: build.namespaceId,
         roles: [AuthorizationRole.BuildsReadWrite],
@@ -80,6 +84,8 @@ export const KubernetesBuild = {
       if (e.name !== 'UniqueError') {
         throw e;
       }
+
+      authorization = await Authorization.findOne({ name, namespaceId: build.namespaceId });
     }
 
     /**
@@ -104,13 +110,13 @@ export const KubernetesBuild = {
      * SECRET
      * ======================
      */
-    await secretApiV1.createOrRead('dynamic', {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,
       },
       stringData: {
-        API_KEY: apiKey,
+        API_KEY: authorization.apiKey,
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         BUILD_ID: `${build._id}`,
         NAMESPACE_ID: `${build.namespaceId}`,

@@ -6,7 +6,12 @@ import {
   secretApiV1,
   statefulSetApiV1,
 } from '@tenlastic/kubernetes';
-import { Authorization, AuthorizationRole, QueueDocument } from '@tenlastic/mongoose-models';
+import {
+  Authorization,
+  AuthorizationDocument,
+  AuthorizationRole,
+  QueueDocument,
+} from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 
 import { KubernetesNamespace } from '../namespace';
@@ -22,7 +27,10 @@ export const KubernetesQueue = {
      * AUTHORIZATION
      * =======================
      */
-    await Authorization.findOneAndDelete({ name, namespaceId: queue.namespaceId });
+    const authorization = await Authorization.findOne({ name, namespaceId: queue.namespaceId });
+    if (authorization) {
+      await authorization.remove();
+    }
 
     /**
      * =======================
@@ -75,10 +83,10 @@ export const KubernetesQueue = {
      * AUTHORIZATION
      * =======================
      */
-    const apiKey = chance.hash({ length: 64 });
+    let authorization: AuthorizationDocument;
     try {
-      await Authorization.create({
-        apiKey,
+      authorization = await Authorization.create({
+        apiKey: chance.hash({ length: 64 }),
         name,
         namespaceId: queue.namespaceId,
         roles: [AuthorizationRole.GameServersReadWrite, AuthorizationRole.QueuesReadWrite],
@@ -88,6 +96,8 @@ export const KubernetesQueue = {
       if (e.name !== 'UniqueError') {
         throw e;
       }
+
+      authorization = await Authorization.findOne({ name, namespaceId: queue.namespaceId });
     }
 
     /**
@@ -112,13 +122,13 @@ export const KubernetesQueue = {
      * SECRET
      * ======================
      */
-    await secretApiV1.createOrRead('dynamic', {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'application' },
         name,
       },
       stringData: {
-        API_KEY: apiKey,
+        API_KEY: authorization.apiKey,
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         QUEUE_JSON: JSON.stringify(queue),
         WSS_URL: 'ws://wss.static:3000',

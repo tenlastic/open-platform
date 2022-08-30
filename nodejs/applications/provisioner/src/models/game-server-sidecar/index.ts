@@ -1,6 +1,11 @@
-import { V1Affinity, V1EnvFromSource, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
+import { V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
-import { Authorization, AuthorizationRole, GameServerDocument } from '@tenlastic/mongoose-models';
+import {
+  Authorization,
+  AuthorizationDocument,
+  AuthorizationRole,
+  GameServerDocument,
+} from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 
 import { KubernetesGameServer } from '../game-server';
@@ -17,7 +22,13 @@ export const KubernetesGameServerSidecar = {
      * AUTHORIZATION
      * =======================
      */
-    await Authorization.findOneAndDelete({ name, namespaceId: gameServer.namespaceId });
+    const authorization = await Authorization.findOne({
+      name,
+      namespaceId: gameServer.namespaceId,
+    });
+    if (authorization) {
+      await authorization.remove();
+    }
 
     /**
      * ======================
@@ -47,10 +58,10 @@ export const KubernetesGameServerSidecar = {
      * AUTHORIZATION
      * =======================
      */
-    const apiKey = chance.hash({ length: 64 });
+    let authorization: AuthorizationDocument;
     try {
-      await Authorization.create({
-        apiKey,
+      authorization = await Authorization.create({
+        apiKey: chance.hash({ length: 64 }),
         name,
         namespaceId: gameServer.namespaceId,
         roles: [AuthorizationRole.GameServersReadWrite],
@@ -60,6 +71,8 @@ export const KubernetesGameServerSidecar = {
       if (e.name !== 'UniqueError') {
         throw e;
       }
+
+      authorization = await Authorization.findOne({ name, namespaceId: gameServer.namespaceId });
     }
 
     /**
@@ -67,13 +80,13 @@ export const KubernetesGameServerSidecar = {
      * SECRET
      * ======================
      */
-    await secretApiV1.createOrRead('dynamic', {
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },
         name,
       },
       stringData: {
-        API_KEY: apiKey,
+        API_KEY: authorization.apiKey,
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         GAME_SERVER_CONTAINER: 'main',
         GAME_SERVER_JSON: JSON.stringify(gameServer),

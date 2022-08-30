@@ -1,6 +1,11 @@
 import { V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
-import { Authorization, AuthorizationRole, BuildDocument } from '@tenlastic/mongoose-models';
+import {
+  Authorization,
+  AuthorizationDocument,
+  AuthorizationRole,
+  BuildDocument,
+} from '@tenlastic/mongoose-models';
 import * as Chance from 'chance';
 
 import { KubernetesBuild } from '../build';
@@ -17,7 +22,10 @@ export const KubernetesBuildSidecar = {
      * AUTHORIZATION
      * =======================
      */
-    await Authorization.findOneAndDelete({ name, namespaceId: build.namespaceId });
+    const authorization = await Authorization.findOne({ name, namespaceId: build.namespaceId });
+    if (authorization) {
+      await authorization.remove();
+    }
 
     /**
      * ======================
@@ -47,10 +55,10 @@ export const KubernetesBuildSidecar = {
      * AUTHORIZATION
      * =======================
      */
-    const apiKey = chance.hash({ length: 64 });
+    let authorization: AuthorizationDocument;
     try {
-      await Authorization.create({
-        apiKey,
+      authorization = await Authorization.create({
+        apiKey: chance.hash({ length: 64 }),
         name,
         namespaceId: build.namespaceId,
         roles: [AuthorizationRole.BuildsReadWrite],
@@ -60,6 +68,8 @@ export const KubernetesBuildSidecar = {
       if (e.name !== 'UniqueError') {
         throw e;
       }
+
+      authorization = await Authorization.findOne({ name, namespaceId: build.namespaceId });
     }
 
     /**
@@ -68,14 +78,15 @@ export const KubernetesBuildSidecar = {
      * ======================
      */
     const { _id, namespaceId } = build;
-    await secretApiV1.createOrRead('dynamic', {
+    const host = `${namespaceName}-api.dynamic:3000`;
+    await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...buildLabels, 'tenlastic.com/role': 'sidecar' },
         name,
       },
       stringData: {
-        API_KEY: apiKey,
-        WORKFLOW_ENDPOINT: `http://${namespaceName}-api.dynamic:3000/namespaces/${namespaceId}/builds/${_id}`,
+        API_KEY: authorization.apiKey,
+        WORKFLOW_ENDPOINT: `http://${host}/namespaces/${namespaceId}/builds/${_id}`,
         WORKFLOW_NAME: buildName,
       },
     });

@@ -21,12 +21,20 @@ describe('/nodejs/namespace/queues', function () {
   let queue: QueueModel;
   let namespace: NamespaceModel;
 
-  before(async function () {
-    namespace = await dependencies.namespaceService.create({ name: chance.hash() });
-  });
-
   after(async function () {
     await dependencies.namespaceService.delete(namespace._id);
+  });
+
+  step('creates a Namespace', async function () {
+    namespace = await dependencies.namespaceService.create({ name: chance.hash() });
+    expect(namespace).to.exist;
+  });
+
+  step('runs the Namespace successfully', async function () {
+    await wait(10 * 1000, 180 * 1000, async () => {
+      namespace = await dependencies.namespaceService.findOne(namespace._id);
+      return namespace.status?.phase === 'Running';
+    });
   });
 
   step('creates a Build', async function () {
