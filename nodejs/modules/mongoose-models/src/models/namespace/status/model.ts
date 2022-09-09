@@ -7,6 +7,7 @@ import {
 } from '@typegoose/typegoose';
 
 import { NamespaceStatusComponentSchema } from './component';
+import { NamespaceStatusLimitSchema } from './limit';
 import { NamespaceStatusNodeSchema } from './node';
 
 export enum NamespaceStatusPhase {
@@ -21,6 +22,9 @@ export enum NamespaceStatusPhase {
 export class NamespaceStatusSchema {
   @prop({ type: NamespaceStatusComponentSchema })
   public components: NamespaceStatusComponentSchema[];
+
+  @prop({ type: NamespaceStatusLimitSchema })
+  public limits: NamespaceStatusLimitSchema[];
 
   @prop({ type: NamespaceStatusNodeSchema })
   public nodes: NamespaceStatusNodeSchema[];

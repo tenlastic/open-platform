@@ -15,6 +15,7 @@ resources:
   - ./dynamic/rbac/delete-dynamic-corrupted-pods.yaml
   - ./dynamic/rbac/game-server-sidecar.yaml
   - ./dynamic/rbac/kubernetes-dashboard.yaml
+  - ./dynamic/rbac/namespace-sidecar.yaml
   - ./dynamic/rbac/provisioner.yaml
   - ./dynamic/rbac/queue-sidecar.yaml
   - ./dynamic/rbac/workflow.yaml

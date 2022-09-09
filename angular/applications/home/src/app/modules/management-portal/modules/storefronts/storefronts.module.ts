@@ -16,13 +16,13 @@ export const ROUTES: Routes = [
       {
         component: StorefrontsFormPageComponent,
         data: { param: 'storefrontId', title: 'Storefront' },
-        path: ':storefrontId',
+        path: '',
         title: FormResolver,
       },
       {
         component: StorefrontsJsonPageComponent,
         data: { param: 'storefrontId', title: 'Storefront' },
-        path: ':storefrontId/json',
+        path: 'json',
         title: FormResolver,
       },
     ],

@@ -9,14 +9,18 @@ import { handler as findOneHandler } from './find-one';
 import { handler as updateHandler } from './update';
 import { handler as uploadHandler } from './upload';
 
-export const router = new Router({ prefix: '/namespaces/:namespaceId/storefronts' });
+export const router = new Router();
 
-router.delete('/:_id', deleteHandler);
-router.get('/', findHandler);
-router.get('/count', countHandler);
-router.get('/:_id', findOneHandler);
-router.get('/:storefrontId/:field', downloadHandler);
-router.get('/:storefrontId/:field/:_id', downloadHandler);
-router.post('/', createHandler);
-router.post('/:_id/:field', uploadHandler);
-router.put('/:_id', updateHandler);
+router.get('/storefronts', findHandler);
+router.get('/storefronts/count', countHandler);
+router.get('/storefronts/:_id', findOneHandler);
+
+router.delete('/namespaces/:namespaceId/storefronts/:_id', deleteHandler);
+router.get('/namespaces/:namespaceId/storefronts', findHandler);
+router.get('/namespaces/:namespaceId/storefronts/count', countHandler);
+router.get('/namespaces/:namespaceId/storefronts/:_id', findOneHandler);
+router.get('/namespaces/:namespaceId/storefronts/:storefrontId/:field', downloadHandler);
+router.get('/namespaces/:namespaceId/storefronts/:storefrontId/:field/:_id', downloadHandler);
+router.post('/namespaces/:namespaceId/storefronts', createHandler);
+router.post('/namespaces/:namespaceId/storefronts/:_id/:field', uploadHandler);
+router.put('/namespaces/:namespaceId/storefronts/:_id', updateHandler);

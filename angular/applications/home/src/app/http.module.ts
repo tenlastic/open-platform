@@ -145,7 +145,7 @@ const queries: Provider[] = [
   {
     deps: [GroupStore, UserQuery],
     provide: GroupQuery,
-    useFactory: (store: GroupStore, userQuery: UserQuery) => new GroupQuery(store, userQuery),
+    useFactory: (store: GroupStore) => new GroupQuery(store),
   },
   {
     deps: [IgnorationStore, UserQuery],

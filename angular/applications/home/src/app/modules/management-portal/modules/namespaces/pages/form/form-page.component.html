@@ -33,86 +33,19 @@
 
     <app-toggle-section title="Limits"
                         formArrayName="limits">
-      <div class="row"
-           formGroupName="builds">
+      <div class="row">
         <mat-form-field floatLabel="always">
-          <mat-label>Total Builds</mat-label>
+          <mat-label>{{ limits['bandwidth'] }}</mat-label>
           <input matInput
                  required
-                 formControlName="count"
+                 formControlName="bandwidth"
                  step="1"
                  type="number" />
           <mat-error>Enter a valid value.</mat-error>
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Maximum Build Size (B)</mat-label>
-          <input matInput
-                 required
-                 formControlName="size"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-      </div>
-
-      <div class="row"
-           formGroupName="storefronts">
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Storefronts</mat-label>
-          <input matInput
-                 required
-                 formControlName="count"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Public Storefronts</mat-label>
-          <input matInput
-                 required
-                 formControlName="public"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Maximum Images Per Storefront</mat-label>
-          <input matInput
-                 required
-                 formControlName="images"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Maximum Videos Per Storefront</mat-label>
-          <input matInput
-                 required
-                 formControlName="videos"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Maximum Storefront Image / Video Size (B)</mat-label>
-          <input matInput
-                 required
-                 formControlName="size"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-      </div>
-
-      <div class="row"
-           formGroupName="gameServers">
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Game Server CPU</mat-label>
+          <mat-label>{{ limits['cpu'] }}</mat-label>
           <input matInput
                  required
                  formControlName="cpu"
@@ -122,7 +55,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Total Game Server Memory (B)</mat-label>
+          <mat-label>{{ limits['memory'] }}</mat-label>
           <input matInput
                  required
                  formControlName="memory"
@@ -132,48 +65,12 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Only Preemptible Game Servers</mat-label>
-          <input *ngIf="form.get('limits').get('gameServers').get('preemptible').disabled"
+          <mat-label>{{ limits['preemptible'] }}</mat-label>
+          <input *ngIf="form.get('limits').get('preemptible').disabled"
                  disabled
                  matInput
-                 [value]="form.get('limits').get('gameServers').get('preemptible').value ? 'Yes' : 'No'" />
-          <mat-select *ngIf="!form.get('limits').get('gameServers').get('preemptible').disabled"
-                      formControlName="preemptible">
-            <mat-option [value]="true">Yes</mat-option>
-            <mat-option [value]="false">No</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <div class="row"
-           formGroupName="queues">
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Queue CPU</mat-label>
-          <input matInput
-                 required
-                 formControlName="cpu"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Queue Memory (B)</mat-label>
-          <input matInput
-                 required
-                 formControlName="memory"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Only Preemptible Queues</mat-label>
-          <input *ngIf="form.get('limits').get('queues').get('preemptible').disabled"
-                 disabled
-                 matInput
-                 [value]="form.get('limits').get('queues').get('preemptible').value ? 'Yes' : 'No'" />
-          <mat-select *ngIf="!form.get('limits').get('queues').get('preemptible').disabled"
+                 [value]="form.get('limits').get('preemptible').value ? 'Yes' : 'No'" />
+          <mat-select *ngIf="!form.get('limits').get('preemptible').disabled"
                       formControlName="preemptible">
             <mat-option [value]="true">Yes</mat-option>
             <mat-option [value]="false">No</mat-option>
@@ -181,73 +78,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Total Queue Replicas</mat-label>
-          <input matInput
-                 required
-                 formControlName="replicas"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-      </div>
-
-      <div class="row"
-           formGroupName="workflows">
-        <mat-form-field floatLabel="always">
-          <mat-label>Parallel Workflows</mat-label>
-          <input matInput
-                 required
-                 formControlName="count"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Maximum CPU Per Workflow</mat-label>
-          <input matInput
-                 required
-                 formControlName="cpu"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Maximum Memory Per Workflow (B)</mat-label>
-          <input matInput
-                 required
-                 formControlName="memory"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Parallel Workflow Tasks</mat-label>
-          <input matInput
-                 required
-                 formControlName="parallelism"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Only Preemptible Workflows</mat-label>
-          <input *ngIf="form.get('limits').get('workflows').get('preemptible').disabled"
-                 disabled
-                 matInput
-                 [value]="form.get('limits').get('workflows').get('preemptible').value ? 'Yes' : 'No'" />
-          <mat-select *ngIf="!form.get('limits').get('workflows').get('preemptible').disabled"
-                      formControlName="preemptible">
-            <mat-option [value]="true">Yes</mat-option>
-            <mat-option [value]="false">No</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Maximum Storage Per Workflow</mat-label>
+          <mat-label>{{ limits['storage'] }}</mat-label>
           <input matInput
                  required
                  formControlName="storage"
@@ -269,6 +100,8 @@
         </mat-form-field>
       </div>
 
+      <h4>Components</h4>
+
       <div class="row">
         <mat-form-field *ngFor="let component of data.status?.components"
                         floatLabel="always">
@@ -278,6 +111,20 @@
                  [value]="component.phase + ' (' + component.current + ' / ' + component.total + ')'" />
         </mat-form-field>
       </div>
+
+      <ng-container *ngIf="data.status?.limits?.length > 0">
+        <h4>Limits</h4>
+
+        <div class="row">
+          <mat-form-field *ngFor="let limit of data.status?.limits"
+                          floatLabel="always">
+            <mat-label>{{ limits[limit.name] }}</mat-label>
+            <input matInput
+                   disabled
+                   [value]="limit.current + ' / ' + limit.total" />
+          </mat-form-field>
+        </div>
+      </ng-container>
     </app-toggle-section>
   </form>
 </div>

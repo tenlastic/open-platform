@@ -32,7 +32,7 @@ export class LoginService {
     const url = this.getUrl();
     const response = await this.apiService.request({ data: parameters, method: 'post', url });
 
-    const { accessToken, refreshToken } = response.data;
+    const { accessToken, refreshToken } = response.data as LoginServiceResponse;
     this.emitter.emit('login', { accessToken, refreshToken });
 
     return { accessToken, refreshToken };
@@ -50,7 +50,7 @@ export class LoginService {
       url: `${url}/refresh-token`,
     });
 
-    const { accessToken, refreshToken } = response.data;
+    const { accessToken, refreshToken } = response.data as LoginServiceResponse;
     this.emitter.emit('refresh', { accessToken, refreshToken });
 
     return { accessToken, refreshToken };

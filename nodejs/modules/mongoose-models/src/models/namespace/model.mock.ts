@@ -1,6 +1,5 @@
 import * as Chance from 'chance';
 
-import { NamespaceLimitsMock } from './limits';
 import { Namespace, NamespaceSchema } from './model';
 
 export class NamespaceMock {
@@ -11,10 +10,7 @@ export class NamespaceMock {
   public static async create(params: Partial<NamespaceSchema> = {}) {
     const chance = new Chance();
 
-    const defaults = {
-      limits: NamespaceLimitsMock.create(),
-      name: chance.hash(),
-    };
+    const defaults = { name: chance.hash() };
 
     return Namespace.create({ ...defaults, ...params });
   }

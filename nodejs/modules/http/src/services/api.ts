@@ -1,38 +1,6 @@
-import {
-  Axios,
-  AxiosDefaults,
-  AxiosError,
-  AxiosRequestConfig,
-  AxiosResponse,
-  AxiosStatic,
-} from 'axios';
+import { Axios, AxiosDefaults, AxiosRequestConfig, AxiosResponse, AxiosStatic } from 'axios';
 
-export class ApiError extends Error {
-  public errors = [];
-  public messages: string[] = [];
-  public method = 'get';
-  public status = 500;
-  public url: string;
-
-  constructor(e: AxiosError) {
-    let errors: any[] = [e.response.data as any];
-    if (typeof e.response?.data === 'string') {
-      errors = JSON.parse(e.response.data).errors;
-    }
-    const messages = errors.map((e) => e.message);
-    const method = e.config.method;
-    const status = e.response?.status;
-    const url = e.config?.url;
-
-    super(`${method.toUpperCase()} to ${url} responded with ${status}: ${messages.join(', ')}`);
-
-    this.errors = errors;
-    this.messages = messages;
-    this.method = method;
-    this.status = status;
-    this.url = url;
-  }
-}
+import { ApiError } from '../errors';
 
 export type RequestMethod = 'delete' | 'get' | 'patch' | 'post' | 'put';
 

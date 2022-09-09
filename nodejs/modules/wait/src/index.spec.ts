@@ -16,8 +16,8 @@ describe('wait()', function () {
   context('when the criteria returns false', function () {
     context('when the duration is longer than the timeout', function () {
       it('throws an error', async function () {
-        const criteria = async () => false;
-        const promise = wait(0, 0, criteria);
+        const criteria = () => new Promise((res) => setTimeout(res, 5));
+        const promise = wait(10, 250, criteria);
 
         return expect(promise).to.be.rejectedWith('Criteria did not resolve within given timeout.');
       });

@@ -17,6 +17,8 @@ import {
   QueueService,
   QueueLogService,
   StreamService,
+  BuildQuery,
+  BuildService,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -35,7 +37,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<QueueModel>;
 
   public dataSource = new MatTableDataSource<QueueModel>();
-  public displayedColumns = ['name', 'description', 'status', 'actions'];
+  public displayedColumns = ['name', 'description', 'build', 'status', 'actions'];
   public hasWriteAuthorization: boolean;
 
   private $queues: Observable<QueueModel[]>;
@@ -44,6 +46,8 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
+    private buildQuery: BuildQuery,
+    private buildService: BuildService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
@@ -69,6 +73,10 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
+  }
+
+  public getBuild(_id: string) {
+    return this.buildQuery.getEntity(_id);
   }
 
   public getStatus(record: QueueModel) {
@@ -142,8 +150,6 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
       filterBy: (gs) => gs.namespaceId === params.namespaceId,
     });
 
-    await this.queueService.find(params.namespaceId, { sort: 'name' });
-
     this.updateDataSource$ = this.$queues.subscribe((queues) => (this.dataSource.data = queues));
 
     this.dataSource.filterPredicate = (data: QueueModel, filter: string) => {
@@ -156,6 +162,11 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+
+    const queues = await this.queueService.find(params.namespaceId, { sort: 'name' });
+    await this.buildService.find(params.namespaceId, {
+      where: { _id: { $in: queues.map((q) => q.gameServerTemplate?.buildId) } },
+    });
   }
 
   private getNodeIds(queue: QueueModel) {

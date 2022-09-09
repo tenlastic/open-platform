@@ -16,21 +16,23 @@ const wssUrl = process.env.WSS_URL;
     // Background Tasks.
     await status();
 
-    // Web Socket.
-    await dependencies.streamService.connect(wssUrl);
+    // Web Sockets.
+    await Promise.all([
+      dependencies.streamService.connect(wssUrl),
 
-    // Watch for updates to the Queue.
-    await dependencies.streamService.subscribe(
-      QueueModel,
-      {
-        collection: 'queues',
-        resumeToken: `queue-${queue._id}-sidecar`,
-        where: { _id: queue._id },
-      },
-      dependencies.queueService,
-      dependencies.queueStore,
-      wssUrl,
-    );
+      // Watch for updates to the Queue.
+      dependencies.streamService.subscribe(
+        QueueModel,
+        {
+          collection: 'queues',
+          resumeToken: `queue-${queue._id}-sidecar`,
+          where: { _id: queue._id },
+        },
+        dependencies.queueService,
+        dependencies.queueStore,
+        wssUrl,
+      ),
+    ]);
 
     // Web Server.
     const webServer = new WebServer();

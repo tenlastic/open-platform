@@ -2,7 +2,13 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { UserQuery, WebSocketModel, WebSocketQuery, WebSocketService } from '@tenlastic/http';
+import {
+  UserQuery,
+  UserService,
+  WebSocketModel,
+  WebSocketQuery,
+  WebSocketService,
+} from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 
 @Component({
@@ -22,6 +28,7 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
 
   constructor(
     private userQuery: UserQuery,
+    private userService: UserService,
     private webSocketQuery: WebSocketQuery,
     private webSocketService: WebSocketService,
   ) {}
@@ -41,8 +48,6 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
   private async fetchWebSockets() {
     this.$webSockets = this.webSocketQuery.selectAll();
 
-    await this.webSocketService.find({ sort: '-createdAt' });
-
     this.updateDataSource$ = this.$webSockets.subscribe(
       (webSockets) => (this.dataSource.data = webSockets),
     );
@@ -57,5 +62,8 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+
+    const webSockets = await this.webSocketService.find({ sort: '-createdAt' });
+    await this.userService.find({ where: { _id: { $in: webSockets.map((ws) => ws.userId) } } });
   }
 }

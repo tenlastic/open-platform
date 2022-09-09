@@ -86,6 +86,7 @@ export const KubernetesNamespaceSidecar = {
         MONGO_DATABASE_NAME: namespaceName,
         NAMESPACE_JSON: JSON.stringify(namespace),
         NAMESPACE_POD_LABEL_SELECTOR: `tenlastic.com/app=${namespaceName}`,
+        WSS_URL: 'ws://wss.static:3000',
       },
     });
 

@@ -6,7 +6,6 @@ import {
   NamespaceLimitError,
   NamespaceLimitsMock,
   NamespaceMock,
-  NamespaceStorefrontLimitsMock,
   StorefrontDocument,
   StorefrontMock,
   UserDocument,
@@ -36,9 +35,7 @@ describe('handlers/storefronts/upload', function () {
 
     beforeEach(async function () {
       namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({
-          storefronts: NamespaceStorefrontLimitsMock.create({ size: 50 * 1000 * 1000 }),
-        }),
+        limits: NamespaceLimitsMock.create({ storage: 50 * 1000 * 1000 }),
       });
       await AuthorizationMock.create({
         namespaceId: namespace._id,
@@ -83,7 +80,7 @@ describe('handlers/storefronts/upload', function () {
     });
 
     it('does not allow large files', async function () {
-      namespace.limits.storefronts.size = 1;
+      namespace.limits.storage = 1;
       namespace.markModified('limits');
       await namespace.save();
 

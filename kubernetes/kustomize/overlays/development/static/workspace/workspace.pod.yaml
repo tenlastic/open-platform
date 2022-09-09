@@ -16,7 +16,7 @@ spec:
         - while true; do sleep 30; done;
       envFrom:
         - secretRef:
-            name: workspace-environment-variables
+            name: workspace
       ports:
         - containerPort: 3000
       volumeMounts:

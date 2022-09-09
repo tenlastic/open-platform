@@ -17,6 +17,8 @@ import {
   IAuthorization,
   GameServerLogService,
   StreamService,
+  BuildQuery,
+  BuildService,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -35,7 +37,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<GameServerModel>;
 
   public dataSource = new MatTableDataSource<GameServerModel>();
-  public displayedColumns = ['name', 'description', 'status', 'createdAt', 'actions'];
+  public displayedColumns = ['name', 'description', 'build', 'status', 'actions'];
   public hasWriteAuthorization: boolean;
   public get queueId() {
     return this.params?.queueId;
@@ -48,6 +50,8 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
+    private buildQuery: BuildQuery,
+    private buildService: BuildService,
     private gameServerLogQuery: GameServerLogQuery,
     private gameServerLogService: GameServerLogService,
     private gameServerLogStore: GameServerLogStore,
@@ -75,6 +79,10 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
+  }
+
+  public getBuild(_id: string) {
+    return this.buildQuery.getEntity(_id);
   }
 
   public async restart($event: Event, record: GameServerModel) {
@@ -144,8 +152,6 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
         gs.namespaceId === params.namespaceId && (!this.queueId || this.queueId === gs.queueId),
     });
 
-    await this.gameServerService.find(params.namespaceId, { sort: 'name' });
-
     this.updateDataSource$ = this.$gameServers.subscribe(
       (gameServers) => (this.dataSource.data = gameServers),
     );
@@ -160,6 +166,11 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+
+    const gameServers = await this.gameServerService.find(params.namespaceId, { sort: 'name' });
+    await this.buildService.find(params.namespaceId, {
+      where: { _id: { $in: gameServers.map((gs) => gs.buildId) } },
+    });
   }
 
   private getNodeIds(gameServer: GameServerModel) {

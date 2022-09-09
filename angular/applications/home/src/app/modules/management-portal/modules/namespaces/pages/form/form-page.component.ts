@@ -29,6 +29,13 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public hasWriteAuthorizationForNamespace: boolean;
+  public limits = {
+    bandwidth: 'Total Bandwidth (B) / Month',
+    cpu: 'Total CPUs',
+    memory: 'Total Memory',
+    preemptible: 'Only Preemptible',
+    storage: 'Total Storage (B)',
+  };
 
   private updateNamespace$ = new Subscription();
 
@@ -93,39 +100,13 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
   private setupForm() {
     this.data = this.data || new NamespaceModel();
 
-    const { limits } = this.data;
     this.form = this.formBuilder.group({
       limits: this.formBuilder.group({
-        builds: this.formBuilder.group({
-          count: [limits?.builds?.count || 0, Validators.required],
-          size: [limits?.builds?.size || 0, Validators.required],
-        }),
-        gameServers: this.formBuilder.group({
-          cpu: [limits?.gameServers?.cpu || 0, Validators.required],
-          memory: [limits?.gameServers?.memory || 0, Validators.required],
-          preemptible: [limits?.gameServers?.preemptible || false, Validators.required],
-        }),
-        queues: this.formBuilder.group({
-          cpu: [limits?.queues?.cpu || 0, Validators.required],
-          memory: [limits?.queues?.memory || 0, Validators.required],
-          preemptible: [limits?.queues?.preemptible || false, Validators.required],
-          replicas: [limits?.queues?.replicas || 0, Validators.required],
-        }),
-        storefronts: this.formBuilder.group({
-          count: [limits?.storefronts?.count || 0, Validators.required],
-          images: [limits?.storefronts?.images || 0, Validators.required],
-          public: [limits?.storefronts?.public || 0, Validators.required],
-          size: [limits?.storefronts?.size || 0, Validators.required],
-          videos: [limits?.storefronts?.videos || 0, Validators.required],
-        }),
-        workflows: this.formBuilder.group({
-          count: [limits?.workflows?.count || 0, Validators.required],
-          cpu: [limits?.workflows?.cpu || 0, Validators.required],
-          memory: [limits?.workflows?.memory || 0, Validators.required],
-          parallelism: [limits?.workflows?.parallelism || 0, Validators.required],
-          preemptible: [limits?.workflows?.preemptible || false, Validators.required],
-          storage: [limits?.workflows?.storage || 0, Validators.required],
-        }),
+        bandwidth: [this.data.limits?.bandwidth || 0, Validators.required],
+        cpu: [this.data.limits?.cpu || 0, Validators.required],
+        memory: [this.data.limits?.memory || 0, Validators.required],
+        preemptible: [this.data.limits?.preemptible ?? true, Validators.required],
+        storage: [this.data.limits?.storage || 0, Validators.required],
       }),
       name: [this.data.name, Validators.required],
     });

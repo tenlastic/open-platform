@@ -27,7 +27,7 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<CollectionModel>;
 
   public dataSource = new MatTableDataSource<CollectionModel>();
-  public displayedColumns = ['name', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns = ['name', 'properties', 'roles', 'createdAt', 'updatedAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
   private $collections: Observable<CollectionModel[]>;

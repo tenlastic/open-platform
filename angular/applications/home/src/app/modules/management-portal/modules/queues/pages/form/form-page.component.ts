@@ -38,33 +38,33 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     sidecar: 'Sidecar',
   };
   public get cpus() {
-    const limits = this.namespace.limits?.queues;
-    const limit = limits?.cpu ? limits.cpu : Infinity;
-    return limits?.cpu ? IQueue.Cpu.filter((r) => r.value <= limit) : IQueue.Cpu;
+    const limit = this.namespace.limits?.cpu ? this.namespace.limits.cpu : Infinity;
+    return this.namespace.limits?.cpu ? IQueue.Cpu.filter((r) => r.value <= limit) : IQueue.Cpu;
   }
   public data: QueueModel;
   public errors: string[] = [];
   public form: FormGroup;
   public get gameServerCpus() {
-    const limits = this.namespace.limits?.gameServers;
-    const limit = limits?.cpu ? limits.cpu : Infinity;
-    return limits?.cpu ? IGameServer.Cpu.filter((r) => r.value <= limit) : IGameServer.Cpu;
+    const limit = this.namespace.limits?.cpu ? this.namespace.limits.cpu : Infinity;
+    return this.namespace.limits?.cpu
+      ? IGameServer.Cpu.filter((r) => r.value <= limit)
+      : IGameServer.Cpu;
   }
   public get gameServerMemories() {
-    const limits = this.namespace.limits?.gameServers;
-    const limit = limits?.memory ? limits.memory : Infinity;
-    return limits?.memory ? IGameServer.Memory.filter((r) => r.value <= limit) : IGameServer.Memory;
+    const limit = this.namespace.limits?.memory ? this.namespace.limits.memory : Infinity;
+    return this.namespace.limits?.memory
+      ? IGameServer.Memory.filter((r) => r.value <= limit)
+      : IGameServer.Memory;
   }
   public hasWriteAuthorization: boolean;
   public get memories() {
-    const limits = this.namespace.limits?.queues;
-    const limit = limits?.memory ? limits.memory : Infinity;
-    return limits?.memory ? IQueue.Memory.filter((r) => r.value <= limit) : IQueue.Memory;
+    const limit = this.namespace.limits?.memory ? this.namespace.limits.memory : Infinity;
+    return this.namespace.limits?.memory
+      ? IQueue.Memory.filter((r) => r.value <= limit)
+      : IQueue.Memory;
   }
   public get replicas() {
-    const limits = this.namespace.limits?.queues;
-    const limit = limits?.replicas ? limits.replicas : Infinity;
-    return limits?.replicas ? IQueue.Replicas.filter((r) => r.value <= limit) : IQueue.Replicas;
+    return IQueue.Replicas;
   }
 
   private updateQueue$ = new Subscription();

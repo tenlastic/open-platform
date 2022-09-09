@@ -50,18 +50,12 @@ describe('/angular/namespace/game-servers', () => {
 
   step('navigates to the Namespaces page', async function () {
     const button = await helpers.getButtonByText(page, 'Management Portal');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Namespaces | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Namespaces | Tenlastic');
   });
 
   step('navigates to the New Namespace page', async function () {
     const button = await helpers.getButtonByText(page, 'New Namespace');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('New Namespace | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'New Namespace | Tenlastic');
   });
 
   step('creates a Namespace', async function () {
@@ -69,10 +63,7 @@ describe('/angular/namespace/game-servers', () => {
     await helpers.type(nameInput, page, namespace);
 
     const button = await helpers.getButtonByText(page, 'Save');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Edit Namespace | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Edit Namespace | Tenlastic');
   });
 
   step('runs the Namespace successfully', async function () {
@@ -81,23 +72,19 @@ describe('/angular/namespace/game-servers', () => {
       `.//mat-label[contains(., 'Phase')]`,
     ];
 
-    await page.waitForXPath(`//mat-form-field[${criteria.join(' and ')}]`, { timeout: 30 * 1000 });
+    await helpers.waitForXPath(page, `//mat-form-field[${criteria.join(' and ')}]`, {
+      timeout: 30 * 1000,
+    });
   });
 
   step('navigates to the Builds page', async function () {
     const button = await helpers.getButtonByText(page, 'Builds');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Builds | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Builds | Tenlastic');
   });
 
   step('navigates to the New Build page', async function () {
     const button = await helpers.getButtonByText(page, 'New Build');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('New Build | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'New Build | Tenlastic');
   });
 
   step('creates a Build', async function () {
@@ -120,19 +107,15 @@ describe('/angular/namespace/game-servers', () => {
     );
     await dockerfileListItem.click();
 
-    await helpers.sleep(250);
+    await helpers.sleep(1000);
 
     const button = await helpers.getButtonByText(page, 'Save');
-    await helpers.click(button, page);
-
-    await page.waitForXPath(`//app-title[contains(text(), 'Edit Build')]`, { timeout: 2500 });
-
-    const title = await page.title();
-    expect(title).to.equal('Edit Build | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Edit Build | Tenlastic');
   });
 
   step('finishes the Build successfully', async function () {
-    await page.waitForXPath(
+    await helpers.waitForXPath(
+      page,
       `//app-build-status-node[contains(div, 'Workflow') and contains(div, 'Succeeded')]`,
       { timeout: 120 * 1000 },
     );
@@ -140,10 +123,7 @@ describe('/angular/namespace/game-servers', () => {
 
   step('publishes the Build', async function () {
     const button = await helpers.getButtonByText(page, 'Builds');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Builds | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Builds | Tenlastic');
 
     const publishButton = await helpers.getButtonByIcon('visibility', page);
     await publishButton.click();
@@ -151,18 +131,12 @@ describe('/angular/namespace/game-servers', () => {
 
   step('navigates to the Game Servers page', async function () {
     const button = await helpers.getButtonByText(page, 'Game Servers');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Game Servers | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Game Servers | Tenlastic');
   });
 
   step('navigates to the New Game Server page', async function () {
     const button = await helpers.getButtonByText(page, 'New Game Server');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('New Game Server | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'New Game Server | Tenlastic');
   });
 
   step('creates a Game Server', async function () {
@@ -170,12 +144,7 @@ describe('/angular/namespace/game-servers', () => {
     await helpers.type(nameInput, page, gameServer);
 
     const button = await helpers.getButtonByText(page, 'Save');
-    await helpers.click(button, page);
-
-    await page.waitForXPath(`//app-title[contains(text(), 'Edit Game Server')]`, { timeout: 2500 });
-
-    const title = await page.title();
-    expect(title).to.equal('Edit Game Server | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Edit Game Server | Tenlastic');
   });
 
   step('runs the Game Server successfully', async function () {
@@ -184,7 +153,9 @@ describe('/angular/namespace/game-servers', () => {
       `.//mat-label[contains(., 'Phase')]`,
     ];
 
-    await page.waitForXPath(`//mat-form-field[${criteria.join(' and ')}]`, { timeout: 30 * 1000 });
+    await helpers.waitForXPath(page, `//mat-form-field[${criteria.join(' and ')}]`, {
+      timeout: 30 * 1000,
+    });
   });
 
   step('allows connections', async function () {
@@ -200,15 +171,13 @@ describe('/angular/namespace/game-servers', () => {
 
   step('generates logs', async function () {
     const button = await helpers.getButtonByText(page, 'Game Servers');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Game Servers | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Game Servers | Tenlastic');
 
     const logsButton = await helpers.getButtonByIcon('subject', page);
     await logsButton.click();
 
-    await page.waitForXPath(
+    await helpers.waitForXPath(
+      page,
       `//app-logs-dialog//span[contains(., 'Echo server listening on port :7777.')]`,
       { timeout: 2500 },
     );

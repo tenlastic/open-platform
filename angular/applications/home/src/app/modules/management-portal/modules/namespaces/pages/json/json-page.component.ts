@@ -71,36 +71,11 @@ export class NamespacesJsonPageComponent implements OnInit {
   private setupForm(): void {
     this.data ??= new NamespaceModel({
       limits: {
-        builds: {
-          count: 0,
-          size: 0,
-        },
-        gameServers: {
-          cpu: 0,
-          memory: 0,
-          preemptible: false,
-        },
-        queues: {
-          cpu: 0,
-          memory: 0,
-          preemptible: false,
-          replicas: 0,
-        },
-        storefronts: {
-          count: 0,
-          images: 0,
-          public: 0,
-          size: 0,
-          videos: 0,
-        },
-        workflows: {
-          count: 0,
-          cpu: 0,
-          memory: 0,
-          parallelism: 0,
-          preemptible: false,
-          storage: 0,
-        },
+        bandwidth: 0,
+        cpu: 0,
+        memory: 0,
+        preemptible: true,
+        storage: 0,
       },
       name: '',
     });

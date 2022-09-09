@@ -127,7 +127,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
         namespaceId: queue.namespaceId,
         queueId: queue._id,
         userId: this.identityService.user._id,
-        webSocketId: this.streamService._ids[environment.wssUrl],
+        webSocketId: this.streamService._ids.get(environment.wssUrl),
       });
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
@@ -152,7 +152,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
         namespaceId: queue.namespaceId,
         queueId: queue._id,
         userId: this.identityService.user._id,
-        webSocketId: this.streamService._ids[environment.wssUrl],
+        webSocketId: this.streamService._ids.get(environment.wssUrl),
       });
     } catch (e) {
       if (e instanceof HttpErrorResponse) {

@@ -12,7 +12,7 @@ import {
   MongoosePermissions,
 } from '@tenlastic/mongoose-permissions';
 import nats from '@tenlastic/nats';
-import { JetStreamSubscription } from 'nats';
+import { AckPolicy, JetStreamSubscription } from 'nats';
 import * as mongoose from 'mongoose';
 
 import { AuthenticationData, WebSocket } from '../web-socket-server';
@@ -65,7 +65,11 @@ export async function subscribe(
   const durable = `${subject}-${username}-${resumeToken}`.replace(/\./g, '-');
 
   // Create a NATS consumer.
-  const subscription = await nats.subscribe(durable, subject);
+  const subscription = await nats.subscribe(durable, subject, {
+    ack_policy: AckPolicy.Explicit,
+    ack_wait: 60 * 1000 * 1000 * 1000,
+    max_deliver: 3,
+  });
 
   // Cache the consumer.
   subscriptions.set(ws, subscriptions.has(ws) ? subscriptions.get(ws) : new Map());
@@ -116,11 +120,15 @@ export async function subscribe(
         updateDescription,
       };
       ws.send(JSON.stringify(result));
+
+      message.ack();
     } catch (e) {
       console.error(e);
 
       const errors = { _id: data._id, errors: [{ message: e.message, name: e.name }] };
       ws.send(JSON.stringify(errors));
+
+      message.nak();
     }
   }
 }

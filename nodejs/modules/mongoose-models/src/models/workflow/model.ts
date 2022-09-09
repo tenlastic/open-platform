@@ -11,7 +11,7 @@ import * as mongoose from 'mongoose';
 
 import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import { AuthorizationDocument } from '../authorization';
-import { Namespace, NamespaceDocument, NamespaceLimitError } from '../namespace';
+import { NamespaceDocument } from '../namespace';
 import { WorkflowSpecSchema } from './spec';
 import { WorkflowStatusSchema } from './status';
 

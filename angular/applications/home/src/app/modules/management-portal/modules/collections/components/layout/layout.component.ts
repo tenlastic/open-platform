@@ -43,7 +43,7 @@ export class LayoutComponent implements OnInit {
     this.activatedRoute.params.subscribe((params) => {
       this.params = params;
 
-      if (params.namespaceId === 'new') {
+      if (params.collectionId === 'new') {
         return;
       }
 

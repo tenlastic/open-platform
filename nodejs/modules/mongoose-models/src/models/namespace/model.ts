@@ -14,15 +14,7 @@ import * as mongoose from 'mongoose';
 import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '../../change-stream';
 import * as errors from '../../errors';
 import { AuthorizationDocument } from '../authorization/model';
-import {
-  NamespaceBuildLimits,
-  NamespaceGameServerLimits,
-  NamespaceLimits,
-  NamespaceLimitsSchema,
-  NamespaceQueueLimits,
-  NamespaceStorefrontLimits,
-  NamespaceWorkflowLimits,
-} from './limits';
+import { NamespaceLimits, NamespaceLimitsSchema } from './limits';
 import {
   NamespaceStatusComponent,
   NamespaceStatusComponentName,
@@ -88,15 +80,7 @@ export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({
-    default: new NamespaceLimits({
-      builds: new NamespaceBuildLimits(),
-      gameServers: new NamespaceGameServerLimits(),
-      queues: new NamespaceQueueLimits(),
-      storefronts: new NamespaceStorefrontLimits(),
-      workflows: new NamespaceWorkflowLimits(),
-    }),
-  })
+  @prop({ default: new NamespaceLimits() })
   public limits: NamespaceLimitsSchema;
 
   @prop({ required: true })

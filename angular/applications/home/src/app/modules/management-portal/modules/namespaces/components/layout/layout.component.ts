@@ -35,6 +35,7 @@ import {
 } from '@tenlastic/http';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { v4 as uuid } from 'uuid';
 
 import { environment } from '../../../../../../../environments/environment';
 import { IdentityService } from '../../../../../../core/services';
@@ -66,11 +67,61 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public IAuthorization = IAuthorization;
 
   private subscribe$ = new Subscription();
+  private connected = false;
   private params: Params;
   private get streamServiceUrl() {
     return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
   }
-  private subscriptions: string[] = [];
+  private subscriptions = [
+    {
+      Model: AuthorizationModel,
+      parameters: { _id: uuid(), collection: 'authorizations' },
+      service: this.authorizationService,
+      store: this.authorizationStore,
+    },
+    {
+      Model: BuildModel,
+      parameters: { _id: uuid(), collection: 'builds' },
+      service: this.buildService,
+      store: this.buildStore,
+    },
+    {
+      Model: CollectionModel,
+      parameters: { _id: uuid(), collection: 'collections' },
+      service: this.collectionService,
+      store: this.collectionStore,
+    },
+    {
+      Model: GameServerModel,
+      parameters: { _id: uuid(), collection: 'game-servers' },
+      service: this.gameServerService,
+      store: this.gameServerStore,
+    },
+    {
+      Model: QueueMemberModel,
+      parameters: { _id: uuid(), collection: 'queue-members' },
+      service: this.queueMemberService,
+      store: this.queueMemberStore,
+    },
+    {
+      Model: QueueModel,
+      parameters: { _id: uuid(), collection: 'queues' },
+      service: this.queueService,
+      store: this.queueStore,
+    },
+    {
+      Model: StorefrontModel,
+      parameters: { _id: uuid(), collection: 'storefronts' },
+      service: this.storefrontService,
+      store: this.storefrontStore,
+    },
+    {
+      Model: WorkflowModel,
+      parameters: { _id: uuid(), collection: 'workflows' },
+      service: this.workflowService,
+      store: this.workflowStore,
+    },
+  ];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -112,13 +163,13 @@ export class LayoutComponent implements OnDestroy, OnInit {
         .pipe(map((s) => s[0]));
 
       this.subscribe$ = this.$namespace.subscribe(async (namespace) => {
-        if (this.subscriptions.length > 0) {
+        if (this.connected) {
           return;
         }
 
         if (namespace?.status?.phase === 'Running') {
-          await this.streamService.connect(this.streamServiceUrl);
-          this.subscriptions = await this.subscribe();
+          this.connected = true;
+          return Promise.all([this.streamService.connect(this.streamServiceUrl), this.subscribe()]);
         }
       });
 
@@ -145,63 +196,16 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
 
   private async subscribe() {
-    return Promise.all([
+    const promises = this.subscriptions.map((s) =>
       this.streamService.subscribe(
-        AuthorizationModel,
-        { collection: 'authorizations' },
-        this.authorizationService,
-        this.authorizationStore,
+        s.Model,
+        s.parameters,
+        s.service,
+        s.store,
         this.streamServiceUrl,
       ),
-      this.streamService.subscribe(
-        BuildModel,
-        { collection: 'builds' },
-        this.buildService,
-        this.buildStore,
-        this.streamServiceUrl,
-      ),
-      this.streamService.subscribe(
-        CollectionModel,
-        { collection: 'collections' },
-        this.collectionService,
-        this.collectionStore,
-        this.streamServiceUrl,
-      ),
-      this.streamService.subscribe(
-        GameServerModel,
-        { collection: 'game-servers' },
-        this.gameServerService,
-        this.gameServerStore,
-        this.streamServiceUrl,
-      ),
-      this.streamService.subscribe(
-        QueueMemberModel,
-        { collection: 'queue-members' },
-        this.queueMemberService,
-        this.queueMemberStore,
-        this.streamServiceUrl,
-      ),
-      this.streamService.subscribe(
-        QueueModel,
-        { collection: 'queues' },
-        this.queueService,
-        this.queueStore,
-        this.streamServiceUrl,
-      ),
-      this.streamService.subscribe(
-        StorefrontModel,
-        { collection: 'storefronts' },
-        this.storefrontService,
-        this.storefrontStore,
-        this.streamServiceUrl,
-      ),
-      this.streamService.subscribe(
-        WorkflowModel,
-        { collection: 'workflows' },
-        this.workflowService,
-        this.workflowStore,
-        this.streamServiceUrl,
-      ),
-    ]);
+    );
+
+    return Promise.all(promises);
   }
 }

@@ -31,7 +31,7 @@ describe('/nodejs/namespace/queues', function () {
   });
 
   step('runs the Namespace successfully', async function () {
-    await wait(10 * 1000, 180 * 1000, async () => {
+    await wait(5 * 1000, 60 * 1000, async () => {
       namespace = await dependencies.namespaceService.findOne(namespace._id);
       return namespace.status?.phase === 'Running';
     });
@@ -69,7 +69,7 @@ describe('/nodejs/namespace/queues', function () {
   });
 
   step('finishes the Build successfully', async function () {
-    const phase = await wait(1000, 180 * 1000, async () => {
+    const phase = await wait(5 * 1000, 120 * 1000, async () => {
       build = await dependencies.buildService.findOne(namespace._id, build._id);
       return build.status?.finishedAt ? build.status.phase : null;
     });
@@ -99,14 +99,14 @@ describe('/nodejs/namespace/queues', function () {
   });
 
   step('runs the Queue successfully', async function () {
-    await wait(10 * 1000, 180 * 1000, async () => {
+    await wait(5 * 1000, 60 * 1000, async () => {
       queue = await dependencies.queueService.findOne(namespace._id, queue._id);
       return queue.status?.phase === 'Running';
     });
   });
 
   step('removes disconnected Users', async function () {
-    const { user, webSocketId } = await createUser();
+    const { user, webSocketId } = await createUser(namespace._id);
 
     // Add Queue Members.
     await dependencies.queueMemberService.create(namespace._id, {
@@ -118,22 +118,22 @@ describe('/nodejs/namespace/queues', function () {
 
     try {
       // Close WebSocket and wait for asynchronous Queue Member deletion.
-      dependencies.streamService.close(wssUrl);
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      dependencies.streamService.close(`${wssUrl}/namespaces/${namespace._id}`);
+      await new Promise((resolve) => setTimeout(resolve, 5 * 1000));
 
       const queueMembers = await dependencies.queueMemberService.find(namespace._id, {
         where: { queueId: queue._id },
       });
       expect(queueMembers.length).to.eql(0);
     } finally {
-      dependencies.streamService.close(wssUrl);
+      dependencies.streamService.close(`${wssUrl}/namespaces/${namespace._id}`);
       await dependencies.userService.delete(user._id);
     }
   });
 
   step('creates a Game Server', async function () {
     queue = await dependencies.queueService.update(namespace._id, queue._id, { teams: 1 });
-    const { user, webSocketId } = await createUser();
+    const { user, webSocketId } = await createUser(namespace._id);
 
     // Add Queue Members.
     await dependencies.queueMemberService.create(namespace._id, {
@@ -145,7 +145,7 @@ describe('/nodejs/namespace/queues', function () {
 
     try {
       // Wait for Game Server to be created.
-      const gameServer: GameServerModel = await wait(10 * 1000, 180 * 1000, async () => {
+      const gameServer: GameServerModel = await wait(5 * 1000, 60 * 1000, async () => {
         const gameServers = await dependencies.gameServerService.find(namespace._id, {
           where: { queueId: queue._id },
         });
@@ -163,13 +163,13 @@ describe('/nodejs/namespace/queues', function () {
       });
       expect(queueMembers.length).to.eql(0);
     } finally {
-      dependencies.streamService.close(wssUrl);
+      dependencies.streamService.close(`${wssUrl}/namespaces/${namespace._id}`);
       await dependencies.userService.delete(user._id);
     }
   });
 
   step('generates logs', async function () {
-    const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
+    const logs = await wait(2.5 * 1000, 5 * 1000, async () => {
       const response = await dependencies.queueLogService.find(
         namespace._id,
         queue._id,
@@ -183,7 +183,7 @@ describe('/nodejs/namespace/queues', function () {
   });
 });
 
-async function createUser() {
+async function createUser(namespaceId: string) {
   // Create a new User.
   const password = chance.hash();
   const user = await dependencies.userService.create({
@@ -198,8 +198,8 @@ async function createUser() {
   dependencies.tokenService.setAccessToken(credentials.accessToken);
 
   // Connect to the web socket server.
-  await dependencies.streamService.connect(wssUrl);
-  const webSocketId = await dependencies.streamService.getId(wssUrl);
+  await dependencies.streamService.connect(`${wssUrl}/namespaces/${namespaceId}`);
+  const webSocketId = await dependencies.streamService.getId(`${wssUrl}/namespaces/${namespaceId}`);
 
   // Restore original access token.
   dependencies.tokenService.setAccessToken(administratorAccessToken);

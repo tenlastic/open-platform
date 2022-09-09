@@ -19,7 +19,7 @@
           *matHeaderCellDef
           mat-sort-header>User</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.user?.username }}</td>
+          *matCellDef="let element">{{ getUser(element.userId)?.username }}</td>
     </ng-container>
 
     <ng-container matColumnDef="createdAt">

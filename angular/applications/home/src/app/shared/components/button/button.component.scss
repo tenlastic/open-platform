@@ -109,6 +109,7 @@
 
       &[disabled] {
         cursor: initial;
+        opacity: 0.5;
         pointer-events: none;
 
         &:hover {
@@ -123,6 +124,7 @@
 
       &:not([disabled]) {
         background: $primary;
+        opacity: 1;
 
         &:hover {
           background: $primary-highlight;

@@ -26,7 +26,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<NamespaceModel>;
 
   public dataSource = new MatTableDataSource<NamespaceModel>();
-  public displayedColumns = ['name', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns = ['name', 'status', 'createdAt', 'updatedAt', 'actions'];
   public hasWriteAuthorization: boolean;
 
   private $namespaces: Observable<NamespaceModel[]>;
@@ -51,6 +51,13 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
+  }
+
+  public getStatus(record: NamespaceModel) {
+    const current = record.status.components.reduce((a, b) => a + b.current, 0);
+    const total = record.status.components.reduce((a, b) => a + b.total, 0);
+
+    return `${record.status.phase} (${current} / ${total})`;
   }
 
   public hasWriteAuthorizationForNamespace(namespaceId: string) {

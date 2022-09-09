@@ -58,7 +58,8 @@ export class TokenService {
     this.startedRefreshingAt = new Date();
 
     try {
-      await this.loginService.createWithRefreshToken(refreshToken.value);
+      const response = await this.loginService.createWithRefreshToken(refreshToken.value);
+      this.accessToken = new Jwt(response.accessToken);
     } catch (e) {
       console.error(e);
       return null;

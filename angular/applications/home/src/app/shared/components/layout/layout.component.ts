@@ -35,7 +35,7 @@ export class LayoutComponent implements OnInit {
     return this.electronService.isElectron;
   }
   public get socket() {
-    return this.streamService.webSockets[environment.wssUrl];
+    return this.streamService.webSockets.get(environment.wssUrl);
   }
   public get user() {
     return this.identityService.user;

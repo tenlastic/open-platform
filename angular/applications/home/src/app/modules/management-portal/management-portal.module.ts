@@ -51,7 +51,7 @@ export const ROUTES: Routes = [
           ),
       },
       {
-        path: 'storefronts',
+        path: 'storefront',
         loadChildren: () =>
           import('./modules/storefronts/storefronts.module').then((m) => m.StorefrontModule),
       },

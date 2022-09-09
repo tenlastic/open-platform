@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as fs from 'fs';
 import * as puppeteer from 'puppeteer';
@@ -46,18 +45,12 @@ describe('/angular/namespace/workflows', () => {
 
   step('navigates to the Namespaces page', async function () {
     const button = await helpers.getButtonByText(page, 'Management Portal');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Namespaces | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Namespaces | Tenlastic');
   });
 
   step('navigates to the New Namespace page', async function () {
     const button = await helpers.getButtonByText(page, 'New Namespace');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('New Namespace | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'New Namespace | Tenlastic');
   });
 
   step('creates a Namespace', async function () {
@@ -65,10 +58,7 @@ describe('/angular/namespace/workflows', () => {
     await helpers.type(nameInput, page, namespace);
 
     const button = await helpers.getButtonByText(page, 'Save');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Edit Namespace | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Edit Namespace | Tenlastic');
   });
 
   step('runs the Namespace successfully', async function () {
@@ -77,23 +67,19 @@ describe('/angular/namespace/workflows', () => {
       `.//mat-label[contains(., 'Phase')]`,
     ];
 
-    await page.waitForXPath(`//mat-form-field[${criteria.join(' and ')}]`, { timeout: 30 * 1000 });
+    await helpers.waitForXPath(page, `//mat-form-field[${criteria.join(' and ')}]`, {
+      timeout: 30 * 1000,
+    });
   });
 
   step('navigates to the Workflows page', async function () {
     const button = await helpers.getButtonByText(page, 'Workflows');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Workflows | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Workflows | Tenlastic');
   });
 
   step('navigates to the New Workflow page', async function () {
     const button = await helpers.getButtonByText(page, 'New Workflow');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('New Workflow | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'New Workflow | Tenlastic');
   });
 
   step('creates a Workflow', async function () {
@@ -125,16 +111,12 @@ describe('/angular/namespace/workflows', () => {
     await helpers.type(valueInput, page, 'Hello World!');
 
     const saveButton = await helpers.getButtonByText(page, 'Save');
-    await helpers.click(saveButton, page);
-
-    await page.waitForXPath(`//app-title[contains(text(), 'Edit Workflow')]`, { timeout: 2500 });
-
-    const title = await page.title();
-    expect(title).to.equal('Edit Workflow | Tenlastic');
+    await helpers.clickAndNavigate(saveButton, page, 'Edit Workflow | Tenlastic');
   });
 
   step('finishes the Workflow successfully', async function () {
-    await page.waitForXPath(
+    await helpers.waitForXPath(
+      page,
       `//app-workflow-status-node[contains(div, 'Workflow') and contains(div, 'Succeeded')]`,
       { timeout: 60 * 1000 },
     );
@@ -144,7 +126,7 @@ describe('/angular/namespace/workflows', () => {
     const button = await helpers.getButtonByText(page, 'Logs');
     await button.click();
 
-    await page.waitForXPath(`//app-logs-dialog//span[contains(., 'Hello World!')]`, {
+    await helpers.waitForXPath(page, `//app-logs-dialog//span[contains(., 'Hello World!')]`, {
       timeout: 2500,
     });
   });

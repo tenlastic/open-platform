@@ -24,7 +24,7 @@ describe('/nodejs/namespace/workflows', function () {
   });
 
   step('runs the Namespace successfully', async function () {
-    await wait(10 * 1000, 180 * 1000, async () => {
+    await wait(5 * 1000, 60 * 1000, async () => {
       namespace = await dependencies.namespaceService.findOne(namespace._id);
       return namespace.status?.phase === 'Running';
     });
@@ -56,7 +56,7 @@ describe('/nodejs/namespace/workflows', function () {
   });
 
   step('finishes the Workflow successfully', async function () {
-    const phase = await wait(10 * 1000, 10 * 60 * 1000, async () => {
+    const phase = await wait(5 * 1000, 10 * 60 * 1000, async () => {
       workflow = await dependencies.workflowService.findOne(namespace._id, workflow._id);
       return workflow.status?.finishedAt ? workflow.status.phase : null;
     });
@@ -65,7 +65,7 @@ describe('/nodejs/namespace/workflows', function () {
   });
 
   step('generates logs', async function () {
-    const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
+    const logs = await wait(2.5 * 1000, 5 * 1000, async () => {
       const node = workflow.status.nodes.find((n) => n.type === 'Pod');
       const response = await dependencies.workflowLogService.find(
         namespace._id,

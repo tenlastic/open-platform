@@ -6,28 +6,22 @@ import {
   prop,
 } from '@typegoose/typegoose';
 
-import { NamespaceBuildLimitsSchema } from './build';
-import { NamespaceGameServerLimitsSchema } from './game-server';
-import { NamespaceQueueLimitsSchema } from './queue';
-import { NamespaceStorefrontLimitsSchema } from './storefront';
-import { NamespaceWorkflowLimitsSchema } from './workflow';
-
 @modelOptions({ schemaOptions: { _id: false } })
 export class NamespaceLimitsSchema {
-  @prop({ required: true })
-  public builds: NamespaceBuildLimitsSchema;
+  @prop({ default: 0 })
+  public bandwidth: number;
 
-  @prop({ required: true })
-  public gameServers: NamespaceGameServerLimitsSchema;
+  @prop({ default: 0 })
+  public cpu: number;
 
-  @prop({ required: true })
-  public queues: NamespaceQueueLimitsSchema;
+  @prop({ default: 0 })
+  public memory: number;
 
-  @prop({ required: true })
-  public storefronts: NamespaceStorefrontLimitsSchema;
+  @prop({ default: true })
+  public preemptible: boolean;
 
-  @prop({ required: true })
-  public workflows: NamespaceWorkflowLimitsSchema;
+  @prop({ default: 0 })
+  public storage: number;
 }
 
 export type NamespaceLimitsDocument = DocumentType<NamespaceLimitsSchema>;

@@ -19,7 +19,7 @@ import {
 import { namespaceValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import { BuildDocument } from '../build';
-import { Namespace, NamespaceDocument, NamespaceLimitError } from '../namespace';
+import { NamespaceDocument } from '../namespace';
 import { QueueDocument } from '../queue';
 import { UserDocument } from '../user';
 import { GameServerStatusSchema } from './status';

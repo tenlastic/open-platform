@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as fs from 'fs';
 import * as puppeteer from 'puppeteer';
@@ -46,18 +45,12 @@ describe('/angular/namespace/collections', () => {
 
   step('navigates to the Namespaces page', async function () {
     const button = await helpers.getButtonByText(page, 'Management Portal');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Namespaces | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Namespaces | Tenlastic');
   });
 
   step('navigates to the New Namespace page', async function () {
     const button = await helpers.getButtonByText(page, 'New Namespace');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('New Namespace | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'New Namespace | Tenlastic');
   });
 
   step('creates a Namespace', async function () {
@@ -65,10 +58,7 @@ describe('/angular/namespace/collections', () => {
     await helpers.type(nameInput, page, namespace);
 
     const button = await helpers.getButtonByText(page, 'Save');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Edit Namespace | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Edit Namespace | Tenlastic');
   });
 
   step('runs the Namespace successfully', async function () {
@@ -77,23 +67,19 @@ describe('/angular/namespace/collections', () => {
       `.//mat-label[contains(., 'Phase')]`,
     ];
 
-    await page.waitForXPath(`//mat-form-field[${criteria.join(' and ')}]`, { timeout: 30 * 1000 });
+    await helpers.waitForXPath(page, `//mat-form-field[${criteria.join(' and ')}]`, {
+      timeout: 30 * 1000,
+    });
   });
 
   step('navigates to the Collections page', async function () {
     const button = await helpers.getButtonByText(page, 'Collections');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Collections | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Collections | Tenlastic');
   });
 
   step('navigates to the New Collection page', async function () {
     const button = await helpers.getButtonByText(page, 'New Collection');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('New Collection | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'New Collection | Tenlastic');
   });
 
   step('creates a Collection', async function () {
@@ -112,31 +98,20 @@ describe('/angular/namespace/collections', () => {
     );
     await stringOption.click();
 
-    await helpers.sleep(250);
+    await helpers.sleep(1000);
 
     const button = await helpers.getButtonByText(page, 'Save');
-    await helpers.click(button, page);
-
-    await page.waitForXPath(`//app-title[contains(text(), 'Edit Collection')]`, { timeout: 2500 });
-
-    const title = await page.title();
-    expect(title).to.equal('Edit Collection | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Edit Collection | Tenlastic');
   });
 
   step('navigates to the Records page', async function () {
     const button = await helpers.getButtonByText(page, 'Records');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Records | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Records | Tenlastic');
   });
 
   step('navigates to the New Record page', async function () {
     const button = await helpers.getButtonByText(page, 'New Record');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('New Record | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'New Record | Tenlastic');
   });
 
   step('creates a Record', async function () {
@@ -144,11 +119,6 @@ describe('/angular/namespace/collections', () => {
     await helpers.type(nameInput, page, collection);
 
     const button = await helpers.getButtonByText(page, 'Save');
-    await helpers.click(button, page);
-
-    await page.waitForXPath(`//app-title[contains(text(), 'Edit Record')]`, { timeout: 2500 });
-
-    const title = await page.title();
-    expect(title).to.equal('Edit Record | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Edit Record | Tenlastic');
   });
 });

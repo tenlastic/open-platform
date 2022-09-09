@@ -33,18 +33,20 @@ interface PropertyFormGroup {
 export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public builds: BuildModel[];
   public get cpus() {
-    const limits = this.namespace.limits?.gameServers;
-    const limit = limits?.cpu ? limits.cpu : Infinity;
-    return limits?.cpu ? IGameServer.Cpu.filter((r) => r.value <= limit) : IGameServer.Cpu;
+    const limit = this.namespace.limits?.cpu ? this.namespace.limits.cpu : Infinity;
+    return this.namespace.limits?.cpu
+      ? IGameServer.Cpu.filter((r) => r.value <= limit)
+      : IGameServer.Cpu;
   }
   public data: GameServerModel;
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public get memories() {
-    const limits = this.namespace.limits?.gameServers;
-    const limit = limits?.memory ? limits.memory : Infinity;
-    return limits?.memory ? IGameServer.Memory.filter((r) => r.value <= limit) : IGameServer.Memory;
+    const limit = this.namespace.limits?.memory ? this.namespace.limits.memory : Infinity;
+    return this.namespace.limits?.memory
+      ? IGameServer.Memory.filter((r) => r.value <= limit)
+      : IGameServer.Memory;
   }
 
   private updateGameServer$ = new Subscription();

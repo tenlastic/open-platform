@@ -30,7 +30,7 @@ describe('/nodejs/namespace/game-servers', function () {
   });
 
   step('runs the Namespace successfully', async function () {
-    await wait(10 * 1000, 180 * 1000, async () => {
+    await wait(5 * 1000, 60 * 1000, async () => {
       namespace = await dependencies.namespaceService.findOne(namespace._id);
       return namespace.status?.phase === 'Running';
     });
@@ -68,7 +68,7 @@ describe('/nodejs/namespace/game-servers', function () {
   });
 
   step('finishes the Build successfully', async function () {
-    const phase = await wait(1000, 180 * 1000, async () => {
+    const phase = await wait(5 * 1000, 120 * 1000, async () => {
       build = await dependencies.buildService.findOne(namespace._id, build._id);
       return build.status?.finishedAt ? build.status.phase : null;
     });
@@ -90,7 +90,7 @@ describe('/nodejs/namespace/game-servers', function () {
   });
 
   step('runs the Game Server successfully', async function () {
-    await wait(10 * 1000, 180 * 1000, async () => {
+    await wait(5 * 1000, 60 * 1000, async () => {
       gameServer = await dependencies.gameServerService.findOne(namespace._id, gameServer._id);
       return gameServer.status?.endpoints && gameServer.status?.phase === 'Running';
     });
@@ -106,7 +106,7 @@ describe('/nodejs/namespace/game-servers', function () {
   });
 
   step('generates logs', async function () {
-    const logs = await wait(2.5 * 1000, 10 * 1000, async () => {
+    const logs = await wait(2.5 * 1000, 5 * 1000, async () => {
       const response = await dependencies.gameServerLogService.find(
         namespace._id,
         gameServer._id,

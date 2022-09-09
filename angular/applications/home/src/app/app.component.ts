@@ -6,15 +6,6 @@ import {
   AuthorizationQuery,
   AuthorizationService,
   AuthorizationStore,
-  BuildModel,
-  BuildService,
-  BuildStore,
-  CollectionModel,
-  CollectionService,
-  CollectionStore,
-  GameServerModel,
-  GameServerService,
-  GameServerStore,
   GroupInvitationModel,
   GroupInvitationService,
   GroupInvitationStore,
@@ -29,16 +20,7 @@ import {
   NamespaceModel,
   NamespaceService,
   NamespaceStore,
-  QueueMemberModel,
   QueueMemberQuery,
-  QueueMemberService,
-  QueueMemberStore,
-  QueueModel,
-  QueueService,
-  QueueStore,
-  StorefrontModel,
-  StorefrontService,
-  StorefrontStore,
   StreamService,
   TokenService,
   UserModel,
@@ -49,10 +31,8 @@ import {
   WebSocketQuery,
   WebSocketService,
   WebSocketStore,
-  WorkflowModel,
-  WorkflowService,
-  WorkflowStore,
 } from '@tenlastic/http';
+import { v4 as uuid } from 'uuid';
 
 import { environment } from '../environments/environment';
 import { ElectronService } from './core/services';
@@ -66,6 +46,51 @@ export class AppComponent implements OnInit {
   private onFocus(event: any) {
     this.connectSocket();
   }
+
+  private subscriptions = [
+    {
+      Model: AuthorizationModel,
+      parameters: { _id: uuid(), collection: 'authorizations' },
+      service: this.authorizationService,
+      store: this.authorizationStore,
+    },
+    {
+      Model: GroupModel,
+      parameters: { _id: uuid(), collection: 'groups' },
+      service: this.groupService,
+      store: this.groupStore,
+    },
+    {
+      Model: GroupInvitationModel,
+      parameters: { _id: uuid(), collection: 'group-invitations' },
+      service: this.groupInvitationService,
+      store: this.groupInvitationStore,
+    },
+    {
+      Model: MessageModel,
+      parameters: { _id: uuid(), collection: 'messages' },
+      service: this.messageService,
+      store: this.messageStore,
+    },
+    {
+      Model: NamespaceModel,
+      parameters: { _id: uuid(), collection: 'namespaces' },
+      service: this.namespaceService,
+      store: this.namespaceStore,
+    },
+    {
+      Model: UserModel,
+      parameters: { _id: uuid(), collection: 'users' },
+      service: this.userService,
+      store: this.userStore,
+    },
+    {
+      Model: WebSocketModel,
+      parameters: { _id: uuid(), collection: 'web-sockets' },
+      service: this.webSocketService,
+      store: this.webSocketStore,
+    },
+  ];
 
   constructor(
     private authorizationQuery: AuthorizationQuery,
@@ -113,11 +138,6 @@ export class AppComponent implements OnInit {
       }
     });
 
-    // Connect to websockets.
-    try {
-      await this.connectSocket();
-    } catch {}
-
     // Load previous url if set.
     const url = localStorage.getItem('url');
     if (url && this.electronService.isElectron) {
@@ -157,8 +177,7 @@ export class AppComponent implements OnInit {
   }
 
   private async connectSocket() {
-    await this.streamService.connect(environment.wssUrl);
-    await this.subscribe();
+    return Promise.all([this.streamService.connect(environment.wssUrl), this.subscribe()]);
   }
 
   private setTokens(response: LoginServiceResponse) {
@@ -167,56 +186,10 @@ export class AppComponent implements OnInit {
   }
 
   private subscribe() {
-    return Promise.all([
-      this.streamService.subscribe(
-        AuthorizationModel,
-        { collection: 'authorizations' },
-        this.authorizationService,
-        this.authorizationStore,
-        environment.wssUrl,
-      ),
-      this.streamService.subscribe(
-        GroupModel,
-        { collection: 'groups' },
-        this.groupService,
-        this.groupStore,
-        environment.wssUrl,
-      ),
-      this.streamService.subscribe(
-        GroupInvitationModel,
-        { collection: 'group-invitations' },
-        this.groupInvitationService,
-        this.groupInvitationStore,
-        environment.wssUrl,
-      ),
-      this.streamService.subscribe(
-        MessageModel,
-        { collection: 'messages' },
-        this.messageService,
-        this.messageStore,
-        environment.wssUrl,
-      ),
-      this.streamService.subscribe(
-        NamespaceModel,
-        { collection: 'namespaces' },
-        this.namespaceService,
-        this.namespaceStore,
-        environment.wssUrl,
-      ),
-      this.streamService.subscribe(
-        UserModel,
-        { collection: 'users' },
-        this.userService,
-        this.userStore,
-        environment.wssUrl,
-      ),
-      this.streamService.subscribe(
-        WebSocketModel,
-        { collection: 'web-sockets' },
-        this.webSocketService,
-        this.webSocketStore,
-        environment.wssUrl,
-      ),
-    ]);
+    const promises = this.subscriptions.map((s) =>
+      this.streamService.subscribe(s.Model, s.parameters, s.service, s.store, environment.wssUrl),
+    );
+
+    return Promise.all(promises);
   }
 }

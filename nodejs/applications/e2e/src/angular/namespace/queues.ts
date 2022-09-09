@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as fs from 'fs';
 import * as puppeteer from 'puppeteer';
@@ -48,18 +47,12 @@ describe('/angular/namespace/queues', () => {
 
   step('navigates to the Namespaces page', async function () {
     const button = await helpers.getButtonByText(page, 'Management Portal');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Namespaces | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Namespaces | Tenlastic');
   });
 
   step('navigates to the New Namespace page', async function () {
     const button = await helpers.getButtonByText(page, 'New Namespace');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('New Namespace | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'New Namespace | Tenlastic');
   });
 
   step('creates a Namespace', async function () {
@@ -67,10 +60,7 @@ describe('/angular/namespace/queues', () => {
     await helpers.type(nameInput, page, namespace);
 
     const button = await helpers.getButtonByText(page, 'Save');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Edit Namespace | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Edit Namespace | Tenlastic');
   });
 
   step('runs the Namespace successfully', async function () {
@@ -79,23 +69,19 @@ describe('/angular/namespace/queues', () => {
       `.//mat-label[contains(., 'Phase')]`,
     ];
 
-    await page.waitForXPath(`//mat-form-field[${criteria.join(' and ')}]`, { timeout: 30 * 1000 });
+    await helpers.waitForXPath(page, `//mat-form-field[${criteria.join(' and ')}]`, {
+      timeout: 30 * 1000,
+    });
   });
 
   step('navigates to the Builds page', async function () {
     const button = await helpers.getButtonByText(page, 'Builds');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Builds | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Builds | Tenlastic');
   });
 
   step('navigates to the New Build page', async function () {
     const button = await helpers.getButtonByText(page, 'New Build');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('New Build | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'New Build | Tenlastic');
   });
 
   step('creates a Build', async function () {
@@ -118,30 +104,23 @@ describe('/angular/namespace/queues', () => {
     );
     await dockerfileListItem.click();
 
-    await helpers.sleep(250);
+    await helpers.sleep(1000);
 
     const button = await helpers.getButtonByText(page, 'Save');
-    await helpers.click(button, page);
-
-    await page.waitForXPath(`//app-title[contains(text(), 'Edit Build')]`, { timeout: 2500 });
-
-    const title = await page.title();
-    expect(title).to.equal('Edit Build | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Edit Build | Tenlastic');
   });
 
   step('finishes the Build successfully', async function () {
-    await page.waitForXPath(
+    await helpers.waitForXPath(
+      page,
       `//app-build-status-node[contains(div, 'Workflow') and contains(div, 'Succeeded')]`,
-      { timeout: 180 * 1000 },
+      { timeout: 120 * 1000 },
     );
   });
 
   step('publishes the Build', async function () {
     const button = await helpers.getButtonByText(page, 'Builds');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Builds | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Builds | Tenlastic');
 
     const publishButton = await helpers.getButtonByIcon('visibility', page);
     await publishButton.click();
@@ -149,18 +128,12 @@ describe('/angular/namespace/queues', () => {
 
   step('navigates to the Queues page', async function () {
     const button = await helpers.getButtonByText(page, 'Queues');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Queues | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Queues | Tenlastic');
   });
 
   step('navigates to the New Queue page', async function () {
     const button = await helpers.getButtonByText(page, 'New Queue');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('New Queue | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'New Queue | Tenlastic');
   });
 
   step('creates a Queue', async function () {
@@ -168,12 +141,7 @@ describe('/angular/namespace/queues', () => {
     await helpers.type(nameInput, page, queue);
 
     const button = await helpers.getButtonByText(page, 'Save');
-    await helpers.click(button, page);
-
-    await page.waitForXPath(`//app-title[contains(text(), 'Edit Queue')]`, { timeout: 2500 });
-
-    const title = await page.title();
-    expect(title).to.equal('Edit Queue | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Edit Queue | Tenlastic');
   });
 
   step('runs the Queue successfully', async function () {
@@ -182,20 +150,20 @@ describe('/angular/namespace/queues', () => {
       `.//mat-label[contains(., 'Phase')]`,
     ];
 
-    await page.waitForXPath(`//mat-form-field[${criteria.join(' and ')}]`, { timeout: 60 * 1000 });
+    await helpers.waitForXPath(page, `//mat-form-field[${criteria.join(' and ')}]`, {
+      timeout: 60 * 1000,
+    });
   });
 
   step('generates logs', async function () {
     const button = await helpers.getButtonByText(page, 'Queues');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Queues | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Queues | Tenlastic');
 
     const logsButton = await helpers.getButtonByIcon('subject', page);
     await logsButton.click();
 
-    await page.waitForXPath(
+    await helpers.waitForXPath(
+      page,
       `//app-logs-dialog//span[contains(., 'Koa server running on port 3000.')]`,
       { timeout: 2500 },
     );

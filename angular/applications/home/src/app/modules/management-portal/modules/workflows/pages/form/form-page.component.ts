@@ -38,9 +38,10 @@ interface StatusNode {
 export class WorkflowsFormPageComponent implements OnInit {
   public $data: Observable<WorkflowModel>;
   public get cpus() {
-    const limits = this.namespace.limits?.workflows;
-    const limit = limits?.cpu ? limits.cpu : Infinity;
-    return limits?.cpu ? IWorkflow.Cpu.filter((r) => r.value <= limit) : IWorkflow.Cpu;
+    const limit = this.namespace.limits?.cpu ? this.namespace.limits.cpu : Infinity;
+    return this.namespace.limits?.cpu
+      ? IWorkflow.Cpu.filter((r) => r.value <= limit)
+      : IWorkflow.Cpu;
   }
   public data: WorkflowModel;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
@@ -48,22 +49,20 @@ export class WorkflowsFormPageComponent implements OnInit {
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public get memories() {
-    const limits = this.namespace.limits?.workflows;
-    const limit = limits?.memory ? limits.memory : Infinity;
-    return limits?.memory ? IWorkflow.Memory.filter((r) => r.value <= limit) : IWorkflow.Memory;
+    const limit = this.namespace.limits?.memory ? this.namespace.limits.memory : Infinity;
+    return this.namespace.limits?.memory
+      ? IWorkflow.Memory.filter((r) => r.value <= limit)
+      : IWorkflow.Memory;
   }
   public get parallelisms() {
-    const limits = this.namespace.limits?.workflows;
-    const limit = limits?.parallelism ? limits.parallelism : Infinity;
-    return limits?.parallelism
-      ? IWorkflow.Parallelisms.filter((r) => r.value <= limit)
-      : IWorkflow.Parallelisms;
+    return IWorkflow.Parallelisms;
   }
   public readonly separatorKeysCodes: number[] = [ENTER];
   public get storages() {
-    const limits = this.namespace.limits?.workflows;
-    const limit = limits?.storage ? limits.storage : Infinity;
-    return limits?.storage ? IWorkflow.Storage.filter((r) => r.value <= limit) : IWorkflow.Storage;
+    const limit = this.namespace.limits?.storage ? this.namespace.limits.storage : Infinity;
+    return this.namespace.limits?.storage
+      ? IWorkflow.Storage.filter((r) => r.value <= limit)
+      : IWorkflow.Storage;
   }
   public treeControl = new NestedTreeControl<StatusNode>((node) => node.children);
 

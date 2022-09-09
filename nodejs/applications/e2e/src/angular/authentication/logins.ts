@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as fs from 'fs';
 import * as puppeteer from 'puppeteer';
@@ -42,18 +41,12 @@ describe('/angular/authentication/logins', () => {
 
   step('navigates to the login page', async function () {
     const button = await helpers.getButtonByText(page, 'Log In');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Log In | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Log In | Tenlastic');
   });
 
   step('navigates to the registration page', async function () {
     const button = await helpers.getButtonByText(page, 'Create Account');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Create Account | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Create Account | Tenlastic');
   });
 
   step('registers a new user', async function () {
@@ -67,21 +60,15 @@ describe('/angular/authentication/logins', () => {
     await helpers.type(confirmPasswordInput, page, 'Example');
 
     const button = await helpers.getButtonByText(page, 'Submit');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Home | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Home | Tenlastic');
   });
 
   step('logs out', async function () {
     const accountButton = await helpers.getButtonByText(page, username);
-    await helpers.click(accountButton, page);
+    await helpers.clickAndNavigate(accountButton, page, 'Account Information | Tenlastic');
 
     const logOutButton = await helpers.getButtonByText(page, 'Log Out');
-    await helpers.click(logOutButton, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Log In | Tenlastic');
+    await helpers.clickAndNavigate(logOutButton, page, 'Log In | Tenlastic');
   });
 
   step('logs in', async function () {
@@ -92,9 +79,6 @@ describe('/angular/authentication/logins', () => {
     await helpers.type(passwordInput, page, 'Example');
 
     const button = await helpers.getButtonByText(page, 'Submit');
-    await helpers.click(button, page);
-
-    const title = await page.title();
-    expect(title).to.equal('Home | Tenlastic');
+    await helpers.clickAndNavigate(button, page, 'Home | Tenlastic');
   });
 });

@@ -18,7 +18,6 @@ import { AuthorizationDocument } from '../authorization';
 import { GroupDocument } from '../group';
 import { NamespaceDocument } from '../namespace';
 import { QueueDocument } from '../queue';
-import { UserDocument } from '../user';
 import { WebSocketDocument } from '../web-socket';
 
 export const OnQueueMemberProduced = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
@@ -48,7 +47,7 @@ export class QueueMemberUniqueError extends Error {
     await this.populate('webSocketDocument');
   }
 
-  if (this.userId.toString() !== this.webSocketDocument.userId.toString()) {
+  if (this.userId.toString() !== this.webSocketDocument?.userId.toString()) {
     const message = 'Web Socket does not belong to the same User.';
     this.invalidate('webSocketId', message, this.webSocketId);
   }
@@ -122,12 +121,6 @@ export class QueueMemberSchema {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: 'QueueSchema' })
   public queueDocument: QueueDocument;
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'userId', ref: 'UserSchema' })
-  public userDocument: UserDocument;
-
-  @prop({ foreignField: '_id', localField: 'userIds', ref: 'UserSchema' })
-  public userDocuments: UserDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'webSocketId', ref: 'WebSocketSchema' })
   public webSocketDocument: WebSocketDocument;

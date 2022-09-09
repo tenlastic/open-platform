@@ -87,7 +87,7 @@ export const KubernetesQueueSidecar = {
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         QUEUE_JSON: JSON.stringify(queue),
         QUEUE_POD_LABEL_SELECTOR: `tenlastic.com/app=${queueName}`,
-        WSS_URL: 'ws://wss.static:3000',
+        WSS_URL: `ws://${namespaceName}-wss.dynamic:3000`,
       },
     });
 

@@ -7,6 +7,7 @@ import { EnvironmentService } from './environment';
 import { TokenService } from './token';
 
 interface LogsParameters {
+  _id?: string;
   buildId?: string;
   gameServerId?: string;
   nodeId: string;
@@ -26,6 +27,7 @@ interface Store {
 }
 
 interface SubscribeParameters {
+  _id?: string;
   collection: string;
   operationType?: string[];
   resumeToken?: string;
@@ -44,8 +46,8 @@ interface Subscription {
 }
 
 export class StreamService {
-  public _ids: { [url: string]: string } = {};
-  public webSockets: { [url: string]: WebSocket } = {};
+  public _ids = new Map<string, string>();
+  public webSockets = new Map<string, WebSocket>();
 
   private resumeTokens: { [key: string]: string } = {};
   private subscriptions: Subscription[] = [];
@@ -53,17 +55,19 @@ export class StreamService {
   constructor(private environmentService: EnvironmentService, private tokenService: TokenService) {}
 
   public close(url: string) {
-    const socket = this.webSockets[url];
+    // Remove cached subscriptions for this URL.
+    this.subscriptions = this.subscriptions.filter((s) => s.url !== url);
+
+    const socket = this.webSockets.get(url);
     socket?.close(1000);
   }
 
   public async connect(url: string) {
-    if (this.webSockets[url]) {
-      return this.webSockets[url];
+    if (this.webSockets.has(url)) {
+      return this.webSockets.get(url);
     }
 
     let connectionString = url;
-
     if (this.environmentService?.apiKey) {
       connectionString += `?api_key=${this.environmentService.apiKey}`;
     } else if (this.tokenService) {
@@ -76,7 +80,7 @@ export class StreamService {
     }
 
     const socket = new WebSocket(connectionString);
-    this.webSockets[url] = socket;
+    this.webSockets.set(url, socket);
 
     const data = { _id: uuid(), method: 'ping' };
     const interval = setInterval(() => socket.send(JSON.stringify(data)), 5000);
@@ -84,63 +88,67 @@ export class StreamService {
     socket.addEventListener('close', (e) => {
       clearInterval(interval);
 
-      delete this._ids[url];
-      delete this.webSockets[url];
+      this._ids.delete(url);
+      this.webSockets.delete(url);
 
       if (e.code !== 1000) {
         setTimeout(() => this.connect(url), 5000);
       }
     });
     socket.addEventListener('error', () => socket.close());
-    socket.addEventListener('message', (msg) => {
-      const payload = JSON.parse(msg.data);
-
-      if (!payload._id && payload.fullDocument && payload.operationType === 'insert') {
-        this._ids[url] = payload.fullDocument._id;
-      }
-    });
-    socket.addEventListener('open', () => {
-      const logs = this.subscriptions.filter((s) => s.method === 'logs' && s.url === url);
-      const subscribe = this.subscriptions.filter((s) => s.method === 'subscribe' && s.url === url);
-      this.subscriptions = this.subscriptions.filter((s) => s.url !== url);
-
-      for (const subscription of logs) {
-        this.logs(subscription.Model, subscription.logs, subscription.store, subscription.url);
-      }
-
-      for (const subscription of subscribe) {
-        this.subscribe(
-          subscription.Model,
-          subscription.subscribe,
-          subscription.service,
-          subscription.store,
-          subscription.url,
-        );
-      }
-    });
 
     return new Promise<WebSocket>((resolve, reject) => {
+      const onMessage = async (msg) => {
+        const payload = JSON.parse(msg.data);
+        if (payload._id !== 0 || payload.status !== 200) {
+          return;
+        }
+
+        if (payload.fullDocument && payload.operationType === 'insert') {
+          this._ids.set(url, payload.fullDocument._id);
+        }
+
+        const subscriptions = this.subscriptions.filter((s) => s.url === url);
+        const logs = subscriptions.filter((s) => s.method === 'logs');
+        const subscribe = subscriptions.filter((s) => s.method === 'subscribe');
+        this.subscriptions = this.subscriptions.filter((s) => s.url !== url);
+
+        await Promise.all(logs.map((l) => this.logs(l.Model, l.logs, l.store, l.url)));
+        await Promise.all(
+          subscribe.map((s) => this.subscribe(s.Model, s.subscribe, s.service, s.store, s.url)),
+        );
+
+        socket.removeEventListener('message', onMessage);
+        return resolve(socket);
+      };
+
       socket.addEventListener('close', reject);
       socket.addEventListener('error', reject);
-      socket.addEventListener('open', () => resolve(socket));
+      socket.addEventListener('message', onMessage);
     });
   }
 
   public async getId(url: string) {
-    if (this._ids[url]) {
-      return this._ids[url];
+    if (this._ids.has(url)) {
+      return this._ids.get(url);
     }
 
     return new Promise<string>((resolve) => {
-      const socket = this.webSockets[url];
+      const socket = this.webSockets.get(url);
 
-      socket.addEventListener('message', (msg) => {
+      const onMessage = async (msg) => {
         const payload = JSON.parse(msg.data);
+        if (payload._id !== 0 || payload.status !== 200) {
+          return;
+        }
 
-        if (!payload._id && payload.fullDocument && payload.operationType === 'insert') {
+        if (payload.fullDocument && payload.operationType === 'insert') {
+          socket.removeEventListener('message', onMessage);
           return resolve(payload.fullDocument._id);
         }
-      });
+      };
+
+      socket.addEventListener('message', onMessage);
     });
   }
 
@@ -150,13 +158,28 @@ export class StreamService {
     store: Store,
     url: string,
   ) {
-    const _id = uuid();
+    const _id = parameters._id || uuid();
+    if (this.subscriptions.some((s) => s._id === _id)) {
+      return _id;
+    }
+
+    // Cache the subscription to resubscribe when reconnected.
+    this.subscriptions.push({ _id, logs: parameters, method: 'logs', Model, store, url });
+
+    // Wait until web socket is connected to subscribe.
+    if (!this.webSockets.has(url) || this.webSockets.get(url).readyState !== 1) {
+      return _id;
+    }
+
     const data = { _id, method: 'logs', parameters };
-    const socket = this.webSockets[url];
+    const socket = this.webSockets.get(url);
 
     socket.send(JSON.stringify(data));
     socket.addEventListener('message', (msg) => {
       const payload = JSON.parse(msg.data);
+      if (payload.error) {
+        throw new Error(payload.error);
+      }
 
       // If the response is for a different request, ignore it.
       if (payload._id !== _id || !payload.fullDocument) {
@@ -170,8 +193,6 @@ export class StreamService {
       subscription.logs.since = new Date(record.unix);
     });
 
-    this.subscriptions.push({ _id, logs: parameters, method: 'logs', Model, store, url });
-
     return _id;
   }
 
@@ -182,18 +203,37 @@ export class StreamService {
     store: Store,
     url: string,
   ) {
-    const _id = uuid();
+    const _id = parameters._id || uuid();
+    if (this.subscriptions.some((s) => s._id === _id)) {
+      return _id;
+    }
+
+    // Cache the subscription to resubscribe when reconnected.
+    this.subscriptions.push({
+      _id,
+      method: 'subscribe',
+      Model,
+      service,
+      store,
+      subscribe: parameters,
+      url,
+    });
+
+    // Wait until web socket is connected to subscribe.
+    if (!this.webSockets.has(url) || this.webSockets.get(url).readyState !== 1) {
+      return _id;
+    }
+
     const data = {
       _id,
       method: 'subscribe',
       parameters: { resumeToken: this.resumeTokens[parameters.collection], ...parameters },
     };
-    const socket = this.webSockets[url];
+    const socket = this.webSockets.get(url);
 
     socket.send(JSON.stringify(data));
     socket.addEventListener('message', (msg) => {
       const payload = JSON.parse(msg.data);
-
       if (payload.error) {
         throw new Error(payload.error);
       }
@@ -221,15 +261,6 @@ export class StreamService {
       }
     });
 
-    this.subscriptions.push({
-      _id,
-      method: 'subscribe',
-      Model,
-      service,
-      subscribe: parameters,
-      url,
-    });
-
     return _id;
   }
 
@@ -244,7 +275,7 @@ export class StreamService {
     const index = this.subscriptions.findIndex((s) => s._id === _id);
     this.subscriptions.splice(index, 1);
 
-    const socket = this.webSockets[url];
+    const socket = this.webSockets.get(url);
     socket.send(JSON.stringify(data));
   }
 }

@@ -28,45 +28,47 @@ const wssUrl = process.env.WSS_URL;
       console.log(`Deleted Queue Member User IDs: ${record._id}.`),
     );
 
-    // Web Socket.
-    await dependencies.streamService.connect(wssUrl);
+    // Web Sockets.
+    await Promise.all([
+      dependencies.streamService.connect(wssUrl),
 
-    // Watch for updates to the Queue.
-    await dependencies.streamService.subscribe(
-      QueueModel,
-      { collection: 'queues', resumeToken: podName, where: { _id: queue._id } },
-      dependencies.queueService,
-      dependencies.queueStore,
-      wssUrl,
-    );
+      // Watch for updates to the Queue.
+      dependencies.streamService.subscribe(
+        QueueModel,
+        { collection: 'queues', resumeToken: podName, where: { _id: queue._id } },
+        dependencies.queueService,
+        dependencies.queueStore,
+        wssUrl,
+      ),
 
-    // Distribute new Queue Members among replicas.
-    await dependencies.streamService.subscribe(
-      QueueMemberModel,
-      {
-        collection: 'queue-members',
-        operationType: ['insert'],
-        resumeToken: `queue-${queue._id}`,
-        where: { queueId: queue._id },
-      },
-      dependencies.queueMemberService,
-      dependencies.queueMemberStore,
-      wssUrl,
-    );
+      // Distribute new Queue Members among replicas.
+      dependencies.streamService.subscribe(
+        QueueMemberModel,
+        {
+          collection: 'queue-members',
+          operationType: ['insert'],
+          resumeToken: `queue-${queue._id}`,
+          where: { queueId: queue._id },
+        },
+        dependencies.queueMemberService,
+        dependencies.queueMemberStore,
+        wssUrl,
+      ),
 
-    // Get all Queue Member deletions.
-    await dependencies.streamService.subscribe(
-      QueueMemberModel,
-      {
-        collection: 'queue-members',
-        operationType: ['delete'],
-        resumeToken: podName,
-        where: { queueId: queue._id },
-      },
-      dependencies.queueMemberService,
-      dependencies.queueMemberStore,
-      wssUrl,
-    );
+      // Get all Queue Member deletions.
+      dependencies.streamService.subscribe(
+        QueueMemberModel,
+        {
+          collection: 'queue-members',
+          operationType: ['delete'],
+          resumeToken: podName,
+          where: { queueId: queue._id },
+        },
+        dependencies.queueMemberService,
+        dependencies.queueMemberStore,
+        wssUrl,
+      ),
+    ]);
 
     // Web Server.
     const webServer = new WebServer();

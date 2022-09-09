@@ -23,13 +23,12 @@ export async function handler(ctx: Context) {
     throw new PermissionError();
   }
 
-  const limits = storefront.namespaceDocument.limits.storefronts;
-  const fileSize = limits.size || Infinity;
+  const limit = storefront.namespaceDocument.limits.storage;
 
   // Parse files from request body.
   const paths: string[] = [];
   await new Promise((resolve, reject) => {
-    const busboy = new Busboy({ headers: ctx.request.headers, limits: { fileSize } });
+    const busboy = new Busboy({ headers: ctx.request.headers, limits: { fileSize: limit } });
 
     busboy.on('error', reject);
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
@@ -43,9 +42,7 @@ export async function handler(ctx: Context) {
       }
 
       // Make sure the file is a valid size.
-      file.on('limit', () =>
-        busboy.emit('error', new NamespaceLimitError('storefronts.size', limits.size)),
-      );
+      file.on('limit', () => busboy.emit('error', new NamespaceLimitError('storage', limit)));
 
       minio.putObject(process.env.MINIO_BUCKET, path, file, { 'content-type': mimetype });
     });
@@ -55,14 +52,6 @@ export async function handler(ctx: Context) {
   });
 
   const urls = paths.map((p) => storefront.getUrl(ctx.request.host, ctx.request.protocol, p));
-  if (
-    limits[field] &&
-    limits[field] > 0 &&
-    storefront[field].length + urls.length > limits[field]
-  ) {
-    throw new NamespaceLimitError(`storefronts.${field}`, limits[field]);
-  }
-
   const result = await Storefront.findOneAndUpdate(
     { _id: storefront._id },
     ['images', 'videos'].includes(field) ? { $addToSet: { [field]: urls } } : { [field]: urls[0] },

@@ -75,9 +75,12 @@ form {
 }
 
 h2,
-h3,
-h4 {
+h3 {
   margin: 0px 0px 16px;
+}
+
+h4 {
+  margin: 0px 0px 6px;
 }
 
 mat-form-field.mat-form-field {

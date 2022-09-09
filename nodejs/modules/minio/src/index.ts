@@ -9,4 +9,6 @@ export * from './make-bucket';
 export * from './put-object';
 export * from './remove-bucket';
 export * from './remove-object';
+export * from './remove-objects';
 export * from './stat-object';
+export * from './stream-objects';

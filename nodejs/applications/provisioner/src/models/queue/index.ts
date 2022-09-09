@@ -131,7 +131,7 @@ export const KubernetesQueue = {
         API_KEY: authorization.apiKey,
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         QUEUE_JSON: JSON.stringify(queue),
-        WSS_URL: 'ws://wss.static:3000',
+        WSS_URL: `ws://${namespaceName}-wss.dynamic:3000`,
       },
     });
 

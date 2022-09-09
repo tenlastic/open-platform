@@ -65,17 +65,15 @@ export class WebSocketServer {
       ws.setMaxListeners(25);
       this.startHeartbeat(ws);
 
-      for (const connection of this.connectionCallbacks) {
-        await connection(auth, ws);
-      }
+      const connectionPromises = this.connectionCallbacks.map((cc) => cc(auth, ws));
+      await Promise.all(connectionPromises);
 
       ws.on('message', async (data) => {
         try {
           const json = JSON.parse(data.toString());
 
-          for (const message of this.messageCallbacks) {
-            await message(auth, json, ws);
-          }
+          const messagePromises = this.messageCallbacks.map((mc) => mc(auth, json, ws));
+          await Promise.all(messagePromises);
         } catch (e) {
           ws.send(JSON.stringify({ error: e.message }));
         }
