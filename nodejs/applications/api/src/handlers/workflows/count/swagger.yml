@@ -1,11 +1,17 @@
 paths:
-  /workflows/count:
+  /namespaces/{namespaceId}/workflows/count:
     get:
       summary: Count
       tags: [Workflows]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       responses:
         200:
           description: OK

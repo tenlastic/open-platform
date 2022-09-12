@@ -1,14 +1,19 @@
 paths:
-  /collections/{_id}:
+  /namespaces/{namespaceId}/collections/{_id}:
     delete:
       summary: Delete
-      tags: [DatabaseCollections]
+      tags: [Collections]
       description: Deletes an existing record.
       security:
         - AccessToken: []
       parameters:
         - in: path
           name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
           schema:
             type: string
           required: true

@@ -2,7 +2,7 @@ paths:
   /web-sockets:
     get:
       summary: Find
-      tags: [WebSockets]
+      tags: [Web Sockets]
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []

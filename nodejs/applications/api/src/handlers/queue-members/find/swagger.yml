@@ -1,11 +1,17 @@
 paths:
-  /queue-members:
+  /namespaces/{namespaceId}/queue-members:
     get:
       summary: Find
-      tags: [QueueMembers]
+      tags: [Queue Members]
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       responses:
         200:
           description: OK

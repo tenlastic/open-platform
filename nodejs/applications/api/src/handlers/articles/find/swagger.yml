@@ -1,11 +1,17 @@
 paths:
-  /articles:
+  /namespaces/{namespaceId}/articles:
     get:
       summary: Find
       tags: [Articles]
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       responses:
         200:
           description: OK

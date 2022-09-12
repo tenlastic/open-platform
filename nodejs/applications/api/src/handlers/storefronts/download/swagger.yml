@@ -1,5 +1,5 @@
 paths:
-  /storefronts/{storefrontId}/{field}/{_id}:
+  /namespaces/{namespaceId}/storefronts/{storefrontId}/{field}/{_id}:
     get:
       summary: Download Image or Video
       tags: [Storefront]
@@ -13,6 +13,11 @@ paths:
             type: string
         - in: path
           name: field
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
           schema:
             type: string
           required: true

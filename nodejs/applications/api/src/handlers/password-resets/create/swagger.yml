@@ -2,7 +2,7 @@ paths:
   /password-resets:
     post:
       summary: Request Password Reset
-      tags: [PasswordResets]
+      tags: [Password Resets]
       description: Registers a new Password Reset and emails the User with further instructions.
       requestBody:
         content:

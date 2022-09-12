@@ -1,11 +1,17 @@
 paths:
-  /queues:
+  /namespaces/{namespaceId}/queues:
     post:
       summary: Create
       tags: [Queues]
       description: Creates a new record.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       requestBody:
         content:
           application/json:

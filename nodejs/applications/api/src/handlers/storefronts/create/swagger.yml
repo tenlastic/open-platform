@@ -1,11 +1,17 @@
 paths:
-  /storefronts:
+  /namespaces/{namespaceId}/storefronts:
     post:
       summary: Create
       tags: [Storefront]
       description: Creates a new record.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       requestBody:
         content:
           application/json:

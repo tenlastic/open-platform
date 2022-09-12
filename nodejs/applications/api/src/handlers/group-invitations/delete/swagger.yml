@@ -2,7 +2,7 @@ paths:
   /group-invitations/{_id}:
     delete:
       summary: Delete
-      tags: [GroupInvitations]
+      tags: [Group Invitations]
       description: Deletes an existing record.
       security:
         - AccessToken: []

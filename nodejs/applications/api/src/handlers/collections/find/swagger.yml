@@ -1,11 +1,17 @@
 paths:
-  /collections:
+  /namespaces/{namespaceId}/collections:
     get:
       summary: Find
-      tags: [DatabaseCollections]
+      tags: [Collections]
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       responses:
         200:
           description: OK

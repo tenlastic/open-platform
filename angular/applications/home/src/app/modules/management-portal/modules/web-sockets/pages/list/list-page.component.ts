@@ -64,6 +64,7 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
     this.dataSource.sort = this.sort;
 
     const webSockets = await this.webSocketService.find({ sort: '-createdAt' });
-    await this.userService.find({ where: { _id: { $in: webSockets.map((ws) => ws.userId) } } });
+    const userIds = webSockets.map((ws) => ws.userId).filter((ui, i, arr) => arr.indexOf(ui) === i);
+    await this.userService.find({ where: { _id: { $in: userIds } } });
   }
 }

@@ -1,11 +1,17 @@
 paths:
-  /queues:
+  /namespaces/{namespaceId}/queues:
     get:
       summary: Find
       tags: [Queues]
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       responses:
         200:
           description: OK

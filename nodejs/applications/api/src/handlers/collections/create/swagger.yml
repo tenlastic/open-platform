@@ -1,11 +1,17 @@
 paths:
-  /collections:
+  /namespaces/{namespaceId}/collections:
     post:
       summary: Create
-      tags: [DatabaseCollections]
+      tags: [Collections]
       description: Creates a new record.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       requestBody:
         content:
           application/json:

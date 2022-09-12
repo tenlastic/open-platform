@@ -1,14 +1,19 @@
 paths:
-  /queue-members/{_id}:
+  /namespaces/{namespaceId}/queue-members/{_id}:
     get:
       summary: Find One
-      tags: [QueueMembers]
+      tags: [Queue Members]
       description: Finds a record by ID.
       security:
         - AccessToken: []
       parameters:
         - in: path
           name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
           schema:
             type: string
           required: true

@@ -1,14 +1,19 @@
 paths:
-  /game-servers/{_id}:
+  /namespaces/{namespaceId}/game-servers/{_id}:
     get:
       summary: Find One
-      tags: [GameServers]
+      tags: [Game Servers]
       description: Finds a record by ID.
       security:
         - AccessToken: []
       parameters:
         - in: path
           name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
           schema:
             type: string
           required: true

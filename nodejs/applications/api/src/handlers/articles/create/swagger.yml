@@ -1,11 +1,17 @@
 paths:
-  /articles:
+  /namespaces/{namespaceId}/articles:
     post:
       summary: Create
       tags: [Articles]
       description: Creates a new record.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       requestBody:
         content:
           application/json:

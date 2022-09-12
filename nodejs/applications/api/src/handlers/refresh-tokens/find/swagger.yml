@@ -2,7 +2,7 @@ paths:
   /refresh-tokens:
     get:
       summary: Find
-      tags: [RefreshTokens]
+      tags: [Refresh Tokens]
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []

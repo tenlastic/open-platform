@@ -1,11 +1,17 @@
 paths:
-  /builds:
+  /namespaces/{namespaceId}/builds:
     post:
       summary: Create
       tags: [Builds]
       description: Uploads files for a Build. Make sure zip is the last field.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       requestBody:
         content:
           multipart/form-data:

@@ -1,14 +1,19 @@
 paths:
-  /game-servers/{_id}/logs/{nodeId}:
+  /namespaces/{namespaceId}/game-servers/{_id}/logs/{nodeId}:
     get:
       summary: Logs
-      tags: [GameServers]
+      tags: [Game Servers]
       description: Returns the most recent logs of the requested node.
       security:
         - AccessToken: []
       parameters:
         - in: path
           name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
           schema:
             type: string
           required: true

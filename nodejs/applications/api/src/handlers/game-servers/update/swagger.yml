@@ -1,14 +1,19 @@
 paths:
-  /game-servers/{_id}:
+  /namespaces/{namespaceId}/game-servers/{_id}:
     put:
       summary: Update
-      tags: [GameServers]
+      tags: [Game Servers]
       description: Updates an existing record.
       security:
         - AccessToken: []
       parameters:
         - in: path
           name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
           schema:
             type: string
           required: true

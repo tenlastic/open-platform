@@ -1,11 +1,17 @@
 paths:
-  /storefronts/count:
+  /namespaces/{namespaceId}/storefronts/count:
     get:
       summary: Count
       tags: [Storefront]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       responses:
         200:
           description: OK

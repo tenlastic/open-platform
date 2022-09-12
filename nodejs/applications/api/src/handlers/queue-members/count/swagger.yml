@@ -1,11 +1,17 @@
 paths:
-  /queue-members/count:
+  /namespaces/{namespaceId}/queue-members/count:
     get:
       summary: Count
-      tags: [QueueMembers]
+      tags: [Queue Members]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       responses:
         200:
           description: OK

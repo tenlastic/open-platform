@@ -2,7 +2,7 @@ paths:
   /group-invitations:
     post:
       summary: Create
-      tags: [GroupInvitations]
+      tags: [Group Invitations]
       description: Creates a new record.
       security:
         - AccessToken: []

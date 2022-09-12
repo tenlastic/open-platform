@@ -2,7 +2,7 @@ paths:
   /group-invitations/{_id}:
     get:
       summary: Find One
-      tags: [GroupInvitations]
+      tags: [Group Invitations]
       description: Finds a record by ID.
       security:
         - AccessToken: []

@@ -1,8 +1,8 @@
 paths:
-  /collections/{collectionId}/records/{_id}:
+  /namespaces/{namespaceId}/collections/{collectionId}/records/{_id}:
     put:
       summary: Update
-      tags: [DatabaseCollectionRecords]
+      tags: [Records]
       description: Updates an existing record.
       security:
         - AccessToken: []
@@ -14,6 +14,11 @@ paths:
           required: true
         - in: path
           name: collectionId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
           schema:
             type: string
           required: true

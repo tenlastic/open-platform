@@ -1,5 +1,5 @@
 paths:
-  /storefronts/{_id}:
+  /namespaces/{namespaceId}/storefronts/{_id}:
     put:
       summary: Update
       tags: [Storefront]
@@ -9,6 +9,11 @@ paths:
       parameters:
         - in: path
           name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
           schema:
             type: string
           required: true

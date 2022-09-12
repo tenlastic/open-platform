@@ -2,7 +2,7 @@ paths:
   /group-invitations:
     get:
       summary: Find
-      tags: [GroupInvitations]
+      tags: [Group Invitations]
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []

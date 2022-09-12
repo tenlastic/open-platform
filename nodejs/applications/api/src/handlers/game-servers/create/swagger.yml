@@ -1,11 +1,17 @@
 paths:
-  /game-servers:
+  /namespaces/{namespaceId}/game-servers:
     post:
       summary: Create
-      tags: [GameServers]
+      tags: [Game Servers]
       description: Creates a new record.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       requestBody:
         content:
           application/json:

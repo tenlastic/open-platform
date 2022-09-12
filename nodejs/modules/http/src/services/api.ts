@@ -37,8 +37,9 @@ export class ApiService {
       }
     }
 
-    if (config.params && typeof config.params !== 'string') {
-      config.params = { query: JSON.stringify(config.params) };
+    if (config.params) {
+      config.url += '?' + encodeURIComponent(JSON.stringify(config.params));
+      config.params = null;
     }
 
     if (config.responseType === 'json') {

@@ -95,6 +95,13 @@
     }
   }
 
+  div.opblock-section-request-body {
+    code {
+      background: none !important;
+      box-shadow: none !important;
+    }
+  }
+
   p {
     margin: 0px !important;
   }
@@ -123,6 +130,11 @@
   tr.responses-header td,
   tr.response td {
     color: white !important;
+
+    code {
+      background: none !important;
+      box-shadow: none !important;
+    }
   }
 }
 

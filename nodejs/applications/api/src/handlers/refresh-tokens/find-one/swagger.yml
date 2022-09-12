@@ -2,7 +2,7 @@ paths:
   /refresh-tokens/{_id}:
     get:
       summary: Find One
-      tags: [RefreshTokens]
+      tags: [Refresh Tokens]
       description: Finds a record by ID.
       security:
         - AccessToken: []

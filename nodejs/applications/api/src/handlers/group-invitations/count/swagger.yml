@@ -2,7 +2,7 @@ paths:
   /group-invitations/count:
     get:
       summary: Count
-      tags: [GroupInvitations]
+      tags: [Group Invitations]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []

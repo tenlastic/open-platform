@@ -1,11 +1,17 @@
 paths:
-  /game-servers/count:
+  /namespaces/{namespaceId}/game-servers/count:
     get:
       summary: Count
-      tags: [GameServers]
+      tags: [Game Servers]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       responses:
         200:
           description: OK

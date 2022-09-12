@@ -1,11 +1,17 @@
 paths:
-  /workflows:
+  /namespaces/{namespaceId}/workflows:
     post:
       summary: Create
       tags: [Workflows]
       description: Creates a new record.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       requestBody:
         content:
           application/json:

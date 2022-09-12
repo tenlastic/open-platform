@@ -2,7 +2,7 @@ paths:
   /web-sockets/count:
     get:
       summary: Count
-      tags: [WebSockets]
+      tags: [Web Sockets]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []

@@ -1,5 +1,5 @@
 paths:
-  /queues/{_id}/logs/{nodeId}:
+  /namespaces/{namespaceId}/queues/{_id}/logs/{nodeId}:
     get:
       summary: Logs
       tags: [Queues]
@@ -9,6 +9,11 @@ paths:
       parameters:
         - in: path
           name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
           schema:
             type: string
           required: true
