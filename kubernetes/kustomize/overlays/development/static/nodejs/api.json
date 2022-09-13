@@ -4,9 +4,7 @@
     "path": "/spec/template/spec/volumes",
     "value": [
       {
-        "hostPath": {
-          "path": "/run/desktop/mnt/host/wsl/open-platform/"
-        },
+        "hostPath": { "path": "/run/desktop/mnt/host/wsl/open-platform/" },
         "name": "workspace"
       }
     ]
@@ -16,13 +14,7 @@
     "path": "/spec/template/spec/containers/0",
     "value": {
       "command": ["npm", "run", "start"],
-      "envFrom": [
-        {
-          "secretRef": {
-            "name": "nodejs"
-          }
-        }
-      ],
+      "envFrom": [{ "secretRef": { "name": "nodejs" } }],
       "image": "node:14",
       "livenessProbe": {
         "httpGet": {
@@ -34,12 +26,11 @@
       },
       "name": "api",
       "ports": [{ "containerPort": 3000 }],
-      "volumeMounts": [
-        {
-          "mountPath": "/usr/src/",
-          "name": "workspace"
-        }
-      ],
+      "resources": {
+        "limits": { "cpu": "1000m" },
+        "requests": { "cpu": "100m" }
+      },
+      "volumeMounts": [{ "mountPath": "/usr/src/", "name": "workspace" }],
       "workingDir": "/usr/src/nodejs/applications/api/"
     }
   }

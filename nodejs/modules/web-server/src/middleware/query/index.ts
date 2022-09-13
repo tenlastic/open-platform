@@ -8,23 +8,25 @@ export async function queryMiddleware(ctx: Context, next: () => Promise<void>) {
     return next();
   }
 
-  try {
-    let query: { [key: string]: any };
+  let query: { [key: string]: any };
 
-    if (ctx.request.querystring.includes('=')) {
-      query = Object.entries<string>(ctx.request.query).reduce((previous, [key, value]) => {
-        previous[key] = JSON.parse(value);
-        return previous;
-      }, {});
-    } else {
-      const querystring = decodeURIComponent(ctx.request.querystring);
-      query = JSON.parse(querystring);
+  if (ctx.request.query.json) {
+    try {
+      query = JSON.parse(ctx.request.query.json);
+    } catch {
+      throw new Error('Invalid JSON within query string.');
     }
+  } else {
+    query = Object.entries<string>(ctx.request.query).reduce((previous, [key, value]) => {
+      try {
+        previous[key] = JSON.parse(value);
+      } catch {}
 
-    Object.assign(ctx.request.query, query);
-  } catch {
-    throw new Error('Query parameters must be valid JSON.');
+      return previous;
+    }, {});
   }
+
+  Object.assign(ctx.request.query, query);
 
   await next();
 }

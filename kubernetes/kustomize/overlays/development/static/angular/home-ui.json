@@ -4,9 +4,7 @@
     "path": "/spec/template/spec/volumes",
     "value": [
       {
-        "hostPath": {
-          "path": "/run/desktop/mnt/host/wsl/open-platform/"
-        },
+        "hostPath": { "path": "/run/desktop/mnt/host/wsl/open-platform/" },
         "name": "workspace"
       }
     ]
@@ -19,12 +17,11 @@
       "image": "node:14",
       "name": "home-ui",
       "ports": [{ "containerPort": 80 }],
-      "volumeMounts": [
-        {
-          "mountPath": "/usr/src/",
-          "name": "workspace"
-        }
-      ],
+      "resources": {
+        "limits": { "cpu": "1000m" },
+        "requests": { "cpu": "100m" }
+      },
+      "volumeMounts": [{ "mountPath": "/usr/src/", "name": "workspace" }],
       "workingDir": "/usr/src/angular/applications/home/"
     }
   }

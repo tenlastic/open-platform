@@ -38,8 +38,10 @@ export class ApiService {
     }
 
     if (config.params) {
-      config.url += '?' + encodeURIComponent(JSON.stringify(config.params));
-      config.params = null;
+      config.params = Object.entries<any>(config.params).reduce((previous, [key, value]) => {
+        previous[key] = JSON.stringify(value);
+        return previous;
+      }, {});
     }
 
     if (config.responseType === 'json') {
