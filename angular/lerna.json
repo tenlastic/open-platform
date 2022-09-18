@@ -2,26 +2,20 @@
   "command": {
     "bootstrap": {
       "hoist": true,
-      "nohoist": [
-        "**/electron*",
-        "**/electron*/**"
-      ],
+      "nohoist": ["**/electron*", "**/electron*/**"],
       "strict": true
     },
     "publish": {
       "exact": true,
-      "message": "angular-v%v [skip ci]"
+      "message": "angular-v%v [skip]"
     },
     "version": {
       "exact": true,
-      "message": "angular-v%v [skip ci]"
+      "message": "angular-v%v [skip]"
     }
   },
   "npmClient": "npm",
-  "packages": [
-    "applications/*",
-    "modules/*"
-  ],
+  "packages": ["applications/*", "modules/*"],
   "tagVersionPrefix": "angular-v",
   "version": "0.0.299"
 }

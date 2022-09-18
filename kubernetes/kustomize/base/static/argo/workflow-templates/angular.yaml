@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Workflow
+kind: WorkflowTemplate
 metadata:
-  generateName: continuous-integration-angular-
+  name: angular
 spec:
   affinity:
     nodeAffinity:
@@ -68,10 +68,10 @@ spec:
               parameters:
                 - name: revision
                   value: "{{inputs.parameters.revision}}"
-          - name: skip-ci
-            template: skip-ci
+          - name: skip
+            template: skip
         - - name: angular
-            when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
+            when: "'{{steps.skip.outputs.result}}' == 'false'"
             template: angular
             arguments:
               parameters:
@@ -139,7 +139,7 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [bash]
         args:
-          - /workspace/open-platform/argo/scripts/bootstrap.sh
+          - /workspace/open-platform/ci-cd/bootstrap.sh
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
@@ -154,7 +154,7 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [bash]
         args:
-          - /workspace/open-platform/argo/scripts/build-docker-image.sh
+          - /workspace/open-platform/ci-cd/build-docker-image.sh
         env:
           - name: CONTEXT
             value: "{{inputs.parameters.context}}"
@@ -206,7 +206,7 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [bash]
         args:
-          - /workspace/open-platform/argo/scripts/continuous-integration-angular.sh
+          - /workspace/open-platform/ci-cd/continuous-integration-angular.sh
         envFrom:
           - secretRef:
               name: ci-environment-variables
@@ -285,7 +285,7 @@ spec:
         image: electronuserland/builder:wine
         command: [sh]
         args:
-          - /workspace/open-platform/argo/scripts/publish-electron-applications.sh
+          - /workspace/open-platform/ci-cd/publish-electron-applications.sh
         envFrom:
           - secretRef:
               name: cd-environment-variables
@@ -300,7 +300,7 @@ spec:
         image: tenlastic/node-chrome-lerna:latest
         command: [bash]
         args:
-          - /workspace/open-platform/argo/scripts/publish-npm-modules.sh
+          - /workspace/open-platform/ci-cd/publish-npm-modules.sh
         envFrom:
           - secretRef:
               name: cd-environment-variables
@@ -316,7 +316,7 @@ spec:
         parameters:
           - name: workingDir
 
-    - name: skip-ci
+    - name: skip
       script:
         image: alpine/git:latest
         command: [sh]

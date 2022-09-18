@@ -6,18 +6,15 @@
     },
     "publish": {
       "exact": true,
-      "message": "nodejs-v%v [skip ci]"
+      "message": "nodejs-v%v [skip]"
     },
     "version": {
       "exact": true,
-      "message": "nodejs-v%v [skip ci]"
+      "message": "nodejs-v%v [skip]"
     }
   },
   "npmClient": "npm",
-  "packages": [
-    "applications/*",
-    "modules/*"
-  ],
+  "packages": ["applications/*", "modules/*"],
   "tagVersionPrefix": "nodejs-v",
   "version": "0.0.314"
 }
