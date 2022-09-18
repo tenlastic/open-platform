@@ -2,6 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: nodejs
+  namespace: static
 spec:
   affinity:
     nodeAffinity:
