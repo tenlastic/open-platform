@@ -7,3 +7,6 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
 
 # Install Lerna.
 RUN npm i -g lerna
+
+# Install TCP Dump.
+RUN apt-get update && apt-get install -qy tcpdump

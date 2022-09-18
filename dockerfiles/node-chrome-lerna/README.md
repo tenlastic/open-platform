@@ -1,3 +1,3 @@
-# Node with Google Chrome
+# Node with Google Chrome, Lerna, and TCP Dump
 
-Includes Google Chrome and Lerna for faster development.
+Includes Google Chrome, Lerna, and TCP Dump for faster development.
