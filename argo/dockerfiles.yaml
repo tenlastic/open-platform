@@ -101,8 +101,10 @@ spec:
                 image: development-cli
               - context: /workspace/open-platform/dockerfiles/mongo-replica-set/
                 image: mongo-replica-set
-              - context: /workspace/open-platform/dockerfiles/node-chrome-lerna/
-                image: node-chrome-lerna
+              - context: /workspace/open-platform/dockerfiles/node-development/
+                image: node-development
+              - context: /workspace/open-platform/dockerfiles/tcpdump/
+                image: tcpdump
 
     - name: checkout
       script:
