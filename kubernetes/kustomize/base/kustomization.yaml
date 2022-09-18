@@ -28,6 +28,7 @@ resources:
   - ./static/argo/argo-workflows.yaml
   - ./static/argo/cron-workflows/delete-dynamic-corrupted-pods.yaml
   - ./static/argo/cron-workflows/delete-static-corrupted-pods.yaml
+  - ./static/argo/cron-workflows/e2e.yaml
   - ./static/argo/cron-workflows/garbage-collect-docker-registry.yaml
   - ./static/argo/workflow-templates/angular.yaml
   - ./static/argo/workflow-templates/dockerfiles.yaml
@@ -44,7 +45,6 @@ resources:
   - ./static/mongodb/mongoku.yaml
   - ./static/nats/nats.yaml
   - ./static/nodejs/api.yaml
-  - ./static/nodejs/e2e.yaml
   - ./static/nodejs/provisioner.yaml
   - ./static/nodejs/wss.yaml
   - ./static/prometheus/prometheus.yaml
