@@ -1,7 +1,8 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Workflow
+kind: WorkflowTemplate
 metadata:
-  generateName: continuous-integration-dockerfiles-
+  name: gcp
+  namespace: static
 spec:
   affinity:
     nodeAffinity:
@@ -70,41 +71,24 @@ spec:
               parameters:
                 - name: revision
                   value: "{{inputs.parameters.revision}}"
-          - name: skip-ci
-            template: skip-ci
-        - - name: dockerfiles
-            when: "'{{steps.skip-ci.outputs.result}}' == 'false'"
-            template: dockerfiles
+          - name: skip
+            template: skip
+        - - name: gcp
+            when: "'{{steps.skip.outputs.result}}' == 'false'"
+            template: gcp
             arguments:
               parameters:
                 - name: branch
                   value: "{{steps.get-branch.outputs.result}}"
 
-    - name: dockerfiles
+    - name: gcp
       inputs:
         parameters:
           - name: branch
       steps:
-        - - name: publish-docker-images
-            template: publish-docker-image
-            arguments:
-              parameters:
-                - name: context
-                  value: "{{item.context}}"
-                - name: dockerfile
-                  value: Dockerfile
-                - name: image
-                  value: "{{item.image}}"
-                - name: tag
-                  value: latest
+        - - name: terraform
             when: "'{{inputs.parameters.branch}}' == 'origin/master'"
-            withItems:
-              - context: /workspace/open-platform/dockerfiles/development-cli/
-                image: development-cli
-              - context: /workspace/open-platform/dockerfiles/mongo-replica-set/
-                image: mongo-replica-set
-              - context: /workspace/open-platform/dockerfiles/node-chrome-lerna/
-                image: node-chrome-lerna
+            template: terraform
 
     - name: checkout
       script:
@@ -151,39 +135,7 @@ spec:
         parameters:
           - name: revision
 
-    - name: publish-docker-image
-      container:
-        image: gcr.io/kaniko-project/executor:v1.8.0
-        command: [/kaniko/executor]
-        args:
-          - --context=dir://{{inputs.parameters.context}}
-          - --dockerfile={{inputs.parameters.dockerfile}}
-          - --destination=tenlastic/{{inputs.parameters.image}}:{{inputs.parameters.tag}}
-          - --destination=tenlastic/{{inputs.parameters.image}}:latest
-          - --destination=docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:{{inputs.parameters.tag}}
-          - --destination=docker.pkg.github.com/tenlastic/open-platform/{{inputs.parameters.image}}:latest
-          - --push-retry=2
-        imagePullPolicy: IfNotPresent
-        volumeMounts:
-          - name: kaniko
-            mountPath: /kaniko/.docker/
-          - name: workspace
-            mountPath: /workspace/
-      inputs:
-        parameters:
-          - name: context
-          - name: dockerfile
-          - name: image
-          - name: tag
-      volumes:
-        - name: kaniko
-          secret:
-            items:
-              - key: KANIKO
-                path: config.json
-            secretName: continuous-deployment
-
-    - name: skip-ci
+    - name: skip
       script:
         image: alpine/git:latest
         command: [sh]
@@ -197,3 +149,18 @@ spec:
           - name: workspace
             mountPath: /workspace/
         workingDir: /workspace/open-platform/
+
+    - name: terraform
+      container:
+        image: hashicorp/terraform:0.14.5
+        command: [sh]
+        args:
+          - /workspace/open-platform/ci-cd/terraform.sh
+        envFrom:
+          - secretRef:
+              name: continuous-deployment
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/gcp/terraform/
