@@ -28,7 +28,8 @@ export async function bandwidth() {
     let packets = 0;
 
     await new Promise<void>((resolve) => {
-      const parser = new Parser(path.join(file, filename));
+      const stream = fs.createReadStream(path.join(file, filename));
+      const parser = new Parser(stream);
       parser.on('end', resolve);
       parser.on('header', (header) => {
         const { capturedLength, timestampMicroseconds, timestampSeconds } = header;
