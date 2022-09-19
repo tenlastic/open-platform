@@ -15,7 +15,7 @@
     "value": {
       "command": ["npm", "run", "start"],
       "envFrom": [{ "secretRef": { "name": "nodejs" } }],
-      "image": "node:14",
+      "image": "tenlastic/node-development:latest",
       "livenessProbe": {
         "httpGet": {
           "path": "/namespaces",

@@ -177,7 +177,7 @@ export const KubernetesQueue = {
               command: ['npm', 'run', 'start'],
               env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
               envFrom,
-              image: `node:14`,
+              image: `tenlastic/node-development:latest`,
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
               name: 'main',
               readinessProbe,

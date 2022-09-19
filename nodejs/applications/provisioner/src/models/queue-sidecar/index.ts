@@ -136,7 +136,7 @@ export const KubernetesQueueSidecar = {
             {
               command: ['npm', 'run', 'start'],
               envFrom: [{ secretRef: { name } }],
-              image: 'node:14',
+              image: 'tenlastic/node-development:latest',
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
               name: 'queue-sidecar',
               resources: { requests: { cpu: '25m', memory: '50Mi' } },

@@ -8,7 +8,7 @@ metadata:
 spec:
   containers:
     - name: workspace
-      image: tenlastic/node-chrome-lerna:latest
+      image: tenlastic/node-development:latest
       command:
         - /bin/bash
         - -c

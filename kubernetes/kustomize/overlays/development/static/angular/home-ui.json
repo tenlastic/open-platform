@@ -14,7 +14,7 @@
     "path": "/spec/template/spec/containers/0",
     "value": {
       "command": ["npm", "run", "start"],
-      "image": "node:14",
+      "image": "tenlastic/node-development:latest",
       "name": "home-ui",
       "ports": [{ "containerPort": 80 }],
       "resources": {

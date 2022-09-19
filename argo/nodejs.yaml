@@ -138,7 +138,7 @@ spec:
 
     - name: bootstrap
       container:
-        image: tenlastic/node-chrome-lerna:latest
+        image: tenlastic/node-development:latest
         command: [bash]
         args:
           - /workspace/open-platform/argo/scripts/bootstrap.sh
@@ -153,7 +153,7 @@ spec:
 
     - name: build-docker-image
       container:
-        image: tenlastic/node-chrome-lerna:latest
+        image: tenlastic/node-development:latest
         command: [bash]
         args:
           - /workspace/open-platform/argo/scripts/build-docker-image.sh
@@ -205,7 +205,7 @@ spec:
 
     - name: continuous-integration
       container:
-        image: tenlastic/node-chrome-lerna:latest
+        image: tenlastic/node-development:latest
         command: [bash]
         args:
           - /workspace/open-platform/argo/scripts/continuous-integration-nodejs.sh
@@ -262,7 +262,7 @@ spec:
 
     - name: get-docker-images
       script:
-        image: tenlastic/node-chrome-lerna:latest
+        image: tenlastic/node-development:latest
         command: [bash]
         source: |
           npm i -g json &> /dev/null
@@ -281,7 +281,7 @@ spec:
 
     - name: migrations
       container:
-        image: tenlastic/node-chrome-lerna:latest
+        image: tenlastic/node-development:latest
         command: [bash]
         args:
           - /workspace/open-platform/argo/scripts/migrations.sh
@@ -328,7 +328,7 @@ spec:
 
     - name: publish-npm-modules
       container:
-        image: tenlastic/node-chrome-lerna:latest
+        image: tenlastic/node-development:latest
         command: [bash]
         args:
           - /workspace/open-platform/argo/scripts/publish-npm-modules.sh

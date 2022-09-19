@@ -195,7 +195,7 @@ export const KubernetesBuild = {
               container: {
                 command: ['npm', 'run', 'start'],
                 envFrom,
-                image: 'node:14',
+                image: 'tenlastic/node-development:latest',
                 resources: { requests: { cpu: '100m', memory: '100M' } },
                 volumeMounts: [{ mountPath: '/usr/src/', name: 'host' }],
                 workingDir: `${workingDir}/build/`,

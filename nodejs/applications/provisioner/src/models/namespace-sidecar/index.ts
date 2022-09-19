@@ -138,7 +138,7 @@ export const KubernetesNamespaceSidecar = {
             {
               command: ['npm', 'run', 'start'],
               envFrom,
-              image: 'node:14',
+              image: 'tenlastic/node-development:latest',
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
               name: 'namespace-sidecar',
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
