@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   labels:
     app: docker-registry-ui
-    release: docker-registry
   name: docker-registry-ui
   namespace: static
 spec:
@@ -11,12 +10,10 @@ spec:
   selector:
     matchLabels:
       app: docker-registry-ui
-      release: docker-registry
   template:
     metadata:
       labels:
         app: docker-registry-ui
-        release: docker-registry
     spec:
       affinity:
         nodeAffinity:
@@ -58,7 +55,6 @@ kind: Service
 metadata:
   labels:
     app: docker-registry-ui
-    release: docker-registry
   name: docker-registry-ui
   namespace: static
 spec:

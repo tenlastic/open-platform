@@ -96,19 +96,19 @@ metadata:
   name: kubernetes-dashboard
   namespace: static
 ---
-apiVersion: helm.fluxcd.io/v1
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  annotations:
-    fluxcd.io/automated: "true"
   name: kubernetes-dashboard
   namespace: static
 spec:
   chart:
-    git: https://github.com/tenlastic/open-platform
-    path: kubernetes/helm/kubernetes-dashboard/
-    ref: master
-    skipDepUpdate: true
+    spec:
+      chart: kubernetes/helm/kubernetes-dashboard/
+      sourceRef:
+        kind: GitRepository
+        name: open-platform
+  interval: 5m
   releaseName: kubernetes-dashboard
   values:
     affinity:

@@ -10,15 +10,13 @@ kubectl config set-context --current --namespace=static
 gcloud iam service-accounts keys create "../../../gcp/service-accounts/dns-admin.json" \
   --iam-account "dns-admin@${PROJECT}.iam.gserviceaccount.com"
 
-# Install Helm Operator.
+# Install Flux and the Helm Controller.
 kubectl apply -f ../../base/cluster/namespaces/
-kubectl apply -f ../../base/static/helm-operator/
-
-# Install Sealed Secrets.
-kubectl apply -f ../../base/static/sealed-secrets/
-
-# Install Flux.
-kubectl apply -f ./static/flux/
+helm install \
+  -f ../../../helm/values/base/flux.yaml \
+  -n static \
+  flux \
+  ../../../helm/flux/
 ```
 
 Don't worry if the `kustomize` command fails, Flux will take care of the rest.
@@ -39,7 +37,6 @@ kubeseal -o yaml < ./static/continuous-deployment/continuous-deployment.secret.y
 kubeseal -o yaml < ./static/continuous-integration/continuous-integration.secret.yaml > ./static/continuous-integration/continuous-integration.sealedsecret.yaml
 kubeseal -o yaml < ./static/docker-registry/docker-registry-image-pull-secret.secret.yaml > ./static/docker-registry/docker-registry-image-pull-secret.sealedsecret.yaml
 kubeseal -o yaml < ./static/docker-registry/docker-registry.secret.yaml > ./static/docker-registry/docker-registry.sealedsecret.yaml
-kubeseal -o yaml < ./static/grafana/grafana.secret.yaml > ./static/grafana/grafana.sealedsecret.yaml
 kubeseal -o yaml < ./static/ingress-nginx/basic-authentication.secret.yaml > ./static/ingress-nginx/basic-authentication.sealedsecret.yaml
 kubeseal -o yaml < ./static/minio/minio.secret.yaml > ./static/minio/minio.sealedsecret.yaml
 kubeseal -o yaml < ./static/mongodb/mongodb.secret.yaml > ./static/mongodb/mongodb.sealedsecret.yaml

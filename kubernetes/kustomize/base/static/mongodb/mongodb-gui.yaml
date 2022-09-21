@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   labels:
     app: mongodb-gui
-    release: mongodb
   name: mongodb-gui
   namespace: static
 spec:
@@ -11,12 +10,10 @@ spec:
   selector:
     matchLabels:
       app: mongodb-gui
-      release: mongodb
   template:
     metadata:
       labels:
         app: mongodb-gui
-        release: mongodb
     spec:
       affinity:
         nodeAffinity:
@@ -54,7 +51,6 @@ kind: Service
 metadata:
   labels:
     app: mongodb-gui
-    release: mongodb
   name: mongodb-gui
   namespace: static
 spec:

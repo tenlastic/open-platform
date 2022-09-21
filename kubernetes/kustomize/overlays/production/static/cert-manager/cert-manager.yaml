@@ -1,16 +1,16 @@
-apiVersion: helm.fluxcd.io/v1
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  annotations:
-    fluxcd.io/automated: "true"
   name: cert-manager
   namespace: static
 spec:
   chart:
-    git: https://github.com/tenlastic/open-platform
-    path: kubernetes/helm/cert-manager/
-    ref: master
-    skipDepUpdate: true
+    spec:
+      chart: kubernetes/helm/cert-manager/
+      sourceRef:
+        kind: GitRepository
+        name: open-platform
+  interval: 5m
   releaseName: cert-manager
   values:
     affinity:

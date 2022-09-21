@@ -1,16 +1,16 @@
-apiVersion: helm.fluxcd.io/v1
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  annotations:
-    fluxcd.io/automated: "true"
   name: argo-workflows
   namespace: static
 spec:
   chart:
-    git: https://github.com/tenlastic/open-platform
-    path: kubernetes/helm/argo-workflows/
-    ref: master
-    skipDepUpdate: true
+    spec:
+      chart: kubernetes/helm/argo-workflows/
+      sourceRef:
+        kind: GitRepository
+        name: open-platform
+  interval: 5m
   releaseName: argo-workflows
   values:
     controller:

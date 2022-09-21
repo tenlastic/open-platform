@@ -21,8 +21,7 @@ resources:
   - ./static/continuous-integration/continuous-integration.sealedsecret.yaml
   - ./static/docker-registry/docker-registry-image-pull-secret.sealedsecret.yaml
   - ./static/docker-registry/docker-registry.sealedsecret.yaml
-  - ./static/flux/flux.yaml
-  - ./static/grafana/grafana.sealedsecret.yaml
+  - ./static/flux/open-plataform.kustomization.yaml
   - ./static/ingress-nginx/basic-authentication.ingress.yaml
   - ./static/ingress-nginx/basic-authentication.sealedsecret.yaml
   - ./static/ingress-nginx/default.ingress.yaml

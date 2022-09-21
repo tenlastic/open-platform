@@ -1,8 +1,6 @@
-apiVersion: helm.fluxcd.io/v1
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  labels:
-    release: redis
   name: redis
   namespace: static
 spec:

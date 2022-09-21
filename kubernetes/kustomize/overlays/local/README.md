@@ -30,6 +30,13 @@ kubectl config set-context --current --namespace=static
 kubectl label node $(kubectl get nodes -o jsonpath={..metadata.name}) tenlastic.com/high-priority=true
 kubectl label node $(kubectl get nodes -o jsonpath={..metadata.name}) tenlastic.com/low-priority=true
 
+# Install Flux and the Helm Controller.
+helm install \
+  -f ../../../helm/values/base/flux.yaml \
+  -n static \
+  flux \
+  ../../../helm/flux/
+
 # Create resources.
 kustomize build ./ | kubectl apply -f -
 

@@ -45,16 +45,6 @@ spec:
                 name: docker-registry
                 port:
                   number: 5000
-    - host: grafana.tenlastic.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: grafana
-                port:
-                  number: 80
     - host: minio.tenlastic.com
       http:
         paths:

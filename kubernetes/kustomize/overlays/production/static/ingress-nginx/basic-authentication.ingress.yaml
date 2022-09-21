@@ -66,13 +66,3 @@ spec:
                 name: mongodb-gui
                 port:
                   number: 4321
-    - host: prometheus.tenlastic.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: prometheus-server
-                port:
-                  number: 80

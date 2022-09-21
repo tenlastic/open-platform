@@ -1,16 +1,16 @@
-apiVersion: helm.fluxcd.io/v1
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  annotations:
-    fluxcd.io/automated: "true"
   name: nats
   namespace: static
 spec:
   chart:
-    git: https://github.com/tenlastic/open-platform
-    path: kubernetes/helm/nats/
-    ref: master
-    skipDepUpdate: true
+    spec:
+      chart: kubernetes/helm/nats/
+      sourceRef:
+        kind: GitRepository
+        name: open-platform
+  interval: 5m
   releaseName: nats
   values:
     affinity:
@@ -79,8 +79,6 @@ spec:
           cpu: 50m
           memory: 50Mi
   valuesFrom:
-    - secretKeyRef:
-        key: values.yaml
-        name: nats
-        namespace: static
-        optional: true
+    - kind: Secret
+      name: nats
+      valuesKey: values.yaml

@@ -1,16 +1,16 @@
-apiVersion: helm.fluxcd.io/v1
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  annotations:
-    fluxcd.io/automated: "true"
   name: minio
   namespace: static
 spec:
   chart:
-    git: https://github.com/tenlastic/open-platform
-    path: kubernetes/helm/minio/
-    ref: master
-    skipDepUpdate: true
+    spec:
+      chart: kubernetes/helm/minio/
+      sourceRef:
+        kind: GitRepository
+        name: open-platform
+  interval: 5m
   releaseName: minio
   values:
     affinity:
@@ -50,8 +50,6 @@ spec:
     persistence:
       size: 8Gi
       storageClass: balanced-expandable
-    podLabels:
-      release: minio
     replicas: 3
     resources:
       requests:

@@ -1,16 +1,16 @@
-apiVersion: helm.fluxcd.io/v1
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  annotations:
-    fluxcd.io/automated: "true"
   name: redis
   namespace: static
 spec:
   chart:
-    git: https://github.com/tenlastic/open-platform
-    path: kubernetes/helm/redis/
-    ref: master
-    skipDepUpdate: true
+    spec:
+      chart: kubernetes/helm/redis/
+      sourceRef:
+        kind: GitRepository
+        name: open-platform
+  interval: 5m
   releaseName: redis
   values:
     auth:
@@ -56,8 +56,6 @@ spec:
                 topologyKey: kubernetes.io/hostname
       persistence:
         storageClass: standard-expandable
-      podLabels:
-        release: redis
       replicaCount: 3
       resources:
         requests:
