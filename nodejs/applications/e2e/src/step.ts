@@ -12,6 +12,7 @@ export function step(msg: string, fn: Mocha.Func | Mocha.AsyncFunc) {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function xstep(msg: string, fn: Mocha.Func | Mocha.AsyncFunc) {
   return it(msg, null);
 }
