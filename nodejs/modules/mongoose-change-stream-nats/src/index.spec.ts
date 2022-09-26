@@ -1,9 +1,10 @@
+import * as mongoose from '@tenlastic/mongoose-models';
 import nats from '@tenlastic/nats';
-import * as mongoose from 'mongoose';
 
 before(async function () {
-  await mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
-    dbName: 'mongoose-change-stream-nats-test',
+  await mongoose.connect({
+    connectionString: process.env.MONGO_CONNECTION_STRING,
+    databaseName: 'mongoose-change-stream-nats',
   });
 
   await nats.connect({ connectionString: process.env.NATS_CONNECTION_STRING });

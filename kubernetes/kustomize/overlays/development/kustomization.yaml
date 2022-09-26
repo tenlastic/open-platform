@@ -13,7 +13,7 @@ patches:
   - path: ./static/nodejs/api.json
     target:
       group: apps
-      kind: Deployment
+      kind: StatefulSet
       name: api
       namespace: static
       version: v1
@@ -22,20 +22,6 @@ patches:
       group: batch
       kind: Job
       name: migrations
-      namespace: static
-      version: v1
-  - path: ./static/nodejs/provisioner.json
-    target:
-      group: apps
-      kind: Deployment
-      name: provisioner
-      namespace: static
-      version: v1
-  - path: ./static/nodejs/wss.json
-    target:
-      group: apps
-      kind: StatefulSet
-      name: wss
       namespace: static
       version: v1
 resources:

@@ -1,5 +1,5 @@
+import { IDatabasePayload } from '@tenlastic/mongoose-models';
 import nats from '@tenlastic/nats';
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
 import * as mongoose from 'mongoose';
 import { AckPolicy } from 'nats';
 import { TextDecoder } from 'util';
@@ -7,10 +7,10 @@ import { TextDecoder } from 'util';
 /**
  * Applies all change events from the topic to the target collection.
  */
-export async function subscribe(
+export async function subscribe<TDocument extends mongoose.Document = any>(
   durable: string,
-  eventEmitter: EventEmitter<IDatabasePayload<mongoose.Document>>,
   Model: mongoose.Model<mongoose.Document>,
+  callback: (payload: IDatabasePayload<TDocument>) => Promise<void>,
 ) {
   const coll = Model.collection.name;
   const db = Model.db.db.databaseName;
@@ -18,18 +18,21 @@ export async function subscribe(
 
   const subscription = await nats.subscribe(`${durable}-${coll}`, subject, {
     ack_policy: AckPolicy.Explicit,
-    ack_wait: 5 * 60 * 1000 * 1000 * 1000,
+    ack_wait: 60 * 1000 * 1000 * 1000,
     max_deliver: 5,
   });
+  console.log(`Subscribed to ${subject} with group ${durable}-${coll}.`);
 
   for await (const message of subscription) {
     const data = new TextDecoder().decode(message.data);
-
     const json = JSON.parse(data);
-    json.fullDocument = Model.hydrate(json.fullDocument);
+
+    if (json.fullDocument) {
+      json.fullDocument = new Model(json.fullDocument);
+    }
 
     try {
-      await eventEmitter.emit(json);
+      await callback(json);
       message.ack();
     } catch (e) {
       console.error(e);

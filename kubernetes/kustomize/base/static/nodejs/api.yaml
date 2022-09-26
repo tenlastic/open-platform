@@ -1,3 +1,30 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: api
+  namespace: static
+rules:
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: api
+  namespace: static
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: api
+subjects:
+  - kind: ServiceAccount
+    name: api
+    namespace: static
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -5,7 +32,7 @@ metadata:
   namespace: static
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   labels:
     app: api
@@ -16,6 +43,7 @@ spec:
   selector:
     matchLabels:
       app: api
+  serviceName: api
   template:
     metadata:
       labels:
@@ -42,6 +70,11 @@ spec:
       containers:
         - name: api
           image: tenlastic/api:0.0.314
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           envFrom:
             - secretRef:
                 name: nodejs
@@ -64,7 +97,6 @@ kind: Service
 metadata:
   labels:
     app: api
-    service: api
   name: api
   namespace: static
 spec:

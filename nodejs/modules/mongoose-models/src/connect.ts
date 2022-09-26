@@ -1,14 +1,19 @@
 import * as mongoose from 'mongoose';
 
 export interface ConnectionOptions {
+  autoCreate?: boolean;
+  autoIndex?: boolean;
   connectionString: string;
   databaseName: string;
 }
 
 export async function connect(options: ConnectionOptions) {
+  mongoose.set('autoCreate', options.autoCreate);
+  mongoose.set('autoIndex', options.autoIndex);
+
   await mongoose.connect(options.connectionString, {
-    autoCreate: false,
-    autoIndex: false,
+    autoCreate: options.autoCreate,
+    autoIndex: options.autoIndex,
     dbName: options.databaseName,
   });
 
@@ -16,9 +21,12 @@ export async function connect(options: ConnectionOptions) {
 }
 
 export function createConnection(options: ConnectionOptions) {
+  mongoose.set('autoCreate', options.autoCreate);
+  mongoose.set('autoIndex', options.autoIndex);
+
   return mongoose.createConnection(options.connectionString, {
-    autoCreate: false,
-    autoIndex: false,
+    autoCreate: options.autoCreate,
+    autoIndex: options.autoIndex,
     dbName: options.databaseName,
   });
 }

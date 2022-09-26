@@ -14,6 +14,12 @@
     "path": "/spec/template/spec/containers/0",
     "value": {
       "command": ["npm", "run", "start"],
+      "env": [
+        {
+          "name": "POD_NAME",
+          "valueFrom": { "fieldRef": { "fieldPath": "metadata.name" } }
+        }
+      ],
       "envFrom": [{ "secretRef": { "name": "nodejs" } }],
       "image": "tenlastic/node-development:latest",
       "livenessProbe": {

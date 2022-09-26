@@ -11,10 +11,7 @@ import * as mongoose from 'mongoose';
 
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
-  schemaOptions: {
-    collection: 'examples',
-    timestamps: true,
-  },
+  schemaOptions: { collection: 'examples', timestamps: true },
 })
 export class ExampleSchema {
   public _id: mongoose.Types.ObjectId;

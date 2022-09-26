@@ -78,12 +78,8 @@ async function updateNamespace() {
       let component: INamespace.StatusComponent;
       if (current._id.includes('api')) {
         component = previous.find((p) => p.name === 'api');
-      } else if (current._id.includes('provisioner')) {
-        component = previous.find((p) => p.name === 'provisioner');
       } else if (current._id.includes('sidecar')) {
         component = previous.find((p) => p.name === 'sidecar');
-      } else if (current._id.includes('wss')) {
-        component = previous.find((p) => p.name === 'wss');
       }
 
       component.current++;
@@ -96,9 +92,7 @@ async function updateNamespace() {
     },
     [
       { current: 0, name: 'api', phase: 'Pending', total: 1 },
-      { current: 0, name: 'provisioner', phase: 'Pending', total: 1 },
       { current: 0, name: 'sidecar', phase: 'Pending', total: 1 },
-      { current: 0, name: 'wss', phase: 'Pending', total: 1 },
     ],
   );
 

@@ -1,7 +1,7 @@
-import { AuthenticationData, WebSocket } from '../web-socket-server';
+import { WebSocket } from '../web-socket-server';
 import { subscriptions } from './subscribe';
 
-export async function unsubscribe(auth: AuthenticationData, data: any, ws: WebSocket) {
+export async function unsubscribe(data: any, ws: WebSocket) {
   if (!subscriptions.has(ws) || !subscriptions.get(ws).has(data._id)) {
     return;
   }

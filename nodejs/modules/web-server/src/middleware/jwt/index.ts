@@ -1,4 +1,3 @@
-import { Authorization, User } from '@tenlastic/mongoose-models';
 import axios from 'axios';
 import * as jsonwebtoken from 'jsonwebtoken';
 
@@ -37,18 +36,9 @@ export async function jwtMiddleware(ctx: Context, next: () => Promise<void>) {
     return;
   }
 
+  ctx.state.authorization = jwt.authorization;
   ctx.state.jwt = jwt;
-
-  if (jwt.authorization && jwt.user) {
-    ctx.state.authorization = Authorization.hydrate(jwt.authorization);
-    ctx.state.user = User.hydrate(jwt.user);
-  } else if (jwt.user) {
-    ctx.state.authorization = await Authorization.findOne({
-      namespaceId: { $exists: false },
-      userId: jwt.user._id,
-    });
-    ctx.state.user = User.hydrate(jwt.user);
-  }
+  ctx.state.user = jwt.user;
 
   await next();
 }

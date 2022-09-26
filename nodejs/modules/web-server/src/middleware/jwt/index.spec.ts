@@ -1,4 +1,3 @@
-import { UserMock } from '@tenlastic/mongoose-models';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
@@ -15,7 +14,7 @@ use(chaiAsPromised);
 describe('middleware/jwt', function () {
   context('when the token is valid', function () {
     it(`sets the user state object to the token's user`, async function () {
-      const user = await UserMock.create();
+      const user = { _id: chance.hash() };
       const token = jwt.sign(
         { type: 'access', user },
         process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),
@@ -28,7 +27,7 @@ describe('middleware/jwt', function () {
 
       await jwtMiddleware(ctx as any, noop);
 
-      expect(ctx.state.user._id.toString()).to.eql(user._id.toString());
+      expect(ctx.state.user._id).to.eql(user._id);
     });
   });
 

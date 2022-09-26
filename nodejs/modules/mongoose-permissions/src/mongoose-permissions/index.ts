@@ -19,8 +19,8 @@ export class PermissionError extends Error {
 
 export interface ICredentials {
   apiKey?: string;
-  authorization?: mongoose.Document;
-  user?: mongoose.Document;
+  authorization?: { _id?: mongoose.Types.ObjectId | string; roles?: string[] };
+  user?: { _id?: mongoose.Types.ObjectId | string; email?: string; username?: string };
 }
 
 export interface IFindQuery<TDocument extends mongoose.Document> {

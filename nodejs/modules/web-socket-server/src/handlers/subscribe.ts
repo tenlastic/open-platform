@@ -1,10 +1,4 @@
-import {
-  IDatabasePayload,
-  DatabaseOperationType,
-  Authorization,
-  AuthorizationDocument,
-  User,
-} from '@tenlastic/mongoose-models';
+import { IDatabasePayload, DatabaseOperationType } from '@tenlastic/mongoose-models';
 import {
   filterObject,
   ICredentials,
@@ -15,7 +9,7 @@ import nats from '@tenlastic/nats';
 import { AckPolicy, JetStreamSubscription } from 'nats';
 import * as mongoose from 'mongoose';
 
-import { AuthenticationData, WebSocket } from '../web-socket-server';
+import { WebSocket } from '../web-socket-server';
 import { unsubscribe } from './unsubscribe';
 import { TextDecoder } from 'util';
 
@@ -35,7 +29,7 @@ export interface SubscribeDataParameters {
 export const subscriptions = new Map<WebSocket, Map<string, JetStreamSubscription>>();
 
 export async function subscribe(
-  auth: AuthenticationData,
+  credentials: ICredentials,
   data: SubscribeData,
   Model: mongoose.Model<mongoose.Document>,
   Permissions: MongoosePermissions<any>,
@@ -45,23 +39,9 @@ export async function subscribe(
   const db = Model.db.db.databaseName;
   const subject = `${db}.${coll}`;
 
-  let authorization: AuthorizationDocument;
-  if (auth.apiKey) {
-    authorization = await Authorization.findOne({ apiKey: auth.apiKey });
-  } else if (auth.jwt?.authorization) {
-    authorization = Authorization.hydrate(auth.jwt.authorization);
-  } else if (auth.jwt?.user) {
-    authorization = await Authorization.findOne({
-      namespaceId: { $exists: false },
-      userId: auth.jwt?.user?._id,
-    });
-  }
-  const user = auth.jwt?.user ? User.hydrate(auth.jwt.user) : null;
-
   // Generate group ID for NATS consumer.
-  const credentials: ICredentials = { apiKey: auth.apiKey, authorization, user };
   const resumeToken = data.parameters.resumeToken || new mongoose.Types.ObjectId();
-  const username = credentials.apiKey || user?.username;
+  const username = credentials.apiKey || credentials.user?.username;
   const durable = `${subject}-${username}-${resumeToken}`.replace(/\./g, '-');
 
   // Create a NATS consumer.
@@ -76,7 +56,7 @@ export async function subscribe(
   subscriptions.get(ws).set(data._id, subscription);
 
   // Disconnect the NATS consumer on WebSocket disconnect.
-  ws.on('close', () => unsubscribe(auth, data, ws));
+  ws.on('close', () => unsubscribe(data, ws));
 
   for await (const message of subscription) {
     try {

@@ -14,13 +14,7 @@ import { plugin as uniqueErrorPlugin } from '../plugin';
 @index({ createdAt: 1 })
 @index({ name: 1 }, { unique: true })
 @index({ updatedAt: 1 })
-@modelOptions({
-  schemaOptions: {
-    autoIndex: false,
-    collection: 'uniques',
-    timestamps: true,
-  },
-})
+@modelOptions({ schemaOptions: { autoIndex: false, collection: 'uniques', timestamps: true } })
 @plugin(uniqueErrorPlugin)
 export class UniqueSchema {
   public _id: mongoose.Types.ObjectId;

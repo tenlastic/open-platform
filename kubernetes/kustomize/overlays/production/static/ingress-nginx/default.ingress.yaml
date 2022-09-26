@@ -72,7 +72,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: wss
+                name: api
                 port:
                   number: 3000
     - host: www.tenlastic.com

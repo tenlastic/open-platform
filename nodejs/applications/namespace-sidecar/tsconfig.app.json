@@ -12,7 +12,6 @@
     { "path": "../../modules/dependency-injection/tsconfig.app.json" },
     { "path": "../../modules/http/tsconfig.app.json" },
     { "path": "../../modules/kubernetes/tsconfig.app.json" },
-    { "path": "../../modules/mongoose-models/tsconfig.app.json" },
     { "path": "../../modules/web-server/tsconfig.app.json" }
   ],
   "ts-node": {

@@ -4,10 +4,7 @@ mongoose.set('autoIndex', false);
 
 export * from './change-stream';
 export * as errors from './errors';
-export * from './models';
-export * from './permissions';
-export * from './events';
+export * from './json-schema';
+export * from './validators';
 
 export * from './connect';
-export * from './delete-all';
-export * from './sync-indexes';

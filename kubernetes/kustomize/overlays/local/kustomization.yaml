@@ -8,9 +8,6 @@ images:
   - name: tenlastic/home-ui
     newName: tenlastic/home-ui
     newTag: latest
-  - name: tenlastic/wss
-    newName: tenlastic/wss
-    newTag: latest
 kind: Kustomization
 patches:
   - path: ./static/docker-registry/docker-registry.json
@@ -34,8 +31,6 @@ patchesStrategicMerge:
   - ./static/mongodb/mongodb-gui.yaml
   - ./static/nats/nats.yaml
   - ./static/nodejs/api.yaml
-  - ./static/nodejs/provisioner.yaml
-  - ./static/nodejs/wss.yaml
   - ./static/redis/redis.yaml
 resources:
   - ./cluster/cluster-role-bindings/docker-for-desktop-binding.yaml

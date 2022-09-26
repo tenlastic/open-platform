@@ -1,44 +1,25 @@
-import {
-  ArticleDocument,
-  ArticleMock,
-  ArticlePermissions,
-  AuthorizationMock,
-  AuthorizationRole,
-  NamespaceMock,
-  UserDocument,
-  UserMock,
-} from '@tenlastic/mongoose-models';
 import { expect } from 'chai';
+import { Chance } from 'chance';
 
 import { ContextMock } from '../../context';
 import { find } from './';
 
+const chance = new Chance();
+
 describe('handlers/find', function () {
-  let record: ArticleDocument;
-  let user: UserDocument;
+  it('returns the matching records', async function () {
+    const name = chance.hash();
 
-  beforeEach(async function () {
-    user = await UserMock.create();
+    const ctx = new ContextMock();
+    const Permissions = {
+      find: () => Promise.resolve([{ name }]),
+      read: () => Promise.resolve({ name }),
+    };
 
-    const namespace = await NamespaceMock.create();
-    await AuthorizationMock.create({
-      namespaceId: namespace._id,
-      roles: [AuthorizationRole.ArticlesRead],
-      userId: user._id,
-    });
-
-    record = await ArticleMock.create({ namespaceId: namespace._id });
-  });
-
-  it('returns the number of matching records', async function () {
-    const ctx = new ContextMock({
-      state: { user },
-    });
-
-    const handler = find(ArticlePermissions);
+    const handler = find(Permissions as any);
     await handler(ctx as any);
 
     expect(ctx.response.body.records.length).to.eql(1);
-    expect(ctx.response.body.records[0]._id.toString()).to.eql(record._id.toString());
+    expect(ctx.response.body.records[0]).to.eql({ name });
   });
 });

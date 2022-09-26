@@ -4,15 +4,12 @@ import { Context } from '../../context';
  * Parses the query string's "query" value into an object from JSON.
  */
 export async function queryMiddleware(ctx: Context, next: () => Promise<void>) {
-  if (!ctx.request.querystring || !ctx.request.querystring.length) {
-    return next();
-  }
-
   let query: { [key: string]: any };
 
   if (ctx.request.query.json) {
     try {
       query = JSON.parse(ctx.request.query.json);
+      delete ctx.request.query.json;
     } catch {
       throw new Error('Invalid JSON within query string.');
     }

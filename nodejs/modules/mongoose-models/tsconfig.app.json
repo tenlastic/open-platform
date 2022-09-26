@@ -8,11 +8,6 @@
   },
   "exclude": ["./src/**/*.spec.ts"],
   "include": ["./src"],
-  "references": [
-    { "path": "../mailgun/tsconfig.app.json" },
-    { "path": "../minio/tsconfig.app.json" },
-    { "path": "../mongoose-permissions/tsconfig.app.json" }
-  ],
   "ts-node": {
     "files": true
   }

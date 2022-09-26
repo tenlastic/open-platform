@@ -14,6 +14,6 @@
     { "path": "../nats/tsconfig.app.json" }
   ],
   "ts-node": {
-    "files": true,
-  },
+    "files": true
+  }
 }
