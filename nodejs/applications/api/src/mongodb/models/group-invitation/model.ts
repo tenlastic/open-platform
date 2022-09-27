@@ -6,6 +6,7 @@ import {
   index,
   modelOptions,
   plugin,
+  pre,
   prop,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
@@ -17,26 +18,29 @@ export const OnGroupInvitationProduced = new EventEmitter<
   IDatabasePayload<GroupInvitationDocument>
 >();
 
-// Delete stale GroupInvitations.
-setInterval(async () => {
-  const date = new Date();
-  date.setSeconds(date.getSeconds() - 60);
-
-  const groupInvitations = await GroupInvitation.find({ createdAt: { $lt: date } });
-  for (const groupInvitation of groupInvitations) {
-    await groupInvitation.remove();
-  }
-}, 15000);
-
+@index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ fromUserId: 1 })
 @index({ groupId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: { collection: 'groupinvitations', minimize: false, timestamps: true },
 })
 @plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnGroupInvitationProduced })
+@pre('save', function (this: GroupInvitationDocument) {
+  if (!this.isNew) {
+    return;
+  }
+
+  // Set the expiration date to 1 minute in the future.
+  const date = new Date();
+  date.setTime(date.getTime() + 1 * 60 * 1000);
+  this.expiresAt = date;
+})
 export class GroupInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
+
+  @prop()
+  public expiresAt: Date;
 
   @prop({ immutable: true, ref: 'UserSchema', required: true })
   public fromUserId: mongoose.Types.ObjectId;

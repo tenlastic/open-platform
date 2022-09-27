@@ -20,7 +20,7 @@ export const GroupInvitationPermissions = new MongoosePermissions<GroupInvitatio
     },
     populate: [{ path: 'groupDocument' }],
     read: {
-      default: ['_id', 'createdAt', 'fromUserId', 'groupId', 'toUserId', 'updatedAt'],
+      default: ['_id', 'createdAt', 'expiresAt', 'fromUserId', 'groupId', 'toUserId', 'updatedAt'],
     },
     roles: [
       {

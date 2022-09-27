@@ -139,7 +139,8 @@ export class SocialComponent implements OnDestroy, OnInit {
       .pipe(map((groups) => groups[0]));
     this.$groupInvitation = this.groupInvitationQuery
       .selectAll({
-        filterBy: (gi) => gi.toUserId === this.identityService.user._id,
+        filterBy: (gi) =>
+          gi.expiresAt.getTime() > Date.now() && gi.toUserId === this.identityService.user._id,
         sortBy: 'createdAt',
       })
       .pipe(map((groupInvitations) => groupInvitations[0]));

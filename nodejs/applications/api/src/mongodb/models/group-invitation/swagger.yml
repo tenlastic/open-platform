@@ -9,6 +9,9 @@ components:
         createdAt:
           type: string
           format: date-time
+        expiresAt:
+          type: string
+          format: date-time
         fromUserId:
           type: string
           format: ^[0-9a-f]{24}$
