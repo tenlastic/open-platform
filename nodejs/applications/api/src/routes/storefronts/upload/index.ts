@@ -34,15 +34,16 @@ export async function handler(ctx: Context) {
   // Parse files from request body.
   const paths: string[] = [];
   await new Promise((resolve, reject) => {
-    const busboy = new Busboy({ headers: ctx.request.headers, limits: { fileSize: limit } });
+    const busboy = Busboy({ headers: ctx.request.headers, limits: { fileSize: limit } });
 
     busboy.on('error', reject);
-    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+    busboy.on('file', (name, file, info) => {
       const path = storefront.getMinioKey(field);
       paths.push(path);
 
       // Make sure the file is an image.
-      if (mimetype !== 'image/gif' && mimetype !== 'image/jpeg' && mimetype !== 'image/png') {
+      const { mimeType } = info;
+      if (mimeType !== 'image/gif' && mimeType !== 'image/jpeg' && mimeType !== 'image/png') {
         busboy.emit('error', new Error('Mimetype must be: image/gif, image/jpeg, image/png.'));
         return;
       }
@@ -50,7 +51,7 @@ export async function handler(ctx: Context) {
       // Make sure the file is a valid size.
       file.on('limit', () => busboy.emit('error', new NamespaceLimitError('storage', limit)));
 
-      minio.putObject(process.env.MINIO_BUCKET, path, file, { 'content-type': mimetype });
+      minio.putObject(process.env.MINIO_BUCKET, path, file, { 'content-type': mimeType });
     });
     busboy.on('finish', resolve);
 

@@ -17,7 +17,7 @@
     "@types/amqplib": "0.8.0",
     "@types/aws-lambda": "8.10.23",
     "@types/bcryptjs": "2.4.2",
-    "@types/busboy": "0.2.3",
+    "@types/busboy": "1.5.0",
     "@types/chai": "4.1.7",
     "@types/chai-as-promised": "7.1.0",
     "@types/chai-http": "3.0.5",

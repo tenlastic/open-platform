@@ -26,10 +26,7 @@ export async function subscribe<TDocument extends mongoose.Document = any>(
   for await (const message of subscription) {
     const data = new TextDecoder().decode(message.data);
     const json = JSON.parse(data);
-
-    if (json.fullDocument) {
-      json.fullDocument = new Model(json.fullDocument);
-    }
+    json.fullDocument = new Model(json.fullDocument);
 
     try {
       await callback(json);

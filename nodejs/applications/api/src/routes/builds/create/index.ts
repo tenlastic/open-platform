@@ -6,20 +6,20 @@ import * as Busboy from 'busboy';
 export async function handler(ctx: Context) {
   const build = new Build();
   await new Promise((resolve, reject) => {
-    const busboy = new Busboy({ headers: ctx.request.headers });
+    const busboy = Busboy({ headers: ctx.request.headers });
 
     busboy.on('error', reject);
-    busboy.on('file', (field, stream) => {
+    busboy.on('file', (name, stream) => {
       stream.on('error', reject);
 
-      if (field === 'zip') {
+      if (name === 'zip') {
         minio.putObject(process.env.MINIO_BUCKET, build.getZipPath(), stream);
       } else {
         stream.resume();
       }
     });
-    busboy.on('field', (key, value) => {
-      if (key === 'record') {
+    busboy.on('field', (name, value) => {
+      if (name === 'record') {
         build.set(JSON.parse(value));
       }
     });
