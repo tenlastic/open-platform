@@ -3,14 +3,14 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 import * as sinon from 'sinon';
 
-import emails from '../../emails';
+import mailgun from '../../../mailgun';
 import { UserMock } from './model.mock';
 import { User } from './model';
 
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('models/user/model', function () {
+describe('mongodb/models/user/model', function () {
   let sandbox: sinon.SinonSandbox;
 
   beforeEach(function () {
@@ -24,7 +24,7 @@ describe('models/user/model', function () {
   describe(`pre('save')`, function () {
     context('when document.isNew() is true', function () {
       it('does not call sendPasswordResetConfirmation()', async function () {
-        const spy = sandbox.stub(emails, 'sendPasswordResetConfirmation');
+        const spy = sandbox.stub(mailgun, 'sendPasswordResetConfirmation');
 
         await UserMock.create();
 
@@ -36,7 +36,7 @@ describe('models/user/model', function () {
       it('calls sendPasswordResetConfirmation()', async function () {
         const user = await UserMock.create({ password: chance.hash() });
 
-        const spy = sandbox.stub(emails, 'sendPasswordResetConfirmation');
+        const spy = sandbox.stub(mailgun, 'sendPasswordResetConfirmation');
 
         user.password = chance.hash();
         await user.save();

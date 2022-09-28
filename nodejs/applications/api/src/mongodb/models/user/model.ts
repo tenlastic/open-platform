@@ -20,7 +20,7 @@ import {
 import * as bcrypt from 'bcryptjs';
 import * as mongoose from 'mongoose';
 
-import emails from '../../emails';
+import mailgun from '../../../mailgun';
 import { AuthorizationDocument } from '../authorization/model';
 
 export const OnUserProduced = new EventEmitter<IDatabasePayload<UserDocument>>();
@@ -40,7 +40,7 @@ export const OnUserProduced = new EventEmitter<IDatabasePayload<UserDocument>>()
 @plugin(errors.unique.plugin)
 @pre('save', async function (this: UserDocument) {
   if (!this.isNew && this._original.password !== this.password) {
-    await emails.sendPasswordResetConfirmation(this);
+    await mailgun.sendPasswordResetConfirmation({ email: this.email });
   }
 
   if (this.isModified('email') && this.email === '') {

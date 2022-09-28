@@ -4,7 +4,7 @@ import * as fs from 'fs';
 
 import { StorefrontMock } from './model.mock';
 
-describe('models/storefront/model', function () {
+describe('mongodb/models/storefront/model', function () {
   describe('removeMinioImages()', function () {
     it('removes unused minio images', async function () {
       const storefront = await StorefrontMock.create();

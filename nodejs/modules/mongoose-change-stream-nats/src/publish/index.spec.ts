@@ -1,5 +1,5 @@
 import { IDatabasePayload } from '@tenlastic/mongoose-models';
-import nats from '@tenlastic/nats';
+import * as nats from '@tenlastic/nats';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 import { TextDecoder } from 'util';

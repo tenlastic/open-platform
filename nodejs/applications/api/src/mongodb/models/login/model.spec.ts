@@ -9,7 +9,7 @@ import { Login } from './model';
 
 use(chaiAsPromised);
 
-describe('models/login/model', function () {
+describe('mongodb/models/login/model', function () {
   describe('createWithAccessAndRefreshTokens()', function () {
     let user: UserDocument;
 

@@ -1,5 +1,5 @@
 import { IDatabasePayload } from '@tenlastic/mongoose-models';
-import nats from '@tenlastic/nats';
+import * as nats from '@tenlastic/nats';
 import * as mongoose from 'mongoose';
 import { AckPolicy } from 'nats';
 import { TextDecoder } from 'util';

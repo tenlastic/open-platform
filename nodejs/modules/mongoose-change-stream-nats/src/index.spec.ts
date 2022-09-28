@@ -1,5 +1,5 @@
 import * as mongoose from '@tenlastic/mongoose-models';
-import nats from '@tenlastic/nats';
+import * as nats from '@tenlastic/nats';
 
 before(async function () {
   await mongoose.connect({

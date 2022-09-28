@@ -16,7 +16,8 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import emails from '../../emails';
+import mailgun from '../../../mailgun';
+import { User } from '../user';
 
 export const OnPasswordResetProduced = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
 
@@ -30,7 +31,8 @@ export const OnPasswordResetProduced = new EventEmitter<IDatabasePayload<Passwor
 @plugin(errors.unique.plugin)
 @pre('save', async function (this: PasswordResetDocument) {
   if (this.isNew) {
-    await emails.sendPasswordResetRequest(this);
+    const user = await User.findOne({ _id: this.userId });
+    await mailgun.sendPasswordResetRequest({ email: user.email, hash: this.hash });
   }
 })
 export class PasswordResetSchema {

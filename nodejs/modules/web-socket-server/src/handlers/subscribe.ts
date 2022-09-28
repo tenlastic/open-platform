@@ -5,7 +5,7 @@ import {
   isJsonValid,
   MongoosePermissions,
 } from '@tenlastic/mongoose-permissions';
-import nats from '@tenlastic/nats';
+import * as nats from '@tenlastic/nats';
 import { AckPolicy, JetStreamSubscription } from 'nats';
 import * as mongoose from 'mongoose';
 

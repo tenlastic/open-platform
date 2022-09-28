@@ -8,7 +8,7 @@ import { CollectionMock } from './model.mock';
 
 use(chaiAsPromised);
 
-describe('models/collection/model', function () {
+describe('mongodb/models/collection/model', function () {
   let sandbox: sinon.SinonSandbox;
 
   beforeEach(function () {

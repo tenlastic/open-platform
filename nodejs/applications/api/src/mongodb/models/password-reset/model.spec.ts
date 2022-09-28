@@ -2,11 +2,11 @@ import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
-import emails from '../../emails';
+import mailgun from '../../../mailgun';
 import { UserMock } from '../user/model.mock';
 import { PasswordResetMock } from './model.mock';
 
-describe('models/password-reset/model', function () {
+describe('mongodb/models/password-reset/model', function () {
   let sandbox: sinon.SinonSandbox;
 
   beforeEach(function () {
@@ -20,7 +20,7 @@ describe('models/password-reset/model', function () {
   describe(`pre('save')`, function () {
     context('when document.isNew() is true', function () {
       it('calls sendPasswordResetRequest()', async function () {
-        const spy = sandbox.stub(emails, 'sendPasswordResetRequest');
+        const spy = sandbox.stub(mailgun, 'sendPasswordResetRequest');
 
         const user = await UserMock.create();
         await PasswordResetMock.create({ userId: user._id });
@@ -34,7 +34,7 @@ describe('models/password-reset/model', function () {
         const user = await UserMock.create();
         const passwordReset = await PasswordResetMock.create({ userId: user._id });
 
-        const spy = sandbox.stub(emails, 'sendPasswordResetRequest');
+        const spy = sandbox.stub(mailgun, 'sendPasswordResetRequest');
 
         passwordReset.userId = new mongoose.Types.ObjectId();
         await passwordReset.save();
