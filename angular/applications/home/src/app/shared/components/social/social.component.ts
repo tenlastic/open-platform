@@ -183,12 +183,6 @@ export class SocialComponent implements OnDestroy, OnInit {
         ? this.userService.find({ where: { _id: { $in: missingUserIds } } })
         : null;
     });
-    this.fetchUserWebSockets$ = this.$users.subscribe((users) => {
-      return this.webSocketService.find({ where: { userId: { $in: users.map((u) => u._id) } } });
-    });
-    this.fetchUserGroup$ = this.$users.subscribe((users) => {
-      return this.groupService.find({ where: { userIds: { $in: users.map((u) => u._id) } } });
-    });
 
     this.gameServerService.emitter.on('create', this.onGameServerServiceCreate);
     this.messageService.emitter.on('create', this.onMessageServiceCreate);

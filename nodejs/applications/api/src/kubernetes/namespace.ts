@@ -1,9 +1,17 @@
-import { V1Affinity, V1EnvFromSource, V1Pod, V1Probe } from '@kubernetes/client-node';
+import {
+  V1Affinity,
+  V1Container,
+  V1EnvFromSource,
+  V1EnvVar,
+  V1Pod,
+  V1Probe,
+} from '@kubernetes/client-node';
 import {
   BaseListQuery,
   deploymentApiV1,
   helmReleaseApiV1,
   ingressApiV1,
+  jobApiV1,
   networkPolicyApiV1,
   persistentVolumeClaimApiV1,
   podApiV1,
@@ -16,9 +24,17 @@ import {
 } from '@tenlastic/kubernetes';
 import * as minio from '@tenlastic/minio';
 import { createConnection } from '@tenlastic/mongoose-models';
+import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
-import { NamespaceDocument } from '../../mongodb';
+import {
+  Authorization,
+  AuthorizationDocument,
+  AuthorizationRole,
+  NamespaceDocument,
+} from '../mongodb';
+
+const chance = new Chance();
 
 export const KubernetesNamespace = {
   delete: async (namespace: NamespaceDocument) => {
@@ -42,21 +58,11 @@ export const KubernetesNamespace = {
      * MONGODB
      * =======================
      */
-    await new Promise<void>((resolve, reject) => {
-      const connection = createConnection({
-        connectionString: process.env.MONGO_CONNECTION_STRING,
-        databaseName: name,
-      });
-      connection.on('error', async (err) => {
-        await connection.close();
-        return reject(err);
-      });
-      connection.on('open', async function () {
-        await connection.dropDatabase();
-        await connection.close();
-        return resolve();
-      });
+    const connection = await createConnection({
+      connectionString: process.env.MONGO_CONNECTION_STRING,
+      databaseName: name,
     });
+    await connection.dropDatabase();
 
     /**
      * =======================
@@ -67,6 +73,7 @@ export const KubernetesNamespace = {
     await deploymentApiV1.deleteCollection('dynamic', query);
     await helmReleaseApiV1.deleteCollection('dynamic', query);
     await ingressApiV1.deleteCollection('dynamic', query);
+    await jobApiV1.deleteCollection('dynamic', query);
     await networkPolicyApiV1.deleteCollection('dynamic', query);
     await persistentVolumeClaimApiV1.deleteCollection('dynamic', query);
     await podApiV1.deleteCollection('dynamic', query);
@@ -92,6 +99,28 @@ export const KubernetesNamespace = {
     const name = KubernetesNamespace.getName(namespace._id);
 
     /**
+     * =======================
+     * AUTHORIZATIONS
+     * =======================
+     */
+    const authorizations = await Promise.all([
+      upsertAuthorization('System (Builds)', namespace._id, [AuthorizationRole.BuildsReadWrite]),
+      upsertAuthorization('System (Game Servers)', namespace._id, [
+        AuthorizationRole.GameServersReadWrite,
+      ]),
+      upsertAuthorization('System (Namespaces)', namespace._id, [
+        AuthorizationRole.NamespacesReadWrite,
+      ]),
+      upsertAuthorization('System (Queues)', namespace._id, [
+        AuthorizationRole.GameServersReadWrite,
+        AuthorizationRole.QueuesReadWrite,
+      ]),
+      upsertAuthorization('System (Workflows)', namespace._id, [
+        AuthorizationRole.WorkflowsReadWrite,
+      ]),
+    ]);
+
+    /**
      * ========================
      * INGRESS
      * ========================
@@ -110,7 +139,6 @@ export const KubernetesNamespace = {
             http: {
               paths: [
                 getPath(namespace, '/articles'),
-                getPath(namespace, '/authorizations'),
                 getPath(namespace, '/builds'),
                 getPath(namespace, '/collections'),
                 getPath(namespace, '/game-servers'),
@@ -178,7 +206,7 @@ export const KubernetesNamespace = {
 
     /**
      * ======================
-     * SECRET
+     * SECRETS
      * ======================
      */
     await secretApiV1.createOrReplace('dynamic', {
@@ -189,6 +217,19 @@ export const KubernetesNamespace = {
       stringData: {
         MINIO_BUCKET: name,
         MONGO_DATABASE_NAME: name,
+      },
+    });
+    await secretApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'application' },
+        name: `${name}-api-keys`,
+      },
+      stringData: {
+        BUILDS: authorizations[0].apiKey,
+        GAME_SERVERS: authorizations[1].apiKey,
+        NAMESPACES: authorizations[2].apiKey,
+        QUEUES: authorizations[3].apiKey,
+        WORKFLOWS: authorizations[4].apiKey,
       },
     });
 
@@ -217,6 +258,79 @@ export const KubernetesNamespace = {
         template: getPodTemplate(namespace, 'api'),
       },
     });
+
+    /**
+     * ======================
+     * CONNECTORS
+     * ======================
+     */
+    await serviceApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'connector' },
+        name: `${name}-connector`,
+      },
+      spec: {
+        ports: [{ name: 'tcp', port: 3000 }],
+        selector: { ...labels, 'tenlastic.com/role': 'connector' },
+      },
+    });
+    await statefulSetApiV1.delete(`${name}-connectors`, 'dynamic');
+    const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
+    if (isDevelopment) {
+      await statefulSetApiV1.create('dynamic', {
+        metadata: {
+          labels: { ...labels, 'tenlastic.com/role': 'connector' },
+          name: `${name}-connectors`,
+        },
+        spec: {
+          replicas: 1,
+          selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'connectors' } },
+          serviceName: `${name}-connectors`,
+          template: {
+            metadata: {
+              labels: { ...labels, 'tenlastic.com/role': 'connectors' },
+              name: `${name}-connectors`,
+            },
+            spec: {
+              affinity: getAffinity(namespace, 'connectors'),
+              containers: [
+                getConnectorContainerTemplate('authorizations', namespace, {
+                  namespaceId: { $eq: { $oid: namespace._id } },
+                }),
+              ],
+              volumes: [
+                {
+                  hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' },
+                  name: 'workspace',
+                },
+              ],
+            },
+          },
+        },
+      });
+    } else {
+      await statefulSetApiV1.create('dynamic', {
+        metadata: {
+          labels: { ...labels, 'tenlastic.com/role': 'connector' },
+          name: `${name}-connectors`,
+        },
+        spec: {
+          replicas: 1,
+          selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'connectors' } },
+          serviceName: `${name}-connectors`,
+          template: {
+            metadata: {
+              labels: { ...labels, 'tenlastic.com/role': 'connectors' },
+              name: `${name}-connectors`,
+            },
+            spec: {
+              affinity: getAffinity(namespace, 'connectors'),
+              containers: [getConnectorContainerTemplate('authorizations', namespace)],
+            },
+          },
+        },
+      });
+    }
   },
 };
 
@@ -255,6 +369,83 @@ function getAffinity(namespace: NamespaceDocument, role: string): V1Affinity {
       ],
     },
   };
+}
+
+function getConnectorContainerTemplate(
+  collectionName: string,
+  namespace: NamespaceDocument,
+  where: any = {},
+): V1Container {
+  const name = KubernetesNamespace.getName(namespace._id);
+
+  const env: V1EnvVar[] = [
+    { name: 'MONGO_FROM_COLLECTION_NAME', value: collectionName },
+    {
+      name: 'MONGO_FROM_CONNECTION_STRING',
+      valueFrom: { secretKeyRef: { key: 'MONGO_CONNECTION_STRING', name: 'nodejs' } },
+    },
+    {
+      name: 'MONGO_FROM_DATABASE_NAME',
+      value: 'api',
+    },
+    { name: 'MONGO_TO_COLLECTION_NAME', value: collectionName },
+    {
+      name: 'MONGO_TO_CONNECTION_STRING',
+      valueFrom: { secretKeyRef: { key: 'MONGO_CONNECTION_STRING', name: 'nodejs' } },
+    },
+    {
+      name: 'MONGO_TO_DATABASE_NAME',
+      valueFrom: { secretKeyRef: { key: 'MONGO_DATABASE_NAME', name } },
+    },
+    { name: 'MONGO_WHERE', value: JSON.stringify(where) },
+    {
+      name: 'NATS_CONNECTION_STRING',
+      valueFrom: { secretKeyRef: { key: 'NATS_CONNECTION_STRING', name: 'nodejs' } },
+    },
+    { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
+  ];
+  if (where) {
+    env.push({ name: 'MONGO_WHERE', value: JSON.stringify(where) });
+  }
+  const livenessProbe: V1Probe = {
+    failureThreshold: 3,
+    httpGet: { path: `/`, port: 3000 as any },
+    initialDelaySeconds: 10,
+    periodSeconds: 10,
+  };
+  const readinessProbe: V1Probe = {
+    failureThreshold: 1,
+    httpGet: { path: `/`, port: 3000 as any },
+    initialDelaySeconds: 5,
+    periodSeconds: 5,
+  };
+  const resources = { requests: { cpu: '25m', memory: '75Mi' } };
+
+  const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
+  if (isDevelopment) {
+    return {
+      command: ['npm', 'run', 'start'],
+      env,
+      image: `tenlastic/node-development:latest`,
+      livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
+      name: 'main',
+      readinessProbe,
+      resources: { limits: { cpu: '1000m' }, requests: resources.requests },
+      volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
+      workingDir: `/usr/src/nodejs/applications/connector/`,
+    };
+  } else {
+    const { version } = require('../../../package.json');
+
+    return {
+      env,
+      image: `tenlastic/connector:${version}`,
+      livenessProbe,
+      name: 'main',
+      readinessProbe,
+      resources,
+    };
+  }
 }
 
 function getPath(namespace: NamespaceDocument, path: string) {
@@ -330,7 +521,7 @@ function getPodTemplate(namespace: NamespaceDocument, role: string): V1Pod {
           {
             env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
             envFrom,
-            image: `tenlastic/api:${version}`,
+            image: `tenlastic/${role}:${version}`,
             livenessProbe,
             name: 'main',
             readinessProbe,
@@ -340,5 +531,23 @@ function getPodTemplate(namespace: NamespaceDocument, role: string): V1Pod {
         serviceAccountName: ['api'].includes(role) ? `${name}-${role}` : null,
       },
     };
+  }
+}
+
+async function upsertAuthorization(
+  name: string,
+  namespaceId: mongoose.Types.ObjectId,
+  roles: AuthorizationRole[],
+): Promise<AuthorizationDocument> {
+  const apiKey = chance.hash({ length: 64 });
+
+  try {
+    return await Authorization.create({ apiKey, name, namespaceId, roles, system: true });
+  } catch (e) {
+    if (e.name !== 'UniqueError') {
+      throw e;
+    }
+
+    return await Authorization.findOne({ name, namespaceId });
   }
 }

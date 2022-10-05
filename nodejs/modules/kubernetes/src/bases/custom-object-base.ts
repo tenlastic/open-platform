@@ -145,5 +145,7 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
     return this.watch(namespace, options, callback, done);
   }
 
-  protected abstract getEndpoint(namespace: string): string;
+  protected getEndpoint(namespace: string) {
+    return `/apis/${this.group}/${this.version}/namespaces/${namespace}/${this.plural}`;
+  }
 }

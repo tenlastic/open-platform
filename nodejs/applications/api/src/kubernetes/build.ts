@@ -1,32 +1,14 @@
-import { V1EnvFromSource } from '@kubernetes/client-node';
+import { V1EnvFromSource, V1EnvVar } from '@kubernetes/client-node';
 import { networkPolicyApiV1, secretApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
 import { DatabaseOperationType } from '@tenlastic/mongoose-models';
-import * as Chance from 'chance';
 import { URL } from 'url';
 
-import {
-  Authorization,
-  AuthorizationDocument,
-  AuthorizationRole,
-  BuildDocument,
-} from '../../mongodb';
-import { KubernetesNamespace } from '../namespace';
-
-const chance = new Chance();
+import { BuildDocument } from '../mongodb';
+import { KubernetesNamespace } from './namespace';
 
 export const KubernetesBuild = {
   delete: async (build: BuildDocument, operationType?: DatabaseOperationType) => {
     const name = KubernetesBuild.getName(build);
-
-    /**
-     * =======================
-     * AUTHORIZATION
-     * =======================
-     */
-    const authorization = await Authorization.findOne({ name, namespaceId: build.namespaceId });
-    if (authorization) {
-      await authorization.remove();
-    }
 
     /**
      * =======================
@@ -69,28 +51,6 @@ export const KubernetesBuild = {
 
     /**
      * =======================
-     * AUTHORIZATION
-     * =======================
-     */
-    let authorization: AuthorizationDocument;
-    try {
-      authorization = await Authorization.create({
-        apiKey: chance.hash({ length: 64 }),
-        name,
-        namespaceId: build.namespaceId,
-        roles: [AuthorizationRole.BuildsReadWrite],
-        system: true,
-      });
-    } catch (e) {
-      if (e.name !== 'UniqueError') {
-        throw e;
-      }
-
-      authorization = await Authorization.findOne({ name, namespaceId: build.namespaceId });
-    }
-
-    /**
-     * =======================
      * NETWORK POLICY
      * =======================
      */
@@ -117,7 +77,6 @@ export const KubernetesBuild = {
         name,
       },
       stringData: {
-        API_KEY: authorization.apiKey,
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         BUILD_ID: `${build._id}`,
         NAMESPACE_ID: `${build.namespaceId}`,
@@ -145,6 +104,12 @@ export const KubernetesBuild = {
         },
       },
     };
+    const env: V1EnvVar[] = [
+      {
+        name: 'API_KEY',
+        valueFrom: { secretKeyRef: { key: 'BUILDS', name: `${namespaceName}-api-keys` } },
+      },
+    ];
     const envFrom: V1EnvFromSource[] = [
       { secretRef: { name: 'nodejs' } },
       { secretRef: { name: namespaceName } },
@@ -195,6 +160,7 @@ export const KubernetesBuild = {
             {
               container: {
                 command: ['npm', 'run', 'start'],
+                env,
                 envFrom,
                 image: 'tenlastic/node-development:latest',
                 resources: { requests: { cpu: '100m', memory: '100M' } },
@@ -240,6 +206,7 @@ export const KubernetesBuild = {
               container: {
                 args: ['node', './dist/index.js'],
                 command: ['/sbin/tini --', '--'],
+                env,
                 envFrom,
                 image: `tenlastic/build:${version}`,
                 resources: { requests: { cpu: '100m', memory: '100M' } },

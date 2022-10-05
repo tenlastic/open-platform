@@ -1,22 +1,14 @@
-import { V1Affinity, V1EnvFromSource, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
 import {
-  helmReleaseApiV1,
-  networkPolicyApiV1,
-  persistentVolumeClaimApiV1,
-  secretApiV1,
-  statefulSetApiV1,
-} from '@tenlastic/kubernetes';
-import * as Chance from 'chance';
+  V1Affinity,
+  V1EnvFromSource,
+  V1EnvVar,
+  V1PodTemplateSpec,
+  V1Probe,
+} from '@kubernetes/client-node';
+import { networkPolicyApiV1, secretApiV1, statefulSetApiV1 } from '@tenlastic/kubernetes';
 
-import {
-  Authorization,
-  AuthorizationDocument,
-  AuthorizationRole,
-  QueueDocument,
-} from '../../mongodb';
-import { KubernetesNamespace } from '../namespace';
-
-const chance = new Chance();
+import { QueueDocument } from '../mongodb';
+import { KubernetesNamespace } from './namespace';
 
 export const KubernetesQueue = {
   delete: async (queue: QueueDocument) => {
@@ -24,29 +16,10 @@ export const KubernetesQueue = {
 
     /**
      * =======================
-     * AUTHORIZATION
-     * =======================
-     */
-    const authorization = await Authorization.findOne({ name, namespaceId: queue.namespaceId });
-    if (authorization) {
-      await authorization.remove();
-    }
-
-    /**
-     * =======================
      * NETWORK POLICY
      * =======================
      */
     await networkPolicyApiV1.delete(name, 'dynamic');
-
-    /**
-     * =======================
-     * REDIS
-     * =======================
-     */
-    await secretApiV1.delete(`${name}-redis`, 'dynamic');
-    await helmReleaseApiV1.delete(`${name}-redis`, 'dynamic');
-    await deletePvcs(`app.kubernetes.io/instance=${name}-redis`);
 
     /**
      * =======================
@@ -80,28 +53,6 @@ export const KubernetesQueue = {
 
     /**
      * =======================
-     * AUTHORIZATION
-     * =======================
-     */
-    let authorization: AuthorizationDocument;
-    try {
-      authorization = await Authorization.create({
-        apiKey: chance.hash({ length: 64 }),
-        name,
-        namespaceId: queue.namespaceId,
-        roles: [AuthorizationRole.GameServersReadWrite, AuthorizationRole.QueuesReadWrite],
-        system: true,
-      });
-    } catch (e) {
-      if (e.name !== 'UniqueError') {
-        throw e;
-      }
-
-      authorization = await Authorization.findOne({ name, namespaceId: queue.namespaceId });
-    }
-
-    /**
-     * =======================
      * NETWORK POLICY
      * =======================
      */
@@ -128,7 +79,6 @@ export const KubernetesQueue = {
         name,
       },
       stringData: {
-        API_KEY: authorization.apiKey,
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         QUEUE_JSON: JSON.stringify(queue),
         WSS_URL: `ws://${namespaceName}-wss.dynamic:3000`,
@@ -140,6 +90,13 @@ export const KubernetesQueue = {
      * STATEFUL SET
      * ======================
      */
+    const env: V1EnvVar[] = [
+      {
+        name: 'API_KEY',
+        valueFrom: { secretKeyRef: { key: 'QUEUES', name: `${namespaceName}-api-keys` } },
+      },
+      { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
+    ];
     const envFrom: V1EnvFromSource[] = [
       { secretRef: { name: 'nodejs' } },
       { secretRef: { name: namespaceName } },
@@ -175,7 +132,7 @@ export const KubernetesQueue = {
           containers: [
             {
               command: ['npm', 'run', 'start'],
-              env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
+              env,
               envFrom,
               image: `tenlastic/node-development:latest`,
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
@@ -203,7 +160,7 @@ export const KubernetesQueue = {
           affinity: getAffinity(queue, 'application'),
           containers: [
             {
-              env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
+              env,
               envFrom,
               image: `tenlastic/queue:${version}`,
               livenessProbe,
@@ -231,14 +188,6 @@ export const KubernetesQueue = {
     });
   },
 };
-
-async function deletePvcs(labelSelector: string) {
-  const response = await persistentVolumeClaimApiV1.list('dynamic', { labelSelector });
-  const pvcs = response.body.items;
-
-  const promises = pvcs.map((p) => persistentVolumeClaimApiV1.delete(p.metadata.name, 'dynamic'));
-  return Promise.all(promises);
-}
 
 function getAffinity(queue: QueueDocument, role: string): V1Affinity {
   const name = KubernetesQueue.getName(queue);

@@ -1,35 +1,13 @@
-import { V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
+import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
-import * as Chance from 'chance';
 
-import {
-  Authorization,
-  AuthorizationDocument,
-  AuthorizationRole,
-  GameServerDocument,
-} from '../../mongodb';
-
-import { KubernetesGameServer } from '../game-server';
-import { KubernetesNamespace } from '../namespace';
-
-const chance = new Chance();
+import { GameServerDocument } from '../mongodb';
+import { KubernetesGameServer } from './game-server';
+import { KubernetesNamespace } from './namespace';
 
 export const KubernetesGameServerSidecar = {
   delete: async (gameServer: GameServerDocument) => {
     const name = KubernetesGameServerSidecar.getName(gameServer);
-
-    /**
-     * =======================
-     * AUTHORIZATION
-     * =======================
-     */
-    const authorization = await Authorization.findOne({
-      name,
-      namespaceId: gameServer.namespaceId,
-    });
-    if (authorization) {
-      await authorization.remove();
-    }
 
     /**
      * ======================
@@ -55,28 +33,6 @@ export const KubernetesGameServerSidecar = {
     const namespaceName = KubernetesNamespace.getName(gameServer.namespaceId);
 
     /**
-     * =======================
-     * AUTHORIZATION
-     * =======================
-     */
-    let authorization: AuthorizationDocument;
-    try {
-      authorization = await Authorization.create({
-        apiKey: chance.hash({ length: 64 }),
-        name,
-        namespaceId: gameServer.namespaceId,
-        roles: [AuthorizationRole.GameServersReadWrite],
-        system: true,
-      });
-    } catch (e) {
-      if (e.name !== 'UniqueError') {
-        throw e;
-      }
-
-      authorization = await Authorization.findOne({ name, namespaceId: gameServer.namespaceId });
-    }
-
-    /**
      * ======================
      * SECRET
      * ======================
@@ -87,7 +43,6 @@ export const KubernetesGameServerSidecar = {
         name,
       },
       stringData: {
-        API_KEY: authorization.apiKey,
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         GAME_SERVER_CONTAINER: 'main',
         GAME_SERVER_JSON: JSON.stringify(gameServer),
@@ -118,6 +73,13 @@ export const KubernetesGameServerSidecar = {
         },
       },
     };
+    const env: V1EnvVar[] = [
+      {
+        name: 'API_KEY',
+        valueFrom: { secretKeyRef: { key: 'GAME_SERVERS', name: `${namespaceName}-api-keys` } },
+      },
+    ];
+    const envFrom: V1EnvFromSource[] = [{ secretRef: { name } }];
     const livenessProbe: V1Probe = {
       failureThreshold: 3,
       httpGet: { path: `/`, port: 3000 as any },
@@ -139,7 +101,8 @@ export const KubernetesGameServerSidecar = {
           containers: [
             {
               command: ['npm', 'run', 'start'],
-              envFrom: [{ secretRef: { name } }],
+              env,
+              envFrom,
               image: 'tenlastic/node-development:latest',
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
               name: 'game-server-sidecar',
@@ -166,7 +129,8 @@ export const KubernetesGameServerSidecar = {
           affinity,
           containers: [
             {
-              envFrom: [{ secretRef: { name } }],
+              env,
+              envFrom,
               image: `tenlastic/game-server-sidecar:${version}`,
               livenessProbe,
               name: 'game-server-sidecar',

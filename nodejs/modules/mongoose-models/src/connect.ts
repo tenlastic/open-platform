@@ -24,9 +24,17 @@ export function createConnection(options: ConnectionOptions) {
   mongoose.set('autoCreate', options.autoCreate);
   mongoose.set('autoIndex', options.autoIndex);
 
-  return mongoose.createConnection(options.connectionString, {
-    autoCreate: options.autoCreate,
-    autoIndex: options.autoIndex,
-    dbName: options.databaseName,
+  return new Promise<mongoose.Connection>((resolve, reject) => {
+    const connection = mongoose.createConnection(options.connectionString, {
+      autoCreate: options.autoCreate,
+      autoIndex: options.autoIndex,
+      dbName: options.databaseName,
+    });
+
+    connection.on('error', (err) => {
+      connection.close();
+      return reject(err);
+    });
+    connection.on('open', () => resolve(connection));
   });
 }

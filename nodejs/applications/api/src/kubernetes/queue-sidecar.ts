@@ -1,31 +1,13 @@
-import { V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
+import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
-import * as Chance from 'chance';
 
-import {
-  Authorization,
-  AuthorizationDocument,
-  AuthorizationRole,
-  QueueDocument,
-} from '../../mongodb';
-import { KubernetesNamespace } from '../namespace';
-import { KubernetesQueue } from '../queue';
-
-const chance = new Chance();
+import { QueueDocument } from '../mongodb';
+import { KubernetesNamespace } from './namespace';
+import { KubernetesQueue } from './queue';
 
 export const KubernetesQueueSidecar = {
   delete: async (queue: QueueDocument) => {
     const name = KubernetesQueueSidecar.getName(queue);
-
-    /**
-     * =======================
-     * AUTHORIZATION
-     * =======================
-     */
-    const authorization = await Authorization.findOne({ name, namespaceId: queue.namespaceId });
-    if (authorization) {
-      await authorization.remove();
-    }
 
     /**
      * ======================
@@ -51,28 +33,6 @@ export const KubernetesQueueSidecar = {
     const namespaceName = KubernetesNamespace.getName(queue.namespaceId);
 
     /**
-     * =======================
-     * AUTHORIZATION
-     * =======================
-     */
-    let authorization: AuthorizationDocument;
-    try {
-      authorization = await Authorization.create({
-        apiKey: chance.hash({ length: 64 }),
-        name,
-        namespaceId: queue.namespaceId,
-        roles: [AuthorizationRole.QueuesReadWrite],
-        system: true,
-      });
-    } catch (e) {
-      if (e.name !== 'UniqueError') {
-        throw e;
-      }
-
-      authorization = await Authorization.findOne({ name, namespaceId: queue.namespaceId });
-    }
-
-    /**
      * ======================
      * SECRET
      * ======================
@@ -83,7 +43,6 @@ export const KubernetesQueueSidecar = {
         name,
       },
       stringData: {
-        API_KEY: authorization.apiKey,
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         QUEUE_JSON: JSON.stringify(queue),
         QUEUE_POD_LABEL_SELECTOR: `tenlastic.com/app=${queueName}`,
@@ -114,6 +73,13 @@ export const KubernetesQueueSidecar = {
         },
       },
     };
+    const env: V1EnvVar[] = [
+      {
+        name: 'API_KEY',
+        valueFrom: { secretKeyRef: { key: 'QUEUES', name: `${namespaceName}-api-keys` } },
+      },
+    ];
+    const envFrom: V1EnvFromSource[] = [{ secretRef: { name } }];
     const livenessProbe: V1Probe = {
       failureThreshold: 3,
       httpGet: { path: `/`, port: 3000 as any },
@@ -135,7 +101,8 @@ export const KubernetesQueueSidecar = {
           containers: [
             {
               command: ['npm', 'run', 'start'],
-              envFrom: [{ secretRef: { name } }],
+              env,
+              envFrom,
               image: 'tenlastic/node-development:latest',
               livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
               name: 'queue-sidecar',
@@ -162,7 +129,8 @@ export const KubernetesQueueSidecar = {
           affinity,
           containers: [
             {
-              envFrom: [{ secretRef: { name } }],
+              env,
+              envFrom,
               image: `tenlastic/queue-sidecar:${version}`,
               livenessProbe,
               name: 'queue-sidecar',

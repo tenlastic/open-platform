@@ -1,5 +1,4 @@
-import { connect, ConnectionOptions, getJetStream, getJetStreamManager } from './connect';
-import { publish } from './publish';
-import { subscribe } from './subscribe';
-
-export { connect, ConnectionOptions, getJetStream, getJetStreamManager, publish, subscribe };
+export * from './connect';
+export * from './get-consumer';
+export * from './publish';
+export * from './subscribe';

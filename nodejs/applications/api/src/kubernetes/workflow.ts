@@ -1,7 +1,7 @@
 import { networkPolicyApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
 import { DatabaseOperationType } from '@tenlastic/mongoose-models';
 
-import { WorkflowDocument, WorkflowSpecTemplate, WorkflowSpecTemplateSchema } from '../../mongodb';
+import { WorkflowDocument, WorkflowSpecTemplate, WorkflowSpecTemplateSchema } from '../mongodb';
 
 export const KubernetesWorkflow = {
   delete: async (workflow: WorkflowDocument, operationType?: DatabaseOperationType) => {

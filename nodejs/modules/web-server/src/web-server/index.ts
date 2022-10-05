@@ -43,7 +43,12 @@ export class WebServer {
   }
 
   public start(port = 3000) {
-    this.server = this.app.listen(port, () => console.log(`Koa server running on port ${port}.`));
+    return new Promise<void>((resolve) => {
+      this.server = this.app.listen(port, () => {
+        console.log(`Koa server running on port ${port}.`);
+        return resolve();
+      });
+    });
   }
 
   public use(middleware: koa.Middleware<any, koa.DefaultContext & koa.Context>) {

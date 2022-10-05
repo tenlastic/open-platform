@@ -90,23 +90,25 @@ export async function setup(options: SetupOptions) {
   OnWebSocketProduced.sync(publish);
   OnWorkflowProduced.sync(publish);
 
-  subscribe(options.durable, Article, (payload) => ArticleEvent.emit(payload));
-  subscribe(options.durable, Authorization, (payload) => AuthorizationEvent.emit(payload));
-  subscribe(options.durable, Build, (payload) => BuildEvent.emit(payload));
-  subscribe(options.durable, Collection, (payload) => CollectionEvent.emit(payload));
-  subscribe(options.durable, Friend, (payload) => FriendEvent.emit(payload));
-  subscribe(options.durable, GameServer, (payload) => GameServerEvent.emit(payload));
-  subscribe(options.durable, GroupInvitation, (payload) => GroupInvitationEvent.emit(payload));
-  subscribe(options.durable, Group, (payload) => GroupEvent.emit(payload));
-  subscribe(options.durable, Ignoration, (payload) => IgnorationEvent.emit(payload));
-  subscribe(options.durable, Login, (payload) => LoginEvent.emit(payload));
-  subscribe(options.durable, Message, (payload) => MessageEvent.emit(payload));
-  subscribe(options.durable, Namespace, (payload) => NamespaceEvent.emit(payload));
-  subscribe(options.durable, PasswordReset, (payload) => PasswordResetEvent.emit(payload));
-  subscribe(options.durable, QueueMember, (payload) => QueueMemberEvent.emit(payload));
-  subscribe(options.durable, Queue, (payload) => QueueEvent.emit(payload));
-  subscribe(options.durable, Storefront, (payload) => StorefrontEvent.emit(payload));
-  subscribe(options.durable, User, (payload) => UserEvent.emit(payload));
-  subscribe(options.durable, WebSocket, (payload) => WebSocketEvent.emit(payload));
-  subscribe(options.durable, Workflow, (payload) => WorkflowEvent.emit(payload));
+  return Promise.all([
+    subscribe(options.durable, Article, (payload) => ArticleEvent.emit(payload)),
+    subscribe(options.durable, Authorization, (payload) => AuthorizationEvent.emit(payload)),
+    subscribe(options.durable, Build, (payload) => BuildEvent.emit(payload)),
+    subscribe(options.durable, Collection, (payload) => CollectionEvent.emit(payload)),
+    subscribe(options.durable, Friend, (payload) => FriendEvent.emit(payload)),
+    subscribe(options.durable, GameServer, (payload) => GameServerEvent.emit(payload)),
+    subscribe(options.durable, GroupInvitation, (payload) => GroupInvitationEvent.emit(payload)),
+    subscribe(options.durable, Group, (payload) => GroupEvent.emit(payload)),
+    subscribe(options.durable, Ignoration, (payload) => IgnorationEvent.emit(payload)),
+    subscribe(options.durable, Login, (payload) => LoginEvent.emit(payload)),
+    subscribe(options.durable, Message, (payload) => MessageEvent.emit(payload)),
+    subscribe(options.durable, Namespace, (payload) => NamespaceEvent.emit(payload)),
+    subscribe(options.durable, PasswordReset, (payload) => PasswordResetEvent.emit(payload)),
+    subscribe(options.durable, QueueMember, (payload) => QueueMemberEvent.emit(payload)),
+    subscribe(options.durable, Queue, (payload) => QueueEvent.emit(payload)),
+    subscribe(options.durable, Storefront, (payload) => StorefrontEvent.emit(payload)),
+    subscribe(options.durable, User, (payload) => UserEvent.emit(payload)),
+    subscribe(options.durable, WebSocket, (payload) => WebSocketEvent.emit(payload)),
+    subscribe(options.durable, Workflow, (payload) => WorkflowEvent.emit(payload)),
+  ]);
 }
