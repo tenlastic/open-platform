@@ -5,12 +5,8 @@ import * as sinon from 'sinon';
 import { URL } from 'url';
 
 import {
-  Article,
   Authorization,
-  Build,
-  Collection,
   Friend,
-  GameServer,
   Group,
   GroupInvitation,
   Ignoration,
@@ -18,13 +14,9 @@ import {
   Message,
   Namespace,
   PasswordReset,
-  Queue,
-  QueueMember,
   RefreshToken,
-  Storefront,
   User,
   WebSocket,
-  Workflow,
 } from './mongodb';
 
 let sandbox: sinon.SinonSandbox;
@@ -47,12 +39,8 @@ before(async function () {
     databaseName: `api-test`,
   });
   await Promise.all([
-    Article.syncIndexes({ background: true }),
     Authorization.syncIndexes({ background: true }),
-    Build.syncIndexes({ background: true }),
-    Collection.syncIndexes({ background: true }),
     Friend.syncIndexes({ background: true }),
-    GameServer.syncIndexes({ background: true }),
     Group.syncIndexes({ background: true }),
     GroupInvitation.syncIndexes({ background: true }),
     Ignoration.syncIndexes({ background: true }),
@@ -60,13 +48,9 @@ before(async function () {
     Message.syncIndexes({ background: true }),
     Namespace.syncIndexes({ background: true }),
     PasswordReset.syncIndexes({ background: true }),
-    Queue.syncIndexes({ background: true }),
-    QueueMember.syncIndexes({ background: true }),
     RefreshToken.syncIndexes({ background: true }),
-    Storefront.syncIndexes({ background: true }),
     User.syncIndexes({ background: true }),
     WebSocket.syncIndexes({ background: true }),
-    Workflow.syncIndexes({ background: true }),
   ]);
 });
 
@@ -77,12 +61,8 @@ beforeEach(async function () {
 
   // MongoDB.
   await Promise.all([
-    Article.deleteMany({}),
     Authorization.deleteMany({}),
-    Build.deleteMany({}),
-    Collection.deleteMany({}),
     Friend.deleteMany({}),
-    GameServer.deleteMany({}),
     Group.deleteMany({}),
     GroupInvitation.deleteMany({}),
     Ignoration.deleteMany({}),
@@ -90,13 +70,9 @@ beforeEach(async function () {
     Message.deleteMany({}),
     Namespace.deleteMany({}),
     PasswordReset.deleteMany({}),
-    Queue.deleteMany({}),
-    QueueMember.deleteMany({}),
     RefreshToken.deleteMany({}),
-    Storefront.deleteMany({}),
     User.deleteMany({}),
     WebSocket.deleteMany({}),
-    Workflow.deleteMany({}),
   ]);
 });
 

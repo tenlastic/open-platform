@@ -7,6 +7,8 @@ resources:
   - ./cluster/storage-classes/balanced-expandable.yaml
   - ./cluster/storage-classes/ssd-expandable.yaml
   - ./cluster/storage-classes/standard-expandable.yaml
+  - ./dynamic/flux/bitnami.helmrepository.yaml
+  - ./dynamic/flux/open-platform.gitrepository.yaml
   - ./dynamic/network-policies/default.yaml
   - ./dynamic/rbac/api.yaml
   - ./dynamic/rbac/build.yaml
@@ -39,6 +41,7 @@ resources:
   - ./static/mongodb/mongodb-gui.yaml
   - ./static/nats/nats.yaml
   - ./static/nodejs/api.yaml
+  - ./static/nodejs/documentation.yaml
   - ./static/redis/redis.yaml
   - ./static/sealed-secrets/sealed-secrets.yaml
   - ./static/verdaccio/verdaccio.yaml

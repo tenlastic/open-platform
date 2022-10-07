@@ -15,7 +15,6 @@ const mailgunSecret = process.env.MAILGUN_SECRET;
 const minioBucket = process.env.MINIO_BUCKET;
 const minioConnectionString = process.env.MINIO_CONNECTION_STRING;
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
-const mongoDatabaseName = process.env.MONGO_DATABASE_NAME || 'api';
 const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 const podName = process.env.POD_NAME;
 
@@ -38,13 +37,11 @@ const podName = process.env.POD_NAME;
     // MongoDB.
     await mongodb.setup({
       connectionString: mongoConnectionString,
-      databaseName: mongoDatabaseName,
+      databaseName: 'api',
     });
 
     // NATS.
-    nats
-      .setup({ connectionString: natsConnectionString, durable: mongoDatabaseName })
-      .catch(console.error);
+    nats.setup({ connectionString: natsConnectionString, durable: 'api' }).catch(console.error);
 
     // Web Server.
     const { server } = webServer.setup();

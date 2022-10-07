@@ -31,6 +31,7 @@ patchesStrategicMerge:
   - ./static/mongodb/mongodb-gui.yaml
   - ./static/nats/nats.yaml
   - ./static/nodejs/api.yaml
+  - ./static/nodejs/documentation.yaml
   - ./static/redis/redis.yaml
 resources:
   - ./cluster/cluster-role-bindings/docker-for-desktop-binding.yaml

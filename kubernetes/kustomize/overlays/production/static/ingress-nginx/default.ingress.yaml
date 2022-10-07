@@ -28,6 +28,13 @@ spec:
     - host: api.tenlastic.com
       http:
         paths:
+          - path: /swagger.json
+            pathType: Exact
+            backend:
+              service:
+                name: documentation
+                port:
+                  number: 3000
           - path: /
             pathType: Prefix
             backend:

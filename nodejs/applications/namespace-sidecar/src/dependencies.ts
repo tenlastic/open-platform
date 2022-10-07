@@ -3,7 +3,6 @@ import {
   ApiKeyInterceptor,
   ApiService,
   EnvironmentService,
-  NamespaceQuery,
   NamespaceService,
   NamespaceStore,
 } from '@tenlastic/http';
@@ -27,11 +26,6 @@ injector.inject([
   { provide: Axios, useValue: new Axios() },
   { provide: EnvironmentService, useValue: new EnvironmentService({ apiKey, apiUrl }) },
   {
-    deps: [NamespaceStore],
-    provide: NamespaceQuery,
-    useFactory: (namespaceStore: NamespaceStore) => new NamespaceQuery(namespaceStore),
-  },
-  {
     deps: [ApiService, EnvironmentService, NamespaceStore],
     provide: NamespaceService,
     useFactory: (
@@ -47,7 +41,6 @@ export default {
   apiService: injector.get(ApiService),
   axios: injector.get(Axios),
   environmentService: injector.get(EnvironmentService),
-  namespaceQuery: injector.get(NamespaceQuery),
   namespaceService: injector.get(NamespaceService),
   namespaceStore: injector.get(NamespaceStore),
 };

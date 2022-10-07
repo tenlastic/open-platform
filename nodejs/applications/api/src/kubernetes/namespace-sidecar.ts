@@ -1,5 +1,5 @@
 import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
-import { deploymentApiV1, jobApiV1, secretApiV1 } from '@tenlastic/kubernetes';
+import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 
 import { NamespaceDocument } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
@@ -21,21 +21,14 @@ export const KubernetesNamespaceSidecar = {
      * ======================
      */
     await deploymentApiV1.delete(name, 'dynamic');
-
-    /**
-     * ======================
-     * JOB
-     * ======================
-     */
-    await jobApiV1.delete(`${name}-migrations`, 'dynamic');
   },
   getName: (namespace: NamespaceDocument) => {
     return `namespace-${namespace._id}-sidecar`;
   },
   upsert: async (namespace: NamespaceDocument) => {
+    const name = KubernetesNamespaceSidecar.getName(namespace);
     const namespaceLabels = KubernetesNamespace.getLabels(namespace);
     const namespaceName = KubernetesNamespace.getName(namespace._id);
-    const name = KubernetesNamespaceSidecar.getName(namespace);
 
     /**
      * ======================
@@ -90,7 +83,7 @@ export const KubernetesNamespaceSidecar = {
     ];
     const livenessProbe: V1Probe = {
       failureThreshold: 3,
-      httpGet: { path: `/`, port: 3000 as any },
+      httpGet: { path: '/probes/liveness', port: 3000 as any },
       initialDelaySeconds: 10,
       periodSeconds: 10,
     };
@@ -160,73 +153,6 @@ export const KubernetesNamespaceSidecar = {
         selector: { matchLabels: { ...namespaceLabels, 'tenlastic.com/role': 'sidecar' } },
         template: deploymentTemplate,
       },
-    });
-
-    /**
-     * ======================
-     * JOB
-     * ======================
-     */
-    // If application is running locally, create debug containers.
-    // If application is running in production, create production containers.
-    let jobTemplate: V1PodTemplateSpec;
-    if (process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/')) {
-      jobTemplate = {
-        metadata: {
-          labels: { ...namespaceLabels, 'tenlastic.com/role': 'sidecar' },
-          name,
-        },
-        spec: {
-          affinity,
-          containers: [
-            {
-              command: ['npm', 'run', 'start'],
-              env,
-              envFrom,
-              image: 'tenlastic/node-development:latest',
-              name: 'migrations',
-              resources: { requests: { cpu: '25m', memory: '50Mi' } },
-              volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
-              workingDir: '/usr/src/nodejs/applications/migrations/',
-            },
-          ],
-          restartPolicy: 'OnFailure',
-          volumes: [
-            { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
-          ],
-        },
-      };
-    } else {
-      const { version } = require('../../../package.json');
-
-      jobTemplate = {
-        metadata: {
-          labels: { ...namespaceLabels, 'tenlastic.com/role': 'sidecar' },
-          name,
-        },
-        spec: {
-          affinity,
-          containers: [
-            {
-              env,
-              envFrom,
-              image: `tenlastic/migrations:${version}`,
-              name: 'migrations',
-              resources: { requests: { cpu: '25m', memory: '50Mi' } },
-            },
-          ],
-          restartPolicy: 'OnFailure',
-        },
-      };
-    }
-
-    await jobApiV1.delete(`${name}-migrations`, 'dynamic');
-    await jobApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...namespaceLabels, 'tenlastic.com/role': 'sidecar' },
-        name: `${name}-migrations`,
-      },
-      spec: { template: jobTemplate },
     });
   },
 };

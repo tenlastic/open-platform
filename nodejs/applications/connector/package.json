@@ -18,8 +18,9 @@
     "@tenlastic/mongoose-models": "0.0.314",
     "@tenlastic/mongoose-permissions": "0.0.314",
     "@tenlastic/nats": "0.0.314",
-    "@tenlastic/web-server": "0.0.314",
+    "@typegoose/typegoose": "9.9.0",
     "mongodb": "4.10.0",
+    "mongoose": "6.3.5",
     "source-map-support": "0.5.12"
   },
   "devDependencies": {

@@ -1,0 +1,57 @@
+import {
+  changeStreamPlugin,
+  errors,
+  EventEmitter,
+  IDatabasePayload,
+} from '@tenlastic/mongoose-models';
+import {
+  DocumentType,
+  ReturnModelType,
+  getModelForClass,
+  index,
+  modelOptions,
+  plugin,
+  prop,
+} from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
+
+export const OnWebSocketProduced = new EventEmitter<IDatabasePayload<WebSocketDocument>>();
+
+@index({ nodeId: 1 })
+@index({ userId: 1 })
+@modelOptions({ schemaOptions: { collection: 'websockets', minimize: false, timestamps: true } })
+@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnWebSocketProduced })
+@plugin(errors.unique.plugin)
+export class WebSocketSchema {
+  public _id: mongoose.Types.ObjectId;
+  public createdAt: Date;
+
+  @prop()
+  public disconnectedAt: Date;
+
+  @prop({ required: true })
+  public nodeId: string;
+
+  public updatedAt: Date;
+
+  @prop({ immutable: true, ref: 'UserSchema', required: true })
+  public userId: mongoose.Types.ObjectId;
+
+  /**
+   * Disconnects Web Sockets by Node ID.
+   */
+  public static async disconnectByNodeId(this: WebSocketModel, nodeId: string) {
+    const webSockets = await this.find({ disconnectedAt: { $exists: false }, nodeId });
+
+    const promises = webSockets.map(async (ws) => {
+      ws.disconnectedAt = new Date();
+      return ws.save();
+    });
+
+    return Promise.all(promises);
+  }
+}
+
+export type WebSocketDocument = DocumentType<WebSocketSchema>;
+export type WebSocketModel = ReturnModelType<typeof WebSocketSchema>;
+export const WebSocket = getModelForClass(WebSocketSchema);

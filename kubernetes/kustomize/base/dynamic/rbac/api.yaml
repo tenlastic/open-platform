@@ -54,7 +54,7 @@ rules:
       - update
       - watch
   - apiGroups:
-      - helm.fluxcd.io
+      - helm.toolkit.fluxcd.io
     resources:
       - helmreleases
     verbs:

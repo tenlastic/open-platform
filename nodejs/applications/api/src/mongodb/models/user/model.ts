@@ -27,7 +27,6 @@ export const OnUserProduced = new EventEmitter<IDatabasePayload<UserDocument>>()
 
 @index({ email: 1 }, { partialFilterExpression: { email: { $type: 'string' } }, unique: true })
 @index({ username: 1 }, { collation: { locale: 'en_US', strength: 1 }, unique: true })
-@index({ roles: 1 })
 @modelOptions({
   schemaOptions: {
     collation: { locale: 'en_US', strength: 1 },

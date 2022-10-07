@@ -1,9 +1,9 @@
+import { ICredentials } from '@tenlastic/mongoose-permissions';
 import { AuthenticationData, WebSocket as WS } from '@tenlastic/web-socket-server';
 
 import {
   Authorization,
   AuthorizationDocument,
-  User,
   WebSocket,
   WebSocketDocument,
   WebSocketPermissions,
@@ -30,9 +30,8 @@ export async function connection(auth: AuthenticationData, ws: WS) {
       userId: auth.jwt?.user?._id,
     });
   }
-  const user = auth.jwt?.user ? User.hydrate(auth.jwt.user) : null;
+  const credentials: ICredentials = { apiKey: auth.apiKey, authorization, user: auth.jwt?.user };
 
-  const credentials = { apiKey: auth.apiKey, authorization, user };
   const response = await WebSocketPermissions.read(credentials, webSocket);
   ws.send(JSON.stringify({ _id: 0, fullDocument: response, operationType: 'insert', status: 200 }));
 

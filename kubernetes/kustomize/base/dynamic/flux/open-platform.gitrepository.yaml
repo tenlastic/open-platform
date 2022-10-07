@@ -1,0 +1,15 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: GitRepository
+metadata:
+  name: open-platform
+  namespace: dynamic
+spec:
+  ignore: |
+    # Exclude everything.
+    /*
+    # Include Kubernetes directory.
+    !/kubernetes/
+  interval: 1m
+  ref:
+    branch: master
+  url: https://github.com/tenlastic/open-platform

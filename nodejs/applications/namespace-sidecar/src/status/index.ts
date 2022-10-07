@@ -14,7 +14,7 @@ const pods: { [key: string]: V1Pod } = {};
 /**
  * Checks the status of the pod and saves it to the Namespace's database.
  */
-export async function status() {
+export function status() {
   podApiV1.watch(
     'dynamic',
     { labelSelector: podLabelSelector },
@@ -78,6 +78,8 @@ async function updateNamespace() {
       let component: INamespace.StatusComponent;
       if (current._id.includes('api')) {
         component = previous.find((p) => p.name === 'api');
+      } else if (current._id.includes('connector')) {
+        component = previous.find((p) => p.name === 'connector');
       } else if (current._id.includes('sidecar')) {
         component = previous.find((p) => p.name === 'sidecar');
       }
@@ -92,6 +94,7 @@ async function updateNamespace() {
     },
     [
       { current: 0, name: 'api', phase: 'Pending', total: 1 },
+      { current: 0, name: 'connector', phase: 'Pending', total: 1 },
       { current: 0, name: 'sidecar', phase: 'Pending', total: 1 },
     ],
   );

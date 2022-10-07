@@ -11,7 +11,6 @@ import {
   deploymentApiV1,
   helmReleaseApiV1,
   ingressApiV1,
-  jobApiV1,
   networkPolicyApiV1,
   persistentVolumeClaimApiV1,
   podApiV1,
@@ -31,7 +30,10 @@ import {
   Authorization,
   AuthorizationDocument,
   AuthorizationRole,
+  Group,
+  Namespace,
   NamespaceDocument,
+  User,
 } from '../mongodb';
 
 const chance = new Chance();
@@ -73,7 +75,6 @@ export const KubernetesNamespace = {
     await deploymentApiV1.deleteCollection('dynamic', query);
     await helmReleaseApiV1.deleteCollection('dynamic', query);
     await ingressApiV1.deleteCollection('dynamic', query);
-    await jobApiV1.deleteCollection('dynamic', query);
     await networkPolicyApiV1.deleteCollection('dynamic', query);
     await persistentVolumeClaimApiV1.deleteCollection('dynamic', query);
     await podApiV1.deleteCollection('dynamic', query);
@@ -264,17 +265,14 @@ export const KubernetesNamespace = {
      * CONNECTORS
      * ======================
      */
-    await serviceApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'connector' },
-        name: `${name}-connector`,
-      },
-      spec: {
-        ports: [{ name: 'tcp', port: 3000 }],
-        selector: { ...labels, 'tenlastic.com/role': 'connector' },
-      },
-    });
     await statefulSetApiV1.delete(`${name}-connectors`, 'dynamic');
+
+    const containers = [
+      getConnectorContainerTemplate('authorizations', namespace, Authorization.schema),
+      getConnectorContainerTemplate('groups', namespace, Group.schema),
+      getConnectorContainerTemplate('namespaces', namespace, Namespace.schema),
+      getConnectorContainerTemplate('users', namespace, User.schema),
+    ];
     const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
     if (isDevelopment) {
       await statefulSetApiV1.create('dynamic', {
@@ -293,11 +291,7 @@ export const KubernetesNamespace = {
             },
             spec: {
               affinity: getAffinity(namespace, 'connectors'),
-              containers: [
-                getConnectorContainerTemplate('authorizations', namespace, {
-                  namespaceId: { $eq: { $oid: namespace._id } },
-                }),
-              ],
+              containers,
               volumes: [
                 {
                   hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' },
@@ -325,7 +319,7 @@ export const KubernetesNamespace = {
             },
             spec: {
               affinity: getAffinity(namespace, 'connectors'),
-              containers: [getConnectorContainerTemplate('authorizations', namespace)],
+              containers,
             },
           },
         },
@@ -374,11 +368,13 @@ function getAffinity(namespace: NamespaceDocument, role: string): V1Affinity {
 function getConnectorContainerTemplate(
   collectionName: string,
   namespace: NamespaceDocument,
+  schema: mongoose.Schema,
   where: any = {},
 ): V1Container {
   const name = KubernetesNamespace.getName(namespace._id);
 
   const env: V1EnvVar[] = [
+    { name: 'CONTAINER_NAME', value: collectionName },
     { name: 'MONGO_FROM_COLLECTION_NAME', value: collectionName },
     {
       name: 'MONGO_FROM_CONNECTION_STRING',
@@ -398,6 +394,7 @@ function getConnectorContainerTemplate(
       valueFrom: { secretKeyRef: { key: 'MONGO_DATABASE_NAME', name } },
     },
     { name: 'MONGO_WHERE', value: JSON.stringify(where) },
+    { name: 'MONGOOSE_SCHEMA', value: JSON.stringify(schema.paths) },
     {
       name: 'NATS_CONNECTION_STRING',
       valueFrom: { secretKeyRef: { key: 'NATS_CONNECTION_STRING', name: 'nodejs' } },
@@ -407,18 +404,6 @@ function getConnectorContainerTemplate(
   if (where) {
     env.push({ name: 'MONGO_WHERE', value: JSON.stringify(where) });
   }
-  const livenessProbe: V1Probe = {
-    failureThreshold: 3,
-    httpGet: { path: `/`, port: 3000 as any },
-    initialDelaySeconds: 10,
-    periodSeconds: 10,
-  };
-  const readinessProbe: V1Probe = {
-    failureThreshold: 1,
-    httpGet: { path: `/`, port: 3000 as any },
-    initialDelaySeconds: 5,
-    periodSeconds: 5,
-  };
   const resources = { requests: { cpu: '25m', memory: '75Mi' } };
 
   const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
@@ -427,9 +412,7 @@ function getConnectorContainerTemplate(
       command: ['npm', 'run', 'start'],
       env,
       image: `tenlastic/node-development:latest`,
-      livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
-      name: 'main',
-      readinessProbe,
+      name: collectionName,
       resources: { limits: { cpu: '1000m' }, requests: resources.requests },
       volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
       workingDir: `/usr/src/nodejs/applications/connector/`,
@@ -440,9 +423,7 @@ function getConnectorContainerTemplate(
     return {
       env,
       image: `tenlastic/connector:${version}`,
-      livenessProbe,
-      name: 'main',
-      readinessProbe,
+      name: collectionName,
       resources,
     };
   }
@@ -466,13 +447,13 @@ function getPodTemplate(namespace: NamespaceDocument, role: string): V1Pod {
   const envFrom: V1EnvFromSource[] = [{ secretRef: { name: 'nodejs' } }, { secretRef: { name } }];
   const livenessProbe: V1Probe = {
     failureThreshold: 3,
-    httpGet: { path: `/`, port: 3000 as any },
+    httpGet: { path: `/probes/liveness`, port: 3000 as any },
     initialDelaySeconds: 10,
     periodSeconds: 10,
   };
   const readinessProbe: V1Probe = {
     failureThreshold: 1,
-    httpGet: { path: `/`, port: 3000 as any },
+    httpGet: { path: `/probes/readiness`, port: 3000 as any },
     initialDelaySeconds: 5,
     periodSeconds: 5,
   };

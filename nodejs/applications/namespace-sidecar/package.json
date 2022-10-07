@@ -15,6 +15,9 @@
     "@tenlastic/dependency-injection": "0.0.314",
     "@tenlastic/http": "0.0.314",
     "@tenlastic/kubernetes": "0.0.314",
+    "@tenlastic/mongoose-migrations": "0.0.314",
+    "@tenlastic/mongoose-models": "0.0.314",
+    "@tenlastic/namespace-api": "0.0.314",
     "@tenlastic/web-server": "0.0.314",
     "axios": "0.27.2"
   },

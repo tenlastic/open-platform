@@ -78,5 +78,6 @@ export async function eachMessage(
     }
   } catch (e) {
     console.error(e);
+    process.exit(1);
   }
 }

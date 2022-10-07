@@ -1,11 +1,19 @@
+import { connect } from '@tenlastic/mongoose-models';
 import { WebServer } from '@tenlastic/web-server';
 
+import { migrations } from './migrations';
 import { status } from './status';
+
+const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
+const mongoDatabaseName = process.env.MONGO_DATABASE_NAME;
 
 (async () => {
   try {
+    await connect({ connectionString: mongoConnectionString, databaseName: mongoDatabaseName });
+
     // Background Tasks.
-    await status();
+    migrations();
+    status();
 
     // Web Server.
     const webServer = new WebServer();

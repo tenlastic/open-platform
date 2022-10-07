@@ -11,7 +11,6 @@ NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
       const records = await Authorization.find({ namespaceId: payload.fullDocument._id });
-      console.log(records);
       const promises = records.map((r) => r.remove());
       return Promise.all(promises);
   }

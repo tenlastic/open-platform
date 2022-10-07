@@ -9,7 +9,7 @@ import {
   NamespaceQuery,
   NamespaceService,
 } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 
@@ -20,9 +20,8 @@ import { FormService, IdentityService } from '../../../../../../core/services';
 export class NamespacesFormPageComponent implements OnDestroy, OnInit {
   public components = {
     api: 'API',
-    provisioner: 'Provisioner',
+    connector: 'Connector',
     sidecar: 'Sidecar',
-    wss: 'Web Socket Server',
   };
   public data: NamespaceModel;
   public errors: string[] = [];

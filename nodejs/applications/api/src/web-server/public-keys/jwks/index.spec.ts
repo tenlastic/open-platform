@@ -1,12 +1,9 @@
 import { ContextMock } from '@tenlastic/web-server';
-import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import { expect } from 'chai';
 
 import { handler } from '.';
 
-use(chaiAsPromised);
-
-describe('web-server/miscellaneous/public-keys', function () {
+describe('web-server/public-keys/jwks', function () {
   it('returns the access and refresh tokens', async function () {
     const ctx: any = new ContextMock();
     const publicKey = process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n')

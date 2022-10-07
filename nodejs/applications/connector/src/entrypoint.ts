@@ -1,9 +1,10 @@
 import * as nats from '@tenlastic/nats';
-import { WebServer } from '@tenlastic/web-server';
+import * as mongoose from 'mongoose';
 
 import { replicateFromMongo } from './replicate-from-mongo';
 import { replicateFromNats } from './replicate-from-nats';
 
+const containerName = process.env.CONTAINER_NAME;
 const mongoFromCollectionName = process.env.MONGO_FROM_COLLECTION_NAME;
 const mongoFromConnectionString = process.env.MONGO_FROM_CONNECTION_STRING;
 const mongoFromDatabaseName = process.env.MONGO_FROM_DATABASE_NAME;
@@ -11,17 +12,20 @@ const mongoToCollectionName = process.env.MONGO_TO_COLLECTION_NAME;
 const mongoToConnectionString = process.env.MONGO_TO_CONNECTION_STRING;
 const mongoToDatabaseName = process.env.MONGO_TO_DATABASE_NAME;
 const mongoWhere = process.env.MONGO_WHERE ? JSON.parse(process.env.MONGO_WHERE) : null;
+const mongooseSchema = JSON.parse(process.env.MONGOOSE_SCHEMA);
 const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 const podName = process.env.POD_NAME;
 
 (async function () {
   try {
+    const schema = new mongoose.Schema(mongooseSchema);
+    console.log(schema);
     await nats.connect({ connectionString: natsConnectionString });
 
     const from = `${mongoFromDatabaseName}.${mongoFromCollectionName}`;
     const to = `${mongoToDatabaseName}.${mongoToCollectionName}`;
 
-    const consumer = await nats.getConsumer(podName, from);
+    const consumer = await nats.getConsumer(`${podName}-${containerName}`, from);
     if (!consumer) {
       console.log(`Replicating from MongoDB (${from}) to MongoDB (${to}).`);
       const count = await replicateFromMongo(
@@ -36,17 +40,12 @@ const podName = process.env.POD_NAME;
       console.log(`Successfully synced ${count} documents.`);
     }
 
-    // Web Server.
-    const webServer = new WebServer();
-    webServer.use((ctx) => (ctx.status = 200));
-    webServer.start();
-
     console.log(`Replicating from NATS (${from}) to MongoDB (${to}).`);
     await replicateFromNats(
       mongoToCollectionName,
       mongoToConnectionString,
       mongoToDatabaseName,
-      { durable: podName, subject: from },
+      { durable: `${podName}-${containerName}`, subject: from },
       mongoWhere,
     );
   } catch (e) {
