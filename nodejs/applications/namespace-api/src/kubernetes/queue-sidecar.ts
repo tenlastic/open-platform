@@ -1,6 +1,7 @@
 import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 
+import { version } from '../../package.json';
 import { QueueDocument } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 import { KubernetesQueue } from './queue';
@@ -118,8 +119,6 @@ export const KubernetesQueueSidecar = {
         },
       };
     } else {
-      const { version } = require('../../../package.json');
-
       manifest = {
         metadata: {
           labels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' },

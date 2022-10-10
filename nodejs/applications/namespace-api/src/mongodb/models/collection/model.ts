@@ -5,7 +5,7 @@ import {
   IDatabasePayload,
   IOriginalDocument,
   jsonSchemaPropertiesValidator,
-  toMongo,
+  jsonToMongo,
 } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
@@ -155,7 +155,7 @@ export class CollectionSchema implements IOriginalDocument {
           namespaceId: {
             bsonType: 'objectId',
           },
-          properties: toMongo(this.jsonSchema),
+          properties: jsonToMongo(this.jsonSchema),
           updatedAt: {
             bsonType: 'date',
           },

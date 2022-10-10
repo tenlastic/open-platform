@@ -1,6 +1,6 @@
 import * as nats from '@tenlastic/nats';
-import * as mongoose from 'mongoose';
 
+import { parse } from './parse';
 import { replicateFromMongo } from './replicate-from-mongo';
 import { replicateFromNats } from './replicate-from-nats';
 
@@ -12,18 +12,16 @@ const mongoToCollectionName = process.env.MONGO_TO_COLLECTION_NAME;
 const mongoToConnectionString = process.env.MONGO_TO_CONNECTION_STRING;
 const mongoToDatabaseName = process.env.MONGO_TO_DATABASE_NAME;
 const mongoWhere = process.env.MONGO_WHERE ? JSON.parse(process.env.MONGO_WHERE) : null;
-const mongooseSchema = JSON.parse(process.env.MONGOOSE_SCHEMA);
 const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 const podName = process.env.POD_NAME;
 
 (async function () {
   try {
-    const schema = new mongoose.Schema(mongooseSchema);
-    console.log(schema);
     await nats.connect({ connectionString: natsConnectionString });
 
     const from = `${mongoFromDatabaseName}.${mongoFromCollectionName}`;
     const to = `${mongoToDatabaseName}.${mongoToCollectionName}`;
+    const where = mongoWhere ? parse(mongoWhere) : null;
 
     const consumer = await nats.getConsumer(`${podName}-${containerName}`, from);
     if (!consumer) {
@@ -35,7 +33,7 @@ const podName = process.env.POD_NAME;
         mongoToCollectionName,
         mongoToConnectionString,
         mongoToDatabaseName,
-        mongoWhere,
+        where,
       );
       console.log(`Successfully synced ${count} documents.`);
     }
@@ -46,7 +44,7 @@ const podName = process.env.POD_NAME;
       mongoToConnectionString,
       mongoToDatabaseName,
       { durable: `${podName}-${containerName}`, subject: from },
-      mongoWhere,
+      where,
     );
   } catch (e) {
     console.error(e);

@@ -7,6 +7,7 @@ import {
 } from '@kubernetes/client-node';
 import { networkPolicyApiV1, secretApiV1, statefulSetApiV1 } from '@tenlastic/kubernetes';
 
+import { version } from '../../package.json';
 import { QueueDocument } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 
@@ -149,8 +150,6 @@ export const KubernetesQueue = {
         },
       };
     } else {
-      const { version } = require('../../../package.json');
-
       manifest = {
         metadata: {
           labels: { ...labels, 'tenlastic.com/role': 'application' },

@@ -7,7 +7,7 @@ import { eachMessage } from './';
 
 const chance = new Chance();
 
-const schema = new mongoose.Schema({ name: String }, { timestamps: true });
+const schema = new mongoose.Schema({ createdAt: Date, name: String, updatedAt: Date });
 const Model = mongoose.model('example', schema);
 
 describe('replicateFromNats()', function () {
@@ -91,7 +91,7 @@ describe('replicateFromNats()', function () {
         );
 
         const result: any = await Model.findOne({ _id: record._id });
-        expect(result.createdAt).to.not.exist;
+        expect(result.createdAt).to.eql(record.createdAt);
         expect(result.updatedAt).to.eql(payload.updateDescription.updatedFields.updatedAt);
       });
     });

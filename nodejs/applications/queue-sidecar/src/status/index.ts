@@ -2,6 +2,7 @@ import { V1Pod } from '@kubernetes/client-node';
 import { IQueue, QueueModel } from '@tenlastic/http';
 import { podApiV1 } from '@tenlastic/kubernetes';
 
+import { version } from '../../package.json';
 import dependencies from '../dependencies';
 
 const podLabelSelector = process.env.QUEUE_POD_LABEL_SELECTOR;
@@ -108,8 +109,6 @@ async function updateQueue() {
   }
 
   // Version
-  const { version } = require('../../package.json');
-
   await dependencies.queueService.update(queue.namespaceId, queue._id, {
     status: { components, nodes, phase, version },
   });

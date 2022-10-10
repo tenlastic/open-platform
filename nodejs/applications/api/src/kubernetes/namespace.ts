@@ -22,10 +22,11 @@ import {
   workflowApiV1,
 } from '@tenlastic/kubernetes';
 import * as minio from '@tenlastic/minio';
-import { createConnection } from '@tenlastic/mongoose-models';
+import { createConnection, mongooseToJson } from '@tenlastic/mongoose-models';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
+import { version } from '../../package.json';
 import {
   Authorization,
   AuthorizationDocument,
@@ -156,7 +157,7 @@ export const KubernetesNamespace = {
             http: {
               paths: [
                 {
-                  backend: { service: { name: `${name}-wss`, port: { number: 3000 } } },
+                  backend: { service: { name: `${name}-api`, port: { number: 3000 } } },
                   path: `/namespaces/${namespace._id}`,
                   pathType: 'Prefix',
                 },
@@ -256,7 +257,7 @@ export const KubernetesNamespace = {
         replicas: 1,
         selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'api' } },
         serviceName: `${name}-api`,
-        template: getPodTemplate(namespace, 'api'),
+        template: getPodTemplate(namespace),
       },
     });
 
@@ -371,10 +372,12 @@ function getConnectorContainerTemplate(
   schema: mongoose.Schema,
   where: any = {},
 ): V1Container {
+  const jsonSchema = mongooseToJson(schema);
   const name = KubernetesNamespace.getName(namespace._id);
 
   const env: V1EnvVar[] = [
     { name: 'CONTAINER_NAME', value: collectionName },
+    { name: 'JSON_SCHEMA', value: JSON.stringify(jsonSchema) },
     { name: 'MONGO_FROM_COLLECTION_NAME', value: collectionName },
     {
       name: 'MONGO_FROM_CONNECTION_STRING',
@@ -394,7 +397,6 @@ function getConnectorContainerTemplate(
       valueFrom: { secretKeyRef: { key: 'MONGO_DATABASE_NAME', name } },
     },
     { name: 'MONGO_WHERE', value: JSON.stringify(where) },
-    { name: 'MONGOOSE_SCHEMA', value: JSON.stringify(schema.paths) },
     {
       name: 'NATS_CONNECTION_STRING',
       valueFrom: { secretKeyRef: { key: 'NATS_CONNECTION_STRING', name: 'nodejs' } },
@@ -418,8 +420,6 @@ function getConnectorContainerTemplate(
       workingDir: `/usr/src/nodejs/applications/connector/`,
     };
   } else {
-    const { version } = require('../../../package.json');
-
     return {
       env,
       image: `tenlastic/connector:${version}`,
@@ -440,7 +440,7 @@ function getPath(namespace: NamespaceDocument, path: string) {
   };
 }
 
-function getPodTemplate(namespace: NamespaceDocument, role: string): V1Pod {
+function getPodTemplate(namespace: NamespaceDocument): V1Pod {
   const labels = KubernetesNamespace.getLabels(namespace);
   const name = KubernetesNamespace.getName(namespace._id);
 
@@ -463,11 +463,11 @@ function getPodTemplate(namespace: NamespaceDocument, role: string): V1Pod {
   if (isDevelopment) {
     return {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': role },
-        name: `${name}-${role}`,
+        labels: { ...labels, 'tenlastic.com/role': 'api' },
+        name: `${name}-api`,
       },
       spec: {
-        affinity: getAffinity(namespace, role),
+        affinity: getAffinity(namespace, 'api'),
         containers: [
           {
             command: ['npm', 'run', 'start'],
@@ -479,37 +479,35 @@ function getPodTemplate(namespace: NamespaceDocument, role: string): V1Pod {
             readinessProbe,
             resources: { limits: { cpu: '1000m' }, requests: resources.requests },
             volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
-            workingDir: `/usr/src/nodejs/applications/${role}/`,
+            workingDir: `/usr/src/nodejs/applications/namespace-api/`,
           },
         ],
-        serviceAccountName: ['api'].includes(role) ? `${name}-${role}` : null,
+        serviceAccountName: `${name}-api`,
         volumes: [
           { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
         ],
       },
     };
   } else {
-    const { version } = require('../../../package.json');
-
     return {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': role },
+        labels: { ...labels, 'tenlastic.com/role': 'api' },
         name,
       },
       spec: {
-        affinity: getAffinity(namespace, role),
+        affinity: getAffinity(namespace, 'api'),
         containers: [
           {
             env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
             envFrom,
-            image: `tenlastic/${role}:${version}`,
+            image: `tenlastic/namespace-api:${version}`,
             livenessProbe,
             name: 'main',
             readinessProbe,
             resources,
           },
         ],
-        serviceAccountName: ['api'].includes(role) ? `${name}-${role}` : null,
+        serviceAccountName: `${name}-api`,
       },
     };
   }

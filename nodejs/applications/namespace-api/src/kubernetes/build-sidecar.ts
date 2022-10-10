@@ -1,6 +1,7 @@
 import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 
+import { version } from '../../package.json';
 import { BuildDocument } from '../mongodb';
 import { KubernetesBuild } from './build';
 import { KubernetesNamespace } from './namespace';
@@ -84,7 +85,6 @@ export const KubernetesBuildSidecar = {
       initialDelaySeconds: 10,
       periodSeconds: 10,
     };
-    const { version } = require('../../../package.json');
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.

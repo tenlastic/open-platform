@@ -15,19 +15,23 @@ const typeToMongoose = {
   boolean: Boolean,
   date: Date,
   number: Number,
+  objectId: mongoose.Types.ObjectId,
   string: String,
 };
 
-export function toMongoose(jsonSchema: any) {
+export function jsonToMongoose(jsonSchema: any) {
   if (jsonSchema.constructor !== Object) {
     throw new Error(`Unsupported JSON schema type: ${jsonSchema.type}.`);
   }
 
-  const typeIsDate = jsonSchema.type === 'string' && jsonSchema.format === 'date-time';
+  const typeIsDate = jsonSchema.format === 'date-time' && jsonSchema.type === 'string';
   const typeIsDefined = 'type' in jsonSchema;
+  const typeIsObjectId = jsonSchema.pattern === '^[0-9A-Fa-f]{24}$' && jsonSchema.type === 'string';
 
   if (typeIsDate) {
     return Date;
+  } else if (typeIsObjectId) {
+    return mongoose.Schema.Types.ObjectId;
   } else if (jsonSchema.type in typeToMongoose) {
     return Object.entries(jsonSchema).reduce(toMongooseParams, {});
   } else if (jsonSchema.type === 'object') {
@@ -43,10 +47,10 @@ export function toMongoose(jsonSchema: any) {
 
 function getArrayType(jsonSchema: any) {
   if (jsonSchema.items && Object.keys(jsonSchema.items).length > 0) {
-    return [toMongoose(jsonSchema.items)];
+    return [jsonToMongoose(jsonSchema.items)];
   }
 
-  return [];
+  return [mongoose.Schema.Types.Mixed];
 }
 
 function getObjectType(jsonSchema: any) {
@@ -55,7 +59,7 @@ function getObjectType(jsonSchema: any) {
   }
 
   const converted = Object.entries(jsonSchema.properties).reduce((previousValue, [key, value]) => {
-    previousValue[key] = toMongoose(value);
+    previousValue[key] = jsonToMongoose(value);
     return previousValue;
   }, {});
 

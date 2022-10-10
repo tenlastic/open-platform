@@ -4,6 +4,7 @@ import * as nats from '@tenlastic/nats';
 import * as mongoose from 'mongoose';
 import { AckPolicy } from 'nats';
 import { TextDecoder } from 'util';
+import { parse } from '../parse';
 
 export interface ReplicateOptions {
   durable: string;
@@ -34,7 +35,15 @@ export async function replicateFromNats(
     const data = new TextDecoder().decode(message.data);
     const json = JSON.parse(data);
 
-    await eachMessage(collection, options, json, where);
+    try {
+      await eachMessage(collection, options, json, where);
+      message.ack();
+    } catch (e) {
+      console.error(e);
+      message.nak();
+
+      process.exit(1);
+    }
   }
 }
 
@@ -44,40 +53,40 @@ export async function eachMessage(
   payload: mongooseModels.IDatabasePayload<mongoose.Model<mongoose.Document>>,
   where: any,
 ) {
-  try {
-    const { documentKey, fullDocument, operationType, updateDescription } = payload;
+  const documentKey = parse(payload.documentKey);
+  const fullDocument = parse(payload.fullDocument);
+  const { operationType, updateDescription } = payload;
 
-    if (!mongoosePermissions.isJsonValid(fullDocument, where)) {
-      return;
+  if (!mongoosePermissions.isJsonValid(fullDocument, where)) {
+    return;
+  }
+
+  // Remove _id from fullDocument for update operations.
+  delete fullDocument._id;
+
+  if (operationType === 'delete') {
+    await collection.deleteOne(documentKey);
+  } else if (operationType === 'insert') {
+    await collection.replaceOne(documentKey, fullDocument, { upsert: true });
+  } else if (options.useUpdateDescription) {
+    const { removedFields, updatedFields } = updateDescription;
+    const update: any = {};
+
+    if (removedFields && removedFields.length > 0) {
+      update.$unset = updateDescription.removedFields.reduce((agg: any, field: string) => {
+        agg[field] = '';
+        return agg;
+      }, {});
     }
 
-    if (operationType === 'delete') {
-      await collection.deleteOne(documentKey);
-    } else if (operationType === 'insert') {
-      await collection.insertOne(fullDocument);
-    } else if (options.useUpdateDescription) {
-      const { removedFields, updatedFields } = updateDescription;
-      const update: any = {};
-
-      if (removedFields && removedFields.length > 0) {
-        update.$unset = updateDescription.removedFields.reduce((agg: any, field: string) => {
-          agg[field] = '';
-          return agg;
-        }, {});
-      }
-
-      if (updatedFields && Object.keys(updatedFields).length > 0) {
-        update.$set = updateDescription.updatedFields;
-      }
-
-      if (update.$set || update.$unset) {
-        await collection.updateOne(documentKey, update, { upsert: true });
-      }
-    } else {
-      await collection.replaceOne(documentKey, fullDocument, { upsert: true });
+    if (updatedFields && Object.keys(updatedFields).length > 0) {
+      update.$set = parse(updateDescription.updatedFields);
     }
-  } catch (e) {
-    console.error(e);
-    process.exit(1);
+
+    if (update.$set || update.$unset) {
+      await collection.updateOne(documentKey, update, { upsert: true });
+    }
+  } else {
+    await collection.replaceOne(documentKey, fullDocument, { upsert: true });
   }
 }

@@ -1,19 +1,19 @@
 import { expect } from 'chai';
 
-import { toMongo } from '../to-mongo';
+import { jsonToMongo } from '.';
 
-describe('json-schema/toMongo', function () {
+describe('json-schema/json-to-mongo', function () {
   context('when the schema is invalid', function () {
     it('throws an error', function () {
       const input = { type: 'objectttt' };
-      const func = () => toMongo(input);
+      const func = () => jsonToMongo(input);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
 
     it('throws an error', function () {
       const input = { properties: 'not an object', type: 'object' };
-      const func = () => toMongo(input);
+      const func = () => jsonToMongo(input);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
@@ -23,7 +23,7 @@ describe('json-schema/toMongo', function () {
         properties: { email: { type: 'not a type' } },
         type: 'object',
       };
-      const func = () => toMongo(input);
+      const func = () => jsonToMongo(input);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
@@ -55,7 +55,7 @@ describe('json-schema/toMongo', function () {
         type: 'object',
       };
 
-      const result = toMongo(json);
+      const result = jsonToMongo(json);
 
       expect(result).to.eql({
         bsonType: ['null', 'object'],

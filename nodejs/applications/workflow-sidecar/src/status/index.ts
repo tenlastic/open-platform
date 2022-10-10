@@ -1,6 +1,8 @@
 import { workflowApiV1 } from '@tenlastic/kubernetes';
 import axios from 'axios';
 
+import { version } from '../../package.json';
+
 const apiKey = process.env.API_KEY;
 const workflowEndpoint = process.env.WORKFLOW_ENDPOINT;
 const workflowName = process.env.WORKFLOW_NAME;
@@ -33,8 +35,6 @@ async function updateWorkflow(object: any) {
   const nodes = Object.values(object.status.nodes || {}).map((n: any) => ({ ...n, _id: n.id }));
 
   // Version
-  const { version } = require('../../package.json');
-
   return axios({
     data: { status: { ...object.status, nodes, version } },
     headers: { 'X-Api-Key': apiKey },

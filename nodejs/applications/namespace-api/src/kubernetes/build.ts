@@ -3,6 +3,7 @@ import { networkPolicyApiV1, secretApiV1, V1Workflow, workflowApiV1 } from '@ten
 import { DatabaseOperationType } from '@tenlastic/mongoose-models';
 import { URL } from 'url';
 
+import { version } from '../../package.json';
 import { BuildDocument } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 
@@ -125,7 +126,6 @@ export const KubernetesBuild = {
       limit: 2,
       retryStrategy: 'Always',
     };
-    const { version } = require('../../../package.json');
 
     let manifest: V1Workflow;
     if (process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/')) {

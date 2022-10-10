@@ -1,6 +1,7 @@
 import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 
+import { version } from '../../package.json';
 import { WorkflowDocument } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 import { KubernetesWorkflow } from './workflow';
@@ -116,8 +117,6 @@ export const KubernetesWorkflowSidecar = {
         },
       };
     } else {
-      const { version } = require('../../../package.json');
-
       manifest = {
         metadata: {
           labels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' },

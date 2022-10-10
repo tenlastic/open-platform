@@ -2,6 +2,7 @@ import { V1Pod } from '@kubernetes/client-node';
 import { INamespace, NamespaceModel } from '@tenlastic/http';
 import { podApiV1 } from '@tenlastic/kubernetes';
 
+import { version } from '../../package.json';
 import dependencies from '../dependencies';
 
 const namespace = JSON.parse(process.env.NAMESPACE_JSON) as Partial<NamespaceModel>;
@@ -110,8 +111,6 @@ async function updateNamespace() {
   }
 
   // Version
-  const { version } = require('../../package.json');
-
   await dependencies.namespaceService.update(namespace._id, {
     status: { components, nodes, phase, version },
   });

@@ -14,7 +14,7 @@ const typeToMongoose = {
   string: ['null', 'string'],
 };
 
-export function toMongo(jsonSchema: any) {
+export function jsonToMongo(jsonSchema: any) {
   if (jsonSchema.constructor !== Object) {
     throw new Error(`Unsupported JSON schema type: ${jsonSchema.type}.`);
   }
@@ -39,7 +39,7 @@ export function toMongo(jsonSchema: any) {
 
 function getArrayType(jsonSchema: any) {
   if (jsonSchema.items && Object.keys(jsonSchema.items).length > 0) {
-    return { bsonType: ['array', 'null'], items: toMongo(jsonSchema.items) };
+    return { bsonType: ['array', 'null'], items: jsonToMongo(jsonSchema.items) };
   }
 
   return { bsonType: ['array', 'null'], items: { bsonType: ['null', 'object'] } };
@@ -51,7 +51,7 @@ function getObjectType(jsonSchema: any) {
   }
 
   const properties = Object.entries(jsonSchema.properties).reduce((previousValue, [key, value]) => {
-    previousValue[key] = toMongo(value);
+    previousValue[key] = jsonToMongo(value);
     return previousValue;
   }, {});
 

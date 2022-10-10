@@ -2,6 +2,7 @@ import { V1Pod } from '@kubernetes/client-node';
 import { GameServerModel } from '@tenlastic/http';
 import { nodeApiV1, podApiV1 } from '@tenlastic/kubernetes';
 
+import { version } from '../../package.json';
 import dependencies from '../dependencies';
 
 const container = process.env.GAME_SERVER_CONTAINER;
@@ -121,8 +122,6 @@ async function updateGameServer() {
   }
 
   // Version
-  const { version } = require('../../package.json');
-
   await dependencies.gameServerService.update(gameServer.namespaceId, gameServer._id, {
     status: { endpoints, nodes, phase, version },
   });

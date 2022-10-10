@@ -23,7 +23,7 @@ export async function replicateFromMongo(
 
   let count = 0;
   for await (const record of fromCollection.find(where)) {
-    await toCollection.insertOne(record);
+    await toCollection.updateOne({ _id: record._id }, { $set: record }, { upsert: true });
     count++;
   }
 

@@ -1,6 +1,7 @@
 import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 
+import { version } from '../../package.json';
 import { NamespaceDocument } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 
@@ -119,8 +120,6 @@ export const KubernetesNamespaceSidecar = {
         },
       };
     } else {
-      const { version } = require('../../../package.json');
-
       deploymentTemplate = {
         metadata: {
           labels: { ...namespaceLabels, 'tenlastic.com/role': 'sidecar' },

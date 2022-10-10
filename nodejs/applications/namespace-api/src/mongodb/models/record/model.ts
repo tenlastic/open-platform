@@ -4,7 +4,7 @@ import {
   EventEmitter,
   IDatabasePayload,
   namespaceValidator,
-  toMongoose,
+  jsonToMongoose,
 } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
@@ -54,7 +54,7 @@ export class RecordSchema {
   public static getModel(collection: CollectionDocument) {
     // Build schema from Collection's properties.
     const schema = buildSchema(RecordSchema).clone();
-    schema.add({ properties: toMongoose(collection.jsonSchema) });
+    schema.add({ properties: jsonToMongoose(collection.jsonSchema) });
     schema.set('collection', collection.mongoName);
 
     // Register indexes with Mongoose.
