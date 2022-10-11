@@ -44,4 +44,3 @@ resources:
   - ./static/nodejs/documentation.yaml
   - ./static/redis/redis.yaml
   - ./static/sealed-secrets/sealed-secrets.yaml
-  - ./static/verdaccio/verdaccio.yaml

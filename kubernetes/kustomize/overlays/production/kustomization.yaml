@@ -33,3 +33,4 @@ resources:
   - ./static/nodejs/nodejs.sealedsecret.yaml
   - ./static/redis/redis.sealedsecret.yaml
   - ./static/verdaccio/verdaccio.sealedsecret.yaml
+  - ./static/verdaccio/verdaccio.yaml
