@@ -1,4 +1,4 @@
-import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
+import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 
 import { version } from '../../package.json';
@@ -79,12 +79,6 @@ export const KubernetesWorkflowSidecar = {
       },
     ];
     const envFrom: V1EnvFromSource[] = [{ secretRef: { name } }];
-    const livenessProbe: V1Probe = {
-      failureThreshold: 3,
-      httpGet: { path: '/probes/liveness', port: 3000 as any },
-      initialDelaySeconds: 10,
-      periodSeconds: 10,
-    };
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
@@ -103,7 +97,6 @@ export const KubernetesWorkflowSidecar = {
               env,
               envFrom,
               image: 'tenlastic/node-development:latest',
-              livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
               name: 'workflow-status-sidecar',
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
               volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
@@ -129,7 +122,6 @@ export const KubernetesWorkflowSidecar = {
               env,
               envFrom,
               image: `tenlastic/workflow-status-sidecar:${version}`,
-              livenessProbe,
               name: 'workflow-status-sidecar',
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
             },
