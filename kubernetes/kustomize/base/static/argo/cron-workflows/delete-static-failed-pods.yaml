@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: delete-dynamic-corrupted-pods
+  name: delete-static-failed-pods
   namespace: static
 rules:
   - apiGroups:
@@ -9,9 +9,11 @@ rules:
     resources:
       - pods
     verbs:
+      - delete
       - get
-      - patch
+      - list
       - watch
+      - patch
   - apiGroups:
       - ""
     resources:
@@ -35,27 +37,27 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: delete-dynamic-corrupted-pods
+  name: delete-static-failed-pods
   namespace: static
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: delete-dynamic-corrupted-pods
+  name: delete-static-failed-pods
 subjects:
   - kind: ServiceAccount
-    name: delete-dynamic-corrupted-pods
+    name: delete-static-failed-pods
     namespace: static
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: delete-dynamic-corrupted-pods
+  name: delete-static-failed-pods
   namespace: static
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: delete-dynamic-corrupted-pods
+  name: delete-static-failed-pods
   namespace: static
 spec:
   concurrencyPolicy: Allow
@@ -70,14 +72,14 @@ spec:
             - matchExpressions:
                 - key: tenlastic.com/low-priority
                   operator: Exists
-    entrypoint: delete-dynamic-corrupted-pods
+    entrypoint: delete-static-failed-pods
     podGC:
       strategy: OnWorkflowCompletion
-    serviceAccountName: delete-dynamic-corrupted-pods
+    serviceAccountName: delete-static-failed-pods
     ttlStrategy:
       secondsAfterSuccess: 60
     templates:
-      - name: delete-dynamic-corrupted-pods
+      - name: delete-static-failed-pods
         script:
           command: [sh]
           image: bitnami/kubectl:latest
@@ -86,9 +88,8 @@ spec:
             requests:
               cpu: 50m
           source: |
-            if [ "$(kubectl get pod -n dynamic | grep -c -e Error -e Evicted -e Failed -e Shutdown -e Terminated)" -ge 1 ]; then
-              kubectl get pod -n dynamic | \
-                grep -e Error -e Evicted -e Failed -e Shutdown -e Terminated | \
-                awk '{print $1}' | \
-                xargs kubectl delete pod -n dynamic
+            if [ "$(kubectl get pods -n static --field-selector status.phase=Failed)" -ge 1 ]; then
+              kubectl get pods -n static --field-selector status.phase=Failed | \
+                awk '{print $2}' | \
+                xargs kubectl delete pod -n static
             fi

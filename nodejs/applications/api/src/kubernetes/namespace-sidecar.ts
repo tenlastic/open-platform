@@ -1,4 +1,4 @@
-import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
+import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 
 import { version } from '../../package.json';
@@ -42,11 +42,9 @@ export const KubernetesNamespaceSidecar = {
         name,
       },
       stringData: {
-        API_URL: 'http://api.static:3000',
+        ENDPOINT: `http://api.static:3000/namespaces/${namespace._id}`,
         MONGO_DATABASE_NAME: namespaceName,
-        NAMESPACE_JSON: JSON.stringify(namespace),
-        NAMESPACE_POD_LABEL_SELECTOR: `tenlastic.com/app=${namespaceName}`,
-        WSS_URL: 'ws://api.static:3000',
+        LABEL_SELECTOR: `tenlastic.com/app=${namespaceName}`,
       },
     });
 
@@ -82,12 +80,6 @@ export const KubernetesNamespaceSidecar = {
       { secretRef: { name: namespaceName } },
       { secretRef: { name } },
     ];
-    const livenessProbe: V1Probe = {
-      failureThreshold: 3,
-      httpGet: { path: '/probes/liveness', port: 3000 as any },
-      initialDelaySeconds: 10,
-      periodSeconds: 10,
-    };
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
@@ -106,11 +98,20 @@ export const KubernetesNamespaceSidecar = {
               env,
               envFrom,
               image: 'tenlastic/node-development:latest',
-              livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
-              name: 'namespace-sidecar',
+              name: 'namespace-migrations-sidecar',
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
               volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
-              workingDir: '/usr/src/nodejs/applications/namespace-sidecar/',
+              workingDir: '/usr/src/nodejs/applications/namespace-migrations-sidecar/',
+            },
+            {
+              command: ['npm', 'run', 'start'],
+              env,
+              envFrom,
+              image: 'tenlastic/node-development:latest',
+              name: 'status-sidecar',
+              resources: { requests: { cpu: '25m', memory: '50Mi' } },
+              volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
+              workingDir: '/usr/src/nodejs/applications/status-sidecar/',
             },
           ],
           serviceAccountName: 'namespace-sidecar',
@@ -132,8 +133,14 @@ export const KubernetesNamespaceSidecar = {
               env,
               envFrom,
               image: `tenlastic/namespace-sidecar:${version}`,
-              livenessProbe,
               name: 'namespace-sidecar',
+              resources: { requests: { cpu: '25m', memory: '50Mi' } },
+            },
+            {
+              env,
+              envFrom,
+              image: `tenlastic/status-sidecar:${version}`,
+              name: 'status-sidecar',
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
             },
           ],

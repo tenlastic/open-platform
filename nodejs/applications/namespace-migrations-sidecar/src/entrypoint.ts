@@ -1,4 +1,5 @@
 import { up } from '@tenlastic/mongoose-migrations';
+import { connect } from '@tenlastic/mongoose-models';
 import {
   Article,
   Authorization,
@@ -15,10 +16,15 @@ import {
   Workflow,
 } from '@tenlastic/namespace-api';
 
-import { migration as compatibilityVersion60 } from './compatibility-version-6-0';
+import { compatibilityVersion60 } from './migrations';
 
-export async function migrations() {
+const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
+const mongoDatabaseName = process.env.MONGO_DATABASE_NAME;
+
+(async () => {
   try {
+    await connect({ connectionString: mongoConnectionString, databaseName: mongoDatabaseName });
+
     console.log('Syncing indexes...');
     await Promise.all([
       Article.syncIndexes({ background: true }),
@@ -41,7 +47,7 @@ export async function migrations() {
     await up(compatibilityVersion60);
     console.log('Migrations finished successfully!');
   } catch (e) {
-    console.error(e);
+    console.error(e.message);
     process.exit(1);
   }
-}
+})();

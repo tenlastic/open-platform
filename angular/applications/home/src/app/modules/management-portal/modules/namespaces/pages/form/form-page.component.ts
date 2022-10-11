@@ -20,7 +20,7 @@ import { FormService, IdentityService } from '../../../../../../core/services';
 export class NamespacesFormPageComponent implements OnDestroy, OnInit {
   public components = {
     api: 'API',
-    connector: 'Connector',
+    connectors: 'Connectors',
     sidecar: 'Sidecar',
   };
   public data: NamespaceModel;

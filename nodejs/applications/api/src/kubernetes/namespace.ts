@@ -278,7 +278,7 @@ export const KubernetesNamespace = {
     if (isDevelopment) {
       await statefulSetApiV1.create('dynamic', {
         metadata: {
-          labels: { ...labels, 'tenlastic.com/role': 'connector' },
+          labels: { ...labels, 'tenlastic.com/role': 'connectors' },
           name: `${name}-connectors`,
         },
         spec: {
@@ -306,7 +306,7 @@ export const KubernetesNamespace = {
     } else {
       await statefulSetApiV1.create('dynamic', {
         metadata: {
-          labels: { ...labels, 'tenlastic.com/role': 'connector' },
+          labels: { ...labels, 'tenlastic.com/role': 'connectors' },
           name: `${name}-connectors`,
         },
         spec: {

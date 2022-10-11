@@ -23,8 +23,8 @@ resources:
   - ./dynamic/rbac/workflow-sidecar.yaml
   - ./static/angular/home-ui.yaml
   - ./static/argo/argo-workflows.yaml
-  - ./static/argo/cron-workflows/delete-dynamic-corrupted-pods.yaml
-  - ./static/argo/cron-workflows/delete-static-corrupted-pods.yaml
+  - ./static/argo/cron-workflows/delete-dynamic-failed-pods.yaml
+  - ./static/argo/cron-workflows/delete-static-failed-pods.yaml
   - ./static/argo/cron-workflows/e2e.yaml
   - ./static/argo/cron-workflows/garbage-collect-docker-registry.yaml
   - ./static/argo/workflow-templates/angular.yaml

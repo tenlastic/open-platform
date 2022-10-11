@@ -62,7 +62,7 @@ export class NamespaceLimitError extends Error {
     }),
     new NamespaceStatusComponent({
       current: 0,
-      name: NamespaceStatusComponentName.Connector,
+      name: NamespaceStatusComponentName.Connectors,
       phase: NamespaceStatusPhase.Pending,
       total: 1,
     }),

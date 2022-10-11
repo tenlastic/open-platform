@@ -1,4 +1,4 @@
-import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
+import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 
 import { version } from '../../package.json';
@@ -38,16 +38,15 @@ export const KubernetesQueueSidecar = {
      * SECRET
      * ======================
      */
+    const apiHost = `http://${namespaceName}-api.dynamic:3000`;
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' },
         name,
       },
       stringData: {
-        API_URL: `http://${namespaceName}-api.dynamic:3000`,
-        QUEUE_JSON: JSON.stringify(queue),
-        QUEUE_POD_LABEL_SELECTOR: `tenlastic.com/app=${queueName}`,
-        WSS_URL: `ws://${namespaceName}-wss.dynamic:3000`,
+        ENDPOINT: `${apiHost}/namespaces/${queue.namespaceId}/queues/${queue._id}`,
+        LABEL_SELECTOR: `tenlastic.com/app=${queueName}`,
       },
     });
 
@@ -81,12 +80,6 @@ export const KubernetesQueueSidecar = {
       },
     ];
     const envFrom: V1EnvFromSource[] = [{ secretRef: { name } }];
-    const livenessProbe: V1Probe = {
-      failureThreshold: 3,
-      httpGet: { path: '/probes/liveness', port: 3000 as any },
-      initialDelaySeconds: 10,
-      periodSeconds: 10,
-    };
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
@@ -105,11 +98,10 @@ export const KubernetesQueueSidecar = {
               env,
               envFrom,
               image: 'tenlastic/node-development:latest',
-              livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
-              name: 'queue-sidecar',
+              name: 'status-sidecar',
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
               volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
-              workingDir: '/usr/src/nodejs/applications/queue-sidecar/',
+              workingDir: '/usr/src/nodejs/applications/status-sidecar/',
             },
           ],
           serviceAccountName: 'queue-sidecar',
@@ -130,9 +122,8 @@ export const KubernetesQueueSidecar = {
             {
               env,
               envFrom,
-              image: `tenlastic/queue-sidecar:${version}`,
-              livenessProbe,
-              name: 'queue-sidecar',
+              image: `tenlastic/status-sidecar:${version}`,
+              name: 'status-sidecar',
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
             },
           ],

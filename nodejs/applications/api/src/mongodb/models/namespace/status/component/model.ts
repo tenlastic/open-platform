@@ -10,7 +10,7 @@ import { NamespaceStatusPhase } from '../model';
 
 export enum NamespaceStatusComponentName {
   Api = 'api',
-  Connector = 'connector',
+  Connectors = 'connectors',
   Sidecar = 'sidecar',
 }
 
