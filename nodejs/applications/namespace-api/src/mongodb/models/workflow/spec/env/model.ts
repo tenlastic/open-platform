@@ -8,10 +8,10 @@ import {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecEnvSchema {
-  @prop({ required: true, validate: (v) => /[A-Z0-9_]+/.test(v) })
+  @prop({ required: true, type: String, validate: (v) => /[A-Z0-9_]+/.test(v) })
   public name: string;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public value: string;
 }
 

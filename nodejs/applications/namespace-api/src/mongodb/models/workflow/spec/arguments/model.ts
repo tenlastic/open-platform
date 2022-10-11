@@ -4,13 +4,14 @@ import {
   getModelForClass,
   modelOptions,
   prop,
+  PropType,
 } from '@typegoose/typegoose';
 
 import { WorkflowSpecParameterSchema } from '../parameter';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecArgumentsSchema {
-  @prop({ type: WorkflowSpecParameterSchema })
+  @prop({ type: WorkflowSpecParameterSchema }, PropType.ARRAY)
   public parameters: WorkflowSpecParameterSchema[];
 }
 

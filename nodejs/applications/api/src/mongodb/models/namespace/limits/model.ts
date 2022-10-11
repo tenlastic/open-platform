@@ -8,19 +8,19 @@ import {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class NamespaceLimitsSchema {
-  @prop({ default: 0 })
+  @prop({ default: 0, type: Number })
   public bandwidth: number;
 
-  @prop({ default: 0 })
+  @prop({ default: 0, type: Number })
   public cpu: number;
 
-  @prop({ default: 0 })
+  @prop({ default: 0, type: Number })
   public memory: number;
 
-  @prop({ default: true })
+  @prop({ default: true, type: Boolean })
   public preemptible: boolean;
 
-  @prop({ default: 0 })
+  @prop({ default: 0, type: Number })
   public storage: number;
 }
 

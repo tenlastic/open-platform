@@ -6,12 +6,13 @@ import {
 } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   index,
   modelOptions,
   plugin,
   prop,
+  PropType,
+  ReturnModelType,
   Severity,
 } from '@typegoose/typegoose';
 import * as minio from '@tenlastic/minio';
@@ -32,38 +33,38 @@ export const OnStorefrontProduced = new EventEmitter<IDatabasePayload<Storefront
 export class StorefrontSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop()
+  @prop({ type: String })
   public background: string;
 
   public createdAt: Date;
 
-  @prop()
+  @prop({ type: String })
   public description: string;
 
-  @prop()
+  @prop({ type: String })
   public icon: string;
 
-  @prop({ type: String })
+  @prop({ type: String }, PropType.ARRAY)
   public images: string[];
 
-  @prop()
+  @prop({ type: String })
   public logo: string;
 
-  @prop()
+  @prop({ type: mongoose.Schema.Types.Mixed })
   public metadata: any;
 
-  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({ match: /^.{2,40}$/ })
+  @prop({ match: /^.{2,40}$/, type: String })
   public subtitle: string;
 
-  @prop({ match: /^.{2,40}$/, required: true })
+  @prop({ match: /^.{2,40}$/, required: true, type: String })
   public title: string;
 
   public updatedAt: Date;
 
-  @prop({ type: String })
+  @prop({ type: String }, PropType.ARRAY)
   public videos: string[];
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })

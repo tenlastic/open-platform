@@ -3,6 +3,7 @@ import {
   getModelForClass,
   modelOptions,
   prop,
+  PropType,
   ReturnModelType,
   Severity,
 } from '@typegoose/typegoose';
@@ -18,24 +19,24 @@ export class ExampleSchema {
 
   public createdAt: Date;
 
-  @prop()
+  @prop({ type: mongoose.Schema.Types.Mixed })
   public jsonSchema: any;
 
-  @prop()
+  @prop({ type: mongoose.Schema.Types.Mixed })
   public properties: any;
 
-  @prop()
+  @prop({ type: String })
   public name: string;
 
-  @prop({ ref: 'ExampleSchema' })
+  @prop({ ref: 'ExampleSchema', type: mongoose.Schema.Types.ObjectId })
   public parentId: mongoose.Types.ObjectId;
 
   public updatedAt: Date;
 
-  @prop({ type: String })
+  @prop({ type: String }, PropType.ARRAY)
   public urls: string[];
 
-  @prop({ ref: 'ExampleSchema' })
+  @prop({ ref: 'ExampleSchema', type: mongoose.Schema.Types.ObjectId })
   public userId: mongoose.Types.ObjectId;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'parentId', ref: 'ExampleSchema' })

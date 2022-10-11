@@ -9,8 +9,6 @@ import {
 } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
-  ReturnModelType,
-  Severity,
   getModelForClass,
   index,
   modelOptions,
@@ -18,6 +16,9 @@ import {
   post,
   pre,
   prop,
+  PropType,
+  ReturnModelType,
+  Severity,
 } from '@typegoose/typegoose';
 import { IOptions } from '@tenlastic/mongoose-permissions';
 import * as mongoose from 'mongoose';
@@ -57,30 +58,38 @@ export class CollectionSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ type: CollectionIndexSchema })
+  @prop({ type: CollectionIndexSchema }, PropType.ARRAY)
   public indexes: CollectionIndexSchema[];
 
-  @prop({
-    _id: false,
-    default: JSON.stringify({ type: 'object' }),
-    get: (value) => (typeof value === 'string' ? JSON.parse(value) : value),
-    set: (value) => (typeof value === 'string' ? value : JSON.stringify(value)),
-    validate: jsonSchemaPropertiesValidator,
-  })
+  @prop(
+    {
+      _id: false,
+      default: JSON.stringify({ type: 'object' }),
+      get: (value) => (typeof value === 'string' ? JSON.parse(value) : value),
+      set: (value) => (typeof value === 'string' ? value : JSON.stringify(value)),
+      type: mongoose.Schema.Types.Mixed,
+      validate: jsonSchemaPropertiesValidator,
+    },
+    PropType.NONE,
+  )
   public jsonSchema: any;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public name: string;
 
-  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({
-    _id: false,
-    default: JSON.stringify({}),
-    get: (value) => (typeof value === 'string' ? JSON.parse(value) : value),
-    set: (value) => (typeof value === 'string' ? value : JSON.stringify(value)),
-  })
+  @prop(
+    {
+      _id: false,
+      default: JSON.stringify({}),
+      get: (value) => (typeof value === 'string' ? JSON.parse(value) : value),
+      set: (value) => (typeof value === 'string' ? value : JSON.stringify(value)),
+      type: mongoose.Schema.Types.Mixed,
+    },
+    PropType.NONE,
+  )
   public permissions: IOptions;
 
   public updatedAt: Date;

@@ -15,12 +15,12 @@ export const ExampleEvent = new EventEmitter<IDatabasePayload<ExampleDocument>>(
 export class ExampleSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop()
+  @prop({ type: Number })
   public age: number;
 
   public createdAt: Date;
 
-  @prop()
+  @prop({ type: String })
   public name: string;
 
   public updatedAt: Date;

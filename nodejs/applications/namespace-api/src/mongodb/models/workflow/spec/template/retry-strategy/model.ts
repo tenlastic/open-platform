@@ -13,10 +13,10 @@ export enum WorkflowSpecTemplateRetryStrategyRetryPolicy {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateRetryStrategySchema {
-  @prop({ required: true })
+  @prop({ required: true, type: Number })
   public limit: number;
 
-  @prop({ enum: WorkflowSpecTemplateRetryStrategyRetryPolicy, required: true })
+  @prop({ enum: WorkflowSpecTemplateRetryStrategyRetryPolicy, required: true, type: String })
   public retryPolicy: string;
 }
 

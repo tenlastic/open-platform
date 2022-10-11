@@ -20,7 +20,7 @@ export class UniqueSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public name: string;
 
   public updatedAt: Date;

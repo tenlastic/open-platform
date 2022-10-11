@@ -1,9 +1,10 @@
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   modelOptions,
   prop,
+  PropType,
+  ReturnModelType,
 } from '@typegoose/typegoose';
 
 import { WorkflowStatusPhase } from '../model';
@@ -17,40 +18,40 @@ export enum WorkflowStatusNodeType {
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })
 export class WorkflowStatusNodeSchema {
-  @prop()
+  @prop({ type: String })
   public _id: string;
 
-  @prop({ type: String })
+  @prop({ type: String }, PropType.ARRAY)
   public children: string[];
 
-  @prop()
+  @prop({ type: String })
   public displayName: string;
 
-  @prop()
+  @prop({ type: Date })
   public finishedAt: Date;
 
-  @prop()
+  @prop({ type: Boolean })
   public logs: boolean;
 
-  @prop()
+  @prop({ type: String })
   public message: string;
 
-  @prop()
+  @prop({ type: String })
   public name: string;
 
-  @prop({ type: String })
+  @prop({ type: String }, PropType.ARRAY)
   public outboundNodes: string[];
 
-  @prop()
+  @prop({ type: String })
   public phase: WorkflowStatusPhase;
 
-  @prop()
+  @prop({ type: Date })
   public startedAt: Date;
 
-  @prop()
+  @prop({ type: String })
   public templateName: string;
 
-  @prop({ enum: WorkflowStatusNodeType })
+  @prop({ enum: WorkflowStatusNodeType, type: String })
   public type: WorkflowStatusNodeType;
 }
 

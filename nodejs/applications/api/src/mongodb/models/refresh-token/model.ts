@@ -18,15 +18,15 @@ export class RefreshTokenSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop()
+  @prop({ type: String })
   public description: string;
 
-  @prop()
+  @prop({ type: Date })
   public expiresAt: Date;
 
   public updatedAt: Date;
 
-  @prop({ immutable: true, ref: 'UserSchema', required: true })
+  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public userId: mongoose.Types.ObjectId;
 }
 

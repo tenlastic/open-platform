@@ -39,15 +39,15 @@ export class PasswordResetSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ required: true })
+  @prop({ required: true, type: Date })
   public expiresAt: Date;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public hash: string;
 
   public updatedAt: Date;
 
-  @prop({ immutable: true, ref: 'UserSchema', required: true })
+  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public userId: mongoose.Types.ObjectId;
 }
 

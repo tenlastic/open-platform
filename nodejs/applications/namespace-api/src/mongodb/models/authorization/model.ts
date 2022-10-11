@@ -1,10 +1,11 @@
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   index,
   modelOptions,
   prop,
+  PropType,
+  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
@@ -46,23 +47,23 @@ export enum AuthorizationRole {
 export class AuthorizationSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop()
+  @prop({ type: String })
   public apiKey: string;
 
   public createdAt: Date;
 
-  @prop({ ref: 'NamespaceSchema' })
+  @prop({ ref: 'NamespaceSchema', type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({ enum: AuthorizationRole, type: String })
+  @prop({ enum: AuthorizationRole, type: String }, PropType.ARRAY)
   public roles: AuthorizationRole[];
 
-  @prop()
+  @prop({ type: Boolean })
   public system: boolean;
 
   public updatedAt: Date;
 
-  @prop({ ref: 'UserSchema' })
+  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId })
   public userId: mongoose.Types.ObjectId;
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })

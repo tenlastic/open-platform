@@ -1,13 +1,14 @@
 import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   index,
   modelOptions,
   plugin,
   pre,
   prop,
+  PropType,
+  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
@@ -36,21 +37,21 @@ export const OnMessageProduced = new EventEmitter<IDatabasePayload<MessageDocume
 export class MessageSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ maxlength: 512, required: true })
+  @prop({ maxlength: 512, required: true, type: String })
   public body: string;
 
   public createdAt: Date;
 
-  @prop({ immutable: true, ref: 'UserSchema', required: true })
+  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public fromUserId: mongoose.Types.ObjectId;
 
-  @prop({ ref: 'UserSchema', type: new mongoose.Types.ObjectId() })
+  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
   public readByUserIds: mongoose.Types.ObjectId[];
 
-  @prop({ immutable: true, ref: 'GroupSchema' })
+  @prop({ ref: 'GroupSchema', type: mongoose.Schema.Types.ObjectId })
   public toGroupId: mongoose.Types.ObjectId;
 
-  @prop({ immutable: true, ref: 'UserSchema' })
+  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId })
   public toUserId: mongoose.Types.ObjectId;
 
   public updatedAt: Date;

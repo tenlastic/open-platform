@@ -52,17 +52,17 @@ export const OnUserProduced = new EventEmitter<IDatabasePayload<UserDocument>>()
 })
 export class UserSchema {
   public _id: mongoose.Types.ObjectId;
-
   public createdAt: Date;
 
   @prop({
     lowercase: true,
     trim: true,
+    type: String,
     validate: [emailValidator],
   })
   public email: string;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public password: string;
 
   public updatedAt: Date;
@@ -70,6 +70,7 @@ export class UserSchema {
   @prop({
     required: true,
     trim: true,
+    type: String,
     validate: [alphanumericValidator, stringLengthValidator(0, 20)],
   })
   public username: string;

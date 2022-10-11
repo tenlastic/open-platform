@@ -1,9 +1,10 @@
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   modelOptions,
   prop,
+  PropType,
+  ReturnModelType,
 } from '@typegoose/typegoose';
 
 import { GameServerStatusEndpointsSchema } from './endpoints';
@@ -19,16 +20,16 @@ export enum GameServerStatusPhase {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class GameServerStatusSchema {
-  @prop()
+  @prop({ type: GameServerStatusEndpointsSchema })
   public endpoints: GameServerStatusEndpointsSchema;
 
-  @prop({ type: GameServerStatusNodeSchema })
+  @prop({ type: GameServerStatusNodeSchema }, PropType.ARRAY)
   public nodes: GameServerStatusNodeSchema[];
 
-  @prop({ enum: GameServerStatusPhase, required: true })
+  @prop({ enum: GameServerStatusPhase, required: true, type: String })
   public phase: GameServerStatusPhase;
 
-  @prop()
+  @prop({ type: String })
   public version: string;
 }
 

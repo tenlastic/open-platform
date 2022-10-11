@@ -1,9 +1,10 @@
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   modelOptions,
   prop,
+  PropType,
+  ReturnModelType,
 } from '@typegoose/typegoose';
 
 import { QueueStatusComponentSchema } from './component';
@@ -19,16 +20,16 @@ export enum QueueStatusPhase {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class QueueStatusSchema {
-  @prop({ type: QueueStatusComponentSchema })
+  @prop({ type: QueueStatusComponentSchema }, PropType.ARRAY)
   public components: QueueStatusComponentSchema[];
 
-  @prop({ type: QueueStatusNodeSchema })
+  @prop({ type: QueueStatusNodeSchema }, PropType.ARRAY)
   public nodes: QueueStatusNodeSchema[];
 
-  @prop({ enum: QueueStatusPhase, required: true })
+  @prop({ enum: QueueStatusPhase, required: true, type: String })
   public phase: QueueStatusPhase;
 
-  @prop()
+  @prop({ type: String })
   public version: string;
 }
 

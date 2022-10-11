@@ -15,13 +15,13 @@ export enum NamespaceStatusLimitName {
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })
 export class NamespaceStatusLimitSchema {
-  @prop({ required: true })
+  @prop({ required: true, type: Number })
   public current: number;
 
-  @prop({ enum: NamespaceStatusLimitName, required: true })
+  @prop({ enum: NamespaceStatusLimitName, required: true, type: String })
   public name: NamespaceStatusLimitName;
 
-  @prop({ required: true })
+  @prop({ required: true, type: Number })
   public total: number;
 }
 

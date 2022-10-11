@@ -7,7 +7,6 @@ import {
 } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   index,
   modelOptions,
@@ -15,6 +14,8 @@ import {
   post,
   pre,
   prop,
+  PropType,
+  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
@@ -86,28 +87,28 @@ export class QueueMemberSchema {
   public createdAt: Date;
 
   @prop({
-    immutable: true,
     ref: 'GroupSchema',
+    type: mongoose.Schema.Types.ObjectId,
   })
   public groupId: mongoose.Types.ObjectId;
 
-  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
   @prop({
-    immutable: true,
     ref: 'QueueSchema',
     required: true,
+    type: mongoose.Schema.Types.ObjectId,
     validate: namespaceValidator('queueDocument', 'queueId'),
   })
   public queueId: mongoose.Types.ObjectId;
 
   public updatedAt: Date;
 
-  @prop({ immutable: true, ref: 'UserSchema', required: true })
+  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public userId: mongoose.Types.ObjectId;
 
-  @prop({ ref: 'UserSchema', type: new mongoose.Types.ObjectId() })
+  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
   public userIds: mongoose.Types.ObjectId[];
 
   @prop({ ref: 'WebSocketSchema', required: true })

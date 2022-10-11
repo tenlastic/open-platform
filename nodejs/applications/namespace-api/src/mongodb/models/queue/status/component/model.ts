@@ -15,16 +15,16 @@ export enum QueueStatusComponentName {
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })
 export class QueueStatusComponentSchema {
-  @prop({ required: true })
+  @prop({ required: true, type: Number })
   public current: number;
 
-  @prop({ enum: QueueStatusComponentName, required: true })
+  @prop({ enum: QueueStatusComponentName, required: true, type: String })
   public name: QueueStatusComponentName;
 
-  @prop({ enum: QueueStatusPhase, required: true })
+  @prop({ enum: QueueStatusPhase, required: true, type: String })
   public phase: QueueStatusPhase;
 
-  @prop({ required: true })
+  @prop({ required: true, type: Number })
   public total: number;
 }
 

@@ -26,15 +26,15 @@ export class WebSocketSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop()
+  @prop({ type: Date })
   public disconnectedAt: Date;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public nodeId: string;
 
   public updatedAt: Date;
 
-  @prop({ immutable: true, ref: 'UserSchema', required: true })
+  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public userId: mongoose.Types.ObjectId;
 
   /**

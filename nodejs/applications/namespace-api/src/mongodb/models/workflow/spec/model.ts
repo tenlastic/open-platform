@@ -1,9 +1,10 @@
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   modelOptions,
   prop,
+  PropType,
+  ReturnModelType,
 } from '@typegoose/typegoose';
 
 import { WorkflowSpecArgumentsSchema } from './arguments';
@@ -11,16 +12,16 @@ import { WorkflowSpecTemplateSchema } from './template';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecSchema {
-  @prop()
+  @prop({ type: WorkflowSpecArgumentsSchema })
   public arguments: WorkflowSpecArgumentsSchema;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public entrypoint: string;
 
-  @prop({ default: 1, min: 0 })
+  @prop({ default: 1, min: 0, type: Number })
   public parallelism: number;
 
-  @prop({ required: true, type: WorkflowSpecTemplateSchema })
+  @prop({ required: true, type: WorkflowSpecTemplateSchema }, PropType.ARRAY)
   public templates: WorkflowSpecTemplateSchema[];
 }
 

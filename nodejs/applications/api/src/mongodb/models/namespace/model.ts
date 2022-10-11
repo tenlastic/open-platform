@@ -78,13 +78,13 @@ export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ default: new NamespaceLimits() })
+  @prop({ default: new NamespaceLimits(), type: NamespaceLimitsSchema })
   public limits: NamespaceLimitsSchema;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public name: string;
 
-  @prop({ default: { phase: 'Pending' } })
+  @prop({ default: { phase: 'Pending' }, type: NamespaceStatusSchema })
   public status: NamespaceStatusSchema;
 
   public updatedAt: Date;

@@ -8,13 +8,13 @@ import {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class GameServerStatusEndpointsSchema {
-  @prop()
+  @prop({ type: String })
   public tcp: string;
 
-  @prop()
+  @prop({ type: String })
   public udp: string;
 
-  @prop()
+  @prop({ type: String })
   public websocket: string;
 }
 

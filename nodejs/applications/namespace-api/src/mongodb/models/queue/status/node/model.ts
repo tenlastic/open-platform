@@ -10,10 +10,10 @@ import { QueueStatusPhase } from '../model';
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })
 export class QueueStatusNodeSchema {
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public _id: string;
 
-  @prop({ enum: QueueStatusPhase, required: true })
+  @prop({ enum: QueueStatusPhase, required: true, type: String })
   public phase: QueueStatusPhase;
 }
 

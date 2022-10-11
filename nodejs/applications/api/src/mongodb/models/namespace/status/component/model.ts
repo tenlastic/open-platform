@@ -16,16 +16,16 @@ export enum NamespaceStatusComponentName {
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })
 export class NamespaceStatusComponentSchema {
-  @prop({ required: true })
+  @prop({ required: true, type: Number })
   public current: number;
 
-  @prop({ enum: NamespaceStatusComponentName, required: true })
+  @prop({ enum: NamespaceStatusComponentName, required: true, type: String })
   public name: NamespaceStatusComponentName;
 
-  @prop({ enum: NamespaceStatusPhase, required: true })
+  @prop({ enum: NamespaceStatusPhase, required: true, type: String })
   public phase: NamespaceStatusPhase;
 
-  @prop({ required: true })
+  @prop({ required: true, type: Number })
   public total: number;
 }
 

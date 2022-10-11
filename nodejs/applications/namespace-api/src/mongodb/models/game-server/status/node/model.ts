@@ -10,10 +10,10 @@ import { GameServerStatusPhase } from '../model';
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })
 export class GameServerStatusNodeSchema {
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public _id: string;
 
-  @prop({ enum: GameServerStatusPhase, required: true })
+  @prop({ enum: GameServerStatusPhase, required: true, type: String })
   public phase: GameServerStatusPhase;
 }
 

@@ -39,16 +39,16 @@ export class GroupInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop()
+  @prop({ type: Date })
   public expiresAt: Date;
 
-  @prop({ immutable: true, ref: 'UserSchema', required: true })
+  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public fromUserId: mongoose.Types.ObjectId;
 
-  @prop({ immutable: true, ref: 'GroupSchema', required: true })
+  @prop({ ref: 'GroupSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public groupId: mongoose.Types.ObjectId;
 
-  @prop({ immutable: true, ref: 'UserSchema', required: true })
+  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public toUserId: mongoose.Types.ObjectId;
 
   public updatedAt: Date;

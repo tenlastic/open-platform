@@ -8,10 +8,10 @@ import {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecParameterSchema {
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public name: string;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public value: string;
 }
 

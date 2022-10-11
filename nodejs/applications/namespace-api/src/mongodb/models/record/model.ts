@@ -30,19 +30,20 @@ export class RecordSchema {
   @prop({
     ref: 'CollectionSchema',
     required: true,
+    type: mongoose.Schema.Types.ObjectId,
     validate: namespaceValidator('collectionDocument', 'collectionId'),
   })
   public collectionId: mongoose.Types.ObjectId;
 
   public createdAt: Date;
 
-  @prop({ ref: 'NamespaceSchema', required: true })
+  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
   public properties: any;
   public updatedAt: Date;
 
-  @prop({ ref: 'UserSchema' })
+  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId })
   public userId: mongoose.Types.ObjectId;
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })

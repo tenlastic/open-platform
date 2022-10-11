@@ -21,24 +21,24 @@ export const OnArticleProduced = new EventEmitter<IDatabasePayload<ArticleDocume
 export class ArticleSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public body: string;
 
-  @prop()
+  @prop({ type: String })
   public caption: string;
 
   public createdAt: Date;
 
-  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({ default: null })
+  @prop({ default: null, type: Date })
   public publishedAt: Date;
 
-  @prop({ match: /^.{2,100}$/, required: true })
+  @prop({ match: /^.{2,100}$/, required: true, type: String })
   public title: string;
 
-  @prop({ default: 'News', enum: ['Guide', 'News', 'Patch Notes'] })
+  @prop({ default: 'News', enum: ['Guide', 'News', 'Patch Notes'], type: String })
   public type: string;
 
   public updatedAt: Date;

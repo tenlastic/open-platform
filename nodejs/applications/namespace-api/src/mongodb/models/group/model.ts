@@ -1,12 +1,13 @@
 import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   index,
   modelOptions,
   plugin,
   prop,
+  PropType,
+  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
@@ -19,12 +20,12 @@ export class GroupSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ default: false })
+  @prop({ default: false, type: Boolean })
   public isOpen: boolean;
 
   public updatedAt: Date;
 
-  @prop({ ref: 'UserSchema', type: new mongoose.Types.ObjectId() })
+  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
   public userIds: mongoose.Types.ObjectId[];
 
   public get userCount() {

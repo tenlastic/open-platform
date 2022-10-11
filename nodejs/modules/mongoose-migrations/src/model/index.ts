@@ -20,10 +20,10 @@ import * as mongoose from 'mongoose';
 export class MigrationSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public name: string;
 
-  @prop({ required: true })
+  @prop({ required: true, type: Date })
   public timestamp: Date;
 
   public get down() {

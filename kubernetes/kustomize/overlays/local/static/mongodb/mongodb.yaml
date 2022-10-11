@@ -5,4 +5,6 @@ metadata:
   namespace: static
 spec:
   values:
+    arbiter:
+      enabled: false
     replicaCount: 1

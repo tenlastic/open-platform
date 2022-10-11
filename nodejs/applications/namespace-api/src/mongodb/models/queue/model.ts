@@ -57,47 +57,47 @@ export const OnQueueProduced = new EventEmitter<IDatabasePayload<QueueDocument>>
 export class QueueSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ min: 0.1, required: true })
+  @prop({ min: 0.1, required: true, type: Number })
   public cpu: number;
 
   public createdAt: Date;
 
-  @prop()
+  @prop({ type: String })
   public description: string;
 
-  @prop({ required: true })
+  @prop({ required: true, type: GameServerTemplateSchema })
   public gameServerTemplate: GameServerTemplateSchema;
 
-  @prop({ min: 100 * 1000 * 1000, required: true })
+  @prop({ min: 100 * 1000 * 1000, required: true, type: Number })
   public memory: number;
 
-  @prop()
+  @prop({ type: mongoose.Schema.Types.Mixed })
   public metadata: any;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public name: string;
 
-  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop()
+  @prop({ type: Boolean })
   public preemptible: boolean;
 
-  @prop({ min: 0, required: true, validate: enumValidator([1, 3, 5]) })
+  @prop({ min: 0, required: true, type: Number, validate: enumValidator([1, 3, 5]) })
   public replicas: number;
 
-  @prop()
+  @prop({ type: Date })
   public restartedAt: Date;
 
-  @prop({ default: { phase: 'Pending' } })
+  @prop({ default: { phase: 'Pending' }, type: QueueStatusSchema })
   public status: QueueStatusSchema;
 
-  @prop({ min: 1, required: true })
+  @prop({ min: 1, required: true, type: Number })
   public teams: number;
 
   public updatedAt: Date;
 
-  @prop({ min: 1, required: true })
+  @prop({ min: 1, required: true, type: Number })
   public usersPerTeam: number;
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })

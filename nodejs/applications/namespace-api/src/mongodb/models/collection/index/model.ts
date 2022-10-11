@@ -25,10 +25,10 @@ export interface CollectionIndexOptions {
 export class CollectionIndexSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ required: true })
+  @prop({ required: true, type: mongoose.Schema.Types.Mixed })
   public key: CollectionIndexKey;
 
-  @prop()
+  @prop({ type: mongoose.Schema.Types.Mixed })
   public options?: CollectionIndexOptions;
 }
 

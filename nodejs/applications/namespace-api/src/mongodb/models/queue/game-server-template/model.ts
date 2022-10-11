@@ -19,23 +19,24 @@ export class GameServerTemplateSchema {
   @prop({
     ref: 'BuildSchema',
     required: true,
+    type: mongoose.Schema.Types.ObjectId,
     validate: namespaceValidator('gameServerTemplate.buildDocument', 'gameServerTemplate.buildId'),
   })
   public buildId: mongoose.Types.ObjectId;
 
-  @prop({ min: 0.1, required: true })
+  @prop({ min: 0.1, required: true, type: Number })
   public cpu: number;
 
-  @prop()
+  @prop({ type: String })
   public description: string;
 
-  @prop({ min: 100 * 1000 * 1000, required: true })
+  @prop({ min: 100 * 1000 * 1000, required: true, type: Number })
   public memory: number;
 
-  @prop()
+  @prop({ type: mongoose.Schema.Types.Mixed })
   public metadata: any;
 
-  @prop()
+  @prop({ type: Boolean })
   public preemptible: boolean;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })

@@ -8,16 +8,16 @@ import {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class BuildFileSchema {
-  @prop({ required: true })
+  @prop({ required: true, type: Number })
   public compressedBytes: number;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public md5: string;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public path: string;
 
-  @prop({ required: true })
+  @prop({ required: true, type: Number })
   public uncompressedBytes: number;
 }
 

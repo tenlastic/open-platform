@@ -7,12 +7,13 @@ import {
 } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   index,
   modelOptions,
   plugin,
   prop,
+  PropType,
+  ReturnModelType,
   Severity,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
@@ -38,52 +39,57 @@ export const OnGameServerProduced = new EventEmitter<IDatabasePayload<GameServer
 export class GameServerSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ ref: 'UserSchema' })
+  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
   public authorizedUserIds: mongoose.Types.ObjectId[];
 
   @prop({
     ref: 'BuildSchema',
     required: true,
+    type: mongoose.Schema.Types.ObjectId,
     validate: namespaceValidator('buildDocument', 'buildId'),
   })
   public buildId: mongoose.Types.ObjectId;
 
-  @prop({ min: 0.1, required: true })
+  @prop({ min: 0.1, required: true, type: Number })
   public cpu: number;
 
   public createdAt: Date;
 
-  @prop({ ref: 'UserSchema', type: new mongoose.Types.ObjectId() })
+  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
   public currentUserIds: mongoose.Types.ObjectId[];
 
-  @prop()
+  @prop({ type: String })
   public description: string;
 
-  @prop({ min: 100 * 1000 * 1000, required: true })
+  @prop({ min: 100 * 1000 * 1000, required: true, type: Number })
   public memory: number;
 
-  @prop()
+  @prop({ type: mongoose.Schema.Types.Mixed })
   public metadata: any;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public name: string;
 
-  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop()
+  @prop({ type: Boolean })
   public persistent: boolean;
 
-  @prop()
+  @prop({ type: Boolean })
   public preemptible: boolean;
 
-  @prop({ ref: 'QueueSchema', validate: namespaceValidator('queueDocument', 'queueId') })
+  @prop({
+    ref: 'QueueSchema',
+    type: mongoose.Schema.Types.ObjectId,
+    validate: namespaceValidator('queueDocument', 'queueId'),
+  })
   public queueId: mongoose.Types.ObjectId;
 
-  @prop()
+  @prop({ type: Date })
   public restartedAt: Date;
 
-  @prop({ default: { phase: 'Pending' } })
+  @prop({ default: { phase: 'Pending' }, type: GameServerStatusSchema })
   public status: GameServerStatusSchema;
 
   public updatedAt: Date;

@@ -22,30 +22,30 @@ export const OnWorkflowProduced = new EventEmitter<IDatabasePayload<WorkflowDocu
 export class WorkflowSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ min: 0, required: true })
+  @prop({ min: 0, required: true, type: Number })
   public cpu: number;
 
   public createdAt: Date;
 
-  @prop({ min: 0, required: true })
+  @prop({ min: 0, required: true, type: Number })
   public memory: number;
 
-  @prop({ immutable: true, required: true })
+  @prop({ required: true, type: String })
   public name: string;
 
-  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({ immutable: true })
+  @prop({ type: Boolean })
   public preemptible: boolean;
 
-  @prop({ immutable: true, required: true })
+  @prop({ required: true, type: WorkflowSpecSchema })
   public spec: WorkflowSpecSchema;
 
-  @prop()
+  @prop({ type: WorkflowStatusSchema })
   public status: WorkflowStatusSchema;
 
-  @prop({ min: 0, required: true })
+  @prop({ min: 0, required: true, type: Number })
   public storage: number;
 
   public updatedAt: Date;

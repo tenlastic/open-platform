@@ -8,12 +8,13 @@ import {
 } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   index,
   modelOptions,
   plugin,
   prop,
+  PropType,
+  ReturnModelType,
 } from '@typegoose/typegoose';
 import axios from 'axios';
 import * as mongoose from 'mongoose';
@@ -38,28 +39,28 @@ export class BuildSchema implements IOriginalDocument {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public entrypoint: string;
 
-  @prop({ type: BuildFileSchema })
+  @prop({ type: BuildFileSchema }, PropType.ARRAY)
   public files: BuildFileSchema[];
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public name: string;
 
-  @prop({ immutable: true, ref: 'NamespaceSchema', required: true })
+  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({ enum: BuildPlatform, immutable: true, required: true })
+  @prop({ enum: BuildPlatform, required: true, type: String })
   public platform: BuildPlatform;
 
-  @prop({ default: null })
+  @prop({ default: null, type: Date })
   public publishedAt: Date;
 
-  @prop()
+  @prop({ type: BuildReferenceSchema })
   public reference: BuildReferenceSchema;
 
-  @prop()
+  @prop({ type: WorkflowStatusSchema })
   public status: WorkflowStatusSchema;
 
   public updatedAt: Date;

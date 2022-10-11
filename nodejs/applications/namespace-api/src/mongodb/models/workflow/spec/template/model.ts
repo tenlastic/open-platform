@@ -1,9 +1,10 @@
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   modelOptions,
   prop,
+  PropType,
+  ReturnModelType,
 } from '@typegoose/typegoose';
 
 import { WorkflowSpecTemplateDagSchema } from './dag';
@@ -14,22 +15,22 @@ import { WorkflowSpecTemplateSidecarSchema } from './sidecar';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateSchema {
-  @prop()
+  @prop({ type: WorkflowSpecTemplateDagSchema })
   public dag: WorkflowSpecTemplateDagSchema;
 
-  @prop()
+  @prop({ WorkflowSpecTemplateInputsSchema })
   public inputs: WorkflowSpecTemplateInputsSchema;
 
-  @prop({ required: true })
+  @prop({ required: true, type: String })
   public name: string;
 
-  @prop()
+  @prop({ type: WorkflowSpecTemplateRetryStrategySchema })
   public retryStrategy: WorkflowSpecTemplateRetryStrategySchema;
 
-  @prop()
+  @prop({ WorkflowSpecTemplateScriptSchema })
   public script: WorkflowSpecTemplateScriptSchema;
 
-  @prop({ type: WorkflowSpecTemplateSidecarSchema })
+  @prop({ type: WorkflowSpecTemplateSidecarSchema }, PropType.ARRAY)
   public sidecars: WorkflowSpecTemplateSidecarSchema[];
 }
 
