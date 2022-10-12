@@ -89,7 +89,7 @@ export class GameServerSchema implements IOriginalDocument {
   @prop({ type: Date })
   public restartedAt: Date;
 
-  @prop({ default: { phase: 'Pending' }, type: GameServerStatusSchema })
+  @prop({ default: { phase: 'Pending' }, merge: true, type: GameServerStatusSchema })
   public status: GameServerStatusSchema;
 
   public updatedAt: Date;

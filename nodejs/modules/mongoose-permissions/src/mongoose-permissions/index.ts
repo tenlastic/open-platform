@@ -239,7 +239,6 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     override: Partial<TDocument>,
     params: Partial<TDocument>,
     record: TDocument,
-    merge: string[] = [],
   ) {
     const updatePermissions = await this.getFieldPermissions(credentials, 'update', record);
 
@@ -251,11 +250,9 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     const filteredParams = filterObject(params, updatePermissions);
     const arrayMerge = (destinationArray, sourceArray) => sourceArray;
     const customMerge = (key) => {
-      if (merge.includes(key)) {
-        return deepmerge;
-      }
-
-      return (x, y) => (Array.isArray(x) || Array.isArray(y) ? arrayMerge(x, y) : y);
+      return this.Model.schema.paths[key]?.options.merge
+        ? deepmerge
+        : (x, y) => (Array.isArray(x) || Array.isArray(y) ? arrayMerge(x, y) : y);
     };
     const mergedParams = deepmerge.all(
       [toPlainObject(record), toPlainObject(filteredParams), toPlainObject(override)],

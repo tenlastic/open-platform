@@ -84,7 +84,7 @@ export class NamespaceSchema {
   @prop({ required: true, type: String })
   public name: string;
 
-  @prop({ default: { phase: 'Pending' }, type: NamespaceStatusSchema })
+  @prop({ default: { phase: 'Pending' }, merge: true, type: NamespaceStatusSchema })
   public status: NamespaceStatusSchema;
 
   public updatedAt: Date;

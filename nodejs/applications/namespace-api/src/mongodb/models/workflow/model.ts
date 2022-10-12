@@ -42,7 +42,7 @@ export class WorkflowSchema {
   @prop({ required: true, type: WorkflowSpecSchema })
   public spec: WorkflowSpecSchema;
 
-  @prop({ type: WorkflowStatusSchema })
+  @prop({ merge: true, type: WorkflowStatusSchema })
   public status: WorkflowStatusSchema;
 
   @prop({ min: 0, required: true, type: Number })

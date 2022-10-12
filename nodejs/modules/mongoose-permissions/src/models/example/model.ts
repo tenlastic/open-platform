@@ -22,7 +22,7 @@ export class ExampleSchema {
   @prop({ type: mongoose.Schema.Types.Mixed })
   public jsonSchema: any;
 
-  @prop({ type: mongoose.Schema.Types.Mixed })
+  @prop({ merge: true, type: mongoose.Schema.Types.Mixed })
   public properties: any;
 
   @prop({ type: String })

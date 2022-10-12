@@ -89,7 +89,7 @@ export class QueueSchema {
   @prop({ type: Date })
   public restartedAt: Date;
 
-  @prop({ default: { phase: 'Pending' }, type: QueueStatusSchema })
+  @prop({ default: { phase: 'Pending' }, merge: true, type: QueueStatusSchema })
   public status: QueueStatusSchema;
 
   @prop({ min: 1, required: true, type: Number })

@@ -106,8 +106,6 @@ async function update() {
   const nodes = getNodes(Object.values(pods));
   const components = getComponents(Object.values(deployments), Object.values(statefulSets));
 
-  console.log(JSON.stringify(components));
-
   // Phase.
   let phase = 'Pending';
   if (components.every((c) => c.phase === 'Running')) {
@@ -117,16 +115,12 @@ async function update() {
   }
 
   // Send the status to the endpoint.
-  try {
-    await axios({
-      headers: { 'X-Api-Key': apiKey },
-      data: { status: { components, nodes, phase, version } },
-      method: 'put',
-      url: endpoint,
-    });
-  } catch (e) {
-    console.error(e.response.data.errors);
-  }
+  await axios({
+    headers: { 'X-Api-Key': apiKey },
+    data: { status: { components, nodes, phase, version } },
+    method: 'put',
+    url: endpoint,
+  });
 
   console.log('Status updated successfully.');
   isUpdatingStatus = false;

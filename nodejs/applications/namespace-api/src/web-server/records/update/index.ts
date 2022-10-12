@@ -18,9 +18,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Record');
   }
 
-  const result = await Permissions.update(credentials, ctx.params, ctx.request.body, existing, [
-    'properties',
-  ]);
+  const result = await Permissions.update(credentials, ctx.params, ctx.request.body, existing);
   const record = await Permissions.read(credentials, result);
 
   ctx.response.body = { record };

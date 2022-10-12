@@ -211,9 +211,7 @@ describe('permissions', function () {
           urls: [chance.url()],
         };
 
-        record = await ExamplePermissions.update({ user: admin }, {}, params, record, [
-          'properties',
-        ]);
+        record = await ExamplePermissions.update({ user: admin }, {}, params, record);
 
         expect(record._id.toString()).to.eql(record._id.toString());
         expect(record.createdAt).to.exist;

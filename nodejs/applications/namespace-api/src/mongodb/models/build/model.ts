@@ -60,7 +60,7 @@ export class BuildSchema implements IOriginalDocument {
   @prop({ type: BuildReferenceSchema })
   public reference: BuildReferenceSchema;
 
-  @prop({ type: WorkflowStatusSchema })
+  @prop({ merge: true, type: WorkflowStatusSchema })
   public status: WorkflowStatusSchema;
 
   public updatedAt: Date;

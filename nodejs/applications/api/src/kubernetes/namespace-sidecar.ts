@@ -132,8 +132,8 @@ export const KubernetesNamespaceSidecar = {
             {
               env,
               envFrom,
-              image: `tenlastic/namespace-sidecar:${version}`,
-              name: 'namespace-sidecar',
+              image: `tenlastic/namespace-migrations-sidecar:${version}`,
+              name: 'namespace-migrations-sidecar',
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
             },
             {

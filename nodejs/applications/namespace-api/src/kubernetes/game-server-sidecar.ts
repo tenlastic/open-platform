@@ -1,4 +1,4 @@
-import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
+import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 
 import { version } from '../../package.json';
@@ -38,16 +38,16 @@ export const KubernetesGameServerSidecar = {
      * SECRET
      * ======================
      */
+    const apiHost = `http://${namespaceName}-api.dynamic:3000`;
     await secretApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },
         name,
       },
       stringData: {
-        API_URL: `http://${namespaceName}-api.dynamic:3000`,
-        GAME_SERVER_CONTAINER: 'main',
-        GAME_SERVER_JSON: JSON.stringify(gameServer),
-        GAME_SERVER_POD_LABEL_SELECTOR: `tenlastic.com/app=${gameServerName}`,
+        CONTAINER: 'main',
+        ENDPOINT: `${apiHost}/namespaces/${gameServer.namespaceId}/game-servers/${gameServer._id}`,
+        LABEL_SELECTOR: `tenlastic.com/app=${gameServerName}`,
       },
     });
 
@@ -81,12 +81,6 @@ export const KubernetesGameServerSidecar = {
       },
     ];
     const envFrom: V1EnvFromSource[] = [{ secretRef: { name } }];
-    const livenessProbe: V1Probe = {
-      failureThreshold: 3,
-      httpGet: { path: '/probes/liveness', port: 3000 as any },
-      initialDelaySeconds: 10,
-      periodSeconds: 10,
-    };
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
@@ -105,11 +99,20 @@ export const KubernetesGameServerSidecar = {
               env,
               envFrom,
               image: 'tenlastic/node-development:latest',
-              livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
-              name: 'game-server-sidecar',
+              name: 'endpoints-sidecar',
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
               volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
-              workingDir: '/usr/src/nodejs/applications/game-server-sidecar/',
+              workingDir: '/usr/src/nodejs/applications/endpoints-sidecar/',
+            },
+            {
+              command: ['npm', 'run', 'start'],
+              env,
+              envFrom,
+              image: 'tenlastic/node-development:latest',
+              name: 'status-sidecar',
+              resources: { requests: { cpu: '25m', memory: '50Mi' } },
+              volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
+              workingDir: '/usr/src/nodejs/applications/status-sidecar/',
             },
           ],
           serviceAccountName: 'game-server-sidecar',
@@ -130,9 +133,15 @@ export const KubernetesGameServerSidecar = {
             {
               env,
               envFrom,
-              image: `tenlastic/game-server-sidecar:${version}`,
-              livenessProbe,
-              name: 'game-server-sidecar',
+              image: `tenlastic/endpoints-sidecar:${version}`,
+              name: 'endpoints-sidecar',
+              resources: { requests: { cpu: '25m', memory: '50Mi' } },
+            },
+            {
+              env,
+              envFrom,
+              image: `tenlastic/status-sidecar:${version}`,
+              name: 'status-sidecar',
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
             },
           ],
