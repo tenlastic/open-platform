@@ -38,16 +38,16 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
       params.tailLines = options.tail;
     }
 
+    const abortController = new AbortController();
     const emitter = new EventEmitter();
-    const cancelTokenSource = axios.CancelToken.source();
 
     try {
       const response = await axios(`${server}/api/v1/namespaces/${namespace}/pods/${name}/log`, {
-        cancelToken: cancelTokenSource.token,
         headers: { Authorization: `Bearer ${token}` },
         httpsAgent: new https.Agent({ ca: certificate }),
         params,
         responseType: 'stream',
+        signal: abortController.signal,
       });
 
       response.data
@@ -69,7 +69,7 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
         })
         .on('end', () => emitter.emit('end'));
 
-      return { cancelTokenSource, emitter };
+      return { abortController, emitter };
     } catch (e) {
       if (e instanceof AxiosError) {
         const body = await this.getStringFromStream(e.response.data);

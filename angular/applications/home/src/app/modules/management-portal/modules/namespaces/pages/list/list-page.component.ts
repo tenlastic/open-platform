@@ -4,17 +4,25 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { Order } from '@datorama/akita';
 import {
   AuthorizationQuery,
   IAuthorization,
+  NamespaceLogModel,
+  NamespaceLogQuery,
+  NamespaceLogService,
+  NamespaceLogStore,
   NamespaceModel,
   NamespaceQuery,
   NamespaceService,
+  StreamService,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
+import { environment } from '../../../../../../../environments/environment';
 import { IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import { LogsDialogComponent, PromptComponent } from '../../../../../../shared/components';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -37,8 +45,12 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private namespaceLogQuery: NamespaceLogQuery,
+    private namespaceLogService: NamespaceLogService,
+    private namespaceLogStore: NamespaceLogStore,
     private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
+    private streamService: StreamService,
   ) {}
 
   public ngOnInit() {
@@ -87,6 +99,36 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
     });
   }
 
+  public showLogsDialog($event: Event, record: NamespaceModel) {
+    $event.stopPropagation();
+
+    const dialogRef = this.matDialog.open(LogsDialogComponent, {
+      autoFocus: false,
+      data: {
+        $logs: this.namespaceLogQuery.selectAll({
+          filterBy: (log) => log.namespaceId === record._id,
+          sortBy: 'unix',
+          sortByOrder: Order.DESC,
+        }),
+        $nodeIds: this.namespaceQuery
+          .selectEntity(record._id)
+          .pipe(map((namespace) => this.getNodeIds(namespace))),
+        find: (nodeId) => this.namespaceLogService.find(record._id, nodeId, { tail: 500 }),
+        nodeIds: record.status?.nodes?.map((n) => n._id),
+        subscribe: async (nodeId, unix) => {
+          return this.streamService.logs(
+            NamespaceLogModel,
+            { namespaceId: record._id, nodeId, since: unix ? new Date(unix) : new Date() },
+            this.namespaceLogStore,
+            environment.wssUrl,
+          );
+        },
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(() => this.namespaceLogStore.reset());
+  }
+
   private async fetchNamespaces() {
     this.$namespaces = this.namespaceQuery.selectAll();
     await this.namespaceService.find({ sort: 'name' });
@@ -101,5 +143,20 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+  }
+
+  private getNodeIds(namespace: NamespaceModel) {
+    return namespace.status?.nodes
+      .map((n) => {
+        let displayName = 'API';
+        if (n._id.includes('connectors')) {
+          displayName = 'Connectors';
+        } else if (n._id.includes('sidecar')) {
+          displayName = 'Sidecar';
+        }
+
+        return { label: displayName, value: n._id };
+      })
+      .sort((a, b) => (a.label > b.label ? 1 : -1));
   }
 }

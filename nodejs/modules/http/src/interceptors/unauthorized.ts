@@ -1,9 +1,9 @@
-import { Axios } from 'axios';
+import { Axios, AxiosStatic } from 'axios';
 
 import { LoginService } from '../services/login';
 
 export class UnauthorizedInterceptor {
-  constructor(axios: Axios, loginService: LoginService) {
+  constructor(axios: Axios | AxiosStatic, loginService: LoginService) {
     axios.interceptors.response.use((response) => {
       const isUnauthorized = response.status === 401;
       const refreshTokenIsInvalid =
@@ -12,6 +12,8 @@ export class UnauthorizedInterceptor {
       if (isUnauthorized || refreshTokenIsInvalid) {
         loginService.emitter.emit('logout');
       }
+
+      return response;
     });
   }
 }

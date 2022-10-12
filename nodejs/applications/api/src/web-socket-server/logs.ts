@@ -4,15 +4,7 @@ import { RecordNotFoundError } from '@tenlastic/web-server';
 import * as webSocketServer from '@tenlastic/web-socket-server';
 import { WebSocket } from '@tenlastic/web-socket-server';
 
-import {
-  Authorization,
-  AuthorizationDocument,
-  BuildPermissions,
-  GameServerPermissions,
-  QueuePermissions,
-  User,
-  WorkflowPermissions,
-} from '../mongodb';
+import { Authorization, AuthorizationDocument, NamespacePermissions, User } from '../mongodb';
 
 export interface LogsData {
   _id: string;
@@ -21,13 +13,10 @@ export interface LogsData {
 }
 
 export interface LogsDataParameters {
-  buildId?: string;
-  gameServerId?: string;
+  namespaceId?: string;
   nodeId: string;
-  queueId?: string;
   since?: string;
   tail?: number;
-  workflowId?: string;
 }
 
 export const abortControllers = new Map<WebSocket, Map<string, AbortController>>();
@@ -46,20 +35,9 @@ export async function logs(
   let _id: string;
   let container: string;
   let Permissions: MongoosePermissions<any>;
-  if ('buildId' in data.parameters) {
-    _id = data.parameters.buildId;
-    container = 'main';
-    Permissions = BuildPermissions;
-  } else if ('gameServerId' in data.parameters) {
-    _id = data.parameters.gameServerId;
-    Permissions = GameServerPermissions;
-  } else if ('queueId' in data.parameters) {
-    _id = data.parameters.queueId;
-    Permissions = QueuePermissions;
-  } else if ('workflowId' in data.parameters) {
-    _id = data.parameters.workflowId;
-    container = 'main';
-    Permissions = WorkflowPermissions;
+  if ('namespaceId' in data.parameters) {
+    _id = data.parameters.namespaceId;
+    Permissions = NamespacePermissions;
   } else {
     throw new Error('Invalid arguments.');
   }

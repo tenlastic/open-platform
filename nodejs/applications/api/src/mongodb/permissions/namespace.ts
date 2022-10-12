@@ -4,7 +4,7 @@ import { AuthorizationRole, Namespace, NamespaceDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
-  read: ['_id', 'createdAt', 'limits.*', 'name', 'status.*', 'updatedAt'],
+  read: ['_id', 'createdAt', 'limits.*', 'logs', 'name', 'status.*', 'updatedAt'],
 };
 
 export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(Namespace, {

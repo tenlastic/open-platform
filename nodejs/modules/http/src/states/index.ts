@@ -11,6 +11,7 @@ export * from './group-invitation';
 export * from './ignoration';
 export * from './message';
 export * from './namespace';
+export * from './namespace-log';
 export * from './queue';
 export * from './queue-log';
 export * from './queue-member';

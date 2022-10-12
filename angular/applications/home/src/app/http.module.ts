@@ -40,6 +40,9 @@ import {
   MessageQuery,
   MessageService,
   MessageStore,
+  NamespaceLogQuery,
+  NamespaceLogService,
+  NamespaceLogStore,
   NamespaceQuery,
   NamespaceService,
   NamespaceStore,
@@ -157,6 +160,11 @@ const queries: Provider[] = [
     deps: [MessageStore],
     provide: MessageQuery,
     useFactory: (store: MessageStore) => new MessageQuery(store),
+  },
+  {
+    deps: [NamespaceLogStore],
+    provide: NamespaceLogQuery,
+    useFactory: (store: NamespaceLogStore) => new NamespaceLogQuery(store),
   },
   {
     deps: [NamespaceStore],
@@ -340,6 +348,15 @@ const services: Provider[] = [
     ) => new MessageService(apiService, environmentService, store),
   },
   {
+    deps: [ApiService, EnvironmentService, NamespaceLogStore],
+    provide: NamespaceLogService,
+    useFactory: (
+      apiService: ApiService,
+      environmentService: EnvironmentService,
+      store: NamespaceLogStore,
+    ) => new NamespaceLogService(apiService, environmentService, store),
+  },
+  {
     deps: [ApiService, EnvironmentService, NamespaceStore],
     provide: NamespaceService,
     useFactory: (
@@ -469,6 +486,7 @@ const stores: Provider[] = [
   { provide: GroupStore, useValue: new GroupStore() },
   { provide: IgnorationStore, useValue: new IgnorationStore() },
   { provide: MessageStore, useValue: new MessageStore() },
+  { provide: NamespaceLogStore, useValue: new NamespaceLogStore() },
   { provide: NamespaceStore, useValue: new NamespaceStore() },
   { provide: QueueLogStore, useValue: new QueueLogStore() },
   { provide: QueueMemberStore, useValue: new QueueMemberStore() },

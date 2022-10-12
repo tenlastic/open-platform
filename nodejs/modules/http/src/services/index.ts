@@ -14,6 +14,7 @@ export * from './ignoration';
 export * from './login';
 export * from './message';
 export * from './namespace';
+export * from './namespace-log';
 export * from './password-reset';
 export * from './queue';
 export * from './queue-log';

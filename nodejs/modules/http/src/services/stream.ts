@@ -10,6 +10,7 @@ interface LogsParameters {
   _id?: string;
   buildId?: string;
   gameServerId?: string;
+  namespaceId?: string;
   nodeId: string;
   queueId?: string;
   since?: Date;

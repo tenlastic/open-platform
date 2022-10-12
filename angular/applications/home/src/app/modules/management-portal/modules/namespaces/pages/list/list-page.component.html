@@ -60,6 +60,12 @@
           *matHeaderCellDef></th>
       <td mat-cell
           *matCellDef="let element">
+        <app-button color="accent"
+                    matTooltip="Logs"
+                    (OnClick)="showLogsDialog($event, element)">
+          <mat-icon>subject</mat-icon>
+        </app-button>
+
         <ng-container *ngIf="hasWriteAuthorization || hasWriteAuthorizationForNamespace(element._id)">
           <app-button color="accent"
                       appHighlight

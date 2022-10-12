@@ -17,5 +17,10 @@ export async function loggingMiddleware(ctx: Context, next: () => Promise<void>)
   const { method, path } = ctx.request;
   const { status } = ctx.response;
 
+  // Do not log liveness and readiness probes.
+  if (path.startsWith('/probes')) {
+    return;
+  }
+
   console.log({ duration, method, path, status });
 }
