@@ -6,12 +6,15 @@ import {
   prop,
 } from '@typegoose/typegoose';
 
-import { GameServerStatusPhase } from '../model';
+import { GameServerStatusComponentName, GameServerStatusPhase } from '../model';
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })
 export class GameServerStatusNodeSchema {
   @prop({ required: true, type: String })
   public _id: string;
+
+  @prop({ enum: GameServerStatusComponentName, required: true, type: String })
+  public component: GameServerStatusComponentName;
 
   @prop({ enum: GameServerStatusPhase, required: true, type: String })
   public phase: GameServerStatusPhase;

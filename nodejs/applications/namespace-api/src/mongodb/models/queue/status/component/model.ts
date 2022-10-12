@@ -6,12 +6,7 @@ import {
   prop,
 } from '@typegoose/typegoose';
 
-import { QueueStatusPhase } from '../model';
-
-export enum QueueStatusComponentName {
-  Application = 'application',
-  Sidecar = 'sidecar',
-}
+import { QueueStatusComponentName, QueueStatusPhase } from '../model';
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })
 export class QueueStatusComponentSchema {

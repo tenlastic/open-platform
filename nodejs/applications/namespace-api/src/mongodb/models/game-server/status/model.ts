@@ -10,6 +10,11 @@ import {
 import { GameServerStatusEndpointsSchema } from './endpoints';
 import { GameServerStatusNodeSchema } from './node';
 
+export enum GameServerStatusComponentName {
+  Application = 'application',
+  Sidecar = 'sidecar',
+}
+
 export enum GameServerStatusPhase {
   Error = 'Error',
   Failed = 'Failed',

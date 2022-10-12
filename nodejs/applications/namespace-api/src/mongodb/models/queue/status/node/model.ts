@@ -6,12 +6,15 @@ import {
   prop,
 } from '@typegoose/typegoose';
 
-import { QueueStatusPhase } from '../model';
+import { QueueStatusComponentName, QueueStatusPhase } from '../model';
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })
 export class QueueStatusNodeSchema {
   @prop({ required: true, type: String })
   public _id: string;
+
+  @prop({ enum: QueueStatusComponentName, required: true, type: String })
+  public component: QueueStatusComponentName;
 
   @prop({ enum: QueueStatusPhase, required: true, type: String })
   public phase: QueueStatusPhase;

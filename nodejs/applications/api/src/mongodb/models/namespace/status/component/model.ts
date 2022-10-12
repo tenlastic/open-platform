@@ -6,13 +6,7 @@ import {
   prop,
 } from '@typegoose/typegoose';
 
-import { NamespaceStatusPhase } from '../model';
-
-export enum NamespaceStatusComponentName {
-  Api = 'api',
-  Connectors = 'connectors',
-  Sidecar = 'sidecar',
-}
+import { NamespaceStatusComponentName, NamespaceStatusPhase } from '../model';
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })
 export class NamespaceStatusComponentSchema {

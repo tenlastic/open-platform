@@ -18,6 +18,6 @@ describe('get-nodes', function () {
 
     const result = getNodes(pods as any);
 
-    expect(result[0]).to.eql({ name: pods[0].metadata.name, phase: 'Running', role });
+    expect(result[0]).to.eql({ _id: pods[0].metadata.name, component: role, phase: 'Running' });
   });
 });

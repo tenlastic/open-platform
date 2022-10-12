@@ -11,6 +11,12 @@ import { NamespaceStatusComponentSchema } from './component';
 import { NamespaceStatusLimitSchema } from './limit';
 import { NamespaceStatusNodeSchema } from './node';
 
+export enum NamespaceStatusComponentName {
+  Api = 'api',
+  Connectors = 'connectors',
+  Sidecar = 'sidecar',
+}
+
 export enum NamespaceStatusPhase {
   Error = 'Error',
   Failed = 'Failed',

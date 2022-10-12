@@ -34,6 +34,21 @@ components:
         status:
           type: object
           properties:
+            components:
+              type: array
+              items:
+                type: object
+                properties:
+                  current:
+                    type: number
+                  name:
+                    type: string
+                    enum: [application, sidecar]
+                  phase:
+                    type: string
+                    enum: [Error, Failed, Pending, Running, Succeeded]
+                  total:
+                    type: number
             nodes:
               type: array
               items:
@@ -41,6 +56,9 @@ components:
                 properties:
                   _id:
                     type: string
+                  component:
+                    type: string
+                    enum: [application, sidecar]
                   phase:
                     type: string
                     enum: [Error, Failed, Pending, Running, Succeeded]

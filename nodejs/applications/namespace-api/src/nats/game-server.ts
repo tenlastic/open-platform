@@ -1,11 +1,25 @@
 import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
 
 import { KubernetesGameServer, KubernetesGameServerSidecar } from '../kubernetes';
-import { GameServer, GameServerDocument } from '../mongodb';
+import { GameServer, GameServerDocument, GameServerStatusComponentName } from '../mongodb';
 import { NamespaceEvent } from './namespace';
 import { QueueEvent } from './queue';
 
 export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
+
+// Delete Game Server if Failed or Succeeded.
+GameServerEvent.async(async (payload) => {
+  if (payload.operationType !== 'update' || payload.fullDocument.persistent) {
+    return;
+  }
+
+  const component = GameServerStatusComponentName.Application;
+  const node = payload.fullDocument.status?.nodes?.find((n) => n.component === component);
+
+  if (node?.phase === 'Failed' || node?.phase === 'Succeeded') {
+    await payload.fullDocument.remove();
+  }
+});
 
 // Delete Kubernetes resources.
 GameServerEvent.async(async (payload) => {

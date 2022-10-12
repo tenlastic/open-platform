@@ -10,6 +10,11 @@ import {
 import { QueueStatusComponentSchema } from './component';
 import { QueueStatusNodeSchema } from './node';
 
+export enum QueueStatusComponentName {
+  Application = 'application',
+  Sidecar = 'sidecar',
+}
+
 export enum QueueStatusPhase {
   Error = 'Error',
   Failed = 'Failed',

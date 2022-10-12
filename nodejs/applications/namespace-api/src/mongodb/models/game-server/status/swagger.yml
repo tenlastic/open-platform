@@ -19,6 +19,9 @@ components:
             properties:
               _id:
                 type: string
+              component:
+                type: string
+                enum: [application, sidecar]
               phase:
                 type: string
                 enum: [Error, Failed, Pending, Running, Succeeded]
