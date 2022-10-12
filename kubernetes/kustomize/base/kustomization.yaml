@@ -13,8 +13,7 @@ resources:
   - ./dynamic/rbac/api.yaml
   - ./dynamic/rbac/build.yaml
   - ./dynamic/rbac/build-sidecar.yaml
-  - ./dynamic/rbac/database-sidecar.yaml
-  - ./dynamic/rbac/delete-dynamic-corrupted-pods.yaml
+  - ./dynamic/rbac/delete-dynamic-failed-pods.yaml
   - ./dynamic/rbac/game-server-sidecar.yaml
   - ./dynamic/rbac/kubernetes-dashboard.yaml
   - ./dynamic/rbac/namespace-sidecar.yaml
