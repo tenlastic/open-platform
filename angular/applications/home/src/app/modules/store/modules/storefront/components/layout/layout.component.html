@@ -1,6 +1,9 @@
 <app-sidenav>
   <div appNav
        class="nav">
+    <img *ngIf="($storefront | async)?.logo"
+         [src]="($storefront | async)?.logo">
+
     <app-button color="accent"
                 layout="vertical"
                 [routerLink]="['./']"

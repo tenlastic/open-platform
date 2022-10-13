@@ -18,12 +18,14 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
     background: [],
     icon: [],
     images: [],
+    logo: [],
     videos: [],
   };
   public uploadErrors = {
     background: [],
     icon: [],
     images: [],
+    logo: [],
     videos: [],
   };
 

@@ -60,6 +60,41 @@ div.content {
   padding: 0px;
   position: relative;
 
+  app-button {
+    div.title {
+      margin-top: -2px;
+    }
+
+    div.title {
+      margin-top: -6px;
+
+      span {
+        display: block;
+
+        &:nth-child(2) {
+          font-size: 80%;
+          line-height: 80%;
+        }
+
+        &:only-child {
+          margin-top: 8px;
+        }
+      }
+    }
+
+    img {
+      max-height: 36px !important;
+    }
+
+    mat-icon.mat-icon {
+      font-size: 36px !important;
+      height: 34px !important;
+      line-height: 36px !important;
+      vertical-align: middle !important;
+      width: 34px !important;
+    }
+  }
+
   app-sidenav div.content {
     overflow: auto;
   }

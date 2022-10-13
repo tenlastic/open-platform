@@ -4,6 +4,14 @@
   height: calc(100vh - 32px);
   overflow: hidden;
   width: 100vw;
+
+  &::ng-deep {
+    app-button {
+      a.mat-button {
+        text-align: center !important;
+      }
+    }
+  }
 }
 
 app-header-toolbar::ng-deep {
@@ -62,5 +70,12 @@ div.content {
 
   app-sidenav div.content {
     overflow: auto;
+  }
+}
+
+div.nav {
+  img {
+    filter: drop-shadow(2px 2px black);
+    max-width: 192px;
   }
 }

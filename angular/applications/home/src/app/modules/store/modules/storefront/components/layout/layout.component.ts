@@ -7,6 +7,8 @@ import {
   AuthorizationQuery,
   AuthorizationService,
   IAuthorization,
+  StorefrontModel,
+  StorefrontQuery,
   StorefrontService,
 } from '@tenlastic/http';
 import { combineLatest, Observable } from 'rxjs';
@@ -24,6 +26,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public $guides: Observable<ArticleModel[]>;
   public $news: Observable<ArticleModel[]>;
   public $patchNotes: Observable<ArticleModel[]>;
+  public $storefront: Observable<StorefrontModel>;
   public get isElectron() {
     return this.electronService.isElectron;
   }
@@ -49,6 +52,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private authorizationService: AuthorizationService,
     private electronService: ElectronService,
     private identityService: IdentityService,
+    private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
     private updateService: UpdateService,
   ) {}
@@ -63,10 +67,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
           this.identityService.user?._id,
         ),
         this.fetchArticles(this.namespaceId),
-        this.storefrontService.find(this.namespaceId, {
-          limit: 1,
-          where: { namespaceId: this.namespaceId },
-        }),
+        this.storefrontService.find(this.namespaceId, {}),
       ]);
 
       const storefront = results[2][0];
@@ -86,6 +87,9 @@ export class LayoutComponent implements OnDestroy, OnInit {
         filterBy: (a) =>
           a.namespaceId === this.namespaceId && a.publishedAt && a.type === 'Patch Notes',
       });
+      this.$storefront = this.storefrontQuery
+        .selectAll({ filterBy: (s) => s.namespaceId === this.namespaceId })
+        .pipe(map((s) => s[0]));
     });
   }
 

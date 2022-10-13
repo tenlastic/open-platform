@@ -88,6 +88,8 @@ export class StorefrontSchema {
         return `namespaces/${namespaceId}/storefronts/${storefrontId}/icon`;
       case 'images':
         return `namespaces/${namespaceId}/storefronts/${storefrontId}/images/${id}`;
+      case 'logo':
+        return `namespaces/${namespaceId}/storefronts/${storefrontId}/logo`;
       case 'videos':
         return `namespaces/${namespaceId}/storefronts/${storefrontId}/videos/${id}`;
       default:
@@ -108,6 +110,8 @@ export class StorefrontSchema {
         return `namespaces/${this.namespaceId}/storefronts/${this._id}/icon`;
       case 'images':
         return `namespaces/${this.namespaceId}/storefronts/${this._id}/images/${id}`;
+      case 'logo':
+        return `namespaces/${this.namespaceId}/storefronts/${this._id}/logo`;
       case 'videos':
         return `namespaces/${this.namespaceId}/storefronts/${this._id}/videos/${id}`;
       default:

@@ -76,6 +76,41 @@
   </app-toggle-section>
 
   <app-toggle-section *ngIf="data"
+                      title="Logo Image">
+    <mat-grid-list *ngIf="data.logo || pending['logo'].length"
+                   cols="4"
+                   gutterSize="8"
+                   rowHeight="1920:1080">
+      <mat-grid-tile *ngIf="data.logo"
+                     class="icon"
+                     [ngStyle]="{ 'background-image': 'url(' + data.logo + ')' }">
+      </mat-grid-tile>
+
+      <mat-grid-tile *ngIf="!data.logo"
+                     class="pending">
+        <mat-spinner [diameter]="30"></mat-spinner>
+      </mat-grid-tile>
+    </mat-grid-list>
+
+    <input #logoInput
+           accept=".jpg,.jpeg,.png"
+           hidden
+           type="file"
+           (change)="onFieldChanged($event, 'logo')" />
+
+    <div *ngFor="let error of uploadErrors['logo']"
+         class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button color="primary"
+                (OnClick)="logoInput.click()">Browse</app-button>
+    <app-button *ngIf="data.logo"
+                color="accent"
+                (OnClick)="remove('logo')">Remove</app-button>
+  </app-toggle-section>
+
+  <app-toggle-section *ngIf="data"
                       title="Images">
     <mat-grid-list *ngIf="data.images && data.images.length || pending['images'].length"
                    cols="4"

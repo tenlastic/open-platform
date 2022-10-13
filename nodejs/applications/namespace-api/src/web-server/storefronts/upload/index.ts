@@ -36,7 +36,15 @@ export async function handler(ctx: Context) {
 
       // Make sure the file is an image.
       const { mimeType } = info;
-      if (mimeType !== 'image/gif' && mimeType !== 'image/jpeg' && mimeType !== 'image/png') {
+      if (field === 'videos' && mimeType !== 'video/mp4') {
+        busboy.emit('error', new Error('Mimetype must be: video/mp4.'));
+        return;
+      } else if (
+        field !== 'videos' &&
+        mimeType !== 'image/gif' &&
+        mimeType !== 'image/jpeg' &&
+        mimeType !== 'image/png'
+      ) {
         busboy.emit('error', new Error('Mimetype must be: image/gif, image/jpeg, image/png.'));
         return;
       }

@@ -23,6 +23,10 @@
         min-width: 0px;
 
         app-button span.mat-button-wrapper {
+          img {
+            margin-right: 0px;
+          }
+
           mat-icon {
             margin-right: 0px;
           }
@@ -38,7 +42,7 @@
       }
 
       app-button {
-        height: 36.8px;
+        min-height: 36.8px;
       }
 
       hr {

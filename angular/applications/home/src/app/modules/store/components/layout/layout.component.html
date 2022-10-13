@@ -23,7 +23,10 @@
                     text="left"
                     width="full">
           <mat-icon>search</mat-icon>
-          <span>Search</span>
+
+          <div class="search">
+            <span>Search</span>
+          </div>
         </app-button>
 
         <hr *ngIf="($storefronts | async)?.length">
@@ -35,10 +38,17 @@
                     routerLinkActive="active"
                     text="left"
                     width="full">
-          <mat-icon>sports_esports</mat-icon>
-          <span>{{ storefront.title }}</span>
+          <img *ngIf="storefront.icon"
+               [src]="storefront.icon">
+          <mat-icon *ngIf="!storefront.icon">storefront</mat-icon>
+
+          <div class="title">
+            <span>{{ storefront.title }}</span>
+            <span *ngIf="storefront.subtitle">{{ storefront.subtitle }}</span>
+          </div>
         </app-button>
       </div>
+
       <router-outlet></router-outlet>
     </app-sidenav>
   </app-social>
