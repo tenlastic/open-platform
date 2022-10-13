@@ -25,6 +25,10 @@ export const ROUTES: Routes = [
         path: 'json',
         title: FormResolver,
       },
+      {
+        component: StorefrontsMultimediaFormPageComponent,
+        path: 'multimedia',
+      },
     ],
     component: LayoutComponent,
     path: '',

@@ -73,6 +73,31 @@ export class StorefrontSchema {
   /**
    * Get the path for the property within Minio.
    */
+  public static getMinioKey(
+    namespaceId: string,
+    storefrontId: string,
+    field: string,
+    _id?: string,
+  ) {
+    const id = _id || new mongoose.Types.ObjectId();
+
+    switch (field) {
+      case 'background':
+        return `namespaces/${namespaceId}/storefronts/${storefrontId}/background`;
+      case 'icon':
+        return `namespaces/${namespaceId}/storefronts/${storefrontId}/icon`;
+      case 'images':
+        return `namespaces/${namespaceId}/storefronts/${storefrontId}/images/${id}`;
+      case 'videos':
+        return `namespaces/${namespaceId}/storefronts/${storefrontId}/videos/${id}`;
+      default:
+        return `namespaces/${namespaceId}/storefronts/${storefrontId}`;
+    }
+  }
+
+  /**
+   * Get the path for the property within Minio.
+   */
   public getMinioKey(field?: string, _id?: string) {
     const id = _id || new mongoose.Types.ObjectId();
 
@@ -95,7 +120,7 @@ export class StorefrontSchema {
    */
   public getUrl(host: string, protocol: string, path: string) {
     const base = `${protocol}://${host}`;
-    return `${base}/${path.replace(/namespaces\/[^\/]+\//, '')}`;
+    return `${base}/${path}`;
   }
 
   /**

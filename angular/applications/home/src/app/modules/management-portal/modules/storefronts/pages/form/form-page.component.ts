@@ -221,7 +221,7 @@ export class StorefrontsFormPageComponent implements OnInit {
     }
 
     this.matSnackBar.open(`Storefront saved successfully.`);
-    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
+    this.router.navigate(['../', 'storefront'], { relativeTo: this.activatedRoute });
 
     return result;
   }
