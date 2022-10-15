@@ -61,7 +61,7 @@ div.content {
   position: relative;
 
   app-button {
-    div.title {
+    div.search {
       margin-top: -2px;
     }
 
@@ -70,6 +70,9 @@ div.content {
 
       span {
         display: block;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
 
         &:nth-child(2) {
           font-size: 80%;

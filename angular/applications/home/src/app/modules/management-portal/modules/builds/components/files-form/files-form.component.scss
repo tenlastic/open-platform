@@ -1,4 +1,5 @@
-@import '../../../../../../../assets/scss/page.scss';
+@import 'src/assets/scss/page.scss';
+@import 'src/assets/scss/theme.scss';
 
 app-button {
   margin-bottom: 8px;
@@ -68,7 +69,7 @@ mat-list.mat-list {
 }
 
 mat-spinner.mat-spinner {
-  filter: drop-shadow(1px 1px 1px black);
+  filter: $drop-shadow;
   margin-right: 8px;
   margin-top: -3px;
 }

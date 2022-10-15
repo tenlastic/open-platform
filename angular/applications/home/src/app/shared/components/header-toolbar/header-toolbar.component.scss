@@ -1,6 +1,8 @@
+@import 'src/assets/scss/theme.scss';
+
 mat-toolbar {
   background: rgba(0, 0, 0, 0.5);
-  box-shadow: 2px 2px 3px black;
+  box-shadow: $box-shadow;
   height: 56px;
   overflow: initial;
   position: relative;
@@ -8,7 +10,7 @@ mat-toolbar {
 
   &::ng-deep {
     img {
-      filter: drop-shadow(3px 4px black);
+      filter: $drop-shadow;
       height: 32px;
       margin-left: -2px;
       margin-right: 16px;

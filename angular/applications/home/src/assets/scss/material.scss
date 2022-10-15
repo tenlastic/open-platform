@@ -1,4 +1,5 @@
 @import '~bootstrap/scss/bootstrap-grid.scss';
+@import './theme.scss';
 
 a.mat-list-item {
   mat-icon.mat-icon {
@@ -97,11 +98,11 @@ div.mat-tooltip {
   background-position: center;
   background-size: cover;
   border-radius: 0px;
-  box-shadow: 2px 2px 3px black;
+  box-shadow: $box-shadow;
   font-family: 'Oswald', sans-serif;
   font-size: 14px;
   padding: 6px 12px;
-  text-shadow: 2px 3px 3px black;
+  text-shadow: $text-shadow;
   white-space: pre;
 }
 
@@ -113,7 +114,7 @@ input.mat-chip-input {
 mat-chip.mat-chip.mat-standard-chip {
   background-color: rgba(0, 0, 0, 0.25);
   border-radius: 0px;
-  box-shadow: 2px 2px 3px black;
+  box-shadow: $box-shadow;
   color: white;
 
   &:focus::after,
@@ -204,7 +205,7 @@ mat-dialog-container.mat-dialog-container {
   background-position: center;
   background-size: cover;
   border-radius: 0px;
-  box-shadow: 2px 2px 3px black;
+  box-shadow: $box-shadow;
   color: white;
   padding: 16px 24px;
 }
@@ -376,13 +377,13 @@ mat-radio-button.mat-radio-button.mat-accent {
     span.mat-radio-inner-circle {
       background-color: white;
       border-radius: 2px;
-      filter: drop-shadow(2px 2px 3px black);
+      filter: $drop-shadow;
     }
 
     span.mat-radio-outer-circle {
       border-color: white;
       border-radius: 2px;
-      filter: drop-shadow(2px 2px 3px black);
+      filter: $drop-shadow;
     }
 
     span.mat-ripple {
@@ -403,7 +404,7 @@ mat-radio-button.mat-radio-button.mat-accent {
   span.mat-radio-outer-circle {
     border-color: white;
     border-radius: 4px;
-    filter: drop-shadow(2px 2px 3px black);
+    filter: $drop-shadow;
   }
 }
 

@@ -81,7 +81,7 @@ export class AuthorizationService {
       where = { userId };
     }
 
-    return this.find(namespaceId, { where });
+    return this.find(null, { where });
   }
 
   /**

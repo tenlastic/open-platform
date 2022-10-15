@@ -2,7 +2,12 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../../../shared/shared.module';
-import { ArticleComponent, LayoutComponent, StatusComponent } from './components';
+import {
+  ArticleComponent,
+  DownloadComponent,
+  LayoutComponent,
+  StatusComponent,
+} from './components';
 import { StatusGuard } from './guards';
 import {
   GameServersPageComponent,
@@ -58,6 +63,7 @@ export const ROUTES: Routes = [
 @NgModule({
   declarations: [
     ArticleComponent,
+    DownloadComponent,
     LayoutComponent,
     StatusComponent,
 

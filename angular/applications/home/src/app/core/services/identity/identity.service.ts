@@ -26,7 +26,7 @@ export class IdentityService {
     this.tokenService.getAccessToken().then((accessToken) => this.setAccessToken(accessToken));
   }
 
-  private setAccessToken(accessToken: Jwt) {
+  public setAccessToken(accessToken: Jwt) {
     this._user = accessToken?.payload?.user;
     this._$authorization = this.authorizationQuery
       .selectAll({ filterBy: (a) => !a.namespaceId && a.userId === this._user?._id })

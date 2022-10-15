@@ -1,5 +1,8 @@
+@import 'src/assets/scss/theme.scss';
+
 app-markdown {
   display: block;
+  text-align: justify;
 }
 
 app-title {
@@ -12,7 +15,7 @@ div.container {
   margin: 0px;
   max-width: none;
   overflow: auto;
-  padding: 16px;
+  padding: 8px;
 }
 
 h3 {
@@ -23,24 +26,28 @@ div.main-media {
   background-position: center;
   background-size: cover;
   display: block;
-  filter: drop-shadow(2px 2px 3px black);
+  filter: $drop-shadow;
   margin-bottom: 8px;
   width: 100%;
 }
 
 div.row {
+  margin: 0px;
+
   div.col-sm-5,
   div.col-sm-7,
   div.col-sm-12 {
-    padding: 0px 16px;
+    padding: 0px 8px;
   }
 
   div.col-sm-5 {
-    padding-left: 8px;
+    padding-left: 4px;
+    padding-right: 0px;
   }
 
   div.col-sm-7 {
-    padding-right: 8px;
+    padding-left: 0px;
+    padding-right: 4px;
   }
 }
 
@@ -50,16 +57,16 @@ mat-grid-list.mat-grid-list {
   mat-grid-tile.mat-grid-tile {
     background-position: center;
     background-size: cover;
-    filter: brightness(0.5) drop-shadow(2px 2px 3px black);
+    filter: brightness(0.5) $drop-shadow;
     cursor: pointer;
 
     &:hover {
-      filter: brightness(1) drop-shadow(2px 2px 3px black);
+      filter: brightness(1) $drop-shadow;
     }
 
     &.selected {
       cursor: initial;
-      filter: brightness(1) drop-shadow(2px 2px 3px black);
+      filter: brightness(1) $drop-shadow;
     }
 
     ::ng-deep {

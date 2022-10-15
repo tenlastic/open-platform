@@ -1,7 +1,8 @@
+@import 'src/assets/scss/theme.scss';
+
 :host {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 32px);
   overflow: hidden;
   width: 100vw;
 
@@ -74,8 +75,10 @@ div.content {
 }
 
 div.nav {
+  box-shadow: $box-shadow-right;
+
   img {
-    filter: drop-shadow(2px 2px black);
+    filter: $drop-shadow;
     max-width: 192px;
   }
 }

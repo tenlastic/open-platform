@@ -3,10 +3,10 @@
 :host {
   align-items: center;
   background: rgba(0, 0, 0, 0.5);
-  box-shadow: $box-shadow;
+  box-shadow: $box-shadow-top;
   display: flex;
   flex: 0 0 auto;
-  padding: 12px 16px;
+  padding: 8px 8px;
 
   div.action {
     display: flex;
@@ -29,6 +29,7 @@
         mat-icon.mat-icon {
           color: white;
           font-size: 30px;
+          line-height: 22px;
           width: 26px;
         }
 

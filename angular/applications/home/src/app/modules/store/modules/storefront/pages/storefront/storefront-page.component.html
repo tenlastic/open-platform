@@ -23,7 +23,7 @@
           </mat-grid-tile>
         </mat-grid-list>
 
-        <mat-grid-list cols="4"
+        <mat-grid-list [cols]="columns"
                        gutterSize="8"
                        rowHeight="1920:1080">
           <mat-grid-tile *ngFor="let video of videos; let i = index"

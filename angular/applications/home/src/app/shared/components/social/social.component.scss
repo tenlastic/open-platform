@@ -1,3 +1,5 @@
+@import 'src/assets/scss/theme.scss';
+
 @keyframes color {
   0% {
     background-color: transparent;
@@ -58,7 +60,7 @@
     }
 
     > app-sidenav > div.nav {
-      box-shadow: -2px 0px 3px black !important;
+      box-shadow: $box-shadow-left !important;
     }
   }
 }

@@ -10,6 +10,9 @@ export class StorefrontPageComponent implements OnInit {
   @ViewChild('video') private video: ElementRef;
 
   public articles: ArticleModel[];
+  public get columns() {
+    return this.images.length + this.videos.length >= 8 ? 4 : 3;
+  }
   public error: string;
   public get images() {
     return this.storefront.images.filter((i) => i !== this.mainMedia?.src);
@@ -32,7 +35,7 @@ export class StorefrontPageComponent implements OnInit {
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.loadingMessage = 'Loading StorefrontModel information...';
+      this.loadingMessage = 'Loading Storefront information...';
 
       const storefronts = await this.storefrontService.find(params.namespaceId, { limit: 1 });
       this.storefront = storefronts[0];

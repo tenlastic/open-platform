@@ -1,6 +1,8 @@
+@import 'src/assets/scss/theme.scss';
+
 mat-toolbar.mat-toolbar {
   background: rgba(0, 0, 0, 0.75);
-  box-shadow: 2px 2px 3px black;
+  box-shadow: $box-shadow;
   height: 32px;
   overflow: initial;
   padding: 4px;

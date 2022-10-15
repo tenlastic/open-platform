@@ -1,3 +1,5 @@
+@import 'src/assets/scss/theme.scss';
+
 :host {
   display: flex;
   height: 100%;
@@ -11,7 +13,7 @@
 
     div.nav {
       background: rgba(0, 0, 0, 0.5);
-      box-shadow: 2px 2px 3px black;
+      box-shadow: $box-shadow;
       display: flex;
       flex: 0 0 auto;
       flex-direction: column;
@@ -32,7 +34,7 @@
           }
 
           span {
-            display: none;
+            display: none !important;
           }
         }
       }

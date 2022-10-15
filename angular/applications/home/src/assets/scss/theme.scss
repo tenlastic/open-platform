@@ -77,4 +77,10 @@ $foreground: map-get($theme, foreground);
 $primary: mat.get-color-from-palette($theme-primary);
 $primary-highlight: lighten($primary, 5%);
 
-$text-shadow: 2px 3px 3px #000000;
+$box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.75);
+$box-shadow-bottom: 0px 1px 1px rgba(0, 0, 0, 0.75);
+$box-shadow-left: -1px 0px 1px rgba(0, 0, 0, 0.75);
+$box-shadow-right: 1px 0px 1px rgba(0, 0, 0, 0.75);
+$box-shadow-top: 0px -1px 1px rgba(0, 0, 0, 0.75);
+$drop-shadow: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.75));
+$text-shadow: 2px 2px 1px rgba(0, 0, 0, 0.75);

@@ -1,3 +1,5 @@
+@import 'src/assets/scss/theme.scss';
+
 :host {
   height: 0px;
 }
@@ -39,7 +41,7 @@
 
   code {
     background: rgba(0, 0, 0, 0.25) !important;
-    box-shadow: 2px 2px 3px black;
+    box-shadow: $box-shadow;
     color: white !important;
     font-weight: 400 !important;
   }
@@ -84,7 +86,7 @@
 
   div.opblock-section-header {
     background: rgba(0, 0, 0, 0.25) !important;
-    box-shadow: 2px 2px 3px black !important;
+    box-shadow: $box-shadow !important;
     color: white !important;
   }
 
@@ -108,7 +110,7 @@
 
   pre {
     background: rgba(0, 0, 0, 0.25) !important;
-    box-shadow: 2px 2px 3px black !important;
+    box-shadow: $box-shadow !important;
     color: white !important;
     font-weight: 400 !important;
     max-height: initial !important;

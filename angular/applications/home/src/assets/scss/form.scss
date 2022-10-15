@@ -30,7 +30,7 @@ div.page {
 
 div.page-actions {
   background: rgba(0, 0, 0, 0.5);
-  box-shadow: 2px -2px 3px black;
+  box-shadow: $box-shadow-top;
   display: flex;
   flex-direction: column;
   margin-top: auto;

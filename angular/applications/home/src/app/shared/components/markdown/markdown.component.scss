@@ -1,7 +1,7 @@
 :host {
   ::ng-deep {
     :first-child {
-      margin-top: 0px;
+      margin-top: -6px;
     }
 
     a {
@@ -26,7 +26,7 @@
     h4 {
       color: #ffff55;
       font-size: 0.9rem;
-      margin: 0px 0px 8px;
+      margin: 0px 0px 0px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -41,7 +41,7 @@
     }
 
     p {
-      margin: 8px 0px;
+      margin: 0px 0px 16px;
     }
 
     pre,

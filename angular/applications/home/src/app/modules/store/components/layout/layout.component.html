@@ -29,8 +29,6 @@
           </div>
         </app-button>
 
-        <hr *ngIf="($storefronts | async)?.length">
-
         <app-button *ngFor="let storefront of ($storefronts | async)"
                     color="accent"
                     layout="vertical"

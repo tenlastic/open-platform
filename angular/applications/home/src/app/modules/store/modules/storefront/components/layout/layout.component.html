@@ -52,7 +52,10 @@
   </div>
 
   <router-outlet></router-outlet>
-
-  <app-status *ngIf="status"
-              [namespaceId]="namespaceId"></app-status>
 </app-sidenav>
+
+<app-download *ngIf="!isElectron"
+              [storefront]="$storefront | async"></app-download>
+
+<app-status *ngIf="status"
+            [namespaceId]="namespaceId"></app-status>
