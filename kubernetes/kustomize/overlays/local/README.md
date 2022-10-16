@@ -7,9 +7,11 @@ Add the following lines to your `hosts` file to properly route to your local Kub
 127.0.0.1 argo.local.tenlastic.com
 127.0.0.1 docker-registry.local.tenlastic.com
 127.0.0.1 minio.local.tenlastic.com
+127.0.0.1 minio-console.local.tenlastic.com
 127.0.0.1 mongo.local.tenlastic.com
 127.0.0.1 registry.local.tenlastic.com
 127.0.0.1 verdaccio.local.tenlastic.com
+127.0.0.1 wss.local.tenlastic.com
 127.0.0.1 www.local.tenlastic.com
 ```
 

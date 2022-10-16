@@ -62,6 +62,16 @@ spec:
                 name: minio
                 port:
                   number: 9000
+    - host: minio-console.tenlastic.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 9001
     - host: verdaccio.tenlastic.com
       http:
         paths:

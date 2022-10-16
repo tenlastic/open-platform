@@ -104,10 +104,11 @@ metadata:
 spec:
   chart:
     spec:
-      chart: kubernetes/helm/kubernetes-dashboard/
+      chart: kubernetes-dashboard
       sourceRef:
-        kind: GitRepository
-        name: open-platform
+        kind: HelmRepository
+        name: kubernetes-dashboard
+      version: 5.7.0
   interval: 5m
   releaseName: kubernetes-dashboard
   values:

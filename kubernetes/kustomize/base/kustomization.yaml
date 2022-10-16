@@ -32,6 +32,12 @@ resources:
   - ./static/argo/workflow-templates/nodejs.yaml
   - ./static/docker-registry/docker-registry-ui.yaml
   - ./static/docker-registry/docker-registry.yaml
+  - ./static/flux/argo.helmrepository.yaml
+  - ./static/flux/bitnami.helmrepository.yaml
+  - ./static/flux/ingress-nginx.helmrepository.yaml
+  - ./static/flux/jetstack.helmrepository.yaml
+  - ./static/flux/kubernetes-dashboard.helmrepository.yaml
+  - ./static/flux/nats.helmrepository.yaml
   - ./static/flux/open-platform.gitrepository.yaml
   - ./static/ingress-nginx/ingress-nginx.yaml
   - ./static/kubernetes-dashboard/kubernetes-dashboard.yaml
