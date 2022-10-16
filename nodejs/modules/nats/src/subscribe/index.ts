@@ -15,6 +15,7 @@ export async function subscribe(
     deliver_policy: nats.DeliverPolicy.New,
     deliver_subject: nats.createInbox(),
     durable_name: durable,
+    inactive_threshold: 7 * 24 * 60 * 60 * 1000 * 1000 * 1000,
     ...options,
   };
 

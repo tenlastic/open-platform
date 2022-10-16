@@ -9,7 +9,6 @@ import {
 import {
   BaseListQuery,
   deploymentApiV1,
-  helmReleaseApiV1,
   ingressApiV1,
   networkPolicyApiV1,
   persistentVolumeClaimApiV1,
@@ -74,7 +73,6 @@ export const KubernetesNamespace = {
      */
     const query: BaseListQuery = { labelSelector: `tenlastic.com/namespaceId=${namespace._id}` };
     await deploymentApiV1.deleteCollection('dynamic', query);
-    await helmReleaseApiV1.deleteCollection('dynamic', query);
     await ingressApiV1.deleteCollection('dynamic', query);
     await networkPolicyApiV1.deleteCollection('dynamic', query);
     await persistentVolumeClaimApiV1.deleteCollection('dynamic', query);

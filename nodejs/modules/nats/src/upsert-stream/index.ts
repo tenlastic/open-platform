@@ -12,7 +12,7 @@ export async function upsertStream(subject: string) {
   }
 
   return jsm.streams.add({
-    max_age: 3 * 24 * 60 * 60 * 1000 * 1000 * 1000,
+    max_age: 7 * 24 * 60 * 60 * 1000 * 1000 * 1000,
     name,
     subjects: [`${name}.>`],
   });

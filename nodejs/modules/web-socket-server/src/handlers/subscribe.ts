@@ -48,6 +48,7 @@ export async function subscribe(
   const subscription = await nats.subscribe(durable, subject, {
     ack_policy: AckPolicy.Explicit,
     ack_wait: 60 * 1000 * 1000 * 1000,
+    inactive_threshold: 24 * 60 * 60 * 1000 * 1000 * 1000,
     max_deliver: 3,
   });
 

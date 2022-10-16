@@ -58,7 +58,7 @@ export class StorefrontPageComponent implements OnInit {
     });
   }
 
-  public async selectMedia(index: number, type: 'image' | 'video' = 'image', muted = false) {
+  public async selectMedia(index: number, type: 'image' | 'video' = 'image', muted = true) {
     this.mainMedia = {
       src: type === 'image' ? this.images[index] : this.videos[index],
       type,

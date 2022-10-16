@@ -28,6 +28,7 @@ export async function replicateFromNats(
   const subscription = await nats.subscribe(options.durable, options.subject, {
     ack_policy: AckPolicy.Explicit,
     ack_wait: 60 * 1000 * 1000 * 1000,
+    inactive_threshold: 30 * 24 * 60 * 60 * 1000 * 1000 * 1000,
     max_deliver: 5,
   });
 
