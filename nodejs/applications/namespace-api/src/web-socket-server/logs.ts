@@ -30,7 +30,9 @@ export interface LogsDataParameters {
   workflowId?: string;
 }
 
-export const abortControllers = new Map<WebSocket, Map<string, AbortController>>();
+export type Abort = () => void;
+
+export const aborts = new Map<WebSocket, Map<string, Abort>>();
 
 export async function logs(
   auth: webSocketServer.AuthenticationData,
@@ -97,14 +99,14 @@ export async function logs(
 
   // Start streaming the logs.
   const pod = await podApiV1.read(node._id, 'dynamic');
-  const { abortController, emitter } = await podApiV1.followNamespacedPodLog(
+  const { abort, emitter } = await podApiV1.followNamespacedPodLog(
     node._id,
     'dynamic',
     container || pod.body.spec.containers[0].name,
     { since: data.parameters.since, tail: data.parameters.tail },
   );
+  emitter.on('close', async () => ws.send(JSON.stringify({ _id: data._id })));
   emitter.on('data', (log) => ws.send(JSON.stringify({ _id: data._id, fullDocument: log })));
-  emitter.on('end', async () => ws.send(JSON.stringify({ _id: data._id })));
   emitter.on('error', async (e) => {
     console.error(e);
 
@@ -114,21 +116,21 @@ export async function logs(
   });
 
   // Cache the request.
-  abortControllers.set(ws, abortControllers.has(ws) ? abortControllers.get(ws) : new Map());
-  abortControllers.get(ws).set(data._id, abortController);
+  aborts.set(ws, aborts.has(ws) ? aborts.get(ws) : new Map());
+  aborts.get(ws).set(data._id, abort);
 
-  ws.on('close', () => abortController.abort());
+  ws.on('close', () => abort());
 }
 
 function unsubscribe(data: LogsData, ws: webSocketServer.WebSocket) {
-  if (!abortControllers.has(ws) || !abortControllers.get(ws).has(data._id)) {
+  if (!aborts.has(ws) || !aborts.get(ws).has(data._id)) {
     return;
   }
 
   // Abort the request.
-  const abortController = abortControllers.get(ws).get(data._id);
-  abortController.abort();
+  const abort = aborts.get(ws).get(data._id);
+  abort();
 
   // Remove the Cancel Token Source from memory.
-  abortControllers.get(ws).delete(data._id);
+  aborts.get(ws).delete(data._id);
 }

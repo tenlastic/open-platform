@@ -19,7 +19,6 @@ export const ROUTES: Routes = [
         path: 'account',
       },
       {
-        canActivate: [LoginGuard],
         loadChildren: () =>
           import('./modules/authentication/authentication.module').then(
             (m) => m.AuthenticationModule,

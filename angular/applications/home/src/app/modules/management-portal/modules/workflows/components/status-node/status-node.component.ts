@@ -75,9 +75,10 @@ export class WorkflowStatusNodeComponent {
             WorkflowLogModel,
             { nodeId, since: unix ? new Date(unix) : new Date(), workflowId: this.workflow._id },
             this.workflowLogStore,
-            environment.wssUrl,
+            `${environment.wssUrl}/namespaces/${this.workflow.namespaceId}`,
           );
         },
+        wssUrl: `${environment.wssUrl}/namespaces/${this.workflow.namespaceId}`,
       },
     });
 

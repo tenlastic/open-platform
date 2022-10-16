@@ -30,6 +30,9 @@ export class WorkflowStatusNodeSchema {
   @prop({ type: Date })
   public finishedAt: Date;
 
+  @prop({ type: String })
+  public id: string;
+
   @prop({ type: Boolean })
   public logs: boolean;
 

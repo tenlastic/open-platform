@@ -136,9 +136,10 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
             QueueLogModel,
             { nodeId, queueId: record._id, since: unix ? new Date(unix) : new Date() },
             this.queueLogStore,
-            environment.wssUrl,
+            `${environment.wssUrl}/namespaces/${record.namespaceId}`,
           );
         },
+        wssUrl: `${environment.wssUrl}/namespaces/${record.namespaceId}`,
       },
     });
 

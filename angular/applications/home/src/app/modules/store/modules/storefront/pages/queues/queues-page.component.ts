@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import {
   GroupModel,
   GroupQuery,
@@ -32,6 +32,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   public displayedColumns = ['name', 'description', 'currentUsers', 'actions'];
 
   private getCurrentUsersInterval: any;
+  private params: Params;
   private subscription: string;
 
   constructor(
@@ -48,6 +49,8 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
+
       this.$group = this.groupQuery
         .selectAll({ filterBy: (g) => g.userIds.includes(this.identityService.user._id) })
         .pipe(map((groups) => groups[0]));
@@ -87,7 +90,10 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   public ngOnDestroy() {
     clearInterval(this.getCurrentUsersInterval);
     this.updateQueueMembers$.unsubscribe();
-    this.streamService.unsubscribe(this.subscription, environment.wssUrl);
+    this.streamService.unsubscribe(
+      this.subscription,
+      `${environment.wssUrl}/namespaces/${this.params.namespaceId}`,
+    );
   }
 
   public $getGroupQueueMember(queueId: string) {

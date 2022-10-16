@@ -14,9 +14,11 @@ export namespace IBuild {
     children?: string[];
     displayName?: string;
     finishedAt?: Date;
+    id?: string;
     message?: string;
     name?: string;
     outboundNodes?: string[];
+    parent?: string;
     phase?: string;
     startedAt?: Date;
     templatename?: string;
@@ -59,7 +61,7 @@ export class BuildModel extends BaseModel {
     }
 
     const nodes = JSON.parse(JSON.stringify(this.status.nodes));
-    const sortedNodes = nodes.sort((a, b) => {
+    const sortedNodes: IBuild.Node[] = nodes.sort((a, b) => {
       if (a.startedAt === b.startedAt) {
         return 0;
       }
@@ -70,8 +72,8 @@ export class BuildModel extends BaseModel {
     for (const node of sortedNodes) {
       if (node.children) {
         for (const childId of node.children) {
-          const child = sortedNodes.find((n) => n._id === childId);
-          child.parent = node._id;
+          const child = sortedNodes.find((n) => n.id === childId);
+          child.parent = node.id;
         }
       }
     }
@@ -90,12 +92,12 @@ export class BuildModel extends BaseModel {
     ];
   }
 
-  private getChildren(data, parent?) {
+  private getChildren(data: IBuild.Node[], parent?: string) {
     return data.reduce((previous, current) => {
       const obj = Object.assign({}, current);
 
       if (parent === current.parent) {
-        const children = this.getChildren(data, current._id);
+        const children = this.getChildren(data, current.id);
 
         if (children.length) {
           obj.children = children;

@@ -50,26 +50,33 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
         signal: abortController.signal,
       });
 
+      const onData = (data) => {
+        const string = data.toString();
+        const lines = this.split(string);
+
+        for (const line of lines) {
+          const body = this.getBody(line);
+          const microseconds = this.getMicroseconds(line);
+          const unix = this.getUnix(line);
+
+          const timestamp = parseFloat(`${unix}.${microseconds}`);
+          const json = { body, unix: timestamp };
+
+          emitter.emit('data', json);
+        }
+      };
+
       response.data
-        .on('error', (e) => emitter.emit('error', e))
-        .on('data', (data) => {
-          const string = data.toString();
-          const lines = this.split(string);
+        .on('close', () => emitter.emit('close'))
+        .on('data', onData)
+        .on('error', (e) => emitter.emit('error', e));
 
-          for (const line of lines) {
-            const body = this.getBody(line);
-            const microseconds = this.getMicroseconds(line);
-            const unix = this.getUnix(line);
+      const abort = () => {
+        abortController.abort();
+        response.data.destroy();
+      };
 
-            const timestamp = parseFloat(`${unix}.${microseconds}`);
-            const json = { body, unix: timestamp };
-
-            emitter.emit('data', json);
-          }
-        })
-        .on('end', () => emitter.emit('end'));
-
-      return { abortController, emitter };
+      return { abort, emitter };
     } catch (e) {
       if (e instanceof AxiosError) {
         const body = await this.getStringFromStream(e.response.data);

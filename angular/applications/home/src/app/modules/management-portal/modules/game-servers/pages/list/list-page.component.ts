@@ -137,9 +137,10 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
             GameServerLogModel,
             { gameServerId: record._id, nodeId, since: unix ? new Date(unix) : new Date() },
             this.gameServerLogStore,
-            environment.wssUrl,
+            `${environment.wssUrl}/namespaces/${record.namespaceId}`,
           );
         },
+        wssUrl: `${environment.wssUrl}/namespaces/${record.namespaceId}`,
       },
     });
 

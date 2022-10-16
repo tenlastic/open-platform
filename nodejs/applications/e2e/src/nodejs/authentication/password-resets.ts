@@ -30,10 +30,12 @@ describe('/nodejs/authentication/password-resets', function () {
 
     const password = chance.hash();
 
-    // Delete existing User if exists;
-    const users = await dependencies.userService.find({ where: { email } });
-    if (users.length > 0) {
-      await dependencies.userService.delete(users[0]._id);
+    // Delete existing User if exists.
+    if (email) {
+      const users = await dependencies.userService.find({ where: { email } });
+      if (users.length > 0) {
+        await dependencies.userService.delete(users[0]._id);
+      }
     }
 
     user = await dependencies.userService.create({ email, password, username });

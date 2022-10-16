@@ -2,11 +2,9 @@ import { Schema } from 'mongoose';
 
 export class UniqueError extends Error {
   public paths: string[];
-  public values: any[];
 
   constructor(value: any) {
     const paths = Object.keys(value);
-    const values = Object.values(value);
 
     const keyString = paths.length > 1 ? 'keys' : 'key';
     const pathString = paths.join(', ');
@@ -14,7 +12,6 @@ export class UniqueError extends Error {
 
     this.name = 'UniqueError';
     this.paths = paths;
-    this.values = values;
   }
 }
 

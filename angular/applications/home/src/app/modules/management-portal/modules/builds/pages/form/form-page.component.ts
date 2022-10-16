@@ -204,7 +204,7 @@ export class BuildsFormPageComponent implements OnInit {
         if (e.name === 'UniqueError') {
           const combination = e.paths.length > 1 ? 'combination ' : '';
           const paths = e.paths.map((p) => pathMap[p]);
-          return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
+          return `${paths.join(' / ')} ${combination}is not unique.`;
         } else {
           return e.message;
         }

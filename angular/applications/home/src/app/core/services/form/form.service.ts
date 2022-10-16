@@ -17,7 +17,7 @@ export class FormService {
       } else if (e.name === 'UniqueError') {
         const combination = e.paths.length > 1 ? 'combination ' : '';
         const paths = pathMap ? e.paths.map((p) => pathMap[p]) : e.paths;
-        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
+        return `${paths.join(' / ')} ${combination}is not unique.`;
       } else {
         return e.message;
       }

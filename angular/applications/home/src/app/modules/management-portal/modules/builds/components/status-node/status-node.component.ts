@@ -73,9 +73,10 @@ export class BuildStatusNodeComponent {
             BuildLogModel,
             { buildId: this.build._id, nodeId, since: unix ? new Date(unix) : new Date() },
             this.buildLogStore,
-            environment.wssUrl,
+            `${environment.wssUrl}/namespaces/${this.build.namespaceId}`,
           );
         },
+        wssUrl: `${environment.wssUrl}/namespaces/${this.build.namespaceId}`,
       },
     });
 

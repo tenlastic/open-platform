@@ -35,6 +35,11 @@ export async function errorMiddleware(ctx: Context, next: () => Promise<void>) {
         ctx.response.body = getError(e);
         break;
 
+      case 'RefreshTokenError':
+        ctx.response.status = status;
+        ctx.response.body = getError(e);
+        break;
+
       case 'UniqueError':
         ctx.response.status = status;
         ctx.response.body = getUniqueError(e);

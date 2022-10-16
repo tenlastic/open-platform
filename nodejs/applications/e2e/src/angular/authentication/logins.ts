@@ -28,9 +28,11 @@ describe('/angular/authentication/logins', () => {
     await browser.close();
 
     // Delete the test User.
-    const users = await dependencies.userService.find({ where: { username } });
-    if (users.length) {
-      await dependencies.userService.delete(users[0]._id);
+    if (username) {
+      const users = await dependencies.userService.find({ where: { username } });
+      if (users.length) {
+        await dependencies.userService.delete(users[0]._id);
+      }
     }
   });
 

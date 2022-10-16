@@ -23,7 +23,6 @@ describe('errors/unique/plugin', function () {
         expect(e.message).to.eql('Record must have unique values for the following key: name.');
         expect(e.name).to.eql('UniqueError');
         expect(e.paths).to.eql(['name']);
-        expect(e.values).to.eql([name]);
 
         return;
       }
@@ -75,7 +74,6 @@ describe('errors/unique/plugin', function () {
         expect(e.message).to.eql('Record must have unique values for the following key: name.');
         expect(e.name).to.eql('UniqueError');
         expect(e.paths).to.eql(['name']);
-        expect(e.values).to.eql([name]);
 
         return;
       }

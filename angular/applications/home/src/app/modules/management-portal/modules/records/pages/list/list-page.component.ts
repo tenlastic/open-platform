@@ -90,7 +90,10 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
-    this.streamService.unsubscribe(this.subscription, environment.wssUrl);
+    this.streamService.unsubscribe(
+      this.subscription,
+      `${environment.wssUrl}/namespaces/${this.params.namespaceId}`,
+    );
   }
 
   public showDeletePrompt($event: Event, record: RecordModel) {

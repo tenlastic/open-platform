@@ -12,6 +12,7 @@ export interface LogsDialogComponentData {
   nodeId?: string;
   find(nodeId: string): Promise<any[]>;
   subscribe(nodeId: string, unix: string): Promise<string>;
+  wssUrl?: string;
 }
 
 export interface NodeId {
@@ -42,6 +43,9 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
   private setDefaultNodeId$ = new Subscription();
   private logJson: { [_id: string]: any } = {};
   private subscription: string;
+  private get wssUrl() {
+    return this.data.wssUrl ?? environment.wssUrl;
+  }
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: LogsDialogComponentData,
@@ -67,7 +71,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
 
   public async ngOnDestroy() {
     this.setDefaultNodeId$.unsubscribe();
-    this.streamService.unsubscribe(this.subscription, environment.wssUrl);
+    this.streamService.unsubscribe(this.subscription, this.wssUrl);
   }
 
   public getJson(log: GameServerLogModel) {
@@ -105,7 +109,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
       const mostRecentLog = logs.length > 0 ? logs[0] : null;
       this.subscription = await this.data.subscribe(this.nodeId, mostRecentLog?.unix);
     } else {
-      this.streamService.unsubscribe(this.subscription, environment.wssUrl);
+      this.streamService.unsubscribe(this.subscription, this.wssUrl);
     }
   }
 

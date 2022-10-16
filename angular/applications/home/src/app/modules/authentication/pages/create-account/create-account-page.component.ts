@@ -27,7 +27,25 @@ export class CreateAccountPageComponent {
     try {
       await this.userService.create(data);
     } catch (e) {
-      this.registrationForm.error = JSON.stringify(e);
+      const error = e.errors && e.errors[0];
+      const emailError = e.errors?.find(
+        (e) => e.name === 'UniqueError' && e.paths.includes('email'),
+      );
+      const usernameError = e.errors?.find(
+        (e) => e.name === 'UniqueError' && e.paths.includes('username'),
+      );
+
+      if (emailError && usernameError) {
+        this.registrationForm.error = 'Email Address and Username are already taken.';
+      } else if (emailError) {
+        this.registrationForm.error = 'Email Address is already taken.';
+      } else if (usernameError) {
+        this.registrationForm.error = 'Username is already taken.';
+      } else if (error) {
+        this.registrationForm.error = error.message;
+      } else {
+        this.registrationForm.error = JSON.stringify(e);
+      }
 
       return;
     }

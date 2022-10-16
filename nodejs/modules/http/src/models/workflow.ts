@@ -40,9 +40,11 @@ export namespace IWorkflow {
     children?: string[];
     displayName?: string;
     finishedAt?: Date;
+    id?: string;
     message?: string;
     name?: string;
     outboundNodes?: string[];
+    parent?: string;
     phase?: string;
     startedAt?: Date;
     templatename?: string;
@@ -125,7 +127,7 @@ export class WorkflowModel extends BaseModel {
 
   public getNestedStatusNodes() {
     const nodes = JSON.parse(JSON.stringify(this.status.nodes));
-    const sortedNodes = nodes.sort((a, b) => {
+    const sortedNodes: IWorkflow.Node[] = nodes.sort((a, b) => {
       if (a.startedAt === b.startedAt) {
         return 0;
       }
@@ -136,8 +138,8 @@ export class WorkflowModel extends BaseModel {
     for (const node of sortedNodes) {
       if (node.children) {
         for (const childId of node.children) {
-          const child = sortedNodes.find((n) => n._id === childId);
-          child.parent = node._id;
+          const child = sortedNodes.find((n) => n.id === childId);
+          child.parent = node.id;
         }
       }
     }
@@ -156,12 +158,12 @@ export class WorkflowModel extends BaseModel {
     ];
   }
 
-  private getChildren(data, parent?) {
+  private getChildren(data: IWorkflow.Node[], parent?: string) {
     return data.reduce((previous, current) => {
       const obj = Object.assign({}, current);
 
       if (parent === current.parent) {
-        const children = this.getChildren(data, current._id);
+        const children = this.getChildren(data, current.id);
 
         if (children.length) {
           obj.children = children;
