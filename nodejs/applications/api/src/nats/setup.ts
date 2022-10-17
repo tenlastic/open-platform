@@ -37,9 +37,7 @@ import { PasswordResetEvent } from './password-reset';
 import { UserEvent } from './user';
 import { WebSocketEvent } from './web-socket';
 
-export interface SetupOptions extends nats.ConnectionOptions {
-  durable: string;
-}
+export interface SetupOptions extends nats.ConnectionOptions {}
 
 export async function setup(options: SetupOptions) {
   await nats.connect({ connectionString: options.connectionString });
@@ -57,16 +55,16 @@ export async function setup(options: SetupOptions) {
   OnWebSocketProduced.sync(publish);
 
   return Promise.all([
-    subscribe(options.durable, Authorization, (payload) => AuthorizationEvent.emit(payload)),
-    subscribe(options.durable, Friend, (payload) => FriendEvent.emit(payload)),
-    subscribe(options.durable, GroupInvitation, (payload) => GroupInvitationEvent.emit(payload)),
-    subscribe(options.durable, Group, (payload) => GroupEvent.emit(payload)),
-    subscribe(options.durable, Ignoration, (payload) => IgnorationEvent.emit(payload)),
-    subscribe(options.durable, Login, (payload) => LoginEvent.emit(payload)),
-    subscribe(options.durable, Message, (payload) => MessageEvent.emit(payload)),
-    subscribe(options.durable, Namespace, (payload) => NamespaceEvent.emit(payload)),
-    subscribe(options.durable, PasswordReset, (payload) => PasswordResetEvent.emit(payload)),
-    subscribe(options.durable, User, (payload) => UserEvent.emit(payload)),
-    subscribe(options.durable, WebSocket, (payload) => WebSocketEvent.emit(payload)),
+    subscribe('api', 'api', Authorization, (payload) => AuthorizationEvent.emit(payload)),
+    subscribe('api', 'api', Friend, (payload) => FriendEvent.emit(payload)),
+    subscribe('api', 'api', GroupInvitation, (payload) => GroupInvitationEvent.emit(payload)),
+    subscribe('api', 'api', Group, (payload) => GroupEvent.emit(payload)),
+    subscribe('api', 'api', Ignoration, (payload) => IgnorationEvent.emit(payload)),
+    subscribe('api', 'api', Login, (payload) => LoginEvent.emit(payload)),
+    subscribe('api', 'api', Message, (payload) => MessageEvent.emit(payload)),
+    subscribe('api', 'api', Namespace, (payload) => NamespaceEvent.emit(payload)),
+    subscribe('api', 'api', PasswordReset, (payload) => PasswordResetEvent.emit(payload)),
+    subscribe('api', 'api', User, (payload) => UserEvent.emit(payload)),
+    subscribe('api', 'api', WebSocket, (payload) => WebSocketEvent.emit(payload)),
   ]);
 }

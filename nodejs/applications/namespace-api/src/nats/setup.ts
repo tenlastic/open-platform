@@ -41,6 +41,7 @@ import { WebSocketEvent } from './web-socket';
 import { WorkflowEvent } from './workflow';
 
 export interface SetupOptions extends nats.ConnectionOptions {
+  database: string;
   durable: string;
 }
 
@@ -59,18 +60,31 @@ export async function setup(options: SetupOptions) {
   OnWorkflowProduced.sync(publish);
 
   return Promise.all([
-    subscribe(options.durable, Article, (payload) => ArticleEvent.emit(payload)),
-    subscribe(options.durable, Authorization, (payload) => AuthorizationEvent.emit(payload)),
-    subscribe(options.durable, Build, (payload) => BuildEvent.emit(payload)),
-    subscribe(options.durable, Collection, (payload) => CollectionEvent.emit(payload)),
-    subscribe(options.durable, GameServer, (payload) => GameServerEvent.emit(payload)),
-    subscribe(options.durable, Group, (payload) => GroupEvent.emit(payload)),
-    subscribe(options.durable, Namespace, (payload) => NamespaceEvent.emit(payload)),
-    subscribe(options.durable, QueueMember, (payload) => QueueMemberEvent.emit(payload)),
-    subscribe(options.durable, Queue, (payload) => QueueEvent.emit(payload)),
-    subscribe(options.durable, Storefront, (payload) => StorefrontEvent.emit(payload)),
-    subscribe(options.durable, User, (payload) => UserEvent.emit(payload)),
-    subscribe(options.durable, WebSocket, (payload) => WebSocketEvent.emit(payload)),
-    subscribe(options.durable, Workflow, (payload) => WorkflowEvent.emit(payload)),
+    subscribe(options.database, options.durable, Article, (payload) => ArticleEvent.emit(payload)),
+    subscribe('api', options.durable, Authorization, (payload) => AuthorizationEvent.emit(payload)),
+    subscribe(options.database, options.durable, Build, (payload) => BuildEvent.emit(payload)),
+    subscribe(options.database, options.durable, Collection, (payload) =>
+      CollectionEvent.emit(payload),
+    ),
+    subscribe(options.database, options.durable, GameServer, (payload) =>
+      GameServerEvent.emit(payload),
+    ),
+    subscribe('api', options.durable, Group, (payload) => GroupEvent.emit(payload)),
+    subscribe('api', options.durable, Namespace, (payload) => NamespaceEvent.emit(payload)),
+    subscribe(options.database, options.durable, QueueMember, (payload) =>
+      QueueMemberEvent.emit(payload),
+    ),
+    subscribe(options.database, options.durable, Queue, (payload) => QueueEvent.emit(payload)),
+    subscribe(options.database, options.durable, Storefront, (payload) =>
+      StorefrontEvent.emit(payload),
+    ),
+    subscribe('api', options.durable, User, (payload) => UserEvent.emit(payload)),
+    subscribe('api', options.durable, WebSocket, (payload) => WebSocketEvent.emit(payload)),
+    subscribe(options.database, options.durable, WebSocket, (payload) =>
+      WebSocketEvent.emit(payload),
+    ),
+    subscribe(options.database, options.durable, Workflow, (payload) =>
+      WorkflowEvent.emit(payload),
+    ),
   ]);
 }
