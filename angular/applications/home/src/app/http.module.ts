@@ -510,5 +510,8 @@ const stores: Provider[] = [
   ],
 })
 export class HttpModule {
-  constructor(private accessTokenInterceptor: AccessTokenInterceptor) {}
+  constructor(
+    private accessTokenInterceptor: AccessTokenInterceptor,
+    private unauthorizedInterceptor: UnauthorizedInterceptor,
+  ) {}
 }

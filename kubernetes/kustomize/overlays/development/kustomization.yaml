@@ -10,6 +10,13 @@ patches:
       name: home-ui
       namespace: static
       version: v1
+  - path: ./static/argo/cron-workflows/e2e.json
+    target:
+      group: argoproj.io
+      kind: CronWorkflow
+      name: api
+      namespace: static
+      version: v1alpha1
   - path: ./static/nodejs/api.json
     target:
       group: apps

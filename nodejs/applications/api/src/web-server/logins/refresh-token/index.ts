@@ -4,7 +4,7 @@ import * as jsonwebtoken from 'jsonwebtoken';
 
 export class RefreshTokenError extends Error {
   public name: string;
-  public status = 400;
+  public status = 401;
 
   constructor() {
     super('Invalid refresh token.');

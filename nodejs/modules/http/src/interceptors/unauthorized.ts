@@ -4,16 +4,15 @@ import { LoginService } from '../services/login';
 
 export class UnauthorizedInterceptor {
   constructor(axios: Axios | AxiosStatic, loginService: LoginService) {
-    axios.interceptors.response.use((response) => {
-      const isUnauthorized = response.status === 401;
-      const refreshTokenIsInvalid =
-        response.status === 400 && response.config.url.includes('/logins/refresh-token');
+    axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response.status === 401) {
+          loginService.emitter.emit('logout');
+        }
 
-      if (isUnauthorized || refreshTokenIsInvalid) {
-        loginService.emitter.emit('logout');
-      }
-
-      return response;
-    });
+        return Promise.reject(error);
+      },
+    );
   }
 }
