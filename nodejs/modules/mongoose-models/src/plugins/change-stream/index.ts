@@ -1,14 +1,19 @@
 import * as mongoose from 'mongoose';
-import { EventEmitter } from '..';
 
-export type DatabaseOperationType = 'delete' | 'insert' | 'update';
+import { EventEmitter } from '../../event-emitter';
+
+export type DatabaseOperationType = 'delete' | 'insert' | 'replace' | 'update';
 
 export interface IDatabasePayload<T> {
   documentKey: any;
   fullDocument?: T;
   ns: { coll: string; db: string };
   operationType: DatabaseOperationType;
-  updateDescription?: { removedFields: string[]; updatedFields: { [key: string]: any } };
+  updateDescription?: {
+    removedFields: string[];
+    truncatedArrays?: Array<{ field: string; newSize: number }>;
+    updatedFields: { [key: string]: any };
+  };
 }
 
 export interface IOptions<T extends mongoose.Document> {

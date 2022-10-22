@@ -149,9 +149,11 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
     return namespace.status?.nodes
       .map((n) => {
         let displayName = 'API';
-        if (n._id.includes('connectors')) {
+        if (n.component === 'cdc') {
+          displayName = 'CDC';
+        } else if (n.component === 'connectors') {
           displayName = 'Connectors';
-        } else if (n._id.includes('sidecar')) {
+        } else if (n.component === 'sidecar') {
           displayName = 'Sidecar';
         }
 

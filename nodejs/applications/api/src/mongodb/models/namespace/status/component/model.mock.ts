@@ -1,11 +1,7 @@
 import { Chance } from 'chance';
 
-import { NamespaceStatusPhase } from '../model';
-import {
-  NamespaceStatusComponent,
-  NamespaceStatusComponentName,
-  NamespaceStatusComponentSchema,
-} from './model';
+import { NamespaceStatusComponentName, NamespaceStatusPhase } from '../model';
+import { NamespaceStatusComponent, NamespaceStatusComponentSchema } from './model';
 
 export class NamespaceStatusComponentMock {
   /**

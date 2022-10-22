@@ -1,9 +1,4 @@
-import {
-  changeStreamPlugin,
-  errors,
-  EventEmitter,
-  IDatabasePayload,
-} from '@tenlastic/mongoose-models';
+import { duplicateKeyErrorPlugin } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
   getModelForClass,
@@ -20,8 +15,6 @@ import * as mongoose from 'mongoose';
 
 import { NamespaceDocument } from '../namespace/model';
 import { UserDocument } from '../user/model';
-
-export const OnAuthorizationProduced = new EventEmitter<IDatabasePayload<AuthorizationDocument>>();
 
 export enum AuthorizationRole {
   ArticlesRead = 'Articles:Read',
@@ -61,8 +54,7 @@ export enum AuthorizationRole {
 @modelOptions({
   schemaOptions: { collection: 'authorizations', minimize: false, timestamps: true },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnAuthorizationProduced })
-@plugin(errors.unique.plugin)
+@plugin(duplicateKeyErrorPlugin)
 @pre('validate', function (this: AuthorizationDocument) {
   if (!this.apiKey && !this.namespaceId && !this.userId) {
     const message = 'API Key, Namespace, and/or User must be specified.';

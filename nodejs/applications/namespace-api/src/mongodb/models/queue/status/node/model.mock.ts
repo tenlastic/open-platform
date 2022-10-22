@@ -1,4 +1,4 @@
-import { QueueStatusPhase } from '../model';
+import { QueueStatusComponentName, QueueStatusPhase } from '../model';
 import { QueueStatusNode, QueueStatusNodeSchema } from './model';
 
 export class QueueStatusNodeMock {
@@ -7,7 +7,10 @@ export class QueueStatusNodeMock {
    * @param {Object} params The parameters to initialize the record with.
    */
   public static create(params: Partial<QueueStatusNodeSchema> = {}) {
-    const defaults = { phase: QueueStatusPhase.Running };
+    const defaults = {
+      component: QueueStatusComponentName.Application,
+      phase: QueueStatusPhase.Running,
+    };
 
     return new QueueStatusNode({ ...defaults, ...params });
   }

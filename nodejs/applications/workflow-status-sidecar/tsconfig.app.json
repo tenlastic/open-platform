@@ -4,10 +4,10 @@
     "composite": true,
     "declaration": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./"
   },
   "exclude": ["./src/**/*.spec.ts"],
-  "include": ["./src"],
+  "include": ["package.json", "./src"],
   "references": [{ "path": "../../modules/kubernetes/tsconfig.app.json" }],
   "ts-node": {
     "files": true

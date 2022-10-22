@@ -31,7 +31,7 @@ export namespace IGameServer {
 
   export interface StatusNode {
     _id: string;
-    displayName?: string;
+    component: string;
     phase: string;
   }
 }

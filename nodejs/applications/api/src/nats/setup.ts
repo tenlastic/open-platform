@@ -1,4 +1,4 @@
-import { publish, subscribe } from '@tenlastic/mongoose-change-stream-nats';
+import { subscribe } from '@tenlastic/mongoose-change-stream-nats';
 import * as nats from '@tenlastic/nats';
 
 import {
@@ -10,17 +10,6 @@ import {
   Login,
   Message,
   Namespace,
-  OnAuthorizationProduced,
-  OnFriendProduced,
-  OnGroupInvitationProduced,
-  OnGroupProduced,
-  OnIgnorationProduced,
-  OnLoginProduced,
-  OnMessageProduced,
-  OnNamespaceProduced,
-  OnPasswordResetProduced,
-  OnUserProduced,
-  OnWebSocketProduced,
   PasswordReset,
   User,
   WebSocket,
@@ -41,18 +30,6 @@ export interface SetupOptions extends nats.ConnectionOptions {}
 
 export async function setup(options: SetupOptions) {
   await nats.connect({ connectionString: options.connectionString });
-
-  OnAuthorizationProduced.sync(publish);
-  OnFriendProduced.sync(publish);
-  OnGroupInvitationProduced.sync(publish);
-  OnGroupProduced.sync(publish);
-  OnIgnorationProduced.sync(publish);
-  OnLoginProduced.sync(publish);
-  OnMessageProduced.sync(publish);
-  OnNamespaceProduced.sync(publish);
-  OnPasswordResetProduced.sync(publish);
-  OnUserProduced.sync(publish);
-  OnWebSocketProduced.sync(publish);
 
   return Promise.all([
     subscribe('api', 'api', Authorization, (payload) => AuthorizationEvent.emit(payload)),

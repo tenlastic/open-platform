@@ -1,9 +1,4 @@
-import {
-  changeStreamPlugin,
-  errors,
-  EventEmitter,
-  IDatabasePayload,
-} from '@tenlastic/mongoose-models';
+import { duplicateKeyErrorPlugin } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
   ReturnModelType,
@@ -15,13 +10,10 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-export const OnWebSocketProduced = new EventEmitter<IDatabasePayload<WebSocketDocument>>();
-
 @index({ nodeId: 1 })
 @index({ userId: 1 })
 @modelOptions({ schemaOptions: { collection: 'websockets', minimize: false, timestamps: true } })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnWebSocketProduced })
-@plugin(errors.unique.plugin)
+@plugin(duplicateKeyErrorPlugin)
 export class WebSocketSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

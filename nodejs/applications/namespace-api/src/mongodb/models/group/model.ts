@@ -1,21 +1,16 @@
-import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
   getModelForClass,
   index,
   modelOptions,
-  plugin,
   prop,
   PropType,
   ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-export const OnGroupProduced = new EventEmitter<IDatabasePayload<GroupDocument>>();
-
 @index({ userIds: 1 }, { unique: true })
 @modelOptions({ schemaOptions: { collection: 'groups', minimize: false, timestamps: true } })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnGroupProduced })
 export class GroupSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

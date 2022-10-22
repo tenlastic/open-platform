@@ -143,7 +143,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
           );
         }
 
-        if (e.error.errors[0].name === 'QueueMemberUniqueError') {
+        if (e.error.errors[0].name === 'QueueMemberDuplicateKeyError') {
           this.matSnackBar.open('A User in your Group is already queued.');
         }
       }
@@ -166,7 +166,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
           this.matSnackBar.open('You are not authorized to play this StorefrontModel.');
         }
 
-        if (e.error.errors[0].name === 'QueueMemberUniqueError') {
+        if (e.error.errors[0].name === 'QueueMemberDuplicateKeyError') {
           this.matSnackBar.open('You are already queued.');
         }
       }

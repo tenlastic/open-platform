@@ -1,11 +1,5 @@
 import * as minio from '@tenlastic/minio';
-import {
-  changeStreamPlugin,
-  errors,
-  EventEmitter,
-  IDatabasePayload,
-  IOriginalDocument,
-} from '@tenlastic/mongoose-models';
+import { duplicateKeyErrorPlugin } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
   getModelForClass,
@@ -24,8 +18,6 @@ import { WorkflowStatusSchema } from '../workflow';
 import { BuildFileSchema } from './file';
 import { BuildReferenceSchema } from './reference';
 
-export const OnBuildProduced = new EventEmitter<IDatabasePayload<BuildDocument>>();
-
 export enum BuildPlatform {
   Server64 = 'server64',
   Windows64 = 'windows64',
@@ -33,9 +25,8 @@ export enum BuildPlatform {
 
 @index({ name: 1, namespaceId: 1, platform: 1 }, { unique: true })
 @modelOptions({ schemaOptions: { collection: 'builds', minimize: false, timestamps: true } })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnBuildProduced })
-@plugin(errors.unique.plugin)
-export class BuildSchema implements IOriginalDocument {
+@plugin(duplicateKeyErrorPlugin)
+export class BuildSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
@@ -67,10 +58,6 @@ export class BuildSchema implements IOriginalDocument {
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
-
-  public _original: any;
-  public wasModified: string[];
-  public wasNew: boolean;
 
   public getFilePath(path: string) {
     return `namespaces/${this.namespaceId}/builds/${this._id}/${path}`;

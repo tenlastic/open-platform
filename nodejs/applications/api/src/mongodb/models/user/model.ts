@@ -1,10 +1,7 @@
 import {
   alphanumericValidator,
-  changeStreamPlugin,
+  duplicateKeyErrorPlugin,
   emailValidator,
-  errors,
-  EventEmitter,
-  IDatabasePayload,
   stringLengthValidator,
 } from '@tenlastic/mongoose-models';
 import {
@@ -23,8 +20,6 @@ import * as mongoose from 'mongoose';
 import mailgun from '../../../mailgun';
 import { AuthorizationDocument } from '../authorization/model';
 
-export const OnUserProduced = new EventEmitter<IDatabasePayload<UserDocument>>();
-
 @index({ email: 1 }, { partialFilterExpression: { email: { $type: 'string' } }, unique: true })
 @index({ username: 1 }, { collation: { locale: 'en_US', strength: 1 }, unique: true })
 @modelOptions({
@@ -35,10 +30,9 @@ export const OnUserProduced = new EventEmitter<IDatabasePayload<UserDocument>>()
     timestamps: true,
   },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnUserProduced })
-@plugin(errors.unique.plugin)
+@plugin(duplicateKeyErrorPlugin)
 @pre('save', async function (this: UserDocument) {
-  if (!this.isNew && this._original.password !== this.password) {
+  if (!this.isNew && this.isModified('password')) {
     await mailgun.sendPasswordResetConfirmation({ email: this.email });
   }
 

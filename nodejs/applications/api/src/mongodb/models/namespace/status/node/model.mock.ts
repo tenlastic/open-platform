@@ -1,4 +1,4 @@
-import { NamespaceStatusPhase } from '../model';
+import { NamespaceStatusComponentName, NamespaceStatusPhase } from '../model';
 import { NamespaceStatusNode, NamespaceStatusNodeSchema } from './model';
 
 export class NamespaceStatusNodeMock {
@@ -7,7 +7,10 @@ export class NamespaceStatusNodeMock {
    * @param {Object} params The parameters to initialize the record with.
    */
   public static create(params: Partial<NamespaceStatusNodeSchema> = {}) {
-    const defaults = { phase: NamespaceStatusPhase.Running };
+    const defaults = {
+      component: NamespaceStatusComponentName.Api,
+      phase: NamespaceStatusPhase.Running,
+    };
 
     return new NamespaceStatusNode({ ...defaults, ...params });
   }

@@ -1,8 +1,6 @@
 import {
-  changeStreamPlugin,
-  errors,
-  EventEmitter,
-  IDatabasePayload,
+  DuplicateKeyError,
+  duplicateKeyErrorPlugin,
   namespaceValidator,
 } from '@tenlastic/mongoose-models';
 import {
@@ -24,15 +22,13 @@ import { GroupDocument } from '../group';
 import { QueueDocument } from '../queue';
 import { WebSocketDocument } from '../web-socket';
 
-export const OnQueueMemberProduced = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
-
-export class QueueMemberUniqueError extends Error {
+export class QueueMemberDuplicateKeyError extends Error {
   public userIds: string[] | mongoose.Types.ObjectId[];
 
   constructor(userIds: string[] | mongoose.Types.ObjectId[]) {
     super(`The following Users are already in this Queue: ${userIds.join(', ')}.`);
 
-    this.name = 'QueueMemberUniqueError';
+    this.name = 'QueueMemberDuplicateKeyError';
     this.userIds = userIds;
   }
 }
@@ -40,8 +36,7 @@ export class QueueMemberUniqueError extends Error {
 @index({ namespaceId: 1, queueId: 1, userIds: 1 }, { unique: true })
 @index({ webSocketId: 1 })
 @modelOptions({ schemaOptions: { collection: 'queuemembers', minimize: false, timestamps: true } })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnQueueMemberProduced })
-@plugin(errors.unique.plugin)
+@plugin(duplicateKeyErrorPlugin)
 @pre('save', async function (this: QueueMemberDocument) {
   await this.setUserIds();
   await this.checkPlayersPerTeam();
@@ -58,11 +53,11 @@ export class QueueMemberUniqueError extends Error {
 })
 @post('findOneAndUpdate', function (err: any, doc: QueueMemberDocument, next) {
   if (err.code === 11000) {
-    const uniqueError = new errors.unique.UniqueError(err.keyValue);
+    const uniqueError = new DuplicateKeyError(err.keyValue);
 
     const i = uniqueError.paths.indexOf('userIds');
     const userIds = uniqueError.values[i];
-    const duplicateQueueMemberError = new QueueMemberUniqueError(userIds);
+    const duplicateQueueMemberError = new QueueMemberDuplicateKeyError(userIds);
 
     return next(duplicateQueueMemberError);
   }
@@ -71,11 +66,11 @@ export class QueueMemberUniqueError extends Error {
 })
 @post('save', function (err: any, doc: QueueMemberDocument, next) {
   if (err.name === 'MongoError' && err.code === 11000) {
-    const uniqueError = new errors.unique.UniqueError(err.keyValue);
+    const uniqueError = new DuplicateKeyError(err.keyValue);
 
     const i = uniqueError.paths.indexOf('userIds');
     const userIds = uniqueError.values[i];
-    const duplicateQueueMemberError = new QueueMemberUniqueError(userIds);
+    const duplicateQueueMemberError = new QueueMemberDuplicateKeyError(userIds);
 
     return next(duplicateQueueMemberError);
   }

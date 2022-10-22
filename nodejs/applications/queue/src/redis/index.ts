@@ -1,26 +1,20 @@
-import * as Redis from 'ioredis';
+import * as redis from '@tenlastic/redis';
 
 import dependencies from '../dependencies';
 
 const podName = process.env.POD_NAME;
 const queue = JSON.parse(process.env.QUEUE_JSON);
-const redisConnectionString = process.env.REDIS_CONNECTION_STRING.split(',');
+const redisConnectionString = process.env.REDIS_CONNECTION_STRING;
 const redisPassword = process.env.REDIS_PASSWORD;
 
 export async function start() {
   // Connect to Sentinel.
-  const client = new Redis({
+  const client = await redis.connect({
+    connectionString: redisConnectionString,
     name: 'mymaster',
     password: redisPassword,
-    retryStrategy: (times) => Math.min(times * 1000, 5000),
-    sentinelPassword: redisPassword,
-    sentinels: redisConnectionString.map((rcs) => {
-      const [host, port] = rcs.split(':');
-      return { host, port: Number(port) };
-    }),
   });
-  client.on('connect', () => console.log('Connected to Redis.'));
-  client.on('error', (err) => console.error(err.message));
+  console.log('Connected to Redis.');
 
   // Deterministically get keys that do not have a replica.
   const keys = await client.keys('*');

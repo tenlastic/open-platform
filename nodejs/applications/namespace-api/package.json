@@ -3,7 +3,7 @@
     "node": "^14"
   },
   "license": "Apache-2.0",
-  "main": "./dist/index.js",
+  "main": "./dist/src/index.js",
   "name": "@tenlastic/namespace-api",
   "version": "0.0.314",
   "scripts": {
@@ -24,12 +24,11 @@
     "@tenlastic/nats": "0.0.314",
     "@tenlastic/web-server": "0.0.314",
     "@tenlastic/web-socket-server": "0.0.314",
-    "@typegoose/typegoose": "9.9.0",
+    "@typegoose/typegoose": "9.12.1",
     "busboy": "1.6.0",
     "chance": "1.0.16",
     "jszip": "3.10.0",
     "koa-router": "12.0.0",
-    "mongoose": "6.3.5",
     "source-map-support": "0.5.12",
     "unzipper": "0.10.11"
   },

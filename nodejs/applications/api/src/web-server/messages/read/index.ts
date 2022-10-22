@@ -16,6 +16,7 @@ export async function handler(ctx: Context) {
   const result = await Message.findOneAndUpdate(
     { _id: ctx.params._id },
     { $addToSet: { readByUserIds: ctx.state.user._id } },
+    { new: true },
   );
   const record = await MessagePermissions.read(credentials, result);
 

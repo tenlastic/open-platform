@@ -59,8 +59,9 @@ describe('web-server/storefronts/upload', function () {
     it('creates a new record', async function () {
       await handler(ctx as any);
 
+      const host = 'http://localhost:3000';
       expect(ctx.response.body.record.background).to.eql(
-        `http://localhost:3000/storefronts/${storefront._id}/background`,
+        `${host}/namespaces/${storefront.namespaceId}/storefronts/${storefront._id}/background`,
       );
     });
 

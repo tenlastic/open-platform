@@ -1,9 +1,4 @@
-import {
-  changeStreamPlugin,
-  errors,
-  EventEmitter,
-  IDatabasePayload,
-} from '@tenlastic/mongoose-models';
+import { duplicateKeyErrorPlugin } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
   getModelForClass,
@@ -26,8 +21,6 @@ import {
   NamespaceStatusSchema,
 } from './status';
 
-export const OnNamespaceProduced = new EventEmitter<IDatabasePayload<NamespaceDocument>>();
-
 export class NamespaceLimitError extends Error {
   public path: string;
   public value: any;
@@ -46,8 +39,7 @@ export class NamespaceLimitError extends Error {
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: { collection: 'namespaces', minimize: false, timestamps: true },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnNamespaceProduced })
-@plugin(errors.unique.plugin)
+@plugin(duplicateKeyErrorPlugin)
 @pre('save', async function (this: NamespaceDocument) {
   if (!this.isNew) {
     return;
@@ -57,6 +49,12 @@ export class NamespaceLimitError extends Error {
     new NamespaceStatusComponent({
       current: 0,
       name: NamespaceStatusComponentName.Api,
+      phase: NamespaceStatusPhase.Pending,
+      total: 1,
+    }),
+    new NamespaceStatusComponent({
+      current: 0,
+      name: NamespaceStatusComponentName.Cdc,
       phase: NamespaceStatusPhase.Pending,
       total: 1,
     }),
@@ -91,10 +89,6 @@ export class NamespaceSchema {
 
   @prop({ foreignField: 'namespaceId', localField: '_id', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
-
-  public _original: any;
-  public wasModified: string[];
-  public wasNew: boolean;
 }
 
 export type NamespaceDocument = DocumentType<NamespaceSchema>;

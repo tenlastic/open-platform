@@ -1,8 +1,5 @@
 import {
-  changeStreamPlugin,
-  errors,
-  EventEmitter,
-  IDatabasePayload,
+  duplicateKeyErrorPlugin,
   namespaceValidator,
   jsonToMongoose,
 } from '@tenlastic/mongoose-models';
@@ -19,11 +16,8 @@ import * as mongoose from 'mongoose';
 import { CollectionDocument } from '../collection';
 import { AuthorizationDocument } from '../authorization';
 
-export const OnRecordProduced = new EventEmitter<IDatabasePayload<RecordDocument>>();
-
 @modelOptions({ schemaOptions: { minimize: false, timestamps: true } })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnRecordProduced })
-@plugin(errors.unique.plugin)
+@plugin(duplicateKeyErrorPlugin)
 export class RecordSchema {
   public _id: mongoose.Types.ObjectId;
 

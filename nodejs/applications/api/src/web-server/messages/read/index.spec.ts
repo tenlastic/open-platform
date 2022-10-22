@@ -25,9 +25,7 @@ describe('web-server/message/read', function () {
 
     it('returns the record', async function () {
       const ctx = new ContextMock({
-        params: {
-          _id: record._id,
-        },
+        params: { _id: record._id },
         state: { user: otherUser.toObject() },
       });
 
@@ -47,9 +45,7 @@ describe('web-server/message/read', function () {
 
     it('throws an error', async function () {
       const ctx = new ContextMock({
-        params: {
-          _id: record._id,
-        },
+        params: { _id: record._id },
         state: { user: otherUser.toObject() },
       });
 

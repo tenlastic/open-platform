@@ -255,7 +255,33 @@ export const KubernetesNamespace = {
         replicas: 1,
         selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'api' } },
         serviceName: `${name}-api`,
-        template: getPodTemplate(namespace),
+        template: getApiPodTemplate(namespace),
+      },
+    });
+
+    /**
+     * ======================
+     * CDC
+     * ======================
+     */
+    await serviceApiV1.createOrReplace('dynamic', {
+      metadata: { labels: { ...labels, 'tenlastic.com/role': 'cdc' }, name: `${name}-cdc` },
+      spec: {
+        ports: [{ name: 'tcp', port: 3000 }],
+        selector: { ...labels, 'tenlastic.com/role': 'cdc' },
+      },
+    });
+    await statefulSetApiV1.delete(`${name}-cdc`, 'dynamic');
+    await statefulSetApiV1.create('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'cdc' },
+        name: `${name}-cdc`,
+      },
+      spec: {
+        replicas: 1,
+        selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'cdc' } },
+        serviceName: `${name}-api`,
+        template: getCdcPodTemplate(namespace),
       },
     });
 
@@ -364,6 +390,134 @@ function getAffinity(namespace: NamespaceDocument, role: string): V1Affinity {
   };
 }
 
+function getApiPodTemplate(namespace: NamespaceDocument): V1Pod {
+  const labels = KubernetesNamespace.getLabels(namespace);
+  const name = KubernetesNamespace.getName(namespace._id);
+
+  const envFrom: V1EnvFromSource[] = [{ secretRef: { name: 'nodejs' } }, { secretRef: { name } }];
+  const livenessProbe: V1Probe = {
+    failureThreshold: 3,
+    httpGet: { path: `/probes/liveness`, port: 3000 as any },
+    initialDelaySeconds: 10,
+    periodSeconds: 10,
+  };
+  const readinessProbe: V1Probe = {
+    failureThreshold: 1,
+    httpGet: { path: `/probes/readiness`, port: 3000 as any },
+    initialDelaySeconds: 5,
+    periodSeconds: 5,
+  };
+  const resources = { requests: { cpu: '25m', memory: '75Mi' } };
+
+  const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
+  if (isDevelopment) {
+    return {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'api' },
+        name: `${name}-api`,
+      },
+      spec: {
+        affinity: getAffinity(namespace, 'api'),
+        containers: [
+          {
+            command: ['npm', 'run', 'start'],
+            env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
+            envFrom,
+            image: `tenlastic/node-development:latest`,
+            livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
+            name: 'main',
+            readinessProbe,
+            resources: { limits: { cpu: '1000m' }, requests: resources.requests },
+            volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
+            workingDir: `/usr/src/nodejs/applications/namespace-api/`,
+          },
+        ],
+        serviceAccountName: `${name}-api`,
+        volumes: [
+          { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
+        ],
+      },
+    };
+  } else {
+    return {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'api' },
+        name,
+      },
+      spec: {
+        affinity: getAffinity(namespace, 'api'),
+        containers: [
+          {
+            env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
+            envFrom,
+            image: `tenlastic/namespace-api:${version}`,
+            livenessProbe,
+            name: 'main',
+            readinessProbe,
+            resources,
+          },
+        ],
+        serviceAccountName: `${name}-api`,
+      },
+    };
+  }
+}
+
+function getCdcPodTemplate(namespace: NamespaceDocument): V1Pod {
+  const labels = KubernetesNamespace.getLabels(namespace);
+  const name = KubernetesNamespace.getName(namespace._id);
+
+  const envFrom: V1EnvFromSource[] = [{ secretRef: { name: 'nodejs' } }, { secretRef: { name } }];
+  const resources = { requests: { cpu: '25m', memory: '75Mi' } };
+
+  const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
+  if (isDevelopment) {
+    return {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'cdc' },
+        name: `${name}-cdc`,
+      },
+      spec: {
+        affinity: getAffinity(namespace, 'cdc'),
+        containers: [
+          {
+            command: ['npm', 'run', 'start'],
+            env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
+            envFrom,
+            image: `tenlastic/node-development:latest`,
+            name: 'main',
+            resources: { limits: { cpu: '1000m' }, requests: resources.requests },
+            volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
+            workingDir: `/usr/src/nodejs/applications/cdc/`,
+          },
+        ],
+        volumes: [
+          { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
+        ],
+      },
+    };
+  } else {
+    return {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'cdc' },
+        name,
+      },
+      spec: {
+        affinity: getAffinity(namespace, 'cdc'),
+        containers: [
+          {
+            env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
+            envFrom,
+            image: `tenlastic/cdc:${version}`,
+            name: 'main',
+            resources,
+          },
+        ],
+      },
+    };
+  }
+}
+
 function getConnectorContainerTemplate(
   collectionName: string,
   namespace: NamespaceDocument,
@@ -438,79 +592,6 @@ function getPath(namespace: NamespaceDocument, path: string) {
   };
 }
 
-function getPodTemplate(namespace: NamespaceDocument): V1Pod {
-  const labels = KubernetesNamespace.getLabels(namespace);
-  const name = KubernetesNamespace.getName(namespace._id);
-
-  const envFrom: V1EnvFromSource[] = [{ secretRef: { name: 'nodejs' } }, { secretRef: { name } }];
-  const livenessProbe: V1Probe = {
-    failureThreshold: 3,
-    httpGet: { path: `/probes/liveness`, port: 3000 as any },
-    initialDelaySeconds: 10,
-    periodSeconds: 10,
-  };
-  const readinessProbe: V1Probe = {
-    failureThreshold: 1,
-    httpGet: { path: `/probes/readiness`, port: 3000 as any },
-    initialDelaySeconds: 5,
-    periodSeconds: 5,
-  };
-  const resources = { requests: { cpu: '25m', memory: '75Mi' } };
-
-  const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
-  if (isDevelopment) {
-    return {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'api' },
-        name: `${name}-api`,
-      },
-      spec: {
-        affinity: getAffinity(namespace, 'api'),
-        containers: [
-          {
-            command: ['npm', 'run', 'start'],
-            env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
-            envFrom,
-            image: `tenlastic/node-development:latest`,
-            livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
-            name: 'main',
-            readinessProbe,
-            resources: { limits: { cpu: '1000m' }, requests: resources.requests },
-            volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
-            workingDir: `/usr/src/nodejs/applications/namespace-api/`,
-          },
-        ],
-        serviceAccountName: `${name}-api`,
-        volumes: [
-          { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
-        ],
-      },
-    };
-  } else {
-    return {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'api' },
-        name,
-      },
-      spec: {
-        affinity: getAffinity(namespace, 'api'),
-        containers: [
-          {
-            env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
-            envFrom,
-            image: `tenlastic/namespace-api:${version}`,
-            livenessProbe,
-            name: 'main',
-            readinessProbe,
-            resources,
-          },
-        ],
-        serviceAccountName: `${name}-api`,
-      },
-    };
-  }
-}
-
 async function upsertAuthorization(
   name: string,
   namespaceId: mongoose.Types.ObjectId,
@@ -521,7 +602,7 @@ async function upsertAuthorization(
   try {
     return await Authorization.create({ apiKey, name, namespaceId, roles, system: true });
   } catch (e) {
-    if (e.name !== 'UniqueError') {
+    if (e.name !== 'DuplicateKeyError') {
       throw e;
     }
 

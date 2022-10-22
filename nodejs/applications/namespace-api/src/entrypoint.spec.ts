@@ -36,7 +36,7 @@ before(async function () {
   // MongoDB.
   await mongooseModels.connect({
     connectionString: process.env.MONGO_CONNECTION_STRING,
-    databaseName: `api-test`,
+    databaseName: `namespace-api-test`,
   });
   await Promise.all([
     Article.syncIndexes({ background: true }),

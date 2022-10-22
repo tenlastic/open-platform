@@ -1,9 +1,4 @@
-import {
-  changeStreamPlugin,
-  errors,
-  EventEmitter,
-  IDatabasePayload,
-} from '@tenlastic/mongoose-models';
+import { duplicateKeyErrorPlugin } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
   ReturnModelType,
@@ -19,16 +14,13 @@ import * as mongoose from 'mongoose';
 import mailgun from '../../../mailgun';
 import { User } from '../user';
 
-export const OnPasswordResetProduced = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
-
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ hash: 1 }, { unique: true })
 @index({ userId: 1 })
 @modelOptions({
   schemaOptions: { collection: 'passwordresets', minimize: false, timestamps: true },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnPasswordResetProduced })
-@plugin(errors.unique.plugin)
+@plugin(duplicateKeyErrorPlugin)
 @pre('save', async function (this: PasswordResetDocument) {
   if (this.isNew) {
     const user = await User.findOne({ _id: this.userId });

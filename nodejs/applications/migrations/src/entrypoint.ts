@@ -15,16 +15,16 @@ import {
   WebSocket,
 } from '@tenlastic/api';
 import '@tenlastic/logging';
-import * as migrations from '@tenlastic/mongoose-migrations';
 import * as mongoose from '@tenlastic/mongoose-models';
-
-import { compatibilityVersion60 } from './migrations';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
 (async () => {
   try {
-    await mongoose.connect({ connectionString: mongoConnectionString, databaseName: 'api' });
+    const connection = await mongoose.connect({
+      connectionString: mongoConnectionString,
+      databaseName: 'api',
+    });
 
     console.log('Syncing indexes...');
     await Promise.all([
@@ -43,9 +43,27 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
     ]);
     console.log('Indexes synced successfully!');
 
-    console.log('Running migrations...');
-    await migrations.up(compatibilityVersion60);
-    console.log('Migrations finished successfully!');
+    console.log('Enabling Document Pre- and Post-Images...');
+    const options = { changeStreamPreAndPostImages: { enabled: true } };
+    await Promise.all([
+      Authorization.db.db.command({ collMod: Authorization.collection.name, ...options }),
+      Friend.db.db.command({ collMod: Friend.collection.name, ...options }),
+      Group.db.db.command({ collMod: Group.collection.name, ...options }),
+      GroupInvitation.db.db.command({ collMod: GroupInvitation.collection.name, ...options }),
+      Ignoration.db.db.command({ collMod: Ignoration.collection.name, ...options }),
+      Login.db.db.command({ collMod: Login.collection.name, ...options }),
+      Message.db.db.command({ collMod: Message.collection.name, ...options }),
+      Namespace.db.db.command({ collMod: Namespace.collection.name, ...options }),
+      PasswordReset.db.db.command({ collMod: PasswordReset.collection.name, ...options }),
+      RefreshToken.db.db.command({ collMod: RefreshToken.collection.name, ...options }),
+      User.db.db.command({ collMod: User.collection.name, ...options }),
+      WebSocket.db.db.command({ collMod: WebSocket.collection.name, ...options }),
+    ]);
+    console.log('Document Pre- and Post-Images enabled successfully!');
+
+    console.log('Setting feature compatibility version to 6.0...');
+    await connection.db.admin().command({ setFeatureCompatibilityVersion: '6.0' });
+    console.log('Feature compatibility version successfully set to 6.0!');
 
     process.exit();
   } catch (e) {

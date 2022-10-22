@@ -25,9 +25,9 @@ export async function errorMiddleware(ctx: Context, next: () => Promise<void>) {
         ctx.response.body = getQueueMemberAuthorizationError(e);
         break;
 
-      case 'QueueMemberUniqueError':
+      case 'QueueMemberDuplicateKeyError':
         ctx.response.status = status;
-        ctx.response.body = getQueueMemberUniqueError(e);
+        ctx.response.body = getQueueMemberDuplicateKeyError(e);
         break;
 
       case 'RecordNotFoundError':
@@ -40,9 +40,9 @@ export async function errorMiddleware(ctx: Context, next: () => Promise<void>) {
         ctx.response.body = getError(e);
         break;
 
-      case 'UniqueError':
+      case 'DuplicateKeyError':
         ctx.response.status = status;
-        ctx.response.body = getUniqueError(e);
+        ctx.response.body = getDuplicateKeyError(e);
         break;
 
       case 'ValidationError':
@@ -74,12 +74,12 @@ function getQueueMemberAuthorizationError(err: any) {
   return { errors: [{ message, name, userIds }] };
 }
 
-function getQueueMemberUniqueError(err: any) {
+function getQueueMemberDuplicateKeyError(err: any) {
   const { message, name, userIds } = err;
   return { errors: [{ message, name, userIds }] };
 }
 
-function getUniqueError(err: any) {
+function getDuplicateKeyError(err: any) {
   const { message, name, paths, values } = err;
   return { errors: [{ message, name, paths, values }] };
 }

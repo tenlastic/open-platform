@@ -18,6 +18,8 @@ export async function connect(options: ConnectionOptions) {
   });
 
   console.log(`Connected to MongoDB.`);
+
+  return mongoose.connection;
 }
 
 export function createConnection(options: ConnectionOptions) {

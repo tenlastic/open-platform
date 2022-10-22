@@ -1,9 +1,4 @@
-import {
-  changeStreamPlugin,
-  errors,
-  EventEmitter,
-  IDatabasePayload,
-} from '@tenlastic/mongoose-models';
+import { duplicateKeyErrorPlugin } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
   getModelForClass,
@@ -20,16 +15,13 @@ import * as mongoose from 'mongoose';
 
 import { AuthorizationDocument } from '../authorization';
 
-export const OnStorefrontProduced = new EventEmitter<IDatabasePayload<StorefrontDocument>>();
-
 @index({ namespaceId: 1 }, { unique: true })
 @index({ subtitle: 1, title: 1 }, { unique: true })
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: { collection: 'storefronts', minimize: false, timestamps: true },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnStorefrontProduced })
-@plugin(errors.unique.plugin)
+@plugin(duplicateKeyErrorPlugin)
 export class StorefrontSchema {
   public _id: mongoose.Types.ObjectId;
 

@@ -5,6 +5,12 @@ import * as mongoose from 'mongoose';
 
 import { eachMessage } from './';
 
+type Document = {
+  createdAt: Date;
+  name: string;
+  updatedAt: Date;
+} & mongoose.Document;
+
 const chance = new Chance();
 
 const schema = new mongoose.Schema({
@@ -13,7 +19,7 @@ const schema = new mongoose.Schema({
   name: String,
   updatedAt: Date,
 });
-const Model = mongoose.model('example', schema);
+const Model = mongoose.model<Document>('Example', schema);
 
 describe('replicate()', function () {
   beforeEach(async function () {

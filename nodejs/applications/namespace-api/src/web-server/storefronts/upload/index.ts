@@ -63,6 +63,7 @@ export async function handler(ctx: Context) {
   const result = await Storefront.findOneAndUpdate(
     { _id: storefront._id },
     ['images', 'videos'].includes(field) ? { $addToSet: { [field]: urls } } : { [field]: urls[0] },
+    { new: true },
   );
   const record = await StorefrontPermissions.read(credentials, result);
 

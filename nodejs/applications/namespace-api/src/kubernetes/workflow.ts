@@ -137,7 +137,7 @@ export const KubernetesWorkflow = {
  * Gets the manifest for a template.
  */
 function getTemplateManifest(template: WorkflowSpecTemplateSchema, workflow: WorkflowDocument) {
-  const t = new WorkflowSpecTemplate(template).toObject();
+  const t: any = new WorkflowSpecTemplate(template).toObject();
   if (!t.script) {
     return t;
   }

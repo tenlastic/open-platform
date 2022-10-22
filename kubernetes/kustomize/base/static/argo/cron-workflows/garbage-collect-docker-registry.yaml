@@ -102,7 +102,7 @@ spec:
             requests:
               cpu: 50m
           source: |
-            kubectl annotate deployments docker-registry fluxcd.io/automated="true" --overwrite
+            kubectl annotate deployments docker-registry fluxcd.io/ignore="false" --overwrite
             kubectl patch deployments.apps docker-registry --type=json \
               -p='[
                 {
@@ -124,7 +124,7 @@ spec:
             requests:
               cpu: 50m
           source: |
-            kubectl annotate deployments docker-registry fluxcd.io/automated="false" --overwrite
+            kubectl annotate deployments docker-registry fluxcd.io/ignore="true" --overwrite
             kubectl patch deployments.apps docker-registry --type=json \
               -p='[
                 {

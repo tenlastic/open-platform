@@ -1,11 +1,9 @@
-import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
   ReturnModelType,
   getModelForClass,
   index,
   modelOptions,
-  plugin,
   prop,
 } from '@typegoose/typegoose';
 import * as jwt from 'jsonwebtoken';
@@ -15,11 +13,8 @@ import { Authorization } from '../authorization';
 import { RefreshToken, RefreshTokenDocument } from '../refresh-token';
 import { UserDocument } from '../user';
 
-export const OnLoginProduced = new EventEmitter<IDatabasePayload<LoginDocument>>();
-
 @index({ userId: 1 })
 @modelOptions({ schemaOptions: { collection: 'logins', minimize: false, timestamps: true } })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnLoginProduced })
 export class LoginSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

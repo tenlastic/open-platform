@@ -2,10 +2,9 @@ import { podApiV1 } from '@tenlastic/kubernetes';
 import {
   AuthorizationMock,
   AuthorizationRole,
-  GameServerMock,
-  GameServerStatusMock,
-  GameServerStatusNodeMock,
   NamespaceMock,
+  NamespaceStatusMock,
+  NamespaceStatusNodeMock,
   UserDocument,
   UserMock,
 } from '../../../mongodb';
@@ -20,7 +19,7 @@ import { handler } from './';
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('web-server/game-servers/logs', function () {
+describe('web-server/namespaces/logs', function () {
   let sandbox: sinon.SinonSandbox;
   let user: UserDocument;
 
@@ -42,21 +41,19 @@ describe('web-server/game-servers/logs', function () {
         .stub(podApiV1, 'readNamespacedPodLog')
         .resolves([{ body: chance.hash(), unix: chance.floating() }]);
 
-      const namespace = await NamespaceMock.create();
+      const namespace = await NamespaceMock.create({
+        status: NamespaceStatusMock.create({
+          nodes: [NamespaceStatusNodeMock.create({ _id: chance.hash() })],
+        }),
+      });
       await AuthorizationMock.create({
         namespaceId: namespace._id,
-        roles: [AuthorizationRole.GameServersRead],
+        roles: [AuthorizationRole.NamespacesRead],
         userId: user._id,
-      });
-      const gameServer = await GameServerMock.create({
-        namespaceId: namespace._id,
-        status: GameServerStatusMock.create({
-          nodes: [GameServerStatusNodeMock.create({ _id: chance.hash() })],
-        }),
       });
 
       const ctx = new ContextMock({
-        params: { _id: gameServer._id, nodeId: gameServer.status.nodes[0]._id },
+        params: { _id: namespace._id, nodeId: namespace.status.nodes[0]._id },
         state: { user },
       });
 
@@ -70,13 +67,12 @@ describe('web-server/game-servers/logs', function () {
       const namespace = await NamespaceMock.create();
       await AuthorizationMock.create({
         namespaceId: namespace._id,
-        roles: [AuthorizationRole.GameServersRead],
+        roles: [AuthorizationRole.NamespacesRead],
         userId: user._id,
       });
-      const gameServer = await GameServerMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
-        params: { _id: gameServer._id, nodeId: chance.hash() },
+        params: { _id: namespace._id, nodeId: chance.hash() },
         state: { user },
       });
 
@@ -88,10 +84,10 @@ describe('web-server/game-servers/logs', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const gameServer = await GameServerMock.create();
+      const namespace = await NamespaceMock.create();
 
       const ctx = new ContextMock({
-        params: { _id: gameServer._id, nodeId: chance.hash() },
+        params: { _id: namespace._id, nodeId: chance.hash() },
         state: { user },
       });
 

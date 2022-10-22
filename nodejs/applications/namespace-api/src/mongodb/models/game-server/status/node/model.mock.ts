@@ -1,4 +1,4 @@
-import { GameServerStatusPhase } from '../model';
+import { GameServerStatusComponentName, GameServerStatusPhase } from '../model';
 import { GameServerStatusNode, GameServerStatusNodeSchema } from './model';
 
 export class GameServerStatusNodeMock {
@@ -7,7 +7,10 @@ export class GameServerStatusNodeMock {
    * @param {Object} params The parameters to initialize the record with.
    */
   public static create(params: Partial<GameServerStatusNodeSchema> = {}) {
-    const defaults = { phase: GameServerStatusPhase.Running };
+    const defaults = {
+      component: GameServerStatusComponentName.Application,
+      phase: GameServerStatusPhase.Running,
+    };
 
     return new GameServerStatusNode({ ...defaults, ...params });
   }

@@ -1,11 +1,9 @@
-import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
   ReturnModelType,
   getModelForClass,
   index,
   modelOptions,
-  plugin,
   pre,
   prop,
 } from '@typegoose/typegoose';
@@ -14,17 +12,12 @@ import * as mongoose from 'mongoose';
 import { GroupDocument } from '../group';
 import { UserDocument } from '../user';
 
-export const OnGroupInvitationProduced = new EventEmitter<
-  IDatabasePayload<GroupInvitationDocument>
->();
-
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ fromUserId: 1 })
 @index({ groupId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: { collection: 'groupinvitations', minimize: false, timestamps: true },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnGroupInvitationProduced })
 @pre('save', function (this: GroupInvitationDocument) {
   if (!this.isNew) {
     return;

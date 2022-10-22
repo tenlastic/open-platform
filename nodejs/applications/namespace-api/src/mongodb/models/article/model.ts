@@ -1,23 +1,18 @@
-import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
   ReturnModelType,
   getModelForClass,
   index,
   modelOptions,
-  plugin,
   prop,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 import { AuthorizationDocument } from '../authorization';
 
-export const OnArticleProduced = new EventEmitter<IDatabasePayload<ArticleDocument>>();
-
 @index({ namespaceId: 1 })
 @index({ publishedAt: 1 })
 @modelOptions({ schemaOptions: { collection: 'articles', minimize: false, timestamps: true } })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnArticleProduced })
 export class ArticleSchema {
   public _id: mongoose.Types.ObjectId;
 

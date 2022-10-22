@@ -1,10 +1,8 @@
-import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
   getModelForClass,
   index,
   modelOptions,
-  plugin,
   pre,
   prop,
   PropType,
@@ -15,14 +13,11 @@ import * as mongoose from 'mongoose';
 import { GroupDocument } from '../group';
 import { UserDocument } from '../user';
 
-export const OnMessageProduced = new EventEmitter<IDatabasePayload<MessageDocument>>();
-
 @index({ fromUserId: 1 })
 @index({ readByUserIds: 1 })
 @index({ toGroupId: 1 })
 @index({ toUserId: 1 })
 @modelOptions({ schemaOptions: { collection: 'messages', minimize: false, timestamps: true } })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnMessageProduced })
 @pre('validate', function (this: MessageDocument) {
   const message = 'Only one of the following fields must be specified: toGroupId or toUserId.';
 

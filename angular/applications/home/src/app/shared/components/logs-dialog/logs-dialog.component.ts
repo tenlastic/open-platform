@@ -66,7 +66,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     });
 
     await this.find();
-    this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
+    await this.scrollToBottom();
   }
 
   public async ngOnDestroy() {
@@ -96,7 +96,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     }
 
     await this.find();
-    this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
+    await this.scrollToBottom();
   }
 
   public async toggleIsLive() {
@@ -127,5 +127,10 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     }
 
     return this.data.find(this.nodeId);
+  }
+
+  private async scrollToBottom() {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
   }
 }

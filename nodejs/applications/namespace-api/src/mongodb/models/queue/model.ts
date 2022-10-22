@@ -1,16 +1,10 @@
-import {
-  changeStreamPlugin,
-  enumValidator,
-  EventEmitter,
-  IDatabasePayload,
-} from '@tenlastic/mongoose-models';
+import { enumValidator } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
   ReturnModelType,
   getModelForClass,
   index,
   modelOptions,
-  plugin,
   pre,
   prop,
   Severity,
@@ -26,14 +20,11 @@ import {
   QueueStatusSchema,
 } from './status';
 
-export const OnQueueProduced = new EventEmitter<IDatabasePayload<QueueDocument>>();
-
 @index({ namespaceId: 1 })
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: { collection: 'queues', minimize: false, timestamps: true },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnQueueProduced })
 @pre('save', async function (this: QueueDocument) {
   if (!this.isNew) {
     return;

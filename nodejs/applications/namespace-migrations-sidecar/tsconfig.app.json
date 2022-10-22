@@ -9,9 +9,8 @@
   "exclude": ["./src/**/*.spec.ts"],
   "include": ["./src"],
   "references": [
-    { "path": "../../modules/mongoose-migrations/tsconfig.app.json" },
     { "path": "../../modules/mongoose-models/tsconfig.app.json" },
-    { "path": "../../modules/namespace-api/tsconfig.app.json" }
+    { "path": "../namespace-api/tsconfig.app.json" }
   ],
   "ts-node": {
     "files": true

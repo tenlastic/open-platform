@@ -22,9 +22,7 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@typegoose/typegoose": "9.9.0",
-    "ajv": "6.10.2",
-    "mongoose": "6.3.5"
+    "mongoose": "6.6.5"
   },
   "devDependencies": {
     "eslint": "^7.26.0",

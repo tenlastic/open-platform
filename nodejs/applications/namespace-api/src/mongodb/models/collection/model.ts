@@ -1,9 +1,5 @@
 import {
-  changeStreamPlugin,
-  errors,
-  EventEmitter,
-  IDatabasePayload,
-  IOriginalDocument,
+  duplicateKeyErrorPlugin,
   jsonSchemaPropertiesValidator,
   jsonToMongo,
 } from '@tenlastic/mongoose-models';
@@ -27,8 +23,6 @@ import { RecordSchema } from '../record';
 import { CollectionIndexSchema } from './index/index';
 import { AuthorizationDocument } from '../authorization';
 
-export const OnCollectionProduced = new EventEmitter<IDatabasePayload<CollectionDocument>>();
-
 @index({ name: 1, namespaceId: 1 }, { unique: true })
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
@@ -40,8 +34,7 @@ export const OnCollectionProduced = new EventEmitter<IDatabasePayload<Collection
     toObject: { getters: true },
   },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnCollectionProduced })
-@plugin(errors.unique.plugin)
+@plugin(duplicateKeyErrorPlugin)
 @pre('save', async function (this: CollectionDocument) {
   const Record = RecordSchema.getModel(this);
   await Record.syncIndexes({ background: true });
@@ -54,7 +47,7 @@ export const OnCollectionProduced = new EventEmitter<IDatabasePayload<Collection
 @post('save', async function (this: CollectionDocument) {
   await this.setValidator();
 })
-export class CollectionSchema implements IOriginalDocument {
+export class CollectionSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
@@ -97,12 +90,9 @@ export class CollectionSchema implements IOriginalDocument {
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
 
-  public _original: CollectionDocument;
   public get mongoName() {
     return `collections.${this._id}`;
   }
-  public wasModified: string[];
-  public wasNew: boolean;
 
   /**
    * Drops collection from MongoDB.

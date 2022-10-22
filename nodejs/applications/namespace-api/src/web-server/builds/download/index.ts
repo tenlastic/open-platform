@@ -23,7 +23,7 @@ export async function handler(ctx: Context) {
   const zip = new JSZip();
   for (const file of files) {
     const stream = await minio.getObject(process.env.MINIO_BUCKET, build.getFilePath(file.path));
-    zip.file(file.path, stream);
+    zip.file(file.path, stream as NodeJS.ReadableStream);
   }
 
   ctx.response.body = zip.generateNodeStream({

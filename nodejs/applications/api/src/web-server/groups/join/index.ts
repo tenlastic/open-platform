@@ -16,6 +16,7 @@ export async function handler(ctx: Context) {
   const record = await Group.findOneAndUpdate(
     { _id: ctx.params._id },
     { $addToSet: { userIds: ctx.state.user._id } },
+    { new: true },
   );
 
   const credentials = { ...ctx.state };

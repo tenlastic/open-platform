@@ -34,7 +34,11 @@ describe('web-server/storefronts/download', function () {
     );
 
     const ctx = new ContextMock({
-      params: { field: 'background', storefrontId: storefront._id },
+      params: {
+        field: 'background',
+        namespaceId: storefront.namespaceId,
+        storefrontId: storefront._id,
+      },
       state: { user },
     } as any);
 

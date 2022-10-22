@@ -16,9 +16,9 @@
   "dependencies": {
     "@tenlastic/dependency-injection": "0.0.314",
     "@tenlastic/http": "0.0.314",
+    "@tenlastic/redis": "0.0.314",
     "@tenlastic/web-server": "0.0.314",
     "axios": "0.27.2",
-    "ioredis": "4.26.0",
     "source-map-support": "0.5.12"
   },
   "devDependencies": {

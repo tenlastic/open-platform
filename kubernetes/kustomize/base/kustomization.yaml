@@ -46,6 +46,7 @@ resources:
   - ./static/mongodb/mongodb-gui.yaml
   - ./static/nats/nats.yaml
   - ./static/nodejs/api.yaml
+  - ./static/nodejs/cdc.yaml
   - ./static/nodejs/documentation.yaml
   - ./static/redis/redis.yaml
   - ./static/sealed-secrets/sealed-secrets.yaml

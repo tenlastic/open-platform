@@ -1,16 +1,9 @@
-import {
-  changeStreamPlugin,
-  EventEmitter,
-  IDatabasePayload,
-  IOriginalDocument,
-  namespaceValidator,
-} from '@tenlastic/mongoose-models';
+import { namespaceValidator } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
   getModelForClass,
   index,
   modelOptions,
-  plugin,
   prop,
   PropType,
   ReturnModelType,
@@ -24,8 +17,6 @@ import { QueueDocument } from '../queue';
 import { UserDocument } from '../user';
 import { GameServerStatusSchema } from './status';
 
-export const OnGameServerProduced = new EventEmitter<IDatabasePayload<GameServerDocument>>();
-
 @index({ authorizedUserIds: 1 })
 @index({ buildId: 1 })
 @index({ currentUserIds: 1 })
@@ -35,8 +26,7 @@ export const OnGameServerProduced = new EventEmitter<IDatabasePayload<GameServer
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: { collection: 'gameservers', minimize: false, timestamps: true },
 })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnGameServerProduced })
-export class GameServerSchema implements IOriginalDocument {
+export class GameServerSchema {
   public _id: mongoose.Types.ObjectId;
 
   @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
@@ -108,10 +98,6 @@ export class GameServerSchema implements IOriginalDocument {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: 'QueueSchema' })
   public queueDocument: QueueDocument;
-
-  public _original: any;
-  public wasModified: string[];
-  public wasNew: boolean;
 
   /**
    * Returns true if a restart is required on an update.

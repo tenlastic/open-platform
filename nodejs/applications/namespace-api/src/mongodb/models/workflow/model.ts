@@ -1,11 +1,9 @@
-import { changeStreamPlugin, EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
   ReturnModelType,
   getModelForClass,
   index,
   modelOptions,
-  plugin,
   prop,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
@@ -14,11 +12,8 @@ import { AuthorizationDocument } from '../authorization';
 import { WorkflowSpecSchema } from './spec';
 import { WorkflowStatusSchema } from './status';
 
-export const OnWorkflowProduced = new EventEmitter<IDatabasePayload<WorkflowDocument>>();
-
 @index({ namespaceId: 1 })
 @modelOptions({ schemaOptions: { collection: 'workflows', minimize: false, timestamps: true } })
-@plugin(changeStreamPlugin, { documentKeys: ['_id'], eventEmitter: OnWorkflowProduced })
 export class WorkflowSchema {
   public _id: mongoose.Types.ObjectId;
 
@@ -52,10 +47,6 @@ export class WorkflowSchema {
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
-
-  public _original: any;
-  public wasModified: string[];
-  public wasNew: boolean;
 }
 
 export type WorkflowDocument = DocumentType<WorkflowSchema>;

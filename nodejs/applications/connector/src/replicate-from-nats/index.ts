@@ -63,7 +63,9 @@ export async function eachMessage(
   }
 
   // Remove _id from fullDocument for update operations.
-  delete fullDocument._id;
+  if (fullDocument) {
+    delete fullDocument._id;
+  }
 
   if (operationType === 'delete') {
     await collection.deleteOne(documentKey);

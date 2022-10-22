@@ -14,7 +14,7 @@ patches:
     target:
       group: argoproj.io
       kind: CronWorkflow
-      name: api
+      name: e2e
       namespace: static
       version: v1alpha1
   - path: ./static/nodejs/api.json
@@ -22,6 +22,13 @@ patches:
       group: apps
       kind: StatefulSet
       name: api
+      namespace: static
+      version: v1
+  - path: ./static/nodejs/cdc.json
+    target:
+      group: apps
+      kind: StatefulSet
+      name: cdc
       namespace: static
       version: v1
   - path: ./static/nodejs/documentation.json

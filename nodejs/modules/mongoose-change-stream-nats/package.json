@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@tenlastic/nats": "0.0.314",
-    "mongoose": "6.3.5"
+    "mongoose": "6.6.5"
   },
   "devDependencies": {
     "@tenlastic/mongoose-models": "0.0.314",

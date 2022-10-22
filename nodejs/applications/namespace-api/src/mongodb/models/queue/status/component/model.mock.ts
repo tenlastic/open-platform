@@ -1,11 +1,7 @@
 import { Chance } from 'chance';
 
-import { QueueStatusPhase } from '../model';
-import {
-  QueueStatusComponent,
-  QueueStatusComponentName,
-  QueueStatusComponentSchema,
-} from './model';
+import { QueueStatusComponentName, QueueStatusPhase } from '../model';
+import { QueueStatusComponent, QueueStatusComponentSchema } from './model';
 
 export class QueueStatusComponentMock {
   /**

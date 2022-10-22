@@ -29,10 +29,10 @@ export class CreateAccountPageComponent {
     } catch (e) {
       const error = e.errors && e.errors[0];
       const emailError = e.errors?.find(
-        (e) => e.name === 'UniqueError' && e.paths.includes('email'),
+        (e) => e.name === 'DuplicateKeyError' && e.paths.includes('email'),
       );
       const usernameError = e.errors?.find(
-        (e) => e.name === 'UniqueError' && e.paths.includes('username'),
+        (e) => e.name === 'DuplicateKeyError' && e.paths.includes('username'),
       );
 
       if (emailError && usernameError) {
