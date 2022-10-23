@@ -1,51 +1,65 @@
+import * as mongooseModels from '@tenlastic/mongoose-models';
 import * as nats from '@tenlastic/nats';
 
-import { parse } from './parse';
 import { replicateFromMongo } from './replicate-from-mongo';
 import { replicateFromNats } from './replicate-from-nats';
 
-const containerName = process.env.CONTAINER_NAME;
-const mongoFromCollectionName = process.env.MONGO_FROM_COLLECTION_NAME;
+const mongoCollectionNames = process.env.MONGO_COLLECTION_NAMES;
 const mongoFromConnectionString = process.env.MONGO_FROM_CONNECTION_STRING;
 const mongoFromDatabaseName = process.env.MONGO_FROM_DATABASE_NAME;
-const mongoToCollectionName = process.env.MONGO_TO_COLLECTION_NAME;
 const mongoToConnectionString = process.env.MONGO_TO_CONNECTION_STRING;
 const mongoToDatabaseName = process.env.MONGO_TO_DATABASE_NAME;
-const mongoWhere = process.env.MONGO_WHERE ? JSON.parse(process.env.MONGO_WHERE) : null;
 const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 const podName = process.env.POD_NAME;
 
 (async function () {
   try {
+    // MongoDB.
+    const collectionNames = mongoCollectionNames ? mongoCollectionNames.split(',') : [];
+    const fromConnection = await mongooseModels.createConnection({
+      connectionString: mongoFromConnectionString,
+      databaseName: mongoFromDatabaseName,
+    });
+    const toConnection = await mongooseModels.createConnection({
+      connectionString: mongoToConnectionString,
+      databaseName: mongoToDatabaseName,
+    });
+
+    // NATS.
     await nats.connect({ connectionString: natsConnectionString });
 
-    const from = `${mongoFromDatabaseName}.${mongoFromCollectionName}`;
-    const to = `${mongoToDatabaseName}.${mongoToCollectionName}`;
-    const where = mongoWhere ? parse(mongoWhere) : null;
+    // Replicate from MongoDB to MongoDB.
+    for (const collectionName of collectionNames) {
+      const from = `${mongoFromDatabaseName}.${collectionName}`;
+      const to = `${mongoToDatabaseName}.${collectionName}`;
 
-    const consumer = await nats.getConsumer(`${podName}-${containerName}`, from);
-    if (!consumer) {
-      console.log(`Replicating from MongoDB (${from}) to MongoDB (${to}).`);
-      const count = await replicateFromMongo(
-        mongoFromCollectionName,
-        mongoFromConnectionString,
-        mongoFromDatabaseName,
-        mongoToCollectionName,
-        mongoToConnectionString,
-        mongoToDatabaseName,
-        where,
-      );
-      console.log(`Successfully synced ${count} documents.`);
+      const consumer = await nats.getConsumer(`${podName}-${collectionName}`, from);
+      if (!consumer) {
+        console.log(`Replicating from MongoDB (${from}) to MongoDB (${to}).`);
+        const count = await replicateFromMongo(
+          collectionName,
+          fromConnection,
+          collectionName,
+          toConnection,
+        );
+        console.log(`Synced ${count} documents from MongoDB (${from}) to MongoDB (${to}).`);
+      }
     }
 
-    console.log(`Replicating from NATS (${from}) to MongoDB (${to}).`);
-    await replicateFromNats(
-      mongoToCollectionName,
-      mongoToConnectionString,
-      mongoToDatabaseName,
-      { durable: `${podName}-${containerName}`, subject: from },
-      where,
-    );
+    // Close the connection to the source database.
+    await fromConnection.close();
+
+    // Replicate from NATS to MongoDB.
+    for (const collectionName of collectionNames) {
+      const from = `${mongoFromDatabaseName}.${collectionName}`;
+      const to = `${mongoToDatabaseName}.${collectionName}`;
+
+      console.log(`Replicating from NATS (${from}) to MongoDB (${to}).`);
+      replicateFromNats(collectionName, toConnection, {
+        durable: `${podName}-${collectionName}`,
+        subject: from,
+      });
+    }
   } catch (e) {
     console.error(e);
     process.exit(1);

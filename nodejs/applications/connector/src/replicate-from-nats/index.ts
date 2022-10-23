@@ -1,5 +1,4 @@
 import * as mongooseModels from '@tenlastic/mongoose-models';
-import * as mongoosePermissions from '@tenlastic/mongoose-permissions';
 import * as nats from '@tenlastic/nats';
 import * as mongoose from 'mongoose';
 import { AckPolicy } from 'nats';
@@ -17,12 +16,9 @@ export interface ReplicateOptions {
  */
 export async function replicateFromNats(
   collectionName: string,
-  connectionString: string,
-  databaseName: string,
+  connection: mongoose.Connection,
   options: ReplicateOptions,
-  where: any,
 ) {
-  const connection = await mongooseModels.createConnection({ connectionString, databaseName });
   const collection = connection.collection(collectionName);
 
   const subscription = await nats.subscribe(options.durable, options.subject, {
@@ -37,7 +33,7 @@ export async function replicateFromNats(
     const json = JSON.parse(data);
 
     try {
-      await eachMessage(collection, options, json, where);
+      await eachMessage(collection, options, json);
       message.ack();
     } catch (e) {
       console.error(e);
@@ -52,15 +48,10 @@ export async function eachMessage(
   collection: mongoose.Collection,
   options: ReplicateOptions,
   payload: mongooseModels.IDatabasePayload<mongoose.Model<mongoose.Document>>,
-  where: any,
 ) {
   const documentKey = parse(payload.documentKey);
   const fullDocument = parse(payload.fullDocument);
   const { operationType, updateDescription } = payload;
-
-  if (!mongoosePermissions.isJsonValid(fullDocument, where)) {
-    return;
-  }
 
   // Remove _id from fullDocument for update operations.
   if (fullDocument) {

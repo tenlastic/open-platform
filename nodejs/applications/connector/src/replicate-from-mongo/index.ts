@@ -1,34 +1,19 @@
-import * as mongooseModels from '@tenlastic/mongoose-models';
+import * as mongoose from 'mongoose';
 
 export async function replicateFromMongo(
   fromCollectionName: string,
-  fromConnectionString: string,
-  fromDatabaseName: string,
+  fromConnection: mongoose.Connection,
   toCollectionName: string,
-  toConnectionString: string,
-  toDatabaseName: string,
-  where: any,
+  toConnection: mongoose.Connection,
 ) {
-  const fromConnection = await mongooseModels.createConnection({
-    connectionString: fromConnectionString,
-    databaseName: fromDatabaseName,
-  });
-  const toConnection = await mongooseModels.createConnection({
-    connectionString: toConnectionString,
-    databaseName: toDatabaseName,
-  });
-
   const fromCollection = fromConnection.collection(fromCollectionName);
   const toCollection = toConnection.collection(toCollectionName);
 
   let count = 0;
-  for await (const record of fromCollection.find(where)) {
+  for await (const record of fromCollection.find()) {
     await toCollection.updateOne({ _id: record._id }, { $set: record }, { upsert: true });
     count++;
   }
-
-  await fromConnection.close();
-  await toConnection.close();
 
   return count;
 }

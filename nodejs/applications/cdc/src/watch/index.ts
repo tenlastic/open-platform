@@ -18,11 +18,13 @@ interface ChangeStreamDocument {
 
 export function watch(
   client: Redis,
+  collections: string[],
   connection: mongoose.Connection,
   key: string,
   resumeAfter: string,
 ) {
-  const changeStream = connection.db.watch([], {
+  const pipeline = collections?.length ? [{ $match: { 'db.coll': { $in: collections } } }] : [];
+  const changeStream = connection.db.watch(pipeline, {
     fullDocument: 'updateLookup',
     fullDocumentBeforeChange: 'whenAvailable',
     resumeAfter: resumeAfter ? { _data: resumeAfter } : null,

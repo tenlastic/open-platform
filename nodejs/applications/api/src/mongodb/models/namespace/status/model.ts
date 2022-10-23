@@ -14,7 +14,7 @@ import { NamespaceStatusNodeSchema } from './node';
 export enum NamespaceStatusComponentName {
   Api = 'api',
   Cdc = 'cdc',
-  Connectors = 'connectors',
+  Connector = 'connector',
   Sidecar = 'sidecar',
 }
 

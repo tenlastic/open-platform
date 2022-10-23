@@ -21,7 +21,7 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
   public components = {
     api: 'API',
     cdc: 'CDC',
-    connectors: 'Connectors',
+    connector: 'Connector',
     sidecar: 'Sidecar',
   };
   public data: NamespaceModel;

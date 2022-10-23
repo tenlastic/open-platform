@@ -23,7 +23,7 @@ describe('watch', function () {
 
   it('handles many change events', async function () {
     // Start watching for changes.
-    changeStream = watch(client, connection, 'cdc.resumeToken', null);
+    changeStream = watch(client, [], connection, 'cdc.resumeToken', null);
 
     // Insert records into MongoDB.
     const names = Array.from(Array(1000)).map(() => chance.hash());

@@ -1,16 +1,38 @@
+import * as mongooseModels from '@tenlastic/mongoose-models';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
 
 import { replicateFromMongo } from './';
 
+interface Document {
+  name: string;
+}
+
 const chance = new Chance();
 
-const schema = new mongoose.Schema({ name: String });
-const FromModel = mongoose.model('from', schema);
-const ToModel = mongoose.model('to', schema);
+const schema = new mongoose.Schema<Document>({ name: String });
 
 describe('replicateFromMongo()', function () {
+  let fromConnection: mongoose.Connection;
+  let FromModel: mongoose.Model<Document>;
+  let toConnection: mongoose.Connection;
+  let ToModel: mongoose.Model<Document>;
+
+  before(async function () {
+    fromConnection = await mongooseModels.createConnection({
+      connectionString: process.env.MONGO_CONNECTION_STRING,
+      databaseName: 'connector-test-from',
+    });
+    toConnection = await mongooseModels.createConnection({
+      connectionString: process.env.MONGO_CONNECTION_STRING,
+      databaseName: 'connector-test-to',
+    });
+
+    FromModel = fromConnection.model('from', schema);
+    ToModel = toConnection.model('to', schema);
+  });
+
   beforeEach(async function () {
     await FromModel.deleteMany({});
     await ToModel.deleteMany({});
@@ -21,12 +43,9 @@ describe('replicateFromMongo()', function () {
 
     const count = await replicateFromMongo(
       FromModel.collection.name,
-      process.env.MONGO_CONNECTION_STRING,
-      'connector-test',
+      fromConnection,
       ToModel.collection.name,
-      process.env.MONGO_CONNECTION_STRING,
-      'connector-test',
-      {},
+      toConnection,
     );
 
     expect(count).to.eql(1);

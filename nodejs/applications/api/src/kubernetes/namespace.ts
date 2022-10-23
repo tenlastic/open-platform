@@ -1,11 +1,4 @@
-import {
-  V1Affinity,
-  V1Container,
-  V1EnvFromSource,
-  V1EnvVar,
-  V1Pod,
-  V1Probe,
-} from '@kubernetes/client-node';
+import { V1Affinity, V1EnvFromSource, V1EnvVar, V1Pod, V1Probe } from '@kubernetes/client-node';
 import {
   BaseListQuery,
   deploymentApiV1,
@@ -21,7 +14,7 @@ import {
   workflowApiV1,
 } from '@tenlastic/kubernetes';
 import * as minio from '@tenlastic/minio';
-import { createConnection, mongooseToJson } from '@tenlastic/mongoose-models';
+import { createConnection } from '@tenlastic/mongoose-models';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
@@ -30,10 +23,7 @@ import {
   Authorization,
   AuthorizationDocument,
   AuthorizationRole,
-  Group,
-  Namespace,
   NamespaceDocument,
-  User,
 } from '../mongodb';
 
 const chance = new Chance();
@@ -267,6 +257,7 @@ export const KubernetesNamespace = {
     await serviceApiV1.createOrReplace('dynamic', {
       metadata: { labels: { ...labels, 'tenlastic.com/role': 'cdc' }, name: `${name}-cdc` },
       spec: {
+        clusterIP: 'None',
         ports: [{ name: 'tcp', port: 3000 }],
         selector: { ...labels, 'tenlastic.com/role': 'cdc' },
       },
@@ -280,7 +271,7 @@ export const KubernetesNamespace = {
       spec: {
         replicas: 1,
         selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'cdc' } },
-        serviceName: `${name}-api`,
+        serviceName: `${name}-cdc`,
         template: getCdcPodTemplate(namespace),
       },
     });
@@ -290,66 +281,30 @@ export const KubernetesNamespace = {
      * CONNECTORS
      * ======================
      */
-    await statefulSetApiV1.delete(`${name}-connectors`, 'dynamic');
-
-    const containers = [
-      getConnectorContainerTemplate('authorizations', namespace, Authorization.schema),
-      getConnectorContainerTemplate('groups', namespace, Group.schema),
-      getConnectorContainerTemplate('namespaces', namespace, Namespace.schema),
-      getConnectorContainerTemplate('users', namespace, User.schema),
-    ];
-    const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
-    if (isDevelopment) {
-      await statefulSetApiV1.create('dynamic', {
-        metadata: {
-          labels: { ...labels, 'tenlastic.com/role': 'connectors' },
-          name: `${name}-connectors`,
-        },
-        spec: {
-          replicas: 1,
-          selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'connectors' } },
-          serviceName: `${name}-connectors`,
-          template: {
-            metadata: {
-              labels: { ...labels, 'tenlastic.com/role': 'connectors' },
-              name: `${name}-connectors`,
-            },
-            spec: {
-              affinity: getAffinity(namespace, 'connectors'),
-              containers,
-              volumes: [
-                {
-                  hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' },
-                  name: 'workspace',
-                },
-              ],
-            },
-          },
-        },
-      });
-    } else {
-      await statefulSetApiV1.create('dynamic', {
-        metadata: {
-          labels: { ...labels, 'tenlastic.com/role': 'connectors' },
-          name: `${name}-connectors`,
-        },
-        spec: {
-          replicas: 1,
-          selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'connectors' } },
-          serviceName: `${name}-connectors`,
-          template: {
-            metadata: {
-              labels: { ...labels, 'tenlastic.com/role': 'connectors' },
-              name: `${name}-connectors`,
-            },
-            spec: {
-              affinity: getAffinity(namespace, 'connectors'),
-              containers,
-            },
-          },
-        },
-      });
-    }
+    await serviceApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'connector' },
+        name: `${name}-connector`,
+      },
+      spec: {
+        clusterIP: 'None',
+        ports: [{ name: 'tcp', port: 3000 }],
+        selector: { ...labels, 'tenlastic.com/role': 'connector' },
+      },
+    });
+    await statefulSetApiV1.delete(`${name}-connector`, 'dynamic');
+    await statefulSetApiV1.create('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'connector' },
+        name: `${name}-connector`,
+      },
+      spec: {
+        replicas: 1,
+        selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'connector' } },
+        serviceName: `${name}-connector`,
+        template: getConnectorPodTemplate(namespace),
+      },
+    });
   },
 };
 
@@ -518,19 +473,13 @@ function getCdcPodTemplate(namespace: NamespaceDocument): V1Pod {
   }
 }
 
-function getConnectorContainerTemplate(
-  collectionName: string,
-  namespace: NamespaceDocument,
-  schema: mongoose.Schema,
-  where: any = {},
-): V1Container {
-  const jsonSchema = mongooseToJson(schema);
+function getConnectorPodTemplate(namespace: NamespaceDocument): V1Pod {
+  const labels = KubernetesNamespace.getLabels(namespace);
   const name = KubernetesNamespace.getName(namespace._id);
 
+  const collectionNames = ['authorizations', 'groups', 'namespaces', 'users'];
   const env: V1EnvVar[] = [
-    { name: 'CONTAINER_NAME', value: collectionName },
-    { name: 'JSON_SCHEMA', value: JSON.stringify(jsonSchema) },
-    { name: 'MONGO_FROM_COLLECTION_NAME', value: collectionName },
+    { name: 'MONGO_COLLECTION_NAMES', value: collectionNames.join(',') },
     {
       name: 'MONGO_FROM_CONNECTION_STRING',
       valueFrom: { secretKeyRef: { key: 'MONGO_CONNECTION_STRING', name: 'nodejs' } },
@@ -539,7 +488,6 @@ function getConnectorContainerTemplate(
       name: 'MONGO_FROM_DATABASE_NAME',
       value: 'api',
     },
-    { name: 'MONGO_TO_COLLECTION_NAME', value: collectionName },
     {
       name: 'MONGO_TO_CONNECTION_STRING',
       valueFrom: { secretKeyRef: { key: 'MONGO_CONNECTION_STRING', name: 'nodejs' } },
@@ -548,35 +496,56 @@ function getConnectorContainerTemplate(
       name: 'MONGO_TO_DATABASE_NAME',
       valueFrom: { secretKeyRef: { key: 'MONGO_DATABASE_NAME', name } },
     },
-    { name: 'MONGO_WHERE', value: JSON.stringify(where) },
     {
       name: 'NATS_CONNECTION_STRING',
       valueFrom: { secretKeyRef: { key: 'NATS_CONNECTION_STRING', name: 'nodejs' } },
     },
     { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
   ];
-  if (where) {
-    env.push({ name: 'MONGO_WHERE', value: JSON.stringify(where) });
-  }
   const resources = { requests: { cpu: '25m', memory: '75Mi' } };
 
   const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
   if (isDevelopment) {
     return {
-      command: ['npm', 'run', 'start'],
-      env,
-      image: `tenlastic/node-development:latest`,
-      name: collectionName,
-      resources: { limits: { cpu: '1000m' }, requests: resources.requests },
-      volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
-      workingDir: `/usr/src/nodejs/applications/connector/`,
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'connector' },
+        name: `${name}-connector`,
+      },
+      spec: {
+        affinity: getAffinity(namespace, 'connector'),
+        containers: [
+          {
+            command: ['npm', 'run', 'start'],
+            env,
+            image: `tenlastic/node-development:latest`,
+            name: 'main',
+            resources: { limits: { cpu: '1000m' }, requests: resources.requests },
+            volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
+            workingDir: `/usr/src/nodejs/applications/connector/`,
+          },
+        ],
+        volumes: [
+          { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
+        ],
+      },
     };
   } else {
     return {
-      env,
-      image: `tenlastic/connector:${version}`,
-      name: collectionName,
-      resources,
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'connector' },
+        name,
+      },
+      spec: {
+        affinity: getAffinity(namespace, 'connector'),
+        containers: [
+          {
+            env,
+            image: `tenlastic/connector:${version}`,
+            name: 'main',
+            resources,
+          },
+        ],
+      },
     };
   }
 }
