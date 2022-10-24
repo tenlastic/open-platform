@@ -1,7 +1,5 @@
-import mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as mongooseModels from '@tenlastic/mongoose-models';
-import * as sinon from 'sinon';
 import { URL } from 'url';
 
 import {
@@ -10,6 +8,7 @@ import {
   Build,
   Collection,
   GameServer,
+  Group,
   Namespace,
   Queue,
   QueueMember,
@@ -18,8 +17,6 @@ import {
   WebSocket,
   Workflow,
 } from './mongodb';
-
-let sandbox: sinon.SinonSandbox;
 
 before(async function () {
   // Minio.
@@ -44,6 +41,7 @@ before(async function () {
     Build.syncIndexes({ background: true }),
     Collection.syncIndexes({ background: true }),
     GameServer.syncIndexes({ background: true }),
+    Group.syncIndexes({ background: true }),
     Namespace.syncIndexes({ background: true }),
     Queue.syncIndexes({ background: true }),
     QueueMember.syncIndexes({ background: true }),
@@ -55,10 +53,6 @@ before(async function () {
 });
 
 beforeEach(async function () {
-  // Mailgun.
-  sandbox = sinon.createSandbox();
-  mailgun.stub(sandbox);
-
   // MongoDB.
   await Promise.all([
     Article.deleteMany({}),
@@ -66,6 +60,7 @@ beforeEach(async function () {
     Build.deleteMany({}),
     Collection.deleteMany({}),
     GameServer.deleteMany({}),
+    Group.deleteMany({}),
     Namespace.deleteMany({}),
     Queue.deleteMany({}),
     QueueMember.deleteMany({}),
@@ -74,8 +69,4 @@ beforeEach(async function () {
     WebSocket.deleteMany({}),
     Workflow.deleteMany({}),
   ]);
-});
-
-afterEach(function () {
-  sandbox.restore();
 });

@@ -29,7 +29,7 @@ components:
                     type: number
                   name:
                     type: string
-                    enum: [api, connectors, sidecar]
+                    enum: [api, cdc, connector, sidecar]
                   phase:
                     type: string
                     enum: [Error, Failed, Pending, Running, Succeeded]
@@ -40,14 +40,16 @@ components:
               items:
                 type: object
                 properties:
-                  _id:
-                    type: string
                   component:
                     type: string
-                    enum: [api, connectors, sidecar]
+                    enum: [api, cdc, connector, sidecar]
+                  container:
+                    type: string
                   phase:
                     type: string
                     enum: [Error, Failed, Pending, Running, Succeeded]
+                  pod:
+                    type: string
             phase:
               type: string
               enum: [Error, Failed, Pending, Running, Succeeded]

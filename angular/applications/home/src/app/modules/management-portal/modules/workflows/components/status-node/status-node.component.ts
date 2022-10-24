@@ -14,7 +14,7 @@ import {
 import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
-import { LogsDialogComponent } from '../../../../../../shared/components';
+import { LogsDialogComponent, LogsDialogComponentData } from '../../../../../../shared/components';
 
 type WorkflowStatusNodeWithParent = IWorkflow.Node & { parent: string };
 
@@ -43,7 +43,7 @@ export class WorkflowStatusNodeComponent {
     private workflowQuery: WorkflowQuery,
   ) {}
 
-  public getDisplayName(displayName: string) {
+  public getLabel(displayName: string) {
     return displayName
       .toLowerCase()
       .split('-')
@@ -54,41 +54,44 @@ export class WorkflowStatusNodeComponent {
   }
 
   public showLogsDialog() {
-    const dialogRef = this.matDialog.open(LogsDialogComponent, {
-      autoFocus: false,
-      data: {
-        $logs: this.workflowLogQuery.selectAll({
-          filterBy: (log) => log.workflowId === this.workflow._id,
-          sortBy: 'unix',
-          sortByOrder: Order.DESC,
+    const data = {
+      $logs: this.workflowLogQuery.selectAll({
+        filterBy: (log) => log.workflowId === this.workflow._id,
+        sortBy: 'unix',
+        sortByOrder: Order.DESC,
+      }),
+      $nodes: this.workflowQuery
+        .selectEntity(this.workflow._id)
+        .pipe(map((workflow) => this.getNodes(workflow))),
+      find: (container, pod) =>
+        this.workflowLogService.find(this.workflow.namespaceId, this.workflow._id, pod, container, {
+          tail: 500,
         }),
-        $nodeIds: this.workflowQuery
-          .selectEntity(this.workflow._id)
-          .pipe(map((workflow) => this.getNodeIds(workflow))),
-        find: (nodeId) =>
-          this.workflowLogService.find(this.workflow.namespaceId, this.workflow._id, nodeId, {
-            tail: 500,
-          }),
-        nodeId: this.node._id,
-        subscribe: async (nodeId, unix) => {
-          return this.streamService.logs(
-            WorkflowLogModel,
-            { nodeId, since: unix ? new Date(unix) : new Date(), workflowId: this.workflow._id },
-            this.workflowLogStore,
-            `${environment.wssUrl}/namespaces/${this.workflow.namespaceId}`,
-          );
-        },
-        wssUrl: `${environment.wssUrl}/namespaces/${this.workflow.namespaceId}`,
+      node: this.node,
+      subscribe: async (container, pod, unix) => {
+        return this.streamService.logs(
+          WorkflowLogModel,
+          {
+            container,
+            pod,
+            since: unix ? new Date(unix) : new Date(),
+            workflowId: this.workflow._id,
+          },
+          this.workflowLogStore,
+          `${environment.wssUrl}/namespaces/${this.workflow.namespaceId}`,
+        );
       },
-    });
+      wssUrl: `${environment.wssUrl}/namespaces/${this.workflow.namespaceId}`,
+    } as LogsDialogComponentData;
 
+    const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });
     dialogRef.afterClosed().subscribe(() => this.workflowLogStore.reset());
   }
 
-  private getNodeIds(workflow: WorkflowModel) {
+  private getNodes(workflow: WorkflowModel) {
     const nodes = workflow.status?.nodes?.filter((n) => n.type === 'Pod');
     return nodes
-      .map((n) => ({ label: this.getDisplayName(n.displayName), value: n._id }))
-      .sort((a, b) => (a.label > b.label ? 1 : -1));
+      .map((n) => ({ container: n.container, label: this.getLabel(n.displayName), pod: n.pod }))
+      .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));
   }
 }

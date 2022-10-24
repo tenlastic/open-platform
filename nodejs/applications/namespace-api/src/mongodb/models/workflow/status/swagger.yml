@@ -11,12 +11,12 @@ components:
           items:
             type: object
             properties:
-              _id:
-                type: string
               children:
                 type: array
                 items:
                   type: string
+              container:
+                type: string
               displayName:
                 type: string
               finishedAt:
@@ -33,6 +33,8 @@ components:
                 items:
                   type: string
               phase:
+                type: string
+              pod:
                 type: string
               startedAt:
                 type: string

@@ -10,14 +10,17 @@ import { QueueStatusComponentName, QueueStatusPhase } from '../model';
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })
 export class QueueStatusNodeSchema {
-  @prop({ required: true, type: String })
-  public _id: string;
-
   @prop({ enum: QueueStatusComponentName, required: true, type: String })
   public component: QueueStatusComponentName;
 
+  @prop({ require: true, type: String })
+  public container: string;
+
   @prop({ enum: QueueStatusPhase, required: true, type: String })
   public phase: QueueStatusPhase;
+
+  @prop({ required: true, type: String })
+  public pod: string;
 }
 
 export type QueueStatusNodeDocument = DocumentType<QueueStatusNodeSchema>;

@@ -15,7 +15,7 @@ router.delete('/:_id', deleteHandler);
 router.get('/', findHandler);
 router.get('/count', countHandler);
 router.get('/:_id', findOneHandler);
-router.get('/:_id/logs/:nodeId', logsHandler);
+router.get('/:_id/logs/:pod/:container', logsHandler);
 router.post('/', authenticationMiddleware, createHandler);
 router.put('/:_id', authenticationMiddleware, updateHandler);
 

@@ -25,7 +25,11 @@ import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
 import { IdentityService } from '../../../../../../core/services';
-import { LogsDialogComponent, PromptComponent } from '../../../../../../shared/components';
+import {
+  LogsDialogComponent,
+  LogsDialogComponentData,
+  PromptComponent,
+} from '../../../../../../shared/components';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -117,32 +121,29 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   public showLogsDialog($event: Event, record: QueueModel) {
     $event.stopPropagation();
 
-    const dialogRef = this.matDialog.open(LogsDialogComponent, {
-      autoFocus: false,
-      data: {
-        $logs: this.queueLogQuery.selectAll({
-          filterBy: (log) => log.queueId === record._id,
-          sortBy: 'unix',
-          sortByOrder: Order.DESC,
+    const data = {
+      $logs: this.queueLogQuery.selectAll({
+        filterBy: (log) => log.queueId === record._id,
+        sortBy: 'unix',
+        sortByOrder: Order.DESC,
+      }),
+      $nodes: this.queueQuery.selectEntity(record._id).pipe(map((queue) => this.getNodes(queue))),
+      find: (container, pod) =>
+        this.queueLogService.find(record.namespaceId, record._id, pod, container, {
+          tail: 500,
         }),
-        $nodeIds: this.queueQuery
-          .selectEntity(record._id)
-          .pipe(map((queue) => this.getNodeIds(queue))),
-        find: (nodeId) =>
-          this.queueLogService.find(record.namespaceId, record._id, nodeId, { tail: 500 }),
-        nodeIds: record.status?.nodes?.map((n) => n._id),
-        subscribe: async (nodeId, unix) => {
-          return this.streamService.logs(
-            QueueLogModel,
-            { nodeId, queueId: record._id, since: unix ? new Date(unix) : new Date() },
-            this.queueLogStore,
-            `${environment.wssUrl}/namespaces/${record.namespaceId}`,
-          );
-        },
-        wssUrl: `${environment.wssUrl}/namespaces/${record.namespaceId}`,
+      subscribe: async (container, pod, unix) => {
+        return this.streamService.logs(
+          QueueLogModel,
+          { container, pod, queueId: record._id, since: unix ? new Date(unix) : new Date() },
+          this.queueLogStore,
+          environment.wssUrl,
+        );
       },
-    });
+      wssUrl: `${environment.wssUrl}/namespaces/${record.namespaceId}`,
+    } as LogsDialogComponentData;
 
+    const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });
     dialogRef.afterClosed().subscribe(() => this.queueLogStore.reset());
   }
 
@@ -170,17 +171,16 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     });
   }
 
-  private getNodeIds(queue: QueueModel) {
+  private getNodes(queue: QueueModel) {
     return queue.status?.nodes
       .map((n) => {
-        let displayName = 'Queue';
-        if (n._id.includes('sidecar')) {
-          displayName = 'Sidecar';
+        let label = 'Queue';
+        if (n.component === 'sidecar') {
+          label = 'Sidecar';
         }
 
-        const index = isNaN(n._id.slice(-1) as any) ? '0' : n._id.slice(-1);
-        return { label: `${displayName} (${index})`, value: n._id };
+        return { container: n.container, label, pod: n.pod };
       })
-      .sort((a, b) => (a.label > b.label ? 1 : -1));
+      .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));
   }
 }

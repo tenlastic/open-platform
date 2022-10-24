@@ -22,7 +22,7 @@ schema.plugin(changeStreamPlugin, {
 const Model = mongoose.model<Document>('Example', schema);
 
 describe('plugins/change-stream', function () {
-  afterEach(async function () {
+  beforeEach(async function () {
     await Model.deleteMany();
   });
 

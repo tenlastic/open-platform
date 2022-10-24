@@ -15,10 +15,13 @@ const Model = mongoose.model('Example', schema);
 describe('watch', function () {
   let changeStream: ChangeStream;
 
-  afterEach(async function () {
-    await changeStream?.close();
+  beforeEach(async function () {
     await Model.deleteMany();
     await nats.deleteStream('cdc-test.examples');
+  });
+
+  afterEach(async function () {
+    await changeStream?.close();
   });
 
   it('handles many change events', async function () {

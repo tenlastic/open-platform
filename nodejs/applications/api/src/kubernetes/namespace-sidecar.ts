@@ -98,10 +98,10 @@ export const KubernetesNamespaceSidecar = {
               env,
               envFrom,
               image: 'tenlastic/node-development:latest',
-              name: 'namespace-migrations-sidecar',
+              name: 'namespace-api-migrations',
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
               volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
-              workingDir: '/usr/src/nodejs/applications/namespace-migrations-sidecar/',
+              workingDir: '/usr/src/nodejs/applications/namespace-api-migrations/',
             },
             {
               command: ['npm', 'run', 'start'],
@@ -132,8 +132,8 @@ export const KubernetesNamespaceSidecar = {
             {
               env,
               envFrom,
-              image: `tenlastic/namespace-migrations-sidecar:${version}`,
-              name: 'namespace-migrations-sidecar',
+              image: `tenlastic/namespace-api-migrations:${version}`,
+              name: 'namespace-api-migrations',
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
             },
             {

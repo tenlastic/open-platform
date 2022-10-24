@@ -17,14 +17,16 @@ components:
           items:
             type: object
             properties:
-              _id:
-                type: string
               component:
                 type: string
                 enum: [application, sidecar]
+              container:
+                type: string
               phase:
                 type: string
                 enum: [Error, Failed, Pending, Running, Succeeded]
+              pod:
+                type: string
         phase:
           type: string
           enum: [Error, Failed, Pending, Running, Succeeded]

@@ -30,6 +30,7 @@ patchesStrategicMerge:
   - ./static/mongodb/mongodb.yaml
   - ./static/mongodb/mongodb-gui.yaml
   - ./static/nats/nats.yaml
+  - ./static/nodejs/aggregation-api.yaml
   - ./static/nodejs/api.yaml
   - ./static/nodejs/documentation.yaml
   - ./static/redis/redis.yaml
@@ -47,8 +48,9 @@ resources:
   - ./static/mongodb/mongodb.secret.example.yaml
   - ./static/mongodb/mongodb-gui.secret.example.yaml
   - ./static/nats/nats.secret.example.yaml
+  - ./static/nodejs/aggregation-api-migrations.yaml
+  - ./static/nodejs/api-migrations.yaml
   - ./static/nodejs/e2e.secret.example.yaml
-  - ./static/nodejs/migrations.yaml
   - ./static/nodejs/nodejs.secret.example.yaml
   - ./static/redis/redis.secret.example.yaml
   - ./static/verdaccio/verdaccio.secret.example.yaml

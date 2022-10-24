@@ -40,7 +40,7 @@ const pods: { [key: string]: V1Pod } = {};
           const pod = Object.values(pods).find(
             (p) => p.metadata.annotations['workflows.argoproj.io/node-id'] === n.id,
           );
-          return { ...n, _id: pod?.metadata.name };
+          return { ...n, container: 'main', pod: pod?.metadata.name };
         });
 
         await axios({

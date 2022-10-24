@@ -9,7 +9,7 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-@index({ userIds: 1 }, { unique: true })
+@index({ userIds: 1 })
 @modelOptions({ schemaOptions: { collection: 'groups', minimize: false, timestamps: true } })
 export class GroupSchema {
   public _id: mongoose.Types.ObjectId;

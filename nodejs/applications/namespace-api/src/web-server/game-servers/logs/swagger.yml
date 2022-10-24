@@ -1,5 +1,5 @@
 paths:
-  /namespaces/{namespaceId}/game-servers/{_id}/logs/{nodeId}:
+  /namespaces/{namespaceId}/game-servers/{_id}/logs/{pod}/{container}:
     get:
       summary: Logs
       tags: [Game Servers]
@@ -13,12 +13,17 @@ paths:
             type: string
           required: true
         - in: path
+          name: container
+          schema:
+            type: string
+          required: true
+        - in: path
           name: namespaceId
           schema:
             type: string
           required: true
         - in: path
-          name: nodeId
+          name: pod
           schema:
             type: string
           required: true

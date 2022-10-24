@@ -21,18 +21,19 @@ export class GameServerLogService {
   public async find(
     namespaceId: string,
     gameServerId: string,
-    nodeId: string,
+    pod: string,
+    container: string,
     query: GameServerLogsQuery,
   ) {
     const url = this.getUrl(namespaceId, gameServerId);
     const response = await this.apiService.request({
       method: 'get',
       params: query,
-      url: `${url}/${nodeId}`,
+      url: `${url}/${pod}/${container}`,
     });
 
     const records = response.data.records.map(
-      (record) => new GameServerLogModel({ ...record, gameServerId, nodeId }),
+      (record) => new GameServerLogModel({ ...record, container, gameServerId, pod }),
     );
     this.gameServerLogStore.upsertMany(records);
 

@@ -33,7 +33,6 @@
     "unzipper": "0.10.11"
   },
   "devDependencies": {
-    "@tenlastic/mailgun": "0.0.314",
     "eslint": "^7.26.0",
     "mocha": "7.1.2",
     "nyc": "15.0.0",

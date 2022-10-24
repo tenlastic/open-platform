@@ -45,6 +45,8 @@ resources:
   - ./static/mongodb/mongodb.yaml
   - ./static/mongodb/mongodb-gui.yaml
   - ./static/nats/nats.yaml
+  - ./static/nodejs/aggregation-api.yaml
+  - ./static/nodejs/aggregation-api-connector.yaml
   - ./static/nodejs/api.yaml
   - ./static/nodejs/cdc.yaml
   - ./static/nodejs/documentation.yaml

@@ -36,8 +36,8 @@ export namespace IWorkflow {
   }
 
   export interface Node {
-    _id?: string;
     children?: string[];
+    container?: string;
     displayName?: string;
     finishedAt?: Date;
     id?: string;
@@ -46,6 +46,7 @@ export namespace IWorkflow {
     outboundNodes?: string[];
     parent?: string;
     phase?: string;
+    pod?: string;
     startedAt?: Date;
     templatename?: string;
     type?: string;

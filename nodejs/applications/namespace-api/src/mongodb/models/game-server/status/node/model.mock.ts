@@ -1,5 +1,9 @@
+import { Chance } from 'chance';
+
 import { GameServerStatusComponentName, GameServerStatusPhase } from '../model';
 import { GameServerStatusNode, GameServerStatusNodeSchema } from './model';
+
+const chance = new Chance();
 
 export class GameServerStatusNodeMock {
   /**
@@ -9,7 +13,9 @@ export class GameServerStatusNodeMock {
   public static create(params: Partial<GameServerStatusNodeSchema> = {}) {
     const defaults = {
       component: GameServerStatusComponentName.Application,
+      container: chance.hash(),
       phase: GameServerStatusPhase.Running,
+      pod: chance.hash(),
     };
 
     return new GameServerStatusNode({ ...defaults, ...params });

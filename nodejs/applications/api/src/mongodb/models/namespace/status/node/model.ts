@@ -10,14 +10,17 @@ import { NamespaceStatusComponentName, NamespaceStatusPhase } from '../model';
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })
 export class NamespaceStatusNodeSchema {
-  @prop({ required: true, type: String })
-  public _id: string;
-
   @prop({ enum: NamespaceStatusComponentName, required: true, type: String })
   public component: NamespaceStatusComponentName;
 
+  @prop({ required: true, type: String })
+  public container: string;
+
   @prop({ enum: NamespaceStatusPhase, required: true, type: String })
   public phase: NamespaceStatusPhase;
+
+  @prop({ required: true, type: String })
+  public pod: string;
 }
 
 export type NamespaceStatusNodeDocument = DocumentType<NamespaceStatusNodeSchema>;

@@ -18,11 +18,11 @@ export enum WorkflowStatusNodeType {
 
 @modelOptions({ schemaOptions: { _id: false, id: false } })
 export class WorkflowStatusNodeSchema {
-  @prop({ type: String })
-  public _id: string;
-
   @prop({ type: String }, PropType.ARRAY)
   public children: string[];
+
+  @prop({ type: String })
+  public container: string;
 
   @prop({ type: String })
   public displayName: string;
@@ -47,6 +47,9 @@ export class WorkflowStatusNodeSchema {
 
   @prop({ type: String })
   public phase: WorkflowStatusPhase;
+
+  @prop({ type: String })
+  public pod: string;
 
   @prop({ type: Date })
   public startedAt: Date;

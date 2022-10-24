@@ -14,6 +14,20 @@ spec:
     - host: api.local.tenlastic.com
       http:
         paths:
+          - path: /queue-members
+            pathType: Prefix
+            backend:
+              service:
+                name: aggregation-api
+                port:
+                  number: 3000
+          - path: /storefronts
+            pathType: Prefix
+            backend:
+              service:
+                name: aggregation-api
+                port:
+                  number: 3000
           - path: /swagger.json
             pathType: Exact
             backend:

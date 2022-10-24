@@ -121,6 +121,9 @@ export class QueueMemberSchema {
   @prop({ foreignField: '_id', justOne: true, localField: 'webSocketId', ref: 'WebSocketSchema' })
   public webSocketDocument: WebSocketDocument;
 
+  /**
+   * Get the number of Users matching the criteria.
+   */
   public static async getUserIdCount($match: any = {}) {
     const results = await QueueMember.aggregate([
       { $match: QueueMember.find().cast(QueueMember, $match) },

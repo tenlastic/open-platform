@@ -1,4 +1,4 @@
-<div *ngIf="data.$nodeIds | async as nodeIds"
+<div *ngIf="data.$nodes | async as nodes"
      class="row">
   <div class="col-sm-3">
     <app-title>Logs</app-title>
@@ -7,15 +7,15 @@
   <div class="col-sm-9">
     <mat-form-field floatLabel="always">
       <mat-select placeholder="No Nodes Available"
-                  [disabled]="nodeIds.length === 0"
-                  (selectionChange)="setNodeId($event.value)"
-                  [(value)]="nodeId">
-        <mat-option *ngFor="let nodeId of nodeIds"
-                    [value]="nodeId.value">{{ nodeId.label }}</mat-option>
+                  [disabled]="nodes.length === 0"
+                  (selectionChange)="setNode($event.value)"
+                  [(value)]="value">
+        <mat-option *ngFor="let node of nodes"
+                    [value]="getValueFromNode(node)">{{ node.label }}</mat-option>
       </mat-select>
     </mat-form-field>
 
-    <ng-container *ngIf="nodeId">
+    <ng-container *ngIf="node">
       <app-button *ngIf="data.$logs | async as logs"
                   color="accent"
                   (click)="toggleVisibility(logs)">

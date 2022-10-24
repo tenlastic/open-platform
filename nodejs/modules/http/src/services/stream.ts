@@ -1,3 +1,4 @@
+import wait from '@tenlastic/wait';
 import WebSocket from 'isomorphic-ws';
 import TypedEmitter from 'typed-emitter';
 import { v4 as uuid } from 'uuid';
@@ -9,9 +10,10 @@ import { TokenService } from './token';
 interface LogsParameters {
   _id?: string;
   buildId?: string;
+  container: string;
   gameServerId?: string;
   namespaceId?: string;
-  nodeId: string;
+  pod: string;
   queueId?: string;
   since?: Date;
   workflowId?: string;
@@ -65,8 +67,10 @@ export class StreamService {
 
   public async connect(url: string) {
     if (this.webSockets.has(url)) {
-      return this.webSockets.get(url);
+      return wait(100, 5 * 1000, () => this.webSockets.get(url));
     }
+
+    this.webSockets.set(url, null);
 
     let connectionString = url;
     if (this.environmentService?.apiKey) {

@@ -18,16 +18,22 @@ export class QueueLogService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(namespaceId: string, queueId: string, nodeId: string, query: QueueLogsQuery) {
+  public async find(
+    namespaceId: string,
+    queueId: string,
+    pod: string,
+    container: string,
+    query: QueueLogsQuery,
+  ) {
     const url = this.getUrl(namespaceId, queueId);
     const response = await this.apiService.request({
       method: 'get',
       params: query,
-      url: `${url}/${nodeId}`,
+      url: `${url}/${pod}/${container}`,
     });
 
     const records = response.data.records.map(
-      (record) => new QueueLogModel({ ...record, queueId, nodeId }),
+      (record) => new QueueLogModel({ ...record, container, queueId, pod }),
     );
     this.queueLogStore.upsertMany(records);
 

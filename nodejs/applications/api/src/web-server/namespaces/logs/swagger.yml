@@ -1,9 +1,9 @@
 paths:
-  /namespaces/{_id}/logs/{nodeId}:
+  /namespaces/{_id}/logs/{pod}/{container}:
     get:
       summary: Logs
       tags: [Namespaces]
-      description: Returns the most recent logs of the requested node.
+      description: Returns the most recent logs of the requested container.
       security:
         - AccessToken: []
       parameters:
@@ -13,7 +13,12 @@ paths:
             type: string
           required: true
         - in: path
-          name: nodeId
+          name: container
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: pod
           schema:
             type: string
           required: true

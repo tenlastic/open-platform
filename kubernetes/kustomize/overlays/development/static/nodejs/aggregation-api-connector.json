@@ -1,0 +1,77 @@
+[
+  {
+    "op": "add",
+    "path": "/spec/template/spec/volumes",
+    "value": [
+      {
+        "hostPath": { "path": "/run/desktop/mnt/host/wsl/open-platform/" },
+        "name": "workspace"
+      }
+    ]
+  },
+  {
+    "op": "replace",
+    "path": "/spec/template/spec/containers/0",
+    "value": {
+      "command": ["npm", "run", "start"],
+      "env": [
+        {
+          "name": "MONGO_COLLECTION_NAMES",
+          "value": "authorizations,groups,namespaces,users"
+        },
+        {
+          "name": "MONGO_FROM_CONNECTION_STRING",
+          "valueFrom": {
+            "secretKeyRef": {
+              "name": "nodejs",
+              "key": "MONGO_CONNECTION_STRING"
+            }
+          }
+        },
+        {
+          "name": "MONGO_FROM_DATABASE_NAME",
+          "value": "api"
+        },
+        {
+          "name": "MONGO_TO_CONNECTION_STRING",
+          "valueFrom": {
+            "secretKeyRef": {
+              "name": "nodejs",
+              "key": "MONGO_CONNECTION_STRING"
+            }
+          }
+        },
+        {
+          "name": "MONGO_TO_DATABASE_NAME",
+          "value": "aggregation-api"
+        },
+        {
+          "name": "NATS_CONNECTION_STRING",
+          "valueFrom": {
+            "secretKeyRef": {
+              "name": "nodejs",
+              "key": "NATS_CONNECTION_STRING"
+            }
+          }
+        },
+        {
+          "name": "POD_NAME",
+          "valueFrom": {
+            "fieldRef": {
+              "apiVersion": "v1",
+              "fieldPath": "metadata.name"
+            }
+          }
+        }
+      ],
+      "image": "tenlastic/node-development:latest",
+      "name": "connector",
+      "resources": {
+        "limits": { "cpu": "1000m" },
+        "requests": { "cpu": "100m" }
+      },
+      "volumeMounts": [{ "mountPath": "/usr/src/", "name": "workspace" }],
+      "workingDir": "/usr/src/nodejs/applications/connector/"
+    }
+  }
+]

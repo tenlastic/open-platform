@@ -25,7 +25,11 @@ import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
 import { IdentityService } from '../../../../../../core/services';
-import { LogsDialogComponent, PromptComponent } from '../../../../../../shared/components';
+import {
+  LogsDialogComponent,
+  LogsDialogComponentData,
+  PromptComponent,
+} from '../../../../../../shared/components';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -118,32 +122,31 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   public showLogsDialog($event: Event, record: GameServerModel) {
     $event.stopPropagation();
 
-    const dialogRef = this.matDialog.open(LogsDialogComponent, {
-      autoFocus: false,
-      data: {
-        $logs: this.gameServerLogQuery.selectAll({
-          filterBy: (log) => log.gameServerId === record._id,
-          sortBy: 'unix',
-          sortByOrder: Order.DESC,
+    const data = {
+      $logs: this.gameServerLogQuery.selectAll({
+        filterBy: (log) => log.gameServerId === record._id,
+        sortBy: 'unix',
+        sortByOrder: Order.DESC,
+      }),
+      $nodes: this.gameServerQuery
+        .selectEntity(record._id)
+        .pipe(map((gameServer) => this.getNodes(gameServer))),
+      find: (container, pod) =>
+        this.gameServerLogService.find(record.namespaceId, record._id, pod, container, {
+          tail: 500,
         }),
-        $nodeIds: this.gameServerQuery
-          .selectEntity(record._id)
-          .pipe(map((gameServer) => this.getNodeIds(gameServer))),
-        find: (nodeId) =>
-          this.gameServerLogService.find(record.namespaceId, record._id, nodeId, { tail: 500 }),
-        nodeIds: record.status?.nodes?.map((n) => n._id),
-        subscribe: async (nodeId, unix) => {
-          return this.streamService.logs(
-            GameServerLogModel,
-            { gameServerId: record._id, nodeId, since: unix ? new Date(unix) : new Date() },
-            this.gameServerLogStore,
-            `${environment.wssUrl}/namespaces/${record.namespaceId}`,
-          );
-        },
-        wssUrl: `${environment.wssUrl}/namespaces/${record.namespaceId}`,
+      subscribe: async (container, pod, unix) => {
+        return this.streamService.logs(
+          GameServerLogModel,
+          { container, gameServerId: record._id, pod, since: unix ? new Date(unix) : new Date() },
+          this.gameServerLogStore,
+          environment.wssUrl,
+        );
       },
-    });
+      wssUrl: `${environment.wssUrl}/namespaces/${record.namespaceId}`,
+    } as LogsDialogComponentData;
 
+    const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });
     dialogRef.afterClosed().subscribe(() => this.gameServerLogStore.reset());
   }
 
@@ -174,16 +177,18 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     });
   }
 
-  private getNodeIds(gameServer: GameServerModel) {
+  private getNodes(gameServer: GameServerModel) {
     return gameServer.status?.nodes
       .map((n) => {
-        let displayName = 'Game Server';
-        if (n._id.includes('sidecar')) {
-          displayName = 'Sidecar';
+        let label = 'Game Server';
+        if (n.component === 'sidecar' && n.container === 'endpoints-sidecar') {
+          label = 'Sidecar (Endpoints)';
+        } else if (n.component === 'sidecar' && n.container === 'status-sidecar') {
+          label = 'Sidecar (Status)';
         }
 
-        return { label: displayName, value: n._id };
+        return { container: n.container, label: label, pod: n.pod };
       })
-      .sort((a, b) => (a.label > b.label ? 1 : -1));
+      .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));
   }
 }

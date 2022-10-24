@@ -44,9 +44,10 @@ export namespace IQueue {
   }
 
   export interface StatusNode {
-    _id: string;
     component: string;
+    container: string;
     phase: string;
+    pod: string;
   }
 }
 

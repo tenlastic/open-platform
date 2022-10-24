@@ -20,7 +20,7 @@ describe('plugins/duplicate-key-error', function () {
     await Model.syncIndexes();
   });
 
-  afterEach(async function () {
+  beforeEach(async function () {
     await Model.deleteMany();
   });
 

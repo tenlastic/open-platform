@@ -82,7 +82,7 @@ export const KubernetesQueue = {
       stringData: {
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         QUEUE_JSON: JSON.stringify(queue),
-        WSS_URL: `ws://${namespaceName}-wss.dynamic:3000`,
+        WSS_URL: `ws://${namespaceName}-api.dynamic:3000`,
       },
     });
 

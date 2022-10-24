@@ -2,5 +2,12 @@
 set -e
 
 # Build and run MongoDB migrations.
-lerna run build --include-dependencies --scope @tenlastic/migrations
-npm run start
+lerna run \
+  --include-dependencies \
+  --scope @tenlastic/aggregation-api-migrations \
+  --scope @tenlastic/api-migrations \
+  build
+lerna run \
+  --scope @tenlastic/aggregation-api-migrations \
+  --scope @tenlastic/api-migrations \
+  start

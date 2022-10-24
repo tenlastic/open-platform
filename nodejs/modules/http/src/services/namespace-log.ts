@@ -18,16 +18,21 @@ export class NamespaceLogService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(namespaceId: string, nodeId: string, query: NamespaceLogsQuery) {
+  public async find(
+    namespaceId: string,
+    pod: string,
+    container: string,
+    query: NamespaceLogsQuery,
+  ) {
     const url = this.getUrl(namespaceId);
     const response = await this.apiService.request({
       method: 'get',
       params: query,
-      url: `${url}/${nodeId}`,
+      url: `${url}/${pod}/${container}`,
     });
 
     const records = response.data.records.map(
-      (record) => new NamespaceLogModel({ ...record, namespaceId, nodeId }),
+      (record) => new NamespaceLogModel({ ...record, container, namespaceId, pod }),
     );
     this.namespaceLogStore.upsertMany(records);
 

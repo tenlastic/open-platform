@@ -1,0 +1,26 @@
+import 'source-map-support/register';
+
+import '@tenlastic/logging';
+
+import * as mongodb from './mongodb';
+import * as webServer from './web-server';
+
+const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
+
+(async () => {
+  try {
+    // MongoDB.
+    await mongodb.setup({
+      connectionString: mongoConnectionString,
+      databaseName: 'aggregation-api',
+    });
+
+    // Web Server.
+    webServer.setup();
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  }
+})();
+
+process.on('unhandledRejection', (err) => console.error(JSON.stringify(err)));

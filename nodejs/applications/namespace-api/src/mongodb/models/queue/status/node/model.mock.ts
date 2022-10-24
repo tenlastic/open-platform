@@ -1,5 +1,9 @@
+import { Chance } from 'chance';
+
 import { QueueStatusComponentName, QueueStatusPhase } from '../model';
 import { QueueStatusNode, QueueStatusNodeSchema } from './model';
+
+const chance = new Chance();
 
 export class QueueStatusNodeMock {
   /**
@@ -9,7 +13,9 @@ export class QueueStatusNodeMock {
   public static create(params: Partial<QueueStatusNodeSchema> = {}) {
     const defaults = {
       component: QueueStatusComponentName.Application,
+      container: chance.hash(),
       phase: QueueStatusPhase.Running,
+      pod: chance.hash(),
     };
 
     return new QueueStatusNode({ ...defaults, ...params });

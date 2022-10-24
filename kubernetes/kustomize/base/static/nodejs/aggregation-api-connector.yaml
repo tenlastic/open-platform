@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: aggregation-api-connector
+  name: aggregation-api-connector
+  namespace: static
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aggregation-api-connector
+  serviceName: aggregation-api-connector
+  template:
+    metadata:
+      labels:
+        app: aggregation-api-connector
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - aggregation-api-connector
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: aggregation-api-connector
+          image: tenlastic/connector:0.0.314
+          env:
+            - name: MONGO_COLLECTION_NAMES
+              value: authorizations,groups,namespaces,users
+            - name: MONGO_FROM_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: nodejs
+                  key: MONGO_CONNECTION_STRING
+            - name: MONGO_FROM_DATABASE_NAME
+              value: api
+            - name: MONGO_TO_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: nodejs
+                  key: MONGO_CONNECTION_STRING
+            - name: MONGO_TO_DATABASE_NAME
+              value: api
+            - name: NATS_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: nodejs
+                  key: NATS_CONNECTION_STRING
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+          resources:
+            requests:
+              cpu: 25m
+              memory: 75Mi

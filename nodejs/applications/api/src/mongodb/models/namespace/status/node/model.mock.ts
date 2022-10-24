@@ -1,5 +1,9 @@
+import { Chance } from 'chance';
+
 import { NamespaceStatusComponentName, NamespaceStatusPhase } from '../model';
 import { NamespaceStatusNode, NamespaceStatusNodeSchema } from './model';
+
+const chance = new Chance();
 
 export class NamespaceStatusNodeMock {
   /**
@@ -9,7 +13,9 @@ export class NamespaceStatusNodeMock {
   public static create(params: Partial<NamespaceStatusNodeSchema> = {}) {
     const defaults = {
       component: NamespaceStatusComponentName.Api,
+      container: chance.hash(),
       phase: NamespaceStatusPhase.Running,
+      pod: chance.hash(),
     };
 
     return new NamespaceStatusNode({ ...defaults, ...params });

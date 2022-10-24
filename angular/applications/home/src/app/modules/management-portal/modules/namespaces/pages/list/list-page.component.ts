@@ -22,7 +22,11 @@ import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
 import { IdentityService } from '../../../../../../core/services';
-import { LogsDialogComponent, PromptComponent } from '../../../../../../shared/components';
+import {
+  LogsDialogComponent,
+  LogsDialogComponentData,
+  PromptComponent,
+} from '../../../../../../shared/components';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -102,30 +106,28 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
   public showLogsDialog($event: Event, record: NamespaceModel) {
     $event.stopPropagation();
 
-    const dialogRef = this.matDialog.open(LogsDialogComponent, {
-      autoFocus: false,
-      data: {
-        $logs: this.namespaceLogQuery.selectAll({
-          filterBy: (log) => log.namespaceId === record._id,
-          sortBy: 'unix',
-          sortByOrder: Order.DESC,
-        }),
-        $nodeIds: this.namespaceQuery
-          .selectEntity(record._id)
-          .pipe(map((namespace) => this.getNodeIds(namespace))),
-        find: (nodeId) => this.namespaceLogService.find(record._id, nodeId, { tail: 500 }),
-        nodeIds: record.status?.nodes?.map((n) => n._id),
-        subscribe: async (nodeId, unix) => {
-          return this.streamService.logs(
-            NamespaceLogModel,
-            { namespaceId: record._id, nodeId, since: unix ? new Date(unix) : new Date() },
-            this.namespaceLogStore,
-            environment.wssUrl,
-          );
-        },
+    const data = {
+      $logs: this.namespaceLogQuery.selectAll({
+        filterBy: (log) => log.namespaceId === record._id,
+        sortBy: 'unix',
+        sortByOrder: Order.DESC,
+      }),
+      $nodes: this.namespaceQuery
+        .selectEntity(record._id)
+        .pipe(map((namespace) => this.getNodes(namespace))),
+      find: (container, pod) =>
+        this.namespaceLogService.find(record._id, pod, container, { tail: 500 }),
+      subscribe: async (container, pod, unix) => {
+        return this.streamService.logs(
+          NamespaceLogModel,
+          { container, namespaceId: record._id, pod, since: unix ? new Date(unix) : new Date() },
+          this.namespaceLogStore,
+          environment.wssUrl,
+        );
       },
-    });
+    } as LogsDialogComponentData;
 
+    const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });
     dialogRef.afterClosed().subscribe(() => this.namespaceLogStore.reset());
   }
 
@@ -145,20 +147,24 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
     this.dataSource.sort = this.sort;
   }
 
-  private getNodeIds(namespace: NamespaceModel) {
+  private getNodes(namespace: NamespaceModel) {
     return namespace.status?.nodes
       .map((n) => {
-        let displayName = 'API';
+        let label = 'API';
         if (n.component === 'cdc') {
-          displayName = 'CDC';
-        } else if (n.component === 'connectors') {
-          displayName = 'Connectors';
-        } else if (n.component === 'sidecar') {
-          displayName = 'Sidecar';
+          label = 'CDC';
+        } else if (n.component === 'connector' && n.container === 'aggregation-api') {
+          label = 'Connector (Aggregation API)';
+        } else if (n.component === 'connector' && n.container === 'api') {
+          label = 'Connector (API)';
+        } else if (n.component === 'sidecar' && n.container === 'namespace-api-migrations') {
+          label = 'Sidecar (Migrations)';
+        } else if (n.component === 'sidecar' && n.container === 'status-sidecar') {
+          label = 'Sidecar (Status)';
         }
 
-        return { label: displayName, value: n._id };
+        return { container: n.container, label, pod: n.pod };
       })
-      .sort((a, b) => (a.label > b.label ? 1 : -1));
+      .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));
   }
 }

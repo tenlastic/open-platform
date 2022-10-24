@@ -17,11 +17,39 @@ patches:
       name: e2e
       namespace: static
       version: v1alpha1
+  - path: ./static/nodejs/aggregation-api.json
+    target:
+      group: apps
+      kind: Deployment
+      name: aggregation-api
+      namespace: static
+      version: v1
+  - path: ./static/nodejs/aggregation-api-connector.json
+    target:
+      group: apps
+      kind: StatefulSet
+      name: aggregation-api-connector
+      namespace: static
+      version: v1
+  - path: ./static/nodejs/aggregation-api-migrations.json
+    target:
+      group: batch
+      kind: Job
+      name: aggregation-api-migrations
+      namespace: static
+      version: v1
   - path: ./static/nodejs/api.json
     target:
       group: apps
       kind: StatefulSet
       name: api
+      namespace: static
+      version: v1
+  - path: ./static/nodejs/api-migrations.json
+    target:
+      group: batch
+      kind: Job
+      name: api-migrations
       namespace: static
       version: v1
   - path: ./static/nodejs/cdc.json
@@ -36,13 +64,6 @@ patches:
       group: apps
       kind: Deployment
       name: documentation
-      namespace: static
-      version: v1
-  - path: ./static/nodejs/migrations.json
-    target:
-      group: batch
-      kind: Job
-      name: migrations
       namespace: static
       version: v1
 resources:

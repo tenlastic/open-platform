@@ -1,5 +1,5 @@
 paths:
-  /namespaces/{namespaceId}/queues/{_id}/logs/{nodeId}:
+  /namespaces/{namespaceId}/queues/{_id}/logs/{pod}/{container}:
     get:
       summary: Logs
       tags: [Queues]
@@ -13,12 +13,17 @@ paths:
             type: string
           required: true
         - in: path
+          name: container
+          schema:
+            type: string
+          required: true
+        - in: path
           name: namespaceId
           schema:
             type: string
           required: true
         - in: path
-          name: nodeId
+          name: pod
           schema:
             type: string
           required: true

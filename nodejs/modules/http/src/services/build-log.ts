@@ -18,16 +18,22 @@ export class BuildLogService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(namespaceId: string, buildId: string, nodeId: string, query: BuildLogsQuery) {
+  public async find(
+    namespaceId: string,
+    buildId: string,
+    pod: string,
+    container: string,
+    query: BuildLogsQuery,
+  ) {
     const url = this.getUrl(namespaceId, buildId);
     const response = await this.apiService.request({
       method: 'get',
       params: query,
-      url: `${url}/${nodeId}`,
+      url: `${url}/${pod}/${container}`,
     });
 
     const records = response.data.records.map(
-      (record) => new BuildLogModel({ ...record, buildId, nodeId }),
+      (record) => new BuildLogModel({ ...record, container, buildId, pod }),
     );
     this.buildLogStore.upsertMany(records);
 

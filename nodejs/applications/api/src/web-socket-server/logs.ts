@@ -13,8 +13,9 @@ export interface LogsData {
 }
 
 export interface LogsDataParameters {
+  container?: string;
   namespaceId?: string;
-  nodeId: string;
+  pod: string;
   since?: string;
   tail?: number;
 }
@@ -64,7 +65,9 @@ export async function logs(
   }
 
   // Check if the record contains the requested node.
-  const node = record.status?.nodes?.find((n) => n._id === data.parameters.nodeId);
+  const node = record.status?.nodes?.find(
+    (n) => n.container === data.parameters.container && n.pod === data.parameters.pod,
+  );
   if (!node) {
     throw new RecordNotFoundError('Record');
   }
@@ -76,11 +79,10 @@ export async function logs(
   }
 
   // Start streaming the logs.
-  const pod = await podApiV1.read(node._id, 'dynamic');
   const { abort, emitter } = await podApiV1.followNamespacedPodLog(
-    node._id,
+    node.pod,
     'dynamic',
-    container || pod.body.spec.containers[0].name,
+    container || node.container,
     { since: data.parameters.since, tail: data.parameters.tail },
   );
   emitter.on('close', async () => ws.send(JSON.stringify({ _id: data._id })));

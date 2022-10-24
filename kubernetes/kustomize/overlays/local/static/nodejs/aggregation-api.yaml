@@ -1,0 +1,7 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aggregation-api
+  namespace: static
+spec:
+  replicas: 1

@@ -45,8 +45,13 @@ let isUpdatingStatus = false;
 
   podApiV1.watch(
     'dynamic',
-    { fieldSelector: 'status.phase!=Failed', labelSelector },
+    { labelSelector },
     async (type, pod: V1Pod) => {
+      if (pod.status?.message === 'Pod was terminated in response to imminent node shutdown.') {
+        console.log(`Pod - NODE SHUTDOWN: ${pod.metadata.name}.`);
+        return;
+      }
+
       console.log(`Pod - ${type}: ${pod.metadata.name}.`);
 
       if (type === 'ADDED' || type === 'MODIFIED') {

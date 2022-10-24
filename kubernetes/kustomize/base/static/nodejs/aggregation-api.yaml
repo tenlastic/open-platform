@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: aggregation-api
+  name: aggregation-api
+  namespace: static
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aggregation-api
+  template:
+    metadata:
+      labels:
+        app: aggregation-api
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - aggregation-api
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: aggregation-api
+          image: tenlastic/aggregation-api:0.0.314
+          envFrom:
+            - secretRef:
+                name: nodejs
+          livenessProbe:
+            httpGet:
+              path: /probes/liveness
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 25m
+              memory: 75Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: aggregation-api
+  name: aggregation-api
+  namespace: static
+spec:
+  ports:
+    - port: 3000
+      name: http
+  selector:
+    app: aggregation-api

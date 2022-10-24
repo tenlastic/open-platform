@@ -54,13 +54,13 @@ export class NamespaceLimitError extends Error {
     }),
     new NamespaceStatusComponent({
       current: 0,
-      name: NamespaceStatusComponentName.Cdc,
+      name: NamespaceStatusComponentName.Connector,
       phase: NamespaceStatusPhase.Pending,
       total: 1,
     }),
     new NamespaceStatusComponent({
       current: 0,
-      name: NamespaceStatusComponentName.Connector,
+      name: NamespaceStatusComponentName.Cdc,
       phase: NamespaceStatusPhase.Pending,
       total: 1,
     }),

@@ -31,9 +31,10 @@ export namespace INamespace {
   }
 
   export interface StatusNode {
-    _id: string;
     component: string;
+    container: string;
     phase: string;
+    pod: string;
   }
 }
 
