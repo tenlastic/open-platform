@@ -41,7 +41,7 @@ export async function subscribe(
       userId: auth.jwt?.user?._id,
     });
   }
-  const credentials: ICredentials = { apiKey: auth.apiKey, authorization, user: auth.jwt.user };
+  const credentials: ICredentials = { apiKey: auth.apiKey, authorization, user: auth.jwt?.user };
 
   if (!data.parameters) {
     return webSocketServer.unsubscribe(data, ws);

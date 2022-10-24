@@ -48,7 +48,7 @@ let isUpdatingStatus = false;
     { labelSelector },
     async (type, pod: V1Pod) => {
       if (pod.status?.message === 'Pod was terminated in response to imminent node shutdown.') {
-        console.log(`Pod - NODE SHUTDOWN: ${pod.metadata.name}.`);
+        console.log(`Pod - EVICTED: ${pod.metadata.name}.`);
         return;
       }
 

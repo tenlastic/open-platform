@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
 
 import { Jwt } from '../models/jwt';
-import { LoginService, LoginServiceResponse } from './login';
+import { LoginService } from './login';
 
 export interface Storage {
   getItem: (key: string) => string;
@@ -31,17 +31,12 @@ export class TokenService {
   }
 
   public async getAccessToken() {
-    try {
-      await wait(250, 15 * 1000, () => {
-        if (!this.startedRefreshingAt) {
-          return true;
-        }
-
-        const milliseconds = Date.now() - this.startedRefreshingAt.getTime();
-        return milliseconds >= 5 * 1000;
-      });
-    } catch {
-      return null;
+    if (this.startedRefreshingAt) {
+      try {
+        await wait(250, 15 * 1000, () => this.isRefreshing());
+      } catch {
+        return null;
+      }
     }
 
     // If the access token is still valid, return it.
@@ -105,8 +100,12 @@ export class TokenService {
     this.emitter.emit('refreshToken', this.refreshToken);
   }
 
-  private login(data: LoginServiceResponse) {
-    this.setAccessToken(data.accessToken);
-    this.setRefreshToken(data.refreshToken);
+  private async isRefreshing() {
+    if (!this.startedRefreshingAt) {
+      return true;
+    }
+
+    const milliseconds = Date.now() - this.startedRefreshingAt.getTime();
+    return milliseconds >= 5 * 1000;
   }
 }
