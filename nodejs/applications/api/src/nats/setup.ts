@@ -26,22 +26,37 @@ import { PasswordResetEvent } from './password-reset';
 import { UserEvent } from './user';
 import { WebSocketEvent } from './web-socket';
 
-export interface SetupOptions extends nats.ConnectionOptions {}
+export interface SetupOptions extends nats.ConnectionOptions {
+  database: string;
+  durable: string;
+}
 
 export async function setup(options: SetupOptions) {
   await nats.connect({ connectionString: options.connectionString });
 
   return Promise.all([
-    subscribe('api', 'api', Authorization, (payload) => AuthorizationEvent.emit(payload)),
-    subscribe('api', 'api', Friend, (payload) => FriendEvent.emit(payload)),
-    subscribe('api', 'api', GroupInvitation, (payload) => GroupInvitationEvent.emit(payload)),
-    subscribe('api', 'api', Group, (payload) => GroupEvent.emit(payload)),
-    subscribe('api', 'api', Ignoration, (payload) => IgnorationEvent.emit(payload)),
-    subscribe('api', 'api', Login, (payload) => LoginEvent.emit(payload)),
-    subscribe('api', 'api', Message, (payload) => MessageEvent.emit(payload)),
-    subscribe('api', 'api', Namespace, (payload) => NamespaceEvent.emit(payload)),
-    subscribe('api', 'api', PasswordReset, (payload) => PasswordResetEvent.emit(payload)),
-    subscribe('api', 'api', User, (payload) => UserEvent.emit(payload)),
-    subscribe('api', 'api', WebSocket, (payload) => WebSocketEvent.emit(payload)),
+    subscribe(options.database, options.durable, Authorization, (payload) =>
+      AuthorizationEvent.emit(payload),
+    ),
+    subscribe(options.database, options.durable, Friend, (payload) => FriendEvent.emit(payload)),
+    subscribe(options.database, options.durable, GroupInvitation, (payload) =>
+      GroupInvitationEvent.emit(payload),
+    ),
+    subscribe(options.database, options.durable, Group, (payload) => GroupEvent.emit(payload)),
+    subscribe(options.database, options.durable, Ignoration, (payload) =>
+      IgnorationEvent.emit(payload),
+    ),
+    subscribe(options.database, options.durable, Login, (payload) => LoginEvent.emit(payload)),
+    subscribe(options.database, options.durable, Message, (payload) => MessageEvent.emit(payload)),
+    subscribe(options.database, options.durable, Namespace, (payload) =>
+      NamespaceEvent.emit(payload),
+    ),
+    subscribe(options.database, options.durable, PasswordReset, (payload) =>
+      PasswordResetEvent.emit(payload),
+    ),
+    subscribe(options.database, options.durable, User, (payload) => UserEvent.emit(payload)),
+    subscribe(options.database, options.durable, WebSocket, (payload) =>
+      WebSocketEvent.emit(payload),
+    ),
   ]);
 }

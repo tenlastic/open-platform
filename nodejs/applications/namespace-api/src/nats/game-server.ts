@@ -39,9 +39,7 @@ GameServerEvent.async(async (payload) => {
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      const records = await GameServer.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
+      return GameServer.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
 
@@ -49,8 +47,6 @@ NamespaceEvent.async(async (payload) => {
 QueueEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      const records = await GameServer.find({ queueId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
+      return GameServer.deleteMany({ queueId: payload.fullDocument._id });
   }
 });

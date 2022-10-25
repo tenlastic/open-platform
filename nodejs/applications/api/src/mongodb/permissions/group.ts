@@ -13,7 +13,7 @@ export const GroupPermissions = new MongoosePermissions<GroupDocument>(Group, {
     default: {},
   },
   read: {
-    default: ['_id', 'createdAt', 'isOpen', 'updatedAt', 'userCount', 'userIds'],
+    default: ['_id', 'createdAt', 'isOpen', 'updatedAt', 'userIds'],
   },
   roles: [
     {

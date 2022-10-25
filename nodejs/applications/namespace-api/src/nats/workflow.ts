@@ -10,9 +10,7 @@ export const WorkflowEvent = new EventEmitter<IDatabasePayload<WorkflowDocument>
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      const records = await Workflow.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
+      return Workflow.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
 

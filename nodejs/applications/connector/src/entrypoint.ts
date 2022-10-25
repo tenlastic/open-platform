@@ -28,6 +28,8 @@ const podName = process.env.POD_NAME;
     // NATS.
     await nats.connect({ connectionString: natsConnectionString });
 
+    const starts: { [key: string]: Date } = {};
+
     // Replicate from MongoDB to MongoDB.
     for (const collectionName of collectionNames) {
       const from = `${mongoFromDatabaseName}.${collectionName}`;
@@ -36,12 +38,15 @@ const podName = process.env.POD_NAME;
       const consumer = await nats.getConsumer(`${podName}-${collectionName}`, from);
       if (!consumer) {
         console.log(`Replicating from MongoDB (${from}) to MongoDB (${to}).`);
+
+        starts[collectionName] = new Date();
         const count = await replicateFromMongo(
           collectionName,
           fromConnection,
           collectionName,
           toConnection,
         );
+
         console.log(`Synced ${count} documents from MongoDB (${from}) to MongoDB (${to}).`);
       }
     }
@@ -57,6 +62,7 @@ const podName = process.env.POD_NAME;
       console.log(`Replicating from NATS (${from}) to MongoDB (${to}).`);
       replicateFromNats(collectionName, toConnection, {
         durable: `${podName}-${collectionName}`,
+        start: starts[collectionName],
         subject: from,
       });
     }

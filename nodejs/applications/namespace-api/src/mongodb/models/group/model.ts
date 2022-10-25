@@ -22,10 +22,6 @@ export class GroupSchema {
 
   @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
   public userIds: mongoose.Types.ObjectId[];
-
-  public get userCount() {
-    return this.userIds.length;
-  }
 }
 
 export type GroupDocument = DocumentType<GroupSchema>;

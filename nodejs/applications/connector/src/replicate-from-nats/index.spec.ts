@@ -27,7 +27,11 @@ describe('replicateFromNats()', function () {
       const { coll, db } = payload.ns;
       const subject = `${db}.${coll}`;
 
-      await eachMessage(Model.collection, { durable: chance.hash(), subject }, payload);
+      await eachMessage(
+        Model.collection,
+        { durable: chance.hash(), start: new Date(), subject },
+        payload,
+      );
 
       const result = await Model.findOne({ _id: record._id });
       expect(result).to.eql(null);
@@ -51,7 +55,11 @@ describe('replicateFromNats()', function () {
       const { coll, db } = payload.ns;
       const subject = `${db}.${coll}`;
 
-      await eachMessage(Model.collection, { durable: chance.hash(), subject }, payload);
+      await eachMessage(
+        Model.collection,
+        { durable: chance.hash(), start: new Date(), subject },
+        payload,
+      );
 
       const result = (await Model.findOne({ _id: payload.fullDocument._id })) as any;
       expect(result._id.toString()).to.eql(payload.fullDocument._id.toString());
@@ -85,7 +93,7 @@ describe('replicateFromNats()', function () {
 
         await eachMessage(
           Model.collection,
-          { durable: chance.hash(), subject, useUpdateDescription: true },
+          { durable: chance.hash(), start: new Date(), subject, useUpdateDescription: true },
           payload,
         );
 
@@ -117,7 +125,11 @@ describe('replicateFromNats()', function () {
         const { coll, db } = payload.ns;
         const subject = `${db}.${coll}`;
 
-        await eachMessage(Model.collection, { durable: chance.hash(), subject }, payload);
+        await eachMessage(
+          Model.collection,
+          { durable: chance.hash(), start: new Date(), subject },
+          payload,
+        );
 
         const result: any = await Model.findOne({ _id: record._id });
         expect(result._id.toString()).to.eql(payload.fullDocument._id.toString());

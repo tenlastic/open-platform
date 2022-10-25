@@ -1,12 +1,13 @@
 import * as mongooseModels from '@tenlastic/mongoose-models';
 import * as nats from '@tenlastic/nats';
 import * as mongoose from 'mongoose';
-import { AckPolicy } from 'nats';
+import { AckPolicy, DeliverPolicy } from 'nats';
 import { TextDecoder } from 'util';
 import { parse } from '../parse';
 
 export interface ReplicateOptions {
   durable: string;
+  start?: Date;
   subject: string;
   useUpdateDescription?: boolean;
 }
@@ -24,8 +25,10 @@ export async function replicateFromNats(
   const subscription = await nats.subscribe(options.durable, options.subject, {
     ack_policy: AckPolicy.Explicit,
     ack_wait: 60 * 1000 * 1000 * 1000,
+    deliver_policy: DeliverPolicy.StartTime,
     inactive_threshold: 30 * 24 * 60 * 60 * 1000 * 1000 * 1000,
     max_deliver: 5,
+    opt_start_time: options.start?.toISOString(),
   });
 
   for await (const message of subscription) {

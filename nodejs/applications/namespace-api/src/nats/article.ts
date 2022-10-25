@@ -9,8 +9,6 @@ export const ArticleEvent = new EventEmitter<IDatabasePayload<ArticleDocument>>(
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      const records = await Article.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
+      return Article.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });

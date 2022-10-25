@@ -9,8 +9,6 @@ export const LoginEvent = new EventEmitter<IDatabasePayload<LoginDocument>>();
 UserEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      const records = await Login.find({ userId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
+      return Login.deleteMany({ userId: payload.fullDocument._id });
   }
 });

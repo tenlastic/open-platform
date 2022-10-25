@@ -10,9 +10,7 @@ export const AuthorizationEvent = new EventEmitter<IDatabasePayload<Authorizatio
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      const records = await Authorization.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
+      return Authorization.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
 
@@ -20,8 +18,6 @@ NamespaceEvent.async(async (payload) => {
 UserEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      const records = await Authorization.find({ userId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
+      return Authorization.deleteMany({ userId: payload.fullDocument._id });
   }
 });

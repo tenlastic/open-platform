@@ -9,8 +9,6 @@ export const WebSocketEvent = new EventEmitter<IDatabasePayload<WebSocketDocumen
 UserEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      const records = await WebSocket.find({ userId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
+      return WebSocket.deleteMany({ userId: payload.fullDocument._id });
   }
 });

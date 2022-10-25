@@ -9,22 +9,19 @@ export const QueueMemberEvent = new EventEmitter<IDatabasePayload<QueueMemberDoc
 
 // Delete QueueMember when associated Group is deleted or updated.
 GroupEvent.async(async (payload) => {
-  if (payload.operationType === 'insert') {
-    return;
+  switch (payload.operationType) {
+    case 'delete':
+    case 'update':
+      return QueueMember.deleteMany({ groupId: payload.fullDocument._id });
   }
-
-  const queueMembers = await QueueMember.find({ groupId: payload.fullDocument._id });
-  return Promise.all(queueMembers.map((qm) => qm.remove()));
 });
 
 // Delete QueueMember when associated Queue is deleted.
 QueueEvent.async(async (payload) => {
-  if (payload.operationType !== 'delete') {
-    return;
+  switch (payload.operationType) {
+    case 'delete':
+      return QueueMember.deleteMany({ queueId: payload.fullDocument._id });
   }
-
-  const queueMembers = await QueueMember.find({ queueId: payload.fullDocument._id });
-  return Promise.all(queueMembers.map((qm) => qm.remove()));
 });
 
 // Delete QueueMember when associated WebSocket is deleted or disconnected.
@@ -33,7 +30,6 @@ WebSocketEvent.async(async (payload) => {
     payload.operationType === 'delete' ||
     payload.updateDescription?.updatedFields?.disconnectedAt
   ) {
-    const queueMembers = await QueueMember.find({ webSocketId: payload.fullDocument._id });
-    return Promise.all(queueMembers.map((qm) => qm.remove()));
+    return QueueMember.deleteMany({ webSocketId: payload.fullDocument._id });
   }
 });

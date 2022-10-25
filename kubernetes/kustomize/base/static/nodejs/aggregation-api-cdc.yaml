@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: cdc
-  name: cdc
+    app: aggregation-api-cdc
+  name: aggregation-api-cdc
   namespace: static
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: cdc
-  serviceName: cdc
+      app: aggregation-api-cdc
+  serviceName: aggregation-api-cdc
   template:
     metadata:
       labels:
-        app: cdc
+        app: aggregation-api-cdc
     spec:
       affinity:
         nodeAffinity:
@@ -32,14 +32,14 @@ spec:
                     - key: app
                       operator: In
                       values:
-                        - cdc
+                        - aggregation-api-cdc
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: cdc
           image: tenlastic/cdc:0.0.314
           env:
             - name: MONGO_DATABASE_NAME
-              value: api
+              value: aggregation-api
             - name: POD_NAME
               valueFrom:
                 fieldRef:

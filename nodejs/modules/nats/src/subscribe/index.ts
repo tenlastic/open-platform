@@ -32,7 +32,7 @@ export async function subscribe(
     const consumer = await jsm.consumers.info(stream, durable);
 
     for (const [key, value] of Object.entries(consumerOptions)) {
-      if (key === 'deliver_subject') {
+      if (key === 'deliver_subject' || key === 'opt_start_time') {
         continue;
       }
 

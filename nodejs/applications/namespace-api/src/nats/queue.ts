@@ -10,9 +10,7 @@ export const QueueEvent = new EventEmitter<IDatabasePayload<QueueDocument>>();
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      const records = await Queue.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
+      return Queue.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
 

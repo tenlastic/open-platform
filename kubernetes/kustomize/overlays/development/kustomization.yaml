@@ -24,6 +24,13 @@ patches:
       name: aggregation-api
       namespace: static
       version: v1
+  - path: ./static/nodejs/aggregation-api-cdc.json
+    target:
+      group: apps
+      kind: StatefulSet
+      name: aggregation-api-cdc
+      namespace: static
+      version: v1
   - path: ./static/nodejs/aggregation-api-connector.json
     target:
       group: apps
@@ -45,18 +52,18 @@ patches:
       name: api
       namespace: static
       version: v1
+  - path: ./static/nodejs/api-cdc.json
+    target:
+      group: apps
+      kind: StatefulSet
+      name: api-cdc
+      namespace: static
+      version: v1
   - path: ./static/nodejs/api-migrations.json
     target:
       group: batch
       kind: Job
       name: api-migrations
-      namespace: static
-      version: v1
-  - path: ./static/nodejs/cdc.json
-    target:
-      group: apps
-      kind: StatefulSet
-      name: cdc
       namespace: static
       version: v1
   - path: ./static/nodejs/documentation.json

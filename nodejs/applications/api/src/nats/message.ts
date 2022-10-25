@@ -11,13 +11,9 @@ GroupEvent.async(async (payload) => {
   const group = payload.fullDocument;
 
   if (payload.operationType === 'delete') {
-    const records = await Message.find({ groupId: group._id });
-    const promises = records.map((r) => r.remove());
-    return Promise.all(promises);
+    return Message.deleteMany({ groupId: group._id });
   } else if (payload.operationType === 'update') {
-    const records = await Message.find({ fromUserId: { $nin: group.userIds }, groupId: group._id });
-    const promises = records.map((r) => r.remove());
-    return Promise.all(promises);
+    return Message.deleteMany({ fromUserId: { $nin: group.userIds }, groupId: group._id });
   }
 });
 
@@ -25,10 +21,8 @@ GroupEvent.async(async (payload) => {
 UserEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      const records = await Message.find({
+      return Message.deleteMany({
         $or: [{ fromUserId: payload.fullDocument._id }, { toUserId: payload.fullDocument._id }],
       });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
   }
 });

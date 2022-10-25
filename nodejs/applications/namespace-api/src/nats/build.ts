@@ -34,8 +34,6 @@ BuildEvent.async(async (payload) => {
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      const records = await Build.find({ namespaceId: payload.fullDocument._id });
-      const promises = records.map((r) => r.remove());
-      return Promise.all(promises);
+      return Build.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });

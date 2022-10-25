@@ -12,16 +12,3 @@ NamespaceEvent.async(async (payload) => {
       return Storefront.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
-
-// Delete unused images and videos on update.
-StorefrontEvent.async(async (payload) => {
-  const storefront = payload.fullDocument;
-
-  switch (payload.operationType) {
-    case 'delete':
-      return storefront.removeMinioObjects();
-
-    case 'update':
-      return Promise.all([storefront.removeMinioImages(), storefront.removeMinioVideos()]);
-  }
-});
