@@ -49,16 +49,17 @@ let isUpdatingStatus = false;
     async (type, pod: V1Pod) => {
       if (pod.status?.message === 'Pod was terminated in response to imminent node shutdown.') {
         console.log(`Pod - EVICTED: ${pod.metadata.name}.`);
-        delete pods[pod.metadata.name];
-        return;
+      } else {
+        console.log(`Pod - ${type}: ${pod.metadata.name}.`);
       }
 
-      console.log(`Pod - ${type}: ${pod.metadata.name}.`);
-
-      if (type === 'ADDED' || type === 'MODIFIED') {
-        pods[pod.metadata.name] = pod;
-      } else if (type === 'DELETED') {
+      if (
+        pod.status?.message === 'Pod was terminated in response to imminent node shutdown.' ||
+        type === 'DELETED'
+      ) {
         delete pods[pod.metadata.name];
+      } else if (type === 'ADDED' || type === 'MODIFIED') {
+        pods[pod.metadata.name] = pod;
       }
 
       try {
