@@ -29,12 +29,14 @@ components:
                     type: number
                   name:
                     type: string
-                    enum: [api, cdc, connector, sidecar]
+                    enum: [api, cdc, connector, metrics, sidecar]
                   phase:
                     type: string
                     enum: [Error, Failed, Pending, Running, Succeeded]
                   total:
                     type: number
+            limits:
+              $ref: '#/components/schemas/NamespaceStatusLimits'
             nodes:
               type: array
               items:
@@ -42,7 +44,7 @@ components:
                 properties:
                   component:
                     type: string
-                    enum: [api, cdc, connector, sidecar]
+                    enum: [api, cdc, connector, metrics, sidecar]
                   container:
                     type: string
                   phase:

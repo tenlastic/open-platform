@@ -66,6 +66,12 @@ export class NamespaceLimitError extends Error {
     }),
     new NamespaceStatusComponent({
       current: 0,
+      name: NamespaceStatusComponentName.Metrics,
+      phase: NamespaceStatusPhase.Pending,
+      total: 1,
+    }),
+    new NamespaceStatusComponent({
+      current: 0,
       name: NamespaceStatusComponentName.Sidecar,
       phase: NamespaceStatusPhase.Pending,
       total: 1,

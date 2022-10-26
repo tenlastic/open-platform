@@ -22,6 +22,7 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
     api: 'API',
     cdc: 'CDC',
     connector: 'Connector',
+    metrics: 'Metrics',
     sidecar: 'Sidecar',
   };
   public data: NamespaceModel;
@@ -32,7 +33,7 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
   public limits = {
     bandwidth: 'Total Bandwidth (B) / Month',
     cpu: 'Total CPUs',
-    memory: 'Total Memory',
+    memory: 'Total Memory (B)',
     preemptible: 'Only Preemptible',
     storage: 'Total Storage (B)',
   };

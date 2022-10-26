@@ -112,16 +112,29 @@
         </mat-form-field>
       </div>
 
-      <ng-container *ngIf="data.status?.limits?.length > 0">
+      <ng-container *ngIf="data.status?.limits">
         <h4>Limits</h4>
 
         <div class="row">
-          <mat-form-field *ngFor="let limit of data.status?.limits"
-                          floatLabel="always">
-            <mat-label>{{ limits[limit.name] }}</mat-label>
+          <mat-form-field floatLabel="always">
+            <mat-label>{{ limits['cpu'] }}</mat-label>
             <input matInput
                    disabled
-                   [value]="limit.current + ' / ' + limit.total" />
+                   [value]="data.status.limits.cpu | number:'1.0':'en-US'" />
+          </mat-form-field>
+
+          <mat-form-field floatLabel="always">
+            <mat-label>{{ limits['memory'] }}</mat-label>
+            <input matInput
+                   disabled
+                   [value]="data.status.limits.memory | number:'1.0':'en-US'" />
+          </mat-form-field>
+
+          <mat-form-field floatLabel="always">
+            <mat-label>{{ limits['storage'] }}</mat-label>
+            <input matInput
+                   disabled
+                   [value]="data.status.limits.storage | number:'1.0':'en-US'" />
           </mat-form-field>
         </div>
       </ng-container>

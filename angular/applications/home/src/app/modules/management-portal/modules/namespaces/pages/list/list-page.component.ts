@@ -157,6 +157,8 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
           label = 'Connector (Aggregation API)';
         } else if (n.component === 'connector' && n.container === 'api') {
           label = 'Connector (API)';
+        } else if (n.component === 'metrics') {
+          label = 'Metrics';
         } else if (n.component === 'sidecar' && n.container === 'namespace-api-migrations') {
           label = 'Sidecar (Migrations)';
         } else if (n.component === 'sidecar' && n.container === 'status-sidecar') {

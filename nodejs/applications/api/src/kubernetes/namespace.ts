@@ -280,7 +280,7 @@ export const KubernetesNamespace = {
      * CONNECTOR
      * ======================
      */
-    await statefulSetApiV1.delete(`${name}-aggregation-api-connector`, 'dynamic');
+    await statefulSetApiV1.delete(`${name}-connector`, 'dynamic');
     const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
     if (isDevelopment) {
       await statefulSetApiV1.create('dynamic', {
@@ -339,6 +339,24 @@ export const KubernetesNamespace = {
         },
       });
     }
+
+    /**
+     * ======================
+     * METRICS
+     * ======================
+     */
+    await deploymentApiV1.delete(`${name}-metrics`, 'dynamic');
+    await deploymentApiV1.create('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'metrics' },
+        name: `${name}-metrics`,
+      },
+      spec: {
+        replicas: 1,
+        selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'metrics' } },
+        template: getMetricsPodTemplate(namespace),
+      },
+    });
   },
 };
 
@@ -558,6 +576,9 @@ function getCdcPodTemplate(namespace: NamespaceDocument): V1Pod {
   const labels = KubernetesNamespace.getLabels(namespace);
   const name = KubernetesNamespace.getName(namespace._id);
 
+  const env: V1EnvVar[] = [
+    { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
+  ];
   const envFrom: V1EnvFromSource[] = [{ secretRef: { name: 'nodejs' } }, { secretRef: { name } }];
   const resources = { requests: { cpu: '25m', memory: '75Mi' } };
 
@@ -573,7 +594,7 @@ function getCdcPodTemplate(namespace: NamespaceDocument): V1Pod {
         containers: [
           {
             command: ['npm', 'run', 'start'],
-            env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
+            env,
             envFrom,
             image: `tenlastic/node-development:latest`,
             name: 'main',
@@ -597,13 +618,78 @@ function getCdcPodTemplate(namespace: NamespaceDocument): V1Pod {
         affinity: getAffinity(namespace, 'cdc'),
         containers: [
           {
-            env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
+            env,
             envFrom,
             image: `tenlastic/cdc:${version}`,
             name: 'main',
             resources,
           },
         ],
+      },
+    };
+  }
+}
+
+function getMetricsPodTemplate(namespace: NamespaceDocument): V1Pod {
+  const labels = KubernetesNamespace.getLabels(namespace);
+  const name = KubernetesNamespace.getName(namespace._id);
+
+  const env: V1EnvVar[] = [
+    {
+      name: 'API_KEY',
+      valueFrom: { secretKeyRef: { key: 'NAMESPACES', name: `${name}-api-keys` } },
+    },
+    { name: 'ENDPOINT', value: `http://api.static:3000/namespaces/${namespace._id}` },
+    { name: 'LABEL_SELECTOR', value: `tenlastic.com/app=${name}` },
+  ];
+  const envFrom: V1EnvFromSource[] = [{ secretRef: { name: 'nodejs' } }, { secretRef: { name } }];
+  const resources = { requests: { cpu: '25m', memory: '75Mi' } };
+
+  const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
+  if (isDevelopment) {
+    return {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'metrics' },
+        name: `${name}-metrics`,
+      },
+      spec: {
+        affinity: getAffinity(namespace, 'metrics'),
+        containers: [
+          {
+            command: ['npm', 'run', 'start'],
+            env,
+            envFrom,
+            image: `tenlastic/node-development:latest`,
+            name: 'main',
+            resources: { limits: { cpu: '1000m' }, requests: resources.requests },
+            volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
+            workingDir: `/usr/src/nodejs/applications/metrics/`,
+          },
+        ],
+        serviceAccountName: 'metrics',
+        volumes: [
+          { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
+        ],
+      },
+    };
+  } else {
+    return {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': 'metrics' },
+        name,
+      },
+      spec: {
+        affinity: getAffinity(namespace, 'metrics'),
+        containers: [
+          {
+            env,
+            envFrom,
+            image: `tenlastic/metrics:${version}`,
+            name: 'main',
+            resources,
+          },
+        ],
+        serviceAccountName: 'metrics',
       },
     };
   }

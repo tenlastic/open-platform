@@ -1,0 +1,13 @@
+components:
+  schemas:
+    NamespaceStatusLimits:
+      type: object
+      properties:
+        bandwidth:
+          type: number
+        cpu:
+          type: number
+        memory:
+          type: number
+        storage:
+          type: number

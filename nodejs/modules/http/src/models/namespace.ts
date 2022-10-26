@@ -11,7 +11,7 @@ export namespace INamespace {
 
   export interface Status {
     components?: StatusComponent[];
-    limits?: StatusLimit[];
+    limits?: StatusLimits;
     nodes?: StatusNode[];
     phase: string;
     version?: string;
@@ -24,10 +24,11 @@ export namespace INamespace {
     total: number;
   }
 
-  export interface StatusLimit {
-    current: number;
-    name: string;
-    total: number;
+  export interface StatusLimits {
+    bandwidth?: number;
+    cpu?: number;
+    memory?: number;
+    storage?: number;
   }
 
   export interface StatusNode {

@@ -8,13 +8,14 @@ import {
 } from '@typegoose/typegoose';
 
 import { NamespaceStatusComponentSchema } from './component';
-import { NamespaceStatusLimitSchema } from './limit';
+import { NamespaceStatusLimitsSchema } from './limits';
 import { NamespaceStatusNodeSchema } from './node';
 
 export enum NamespaceStatusComponentName {
   Api = 'api',
   Cdc = 'cdc',
   Connector = 'connector',
+  Metrics = 'metrics',
   Sidecar = 'sidecar',
 }
 
@@ -31,8 +32,8 @@ export class NamespaceStatusSchema {
   @prop({ type: NamespaceStatusComponentSchema }, PropType.ARRAY)
   public components: NamespaceStatusComponentSchema[];
 
-  @prop({ type: NamespaceStatusLimitSchema }, PropType.ARRAY)
-  public limits: NamespaceStatusLimitSchema[];
+  @prop({ type: NamespaceStatusLimitsSchema })
+  public limits: NamespaceStatusLimitsSchema;
 
   @prop({ type: NamespaceStatusNodeSchema }, PropType.ARRAY)
   public nodes: NamespaceStatusNodeSchema[];
