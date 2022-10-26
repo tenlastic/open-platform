@@ -49,6 +49,7 @@ let isUpdatingStatus = false;
     async (type, pod: V1Pod) => {
       if (pod.status?.message === 'Pod was terminated in response to imminent node shutdown.') {
         console.log(`Pod - EVICTED: ${pod.metadata.name}.`);
+        delete pods[pod.metadata.name];
         return;
       }
 
