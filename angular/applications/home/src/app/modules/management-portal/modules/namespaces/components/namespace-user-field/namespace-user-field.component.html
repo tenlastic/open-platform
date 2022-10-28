@@ -19,7 +19,7 @@
     <ng-container *ngIf="!isLoading">
       <mat-option *ngFor="let user of users"
                   [value]="user">
-        <span>{{ user.username }}</span>
+        <div>{{ user.username }}</div>
       </mat-option>
     </ng-container>
   </mat-autocomplete>
@@ -39,5 +39,5 @@
             layout="left"
             (OnClick)="remove.emit()">
   <mat-icon>close</mat-icon>
-  <span>Remove</span>
+  <div>Remove</div>
 </app-button>

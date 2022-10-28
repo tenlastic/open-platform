@@ -1,34 +1,31 @@
-<app-button
-  *ngIf="users.length"
-  color="accent"
-  layout="vertical"
-  text="left"
-  width="full"
-  (OnClick)="isVisible = !isVisible"
->
-  <span>{{ header }}</span>
+<app-button *ngIf="users.length"
+            color="accent"
+            layout="vertical"
+            text="left"
+            width="full"
+            (OnClick)="isVisible = !isVisible">
+  <div>{{ header }}</div>
   <mat-icon>
     {{ isVisible ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
   </mat-icon>
 </app-button>
 
 <ng-container *ngIf="isVisible">
-  <app-button
-    *ngFor="let user of users"
-    color="accent"
-    layout="vertical"
-    text="left"
-    width="full"
-    [ngClass]="{
+  <app-button *ngFor="let user of users"
+              color="accent"
+              layout="vertical"
+              text="left"
+              width="full"
+              [ngClass]="{
       active: ($activeUser | async)?._id === user._id,
       online: $getWebSocket(user._id) | async,
       offline: ($getWebSocket(user._id) | async) === undefined
     }"
-    (OnClick)="setUser(user)"
-  >
+              (OnClick)="setUser(user)">
     <mat-icon>
       {{ ($getWebSocket(user._id) | async) ? 'brightness_1' : 'radio_button_unchecked' }}
     </mat-icon>
+
     <div class="label">
       {{ user.username }}
       <div class="status">
@@ -41,8 +38,10 @@
         <ng-template #offline>Offline</ng-template>
       </div>
     </div>
-    <span *ngIf="$getUnreadMessagesCount(user._id) | async as messageCount" class="badge">
+
+    <div *ngIf="$getUnreadMessagesCount(user._id) | async as messageCount"
+         class="badge">
       {{ messageCount }}
-    </span>
+    </div>
   </app-button>
 </ng-container>

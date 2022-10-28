@@ -19,12 +19,12 @@
       <app-button *ngIf="data.$logs | async as logs"
                   color="accent"
                   (click)="toggleVisibility(logs)">
-        {{ isVisible ? 'Collapse' : 'Expand' }} All
+        <div>{{ isVisible ? 'Collapse' : 'Expand' }} All</div>
       </app-button>
 
       <app-button color="primary"
                   (click)="toggleIsLive()">
-        {{ isLive ? 'Stop' : 'Start' }} Live Tail
+        <div>{{ isLive ? 'Stop' : 'Start' }} Live Tail</div>
       </app-button>
     </ng-container>
   </div>
@@ -37,8 +37,8 @@
          class="log"
          [ngClass]="visibility[log.unix] ? 'expanded' : 'collapsed'"
          (click)="visibility[log.unix] = !visibility[log.unix]">
-      <span class="timestamp">[{{ log.unix | date: 'M/d/yy, H:mm:ss' }}]</span>
-      <span>{{ log.body }}</span>
+      <div class="timestamp">[{{ log.unix | date: 'M/d/yy, H:mm:ss' }}]</div>
+      <div>{{ log.body }}</div>
     </div>
   </ng-container>
 

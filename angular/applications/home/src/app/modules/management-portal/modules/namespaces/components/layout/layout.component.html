@@ -10,7 +10,7 @@
                 text="left"
                 width="full">
       <mat-icon>layers</mat-icon>
-      <span>{{ namespace.name }}</span>
+      <div>{{ namespace.name }}</div>
     </app-button>
 
     <hr *ngIf="$hasRelated | async">
@@ -26,7 +26,7 @@
                 text="left"
                 width="full">
       <mat-icon>vpn_key</mat-icon>
-      <span>Authorizations</span>
+      <div>Authorizations</div>
     </app-button>
 
     <app-button *ngIf="$hasPermission(IAuthorization.buildRoles) | async"
@@ -40,7 +40,7 @@
                 text="left"
                 width="full">
       <mat-icon>unarchive</mat-icon>
-      <span>Builds</span>
+      <div>Builds</div>
     </app-button>
 
     <app-button *ngIf="$hasPermission(IAuthorization.collectionRoles) | async"
@@ -54,7 +54,7 @@
                 text="left"
                 width="full">
       <mat-icon>category</mat-icon>
-      <span>Collections</span>
+      <div>Collections</div>
     </app-button>
 
     <app-button *ngIf="$hasPermission(IAuthorization.gameServerRoles) | async"
@@ -68,7 +68,7 @@
                 text="left"
                 width="full">
       <mat-icon>public</mat-icon>
-      <span>Game Servers</span>
+      <div>Game Servers</div>
     </app-button>
 
     <app-button *ngIf="$hasPermission(IAuthorization.queueRoles) | async"
@@ -82,7 +82,7 @@
                 text="left"
                 width="full">
       <mat-icon>hourglass_bottom</mat-icon>
-      <span>Queues</span>
+      <div>Queues</div>
     </app-button>
 
     <app-button *ngIf="$hasPermission(IAuthorization.storefrontRoles) | async"
@@ -96,7 +96,7 @@
                 text="left"
                 width="full">
       <mat-icon>storefront</mat-icon>
-      <span>Storefront</span>
+      <div>Storefront</div>
     </app-button>
 
     <app-button *ngIf="$hasPermission(IAuthorization.workflowRoles) | async"
@@ -110,7 +110,7 @@
                 text="left"
                 width="full">
       <mat-icon>rule</mat-icon>
-      <span>Workflows</span>
+      <div>Workflows</div>
     </app-button>
   </div>
 

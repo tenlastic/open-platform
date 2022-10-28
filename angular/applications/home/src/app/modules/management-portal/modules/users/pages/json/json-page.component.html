@@ -8,7 +8,7 @@
       <app-button color="accent"
                   (OnClick)="navigateToForm()">
         <mat-icon>format_list_bulleted</mat-icon>
-        <span>{{ data?._id ? 'Edit' : 'Create' }} as Form</span>
+        <div>{{ data?._id ? 'Edit' : 'Create' }} as Form</div>
       </app-button>
     </div>
   </div>
@@ -40,5 +40,7 @@
   </div>
 
   <app-button color="primary"
-              (OnClick)="save()">Save</app-button>
+              (OnClick)="save()">
+    <div>Save</div>
+  </app-button>
 </div>

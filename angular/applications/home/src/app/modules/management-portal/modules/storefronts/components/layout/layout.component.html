@@ -10,7 +10,7 @@
                 text="left"
                 width="full">
       <mat-icon>storefront</mat-icon>
-      <span>{{ storefront.title }}</span>
+      <div>{{ storefront.title }}</div>
     </app-button>
 
     <hr>
@@ -22,7 +22,7 @@
                 text="left"
                 width="full">
       <mat-icon>image</mat-icon>
-      <span>Images / Videos</span>
+      <div>Images / Videos</div>
     </app-button>
 
     <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
@@ -33,7 +33,7 @@
                 text="left"
                 width="full">
       <mat-icon>format_list_bulleted</mat-icon>
-      <span>Guides</span>
+      <div>Guides</div>
     </app-button>
 
     <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
@@ -44,7 +44,7 @@
                 text="left"
                 width="full">
       <mat-icon>campaign</mat-icon>
-      <span>News</span>
+      <div>News</div>
     </app-button>
 
     <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
@@ -55,7 +55,7 @@
                 text="left"
                 width="full">
       <mat-icon>healing</mat-icon>
-      <span>Patch Notes</span>
+      <div>Patch Notes</div>
     </app-button>
   </div>
 

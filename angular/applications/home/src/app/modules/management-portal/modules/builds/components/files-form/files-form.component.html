@@ -31,22 +31,22 @@
 
     <div class="list">
       <mat-label>
-        <span>Reference Files</span>
+        <div>Reference Files</div>
       </mat-label>
 
       <mat-list>
         <mat-list-item *ngFor="let file of referenceBuild?.files"
                        [attr.status]="file.status">
-          <span>{{ file.path }}</span>
-          <span *ngIf="file.uncompressedBytes !== undefined && file.uncompressedBytes !== null">
+          <div>{{ file.path }}</div>
+          <div *ngIf="file.uncompressedBytes !== undefined && file.uncompressedBytes !== null">
             {{ file.uncompressedBytes | filesize }}
-          </span>
+          </div>
         </mat-list-item>
       </mat-list>
 
       <mat-hint>
-        <span>Count: {{ referenceBuild ? referenceBuild.files.length : 0 }}</span>
-        <span>Size: {{ referenceBuild ? (referenceBuild.files | sum: 'uncompressedBytes' | filesize) : '0 B' }}</span>
+        <div>Count: {{ referenceBuild ? referenceBuild.files.length : 0 }}</div>
+        <div>Size: {{ referenceBuild ? (referenceBuild.files | sum: 'uncompressedBytes' | filesize) : '0 B' }}</div>
       </mat-hint>
     </div>
   </div>
@@ -66,7 +66,7 @@
     <div *ngIf="!isNew || form.get('files').value.length > 0"
          class="list">
       <mat-label>
-        <span>{{ isNew ? 'Staged Files' : 'Files' }}</span>
+        <div>{{ isNew ? 'Staged Files' : 'Files' }}</div>
       </mat-label>
 
       <mat-list>
@@ -74,32 +74,32 @@
                        [attr.status]="file.status"
                        [ngClass]="{ pointer: isNew }"
                        (click)="setEntrypoint(file.path)">
-          <span>{{ file.path }}</span>
-          <span *ngIf="
+          <div>{{ file.path }}</div>
+          <div *ngIf="
             file.uncompressedBytes !== undefined && file.uncompressedBytes !== null
           ">
             {{ file.uncompressedBytes | filesize }}
-          </span>
+          </div>
         </mat-list-item>
       </mat-list>
 
       <mat-hint>
-        <span *ngIf="isNew">
+        <div *ngIf="isNew">
           Count: {{ modifiedFiles.length }} Modified, {{ removedFiles.length }} Removed,
           {{ unmodifiedFiles.length }} Unmodified
-        </span>
-        <span *ngIf="isNew">
+        </div>
+        <div *ngIf="isNew">
           Size: {{ modifiedFiles | sum: 'uncompressedBytes' | filesize }} Modified,
           {{ removedFiles | sum: 'uncompressedBytes' | filesize }} Removed,
           {{ unmodifiedFiles | sum: 'uncompressedBytes' | filesize }} Unmodified
-        </span>
+        </div>
       </mat-hint>
     </div>
 
     <div *ngIf="isNew && form.get('files').value.length === 0 && referenceBuild"
          class="list">
       <mat-label>
-        <span>{{ isNew ? 'Staged Files' : 'Files' }}</span>
+        <div>{{ isNew ? 'Staged Files' : 'Files' }}</div>
       </mat-label>
 
       <mat-list>
@@ -107,23 +107,23 @@
                        [attr.status]="file.status"
                        [ngClass]="{ pointer: isNew }"
                        (click)="setEntrypoint(file.path)">
-          <span>{{ file.path }}</span>
-          <span *ngIf="file.uncompressedBytes !== undefined && file.uncompressedBytes !== null">
+          <div>{{ file.path }}</div>
+          <div *ngIf="file.uncompressedBytes !== undefined && file.uncompressedBytes !== null">
             {{ file.uncompressedBytes | filesize }}
-          </span>
+          </div>
         </mat-list-item>
       </mat-list>
 
       <mat-hint>
-        <span *ngIf="isNew">
+        <div *ngIf="isNew">
           Count: {{ modifiedFiles.length }} Modified, {{ removedFiles.length }} Removed,
           {{ referenceBuild.files.length }} Unmodified
-        </span>
-        <span *ngIf="isNew">
+        </div>
+        <div *ngIf="isNew">
           Size: {{ modifiedFiles | sum: 'uncompressedBytes' | filesize }} Modified,
           {{ removedFiles | sum: 'uncompressedBytes' | filesize }} Removed,
           {{ referenceBuild.files | sum: 'uncompressedBytes' | filesize }} Unmodified
-        </span>
+        </div>
       </mat-hint>
     </div>
   </div>
@@ -136,7 +136,7 @@
               (OnClick)="selectDirectoryInput.click()">
     <mat-spinner *ngIf="status"
                  [diameter]="20"></mat-spinner>
-    <span>{{ status ? status : 'Select Directory from Computer' }}</span>
+    <div>{{ status ? status : 'Select Directory from Computer' }}</div>
   </app-button>
 
   <app-button *ngIf="form.get('files').value.length === 0 || !referenceBuild || status"
@@ -145,12 +145,12 @@
               (OnClick)="selectFilesInput.click()">
     <mat-spinner *ngIf="status"
                  [diameter]="20"></mat-spinner>
-    <span>{{ status ? status : 'Select Files from Computer' }}</span>
+    <div>{{ status ? status : 'Select Files from Computer' }}</div>
   </app-button>
 
   <app-button *ngIf="form.get('files').value.length > 0 && referenceBuild && !status"
               color="accent"
               (OnClick)="useReferenceFiles()">
-    <span>Select Reference Files</span>
+    <div>Select Reference Files</div>
   </app-button>
 </ng-container>

@@ -9,6 +9,12 @@
   transform: translate(-50%, -50%);
 }
 
+div {
+  color: white;
+  font-family: 'Oswald', sans-serif;
+  margin-left: 4px;
+}
+
 mat-spinner {
   display: inline-block;
   margin-right: 8px;
@@ -19,10 +25,4 @@ mat-spinner {
       stroke: white;
     }
   }
-}
-
-span {
-  color: white;
-  font-family: 'Oswald', sans-serif;
-  margin-left: 4px;
 }

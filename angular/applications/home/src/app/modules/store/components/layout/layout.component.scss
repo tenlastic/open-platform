@@ -13,7 +13,7 @@ app-header-toolbar::ng-deep {
     height: 21px;
 
     & > div {
-      vertical-align: inherit;
+      margin-top: 0px;
 
       div {
         margin-top: -4px;
@@ -24,7 +24,6 @@ app-header-toolbar::ng-deep {
       height: 32px;
       max-height: initial;
       margin: -10px 12px -10px 0px;
-      vertical-align: inherit;
     }
 
     mat-icon.mat-icon {
@@ -68,7 +67,7 @@ div.content {
     div.title {
       margin-top: -6px;
 
-      span {
+      div {
         display: block;
         max-width: 100px;
         overflow: hidden;

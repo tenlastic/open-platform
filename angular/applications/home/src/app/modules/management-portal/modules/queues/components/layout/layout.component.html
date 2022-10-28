@@ -10,7 +10,7 @@
                 text="left"
                 width="full">
       <mat-icon>hourglass_bottom</mat-icon>
-      <span>{{ queue.name }}</span>
+      <div>{{ queue.name }}</div>
     </app-button>
 
     <hr *ngIf="$hasRelated | async">
@@ -23,7 +23,7 @@
                 text="left"
                 width="full">
       <mat-icon>public</mat-icon>
-      <span>Game Servers</span>
+      <div>Game Servers</div>
     </app-button>
   </div>
 

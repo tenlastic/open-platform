@@ -17,7 +17,7 @@
       <div class="status">{{ async.webSocket ? 'Online' : 'Offline' }}</div>
     </div>
 
-    <span>
+    <div>
       <app-button *ngIf="identityService.user._id !== user._id"
                   color="accent"
                   [matTooltip]="async.friend ? 'Unfriend' : 'Friend'"
@@ -59,7 +59,7 @@
                   (OnClick)="close()">
         <mat-icon>close</mat-icon>
       </app-button>
-    </span>
+    </div>
   </div>
 
   <ng-container *ngIf="!loadingMessage">
@@ -71,8 +71,8 @@
             message.createdAt | date: 'h:mm a'
           }}"
              matTooltipPosition="before">
-          <span class="sender">[{{ getUser(message.fromUserId).username }}]:</span>
-          <span>{{ message.body }}</span>
+          <div class="sender">[{{ getUser(message.fromUserId).username }}]:</div>
+          <div>{{ message.body }}</div>
         </div>
       </ng-container>
 

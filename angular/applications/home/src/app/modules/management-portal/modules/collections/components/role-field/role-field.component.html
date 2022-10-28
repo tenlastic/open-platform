@@ -36,7 +36,7 @@
                   layout="left"
                   (OnClick)="addCriterion()">
         <mat-icon>add</mat-icon>
-        <span>Add Criterion</span>
+        <div>Add Criterion</div>
       </app-button>
     </div>
   </app-toggle-section>
@@ -111,7 +111,7 @@
                   layout="left"
                   (OnClick)="addFindCriterion()">
         <mat-icon>add</mat-icon>
-        <span>Add Criterion</span>
+        <div>Add Criterion</div>
       </app-button>
     </div>
   </app-toggle-section>
@@ -124,19 +124,21 @@
               layout="left"
               (OnClick)="moveUp.emit()">
     <mat-icon>arrow_upward</mat-icon>
-    <span>Move Up</span>
+    <div>Move Up</div>
   </app-button>
+
   <app-button *ngIf="index < length - 2"
               color="accent"
               layout="left"
               (OnClick)="moveDown.emit()">
     <mat-icon>arrow_downward</mat-icon>
-    <span>Move Down</span>
+    <div>Move Down</div>
   </app-button>
+
   <app-button color="accent"
               layout="left"
               (OnClick)="remove.emit()">
     <mat-icon>close</mat-icon>
-    <span>Remove Role</span>
+    <div>Remove Role</div>
   </app-button>
 </div>

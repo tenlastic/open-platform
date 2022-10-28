@@ -1,19 +1,29 @@
 <form [formGroup]="form">
   <mat-form-field floatLabel="always">
     <mat-label>Username</mat-label>
-    <input matInput autofocus formControlName="username" />
+    <input matInput
+           autofocus
+           formControlName="username" />
     <mat-error>Enter a valid username.</mat-error>
   </mat-form-field>
 
-  <mat-form-field floatLabel="always" margin-top>
+  <mat-form-field floatLabel="always"
+                  margin-top>
     <mat-label>Password</mat-label>
-    <input matInput type="password" formControlName="password" />
+    <input matInput
+           type="password"
+           formControlName="password" />
     <mat-error>Enter a password.</mat-error>
   </mat-form-field>
 
-  <app-form-message *ngIf="error" level="error" text="center">{{ error }}</app-form-message>
+  <app-form-message *ngIf="error"
+                    level="error"
+                    text="center">{{ error }}</app-form-message>
 
-  <app-button centered color="primary" layout="vertical" (OnClick)="submit()">
-    <span>Submit</span>
+  <app-button centered
+              color="primary"
+              layout="vertical"
+              (OnClick)="submit()">
+    <div>Submit</div>
   </app-button>
 </form>

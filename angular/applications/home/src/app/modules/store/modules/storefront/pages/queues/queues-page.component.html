@@ -37,7 +37,7 @@
                     mat-button
                     color="accent"
                     (OnClick)="leaveQueue(queueMember)">
-          <span>Leave Solo Queue</span>
+          <div>Leave Solo Queue</div>
         </app-button>
 
         <app-button *ngIf="
@@ -47,7 +47,7 @@
                     mat-button
                     color="accent"
                     (OnClick)="leaveQueue(queueMember)">
-          <span>Leave Group Queue</span>
+          <div>Leave Group Queue</div>
         </app-button>
 
         <app-button *ngIf="
@@ -57,7 +57,7 @@
                     mat-button
                     color="primary"
                     (OnClick)="joinAsIndividual(element)">
-          <span>Join as Individual</span>
+          <div>Join as Individual</div>
         </app-button>
 
         <app-button *ngIf="
@@ -69,7 +69,7 @@
                     mat-button
                     color="primary"
                     (OnClick)="joinAsGroup(element)">
-          <span>Join as Group</span>
+          <div>Join as Group</div>
         </app-button>
       </td>
     </ng-container>

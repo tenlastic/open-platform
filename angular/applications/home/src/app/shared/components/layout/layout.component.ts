@@ -1,17 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-  AuthorizationModel,
   AuthorizationService,
-  AuthorizationStore,
   NamespaceModel,
   NamespaceQuery,
   NamespaceService,
-  NamespaceStore,
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
-  StorefrontStore,
   StreamService,
   TokenService,
 } from '@tenlastic/http';

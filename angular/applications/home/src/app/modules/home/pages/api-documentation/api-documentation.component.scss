@@ -53,7 +53,7 @@
     color: white !important;
   }
 
-  h2.title span {
+  h2.title div {
     display: none;
   }
 
@@ -118,6 +118,11 @@
 
   section.response-controls {
     display: none;
+  }
+
+  small pre {
+    background: none !important;
+    box-shadow: none !important;
   }
 
   span.opblock-summary-method {

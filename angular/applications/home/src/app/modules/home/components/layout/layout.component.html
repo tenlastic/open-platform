@@ -6,28 +6,28 @@
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: true }">
     <mat-icon>home</mat-icon>
-    <span>Home</span>
+    <div>Home</div>
   </app-button>
 
   <app-button color="accent"
               routerLink="api-documentation"
               routerLinkActive="active">
     <mat-icon>description</mat-icon>
-    <span>API Documentation</span>
+    <div>API Documentation</div>
   </app-button>
   <app-button color="accent"
               href="https://github.com/tenlastic/open-platform"
               target="_blank">
     <mat-icon>code</mat-icon>
-    <span>Github Repository</span>
+    <div>Github Repository</div>
   </app-button>
 
-  <span class="space"></span>
+  <div class="space"></div>
 
   <app-button *ngIf="!electronService.isElectron"
               color="primary"
               [href]="launcherUrl">
-    <span>Download Launcher</span>
+    <div>Download Launcher</div>
   </app-button>
 </app-header-toolbar>
 

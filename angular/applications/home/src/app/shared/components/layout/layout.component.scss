@@ -17,7 +17,7 @@ mat-toolbar.mat-toolbar {
     }
   }
 
-  span.space {
+  div.space {
     color: white;
     flex: 1 1 auto;
     font-size: 12px;
@@ -40,6 +40,10 @@ mat-toolbar.mat-toolbar {
 
       &:hover {
         box-shadow: none;
+      }
+
+      span.mat-button-wrapper > div {
+        margin-top: -4px;
       }
 
       mat-icon.mat-icon {

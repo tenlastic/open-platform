@@ -7,29 +7,47 @@
   Send us a message and we'll respond as soon as possible.
 </p>
 
-<form *ngIf="!isSubmitted" centered [formGroup]="form">
+<form *ngIf="!isSubmitted"
+      centered
+      [formGroup]="form">
   <div class="row">
-    <mat-form-field class="col-sm-6" floatLabel="always">
+    <mat-form-field class="col-sm-6"
+                    floatLabel="always">
       <mat-label>Name</mat-label>
-      <input matInput required type="text" formControlName="name" />
+      <input matInput
+             required
+             type="text"
+             formControlName="name" />
       <mat-error>Enter your name.</mat-error>
     </mat-form-field>
 
-    <mat-form-field class="col-sm-6" floatLabel="always">
+    <mat-form-field class="col-sm-6"
+                    floatLabel="always">
       <mat-label>Email address</mat-label>
-      <input matInput required type="email" formControlName="email" />
+      <input matInput
+             required
+             type="email"
+             formControlName="email" />
       <mat-error>Enter a valid email address.</mat-error>
     </mat-form-field>
   </div>
 
   <mat-form-field floatLabel="always">
     <mat-label>Message</mat-label>
-    <textarea matInput cdkTextareaAutosize type="text" formControlName="message"></textarea>
+    <textarea matInput
+              cdkTextareaAutosize
+              type="text"
+              formControlName="message"></textarea>
   </mat-form-field>
 
-  <app-button color="primary" layout="vertical" (click)="submit()">Submit</app-button>
+  <app-button color="primary"
+              layout="vertical"
+              (click)="submit()">
+    <div>Submit</div>
+  </app-button>
 </form>
 
-<div *ngIf="isSubmitted" class="center">
+<div *ngIf="isSubmitted"
+     class="center">
   Thank you for your submission.
 </div>

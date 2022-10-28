@@ -19,7 +19,7 @@
     <ng-container *ngIf="!isLoading">
       <mat-option *ngFor="let user of ($users | async)"
                   [value]="user">
-        <span>{{ user.username }}</span>
+        <div>{{ user.username }}</div>
       </mat-option>
     </ng-container>
   </mat-autocomplete>

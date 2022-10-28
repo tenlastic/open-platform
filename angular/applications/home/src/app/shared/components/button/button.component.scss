@@ -145,14 +145,15 @@
     }
 
     &::ng-deep {
-      div {
+      span.mat-button-wrapper > div {
         display: inline-block;
+        margin-top: -7px;
 
         div {
           display: block;
 
           &:nth-child(1) {
-            margin-top: -2px;
+            margin-top: 5px;
           }
 
           &:nth-child(2) {
@@ -181,21 +182,11 @@
         }
       }
 
-      span.mat-button-wrapper span {
-        margin-right: 2px;
-        outline: none;
-        vertical-align: baseline;
-        white-space: nowrap;
-
-        + mat-icon {
-          margin-left: 6px;
-          margin-right: 0px;
-        }
-      }
-
       span.mat-button-wrapper div + mat-icon {
         margin-left: 6px;
         margin-right: 0px;
+        outline: none;
+        white-space: nowrap;
       }
     }
   }

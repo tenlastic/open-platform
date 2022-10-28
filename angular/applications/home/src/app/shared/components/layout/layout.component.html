@@ -1,12 +1,12 @@
 <mat-toolbar>
-  <span class="space"></span>
+  <div class="space"></div>
 
   <app-button color="accent"
               routerLink="/"
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: true }">
     <mat-icon>home</mat-icon>
-    <span>Home</span>
+    <div>Home</div>
   </app-button>
 
   <ng-container *ngIf="user">
@@ -15,7 +15,7 @@
                 routerLink="/management-portal"
                 routerLinkActive="active">
       <mat-icon>admin_panel_settings</mat-icon>
-      <span>Management Portal</span>
+      <div>Management Portal</div>
     </app-button>
 
     <app-button *ngIf="($storefronts | async)?.length > 0"
@@ -23,14 +23,14 @@
                 [routerLink]="['/store']"
                 routerLinkActive="active">
       <mat-icon>sports_esports</mat-icon>
-      <span>Store</span>
+      <div>Store</div>
     </app-button>
 
     <app-button color="accent"
                 routerLink="/account"
                 routerLinkActive="active">
       <mat-icon>{{ socket?.readyState === 1 ? 'person' : 'person_outline' }}</mat-icon>
-      <span>{{ user.username }}</span>
+      <div>{{ user.username }}</div>
     </app-button>
   </ng-container>
 
@@ -39,7 +39,7 @@
               routerLink="/authentication/log-in"
               routerLinkActive="active">
     <mat-icon>lock</mat-icon>
-    <span>Log In</span>
+    <div>Log In</div>
   </app-button>
 
   <ng-container *ngIf="isElectron">

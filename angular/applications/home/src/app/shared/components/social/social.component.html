@@ -25,7 +25,7 @@
           <app-button *ngIf="!isWaitingForGameServer"
                       color="primary"
                       (OnClick)="joinGameServer(gameServer)">
-            <span>Join Game Server</span>
+            <div>Join Game Server</div>
           </app-button>
 
           <app-button *ngIf="isWaitingForGameServer"
@@ -33,7 +33,7 @@
                       [disabled]="true"
                       (OnClick)="joinGameServer(gameServer)">
             <mat-spinner diameter="20"></mat-spinner>
-            <span>Joining Game Server...</span>
+            <div>Joining Game Server...</div>
           </app-button>
         </div>
       </div>
@@ -52,7 +52,7 @@
       <div class="hover-on">
         <app-button color="primary"
                     (OnClick)="leaveQueue(queueMember)">
-          Leave Queue
+          <div>Leave Queue</div>
         </app-button>
       </div>
     </div>
@@ -70,9 +70,13 @@
 
         <div class="hover-on">
           <app-button color="accent"
-                      (OnClick)="rejectGroupInvitation()">Reject</app-button>
+                      (OnClick)="rejectGroupInvitation()">
+            <div>Reject</div>
+          </app-button>
           <app-button color="primary"
-                      (OnClick)="acceptGroupInvitation()">Accept</app-button>
+                      (OnClick)="acceptGroupInvitation()">
+            <div>Accept</div>
+          </app-button>
         </div>
       </div>
     </ng-container>
@@ -84,7 +88,7 @@
                 width="full"
                 (OnClick)="newGroup()">
       <mat-icon>group_add</mat-icon>
-      <span>Start Group</span>
+      <div>Start Group</div>
     </app-button>
 
     <app-button *ngIf="$group | async as group"
@@ -96,16 +100,18 @@
                 [ngClass]="{ active: ($activeGroup | async)?._id === group._id }"
                 (OnClick)="setGroup(group)">
       <mat-icon>people</mat-icon>
+
       <div class="label">
         Group
         <div class="status">
           {{ group.userIds.length }} Member{{ group.userIds.length > 1 ? 's' : '' }}
         </div>
       </div>
-      <span *ngIf="$getUnreadGroupMessagesCount(group._id) | async"
-            class="badge">
+
+      <div *ngIf="$getUnreadGroupMessagesCount(group._id) | async"
+           class="badge">
         {{ $getUnreadGroupMessagesCount(group._id) | async }}
-      </span>
+      </div>
     </app-button>
 
     <app-button color="accent"
@@ -114,7 +120,7 @@
                 width="full"
                 (OnClick)="newMessage()">
       <mat-icon>add</mat-icon>
-      <span>New Direct Message</span>
+      <div>New Direct Message</div>
     </app-button>
 
     <app-message-group *ngIf="$group | async as group"

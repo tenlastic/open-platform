@@ -32,7 +32,7 @@
           width: 26px;
         }
 
-        span {
+        div {
           text-transform: uppercase;
         }
       }
@@ -50,7 +50,7 @@
         width: 22px;
       }
 
-      span {
+      div {
         font-size: 18px;
       }
     }
@@ -62,7 +62,7 @@
     div {
       display: flex;
 
-      span {
+      div {
         flex: 1 1 auto;
 
         &:nth-of-type(2) {
@@ -89,7 +89,7 @@
         width: 32px;
       }
 
-      span.text {
+      div.text {
         text-transform: uppercase;
       }
     }

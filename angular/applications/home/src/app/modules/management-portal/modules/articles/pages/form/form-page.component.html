@@ -11,7 +11,7 @@
       <app-button color="accent"
                   (OnClick)="navigateToJson()">
         <mat-icon>code</mat-icon>
-        <span>{{ data?._id ? 'Edit' : 'Create' }} as JSON</span>
+        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
       </app-button>
     </div>
   </div>
@@ -36,7 +36,8 @@
       </mat-form-field>
     </div>
 
-    <div *ngIf="!type" class="row">
+    <div *ngIf="!type"
+         class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Type</mat-label>
         <mat-select [formControl]="form.controls.type | asAny">
@@ -79,5 +80,7 @@
   </div>
 
   <app-button color="primary"
-              (OnClick)="save()">Save</app-button>
+              (OnClick)="save()">
+    <div>Save</div>
+  </app-button>
 </div>

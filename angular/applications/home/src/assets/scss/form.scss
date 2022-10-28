@@ -1,5 +1,9 @@
 @import './theme.scss';
 
+div {
+  color: white;
+}
+
 div.form-error {
   color: #f44336;
   text-align: left;
@@ -85,8 +89,4 @@ h4 {
 
 mat-form-field.mat-form-field {
   display: inline-block;
-}
-
-span {
-  color: white;
 }

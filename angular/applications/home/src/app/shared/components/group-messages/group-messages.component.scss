@@ -61,7 +61,7 @@ div.information-container {
     width: 20px;
   }
 
-  > span {
+  > div {
     flex: 1 1 auto;
     text-align: right;
   }
@@ -113,7 +113,7 @@ div.messages-container {
       white-space: nowrap;
     }
 
-    span.sender {
+    div.sender {
       font-weight: 500;
       margin-right: 2px;
       white-space: nowrap;

@@ -4,14 +4,14 @@
               [disabled]="isButtonDisabled"
               (OnClick)="download()">
     <mat-icon *ngIf="buttonIcon">{{ buttonIcon }}</mat-icon>
-    <span class="text">{{ buttonText }}</span>
+    <div class="text">{{ buttonText }}</div>
   </app-button>
 </div>
 
 <div *ngIf="statusText"
      class="status">
   <div>
-    <span>{{ statusText }}</span>
+    <div>{{ statusText }}</div>
   </div>
 
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
