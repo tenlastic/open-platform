@@ -9,11 +9,6 @@ export const ROUTES: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'namespaces' },
       {
-        path: 'articles',
-        loadChildren: () =>
-          import('./modules/articles/articles.module').then((m) => m.ArticleModule),
-      },
-      {
         path: 'authorizations',
         loadChildren: () =>
           import('./modules/authorizations/authorizations.module').then(

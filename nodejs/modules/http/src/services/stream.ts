@@ -172,7 +172,7 @@ export class StreamService {
     this.subscriptions.push({ _id, logs: parameters, method: 'logs', Model, store, url });
 
     // Wait until web socket is connected to subscribe.
-    if (!this.webSockets.has(url) || this.webSockets.get(url).readyState !== 1) {
+    if (!this.webSockets.has(url) || this.webSockets.get(url)?.readyState !== 1) {
       return _id;
     }
 
@@ -225,7 +225,7 @@ export class StreamService {
     });
 
     // Wait until web socket is connected to subscribe.
-    if (!this.webSockets.has(url) || this.webSockets.get(url).readyState !== 1) {
+    if (!this.webSockets.has(url) || this.webSockets.get(url)?.readyState !== 1) {
       return _id;
     }
 

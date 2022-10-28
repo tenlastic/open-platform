@@ -40,9 +40,9 @@
                [src]="storefront.icon">
           <mat-icon *ngIf="!storefront.icon">storefront</mat-icon>
 
-          <div class="title">
-            <span>{{ storefront.title }}</span>
-            <span *ngIf="storefront.subtitle">{{ storefront.subtitle }}</span>
+          <div>
+            <div>{{ storefront.title }}</div>
+            <div *ngIf="storefront.subtitle">{{ storefront.subtitle }}</div>
           </div>
         </app-button>
       </div>

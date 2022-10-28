@@ -25,6 +25,10 @@
         min-width: 0px;
 
         app-button span.mat-button-wrapper {
+          div > div {
+            display: none !important;
+          }
+
           img {
             margin-right: 0px;
           }
@@ -39,7 +43,7 @@
         }
       }
 
-      > * {
+      > *:not(:last-child) {
         margin-bottom: 4px;
       }
 

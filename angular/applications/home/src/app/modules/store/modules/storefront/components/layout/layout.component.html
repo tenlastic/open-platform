@@ -16,7 +16,7 @@
     </app-button>
 
     <ng-container *ngIf="$hasPermission(IAuthorization.articleRoles) | async">
-      <app-button *ngIf="($guides | async)?.length"
+      <app-button *ngIf="$guide | async"
                   color="accent"
                   layout="vertical"
                   [routerLink]="['guides']"
@@ -27,7 +27,7 @@
         <span>Guides</span>
       </app-button>
 
-      <app-button *ngIf="($news | async)?.length"
+      <app-button *ngIf="$news | async"
                   color="accent"
                   layout="vertical"
                   [routerLink]="['news']"
@@ -38,7 +38,7 @@
         <span>News</span>
       </app-button>
 
-      <app-button *ngIf="($patchNotes | async)?.length"
+      <app-button *ngIf="$patchNotes | async"
                   color="accent"
                   layout="vertical"
                   [routerLink]="['patch-notes']"

@@ -2,8 +2,8 @@
      class="page">
   <div class="row">
     <div class="col-sm-6">
-      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Article</app-title>
-      <app-title *ngIf="!hasWriteAuthorization">View Article</app-title>
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} {{ singular }}</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View {{ singular }}</app-title>
     </div>
 
     <div *ngIf="hasWriteAuthorization"
@@ -36,7 +36,7 @@
       </mat-form-field>
     </div>
 
-    <div class="row">
+    <div *ngIf="!type" class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Type</mat-label>
         <mat-select [formControl]="form.controls.type | asAny">

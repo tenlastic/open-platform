@@ -1,6 +1,6 @@
 :host {
   ::ng-deep {
-    :first-child {
+    > span > :first-child {
       margin-top: -6px;
     }
 
@@ -41,7 +41,7 @@
     }
 
     p {
-      margin: 0px 0px 16px;
+      margin: 0px 0px 8px;
     }
 
     pre,
@@ -56,7 +56,7 @@
     }
 
     ul {
-      margin: 8px 0px;
+      margin: 0px 0px 8px;
     }
   }
 }

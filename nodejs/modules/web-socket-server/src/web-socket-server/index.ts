@@ -69,13 +69,15 @@ export class WebSocketServer {
       await Promise.all(connectionPromises);
 
       ws.on('message', async (data) => {
+        let json: MessageData;
+
         try {
-          const json = JSON.parse(data.toString());
+          json = JSON.parse(data.toString());
 
           const messagePromises = this.messageCallbacks.map((mc) => mc(auth, json, ws));
           await Promise.all(messagePromises);
         } catch (e) {
-          ws.send(JSON.stringify({ error: e.message }));
+          ws.send(JSON.stringify({ _id: json?._id, error: e.message }));
         }
       });
     });

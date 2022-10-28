@@ -1,9 +1,9 @@
 <div class="page">
-  <app-title>Articles</app-title>
+  <app-title>{{ plural }}</app-title>
 
   <div class="row">
     <div class="col-sm-3">
-      <app-data-source-filter [dataSource]="dataSource">Filter Articles</app-data-source-filter>
+      <app-data-source-filter [dataSource]="dataSource">Filter {{ plural }}</app-data-source-filter>
     </div>
 
     <div *ngIf="hasWriteAuthorization"
@@ -11,7 +11,7 @@
       <app-button color="accent"
                   [routerLink]="['new']">
         <mat-icon>add</mat-icon>
-        <span>New Article</span>
+        <span>New {{ singular }}</span>
       </app-button>
     </div>
   </div>

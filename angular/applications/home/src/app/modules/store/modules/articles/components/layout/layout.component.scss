@@ -5,16 +5,6 @@
   flex-direction: column;
   overflow: hidden;
   width: 100vw;
-
-  &::ng-deep {
-    > app-sidenav > div.nav {
-      > app-button {
-        a.mat-button {
-          text-align: center !important;
-        }
-      }
-    }
-  }
 }
 
 app-header-toolbar::ng-deep {
@@ -45,6 +35,29 @@ app-header-toolbar::ng-deep {
 
   mat-toolbar {
     padding: 0px 16px;
+  }
+}
+
+app-button {
+  div.date {
+    color: #ffff55;
+    margin-right: 8px;
+    text-align: center;
+
+    div.day {
+      font-size: 14px;
+      font-weight: bold;
+      margin: -5px 0px -2px;
+    }
+
+    div.month {
+      font-size: 9px;
+      margin-top: -2px;
+    }
+
+    div.year {
+      font-size: 8px;
+    }
   }
 }
 

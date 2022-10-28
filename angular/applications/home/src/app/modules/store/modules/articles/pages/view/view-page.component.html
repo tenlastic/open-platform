@@ -1,0 +1,15 @@
+<div class="container">
+  <div *ngIf="!loadingMessage && $article | async as article"
+       class="page">
+    <app-title>{{ article.title }}</app-title>
+    <h4 *ngIf="article.caption">{{ article.caption }}</h4>
+    <div class="type-date">
+      {{ article.publishedAt | date: 'longDate' }} at
+      {{ article.publishedAt | date: 'shortTime' }}
+    </div>
+
+    <app-markdown [markdown]="article.body"></app-markdown>
+  </div>
+
+  <app-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</app-loading-message>
+</div>

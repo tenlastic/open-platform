@@ -2,6 +2,8 @@ import { ICredentials } from '@tenlastic/mongoose-permissions';
 import * as webSocketServer from '@tenlastic/web-socket-server';
 
 import {
+  Article,
+  ArticlePermissions,
   Authorization,
   AuthorizationDocument,
   Build,
@@ -48,6 +50,9 @@ export async function subscribe(
   }
 
   switch (data.parameters.collection) {
+    case 'articles':
+      return webSocketServer.subscribe(credentials, data, Article, ArticlePermissions, ws);
+
     case 'builds':
       return webSocketServer.subscribe(credentials, data, Build, BuildPermissions, ws);
 

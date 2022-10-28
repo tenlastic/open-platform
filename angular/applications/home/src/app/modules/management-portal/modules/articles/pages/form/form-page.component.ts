@@ -1,8 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { ArticleModel, ArticleService, AuthorizationQuery, IAuthorization } from '@tenlastic/http';
+import { ActivatedRoute, Data, Params, Router } from '@angular/router';
+import {
+  ArticleModel,
+  ArticleService,
+  AuthorizationQuery,
+  IArticle,
+  IAuthorization,
+} from '@tenlastic/http';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 
@@ -15,6 +21,19 @@ export class ArticlesFormPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
+  public get singular() {
+    switch (this.type) {
+      case IArticle.Type.Guide:
+        return 'Guide';
+      case IArticle.Type.News:
+        return 'News';
+      case IArticle.Type.PatchNotes:
+        return 'Patch Notes';
+      default:
+        return 'Article';
+    }
+  }
+  public type: IArticle.Type;
   public types = [
     { label: 'Guide', value: 'Guide' },
     { label: 'News', value: 'News' },
@@ -35,6 +54,7 @@ export class ArticlesFormPageComponent implements OnInit {
   ) {}
 
   public ngOnInit() {
+    this.activatedRoute.data.subscribe((data) => (this.type = data.type));
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
@@ -86,7 +106,7 @@ export class ArticlesFormPageComponent implements OnInit {
       caption: [this.data.caption],
       namespaceId: [this.params.namespaceId, Validators.required],
       title: [this.data.title, Validators.required],
-      type: [this.data.type || this.types[0].value, Validators.required],
+      type: [this.type || this.types[0].value, Validators.required],
     });
 
     if (!this.hasWriteAuthorization) {

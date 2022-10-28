@@ -1,0 +1,25 @@
+<app-sidenav>
+  <div class="nav">
+    <app-button *ngFor="let article of $articles | async"
+                color="accent"
+                layout="vertical"
+                [routerLink]="[article._id]"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <div class="date">
+        <div class="month">{{ article.publishedAt | date:'MMM' | uppercase }}</div>
+        <div class="day">{{ article.publishedAt | date:'dd' }}</div>
+        <div *ngIf="showYear(article)"
+             class="year">{{ article.publishedAt | date:'YYYY' }}</div>
+      </div>
+
+      <div>
+        <div>{{ article.title }}</div>
+        <div *ngIf="article.caption">{{ article.caption }}</div>
+      </div>
+    </app-button>
+  </div>
+
+  <router-outlet></router-outlet>
+</app-sidenav>

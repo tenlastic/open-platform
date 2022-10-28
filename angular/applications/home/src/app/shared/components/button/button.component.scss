@@ -26,6 +26,7 @@
 
 :host {
   display: inline-block;
+  flex: 0 0 auto;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
@@ -149,7 +150,14 @@
 
         div {
           display: block;
-          font-size: 12px;
+
+          &:nth-child(1) {
+            margin-top: -2px;
+          }
+
+          &:nth-child(2) {
+            font-size: 10px;
+          }
         }
       }
 

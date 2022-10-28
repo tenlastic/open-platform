@@ -1,22 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { IArticle } from '@tenlastic/http';
 
 import { SharedModule } from '../../../../shared/shared.module';
-import {
-  ArticleComponent,
-  DownloadComponent,
-  LayoutComponent,
-  StatusComponent,
-} from './components';
+import { DownloadComponent, LayoutComponent, StatusComponent } from './components';
 import { StatusGuard } from './guards';
-import {
-  GameServersPageComponent,
-  GuidesPageComponent,
-  NewsPageComponent,
-  PatchNotesPageComponent,
-  QueuesPageComponent,
-  StorefrontPageComponent,
-} from './pages';
+import { GameServersPageComponent, QueuesPageComponent, StorefrontPageComponent } from './pages';
 
 export const ROUTES: Routes = [
   {
@@ -34,17 +23,20 @@ export const ROUTES: Routes = [
         title: 'Game Servers',
       },
       {
-        component: GuidesPageComponent,
+        data: { type: IArticle.Type.Guide },
+        loadChildren: () => import('../articles/articles.module').then((m) => m.ArticlesModule),
         path: 'guides',
         title: 'Guides',
       },
       {
-        component: NewsPageComponent,
+        data: { type: IArticle.Type.News },
+        loadChildren: () => import('../articles/articles.module').then((m) => m.ArticlesModule),
         path: 'news',
         title: 'News',
       },
       {
-        component: PatchNotesPageComponent,
+        data: { type: IArticle.Type.PatchNotes },
+        loadChildren: () => import('../articles/articles.module').then((m) => m.ArticlesModule),
         path: 'patch-notes',
         title: 'Patch Notes',
       },
@@ -62,15 +54,11 @@ export const ROUTES: Routes = [
 
 @NgModule({
   declarations: [
-    ArticleComponent,
     DownloadComponent,
     LayoutComponent,
     StatusComponent,
 
     GameServersPageComponent,
-    GuidesPageComponent,
-    NewsPageComponent,
-    PatchNotesPageComponent,
     QueuesPageComponent,
     StorefrontPageComponent,
   ],

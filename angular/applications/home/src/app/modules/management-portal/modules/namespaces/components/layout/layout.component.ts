@@ -1,8 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
-  AuthorizationModel,
-  AuthorizationStore,
   AuthorizationQuery,
   AuthorizationService,
   BuildModel,
@@ -74,12 +72,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
   private subscriptions = [
     {
-      Model: AuthorizationModel,
-      parameters: { _id: uuid(), collection: 'authorizations' },
-      service: this.authorizationService,
-      store: this.authorizationStore,
-    },
-    {
       Model: BuildModel,
       parameters: { _id: uuid(), collection: 'builds' },
       service: this.buildService,
@@ -127,7 +119,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
     private authorizationService: AuthorizationService,
-    private authorizationStore: AuthorizationStore,
     private buildService: BuildService,
     private buildStore: BuildStore,
     private collectionService: CollectionService,

@@ -1,35 +1,33 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ArticleModel, ArticleService, StorefrontModel, StorefrontService } from '@tenlastic/http';
+import { StorefrontModel, StorefrontQuery, StorefrontService } from '@tenlastic/http';
+import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   styleUrls: ['./storefront-page.component.scss'],
   templateUrl: 'storefront-page.component.html',
 })
-export class StorefrontPageComponent implements OnInit {
+export class StorefrontPageComponent implements OnDestroy, OnInit {
   @ViewChild('video') private video: ElementRef;
 
-  public articles: ArticleModel[];
-  public get columns() {
-    return this.images.length + this.videos.length >= 8 ? 4 : 3;
-  }
+  public $storefront: Observable<StorefrontModel>;
+  public columns: number;
   public error: string;
-  public get images() {
-    return this.storefront.images.filter((i) => i !== this.mainMedia?.src);
-  }
+  public images: string[] = [];
   public loadingMessage: string;
   public mainMedia: { src: string; type: 'image' | 'video' };
   public storefront: StorefrontModel;
   public get timestamp() {
     return new Date().getTime();
   }
-  public get videos() {
-    return this.storefront.videos.filter((i) => i !== this.mainMedia?.src);
-  }
+  public videos: string[] = [];
+
+  private setImagesAndVideos$ = new Subscription();
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private articleService: ArticleService,
+    private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
   ) {}
 
@@ -37,32 +35,36 @@ export class StorefrontPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.loadingMessage = 'Loading Storefront information...';
 
-      const storefronts = await this.storefrontService.find(params.namespaceId, { limit: 1 });
-      this.storefront = storefronts[0];
+      this.$storefront = this.storefrontQuery
+        .selectAll({ filterBy: (s) => s.namespaceId === params.namespaceId })
+        .pipe(map((s) => s[0]));
 
-      if (this.storefront.videos.length > 0) {
-        this.selectMedia(0, 'video', true);
-      } else {
-        this.selectMedia(0, 'image', true);
-      }
+      this.setImagesAndVideos$ = this.$storefront.subscribe((s) => {
+        if (!s) {
+          return;
+        }
 
-      this.articles = await this.articleService.find(params.namespaceId, {
-        sort: '-publishedAt',
-        where: {
-          namespaceId: this.storefront.namespaceId,
-          publishedAt: { $exists: true, $ne: null },
-        },
+        this.images = s.images.filter((i) => i !== this.mainMedia?.src);
+        this.videos = s.videos.filter((i) => i !== this.mainMedia?.src);
+        this.columns = this.images.length + this.videos.length >= 8 ? 4 : 3;
+
+        if (!this.mainMedia) {
+          this.selectMedia(0, s.videos.length > 0 ? 'video' : 'image');
+        }
       });
+
+      await this.storefrontService.find(params.namespaceId, { limit: 1 });
 
       this.loadingMessage = null;
     });
   }
 
+  public ngOnDestroy() {
+    this.setImagesAndVideos$.unsubscribe();
+  }
+
   public async selectMedia(index: number, type: 'image' | 'video' = 'image', muted = true) {
-    this.mainMedia = {
-      src: type === 'image' ? this.images[index] : this.videos[index],
-      type,
-    };
+    this.mainMedia = { src: type === 'image' ? this.images[index] : this.videos[index], type };
 
     if (type === 'video' && this.video) {
       this.video.nativeElement.load();

@@ -5,10 +5,5 @@ div.container {
   max-width: none;
   overflow: auto;
   padding: 8px;
-}
-
-hr {
-  background: white;
-  border-color: white;
-  margin: 20px 0px 16px;
+  position: relative;
 }

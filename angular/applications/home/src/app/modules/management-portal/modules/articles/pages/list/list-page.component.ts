@@ -10,6 +10,7 @@ import {
   ArticleQuery,
   ArticleService,
   AuthorizationQuery,
+  IArticle,
   IAuthorization,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
@@ -27,10 +28,39 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<ArticleModel>;
 
   public dataSource = new MatTableDataSource<ArticleModel>();
-  public displayedColumns = ['type', 'title', 'publishedAt', 'createdAt', 'actions'];
+  public get displayedColumns() {
+    return this.type
+      ? ['title', 'publishedAt', 'createdAt', 'actions']
+      : ['type', 'title', 'publishedAt', 'createdAt', 'actions'];
+  }
   public hasWriteAuthorization: boolean;
+  public get plural() {
+    switch (this.type) {
+      case IArticle.Type.Guide:
+        return 'Guides';
+      case IArticle.Type.News:
+        return 'News';
+      case IArticle.Type.PatchNotes:
+        return 'Patch Notes';
+      default:
+        return 'Articles';
+    }
+  }
+  public get singular() {
+    switch (this.type) {
+      case IArticle.Type.Guide:
+        return 'Guide';
+      case IArticle.Type.News:
+        return 'News';
+      case IArticle.Type.PatchNotes:
+        return 'Patch Notes';
+      default:
+        return 'Article';
+    }
+  }
 
   private $articles: Observable<ArticleModel[]>;
+  private type: IArticle.Type;
   private updateDataSource$ = new Subscription();
 
   constructor(
@@ -44,6 +74,7 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public ngOnInit() {
+    this.activatedRoute.data.subscribe((data) => (this.type = data.type));
     this.activatedRoute.params.subscribe((params) => {
       const roles = [IAuthorization.Role.ArticlesReadWrite];
       const userId = this.identityService.user?._id;
@@ -61,10 +92,13 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
 
   public async publish($event: Event, article: ArticleModel) {
     $event.stopPropagation();
-    return this.articleService.update(article.namespaceId, article._id, {
+
+    await this.articleService.update(article.namespaceId, article._id, {
       ...article,
       publishedAt: new Date(),
     });
+
+    this.matSnackBar.open('Article published successfully.');
   }
 
   public showDeletePrompt($event: Event, record: ArticleModel) {
@@ -90,20 +124,24 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
 
   public async unpublish($event: Event, article: ArticleModel) {
     $event.stopPropagation();
-    return this.articleService.update(article.namespaceId, article._id, {
+
+    await this.articleService.update(article.namespaceId, article._id, {
       ...article,
       publishedAt: null,
     });
+
+    this.matSnackBar.open('Article unpublished successfully.');
   }
 
   private async fetchArticles(params: Params) {
     this.$articles = this.articleQuery.selectAll({
-      filterBy: (article) => article.namespaceId === params.namespaceId,
+      filterBy: (article) =>
+        article.namespaceId === params.namespaceId && article.type === this.type,
     });
 
     await this.articleService.find(params.namespaceId, {
       sort: '-createdAt',
-      where: { namespaceId: params.namespaceId },
+      where: { namespaceId: params.namespaceId, type: this.type },
     });
 
     this.updateDataSource$ = this.$articles.subscribe(

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { IArticle } from '@tenlastic/http';
 
 import { FormResolver } from '../../../../core/resolvers';
 import { SharedModule } from '../../../../shared/shared.module';
@@ -20,6 +21,11 @@ export const ROUTES: Routes = [
         title: FormResolver,
       },
       {
+        data: { type: IArticle.Type.Guide },
+        path: 'guides',
+        loadChildren: () => import('../articles/articles.module').then((m) => m.ArticleModule),
+      },
+      {
         component: StorefrontsJsonPageComponent,
         data: { param: 'storefrontId', title: 'Storefront' },
         path: 'json',
@@ -28,6 +34,16 @@ export const ROUTES: Routes = [
       {
         component: StorefrontsMultimediaFormPageComponent,
         path: 'multimedia',
+      },
+      {
+        data: { type: IArticle.Type.News },
+        path: 'news',
+        loadChildren: () => import('../articles/articles.module').then((m) => m.ArticleModule),
+      },
+      {
+        data: { type: IArticle.Type.PatchNotes },
+        path: 'patch-notes',
+        loadChildren: () => import('../articles/articles.module').then((m) => m.ArticleModule),
       },
     ],
     component: LayoutComponent,

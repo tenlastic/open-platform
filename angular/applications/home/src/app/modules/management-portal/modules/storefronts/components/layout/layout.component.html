@@ -24,6 +24,39 @@
       <mat-icon>image</mat-icon>
       <span>Images / Videos</span>
     </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
+                color="accent"
+                layout="vertical"
+                [routerLink]="['guides']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>format_list_bulleted</mat-icon>
+      <span>Guides</span>
+    </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
+                color="accent"
+                layout="vertical"
+                [routerLink]="['news']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>campaign</mat-icon>
+      <span>News</span>
+    </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
+                color="accent"
+                layout="vertical"
+                [routerLink]="['patch-notes']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>healing</mat-icon>
+      <span>Patch Notes</span>
+    </app-button>
   </div>
 
   <router-outlet></router-outlet>
