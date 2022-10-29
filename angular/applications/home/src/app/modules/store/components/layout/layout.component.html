@@ -12,39 +12,40 @@
 
 <div class="content">
   <app-social>
-    <app-sidenav>
-      <div appNav
+    <app-sidenav *ngIf="$storefronts | async as storefronts">
+      <div *ngIf="storefronts.length > 1"
+           appNav
            class="nav">
-        <app-button color="accent"
-                    layout="vertical"
-                    [routerLink]="['./']"
-                    routerLinkActive="active"
-                    [routerLinkActiveOptions]="{ exact: true }"
-                    text="left"
-                    width="full">
-          <mat-icon>search</mat-icon>
+        <div class="scroll">
+          <app-button *ngIf="storefronts.length > 5"
+                      color="accent"
+                      layout="vertical"
+                      [routerLink]="['./']"
+                      routerLinkActive="active"
+                      [routerLinkActiveOptions]="{ exact: true }"
+                      text="left"
+                      width="full">
+            <mat-icon>search</mat-icon>
+            <div class="search">Search</div>
+          </app-button>
 
-          <div class="search">
-            <div>Search</div>
-          </div>
-        </app-button>
+          <app-button *ngFor="let storefront of storefronts"
+                      color="accent"
+                      layout="vertical"
+                      [routerLink]="[storefront.namespaceId]"
+                      routerLinkActive="active"
+                      text="left"
+                      width="full">
+            <img *ngIf="storefront.icon"
+                 [src]="storefront.icon">
+            <mat-icon *ngIf="!storefront.icon">storefront</mat-icon>
 
-        <app-button *ngFor="let storefront of ($storefronts | async)"
-                    color="accent"
-                    layout="vertical"
-                    [routerLink]="[storefront.namespaceId]"
-                    routerLinkActive="active"
-                    text="left"
-                    width="full">
-          <img *ngIf="storefront.icon"
-               [src]="storefront.icon">
-          <mat-icon *ngIf="!storefront.icon">storefront</mat-icon>
-
-          <div>
-            <div>{{ storefront.title }}</div>
-            <div *ngIf="storefront.subtitle">{{ storefront.subtitle }}</div>
-          </div>
-        </app-button>
+            <div>
+              <div>{{ storefront.title }}</div>
+              <div *ngIf="storefront.subtitle">{{ storefront.subtitle }}</div>
+            </div>
+          </app-button>
+        </div>
       </div>
 
       <router-outlet></router-outlet>

@@ -41,7 +41,7 @@ export class LayoutComponent implements OnInit {
     ]);
 
     // If only one StorefrontModel is available, automatically select it.
-    if (storefronts.length === 1) {
+    if (storefronts.length === 1 && this.router.url.endsWith('/store')) {
       const storefront = storefronts[0];
       await this.router.navigate([storefront.namespaceId], { relativeTo: this.activatedRoute });
     }

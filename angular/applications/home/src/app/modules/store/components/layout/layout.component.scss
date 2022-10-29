@@ -8,10 +8,6 @@
 
 app-header-toolbar::ng-deep {
   app-button a.mat-button span.mat-button-wrapper {
-    align-items: center;
-    display: flex;
-    height: 21px;
-
     & > div {
       margin-top: 0px;
 
@@ -32,7 +28,7 @@ app-header-toolbar::ng-deep {
   }
 
   mat-toolbar {
-    padding: 0px 16px;
+    padding: 0px 8px;
   }
 }
 
