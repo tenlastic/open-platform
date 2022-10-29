@@ -26,31 +26,33 @@ export class WebSocketService {
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(query: any) {
-    const url = this.getUrl();
+  public async count(namespaceId: string, query: any) {
+    const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }
 
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(query: BaseServiceFindQuery) {
-    const url = this.getUrl();
+  public async find(namespaceId: string, query: BaseServiceFindQuery) {
+    const url = this.getUrl(namespaceId);
     return this.baseService.find(query, url);
   }
 
   /**
    * Returns a Record by ID.
    */
-  public async findOne(_id: string) {
-    const url = this.getUrl();
+  public async findOne(namespaceId: string, _id: string) {
+    const url = this.getUrl(namespaceId);
     return this.baseService.findOne(_id, url);
   }
 
   /**
    * Returns the base URL for this Model.
    */
-  private getUrl() {
-    return `${this.environmentService.apiUrl}/web-sockets`;
+  private getUrl(namespaceId: string) {
+    return namespaceId
+      ? `${this.environmentService.apiUrl}/namespaces/${namespaceId}/web-sockets`
+      : `${this.environmentService.apiUrl}/web-sockets`;
   }
 }

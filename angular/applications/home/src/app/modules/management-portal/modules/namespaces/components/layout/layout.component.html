@@ -99,6 +99,18 @@
       <div>Storefront</div>
     </app-button>
 
+    <app-button color="accent"
+                [disabled]="namespace.status?.phase !== 'Running'"
+                layout="vertical"
+                [matTooltip]="namespace.status?.phase === 'Running' ? null : 'Namespace must be running.'"
+                [routerLink]="namespace.status?.phase === 'Running' ? ['web-sockets'] : null"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>hub</mat-icon>
+      <div>Web Sockets</div>
+    </app-button>
+
     <app-button *ngIf="$hasPermission(IAuthorization.workflowRoles) | async"
                 color="accent"
                 [disabled]="namespace.status?.phase !== 'Running'"

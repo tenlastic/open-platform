@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { ActivatedRoute } from '@angular/router';
 import {
   UserQuery,
   UserService,
@@ -27,6 +28,7 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
   private updateDataSource$ = new Subscription();
 
   constructor(
+    private activatedRoute: ActivatedRoute,
     private userQuery: UserQuery,
     private userService: UserService,
     private webSocketQuery: WebSocketQuery,
@@ -34,7 +36,9 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public ngOnInit() {
-    this.fetchWebSockets();
+    this.activatedRoute.params.subscribe((params) => {
+      this.fetchWebSockets(params.namespaceId);
+    });
   }
 
   public ngOnDestroy() {
@@ -45,8 +49,10 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
     return this.userQuery.getEntity(_id);
   }
 
-  private async fetchWebSockets() {
-    this.$webSockets = this.webSocketQuery.selectAll();
+  private async fetchWebSockets(namespaceId: string) {
+    this.$webSockets = this.webSocketQuery.selectAll({
+      filterBy: (ws) => !namespaceId || ws.namespaceId === namespaceId,
+    });
 
     this.updateDataSource$ = this.$webSockets.subscribe(
       (webSockets) => (this.dataSource.data = webSockets),
@@ -63,7 +69,10 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
 
-    const webSockets = await this.webSocketService.find({ sort: '-createdAt' });
+    const webSockets = await this.webSocketService.find(namespaceId, {
+      sort: '-createdAt',
+      where: { namespaceId },
+    });
     const userIds = webSockets.map((ws) => ws.userId).filter((ui, i, arr) => arr.indexOf(ui) === i);
     await this.userService.find({ where: { _id: { $in: userIds } } });
   }

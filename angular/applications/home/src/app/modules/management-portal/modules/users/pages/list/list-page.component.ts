@@ -91,7 +91,7 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
     this.$users = this.userQuery.selectAll();
 
     this.fetchWebSockets$ = this.$users.subscribe((users) =>
-      this.webSocketService.find({
+      this.webSocketService.find(null, {
         where: {
           disconnectedAt: { $exists: false },
           userId: { $in: users.map((u) => u._id) },
@@ -110,7 +110,7 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
       });
 
     const users = await this.userService.find({ sort: 'username' });
-    await this.webSocketService.find({
+    await this.webSocketService.find(null, {
       where: {
         disconnectedAt: { $exists: false },
         userId: { $in: users.map((u) => u._id) },

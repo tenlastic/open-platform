@@ -9,16 +9,19 @@ import {
   WebSocketPermissions,
 } from '../mongodb';
 
-const podName = process.env.POD_NAME;
-
-export async function connection(auth: AuthenticationData, ws: WS) {
+export async function connection(auth: AuthenticationData, podName: string, ws: WS) {
   if (!auth.jwt || !auth.jwt.jti || !auth.jwt.user) {
     ws.send(JSON.stringify({ _id: 0, status: 200 }));
     return;
   }
 
   // Add the WebSocket to MongoDB.
-  const webSocket = await WebSocket.create({ nodeId: podName, userId: auth.jwt.user._id });
+  const [namespaceId] = podName.match(/[0-9a-f]{24}/);
+  const webSocket = await WebSocket.create({
+    namespaceId,
+    nodeId: podName,
+    userId: auth.jwt.user._id,
+  });
 
   // Send the web socket ID to the client.
   let authorization: AuthorizationDocument;

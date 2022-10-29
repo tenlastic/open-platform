@@ -1,11 +1,17 @@
 paths:
-  /web-sockets/count:
+  /namespaces/{namespaceId}/web-sockets/count:
     get:
       summary: Count
       tags: [Web Sockets]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       responses:
         200:
           description: OK

@@ -12,7 +12,7 @@ export const WebSocketPermissions = new MongoosePermissions<WebSocketDocument>(W
     'user-write': {},
   },
   read: {
-    default: ['_id', 'createdAt', 'disconnectedAt', 'updatedAt', 'userId'],
+    default: ['_id', 'createdAt', 'disconnectedAt', 'namespaceId', 'updatedAt', 'userId'],
   },
   roles: [
     {

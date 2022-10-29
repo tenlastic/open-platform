@@ -1,5 +1,5 @@
 paths:
-  /web-sockets/{_id}:
+  /namespaces/{namespaceId}/web-sockets/{_id}:
     get:
       summary: Find One
       tags: [Web Sockets]
@@ -9,6 +9,11 @@ paths:
       parameters:
         - in: path
           name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
           schema:
             type: string
           required: true

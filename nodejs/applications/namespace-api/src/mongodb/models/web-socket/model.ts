@@ -20,6 +20,9 @@ export class WebSocketSchema {
 
   @prop({ type: Date })
   public disconnectedAt: Date;
+  
+  @prop({ type: mongoose.Schema.Types.ObjectId })
+  public namespaceId: mongoose.Types.ObjectId;
 
   @prop({ required: true, type: String })
   public nodeId: string;

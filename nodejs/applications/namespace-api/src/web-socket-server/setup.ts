@@ -20,6 +20,6 @@ export async function setup(options: SetupOptions) {
 
   // Web Sockets.
   const webSocketServer = new WebSocketServer(options.server);
-  webSocketServer.connection(connection);
+  webSocketServer.connection((auth, ws) => connection(auth, options.podName, ws));
   webSocketServer.message(message);
 }

@@ -242,7 +242,7 @@ export class SocialComponent implements OnDestroy, OnInit {
       this.ignorationService.find({}),
       this.messageService.find({ sort: '-createdAt' }),
       this.userService.find({}),
-      this.webSocketService.find({}),
+      this.webSocketService.find(null, {}),
     ]);
   }
 
