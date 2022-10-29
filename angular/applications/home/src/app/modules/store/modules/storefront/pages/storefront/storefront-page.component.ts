@@ -12,18 +12,24 @@ export class StorefrontPageComponent implements OnDestroy, OnInit {
   @ViewChild('video') private video: ElementRef;
 
   public $storefront: Observable<StorefrontModel>;
-  public columns: number;
+  public get columns() {
+    return this.images?.length + this.videos?.length >= 8 ? 4 : 3;
+  }
   public error: string;
-  public images: string[] = [];
+  public get images() {
+    return this.storefront?.images.filter((i) => i !== this.mainMedia?.src);
+  }
   public loadingMessage: string;
   public mainMedia: { src: string; type: 'image' | 'video' };
-  public storefront: StorefrontModel;
   public get timestamp() {
     return new Date().getTime();
   }
-  public videos: string[] = [];
+  public get videos() {
+    return this.storefront?.videos.filter((v) => v !== this.mainMedia?.src);
+  }
 
   private setImagesAndVideos$ = new Subscription();
+  private storefront: StorefrontModel;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -40,16 +46,10 @@ export class StorefrontPageComponent implements OnDestroy, OnInit {
         .pipe(map((s) => s[0]));
 
       this.setImagesAndVideos$ = this.$storefront.subscribe((s) => {
-        if (!s) {
-          return;
-        }
+        this.storefront = s;
 
-        this.images = s.images.filter((i) => i !== this.mainMedia?.src);
-        this.videos = s.videos.filter((i) => i !== this.mainMedia?.src);
-        this.columns = this.images.length + this.videos.length >= 8 ? 4 : 3;
-
-        if (!this.mainMedia) {
-          this.selectMedia(0, s.videos.length > 0 ? 'video' : 'image');
+        if (!this.mainMedia && this.storefront) {
+          this.selectMedia(0, this.storefront.videos.length > 0 ? 'video' : 'image');
         }
       });
 

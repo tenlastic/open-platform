@@ -51,7 +51,7 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
 
   private async fetchWebSockets(namespaceId: string) {
     this.$webSockets = this.webSocketQuery.selectAll({
-      filterBy: (ws) => !namespaceId || ws.namespaceId === namespaceId,
+      filterBy: (ws) => ws.namespaceId === namespaceId,
     });
 
     this.updateDataSource$ = this.$webSockets.subscribe(

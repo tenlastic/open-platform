@@ -13,9 +13,7 @@ import {
   networkPolicyApiV1,
   persistentVolumeClaimApiV1,
   podApiV1,
-  roleBindingApiV1,
   secretApiV1,
-  serviceAccountApiV1,
   serviceApiV1,
   statefulSetApiV1,
   workflowApiV1,
@@ -74,10 +72,8 @@ export const KubernetesNamespace = {
     await networkPolicyApiV1.deleteCollection('dynamic', query);
     await persistentVolumeClaimApiV1.deleteCollection('dynamic', query);
     await podApiV1.deleteCollection('dynamic', query);
-    await roleBindingApiV1.deleteCollection('dynamic', query);
     await secretApiV1.deleteCollection('dynamic', query);
     await serviceApiV1.deleteCollection('dynamic', query);
-    await serviceAccountApiV1.deleteCollection('dynamic', query);
     await statefulSetApiV1.deleteCollection('dynamic', query);
     await workflowApiV1.deleteCollection('dynamic', query);
   },
@@ -178,26 +174,6 @@ export const KubernetesNamespace = {
         egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
         podSelector: { matchLabels: { 'tenlastic.com/app': name } },
         policyTypes: ['Egress'],
-      },
-    });
-
-    /**
-     * ======================
-     * RBAC
-     * ======================
-     */
-    await roleBindingApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'api' },
-        name: `${name}-api`,
-      },
-      roleRef: { apiGroup: 'rbac.authorization.k8s.io', kind: 'Role', name: 'api' },
-      subjects: [{ kind: 'ServiceAccount', name: `${name}-api`, namespace: 'dynamic' }],
-    });
-    await serviceAccountApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'api' },
-        name: `${name}-api`,
       },
     });
 
@@ -541,7 +517,7 @@ function getApiPodTemplate(namespace: NamespaceDocument): V1Pod {
             workingDir: `/usr/src/nodejs/applications/namespace-api/`,
           },
         ],
-        serviceAccountName: `${name}-api`,
+        serviceAccountName: `namespace-api`,
         volumes: [
           { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
         ],
@@ -566,7 +542,7 @@ function getApiPodTemplate(namespace: NamespaceDocument): V1Pod {
             resources,
           },
         ],
-        serviceAccountName: `${name}-api`,
+        serviceAccountName: `namespace-api`,
       },
     };
   }
