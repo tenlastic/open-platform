@@ -2,9 +2,8 @@
   <div class="space"></div>
 
   <app-button color="accent"
-              routerLink="/"
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: true }">
+              [ngClass]="{ 'active': isHomeUrl }"
+              routerLink="/">
     <mat-icon>home</mat-icon>
     <div>Home</div>
   </app-button>

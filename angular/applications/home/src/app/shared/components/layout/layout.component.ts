@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { NavigationEnd, Router } from '@angular/router';
 import {
   AuthorizationService,
   NamespaceModel,
@@ -30,12 +31,19 @@ export class LayoutComponent implements OnInit {
   public get isElectron() {
     return this.electronService.isElectron;
   }
+  public get isHomeUrl() {
+    const { url } = this.router;
+    return !url.startsWith('/management-portal') && !url.startsWith('/store');
+  }
   public get socket() {
     return this.streamService.webSockets.get(environment.wssUrl);
   }
   public get user() {
     return this.identityService.user;
   }
+
+  private previousUrl: string;
+  private urls: { [key: string]: string } = {};
 
   constructor(
     private authorizationService: AuthorizationService,
@@ -44,6 +52,7 @@ export class LayoutComponent implements OnInit {
     private matDialog: MatDialog,
     private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
+    private router: Router,
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
     private streamService: StreamService,
@@ -53,6 +62,25 @@ export class LayoutComponent implements OnInit {
   public async ngOnInit() {
     this.$namespaces = this.$namespaces || this.namespaceQuery.selectAll();
     this.$storefronts = this.$storefronts || this.storefrontQuery.selectAll();
+
+    this.previousUrl = this.router.url;
+    this.router.events.subscribe((e) => {
+      if (e instanceof NavigationEnd) {
+        const currentUrl = this.getUrl(e.url);
+        const previousUrl = this.getUrl(this.previousUrl);
+
+        if (currentUrl !== previousUrl) {
+          this.urls[previousUrl] = this.previousUrl;
+
+          const url = this.urls[currentUrl];
+          if (url) {
+            this.router.navigateByUrl(url);
+          }
+        }
+
+        this.previousUrl = e.url;
+      }
+    });
 
     this.tokenService.emitter.on('accessToken', () => this.find());
     await this.find();
@@ -118,5 +146,18 @@ export class LayoutComponent implements OnInit {
     }
 
     return Promise.all(promises);
+  }
+
+  private getUrl(url: string) {
+    const value = url.split('/')[1];
+
+    switch (value) {
+      case 'management-portal':
+        return 'management-portal';
+      case 'store':
+        return 'store';
+    }
+
+    return 'home';
   }
 }
