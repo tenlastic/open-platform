@@ -73,4 +73,26 @@ describe('mongodb/models/namespace', function () {
       expect(result).to.not.exist;
     });
   });
+
+  describe('checkStorageLimit()', function () {
+    it('returns an error', async function () {
+      const namespace = await NamespaceMock.create({
+        limits: NamespaceLimitsMock.create({ storage: 1 }),
+      });
+
+      const result = namespace.checkStorageLimit.bind(namespace, 2);
+
+      expect(result).to.throw(NamespaceLimitError);
+    });
+
+    it('returns nothing', async function () {
+      const namespace = await NamespaceMock.create({
+        limits: NamespaceLimitsMock.create({ storage: 1 }),
+      });
+
+      const result = namespace.checkStorageLimit(1);
+
+      expect(result).to.not.exist;
+    });
+  });
 });

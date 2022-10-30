@@ -1,12 +1,20 @@
 import * as minio from '@tenlastic/minio';
-import { NamespaceLimitError, Storefront, StorefrontPermissions } from '../../../mongodb';
+import {
+  Namespace,
+  NamespaceLimitError,
+  Storefront,
+  StorefrontPermissions,
+} from '../../../mongodb';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
 export async function handler(ctx: Context) {
-  const { _id, field } = ctx.params;
-  const limit = ctx.params.limit || 50 * 1000 * 1000;
+  const { _id, field, namespaceId } = ctx.params;
+
+  const namespace = await Namespace.findOne({ _id: namespaceId });
+  namespace.checkStorageLimit(0);
+  const limit = namespace.limits.storage - (namespace.status?.limits?.storage || 0);
 
   const credentials = { ...ctx.state };
   const storefront = await StorefrontPermissions.findOne(credentials, { where: { _id } }, {});
@@ -30,9 +38,13 @@ export async function handler(ctx: Context) {
     const busboy = Busboy({ headers: ctx.request.headers, limits: { fileSize: limit } });
 
     busboy.on('error', reject);
-    busboy.on('file', (name, file, info) => {
+    busboy.on('file', (name, stream, info) => {
       const path = storefront.getMinioKey(field);
       paths.push(path);
+
+      // Make sure the file is a valid size.
+      stream.on('error', reject);
+      stream.on('limit', () => busboy.emit('error', new NamespaceLimitError('storage')));
 
       // Make sure the file is an image.
       const { mimeType } = info;
@@ -49,10 +61,7 @@ export async function handler(ctx: Context) {
         return;
       }
 
-      // Make sure the file is a valid size.
-      file.on('limit', () => busboy.emit('error', new NamespaceLimitError('storage')));
-
-      minio.putObject(process.env.MINIO_BUCKET, path, file, { 'content-type': mimeType });
+      minio.putObject(process.env.MINIO_BUCKET, path, stream, { 'content-type': mimeType });
     });
     busboy.on('finish', resolve);
 

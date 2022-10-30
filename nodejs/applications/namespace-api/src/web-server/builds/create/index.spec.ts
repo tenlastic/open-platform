@@ -24,9 +24,17 @@ import { handler } from './';
 use(chaiAsPromised);
 
 describe('web-server/builds/create', function () {
+  let namespace: NamespaceDocument;
   let user: UserDocument;
 
   beforeEach(async function () {
+    namespace = await NamespaceMock.create({
+      limits: NamespaceLimitsMock.create({
+        cpu: 0.1,
+        memory: 100 * 1000 * 1000,
+        storage: 1 * 1000 * 1000 * 1000,
+      }),
+    });
     user = await UserMock.create();
   });
 
@@ -34,12 +42,8 @@ describe('web-server/builds/create', function () {
     let build: BuildDocument;
     let ctx: ContextMock;
     let form: FormData;
-    let namespace: NamespaceDocument;
 
     beforeEach(async function () {
-      namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({ cpu: 0.1, memory: 100 * 1000 * 1000 }),
-      });
       await AuthorizationMock.create({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.BuildsReadWrite],
@@ -58,18 +62,37 @@ describe('web-server/builds/create', function () {
 
       form = new FormData();
       form.append('record', JSON.stringify(build));
-      form.append('zip', stream);
+      form.append('zip', stream, { contentType: 'application/zip', filename: 'valid.zip' });
 
       ctx = new ContextMock({
-        params: {
-          _id: build._id,
-          namespaceId: namespace._id,
-          platform: build.platform,
-        },
+        params: { _id: build._id, namespaceId: namespace._id, platform: build.platform },
         req: form,
         request: { headers: form.getHeaders() },
         state: { user },
       } as any);
+    });
+
+    it('returns the Build', async function () {
+      await handler(ctx as any);
+
+      expect(ctx.response.body.record).to.exist;
+    });
+
+    it('uploads zip to Minio', async function () {
+      await handler(ctx as any);
+      await new Promise((res) => setTimeout(res, 100));
+
+      await minio.statObject(process.env.MINIO_BUCKET, build.getZipPath());
+    });
+
+    context('when the mimetype is invalid', function () {
+      it('throws an error', async function () {
+        form.append('zip', 'invalid', { contentType: 'image/x-icon', filename: 'invalid.ico' });
+
+        const promise = handler(ctx as any);
+
+        return expect(promise).to.be.rejectedWith('Mimetype must be: application/zip.');
+      });
     });
 
     context('when a Namespace Limit is exceeded', function () {
@@ -81,29 +104,20 @@ describe('web-server/builds/create', function () {
 
         return expect(promise).to.be.rejectedWith(NamespaceLimitError);
       });
-    });
 
-    context('when a Namespace Limit is not exceeded', function () {
-      it('returns the Build', async function () {
-        await handler(ctx as any);
+      it('throws an error', async function () {
+        namespace.limits.storage = 1;
+        await namespace.save();
 
-        expect(ctx.response.body.record).to.exist;
-      });
+        const promise = handler(ctx as any);
 
-      it('uploads zip to Minio', async function () {
-        await handler(ctx as any);
-        await new Promise((res) => setTimeout(res, 100));
-
-        await minio.statObject(process.env.MINIO_BUCKET, build.getZipPath());
+        return expect(promise).to.be.rejectedWith(NamespaceLimitError);
       });
     });
   });
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({ cpu: 0.1, memory: 100 * 1000 * 1000 }),
-      });
       const build = await BuildMock.new({ namespaceId: namespace._id });
 
       const form = new FormData();

@@ -11,8 +11,11 @@ export function getNodes(pods: V1Pod[]) {
   return Object.values(pods)
     .filter((p) => !p.metadata.deletionTimestamp)
     .map<Node[]>((p) => {
-      const component = p.metadata.labels['tenlastic.com/role'];
+      if (!p.status?.containerStatuses) {
+        return [];
+      }
 
+      const component = p.metadata.labels['tenlastic.com/role'];
       return p.status.containerStatuses.map((cs) => {
         let phase = 'Pending';
         if (cs.state.running) {

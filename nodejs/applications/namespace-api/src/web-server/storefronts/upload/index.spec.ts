@@ -4,6 +4,7 @@ import {
   AuthorizationRole,
   NamespaceDocument,
   NamespaceLimitError,
+  NamespaceLimitsMock,
   NamespaceMock,
   StorefrontDocument,
   StorefrontMock,
@@ -20,9 +21,13 @@ import { handler } from './';
 use(chaiAsPromised);
 
 describe('web-server/storefronts/upload', function () {
+  let namespace: NamespaceDocument;
   let user: UserDocument;
 
   beforeEach(async function () {
+    namespace = await NamespaceMock.create({
+      limits: NamespaceLimitsMock.create({ storage: 1 * 1000 * 1000 * 1000 }),
+    });
     user = await UserMock.create();
   });
 
@@ -30,10 +35,8 @@ describe('web-server/storefronts/upload', function () {
     let ctx: ContextMock;
     let form: FormData;
     let storefront: StorefrontDocument;
-    let namespace: NamespaceDocument;
 
     beforeEach(async function () {
-      namespace = await NamespaceMock.create();
       await AuthorizationMock.create({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.StorefrontsReadWrite],
@@ -45,7 +48,7 @@ describe('web-server/storefronts/upload', function () {
       form.append('valid', 'valid', { contentType: 'image/jpeg', filename: 'valid.jpg' });
 
       ctx = new ContextMock({
-        params: { _id: storefront._id, field: 'background' },
+        params: { _id: storefront._id, field: 'background', namespaceId: namespace._id },
         req: form,
         request: {
           headers: form.getHeaders(),
@@ -78,7 +81,9 @@ describe('web-server/storefronts/upload', function () {
     });
 
     it('does not allow large files', async function () {
-      ctx.params.limit = 1;
+      namespace.limits.storage = 1;
+      await namespace.save();
+
       const promise = handler(ctx as any);
 
       return expect(promise).to.be.rejectedWith(NamespaceLimitError);
@@ -97,11 +102,10 @@ describe('web-server/storefronts/upload', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const namespace = await NamespaceMock.create();
       const storefront = await StorefrontMock.create({ namespaceId: namespace._id });
 
       const ctx = new ContextMock({
-        params: { _id: storefront._id, field: 'background' },
+        params: { _id: storefront._id, field: 'background', namespaceId: namespace._id },
         state: { user },
       });
 

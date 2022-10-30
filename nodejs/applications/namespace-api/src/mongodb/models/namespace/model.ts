@@ -89,6 +89,18 @@ export class NamespaceSchema {
       throw new NamespaceLimitError('preemptible');
     }
   }
+
+  public checkStorageLimit(current: number, previous?: number) {
+    current = current ?? 0;
+    previous = previous ?? 0;
+
+    const limit = this.limits?.storage || 0;
+    const status = this.status?.limits?.storage || 0;
+
+    if (current - previous + status > limit) {
+      throw new NamespaceLimitError('storage');
+    }
+  }
 }
 
 export type NamespaceDocument = DocumentType<NamespaceSchema>;
