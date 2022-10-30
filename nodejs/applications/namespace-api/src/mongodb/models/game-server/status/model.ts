@@ -28,6 +28,9 @@ export class GameServerStatusSchema {
   @prop({ type: GameServerStatusEndpointsSchema })
   public endpoints: GameServerStatusEndpointsSchema;
 
+  @prop({ type: String })
+  public message: string;
+
   @prop({ type: GameServerStatusNodeSchema }, PropType.ARRAY)
   public nodes: GameServerStatusNodeSchema[];
 

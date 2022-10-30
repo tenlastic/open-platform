@@ -309,7 +309,6 @@ export const KubernetesNamespace = {
                 getAggregationApiConnectorContainerTemplate(namespace),
                 getApiConnectorContainerTemplate(namespace),
               ],
-              priorityClassName: name,
               volumes: [
                 {
                   hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' },
@@ -341,7 +340,6 @@ export const KubernetesNamespace = {
                 getAggregationApiConnectorContainerTemplate(namespace),
                 getApiConnectorContainerTemplate(namespace),
               ],
-              priorityClassName: name,
             },
           },
         },
@@ -549,7 +547,6 @@ function getApiPodTemplate(namespace: NamespaceDocument): V1Pod {
             workingDir: `/usr/src/nodejs/applications/namespace-api/`,
           },
         ],
-        priorityClassName: name,
         serviceAccountName: `namespace-api`,
         volumes: [
           { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
@@ -575,7 +572,6 @@ function getApiPodTemplate(namespace: NamespaceDocument): V1Pod {
             resources,
           },
         ],
-        priorityClassName: name,
         serviceAccountName: `namespace-api`,
       },
     };
@@ -613,7 +609,6 @@ function getCdcPodTemplate(namespace: NamespaceDocument): V1Pod {
             workingDir: `/usr/src/nodejs/applications/cdc/`,
           },
         ],
-        priorityClassName: name,
         volumes: [
           { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
         ],
@@ -636,7 +631,6 @@ function getCdcPodTemplate(namespace: NamespaceDocument): V1Pod {
             resources,
           },
         ],
-        priorityClassName: name,
       },
     };
   }
@@ -678,7 +672,6 @@ function getMetricsPodTemplate(namespace: NamespaceDocument): V1Pod {
             workingDir: `/usr/src/nodejs/applications/metrics/`,
           },
         ],
-        priorityClassName: name,
         serviceAccountName: 'metrics',
         volumes: [
           { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
@@ -702,7 +695,6 @@ function getMetricsPodTemplate(namespace: NamespaceDocument): V1Pod {
             resources,
           },
         ],
-        priorityClassName: name,
         serviceAccountName: 'metrics',
       },
     };

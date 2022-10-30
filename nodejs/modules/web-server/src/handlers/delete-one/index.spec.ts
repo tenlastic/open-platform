@@ -1,3 +1,4 @@
+import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { Chance } from 'chance';
@@ -35,7 +36,7 @@ describe('handlers/delete-one', function () {
       const handler = deleteOne(Permissions as any);
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.be.rejectedWith(PermissionError);
     });
   });
 });

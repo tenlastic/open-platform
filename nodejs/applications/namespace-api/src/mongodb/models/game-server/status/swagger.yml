@@ -12,6 +12,8 @@ components:
               type: string
             websocket:
               type: string
+        message:
+          type: string
         nodes:
           type: array
           items:

@@ -115,7 +115,6 @@ export const KubernetesGameServerSidecar = {
               workingDir: '/usr/src/nodejs/applications/status-sidecar/',
             },
           ],
-          priorityClassName: namespaceName,
           serviceAccountName: 'game-server-sidecar',
           volumes: [
             { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
@@ -146,7 +145,6 @@ export const KubernetesGameServerSidecar = {
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
             },
           ],
-          priorityClassName: namespaceName,
           serviceAccountName: 'game-server-sidecar',
         },
       };

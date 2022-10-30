@@ -1,0 +1,27 @@
+import { CoreV1Event, V1Deployment, V1StatefulSet } from '@kubernetes/client-node';
+
+export const NamespaceLimitError = 'Namespace Limit reached.';
+
+export function getMessage(
+  deployments: V1Deployment[],
+  events: { [key: string]: CoreV1Event },
+  statefulSets: V1StatefulSet[],
+) {
+  for (const deployment of deployments) {
+    for (const condition of deployment.status.conditions) {
+      if (condition.message.includes('exceeded quota')) {
+        return NamespaceLimitError;
+      }
+    }
+  }
+
+  for (const statefulSet of statefulSets) {
+    const event = events[statefulSet.metadata.name];
+
+    if (event?.message.includes('exceeded quota')) {
+      return NamespaceLimitError;
+    }
+  }
+
+  return null;
+}

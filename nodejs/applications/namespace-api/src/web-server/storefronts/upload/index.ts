@@ -50,7 +50,7 @@ export async function handler(ctx: Context) {
       }
 
       // Make sure the file is a valid size.
-      file.on('limit', () => busboy.emit('error', new NamespaceLimitError('storage', limit)));
+      file.on('limit', () => busboy.emit('error', new NamespaceLimitError('storage')));
 
       minio.putObject(process.env.MINIO_BUCKET, path, file, { 'content-type': mimeType });
     });

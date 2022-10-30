@@ -35,7 +35,7 @@ describe('handlers/create', function () {
       const handler = create(Permissions as any);
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.be.rejectedWith(PermissionError);
     });
   });
 });

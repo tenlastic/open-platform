@@ -49,6 +49,8 @@ components:
                     enum: [Error, Failed, Pending, Running, Succeeded]
                   total:
                     type: number
+            message:
+              type: string
             nodes:
               type: array
               items:

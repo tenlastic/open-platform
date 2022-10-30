@@ -1,4 +1,5 @@
 export * from './config-map';
+export * from './event';
 export * from './namespace';
 export * from './node';
 export * from './persistent-volume-claim';

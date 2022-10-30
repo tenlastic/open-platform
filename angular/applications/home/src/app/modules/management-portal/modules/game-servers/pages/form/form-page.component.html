@@ -86,7 +86,9 @@
     <app-toggle-section *ngIf="data._id"
                         title="Status">
       <div class="row">
-        <mat-form-field floatLabel="always">
+        <mat-form-field floatLabel="always"
+                        [matTooltip]="data.status?.message"
+                        matTooltipPosition="right">
           <mat-label>Phase</mat-label>
           <input matInput
                  disabled
@@ -94,28 +96,32 @@
         </mat-form-field>
       </div>
 
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>TCP Endpoint</mat-label>
-          <input disabled
-                 matInput
-                 [value]="data.status?.endpoints?.tcp || 'Pending'" />
-        </mat-form-field>
+      <ng-container *ngIf="data.status?.phase !== 'Error'">
+        <h4>Endpoints</h4>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>UDP Endpoint</mat-label>
-          <input disabled
-                 matInput
-                 [value]="data.status?.endpoints?.udp || 'Pending'" />
-        </mat-form-field>
+        <div class="row">
+          <mat-form-field floatLabel="always">
+            <mat-label>TCP</mat-label>
+            <input disabled
+                   matInput
+                   [value]="data.status?.endpoints?.tcp || 'Pending'" />
+          </mat-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Websocket Endpoint</mat-label>
-          <input disabled
-                 matInput
-                 [value]="data.status?.endpoints?.websocket || 'Pending'" />
-        </mat-form-field>
-      </div>
+          <mat-form-field floatLabel="always">
+            <mat-label>UDP</mat-label>
+            <input disabled
+                   matInput
+                   [value]="data.status?.endpoints?.udp || 'Pending'" />
+          </mat-form-field>
+
+          <mat-form-field floatLabel="always">
+            <mat-label>Websocket</mat-label>
+            <input disabled
+                   matInput
+                   [value]="data.status?.endpoints?.websocket || 'Pending'" />
+          </mat-form-field>
+        </div>
+      </ng-container>
     </app-toggle-section>
   </form>
 </div>

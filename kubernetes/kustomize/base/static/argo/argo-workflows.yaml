@@ -48,13 +48,13 @@ spec:
     executor:
       resources:
         requests:
-          cpu: 25m
-          memory: 25Mi
+          cpu: 0
+          memory: 0
     mainContainer:
       resources:
         requests:
-          cpu: 25m
-          memory: 25Mi
+          cpu: 0
+          memory: 0
     server:
       affinity:
         nodeAffinity:

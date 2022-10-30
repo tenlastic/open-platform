@@ -1,11 +1,15 @@
 import * as minio from '@tenlastic/minio';
-import { Build, BuildPermissions } from '../../../mongodb';
 import { Context } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
-export async function handler(ctx: Context) {
-  const build = new Build();
+import { Build, BuildPermissions, Namespace } from '../../../mongodb';
 
+export async function handler(ctx: Context) {
+  const namespace = await Namespace.findOne({ _id: ctx.params.namespaceId });
+  namespace.checkCpuLimit(0.1);
+  namespace.checkMemoryLimit(100 * 1000 * 1000);
+
+  const build = new Build();
   await new Promise((resolve, reject) => {
     const busboy = Busboy({ headers: ctx.request.headers });
 
@@ -36,7 +40,7 @@ export async function handler(ctx: Context) {
 
     ctx.response.body = { record };
   } catch (e) {
-    minio.removeObject(process.env.MINIO_BUCKET, build.getZipPath());
+    await minio.removeObject(process.env.MINIO_BUCKET, build.getZipPath());
     throw e;
   }
 }

@@ -103,7 +103,6 @@ export const KubernetesWorkflowSidecar = {
               workingDir: '/usr/src/nodejs/applications/workflow-status-sidecar/',
             },
           ],
-          priorityClassName: namespaceName,
           serviceAccountName: 'workflow-sidecar',
           volumes: [
             { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
@@ -127,7 +126,6 @@ export const KubernetesWorkflowSidecar = {
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
             },
           ],
-          priorityClassName: namespaceName,
           serviceAccountName: 'workflow-sidecar',
         },
       };

@@ -28,6 +28,9 @@ export class QueueStatusSchema {
   @prop({ type: QueueStatusComponentSchema }, PropType.ARRAY)
   public components: QueueStatusComponentSchema[];
 
+  @prop({ type: String })
+  public message: string;
+
   @prop({ type: QueueStatusNodeSchema }, PropType.ARRAY)
   public nodes: QueueStatusNodeSchema[];
 

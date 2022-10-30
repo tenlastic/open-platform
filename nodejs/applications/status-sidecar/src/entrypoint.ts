@@ -1,16 +1,19 @@
-import { V1Deployment, V1Pod, V1StatefulSet } from '@kubernetes/client-node';
-import { deploymentApiV1, podApiV1, statefulSetApiV1 } from '@tenlastic/kubernetes';
+import { V1Deployment, CoreV1Event, V1Pod, V1StatefulSet } from '@kubernetes/client-node';
+import { deploymentApiV1, eventApiV1, podApiV1, statefulSetApiV1 } from '@tenlastic/kubernetes';
 import axios from 'axios';
 
 import { version } from '../package.json';
 import { getComponents } from './get-components';
+import { getMessage } from './get-message';
 import { getNodes } from './get-nodes';
+import { getPhase } from './get-phase';
 
 const apiKey = process.env.API_KEY;
 const endpoint = process.env.ENDPOINT;
 const labelSelector = process.env.LABEL_SELECTOR;
 
 const deployments: { [key: string]: V1Deployment } = {};
+const events: { [key: string]: CoreV1Event } = {};
 const pods: { [key: string]: V1Pod } = {};
 const statefulSets: { [key: string]: V1StatefulSet } = {};
 
@@ -33,14 +36,10 @@ let isUpdatingStatus = false;
       try {
         await update();
       } catch (e) {
-        console.error(e.message);
-        process.exit(1);
+        handleError(e);
       }
     },
-    (err) => {
-      console.error(err?.message);
-      process.exit(err ? 1 : 0);
-    },
+    handleError,
   );
 
   podApiV1.watch(
@@ -61,14 +60,10 @@ let isUpdatingStatus = false;
       try {
         await update();
       } catch (e) {
-        console.error(e.message);
-        process.exit(1);
+        handleError(e);
       }
     },
-    (err) => {
-      console.error(err?.message);
-      process.exit(err ? 1 : 0);
-    },
+    handleError,
   );
 
   statefulSetApiV1.watch(
@@ -83,19 +78,48 @@ let isUpdatingStatus = false;
         delete statefulSets[statefulSet.metadata.name];
       }
 
+      if (type === 'ADDED') {
+        const fieldSelectors = [
+          `involvedObject.kind=StatefulSet`,
+          `involvedObject.name=${statefulSet.metadata.name}`,
+        ];
+
+        eventApiV1.watch(
+          'dynamic',
+          { fieldSelector: fieldSelectors.join(',') },
+          async (t, event: CoreV1Event) => {
+            console.log(`Stateful Set Event - ${t}: ${event.metadata.name}.`);
+
+            if (type === 'ADDED' || type === 'MODIFIED') {
+              events[statefulSet.metadata.name] = event;
+            } else if (type === 'DELETED') {
+              delete events[statefulSet.metadata.name];
+            }
+
+            try {
+              await update();
+            } catch (e) {
+              handleError(e);
+            }
+          },
+          handleError,
+        );
+      }
+
       try {
         await update();
       } catch (e) {
-        console.error(e.message);
-        process.exit(1);
+        handleError(e);
       }
     },
-    (err) => {
-      console.error(err?.message);
-      process.exit(err ? 1 : 0);
-    },
+    handleError,
   );
 })();
+
+function handleError(error) {
+  console.error(error?.message);
+  process.exit(error ? 1 : 0);
+}
 
 async function update() {
   if (isUpdatingStatus) {
@@ -106,21 +130,19 @@ async function update() {
   console.log(`Updating status...`);
   isUpdatingStatus = true;
 
-  const nodes = getNodes(Object.values(pods));
-  const components = getComponents(Object.values(deployments), Object.values(statefulSets));
+  const d = Object.values(deployments);
+  const p = Object.values(pods);
+  const ss = Object.values(statefulSets);
 
-  // Phase.
-  let phase = 'Pending';
-  if (components.every((c) => c.phase === 'Running')) {
-    phase = 'Running';
-  } else if (nodes.some((n) => n.phase === 'Error')) {
-    phase = 'Error';
-  }
+  const components = getComponents(d, ss);
+  const message = getMessage(d, events, ss);
+  const nodes = getNodes(p);
+  const phase = getPhase(components, message, nodes);
 
   // Send the status to the endpoint.
   await axios({
     headers: { 'X-Api-Key': apiKey },
-    data: { status: { components, nodes, phase, version } },
+    data: { status: { components, message, nodes, phase, version } },
     method: 'put',
     url: endpoint,
   });
