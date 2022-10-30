@@ -4,6 +4,7 @@ import {
   getModelForClass,
   index,
   modelOptions,
+  pre,
   prop,
   PropType,
   ReturnModelType,
@@ -15,7 +16,12 @@ import { AuthorizationDocument } from '../authorization';
 import { BuildDocument } from '../build';
 import { QueueDocument } from '../queue';
 import { UserDocument } from '../user';
-import { GameServerStatusSchema } from './status';
+import {
+  GameServerStatusComponent,
+  GameServerStatusComponentName,
+  GameServerStatusPhase,
+  GameServerStatusSchema,
+} from './status';
 
 @index({ authorizedUserIds: 1 })
 @index({ buildId: 1 })
@@ -25,6 +31,26 @@ import { GameServerStatusSchema } from './status';
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: { collection: 'gameservers', minimize: false, timestamps: true },
+})
+@pre('save', async function (this: GameServerDocument) {
+  if (!this.isNew) {
+    return;
+  }
+
+  this.status.components = [
+    new GameServerStatusComponent({
+      current: 0,
+      name: GameServerStatusComponentName.Application,
+      phase: GameServerStatusPhase.Pending,
+      total: 1,
+    }),
+    new GameServerStatusComponent({
+      current: 0,
+      name: GameServerStatusComponentName.Sidecar,
+      phase: GameServerStatusPhase.Pending,
+      total: 1,
+    }),
+  ];
 })
 export class GameServerSchema {
   public _id: mongoose.Types.ObjectId;

@@ -89,6 +89,13 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     return this.buildQuery.getEntity(_id);
   }
 
+  public getStatus(record: GameServerModel) {
+    const current = record.status.components.reduce((a, b) => a + b.current, 0);
+    const total = record.status.components.reduce((a, b) => a + b.total, 0);
+
+    return `${record.status.phase} (${current} / ${total})`;
+  }
+
   public async restart($event: Event, record: GameServerModel) {
     $event.stopPropagation();
 

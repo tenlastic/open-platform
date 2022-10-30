@@ -51,7 +51,7 @@
           mat-sort-header>Status</th>
       <td mat-cell
           *matCellDef="let element">
-        <span [matTooltip]="element.status?.message">{{ element.status?.phase }}</span>
+        <span [matTooltip]="element.status?.message">{{ getStatus(element) }}</span>
       </td>
     </ng-container>
 

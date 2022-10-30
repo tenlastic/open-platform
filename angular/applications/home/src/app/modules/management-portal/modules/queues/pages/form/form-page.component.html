@@ -171,19 +171,17 @@
         </mat-form-field>
       </div>
 
-      <ng-container *ngIf="data.status?.phase !== 'Error'">
-        <h4>Components</h4>
+      <h4>Components</h4>
 
-        <div class="row">
-          <mat-form-field *ngFor="let component of data.status?.components"
-                          floatLabel="always">
-            <mat-label>{{ components[component.name] }}</mat-label>
-            <input matInput
-                   disabled
-                   [value]="component.phase + ' (' + component.current + ' / ' + component.total + ')'" />
-          </mat-form-field>
-        </div>
-      </ng-container>
+      <div class="row">
+        <mat-form-field *ngFor="let component of data.status?.components"
+                        floatLabel="always">
+          <mat-label>{{ components[component.name] }}</mat-label>
+          <input matInput
+                 disabled
+                 [value]="component.phase + ' (' + component.current + ' / ' + component.total + ')'" />
+        </mat-form-field>
+      </div>
     </app-toggle-section>
   </form>
 </div>

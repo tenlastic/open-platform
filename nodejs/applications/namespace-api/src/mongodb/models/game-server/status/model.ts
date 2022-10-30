@@ -6,6 +6,7 @@ import {
   PropType,
   ReturnModelType,
 } from '@typegoose/typegoose';
+import { GameServerStatusComponentSchema } from './component';
 
 import { GameServerStatusEndpointsSchema } from './endpoints';
 import { GameServerStatusNodeSchema } from './node';
@@ -25,6 +26,9 @@ export enum GameServerStatusPhase {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class GameServerStatusSchema {
+  @prop({ type: GameServerStatusComponentSchema }, PropType.ARRAY)
+  public components: GameServerStatusComponentSchema[];
+
   @prop({ type: GameServerStatusEndpointsSchema })
   public endpoints: GameServerStatusEndpointsSchema;
 

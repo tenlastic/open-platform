@@ -13,7 +13,7 @@ export function getComponents(deployments: V1Deployment[], statefulSets: V1State
     .map((ds) => ({
       current: ds.status.readyReplicas || 0,
       name: ds.metadata.labels['tenlastic.com/role'],
-      phase: ds.status.readyReplicas === ds.status.replicas ? 'Running' : 'Pending',
+      phase: ds.spec.replicas === ds.status.readyReplicas ? 'Running' : 'Pending',
       total: ds.spec.replicas,
     }))
     .sort((a, b) => (a.name > b.name ? 1 : -1));

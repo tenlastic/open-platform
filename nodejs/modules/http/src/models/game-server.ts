@@ -23,11 +23,19 @@ export namespace IGameServer {
   }
 
   export interface Status {
+    components?: StatusComponent[];
     endpoints?: Endpoints;
     message?: string;
     nodes?: StatusNode[];
     phase: string;
     version?: string;
+  }
+
+  export interface StatusComponent {
+    current: number;
+    name: string;
+    phase: string;
+    total: number;
   }
 
   export interface StatusNode {
