@@ -69,6 +69,14 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     return map[platform];
   }
 
+  public getTooltip(record: BuildModel) {
+    if (!record.status?.nodes?.length) {
+      return null;
+    }
+
+    return record.status.nodes[record.status.nodes.length - 1].message;
+  }
+
   public async publish($event: Event, build: BuildModel) {
     $event.stopPropagation();
 

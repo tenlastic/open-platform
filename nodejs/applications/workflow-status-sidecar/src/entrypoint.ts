@@ -37,10 +37,14 @@ const pods: { [key: string]: V1Pod } = {};
 
       try {
         const nodes = Object.values(workflow.status.nodes || {}).map((n: any) => {
+          const message = n.message?.includes('exceeded quota')
+            ? 'Namespace Limit reached.'
+            : n.message;
           const pod = Object.values(pods).find(
             (p) => p.metadata.annotations['workflows.argoproj.io/node-id'] === n.id,
           );
-          return { ...n, container: 'main', pod: pod?.metadata.name };
+
+          return { ...n, container: 'main', message, pod: pod?.metadata.name };
         });
 
         await axios({

@@ -59,6 +59,14 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
+  public getTooltip(record: WorkflowModel) {
+    if (!record.status?.nodes?.length) {
+      return null;
+    }
+
+    return record.status.nodes[record.status.nodes.length - 1].message;
+  }
+
   public showDeletePrompt($event: Event, record: WorkflowModel) {
     $event.stopPropagation();
 

@@ -116,7 +116,11 @@ let isUpdatingStatus = false;
   );
 })();
 
-function handleError(error) {
+function handleError(error: Error) {
+  if (error?.message === 'aborted') {
+    return;
+  }
+
   console.error(error?.message);
   process.exit(error ? 1 : 0);
 }

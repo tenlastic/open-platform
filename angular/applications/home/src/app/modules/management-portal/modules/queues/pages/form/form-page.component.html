@@ -153,13 +153,21 @@
     <app-toggle-section *ngIf="data._id"
                         title="Status">
       <div class="row">
-        <mat-form-field floatLabel="always"
-                        [matTooltip]="data.status?.message"
-                        matTooltipPosition="right">
+        <mat-form-field floatLabel="always">
           <mat-label>Phase</mat-label>
           <input matInput
                  disabled
                  [value]="data.status?.phase || 'Pending'" />
+        </mat-form-field>
+
+        <mat-form-field *ngIf="data.status?.message"
+                        floatLabel="always"
+                        [matTooltip]="data.status.message.length >= 30 ? data.status.message : null"
+                        matTooltipPosition="right">
+          <mat-label>Message</mat-label>
+          <input matInput
+                 disabled
+                 [value]="data.status.message" />
         </mat-form-field>
       </div>
 

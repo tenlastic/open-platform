@@ -42,7 +42,9 @@
           *matHeaderCellDef
           mat-sort-header>Status</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.status ? element.status.phase : 'Pending' }}</td>
+          *matCellDef="let element">
+        <span [matTooltip]="getTooltip(element)">{{ element.status ? element.status.phase : 'Pending' }}</span>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="publishedAt">
