@@ -14,6 +14,7 @@ rules:
       - pods/exec
       - pods/log
       - pods/status
+      - resourcequotas
       - secrets
       - services
       - serviceaccounts

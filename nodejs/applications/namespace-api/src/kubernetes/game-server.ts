@@ -3,6 +3,7 @@ import { deploymentApiV1, networkPolicyApiV1, podApiV1, serviceApiV1 } from '@te
 import { URL } from 'url';
 
 import { GameServerDocument } from '../mongodb';
+import { KubernetesNamespace } from './namespace';
 
 export const KubernetesGameServer = {
   delete: async (gameServer: GameServerDocument) => {
@@ -51,6 +52,7 @@ export const KubernetesGameServer = {
   upsert: async (gameServer: GameServerDocument) => {
     const labels = KubernetesGameServer.getLabels(gameServer);
     const name = KubernetesGameServer.getName(gameServer);
+    const namespaceName = KubernetesNamespace.getName(gameServer.namespaceId);
 
     /**
      * =======================
@@ -144,6 +146,7 @@ export const KubernetesGameServer = {
         ],
         enableServiceLinks: false,
         imagePullSecrets: [{ name: 'docker-registry' }],
+        priorityClassName: namespaceName,
         restartPolicy: gameServer.persistent ? 'Always' : 'Never',
       },
     };

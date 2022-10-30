@@ -4,20 +4,14 @@ import { getCpu } from '.';
 
 describe('get-cpu', function () {
   it('returns total CPU', function () {
-    const pods = [
-      { spec: { containers: [{ resources: { limits: { cpu: '1' } } }] } },
-      {
-        spec: {
-          containers: [
-            { resources: { limits: { cpu: '1000m' } } },
-            { resources: { limits: { cpu: '100m' } } },
-          ],
-        },
-      },
-      { spec: { containers: [{ resources: { limits: { cpu: '10m' } } }] } },
+    const resourceQuotas = [
+      { status: { used: { cpu: '1' } } },
+      { status: { used: { cpu: '1000m' } } },
+      { status: { used: { cpu: '100m' } } },
+      { status: { used: { cpu: '10m' } } },
     ];
 
-    const result = getCpu(pods as any);
+    const result = getCpu(resourceQuotas as any);
 
     expect(result).to.eql(2.11);
   });

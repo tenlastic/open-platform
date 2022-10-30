@@ -13,6 +13,8 @@ import {
   networkPolicyApiV1,
   persistentVolumeClaimApiV1,
   podApiV1,
+  priorityClassApiV1,
+  resourceQuotaApiV1,
   secretApiV1,
   serviceApiV1,
   statefulSetApiV1,
@@ -72,6 +74,8 @@ export const KubernetesNamespace = {
     await networkPolicyApiV1.deleteCollection('dynamic', query);
     await persistentVolumeClaimApiV1.deleteCollection('dynamic', query);
     await podApiV1.deleteCollection('dynamic', query);
+    await priorityClassApiV1.deleteCollection(query);
+    await resourceQuotaApiV1.deleteCollection('dynamic', query);
     await secretApiV1.deleteCollection('dynamic', query);
     await serviceApiV1.deleteCollection('dynamic', query);
     await statefulSetApiV1.deleteCollection('dynamic', query);
@@ -179,6 +183,32 @@ export const KubernetesNamespace = {
 
     /**
      * ======================
+     * PRIORITY CLASSES
+     * ======================
+     */
+    await priorityClassApiV1.delete(name);
+    await priorityClassApiV1.create({
+      metadata: { labels: { ...labels, 'tenlastic.com/role': 'application' }, name },
+      value: 0,
+    });
+
+    /**
+     * ======================
+     * RESOURCE QUOTA
+     * ======================
+     */
+    await resourceQuotaApiV1.createOrReplace('dynamic', {
+      metadata: { labels: { ...labels, 'tenlastic.com/role': 'application' }, name },
+      spec: {
+        hard: { cpu: `${namespace.limits.cpu}`, memory: `${namespace.limits.memory}` },
+        scopeSelector: {
+          matchExpressions: [{ operator: 'In', scopeName: 'PriorityClass', values: [name] }],
+        },
+      },
+    });
+
+    /**
+     * ======================
      * SECRETS
      * ======================
      */
@@ -279,6 +309,7 @@ export const KubernetesNamespace = {
                 getAggregationApiConnectorContainerTemplate(namespace),
                 getApiConnectorContainerTemplate(namespace),
               ],
+              priorityClassName: name,
               volumes: [
                 {
                   hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' },
@@ -310,6 +341,7 @@ export const KubernetesNamespace = {
                 getAggregationApiConnectorContainerTemplate(namespace),
                 getApiConnectorContainerTemplate(namespace),
               ],
+              priorityClassName: name,
             },
           },
         },
@@ -517,6 +549,7 @@ function getApiPodTemplate(namespace: NamespaceDocument): V1Pod {
             workingDir: `/usr/src/nodejs/applications/namespace-api/`,
           },
         ],
+        priorityClassName: name,
         serviceAccountName: `namespace-api`,
         volumes: [
           { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
@@ -542,6 +575,7 @@ function getApiPodTemplate(namespace: NamespaceDocument): V1Pod {
             resources,
           },
         ],
+        priorityClassName: name,
         serviceAccountName: `namespace-api`,
       },
     };
@@ -579,6 +613,7 @@ function getCdcPodTemplate(namespace: NamespaceDocument): V1Pod {
             workingDir: `/usr/src/nodejs/applications/cdc/`,
           },
         ],
+        priorityClassName: name,
         volumes: [
           { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
         ],
@@ -601,6 +636,7 @@ function getCdcPodTemplate(namespace: NamespaceDocument): V1Pod {
             resources,
           },
         ],
+        priorityClassName: name,
       },
     };
   }
@@ -642,6 +678,7 @@ function getMetricsPodTemplate(namespace: NamespaceDocument): V1Pod {
             workingDir: `/usr/src/nodejs/applications/metrics/`,
           },
         ],
+        priorityClassName: name,
         serviceAccountName: 'metrics',
         volumes: [
           { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
@@ -665,6 +702,7 @@ function getMetricsPodTemplate(namespace: NamespaceDocument): V1Pod {
             resources,
           },
         ],
+        priorityClassName: name,
         serviceAccountName: 'metrics',
       },
     };

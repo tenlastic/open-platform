@@ -114,6 +114,7 @@ export const KubernetesNamespaceSidecar = {
               workingDir: '/usr/src/nodejs/applications/status-sidecar/',
             },
           ],
+          priorityClassName: namespaceName,
           serviceAccountName: 'namespace-sidecar',
           volumes: [
             { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
@@ -144,6 +145,7 @@ export const KubernetesNamespaceSidecar = {
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
             },
           ],
+          priorityClassName: namespaceName,
           serviceAccountName: 'namespace-sidecar',
         },
       };

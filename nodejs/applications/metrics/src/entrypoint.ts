@@ -1,5 +1,5 @@
-import { V1Pod } from '@kubernetes/client-node';
-import { podApiV1 } from '@tenlastic/kubernetes';
+import { V1ResourceQuota } from '@kubernetes/client-node';
+import { resourceQuotaApiV1 } from '@tenlastic/kubernetes';
 import * as minio from '@tenlastic/minio';
 import * as mongooseModels from '@tenlastic/mongoose-models';
 import * as nats from '@tenlastic/nats';
@@ -21,7 +21,7 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 const mongoDatabaseName = process.env.MONGO_DATABASE_NAME;
 const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 
-const pods: { [key: string]: V1Pod } = {};
+const resourceQuotas: { [key: string]: V1ResourceQuota } = {};
 
 let isUpdateRequired = false;
 let isUpdatingStatus = false;
@@ -47,19 +47,16 @@ let isUpdatingStatus = false;
   // NATS.
   await nats.connect({ connectionString: natsConnectionString });
 
-  podApiV1.watch(
+  resourceQuotaApiV1.watch(
     'dynamic',
     { labelSelector },
-    async (type, pod: V1Pod) => {
-      console.log(`Pod - ${type}: ${pod.metadata.name}.`);
+    async (type, object) => {
+      console.log(`Resource Quota - ${type}: ${object.metadata.name}.`);
 
-      if (
-        pod.status?.message === 'Pod was terminated in response to imminent node shutdown.' ||
-        type === 'DELETED'
-      ) {
-        delete pods[pod.metadata.name];
+      if (type === 'DELETED') {
+        delete resourceQuotas[object.metadata.name];
       } else if (type === 'ADDED' || type === 'MODIFIED') {
-        pods[pod.metadata.name] = pod;
+        resourceQuotas[object.metadata.name] = object;
       }
 
       try {
@@ -85,8 +82,8 @@ async function update() {
   console.log(`Updating status...`);
   isUpdatingStatus = true;
 
-  const cpu = getCpu(Object.values(pods));
-  const memory = getMemory(Object.values(pods));
+  const cpu = getCpu(Object.values(resourceQuotas));
+  const memory = getMemory(Object.values(resourceQuotas));
   const [minioStorage, mongoStorage, natsStorage] = await Promise.all([
     getMinioStorage(minioBucket),
     getMongoStorage(),

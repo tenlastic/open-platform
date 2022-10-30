@@ -7,18 +7,7 @@ rules:
   - apiGroups:
       - ""
     resources:
-      - pods
-      - pods/log
-      - pods/status
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - apps
-    resources:
-      - deployments
-      - statefulsets
+      - resourcequotas
     verbs:
       - get
       - list

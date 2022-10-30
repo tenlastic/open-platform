@@ -1,23 +1,7 @@
-import { V1Pod } from '@kubernetes/client-node';
+import { V1ResourceQuota } from '@kubernetes/client-node';
 
-export interface Node {
-  component: string;
-  container: string;
-  phase: string;
-  pod: string;
-}
-
-export function getMemory(pods: V1Pod[]) {
-  let sum = 0;
-
-  for (const pod of pods) {
-    sum += pod.spec?.containers?.reduce((previous, current) => {
-      const memory = current.resources?.requests?.memory || current.resources?.limits?.memory;
-      return previous + parse(memory);
-    }, 0);
-  }
-
-  return sum;
+export function getMemory(resourceQuotas: V1ResourceQuota[]) {
+  return resourceQuotas.reduce((p, c) => p + parse(c.status.used.memory), 0);
 }
 
 function parse(input: string) {

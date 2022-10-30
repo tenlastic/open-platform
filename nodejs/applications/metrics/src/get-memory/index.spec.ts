@@ -4,20 +4,14 @@ import { getMemory } from '.';
 
 describe('get-memory', function () {
   it('returns total memory', function () {
-    const pods = [
-      { spec: { containers: [{ resources: { limits: { memory: '1Gi' } } }] } },
-      {
-        spec: {
-          containers: [
-            { resources: { limits: { memory: '1Mi' } } },
-            { resources: { limits: { memory: '1Ki' } } },
-          ],
-        },
-      },
-      { spec: { containers: [{ resources: { limits: { memory: '1' } } }] } },
+    const resourceQuotas = [
+      { status: { used: { memory: '1Gi' } } },
+      { status: { used: { memory: '1Mi' } } },
+      { status: { used: { memory: '1Ki' } } },
+      { status: { used: { memory: '1' } } },
     ];
 
-    const result = getMemory(pods as any);
+    const result = getMemory(resourceQuotas as any);
 
     expect(result).to.eql(1074791425);
   });

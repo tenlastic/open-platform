@@ -34,6 +34,9 @@ spec:
                         - argo-workflows-workflow-controller
                 topologyKey: kubernetes.io/hostname
       containerRuntimeExecutor: emissary
+      extraEnv:
+        - name: POD_NAMES
+          value: v1
       replicas: 1
       resources:
         requests:
@@ -42,6 +45,16 @@ spec:
       workflowNamespaces:
         - dynamic
         - static
+    executor:
+      resources:
+        requests:
+          cpu: 25m
+          memory: 25Mi
+    mainContainer:
+      resources:
+        requests:
+          cpu: 25m
+          memory: 25Mi
     server:
       affinity:
         nodeAffinity:
@@ -63,6 +76,9 @@ spec:
                 topologyKey: kubernetes.io/hostname
       extraArgs:
         - --auth-mode=server
+      extraEnv:
+        - name: POD_NAMES
+          value: v1
       replicas: 3
       resources:
         requests:

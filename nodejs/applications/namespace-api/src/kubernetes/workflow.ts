@@ -2,6 +2,7 @@ import { networkPolicyApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
 import { DatabaseOperationType } from '@tenlastic/mongoose-models';
 
 import { WorkflowDocument, WorkflowSpecTemplate, WorkflowSpecTemplateSchema } from '../mongodb';
+import { KubernetesNamespace } from './namespace';
 
 export const KubernetesWorkflow = {
   delete: async (workflow: WorkflowDocument, operationType?: DatabaseOperationType) => {
@@ -37,6 +38,7 @@ export const KubernetesWorkflow = {
   upsert: async (workflow: WorkflowDocument) => {
     const labels = KubernetesWorkflow.getLabels(workflow);
     const name = KubernetesWorkflow.getName(workflow);
+    const namespaceName = KubernetesNamespace.getName(workflow.namespaceId);
 
     /**
      * =======================
@@ -115,6 +117,7 @@ export const KubernetesWorkflow = {
         executor: { serviceAccountName: 'workflow' },
         parallelism: workflow.spec.parallelism,
         podMetadata: { labels: { 'tenlastic.com/app': name } },
+        podPriorityClassName: namespaceName,
         serviceAccountName: 'workflow',
         templates,
         ttlStrategy: { secondsAfterCompletion: 3 * 60 * 60 },

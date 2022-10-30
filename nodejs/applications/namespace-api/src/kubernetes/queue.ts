@@ -144,6 +144,7 @@ export const KubernetesQueue = {
               workingDir: '/usr/src/nodejs/applications/queue/',
             },
           ],
+          priorityClassName: namespaceName,
           volumes: [
             { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
           ],
@@ -168,6 +169,7 @@ export const KubernetesQueue = {
               resources,
             },
           ],
+          priorityClassName: namespaceName,
         },
       };
     }

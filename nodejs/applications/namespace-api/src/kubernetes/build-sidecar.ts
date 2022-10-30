@@ -104,6 +104,7 @@ export const KubernetesBuildSidecar = {
             },
           ],
           serviceAccountName: 'build-sidecar',
+          priorityClassName: namespaceName,
           volumes: [
             { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
           ],
@@ -126,6 +127,7 @@ export const KubernetesBuildSidecar = {
               resources: { requests: { cpu: '25m', memory: '50Mi' } },
             },
           ],
+          priorityClassName: namespaceName,
           serviceAccountName: 'build-sidecar',
         },
       };

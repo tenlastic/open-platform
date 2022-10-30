@@ -143,6 +143,7 @@ export const KubernetesBuild = {
           affinity,
           entrypoint: 'entrypoint',
           podMetadata: { labels: { 'tenlastic.com/app': name } },
+          podPriorityClassName: namespaceName,
           serviceAccountName: 'build',
           templates: [
             {

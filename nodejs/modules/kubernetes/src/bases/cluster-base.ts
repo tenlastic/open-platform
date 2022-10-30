@@ -8,6 +8,11 @@ export interface ClusterBaseBody {
   };
 }
 
+export interface ClusterBaseListQuery {
+  fieldSelector?: string;
+  labelSelector?: string;
+}
+
 export interface ClusterBaseResponse<T> {
   body: T;
   response: IncomingMessage;
@@ -51,6 +56,18 @@ export class ClusterBaseApiV1<T extends ClusterBaseBody> {
       const method = `delete${this.singular}`;
       return await this.api[method](name);
     } catch {}
+  }
+
+  public async deleteCollection(query: ClusterBaseListQuery): Promise<ClusterBaseResponse<T>> {
+    const method = `deleteCollection${this.singular}`;
+    return this.api[method](
+      undefined,
+      undefined,
+      undefined,
+      query.fieldSelector,
+      undefined,
+      query.labelSelector,
+    );
   }
 
   public patch(name: string, body: Partial<T>) {
