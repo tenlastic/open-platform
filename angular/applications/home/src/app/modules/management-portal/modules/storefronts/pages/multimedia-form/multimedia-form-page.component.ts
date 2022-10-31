@@ -61,7 +61,6 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
       return;
     }
 
-    this.pending[field].push(...files);
     this.uploadErrors[field] = [];
 
     return Promise.all(files.map((f) => this.upload(field, f)));
@@ -112,6 +111,13 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
   private async upload(field: string, file: Blob) {
     const fieldTitleCase = field.charAt(0).toUpperCase() + field.substring(1);
 
+    if (file.size > 25 * 1000 * 1000) {
+      this.uploadErrors[field] = ['File must be smaller than 25MB.'];
+      return;
+    }
+
+    this.pending[field].push(file);
+
     try {
       const formData = new FormData();
       formData.append(field, file);
@@ -123,7 +129,8 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
         formData,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const multiplier = file.size / (10 * 1000 * 1000);
+      await new Promise((resolve) => setTimeout(resolve, 1000 * multiplier));
 
       this.data = storefront;
       this.matSnackBar.open(`${fieldTitleCase} uploaded successfully.`);
