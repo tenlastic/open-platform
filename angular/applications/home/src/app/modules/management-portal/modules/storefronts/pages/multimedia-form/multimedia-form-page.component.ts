@@ -129,9 +129,6 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
         formData,
       );
 
-      const multiplier = file.size / (10 * 1000 * 1000);
-      await new Promise((resolve) => setTimeout(resolve, 1000 * multiplier));
-
       this.data = storefront;
       this.matSnackBar.open(`${fieldTitleCase} uploaded successfully.`);
     } catch (e) {
