@@ -33,14 +33,6 @@ export class StorefrontsFormPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
-  public pending: { [key: string]: Pending[] } = {
-    background: [],
-    icon: [],
-    logo: [],
-  };
-  public uploadErrors = {
-    background: [],
-  };
 
   private params: Params;
 
@@ -80,42 +72,8 @@ export class StorefrontsFormPageComponent implements OnInit {
     formArray.push(this.formBuilder.control(null, [Validators.required]));
   }
 
-  public getImage(field: string, index = 0) {
-    if (this.data[field]) {
-      return this.data[field];
-    }
-
-    if (this.pending[field] && this.pending[field][index]) {
-      return this.pending[field][index].url;
-    }
-
-    return null;
-  }
-
   public navigateToJson() {
     this.formService.navigateToJson(this.form);
-  }
-
-  public async onFieldChanged($event, field: string) {
-    const files: Blob[] = Array.from($event.target.files);
-    if (!files.length) {
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => this.pending[field].push({ file: files[0], url: e.target.result });
-    reader.readAsDataURL(files[0]);
-
-    $event.target.value = '';
-  }
-
-  public async remove(field: string, index = 0) {
-    if (this.data[field]) {
-    }
-
-    if (this.pending[field] && this.pending[field][index]) {
-      this.pending[field].splice(index);
-    }
   }
 
   public async save() {
@@ -139,7 +97,7 @@ export class StorefrontsFormPageComponent implements OnInit {
     };
 
     try {
-      await this.upsert(values);
+      this.data = await this.upsert(values);
     } catch (e) {
       this.errors = this.formService.handleHttpError(e, {
         namespaceId: 'Namespace',
@@ -207,18 +165,6 @@ export class StorefrontsFormPageComponent implements OnInit {
     const result = values._id
       ? await this.storefrontService.update(this.params.namespaceId, values._id, values)
       : await this.storefrontService.create(this.params.namespaceId, values);
-
-    for (const background of this.pending.background) {
-      const formData = new FormData();
-      formData.append('background', background.file);
-
-      this.data = await this.storefrontService.upload(
-        this.params.namespaceId,
-        this.data._id,
-        'background',
-        formData,
-      );
-    }
 
     this.matSnackBar.open(`Storefront saved successfully.`);
     this.router.navigate(['../', 'storefront'], { relativeTo: this.activatedRoute });

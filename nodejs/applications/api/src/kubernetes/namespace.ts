@@ -248,8 +248,7 @@ export const KubernetesNamespace = {
         selector: { ...labels, 'tenlastic.com/role': 'api' },
       },
     });
-    await statefulSetApiV1.delete(`${name}-api`, 'dynamic');
-    await statefulSetApiV1.create('dynamic', {
+    await statefulSetApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'api' },
         name: `${name}-api`,
@@ -267,8 +266,7 @@ export const KubernetesNamespace = {
      * CDC
      * ======================
      */
-    await statefulSetApiV1.delete(`${name}-cdc`, 'dynamic');
-    await statefulSetApiV1.create('dynamic', {
+    await statefulSetApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'cdc' },
         name: `${name}-cdc`,
@@ -286,10 +284,9 @@ export const KubernetesNamespace = {
      * CONNECTOR
      * ======================
      */
-    await statefulSetApiV1.delete(`${name}-connector`, 'dynamic');
     const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
     if (isDevelopment) {
-      await statefulSetApiV1.create('dynamic', {
+      await statefulSetApiV1.createOrReplace('dynamic', {
         metadata: {
           labels: { ...labels, 'tenlastic.com/role': 'connector' },
           name: `${name}-connector`,
@@ -320,7 +317,7 @@ export const KubernetesNamespace = {
         },
       });
     } else {
-      await statefulSetApiV1.create('dynamic', {
+      await statefulSetApiV1.createOrReplace('dynamic', {
         metadata: {
           labels: { ...labels, 'tenlastic.com/role': 'connector' },
           name: `${name}-connector`,
@@ -351,8 +348,7 @@ export const KubernetesNamespace = {
      * METRICS
      * ======================
      */
-    await deploymentApiV1.delete(`${name}-metrics`, 'dynamic');
-    await deploymentApiV1.create('dynamic', {
+    await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'metrics' },
         name: `${name}-metrics`,

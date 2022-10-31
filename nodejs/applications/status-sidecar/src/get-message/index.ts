@@ -8,6 +8,10 @@ export function getMessage(
   statefulSets: V1StatefulSet[],
 ) {
   for (const deployment of deployments) {
+    if (!deployment.status?.conditions) {
+      continue;
+    }
+
     for (const condition of deployment.status.conditions) {
       if (condition.message.includes('exceeded quota')) {
         return NamespaceLimitError;

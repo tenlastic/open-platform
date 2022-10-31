@@ -45,7 +45,6 @@ describe('web-server/storefronts/upload', function () {
       storefront = await StorefrontMock.create({ namespaceId: namespace._id });
 
       form = new FormData();
-      form.append('valid', 'valid', { contentType: 'image/jpeg', filename: 'valid.jpg' });
 
       ctx = new ContextMock({
         params: { _id: storefront._id, field: 'background', namespaceId: namespace._id },
@@ -60,6 +59,8 @@ describe('web-server/storefronts/upload', function () {
     });
 
     it('creates a new record', async function () {
+      form.append('example', 'example', { contentType: 'image/jpeg', filename: 'example.jpg' });
+
       await handler(ctx as any);
 
       const host = 'http://localhost:3000';
@@ -69,6 +70,8 @@ describe('web-server/storefronts/upload', function () {
     });
 
     it('uploads file to Minio', async function () {
+      form.append('example', 'example', { contentType: 'image/jpeg', filename: 'example.jpg' });
+
       await handler(ctx as any);
       await new Promise((res) => setTimeout(res, 100));
 
@@ -80,7 +83,19 @@ describe('web-server/storefronts/upload', function () {
       expect(result).to.exist;
     });
 
+    it('does not allow invalid mimetypes', async function () {
+      form.append('example', 'example', { contentType: 'image/x-icon', filename: 'example.ico' });
+
+      const promise = handler(ctx as any);
+
+      return expect(promise).to.be.rejectedWith(
+        'Mimetype must be: image/gif, image/jpeg, image/png.',
+      );
+    });
+
     it('does not allow large files', async function () {
+      form.append('example', 'example', { contentType: 'image/jpeg', filename: 'example.jpg' });
+
       namespace.limits.storage = 1;
       await namespace.save();
 
@@ -89,14 +104,13 @@ describe('web-server/storefronts/upload', function () {
       return expect(promise).to.be.rejectedWith(NamespaceLimitError);
     });
 
-    it('does not allow invalid mimetypes', async function () {
-      form.append('invalid', 'invalid', { contentType: 'image/x-icon', filename: 'invalid.ico' });
+    it('does not allow more than one file', async function () {
+      form.append('one', 'example', { contentType: 'image/jpeg', filename: 'example.jpg' });
+      form.append('two', 'example', { contentType: 'image/jpeg', filename: 'example.jpg' });
 
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejectedWith(
-        'Mimetype must be: image/gif, image/jpeg, image/png.',
-      );
+      return expect(promise).to.be.rejectedWith('Cannot upload more than one file at once.');
     });
   });
 

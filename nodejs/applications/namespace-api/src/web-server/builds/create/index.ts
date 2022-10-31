@@ -13,9 +13,14 @@ export async function handler(ctx: Context) {
 
   const build = new Build();
   await new Promise((resolve, reject) => {
-    const busboy = Busboy({ headers: ctx.request.headers, limits: { fileSize: limit } });
+    const busboy = Busboy({ headers: ctx.request.headers, limits: { files: 1, fileSize: limit } });
 
     busboy.on('error', reject);
+    busboy.on('field', (name, value) => {
+      if (name === 'record') {
+        build.set(JSON.parse(value));
+      }
+    });
     busboy.on('file', (name, stream, info) => {
       if (name !== 'zip') {
         stream.resume();
@@ -35,11 +40,7 @@ export async function handler(ctx: Context) {
 
       minio.putObject(process.env.MINIO_BUCKET, build.getZipPath(), stream);
     });
-    busboy.on('field', (name, value) => {
-      if (name === 'record') {
-        build.set(JSON.parse(value));
-      }
-    });
+    busboy.on('filesLimit', () => reject('Cannot upload more than one file at once.'));
     busboy.on('finish', resolve);
 
     ctx.req.pipe(busboy);

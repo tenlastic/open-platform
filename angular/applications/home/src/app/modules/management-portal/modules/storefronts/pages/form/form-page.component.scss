@@ -1,6 +1,16 @@
 @import 'src/assets/scss/form.scss';
 @import 'src/assets/scss/theme.scss';
 
+app-label {
+  display: block;
+  margin-top: 8px;
+}
+
+app-markdown {
+  display: block;
+  margin-top: 8px;
+}
+
 app-toggle-section {
   ::ng-deep {
     app-button {

@@ -42,6 +42,7 @@ describe('web-server/builds/create', function () {
     let build: BuildDocument;
     let ctx: ContextMock;
     let form: FormData;
+    let stream: NodeJS.ReadableStream;
 
     beforeEach(async function () {
       await AuthorizationMock.create({
@@ -55,14 +56,13 @@ describe('web-server/builds/create', function () {
       const zip = new JSZip();
       zip.file('index.spec.ts', fs.createReadStream(__filename));
 
-      const stream = zip.generateNodeStream({
+      stream = zip.generateNodeStream({
         compression: 'DEFLATE',
         compressionOptions: { level: 1 },
       });
 
       form = new FormData();
       form.append('record', JSON.stringify(build));
-      form.append('zip', stream, { contentType: 'application/zip', filename: 'valid.zip' });
 
       ctx = new ContextMock({
         params: { _id: build._id, namespaceId: namespace._id, platform: build.platform },
@@ -73,46 +73,59 @@ describe('web-server/builds/create', function () {
     });
 
     it('returns the Build', async function () {
+      form.append('zip', stream, { contentType: 'application/zip', filename: 'example.zip' });
+
       await handler(ctx as any);
 
       expect(ctx.response.body.record).to.exist;
     });
 
     it('uploads zip to Minio', async function () {
+      form.append('zip', stream, { contentType: 'application/zip', filename: 'example.zip' });
+
       await handler(ctx as any);
       await new Promise((res) => setTimeout(res, 100));
 
       await minio.statObject(process.env.MINIO_BUCKET, build.getZipPath());
     });
 
-    context('when the mimetype is invalid', function () {
-      it('throws an error', async function () {
-        form.append('zip', 'invalid', { contentType: 'image/x-icon', filename: 'invalid.ico' });
+    it('does not allow invalid mimetypes', async function () {
+      form.append('zip', 'example', { contentType: 'image/x-icon', filename: 'example.ico' });
 
-        const promise = handler(ctx as any);
+      const promise = handler(ctx as any);
 
-        return expect(promise).to.be.rejectedWith('Mimetype must be: application/zip.');
-      });
+      return expect(promise).to.be.rejectedWith('Mimetype must be: application/zip.');
     });
 
-    context('when a Namespace Limit is exceeded', function () {
-      it('throws an error', async function () {
-        namespace.limits.cpu = 0.05;
-        await namespace.save();
+    it('does not allow more than one file', async function () {
+      form.append('one', stream, { contentType: 'application/zip', filename: 'example.zip' });
+      form.append('two', stream, { contentType: 'application/zip', filename: 'example.zip' });
 
-        const promise = handler(ctx as any);
+      const promise = handler(ctx as any);
 
-        return expect(promise).to.be.rejectedWith(NamespaceLimitError);
-      });
+      return expect(promise).to.be.rejectedWith('Cannot upload more than one file at once.');
+    });
 
-      it('throws an error', async function () {
-        namespace.limits.storage = 1;
-        await namespace.save();
+    it('does not exceed Namespace CPU Limit', async function () {
+      form.append('zip', stream, { contentType: 'application/zip', filename: 'example.zip' });
 
-        const promise = handler(ctx as any);
+      namespace.limits.cpu = 0.05;
+      await namespace.save();
 
-        return expect(promise).to.be.rejectedWith(NamespaceLimitError);
-      });
+      const promise = handler(ctx as any);
+
+      return expect(promise).to.be.rejectedWith(NamespaceLimitError);
+    });
+
+    it('does not exceed Namespace Storage Limit', async function () {
+      form.append('zip', stream, { contentType: 'application/zip', filename: 'example.zip' });
+
+      namespace.limits.storage = 1;
+      await namespace.save();
+
+      const promise = handler(ctx as any);
+
+      return expect(promise).to.be.rejectedWith(NamespaceLimitError);
     });
   });
 

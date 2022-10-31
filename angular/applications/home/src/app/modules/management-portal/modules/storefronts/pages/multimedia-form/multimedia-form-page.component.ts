@@ -12,9 +12,19 @@ import { MediaDialogComponent } from '../../components';
   styleUrls: ['./multimedia-form-page.component.scss'],
 })
 export class StorefrontsMultimediaFormPageComponent implements OnInit {
-  public data: StorefrontModel;
-  public errors: string[] = [];
-  public pending = {
+  public get data() {
+    return this._data;
+  }
+  public set data(value) {
+    const timestamp = Date.now();
+
+    value.background = value.background ? `${value.background}?timestamp=${timestamp}` : null;
+    value.icon = value.icon ? `${value.icon}?timestamp=${timestamp}` : null;
+    value.logo = value.logo ? `${value.logo}?timestamp=${timestamp}` : null;
+
+    this._data = value;
+  }
+  public pending: { [key: string]: Blob[] } = {
     background: [],
     icon: [],
     images: [],
@@ -28,6 +38,8 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
     logo: [],
     videos: [],
   };
+
+  private _data: StorefrontModel;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -52,29 +64,7 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
     this.pending[field].push(...files);
     this.uploadErrors[field] = [];
 
-    try {
-      const formData = new FormData();
-      for (const file of files) {
-        formData.append(field, file);
-      }
-
-      this.data = await this.storefrontService.upload(
-        this.data.namespaceId,
-        this.data._id,
-        field,
-        formData,
-      );
-
-      const fieldTitleCase = field.charAt(0).toUpperCase() + field.substring(1);
-      this.matSnackBar.open(`${fieldTitleCase} uploaded successfully.`);
-    } catch (e) {
-      this.uploadErrors[field] = this.handleHttpError(e);
-    } finally {
-      for (const file of files) {
-        const index = this.pending[field].indexOf(file);
-        this.pending[field].splice(index, 1);
-      }
-    }
+    return Promise.all(files.map((f) => this.upload(field, f)));
   }
 
   public async remove(field: string, index = -1) {
@@ -117,5 +107,36 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
 
   private async handleHttpError(err: ApiError) {
     return err.errors.map((e) => e.message);
+  }
+
+  private async upload(field: string, file: Blob) {
+    const fieldTitleCase = field.charAt(0).toUpperCase() + field.substring(1);
+
+    try {
+      const formData = new FormData();
+      formData.append(field, file);
+
+      const storefront = await this.storefrontService.upload(
+        this.data.namespaceId,
+        this.data._id,
+        field,
+        formData,
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      this.data = storefront;
+      this.matSnackBar.open(`${fieldTitleCase} uploaded successfully.`);
+    } catch (e) {
+      this.uploadErrors[field] = await this.handleHttpError(e);
+
+      const index = this.pending[field].indexOf(file);
+      this.pending[field].splice(index, 1);
+
+      this.matSnackBar.open(`${fieldTitleCase} upload failed.`);
+    } finally {
+      const index = this.pending[field].indexOf(file);
+      this.pending[field].splice(index, 1);
+    }
   }
 }

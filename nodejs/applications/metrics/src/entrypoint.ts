@@ -62,16 +62,21 @@ let isUpdatingStatus = false;
       try {
         await update();
       } catch (e) {
-        console.error(e.message);
-        process.exit(1);
+        handleError(e);
       }
     },
-    (err) => {
-      console.error(err?.message);
-      process.exit(err ? 1 : 0);
-    },
+    handleError,
   );
 })();
+
+function handleError(error: Error) {
+  if (error?.message === 'aborted') {
+    return;
+  }
+
+  console.error(error?.message);
+  process.exit(error ? 1 : 0);
+}
 
 async function update() {
   if (isUpdatingStatus) {
