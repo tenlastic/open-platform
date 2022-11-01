@@ -1,15 +1,15 @@
-import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { Chance } from 'chance';
 
 import { ContextMock } from '../../context';
+import { RecordNotFoundError } from '../../errors';
 import { updateOne } from './';
 
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('handlers/update', function () {
+describe('handlers/update-one', function () {
   context('when permission is granted', function () {
     it('returns the record', async function () {
       const name = chance.hash();
@@ -36,7 +36,7 @@ describe('handlers/update', function () {
       const handler = updateOne(Permissions as any);
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejectedWith(PermissionError);
+      return expect(promise).to.be.rejectedWith(RecordNotFoundError);
     });
   });
 });

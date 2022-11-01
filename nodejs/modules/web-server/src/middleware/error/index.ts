@@ -1,15 +1,22 @@
+import { Next } from 'koa';
+
 import { Context } from '../../context';
 
 /**
  * Catches all errors and returns the message in the body.
  */
-export async function errorMiddleware(ctx: Context, next: () => Promise<void>) {
+export async function errorMiddleware(ctx: Context, next: Next) {
   try {
     await next();
   } catch (e) {
     const status = e.status || 400;
 
     switch (e.name) {
+      case 'DuplicateKeyError':
+        ctx.response.status = status;
+        ctx.response.body = getDuplicateKeyError(e);
+        break;
+
       case 'NamespaceLimitError':
         ctx.response.status = status;
         ctx.response.body = getNamespaceLimitError(e);
@@ -38,11 +45,6 @@ export async function errorMiddleware(ctx: Context, next: () => Promise<void>) {
       case 'RefreshTokenError':
         ctx.response.status = status;
         ctx.response.body = getError(e);
-        break;
-
-      case 'DuplicateKeyError':
-        ctx.response.status = status;
-        ctx.response.body = getDuplicateKeyError(e);
         break;
 
       case 'ValidationError':

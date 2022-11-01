@@ -1,9 +1,9 @@
-import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { Chance } from 'chance';
 
 import { ContextMock } from '../../context';
+import { RecordNotFoundError } from '../../errors';
 import { findOne } from './';
 
 const chance = new Chance();
@@ -35,7 +35,7 @@ describe('handlers/find-one', function () {
       const handler = findOne(Permissions as any);
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejectedWith(PermissionError);
+      return expect(promise).to.be.rejectedWith(RecordNotFoundError);
     });
   });
 });

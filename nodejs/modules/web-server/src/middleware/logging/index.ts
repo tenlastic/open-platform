@@ -1,9 +1,11 @@
+import { Next } from 'koa';
+
 import { Context } from '../../context';
 
 /**
  * Logs information about the request and response.
  */
-export async function loggingMiddleware(ctx: Context, next: () => Promise<void>) {
+export async function loggingMiddleware(ctx: Context, next: Next) {
   if (process.env.NODE_ENV === 'test') {
     await next();
     return;

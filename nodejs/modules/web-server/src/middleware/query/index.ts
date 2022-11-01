@@ -1,9 +1,11 @@
+import { Next } from 'koa';
+
 import { Context } from '../../context';
 
 /**
  * Parses the query string's "query" value into an object from JSON.
  */
-export async function queryMiddleware(ctx: Context, next: () => Promise<void>) {
+export async function queryMiddleware(ctx: Context, next: Next) {
   let query: { [key: string]: any };
 
   if (ctx.request.query.json) {

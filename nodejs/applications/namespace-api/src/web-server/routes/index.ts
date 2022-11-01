@@ -1,0 +1,11 @@
+export { default as articlesRoutes } from './articles';
+export { default as buildsRoutes } from './builds';
+export { default as collectionsRoutes } from './collections';
+export { default as gameServersRoutes } from './game-servers';
+export { default as probesRoutes } from './probes';
+export { default as queuesRoutes } from './queues';
+export { default as queueMembersRoutes } from './queue-members';
+export { default as recordsRoutes } from './records';
+export { default as storefrontsRoutes } from './storefronts';
+export { default as webSocketsRoutes } from './web-sockets';
+export { default as workflowsRoutes } from './workflows';

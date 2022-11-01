@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as jsonwebtoken from 'jsonwebtoken';
+import { Next } from 'koa';
 
 import { Context } from '../../context';
 
@@ -8,7 +9,7 @@ let jwtPublicKey = process.env.JWT_PUBLIC_KEY;
 /**
  * Extracts the user's information from a JWT.
  */
-export async function jwtMiddleware(ctx: Context, next: () => Promise<void>) {
+export async function jwtMiddleware(ctx: Context, next: Next) {
   let jwt: any;
 
   try {

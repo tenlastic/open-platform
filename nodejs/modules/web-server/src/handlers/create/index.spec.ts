@@ -30,7 +30,7 @@ describe('handlers/create', function () {
   context('when permission is denied', function () {
     it('throws an error', async function () {
       const ctx = new ContextMock();
-      const Permissions = { create: () => Promise.reject(PermissionError) };
+      const Permissions = { create: () => Promise.reject(new PermissionError()) };
 
       const handler = create(Permissions as any);
       const promise = handler(ctx as any);
