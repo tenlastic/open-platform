@@ -24,8 +24,8 @@ const pods: { [key: string]: V1Pod } = {};
 const statefulSets: { [key: string]: V1StatefulSet } = {};
 const watches: { [key: string]: Watch<CoreV1Event> } = {};
 
-let isUpdateRequired = false;
-let isUpdatingStatus = false;
+let startedUpdatingAt = 0;
+let timeout: NodeJS.Timeout;
 
 (async () => {
   await watchDeployments();
@@ -34,37 +34,41 @@ let isUpdatingStatus = false;
 })();
 
 async function update() {
-  if (isUpdatingStatus) {
-    isUpdateRequired = true;
+  const now = Date.now();
+  const throttle = 2.5 * 1000;
+
+  if (now - startedUpdatingAt < throttle) {
+    clearTimeout(timeout);
+    timeout = setTimeout(update, throttle - now - startedUpdatingAt);
     return;
   }
 
   console.log(`Updating status...`);
-  isUpdatingStatus = true;
+  startedUpdatingAt = now;
 
-  const d = Object.values(deployments);
-  const p = Object.values(pods);
-  const ss = Object.values(statefulSets);
+  try {
+    const d = Object.values(deployments);
+    const p = Object.values(pods);
+    const ss = Object.values(statefulSets);
 
-  const components = getComponents(d, ss);
-  const message = getMessage(d, events, ss);
-  const nodes = getNodes(p);
-  const phase = getPhase(components, message, nodes);
+    const components = getComponents(d, ss);
+    const message = getMessage(d, events, ss);
+    const nodes = getNodes(p);
+    const phase = getPhase(components, message, nodes);
 
-  // Send the status to the endpoint.
-  await axios({
-    headers: { 'X-Api-Key': apiKey },
-    data: { status: { components, message, nodes, phase, version } },
-    method: 'put',
-    url: endpoint,
-  });
+    await axios({
+      headers: { 'X-Api-Key': apiKey },
+      data: { status: { components, message, nodes, phase, version } },
+      method: 'put',
+      url: endpoint,
+    });
 
-  console.log('Status updated successfully.');
-  isUpdatingStatus = false;
+    console.log('Status updated successfully.');
+  } catch (e) {
+    console.error(e.message);
 
-  if (isUpdateRequired) {
-    isUpdateRequired = false;
-    return update();
+    clearTimeout(timeout);
+    timeout = setTimeout(update, throttle - now - startedUpdatingAt);
   }
 }
 

@@ -33,5 +33,3 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
     process.exit(1);
   }
 })();
-
-process.on('unhandledRejection', (err) => console.error(JSON.stringify(err)));

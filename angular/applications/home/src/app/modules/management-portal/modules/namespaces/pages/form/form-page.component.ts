@@ -30,13 +30,6 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public hasWriteAuthorizationForNamespace: boolean;
-  public limits = {
-    bandwidth: 'Total Bandwidth (B) / Month',
-    cpu: 'Total CPUs',
-    memory: 'Total Memory (B)',
-    preemptible: 'Only Preemptible',
-    storage: 'Total Storage (B)',
-  };
 
   private updateNamespace$ = new Subscription();
 

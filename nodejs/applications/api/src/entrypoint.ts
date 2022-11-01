@@ -55,5 +55,3 @@ const podName = process.env.POD_NAME;
     process.exit(1);
   }
 })();
-
-process.on('unhandledRejection', (err) => console.error(JSON.stringify(err)));

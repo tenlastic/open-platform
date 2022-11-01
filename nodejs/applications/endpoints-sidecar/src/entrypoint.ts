@@ -11,8 +11,8 @@ const labelSelector = process.env.LABEL_SELECTOR;
 
 const pods: { [key: string]: V1Pod } = {};
 
-let isUpdateRequired = false;
-let isUpdatingStatus = false;
+let startedUpdatingAt = 0;
+let timeout: NodeJS.Timeout;
 
 /**
  * Checks the status of the pod and saves it to the Game Server's database.
@@ -22,34 +22,38 @@ let isUpdatingStatus = false;
 })();
 
 async function update() {
-  if (isUpdatingStatus) {
-    isUpdateRequired = true;
+  const now = Date.now();
+  const throttle = 2.5 * 1000;
+
+  if (now - startedUpdatingAt < throttle) {
+    clearTimeout(timeout);
+    timeout = setTimeout(update, throttle - now - startedUpdatingAt);
     return;
   }
 
   console.log(`Updating endpoints...`);
-  isUpdatingStatus = true;
+  startedUpdatingAt = now;
 
-  // Endpoints.
-  const pod = Object.values(pods).find(
-    (p) =>
-      !p.metadata.deletionTimestamp && p.metadata.labels['tenlastic.com/role'] === 'application',
-  );
-  const endpoints = await getEndpoints(container, pod);
+  try {
+    const pod = Object.values(pods).find(
+      (p) =>
+        !p.metadata.deletionTimestamp && p.metadata.labels['tenlastic.com/role'] === 'application',
+    );
+    const endpoints = await getEndpoints(container, pod);
 
-  await axios({
-    headers: { 'X-Api-Key': apiKey },
-    data: { status: { endpoints } },
-    method: 'put',
-    url: endpoint,
-  });
+    await axios({
+      headers: { 'X-Api-Key': apiKey },
+      data: { status: { endpoints } },
+      method: 'put',
+      url: endpoint,
+    });
 
-  console.log('Endpoints updated successfully.');
-  isUpdatingStatus = false;
+    console.log('Endpoints updated successfully.');
+  } catch (e) {
+    console.error(e.message);
 
-  if (isUpdateRequired) {
-    isUpdateRequired = false;
-    return update();
+    clearTimeout(timeout);
+    timeout = setTimeout(update, throttle - now - startedUpdatingAt);
   }
 }
 

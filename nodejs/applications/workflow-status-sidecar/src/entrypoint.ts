@@ -1,5 +1,5 @@
 import { V1Pod } from '@kubernetes/client-node';
-import { podApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
+import { podApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
 import axios from 'axios';
 
 import { version } from '../package.json';
@@ -10,10 +10,53 @@ const workflowName = process.env.WORKFLOW_NAME;
 
 const pods: { [key: string]: V1Pod } = {};
 
+let startedUpdatingAt = 0;
+let timeout: NodeJS.Timeout;
+
 (async () => {
   await watchPods();
   await watchWorkflows();
 })();
+
+async function update(workflow: V1Workflow) {
+  const now = Date.now();
+  const throttle = 2.5 * 1000;
+
+  if (now - startedUpdatingAt < throttle) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => update(workflow), throttle - now - startedUpdatingAt);
+    return;
+  }
+
+  console.log(`Updating status...`);
+  startedUpdatingAt = now;
+
+  try {
+    const nodes = Object.values(workflow.status.nodes || {}).map((n: any) => {
+      const annotation = 'workflows.argoproj.io/node-id';
+      const message = n.message?.includes('exceeded quota')
+        ? 'Namespace Limit reached.'
+        : n.message;
+      const pod = Object.values(pods).find((p) => p.metadata.annotations[annotation] === n.id);
+
+      return { ...n, container: 'main', message, pod: pod?.metadata.name };
+    });
+
+    await axios({
+      data: { status: { ...workflow.status, nodes, version } },
+      headers: { 'X-Api-Key': apiKey },
+      method: 'put',
+      url: workflowEndpoint,
+    });
+
+    console.log('Status updated successfully.');
+  } catch (e) {
+    console.error(e.message);
+
+    clearTimeout(timeout);
+    timeout = setTimeout(() => update(workflow), throttle - now - startedUpdatingAt);
+  }
+}
 
 function watchPods() {
   return podApiV1.watch(
@@ -29,10 +72,6 @@ function watchPods() {
       }
     },
     (err) => {
-      if (err?.message === 'aborted') {
-        return watchPods();
-      }
-
       console.error(err?.message);
       process.exit(err ? 1 : 0);
     },
@@ -47,32 +86,12 @@ function watchWorkflows() {
       console.log(`Workflow - ${type}: ${workflow.metadata.name}.`);
 
       try {
-        const nodes = Object.values(workflow.status.nodes || {}).map((n: any) => {
-          const message = n.message?.includes('exceeded quota')
-            ? 'Namespace Limit reached.'
-            : n.message;
-          const pod = Object.values(pods).find(
-            (p) => p.metadata.annotations['workflows.argoproj.io/node-id'] === n.id,
-          );
-
-          return { ...n, container: 'main', message, pod: pod?.metadata.name };
-        });
-
-        await axios({
-          data: { status: { ...workflow.status, nodes, version } },
-          headers: { 'X-Api-Key': apiKey },
-          method: 'put',
-          url: workflowEndpoint,
-        });
+        await update(workflow);
       } catch (e) {
         console.error(e.message);
       }
     },
     (err) => {
-      if (err?.message === 'aborted') {
-        return watchWorkflows();
-      }
-
       console.error(err?.message);
       process.exit(err ? 1 : 0);
     },

@@ -35,7 +35,7 @@
                         formArrayName="limits">
       <div class="row">
         <mat-form-field floatLabel="always">
-          <mat-label>{{ limits['bandwidth'] }}</mat-label>
+          <mat-label>Total Bandwidth (B) / Month</mat-label>
           <input matInput
                  required
                  formControlName="bandwidth"
@@ -45,7 +45,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>{{ limits['cpu'] }}</mat-label>
+          <mat-label>Total CPUs</mat-label>
           <input matInput
                  required
                  formControlName="cpu"
@@ -55,7 +55,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>{{ limits['memory'] }}</mat-label>
+          <mat-label>Total Memory (B)</mat-label>
           <input matInput
                  required
                  formControlName="memory"
@@ -65,7 +65,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>{{ limits['preemptible'] }}</mat-label>
+          <mat-label>Only Preemptible</mat-label>
           <input *ngIf="form.get('limits').get('preemptible').disabled"
                  disabled
                  matInput
@@ -78,7 +78,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>{{ limits['storage'] }}</mat-label>
+          <mat-label>Total Storage</mat-label>
           <input matInput
                  required
                  formControlName="storage"
@@ -112,32 +112,30 @@
         </mat-form-field>
       </div>
 
-      <ng-container *ngIf="data.status?.limits">
-        <h4>Limits</h4>
+      <h4>Limits</h4>
 
-        <div class="row">
-          <mat-form-field floatLabel="always">
-            <mat-label>{{ limits['cpu'] }}</mat-label>
-            <input matInput
-                   disabled
-                   [value]="data.status.limits.cpu | number:'1.0':'en-US'" />
-          </mat-form-field>
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Total CPUs</mat-label>
+          <input matInput
+                 disabled
+                 [value]="data.status?.limits?.cpu || 0 | number:'1.0':'en-US'" />
+        </mat-form-field>
 
-          <mat-form-field floatLabel="always">
-            <mat-label>{{ limits['memory'] }}</mat-label>
-            <input matInput
-                   disabled
-                   [value]="data.status.limits.memory | filesize" />
-          </mat-form-field>
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Memory</mat-label>
+          <input matInput
+                 disabled
+                 [value]="data.status?.limits?.memory || 0 | filesize" />
+        </mat-form-field>
 
-          <mat-form-field floatLabel="always">
-            <mat-label>{{ limits['storage'] }}</mat-label>
-            <input matInput
-                   disabled
-                   [value]="data.status.limits.storage | filesize" />
-          </mat-form-field>
-        </div>
-      </ng-container>
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Storage</mat-label>
+          <input matInput
+                 disabled
+                 [value]="data.status?.limits?.storage || 0 | filesize" />
+        </mat-form-field>
+      </div>
     </app-toggle-section>
   </form>
 </div>

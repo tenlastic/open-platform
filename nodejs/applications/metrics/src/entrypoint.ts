@@ -22,8 +22,8 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 
 const resourceQuotas: { [key: string]: V1ResourceQuota } = {};
 
-let isUpdateRequired = false;
-let isUpdatingStatus = false;
+let startedUpdatingAt = 0;
+let timeout: NodeJS.Timeout;
 
 (async () => {
   // Minio.
@@ -46,52 +46,61 @@ let isUpdatingStatus = false;
   // NATS.
   await nats.connect({ connectionString: natsConnectionString });
 
-  // Update status when Minio objects have been modified.
-  const events = ['s3:ObjectCreated:*', 's3:ObjectRemoved:*'];
-  const emitter = await minio.listenBucketNotification(minioBucket, '', '', events);
-  emitter.on('notification', update);
-
-  // Update status when Resource Quotas have been modified.
+  await watchMinioObjects();
   await watchResourceQuotas();
 })();
 
 async function update() {
-  if (isUpdatingStatus) {
-    isUpdateRequired = true;
+  const now = Date.now();
+  const throttle = 2.5 * 1000;
+
+  if (now - startedUpdatingAt < throttle) {
+    clearTimeout(timeout);
+    timeout = setTimeout(update, throttle - now - startedUpdatingAt);
     return;
   }
 
   console.log(`Updating status...`);
-  isUpdatingStatus = true;
-
-  const cpu = getCpu(Object.values(resourceQuotas));
-  const memory = getMemory(Object.values(resourceQuotas));
-  const [minioStorage, mongoStorage] = await Promise.all([
-    getMinioStorage(minioBucket),
-    getMongoStorage(),
-  ]);
-  const storage = minioStorage + mongoStorage;
-
-  console.log(`CPU: ${cpu} - Memory: ${memory} - Storage: ${storage}`);
-  console.log(`Minio: ${minioStorage} - MongoDB: ${mongoStorage}`);
+  startedUpdatingAt = now;
 
   // Send the status to the endpoint.
-  await axios({
-    headers: { 'X-Api-Key': apiKey },
-    data: { status: { limits: { cpu, memory, storage } } },
-    method: 'put',
-    url: endpoint,
-  });
+  try {
+    const cpu = getCpu(Object.values(resourceQuotas));
+    const memory = getMemory(Object.values(resourceQuotas));
+    const [minioStorage, mongoStorage] = await Promise.all([
+      getMinioStorage(minioBucket),
+      getMongoStorage(),
+    ]);
+    const storage = minioStorage + mongoStorage;
 
-  console.log('Status updated successfully.');
-  isUpdatingStatus = false;
+    await axios({
+      headers: { 'X-Api-Key': apiKey },
+      data: { status: { limits: { cpu, memory, storage } } },
+      method: 'put',
+      url: endpoint,
+    });
 
-  if (isUpdateRequired) {
-    isUpdateRequired = false;
-    return update();
+    console.log('Status updated successfully.');
+  } catch (e) {
+    console.error(e.message);
+
+    clearTimeout(timeout);
+    timeout = setTimeout(update, throttle - now - startedUpdatingAt);
   }
 }
 
+/**
+ * Update status when Minio objects have been modified.
+ */
+async function watchMinioObjects() {
+  const events = ['s3:ObjectCreated:*', 's3:ObjectRemoved:*'];
+  const emitter = await minio.listenBucketNotification(minioBucket, '', '', events);
+  emitter.on('notification', update);
+}
+
+/**
+ * Update status when Resource Quotas have been modified.
+ */
 function watchResourceQuotas() {
   return resourceQuotaApiV1.watch(
     'dynamic',
