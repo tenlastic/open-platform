@@ -13,7 +13,7 @@ describe('publish()', function () {
     const payload: IDatabasePayload<any> = {
       documentKey: { _id: chance.hash() },
       fullDocument: { _id: chance.hash(), createdAt: new Date(), updatedAt: new Date() },
-      ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
+      ns: { coll: chance.hash({ length: 16 }), db: 'mongoose-change-stream-nats' },
       operationType: 'insert',
     };
 

@@ -27,6 +27,7 @@ const podName = process.env.POD_NAME;
 
     // NATS.
     await nats.connect({ connectionString: natsConnectionString });
+    await nats.upsertStream(mongoFromDatabaseName);
 
     const starts: { [key: string]: Date } = {};
 

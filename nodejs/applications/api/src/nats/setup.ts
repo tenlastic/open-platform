@@ -33,6 +33,7 @@ export interface SetupOptions extends nats.ConnectionOptions {
 
 export async function setup(options: SetupOptions) {
   await nats.connect({ connectionString: options.connectionString });
+  await nats.upsertStream(options.database);
 
   return Promise.all([
     subscribe(options.database, options.durable, Authorization, (payload) =>

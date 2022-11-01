@@ -8,4 +8,5 @@ before(async function () {
   });
 
   await nats.connect({ connectionString: process.env.NATS_CONNECTION_STRING });
+  await nats.upsertStream('mongoose-change-stream-nats', { max_age: 60 * 60 * 1000 * 1000 * 1000 });
 });

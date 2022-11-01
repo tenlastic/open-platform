@@ -21,6 +21,7 @@ before(async function () {
 
   // NATS.
   await nats.connect({ connectionString: natsConnectionString });
+  await nats.upsertStream('cdc-test', { max_age: 60 * 60 * 1000 * 1000 * 1000 });
 
   // Redis.
   client = await redis.connect({

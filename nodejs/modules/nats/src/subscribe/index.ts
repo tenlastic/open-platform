@@ -1,15 +1,12 @@
 import * as nats from 'nats';
 
 import { getJetStream, getJetStreamManager } from '../connect';
-import { upsertStream } from '../upsert-stream';
 
 export async function subscribe(
   durable: string,
   subject: string,
   options: Partial<nats.ConsumerConfig> = null,
 ) {
-  await upsertStream(subject);
-
   const consumerOptions: Partial<nats.ConsumerConfig> = {
     ack_policy: nats.AckPolicy.None,
     deliver_policy: nats.DeliverPolicy.New,
