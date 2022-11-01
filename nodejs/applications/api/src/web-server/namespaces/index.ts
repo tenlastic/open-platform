@@ -1,4 +1,3 @@
-import { authenticationMiddleware } from '@tenlastic/web-server';
 import * as Router from 'koa-router';
 
 import { handler as countHandler } from './count';
@@ -16,7 +15,7 @@ router.get('/', findHandler);
 router.get('/count', countHandler);
 router.get('/:_id', findOneHandler);
 router.get('/:_id/logs/:pod/:container', logsHandler);
-router.post('/', authenticationMiddleware, createHandler);
-router.put('/:_id', authenticationMiddleware, updateHandler);
+router.post('/', createHandler);
+router.put('/:_id', updateHandler);
 
 export default router.routes();

@@ -1,8 +1,9 @@
-import { use } from 'chai';
+import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 
 import { ContextMock } from '../../context';
+import { HttpError } from '../../errors';
 import { authenticationMiddleware } from './';
 
 const chance = new Chance();
@@ -17,6 +18,16 @@ describe('middleware/authentication', function () {
       const ctx = new ContextMock({ state: { user } });
 
       await authenticationMiddleware(ctx as any, noop);
+    });
+  });
+
+  context('when the user is not set', function () {
+    it('throws an error', async function () {
+      const ctx = new ContextMock();
+
+      const promise = authenticationMiddleware(ctx as any, noop);
+
+      return expect(promise).to.be.rejectedWith(HttpError);
     });
   });
 });
