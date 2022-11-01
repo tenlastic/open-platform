@@ -5,6 +5,7 @@ export * from './f-get-object';
 export * from './f-put-object';
 export * from './get-object';
 export * from './list-objects';
+export * from './listen-bucket-notification';
 export * from './make-bucket';
 export * from './put-object';
 export * from './remove-bucket';

@@ -1,14 +1,8 @@
 import * as k8s from '@kubernetes/client-node';
 import * as deepmerge from 'deepmerge';
 
-import {
-  BaseListQuery,
-  BaseListResponse,
-  BaseResponse,
-  BaseWatchCallback,
-  BaseWatchDoneCallback,
-  BaseWatchOptions,
-} from './base';
+import { BaseWatchCallback, BaseWatchDoneCallback, BaseWatchOptions, Watch } from '../watch';
+import { BaseListQuery, BaseListResponse, BaseResponse } from './base';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -135,14 +129,11 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
     done?: BaseWatchDoneCallback,
   ) {
     const endpoint = this.getEndpoint(namespace);
-    const watch = new k8s.Watch(kc);
-    const req = await watch.watch(endpoint, options, callback, done);
 
-    // Abort the request after 15 minutes.
-    await new Promise((res) => setTimeout(res, 15 * 60 * 1000));
-    req.abort();
+    const watch = new Watch(endpoint, options, callback, done);
+    await watch.start();
 
-    return this.watch(namespace, options, callback, done);
+    return watch;
   }
 
   protected getEndpoint(namespace: string) {

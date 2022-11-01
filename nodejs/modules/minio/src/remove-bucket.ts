@@ -15,7 +15,7 @@ export async function removeBucket(bucketName: string, timeout = TIMEOUT): Promi
   try {
     return await client.removeBucket(bucketName);
   } catch (e) {
-    if (timeout > TIMEOUT_LIMIT || !e.code || e.code !== 'SlowDown') {
+    if (e?.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
       throw e;
     }
 

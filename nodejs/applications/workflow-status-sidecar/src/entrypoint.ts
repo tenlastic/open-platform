@@ -11,10 +11,15 @@ const workflowName = process.env.WORKFLOW_NAME;
 const pods: { [key: string]: V1Pod } = {};
 
 (async () => {
-  podApiV1.watch(
+  await watchPods();
+  await watchWorkflows();
+})();
+
+function watchPods() {
+  return podApiV1.watch(
     'dynamic',
     { labelSelector: `workflows.argoproj.io/workflow=${workflowName}` },
-    async (type, pod: V1Pod) => {
+    async (type, pod) => {
       console.log(`Pod - ${type}: ${pod.metadata.name}.`);
 
       if (type === 'ADDED' || type === 'MODIFIED') {
@@ -24,12 +29,18 @@ const pods: { [key: string]: V1Pod } = {};
       }
     },
     (err) => {
+      if (err?.message === 'aborted') {
+        return watchPods();
+      }
+
       console.error(err?.message);
       process.exit(err ? 1 : 0);
     },
   );
+}
 
-  workflowApiV1.watch(
+function watchWorkflows() {
+  return workflowApiV1.watch(
     'dynamic',
     { fieldSelector: `metadata.name=${workflowName}` },
     async (type, workflow) => {
@@ -58,8 +69,12 @@ const pods: { [key: string]: V1Pod } = {};
       }
     },
     (err) => {
+      if (err?.message === 'aborted') {
+        return watchWorkflows();
+      }
+
       console.error(err?.message);
       process.exit(err ? 1 : 0);
     },
   );
-})();
+}

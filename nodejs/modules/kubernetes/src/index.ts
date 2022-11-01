@@ -11,3 +11,4 @@ export * from './scheduling';
 export * from './stacks';
 
 export * from './stub';
+export * from './watch';

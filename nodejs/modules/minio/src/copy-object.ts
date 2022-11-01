@@ -13,7 +13,7 @@ export async function copyObject(
   try {
     return await client.copyObject(bucketName, objectName, sourceObject, copyConditions);
   } catch (e) {
-    if (timeout > TIMEOUT_LIMIT || !e.code || e.code !== 'SlowDown') {
+    if (e?.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
       throw e;
     }
 

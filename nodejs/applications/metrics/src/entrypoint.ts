@@ -10,7 +10,6 @@ import { getCpu } from './get-cpu';
 import { getMemory } from './get-memory';
 import { getMinioStorage } from './get-minio-storage';
 import { getMongoStorage } from './get-mongo-storage';
-import { getNatsStorage } from './get-nats-storage';
 
 const apiKey = process.env.API_KEY;
 const endpoint = process.env.ENDPOINT;
@@ -47,36 +46,14 @@ let isUpdatingStatus = false;
   // NATS.
   await nats.connect({ connectionString: natsConnectionString });
 
-  resourceQuotaApiV1.watch(
-    'dynamic',
-    { labelSelector },
-    async (type, object) => {
-      console.log(`Resource Quota - ${type}: ${object.metadata.name}.`);
+  // Update status when Minio objects have been modified.
+  const events = ['s3:ObjectCreated:*', 's3:ObjectRemoved:*'];
+  const emitter = await minio.listenBucketNotification(minioBucket, '', '', events);
+  emitter.on('notification', update);
 
-      if (type === 'DELETED') {
-        delete resourceQuotas[object.metadata.name];
-      } else if (type === 'ADDED' || type === 'MODIFIED') {
-        resourceQuotas[object.metadata.name] = object;
-      }
-
-      try {
-        await update();
-      } catch (e) {
-        handleError(e);
-      }
-    },
-    handleError,
-  );
+  // Update status when Resource Quotas have been modified.
+  await watchResourceQuotas();
 })();
-
-function handleError(error: Error) {
-  if (error?.message === 'aborted') {
-    return;
-  }
-
-  console.error(error?.message);
-  process.exit(error ? 1 : 0);
-}
 
 async function update() {
   if (isUpdatingStatus) {
@@ -89,15 +66,14 @@ async function update() {
 
   const cpu = getCpu(Object.values(resourceQuotas));
   const memory = getMemory(Object.values(resourceQuotas));
-  const [minioStorage, mongoStorage, natsStorage] = await Promise.all([
+  const [minioStorage, mongoStorage] = await Promise.all([
     getMinioStorage(minioBucket),
     getMongoStorage(),
-    getNatsStorage(minioBucket),
   ]);
-  const storage = minioStorage + mongoStorage + natsStorage;
+  const storage = minioStorage + mongoStorage;
 
   console.log(`CPU: ${cpu} - Memory: ${memory} - Storage: ${storage}`);
-  console.log(`Minio: ${minioStorage} - MongoDB: ${mongoStorage} - NATS: ${natsStorage}`);
+  console.log(`Minio: ${minioStorage} - MongoDB: ${mongoStorage}`);
 
   // Send the status to the endpoint.
   await axios({
@@ -114,4 +90,30 @@ async function update() {
     isUpdateRequired = false;
     return update();
   }
+}
+
+function watchResourceQuotas() {
+  return resourceQuotaApiV1.watch(
+    'dynamic',
+    { labelSelector },
+    async (type, resourceQuota) => {
+      console.log(`Resource Quota - ${type}: ${resourceQuota.metadata.name}.`);
+
+      if (type === 'DELETED') {
+        delete resourceQuotas[resourceQuota.metadata.name];
+      } else if (type === 'ADDED' || type === 'MODIFIED') {
+        resourceQuotas[resourceQuota.metadata.name] = resourceQuota;
+      }
+
+      try {
+        await update();
+      } catch (e) {
+        console.error(e.message);
+      }
+    },
+    (err) => {
+      console.error(err?.message);
+      process.exit(err ? 1 : 0);
+    },
+  );
 }
