@@ -3,6 +3,7 @@ import { Context } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
 import { Build, BuildPermissions, Namespace, NamespaceLimitError } from '../../../../mongodb';
+import { NamespaceStorageLimitEvent } from '../../../../nats';
 
 export async function handler(ctx: Context) {
   const namespace = await Namespace.findOne({ _id: ctx.params.namespaceId });
@@ -35,10 +36,14 @@ export async function handler(ctx: Context) {
       // Make sure the file is an image.
       const { mimeType } = info;
       if (mimeType !== 'application/zip') {
-        busboy.emit('error', new Error('Mimetype must be: application/zip.'));
+        stream.destroy(new Error('Mimetype must be: application/zip.'));
         return;
       }
 
+      // Stop the upload when storage limit is reached.
+      NamespaceStorageLimitEvent.sync(() => stream.destroy(new NamespaceLimitError('storage')));
+
+      // Upload to Minio
       promise = minio.putObject(process.env.MINIO_BUCKET, build.getZipPath(), stream);
     });
     busboy.on('filesLimit', () => reject('Cannot upload more than one file at once.'));

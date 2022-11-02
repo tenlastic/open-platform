@@ -61,6 +61,7 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
       return;
     }
 
+    $event.target.value = '';
     this.uploadErrors[field] = [];
 
     return Promise.all(files.map((f) => this.upload(field, f)));

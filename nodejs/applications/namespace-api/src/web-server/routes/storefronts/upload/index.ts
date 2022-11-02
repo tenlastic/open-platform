@@ -1,13 +1,15 @@
 import * as minio from '@tenlastic/minio';
+import { PermissionError } from '@tenlastic/mongoose-permissions';
+import { Context, RecordNotFoundError } from '@tenlastic/web-server';
+import * as Busboy from 'busboy';
+
 import {
   Namespace,
   NamespaceLimitError,
   Storefront,
   StorefrontPermissions,
 } from '../../../../mongodb';
-import { PermissionError } from '@tenlastic/mongoose-permissions';
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
-import * as Busboy from 'busboy';
+import { NamespaceStorageLimitEvent } from '../../../../nats';
 
 export async function handler(ctx: Context) {
   const { _id, field, namespaceId } = ctx.params;
@@ -50,7 +52,7 @@ export async function handler(ctx: Context) {
       // Make sure the file is an image.
       const { mimeType } = info;
       if (field === 'videos' && mimeType !== 'video/mp4') {
-        busboy.emit('error', new Error('Mimetype must be: video/mp4.'));
+        stream.destroy(new Error('Mimetype must be: video/mp4.'));
         return;
       } else if (
         field !== 'videos' &&
@@ -58,10 +60,14 @@ export async function handler(ctx: Context) {
         mimeType !== 'image/jpeg' &&
         mimeType !== 'image/png'
       ) {
-        busboy.emit('error', new Error('Mimetype must be: image/gif, image/jpeg, image/png.'));
+        stream.destroy(new Error('Mimetype must be: image/gif, image/jpeg, image/png.'));
         return;
       }
 
+      // Stop the upload when storage limit is reached.
+      NamespaceStorageLimitEvent.sync(() => stream.destroy(new NamespaceLimitError('storage')));
+
+      // Upload to Minio.
       promise = minio.putObject(process.env.MINIO_BUCKET, path, stream, {
         'content-type': mimeType,
       });

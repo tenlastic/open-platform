@@ -22,7 +22,7 @@ import { BuildEvent } from './build';
 import { CollectionEvent } from './collection';
 import { GameServerEvent } from './game-server';
 import { GroupEvent } from './group';
-import { NamespaceEvent } from './namespace';
+import { GlobalNamespaceEvent, NamespaceEvent } from './namespace';
 import { QueueEvent } from './queue';
 import { QueueMemberEvent } from './queue-member';
 import { StorefrontEvent } from './storefront';
@@ -33,6 +33,7 @@ import { WorkflowEvent } from './workflow';
 export interface SetupOptions extends nats.ConnectionOptions {
   database: string;
   durable: string;
+  podName: string;
 }
 
 export async function setup(options: SetupOptions) {
@@ -54,6 +55,9 @@ export async function setup(options: SetupOptions) {
     subscribe(options.database, options.durable, Group, (payload) => GroupEvent.emit(payload)),
     subscribe(options.database, options.durable, Namespace, (payload) =>
       NamespaceEvent.emit(payload),
+    ),
+    subscribe(options.database, options.podName, Namespace, (payload) =>
+      GlobalNamespaceEvent.emit(payload),
     ),
     subscribe(options.database, options.durable, QueueMember, (payload) =>
       QueueMemberEvent.emit(payload),

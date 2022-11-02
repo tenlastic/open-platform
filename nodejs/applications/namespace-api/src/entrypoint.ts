@@ -41,6 +41,7 @@ const podName = process.env.POD_NAME;
         connectionString: natsConnectionString,
         database: mongoDatabaseName,
         durable: mongoDatabaseName,
+        podName,
       })
       .catch(console.error);
 
