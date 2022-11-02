@@ -67,7 +67,6 @@ minio.connect({
 
     // Update the Build.
     await dependencies.buildService.update(namespaceId, buildId, { files: build.files });
-    await minio.removeObject(minioBucket, build.getZipPath());
 
     // If building a server, download files for Docker.
     if (build.platform === 'server64') {

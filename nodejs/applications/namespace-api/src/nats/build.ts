@@ -1,3 +1,4 @@
+import * as minio from '@tenlastic/minio';
 import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
 
 import { KubernetesBuild, KubernetesBuildSidecar } from '../kubernetes';
@@ -7,13 +8,17 @@ import { NamespaceEvent, NamespaceStorageLimitEvent } from './namespace';
 export const BuildEvent = new EventEmitter<IDatabasePayload<BuildDocument>>();
 
 // Delete files from Minio if associated Build is deleted.
+// Delete zip file from Minio if associated Build is finished.
 BuildEvent.async(async (payload) => {
-  if (payload.operationType !== 'delete') {
-    return;
+  if (payload.operationType === 'delete') {
+    return payload.fullDocument.deleteMinioFiles();
+  } else if (
+    payload.operationType === 'update' &&
+    payload.updateDescription?.updatedFields?.status?.finishedAt
+  ) {
+    const path = payload.fullDocument.getZipPath();
+    return minio.removeObject(process.env.MINIO_BUCKET, path);
   }
-
-  // Delete Minio files.
-  await payload.fullDocument.deleteMinioFiles();
 });
 
 // Delete Kubernetes resources.
