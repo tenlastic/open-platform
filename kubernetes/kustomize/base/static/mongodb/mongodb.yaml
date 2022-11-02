@@ -54,14 +54,14 @@ spec:
       resources:
         requests:
           cpu: 50m
-          memory: 250Mi
+          memory: 250M
     architecture: replicaset
     auth:
       existingSecret: mongodb
     livenessProbe:
       periodSeconds: 30
     persistence:
-      size: 8Gi
+      size: 8G
       storageClass: balanced-expandable
     readinessProbe:
       periodSeconds: 30
@@ -69,4 +69,4 @@ spec:
     resources:
       requests:
         cpu: 200m
-        memory: 250Mi
+        memory: 250M

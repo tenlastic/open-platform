@@ -33,11 +33,12 @@ kubectl label node $(kubectl get nodes -o jsonpath={..metadata.name}) tenlastic.
 kubectl label node $(kubectl get nodes -o jsonpath={..metadata.name}) tenlastic.com/low-priority=true
 
 # Install Flux and the Helm Controller.
+kubectl apply -f ../../base/cluster/namespaces/
 helm install \
   -f ../../../helm/values/base/flux.yaml \
   -n static \
   flux \
-  ../../../helm/flux/
+  ../../../helm/charts/flux/
 
 # Create resources.
 kustomize build ./ | kubectl apply -f -

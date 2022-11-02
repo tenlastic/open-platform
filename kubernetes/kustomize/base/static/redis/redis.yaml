@@ -61,7 +61,7 @@ spec:
       resources:
         requests:
           cpu: 50m
-          memory: 250Mi
+          memory: 250M
     sentinel:
       downAfterMilliseconds: 10000
       enabled: true
@@ -69,5 +69,5 @@ spec:
       resources:
         requests:
           cpu: 50m
-          memory: 50Mi
+          memory: 50M
       staticID: true

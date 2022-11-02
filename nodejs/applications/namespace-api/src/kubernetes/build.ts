@@ -174,7 +174,7 @@ export const KubernetesBuild = {
                 env,
                 envFrom,
                 image: 'tenlastic/node-development:latest',
-                resources: { requests: { cpu: '100m', memory: '100Mi' } },
+                resources: { requests: { cpu: '100m', memory: '100M' } },
                 volumeMounts: [{ mountPath: '/usr/src/', name: 'host' }],
                 workingDir: `${workingDir}/build/`,
               },
@@ -220,7 +220,7 @@ export const KubernetesBuild = {
                 env,
                 envFrom,
                 image: `tenlastic/build:${version}`,
-                resources: { requests: { cpu: '100m', memory: '100Mi' } },
+                resources: { requests: { cpu: '100m', memory: '100M' } },
                 volumeMounts: [],
                 workingDir: '/usr/src/',
               },
@@ -260,7 +260,7 @@ export const KubernetesBuild = {
           ],
           command: ['/kaniko/executor'],
           image: `gcr.io/kaniko-project/executor:v1.8.1`,
-          resources: { requests: { cpu: '100m', memory: '100Mi' } },
+          resources: { requests: { cpu: '100m', memory: '100M' } },
           volumeMounts: [
             { mountPath: '/kaniko/.docker/', name: 'docker-registry', readOnly: true },
             { mountPath: '/workspace/', name: 'workspace' },
@@ -287,7 +287,7 @@ export const KubernetesBuild = {
             accessModes: ['ReadWriteOnce'],
             resources: {
               requests: {
-                storage: '10Gi',
+                storage: '10G',
               },
             },
             storageClassName: 'balanced-expandable',

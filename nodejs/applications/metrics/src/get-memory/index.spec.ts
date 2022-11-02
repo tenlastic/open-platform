@@ -5,9 +5,9 @@ import { getMemory } from '.';
 describe('get-memory', function () {
   it('returns total memory', function () {
     const resourceQuotas = [
-      { status: { used: { memory: '1Gi' } } },
-      { status: { used: { memory: '1Mi' } } },
-      { status: { used: { memory: '1Ki' } } },
+      { status: { used: { memory: '1G' } } },
+      { status: { used: { memory: '1M' } } },
+      { status: { used: { memory: '1K' } } },
       { status: { used: { memory: '1' } } },
     ];
 

@@ -427,7 +427,7 @@ function getAggregationApiConnectorContainerTemplate(namespace: NamespaceDocumen
     },
     { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
   ];
-  const resources = { requests: { cpu: '25m', memory: '75Mi' } };
+  const resources = { requests: { cpu: '25m', memory: '75M' } };
 
   const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
   if (isDevelopment) {
@@ -478,7 +478,7 @@ function getApiConnectorContainerTemplate(namespace: NamespaceDocument): V1Conta
     },
     { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
   ];
-  const resources = { requests: { cpu: '25m', memory: '75Mi' } };
+  const resources = { requests: { cpu: '25m', memory: '75M' } };
 
   const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
   if (isDevelopment) {
@@ -518,7 +518,7 @@ function getApiPodTemplate(namespace: NamespaceDocument): V1Pod {
     initialDelaySeconds: 5,
     periodSeconds: 5,
   };
-  const resources = { requests: { cpu: '25m', memory: '75Mi' } };
+  const resources = { requests: { cpu: '25m', memory: '75M' } };
 
   const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
   if (isDevelopment) {
@@ -582,7 +582,7 @@ function getCdcPodTemplate(namespace: NamespaceDocument): V1Pod {
     { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
   ];
   const envFrom: V1EnvFromSource[] = [{ secretRef: { name: 'nodejs' } }, { secretRef: { name } }];
-  const resources = { requests: { cpu: '25m', memory: '75Mi' } };
+  const resources = { requests: { cpu: '25m', memory: '75M' } };
 
   const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
   if (isDevelopment) {
@@ -645,7 +645,7 @@ function getMetricsPodTemplate(namespace: NamespaceDocument): V1Pod {
     { name: 'LABEL_SELECTOR', value: `tenlastic.com/app=${name}` },
   ];
   const envFrom: V1EnvFromSource[] = [{ secretRef: { name: 'nodejs' } }, { secretRef: { name } }];
-  const resources = { requests: { cpu: '25m', memory: '75Mi' } };
+  const resources = { requests: { cpu: '25m', memory: '75M' } };
 
   const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
   if (isDevelopment) {

@@ -36,7 +36,7 @@ spec:
       existingSecret: minio
     mode: distributed
     persistence:
-      size: 8Gi
+      size: 8G
       storageClass: balanced-expandable
     provisioning:
       buckets:
@@ -59,4 +59,4 @@ spec:
     resources:
       requests:
         cpu: 200m
-        memory: 100Mi
+        memory: 100M

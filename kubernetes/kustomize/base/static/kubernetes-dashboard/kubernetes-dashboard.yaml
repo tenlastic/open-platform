@@ -143,7 +143,7 @@ spec:
     resources:
       requests:
         cpu: 75m
-        memory: 50Mi
+        memory: 50M
     serviceAccount:
       create: false
       name: kubernetes-dashboard

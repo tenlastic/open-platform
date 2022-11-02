@@ -8,10 +8,10 @@ export namespace IWorkflow {
     { label: '1', value: 1 },
   ];
   export const Memory = [
-    { label: '100 MB', value: 100 * 1024 * 1024 },
-    { label: '250 MB', value: 250 * 1024 * 1024 },
-    { label: '500 MB', value: 500 * 1024 * 1024 },
-    { label: '1 GB', value: 1 * 1024 * 1024 * 1024 },
+    { label: '100 MB', value: 100 * 1000 * 1000 },
+    { label: '250 MB', value: 250 * 1000 * 1000 },
+    { label: '500 MB', value: 500 * 1000 * 1000 },
+    { label: '1 GB', value: 1 * 1000 * 1000 * 1000 },
   ];
   export const Parallelisms = [
     { label: '1', value: 1 },
@@ -21,9 +21,9 @@ export namespace IWorkflow {
     { label: '5', value: 5 },
   ];
   export const Storage = [
-    { label: '5 GB', value: 5 * 1024 * 1024 * 1024 },
-    { label: '10 GB', value: 10 * 1024 * 1024 * 1024 },
-    { label: '20 GB', value: 20 * 1024 * 1024 * 1024 },
+    { label: '5 GB', value: 5 * 1000 * 1000 * 1000 },
+    { label: '10 GB', value: 10 * 1000 * 1000 * 1000 },
+    { label: '20 GB', value: 20 * 1000 * 1000 * 1000 },
   ];
 
   export interface Dag {

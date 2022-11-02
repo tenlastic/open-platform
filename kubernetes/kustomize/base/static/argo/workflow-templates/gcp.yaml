@@ -40,7 +40,7 @@ spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
-            storage: 10Gi
+            storage: 10G
         storageClassName: balanced-expandable
   volumes:
     - name: continuous-deployment

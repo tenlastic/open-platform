@@ -11,6 +11,7 @@ import {
   WebSocketService,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -50,9 +51,9 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
   }
 
   private async fetchWebSockets(namespaceId: string) {
-    this.$webSockets = this.webSocketQuery.selectAll({
-      filterBy: (ws) => ws.namespaceId === namespaceId,
-    });
+    this.$webSockets = this.webSocketQuery
+      .selectAll({ filterBy: (ws) => ws.namespaceId === namespaceId })
+      .pipe(map((ws) => ws.map((w) => new WebSocketModel(w))));
 
     this.updateDataSource$ = this.$webSockets.subscribe(
       (webSockets) => (this.dataSource.data = webSockets),
