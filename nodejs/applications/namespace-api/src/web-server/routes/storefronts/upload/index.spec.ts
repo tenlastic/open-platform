@@ -49,11 +49,7 @@ describe('web-server/storefronts/upload', function () {
       ctx = new ContextMock({
         params: { _id: storefront._id, field: 'background', namespaceId: namespace._id },
         req: form,
-        request: {
-          headers: form.getHeaders(),
-          host: 'localhost:3000',
-          protocol: 'http',
-        },
+        request: { headers: form.getHeaders(), host: 'localhost:3000', protocol: 'http' },
         state: { user },
       } as any);
     });

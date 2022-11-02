@@ -9,6 +9,8 @@ interface Listener<T> {
 export class EventEmitter<T> {
   private listeners: Array<Listener<T>> = [];
 
+  public async = (listener: AsyncListener<T>) => this.listeners.push({ async: true, listener });
+
   public emit = async (event?: T) => {
     for (const listener of this.listeners) {
       if (listener.async) {
@@ -19,6 +21,10 @@ export class EventEmitter<T> {
     }
   };
 
-  public async = (listener: AsyncListener<T>) => this.listeners.push({ async: true, listener });
+  public remove = (listener: AsyncListener<T> | SyncListener<T>) => {
+    const index = this.listeners.findIndex((l) => l.listener === listener);
+    this.listeners.splice(index, 1);
+  };
+
   public sync = (listener: SyncListener<T>) => this.listeners.push({ async: false, listener });
 }

@@ -81,10 +81,13 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         if (index >= 0) {
-          this.data = await this.storefrontService.update(this.data.namespaceId, this.data._id, {
-            _id: this.data._id,
-            [field]: this.data[field].filter((f, i) => i !== index),
-          });
+          const url = this.data[field][index];
+          this.data = await this.storefrontService.pull(
+            this.data.namespaceId,
+            this.data._id,
+            field,
+            url.substring(url.lastIndexOf('/') + 1),
+          );
         } else {
           this.data = await this.storefrontService.update(this.data.namespaceId, this.data._id, {
             [field]: null,
@@ -113,7 +116,7 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
     const fieldTitleCase = field.charAt(0).toUpperCase() + field.substring(1);
 
     if (file.size > 25 * 1000 * 1000) {
-      this.uploadErrors[field] = ['File must be smaller than 25MB.'];
+      this.uploadErrors[field] = ['File size must be smaller than 25MB.'];
       return;
     }
 

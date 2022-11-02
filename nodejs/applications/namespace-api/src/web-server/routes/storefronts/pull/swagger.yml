@@ -1,0 +1,39 @@
+paths:
+  /namespaces/{namespaceId}/storefronts/{storefrontId}/{field}/{_id}:
+    delete:
+      summary: Pull Image / Video
+      tags: [Storefront]
+      description: Pulls the image or video from a Storefront.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: field
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: storefrontId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Storefront'

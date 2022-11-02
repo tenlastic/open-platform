@@ -16,7 +16,10 @@ export async function handler(ctx: Context) {
 
   const namespace = await Namespace.findOne({ _id: namespaceId });
   namespace.checkStorageLimit(0);
-  const limit = namespace.limits.storage - (namespace.status?.limits?.storage || 0);
+  const limit = Math.min(
+    25 * 1000 * 1000,
+    namespace.limits.storage - (namespace.status?.limits?.storage || 0),
+  );
 
   const credentials = { ...ctx.state };
   const storefront = await StorefrontPermissions.findOne(credentials, { where: { _id } }, {});
@@ -47,7 +50,13 @@ export async function handler(ctx: Context) {
 
       // Make sure the file is a valid size.
       stream.on('error', reject);
-      stream.on('limit', () => busboy.emit('error', new NamespaceLimitError('storage')));
+      stream.on('limit', () => {
+        if (limit >= 25 * 1000 * 1000) {
+          stream.destroy(new Error('File size must be smaller than 25MB.'));
+        } else {
+          stream.destroy(new NamespaceLimitError('storage'));
+        }
+      });
 
       // Make sure the file is an image.
       const { mimeType } = info;
@@ -65,12 +74,13 @@ export async function handler(ctx: Context) {
       }
 
       // Stop the upload when storage limit is reached.
-      NamespaceStorageLimitEvent.sync(() => stream.destroy(new NamespaceLimitError('storage')));
+      const listener = () => stream.destroy(new NamespaceLimitError('storage'));
+      NamespaceStorageLimitEvent.sync(listener);
 
       // Upload to Minio.
-      promise = minio.putObject(process.env.MINIO_BUCKET, path, stream, {
-        'content-type': mimeType,
-      });
+      promise = minio
+        .putObject(process.env.MINIO_BUCKET, path, stream, { 'content-type': mimeType })
+        .finally(() => NamespaceStorageLimitEvent.remove(listener));
     });
     busboy.on('filesLimit', () => reject('Cannot upload more than one file at once.'));
     busboy.on('finish', () => promise.then(resolve).catch(reject));

@@ -64,6 +64,14 @@ export class StorefrontService {
   }
 
   /**
+   * Pulls an image or video from the Storefront.
+   */
+  public async pull(namespaceId: string, storefrontId: string, field: string, _id: string) {
+    const url = this.getUrl(namespaceId);
+    return this.baseService.delete(_id, `${url}/${storefrontId}/${field}`);
+  }
+
+  /**
    * Updates a Record.
    */
   public async update(namespaceId: string, _id: string, json: Partial<StorefrontModel>) {
@@ -72,19 +80,19 @@ export class StorefrontService {
   }
 
   /**
-   * Uploads an image or video for the Storefront.
+   * Uploads an image or video to the Storefront.
    */
-  public async upload(namespaceId: string, _id: string, key: string, formData: FormData) {
+  public async upload(namespaceId: string, storefrontId: string, _id: string, formData: FormData) {
     const url = this.getUrl(namespaceId);
     const response = await this.apiService.request({
       data: formData,
       method: 'post',
-      url: `${url}/${_id}/${key}`,
+      url: `${url}/${storefrontId}/${_id}`,
     });
 
     const record = new StorefrontModel(response.data.record);
     this.emitter.emit('update', record);
-    this.storefrontStore.upsert(_id, record);
+    this.storefrontStore.upsert(storefrontId, record);
 
     return record;
   }

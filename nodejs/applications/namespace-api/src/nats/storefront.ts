@@ -15,13 +15,8 @@ NamespaceEvent.async(async (payload) => {
 
 // Delete unused images and videos on update.
 StorefrontEvent.async(async (payload) => {
-  const storefront = payload.fullDocument;
-
   switch (payload.operationType) {
     case 'delete':
-      return storefront.removeMinioObjects();
-
-    case 'update':
-      return Promise.all([storefront.removeMinioImages(), storefront.removeMinioVideos()]);
+      return payload.fullDocument.removeMinioObjects();
   }
 });

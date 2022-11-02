@@ -120,23 +120,6 @@ export class StorefrontSchema {
   }
 
   /**
-   * Removes unusued images from Minio.
-   */
-  public async removeMinioImages(this: StorefrontDocument) {
-    const prefix = this.getMinioKey() + '/images';
-    const objects = await minio.listObjects(process.env.MINIO_BUCKET, prefix);
-
-    for (const object of objects) {
-      const _id = object.name.replace(`${prefix}/`, '');
-      const image = this.images.find((i) => i.includes(`images/${_id}`));
-
-      if (!image) {
-        await minio.removeObject(process.env.MINIO_BUCKET, object.name);
-      }
-    }
-  }
-
-  /**
    * Removes all objects from Minio.
    */
   public async removeMinioObjects(this: StorefrontDocument) {
@@ -145,23 +128,6 @@ export class StorefrontSchema {
 
     const promises = objects.map((o) => minio.removeObject(process.env.MINIO_BUCKET, o.name));
     return Promise.all(promises);
-  }
-
-  /**
-   * Removes unusued videos from Minio.
-   */
-  public async removeMinioVideos(this: StorefrontDocument) {
-    const prefix = this.getMinioKey() + '/videos';
-    const objects = await minio.listObjects(process.env.MINIO_BUCKET, prefix);
-
-    for (const object of objects) {
-      const _id = object.name.replace(`${prefix}/`, '');
-      const video = this.videos.find((i) => i.includes(`videos/${_id}`));
-
-      if (!video) {
-        await minio.removeObject(process.env.MINIO_BUCKET, object.name);
-      }
-    }
   }
 }
 
