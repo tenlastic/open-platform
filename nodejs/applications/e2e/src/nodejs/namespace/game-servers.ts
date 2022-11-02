@@ -46,7 +46,6 @@ describe('/nodejs/namespace/game-servers', function () {
     const buffer = await zip.generateAsync({
       compression: 'DEFLATE',
       compressionOptions: { level: 1 },
-      streamFiles: true,
       type: 'nodebuffer',
     });
 
