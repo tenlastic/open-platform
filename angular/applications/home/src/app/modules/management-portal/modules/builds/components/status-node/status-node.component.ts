@@ -28,10 +28,11 @@ export class BuildStatusNodeComponent {
   @Input() public node: BuildStatusNodeWithParent;
 
   public phaseToIcon = {
-    Error: 'close',
-    Failed: 'close',
+    Error: 'cancel',
+    Failed: 'cancel',
+    Omitted: 'circle',
     Pending: 'schedule',
-    Succeeded: 'check',
+    Succeeded: 'check_circle',
   };
 
   constructor(

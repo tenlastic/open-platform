@@ -2,7 +2,7 @@ import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
 
 import { KubernetesBuild, KubernetesBuildSidecar } from '../kubernetes';
 import { Build, BuildDocument } from '../mongodb';
-import { NamespaceEvent } from './namespace';
+import { NamespaceEvent, NamespaceStorageLimitEvent } from './namespace';
 
 export const BuildEvent = new EventEmitter<IDatabasePayload<BuildDocument>>();
 
@@ -36,4 +36,14 @@ NamespaceEvent.async(async (payload) => {
     case 'delete':
       return Build.deleteMany({ namespaceId: payload.fullDocument._id });
   }
+});
+
+// Terminate Builds if Namespace storage limit is reached.
+NamespaceStorageLimitEvent.async(async (namespace) => {
+  const builds = await Build.find({
+    $or: [{ 'status.finishedAt': { $exists: false } }, { 'status.finishedAt': null }],
+    namespaceId: namespace._id,
+  });
+  const promises = builds.map((b) => KubernetesBuild.terminate(b));
+  return Promise.all(promises);
 });

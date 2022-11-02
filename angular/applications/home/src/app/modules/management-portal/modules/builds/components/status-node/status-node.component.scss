@@ -16,6 +16,10 @@ div.node-phase {
   color: #ff7777;
 }
 
+[phase='Omitted'] {
+  color: #aaaaaa;
+}
+
 [phase='Pending'] {
   color: #7777ff;
 }

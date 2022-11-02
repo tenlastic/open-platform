@@ -45,6 +45,16 @@ export const KubernetesBuild = {
   getName: (build: BuildDocument) => {
     return `build-${build._id}`;
   },
+  terminate: async (build: BuildDocument) => {
+    const name = KubernetesBuild.getName(build);
+
+    /**
+     * ======================
+     * WORKFLOW
+     * ======================
+     */
+    await workflowApiV1.patch(name, 'dynamic', { spec: { shutdown: 'Terminate' } });
+  },
   upsert: async (build: BuildDocument) => {
     const labels = KubernetesBuild.getLabels(build);
     const name = KubernetesBuild.getName(build);

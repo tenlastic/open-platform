@@ -96,6 +96,21 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
     ) as Promise<BaseResponse<BaseListResponse<T>>>;
   }
 
+  public patch(name: string, namespace: string, body: Partial<T>) {
+    return customObjects.patchNamespacedCustomObject(
+      this.group,
+      this.version,
+      namespace,
+      this.plural,
+      name,
+      body,
+      undefined,
+      undefined,
+      undefined,
+      { headers: { 'Content-Type': 'application/merge-patch+json' } },
+    ) as Promise<BaseResponse<T>>;
+  }
+
   public read(name: string, namespace: string) {
     return customObjects.getNamespacedCustomObject(
       this.group,

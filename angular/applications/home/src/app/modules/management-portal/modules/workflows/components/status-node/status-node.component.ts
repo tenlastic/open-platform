@@ -28,10 +28,11 @@ export class WorkflowStatusNodeComponent {
   @Input() public workflow: WorkflowModel;
 
   public phaseToIcon = {
-    Error: 'close',
-    Failed: 'close',
+    Error: 'cancel',
+    Failed: 'cancel',
+    Omitted: 'circle',
     Pending: 'schedule',
-    Succeeded: 'check',
+    Succeeded: 'check_circle',
   };
 
   constructor(

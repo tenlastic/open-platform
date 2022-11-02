@@ -64,7 +64,7 @@ export async function eachMessage(
   if (operationType === 'delete') {
     await collection.deleteOne(documentKey);
   } else if (operationType === 'insert') {
-    await collection.replaceOne(documentKey, fullDocument, { upsert: true });
+    await collection.insertOne(fullDocument);
   } else if (options.useUpdateDescription) {
     const { removedFields, updatedFields } = updateDescription;
     const update: any = {};
@@ -83,7 +83,9 @@ export async function eachMessage(
     if (update.$set || update.$unset) {
       await collection.updateOne(documentKey, update, { upsert: true });
     }
-  } else {
+  } else if (operationType === 'replace') {
     await collection.replaceOne(documentKey, fullDocument, { upsert: true });
+  } else if (operationType === 'update') {
+    await collection.updateOne(documentKey, { $set: fullDocument }, { upsert: true });
   }
 }
