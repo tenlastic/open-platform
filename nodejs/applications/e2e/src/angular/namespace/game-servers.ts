@@ -59,8 +59,20 @@ describe('/angular/namespace/game-servers', () => {
   });
 
   step('creates a Namespace', async function () {
+    const bandwidthInput = await helpers.getInputByLabel('Bandwidth', page);
+    await helpers.type(bandwidthInput, page, `${1 * 1000 * 1000 * 1000}`);
+
+    const cpuInput = await helpers.getInputByLabel('CPU', page);
+    await helpers.type(cpuInput, page, `${1}`);
+
+    const memoryInput = await helpers.getInputByLabel('Memory', page);
+    await helpers.type(memoryInput, page, `${1 * 1000 * 1000 * 1000}`);
+
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, namespace);
+
+    const storageInput = await helpers.getInputByLabel('Storage', page);
+    await helpers.type(storageInput, page, `${10 * 1000 * 1000 * 1000}`);
 
     const button = await helpers.getButtonByText(page, 'Save');
     await helpers.clickAndNavigate(button, page, 'Edit Namespace | Tenlastic');
@@ -103,7 +115,7 @@ describe('/angular/namespace/game-servers', () => {
 
     const dockerfileListItem = await helpers.getElementByXPath(
       page,
-      `//span[contains(text(), 'Dockerfile')]`,
+      `//div[contains(text(), 'Dockerfile')]`,
     );
     await dockerfileListItem.click();
 
@@ -159,7 +171,7 @@ describe('/angular/namespace/game-servers', () => {
   });
 
   step('allows connections', async function () {
-    const tcpInput = await helpers.getInputByLabel('TCP Endpoint', page);
+    const tcpInput = await helpers.getInputByLabel('TCP', page);
     const tcpValue = await page.evaluate((ti) => ti.value, tcpInput);
     const http = tcpValue.replace('tcp', 'http');
     const url = new URL(http);
@@ -178,7 +190,7 @@ describe('/angular/namespace/game-servers', () => {
 
     await helpers.waitForXPath(
       page,
-      `//app-logs-dialog//span[contains(., 'Echo server listening on port :7777.')]`,
+      `//app-logs-dialog//div[contains(., 'Echo server listening on port :7777.')]`,
       { timeout: 2500 },
     );
   });

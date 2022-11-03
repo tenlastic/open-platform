@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
   IAuthorization,
@@ -18,6 +18,9 @@ import { map } from 'rxjs/operators';
 export class LayoutComponent implements OnInit {
   public $storefront: Observable<StorefrontModel>;
   public IAuthorization = IAuthorization;
+  public get isActive() {
+    return this.router.url.endsWith(`/storefront`) || this.router.url.endsWith(`/storefront/json`);
+  }
 
   private params: Params;
 
@@ -25,6 +28,7 @@ export class LayoutComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
     private identityService: IdentityService,
+    private router: Router,
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
   ) {}

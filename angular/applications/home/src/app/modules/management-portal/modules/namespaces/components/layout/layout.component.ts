@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
   AuthorizationService,
@@ -63,7 +63,14 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public $namespace: Observable<NamespaceModel>;
   public $storefront: Observable<StorefrontModel>;
   public IAuthorization = IAuthorization;
+  public get isActive() {
+    return (
+      this.router.url.endsWith(`/namespaces/${this.params.namespaceId}`) ||
+      this.router.url.endsWith(`/namespaces/${this.params.namespaceId}/json`)
+    );
+  }
 
+  private fetchStorefront$ = new Subscription();
   private subscribe$ = new Subscription();
   private connected = false;
   private params: Params;
@@ -132,6 +139,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private queueMemberStore: QueueMemberStore,
     private queueService: QueueService,
     private queueStore: QueueStore,
+    private router: Router,
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
     private storefrontStore: StorefrontStore,
@@ -153,6 +161,13 @@ export class LayoutComponent implements OnDestroy, OnInit {
         .selectAll({ filterBy: (s) => s.namespaceId === params.namespaceId })
         .pipe(map((s) => s[0]));
 
+      this.fetchStorefront$ = combineLatest([this.$namespace, this.$storefront]).subscribe(
+        async ([namespace, storefront]) => {
+          if (namespace?.status?.phase === 'Running' && !storefront) {
+            return this.storefrontService.find(params.namespaceId, { limit: 1 });
+          }
+        },
+      );
       this.subscribe$ = this.$namespace.subscribe(async (namespace) => {
         if (this.connected) {
           return;
@@ -167,12 +182,12 @@ export class LayoutComponent implements OnDestroy, OnInit {
       await Promise.all([
         this.authorizationService.findUserAuthorizations(params.namespaceId, null),
         this.namespaceService.findOne(params.namespaceId),
-        this.storefrontService.find(params.namespaceId, { limit: 1 }),
       ]);
     });
   }
 
   public ngOnDestroy() {
+    this.fetchStorefront$.unsubscribe();
     this.streamService.close(this.streamServiceUrl);
     this.subscribe$.unsubscribe();
   }

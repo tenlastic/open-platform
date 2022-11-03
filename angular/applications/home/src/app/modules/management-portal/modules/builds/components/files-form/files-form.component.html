@@ -139,13 +139,11 @@
     <div>{{ status ? status : 'Select Directory from Computer' }}</div>
   </app-button>
 
-  <app-button *ngIf="form.get('files').value.length === 0 || !referenceBuild || status"
+  <app-button *ngIf="(form.get('files').value.length === 0 || !referenceBuild) && !status"
               color="accent"
               [disabled]="status"
               (OnClick)="selectFilesInput.click()">
-    <mat-spinner *ngIf="status"
-                 [diameter]="20"></mat-spinner>
-    <div>{{ status ? status : 'Select Files from Computer' }}</div>
+    <div>Select Files from Computer</div>
   </app-button>
 
   <app-button *ngIf="form.get('files').value.length > 0 && referenceBuild && !status"

@@ -136,7 +136,7 @@ export const KubernetesQueue = {
               env,
               envFrom,
               image: `tenlastic/node-development:latest`,
-              livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
+              livenessProbe: { ...livenessProbe, initialDelaySeconds: 30 },
               name: 'main',
               readinessProbe,
               resources: { requests: resources.requests },

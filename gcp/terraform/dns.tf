@@ -31,6 +31,18 @@ resource "google_dns_record_set" "gmail" {
   ]
 }
 
+resource "google_dns_record_set" "mailgun" {
+  managed_zone = google_dns_managed_zone.tenlastic_com.name
+  name         = "support.${google_dns_managed_zone.tenlastic_com.dns_name}"
+  ttl          = 3600
+  type         = "MX"
+
+  rrdatas = [
+    "10 mxa.mailgun.org.",
+    "10 mxb.mailgun.org."
+  ]
+}
+
 module "dns_admin" {
   source = "./modules/service-account"
 

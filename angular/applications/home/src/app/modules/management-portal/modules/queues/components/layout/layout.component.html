@@ -4,9 +4,8 @@
        class="nav">
     <app-button color="accent"
                 layout="vertical"
+                [ngClass]="{ active: isActive }"
                 [routerLink]="['./']"
-                routerLinkActive="active"
-                [routerLinkActiveOptions]="{exact:true}"
                 text="left"
                 width="full">
       <mat-icon>hourglass_bottom</mat-icon>

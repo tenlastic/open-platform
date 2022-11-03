@@ -33,7 +33,13 @@ export class LayoutComponent implements OnInit {
   }
   public get isHomeUrl() {
     const { url } = this.router;
-    return !url.startsWith('/management-portal') && !url.startsWith('/store');
+
+    return (
+      !url.startsWith('/account') &&
+      !url.startsWith('/authentication') &&
+      !url.startsWith('/management-portal') &&
+      !url.startsWith('/store')
+    );
   }
   public get socket() {
     return this.streamService.webSockets.get(environment.wssUrl);

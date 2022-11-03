@@ -26,7 +26,15 @@ describe('/nodejs/namespace/queues', function () {
   });
 
   step('creates a Namespace', async function () {
-    namespace = await dependencies.namespaceService.create({ name: chance.hash() });
+    namespace = await dependencies.namespaceService.create({
+      limits: {
+        bandwidth: 1 * 1000 * 1000 * 1000,
+        cpu: 1,
+        memory: 1 * 1000 * 1000 * 1000,
+        storage: 10 * 1000 * 1000 * 1000,
+      },
+      name: chance.hash(),
+    });
     expect(namespace).to.exist;
   });
 
@@ -61,14 +69,14 @@ describe('/nodejs/namespace/queues', function () {
         platform: IBuild.Platform.Server64,
       } as BuildModel),
     );
-    formData.append('zip', buffer);
+    formData.append('zip', buffer, { contentType: 'application/zip', filename: 'example.zip' });
     build = await dependencies.buildService.create(namespace._id, formData);
 
     expect(build).to.exist;
   });
 
   step('finishes the Build successfully', async function () {
-    const phase = await wait(5 * 1000, 120 * 1000, async () => {
+    const phase = await wait(5 * 1000, 2 * 60 * 1000, async () => {
       build = await dependencies.buildService.findOne(namespace._id, build._id);
       return build.status?.finishedAt ? build.status.phase : null;
     });
@@ -172,7 +180,8 @@ describe('/nodejs/namespace/queues', function () {
       const response = await dependencies.queueLogService.find(
         namespace._id,
         queue._id,
-        queue.status.nodes[0]._id,
+        queue.status.nodes[0].pod,
+        queue.status.nodes[0].container,
         {},
       );
       return response.length > 0 ? response : null;

@@ -18,13 +18,11 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
     });
 
     // NATS.
-    nats
-      .setup({
-        connectionString: natsConnectionString,
-        database: 'aggregation-api',
-        durable: 'aggregation-api',
-      })
-      .catch(console.error);
+    await nats.setup({
+      connectionString: natsConnectionString,
+      database: 'aggregation-api',
+      durable: 'aggregation-api',
+    });
 
     // Web Server.
     webServer.setup();

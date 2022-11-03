@@ -41,6 +41,9 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
   private updateDataSource$ = new Subscription();
   private params: Params;
   private subscription: string;
+  private get wssUrl() {
+    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -78,10 +81,10 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
       this.subscription = await this.streamService.subscribe(
         RecordModel,
-        { collection: 'records', where: { collectionId: this.params.collection } },
+        { collection: 'records', where: { collectionId: this.params.collectionId } },
         this.recordService,
         this.recordStore,
-        environment.wssUrl,
+        this.wssUrl,
       );
 
       await this.fetchRecords(params);
@@ -90,10 +93,7 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
-    this.streamService.unsubscribe(
-      this.subscription,
-      `${environment.wssUrl}/namespaces/${this.params.namespaceId}`,
-    );
+    this.streamService.unsubscribe(this.subscription, this.wssUrl);
   }
 
   public showDeletePrompt($event: Event, record: RecordModel) {

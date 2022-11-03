@@ -38,9 +38,9 @@ export interface SetupOptions extends nats.ConnectionOptions {
 
 export async function setup(options: SetupOptions) {
   await nats.connect({ connectionString: options.connectionString });
-  await nats.upsertStream(options.database, { max_age: 0, max_bytes: 250 * 1000 * 1000 });
+  await nats.upsertStream(options.database);
 
-  return Promise.all([
+  Promise.all([
     subscribe(options.database, options.durable, Article, (payload) => ArticleEvent.emit(payload)),
     subscribe(options.database, options.durable, Authorization, (payload) =>
       AuthorizationEvent.emit(payload),
@@ -73,5 +73,5 @@ export async function setup(options: SetupOptions) {
     subscribe(options.database, options.durable, Workflow, (payload) =>
       WorkflowEvent.emit(payload),
     ),
-  ]);
+  ]).catch((err) => console.error(err.message));
 }

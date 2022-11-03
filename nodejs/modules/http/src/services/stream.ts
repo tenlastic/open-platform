@@ -182,13 +182,13 @@ export class StreamService {
     socket.send(JSON.stringify(data));
     socket.addEventListener('message', (msg) => {
       const payload = JSON.parse(msg.data);
-      if (payload.error) {
-        throw new Error(payload.error);
-      }
-
       // If the response is for a different request, ignore it.
       if (payload._id !== _id || !payload.fullDocument) {
         return;
+      }
+
+      if (payload.error) {
+        throw new Error(payload.error);
       }
 
       const record = new Model({ ...payload.fullDocument, ...parameters }) as any;
@@ -239,13 +239,14 @@ export class StreamService {
     socket.send(JSON.stringify(data));
     socket.addEventListener('message', (msg) => {
       const payload = JSON.parse(msg.data);
-      if (payload.error) {
-        throw new Error(payload.error);
-      }
 
       // If the response is for a different request, ignore it.
       if (payload._id !== _id) {
         return;
+      }
+
+      if (payload.error) {
+        throw new Error(payload.error);
       }
 
       // Save the resume token if available.

@@ -24,7 +24,15 @@ describe('/nodejs/namespace/builds', function () {
   });
 
   step('creates a Namespace', async function () {
-    namespace = await dependencies.namespaceService.create({ name: chance.hash() });
+    namespace = await dependencies.namespaceService.create({
+      limits: {
+        bandwidth: 1 * 1000 * 1000 * 1000,
+        cpu: 1,
+        memory: 1 * 1000 * 1000 * 1000,
+        storage: 10 * 1000 * 1000 * 1000,
+      },
+      name: chance.hash(),
+    });
     expect(namespace).to.exist;
   });
 
@@ -59,14 +67,14 @@ describe('/nodejs/namespace/builds', function () {
         platform: IBuild.Platform.Server64,
       } as BuildModel),
     );
-    formData.append('zip', buffer);
+    formData.append('zip', buffer, { contentType: 'application/zip', filename: 'example.zip' });
     build = await dependencies.buildService.create(namespace._id, formData);
 
     expect(build).to.exist;
   });
 
   step('finishes the Build successfully', async function () {
-    const phase = await wait(5 * 1000, 120 * 1000, async () => {
+    const phase = await wait(5 * 1000, 2 * 60 * 1000, async () => {
       build = await dependencies.buildService.findOne(namespace._id, build._id);
       return build.status?.finishedAt ? build.status.phase : null;
     });
@@ -111,7 +119,8 @@ describe('/nodejs/namespace/builds', function () {
       const response = await dependencies.buildLogService.find(
         namespace._id,
         build._id,
-        node._id,
+        node.pod,
+        node.container,
         {},
       );
       return response.length > 0 ? response : null;

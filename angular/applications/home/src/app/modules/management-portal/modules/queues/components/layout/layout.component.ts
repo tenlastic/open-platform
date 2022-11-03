@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
   IAuthorization,
@@ -23,18 +23,19 @@ export class LayoutComponent implements OnInit {
 
     return combineLatest([
       this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
+      this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
   public $queue: Observable<QueueModel>;
   public IAuthorization = IAuthorization;
+  public get isActive() {
+    return (
+      this.router.url.endsWith(`/queues/${this.params.queueId}`) ||
+      this.router.url.endsWith(`/queues/${this.params.queueId}/json`)
+    );
+  }
 
-  private get namespaceId() {
-    return this.activatedRoute.snapshot.params.namespaceId;
-  }
-  private get queueId() {
-    return this.activatedRoute.snapshot.params.queueId;
-  }
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -42,11 +43,20 @@ export class LayoutComponent implements OnInit {
     private identityService: IdentityService,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
+    private router: Router,
   ) {}
 
   public async ngOnInit() {
-    this.$queue = this.queueQuery.selectEntity(this.queueId);
-    await this.queueService.findOne(this.namespaceId, this.queueId);
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
+
+      if (params.queueId === 'new') {
+        return;
+      }
+
+      this.$queue = this.queueQuery.selectEntity(this.params.queueId);
+      await this.queueService.findOne(this.params.namespaceId, this.params.queueId);
+    });
   }
 
   public $hasPermission(roles: IAuthorization.Role[]) {
@@ -54,7 +64,7 @@ export class LayoutComponent implements OnInit {
 
     return combineLatest([
       this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
+      this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
 }

@@ -32,8 +32,8 @@ export class CollectionsJsonPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      if (params.buildId !== 'new') {
-        this.data = await this.collectionService.findOne(params.namespaceId, params.buildId);
+      if (params.collectionId !== 'new') {
+        this.data = await this.collectionService.findOne(params.namespaceId, params.collectionId);
       }
 
       this.setupForm();

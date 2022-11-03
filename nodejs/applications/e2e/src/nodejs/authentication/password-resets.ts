@@ -51,7 +51,7 @@ describe('/nodejs/authentication/password-resets', function () {
   it('sends a Password Reset email', async function () {
     await dependencies.passwordResetService.create(email);
 
-    const hash = await wait(2.5 * 1000, 30 * 1000, getPasswordResetHash);
+    const hash = await wait(2.5 * 1000, 60 * 1000, getPasswordResetHash);
     expect(hash).to.match(/[A-Za-z0-9]+/);
   });
 
@@ -60,7 +60,7 @@ describe('/nodejs/authentication/password-resets', function () {
 
     beforeEach(async function () {
       await dependencies.passwordResetService.create(email);
-      hash = await wait(2.5 * 1000, 30 * 1000, getPasswordResetHash);
+      hash = await wait(2.5 * 1000, 60 * 1000, getPasswordResetHash);
     });
 
     it('resets the password', async function () {

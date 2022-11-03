@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
   CollectionModel,
@@ -28,6 +28,12 @@ export class LayoutComponent implements OnInit {
     ]).pipe(map(([a, b]) => a || b));
   }
   public IAuthorization = IAuthorization;
+  public get isActive() {
+    return (
+      this.router.url.endsWith(`/collections/${this.params.collectionId}`) ||
+      this.router.url.endsWith(`/collections/${this.params.collectionId}/json`)
+    );
+  }
 
   private params: Params;
 
@@ -37,6 +43,7 @@ export class LayoutComponent implements OnInit {
     private collectionQuery: CollectionQuery,
     private collectionService: CollectionService,
     private identityService: IdentityService,
+    private router: Router,
   ) {}
 
   public async ngOnInit() {

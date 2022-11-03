@@ -35,7 +35,7 @@ export async function setup(options: SetupOptions) {
   await nats.connect({ connectionString: options.connectionString });
   await nats.upsertStream(options.database);
 
-  return Promise.all([
+  Promise.all([
     subscribe(options.database, options.durable, Authorization, (payload) =>
       AuthorizationEvent.emit(payload),
     ),
@@ -59,5 +59,5 @@ export async function setup(options: SetupOptions) {
     subscribe(options.database, options.durable, WebSocket, (payload) =>
       WebSocketEvent.emit(payload),
     ),
-  ]);
+  ]).catch((err) => console.error(err));
 }

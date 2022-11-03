@@ -20,7 +20,15 @@ describe('/nodejs/namespace/collections', function () {
   });
 
   step('creates a Namespace', async function () {
-    namespace = await dependencies.namespaceService.create({ name: chance.hash() });
+    namespace = await dependencies.namespaceService.create({
+      limits: {
+        bandwidth: 1 * 1000 * 1000 * 1000,
+        cpu: 1,
+        memory: 1 * 1000 * 1000 * 1000,
+        storage: 10 * 1000 * 1000 * 1000,
+      },
+      name: chance.hash(),
+    });
     expect(namespace).to.exist;
   });
 

@@ -28,10 +28,34 @@ let startedUpdatingAt = 0;
 let timeout: NodeJS.Timeout;
 
 (async () => {
+  await Promise.all([getDeployments(), getPods(), getStatefulSets()]);
+  await update();
+
   await watchDeployments();
   await watchPods();
   await watchStatefulSets();
 })();
+
+async function getDeployments() {
+  const ds = await deploymentApiV1.list('dynamic', { labelSelector });
+  for (const d of ds.body.items) {
+    deployments[d.metadata.name] = d;
+  }
+}
+
+async function getPods() {
+  const ps = await podApiV1.list('dynamic', { labelSelector });
+  for (const p of ps.body.items) {
+    pods[p.metadata.name] = p;
+  }
+}
+
+async function getStatefulSets() {
+  const sss = await statefulSetApiV1.list('dynamic', { labelSelector });
+  for (const ss of sss.body.items) {
+    statefulSets[ss.metadata.name] = ss;
+  }
+}
 
 async function update() {
   const now = Date.now();

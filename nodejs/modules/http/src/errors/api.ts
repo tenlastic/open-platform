@@ -10,7 +10,7 @@ export class ApiError extends Error {
   constructor(err: AxiosError) {
     super();
 
-    this.errors = [err.response.data as any];
+    this.errors = err.response ? [err.response.data as any] : [];
     if (typeof err.response?.data === 'string') {
       try {
         this.errors = JSON.parse(err.response.data).errors;

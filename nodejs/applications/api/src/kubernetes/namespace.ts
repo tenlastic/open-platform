@@ -535,7 +535,7 @@ function getApiPodTemplate(namespace: NamespaceDocument): V1Pod {
             env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
             envFrom,
             image: `tenlastic/node-development:latest`,
-            livenessProbe: { ...livenessProbe, initialDelaySeconds: 30, periodSeconds: 15 },
+            livenessProbe: { ...livenessProbe, initialDelaySeconds: 30 },
             name: 'main',
             readinessProbe,
             resources: { limits: { cpu: '1000m' }, requests: resources.requests },

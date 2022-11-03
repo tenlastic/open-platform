@@ -54,8 +54,20 @@ describe('/angular/namespace/workflows', () => {
   });
 
   step('creates a Namespace', async function () {
+    const bandwidthInput = await helpers.getInputByLabel('Bandwidth', page);
+    await helpers.type(bandwidthInput, page, `${1 * 1000 * 1000 * 1000}`);
+
+    const cpuInput = await helpers.getInputByLabel('CPU', page);
+    await helpers.type(cpuInput, page, `${1}`);
+
+    const memoryInput = await helpers.getInputByLabel('Memory', page);
+    await helpers.type(memoryInput, page, `${1 * 1000 * 1000 * 1000}`);
+
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, namespace);
+
+    const storageInput = await helpers.getInputByLabel('Storage', page);
+    await helpers.type(storageInput, page, `${10 * 1000 * 1000 * 1000}`);
 
     const button = await helpers.getButtonByText(page, 'Save');
     await helpers.clickAndNavigate(button, page, 'Edit Namespace | Tenlastic');
@@ -126,7 +138,7 @@ describe('/angular/namespace/workflows', () => {
     const button = await helpers.getButtonByText(page, 'Logs');
     await button.click();
 
-    await helpers.waitForXPath(page, `//app-logs-dialog//span[contains(., 'Hello World!')]`, {
+    await helpers.waitForXPath(page, `//app-logs-dialog//div[contains(., 'Hello World!')]`, {
       timeout: 2500,
     });
   });

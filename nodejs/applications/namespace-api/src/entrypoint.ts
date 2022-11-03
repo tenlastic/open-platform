@@ -36,14 +36,13 @@ const podName = process.env.POD_NAME;
     });
 
     // NATS.
-    nats
+    await nats
       .setup({
         connectionString: natsConnectionString,
         database: mongoDatabaseName,
         durable: mongoDatabaseName,
         podName,
-      })
-      .catch(console.error);
+      });
 
     // Web Server.
     const { server } = webServer.setup();

@@ -21,6 +21,10 @@ export namespace IWorkflow {
     { label: '5', value: 5 },
   ];
   export const Storage = [
+    { label: '100 MB', value: 100 * 1000 * 1000 },
+    { label: '250 MB', value: 250 * 1000 * 1000 },
+    { label: '500 MB', value: 500 * 1000 * 1000 },
+    { label: '1 GB', value: 1 * 1000 * 1000 * 1000 },
     { label: '5 GB', value: 5 * 1000 * 1000 * 1000 },
     { label: '10 GB', value: 10 * 1000 * 1000 * 1000 },
     { label: '20 GB', value: 20 * 1000 * 1000 * 1000 },

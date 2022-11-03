@@ -41,9 +41,7 @@ const podName = process.env.POD_NAME;
     });
 
     // NATS.
-    nats
-      .setup({ connectionString: natsConnectionString, database: 'api', durable: 'api' })
-      .catch(console.error);
+    await nats.setup({ connectionString: natsConnectionString, database: 'api', durable: 'api' });
 
     // Web Server.
     const { server } = webServer.setup();
