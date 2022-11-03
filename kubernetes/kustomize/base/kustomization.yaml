@@ -25,7 +25,6 @@ resources:
   - ./static/argo/argo-workflows.yaml
   - ./static/argo/cron-workflows/delete-dynamic-failed-pods.yaml
   - ./static/argo/cron-workflows/delete-static-failed-pods.yaml
-  - ./static/argo/cron-workflows/e2e.yaml
   - ./static/argo/cron-workflows/garbage-collect-docker-registry.yaml
   - ./static/argo/workflow-templates/angular.yaml
   - ./static/argo/workflow-templates/dockerfiles.yaml

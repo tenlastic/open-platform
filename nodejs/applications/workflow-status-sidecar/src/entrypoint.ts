@@ -1,15 +1,17 @@
 import { V1Pod } from '@kubernetes/client-node';
 import { podApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
 import axios from 'axios';
+import { isDeepStrictEqual } from 'util';
 
 import { version } from '../package.json';
 
 const apiKey = process.env.API_KEY;
-const workflowEndpoint = process.env.WORKFLOW_ENDPOINT;
+const endpoint = process.env.ENDPOINT;
 const workflowName = process.env.WORKFLOW_NAME;
 
 const pods: { [key: string]: V1Pod } = {};
 
+let previousStatus: any;
 let startedUpdatingAt = 0;
 let timeout: NodeJS.Timeout;
 
@@ -42,12 +44,16 @@ async function update(workflow: V1Workflow) {
       return { ...n, container: 'main', message, pod: pod?.metadata.name };
     });
 
-    await axios({
-      data: { status: { ...workflow.status, nodes, version } },
-      headers: { 'X-Api-Key': apiKey },
-      method: 'put',
-      url: workflowEndpoint,
-    });
+    // Do not update status if nothing has changed.
+    const status = { ...workflow.status, nodes, version };
+    if (isDeepStrictEqual(previousStatus, status)) {
+      console.log('Status has not changed. Skipping update.');
+      return;
+    }
+
+    const headers = { 'X-Api-Key': apiKey };
+    await axios({ headers, data: { status }, method: 'put', url: endpoint });
+    previousStatus = status;
 
     console.log('Status updated successfully.');
   } catch (e) {

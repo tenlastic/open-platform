@@ -22,6 +22,7 @@ import {
 } from '@tenlastic/kubernetes';
 import * as minio from '@tenlastic/minio';
 import { createConnection } from '@tenlastic/mongoose-models';
+import * as nats from '@tenlastic/nats';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
@@ -62,6 +63,13 @@ export const KubernetesNamespace = {
       databaseName: name,
     });
     await connection.dropDatabase();
+
+    /**
+     * =======================
+     * NATS
+     * =======================
+     */
+    await nats.deleteStream(name);
 
     /**
      * =======================

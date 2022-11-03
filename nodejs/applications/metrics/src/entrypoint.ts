@@ -5,6 +5,7 @@ import * as mongooseModels from '@tenlastic/mongoose-models';
 import * as nats from '@tenlastic/nats';
 import axios from 'axios';
 import { URL } from 'url';
+import { isDeepStrictEqual } from 'util';
 
 import { getCpu } from './get-cpu';
 import { getMemory } from './get-memory';
@@ -22,6 +23,7 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 
 const resourceQuotas: { [key: string]: V1ResourceQuota } = {};
 
+let previousStatus: any;
 let startedUpdatingAt = 0;
 let timeout: NodeJS.Timeout;
 
@@ -46,9 +48,26 @@ let timeout: NodeJS.Timeout;
   // NATS.
   await nats.connect({ connectionString: natsConnectionString });
 
+  poll();
   await watchMinioObjects();
   await watchResourceQuotas();
 })();
+
+/**
+ * Update status every minute.
+ */
+async function poll() {
+  await new Promise((resolve) => setTimeout(resolve, 60 * 1000));
+
+  try {
+    await update();
+  } catch (e) {
+    console.error(e.message);
+    process.exit(1);
+  }
+
+  return poll();
+}
 
 async function update() {
   const now = Date.now();
@@ -73,12 +92,16 @@ async function update() {
     ]);
     const storage = minioStorage + mongoStorage;
 
-    await axios({
-      headers: { 'X-Api-Key': apiKey },
-      data: { status: { limits: { cpu, memory, storage } } },
-      method: 'put',
-      url: endpoint,
-    });
+    // Do not update status if nothing has changed.
+    const status = { limits: { cpu, memory, storage } };
+    if (isDeepStrictEqual(previousStatus, status)) {
+      console.log('Status has not changed. Skipping update.');
+      return;
+    }
+
+    const headers = { 'X-Api-Key': apiKey };
+    await axios({ headers, data: { status }, method: 'put', url: endpoint });
+    previousStatus = status;
 
     console.log('Status updated successfully.');
   } catch (e) {

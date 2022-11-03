@@ -1,6 +1,7 @@
 import { V1Pod } from '@kubernetes/client-node';
 import { podApiV1 } from '@tenlastic/kubernetes';
 import axios from 'axios';
+import { isDeepStrictEqual } from 'util';
 
 import { getEndpoints } from './get-endpoints';
 
@@ -11,6 +12,7 @@ const labelSelector = process.env.LABEL_SELECTOR;
 
 const pods: { [key: string]: V1Pod } = {};
 
+let previousStatus: any;
 let startedUpdatingAt = 0;
 let timeout: NodeJS.Timeout;
 
@@ -41,12 +43,16 @@ async function update() {
     );
     const endpoints = await getEndpoints(container, pod);
 
-    await axios({
-      headers: { 'X-Api-Key': apiKey },
-      data: { status: { endpoints } },
-      method: 'put',
-      url: endpoint,
-    });
+    // Do not update status if nothing has changed.
+    const status = { endpoints };
+    if (isDeepStrictEqual(previousStatus, status)) {
+      console.log('Status has not changed. Skipping update.');
+      return;
+    }
+
+    const headers = { 'X-Api-Key': apiKey };
+    await axios({ headers, data: { status }, method: 'put', url: endpoint });
+    previousStatus = status;
 
     console.log('Endpoints updated successfully.');
   } catch (e) {

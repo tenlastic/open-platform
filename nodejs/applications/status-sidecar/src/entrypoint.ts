@@ -7,6 +7,7 @@ import {
   Watch,
 } from '@tenlastic/kubernetes';
 import axios from 'axios';
+import { isDeepStrictEqual } from 'util';
 
 import { version } from '../package.json';
 import { getComponents } from './get-components';
@@ -24,6 +25,7 @@ const pods: { [key: string]: V1Pod } = {};
 const statefulSets: { [key: string]: V1StatefulSet } = {};
 const watches: { [key: string]: Watch<CoreV1Event> } = {};
 
+let previousStatus: any;
 let startedUpdatingAt = 0;
 let timeout: NodeJS.Timeout;
 
@@ -80,12 +82,16 @@ async function update() {
     const nodes = getNodes(p);
     const phase = getPhase(components, message, nodes);
 
-    await axios({
-      headers: { 'X-Api-Key': apiKey },
-      data: { status: { components, message, nodes, phase, version } },
-      method: 'put',
-      url: endpoint,
-    });
+    // Do not update status if nothing has changed.
+    const status = { components, message, nodes, phase, version };
+    if (isDeepStrictEqual(previousStatus, status)) {
+      console.log('Status has not changed. Skipping update.');
+      return;
+    }
+
+    const headers = { 'X-Api-Key': apiKey };
+    await axios({ headers, data: { status }, method: 'put', url: endpoint });
+    previousStatus = status;
 
     console.log('Status updated successfully.');
   } catch (e) {

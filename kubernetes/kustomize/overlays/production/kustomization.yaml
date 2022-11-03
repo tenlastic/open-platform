@@ -14,6 +14,7 @@ patchesStrategicMerge:
 resources:
   - ./dynamic/secrets/docker-registry.sealedsecret.yaml
   - ./dynamic/secrets/nodejs.sealedsecret.yaml
+  - ./static/argo/cron-workflows/e2e.yaml
   - ./static/cert-manager/cert-manager-credentials.sealedsecret.yaml
   - ./static/cert-manager/cert-manager.yaml
   - ./static/cert-manager/letsencrypt-production.clusterissuer.yaml
@@ -21,7 +22,7 @@ resources:
   - ./static/continuous-integration/continuous-integration.sealedsecret.yaml
   - ./static/docker-registry/docker-registry-image-pull-secret.sealedsecret.yaml
   - ./static/docker-registry/docker-registry.sealedsecret.yaml
-  - ./static/flux/open-plataform.kustomization.yaml
+  - ./static/flux/open-platform.kustomization.yaml
   - ./static/ingress-nginx/basic-authentication.ingress.yaml
   - ./static/ingress-nginx/basic-authentication.sealedsecret.yaml
   - ./static/ingress-nginx/default.ingress.yaml

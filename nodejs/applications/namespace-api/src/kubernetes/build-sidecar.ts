@@ -46,7 +46,7 @@ export const KubernetesBuildSidecar = {
         name,
       },
       stringData: {
-        WORKFLOW_ENDPOINT: `http://${host}/namespaces/${namespaceId}/builds/${_id}`,
+        ENDPOINT: `http://${host}/namespaces/${namespaceId}/builds/${_id}`,
         WORKFLOW_NAME: buildName,
       },
     });
