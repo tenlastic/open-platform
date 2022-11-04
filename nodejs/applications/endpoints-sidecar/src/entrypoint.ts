@@ -8,7 +8,7 @@ import { getEndpoints } from './get-endpoints';
 const apiKey = process.env.API_KEY;
 const container = process.env.CONTAINER;
 const endpoint = process.env.ENDPOINT;
-const labelSelector = process.env.LABEL_SELECTOR;
+const labelSelector = process.env.ENDPOINTS_LABEL_SELECTOR;
 
 const pods: { [key: string]: V1Pod } = {};
 
@@ -37,10 +37,7 @@ async function update() {
   startedUpdatingAt = now;
 
   try {
-    const pod = Object.values(pods).find(
-      (p) =>
-        !p.metadata.deletionTimestamp && p.metadata.labels['tenlastic.com/role'] === 'application',
-    );
+    const pod = Object.values(pods).find((p) => !p.metadata.deletionTimestamp);
     const endpoints = await getEndpoints(container, pod);
 
     // Do not update status if nothing has changed.

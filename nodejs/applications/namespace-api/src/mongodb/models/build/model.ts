@@ -19,8 +19,8 @@ import { BuildFileSchema } from './file';
 import { BuildReferenceSchema } from './reference';
 
 export enum BuildPlatform {
-  Server64 = 'server64',
-  Windows64 = 'windows64',
+  Server64 = 'Server64',
+  Windows64 = 'Windows64',
 }
 
 @index({ name: 1, namespaceId: 1, platform: 1 }, { unique: true })

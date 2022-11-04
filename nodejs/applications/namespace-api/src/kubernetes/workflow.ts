@@ -46,10 +46,7 @@ export const KubernetesWorkflow = {
      * =======================
      */
     await networkPolicyApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'application' },
-        name,
-      },
+      metadata: { labels: { ...labels }, name },
       spec: {
         egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
         podSelector: { matchLabels: { 'tenlastic.com/app': name } },
@@ -102,10 +99,7 @@ export const KubernetesWorkflow = {
     const templates = workflow.spec.templates.map((t) => getTemplateManifest(t, workflow));
     await workflowApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: {
-          ...labels,
-          'tenlastic.com/role': 'application',
-        },
+        labels: { ...labels, 'tenlastic.com/role': 'Application' },
         name,
       },
       spec: {
@@ -150,7 +144,7 @@ function getTemplateManifest(template: WorkflowSpecTemplateSchema, workflow: Wor
     labels: {
       ...KubernetesWorkflow.getLabels(workflow),
       'tenlastic.com/nodeId': `{{pod.name}}`,
-      'tenlastic.com/role': 'application',
+      'tenlastic.com/role': 'Application',
     },
   };
 

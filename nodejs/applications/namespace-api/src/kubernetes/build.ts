@@ -4,7 +4,7 @@ import { DatabaseOperationType } from '@tenlastic/mongoose-models';
 import { URL } from 'url';
 
 import { version } from '../../package.json';
-import { BuildDocument } from '../mongodb';
+import { BuildDocument, BuildPlatform } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 
 export const KubernetesBuild = {
@@ -66,10 +66,7 @@ export const KubernetesBuild = {
      * =======================
      */
     await networkPolicyApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'application' },
-        name,
-      },
+      metadata: { labels: { ...labels, 'tenlastic.com/role': 'Application' }, name },
       spec: {
         egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
         podSelector: { matchLabels: { 'tenlastic.com/app': name } },
@@ -83,10 +80,7 @@ export const KubernetesBuild = {
      * ======================
      */
     await secretApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'application' },
-        name,
-      },
+      metadata: { labels: { ...labels, 'tenlastic.com/role': 'Application' }, name },
       stringData: {
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         BUILD_ID: `${build._id}`,
@@ -129,7 +123,7 @@ export const KubernetesBuild = {
     const podLabels = {
       ...labels,
       'tenlastic.com/nodeId': `{{pod.name}}`,
-      'tenlastic.com/role': 'application',
+      'tenlastic.com/role': 'Application',
     };
     const retryStrategy = {
       backoff: { duration: '15', factor: '2' },
@@ -141,13 +135,7 @@ export const KubernetesBuild = {
     if (process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/')) {
       const workingDir = '/usr/src/nodejs/applications';
       manifest = {
-        metadata: {
-          labels: {
-            ...labels,
-            'tenlastic.com/role': 'application',
-          },
-          name,
-        },
+        metadata: { labels: { ...labels, 'tenlastic.com/role': 'Application' }, name },
         spec: {
           activeDeadlineSeconds: 60 * 60,
           affinity,
@@ -234,7 +222,7 @@ export const KubernetesBuild = {
       };
     }
 
-    if (build.platform === 'server64') {
+    if (build.platform === BuildPlatform.Server64) {
       manifest.spec.templates[0].dag.tasks.push({
         dependencies: ['copy-and-unzip-files'],
         name: 'build-docker-image',

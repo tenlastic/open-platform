@@ -8,6 +8,7 @@ import {
   BuildModel,
   BuildService,
   IAuthorization,
+  IBuild,
   IGameServer,
   IQueue,
   NamespaceModel,
@@ -99,7 +100,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       this.builds = await this.buildService.find(params.namespaceId, {
         select: '-files',
         sort: '-publishedAt',
-        where: { namespaceId: params.namespaceId, platform: 'server64' },
+        where: { namespaceId: params.namespaceId, platform: IBuild.Platform.Server64 },
       });
       this.namespace = await this.namespaceService.findOne(params.namespaceId);
 

@@ -41,10 +41,7 @@ export const KubernetesWorkflowSidecar = {
     const { _id, namespaceId } = workflow;
     const host = `${namespaceName}-api.dynamic:3000`;
     await secretApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' },
-        name,
-      },
+      metadata: { labels: { ...workflowLabels }, name },
       stringData: {
         ENDPOINT: `http://${host}/namespaces/${namespaceId}/workflows/${_id}`,
         WORKFLOW_NAME: workflowName,
@@ -86,7 +83,7 @@ export const KubernetesWorkflowSidecar = {
     if (process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/')) {
       manifest = {
         metadata: {
-          labels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' },
+          labels: { ...workflowLabels, 'tenlastic.com/role': 'Sidecar' },
           name,
         },
         spec: {
@@ -112,7 +109,7 @@ export const KubernetesWorkflowSidecar = {
     } else {
       manifest = {
         metadata: {
-          labels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' },
+          labels: { ...workflowLabels, 'tenlastic.com/role': 'Sidecar' },
           name,
         },
         spec: {
@@ -133,12 +130,12 @@ export const KubernetesWorkflowSidecar = {
 
     await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' },
+        labels: { ...workflowLabels, 'tenlastic.com/role': 'Sidecar' },
         name,
       },
       spec: {
         replicas: 1,
-        selector: { matchLabels: { ...workflowLabels, 'tenlastic.com/role': 'sidecar' } },
+        selector: { matchLabels: { ...workflowLabels, 'tenlastic.com/role': 'Sidecar' } },
         template: manifest,
       },
     });

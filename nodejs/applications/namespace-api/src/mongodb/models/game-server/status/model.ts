@@ -12,8 +12,8 @@ import { GameServerStatusEndpointsSchema } from './endpoints';
 import { GameServerStatusNodeSchema } from './node';
 
 export enum GameServerStatusComponentName {
-  Application = 'application',
-  Sidecar = 'sidecar',
+  Application = 'Application',
+  Sidecar = 'Sidecar',
 }
 
 export enum GameServerStatusPhase {

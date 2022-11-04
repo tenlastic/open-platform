@@ -65,7 +65,11 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
   }
 
   public getPlatform(platform: string) {
-    const map = { server64: 'Linux Server (x64)', windows64: 'Windows Client (x64)' };
+    const map = {
+      [IBuild.Platform.Server64]: 'Linux Server (x64)',
+      [IBuild.Platform.Windows64]: 'Windows Client (x64)',
+    };
+
     return map[platform];
   }
 

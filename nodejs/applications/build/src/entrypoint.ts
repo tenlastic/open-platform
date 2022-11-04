@@ -1,6 +1,6 @@
 import 'source-map-support/register';
 
-import { BuildModel } from '@tenlastic/http';
+import { BuildModel, IBuild } from '@tenlastic/http';
 import * as minio from '@tenlastic/minio';
 import * as path from 'path';
 import { URL } from 'url';
@@ -69,7 +69,7 @@ minio.connect({
     await dependencies.buildService.update(namespaceId, buildId, { files: build.files });
 
     // If building a server, download files for Docker.
-    if (build.platform === 'server64') {
+    if (build.platform === IBuild.Platform.Server64) {
       for (const file of build.files) {
         console.log(`Downloading file: ${file.path}.`);
         await minio.fGetObject(

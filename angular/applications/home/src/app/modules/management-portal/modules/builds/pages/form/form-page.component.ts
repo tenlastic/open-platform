@@ -11,6 +11,7 @@ import {
   BuildQuery,
   BuildService,
   IAuthorization,
+  IBuild,
 } from '@tenlastic/http';
 import JSZip from 'jszip';
 import { Observable } from 'rxjs';
@@ -54,8 +55,8 @@ export class BuildsFormPageComponent implements OnInit {
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public platforms = [
-    { label: 'Linux Server (x64)', value: 'server64' },
-    { label: 'Windows Client (x64)', value: 'windows64' },
+    { label: 'Linux Server (x64)', value: IBuild.Platform.Server64 },
+    { label: 'Windows Client (x64)', value: IBuild.Platform.Windows64 },
   ];
   public progress: Progress;
   public status = Status.Ready;

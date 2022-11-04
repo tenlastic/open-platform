@@ -78,10 +78,10 @@ export class UpdateService {
     return `${this.platforms[platform]}${arch.replace('x', '')}`;
   }
   private platforms = {
-    debian: 'mac',
-    linux: 'linux',
-    win32: 'windows',
-    win64: 'windows',
+    debian: 'Mac',
+    linux: 'Linux',
+    win32: 'Windows',
+    win64: 'Windows',
   };
   private status = new Map<string, UpdateServiceStatus>();
 

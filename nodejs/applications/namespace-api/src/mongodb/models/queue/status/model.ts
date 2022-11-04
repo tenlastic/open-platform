@@ -11,8 +11,8 @@ import { QueueStatusComponentSchema } from './component';
 import { QueueStatusNodeSchema } from './node';
 
 export enum QueueStatusComponentName {
-  Application = 'application',
-  Sidecar = 'sidecar',
+  Application = 'Application',
+  Sidecar = 'Sidecar',
 }
 
 export enum QueueStatusPhase {

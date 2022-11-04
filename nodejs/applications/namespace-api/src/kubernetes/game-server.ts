@@ -2,7 +2,7 @@ import { V1PodTemplateSpec } from '@kubernetes/client-node';
 import { deploymentApiV1, networkPolicyApiV1, podApiV1, serviceApiV1 } from '@tenlastic/kubernetes';
 import { URL } from 'url';
 
-import { GameServerDocument } from '../mongodb';
+import { GameServerDocument, GameServerStatusComponentName } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 
 export const KubernetesGameServer = {
@@ -60,10 +60,7 @@ export const KubernetesGameServer = {
      * =======================
      */
     await networkPolicyApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'application' },
-        name,
-      },
+      metadata: { labels: { ...labels }, name },
       spec: {
         egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
         podSelector: { matchLabels: { 'tenlastic.com/app': name } },
@@ -77,14 +74,8 @@ export const KubernetesGameServer = {
      * =======================
      */
     await serviceApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'application' },
-        name,
-      },
-      spec: {
-        ports: [{ name: 'tcp', port: 7777 }],
-        selector: { ...labels, 'tenlastic.com/role': 'application' },
-      },
+      metadata: { labels: { ...labels }, name },
+      spec: { ports: [{ name: 'tcp', port: 7777 }], selector: { ...labels } },
     });
 
     /**
@@ -120,7 +111,7 @@ export const KubernetesGameServer = {
 
     const manifest: V1PodTemplateSpec = {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'application' },
+        labels: { ...labels, 'tenlastic.com/role': GameServerStatusComponentName.Application },
         name,
       },
       spec: {
@@ -155,12 +146,17 @@ export const KubernetesGameServer = {
       await deploymentApiV1.delete(name, 'dynamic');
       await deploymentApiV1.createOrReplace('dynamic', {
         metadata: {
-          labels: { ...labels, 'tenlastic.com/role': 'application' },
+          labels: { ...labels, 'tenlastic.com/role': GameServerStatusComponentName.Application },
           name,
         },
         spec: {
           replicas: 1,
-          selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'application' } },
+          selector: {
+            matchLabels: {
+              ...labels,
+              'tenlastic.com/role': GameServerStatusComponentName.Application,
+            },
+          },
           template: manifest,
         },
       });
@@ -177,7 +173,7 @@ export const KubernetesGameServer = {
     if (process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/')) {
       await serviceApiV1.createOrReplace('dynamic', {
         metadata: {
-          labels: { ...labels, 'tenlastic.com/role': 'application' },
+          labels: { ...labels, 'tenlastic.com/role': GameServerStatusComponentName.Application },
           name: `${name}-node-port`,
         },
         spec: {
@@ -185,7 +181,7 @@ export const KubernetesGameServer = {
             { name: 'tcp', nodePort: hostPort, port: 7777, protocol: 'TCP' },
             { name: 'udp', nodePort: hostPort, port: 7777, protocol: 'UDP' },
           ],
-          selector: { ...labels, 'tenlastic.com/role': 'application' },
+          selector: { ...labels, 'tenlastic.com/role': GameServerStatusComponentName.Application },
           type: 'NodePort',
         },
       });

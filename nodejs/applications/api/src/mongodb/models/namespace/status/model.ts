@@ -12,11 +12,11 @@ import { NamespaceStatusLimitsSchema } from './limits';
 import { NamespaceStatusNodeSchema } from './node';
 
 export enum NamespaceStatusComponentName {
-  Api = 'api',
-  Cdc = 'cdc',
-  Connector = 'connector',
-  Metrics = 'metrics',
-  Sidecar = 'sidecar',
+  API = 'API',
+  CDC = 'CDC',
+  Connector = 'Connector',
+  Metrics = 'Metrics',
+  Sidecar = 'Sidecar',
 }
 
 export enum NamespaceStatusPhase {

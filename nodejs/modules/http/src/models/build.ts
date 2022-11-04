@@ -27,8 +27,8 @@ export namespace IBuild {
   }
 
   export enum Platform {
-    Server64 = 'server64',
-    Windows64 = 'windows64',
+    Server64 = 'Server64',
+    Windows64 = 'Windows64',
   }
 
   export interface Reference {

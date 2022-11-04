@@ -2,7 +2,7 @@ import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 
 import { version } from '../../package.json';
-import { NamespaceDocument } from '../mongodb';
+import { NamespaceDocument, NamespaceStatusComponentName } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 
 export const KubernetesNamespaceSidecar = {
@@ -37,10 +37,7 @@ export const KubernetesNamespaceSidecar = {
      * ======================
      */
     await secretApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...namespaceLabels, 'tenlastic.com/role': 'sidecar' },
-        name,
-      },
+      metadata: { labels: { ...namespaceLabels }, name },
       stringData: {
         ENDPOINT: `http://api.static:3000/namespaces/${namespace._id}`,
         MONGO_DATABASE_NAME: namespaceName,
@@ -87,7 +84,10 @@ export const KubernetesNamespaceSidecar = {
     if (process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/')) {
       deploymentTemplate = {
         metadata: {
-          labels: { ...namespaceLabels, 'tenlastic.com/role': 'sidecar' },
+          labels: {
+            ...namespaceLabels,
+            'tenlastic.com/role': NamespaceStatusComponentName.Sidecar,
+          },
           name,
         },
         spec: {
@@ -123,7 +123,10 @@ export const KubernetesNamespaceSidecar = {
     } else {
       deploymentTemplate = {
         metadata: {
-          labels: { ...namespaceLabels, 'tenlastic.com/role': 'sidecar' },
+          labels: {
+            ...namespaceLabels,
+            'tenlastic.com/role': NamespaceStatusComponentName.Sidecar,
+          },
           name,
         },
         spec: {
@@ -151,12 +154,17 @@ export const KubernetesNamespaceSidecar = {
 
     await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: { ...namespaceLabels, 'tenlastic.com/role': 'sidecar' },
+        labels: { ...namespaceLabels, 'tenlastic.com/role': NamespaceStatusComponentName.Sidecar },
         name,
       },
       spec: {
         replicas: 1,
-        selector: { matchLabels: { ...namespaceLabels, 'tenlastic.com/role': 'sidecar' } },
+        selector: {
+          matchLabels: {
+            ...namespaceLabels,
+            'tenlastic.com/role': NamespaceStatusComponentName.Sidecar,
+          },
+        },
         template: deploymentTemplate,
       },
     });

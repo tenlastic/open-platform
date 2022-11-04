@@ -32,6 +32,7 @@ import {
   AuthorizationDocument,
   AuthorizationRole,
   NamespaceDocument,
+  NamespaceStatusComponentName,
 } from '../mongodb';
 
 const chance = new Chance();
@@ -132,11 +133,7 @@ export const KubernetesNamespace = {
      */
     const ingress = await ingressApiV1.read('default', 'static');
     await ingressApiV1.createOrReplace('dynamic', {
-      metadata: {
-        annotations: ingress.body.metadata.annotations,
-        labels: { ...labels, 'tenlastic.com/role': 'application' },
-        name,
-      },
+      metadata: { annotations: ingress.body.metadata.annotations, labels: { ...labels }, name },
       spec: {
         rules: [
           {
@@ -178,10 +175,7 @@ export const KubernetesNamespace = {
      * =======================
      */
     await networkPolicyApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'application' },
-        name,
-      },
+      metadata: { labels: { ...labels }, name },
       spec: {
         egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
         podSelector: { matchLabels: { 'tenlastic.com/app': name } },
@@ -196,7 +190,7 @@ export const KubernetesNamespace = {
      */
     await priorityClassApiV1.delete(name);
     await priorityClassApiV1.create({
-      metadata: { labels: { ...labels, 'tenlastic.com/role': 'application' }, name },
+      metadata: { labels: { ...labels }, name },
       value: 0,
     });
 
@@ -206,7 +200,7 @@ export const KubernetesNamespace = {
      * ======================
      */
     await resourceQuotaApiV1.createOrReplace('dynamic', {
-      metadata: { labels: { ...labels, 'tenlastic.com/role': 'application' }, name },
+      metadata: { labels: { ...labels }, name },
       spec: {
         hard: { cpu: `${namespace.limits.cpu}`, memory: `${namespace.limits.memory}` },
         scopeSelector: {
@@ -221,20 +215,14 @@ export const KubernetesNamespace = {
      * ======================
      */
     await secretApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'application' },
-        name,
-      },
+      metadata: { labels: { ...labels }, name },
       stringData: {
         MINIO_BUCKET: name,
         MONGO_DATABASE_NAME: name,
       },
     });
     await secretApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'application' },
-        name: `${name}-api-keys`,
-      },
+      metadata: { labels: { ...labels }, name: `${name}-api-keys` },
       stringData: {
         BUILDS: authorizations[0].apiKey,
         GAME_SERVERS: authorizations[1].apiKey,
@@ -250,20 +238,25 @@ export const KubernetesNamespace = {
      * ======================
      */
     await serviceApiV1.createOrReplace('dynamic', {
-      metadata: { labels: { ...labels, 'tenlastic.com/role': 'api' }, name: `${name}-api` },
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.API },
+        name: `${name}-api`,
+      },
       spec: {
         ports: [{ name: 'tcp', port: 3000 }],
-        selector: { ...labels, 'tenlastic.com/role': 'api' },
+        selector: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.API },
       },
     });
     await statefulSetApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'api' },
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.API },
         name: `${name}-api`,
       },
       spec: {
         replicas: 1,
-        selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'api' } },
+        selector: {
+          matchLabels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.API },
+        },
         serviceName: `${name}-api`,
         template: getApiPodTemplate(namespace),
       },
@@ -276,12 +269,14 @@ export const KubernetesNamespace = {
      */
     await statefulSetApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'cdc' },
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.CDC },
         name: `${name}-cdc`,
       },
       spec: {
         replicas: 1,
-        selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'cdc' } },
+        selector: {
+          matchLabels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.CDC },
+        },
         serviceName: `${name}-cdc`,
         template: getCdcPodTemplate(namespace),
       },
@@ -296,20 +291,25 @@ export const KubernetesNamespace = {
     if (isDevelopment) {
       await statefulSetApiV1.createOrReplace('dynamic', {
         metadata: {
-          labels: { ...labels, 'tenlastic.com/role': 'connector' },
+          labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Connector },
           name: `${name}-connector`,
         },
         spec: {
           replicas: 1,
-          selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'connector' } },
+          selector: {
+            matchLabels: {
+              ...labels,
+              'tenlastic.com/role': NamespaceStatusComponentName.Connector,
+            },
+          },
           serviceName: `${name}-connector`,
           template: {
             metadata: {
-              labels: { ...labels, 'tenlastic.com/role': 'connector' },
+              labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Connector },
               name: `${name}-connector`,
             },
             spec: {
-              affinity: getAffinity(namespace, 'connector'),
+              affinity: getAffinity(namespace, NamespaceStatusComponentName.Connector),
               containers: [
                 getAggregationApiConnectorContainerTemplate(namespace),
                 getApiConnectorContainerTemplate(namespace),
@@ -327,20 +327,25 @@ export const KubernetesNamespace = {
     } else {
       await statefulSetApiV1.createOrReplace('dynamic', {
         metadata: {
-          labels: { ...labels, 'tenlastic.com/role': 'connector' },
+          labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Connector },
           name: `${name}-connector`,
         },
         spec: {
           replicas: 1,
-          selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'connector' } },
+          selector: {
+            matchLabels: {
+              ...labels,
+              'tenlastic.com/role': NamespaceStatusComponentName.Connector,
+            },
+          },
           serviceName: `${name}-connector`,
           template: {
             metadata: {
-              labels: { ...labels, 'tenlastic.com/role': 'connector' },
+              labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Connector },
               name: `${name}-connector`,
             },
             spec: {
-              affinity: getAffinity(namespace, 'connector'),
+              affinity: getAffinity(namespace, NamespaceStatusComponentName.Connector),
               containers: [
                 getAggregationApiConnectorContainerTemplate(namespace),
                 getApiConnectorContainerTemplate(namespace),
@@ -358,19 +363,21 @@ export const KubernetesNamespace = {
      */
     await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'metrics' },
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Metrics },
         name: `${name}-metrics`,
       },
       spec: {
         replicas: 1,
-        selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'metrics' } },
+        selector: {
+          matchLabels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Metrics },
+        },
         template: getMetricsPodTemplate(namespace),
       },
     });
   },
 };
 
-function getAffinity(namespace: NamespaceDocument, role: string): V1Affinity {
+function getAffinity(namespace: NamespaceDocument, role: NamespaceStatusComponentName): V1Affinity {
   const name = KubernetesNamespace.getName(namespace._id);
 
   return {
@@ -541,11 +548,11 @@ function getApiPodTemplate(namespace: NamespaceDocument): V1Pod {
   if (isDevelopment) {
     return {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'api' },
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.API },
         name: `${name}-api`,
       },
       spec: {
-        affinity: getAffinity(namespace, 'api'),
+        affinity: getAffinity(namespace, NamespaceStatusComponentName.API),
         containers: [
           {
             command: ['npm', 'run', 'start'],
@@ -569,11 +576,11 @@ function getApiPodTemplate(namespace: NamespaceDocument): V1Pod {
   } else {
     return {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'api' },
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.API },
         name,
       },
       spec: {
-        affinity: getAffinity(namespace, 'api'),
+        affinity: getAffinity(namespace, NamespaceStatusComponentName.API),
         containers: [
           {
             env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
@@ -605,11 +612,11 @@ function getCdcPodTemplate(namespace: NamespaceDocument): V1Pod {
   if (isDevelopment) {
     return {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'cdc' },
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.API },
         name: `${name}-cdc`,
       },
       spec: {
-        affinity: getAffinity(namespace, 'cdc'),
+        affinity: getAffinity(namespace, NamespaceStatusComponentName.CDC),
         containers: [
           {
             command: ['npm', 'run', 'start'],
@@ -630,11 +637,11 @@ function getCdcPodTemplate(namespace: NamespaceDocument): V1Pod {
   } else {
     return {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'cdc' },
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.API },
         name,
       },
       spec: {
-        affinity: getAffinity(namespace, 'cdc'),
+        affinity: getAffinity(namespace, NamespaceStatusComponentName.CDC),
         containers: [
           {
             env,
@@ -668,11 +675,11 @@ function getMetricsPodTemplate(namespace: NamespaceDocument): V1Pod {
   if (isDevelopment) {
     return {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'metrics' },
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Metrics },
         name: `${name}-metrics`,
       },
       spec: {
-        affinity: getAffinity(namespace, 'metrics'),
+        affinity: getAffinity(namespace, NamespaceStatusComponentName.Metrics),
         containers: [
           {
             command: ['npm', 'run', 'start'],
@@ -694,11 +701,11 @@ function getMetricsPodTemplate(namespace: NamespaceDocument): V1Pod {
   } else {
     return {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'metrics' },
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Metrics },
         name,
       },
       spec: {
-        affinity: getAffinity(namespace, 'metrics'),
+        affinity: getAffinity(namespace, NamespaceStatusComponentName.Metrics),
         containers: [
           {
             env,

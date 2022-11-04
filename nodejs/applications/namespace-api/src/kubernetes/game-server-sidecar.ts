@@ -2,7 +2,7 @@ import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 
 import { version } from '../../package.json';
-import { GameServerDocument } from '../mongodb';
+import { GameServerDocument, GameServerStatusComponentName } from '../mongodb';
 import { KubernetesGameServer } from './game-server';
 import { KubernetesNamespace } from './namespace';
 
@@ -39,14 +39,13 @@ export const KubernetesGameServerSidecar = {
      * ======================
      */
     const apiHost = `http://${namespaceName}-api.dynamic:3000`;
+    const applicationSelector = `tenlastic.com/role=${GameServerStatusComponentName.Application}`;
     await secretApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },
-        name,
-      },
+      metadata: { labels: { ...gameServerLabels }, name },
       stringData: {
         CONTAINER: 'main',
         ENDPOINT: `${apiHost}/namespaces/${gameServer.namespaceId}/game-servers/${gameServer._id}`,
+        ENDPOINTS_LABEL_SELECTOR: `tenlastic.com/app=${gameServerName},${applicationSelector}`,
         LABEL_SELECTOR: `tenlastic.com/app=${gameServerName}`,
       },
     });
@@ -88,7 +87,10 @@ export const KubernetesGameServerSidecar = {
     if (process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/')) {
       manifest = {
         metadata: {
-          labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },
+          labels: {
+            ...gameServerLabels,
+            'tenlastic.com/role': GameServerStatusComponentName.Sidecar,
+          },
           name,
         },
         spec: {
@@ -124,7 +126,10 @@ export const KubernetesGameServerSidecar = {
     } else {
       manifest = {
         metadata: {
-          labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },
+          labels: {
+            ...gameServerLabels,
+            'tenlastic.com/role': GameServerStatusComponentName.Sidecar,
+          },
           name,
         },
         spec: {
@@ -152,12 +157,20 @@ export const KubernetesGameServerSidecar = {
 
     await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' },
+        labels: {
+          ...gameServerLabels,
+          'tenlastic.com/role': GameServerStatusComponentName.Sidecar,
+        },
         name,
       },
       spec: {
         replicas: 1,
-        selector: { matchLabels: { ...gameServerLabels, 'tenlastic.com/role': 'sidecar' } },
+        selector: {
+          matchLabels: {
+            ...gameServerLabels,
+            'tenlastic.com/role': GameServerStatusComponentName.Sidecar,
+          },
+        },
         template: manifest,
       },
     });

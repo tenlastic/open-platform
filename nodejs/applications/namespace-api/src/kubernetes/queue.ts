@@ -8,7 +8,7 @@ import {
 import { networkPolicyApiV1, secretApiV1, statefulSetApiV1 } from '@tenlastic/kubernetes';
 
 import { version } from '../../package.json';
-import { QueueDocument } from '../mongodb';
+import { QueueDocument, QueueStatusComponentName } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 
 export const KubernetesQueue = {
@@ -58,10 +58,7 @@ export const KubernetesQueue = {
      * =======================
      */
     await networkPolicyApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'application' },
-        name,
-      },
+      metadata: { labels: { ...labels }, name },
       spec: {
         egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
         podSelector: { matchLabels: { 'tenlastic.com/app': name } },
@@ -75,10 +72,7 @@ export const KubernetesQueue = {
      * ======================
      */
     await secretApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'application' },
-        name,
-      },
+      metadata: { labels: { ...labels }, name },
       stringData: {
         API_URL: `http://${namespaceName}-api.dynamic:3000`,
         QUEUE_JSON: JSON.stringify(queue),
@@ -125,7 +119,7 @@ export const KubernetesQueue = {
     if (isDevelopment) {
       manifest = {
         metadata: {
-          labels: { ...labels, 'tenlastic.com/role': 'application' },
+          labels: { ...labels, 'tenlastic.com/role': QueueStatusComponentName.Application },
           name,
         },
         spec: {
@@ -153,7 +147,7 @@ export const KubernetesQueue = {
     } else {
       manifest = {
         metadata: {
-          labels: { ...labels, 'tenlastic.com/role': 'application' },
+          labels: { ...labels, 'tenlastic.com/role': QueueStatusComponentName.Application },
           name,
         },
         spec: {
@@ -177,12 +171,14 @@ export const KubernetesQueue = {
     await statefulSetApiV1.delete(name, 'dynamic');
     await statefulSetApiV1.create('dynamic', {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': 'application' },
+        labels: { ...labels, 'tenlastic.com/role': QueueStatusComponentName.Application },
         name,
       },
       spec: {
         replicas: queue.replicas,
-        selector: { matchLabels: { ...labels, 'tenlastic.com/role': 'application' } },
+        selector: {
+          matchLabels: { ...labels, 'tenlastic.com/role': QueueStatusComponentName.Application },
+        },
         serviceName: name,
         template: manifest,
       },

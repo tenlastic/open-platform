@@ -2,7 +2,7 @@ import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client
 import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
 
 import { version } from '../../package.json';
-import { QueueDocument } from '../mongodb';
+import { QueueDocument, QueueStatusComponentName } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 import { KubernetesQueue } from './queue';
 
@@ -40,10 +40,7 @@ export const KubernetesQueueSidecar = {
      */
     const apiHost = `http://${namespaceName}-api.dynamic:3000`;
     await secretApiV1.createOrReplace('dynamic', {
-      metadata: {
-        labels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' },
-        name,
-      },
+      metadata: { labels: { ...queueLabels }, name },
       stringData: {
         ENDPOINT: `${apiHost}/namespaces/${queue.namespaceId}/queues/${queue._id}`,
         LABEL_SELECTOR: `tenlastic.com/app=${queueName}`,
@@ -87,7 +84,7 @@ export const KubernetesQueueSidecar = {
     if (process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/')) {
       manifest = {
         metadata: {
-          labels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' },
+          labels: { ...queueLabels, 'tenlastic.com/role': QueueStatusComponentName.Sidecar },
           name,
         },
         spec: {
@@ -113,7 +110,7 @@ export const KubernetesQueueSidecar = {
     } else {
       manifest = {
         metadata: {
-          labels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' },
+          labels: { ...queueLabels, 'tenlastic.com/role': QueueStatusComponentName.Sidecar },
           name,
         },
         spec: {
@@ -134,12 +131,14 @@ export const KubernetesQueueSidecar = {
 
     await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
-        labels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' },
+        labels: { ...queueLabels, 'tenlastic.com/role': QueueStatusComponentName.Sidecar },
         name,
       },
       spec: {
         replicas: 1,
-        selector: { matchLabels: { ...queueLabels, 'tenlastic.com/role': 'sidecar' } },
+        selector: {
+          matchLabels: { ...queueLabels, 'tenlastic.com/role': QueueStatusComponentName.Sidecar },
+        },
         template: manifest,
       },
     });

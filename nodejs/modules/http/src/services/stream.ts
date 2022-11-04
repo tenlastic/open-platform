@@ -262,7 +262,7 @@ export class StreamService {
       } else if (payload.operationType === 'insert') {
         service.emitter.emit('create', record);
         store.add(record);
-      } else if (payload.operationType === 'update') {
+      } else if (payload.operationType === 'replace' || payload.operationType === 'update') {
         service.emitter.emit('update', record);
         store.upsert(record._id, record);
       }
