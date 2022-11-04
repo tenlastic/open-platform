@@ -144,6 +144,27 @@
       }
     }
 
+    &[size='large']::ng-deep {
+      span.mat-button-wrapper {
+        > div {
+          font-size: 18px;
+          margin-top: -4px;
+          text-transform: uppercase;
+
+          &:only-child {
+            margin-top: -2px;
+          }
+        }
+
+        mat-icon.mat-icon {
+          font-size: 24px;
+          height: 22px;
+          line-height: 24px;
+          width: 24px;
+        }
+      }
+    }
+
     &::ng-deep {
       span.mat-button-wrapper > div {
         display: inline-block;

@@ -85,6 +85,8 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
       publishedAt: new Date(),
     });
 
+    this.matSnackBar.open('Build published successfully.');
+
     if (build.platform === IBuild.Platform.Server64 && build.reference) {
       const referenceBuild = await this.buildService.findOne(
         build.namespaceId,
@@ -156,7 +158,10 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
 
   public async unpublish($event: Event, build: BuildModel) {
     $event.stopPropagation();
-    return this.buildService.update(build.namespaceId, build._id, { ...build, publishedAt: null });
+
+    await this.buildService.update(build.namespaceId, build._id, { ...build, publishedAt: null });
+
+    this.matSnackBar.open('Build unpublished successfully.');
   }
 
   private async fetchBuilds(params: Params) {

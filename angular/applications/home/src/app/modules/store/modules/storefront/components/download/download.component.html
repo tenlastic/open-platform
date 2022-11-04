@@ -2,9 +2,10 @@
      class="action">
   <app-button color="primary"
               [disabled]="isButtonDisabled"
+              size="large"
               (OnClick)="download()">
     <mat-icon *ngIf="buttonIcon">{{ buttonIcon }}</mat-icon>
-    <div class="text">{{ buttonText }}</div>
+    <div>{{ buttonText }}</div>
   </app-button>
 </div>
 

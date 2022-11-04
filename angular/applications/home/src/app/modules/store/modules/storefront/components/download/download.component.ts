@@ -38,7 +38,7 @@ export class DownloadComponent implements OnInit {
   public get buttonIcon() {
     switch (this.status.state) {
       case State.NotInstalled:
-        return 'file_download';
+        return 'save_alt';
 
       default:
         return null;
