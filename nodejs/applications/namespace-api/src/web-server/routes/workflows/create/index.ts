@@ -1,5 +1,4 @@
-import { RequiredFieldError } from '@tenlastic/web-server';
-import { Context } from 'koa';
+import { Context, RequiredFieldError } from '@tenlastic/web-server';
 
 import { Namespace, WorkflowPermissions } from '../../../../mongodb';
 

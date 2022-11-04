@@ -16,9 +16,10 @@ export async function subscribe<TDocument extends mongoose.Document = any>(
   const collection = Model.collection.name;
   const subject = `${database}.${collection}`;
 
-  const subscription = await nats.subscribe(`${durable}-${collection}`, subject, {
+  const subscription = await nats.subscribe(subject, {
     ack_policy: AckPolicy.Explicit,
     ack_wait: 60 * 1000 * 1000 * 1000,
+    durable_name: `${durable}-${collection}`,
     inactive_threshold: 30 * 24 * 60 * 60 * 1000 * 1000 * 1000,
     max_deliver: 5,
   });

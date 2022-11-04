@@ -5,26 +5,23 @@ import * as mongoose from 'mongoose';
 
 import { replicateFromMongo } from './';
 
-interface Document {
-  name: string;
+interface Document extends mongoose.Document {
+  name?: string;
 }
 
 const chance = new Chance();
-
-const schema = new mongoose.Schema<Document>({ name: String });
+const schema = new mongoose.Schema<Document>({ name: { type: String } });
 
 describe('replicateFromMongo()', function () {
-  let fromConnection: mongoose.Connection;
   let FromModel: mongoose.Model<Document>;
-  let toConnection: mongoose.Connection;
   let ToModel: mongoose.Model<Document>;
 
   before(async function () {
-    fromConnection = await mongooseModels.createConnection({
+    const fromConnection = await mongooseModels.createConnection({
       connectionString: process.env.MONGO_CONNECTION_STRING,
       databaseName: 'connector-test-from',
     });
-    toConnection = await mongooseModels.createConnection({
+    const toConnection = await mongooseModels.createConnection({
       connectionString: process.env.MONGO_CONNECTION_STRING,
       databaseName: 'connector-test-to',
     });
@@ -41,12 +38,7 @@ describe('replicateFromMongo()', function () {
   it('copies documents between collections', async function () {
     const from = await FromModel.create({ name: chance.hash() });
 
-    const count = await replicateFromMongo(
-      FromModel.collection.name,
-      fromConnection,
-      ToModel.collection.name,
-      toConnection,
-    );
+    const count = await replicateFromMongo(FromModel, ToModel);
 
     expect(count).to.eql(1);
 

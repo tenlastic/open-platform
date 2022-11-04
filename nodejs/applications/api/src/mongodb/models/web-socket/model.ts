@@ -14,7 +14,7 @@ import { UserDocument } from '../user/model';
 
 @index({ nodeId: 1 })
 @index({ userId: 1 })
-@modelOptions({ schemaOptions: { collection: 'websockets', minimize: false, timestamps: true } })
+@modelOptions({ schemaOptions: { collection: 'web-sockets', minimize: false, timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 export class WebSocketSchema {
   public _id: mongoose.Types.ObjectId;

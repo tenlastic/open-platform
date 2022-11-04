@@ -18,7 +18,7 @@ import { User } from '../user';
 @index({ hash: 1 }, { unique: true })
 @index({ userId: 1 })
 @modelOptions({
-  schemaOptions: { collection: 'passwordresets', minimize: false, timestamps: true },
+  schemaOptions: { collection: 'password-resets', minimize: false, timestamps: true },
 })
 @plugin(duplicateKeyErrorPlugin)
 @pre('save', async function (this: PasswordResetDocument) {

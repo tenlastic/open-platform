@@ -20,7 +20,10 @@ export function mongooseToJson(schema: mongoose.Schema) {
 function getType(value: mongoose.SchemaType<any>) {
   switch (value.instance) {
     case 'Array':
-      return { type: 'array' };
+      return {
+        items: value.schema ? mongooseToJson(value.schema) : getType((value as any).caster),
+        type: 'array',
+      };
 
     case 'Boolean':
       return { type: 'boolean' };
@@ -33,6 +36,9 @@ function getType(value: mongoose.SchemaType<any>) {
 
     case 'Decimal128':
       return { type: 'number' };
+
+    case 'Embedded':
+      return mongooseToJson(value.schema);
 
     case 'Map':
       return { type: 'object' };

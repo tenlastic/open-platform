@@ -35,7 +35,7 @@ export class QueueMemberDuplicateKeyError extends Error {
 
 @index({ namespaceId: 1, queueId: 1, userIds: 1 }, { unique: true })
 @index({ webSocketId: 1 })
-@modelOptions({ schemaOptions: { collection: 'queuemembers', minimize: false, timestamps: true } })
+@modelOptions({ schemaOptions: { collection: 'queue-members', minimize: false, timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @pre('save', async function (this: QueueMemberDocument) {
   await this.setUserIds();

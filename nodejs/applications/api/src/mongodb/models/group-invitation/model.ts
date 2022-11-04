@@ -16,7 +16,7 @@ import { UserDocument } from '../user';
 @index({ fromUserId: 1 })
 @index({ groupId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({
-  schemaOptions: { collection: 'groupinvitations', minimize: false, timestamps: true },
+  schemaOptions: { collection: 'group-invitations', minimize: false, timestamps: true },
 })
 @pre('save', function (this: GroupInvitationDocument) {
   if (!this.isNew) {

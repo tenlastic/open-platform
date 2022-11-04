@@ -1,5 +1,4 @@
-import { RecordNotFoundError } from '@tenlastic/web-server';
-import { Context } from 'koa';
+import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 import { GameServerPermissions, Namespace } from '../../../../mongodb';
 

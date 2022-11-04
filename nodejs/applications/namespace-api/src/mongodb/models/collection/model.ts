@@ -2,6 +2,9 @@ import {
   duplicateKeyErrorPlugin,
   jsonSchemaPropertiesValidator,
   jsonToMongo,
+  Schema,
+  syncIndexes,
+  syncSchema,
 } from '@tenlastic/mongoose-models';
 import {
   DocumentType,
@@ -37,12 +40,16 @@ import { AuthorizationDocument } from '../authorization';
 @plugin(duplicateKeyErrorPlugin)
 @pre('save', async function (this: CollectionDocument) {
   const Record = RecordSchema.getModel(this);
-  await Record.syncIndexes({ background: true });
+  await syncIndexes(Record);
+  await syncSchema(Record.collection.conn, Record);
 })
 @post('remove', async function (this: CollectionDocument) {
   try {
     await this.dropCollection();
-  } catch {}
+    await Schema.deleteOne({ name: this.collection.name });
+  } catch (e) {
+    console.error(e.message);
+  }
 })
 @post('save', async function (this: CollectionDocument) {
   await this.setValidator();

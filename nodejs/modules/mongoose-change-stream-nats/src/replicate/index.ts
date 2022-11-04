@@ -16,7 +16,7 @@ export async function replicate(
   Model: mongoose.Model<mongoose.Document>,
   options: ReplicateOptions,
 ) {
-  const subscription = await nats.subscribe(options.durable, options.subject);
+  const subscription = await nats.subscribe(options.subject, { durable_name: options.durable });
 
   for await (const message of subscription) {
     const data = new TextDecoder().decode(message.data);

@@ -1,8 +1,7 @@
-import { ContextMock, RequiredFieldError } from '@tenlastic/web-server';
+import { Context, ContextMock, RequiredFieldError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
-import { Context } from 'koa';
 
 import { PasswordReset, UserDocument, UserMock } from '../../../mongodb';
 import { handler } from '.';

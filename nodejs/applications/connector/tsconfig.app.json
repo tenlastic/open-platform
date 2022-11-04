@@ -10,6 +10,7 @@
   "include": ["./src"],
   "references": [
     { "path": "../../modules/mongoose-models/tsconfig.app.json" },
+    { "path": "../../modules/mongoose-permissions/tsconfig.app.json" },
     { "path": "../../modules/nats/tsconfig.app.json" }
   ],
   "ts-node": {

@@ -1,9 +1,9 @@
 import * as mongooseModels from '@tenlastic/mongoose-models';
+import * as mongoosePermissions from '@tenlastic/mongoose-permissions';
 import * as nats from '@tenlastic/nats';
 import * as mongoose from 'mongoose';
 import { AckPolicy, DeliverPolicy } from 'nats';
 import { TextDecoder } from 'util';
-import { parse } from '../parse';
 
 export interface ReplicateOptions {
   durable: string;
@@ -16,16 +16,15 @@ export interface ReplicateOptions {
  * Applies all change events from the topic to the target collection.
  */
 export async function replicateFromNats(
-  collectionName: string,
-  connection: mongoose.Connection,
+  Model: mongoose.Model<mongoose.Document>,
   options: ReplicateOptions,
+  where?: any,
 ) {
-  const collection = connection.collection(collectionName);
-
-  const subscription = await nats.subscribe(options.durable, options.subject, {
+  const subscription = await nats.subscribe(options.subject, {
     ack_policy: AckPolicy.Explicit,
     ack_wait: 60 * 1000 * 1000 * 1000,
     deliver_policy: DeliverPolicy.StartTime,
+    durable_name: options.durable,
     inactive_threshold: 30 * 24 * 60 * 60 * 1000 * 1000 * 1000,
     max_deliver: 5,
     opt_start_time: options.start?.toISOString(),
@@ -36,7 +35,7 @@ export async function replicateFromNats(
     const json = JSON.parse(data);
 
     try {
-      await eachMessage(collection, options, json);
+      await eachMessage(Model, options, json, new mongoose.Query().cast(Model, where));
       message.ack();
     } catch (e) {
       console.error(e);
@@ -48,23 +47,24 @@ export async function replicateFromNats(
 }
 
 export async function eachMessage(
-  collection: mongoose.Collection,
+  Model: mongoose.Model<mongoose.Document>,
   options: ReplicateOptions,
   payload: mongooseModels.IDatabasePayload<mongoose.Model<mongoose.Document>>,
+  where?: any,
 ) {
-  const documentKey = parse(payload.documentKey);
-  const fullDocument = parse(payload.fullDocument);
-  const { operationType, updateDescription } = payload;
+  if (where) {
+    const fullDocument = new mongoose.Query().cast(Model, payload.fullDocument);
 
-  // Remove _id from fullDocument for update operations.
-  if (fullDocument) {
-    delete fullDocument._id;
+    if (!mongoosePermissions.isJsonValid(fullDocument, where)) {
+      return;
+    }
   }
 
+  const { documentKey, operationType, updateDescription } = payload;
   if (operationType === 'delete') {
-    await collection.deleteOne(documentKey);
+    await Model.deleteOne(documentKey);
   } else if (operationType === 'insert') {
-    await collection.insertOne(fullDocument);
+    await Model.create(payload.fullDocument);
   } else if (options.useUpdateDescription) {
     const { removedFields, updatedFields } = updateDescription;
     const update: any = {};
@@ -77,15 +77,15 @@ export async function eachMessage(
     }
 
     if (updatedFields && Object.keys(updatedFields).length > 0) {
-      update.$set = parse(updateDescription.updatedFields);
+      update.$set = updateDescription.updatedFields;
     }
 
     if (update.$set || update.$unset) {
-      await collection.updateOne(documentKey, update, { upsert: true });
+      await Model.updateOne(documentKey, update, { upsert: true });
     }
   } else if (operationType === 'replace') {
-    await collection.replaceOne(documentKey, fullDocument, { upsert: true });
+    await Model.replaceOne(documentKey, payload.fullDocument, { upsert: true });
   } else if (operationType === 'update') {
-    await collection.updateOne(documentKey, { $set: fullDocument }, { upsert: true });
+    await Model.updateOne(documentKey, payload.fullDocument, { upsert: true });
   }
 }

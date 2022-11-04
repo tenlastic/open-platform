@@ -1,4 +1,5 @@
-import { Context, Next } from 'koa';
+import { Context } from '@tenlastic/web-server';
+import { Next } from 'koa';
 
 import { Namespace } from '../../mongodb';
 

@@ -13,7 +13,7 @@ import { AuthorizationDocument } from '../authorization';
 import { GroupDocument } from '../group';
 
 @index({ namespaceId: 1, queueId: 1, userIds: 1 })
-@modelOptions({ schemaOptions: { collection: 'queuemembers', minimize: false, timestamps: true } })
+@modelOptions({ schemaOptions: { collection: 'queue-members', minimize: false, timestamps: true } })
 export class QueueMemberSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

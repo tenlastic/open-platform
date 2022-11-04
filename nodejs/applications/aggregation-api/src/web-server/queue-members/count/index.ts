@@ -1,6 +1,7 @@
-import { QueueMember, QueueMemberPermissions } from '../../../mongodb';
+import { Context } from '@tenlastic/web-server';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
-import { Context } from 'koa';
+
+import { QueueMember, QueueMemberPermissions } from '../../../mongodb';
 
 export async function handler(ctx: Context) {
   const credentials = { ...ctx.state };

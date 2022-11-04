@@ -12,7 +12,7 @@ import * as mongoose from 'mongoose';
 
 @index({ nodeId: 1 })
 @index({ userId: 1 })
-@modelOptions({ schemaOptions: { collection: 'websockets', minimize: false, timestamps: true } })
+@modelOptions({ schemaOptions: { collection: 'web-sockets', minimize: false, timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 export class WebSocketSchema {
   public _id: mongoose.Types.ObjectId;
@@ -20,7 +20,7 @@ export class WebSocketSchema {
 
   @prop({ type: Date })
   public disconnectedAt: Date;
-  
+
   @prop({ type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 

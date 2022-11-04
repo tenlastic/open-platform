@@ -30,7 +30,7 @@ import {
 @index({ queueId: 1 })
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
-  schemaOptions: { collection: 'gameservers', minimize: false, timestamps: true },
+  schemaOptions: { collection: 'game-servers', minimize: false, timestamps: true },
 })
 @pre('save', async function (this: GameServerDocument) {
   if (!this.isNew) {

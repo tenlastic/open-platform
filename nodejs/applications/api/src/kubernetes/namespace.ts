@@ -410,7 +410,7 @@ function getAffinity(namespace: NamespaceDocument, role: string): V1Affinity {
 function getAggregationApiConnectorContainerTemplate(namespace: NamespaceDocument): V1Container {
   const name = KubernetesNamespace.getName(namespace._id);
 
-  const collectionNames = ['queuemembers', 'storefronts'];
+  const collectionNames = ['queue-members', 'storefronts'];
   const env: V1EnvVar[] = [
     { name: 'MONGO_COLLECTION_NAMES', value: collectionNames.join(',') },
     {
@@ -485,6 +485,15 @@ function getApiConnectorContainerTemplate(namespace: NamespaceDocument): V1Conta
       valueFrom: { secretKeyRef: { key: 'NATS_CONNECTION_STRING', name: 'nodejs' } },
     },
     { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
+    {
+      name: 'WHERE',
+      value: JSON.stringify({
+        authorizations: {
+          $or: [{ namespaceId: { $exists: false } }, { namespaceId: namespace._id }],
+        },
+        namespaces: { _id: namespace._id },
+      }),
+    },
   ];
   const resources = { requests: { cpu: '25m', memory: '75M' } };
 

@@ -34,8 +34,8 @@ describe('watch', function () {
     await Model.bulkWrite(operations);
 
     // Make sure records are received by NATS.
-    const options = { deliver_policy: DeliverPolicy.All };
-    const subscription = await nats.subscribe('cdc', 'cdc-test.examples', options);
+    const options = { deliver_policy: DeliverPolicy.All, durable_name: 'cdc' };
+    const subscription = await nats.subscribe('cdc-test.examples', options);
     for await (const message of subscription) {
       const data = new TextDecoder().decode(message.data);
       const json = JSON.parse(data);

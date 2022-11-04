@@ -17,7 +17,7 @@ describe('publish()', function () {
       operationType: 'insert',
     };
 
-    const subscription = await nats.subscribe(chance.hash(), `${payload.ns.db}.${payload.ns.coll}`);
+    const subscription = await nats.subscribe(`${payload.ns.db}.${payload.ns.coll}`);
     await publish(payload);
 
     for await (const message of subscription) {

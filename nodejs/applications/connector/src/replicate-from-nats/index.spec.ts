@@ -5,9 +5,15 @@ import * as mongoose from 'mongoose';
 
 import { eachMessage } from './';
 
+interface Document extends mongoose.Document {
+  createdAt?: Date;
+  name?: string;
+  updatedAt?: Date;
+}
+
 const chance = new Chance();
 
-const schema = new mongoose.Schema({ createdAt: Date, name: String, updatedAt: Date });
+const schema = new mongoose.Schema<Document>({ createdAt: Date, name: String, updatedAt: Date });
 const Model = mongoose.model('example', schema);
 
 describe('replicateFromNats()', function () {
@@ -27,11 +33,7 @@ describe('replicateFromNats()', function () {
       const { coll, db } = payload.ns;
       const subject = `${db}.${coll}`;
 
-      await eachMessage(
-        Model.collection,
-        { durable: chance.hash(), start: new Date(), subject },
-        payload,
-      );
+      await eachMessage(Model, { durable: chance.hash(), start: new Date(), subject }, payload);
 
       const result = await Model.findOne({ _id: record._id });
       expect(result).to.eql(null);
@@ -55,11 +57,7 @@ describe('replicateFromNats()', function () {
       const { coll, db } = payload.ns;
       const subject = `${db}.${coll}`;
 
-      await eachMessage(
-        Model.collection,
-        { durable: chance.hash(), start: new Date(), subject },
-        payload,
-      );
+      await eachMessage(Model, { durable: chance.hash(), start: new Date(), subject }, payload);
 
       const result = (await Model.findOne({ _id: payload.fullDocument._id })) as any;
       expect(result._id.toString()).to.eql(payload.fullDocument._id.toString());
@@ -92,7 +90,7 @@ describe('replicateFromNats()', function () {
         const subject = `${db}.${coll}`;
 
         await eachMessage(
-          Model.collection,
+          Model,
           { durable: chance.hash(), start: new Date(), subject, useUpdateDescription: true },
           payload,
         );
@@ -125,11 +123,7 @@ describe('replicateFromNats()', function () {
         const { coll, db } = payload.ns;
         const subject = `${db}.${coll}`;
 
-        await eachMessage(
-          Model.collection,
-          { durable: chance.hash(), start: new Date(), subject },
-          payload,
-        );
+        await eachMessage(Model, { durable: chance.hash(), start: new Date(), subject }, payload);
 
         const result: any = await Model.findOne({ _id: record._id });
         expect(result._id.toString()).to.eql(payload.fullDocument._id.toString());

@@ -6,9 +6,10 @@ import { streamObjects } from './stream-objects';
 export async function removeBucket(bucketName: string, timeout = TIMEOUT): Promise<void> {
   const stream = await streamObjects(bucketName);
 
-  await new Promise<void>((resolve, reject) => {
+  await new Promise((resolve, reject) => {
+    const promises = [];
     stream.on('data', async (data) => await removeObject(bucketName, data.name));
-    stream.on('end', () => resolve());
+    stream.on('end', () => Promise.all(promises).then(resolve).catch(reject));
     stream.on('error', reject);
   });
 

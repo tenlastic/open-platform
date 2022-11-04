@@ -8,7 +8,6 @@ import {
   Storefront,
   User,
 } from '@tenlastic/aggregation-api';
-import '@tenlastic/logging';
 import * as mongoose from '@tenlastic/mongoose-models';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
@@ -22,30 +21,41 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
     console.log('Syncing indexes...');
     await Promise.all([
-      Authorization.syncIndexes({ background: true }),
-      Group.syncIndexes({ background: true }),
-      Namespace.syncIndexes({ background: true }),
-      QueueMember.syncIndexes({ background: true }),
-      Storefront.syncIndexes({ background: true }),
-      User.syncIndexes({ background: true }),
+      mongoose.syncIndexes(Authorization),
+      mongoose.syncIndexes(Group),
+      mongoose.syncIndexes(Namespace),
+      mongoose.syncIndexes(QueueMember),
+      mongoose.syncIndexes(mongoose.Schema),
+      mongoose.syncIndexes(Storefront),
+      mongoose.syncIndexes(User),
     ]);
     console.log('Indexes synced successfully!');
 
-    console.log('Enabling Document Pre- and Post-Images...');
-    const options = { changeStreamPreAndPostImages: { enabled: true } };
+    console.log('Syncing schemas...');
     await Promise.all([
-      Authorization.db.db.command({ collMod: Authorization.collection.name, ...options }),
-      Group.db.db.command({ collMod: Group.collection.name, ...options }),
-      Namespace.db.db.command({ collMod: Namespace.collection.name, ...options }),
-      QueueMember.db.db.command({ collMod: QueueMember.collection.name, ...options }),
-      Storefront.db.db.command({ collMod: Storefront.collection.name, ...options }),
-      User.db.db.command({ collMod: User.collection.name, ...options }),
+      mongoose.syncSchema(connection, Authorization),
+      mongoose.syncSchema(connection, Group),
+      mongoose.syncSchema(connection, Namespace),
+      mongoose.syncSchema(connection, QueueMember),
+      mongoose.syncSchema(connection, Storefront),
+      mongoose.syncSchema(connection, User),
     ]);
-    console.log('Document Pre- and Post-Images enabled successfully!');
+    console.log('Schemas synced successfully!');
 
     console.log('Setting feature compatibility version to 6.0...');
     await connection.db.admin().command({ setFeatureCompatibilityVersion: '6.0' });
     console.log('Feature compatibility version successfully set to 6.0!');
+
+    console.log('Enabling Document Pre- and Post-Images...');
+    await Promise.all([
+      mongoose.enablePrePostImages(Authorization),
+      mongoose.enablePrePostImages(Group),
+      mongoose.enablePrePostImages(Namespace),
+      mongoose.enablePrePostImages(QueueMember),
+      mongoose.enablePrePostImages(Storefront),
+      mongoose.enablePrePostImages(User),
+    ]);
+    console.log('Document Pre- and Post-Images enabled successfully!');
 
     process.exit();
   } catch (e) {
