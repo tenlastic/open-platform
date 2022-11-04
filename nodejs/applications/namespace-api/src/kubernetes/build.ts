@@ -1,5 +1,5 @@
 import { V1EnvFromSource, V1EnvVar } from '@kubernetes/client-node';
-import { networkPolicyApiV1, secretApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
+import { networkPolicyApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
 import { DatabaseOperationType } from '@tenlastic/mongoose-models';
 import { URL } from 'url';
 
@@ -17,13 +17,6 @@ export const KubernetesBuild = {
      * =======================
      */
     await networkPolicyApiV1.delete(name, 'dynamic');
-
-    /**
-     * ======================
-     * SECRET
-     * ======================
-     */
-    await secretApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
@@ -76,20 +69,6 @@ export const KubernetesBuild = {
 
     /**
      * ======================
-     * SECRET
-     * ======================
-     */
-    await secretApiV1.createOrReplace('dynamic', {
-      metadata: { labels: { ...labels, 'tenlastic.com/role': 'Application' }, name },
-      stringData: {
-        API_URL: `http://${namespaceName}-api.dynamic:3000`,
-        BUILD_ID: `${build._id}`,
-        NAMESPACE_ID: `${build.namespaceId}`,
-      },
-    });
-
-    /**
-     * ======================
      * WORKFLOW
      * ======================
      */
@@ -97,14 +76,7 @@ export const KubernetesBuild = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
           nodeSelectorTerms: [
-            {
-              matchExpressions: [
-                {
-                  key: 'tenlastic.com/low-priority',
-                  operator: 'Exists',
-                },
-              ],
-            },
+            { matchExpressions: [{ key: 'tenlastic.com/low-priority', operator: 'Exists' }] },
           ],
         },
       },
@@ -114,11 +86,13 @@ export const KubernetesBuild = {
         name: 'API_KEY',
         valueFrom: { secretKeyRef: { key: 'BUILDS', name: `${namespaceName}-api-keys` } },
       },
+      { name: 'API_URL', value: `http://${namespaceName}-api.dynamic:3000` },
+      { name: 'BUILD_ID', value: `${build._id}` },
+      { name: 'NAMESPACE_ID', value: `${build.namespaceId}` },
     ];
     const envFrom: V1EnvFromSource[] = [
       { secretRef: { name: 'nodejs' } },
       { secretRef: { name: namespaceName } },
-      { secretRef: { name } },
     ];
     const podLabels = {
       ...labels,
@@ -145,14 +119,7 @@ export const KubernetesBuild = {
           serviceAccountName: 'build',
           templates: [
             {
-              dag: {
-                tasks: [
-                  {
-                    name: 'copy-and-unzip-files',
-                    template: 'copy-and-unzip-files',
-                  },
-                ],
-              },
+              dag: { tasks: [{ name: 'copy-and-unzip-files', template: 'copy-and-unzip-files' }] },
               metadata: { labels: podLabels },
               name: 'entrypoint',
             },

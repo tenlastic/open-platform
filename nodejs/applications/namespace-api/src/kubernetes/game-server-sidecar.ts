@@ -1,5 +1,5 @@
-import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
-import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
+import { V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
+import { deploymentApiV1 } from '@tenlastic/kubernetes';
 
 import { version } from '../../package.json';
 import { GameServerDocument, GameServerStatusComponentName } from '../mongodb';
@@ -9,13 +9,6 @@ import { KubernetesNamespace } from './namespace';
 export const KubernetesGameServerSidecar = {
   delete: async (gameServer: GameServerDocument) => {
     const name = KubernetesGameServerSidecar.getName(gameServer);
-
-    /**
-     * ======================
-     * SECRET
-     * ======================
-     */
-    await secretApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
@@ -35,26 +28,11 @@ export const KubernetesGameServerSidecar = {
 
     /**
      * ======================
-     * SECRET
+     * DEPLOYMENT
      * ======================
      */
     const apiHost = `http://${namespaceName}-api.dynamic:3000`;
     const applicationSelector = `tenlastic.com/role=${GameServerStatusComponentName.Application}`;
-    await secretApiV1.createOrReplace('dynamic', {
-      metadata: { labels: { ...gameServerLabels }, name },
-      stringData: {
-        CONTAINER: 'main',
-        ENDPOINT: `${apiHost}/namespaces/${gameServer.namespaceId}/game-servers/${gameServer._id}`,
-        ENDPOINTS_LABEL_SELECTOR: `tenlastic.com/app=${gameServerName},${applicationSelector}`,
-        LABEL_SELECTOR: `tenlastic.com/app=${gameServerName}`,
-      },
-    });
-
-    /**
-     * ======================
-     * DEPLOYMENT
-     * ======================
-     */
     const affinity = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
@@ -78,8 +56,12 @@ export const KubernetesGameServerSidecar = {
         name: 'API_KEY',
         valueFrom: { secretKeyRef: { key: 'GAME_SERVERS', name: `${namespaceName}-api-keys` } },
       },
+      { name: 'CONTAINER', value: 'main' },
+      {
+        name: 'ENDPOINT',
+        value: `${apiHost}/namespaces/${gameServer.namespaceId}/game-servers/${gameServer._id}`,
+      },
     ];
-    const envFrom: V1EnvFromSource[] = [{ secretRef: { name } }];
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
@@ -98,8 +80,13 @@ export const KubernetesGameServerSidecar = {
           containers: [
             {
               command: ['npm', 'run', 'start'],
-              env,
-              envFrom,
+              env: [
+                ...env,
+                {
+                  name: 'LABEL_SELECTOR',
+                  value: `tenlastic.com/app=${gameServerName},${applicationSelector}`,
+                },
+              ],
               image: 'tenlastic/node-development:latest',
               name: 'endpoints-sidecar',
               resources: { requests: { cpu: '25m', memory: '50M' } },
@@ -108,8 +95,10 @@ export const KubernetesGameServerSidecar = {
             },
             {
               command: ['npm', 'run', 'start'],
-              env,
-              envFrom,
+              env: [
+                ...env,
+                { name: 'LABEL_SELECTOR', value: `tenlastic.com/app=${gameServerName}` },
+              ],
               image: 'tenlastic/node-development:latest',
               name: 'status-sidecar',
               resources: { requests: { cpu: '25m', memory: '50M' } },
@@ -136,15 +125,22 @@ export const KubernetesGameServerSidecar = {
           affinity,
           containers: [
             {
-              env,
-              envFrom,
+              env: [
+                ...env,
+                {
+                  name: 'LABEL_SELECTOR',
+                  value: `tenlastic.com/app=${gameServerName},${applicationSelector}`,
+                },
+              ],
               image: `tenlastic/endpoints-sidecar:${version}`,
               name: 'endpoints-sidecar',
               resources: { requests: { cpu: '25m', memory: '50M' } },
             },
             {
-              env,
-              envFrom,
+              env: [
+                ...env,
+                { name: 'LABEL_SELECTOR', value: `tenlastic.com/app=${gameServerName}` },
+              ],
               image: `tenlastic/status-sidecar:${version}`,
               name: 'status-sidecar',
               resources: { requests: { cpu: '25m', memory: '50M' } },

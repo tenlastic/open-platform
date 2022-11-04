@@ -1,5 +1,5 @@
-import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
-import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
+import { V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
+import { deploymentApiV1 } from '@tenlastic/kubernetes';
 
 import { version } from '../../package.json';
 import { BuildDocument } from '../mongodb';
@@ -9,13 +9,6 @@ import { KubernetesNamespace } from './namespace';
 export const KubernetesBuildSidecar = {
   delete: async (build: BuildDocument) => {
     const name = KubernetesBuildSidecar.getName(build);
-
-    /**
-     * ======================
-     * SECRET
-     * ======================
-     */
-    await secretApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
@@ -35,36 +28,16 @@ export const KubernetesBuildSidecar = {
 
     /**
      * ======================
-     * SECRET
+     * DEPLOYMENT
      * ======================
      */
     const { _id, namespaceId } = build;
     const host = `${namespaceName}-api.dynamic:3000`;
-    await secretApiV1.createOrReplace('dynamic', {
-      metadata: { labels: { ...buildLabels }, name },
-      stringData: {
-        ENDPOINT: `http://${host}/namespaces/${namespaceId}/builds/${_id}`,
-        WORKFLOW_NAME: buildName,
-      },
-    });
-
-    /**
-     * ======================
-     * DEPLOYMENT
-     * ======================
-     */
     const affinity = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
           nodeSelectorTerms: [
-            {
-              matchExpressions: [
-                {
-                  key: 'tenlastic.com/low-priority',
-                  operator: 'Exists',
-                },
-              ],
-            },
+            { matchExpressions: [{ key: 'tenlastic.com/low-priority', operator: 'Exists' }] },
           ],
         },
       },
@@ -74,8 +47,9 @@ export const KubernetesBuildSidecar = {
         name: 'API_KEY',
         valueFrom: { secretKeyRef: { key: 'BUILDS', name: `${namespaceName}-api-keys` } },
       },
+      { name: 'ENDPOINT', value: `http://${host}/namespaces/${namespaceId}/builds/${_id}` },
+      { name: 'WORKFLOW_NAME', value: buildName },
     ];
-    const envFrom: V1EnvFromSource[] = [{ secretRef: { name } }];
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
@@ -92,7 +66,6 @@ export const KubernetesBuildSidecar = {
             {
               command: ['npm', 'run', 'start'],
               env,
-              envFrom,
               image: 'tenlastic/node-development:latest',
               name: 'workflow-status-sidecar',
               resources: { requests: { cpu: '25m', memory: '50M' } },
@@ -117,7 +90,6 @@ export const KubernetesBuildSidecar = {
           containers: [
             {
               env,
-              envFrom,
               image: `tenlastic/workflow-status-sidecar:${version}`,
               name: 'workflow-status-sidecar',
               resources: { requests: { cpu: '25m', memory: '50M' } },

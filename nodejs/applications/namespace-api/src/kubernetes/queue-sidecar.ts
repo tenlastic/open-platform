@@ -1,5 +1,5 @@
-import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
-import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
+import { V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
+import { deploymentApiV1 } from '@tenlastic/kubernetes';
 
 import { version } from '../../package.json';
 import { QueueDocument, QueueStatusComponentName } from '../mongodb';
@@ -9,13 +9,6 @@ import { KubernetesQueue } from './queue';
 export const KubernetesQueueSidecar = {
   delete: async (queue: QueueDocument) => {
     const name = KubernetesQueueSidecar.getName(queue);
-
-    /**
-     * ======================
-     * SECRET
-     * ======================
-     */
-    await secretApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
@@ -35,23 +28,10 @@ export const KubernetesQueueSidecar = {
 
     /**
      * ======================
-     * SECRET
-     * ======================
-     */
-    const apiHost = `http://${namespaceName}-api.dynamic:3000`;
-    await secretApiV1.createOrReplace('dynamic', {
-      metadata: { labels: { ...queueLabels }, name },
-      stringData: {
-        ENDPOINT: `${apiHost}/namespaces/${queue.namespaceId}/queues/${queue._id}`,
-        LABEL_SELECTOR: `tenlastic.com/app=${queueName}`,
-      },
-    });
-
-    /**
-     * ======================
      * DEPLOYMENT
      * ======================
      */
+    const apiHost = `http://${namespaceName}-api.dynamic:3000`;
     const affinity = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
@@ -75,8 +55,9 @@ export const KubernetesQueueSidecar = {
         name: 'API_KEY',
         valueFrom: { secretKeyRef: { key: 'QUEUES', name: `${namespaceName}-api-keys` } },
       },
+      { name: 'ENDPOINT', value: `${apiHost}/namespaces/${queue.namespaceId}/queues/${queue._id}` },
+      { name: 'LABEL_SELECTOR', value: `tenlastic.com/app=${queueName}` },
     ];
-    const envFrom: V1EnvFromSource[] = [{ secretRef: { name } }];
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
@@ -93,7 +74,6 @@ export const KubernetesQueueSidecar = {
             {
               command: ['npm', 'run', 'start'],
               env,
-              envFrom,
               image: 'tenlastic/node-development:latest',
               name: 'status-sidecar',
               resources: { requests: { cpu: '25m', memory: '50M' } },
@@ -118,7 +98,6 @@ export const KubernetesQueueSidecar = {
           containers: [
             {
               env,
-              envFrom,
               image: `tenlastic/status-sidecar:${version}`,
               name: 'status-sidecar',
               resources: { requests: { cpu: '25m', memory: '50M' } },

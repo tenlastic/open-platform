@@ -13,7 +13,7 @@ export class NamespaceStatusComponentMock {
 
     const defaults = {
       current: chance.integer({ min: 0 }),
-      name: NamespaceStatusComponentName.Api,
+      name: NamespaceStatusComponentName.API,
       phase: NamespaceStatusPhase.Running,
       total: chance.integer({ min: 0 }),
     };

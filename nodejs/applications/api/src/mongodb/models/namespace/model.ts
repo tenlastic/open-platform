@@ -35,19 +35,19 @@ import {
   this.status.components = [
     new NamespaceStatusComponent({
       current: 0,
-      name: NamespaceStatusComponentName.Api,
+      name: NamespaceStatusComponentName.API,
+      phase: NamespaceStatusPhase.Pending,
+      total: 1,
+    }),
+    new NamespaceStatusComponent({
+      current: 0,
+      name: NamespaceStatusComponentName.CDC,
       phase: NamespaceStatusPhase.Pending,
       total: 1,
     }),
     new NamespaceStatusComponent({
       current: 0,
       name: NamespaceStatusComponentName.Connector,
-      phase: NamespaceStatusPhase.Pending,
-      total: 1,
-    }),
-    new NamespaceStatusComponent({
-      current: 0,
-      name: NamespaceStatusComponentName.Cdc,
       phase: NamespaceStatusPhase.Pending,
       total: 1,
     }),

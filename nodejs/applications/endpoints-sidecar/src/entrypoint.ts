@@ -8,7 +8,7 @@ import { getEndpoints } from './get-endpoints';
 const apiKey = process.env.API_KEY;
 const container = process.env.CONTAINER;
 const endpoint = process.env.ENDPOINT;
-const labelSelector = process.env.ENDPOINTS_LABEL_SELECTOR;
+const labelSelector = process.env.LABEL_SELECTOR;
 
 const pods: { [key: string]: V1Pod } = {};
 

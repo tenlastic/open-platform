@@ -1,5 +1,5 @@
-import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
-import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
+import { V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
+import { deploymentApiV1 } from '@tenlastic/kubernetes';
 
 import { version } from '../../package.json';
 import { WorkflowDocument } from '../mongodb';
@@ -9,13 +9,6 @@ import { KubernetesWorkflow } from './workflow';
 export const KubernetesWorkflowSidecar = {
   delete: async (workflow: WorkflowDocument) => {
     const name = KubernetesWorkflowSidecar.getName(workflow);
-
-    /**
-     * ======================
-     * SECRET
-     * ======================
-     */
-    await secretApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
@@ -35,24 +28,11 @@ export const KubernetesWorkflowSidecar = {
 
     /**
      * ======================
-     * SECRET
+     * DEPLOYMENT
      * ======================
      */
     const { _id, namespaceId } = workflow;
     const host = `${namespaceName}-api.dynamic:3000`;
-    await secretApiV1.createOrReplace('dynamic', {
-      metadata: { labels: { ...workflowLabels }, name },
-      stringData: {
-        ENDPOINT: `http://${host}/namespaces/${namespaceId}/workflows/${_id}`,
-        WORKFLOW_NAME: workflowName,
-      },
-    });
-
-    /**
-     * ======================
-     * DEPLOYMENT
-     * ======================
-     */
     const affinity = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
@@ -74,8 +54,9 @@ export const KubernetesWorkflowSidecar = {
         name: 'API_KEY',
         valueFrom: { secretKeyRef: { key: 'WORKFLOWS', name: `${namespaceName}-api-keys` } },
       },
+      { name: 'ENDPOINT', value: `http://${host}/namespaces/${namespaceId}/workflows/${_id}` },
+      { name: 'WORKFLOW_NAME', value: workflowName },
     ];
-    const envFrom: V1EnvFromSource[] = [{ secretRef: { name } }];
 
     // If application is running locally, create debug containers.
     // If application is running in production, create production containers.
@@ -92,7 +73,6 @@ export const KubernetesWorkflowSidecar = {
             {
               command: ['npm', 'run', 'start'],
               env,
-              envFrom,
               image: 'tenlastic/node-development:latest',
               name: 'workflow-status-sidecar',
               resources: { requests: { cpu: '25m', memory: '50M' } },
@@ -117,7 +97,6 @@ export const KubernetesWorkflowSidecar = {
           containers: [
             {
               env,
-              envFrom,
               image: `tenlastic/workflow-status-sidecar:${version}`,
               name: 'workflow-status-sidecar',
               resources: { requests: { cpu: '25m', memory: '50M' } },

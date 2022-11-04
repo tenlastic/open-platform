@@ -12,7 +12,7 @@ export class NamespaceStatusNodeMock {
    */
   public static create(params: Partial<NamespaceStatusNodeSchema> = {}) {
     const defaults = {
-      component: NamespaceStatusComponentName.Api,
+      component: NamespaceStatusComponentName.API,
       container: chance.hash(),
       phase: NamespaceStatusPhase.Running,
       pod: chance.hash(),

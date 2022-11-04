@@ -5,7 +5,7 @@ import {
   V1PodTemplateSpec,
   V1Probe,
 } from '@kubernetes/client-node';
-import { networkPolicyApiV1, secretApiV1, statefulSetApiV1 } from '@tenlastic/kubernetes';
+import { networkPolicyApiV1, statefulSetApiV1 } from '@tenlastic/kubernetes';
 
 import { version } from '../../package.json';
 import { QueueDocument, QueueStatusComponentName } from '../mongodb';
@@ -21,13 +21,6 @@ export const KubernetesQueue = {
      * =======================
      */
     await networkPolicyApiV1.delete(name, 'dynamic');
-
-    /**
-     * =======================
-     * SECRET
-     * =======================
-     */
-    await secretApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
@@ -68,20 +61,6 @@ export const KubernetesQueue = {
 
     /**
      * ======================
-     * SECRET
-     * ======================
-     */
-    await secretApiV1.createOrReplace('dynamic', {
-      metadata: { labels: { ...labels }, name },
-      stringData: {
-        API_URL: `http://${namespaceName}-api.dynamic:3000`,
-        QUEUE_JSON: JSON.stringify(queue),
-        WSS_URL: `ws://${namespaceName}-api.dynamic:3000`,
-      },
-    });
-
-    /**
-     * ======================
      * STATEFUL SET
      * ======================
      */
@@ -90,12 +69,14 @@ export const KubernetesQueue = {
         name: 'API_KEY',
         valueFrom: { secretKeyRef: { key: 'QUEUES', name: `${namespaceName}-api-keys` } },
       },
+      { name: 'API_URL', value: `http://${namespaceName}-api.dynamic:3000` },
       { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
+      { name: 'QUEUE_JSON', value: JSON.stringify(queue) },
+      { name: 'WSS_URL', value: `ws://${namespaceName}-api.dynamic:3000` },
     ];
     const envFrom: V1EnvFromSource[] = [
       { secretRef: { name: 'nodejs' } },
       { secretRef: { name: namespaceName } },
-      { secretRef: { name } },
     ];
     const livenessProbe: V1Probe = {
       failureThreshold: 3,

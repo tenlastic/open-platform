@@ -1,5 +1,5 @@
 import { V1EnvFromSource, V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
-import { deploymentApiV1, secretApiV1 } from '@tenlastic/kubernetes';
+import { deploymentApiV1 } from '@tenlastic/kubernetes';
 
 import { version } from '../../package.json';
 import { NamespaceDocument, NamespaceStatusComponentName } from '../mongodb';
@@ -8,13 +8,6 @@ import { KubernetesNamespace } from './namespace';
 export const KubernetesNamespaceSidecar = {
   delete: async (namespace: NamespaceDocument) => {
     const name = KubernetesNamespaceSidecar.getName(namespace);
-
-    /**
-     * ======================
-     * SECRET
-     * ======================
-     */
-    await secretApiV1.delete(name, 'dynamic');
 
     /**
      * ======================
@@ -30,20 +23,6 @@ export const KubernetesNamespaceSidecar = {
     const name = KubernetesNamespaceSidecar.getName(namespace);
     const namespaceLabels = KubernetesNamespace.getLabels(namespace);
     const namespaceName = KubernetesNamespace.getName(namespace._id);
-
-    /**
-     * ======================
-     * SECRET
-     * ======================
-     */
-    await secretApiV1.createOrReplace('dynamic', {
-      metadata: { labels: { ...namespaceLabels }, name },
-      stringData: {
-        ENDPOINT: `http://api.static:3000/namespaces/${namespace._id}`,
-        MONGO_DATABASE_NAME: namespaceName,
-        LABEL_SELECTOR: `tenlastic.com/app=${namespaceName}`,
-      },
-    });
 
     /**
      * ======================
@@ -71,11 +50,12 @@ export const KubernetesNamespaceSidecar = {
         name: 'API_KEY',
         valueFrom: { secretKeyRef: { key: 'NAMESPACES', name: `${namespaceName}-api-keys` } },
       },
+      { name: 'ENDPOINT', value: `http://api.static:3000/namespaces/${namespace._id}` },
+      { name: 'LABEL_SELECTOR', value: `tenlastic.com/app=${namespaceName}` },
     ];
     const envFrom: V1EnvFromSource[] = [
       { secretRef: { name: 'nodejs' } },
       { secretRef: { name: namespaceName } },
-      { secretRef: { name } },
     ];
 
     // If application is running locally, create debug containers.
