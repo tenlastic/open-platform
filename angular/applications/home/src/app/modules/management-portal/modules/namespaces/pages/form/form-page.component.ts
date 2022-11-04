@@ -18,13 +18,6 @@ import { FormService, IdentityService } from '../../../../../../core/services';
   styleUrls: ['./form-page.component.scss'],
 })
 export class NamespacesFormPageComponent implements OnDestroy, OnInit {
-  public components = {
-    api: 'API',
-    cdc: 'CDC',
-    connector: 'Connector',
-    metrics: 'Metrics',
-    sidecar: 'Sidecar',
-  };
   public data: NamespaceModel;
   public errors: string[] = [];
   public form: FormGroup;

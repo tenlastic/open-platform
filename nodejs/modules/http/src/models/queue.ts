@@ -21,6 +21,11 @@ export namespace IQueue {
     { label: '5', value: 5 },
   ];
 
+  export enum StatusComponentName {
+    Application = 'Application',
+    Sidecar = 'Sidecar',
+  }
+
   export interface GameServerTemplate {
     buildId: string;
     cpu: number;
@@ -39,13 +44,13 @@ export namespace IQueue {
 
   export interface StatusComponent {
     current: number;
-    name: string;
+    name: StatusComponentName;
     phase: string;
     total: number;
   }
 
   export interface StatusNode {
-    component: string;
+    component: StatusComponentName;
     container: string;
     phase: string;
     pod: string;

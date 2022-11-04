@@ -19,6 +19,7 @@ import {
   StreamService,
   BuildQuery,
   BuildService,
+  IGameServer,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -187,11 +188,17 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   private getNodes(gameServer: GameServerModel) {
     return gameServer.status?.nodes
       .map((n) => {
-        let label = 'Game Server';
-        if (n.component === 'sidecar' && n.container === 'endpoints-sidecar') {
-          label = 'Sidecar (Endpoints)';
-        } else if (n.component === 'sidecar' && n.container === 'status-sidecar') {
-          label = 'Sidecar (Status)';
+        let label: string = 'Game Server';
+        if (
+          n.component === IGameServer.StatusComponentName.Sidecar &&
+          n.container === 'endpoints-sidecar'
+        ) {
+          label = `${IGameServer.StatusComponentName.Sidecar} (Endpoints)`;
+        } else if (
+          n.component === IGameServer.StatusComponentName.Sidecar &&
+          n.container === 'status-sidecar'
+        ) {
+          label = `${IGameServer.StatusComponentName.Sidecar} (Status)`;
         }
 
         return { container: n.container, label: label, pod: n.pod };

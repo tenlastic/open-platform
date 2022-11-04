@@ -33,10 +33,6 @@ interface PropertyFormGroup {
 })
 export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public builds: BuildModel[];
-  public components = {
-    application: 'Application',
-    sidecar: 'Sidecar',
-  };
   public get cpus() {
     const limit = this.namespace.limits?.cpu ? this.namespace.limits.cpu : Infinity;
     return this.namespace.limits?.cpu

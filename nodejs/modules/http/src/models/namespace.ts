@@ -1,6 +1,14 @@
 import { BaseModel } from './base';
 
 export namespace INamespace {
+  export enum StatusComponentName {
+    API = 'API',
+    CDC = 'CDC',
+    Connector = 'Connector',
+    Metrics = 'Metrics',
+    Sidecar = 'Sidecar',
+  }
+
   export interface Limits {
     bandwidth?: number;
     cpu?: number;
@@ -19,7 +27,7 @@ export namespace INamespace {
 
   export interface StatusComponent {
     current: number;
-    name: string;
+    name: StatusComponentName;
     phase: string;
     total: number;
   }
@@ -32,7 +40,7 @@ export namespace INamespace {
   }
 
   export interface StatusNode {
-    component: string;
+    component: StatusComponentName;
     container: string;
     phase: string;
     pod: string;

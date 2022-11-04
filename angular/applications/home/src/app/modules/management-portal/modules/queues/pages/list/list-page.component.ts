@@ -19,6 +19,7 @@ import {
   StreamService,
   BuildQuery,
   BuildService,
+  IQueue,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -175,7 +176,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     return queue.status?.nodes
       .map((n) => {
         let label = 'Queue';
-        if (n.component === 'sidecar') {
+        if (n.component === IQueue.StatusComponentName.Sidecar) {
           label = 'Sidecar';
         }
 

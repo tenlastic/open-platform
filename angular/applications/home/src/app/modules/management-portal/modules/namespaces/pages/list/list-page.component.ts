@@ -8,6 +8,7 @@ import { Order } from '@datorama/akita';
 import {
   AuthorizationQuery,
   IAuthorization,
+  INamespace,
   NamespaceLogModel,
   NamespaceLogQuery,
   NamespaceLogService,
@@ -150,19 +151,32 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
   private getNodes(namespace: NamespaceModel) {
     return namespace.status?.nodes
       .map((n) => {
-        let label = 'API';
-        if (n.component === 'cdc') {
-          label = 'CDC';
-        } else if (n.component === 'connector' && n.container === 'aggregation-api') {
-          label = 'Connector (Aggregation API)';
-        } else if (n.component === 'connector' && n.container === 'api') {
-          label = 'Connector (API)';
-        } else if (n.component === 'metrics') {
-          label = 'Metrics';
-        } else if (n.component === 'sidecar' && n.container === 'namespace-api-migrations') {
-          label = 'Sidecar (Migrations)';
-        } else if (n.component === 'sidecar' && n.container === 'status-sidecar') {
-          label = 'Sidecar (Status)';
+        let label: string = INamespace.StatusComponentName.API;
+
+        if (n.component === INamespace.StatusComponentName.CDC) {
+          label = INamespace.StatusComponentName.CDC;
+        } else if (
+          n.component === INamespace.StatusComponentName.Connector &&
+          n.container === 'aggregation-api'
+        ) {
+          label = `${INamespace.StatusComponentName.Connector} (Aggregation API)`;
+        } else if (
+          n.component === INamespace.StatusComponentName.Connector &&
+          n.container === 'api'
+        ) {
+          label = `${INamespace.StatusComponentName.Connector} (API)`;
+        } else if (n.component === INamespace.StatusComponentName.Metrics) {
+          label = INamespace.StatusComponentName.Metrics;
+        } else if (
+          n.component === INamespace.StatusComponentName.Sidecar &&
+          n.container === 'namespace-api-migrations'
+        ) {
+          label = `${INamespace.StatusComponentName.Sidecar} (Migrations)`;
+        } else if (
+          n.component === INamespace.StatusComponentName.Sidecar &&
+          n.container === 'status-sidecar'
+        ) {
+          label = `${INamespace.StatusComponentName.Sidecar} (Status)`;
         }
 
         return { container: n.container, label, pod: n.pod };

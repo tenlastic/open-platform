@@ -123,7 +123,7 @@ export const KubernetesQueue = {
           name,
         },
         spec: {
-          affinity: getAffinity(queue, 'application'),
+          affinity: getAffinity(queue, QueueStatusComponentName.Application),
           containers: [
             {
               command: ['npm', 'run', 'start'],
@@ -151,7 +151,7 @@ export const KubernetesQueue = {
           name,
         },
         spec: {
-          affinity: getAffinity(queue, 'application'),
+          affinity: getAffinity(queue, QueueStatusComponentName.Application),
           containers: [
             {
               env,
@@ -186,7 +186,7 @@ export const KubernetesQueue = {
   },
 };
 
-function getAffinity(queue: QueueDocument, role: string): V1Affinity {
+function getAffinity(queue: QueueDocument, role: QueueStatusComponentName): V1Affinity {
   const name = KubernetesQueue.getName(queue);
 
   return {

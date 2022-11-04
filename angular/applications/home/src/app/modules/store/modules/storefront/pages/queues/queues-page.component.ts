@@ -13,10 +13,10 @@ import {
   QueueService,
   StreamService,
 } from '@tenlastic/http';
-import { environment } from 'applications/home/src/environments/environment';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
+import { environment } from '../../../../../../../environments/environment';
 import { IdentityService } from '../../../../../../core/services';
 
 @Component({

@@ -16,6 +16,11 @@ export namespace IGameServer {
     { label: '5 GB', value: 5 * 1000 * 1000 * 1000 },
   ];
 
+  export enum StatusComponentName {
+    Application = 'Application',
+    Sidecar = 'Sidecar',
+  }
+
   export interface Endpoints {
     tcp?: string;
     udp?: string;
@@ -33,13 +38,13 @@ export namespace IGameServer {
 
   export interface StatusComponent {
     current: number;
-    name: string;
+    name: StatusComponentName;
     phase: string;
     total: number;
   }
 
   export interface StatusNode {
-    component: string;
+    component: StatusComponentName;
     container: string;
     phase: string;
     pod: string;
