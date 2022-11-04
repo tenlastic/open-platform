@@ -138,23 +138,25 @@ export class AppComponent implements OnInit {
       }
     });
 
-    // Load previous url if set.
-    const url = localStorage.getItem('url');
-    if (url && this.electronService.isElectron) {
-      this.router.navigateByUrl(url);
-    }
-
-    // Remember url when changing pages.
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        localStorage.setItem('url', event.url);
-      }
-    });
-
     // Clear stores on logout.
     this.loginService.emitter.on('logout', () => resetStores());
 
     this.fetchMissingRecords();
+
+    if (this.electronService.isElectron) {
+      // Remember URL when changing pages.
+      this.router.events.subscribe((event) => {
+        if (event instanceof NavigationEnd) {
+          localStorage.setItem('url', event.url);
+        }
+      });
+
+      // Return to the previous URL.
+      const url = localStorage.getItem('url');
+      if (url) {
+        await this.router.navigateByUrl(url);
+      }
+    }
   }
 
   public fetchMissingRecords() {

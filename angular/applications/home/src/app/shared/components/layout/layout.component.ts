@@ -49,7 +49,7 @@ export class LayoutComponent implements OnInit {
   }
 
   private previousUrl: string;
-  private urls: { [key: string]: string } = {};
+  private urls = new Map<string, string>();
 
   constructor(
     private authorizationService: AuthorizationService,
@@ -76,9 +76,9 @@ export class LayoutComponent implements OnInit {
         const previousUrl = this.getUrl(this.previousUrl);
 
         if (currentUrl !== previousUrl) {
-          this.urls[previousUrl] = this.previousUrl;
+          this.urls.set(previousUrl, this.previousUrl);
 
-          const url = this.urls[currentUrl];
+          const url = this.urls.get(currentUrl);
           if (url) {
             this.router.navigateByUrl(url);
           }
@@ -88,7 +88,13 @@ export class LayoutComponent implements OnInit {
       }
     });
 
-    this.tokenService.emitter.on('accessToken', () => this.find());
+    this.tokenService.emitter.on('accessToken', (accessToken) => {
+      if (accessToken) {
+        this.find();
+      } else {
+        this.urls.clear();
+      }
+    });
     await this.find();
   }
 

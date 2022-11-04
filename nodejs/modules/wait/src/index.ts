@@ -7,6 +7,7 @@ export default async function wait(
   interval: number,
   timeout: number,
   criteria: () => any,
+  error = new Error('Criteria did not resolve within given timeout.'),
 ): Promise<any> {
   const start = Date.now();
 
@@ -19,10 +20,10 @@ export default async function wait(
 
   const duration = Date.now() - start;
   if (duration >= timeout) {
-    throw new Error('Criteria did not resolve within given timeout.');
+    throw error;
   }
 
   await new Promise((resolve) => setTimeout(resolve, interval));
 
-  return wait(interval, timeout - interval - duration, criteria);
+  return wait(interval, timeout - interval - duration, criteria, error);
 }

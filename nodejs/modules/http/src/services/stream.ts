@@ -58,11 +58,12 @@ export class StreamService {
   constructor(private environmentService: EnvironmentService, private tokenService: TokenService) {}
 
   public close(url: string) {
-    // Remove cached subscriptions for this URL.
     this.subscriptions = this.subscriptions.filter((s) => s.url !== url);
 
     const socket = this.webSockets.get(url);
     socket?.close(1000);
+
+    this.webSockets.delete(url);
   }
 
   public async connect(url: string) {
