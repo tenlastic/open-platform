@@ -48,6 +48,7 @@ export namespace IAuthorization {
 
 export class AuthorizationModel extends BaseModel {
   public apiKey: string;
+  public ban: boolean;
   public name: string;
   public namespaceId: string;
   public roles: IAuthorization.Role[];

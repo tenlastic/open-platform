@@ -521,6 +521,48 @@ describe('is-json-valid', function () {
       });
     });
 
+    describe('$not', function () {
+      it('returns true', function () {
+        const json = {
+          user: {
+            names: [
+              { first: 'first', last: 'first' },
+              { first: 'second', last: 'second' },
+            ],
+          },
+        };
+        const query = {
+          'user.names': {
+            $not: { $elemMatch: { first: { $eq: 'first' }, last: { $eq: 'second' } } },
+          },
+        };
+
+        const result = isJsonValid(json, query);
+
+        expect(result).to.eql(true);
+      });
+
+      it('returns false', function () {
+        const json = {
+          user: {
+            names: [
+              { first: 'first', last: 'first' },
+              { first: 'second', last: 'second' },
+            ],
+          },
+        };
+        const query = {
+          'user.names': {
+            $not: { $elemMatch: { first: { $eq: 'first' }, last: { $eq: 'first' } } },
+          },
+        };
+
+        const result = isJsonValid(json, query);
+
+        expect(result).to.eql(false);
+      });
+    });
+
     describe('$or', function () {
       it('returns true', function () {
         const json = { user: { age: 5, name: 'Test User' } };

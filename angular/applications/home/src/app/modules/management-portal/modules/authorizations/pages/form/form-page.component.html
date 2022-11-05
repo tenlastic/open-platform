@@ -41,6 +41,15 @@
 
       <ng-container *ngIf="type === AuthorizationType.User">
         <app-autocomplete-user-field [control]="form.get('user')"></app-autocomplete-user-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Ban</mat-label>
+          <mat-select formControlName="ban">
+            <mat-option [value]="true">Yes</mat-option>
+            <mat-option [value]="false">No</mat-option>
+          </mat-select>
+          <mat-error>Choose a type.</mat-error>
+        </mat-form-field>
       </ng-container>
     </div>
 

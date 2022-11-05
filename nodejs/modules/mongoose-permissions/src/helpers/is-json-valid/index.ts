@@ -3,41 +3,49 @@ import * as mongoose from 'mongoose';
 import { getPropertyByDotNotation } from '../get-property-by-dot-notation';
 import { substituteReferenceValues } from '../substitute-reference-values';
 
+const operations = { $elemMatch, $eq, $exists, $gt, $gte, $in, $lt, $lte, $ne, $nin, $regex };
+
 /**
  * Determines if the query matches the JSON object.
  */
-export function isJsonValid(json: any, query: any, and = true) {
+export function isJsonValid(json: any, query: any, and = true): boolean {
   const substitutedQuery = substituteReferenceValues(query, json);
 
-  const results = Object.keys(substitutedQuery).map((key) => {
-    const operations = substitutedQuery[key];
-
+  const results = Object.entries<any>(substitutedQuery).map(([key, value]) => {
+    // If key is $and or $or, check if each subquery is valid.
     if (key === '$and') {
-      return operations.map((o) => isJsonValid(json, o)).every((f) => f);
+      return value.map((o) => isJsonValid(json, o)).every((f) => f);
     } else if (key === '$or') {
-      return operations.map((o) => isJsonValid(json, o, false)).includes(true);
+      return value.map((o) => isJsonValid(json, o, false)).includes(true);
     }
 
-    const map = { $elemMatch, $eq, $exists, $gt, $gte, $in, $lt, $lte, $ne, $nin, $regex };
+    // If the value is null or undefined, default to equality check.
+    if (value === null || value === undefined) {
+      return $eq(json, key, value);
+    }
 
-    const isNotOperator = Object.keys(map).includes(key) === false;
+    // If the key is not an operation and the value does not contain operations,
+    // default to equality check.
+    const isOperation = key === '$not' || Object.keys(operations).includes(key);
     if (
-      operations === null ||
-      operations === undefined ||
-      (isNotOperator && Object.keys(operations).some((o) => Object.keys(map).includes(o)) === false)
+      !isOperation &&
+      !Object.keys(value).some((o) => o === '$not' || Object.keys(operations).includes(o))
     ) {
-      return $eq(json, key, operations);
+      return $eq(json, key, value);
     }
 
-    return Object.keys(operations).map((operator) => {
-      const value = operations[operator];
-      const operation = map[operator];
+    return Object.keys(value).map((operator) => {
+      if (operator === '$not') {
+        const subquery = value[operator];
+        return !isJsonValid(json, { [key]: subquery });
+      }
 
+      const operation = operations[operator];
       if (!operation) {
         throw new Error(`Operation not supported: ${operator}.`);
       }
 
-      return operation(json, key, value);
+      return operation(json, key, value[operator]);
     });
   });
 
@@ -183,9 +191,6 @@ function $lte(json: any, key: string, value: any) {
  */
 function $ne(json: any, key: string, value: any) {
   const reference = getPropertyByDotNotation(json, key);
-  if (reference === undefined) {
-    return false;
-  }
 
   if (reference && reference.constructor === Array && value?.constructor !== Array) {
     return !reference.includes(value);

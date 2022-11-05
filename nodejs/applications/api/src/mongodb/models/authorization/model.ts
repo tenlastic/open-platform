@@ -45,6 +45,7 @@ export enum AuthorizationRole {
 }
 
 @index({ apiKey: 1 }, { partialFilterExpression: { apiKey: { $exists: true } }, unique: true })
+@index({ ban: 1 })
 @index(
   { name: 1, namespaceId: 1 },
   { partialFilterExpression: { name: { $exists: true } }, unique: true },
@@ -61,6 +62,10 @@ export enum AuthorizationRole {
     this.invalidate('apiKey', message, this.apiKey);
     this.invalidate('namespaceId', message, this.namespaceId);
     this.invalidate('userId', message, this.userId);
+  } else if (this.apiKey && this.ban) {
+    const message = 'API Keys cannot be banned.';
+    this.invalidate('apiKey', message, this.apiKey);
+    this.invalidate('ban', message, this.ban);
   } else if (this.apiKey && !this.name) {
     const message = 'API Keys must have a name.';
     this.invalidate('apiKey', message, this.apiKey);
@@ -77,6 +82,11 @@ export enum AuthorizationRole {
     const message = 'Name can only be specified with an API Key.';
     this.invalidate('apiKey', message, this.apiKey);
     this.invalidate('name', message, this.name);
+  } else if (!this.apiKey && this.ban && !this.userId) {
+    const message = 'Default Authorizations cannot be banned.';
+    this.invalidate('apiKey', message, this.apiKey);
+    this.invalidate('ban', message, this.ban);
+    this.invalidate('userId', message, this.userId);
   }
 
   this.validateRoles();
@@ -86,6 +96,9 @@ export class AuthorizationSchema {
 
   @prop({ type: String })
   public apiKey: string;
+
+  @prop({ type: Boolean })
+  public ban: string;
 
   public createdAt: Date;
 

@@ -8,6 +8,8 @@ components:
           format: ^[0-9a-f]{24}$
         apiKey:
           type: string
+        ban:
+          type: string
         createdAt:
           type: string
           format: date-time

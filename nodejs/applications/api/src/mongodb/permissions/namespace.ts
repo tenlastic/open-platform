@@ -22,12 +22,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     'user-read': {},
     'user-write': {},
   },
-  populate: [
-    {
-      match: { $or: [{ apiKey: { $ref: 'apiKey' } }, { userId: { $ref: 'user._id' } }] },
-      path: 'authorizationDocuments',
-    },
-  ],
+  populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
     default: ['_id', 'createdAt', 'name', 'updatedAt'],
     'namespace-read': administrator.read,
@@ -70,7 +65,6 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
         AuthorizationRole.NamespacesReadWrite,
       ]),
     },
-
     {
       name: 'namespace-read',
       query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([

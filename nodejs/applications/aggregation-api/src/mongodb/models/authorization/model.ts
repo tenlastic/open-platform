@@ -50,6 +50,9 @@ export class AuthorizationSchema {
   @prop({ type: String })
   public apiKey: string;
 
+  @prop({ type: Boolean })
+  public ban: string;
+
   public createdAt: Date;
 
   @prop({ ref: 'NamespaceSchema', type: mongoose.Schema.Types.ObjectId })
