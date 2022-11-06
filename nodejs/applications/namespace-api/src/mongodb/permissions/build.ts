@@ -39,12 +39,12 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
         ]),
         {
           ...AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.BuildsReadPublished]),
-          publishedAt: { $ne: null },
+          publishedAt: { $exists: true, $ne: null },
         },
       ],
     },
     'user-read': {},
-    'user-read-published': { publishedAt: { $ne: null } },
+    'user-read-published': { publishedAt: { $exists: true, $ne: null } },
     'user-write': {},
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
@@ -96,7 +96,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
             ...AuthorizationPermissionsHelpers.getSystemRoleQuery([
               AuthorizationRole.BuildsReadPublished,
             ]),
-            publishedAt: { $ne: null },
+            publishedAt: { $exists: true, $ne: null },
           },
         ],
       },
@@ -120,7 +120,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
             ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
               AuthorizationRole.BuildsReadPublished,
             ]),
-            publishedAt: { $ne: null },
+            publishedAt: { $exists: true, $ne: null },
           },
         ],
       },

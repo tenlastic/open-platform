@@ -14,7 +14,11 @@ export const AuthorizationPermissionsHelpers = {
                   boolean: true,
                   isOne: true,
                   model: 'AuthorizationSchema',
-                  where: { apiKey: { $exists: false }, ban: true, userId: { $ref: 'user._id' } },
+                  where: {
+                    apiKey: { $exists: false },
+                    bannedAt: { $exists: true, $ne: null },
+                    userId: { $ref: 'user._id' },
+                  },
                 },
               },
             },
@@ -35,7 +39,6 @@ export const AuthorizationPermissionsHelpers = {
                     },
                     {
                       apiKey: { $exists: false },
-                      ban: { $ne: true },
                       roles: { $in: roles },
                       userId: { $ref: 'user._id' },
                     },
@@ -69,7 +72,6 @@ export const AuthorizationPermissionsHelpers = {
         {
           'record.authorizationDocuments': {
             apiKey: { $exists: false },
-            ban: { $ne: true },
             roles: { $in: roles },
             userId: { $ref: 'user._id' },
           },
@@ -86,7 +88,11 @@ export const AuthorizationPermissionsHelpers = {
       ],
       'record.authorizationDocuments': {
         $not: {
-          $elemMatch: { apiKey: { $exists: false }, ban: true, userId: { $ref: 'user._id' } },
+          $elemMatch: {
+            apiKey: { $exists: false },
+            bannedAt: { $exists: true, $ne: null },
+            userId: { $ref: 'user._id' },
+          },
         },
       },
     };
@@ -96,7 +102,7 @@ export const AuthorizationPermissionsHelpers = {
       match: {
         $or: [
           { apiKey: { $ref: 'apiKey' }, userId: { $exists: false } },
-          { apiKey: { $exists: false }, ban: { $ne: true }, userId: { $ref: 'user._id' } },
+          { apiKey: { $exists: false }, userId: { $ref: 'user._id' } },
           { apiKey: { $exists: false }, userId: { $exists: false } },
         ],
       },
@@ -111,7 +117,10 @@ export const AuthorizationPermissionsHelpers = {
     };
   },
   getUserRoleQuery(roles: AuthorizationRole[]) {
-    return { 'authorization.ban': { $ne: true }, 'authorization.roles': { $in: roles } };
+    return {
+      $or: [{ 'authorization.bannedAt': null }, { 'authorization.bannedAt': { $exists: false } }],
+      'authorization.roles': { $in: roles },
+    };
   },
 };
 
@@ -119,8 +128,8 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
   Authorization,
   {
     create: {
-      'namespace-write': ['apiKey', 'ban', 'name', 'roles', 'userId'],
-      'user-write': ['apiKey', 'ban', 'name', 'roles', 'userId'],
+      'namespace-write': ['apiKey', 'bannedAt', 'name', 'roles', 'userId'],
+      'user-write': ['apiKey', 'bannedAt', 'name', 'roles', 'userId'],
     },
     delete: {
       'namespace-write': true,
@@ -142,7 +151,16 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
     },
     populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
     read: {
-      default: ['_id', 'ban', 'createdAt', 'name', 'namespaceId', 'roles', 'updatedAt', 'userId'],
+      default: [
+        '_id',
+        'bannedAt',
+        'createdAt',
+        'name',
+        'namespaceId',
+        'roles',
+        'updatedAt',
+        'userId',
+      ],
     },
     roles: [
       {
@@ -174,8 +192,8 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
       },
     ],
     update: {
-      'namespace-write': ['ban', 'name', 'roles'],
-      'user-write': ['ban', 'name', 'roles'],
+      'namespace-write': ['bannedAt', 'name', 'roles'],
+      'user-write': ['bannedAt', 'name', 'roles'],
     },
   },
 );

@@ -23,7 +23,7 @@ export class RefreshTokenSchema {
   @prop({ type: String })
   public description: string;
 
-  @prop({ type: Date })
+  @prop({ required: true, type: Date })
   public expiresAt: Date;
 
   public updatedAt: Date;

@@ -95,7 +95,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
       values.apiKey = this.form.get('apiKey').value;
       values.name = this.form.get('name').value;
     } else if (this.type === AuthorizationType.User) {
-      values.ban = this.form.get('ban').value;
+      values.bannedAt = !this.data.bannedAt && this.form.get('bannedAt').value ? new Date() : null;
       values.userId = this.form.get('user').value._id;
     }
 
@@ -144,7 +144,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       apiKey: [this.data._id ? undefined : apiKey],
-      ban: [this.data.ban ?? false],
+      bannedAt: [Boolean(this.data.bannedAt)],
       name: [this.data.name, type === AuthorizationType.ApiKey ? [Validators.required] : []],
       roles: this.formBuilder.group({
         articles: this.data.roles?.find((r) => r.startsWith('Articles')),

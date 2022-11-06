@@ -27,7 +27,7 @@ export class ArticleSchema {
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({ default: null, type: Date })
+  @prop({ type: Date })
   public publishedAt: Date;
 
   @prop({ match: /^.{2,100}$/, required: true, type: String })

@@ -48,7 +48,7 @@ export namespace IAuthorization {
 
 export class AuthorizationModel extends BaseModel {
   public apiKey: string;
-  public ban: boolean;
+  public bannedAt: Date;
   public name: string;
   public namespaceId: string;
   public roles: IAuthorization.Role[];
@@ -56,6 +56,8 @@ export class AuthorizationModel extends BaseModel {
 
   constructor(parameters?: Partial<AuthorizationModel>) {
     super(parameters);
+
+    this.bannedAt = parameters.bannedAt ? new Date(parameters.bannedAt) : null;
   }
 
   public hasRoles(roles: IAuthorization.Role[]) {

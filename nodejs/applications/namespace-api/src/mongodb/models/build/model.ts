@@ -45,7 +45,7 @@ export class BuildSchema {
   @prop({ enum: BuildPlatform, required: true, type: String })
   public platform: BuildPlatform;
 
-  @prop({ default: null, type: Date })
+  @prop({ type: Date })
   public publishedAt: Date;
 
   @prop({ type: BuildReferenceSchema })

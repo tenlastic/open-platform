@@ -38,6 +38,7 @@ export enum AuthorizationRole {
 }
 
 @index({ apiKey: 1 })
+@index({ bannedAt: 1 })
 @index({ name: 1, namespaceId: 1 })
 @index({ namespaceId: 1, userId: 1 })
 @index({ roles: 1 })
@@ -50,8 +51,8 @@ export class AuthorizationSchema {
   @prop({ type: String })
   public apiKey: string;
 
-  @prop({ type: Boolean })
-  public ban: string;
+  @prop({ type: Date })
+  public bannedAt: Date;
 
   public createdAt: Date;
 

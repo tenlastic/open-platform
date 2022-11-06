@@ -18,7 +18,7 @@ import { UserDocument } from '../user';
 @modelOptions({
   schemaOptions: { collection: 'group-invitations', minimize: false, timestamps: true },
 })
-@pre('save', function (this: GroupInvitationDocument) {
+@pre('validate', function (this: GroupInvitationDocument) {
   if (!this.isNew) {
     return;
   }
@@ -32,7 +32,7 @@ export class GroupInvitationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ type: Date })
+  @prop({ required: true, type: Date })
   public expiresAt: Date;
 
   @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
