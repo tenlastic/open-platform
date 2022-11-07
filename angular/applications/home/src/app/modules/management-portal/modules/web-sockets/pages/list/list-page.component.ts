@@ -38,7 +38,7 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe((params) => {
-      this.fetchWebSockets(params.namespaceId);
+      this.fetchWebSockets(params.namespaceId, params.userId);
     });
   }
 
@@ -50,9 +50,9 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
     return this.userQuery.getEntity(_id);
   }
 
-  private async fetchWebSockets(namespaceId: string) {
+  private async fetchWebSockets(namespaceId: string, userId: string) {
     this.$webSockets = this.webSocketQuery
-      .selectAll({ filterBy: (ws) => ws.namespaceId === namespaceId })
+      .selectAll({ filterBy: (ws) => ws.namespaceId === namespaceId && ws.userId === userId })
       .pipe(map((ws) => ws.map((w) => new WebSocketModel(w))));
 
     this.updateDataSource$ = this.$webSockets.subscribe(

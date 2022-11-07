@@ -24,6 +24,16 @@
       <mat-icon>public</mat-icon>
       <div>Game Servers</div>
     </app-button>
+
+    <app-button color="accent"
+                layout="vertical"
+                [routerLink]="['queue-members']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>person</mat-icon>
+      <div>Users</div>
+    </app-button>
   </div>
 
   <router-outlet></router-outlet>

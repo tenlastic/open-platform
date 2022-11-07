@@ -1,0 +1,30 @@
+<app-sidenav>
+  <div *ngIf="($user | async) as user"
+       appNav
+       class="nav">
+    <app-button color="accent"
+                layout="vertical"
+                [ngClass]="{ active: isActive }"
+                [routerLink]="['./']"
+                text="left"
+                width="full">
+      <mat-icon>person</mat-icon>
+      <div>{{ user.username }}</div>
+    </app-button>
+
+    <hr *ngIf="$hasRelated | async">
+
+    <app-button *ngIf="$hasPermission(IAuthorization.webSocketRoles) | async"
+                color="accent"
+                layout="vertical"
+                [routerLink]="['web-sockets']"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>hub</mat-icon>
+      <div>Web Sockets</div>
+    </app-button>
+  </div>
+
+  <router-outlet></router-outlet>
+</app-sidenav>

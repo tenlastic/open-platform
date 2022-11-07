@@ -88,7 +88,7 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
   }
 
   private async fetchUsers() {
-    this.$users = this.userQuery.selectAll();
+    this.$users = this.userQuery.selectAll({ sortBy: 'username' });
 
     this.fetchWebSockets$ = this.$users.subscribe((users) =>
       this.webSocketService.find(null, {
