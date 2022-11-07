@@ -14,11 +14,25 @@ export class AuthorizationQuery extends QueryEntity<AuthorizationState, Authoriz
   }
 
   public hasRoles(namespaceId: string, roles: IAuthorization.Role[], userId: string) {
-    return this.getRoles(namespaceId, userId).some((ro) => roles.includes(ro));
+    const authorizations = this.getAll({
+      filterBy: (a) => this.filterUserAuthorizations(a, namespaceId, userId),
+    });
+
+    if (authorizations.some((a) => a.bannedAt)) {
+      return false;
+    }
+
+    return authorizations
+      .reduce((previous, current) => previous.concat(current.roles), [])
+      .some((ro) => roles.includes(ro));
   }
 
   public selectHasRoles(namespaceId: string, roles: IAuthorization.Role[], userId: string) {
-    return this.selectRoles(namespaceId, userId).pipe(
+    return this.selectAll({
+      filterBy: (a) => this.filterUserAuthorizations(a, namespaceId, userId),
+    }).pipe(
+      map((as) => (as.some((a) => a.bannedAt) ? [] : as)),
+      map((as) => as.reduce((previous, current) => previous.concat(current.roles), [])),
       map((r) => r.some((ro) => roles.includes(ro))),
     );
   }
@@ -52,17 +66,5 @@ export class AuthorizationQuery extends QueryEntity<AuthorizationState, Authoriz
     }
 
     return false;
-  }
-
-  private getRoles(namespaceId: string, userId: string) {
-    return this.getAll({
-      filterBy: (a) => this.filterUserAuthorizations(a, namespaceId, userId),
-    }).reduce((previous, current) => previous.concat(current.roles), []);
-  }
-
-  private selectRoles(namespaceId: string, userId: string) {
-    return this.selectAll({
-      filterBy: (a) => this.filterUserAuthorizations(a, namespaceId, userId),
-    }).pipe(map((a) => a.reduce((previous, current) => previous.concat(current.roles), [])));
   }
 }

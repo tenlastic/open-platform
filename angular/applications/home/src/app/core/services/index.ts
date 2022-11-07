@@ -5,6 +5,7 @@ export * from './electron/electron.service';
 export * from './file-reader/file-reader.service';
 export * from './form/form.service';
 export * from './identity/identity.service';
+export * from './reset/reset.service';
 export * from './textarea/textarea.service';
 export * from './update/update.service';
 export * from './version/version.service';

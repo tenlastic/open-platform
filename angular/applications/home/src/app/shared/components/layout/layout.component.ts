@@ -164,8 +164,15 @@ export class LayoutComponent implements OnInit {
     const value = url.split('/')[1];
 
     switch (value) {
+      case 'account':
+        return 'account';
+
+      case 'authentication':
+        return 'authentication';
+
       case 'management-portal':
         return 'management-portal';
+
       case 'store':
         return 'store';
     }

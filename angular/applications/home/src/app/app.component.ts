@@ -35,7 +35,7 @@ import {
 import { v4 as uuid } from 'uuid';
 
 import { environment } from '../environments/environment';
-import { ElectronService } from './core/services';
+import { ElectronService, ResetService } from './core/services';
 
 @Component({
   selector: 'app-root',
@@ -107,6 +107,7 @@ export class AppComponent implements OnInit {
     private namespaceService: NamespaceService,
     private namespaceStore: NamespaceStore,
     private queueMemberQuery: QueueMemberQuery,
+    private resetService: ResetService,
     private router: Router,
     private streamService: StreamService,
     private tokenService: TokenService,
@@ -138,8 +139,9 @@ export class AppComponent implements OnInit {
       }
     });
 
-    // Clear stores on logout.
-    this.loginService.emitter.on('logout', () => resetStores());
+    // Clear stores on login and logout.
+    this.loginService.emitter.on('login', () => this.resetService.reset());
+    this.loginService.emitter.on('logout', () => this.resetService.reset());
 
     this.fetchMissingRecords();
 
