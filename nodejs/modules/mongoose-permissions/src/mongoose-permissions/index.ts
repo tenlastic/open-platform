@@ -2,6 +2,7 @@ import * as deepmerge from 'deepmerge';
 import * as mongoose from 'mongoose';
 
 import {
+  combineQueries,
   filterObject,
   isJsonValid,
   substituteReferenceValues,
@@ -196,16 +197,19 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
   ) {
     await this.populateRecord(credentials, record);
 
-    const roles = this.options[key];
-    if (!roles) {
+    const permissions = this.options[key];
+    if (!permissions) {
       return [];
     }
 
     const references = this.getReferences(credentials, record);
-    const role = this.getRole(references);
-    const roleAttributes = roles ? roles[role] : undefined;
+    const roles = this.getRoles(references);
 
-    return roleAttributes || roles.default || [];
+    const attributes = Object.entries(permissions)
+      .reduce((previous, [k, v]) => (roles.includes(k) ? [...previous, ...v] : previous), [])
+      .filter((a, i, arr) => arr.indexOf(a) === i);
+
+    return attributes;
   }
 
   /**
@@ -269,37 +273,29 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    * @param where The where clause for the query.
    */
   public async where(credentials: ICredentials, where: mongoose.FilterQuery<TDocument>) {
-    const references = this.getReferences(credentials, null);
-    const query = await this.getFindQuery(references);
-    if (query === null) {
+    if (!this.options.find) {
       return null;
     }
 
-    // Substitute calculated values into default find query.
-    const results = substituteReferenceValues(query, references);
-    const substitutedQuery = await substituteSubqueryValues(this.Model.db, results);
+    const references = this.getReferences(credentials, null);
+    const roles = this.getRoles(references);
 
-    // Combines the two queries if a user-defined where clause is specified.
-    if (where) {
-      Object.keys(where).forEach((key) => {
-        if (key === '$and' && '$and' in substitutedQuery) {
-          substitutedQuery.$and = substitutedQuery.$and.concat(where.$and);
-        } else if (key in substitutedQuery) {
-          if (!substitutedQuery.$and) {
-            substitutedQuery.$and = [];
-          }
-
-          substitutedQuery.$and.push({ [key]: substitutedQuery[key] });
-          substitutedQuery.$and.push({ [key]: where[key] });
-
-          delete substitutedQuery[key];
-        } else {
-          substitutedQuery[key] = where[key];
-        }
-      });
+    const queries = Object.entries(this.options.find)
+      .filter(([k, v]) => roles.includes(k) && v)
+      .map(([, v]) => v);
+    if (queries.length === 0) {
+      return null;
     }
 
-    return substitutedQuery;
+    // Substitute calculated values into default find queries.
+    const results = queries.map((q) => substituteReferenceValues(q, references));
+    const substitutedQueries = [];
+    for (const result of results) {
+      const substitutedQuery = await substituteSubqueryValues(this.Model.db, result);
+      substitutedQueries.push(substitutedQuery);
+    }
+
+    return combineQueries(where, ...substitutedQueries);
   }
 
   /**
@@ -310,33 +306,8 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       return false;
     }
 
-    const role = this.getRole(references);
-    const roles = this.options.delete || {};
-
-    if (role in roles) {
-      return roles[role];
-    }
-
-    return roles.default || false;
-  }
-
-  /**
-   * Returns the base find query for a user.
-   */
-  private async getFindQuery(references: IReferences<TDocument>) {
-    if (!this.options.find) {
-      return null;
-    }
-
-    const role = this.getRole(references);
-    const roles = this.options.find;
-    const roleAttributes = roles ? roles[role] : undefined;
-
-    if (roleAttributes === null || (roleAttributes === undefined && !roles.default)) {
-      return null;
-    }
-
-    return roleAttributes || roles.default || {};
+    const roles = this.getRoles(references);
+    return roles.some((r) => this.options.delete[r]);
   }
 
   private getPaths(populate: IPopulate) {
@@ -367,20 +338,21 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
   /**
    * Returns the role of the user accessing a record.
    */
-  private getRole(references: IReferences<TDocument>) {
+  private getRoles(references: IReferences<TDocument>) {
     if (!this.options.roles) {
-      return 'default';
+      return ['default'];
     }
 
+    const roles = ['default'];
     for (const role of this.options.roles) {
       try {
         if (isJsonValid(references, role.query)) {
-          return role.name;
+          roles.push(role.name);
         }
       } catch {}
     }
 
-    return 'default';
+    return roles;
   }
 
   /**

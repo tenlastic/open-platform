@@ -22,7 +22,6 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@typegoose/typegoose": "9.12.1",
     "deepmerge": "4.0.0",
     "mongoose": "6.6.5"
   },

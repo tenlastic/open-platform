@@ -1,3 +1,4 @@
+export * from './combine-queries';
 export * from './filter-object';
 export * from './get-property-by-dot-notation';
 export * from './is-json-valid';
