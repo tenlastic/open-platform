@@ -48,7 +48,7 @@ describe('web-server/records/find', function () {
         read: {
           default: ['_id', 'createdAt', 'properties', 'updatedAt'],
         },
-        roles: [],
+        roles: {},
         update: {},
       },
     });

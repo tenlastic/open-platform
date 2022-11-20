@@ -12,7 +12,7 @@ export function substituteReferenceValues(json: any, references: any) {
 
     if ($ref) {
       if (typeof $ref === 'string') {
-        return getPropertyByDotNotation(references, $ref) ?? { $type: 10 };
+        return getPropertyByDotNotation(references, $ref) ?? { $eq: null };
       } else if (typeof $ref === 'object' && $ref !== null && !Array.isArray($ref)) {
         return isJsonValid(references, $ref);
       } else {

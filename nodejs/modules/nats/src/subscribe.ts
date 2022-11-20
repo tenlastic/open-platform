@@ -1,6 +1,6 @@
 import * as nats from 'nats';
 
-import { getJetStream, getJetStreamManager } from '../connect';
+import { getJetStream, getJetStreamManager } from './connect';
 
 export async function subscribe(subject: string, options: Partial<nats.ConsumerConfig> = null) {
   const consumerOptions: Partial<nats.ConsumerConfig> = {
@@ -17,7 +17,7 @@ export async function subscribe(subject: string, options: Partial<nats.ConsumerC
 
   const opts = nats.consumerOpts(consumerOptions);
 
-  if (options.durable_name) {
+  if (options?.durable_name) {
     opts.queue(options.durable_name);
 
     try {

@@ -14,7 +14,7 @@ function parse(input: string) {
     Ei: Math.pow(1024, 6),
     G: Math.pow(1000, 3),
     Gi: Math.pow(1024, 3),
-    k: 1000,
+    K: 1000,
     Ki: 1024,
     M: Math.pow(1000, 2),
     Mi: Math.pow(1024, 2),

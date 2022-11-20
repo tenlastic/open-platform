@@ -19,22 +19,18 @@ export const UserPermissions = new MongoosePermissions<UserDocument>(User, {
     default: ['_id', 'createdAt', 'username', 'updatedAt'],
     owner: ['_id', 'createdAt', 'email', 'username', 'updatedAt'],
     'user-read': ['_id', 'createdAt', 'email', 'username', 'updatedAt'],
-    'user-write': ['_id', 'createdAt', 'email', 'username', 'updatedAt'],
   },
-  roles: [
-    {
-      name: 'user-write',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.UsersReadWrite]),
-    },
-    {
-      name: 'user-read',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.UsersRead,
-        AuthorizationRole.UsersReadWrite,
-      ]),
-    },
-    { name: 'owner', query: { 'record._id': { $ref: 'user._id' } } },
-  ],
+  roles: {
+    default: {},
+    owner: { 'record._id': { $ref: 'user._id' } },
+    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.UsersRead,
+      AuthorizationRole.UsersReadWrite,
+    ]),
+    'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.UsersReadWrite,
+    ]),
+  },
   update: {
     owner: ['email', 'password', 'username'],
     'user-write': ['email', 'password', 'username'],

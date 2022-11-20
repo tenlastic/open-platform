@@ -13,6 +13,6 @@ describe('get-memory', function () {
 
     const result = getMemory(resourceQuotas as any);
 
-    expect(result).to.eql(1074791425);
+    expect(result).to.eql(1001001001);
   });
 });

@@ -59,8 +59,8 @@
       <div class="row">
         <mat-radio-group formControlName="articles">
           <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.ArticlesRead">Read</mat-radio-button>
           <mat-radio-button [value]="AuthorizationRole.ArticlesReadPublished">Read (Published)</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.ArticlesRead">Read</mat-radio-button>
           <mat-radio-button [value]="AuthorizationRole.ArticlesReadWrite">Read / Write</mat-radio-button>
         </mat-radio-group>
       </div>
@@ -78,8 +78,8 @@
       <div class="row">
         <mat-radio-group formControlName="builds">
           <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.BuildsRead">Read</mat-radio-button>
           <mat-radio-button [value]="AuthorizationRole.BuildsReadPublished">Read (Published)</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.BuildsRead">Read</mat-radio-button>
           <mat-radio-button [value]="AuthorizationRole.BuildsReadWrite">Read / Write</mat-radio-button>
         </mat-radio-group>
       </div>

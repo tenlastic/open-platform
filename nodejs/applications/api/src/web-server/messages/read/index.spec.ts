@@ -1,5 +1,4 @@
-import { PermissionError } from '@tenlastic/mongoose-permissions';
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
@@ -52,7 +51,7 @@ describe('web-server/message/read', function () {
 
       const promise = handler(ctx as any);
 
-      return expect(promise).to.be.rejectedWith(PermissionError);
+      return expect(promise).to.be.rejectedWith(RecordNotFoundError);
     });
   });
 });

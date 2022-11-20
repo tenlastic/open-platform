@@ -22,29 +22,18 @@ export const GroupInvitationPermissions = new MongoosePermissions<GroupInvitatio
     read: {
       default: ['_id', 'createdAt', 'expiresAt', 'fromUserId', 'groupId', 'toUserId', 'updatedAt'],
     },
-    roles: [
-      {
-        name: 'leader',
-        query: {
-          'record.groupDocument.isOpen': false,
-          'record.groupDocument.userIds.0': { $ref: 'user._id' },
-        },
+    roles: {
+    default: {},
+    leader: {
+        'record.groupDocument.isOpen': false,
+        'record.groupDocument.userIds.0': { $ref: 'user._id' },
       },
-      {
-        name: 'open-member',
-        query: {
-          'record.groupDocument.isOpen': true,
-          'record.groupDocument.userIds': { $ref: 'user._id' },
-        },
+      'open-member': {
+        'record.groupDocument.isOpen': true,
+        'record.groupDocument.userIds': { $ref: 'user._id' },
       },
-      {
-        name: 'sender',
-        query: { 'record.fromUserId': { $ref: 'user._id' } },
-      },
-      {
-        name: 'recipient',
-        query: { 'record.toUserId': { $ref: 'user._id' } },
-      },
-    ],
+      recipient: { 'record.toUserId': { $ref: 'user._id' } },
+      sender: { 'record.fromUserId': { $ref: 'user._id' } },
+    },
   },
 );

@@ -45,7 +45,7 @@ describe('web-server/records/update', function () {
         read: {
           default: ['_id', 'createdAt', 'properties.email', 'properties.name', 'updatedAt'],
         },
-        roles: [],
+        roles: {},
         update: {
           default: ['properties.email', 'properties.name'],
         },

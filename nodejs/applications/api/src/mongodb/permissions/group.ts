@@ -15,16 +15,11 @@ export const GroupPermissions = new MongoosePermissions<GroupDocument>(Group, {
   read: {
     default: ['_id', 'createdAt', 'isOpen', 'updatedAt', 'userIds'],
   },
-  roles: [
-    {
-      name: 'leader',
-      query: { 'record.userIds.0': { $ref: 'user._id' } },
-    },
-    {
-      name: 'member',
-      query: { 'record.userIds': { $ref: 'user._id' } },
-    },
-  ],
+  roles: {
+    default: {},
+    leader: { 'record.userIds.0': { $ref: 'user._id' } },
+    member: { 'record.userIds': { $ref: 'user._id' } },
+  },
   update: {
     leader: ['isOpen'],
   },

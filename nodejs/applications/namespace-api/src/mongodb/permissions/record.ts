@@ -24,43 +24,29 @@ export function RecordPermissions(collection: CollectionDocument, Model: RecordM
         AuthorizationRole.CollectionsReadWrite,
       ]),
       'user-read': {},
-      'user-write': {},
     },
     populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
     read: {
       'namespace-read': administrator.read,
-      'namespace-write': administrator.read,
       'user-read': administrator.read,
-      'user-write': administrator.read,
     },
-    roles: [
-      {
-        name: 'user-write',
-        query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-          AuthorizationRole.CollectionsReadWrite,
-        ]),
-      },
-      {
-        name: 'namespace-write',
-        query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-          AuthorizationRole.CollectionsReadWrite,
-        ]),
-      },
-      {
-        name: 'user-read',
-        query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-          AuthorizationRole.CollectionsRead,
-          AuthorizationRole.CollectionsReadWrite,
-        ]),
-      },
-      {
-        name: 'namespace-read',
-        query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-          AuthorizationRole.CollectionsRead,
-          AuthorizationRole.CollectionsReadWrite,
-        ]),
-      },
-    ],
+    roles: {
+    default: {},
+    'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.CollectionsRead,
+        AuthorizationRole.CollectionsReadWrite,
+      ]),
+      'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.CollectionsReadWrite,
+      ]),
+      'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.CollectionsRead,
+        AuthorizationRole.CollectionsReadWrite,
+      ]),
+      'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.CollectionsReadWrite,
+      ]),
+    },
     update: {
       'namespace-write': administrator.update,
       'user-write': administrator.update,
@@ -70,6 +56,7 @@ export function RecordPermissions(collection: CollectionDocument, Model: RecordM
   Object.assign(permissions.create, collection.permissions.create);
   Object.assign(permissions.delete, collection.permissions.delete);
   Object.assign(permissions.read, collection.permissions.read);
+  Object.assign(permissions.roles, collection.permissions.roles);
   Object.assign(permissions.update, collection.permissions.update);
 
   if (collection.permissions.find) {
@@ -85,9 +72,6 @@ export function RecordPermissions(collection: CollectionDocument, Model: RecordM
   }
   if (collection.permissions.populate) {
     permissions.populate.push(...collection.permissions.populate);
-  }
-  if (collection.permissions.roles) {
-    permissions.roles.push(...collection.permissions.roles);
   }
 
   return new MongoosePermissions<RecordDocument>(Model, permissions);

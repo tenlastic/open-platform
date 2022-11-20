@@ -42,7 +42,7 @@ describe('web-server/records/find-one', function () {
         read: {
           default: ['_id', 'createdAt', 'properties', 'updatedAt'],
         },
-        roles: [],
+        roles: {},
         update: {},
       },
     });

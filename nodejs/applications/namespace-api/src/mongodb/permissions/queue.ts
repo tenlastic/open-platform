@@ -71,7 +71,6 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
       AuthorizationRole.QueuesReadWrite,
     ]),
     'user-read': {},
-    'user-write': {},
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
@@ -87,51 +86,33 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(Queue, {
       'usersPerTeam',
     ],
     'namespace-read': administrator.read,
-    'namespace-write': administrator.read,
     'system-read': administrator.read,
-    'system-write': administrator.read,
     'user-read': administrator.read,
-    'user-write': administrator.read,
   },
-  roles: [
-    {
-      name: 'system-write',
-      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
-        AuthorizationRole.QueuesReadWrite,
-      ]),
-    },
-    {
-      name: 'user-write',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.QueuesReadWrite]),
-    },
-    {
-      name: 'namespace-write',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.QueuesReadWrite,
-      ]),
-    },
-    {
-      name: 'system-read',
-      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
-        AuthorizationRole.QueuesRead,
-        AuthorizationRole.QueuesReadWrite,
-      ]),
-    },
-    {
-      name: 'user-read',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.QueuesRead,
-        AuthorizationRole.QueuesReadWrite,
-      ]),
-    },
-    {
-      name: 'namespace-read',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.QueuesRead,
-        AuthorizationRole.QueuesReadWrite,
-      ]),
-    },
-  ],
+  roles: {
+    default: {},
+    'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.QueuesRead,
+      AuthorizationRole.QueuesReadWrite,
+    ]),
+    'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.QueuesReadWrite,
+    ]),
+    'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
+      AuthorizationRole.QueuesRead,
+      AuthorizationRole.QueuesReadWrite,
+    ]),
+    'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
+      AuthorizationRole.QueuesReadWrite,
+    ]),
+    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.QueuesRead,
+      AuthorizationRole.QueuesReadWrite,
+    ]),
+    'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.QueuesReadWrite,
+    ]),
+  },
   update: {
     'namespace-write': administrator.update,
     'system-write': [

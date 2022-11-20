@@ -1,11 +1,10 @@
 import { expect } from 'chai';
 
 import { getPhase } from '.';
-import { NamespaceLimitError } from '../get-message';
 
 describe('get-phase', function () {
   it('returns an error', function () {
-    const result = getPhase([], NamespaceLimitError, []);
+    const result = getPhase([], [{ phase: 'Error' }] as any);
 
     expect(result).to.eql('Error');
   });
@@ -13,7 +12,7 @@ describe('get-phase', function () {
   it('returns Running', function () {
     const components = [{ phase: 'Running' }];
 
-    const result = getPhase(components as any, null, []);
+    const result = getPhase(components as any, []);
 
     expect(result).to.eql('Running');
   });

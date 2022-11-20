@@ -50,10 +50,11 @@ export const Permissions = new MongoosePermissions<Document>(Model, {
     admin: ['_id', 'jsonSchema.*', 'properties.age', 'properties.name', 'name', 'urls'],
     default: ['_id'],
   },
-  roles: [
-    { name: 'admin', query: { 'user.roles': 'Admin' } },
-    { name: 'owner', query: { 'record.userId': { $ref: 'user._id' } } },
-  ],
+  roles: {
+    admin: { 'user.roles': 'Admin' },
+    default: {},
+    owner: { 'record.userId': { $ref: 'user._id' } },
+  },
   update: {
     admin: ['jsonSchema.*', 'properties.age', 'name', 'urls'],
   },
@@ -300,16 +301,11 @@ describe('mongoose-permissions', function () {
 
     beforeEach(function () {
       options = {
-        roles: [
-          {
-            name: 'admin',
-            query: { 'user.roles': { $eq: 'Admin' } },
-          },
-          {
-            name: 'owner',
-            query: { 'record.userId': { $eq: { $ref: 'user._id' } } },
-          },
-        ],
+        roles: {
+          admin: { 'user.roles': { $eq: 'Admin' } },
+          default: {},
+          owner: { 'record.userId': { $eq: { $ref: 'user._id' } } },
+        },
       };
       permissions = new MongoosePermissions(null, options);
     });
@@ -319,7 +315,7 @@ describe('mongoose-permissions', function () {
       const references = { record: { userId: _id }, user: { _id, roles: ['Admin'] } };
       const result = permissions['getRoles'](references);
 
-      expect(result).to.eql(['default', 'admin', 'owner']);
+      expect(result).to.eql(['admin', 'default', 'owner']);
     });
 
     it('returns default when nothing matches', function () {

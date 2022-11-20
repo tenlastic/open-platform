@@ -31,7 +31,6 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
       ],
     },
   },
-  populate: [{ path: 'toGroupDocument' }],
   read: {
     default: [
       '_id',
@@ -44,28 +43,11 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
       'updatedAt',
     ],
   },
-  roles: [
-    {
-      name: 'sender',
-      query: {
-        'record.fromUserId': { $ref: 'user._id' },
-        'record.toGroupId': { $exists: false },
-        'record.toUserId': { $exists: true },
-      },
-    },
-    {
-      name: 'sender',
-      query: {
-        'record.fromUserId': { $ref: 'user._id' },
-        'record.toGroupDocument.userIds': { $ref: 'user._id' },
-        'record.toUserId': { $exists: false },
-      },
-    },
-    {
-      name: 'recipient',
-      query: { 'record.toUserId': { $ref: 'user._id' } },
-    },
-  ],
+  roles: {
+    default: {},
+    recipient: { 'record.toUserId': { $ref: 'user._id' } },
+    sender: { 'record.fromUserId': { $ref: 'user._id' } },
+  },
   update: {
     sender: ['body'],
   },

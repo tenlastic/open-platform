@@ -11,14 +11,9 @@ export const LoginPermissions = new MongoosePermissions<LoginDocument>(Login, {
   read: {
     default: ['_id', 'createdAt', 'updatedAt', 'userId'],
   },
-  roles: [
-    {
-      name: 'user-read',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.LoginsRead]),
-    },
-    {
-      name: 'owner',
-      query: { 'record.userId': { $ref: 'user._id' } },
-    },
-  ],
+  roles: {
+    default: {},
+    owner: { 'record.userId': { $ref: 'user._id' } },
+    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.LoginsRead]),
+  },
 });

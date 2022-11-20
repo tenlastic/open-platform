@@ -28,7 +28,6 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
       ],
     },
     'user-read': {},
-    'user-write': {},
   },
   populate: [{ path: 'groupDocument' }, AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
@@ -43,51 +42,30 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
       'userIds',
     ],
   },
-  roles: [
-    {
-      name: 'system-write',
-      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
-        AuthorizationRole.QueuesReadWrite,
-      ]),
-    },
-    {
-      name: 'user-write',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.QueuesReadWrite]),
-    },
-    {
-      name: 'namespace-write',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.QueuesReadWrite,
-      ]),
-    },
-    {
-      name: 'system-read',
-      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
-        AuthorizationRole.QueuesRead,
-        AuthorizationRole.QueuesReadWrite,
-      ]),
-    },
-    {
-      name: 'user-read',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.QueuesRead,
-        AuthorizationRole.QueuesReadWrite,
-      ]),
-    },
-    {
-      name: 'namespace-read',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.QueuesRead,
-        AuthorizationRole.QueuesReadWrite,
-      ]),
-    },
-    {
-      name: 'group-leader',
-      query: { 'record.groupDocument.userIds.0': { $ref: 'user._id' } },
-    },
-    {
-      name: 'owner',
-      query: { 'record.userId': { $ref: 'user._id' } },
-    },
-  ],
+  roles: {
+    default: {},
+    'group-leader': { 'record.groupDocument.userIds.0': { $ref: 'user._id' } },
+    'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.QueuesRead,
+      AuthorizationRole.QueuesReadWrite,
+    ]),
+    'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.QueuesReadWrite,
+    ]),
+    owner: { 'record.userId': { $ref: 'user._id' } },
+    'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
+      AuthorizationRole.QueuesRead,
+      AuthorizationRole.QueuesReadWrite,
+    ]),
+    'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
+      AuthorizationRole.QueuesReadWrite,
+    ]),
+    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.QueuesRead,
+      AuthorizationRole.QueuesReadWrite,
+    ]),
+    'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.QueuesReadWrite,
+    ]),
+  },
 });

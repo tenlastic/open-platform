@@ -38,7 +38,7 @@ export interface IOptions {
   find?: { [key: string]: any };
   populate?: IPopulate[];
   read?: { [key: string]: string[] };
-  roles?: IRole[];
+  roles?: { [key: string]: any };
   update?: { [key: string]: string[] };
 }
 
@@ -53,11 +53,6 @@ export interface IReferences<TDocument extends mongoose.Document> {
   authorization?: any;
   record?: TDocument;
   user?: any;
-}
-
-export interface IRole {
-  name: string;
-  query: any;
 }
 
 export class MongoosePermissions<TDocument extends mongoose.Document> {
@@ -340,14 +335,14 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
    */
   private getRoles(references: IReferences<TDocument>) {
     if (!this.options.roles) {
-      return ['default'];
+      return [];
     }
 
-    const roles = ['default'];
-    for (const role of this.options.roles) {
+    const roles: string[] = [];
+    for (const [key, value] of Object.entries(this.options.roles)) {
       try {
-        if (isJsonValid(references, role.query)) {
-          roles.push(role.name);
+        if (isJsonValid(references, value)) {
+          roles.push(key);
         }
       } catch {}
     }

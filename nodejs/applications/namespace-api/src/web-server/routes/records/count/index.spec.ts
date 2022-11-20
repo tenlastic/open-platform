@@ -43,7 +43,7 @@ describe('web-server/records/count', function () {
         read: {
           default: ['_id', 'createdAt', 'properties', 'updatedAt'],
         },
-        roles: [],
+        roles: {},
         update: {},
       },
     });

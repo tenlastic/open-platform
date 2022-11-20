@@ -16,9 +16,11 @@ export const RefreshTokenPermissions = new MongoosePermissions<RefreshTokenDocum
   read: {
     default: ['_id', 'createdAt', 'description', 'expiresAt', 'updatedAt', 'userId'],
   },
-  roles: [{ name: 'owner', query: { 'record.userId': { $ref: 'user._id' } } }],
+  roles: {
+    default: {},
+    owner: { 'record.userId': { $ref: 'user._id' } },
+  },
   update: {
-    default: [],
     owner: ['description'],
   },
 });

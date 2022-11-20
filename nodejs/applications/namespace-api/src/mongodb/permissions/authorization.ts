@@ -13,8 +13,7 @@ export const AuthorizationPermissionsHelpers = {
                   isOne: true,
                   model: 'AuthorizationSchema',
                   where: {
-                    apiKey: { $exists: false },
-                    bannedAt: { $ne: null },
+                    bannedAt: { $exists: true, $ne: null },
                     userId: { $ref: 'user._id' },
                   },
                 },
@@ -33,11 +32,8 @@ export const AuthorizationPermissionsHelpers = {
                     {
                       apiKey: { $ref: 'apiKey' },
                       roles: { $in: roles },
-                      userId: { $exists: false },
                     },
                     {
-                      apiKey: { $exists: false },
-                      bannedAt: null,
                       roles: { $in: roles },
                       userId: { $ref: 'user._id' },
                     },
@@ -64,16 +60,15 @@ export const AuthorizationPermissionsHelpers = {
             $elemMatch: {
               apiKey: { $ref: 'apiKey' },
               roles: { $in: roles },
-              userId: { $exists: false },
             },
           },
         },
         {
           'record.authorizationDocuments': {
-            apiKey: { $exists: false },
-            bannedAt: null,
-            roles: { $in: roles },
-            userId: { $ref: 'user._id' },
+            $elemMatch: {
+              roles: { $in: roles },
+              userId: { $ref: 'user._id' },
+            },
           },
         },
         {
@@ -89,8 +84,7 @@ export const AuthorizationPermissionsHelpers = {
       'record.authorizationDocuments': {
         $not: {
           $elemMatch: {
-            apiKey: { $exists: false },
-            bannedAt: { $ne: null },
+            bannedAt: { $exists: true, $ne: null },
             userId: { $ref: 'user._id' },
           },
         },
@@ -101,8 +95,8 @@ export const AuthorizationPermissionsHelpers = {
     return {
       match: {
         $or: [
-          { apiKey: { $ref: 'apiKey' }, userId: { $exists: false } },
-          { apiKey: { $exists: false }, bannedAt: null, userId: { $ref: 'user._id' } },
+          { apiKey: { $ref: 'apiKey' } },
+          { userId: { $ref: 'user._id' } },
           { apiKey: { $exists: false }, userId: { $exists: false } },
         ],
       },
@@ -117,6 +111,9 @@ export const AuthorizationPermissionsHelpers = {
     };
   },
   getUserRoleQuery(roles: AuthorizationRole[]) {
-    return { 'authorization.bannedAt': null, 'authorization.roles': { $in: roles } };
+    return {
+      $or: [{ 'authorization.bannedAt': null }, { 'authorization.bannedAt': { $exists: false } }],
+      'authorization.roles': { $in: roles },
+    };
   },
 };

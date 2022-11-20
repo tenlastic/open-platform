@@ -52,7 +52,6 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
       AuthorizationRole.WorkflowsReadWrite,
     ]),
     'user-read': {},
-    'user-write': {},
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
@@ -71,47 +70,30 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
       'updatedAt',
     ],
   },
-  roles: [
-    {
-      name: 'system-write',
-      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
-        AuthorizationRole.WorkflowsReadWrite,
-      ]),
-    },
-    {
-      name: 'user-write',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.WorkflowsReadWrite,
-      ]),
-    },
-    {
-      name: 'namespace-write',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.WorkflowsReadWrite,
-      ]),
-    },
-    {
-      name: 'system-read',
-      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
-        AuthorizationRole.WorkflowsRead,
-        AuthorizationRole.WorkflowsReadWrite,
-      ]),
-    },
-    {
-      name: 'user-read',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.WorkflowsRead,
-        AuthorizationRole.WorkflowsReadWrite,
-      ]),
-    },
-    {
-      name: 'namespace-read',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.WorkflowsRead,
-        AuthorizationRole.WorkflowsReadWrite,
-      ]),
-    },
-  ],
+  roles: {
+    default: {},
+    'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.WorkflowsRead,
+      AuthorizationRole.WorkflowsReadWrite,
+    ]),
+    'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.WorkflowsReadWrite,
+    ]),
+    'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
+      AuthorizationRole.WorkflowsRead,
+      AuthorizationRole.WorkflowsReadWrite,
+    ]),
+    'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
+      AuthorizationRole.WorkflowsReadWrite,
+    ]),
+    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.WorkflowsRead,
+      AuthorizationRole.WorkflowsReadWrite,
+    ]),
+    'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.WorkflowsReadWrite,
+    ]),
+  },
   update: {
     'system-write': ['finishedAt', 'status.*'],
   },

@@ -17,7 +17,7 @@ describe('watch', function () {
 
   beforeEach(async function () {
     await Model.deleteMany();
-    await nats.deleteStream('cdc-test.examples');
+    await nats.purgeStream('cdc-test.examples');
   });
 
   afterEach(async function () {

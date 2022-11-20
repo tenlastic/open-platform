@@ -15,7 +15,6 @@ export const AuthorizationPermissionsHelpers = {
                   isOne: true,
                   model: 'AuthorizationSchema',
                   where: {
-                    apiKey: { $exists: false },
                     bannedAt: { $exists: true, $ne: null },
                     userId: { $ref: 'user._id' },
                   },
@@ -35,10 +34,8 @@ export const AuthorizationPermissionsHelpers = {
                     {
                       apiKey: { $ref: 'apiKey' },
                       roles: { $in: roles },
-                      userId: { $exists: false },
                     },
                     {
-                      apiKey: { $exists: false },
                       roles: { $in: roles },
                       userId: { $ref: 'user._id' },
                     },
@@ -65,15 +62,15 @@ export const AuthorizationPermissionsHelpers = {
             $elemMatch: {
               apiKey: { $ref: 'apiKey' },
               roles: { $in: roles },
-              userId: { $exists: false },
             },
           },
         },
         {
           'record.authorizationDocuments': {
-            apiKey: { $exists: false },
-            roles: { $in: roles },
-            userId: { $ref: 'user._id' },
+            $elemMatch: {
+              roles: { $in: roles },
+              userId: { $ref: 'user._id' },
+            },
           },
         },
         {
@@ -89,7 +86,6 @@ export const AuthorizationPermissionsHelpers = {
       'record.authorizationDocuments': {
         $not: {
           $elemMatch: {
-            apiKey: { $exists: false },
             bannedAt: { $exists: true, $ne: null },
             userId: { $ref: 'user._id' },
           },
@@ -101,8 +97,8 @@ export const AuthorizationPermissionsHelpers = {
     return {
       match: {
         $or: [
-          { apiKey: { $ref: 'apiKey' }, userId: { $exists: false } },
-          { apiKey: { $exists: false }, userId: { $ref: 'user._id' } },
+          { apiKey: { $ref: 'apiKey' } },
+          { userId: { $ref: 'user._id' } },
           { apiKey: { $exists: false }, userId: { $exists: false } },
         ],
       },
@@ -147,7 +143,6 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
         system: { $exists: false },
       },
       'user-read': { system: { $exists: false } },
-      'user-write': { system: { $exists: false } },
     },
     populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
     read: {
@@ -162,35 +157,23 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
         'userId',
       ],
     },
-    roles: [
-      {
-        name: 'user-write',
-        query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-          AuthorizationRole.AuthorizationsReadWrite,
-        ]),
-      },
-      {
-        name: 'namespace-write',
-        query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-          AuthorizationRole.AuthorizationsReadWrite,
-        ]),
-      },
-      {
-        name: 'user-read',
-        query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-          AuthorizationRole.AuthorizationsRead,
-          AuthorizationRole.AuthorizationsReadWrite,
-        ]),
-      },
-
-      {
-        name: 'namespace-read',
-        query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-          AuthorizationRole.AuthorizationsRead,
-          AuthorizationRole.AuthorizationsReadWrite,
-        ]),
-      },
-    ],
+    roles: {
+      default: {},
+      'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.AuthorizationsRead,
+        AuthorizationRole.AuthorizationsReadWrite,
+      ]),
+      'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.AuthorizationsReadWrite,
+      ]),
+      'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.AuthorizationsRead,
+        AuthorizationRole.AuthorizationsReadWrite,
+      ]),
+      'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
+        AuthorizationRole.AuthorizationsReadWrite,
+      ]),
+    },
     update: {
       'namespace-write': ['bannedAt', 'name', 'roles'],
       'user-write': ['bannedAt', 'name', 'roles'],

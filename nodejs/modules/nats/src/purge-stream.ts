@@ -1,6 +1,6 @@
-import { getJetStreamManager } from '../connect';
+import { getJetStreamManager } from './connect';
 
-export async function deleteStream(subject: string) {
+export async function purgeStream(subject: string) {
   const name = subject.split('.')[0];
 
   const jsm = await getJetStreamManager();
@@ -8,6 +8,6 @@ export async function deleteStream(subject: string) {
   const stream = streams.find((s) => s.config.name === name);
 
   if (stream) {
-    return jsm.streams.delete(name);
+    return jsm.streams.purge(name);
   }
 }

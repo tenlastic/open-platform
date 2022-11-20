@@ -3,7 +3,21 @@ import * as mongoose from 'mongoose';
 import { getPropertyByDotNotation } from '../get-property-by-dot-notation';
 import { substituteReferenceValues } from '../substitute-reference-values';
 
-const operations = { $elemMatch, $eq, $exists, $gt, $gte, $in, $lt, $lte, $ne, $nin, $regex };
+type Operation = (json: any, key: string, value: any) => boolean;
+
+const operations: { [key: string]: Operation } = {
+  $elemMatch,
+  $eq,
+  $exists,
+  $gt,
+  $gte,
+  $in,
+  $lt,
+  $lte,
+  $ne,
+  $nin,
+  $regex,
+};
 
 /**
  * Determines if the query matches the JSON object.

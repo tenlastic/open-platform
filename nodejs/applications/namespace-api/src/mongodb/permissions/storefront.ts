@@ -44,7 +44,6 @@ export const StorefrontPermissions = new MongoosePermissions<StorefrontDocument>
       AuthorizationRole.StorefrontsReadWrite,
     ]),
     'user-read': {},
-    'user-write': {},
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
@@ -64,34 +63,23 @@ export const StorefrontPermissions = new MongoosePermissions<StorefrontDocument>
       'videos',
     ],
   },
-  roles: [
-    {
-      name: 'user-write',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.StorefrontsReadWrite,
-      ]),
-    },
-    {
-      name: 'namespace-write',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.StorefrontsReadWrite,
-      ]),
-    },
-    {
-      name: 'user-read',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.StorefrontsRead,
-        AuthorizationRole.StorefrontsReadWrite,
-      ]),
-    },
-    {
-      name: 'namespace-read',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.StorefrontsRead,
-        AuthorizationRole.StorefrontsReadWrite,
-      ]),
-    },
-  ],
+  roles: {
+    default: {},
+    'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.StorefrontsRead,
+      AuthorizationRole.StorefrontsReadWrite,
+    ]),
+    'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.StorefrontsReadWrite,
+    ]),
+    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.StorefrontsRead,
+      AuthorizationRole.StorefrontsReadWrite,
+    ]),
+    'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.StorefrontsReadWrite,
+    ]),
+  },
   update: {
     'namespace-write': administrator.update,
     'user-write': administrator.update,

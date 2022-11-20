@@ -69,7 +69,6 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       AuthorizationRole.GameServersReadWrite,
     ]),
     'user-read': {},
-    'user-write': {},
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
@@ -90,53 +89,33 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'updatedAt',
     ],
     'namespace-read': administrator.read,
-    'namespace-write': administrator.read,
     'system-read': administrator.read,
-    'system-write': administrator.read,
     'user-read': administrator.read,
-    'user-write': administrator.read,
   },
-  roles: [
-    {
-      name: 'system-write',
-      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
-        AuthorizationRole.GameServersReadWrite,
-      ]),
-    },
-    {
-      name: 'user-write',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.GameServersReadWrite,
-      ]),
-    },
-    {
-      name: 'namespace-write',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.GameServersReadWrite,
-      ]),
-    },
-    {
-      name: 'system-read',
-      query: AuthorizationPermissionsHelpers.getSystemRoleQuery([
-        AuthorizationRole.GameServersRead,
-        AuthorizationRole.GameServersReadWrite,
-      ]),
-    },
-    {
-      name: 'user-read',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.GameServersRead,
-        AuthorizationRole.GameServersReadWrite,
-      ]),
-    },
-    {
-      name: 'namespace-read',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.GameServersRead,
-        AuthorizationRole.GameServersReadWrite,
-      ]),
-    },
-  ],
+  roles: {
+    default: {},
+    'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.GameServersRead,
+      AuthorizationRole.GameServersReadWrite,
+    ]),
+    'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.GameServersReadWrite,
+    ]),
+    'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
+      AuthorizationRole.GameServersRead,
+      AuthorizationRole.GameServersReadWrite,
+    ]),
+    'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
+      AuthorizationRole.GameServersReadWrite,
+    ]),
+    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.GameServersRead,
+      AuthorizationRole.GameServersReadWrite,
+    ]),
+    'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.GameServersReadWrite,
+    ]),
+  },
   update: {
     'namespace-write': administrator.update,
     'system-write': [

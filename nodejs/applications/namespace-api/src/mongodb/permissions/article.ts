@@ -34,7 +34,6 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
     },
     'user-read': {},
     'user-read-published': { publishedAt: { $exists: true, $ne: null } },
-    'user-write': {},
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
@@ -50,51 +49,36 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
       'updatedAt',
     ],
   },
-  roles: [
-    {
-      name: 'user-write',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.ArticlesReadWrite,
-      ]),
-    },
-    {
-      name: 'namespace-write',
-      query: AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.ArticlesReadWrite,
-      ]),
-    },
-    {
-      name: 'user-read',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.ArticlesRead,
-        AuthorizationRole.ArticlesReadWrite,
-      ]),
-    },
-    {
-      name: 'user-read-published',
-      query: AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.ArticlesReadPublished,
-      ]),
-    },
-
-    {
-      name: 'namespace-read',
-      query: {
-        $or: [
-          AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-            AuthorizationRole.ArticlesRead,
-            AuthorizationRole.ArticlesReadWrite,
+  roles: {
+    default: {},
+    'namespace-read': {
+      $or: [
+        AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+          AuthorizationRole.ArticlesRead,
+          AuthorizationRole.ArticlesReadWrite,
+        ]),
+        {
+          ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+            AuthorizationRole.ArticlesReadPublished,
           ]),
-          {
-            ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-              AuthorizationRole.ArticlesReadPublished,
-            ]),
-            publishedAt: { $ne: null },
-          },
-        ],
-      },
+          publishedAt: { $ne: null },
+        },
+      ],
     },
-  ],
+    'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.ArticlesReadWrite,
+    ]),
+    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.ArticlesRead,
+      AuthorizationRole.ArticlesReadWrite,
+    ]),
+    'user-read-published': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.ArticlesReadPublished,
+    ]),
+    'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.ArticlesReadWrite,
+    ]),
+  },
   update: {
     'namespace-write': administrator.update,
     'user-write': administrator.update,

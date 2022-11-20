@@ -80,7 +80,7 @@ async function update() {
     const components = getComponents(d, ss);
     const message = getMessage(d, events, ss);
     const nodes = getNodes(p);
-    const phase = getPhase(components, message, nodes);
+    const phase = getPhase(components, nodes);
 
     // Do not update status if nothing has changed.
     const status = { components, message, nodes, phase, version };
