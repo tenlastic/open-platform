@@ -2,7 +2,8 @@ import * as deepmerge from 'deepmerge';
 import * as mongoose from 'mongoose';
 
 import {
-  combineQueries,
+  combineQueriesWithAnd,
+  combineQueriesWithOr,
   filterObject,
   isJsonValid,
   substituteReferenceValues,
@@ -290,7 +291,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       substitutedQueries.push(substitutedQuery);
     }
 
-    return combineQueries(where, ...substitutedQueries);
+    return combineQueriesWithAnd(combineQueriesWithOr(...substitutedQueries), where);
   }
 
   /**

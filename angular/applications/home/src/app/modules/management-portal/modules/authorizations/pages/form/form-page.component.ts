@@ -95,7 +95,8 @@ export class AuthorizationsFormPageComponent implements OnInit {
       values.apiKey = this.form.get('apiKey').value;
       values.name = this.form.get('name').value;
     } else if (this.type === AuthorizationType.User) {
-      values.bannedAt = !this.data.bannedAt && this.form.get('bannedAt').value ? new Date() : null;
+      values.bannedAt =
+        this.form.get('bannedAt').dirty && this.form.get('bannedAt').value ? new Date() : null;
       values.userId = this.form.get('user').value._id;
     }
 
@@ -154,6 +155,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
         gameServers: this.data.roles?.find((r) => r.startsWith('GameServers')),
         namespaces: this.data.roles?.find((r) => r.startsWith('Namespaces')),
         queues: this.data.roles?.find((r) => r.startsWith('Queues')),
+        records: this.data.roles?.find((r) => r.startsWith('Records')),
         storefronts: this.data.roles?.find((r) => r.startsWith('Storefronts')),
         users: this.data.roles?.find((r) => r.startsWith('Users')),
         webSockets: this.data.roles?.find((r) => r.startsWith('WebSockets')),

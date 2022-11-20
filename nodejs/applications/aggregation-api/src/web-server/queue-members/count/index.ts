@@ -1,5 +1,5 @@
-import { Context } from '@tenlastic/web-server';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
+import { Context } from '@tenlastic/web-server';
 
 import { QueueMember, QueueMemberPermissions } from '../../../mongodb';
 

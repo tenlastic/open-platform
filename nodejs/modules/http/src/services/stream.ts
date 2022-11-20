@@ -277,6 +277,10 @@ export class StreamService {
     }
 
     const subscription = this.subscriptions.find((s) => s._id === _id);
+    if (!subscription) {
+      return;
+    }
+
     const data = { _id, method: subscription.method };
 
     const index = this.subscriptions.findIndex((s) => s._id === _id);

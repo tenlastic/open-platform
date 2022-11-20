@@ -19,6 +19,8 @@ export namespace IAuthorization {
     NamespacesReadWrite = 'Namespaces:ReadWrite',
     QueuesRead = 'Queues:Read',
     QueuesReadWrite = 'Queues:ReadWrite',
+    RecordsRead = 'Records:Read',
+    RecordsReadWrite = 'Records:ReadWrite',
     StorefrontsRead = 'Storefronts:Read',
     StorefrontsReadWrite = 'Storefronts:ReadWrite',
     UsersRead = 'Users:Read',
@@ -57,7 +59,7 @@ export class AuthorizationModel extends BaseModel {
   constructor(parameters?: Partial<AuthorizationModel>) {
     super(parameters);
 
-    this.bannedAt = parameters.bannedAt ? new Date(parameters.bannedAt) : null;
+    this.bannedAt = parameters?.bannedAt ? new Date(parameters.bannedAt) : null;
   }
 
   public hasRoles(roles: IAuthorization.Role[]) {

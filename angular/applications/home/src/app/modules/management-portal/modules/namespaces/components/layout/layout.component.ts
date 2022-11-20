@@ -161,13 +161,11 @@ export class LayoutComponent implements OnDestroy, OnInit {
         .selectAll({ filterBy: (s) => s.namespaceId === params.namespaceId })
         .pipe(map((s) => s[0]));
 
-      this.fetchStorefront$ = combineLatest([this.$namespace, this.$storefront]).subscribe(
-        async ([namespace, storefront]) => {
-          if (namespace?.status?.phase === 'Running' && !storefront) {
-            return this.storefrontService.find(params.namespaceId, { limit: 1 });
-          }
-        },
-      );
+      this.fetchStorefront$ = this.$namespace.subscribe(async (namespace) => {
+        if (namespace?.status?.phase === 'Running') {
+          return this.storefrontService.find(params.namespaceId, { limit: 1 });
+        }
+      });
       this.subscribe$ = this.$namespace.subscribe(async (namespace) => {
         if (this.connected) {
           return;

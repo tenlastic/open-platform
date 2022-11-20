@@ -11,68 +11,55 @@ const administrator = {
 export function RecordPermissions(collection: CollectionDocument, Model: RecordModel) {
   const permissions: IOptions = {
     create: {
+      ...collection.permissions.create,
       'namespace-write': administrator.create,
       'user-write': administrator.create,
     },
     delete: {
+      ...collection.permissions.delete,
       'namespace-write': true,
       'user-write': true,
     },
     find: {
+      ...collection.permissions.find,
       default: AuthorizationPermissionsHelpers.getFindQuery([
-        AuthorizationRole.CollectionsRead,
-        AuthorizationRole.CollectionsReadWrite,
+        AuthorizationRole.RecordsRead,
+        AuthorizationRole.RecordsReadWrite,
       ]),
       'user-read': {},
     },
-    populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
+    populate: collection.permissions.populate
+      ? [...collection.permissions.populate, AuthorizationPermissionsHelpers.getPopulateQuery()]
+      : [AuthorizationPermissionsHelpers.getPopulateQuery()],
     read: {
+      ...collection.permissions.read,
       'namespace-read': administrator.read,
       'user-read': administrator.read,
     },
     roles: {
-    default: {},
-    'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.CollectionsRead,
-        AuthorizationRole.CollectionsReadWrite,
+      ...collection.permissions.roles,
+      default: {},
+      'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.RecordsRead,
+        AuthorizationRole.RecordsReadWrite,
       ]),
       'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.CollectionsReadWrite,
+        AuthorizationRole.RecordsReadWrite,
       ]),
       'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.CollectionsRead,
-        AuthorizationRole.CollectionsReadWrite,
+        AuthorizationRole.RecordsRead,
+        AuthorizationRole.RecordsReadWrite,
       ]),
       'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.CollectionsReadWrite,
+        AuthorizationRole.RecordsReadWrite,
       ]),
     },
     update: {
+      ...collection.permissions.update,
       'namespace-write': administrator.update,
       'user-write': administrator.update,
     },
   };
-
-  Object.assign(permissions.create, collection.permissions.create);
-  Object.assign(permissions.delete, collection.permissions.delete);
-  Object.assign(permissions.read, collection.permissions.read);
-  Object.assign(permissions.roles, collection.permissions.roles);
-  Object.assign(permissions.update, collection.permissions.update);
-
-  if (collection.permissions.find) {
-    const find = JSON.parse(JSON.stringify(collection.permissions.find));
-
-    Object.keys(permissions.find).forEach((key) => {
-      if (key in find) {
-        find[key] = { $or: [find[key], permissions.find[key]] };
-      }
-    });
-
-    Object.assign(permissions.find, find);
-  }
-  if (collection.permissions.populate) {
-    permissions.populate.push(...collection.permissions.populate);
-  }
 
   return new MongoosePermissions<RecordDocument>(Model, permissions);
 }

@@ -1,8 +1,15 @@
 /**
- * Combines multiple queries into one, removing invalid queries.
+ * Combines multiple queries into one using $and, removing invalid queries.
  */
-export function combineQueries(...queries: any[]) {
+export function combineQueriesWithAnd(...queries: any[]) {
   return { $and: queries.filter(isPlainObject) };
+}
+
+/**
+ * Combines multiple queries into one using $or, removing invalid queries.
+ */
+export function combineQueriesWithOr(...queries: any[]) {
+  return { $or: queries.filter(isPlainObject) };
 }
 
 /**

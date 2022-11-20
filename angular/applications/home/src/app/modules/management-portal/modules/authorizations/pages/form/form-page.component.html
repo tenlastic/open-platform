@@ -120,6 +120,15 @@
         </mat-radio-group>
       </div>
 
+      <h4>Records</h4>
+      <div class="row">
+        <mat-radio-group formControlName="records">
+          <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.RecordsRead">Read</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.RecordsReadWrite">Read / Write</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
       <h4>Storefronts</h4>
       <div class="row">
         <mat-radio-group formControlName="storefronts">

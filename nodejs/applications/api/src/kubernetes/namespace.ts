@@ -612,7 +612,7 @@ function getCdcPodTemplate(namespace: NamespaceDocument): V1Pod {
   if (isDevelopment) {
     return {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.API },
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.CDC },
         name: `${name}-cdc`,
       },
       spec: {
@@ -637,7 +637,7 @@ function getCdcPodTemplate(namespace: NamespaceDocument): V1Pod {
   } else {
     return {
       metadata: {
-        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.API },
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.CDC },
         name,
       },
       spec: {

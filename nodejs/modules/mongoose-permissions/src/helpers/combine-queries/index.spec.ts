@@ -1,15 +1,29 @@
 import { expect } from 'chai';
 
-import { combineQueries } from '.';
+import { combineQueriesWithAnd, combineQueriesWithOr } from '.';
 
 describe('combine-queries', function () {
-  it('combines multiple queries', function () {
-    const first = { $and: [{ first: true }], second: true };
-    const second = { first: true, second: false };
-    const third = { first: false, second: false };
+  describe('combineQueriesWithAnd()', function () {
+    it('combines multiple queries', function () {
+      const first = { $and: [{ first: true }], second: true };
+      const second = { first: true, second: false };
+      const third = { first: false, second: false };
 
-    const result = combineQueries(first, second, third, [], null, undefined);
+      const result = combineQueriesWithAnd(true, first, second, third, [], null, undefined);
 
-    expect(result).to.eql({ $and: [first, second, third] });
+      expect(result).to.eql({ $and: [first, second, third] });
+    });
+  });
+
+  describe('combineQueriesWithOr()', function () {
+    it('combines multiple queries', function () {
+      const first = { $and: [{ first: true }], second: true };
+      const second = { first: true, second: false };
+      const third = { first: false, second: false };
+
+      const result = combineQueriesWithOr(true, first, second, third, [], null, undefined);
+
+      expect(result).to.eql({ $or: [first, second, third] });
+    });
   });
 });

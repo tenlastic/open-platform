@@ -34,6 +34,8 @@ export enum AuthorizationRole {
   NamespacesReadWrite = 'Namespaces:ReadWrite',
   QueuesRead = 'Queues:Read',
   QueuesReadWrite = 'Queues:ReadWrite',
+  RecordsRead = 'Records:Read',
+  RecordsReadWrite = 'Records:ReadWrite',
   StorefrontsRead = 'Storefronts:Read',
   StorefrontsReadWrite = 'Storefronts:ReadWrite',
   UsersRead = 'Users:Read',
