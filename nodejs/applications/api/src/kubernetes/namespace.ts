@@ -495,9 +495,7 @@ function getApiConnectorContainerTemplate(namespace: NamespaceDocument): V1Conta
     {
       name: 'WHERE',
       value: JSON.stringify({
-        authorizations: {
-          $or: [{ namespaceId: { $exists: false } }, { namespaceId: namespace._id }],
-        },
+        authorizations: { namespaceId: namespace._id },
         namespaces: { _id: namespace._id },
       }),
     },
