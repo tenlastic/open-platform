@@ -1,4 +1,5 @@
 export * from './authorization';
+export * from './authorization-request';
 export * from './friend';
 export * from './group';
 export * from './group-invitation';

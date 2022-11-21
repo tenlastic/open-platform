@@ -1,6 +1,7 @@
 import { loggingMiddleware, WebServer } from '@tenlastic/web-server';
 import * as Router from 'koa-router';
 
+import authorizationRequestsRoutes from './authorization-requests';
 import authorizationsRoutes from './authorizations';
 import friendsRoutes from './friends';
 import groupsRoutes from './groups';
@@ -20,6 +21,7 @@ export function setup() {
   const webServer = new WebServer(loggingMiddleware);
 
   const router = new Router();
+  router.use(authorizationRequestsRoutes);
   router.use(authorizationsRoutes);
   router.use(friendsRoutes);
   router.use(groupsRoutes);

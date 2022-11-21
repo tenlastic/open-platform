@@ -23,7 +23,7 @@ describe('web-server/records/count', function () {
     const namespace = await NamespaceMock.create();
     await AuthorizationMock.create({
       namespaceId: namespace._id,
-      roles: [AuthorizationRole.CollectionsRead],
+      roles: [AuthorizationRole.RecordsRead],
       userId: user._id,
     });
 
@@ -58,9 +58,7 @@ describe('web-server/records/count', function () {
     });
 
     const ctx = new ContextMock({
-      params: {
-        collectionId: collection._id,
-      },
+      params: { collectionId: collection._id },
       state: { user },
     });
 

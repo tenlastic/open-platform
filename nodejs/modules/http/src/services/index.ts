@@ -1,6 +1,7 @@
 export * from './api';
 export * from './article';
 export * from './authorization';
+export * from './authorization-request';
 export * from './build';
 export * from './build-log';
 export * from './collection';

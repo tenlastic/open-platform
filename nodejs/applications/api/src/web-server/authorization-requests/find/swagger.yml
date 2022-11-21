@@ -1,0 +1,45 @@
+paths:
+  /authorization-requests:
+    get:
+      summary: Find
+      tags: [Authorization Requests]
+      description: Finds records matching the search criteria.
+      security:
+        - AccessToken: []
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuthorizationRequest'
+  /namespaces/{namespaceId}/authorization-requests:
+    get:
+      summary: Find
+      tags: [Authorization Requests]
+      description: Finds records matching the search criteria.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuthorizationRequest'

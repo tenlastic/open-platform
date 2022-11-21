@@ -282,7 +282,7 @@ describe('mongoose-permissions', function () {
       it('returns a valid where query', async function () {
         const query = await Permissions.where({ user: admin }, {});
 
-        expect(query).to.be.eql({ $and: [{}, {}] });
+        expect(query).to.be.eql({ $and: [{ $or: [{}] }, {}] });
       });
     });
 

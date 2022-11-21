@@ -6,6 +6,7 @@ import { URL } from 'url';
 
 import {
   Authorization,
+  AuthorizationRequest,
   Friend,
   Group,
   GroupInvitation,
@@ -40,6 +41,7 @@ before(async function () {
   });
   await Promise.all([
     Authorization.syncIndexes({ background: true }),
+    AuthorizationRequest.syncIndexes({ background: true }),
     Friend.syncIndexes({ background: true }),
     Group.syncIndexes({ background: true }),
     GroupInvitation.syncIndexes({ background: true }),
@@ -62,6 +64,7 @@ beforeEach(async function () {
   // MongoDB.
   await Promise.all([
     Authorization.deleteMany({}),
+    AuthorizationRequest.deleteMany({}),
     Friend.deleteMany({}),
     Group.deleteMany({}),
     GroupInvitation.deleteMany({}),

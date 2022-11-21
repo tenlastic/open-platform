@@ -25,7 +25,7 @@ describe('web-server/records/find', function () {
     namespace = await NamespaceMock.create();
     await AuthorizationMock.create({
       namespaceId: namespace._id,
-      roles: [AuthorizationRole.CollectionsRead],
+      roles: [AuthorizationRole.RecordsRead],
       userId: user._id,
     });
 
@@ -63,9 +63,7 @@ describe('web-server/records/find', function () {
     });
 
     const ctx = new ContextMock({
-      params: {
-        collectionId: collection._id,
-      },
+      params: { collectionId: collection._id },
       state: { user },
     });
 
@@ -80,9 +78,7 @@ describe('web-server/records/find', function () {
     await Model.create({
       collectionId: collection._id,
       namespaceId: namespace._id,
-      properties: {
-        insertedAt: new Date().toISOString(),
-      },
+      properties: { insertedAt: new Date().toISOString() },
       userId: user._id,
     });
 

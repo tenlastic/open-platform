@@ -1,6 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
+  AuthorizationRequestModel,
+  AuthorizationRequestService,
   AuthorizationService,
   BuildModel,
   BuildService,
@@ -12,19 +14,15 @@ import {
 import { IdentityService } from '../../../../../../core/services';
 
 export enum State {
+  AuthorizationRequestDenied,
+  AuthorizationRequested,
   Banned,
   Checking,
   NotAuthorized,
   NotAvailable,
   NotChecked,
   NotInstalled,
-  PendingAuthorization,
-}
-
-interface Status {
-  isInstalled?: boolean;
-  state?: State;
-  text?: string;
+  RequestingAuthorization,
 }
 
 @Component({
@@ -35,8 +33,20 @@ interface Status {
 export class DownloadComponent implements OnInit {
   @Input() private storefront: StorefrontModel;
 
+  public get buttonAction() {
+    switch (this.state) {
+      case State.NotAuthorized:
+        return () => this.requestAuthorization();
+
+      case State.NotInstalled:
+        return () => this.download();
+
+      default:
+        return null;
+    }
+  }
   public get buttonIcon() {
-    switch (this.status.state) {
+    switch (this.state) {
       case State.NotInstalled:
         return 'save_alt';
 
@@ -45,7 +55,13 @@ export class DownloadComponent implements OnInit {
     }
   }
   public get buttonText() {
-    switch (this.status.state) {
+    switch (this.state) {
+      case State.AuthorizationRequestDenied:
+        return 'Authorization Request Denied';
+
+      case State.AuthorizationRequested:
+        return 'Authorization Requested';
+
       case State.Banned:
         return 'Banned';
 
@@ -53,55 +69,40 @@ export class DownloadComponent implements OnInit {
         return 'Verifying...';
 
       case State.NotAuthorized:
-        return 'Not Authorized';
+        return 'Request Authorization';
 
       case State.NotAvailable:
         return 'Not Available';
 
       case State.NotInstalled:
         return 'Download';
-
-      case State.PendingAuthorization:
-        return 'Pending Authorization';
     }
   }
   public get isButtonDisabled() {
-    switch (this.status.state) {
+    switch (this.state) {
+      case State.AuthorizationRequestDenied:
+      case State.AuthorizationRequested:
       case State.Banned:
       case State.Checking:
       case State.NotAvailable:
-      case State.NotAuthorized:
-      case State.PendingAuthorization:
         return true;
 
       default:
         return false;
     }
   }
-  public get isButtonVisible() {
-    switch (this.status.state) {
-      case State.Banned:
-      case State.NotAuthorized:
-      case State.NotInstalled:
-      case State.PendingAuthorization:
-        return true;
-
-      default:
-        return false;
-    }
-  }
-  public status: Status = {};
   public get statusText() {
-    switch (this.status.state) {
+    switch (this.state) {
       case State.Checking:
-        return this.status.text;
+      case State.RequestingAuthorization:
+        return this.text;
 
       default:
         return null;
     }
   }
-  public State = State;
 
+  private authorizationRequest: AuthorizationRequestModel;
   private build: BuildModel;
   private namespaceId: string;
   private get platform() {
@@ -113,10 +114,13 @@ export class DownloadComponent implements OnInit {
 
     return null;
   }
+  private state: State;
+  private text: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationService: AuthorizationService,
+    private authorizationRequestService: AuthorizationRequestService,
     private buildService: BuildService,
     private identityService: IdentityService,
   ) {}
@@ -125,29 +129,43 @@ export class DownloadComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.namespaceId = params.namespaceId;
 
-      this.status.state = State.Checking;
+      this.state = State.Checking;
 
       // Check platform...
       if (!this.platform) {
-        this.status.state = State.NotAvailable;
+        this.state = State.NotAvailable;
         return;
       }
 
       // Check Authorization...
-      this.status.text = 'Checking authorization...';
-      const authorization = await this.getAuthorization(this.namespaceId);
-      const roles = [
-        IAuthorization.Role.BuildsRead,
-        IAuthorization.Role.BuildsReadPublished,
-        IAuthorization.Role.BuildsReadWrite,
-      ];
-      if (!authorization || !authorization.roles.some((r) => roles.includes(r))) {
-        this.status.state = State.NotAuthorized;
+      this.text = 'Checking authorization...';
+      const authorizations = await this.authorizationService.findUserAuthorizations(
+        this.namespaceId,
+        this.identityService.user?._id,
+      );
+      if (authorizations.some((a) => a.bannedAt)) {
+        this.state = State.Banned;
+        return;
+      } else if (!authorizations.some((a) => a.hasRoles(IAuthorization.buildRoles))) {
+        const [authorizationRequest] = await this.authorizationRequestService.find(
+          this.namespaceId,
+          { where: { userId: this.identityService.user?._id } },
+        );
+
+        this.authorizationRequest = authorizationRequest;
+        if (this.authorizationRequest?.deniedAt) {
+          this.state = State.AuthorizationRequestDenied;
+        } else if (this.authorizationRequest?.hasRoles(IAuthorization.buildRoles)) {
+          this.state = State.AuthorizationRequested;
+        } else {
+          this.state = State.NotAuthorized;
+        }
+
         return;
       }
 
       // Get the latest Build from the server.
-      this.status.text = 'Retrieving latest build...';
+      this.text = 'Retrieving latest build...';
       const builds = await this.buildService.find(this.namespaceId, {
         limit: 1,
         sort: '-publishedAt',
@@ -158,20 +176,20 @@ export class DownloadComponent implements OnInit {
         },
       });
       if (builds.length === 0) {
-        this.status.state = State.NotAvailable;
+        this.state = State.NotAvailable;
         return;
       }
 
       // Find Files associated with latest Build.
-      this.status.text = 'Retrieving build files...';
+      this.text = 'Retrieving build files...';
       this.build = builds[0];
       if (builds[0].files.length === 0) {
-        this.status.state = State.NotAvailable;
+        this.state = State.NotAvailable;
         return;
       }
 
-      this.status.state = State.NotInstalled;
-      this.status.text = 'Download';
+      this.state = State.NotInstalled;
+      this.text = 'Download';
     });
   }
 
@@ -194,12 +212,28 @@ export class DownloadComponent implements OnInit {
     window.URL.revokeObjectURL(url);
   }
 
-  private async getAuthorization(namespaceId: string) {
-    const authorizations = await this.authorizationService.findUserAuthorizations(
-      namespaceId,
-      this.identityService.user?._id,
-    );
+  private async requestAuthorization() {
+    this.state = State.RequestingAuthorization;
+    this.text = 'Requesting authorization...';
 
-    return authorizations[0];
+    const roles = [IAuthorization.Role.BuildsReadPublished];
+
+    if (this.authorizationRequest) {
+      await this.authorizationRequestService.update(
+        this.namespaceId,
+        this.authorizationRequest._id,
+        {
+          roles: [...this.authorizationRequest.roles, ...roles],
+          userId: this.identityService.user?._id,
+        },
+      );
+    } else {
+      await this.authorizationRequestService.create(this.namespaceId, {
+        roles,
+        userId: this.identityService.user?._id,
+      });
+    }
+
+    this.state = State.AuthorizationRequested;
   }
 }

@@ -3,6 +3,7 @@ import * as nats from '@tenlastic/nats';
 
 import {
   Authorization,
+  AuthorizationRequest,
   Friend,
   GroupInvitation,
   Group,
@@ -15,6 +16,7 @@ import {
   WebSocket,
 } from '../mongodb';
 import { AuthorizationEvent } from './authorization';
+import { AuthorizationRequestEvent } from './authorization-request';
 import { FriendEvent } from './friend';
 import { GroupEvent } from './group';
 import { GroupInvitationEvent } from './group-invitation';
@@ -38,6 +40,9 @@ export async function setup(options: SetupOptions) {
   Promise.all([
     subscribe(options.database, options.durable, Authorization, (payload) =>
       AuthorizationEvent.emit(payload),
+    ),
+    subscribe(options.database, options.durable, AuthorizationRequest, (payload) =>
+      AuthorizationRequestEvent.emit(payload),
     ),
     subscribe(options.database, options.durable, Friend, (payload) => FriendEvent.emit(payload)),
     subscribe(options.database, options.durable, GroupInvitation, (payload) =>

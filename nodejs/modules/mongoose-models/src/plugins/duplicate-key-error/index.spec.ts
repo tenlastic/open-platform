@@ -9,11 +9,11 @@ const chance = new Chance();
 type Document = { name: string } & mongoose.Document;
 const schema = new mongoose.Schema<Document>(
   { name: { required: true, type: String } },
-  { collection: 'uniques' },
+  { collection: 'duplicate-key-error-plugins' },
 );
 schema.index({ name: 1 }, { unique: true });
 schema.plugin(duplicateKeyErrorPlugin);
-const Model = mongoose.model<Document>('Unique', schema);
+const Model = mongoose.model<Document>('DuplicateKeyErrorPlugin', schema);
 
 describe('plugins/duplicate-key-error', function () {
   before(async function () {

@@ -6,6 +6,9 @@ import {
   ArticleService,
   ArticleStore,
   AuthorizationQuery,
+  AuthorizationRequestQuery,
+  AuthorizationRequestService,
+  AuthorizationRequestStore,
   AuthorizationService,
   AuthorizationStore,
   BuildLogQuery,
@@ -36,6 +39,7 @@ import {
   IgnorationQuery,
   IgnorationService,
   IgnorationStore,
+  InvalidRefreshTokenInterceptor,
   LoginService,
   MessageQuery,
   MessageService,
@@ -67,7 +71,6 @@ import {
   StorefrontStore,
   StreamService,
   TokenService,
-  UnauthorizedInterceptor,
   UserQuery,
   UserService,
   UserStore,
@@ -94,9 +97,9 @@ const interceptors: Provider[] = [
   },
   {
     deps: [Axios, LoginService],
-    provide: UnauthorizedInterceptor,
+    provide: InvalidRefreshTokenInterceptor,
     useFactory: (axios: Axios, loginService: LoginService) =>
-      new UnauthorizedInterceptor(axios, loginService),
+      new InvalidRefreshTokenInterceptor(axios, loginService),
   },
 ];
 const queries: Provider[] = [
@@ -109,6 +112,11 @@ const queries: Provider[] = [
     deps: [AuthorizationStore],
     provide: AuthorizationQuery,
     useFactory: (store: AuthorizationStore) => new AuthorizationQuery(store),
+  },
+  {
+    deps: [AuthorizationRequestStore],
+    provide: AuthorizationRequestQuery,
+    useFactory: (store: AuthorizationRequestStore) => new AuthorizationRequestQuery(store),
   },
   {
     deps: [BuildLogStore],
@@ -237,6 +245,15 @@ const services: Provider[] = [
       store: ArticleStore,
       environmentService: EnvironmentService,
     ) => new ArticleService(apiService, store, environmentService),
+  },
+  {
+    deps: [ApiService, AuthorizationRequestStore, EnvironmentService],
+    provide: AuthorizationRequestService,
+    useFactory: (
+      apiService: ApiService,
+      store: AuthorizationRequestStore,
+      environmentService: EnvironmentService,
+    ) => new AuthorizationRequestService(apiService, store, environmentService),
   },
   {
     deps: [ApiService, AuthorizationStore, EnvironmentService],
@@ -475,6 +492,7 @@ const services: Provider[] = [
 ];
 const stores: Provider[] = [
   { provide: ArticleStore, useValue: new ArticleStore() },
+  { provide: AuthorizationRequestStore, useValue: new AuthorizationRequestStore() },
   { provide: AuthorizationStore, useValue: new AuthorizationStore() },
   { provide: BuildLogStore, useValue: new BuildLogStore() },
   { provide: BuildStore, useValue: new BuildStore() },
@@ -512,6 +530,6 @@ const stores: Provider[] = [
 export class HttpModule {
   constructor(
     private accessTokenInterceptor: AccessTokenInterceptor,
-    private unauthorizedInterceptor: UnauthorizedInterceptor,
+    private invalidRefreshTokenInterceptor: InvalidRefreshTokenInterceptor,
   ) {}
 }

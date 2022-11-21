@@ -1,9 +1,9 @@
 <div *ngIf="!statusText"
      class="action">
   <app-button color="primary"
-              [disabled]="isButtonDisabled"
+              [disabled]="!buttonAction"
               size="large"
-              (OnClick)="download()">
+              (OnClick)="buttonAction()">
     <mat-icon *ngIf="buttonIcon">{{ buttonIcon }}</mat-icon>
     <div>{{ buttonText }}</div>
   </app-button>

@@ -20,12 +20,26 @@
                 layout="vertical"
                 [matTooltip]="namespace.status?.phase === 'Running' ? null : 'Namespace must be running.'"
                 matTooltipPosition="right"
-                [routerLink]="namespace.status?.phase === 'Running' ? ['api-keys'] : null"
+                [routerLink]="namespace.status?.phase === 'Running' ? ['authorizations'] : null"
                 routerLinkActive="active"
                 text="left"
                 width="full">
       <mat-icon>vpn_key</mat-icon>
       <div>Authorizations</div>
+    </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.authorizationRoles) | async"
+                color="accent"
+                [disabled]="namespace.status?.phase !== 'Running'"
+                layout="vertical"
+                [matTooltip]="namespace.status?.phase === 'Running' ? null : 'Namespace must be running.'"
+                matTooltipPosition="right"
+                [routerLink]="namespace.status?.phase === 'Running' ? ['authorization-requests'] : null"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon fontSet="material-icons-outlined">vpn_key</mat-icon>
+      <div>Authorization Requests</div>
     </app-button>
 
     <app-button *ngIf="$hasPermission(IAuthorization.buildRoles) | async"

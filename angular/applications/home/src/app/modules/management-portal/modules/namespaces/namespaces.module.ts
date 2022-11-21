@@ -21,13 +21,20 @@ export const ROUTES: Routes = [
         title: FormResolver,
       },
       {
-        loadChildren: () =>
-          import('../authorizations/authorizations.module').then((m) => m.AuthorizationModule),
-        path: 'api-keys',
-      },
-      {
         loadChildren: () => import('../articles/articles.module').then((m) => m.ArticleModule),
         path: 'articles',
+      },
+      {
+        loadChildren: () =>
+          import('../authorizations/authorizations.module').then((m) => m.AuthorizationModule),
+        path: 'authorizations',
+      },
+      {
+        loadChildren: () =>
+          import('../authorization-requests/authorization-requests.module').then(
+            (m) => m.AuthorizationRequestModule,
+          ),
+        path: 'authorization-requests',
       },
       {
         loadChildren: () => import('../builds/builds.module').then((m) => m.BuildModule),

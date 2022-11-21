@@ -5,6 +5,8 @@ import {
   Authorization,
   AuthorizationDocument,
   AuthorizationPermissions,
+  AuthorizationRequest,
+  AuthorizationRequestPermissions,
   GroupInvitation,
   GroupInvitationPermissions,
   Group,
@@ -48,6 +50,15 @@ export async function subscribe(
         data,
         Authorization,
         AuthorizationPermissions,
+        ws,
+      );
+
+    case 'authorization-requests':
+      return webSocketServer.subscribe(
+        credentials,
+        data,
+        AuthorizationRequest,
+        AuthorizationRequestPermissions,
         ws,
       );
 

@@ -2,6 +2,7 @@ import 'source-map-support/register';
 
 import {
   Authorization,
+  AuthorizationRequest,
   Friend,
   Group,
   GroupInvitation,
@@ -28,6 +29,7 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
     console.log('Syncing indexes...');
     await Promise.all([
       mongoose.syncIndexes(Authorization),
+      mongoose.syncIndexes(AuthorizationRequest),
       mongoose.syncIndexes(Friend),
       mongoose.syncIndexes(Group),
       mongoose.syncIndexes(GroupInvitation),
@@ -46,6 +48,7 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
     console.log('Syncing schemas...');
     await Promise.all([
       mongoose.syncSchema(connection, Authorization),
+      mongoose.syncSchema(connection, AuthorizationRequest),
       mongoose.syncSchema(connection, Friend),
       mongoose.syncSchema(connection, Group),
       mongoose.syncSchema(connection, GroupInvitation),
@@ -67,6 +70,7 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
     console.log('Enabling Document Pre- and Post-Images...');
     await Promise.all([
       mongoose.enablePrePostImages(Authorization),
+      mongoose.enablePrePostImages(AuthorizationRequest),
       mongoose.enablePrePostImages(Friend),
       mongoose.enablePrePostImages(Group),
       mongoose.enablePrePostImages(GroupInvitation),

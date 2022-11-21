@@ -1,5 +1,6 @@
 export * from './article';
 export * from './authorization';
+export * from './authorization-request';
 export * from './base';
 export * from './build';
 export * from './build-log';

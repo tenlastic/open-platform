@@ -32,16 +32,17 @@ export namespace IAuthorization {
   }
 
   export const articleRoles = [
-    Role.ArticlesRead,
     Role.ArticlesReadPublished,
+    Role.ArticlesRead,
     Role.ArticlesReadWrite,
   ];
   export const authorizationRoles = [Role.AuthorizationsRead, Role.AuthorizationsReadWrite];
-  export const buildRoles = [Role.BuildsRead, Role.BuildsReadPublished, Role.BuildsReadWrite];
+  export const buildRoles = [Role.BuildsReadPublished, Role.BuildsRead, Role.BuildsReadWrite];
   export const collectionRoles = [Role.CollectionsRead, Role.CollectionsReadWrite];
   export const gameServerRoles = [Role.GameServersRead, Role.GameServersReadWrite];
   export const namespaceRoles = [Role.NamespacesRead, Role.NamespacesReadWrite];
   export const queueRoles = [Role.QueuesRead, Role.QueuesReadWrite];
+  export const recordRoles = [Role.RecordsRead, Role.RecordsReadWrite];
   export const storefrontRoles = [Role.StorefrontsRead, Role.StorefrontsReadWrite];
   export const userRoles = [Role.UsersRead, Role.UsersReadWrite];
   export const webSocketRoles = [Role.WebSocketsRead, Role.WebSocketsReadWrite];

@@ -30,7 +30,7 @@ describe('web-server/records/update', function () {
     const namespace = await NamespaceMock.create();
     await AuthorizationMock.create({
       namespaceId: namespace._id,
-      roles: [AuthorizationRole.CollectionsReadWrite],
+      roles: [AuthorizationRole.RecordsReadWrite],
       userId: user._id,
     });
 
@@ -63,13 +63,8 @@ describe('web-server/records/update', function () {
   it('returns the matching record', async function () {
     const properties = { email: chance.email(), name: chance.name() };
     const ctx = new ContextMock({
-      params: {
-        _id: record._id.toString(),
-        collectionId: collection._id,
-      },
-      request: {
-        body: { properties },
-      },
+      params: { _id: record._id.toString(), collectionId: collection._id },
+      request: { body: { properties } },
       state: { user },
     });
 

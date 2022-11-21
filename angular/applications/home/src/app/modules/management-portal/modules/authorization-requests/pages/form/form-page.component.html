@@ -1,0 +1,207 @@
+<div *ngIf="form"
+     class="page">
+  <div class="row">
+    <div class="col-sm-6">
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Authorization Request</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Authorization Request</app-title>
+    </div>
+  </div>
+
+  <form [formGroup]="form"
+        autocomplete="off">
+    <div class="row">
+      <app-autocomplete-user-field [control]="form.get('user')"></app-autocomplete-user-field>
+    </div>
+
+    <app-toggle-section formGroupName="roles"
+                        title="Roles">
+      <ng-container *ngIf="form.get('roles').get('articles').value">
+        <h4>Articles</h4>
+        <div class="row">
+          <mat-radio-group formControlName="articles">
+            <mat-radio-button>None</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.ArticlesReadPublished">Read (Published)</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.ArticlesRead">Read</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.ArticlesReadWrite">Read / Write</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="form.get('roles').get('authorizations').value">
+        <h4>Authorizations</h4>
+        <div class="row">
+          <mat-radio-group formControlName="authorizations">
+            <mat-radio-button>None</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.AuthorizationsRead">Read</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.AuthorizationsReadWrite">Read / Write</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="form.get('roles').get('builds').value">
+        <h4>Builds</h4>
+        <div class="row">
+          <mat-radio-group formControlName="builds">
+            <mat-radio-button>None</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.BuildsReadPublished">Read (Published)</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.BuildsRead">Read</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.BuildsReadWrite">Read / Write</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="form.get('roles').get('collections').value">
+        <h4>Collections</h4>
+        <div class="row">
+          <mat-radio-group formControlName="collections">
+            <mat-radio-button>None</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.CollectionsRead">Read</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.CollectionsReadWrite">Read / Write</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="form.get('roles').get('gameServers').value">
+        <h4>Game Servers</h4>
+        <div class="row">
+          <mat-radio-group formControlName="gameServers">
+            <mat-radio-button>None</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.GameServersRead">Read</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.GameServersReadWrite">Read / Write</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="form.get('roles').get('namespaces').value">
+        <h4>Namespaces</h4>
+        <div class="row">
+          <mat-radio-group formControlName="namespaces">
+            <mat-radio-button>None</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.NamespacesRead">Read</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.NamespacesReadWrite">Read / Write</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="form.get('roles').get('queues').value">
+        <h4>Queues</h4>
+        <div class="row">
+          <mat-radio-group formControlName="queues">
+            <mat-radio-button>None</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.QueuesRead">Read</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.QueuesReadWrite">Read / Write</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="form.get('roles').get('records').value">
+        <h4>Records</h4>
+        <div class="row">
+          <mat-radio-group formControlName="records">
+            <mat-radio-button>None</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.RecordsRead">Read</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.RecordsReadWrite">Read / Write</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="form.get('roles').get('storefronts').value">
+        <h4>Storefronts</h4>
+        <div class="row">
+          <mat-radio-group formControlName="storefronts">
+            <mat-radio-button>None</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.StorefrontsRead">Read</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.StorefrontsReadWrite">Read / Write</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="form.get('roles').get('users').value">
+        <h4>Users</h4>
+        <div class="row">
+          <mat-radio-group formControlName="users">
+            <mat-radio-button>None</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.UsersRead">Read</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.UsersReadWrite">Read / Write</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="form.get('roles').get('webSockets').value">
+        <h4>Web Sockets</h4>
+        <div class="row">
+          <mat-radio-group formControlName="webSockets">
+            <mat-radio-button>None</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.WebSocketsRead">Read</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.WebSocketsReadWrite">Read / Write</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="form.get('roles').get('workflows').value">
+        <h4>Workflows</h4>
+        <div class="row">
+          <mat-radio-group formControlName="workflows">
+            <mat-radio-button>None</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.WorkflowsRead">Read</mat-radio-button>
+            <mat-radio-button [value]="AuthorizationRole.WorkflowsReadWrite">Read / Write</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </ng-container>
+    </app-toggle-section>
+
+    <app-toggle-section title="Status">
+      <mat-form-field *ngIf="data.deniedAt"
+                      floatLabel="always">
+        <mat-label>Denied At</mat-label>
+        <input matInput
+               disabled
+               [value]="data.deniedAt | date" />
+      </mat-form-field>
+
+      <mat-form-field *ngIf="data.grantedAt"
+                      floatLabel="always">
+        <mat-label>Granted At</mat-label>
+        <input matInput
+               disabled
+               [value]="data.grantedAt | date" />
+      </mat-form-field>
+
+      <mat-form-field *ngIf="!data.deniedAt && !data.grantedAt"
+                      floatLabel="always">
+        <mat-label>Requested At</mat-label>
+        <input matInput
+               disabled
+               [value]="data.updatedAt | date" />
+      </mat-form-field>
+    </app-toggle-section>
+  </form>
+</div>
+
+<div *ngIf="form"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <div class="flex">
+    <div class="col-sm-6">
+      <app-button color="accent"
+                  size="large"
+                  (OnClick)="deny()">
+        <mat-icon>close</mat-icon>
+        <div>Deny</div>
+      </app-button>
+    </div>
+
+    <div class="col-sm-6">
+      <app-button color="primary"
+                  size="large"
+                  (OnClick)="grant()">
+        <mat-icon>check</mat-icon>
+        <div>Grant</div>
+      </app-button>
+    </div>
+  </div>
+</div>

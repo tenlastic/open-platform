@@ -25,7 +25,7 @@ describe('web-server/records/find-one', function () {
     namespace = await NamespaceMock.create();
     await AuthorizationMock.create({
       namespaceId: namespace._id,
-      roles: [AuthorizationRole.CollectionsRead],
+      roles: [AuthorizationRole.RecordsRead],
       userId: user._id,
     });
 
@@ -57,10 +57,7 @@ describe('web-server/records/find-one', function () {
     });
 
     const ctx = new ContextMock({
-      params: {
-        _id: record._id.toString(),
-        collectionId: collection._id,
-      },
+      params: { _id: record._id.toString(), collectionId: collection._id },
       state: { user },
     });
 

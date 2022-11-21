@@ -16,27 +16,16 @@ export const ROUTES: Routes = [
           ),
       },
       {
-        path: 'builds',
-        loadChildren: () => import('./modules/builds/builds.module').then((m) => m.BuildModule),
-      },
-      {
-        path: 'collections',
+        path: 'authorization-requests',
         loadChildren: () =>
-          import('./modules/collections/collections.module').then((m) => m.CollectionModule),
-      },
-      {
-        path: 'game-servers',
-        loadChildren: () =>
-          import('./modules/game-servers/game-servers.module').then((m) => m.GameServerModule),
+          import('./modules/authorization-requests/authorization-requests.module').then(
+            (m) => m.AuthorizationRequestModule,
+          ),
       },
       {
         path: 'namespaces',
         loadChildren: () =>
           import('./modules/namespaces/namespaces.module').then((m) => m.NamespaceModule),
-      },
-      {
-        path: 'queues',
-        loadChildren: () => import('./modules/queues/queues.module').then((m) => m.QueueModule),
       },
       {
         path: 'refresh-tokens',
@@ -46,11 +35,6 @@ export const ROUTES: Routes = [
           ),
       },
       {
-        path: 'storefront',
-        loadChildren: () =>
-          import('./modules/storefronts/storefronts.module').then((m) => m.StorefrontModule),
-      },
-      {
         path: 'users',
         loadChildren: () => import('./modules/users/users.module').then((m) => m.UserModule),
       },
@@ -58,11 +42,6 @@ export const ROUTES: Routes = [
         path: 'web-sockets',
         loadChildren: () =>
           import('./modules/web-sockets/web-sockets.module').then((m) => m.WebSocketModule),
-      },
-      {
-        path: 'workflows',
-        loadChildren: () =>
-          import('./modules/workflows/workflows.module').then((m) => m.WorkflowsModule),
       },
     ],
     component: LayoutComponent,
