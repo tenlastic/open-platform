@@ -21,6 +21,17 @@ import {
   NamespaceStatusSchema,
 } from './status';
 
+export class NamespaceLimitError extends Error {
+  public path: string;
+
+  constructor(path: string) {
+    super(`Namespace limit reached: ${path}.`);
+
+    this.name = 'NamespaceLimitError';
+    this.path = path;
+  }
+}
+
 @index({ name: 1 }, { unique: true })
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
@@ -82,6 +93,12 @@ export class NamespaceSchema {
 
   @prop({ foreignField: 'namespaceId', localField: '_id', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
+
+  public checkDefaultAuthorizationLimit(current: boolean) {
+    if (current && !this.limits?.defaultAuthorization) {
+      throw new NamespaceLimitError('defaultAuthorization');
+    }
+  }
 }
 
 export type NamespaceDocument = DocumentType<NamespaceSchema>;

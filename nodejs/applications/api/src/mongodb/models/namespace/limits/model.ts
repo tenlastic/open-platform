@@ -14,6 +14,9 @@ export class NamespaceLimitsSchema {
   @prop({ default: 0, type: Number })
   public cpu: number;
 
+  @prop({ default: false, type: Boolean })
+  public defaultAuthorization: boolean;
+
   @prop({ default: 0, type: Number })
   public memory: number;
 

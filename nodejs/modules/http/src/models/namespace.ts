@@ -12,6 +12,7 @@ export namespace INamespace {
   export interface Limits {
     bandwidth?: number;
     cpu?: number;
+    defaultAuthorization?: boolean;
     memory?: number;
     preemptible?: boolean;
     storage?: number;

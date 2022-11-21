@@ -91,6 +91,10 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
       limits: this.formBuilder.group({
         bandwidth: [this.data.limits?.bandwidth || 0, Validators.required],
         cpu: [this.data.limits?.cpu || 0, Validators.required],
+        defaultAuthorization: [
+          this.data.limits?.defaultAuthorization ?? false,
+          Validators.required,
+        ],
         memory: [this.data.limits?.memory || 0, Validators.required],
         preemptible: [this.data.limits?.preemptible ?? true, Validators.required],
         storage: [this.data.limits?.storage || 0, Validators.required],

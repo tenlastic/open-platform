@@ -55,6 +55,19 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
+          <mat-label>Default Authorization</mat-label>
+          <input *ngIf="form.get('limits').get('defaultAuthorization').disabled"
+                 disabled
+                 matInput
+                 [value]="form.get('limits').get('defaultAuthorization').value ? 'Yes' : 'No'" />
+          <mat-select *ngIf="!form.get('limits').get('defaultAuthorization').disabled"
+                      formControlName="defaultAuthorization">
+            <mat-option [value]="true">Yes</mat-option>
+            <mat-option [value]="false">No</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
           <mat-label>Total Memory (B)</mat-label>
           <input matInput
                  required
