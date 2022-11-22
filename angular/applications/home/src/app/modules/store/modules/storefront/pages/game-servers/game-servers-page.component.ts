@@ -10,7 +10,7 @@ import {
 import { Observable } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
-import { IdentityService, UpdateService } from '../../../../../../core/services';
+import { ExecutableService, IdentityService, UpdateService } from '../../../../../../core/services';
 
 @Component({
   styleUrls: ['./game-servers-page.component.scss'],
@@ -20,6 +20,9 @@ export class GameServersPageComponent implements OnInit {
   public $gameServers: Observable<GameServerModel[]>;
   public $group: Observable<GroupModel>;
   public displayedColumns = ['name', 'description', 'currentUsers', 'actions'];
+  public get isRunning() {
+    return this.executableService.isRunning(this.params.namespaceId);
+  }
   public get status() {
     return this.params ? this.updateService.getStatus(this.params.namespaceId) : null;
   }
@@ -28,6 +31,7 @@ export class GameServersPageComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private executableService: ExecutableService,
     private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
     private groupQuery: GroupQuery,
@@ -57,11 +61,15 @@ export class GameServersPageComponent implements OnInit {
   }
 
   public async joinAsGroup(gameServer: GameServerModel) {
+    const { entrypoint } = this.updateService.getStatus(this.params.namespaceId).build;
     const group = await this.$group.pipe(first()).toPromise();
-    this.updateService.play(this.params.namespaceId, { gameServer, groupId: group._id });
+    const { namespaceId } = this.params;
+
+    this.executableService.start(entrypoint, namespaceId, { gameServer, groupId: group._id });
   }
 
   public joinAsIndividual(gameServer: GameServerModel) {
-    this.updateService.play(this.params.namespaceId, { gameServer });
+    const { entrypoint } = this.updateService.getStatus(this.params.namespaceId).build;
+    this.executableService.start(entrypoint, this.params.namespaceId, { gameServer });
   }
 }

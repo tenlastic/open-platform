@@ -6,52 +6,19 @@
   box-shadow: $box-shadow;
   display: flex;
   flex: 0 0 auto;
-  padding: 12px 16px;
+  padding: 8px 8px;
 
   div.action {
     display: flex;
     width: 100%;
 
     app-button {
-      width: 100%;
-
       &:not(:first-of-type) {
-        margin-left: 16px;
+        margin-left: 8px;
       }
 
-      &:nth-of-type(4),
-      &:nth-of-type(5),
-      &:nth-of-type(6) {
-        width: auto;
-      }
-
-      &[color='primary'] {
-        mat-icon.mat-icon {
-          color: white;
-          font-size: 30px;
-          width: 26px;
-        }
-
-        div {
-          text-transform: uppercase;
-        }
-      }
-
-      &[matTooltip] {
-        mat-icon.mat-icon {
-          margin: 0px;
-        }
-      }
-
-      mat-icon.mat-icon {
-        font-size: 22px;
-        height: 22px;
-        line-height: 20px;
-        width: 22px;
-      }
-
-      div {
-        font-size: 18px;
+      &:not([matTooltip]) {
+        flex: 1;
       }
     }
   }
@@ -76,21 +43,6 @@
         height: 16px;
         margin-bottom: 2px;
         margin-top: 4px;
-      }
-    }
-  }
-
-  app-button[color='primary'] {
-    ::ng-deep {
-      a.mat-button mat-icon.mat-icon {
-        color: white;
-        font-size: 32px;
-        height: 32px;
-        width: 32px;
-      }
-
-      div.text {
-        text-transform: uppercase;
       }
     }
   }

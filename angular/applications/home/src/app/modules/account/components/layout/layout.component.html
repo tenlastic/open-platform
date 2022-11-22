@@ -3,7 +3,7 @@
 
   <div class="space"></div>
 
-  <app-button *ngIf="!electronService.isElectron"
+  <app-button *ngIf="!isElectron"
               color="primary"
               [href]="launcherUrl">
     <div>Download Launcher</div>

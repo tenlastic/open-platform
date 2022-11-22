@@ -3,6 +3,7 @@ import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoginService, TokenService } from '@tenlastic/http';
 
+import { ElectronService } from '../../../../core/services';
 import { ILogIn, LoginFormComponent } from '../../components';
 
 @Component({
@@ -25,6 +26,7 @@ export class LoginPageComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     @Inject(DOCUMENT) private document: Document,
+    private electronService: ElectronService,
     private loginService: LoginService,
     private router: Router,
     private tokenService: TokenService,
@@ -62,7 +64,7 @@ export class LoginPageComponent implements OnInit {
 
       this.document.location.href = redirectUrl.split('?')[0] + url.search;
     } else {
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl(this.electronService.isElectron ? '/store' : '/');
     }
   }
 

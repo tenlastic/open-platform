@@ -13,22 +13,12 @@
     width: 100%;
 
     app-button {
-      width: 100%;
-
       &:not(:first-of-type) {
-        margin-left: 16px;
+        margin-left: 8px;
       }
 
-      &:nth-of-type(4),
-      &:nth-of-type(5),
-      &:nth-of-type(6) {
-        width: auto;
-      }
-
-      &[matTooltip] {
-        mat-icon.mat-icon {
-          margin: 0px;
-        }
+      &:not([matTooltip]) {
+        flex: 1;
       }
     }
   }

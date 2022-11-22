@@ -1,46 +1,51 @@
 <div *ngIf="!statusText"
      class="action">
   <app-button color="primary"
-              [disabled]="isButtonDisabled"
-              (OnClick)="click()">
+              [disabled]="!buttonAction"
+              size="large"
+              (OnClick)="buttonAction()">
     <mat-icon *ngIf="buttonIcon">{{ buttonIcon }}</mat-icon>
-    <div class="text">{{ buttonText }}</div>
+    <div>{{ buttonText }}</div>
   </app-button>
 
   <ng-container *ngIf="status.state === UpdateServiceState.Ready">
     <app-button color="accent"
                 [routerLink]="['/', 'store', namespaceId, 'game-servers']"
-                routerLinkActive="active">
+                routerLinkActive="active"
+                size="large">
       <mat-icon>public</mat-icon>
-      <div class="text">Game Servers</div>
+      <div>Game Servers</div>
     </app-button>
 
     <app-button color="accent"
                 [routerLink]="['/', 'store', namespaceId, 'queues']"
-                routerLinkActive="active">
+                routerLinkActive="active"
+                size="large">
       <mat-icon>hourglass_bottom</mat-icon>
-      <div class="text">Queues</div>
+      <div>Queues</div>
     </app-button>
+  </ng-container>
 
+  <ng-container *ngIf="status.state === UpdateServiceState.NotUpdated || status.state === UpdateServiceState.Ready">
     <app-button color="accent"
                 matTooltip="Show in Explorer"
+                size="large"
                 (OnClick)="showInExplorer()">
       <mat-icon>folder</mat-icon>
-      <div class="text"></div>
     </app-button>
 
     <app-button color="accent"
                 matTooltip="Check for Updates / Repair Installation"
+                size="large"
                 (OnClick)="sync()">
       <mat-icon>build</mat-icon>
-      <div class="text"></div>
     </app-button>
 
     <app-button color="accent"
                 matTooltip="Delete Installation"
+                size="large"
                 (OnClick)="delete()">
       <mat-icon>delete</mat-icon>
-      <div class="text"></div>
     </app-button>
   </ng-container>
 </div>

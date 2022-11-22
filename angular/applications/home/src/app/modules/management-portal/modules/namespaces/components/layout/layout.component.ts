@@ -27,6 +27,7 @@ import {
   StorefrontService,
   StorefrontStore,
   StreamService,
+  TokenService,
   WorkflowModel,
   WorkflowService,
   WorkflowStore,
@@ -144,6 +145,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private storefrontService: StorefrontService,
     private storefrontStore: StorefrontStore,
     private streamService: StreamService,
+    private tokenService: TokenService,
     private workflowService: WorkflowService,
     private workflowStore: WorkflowStore,
   ) {}
@@ -173,7 +175,12 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
         if (namespace?.status?.phase === 'Running') {
           this.connected = true;
-          return Promise.all([this.streamService.connect(this.streamServiceUrl), this.subscribe()]);
+
+          const accessToken = await this.tokenService.getAccessToken();
+          return Promise.all([
+            this.streamService.connect({ accessToken, url: this.streamServiceUrl }),
+            this.subscribe(),
+          ]);
         }
       });
 

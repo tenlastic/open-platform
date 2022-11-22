@@ -10,7 +10,7 @@ import {
 } from '@tenlastic/http';
 import { Subscription } from 'rxjs';
 
-import { UpdateService } from '../../../core/services';
+import { ExecutableService, UpdateService } from '../../../core/services';
 
 export interface MatchPromptComponentData {
   gameServer: GameServerModel;
@@ -33,6 +33,7 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: MatchPromptComponentData,
     public dialogRef: MatDialogRef<MatchPromptComponent>,
+    private executableService: ExecutableService,
     private gameServerQuery: GameServerQuery,
     private queueQuery: QueueQuery,
     private storefrontService: StorefrontService,
@@ -72,7 +73,9 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
           return;
         }
 
-        this.updateService.play(gameServer.namespaceId, { gameServer });
+        const { entrypoint } = this.updateService.getStatus(gameServer.namespaceId).build;
+        this.executableService.start(entrypoint, gameServer.namespaceId, { gameServer });
+
         this.dialogRef.close();
       });
   }

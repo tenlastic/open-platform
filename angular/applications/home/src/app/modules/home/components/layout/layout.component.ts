@@ -1,19 +1,17 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
 
 import { environment } from '../../../../../environments/environment';
-import { ElectronService, IdentityService } from '../../../../core/services';
+import { ElectronService } from '../../../../core/services';
 
 @Component({
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent {
+  public get isElectron() {
+    return this.electronService.isElectron;
+  }
   public launcherUrl = environment.launcherUrl;
 
-  constructor(
-    public electronService: ElectronService,
-    public identityService: IdentityService,
-    public router: Router,
-  ) {}
+  constructor(private electronService: ElectronService) {}
 }

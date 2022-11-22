@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { UserService } from '@tenlastic/http';
 
 import { environment } from '../../../../../environments/environment';
 import { ElectronService } from '../../../../core/services';
@@ -9,7 +8,10 @@ import { ElectronService } from '../../../../core/services';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent {
+  public get isElectron() {
+    return this.electronService.isElectron;
+  }
   public launcherUrl = environment.launcherUrl;
 
-  constructor(public electronService: ElectronService, public userService: UserService) {}
+  constructor(private electronService: ElectronService) {}
 }

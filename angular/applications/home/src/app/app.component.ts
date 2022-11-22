@@ -181,7 +181,11 @@ export class AppComponent implements OnInit {
   }
 
   private async connectSocket() {
-    return Promise.all([this.streamService.connect(environment.wssUrl), this.subscribe()]);
+    const accessToken = await this.tokenService.getAccessToken();
+    return Promise.all([
+      this.streamService.connect({ accessToken, url: environment.wssUrl }),
+      this.subscribe(),
+    ]);
   }
 
   private setTokens(response: LoginServiceResponse) {

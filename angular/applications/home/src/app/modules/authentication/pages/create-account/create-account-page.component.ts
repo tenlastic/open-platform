@@ -2,6 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginService, UserService } from '@tenlastic/http';
 
+import { ElectronService } from '../../../../core/services';
 import { IOnRegister, RegistrationFormComponent } from '../../components';
 
 @Component({
@@ -18,6 +19,7 @@ export class CreateAccountPageComponent {
   public loadingMessage: string;
 
   constructor(
+    private electronService: ElectronService,
     private loginService: LoginService,
     private router: Router,
     private userService: UserService,
@@ -51,6 +53,6 @@ export class CreateAccountPageComponent {
     }
 
     await this.loginService.createWithCredentials(data.username, data.password);
-    this.router.navigateByUrl('/');
+    this.router.navigateByUrl(this.electronService.isElectron ? '/store' : '/');
   }
 }

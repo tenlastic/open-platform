@@ -17,6 +17,10 @@ export enum UpdateStatus {
 
 @Injectable({ providedIn: 'root' })
 export class ElectronService {
+  public static get isElectron() {
+    return navigator.userAgent.includes('Electron');
+  }
+
   public childProcess: typeof childProcess;
   public crypto: typeof crypto;
   public fs: typeof fs;
@@ -31,7 +35,10 @@ export class ElectronService {
   public updateStatus = UpdateStatus.NotAvailable;
   public webFrame: typeof webFrame;
 
-  public get isElectron(): boolean {
+  public get installPath() {
+    return this.remote.app.getPath('userData').replace(/\\/g, '/') + '/Tenlastic';
+  }
+  public get isElectron() {
     return navigator.userAgent.includes('Electron');
   }
 

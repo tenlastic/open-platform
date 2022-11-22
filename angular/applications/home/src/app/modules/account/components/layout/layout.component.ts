@@ -8,7 +8,10 @@ import { ElectronService } from '../../../../core/services';
   templateUrl: './layout.component.html',
 })
 export class LayoutComponent {
+  public get isElectron() {
+    return this.electronService.isElectron;
+  }
   public launcherUrl = environment.launcherUrl;
 
-  constructor(public electronService: ElectronService) {}
+  constructor(private electronService: ElectronService) {}
 }

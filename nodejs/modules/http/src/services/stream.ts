@@ -4,8 +4,11 @@ import TypedEmitter from 'typed-emitter';
 import { v4 as uuid } from 'uuid';
 
 import { BaseModel } from '../models/base';
+import { Jwt } from '../models/jwt';
 import { EnvironmentService } from './environment';
 import { TokenService } from './token';
+
+type ConnectOptions = { url: string } & ({ accessToken: Jwt } | { apiKey: string });
 
 interface LogsParameters {
   _id?: string;
@@ -66,27 +69,22 @@ export class StreamService {
     this.webSockets.delete(url);
   }
 
-  public async connect(url: string) {
-    if (this.webSockets.has(url)) {
-      return wait(100, 5 * 1000, () => this.webSockets.get(url));
+  public async connect(options: ConnectOptions) {
+    if (this.webSockets.has(options.url)) {
+      return wait(100, 5 * 1000, () => this.webSockets.get(options.url));
     }
 
-    this.webSockets.set(url, null);
-
-    let connectionString = url;
-    if (this.environmentService?.apiKey) {
-      connectionString += `?api_key=${this.environmentService.apiKey}`;
-    } else if (this.tokenService) {
-      const accessToken = await this.tokenService.getAccessToken();
-      if (!accessToken || accessToken.isExpired) {
-        return;
-      }
-
-      connectionString += `?access_token=${accessToken.value}`;
+    let connectionString = options.url;
+    if ('apiKey' in options && options.apiKey) {
+      connectionString += `?api_key=${options.apiKey}`;
+    } else if ('accessToken' in options && options.accessToken && !options.accessToken.isExpired) {
+      connectionString += `?access_token=${options.accessToken.value}`;
+    } else {
+      return;
     }
 
     const socket = new WebSocket(connectionString);
-    this.webSockets.set(url, socket);
+    this.webSockets.set(options.url, socket);
 
     const data = { _id: uuid(), method: 'ping' };
     const interval = setInterval(() => socket.send(JSON.stringify(data)), 5000);
@@ -94,11 +92,11 @@ export class StreamService {
     socket.addEventListener('close', (e) => {
       clearInterval(interval);
 
-      this._ids.delete(url);
-      this.webSockets.delete(url);
+      this._ids.delete(options.url);
+      this.webSockets.delete(options.url);
 
       if (e.code !== 1000) {
-        setTimeout(() => this.connect(url), 5000);
+        setTimeout(() => this.connect(options), 5000);
       }
     });
     socket.addEventListener('error', () => socket.close());
@@ -111,13 +109,13 @@ export class StreamService {
         }
 
         if (payload.fullDocument && payload.operationType === 'insert') {
-          this._ids.set(url, payload.fullDocument._id);
+          this._ids.set(options.url, payload.fullDocument._id);
         }
 
-        const subscriptions = this.subscriptions.filter((s) => s.url === url);
+        const subscriptions = this.subscriptions.filter((s) => s.url === options.url);
         const logs = subscriptions.filter((s) => s.method === 'logs');
         const subscribe = subscriptions.filter((s) => s.method === 'subscribe');
-        this.subscriptions = this.subscriptions.filter((s) => s.url !== url);
+        this.subscriptions = this.subscriptions.filter((s) => s.url !== options.url);
 
         await Promise.all(logs.map((l) => this.logs(l.Model, l.logs, l.store, l.url)));
         await Promise.all(

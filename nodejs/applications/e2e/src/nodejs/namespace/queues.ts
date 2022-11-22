@@ -1,4 +1,11 @@
-import { BuildModel, GameServerModel, IBuild, NamespaceModel, QueueModel } from '@tenlastic/http';
+import {
+  BuildModel,
+  GameServerModel,
+  IBuild,
+  Jwt,
+  NamespaceModel,
+  QueueModel,
+} from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -206,7 +213,10 @@ async function createUser(namespaceId: string) {
   dependencies.tokenService.setAccessToken(credentials.accessToken);
 
   // Connect to the web socket server.
-  await dependencies.streamService.connect(`${wssUrl}/namespaces/${namespaceId}`);
+  await dependencies.streamService.connect({
+    accessToken: new Jwt(credentials.accessToken),
+    url: `${wssUrl}/namespaces/${namespaceId}`,
+  });
   const webSocketId = await dependencies.streamService.getId(`${wssUrl}/namespaces/${namespaceId}`);
 
   // Restore original access token.

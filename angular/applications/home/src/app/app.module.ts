@@ -5,6 +5,7 @@ import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
 import { environment } from '../environments/environment';
 import { CoreModule } from './core/core.module';
 import { IdentityGuard, LoginGuard } from './core/guards';
+import { ElectronService } from './core/services';
 import { DefaultTitleStrategy } from './core/title-strategies';
 import { LayoutComponent } from './shared/components';
 import { SharedModule } from './shared/shared.module';
@@ -34,7 +35,7 @@ export const ROUTES: Routes = [
         path: 'management-portal',
       },
       {
-        canActivate: [IdentityGuard],
+        canActivate: ElectronService.isElectron ? [IdentityGuard, LoginGuard] : [IdentityGuard],
         loadChildren: () => import('./modules/store/store.module').then((m) => m.StoreModule),
         path: 'store',
       },
@@ -43,7 +44,7 @@ export const ROUTES: Routes = [
         loadChildren: () => import('./modules/home/home.module').then((m) => m.HomeModule),
         path: '',
       },
-      { path: '**', redirectTo: '' },
+      { path: '**', redirectTo: ElectronService.isElectron ? '/store' : '' },
     ],
     component: LayoutComponent,
     path: '',

@@ -1,14 +1,8 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import {
+  ExecutableService,
   UpdateService,
   UpdateServiceState,
   UpdateServiceStatus,
@@ -20,17 +14,35 @@ import { FilesizePipe } from '../../../../../../shared/pipes';
   styleUrls: ['./status.component.scss'],
   templateUrl: './status.component.html',
 })
-export class StatusComponent implements OnChanges, OnDestroy, OnInit {
-  @Input() public namespaceId: string;
+export class StatusComponent implements OnDestroy, OnInit {
+  public get buttonAction() {
+    switch (this.status.state) {
+      case UpdateServiceState.NotAuthorized:
+        return () => this.updateService.requestAuthorization(this.namespaceId);
 
+      case UpdateServiceState.NotInstalled:
+        return () => this.updateService.install(this.namespaceId);
+
+      case UpdateServiceState.NotUpdated:
+        return () => this.updateService.update(this.namespaceId);
+
+      case UpdateServiceState.Ready:
+        return this.isRunning
+          ? () => this.executableService.stop(this.namespaceId)
+          : () => this.executableService.start(this.status.build.entrypoint, this.namespaceId);
+
+      default:
+        return null;
+    }
+  }
   public get buttonIcon() {
     switch (this.status.state) {
       case UpdateServiceState.NotInstalled:
       case UpdateServiceState.NotUpdated:
-        return 'file_download';
+        return 'save_alt';
 
       case UpdateServiceState.Ready:
-        return this.status.childProcess ? 'stop' : 'play_arrow';
+        return this.isRunning ? 'stop' : 'play_arrow';
 
       default:
         return null;
@@ -38,15 +50,20 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   }
   public get buttonText() {
     switch (this.status.state) {
+      case UpdateServiceState.AuthorizationRequestDenied:
+        return 'Authorization Request Denied';
+
+      case UpdateServiceState.AuthorizationRequested:
+        return 'Authorization Requested';
+
       case UpdateServiceState.Banned:
         return 'Banned';
 
       case UpdateServiceState.Checking:
         return 'Verifying...';
 
-      case UpdateServiceState.Downloading:
       case UpdateServiceState.Installing:
-        return this.status.isInstalled ? 'Updating...' : 'Installing...';
+        return 'Installing...';
 
       case UpdateServiceState.NotAuthorized:
         return 'Request Authorization';
@@ -64,26 +81,16 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
         return 'Pending Authorization';
 
       case UpdateServiceState.Ready:
-        return this.status.childProcess ? 'Stop' : 'Play';
-    }
-  }
-  public get isButtonDisabled() {
-    switch (this.status.state) {
-      case UpdateServiceState.Banned:
-      case UpdateServiceState.Checking:
-      case UpdateServiceState.Deleting:
-      case UpdateServiceState.Downloading:
-      case UpdateServiceState.Installing:
-      case UpdateServiceState.NotAvailable:
-      case UpdateServiceState.PendingAuthorization:
-        return true;
+        return this.isRunning ? 'Stop' : 'Play';
 
-      default:
-        return false;
+      case UpdateServiceState.Updating:
+        return 'Updating...';
     }
   }
   public get isButtonVisible() {
     switch (this.status.state) {
+      case UpdateServiceState.AuthorizationRequestDenied:
+      case UpdateServiceState.AuthorizationRequested:
       case UpdateServiceState.Banned:
       case UpdateServiceState.NotAuthorized:
       case UpdateServiceState.NotInstalled:
@@ -96,6 +103,9 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
         return false;
     }
   }
+  public get namespaceId() {
+    return this.params.namespaceId;
+  }
   public get progress() {
     if (!this.status.progress) {
       return null;
@@ -104,8 +114,8 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
     switch (this.status.state) {
       case UpdateServiceState.Checking:
       case UpdateServiceState.Deleting:
-      case UpdateServiceState.Downloading:
       case UpdateServiceState.Installing:
+      case UpdateServiceState.Updating:
         return (this.status.progress.current / this.status.progress.total) * 100;
 
       default:
@@ -121,15 +131,13 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
       case UpdateServiceState.Checking:
         return `${this.status.progress.current} / ${this.status.progress.total} Files`;
 
-      case UpdateServiceState.Downloading:
+      case UpdateServiceState.Installing:
+      case UpdateServiceState.Updating:
         const pipe = new FilesizePipe();
         const current = pipe.transform(this.status.progress.current);
         const speed = pipe.transform(this.status.progress.speed);
         const total = pipe.transform(this.status.progress.total);
         return `${current} / ${total} (${speed} / s)`;
-
-      case UpdateServiceState.Installing:
-        return `${this.status.progress.current} / ${this.status.progress.total} Files`;
 
       default:
         return null;
@@ -140,8 +148,9 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
     switch (this.status.state) {
       case UpdateServiceState.Checking:
       case UpdateServiceState.Deleting:
-      case UpdateServiceState.Downloading:
       case UpdateServiceState.Installing:
+      case UpdateServiceState.RequestingAuthorization:
+      case UpdateServiceState.Updating:
         return this.status.text;
 
       default:
@@ -150,32 +159,29 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   }
   public UpdateServiceState = UpdateServiceState;
 
+  private get isRunning() {
+    return this.executableService.isRunning(this.namespaceId);
+  }
   private interval: NodeJS.Timer;
+  private params: Params;
 
-  constructor(private changeDetectorRef: ChangeDetectorRef, private updateService: UpdateService) {}
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    private changeDetectorRef: ChangeDetectorRef,
+    private executableService: ExecutableService,
+    private updateService: UpdateService,
+  ) {}
 
   public ngOnInit() {
-    if (this.updateService) {
+    this.activatedRoute.params.subscribe((params) => {
+      this.params = params;
+
       this.status = this.updateService.getStatus(this.namespaceId);
-      this.updateService.checkForUpdates(this.namespaceId, true);
-    }
+      this.updateService.checkForUpdates(this.namespaceId, false, true);
+    });
 
     const { changeDetectorRef } = this;
     this.interval = setInterval(() => changeDetectorRef.detectChanges(), 250);
-  }
-
-  public ngOnChanges(changes: SimpleChanges) {
-    if (
-      changes.storefront.previousValue &&
-      changes.storefront.previousValue._id === changes.storefront.currentValue._id
-    ) {
-      return;
-    }
-
-    if (this.updateService) {
-      this.status = this.updateService.getStatus(this.namespaceId);
-      this.updateService.checkForUpdates(this.namespaceId, true);
-    }
   }
 
   public ngOnDestroy() {
@@ -183,10 +189,10 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   }
 
   public click() {
-    if (this.status.state === UpdateServiceState.Ready && this.status.childProcess) {
-      this.updateService.stop(this.namespaceId);
-    } else if (this.status.state === UpdateServiceState.Ready && !this.status.childProcess) {
-      this.updateService.play(this.namespaceId);
+    if (this.status.state === UpdateServiceState.Ready && this.isRunning) {
+      this.executableService.stop(this.namespaceId);
+    } else if (this.status.state === UpdateServiceState.Ready && !this.isRunning) {
+      this.executableService.start(this.status.build.entrypoint, this.namespaceId);
     } else if (this.status.state === UpdateServiceState.NotInstalled) {
       this.updateService.install(this.namespaceId);
     }
@@ -201,9 +207,6 @@ export class StatusComponent implements OnChanges, OnDestroy, OnInit {
   }
 
   public sync() {
-    const status = this.updateService.getStatus(this.namespaceId);
-    status.state = UpdateServiceState.NotChecked;
-
-    this.updateService.checkForUpdates(this.namespaceId, false);
+    this.updateService.checkForUpdates(this.namespaceId);
   }
 }

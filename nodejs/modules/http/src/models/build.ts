@@ -27,6 +27,8 @@ export namespace IBuild {
   }
 
   export enum Platform {
+    Linux64 = 'Linux64',
+    Mac64 = 'Mac64',
     Server64 = 'Server64',
     Windows64 = 'Windows64',
   }

@@ -29,6 +29,7 @@ import {
   StorefrontService,
   StorefrontStore,
   StreamService,
+  TokenService,
 } from '@tenlastic/http';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -128,6 +129,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private storefrontService: StorefrontService,
     private storefrontStore: StorefrontStore,
     private streamService: StreamService,
+    private tokenService: TokenService,
     private updateService: UpdateService,
   ) {}
 
@@ -188,7 +190,11 @@ export class LayoutComponent implements OnDestroy, OnInit {
           return;
         }
 
-        await Promise.all([this.streamService.connect(this.streamServiceUrl), this.subscribe()]);
+        const accessToken = await this.tokenService.getAccessToken();
+        await Promise.all([
+          this.streamService.connect({ accessToken, url: this.streamServiceUrl }),
+          this.subscribe(),
+        ]);
         this.subscribe$.unsubscribe();
       });
     });

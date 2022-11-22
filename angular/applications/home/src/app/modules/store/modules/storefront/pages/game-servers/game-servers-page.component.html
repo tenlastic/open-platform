@@ -39,7 +39,7 @@
           <app-button mat-button
                       color="primary"
                       appHighlight
-                      [disabled]="status.childProcess"
+                      [disabled]="isRunning"
                       (OnClick)="joinAsGroup(element)">
             <div>Join as Group</div>
           </app-button>

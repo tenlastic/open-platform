@@ -2,6 +2,7 @@ export * from './background/background.service';
 export * from './clipboard/clipboard.service';
 export * from './collection-form/collection-form.service';
 export * from './electron/electron.service';
+export * from './executable/executable.service';
 export * from './file-reader/file-reader.service';
 export * from './form/form.service';
 export * from './identity/identity.service';

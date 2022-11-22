@@ -34,7 +34,12 @@ import {
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
-import { ElectronService, IdentityService, UpdateService } from '../../../core/services';
+import {
+  ElectronService,
+  ExecutableService,
+  IdentityService,
+  UpdateService,
+} from '../../../core/services';
 import { InputDialogComponent } from '../input-dialog/input-dialog.component';
 import { MatchPromptComponent } from '../match-prompt/match-prompt.component';
 
@@ -97,6 +102,7 @@ export class SocialComponent implements OnDestroy, OnInit {
 
   constructor(
     private electronService: ElectronService,
+    private executableService: ExecutableService,
     private friendQuery: FriendQuery,
     private friendService: FriendService,
     private gameServerQuery: GameServerQuery,
@@ -293,7 +299,9 @@ export class SocialComponent implements OnDestroy, OnInit {
       }
 
       this.isWaitingForGameServer = false;
-      this.updateService.play(gs.namespaceId, { gameServer: gs });
+
+      const { entrypoint } = this.updateService.getStatus(gs.namespaceId).build;
+      this.executableService.start(entrypoint, gs.namespaceId, { gameServer: gs });
     });
   }
 
@@ -312,7 +320,7 @@ export class SocialComponent implements OnDestroy, OnInit {
         autocomplete: (value: string) => this.autocomplete(value),
         error: 'Enter a valid username.',
         label: 'Username',
-        title: 'New Message',
+        title: 'New Direct Message',
         validators: [Validators.required],
         width: 300,
       },

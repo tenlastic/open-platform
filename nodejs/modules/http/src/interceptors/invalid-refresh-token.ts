@@ -7,7 +7,7 @@ export class InvalidRefreshTokenInterceptor {
     axios.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.request.url.endsWith('/logins/refresh-token') && error.response.status === 401) {
+        if (error.config.url.endsWith('/logins/refresh-token') && error.response.status === 401) {
           loginService.emitter.emit('logout');
         }
 

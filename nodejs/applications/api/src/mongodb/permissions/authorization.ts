@@ -138,6 +138,11 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
             AuthorizationRole.AuthorizationsRead,
             AuthorizationRole.AuthorizationsReadWrite,
           ]),
+          {
+            apiKey: { $exists: false },
+            namespaceId: { $exists: true },
+            userId: { $exists: false },
+          },
           { userId: { $ref: 'user._id' } },
         ],
         system: { $exists: false },
