@@ -35,11 +35,10 @@
                         formArrayName="limits">
       <div class="row">
         <mat-form-field floatLabel="always">
-          <mat-label>Total Bandwidth (B) / Month</mat-label>
+          <mat-label>Total Bandwidth (GB) / Month</mat-label>
           <input matInput
                  required
                  formControlName="bandwidth"
-                 step="1"
                  type="number" />
           <mat-error>Enter a valid value.</mat-error>
         </mat-form-field>
@@ -49,7 +48,6 @@
           <input matInput
                  required
                  formControlName="cpu"
-                 step="1"
                  type="number" />
           <mat-error>Enter a valid value.</mat-error>
         </mat-form-field>
@@ -68,11 +66,10 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Total Memory (B)</mat-label>
+          <mat-label>Total Memory (GB)</mat-label>
           <input matInput
                  required
                  formControlName="memory"
-                 step="1"
                  type="number" />
           <mat-error>Enter a valid value.</mat-error>
         </mat-form-field>
@@ -91,7 +88,7 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Total Storage (B)</mat-label>
+          <mat-label>Total Storage (GB)</mat-label>
           <input matInput
                  required
                  formControlName="storage"
