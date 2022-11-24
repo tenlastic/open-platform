@@ -67,6 +67,8 @@ export class QueueMemberService {
    * Returns the base URL for this Model.
    */
   private getUrl(namespaceId: string) {
-    return `${this.environmentService.apiUrl}/namespaces/${namespaceId}/queue-members`;
+    return namespaceId
+      ? `${this.environmentService.apiUrl}/namespaces/${namespaceId}/queue-members`
+      : `${this.environmentService.apiUrl}/queue-members`;
   }
 }

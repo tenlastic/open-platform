@@ -1,15 +1,16 @@
 <app-sidenav>
-  <div appNav
+  <div *ngIf="$storefront | async as storefront"
+       appNav
        class="nav">
-    <img *ngIf="($storefront | async)?.logo"
-         [src]="($storefront | async)?.logo">
+    <img *ngIf="storefront.logo"
+         [src]="storefront.logo">
 
     <app-button color="accent"
                 layout="vertical"
                 [routerLink]="['./']"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{exact:true}"
-                text="left"
+                [attr.text]="storefront.logo ? null : 'left'"
                 width="full">
       <mat-icon fontSet="material-icons-outlined">info</mat-icon>
       <div>Information</div>
@@ -21,7 +22,7 @@
                   layout="vertical"
                   [routerLink]="['guides']"
                   routerLinkActive="active"
-                  text="left"
+                  [attr.text]="storefront.logo ? null : 'left'"
                   width="full">
         <mat-icon fontSet="material-icons-outlined">format_list_bulleted</mat-icon>
         <div>Guides</div>
@@ -32,7 +33,7 @@
                   layout="vertical"
                   [routerLink]="['news']"
                   routerLinkActive="active"
-                  text="left"
+                  [attr.text]="storefront.logo ? null : 'left'"
                   width="full">
         <mat-icon fontSet="material-icons-outlined">campaign</mat-icon>
         <div>News</div>
@@ -43,7 +44,7 @@
                   layout="vertical"
                   [routerLink]="['patch-notes']"
                   routerLinkActive="active"
-                  text="left"
+                  [attr.text]="storefront.logo ? null : 'left'"
                   width="full">
         <mat-icon>healing</mat-icon>
         <div>Patch Notes</div>

@@ -46,7 +46,7 @@ export class QueueMemberDuplicateKeyError extends Error {
     await this.populate('webSocketDocument');
   }
 
-  if (this.userId.toString() !== this.webSocketDocument?.userId.toString()) {
+  if (!this.userId?.equals(this.webSocketDocument?.userId)) {
     const message = 'Web Socket does not belong to the same User.';
     this.invalidate('webSocketId', message, this.webSocketId);
   }

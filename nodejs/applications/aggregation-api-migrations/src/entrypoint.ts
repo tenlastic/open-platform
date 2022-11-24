@@ -2,6 +2,7 @@ import 'source-map-support/register';
 
 import {
   Authorization,
+  GameServer,
   Group,
   Namespace,
   QueueMember,
@@ -22,6 +23,7 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
     console.log('Syncing indexes...');
     await Promise.all([
       mongoose.syncIndexes(Authorization),
+      mongoose.syncIndexes(GameServer),
       mongoose.syncIndexes(Group),
       mongoose.syncIndexes(Namespace),
       mongoose.syncIndexes(QueueMember),
@@ -34,6 +36,7 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
     console.log('Syncing schemas...');
     await Promise.all([
       mongoose.syncSchema(connection, Authorization),
+      mongoose.syncSchema(connection, GameServer),
       mongoose.syncSchema(connection, Group),
       mongoose.syncSchema(connection, Namespace),
       mongoose.syncSchema(connection, QueueMember),
@@ -49,6 +52,7 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
     console.log('Enabling Document Pre- and Post-Images...');
     await Promise.all([
       mongoose.enablePrePostImages(Authorization),
+      mongoose.enablePrePostImages(GameServer),
       mongoose.enablePrePostImages(Group),
       mongoose.enablePrePostImages(Namespace),
       mongoose.enablePrePostImages(QueueMember),

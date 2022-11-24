@@ -132,6 +132,7 @@ export const KubernetesNamespaceSidecar = {
       };
     }
 
+    await deploymentApiV1.delete(name, 'dynamic');
     await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...namespaceLabels, 'tenlastic.com/role': NamespaceStatusComponentName.Sidecar },

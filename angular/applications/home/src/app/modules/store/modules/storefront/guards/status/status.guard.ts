@@ -8,11 +8,11 @@ export class StatusGuard implements CanActivate {
   constructor(private router: Router, private updateService: UpdateService) {}
 
   public async canActivate(activatedRouteSnapshot: ActivatedRouteSnapshot) {
-    const namespaceId = activatedRouteSnapshot.paramMap.get('namespaceId');
+    const { namespaceId } = activatedRouteSnapshot.params;
 
     const status = this.updateService.getStatus(namespaceId);
     if (status.state !== UpdateServiceState.Ready) {
-      this.router.navigate(['/', 'storefronts', namespaceId]);
+      this.router.navigate(['/', 'store', namespaceId]);
       return false;
     }
 

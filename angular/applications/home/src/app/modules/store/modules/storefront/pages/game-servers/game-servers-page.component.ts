@@ -65,7 +65,7 @@ export class GameServersPageComponent implements OnInit {
     const group = await this.$group.pipe(first()).toPromise();
     const { namespaceId } = this.params;
 
-    this.executableService.start(entrypoint, namespaceId, { gameServer, groupId: group._id });
+    this.executableService.start(entrypoint, namespaceId, { gameServer, groupId: group?._id });
   }
 
   public joinAsIndividual(gameServer: GameServerModel) {

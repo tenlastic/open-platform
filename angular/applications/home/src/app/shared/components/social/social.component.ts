@@ -144,6 +144,9 @@ export class SocialComponent implements OnDestroy, OnInit {
 
     return Promise.all([
       this.friendService.find({ where: { fromUserId: userId } }),
+      this.gameServerService.find(null, {
+        where: { authorizedUserIds: userId, queueId: { $exists: true } },
+      }),
       this.groupInvitationService.find({ where: { toUserId: userId } }),
       this.groupService.find({ where: { userIds: userId } }),
       this.ignorationService.find({ where: { fromUserId: userId } }),

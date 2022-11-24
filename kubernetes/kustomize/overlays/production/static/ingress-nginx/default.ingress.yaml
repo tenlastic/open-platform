@@ -28,6 +28,13 @@ spec:
     - host: api.tenlastic.com
       http:
         paths:
+          - path: /game-servers
+            pathType: Prefix
+            backend:
+              service:
+                name: aggregation-api
+                port:
+                  number: 3000
           - path: /queue-members
             pathType: Prefix
             backend:

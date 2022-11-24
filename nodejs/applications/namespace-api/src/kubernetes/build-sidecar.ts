@@ -100,6 +100,7 @@ export const KubernetesBuildSidecar = {
       };
     }
 
+    await deploymentApiV1.delete(name, 'dynamic');
     await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...buildLabels, 'tenlastic.com/role': 'Sidecar' },

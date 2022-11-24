@@ -247,6 +247,7 @@ export const KubernetesNamespace = {
         selector: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.API },
       },
     });
+    await statefulSetApiV1.delete(`${name}-api`, 'dynamic');
     await statefulSetApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.API },
@@ -267,6 +268,7 @@ export const KubernetesNamespace = {
      * CDC
      * ======================
      */
+    await statefulSetApiV1.delete(`${name}-cdc`, 'dynamic');
     await statefulSetApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.CDC },
@@ -289,6 +291,7 @@ export const KubernetesNamespace = {
      */
     const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
     if (isDevelopment) {
+      await statefulSetApiV1.delete(`${name}-connector`, 'dynamic');
       await statefulSetApiV1.createOrReplace('dynamic', {
         metadata: {
           labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Connector },
@@ -325,6 +328,7 @@ export const KubernetesNamespace = {
         },
       });
     } else {
+      await statefulSetApiV1.delete(`${name}-connector`, 'dynamic');
       await statefulSetApiV1.createOrReplace('dynamic', {
         metadata: {
           labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Connector },
@@ -361,6 +365,7 @@ export const KubernetesNamespace = {
      * METRICS
      * ======================
      */
+    await deploymentApiV1.delete(`${name}-metrics`, 'dynamic');
     await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Metrics },
@@ -417,7 +422,7 @@ function getAffinity(namespace: NamespaceDocument, role: NamespaceStatusComponen
 function getAggregationApiConnectorContainerTemplate(namespace: NamespaceDocument): V1Container {
   const name = KubernetesNamespace.getName(namespace._id);
 
-  const collectionNames = ['queue-members', 'storefronts'];
+  const collectionNames = ['game-servers', 'queue-members', 'storefronts'];
   const env: V1EnvVar[] = [
     { name: 'MONGO_COLLECTION_NAMES', value: collectionNames.join(',') },
     {

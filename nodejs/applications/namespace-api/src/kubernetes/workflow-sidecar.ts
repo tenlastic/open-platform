@@ -107,6 +107,7 @@ export const KubernetesWorkflowSidecar = {
       };
     }
 
+    await deploymentApiV1.delete(name, 'dynamic');
     await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...workflowLabels, 'tenlastic.com/role': 'Sidecar' },

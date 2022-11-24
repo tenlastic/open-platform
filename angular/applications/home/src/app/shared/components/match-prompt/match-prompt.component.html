@@ -8,10 +8,9 @@
   <div mat-dialog-title>Match Found</div>
 
   <div mat-dialog-content>
-    <p *ngIf="storefront">Storefront: {{ storefront.fullTitle }}</p>
-    <p>
-      Queue: {{ queue.name }}
-      <ng-container *ngIf="queue.description">- {{ queue.description }}</ng-container>
+    <h2 *ngIf="storefront">{{ storefront.fullTitle }}</h2>
+    <p *ngIf="queue">
+      {{ queue.name }} <ng-container *ngIf="queue.description">- {{ queue.description }}</ng-container>
     </p>
   </div>
 

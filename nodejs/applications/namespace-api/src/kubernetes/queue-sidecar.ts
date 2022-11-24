@@ -108,6 +108,7 @@ export const KubernetesQueueSidecar = {
       };
     }
 
+    await deploymentApiV1.delete(name, 'dynamic');
     await deploymentApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...queueLabels, 'tenlastic.com/role': QueueStatusComponentName.Sidecar },

@@ -34,6 +34,9 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   private getCurrentUsersInterval: any;
   private params: Params;
   private subscription: string;
+  private get wssUrl() {
+    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -90,10 +93,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   public ngOnDestroy() {
     clearInterval(this.getCurrentUsersInterval);
     this.updateQueueMembers$.unsubscribe();
-    this.streamService.unsubscribe(
-      this.subscription,
-      `${environment.wssUrl}/namespaces/${this.params.namespaceId}`,
-    );
+    this.streamService.unsubscribe(this.subscription, this.wssUrl);
   }
 
   public $getGroupQueueMember(queueId: string) {
@@ -104,11 +104,12 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     );
   }
 
-  public $getSoloQueueMember(queueId: string) {
+  public $getIndividualQueueMember(queueId: string) {
     return this.$queueMembers.pipe(
       map((queueMembers) =>
         queueMembers.find(
-          (qm) => qm.queueId === queueId && qm.userId === this.identityService.user._id,
+          (qm) =>
+            !qm.groupId && qm.queueId === queueId && qm.userId === this.identityService.user._id,
         ),
       ),
     );
@@ -133,14 +134,12 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
         namespaceId: queue.namespaceId,
         queueId: queue._id,
         userId: this.identityService.user._id,
-        webSocketId: this.streamService._ids.get(environment.wssUrl),
+        webSocketId: this.streamService._ids.get(this.wssUrl),
       });
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
         if (e.error.errors[0].name === 'QueueMemberAuthorizationError') {
-          this.matSnackBar.open(
-            'A User in your Group is not authorized to play this StorefrontModel.',
-          );
+          this.matSnackBar.open('A User in your Group is not authorized to play this Storefront.');
         }
 
         if (e.error.errors[0].name === 'QueueMemberDuplicateKeyError') {
@@ -158,7 +157,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
         namespaceId: queue.namespaceId,
         queueId: queue._id,
         userId: this.identityService.user._id,
-        webSocketId: this.streamService._ids.get(environment.wssUrl),
+        webSocketId: this.streamService._ids.get(this.wssUrl),
       });
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
