@@ -5,13 +5,11 @@ import { AuthorizationPermissionsHelpers } from './authorization';
 
 export const WebSocketPermissions = new MongoosePermissions<WebSocketDocument>(WebSocket, {
   find: {
-    default: {
-      $or: [{ disconnectedAt: { $exists: false } }, { userId: { $ref: 'user._id' } }],
-    },
+    default: {},
     'user-read': {},
   },
   read: {
-    default: ['_id', 'createdAt', 'disconnectedAt', 'updatedAt', 'userId'],
+    default: ['_id', 'createdAt', 'updatedAt', 'userId'],
   },
   roles: {
     default: {},

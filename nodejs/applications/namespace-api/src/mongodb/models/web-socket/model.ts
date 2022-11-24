@@ -18,9 +18,6 @@ export class WebSocketSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ type: Date })
-  public disconnectedAt: Date;
-
   @prop({ type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
@@ -31,20 +28,6 @@ export class WebSocketSchema {
 
   @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public userId: mongoose.Types.ObjectId;
-
-  /**
-   * Disconnects Web Sockets by Node ID.
-   */
-  public static async disconnectByNodeId(this: WebSocketModel, nodeId: string) {
-    const webSockets = await this.find({ disconnectedAt: { $exists: false }, nodeId });
-
-    const promises = webSockets.map(async (ws) => {
-      ws.disconnectedAt = new Date();
-      return ws.save();
-    });
-
-    return Promise.all(promises);
-  }
 }
 
 export type WebSocketDocument = DocumentType<WebSocketSchema>;

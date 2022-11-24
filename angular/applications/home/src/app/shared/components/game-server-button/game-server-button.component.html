@@ -1,0 +1,28 @@
+<div class="hover-off">
+  <app-button color="accent"
+              text="left">
+    <mat-icon>public</mat-icon>
+
+    <div>
+      <div>{{ getStorefront(gameServer.namespaceId)?.fullTitle }}</div>
+      <div>{{ getQueue(gameServer.queueId)?.name }}</div>
+    </div>
+  </app-button>
+</div>
+
+<div class="hover-on"
+     [ngClass]="{ 'waiting-for-game-server': isWaitingForGameServer }">
+  <app-button *ngIf="isWaitingForGameServer"
+              color="primary"
+              [disabled]="true"
+              (OnClick)="join(gameServer)">
+    <mat-spinner diameter="20"></mat-spinner>
+    <div>Joining Game Server...</div>
+  </app-button>
+
+  <app-button *ngIf="!isWaitingForGameServer"
+              color="primary"
+              (OnClick)="join(gameServer)">
+    <div>Join Game Server</div>
+  </app-button>
+</div>

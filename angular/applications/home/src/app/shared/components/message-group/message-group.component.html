@@ -1,17 +1,25 @@
-<app-button *ngIf="users.length"
+<app-button *ngIf="($users | async)?.length"
             color="accent"
             layout="vertical"
             text="left"
             width="full"
             (OnClick)="isVisible = !isVisible">
   <div>{{ header }}</div>
+
   <mat-icon>
     {{ isVisible ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
   </mat-icon>
+
+  <ng-container *ngIf="showGroup">
+    <app-badge *ngIf="$getUnreadMessages() | async as messages"
+               layout="right">
+      {{ messages }}
+    </app-badge>
+  </ng-container>
 </app-button>
 
 <ng-container *ngIf="isVisible">
-  <app-button *ngFor="let user of users"
+  <app-button *ngFor="let user of $users | async"
               color="accent"
               layout="vertical"
               text="left"
@@ -27,7 +35,8 @@
     </mat-icon>
 
     <div class="label">
-      {{ user.username }}
+      <div>{{ user.username }}</div>
+
       <div class="status">
         <ng-container *ngIf="$getWebSocket(user._id) | async; else offline">
           <ng-container *ngIf="$getGroup(user._id) | async as group; else online">
@@ -39,9 +48,11 @@
       </div>
     </div>
 
-    <div *ngIf="$getUnreadMessagesCount(user._id) | async as messageCount"
-         class="badge">
-      {{ messageCount }}
-    </div>
+    <ng-container *ngIf="showGroup">
+      <app-badge *ngIf="$getUnreadMessagesFromUser(user._id) | async as messages"
+                 layout="right">
+        {{ messages }}
+      </app-badge>
+    </ng-container>
   </app-button>
 </ng-container>

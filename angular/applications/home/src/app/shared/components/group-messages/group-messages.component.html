@@ -17,6 +17,7 @@
                 (OnClick)="invite()">
       <mat-icon>person_add_alt_1</mat-icon>
     </app-button>
+
     <app-button *ngIf="group.userIds.length > 1"
                 color="accent"
                 matTooltip="Leave Group"
@@ -24,6 +25,7 @@
                 (OnClick)="leave()">
       <mat-icon>person_remove</mat-icon>
     </app-button>
+
     <app-button *ngIf="isLeader"
                 color="accent"
                 [matTooltip]="group.isOpen ? 'Invitations: Open' : 'Invitations: Only Leader'"
@@ -33,6 +35,7 @@
         {{ group.isOpen ? 'lock_open' : 'lock' }}
       </mat-icon>
     </app-button>
+
     <app-button *ngIf="isLeader"
                 color="accent"
                 matTooltip="Disband"
@@ -40,6 +43,7 @@
                 (OnClick)="showDisbandPrompt()">
       <mat-icon>delete</mat-icon>
     </app-button>
+    
     <app-button color="accent"
                 matTooltip="Close"
                 matTooltipPosition="below"

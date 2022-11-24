@@ -18,6 +18,7 @@ export async function handler(ctx: Context) {
   const result = await Group.findOneAndUpdate(
     { _id: ctx.params._id },
     { $pull: { userIds: ctx.params.userId } },
+    { new: true },
   );
   const record = await GroupPermissions.read(credentials, result);
 

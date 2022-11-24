@@ -24,12 +24,10 @@ QueueEvent.async(async (payload) => {
   }
 });
 
-// Delete QueueMember when associated WebSocket is deleted or disconnected.
+// Delete QueueMember when associated WebSocket is deleted.
 WebSocketEvent.async(async (payload) => {
-  if (
-    payload.operationType === 'delete' ||
-    payload.updateDescription?.updatedFields?.disconnectedAt
-  ) {
-    return QueueMember.deleteMany({ webSocketId: payload.fullDocument._id });
+  switch (payload.operationType) {
+    case 'delete':
+      return QueueMember.deleteMany({ webSocketId: payload.fullDocument._id });
   }
 });

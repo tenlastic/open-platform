@@ -12,9 +12,9 @@ export interface SetupOptions {
 
 export async function setup(options: SetupOptions) {
   // Delete stale web sockets on startup and SIGTERM.
-  await WebSocket.disconnectByNodeId(options.podName);
+  await WebSocket.deleteMany({ nodeId: options.podName });
   process.on('SIGTERM', async () => {
-    await WebSocket.disconnectByNodeId(options.podName);
+    await WebSocket.deleteMany({ nodeId: options.podName });
     process.exit();
   });
 

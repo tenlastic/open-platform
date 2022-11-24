@@ -27,12 +27,42 @@ div.information-container {
   padding: 8px;
   z-index: 1;
 
+  > div {
+    flex: 1 1 auto;
+    text-align: right;
+
+    app-button {
+      margin-left: 8px;
+    }
+  }
+
+  > mat-icon.mat-icon {
+    color: #ffff55;
+    display: inline-block;
+    font-size: 20px;
+    height: 20px;
+    margin-left: 4px;
+    margin-right: 12px;
+    width: 20px;
+  }
+
+  app-button {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+
   div.label {
     display: inline-block;
+    flex: 0 0 auto;
+    text-align: left;
+
+    div.name {
+      margin-top: -4px;
+    }
 
     div.status {
-      color: #ffff55;
       font-size: 12px;
+      margin: -2px 0px;
     }
   }
 
@@ -44,26 +74,6 @@ div.information-container {
 
   mat-icon.mat-icon.grey {
     color: #aaaaaa !important;
-  }
-
-  app-button {
-    margin-left: 0px;
-    margin-right: 0px;
-  }
-
-  > mat-icon.mat-icon {
-    color: #ffff55;
-    display: inline-block;
-    font-size: 20px;
-    height: 18px;
-    margin-left: 4px;
-    margin-right: 8px;
-    width: 20px;
-  }
-
-  > div {
-    flex: 1 1 auto;
-    text-align: right;
   }
 }
 
@@ -104,6 +114,10 @@ div.messages-container {
 
     &:last-of-type {
       padding-top: 4px;
+    }
+
+    div {
+      display: inline;
     }
 
     div.timestamp {

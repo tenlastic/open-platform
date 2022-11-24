@@ -63,7 +63,11 @@ export function isJsonValid(json: any, query: any, and = true): boolean {
     });
   });
 
-  return and ? flatten(results).every((f) => f) : flatten(results).includes(true);
+  if (results.length > 0) {
+    return and ? results.flat().every((f) => f) : results.flat().includes(true);
+  } else {
+    return true;
+  }
 }
 
 /**
@@ -233,13 +237,4 @@ function $regex(json: any, key: string, value: any) {
 
   const regex = new RegExp(value);
   return regex.test(reference);
-}
-
-/**
- * Completely flattens an array.
- */
-function flatten(arr: any[]): boolean[] {
-  return arr.reduce(function (flat, toFlatten) {
-    return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
-  }, []);
 }

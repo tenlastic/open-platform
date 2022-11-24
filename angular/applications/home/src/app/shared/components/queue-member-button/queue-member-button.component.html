@@ -1,0 +1,18 @@
+<div class="hover-off">
+  <app-button color="accent"
+              text="left">
+    <mat-icon>schedule</mat-icon>
+
+    <div>
+      <div>{{ getQueue(queueMember.queueId)?.name }}</div>
+      <div>{{ queueMember.groupId ? 'Group Queue' : 'Solo Queue' }}</div>
+    </div>
+  </app-button>
+</div>
+
+<div class="hover-on">
+  <app-button color="primary"
+              (OnClick)="leave(queueMember)">
+    <div>Leave Queue</div>
+  </app-button>
+</div>

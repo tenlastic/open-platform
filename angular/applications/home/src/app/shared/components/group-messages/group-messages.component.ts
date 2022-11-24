@@ -35,8 +35,7 @@ import { PromptComponent } from '../prompt/prompt.component';
 })
 export class GroupMessagesComponent implements OnChanges, OnDestroy {
   @Input() public group: GroupModel;
-  @ViewChild('messagesScrollContainer')
-  public messagesScrollContainer: ElementRef;
+  @ViewChild('messagesScrollContainer') public messagesScrollContainer: ElementRef;
 
   public $messages: Observable<MessageModel[]>;
   public $users: Observable<UserModel[]>;
@@ -60,7 +59,7 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
     private groupInvitationService: GroupInvitationService,
     private groupService: GroupService,
     private groupStore: GroupStore,
-    public identityService: IdentityService,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private messageQuery: MessageQuery,
     private messageService: MessageService,
@@ -159,15 +158,12 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
   }
 
   public async leave() {
-    const { _id } = this.group;
-    this.groupStore.removeActive(_id);
-
-    return this.groupService.leave(_id);
+    this.groupStore.removeActive(this.group._id);
+    return this.groupService.leave(this.group._id);
   }
 
   public async toggleIsOpen() {
-    const group = new GroupModel({ ...this.group, isOpen: !this.group.isOpen });
-    return this.groupService.update(group._id, group);
+    return this.groupService.update(this.group._id, { isOpen: !this.group.isOpen });
   }
 
   private async autocomplete(value: string) {

@@ -283,6 +283,10 @@ mat-form-field.mat-form-field {
       font-weight: 300;
       opacity: 0.5;
     }
+
+    & + span label {
+      line-height: 24px;
+    }
   }
 }
 

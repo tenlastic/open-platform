@@ -1,6 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { resetStores } from '@datorama/akita';
 import {
   AuthorizationModel,
   AuthorizationQuery,
@@ -35,7 +34,7 @@ import {
 import { v4 as uuid } from 'uuid';
 
 import { environment } from '../environments/environment';
-import { ElectronService, ResetService } from './core/services';
+import { ElectronService, IdentityService, ResetService } from './core/services';
 
 @Component({
   selector: 'app-root',

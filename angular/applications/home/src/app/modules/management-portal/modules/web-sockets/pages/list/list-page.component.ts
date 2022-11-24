@@ -24,7 +24,7 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
 
   public $webSockets: Observable<WebSocketModel[]>;
   public dataSource = new MatTableDataSource<WebSocketModel>();
-  public displayedColumns = ['user', 'createdAt', 'disconnectedAt', 'duration'];
+  public displayedColumns = ['user', 'createdAt'];
 
   private updateDataSource$ = new Subscription();
 
@@ -52,7 +52,10 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
 
   private async fetchWebSockets(namespaceId: string, userId: string) {
     this.$webSockets = this.webSocketQuery
-      .selectAll({ filterBy: (ws) => ws.namespaceId === namespaceId && ws.userId === userId })
+      .selectAll({
+        filterBy: (ws) =>
+          (!namespaceId || ws.namespaceId === namespaceId) && (!userId || ws.userId === userId),
+      })
       .pipe(map((ws) => ws.map((w) => new WebSocketModel(w))));
 
     this.updateDataSource$ = this.$webSockets.subscribe(

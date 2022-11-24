@@ -64,6 +64,12 @@
     mat-icon.mat-icon {
       margin-right: 8px;
     }
+
+    ::ng-deep {
+      span.mat-button-wrapper {
+        justify-content: left;
+      }
+    }
   }
 
   &[width='full'] {
@@ -97,7 +103,7 @@
     line-height: normal;
     min-width: initial;
     outline: none;
-    padding: 8px 14px;
+    padding: 8px 12px;
 
     &[color='accent'] {
       background: transparent;
@@ -148,7 +154,6 @@
       span.mat-button-wrapper {
         > div {
           font-size: 18px;
-          margin-top: -4px;
           text-transform: uppercase;
 
           &:only-child {
@@ -158,31 +163,14 @@
 
         mat-icon.mat-icon {
           font-size: 24px;
-          height: 22px;
-          line-height: 24px;
+          height: 24px;
+          line-height: 22px;
           width: 24px;
         }
       }
     }
 
     &::ng-deep {
-      span.mat-button-wrapper > div {
-        display: inline-block;
-        margin-top: -7px;
-
-        div {
-          display: block;
-
-          &:nth-child(1) {
-            margin-top: 5px;
-          }
-
-          &:nth-child(2) {
-            font-size: 10px;
-          }
-        }
-      }
-
       img {
         filter: $drop-shadow;
         max-height: 20px;
@@ -192,22 +180,49 @@
       mat-icon.mat-icon {
         color: #ffff55;
         font-size: 16px;
-        height: 16px;
-        line-height: 12px;
+        height: 20px;
+        line-height: 20px;
         margin-right: 6px;
         vertical-align: text-bottom;
         width: 16px;
+
+        &:not(:first-child):not(:last-child) {
+          margin-right: 6px;
+        }
 
         &:only-child {
           margin-right: 0px;
         }
       }
 
-      span.mat-button-wrapper div + mat-icon {
-        margin-left: 6px;
-        margin-right: 0px;
-        outline: none;
-        white-space: nowrap;
+      span.mat-button-wrapper {
+        align-items: center;
+        display: flex;
+        height: 100%;
+        justify-content: center;
+
+        > div {
+          display: inline-block;
+          margin-top: -2px;
+
+          &:not(:last-child) {
+            margin-right: 6px;
+          }
+
+          div {
+            display: block;
+
+            &:nth-child(2) {
+              font-size: 10px;
+            }
+          }
+        }
+
+        div:not(.badge) + mat-icon {
+          margin-right: 0px;
+          outline: none;
+          white-space: nowrap;
+        }
       }
     }
   }

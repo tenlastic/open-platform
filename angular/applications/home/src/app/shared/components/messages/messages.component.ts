@@ -73,9 +73,7 @@ export class MessagesComponent implements OnChanges, OnDestroy {
   public $messages: Observable<MessageModel[]>;
   public $showJoinGroupButton: Observable<boolean>;
   public get $webSocket() {
-    return this.webSocketQuery.selectCount(
-      (ws) => !ws.disconnectedAt && ws.userId === this.user._id,
-    );
+    return this.webSocketQuery.selectCount((ws) => ws.userId === this.user._id);
   }
   public $webSockets: Observable<WebSocketModel[]>;
   public readUnreadMessages$ = new Subscription();
@@ -127,7 +125,7 @@ export class MessagesComponent implements OnChanges, OnDestroy {
       });
     } catch {}
 
-    this.matSnackBar.open('Invitation sent.', null, { duration: 3000 });
+    this.matSnackBar.open('Group invitation sent.', null, { duration: 3000 });
   }
 
   public async joinGroup() {
@@ -221,7 +219,7 @@ export class MessagesComponent implements OnChanges, OnDestroy {
 
     // Mark unread messages as read.
     this.readUnreadMessages$ = this.messageQuery
-      .selectAllUnreadInConversation(this.identityService.user._id, this.user._id)
+      .selectAllUnreadFromUser(this.user._id, this.identityService.user._id)
       .pipe(map((messages) => messages[0]))
       .subscribe((message) => (message ? this.messageService.read(message._id) : null));
 

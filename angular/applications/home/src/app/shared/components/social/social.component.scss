@@ -36,6 +36,7 @@
 
         div.badge {
           background: transparent;
+          filter: $drop-shadow;
         }
       }
 
@@ -49,11 +50,11 @@
 
       div.badge {
         background: #d74444;
+        filter: $drop-shadow;
         float: right;
         font-size: 12px;
         height: 20px;
-        margin-left: 8px;
-        margin-top: 8px;
+        margin-left: 6px;
         padding: 0px 8px;
         text-align: center;
       }
@@ -63,87 +64,6 @@
       box-shadow: $box-shadow-left !important;
     }
   }
-}
-
-div.group-invitation {
-  animation-name: color;
-  animation-duration: 2s;
-  animation-iteration-count: infinite;
-  background-color: transparent;
-  padding: 8px 14px;
-  position: relative;
-
-  &:hover {
-    div.hover-off {
-      opacity: 0.25;
-    }
-
-    div.hover-on {
-      display: flex;
-    }
-  }
-
-  div.hover-on {
-    align-items: center;
-    display: none;
-    height: 100%;
-    justify-content: center;
-    left: 0%;
-    padding: 1.5px 0px;
-    position: absolute;
-    top: 0%;
-    width: 100%;
-
-    app-button {
-      margin: 0px 4px;
-
-      mat-spinner.mat-spinner {
-        margin-top: -2px;
-      }
-    }
-
-    &.waiting-for-game-server {
-      display: flex;
-    }
-  }
-
-  div.label {
-    display: inline-block;
-    max-width: 125px;
-    overflow: hidden;
-
-    div.name {
-      font-size: 14px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    div.status {
-      color: #ffff55;
-      font-size: 12px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-
-  mat-icon.mat-icon {
-    color: #ff5;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 5px;
-    margin-right: 6px;
-    vertical-align: text-bottom;
-    width: 16px;
-  }
-}
-
-div.queue {
-  animation-name: color;
-  animation-duration: initial;
-  animation-iteration-count: initial;
-  background-color: transparent;
 }
 
 app-sidenav {

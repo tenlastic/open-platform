@@ -18,13 +18,22 @@ import { UserDocument } from '../user';
 @index({ toGroupId: 1 })
 @index({ toUserId: 1 })
 @modelOptions({ schemaOptions: { collection: 'messages', minimize: false, timestamps: true } })
+@pre('save', function (this: MessageDocument) {
+  if (this.readByUserIds?.length === 0) {
+    this.readByUserIds = [this.fromUserId];
+  }
+})
 @pre('validate', function (this: MessageDocument) {
-  const message = 'Only one of the following fields must be specified: toGroupId or toUserId.';
-
-  if (this.toGroupId && this.toUserId) {
+  if (this.fromUserId === this.toUserId) {
+    const message = 'Messages must be sent between two different Users.';
+    this.invalidate('fromUserId', message, this.fromUserId);
+    this.invalidate('toUserId', message, this.toUserId);
+  } else if (this.toGroupId && this.toUserId) {
+    const message = 'Only one of the following fields must be specified: toGroupId or toUserId.';
     this.invalidate('toGroupId', message, this.toGroupId);
     this.invalidate('toUserId', message, this.toUserId);
   } else if (!this.toGroupId && !this.toUserId) {
+    const message = 'Only one of the following fields must be specified: toGroupId or toUserId.';
     this.invalidate('toGroupId', message, this.toGroupId);
     this.invalidate('toUserId', message, this.toUserId);
   }

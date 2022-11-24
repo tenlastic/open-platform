@@ -21,17 +21,21 @@ export class MessageQuery extends QueryEntity<MessageState, MessageModel> {
   }
 
   public selectAllInGroup(groupId: string) {
+    return this.selectAll({ filterBy: (m) => m.toGroupId === groupId, sortBy: 'createdAt' });
+  }
+
+  public selectAllUnreadFromUser(fromUserId: string, toUserId: string) {
     return this.selectAll({
-      filterBy: (m) => m.toGroupId === groupId,
+      filterBy: (m) =>
+        m.fromUserId === fromUserId && !m.readByUserIds.includes(toUserId) && !m.toGroupId,
       sortBy: 'createdAt',
     });
   }
 
-  public selectAllUnreadInConversation(fromUserId: string, toUserId: string) {
+  public selectAllUnreadFromUsers(fromUserIds: string[], toUserId: string) {
     return this.selectAll({
       filterBy: (m) =>
-        !m.readByUserIds.includes(fromUserId) &&
-        [m.fromUserId, m.toUserId].sort().toString() === [fromUserId, toUserId].sort().toString(),
+        fromUserIds.includes(m.fromUserId) && !m.readByUserIds.includes(toUserId) && !m.toGroupId,
       sortBy: 'createdAt',
     });
   }

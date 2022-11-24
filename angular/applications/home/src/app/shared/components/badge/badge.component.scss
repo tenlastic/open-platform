@@ -1,0 +1,14 @@
+@import 'src/assets/scss/theme.scss';
+
+:host {
+  background: #d74444;
+  filter: $drop-shadow;
+  font-size: 12px;
+  height: 20px;
+  padding: 0px 8px;
+  text-align: center;
+
+  &[layout='right'] {
+    margin-left: auto;
+  }
+}
