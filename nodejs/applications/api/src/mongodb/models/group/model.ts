@@ -11,9 +11,23 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-@index({ name: 1 }, { partialFilterExpression: { name: { $type: 'string' } }, unique: true })
+@index(
+  { name: 1 },
+  {
+    collation: { locale: 'en_US', strength: 1 },
+    partialFilterExpression: { name: { $type: 'string' } },
+    unique: true,
+  },
+)
 @index({ userIds: 1 }, { unique: true })
-@modelOptions({ schemaOptions: { collection: 'groups', minimize: false, timestamps: true } })
+@modelOptions({
+  schemaOptions: {
+    collation: { locale: 'en_US', strength: 1 },
+    collection: 'groups',
+    minimize: false,
+    timestamps: true,
+  },
+})
 @plugin(duplicateKeyErrorPlugin)
 export class GroupSchema {
   public _id: mongoose.Types.ObjectId;
