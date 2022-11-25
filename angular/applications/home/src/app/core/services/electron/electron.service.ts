@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
+import * as remote from '@electron/remote';
 import * as childProcess from 'child_process';
 import * as crypto from 'crypto';
-import { ipcRenderer, webFrame, remote, shell } from 'electron';
+import { ipcRenderer, webFrame, shell } from 'electron';
 import * as fs from 'fs';
 import * as glob from 'glob';
 import * as os from 'os';
@@ -56,7 +57,7 @@ export class ElectronService {
     this.ipcRenderer = require('electron').ipcRenderer;
     this.os = require('os');
     this.path = require('path');
-    this.remote = require('electron').remote;
+    this.remote = require('@electron/remote');
     this.request = require('request');
     this.shell = require('electron').shell;
     this.unzipper = require('unzipper');
