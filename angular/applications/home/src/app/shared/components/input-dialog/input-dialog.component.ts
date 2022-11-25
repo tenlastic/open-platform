@@ -8,6 +8,7 @@ export interface InputDialogComponentData {
   autocomplete?: (value: string) => Promise<any>;
   error: string;
   label: string;
+  maxlength: number;
   title?: string;
   type?: string;
   validators?: Validator[];

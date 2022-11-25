@@ -65,7 +65,7 @@ export class UserSchema {
     required: true,
     trim: true,
     type: String,
-    validate: [alphanumericValidator, stringLengthValidator(0, 20)],
+    validate: [alphanumericValidator, stringLengthValidator(0, 24)],
   })
   public username: string;
 
@@ -77,8 +77,6 @@ export class UserSchema {
     ref: 'AuthorizationSchema',
   })
   public authorizationDocument: AuthorizationDocument;
-
-  private _original: Partial<UserDocument>;
 
   /**
    * Hashes a plaintext password.

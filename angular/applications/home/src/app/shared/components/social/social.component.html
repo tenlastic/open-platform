@@ -44,7 +44,7 @@
       <mat-icon>people</mat-icon>
 
       <div>
-        <div>Group</div>
+        <div>{{ group.name ?? 'Group' }}</div>
         <div>{{ group.userIds.length }} {{ group.userIds.length > 1 ? 'Members' : 'Member' }}</div>
       </div>
 

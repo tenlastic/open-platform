@@ -2,7 +2,7 @@
   <mat-icon>people</mat-icon>
 
   <div class="label">
-    <div class="name">Group</div>
+    <div class="name">{{ group.name ?? 'Group' }}</div>
     <div class="status"
          [matTooltip]="usernames">
       {{ group.userIds.length }} Member{{ group.userIds.length > 1 ? 's' : '' }}
@@ -10,6 +10,14 @@
   </div>
 
   <div>
+    <app-button *ngIf="isLeader"
+                color="accent"
+                matTooltip="Edit Group Name"
+                matTooltipPosition="below"
+                (OnClick)="editGroupName()">
+      <mat-icon>create</mat-icon>
+    </app-button>
+
     <app-button *ngIf="canInvite"
                 color="accent"
                 matTooltip="Invite to Group"
@@ -38,12 +46,12 @@
 
     <app-button *ngIf="isLeader"
                 color="accent"
-                matTooltip="Disband"
+                matTooltip="Disband Group"
                 matTooltipPosition="below"
                 (OnClick)="showDisbandPrompt()">
       <mat-icon>delete</mat-icon>
     </app-button>
-    
+
     <app-button color="accent"
                 matTooltip="Close"
                 matTooltipPosition="below"

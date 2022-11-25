@@ -4,7 +4,7 @@ import { Group, GroupDocument } from '../models';
 
 export const GroupPermissions = new MongoosePermissions<GroupDocument>(Group, {
   create: {
-    default: ['isOpen'],
+    default: ['isOpen', 'name'],
   },
   delete: {
     leader: true,
@@ -13,7 +13,7 @@ export const GroupPermissions = new MongoosePermissions<GroupDocument>(Group, {
     default: {},
   },
   read: {
-    default: ['_id', 'createdAt', 'isOpen', 'updatedAt', 'userIds'],
+    default: ['_id', 'createdAt', 'isOpen', 'name', 'updatedAt', 'userIds'],
   },
   roles: {
     default: {},
@@ -21,6 +21,6 @@ export const GroupPermissions = new MongoosePermissions<GroupDocument>(Group, {
     member: { 'record.userIds': { $ref: 'user._id' } },
   },
   update: {
-    leader: ['isOpen'],
+    leader: ['isOpen', 'name'],
   },
 });

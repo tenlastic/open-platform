@@ -8,6 +8,7 @@
       <input matInput
              formControlName="input"
              [matAutocomplete]="auto"
+             [attr.maxlength]="data.maxlength"
              [type]="data.type ? data.type : 'text'" />
       <mat-error>{{ data.error }}</mat-error>
     </mat-form-field>
@@ -25,6 +26,7 @@
                 (click)="dialogRef.close()">
       <div>Cancel</div>
     </app-button>
+
     <app-button color="primary"
                 (click)="submit()">
       <div>Submit</div>

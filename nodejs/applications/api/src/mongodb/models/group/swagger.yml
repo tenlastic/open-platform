@@ -11,6 +11,8 @@ components:
           format: date-time
         isOpen:
           type: string
+        name:
+          type: string
         updatedAt:
           type: string
           format: date-time

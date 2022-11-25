@@ -20,7 +20,7 @@ export class InformationPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
-    private matSnackbar: MatSnackBar,
+    private matSnackBar: MatSnackBar,
     private userService: UserService,
   ) {}
 
@@ -60,7 +60,7 @@ export class InformationPageComponent implements OnInit {
   private async create(data: Partial<UserModel>) {
     try {
       await this.userService.create(data);
-      this.matSnackbar.open('User created successfully.');
+      this.matSnackBar.open('User created successfully.');
     } catch (e) {
       this.error = 'That email is already taken.';
     }
@@ -82,7 +82,7 @@ export class InformationPageComponent implements OnInit {
 
     try {
       await this.userService.update(data._id, data);
-      this.matSnackbar.open('User updated successfully.');
+      this.matSnackBar.open('User updated successfully.');
     } catch (e) {
       this.error = 'That email is already taken.';
     }

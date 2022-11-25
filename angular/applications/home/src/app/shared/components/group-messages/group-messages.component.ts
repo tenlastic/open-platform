@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   GroupModel,
   GroupInvitationService,
@@ -61,6 +62,7 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
     private groupStore: GroupStore,
     private identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private messageQuery: MessageQuery,
     private messageService: MessageService,
     private userQuery: UserQuery,
@@ -90,6 +92,33 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
 
   public async deleteGroup() {
     await this.groupService.delete(this.group._id);
+  }
+
+  public editGroupName() {
+    const dialogRef = this.matDialog.open(InputDialogComponent, {
+      data: {
+        error: 'Enter a valid name.',
+        label: 'Name',
+        maxlength: 24,
+        title: 'Edit Group Name',
+        width: 300,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(async (name) => {
+      if (name === undefined) {
+        return;
+      }
+
+      try {
+        this.group = await this.groupService.update(this.group._id, { name: name || null });
+      } catch (err) {
+        const duplicateKeyError = err?.errors.find((e) => e.name === 'DuplicateKeyError');
+        if (duplicateKeyError) {
+          this.matSnackBar.open('Group name is already taken.');
+        }
+      }
+    });
   }
 
   public getUser(_id: string) {
@@ -151,8 +180,7 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        const { _id } = this.group;
-        await this.groupService.delete(_id);
+        await this.groupService.delete(this.group._id);
       }
     });
   }
