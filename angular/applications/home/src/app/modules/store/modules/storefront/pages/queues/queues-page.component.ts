@@ -86,7 +86,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
       });
 
       await this.getCurrentUsers();
-      this.getCurrentUsersInterval = setInterval(() => this.getCurrentUsers(), 15000);
+      this.getCurrentUsersInterval = setInterval(() => this.getCurrentUsers(), 5 * 1000);
     });
   }
 
@@ -160,29 +160,6 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
           this.matSnackBar.open(
             group ? 'A User in your Group is already queued.' : 'You are already queued.',
           );
-        }
-      }
-    }
-
-    await this.getCurrentUsers();
-  }
-
-  public async joinAsIndividual(queue: QueueModel) {
-    try {
-      await this.queueMemberService.create(queue.namespaceId, {
-        namespaceId: queue.namespaceId,
-        queueId: queue._id,
-        userId: this.identityService.user._id,
-        webSocketId: this.streamService._ids.get(this.wssUrl),
-      });
-    } catch (e) {
-      if (e instanceof HttpErrorResponse) {
-        if (e.error.errors[0].name === 'QueueMemberAuthorizationError') {
-          this.matSnackBar.open('You are not authorized to play this StorefrontModel.');
-        }
-
-        if (e.error.errors[0].name === 'QueueMemberDuplicateKeyError') {
-          this.matSnackBar.open('You are already queued.');
         }
       }
     }

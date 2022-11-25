@@ -61,7 +61,12 @@ export class BaseService<T extends BaseModel> {
    * Returns the number of Records satisfying the query.
    */
   public async count(query: any, url: string): Promise<number> {
-    const response = await this.apiService.request({ method: 'get', params: query, url });
+    const response = await this.apiService.request({
+      method: 'get',
+      params: query,
+      url: `${url}/count`,
+    });
+
     return response.data.count;
   }
 
