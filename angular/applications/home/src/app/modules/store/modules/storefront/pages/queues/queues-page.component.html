@@ -40,10 +40,7 @@
           <div>Leave Individual Queue</div>
         </app-button>
 
-        <app-button *ngIf="
-                      ($isGroupLeader() | async) && 
-                      $getGroupQueueMember(element._id) | async as queueMember
-                    "
+        <app-button *ngIf="$getGroupQueueMember(element._id) | async as queueMember"
                     mat-button
                     color="accent"
                     (OnClick)="leaveQueue(queueMember)">
@@ -55,20 +52,15 @@
                       ($getIndividualQueueMember(element._id) | async) === undefined
                     "
                     mat-button
-                    color="primary"
-                    (OnClick)="joinAsIndividual(element)">
+                    [color]="($getGroup(element) | async) ? 'accent' : 'primary'"
+                    (OnClick)="join(null, element)">
           <div>Join as Individual</div>
         </app-button>
 
-        <app-button *ngIf="
-                      ($isGroupLeader() | async) &&
-                      ($isGroupSmallEnough(element) | async) &&
-                      ($getGroupQueueMember(element._id) | async) === undefined &&
-                      ($getIndividualQueueMember(element._id) | async) === undefined
-                    "
+        <app-button *ngIf="$getGroup(element) | async as group"
                     mat-button
                     color="primary"
-                    (OnClick)="joinAsGroup(element)">
+                    (OnClick)="join(group, element)">
           <div>Join as Group</div>
         </app-button>
       </td>
@@ -76,6 +68,7 @@
 
     <tr mat-header-row
         *matHeaderRowDef="displayedColumns"></tr>
+
     <tr mat-row
         *matRowDef="let row; columns: displayedColumns"></tr>
   </table>

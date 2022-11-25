@@ -36,13 +36,19 @@
       <td mat-cell
           *matCellDef="let element">
         <ng-container>
-          <app-button *ngIf="$group | async"
-                      mat-button
-                      appHighlight
-                      color="accent"
+          <app-button mat-button
+                      [color]="($group | async) ? 'accent' : 'primary'"
                       [disabled]="isRunning"
-                      (OnClick)="joinAsIndividual(element)">
+                      (OnClick)="join(element, null)">
             <span>Join as Individual</span>
+          </app-button>
+
+          <app-button *ngIf="$group | async as group"
+                      mat-button
+                      color="primary"
+                      [disabled]="isRunning"
+                      (OnClick)="join(element, group)">
+            <div>Join as Group</div>
           </app-button>
         </ng-container>
       </td>
@@ -51,9 +57,7 @@
     <tr mat-header-row
         *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row
-        *matRowDef="let row; columns: displayedColumns"
-        appHighlight
-        (OnClick)="joinAsGroup(row)"></tr>
+        *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
 
   <mat-paginator [length]="($gameServers | async)?.length"

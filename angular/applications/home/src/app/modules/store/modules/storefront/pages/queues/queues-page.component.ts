@@ -96,6 +96,22 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     this.streamService.unsubscribe(this.subscription, this.wssUrl);
   }
 
+  public $getGroup(queue: QueueModel) {
+    return combineLatest([
+      this.$getGroupQueueMember(queue._id),
+      this.$getIndividualQueueMember(queue._id),
+      this.$group,
+      this.$isGroupLeader(),
+      this.$isGroupSmallEnough(queue),
+    ]).pipe(
+      map(([groupQueueMember, individualQueueMember, group, isGroupLeader, isGroupSmallEnough]) => {
+        return !groupQueueMember && !individualQueueMember && isGroupLeader && isGroupSmallEnough
+          ? group
+          : null;
+      }),
+    );
+  }
+
   public $getGroupQueueMember(queueId: string) {
     return combineLatest([this.$group, this.$queueMembers]).pipe(
       map(([group, queueMembers]) =>
@@ -125,12 +141,10 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     return this.$group.pipe(map((group) => group && group.userIds.length <= queue.usersPerTeam));
   }
 
-  public async joinAsGroup(queue: QueueModel) {
-    const group = await this.$group.pipe(first()).toPromise();
-
+  public async join(group: GroupModel, queue: QueueModel) {
     try {
       await this.queueMemberService.create(queue.namespaceId, {
-        groupId: group._id,
+        groupId: group?._id,
         namespaceId: queue.namespaceId,
         queueId: queue._id,
         userId: this.identityService.user._id,
@@ -143,7 +157,9 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
         }
 
         if (e.error.errors[0].name === 'QueueMemberDuplicateKeyError') {
-          this.matSnackBar.open('A User in your Group is already queued.');
+          this.matSnackBar.open(
+            group ? 'A User in your Group is already queued.' : 'You are already queued.',
+          );
         }
       }
     }

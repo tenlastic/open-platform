@@ -12,6 +12,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
   },
   delete: {
     'group-leader': true,
+    'group-member': true,
     'namespace-write': true,
     owner: true,
     'system-write': true,
@@ -45,6 +46,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
   roles: {
     default: {},
     'group-leader': { 'record.groupDocument.userIds.0': { $ref: 'user._id' } },
+    'group-member': { 'record.groupDocument.userIds': { $ref: 'user._id' } },
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.QueuesRead,
       AuthorizationRole.QueuesReadWrite,

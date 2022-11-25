@@ -60,16 +60,10 @@ export class GameServersPageComponent implements OnInit {
     });
   }
 
-  public async joinAsGroup(gameServer: GameServerModel) {
+  public async join(gameServer: GameServerModel, group: GroupModel) {
     const { entrypoint } = this.updateService.getStatus(this.params.namespaceId).build;
-    const group = await this.$group.pipe(first()).toPromise();
     const { namespaceId } = this.params;
 
     this.executableService.start(entrypoint, namespaceId, { gameServer, groupId: group?._id });
-  }
-
-  public joinAsIndividual(gameServer: GameServerModel) {
-    const { entrypoint } = this.updateService.getStatus(this.params.namespaceId).build;
-    this.executableService.start(entrypoint, this.params.namespaceId, { gameServer });
   }
 }

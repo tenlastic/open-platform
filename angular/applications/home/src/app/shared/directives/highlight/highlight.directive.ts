@@ -1,11 +1,42 @@
-import { Directive, ElementRef, HostListener } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  HostListener,
+  Input,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 
 @Directive({ selector: '[appHighlight]' })
-export class HighlightDirective {
+export class HighlightDirective implements OnChanges {
+  @Input() public appHighlight = true;
+
   constructor(private elementRef: ElementRef) {}
 
-  @HostListener('mouseenter')
-  private onMouseEnter() {
+  public ngOnChanges(changes: SimpleChanges) {
+    if (changes.appHighlight.currentValue === changes.appHighlight.previousValue) {
+      return;
+    }
+
+    if (changes.appHighlight.currentValue === false) {
+      this.disable();
+    }
+  }
+
+  private disable() {
+    let element = this.elementRef.nativeElement as Element;
+    element.classList.remove('highlight');
+
+    while (element.parentNode) {
+      element = element.parentNode as Element;
+
+      if (element.hasAttribute && element.hasAttribute('appHighlight')) {
+        element.classList.add('highlight');
+      }
+    }
+  }
+
+  private enable() {
     let element = this.elementRef.nativeElement as Element;
     element.classList.add('highlight');
 
@@ -18,17 +49,21 @@ export class HighlightDirective {
     }
   }
 
+  @HostListener('mouseenter')
+  private onMouseEnter() {
+    if (this.appHighlight === false) {
+      return;
+    }
+
+    this.enable();
+  }
+
   @HostListener('mouseleave')
   private onMouseLeave() {
-    let element = this.elementRef.nativeElement as Element;
-    element.classList.remove('highlight');
-
-    while (element.parentNode) {
-      element = element.parentNode as Element;
-
-      if (element.hasAttribute && element.hasAttribute('appHighlight')) {
-        element.classList.add('highlight');
-      }
+    if (this.appHighlight === false) {
+      return;
     }
+
+    this.disable();
   }
 }
