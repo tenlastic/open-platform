@@ -133,7 +133,7 @@ metadata:
   namespace: static
 spec:
   ports:
-    - port: 3000
-      name: http
+    - name: http
+      port: 3000
   selector:
     app: api

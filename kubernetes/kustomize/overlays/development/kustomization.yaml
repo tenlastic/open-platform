@@ -73,6 +73,20 @@ patches:
       name: documentation
       namespace: static
       version: v1
+  - path: ./static/nodejs/social-api.json
+    target:
+      group: apps
+      kind: Deployment
+      name: social-api
+      namespace: static
+      version: v1
+  - path: ./static/nodejs/social-api-migrations.json
+    target:
+      group: batch
+      kind: Job
+      name: social-api-migrations
+      namespace: static
+      version: v1
 resources:
   - ./static/workspace/workspace.secret.example.yaml
   - ./static/workspace/workspace.pod.yaml

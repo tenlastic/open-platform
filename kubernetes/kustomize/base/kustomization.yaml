@@ -51,5 +51,6 @@ resources:
   - ./static/nodejs/api.yaml
   - ./static/nodejs/api-cdc.yaml
   - ./static/nodejs/documentation.yaml
+  - ./static/nodejs/social-api.yaml
   - ./static/redis/redis.yaml
   - ./static/sealed-secrets/sealed-secrets.yaml

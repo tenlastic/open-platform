@@ -22,6 +22,7 @@
       "@tenlastic/namespace-api": ["./applications/namespace-api/src"],
       "@tenlastic/nats": ["./modules/nats/src"],
       "@tenlastic/redis": ["./modules/redis/src"],
+      "@tenlastic/social-api": ["./applications/social-api/src"],
       "@tenlastic/wait": ["./modules/wait/src"],
       "@tenlastic/web-server": ["./modules/web-server/src"],
       "@tenlastic/web-socket-server": ["./modules/web-socket-server/src"]

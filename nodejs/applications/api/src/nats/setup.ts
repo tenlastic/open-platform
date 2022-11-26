@@ -4,12 +4,7 @@ import * as nats from '@tenlastic/nats';
 import {
   Authorization,
   AuthorizationRequest,
-  Friend,
-  GroupInvitation,
-  Group,
-  Ignoration,
   Login,
-  Message,
   Namespace,
   PasswordReset,
   User,
@@ -17,12 +12,7 @@ import {
 } from '../mongodb';
 import { AuthorizationEvent } from './authorization';
 import { AuthorizationRequestEvent } from './authorization-request';
-import { FriendEvent } from './friend';
-import { GroupEvent } from './group';
-import { GroupInvitationEvent } from './group-invitation';
-import { IgnorationEvent } from './ignoration';
 import { LoginEvent } from './login';
-import { MessageEvent } from './message';
 import { NamespaceEvent } from './namespace';
 import { PasswordResetEvent } from './password-reset';
 import { UserEvent } from './user';
@@ -44,16 +34,7 @@ export async function setup(options: SetupOptions) {
     subscribe(options.database, options.durable, AuthorizationRequest, (payload) =>
       AuthorizationRequestEvent.emit(payload),
     ),
-    subscribe(options.database, options.durable, Friend, (payload) => FriendEvent.emit(payload)),
-    subscribe(options.database, options.durable, GroupInvitation, (payload) =>
-      GroupInvitationEvent.emit(payload),
-    ),
-    subscribe(options.database, options.durable, Group, (payload) => GroupEvent.emit(payload)),
-    subscribe(options.database, options.durable, Ignoration, (payload) =>
-      IgnorationEvent.emit(payload),
-    ),
     subscribe(options.database, options.durable, Login, (payload) => LoginEvent.emit(payload)),
-    subscribe(options.database, options.durable, Message, (payload) => MessageEvent.emit(payload)),
     subscribe(options.database, options.durable, Namespace, (payload) =>
       NamespaceEvent.emit(payload),
     ),

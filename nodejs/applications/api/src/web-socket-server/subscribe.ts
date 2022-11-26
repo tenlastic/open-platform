@@ -7,12 +7,6 @@ import {
   AuthorizationPermissions,
   AuthorizationRequest,
   AuthorizationRequestPermissions,
-  GroupInvitation,
-  GroupInvitationPermissions,
-  Group,
-  GroupPermissions,
-  Message,
-  MessagePermissions,
   Namespace,
   NamespacePermissions,
   User,
@@ -61,21 +55,6 @@ export async function subscribe(
         AuthorizationRequestPermissions,
         ws,
       );
-
-    case 'group-invitations':
-      return webSocketServer.subscribe(
-        credentials,
-        data,
-        GroupInvitation,
-        GroupInvitationPermissions,
-        ws,
-      );
-
-    case 'groups':
-      return webSocketServer.subscribe(credentials, data, Group, GroupPermissions, ws);
-
-    case 'messages':
-      return webSocketServer.subscribe(credentials, data, Message, MessagePermissions, ws);
 
     case 'namespaces':
       return webSocketServer.subscribe(credentials, data, Namespace, NamespacePermissions, ws);
