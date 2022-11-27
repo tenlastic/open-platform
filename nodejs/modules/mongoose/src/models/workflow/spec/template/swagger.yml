@@ -19,7 +19,3 @@ components:
             $ref: '#/components/schemas/WorkflowSpecTemplateSidecar'
       required:
         - name
-        - script
-      required:
-        - entrypoint
-        - templates

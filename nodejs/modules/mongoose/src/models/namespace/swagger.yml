@@ -9,58 +9,14 @@ components:
         createdAt:
           type: string
           format: date-time
-        keys:
-          type: array
-          items:
-            $ref: '#/components/schemas/NamespaceKey'
         limits:
           $ref: '#/components/schemas/NamespaceLimits'
         name:
           type: string
         status:
-          type: object
-          properties:
-            components:
-              type: array
-              items:
-                type: object
-                properties:
-                  current:
-                    type: number
-                  name:
-                    type: string
-                    enum: [api, cdc, connector, metrics, sidecar]
-                  phase:
-                    type: string
-                    enum: [Error, Failed, Pending, Running, Succeeded]
-                  total:
-                    type: number
-            limits:
-              $ref: '#/components/schemas/NamespaceStatusLimits'
-            nodes:
-              type: array
-              items:
-                type: object
-                properties:
-                  component:
-                    type: string
-                    enum: [api, cdc, connector, metrics, sidecar]
-                  container:
-                    type: string
-                  phase:
-                    type: string
-                    enum: [Error, Failed, Pending, Running, Succeeded]
-                  pod:
-                    type: string
-            phase:
-              type: string
-              enum: [Error, Failed, Pending, Running, Succeeded]
+          $ref: '#/components/schemas/NamespaceStatus'
         updatedAt:
           type: string
           format: date-time
-        users:
-          type: array
-          items:
-            $ref: '#/components/schemas/NamespaceUser'
       required:
         - name
