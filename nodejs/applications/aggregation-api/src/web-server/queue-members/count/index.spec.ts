@@ -1,19 +1,20 @@
-import { AuthorizationRole, QueueGameServerTemplate } from '@tenlastic/mongoose';
-import { ContextMock } from '@tenlastic/web-server';
-import { expect } from 'chai';
-
 import {
   Authorization,
+  AuthorizationRole,
   Build,
   Group,
   Namespace,
   NamespaceDocument,
   Queue,
+  QueueGameServerTemplate,
   QueueMember,
   User,
   UserDocument,
   WebSocket,
-} from '../../../mongodb';
+} from '@tenlastic/mongoose';
+import { ContextMock } from '@tenlastic/web-server';
+import { expect } from 'chai';
+
 import { handler } from './';
 
 describe('web-server/queue-members/count', function () {

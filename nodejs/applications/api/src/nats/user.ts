@@ -1,7 +1,6 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
+import { EventEmitter, IDatabasePayload, UserDocument } from '@tenlastic/mongoose';
 
 import mailgun from '../mailgun';
-import { UserDocument } from '../mongodb';
 
 export const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
 

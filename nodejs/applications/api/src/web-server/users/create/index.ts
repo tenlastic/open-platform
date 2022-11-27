@@ -1,6 +1,5 @@
+import { UserPermissions } from '@tenlastic/mongoose';
 import { Context } from '@tenlastic/web-server';
-
-import { UserPermissions } from '../../../mongodb';
 
 export async function handler(ctx: Context) {
   const credentials = { ...ctx.state };

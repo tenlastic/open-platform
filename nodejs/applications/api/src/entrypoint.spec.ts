@@ -1,21 +1,6 @@
-import mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
 import * as mongoose from '@tenlastic/mongoose';
-import * as sinon from 'sinon';
 import { URL } from 'url';
-
-import {
-  Authorization,
-  AuthorizationRequest,
-  Login,
-  Namespace,
-  PasswordReset,
-  RefreshToken,
-  User,
-  WebSocket,
-} from './mongodb';
-
-let sandbox: sinon.SinonSandbox;
 
 before(async function () {
   // Minio.
@@ -35,35 +20,27 @@ before(async function () {
     databaseName: 'api-test',
   });
   await Promise.all([
-    Authorization.syncIndexes(),
-    AuthorizationRequest.syncIndexes(),
-    Login.syncIndexes(),
-    Namespace.syncIndexes(),
-    PasswordReset.syncIndexes(),
-    RefreshToken.syncIndexes(),
-    User.syncIndexes(),
-    WebSocket.syncIndexes(),
+    mongoose.Authorization.syncIndexes(),
+    mongoose.AuthorizationRequest.syncIndexes(),
+    mongoose.Login.syncIndexes(),
+    mongoose.Namespace.syncIndexes(),
+    mongoose.PasswordReset.syncIndexes(),
+    mongoose.RefreshToken.syncIndexes(),
+    mongoose.User.syncIndexes(),
+    mongoose.WebSocket.syncIndexes(),
   ]);
 });
 
 beforeEach(async function () {
-  // Mailgun.
-  sandbox = sinon.createSandbox();
-  mailgun.stub(sandbox);
-
   // MongoDB.
   await Promise.all([
-    Authorization.deleteMany({}),
-    AuthorizationRequest.deleteMany({}),
-    Login.deleteMany({}),
-    Namespace.deleteMany({}),
-    PasswordReset.deleteMany({}),
-    RefreshToken.deleteMany({}),
-    User.deleteMany({}),
-    WebSocket.deleteMany({}),
+    mongoose.Authorization.deleteMany({}),
+    mongoose.AuthorizationRequest.deleteMany({}),
+    mongoose.Login.deleteMany({}),
+    mongoose.Namespace.deleteMany({}),
+    mongoose.PasswordReset.deleteMany({}),
+    mongoose.RefreshToken.deleteMany({}),
+    mongoose.User.deleteMany({}),
+    mongoose.WebSocket.deleteMany({}),
   ]);
-});
-
-afterEach(function () {
-  sandbox.restore();
 });

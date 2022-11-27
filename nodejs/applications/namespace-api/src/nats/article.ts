@@ -1,6 +1,5 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
+import { Article, ArticleDocument, EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
 
-import { Article, ArticleDocument } from '../mongodb';
 import { NamespaceEvent } from './namespace';
 
 export const ArticleEvent = new EventEmitter<IDatabasePayload<ArticleDocument>>();

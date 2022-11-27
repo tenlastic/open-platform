@@ -1,6 +1,5 @@
+import { Namespace, QueuePermissions } from '@tenlastic/mongoose';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
-
-import { Namespace, QueuePermissions } from '../../../../mongodb';
 
 export async function handler(ctx: Context) {
   const credentials = { ...ctx.state };

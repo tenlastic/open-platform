@@ -8,6 +8,7 @@
   },
   "exclude": ["./src/**/*.spec.ts"],
   "include": ["./src"],
+  "references": [{ "path": "../mongoose-permissions/tsconfig.app.json" }],
   "ts-node": {
     "files": true
   }

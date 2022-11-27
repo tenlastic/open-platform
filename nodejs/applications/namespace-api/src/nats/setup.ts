@@ -1,6 +1,3 @@
-import { subscribe } from '@tenlastic/mongoose-change-stream-nats';
-import * as nats from '@tenlastic/nats';
-
 import {
   Article,
   Authorization,
@@ -15,7 +12,10 @@ import {
   User,
   WebSocket,
   Workflow,
-} from '../mongodb';
+} from '@tenlastic/mongoose';
+import { subscribe } from '@tenlastic/mongoose-change-stream-nats';
+import * as nats from '@tenlastic/nats';
+
 import { ArticleEvent } from './article';
 import { AuthorizationEvent } from './authorization';
 import { BuildEvent } from './build';

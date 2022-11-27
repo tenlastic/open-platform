@@ -1,4 +1,4 @@
-import { FriendPermissions } from '../../../mongodb';
+import { FriendPermissions } from '@tenlastic/mongoose';
 import { find } from '@tenlastic/web-server';
 
 export const handler = find(FriendPermissions);

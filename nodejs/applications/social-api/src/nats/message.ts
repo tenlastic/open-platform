@@ -1,6 +1,5 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
+import { EventEmitter, IDatabasePayload, Message, MessageDocument } from '@tenlastic/mongoose';
 
-import { Message, MessageDocument } from '../mongodb';
 import { GroupEvent } from './group';
 import { UserEvent } from './user';
 

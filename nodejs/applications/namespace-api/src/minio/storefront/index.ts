@@ -1,7 +1,6 @@
 import * as minio from '@tenlastic/minio';
+import { StorefrontDocument } from '@tenlastic/mongoose';
 import * as mongoose from 'mongoose';
-
-import { StorefrontDocument } from '../../mongodb';
 
 export const MinioStorefront = {
   /**

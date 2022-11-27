@@ -5,6 +5,7 @@ mongoose.set('autoIndex', false);
 export * from './event-emitter';
 export * from './json-schema';
 export * from './models';
+export * from './permissions';
 export * from './plugins';
 export * from './validators';
 

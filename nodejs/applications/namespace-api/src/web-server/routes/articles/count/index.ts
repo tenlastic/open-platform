@@ -1,4 +1,4 @@
-import { ArticlePermissions } from '../../../../mongodb';
+import { ArticlePermissions } from '@tenlastic/mongoose';
 import { count } from '@tenlastic/web-server';
 
 export const handler = count(ArticlePermissions);

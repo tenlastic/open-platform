@@ -1,20 +1,22 @@
 import * as minio from '@tenlastic/minio';
-import { AuthorizationRole, NamespaceLimitError, NamespaceLimits } from '@tenlastic/mongoose';
+import {
+  Authorization,
+  AuthorizationRole,
+  Namespace,
+  NamespaceDocument,
+  NamespaceLimitError,
+  NamespaceLimits,
+  Storefront,
+  StorefrontDocument,
+  User,
+  UserDocument,
+} from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as FormData from 'form-data';
 
 import { MinioStorefront } from '../../../../minio';
-import {
-  Authorization,
-  Namespace,
-  NamespaceDocument,
-  Storefront,
-  StorefrontDocument,
-  User,
-  UserDocument,
-} from '../../../../mongodb';
 import { handler } from './';
 
 use(chaiAsPromised);

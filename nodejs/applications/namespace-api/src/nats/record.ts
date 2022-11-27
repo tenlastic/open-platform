@@ -1,5 +1,3 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
-
-import { RecordDocument } from '../mongodb';
+import { EventEmitter, IDatabasePayload, RecordDocument } from '@tenlastic/mongoose';
 
 export const RecordEvent = new EventEmitter<IDatabasePayload<RecordDocument>>();

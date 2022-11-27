@@ -1,6 +1,5 @@
+import { GameServerPermissions, Namespace } from '@tenlastic/mongoose';
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
-
-import { GameServerPermissions, Namespace } from '../../../../mongodb';
 
 export async function handler(ctx: Context) {
   const { cpu, memory, preemptible } = ctx.request.body;

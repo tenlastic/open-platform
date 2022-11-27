@@ -1,4 +1,4 @@
-import { MessagePermissions } from '../../../mongodb';
+import { MessagePermissions } from '@tenlastic/mongoose';
 import { deleteOne } from '@tenlastic/web-server';
 
 export const handler = deleteOne(MessagePermissions);

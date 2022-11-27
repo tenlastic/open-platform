@@ -1,10 +1,9 @@
 import { V1EnvFromSource, V1EnvVar } from '@kubernetes/client-node';
 import { networkPolicyApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
-import { BuildPlatform, DatabaseOperationType } from '@tenlastic/mongoose';
+import { BuildDocument, BuildPlatform, DatabaseOperationType } from '@tenlastic/mongoose';
 import { URL } from 'url';
 
 import { version } from '../../package.json';
-import { BuildDocument } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 
 export const KubernetesBuild = {

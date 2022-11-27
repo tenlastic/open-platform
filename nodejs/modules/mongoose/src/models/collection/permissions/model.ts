@@ -13,7 +13,7 @@ import * as mongoose from 'mongoose';
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: { _id: false, id: false, minimize: false },
 })
-export class CollectionPermissionsSchema {
+export class CollectionModelPermissionsSchema {
   @prop({ type: [String] }, PropType.MAP)
   public create: Map<string, string[]>;
 
@@ -36,8 +36,8 @@ export class CollectionPermissionsSchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: CollectionPermissionsModel,
-    values: Partial<CollectionPermissionsSchema> = {},
+    this: CollectionModelPermissionsModel,
+    values: Partial<CollectionModelPermissionsSchema> = {},
   ) {
     const defaults = {};
 
@@ -45,6 +45,8 @@ export class CollectionPermissionsSchema {
   }
 }
 
-export type CollectionPermissionsDocument = DocumentType<CollectionPermissionsSchema>;
-export type CollectionPermissionsModel = ReturnModelType<typeof CollectionPermissionsSchema>;
-export const CollectionPermissions = getModelForClass(CollectionPermissionsSchema);
+export type CollectionModelPermissionsDocument = DocumentType<CollectionModelPermissionsSchema>;
+export type CollectionModelPermissionsModel = ReturnModelType<
+  typeof CollectionModelPermissionsSchema
+>;
+export const CollectionModelPermissions = getModelForClass(CollectionModelPermissionsSchema);

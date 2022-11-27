@@ -1,7 +1,11 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
+import {
+  EventEmitter,
+  IDatabasePayload,
+  Storefront,
+  StorefrontDocument,
+} from '@tenlastic/mongoose';
 
 import { MinioStorefront } from '../minio';
-import { Storefront, StorefrontDocument } from '../mongodb';
 import { NamespaceEvent } from './namespace';
 
 export const StorefrontEvent = new EventEmitter<IDatabasePayload<StorefrontDocument>>();

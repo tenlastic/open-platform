@@ -1,6 +1,10 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
+import {
+  EventEmitter,
+  IDatabasePayload,
+  QueueMember,
+  QueueMemberDocument,
+} from '@tenlastic/mongoose';
 
-import { QueueMember, QueueMemberDocument } from '../mongodb';
 import { NamespaceEvent } from './namespace';
 
 export const QueueMemberEvent = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();

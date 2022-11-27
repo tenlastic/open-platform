@@ -1,12 +1,11 @@
 import * as minio from '@tenlastic/minio';
-import { AuthorizationRole } from '@tenlastic/mongoose';
+import { Authorization, AuthorizationRole, Namespace, Storefront, User } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs';
 
 import { MinioStorefront } from '../../../../minio';
-import { Authorization, Namespace, Storefront, User } from '../../../../mongodb';
 import { handler } from './';
 
 use(chaiAsPromised);

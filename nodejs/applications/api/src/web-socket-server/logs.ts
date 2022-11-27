@@ -1,10 +1,14 @@
 import { podApiV1 } from '@tenlastic/kubernetes';
+import {
+  Authorization,
+  AuthorizationDocument,
+  NamespacePermissions,
+  User,
+} from '@tenlastic/mongoose';
 import { MongoosePermissions, PermissionError } from '@tenlastic/mongoose-permissions';
 import { RecordNotFoundError } from '@tenlastic/web-server';
 import * as webSocketServer from '@tenlastic/web-socket-server';
 import { WebSocket } from '@tenlastic/web-socket-server';
-
-import { Authorization, AuthorizationDocument, NamespacePermissions, User } from '../mongodb';
 
 export interface LogsData {
   _id: string;

@@ -1,7 +1,11 @@
+import {
+  Authorization,
+  AuthorizationDocument,
+  WebSocket,
+  WebSocketPermissions,
+} from '@tenlastic/mongoose';
 import { ICredentials } from '@tenlastic/mongoose-permissions';
 import { AuthenticationData, WebSocket as WS } from '@tenlastic/web-socket-server';
-
-import { Authorization, AuthorizationDocument, WebSocket, WebSocketPermissions } from '../mongodb';
 
 export async function connection(auth: AuthenticationData, podName: string, ws: WS) {
   if (!auth.jwt || !auth.jwt.jti || !auth.jwt.user) {

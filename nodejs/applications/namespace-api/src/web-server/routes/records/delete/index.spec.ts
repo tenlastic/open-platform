@@ -1,16 +1,16 @@
-import { CollectionPermissions } from '@tenlastic/mongoose';
-import { ContextMock } from '@tenlastic/web-server';
-import { expect } from 'chai';
-
 import {
   Collection,
   CollectionDocument,
+  CollectionModelPermissions,
   Namespace,
   RecordDocument,
   RecordSchema,
   User,
   UserDocument,
-} from '../../../../mongodb';
+} from '@tenlastic/mongoose';
+import { ContextMock } from '@tenlastic/web-server';
+import { expect } from 'chai';
+
 import { handler } from './';
 
 describe('web-server/records/delete', function () {
@@ -24,7 +24,7 @@ describe('web-server/records/delete', function () {
     const namespace = await Namespace.mock().save();
     collection = await Collection.mock({
       namespaceId: namespace._id,
-      permissions: CollectionPermissions.mock({
+      permissions: CollectionModelPermissions.mock({
         delete: new Map(Object.entries({ public: true })),
         find: new Map(Object.entries({ public: {} })),
         read: new Map(Object.entries({ public: ['_id', 'createdAt', 'properties', 'updatedAt'] })),

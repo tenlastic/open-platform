@@ -1,10 +1,10 @@
 import * as minio from '@tenlastic/minio';
+import { BuildPermissions } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as JSZip from 'jszip';
 
 import { MinioBuild } from '../../../../minio';
-import { BuildPermissions } from '../../../../mongodb';
 
 export async function handler(ctx: Context) {
   const credentials = { ...ctx.state };

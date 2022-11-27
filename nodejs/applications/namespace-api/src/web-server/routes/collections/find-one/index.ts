@@ -1,4 +1,4 @@
-import { CollectionPermissions } from '../../../../mongodb';
+import { CollectionPermissions } from '@tenlastic/mongoose';
 import { findOne } from '@tenlastic/web-server';
 
 export const handler = findOne(CollectionPermissions);

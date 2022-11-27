@@ -1,17 +1,17 @@
-import { AuthorizationRole } from '@tenlastic/mongoose';
-import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
-import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-
 import {
   Authorization,
   AuthorizationRequest,
   AuthorizationRequestDocument,
+  AuthorizationRole,
   Namespace,
   NamespaceDocument,
   User,
   UserDocument,
-} from '../../../mongodb';
+} from '@tenlastic/mongoose';
+import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
+import { expect, use } from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+
 import { handler } from './';
 
 use(chaiAsPromised);
@@ -22,9 +22,9 @@ describe('web-server/authorization-requests/update', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    namespace = await Namespace.mock();
-    otherUser = await User.mock();
-    user = await User.mock();
+    namespace = await Namespace.mock().save();
+    otherUser = await User.mock().save();
+    user = await User.mock().save();
   });
 
   context('when permission is denied', function () {
@@ -34,7 +34,7 @@ describe('web-server/authorization-requests/update', function () {
       record = await AuthorizationRequest.mock({
         namespaceId: namespace._id,
         userId: user._id,
-      });
+      }).save();
     });
 
     it('throws an error', async function () {
@@ -57,13 +57,13 @@ describe('web-server/authorization-requests/update', function () {
         namespaceId: namespace._id,
         roles: [AuthorizationRole.AuthorizationsReadWrite],
         userId: user._id,
-      });
+      }).save();
       record = await AuthorizationRequest.mock({
         grantedAt: new Date(),
         namespaceId: namespace._id,
         roles: [AuthorizationRole.AuthorizationsReadWrite],
         userId: otherUser._id,
-      });
+      }).save();
     });
 
     it('returns the record', async function () {
@@ -86,7 +86,7 @@ describe('web-server/authorization-requests/update', function () {
           namespaceId: namespace._id,
           roles: [AuthorizationRole.AuthorizationsReadWrite],
           userId: otherUser._id,
-        });
+        }).save();
         const ctx = new ContextMock({
           params: { _id: record._id, namespaceId: namespace._id },
           request: { body: { deniedAt: new Date() } },
@@ -108,7 +108,7 @@ describe('web-server/authorization-requests/update', function () {
             namespaceId: namespace._id,
             roles: [AuthorizationRole.NamespacesReadWrite],
             userId: otherUser._id,
-          });
+          }).save();
           const ctx = new ContextMock({
             params: { _id: record._id, namespaceId: namespace._id },
             request: { body: { grantedAt: new Date() } },

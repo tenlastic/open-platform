@@ -1,8 +1,8 @@
 import 'source-map-support/register';
 
 import '@tenlastic/logging';
+import * as mongoose from '@tenlastic/mongoose';
 
-import * as mongodb from './mongodb';
 import * as nats from './nats';
 import * as webServer from './web-server';
 
@@ -12,10 +12,7 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 (async () => {
   try {
     // MongoDB.
-    await mongodb.setup({
-      connectionString: mongoConnectionString,
-      databaseName: 'social-api',
-    });
+    await mongoose.connect({ connectionString: mongoConnectionString, databaseName: 'social-api' });
 
     // NATS.
     await nats.setup({

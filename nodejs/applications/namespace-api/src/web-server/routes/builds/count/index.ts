@@ -1,4 +1,4 @@
-import { BuildPermissions } from '../../../../mongodb';
+import { BuildPermissions } from '@tenlastic/mongoose';
 import { count } from '@tenlastic/web-server';
 
 export const handler = count(BuildPermissions);

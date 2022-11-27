@@ -1,8 +1,8 @@
 import { V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
 import { deploymentApiV1 } from '@tenlastic/kubernetes';
+import { WorkflowDocument } from '@tenlastic/mongoose';
 
 import { version } from '../../package.json';
-import { WorkflowDocument } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 import { KubernetesWorkflow } from './workflow';
 

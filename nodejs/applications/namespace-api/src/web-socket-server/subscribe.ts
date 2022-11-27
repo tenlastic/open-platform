@@ -1,6 +1,3 @@
-import { ICredentials } from '@tenlastic/mongoose-permissions';
-import * as webSocketServer from '@tenlastic/web-socket-server';
-
 import {
   Article,
   ArticlePermissions,
@@ -25,7 +22,9 @@ import {
   WebSocketPermissions,
   Workflow,
   WorkflowPermissions,
-} from '../mongodb';
+} from '@tenlastic/mongoose';
+import { ICredentials } from '@tenlastic/mongoose-permissions';
+import * as webSocketServer from '@tenlastic/web-socket-server';
 
 export async function subscribe(
   auth: webSocketServer.AuthenticationData,

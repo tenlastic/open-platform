@@ -1,17 +1,17 @@
+import { Group, User } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
-import { Group, User } from '../../../mongodb';
 import { handler } from './';
 
 use(chaiAsPromised);
 
 describe('web-server/groups/leave', function () {
   it('returns the record', async function () {
-    const otherUser = await User.mock();
-    const user = await User.mock();
-    const record = await Group.mock({ isOpen: true, userIds: [user._id, otherUser._id] });
+    const otherUser = await User.mock().save();
+    const user = await User.mock().save();
+    const record = await Group.mock({ isOpen: true, userIds: [user._id, otherUser._id] }).save();
 
     const ctx = new ContextMock({
       params: {

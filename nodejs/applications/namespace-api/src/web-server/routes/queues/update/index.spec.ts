@@ -1,23 +1,21 @@
 import {
+  Authorization,
   AuthorizationRole,
+  Build,
+  Namespace,
+  NamespaceDocument,
   NamespaceLimitError,
   NamespaceLimits,
+  Queue,
   QueueGameServerTemplate,
+  User,
+  UserDocument,
 } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { Chance } from 'chance';
 
-import {
-  Authorization,
-  Build,
-  Namespace,
-  NamespaceDocument,
-  Queue,
-  User,
-  UserDocument,
-} from '../../../../mongodb';
 import { handler } from './';
 
 const chance = new Chance();

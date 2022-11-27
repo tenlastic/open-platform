@@ -1,17 +1,19 @@
-import { AuthorizationRole, NamespaceLimitError, NamespaceLimits } from '@tenlastic/mongoose';
+import {
+  Authorization,
+  AuthorizationRole,
+  Namespace,
+  NamespaceDocument,
+  NamespaceLimitError,
+  NamespaceLimits,
+  User,
+  UserDocument,
+} from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { Chance } from 'chance';
 
-import {
-  Authorization,
-  Namespace,
-  NamespaceDocument,
-  User,
-  UserDocument,
-} from '../../../../mongodb';
 import { handler } from './';
 
 const chance = new Chance();

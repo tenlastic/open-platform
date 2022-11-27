@@ -1,5 +1,16 @@
 import * as minio from '@tenlastic/minio';
-import { AuthorizationRole, NamespaceLimitError, NamespaceLimits } from '@tenlastic/mongoose';
+import {
+  Authorization,
+  AuthorizationRole,
+  Build,
+  BuildDocument,
+  Namespace,
+  NamespaceDocument,
+  NamespaceLimitError,
+  NamespaceLimits,
+  User,
+  UserDocument,
+} from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -9,15 +20,6 @@ import * as fs from 'fs';
 import * as JSZip from 'jszip';
 
 import { MinioBuild } from '../../../../minio';
-import {
-  Authorization,
-  Build,
-  BuildDocument,
-  Namespace,
-  NamespaceDocument,
-  User,
-  UserDocument,
-} from '../../../../mongodb';
 import { handler } from './';
 
 use(chaiAsPromised);

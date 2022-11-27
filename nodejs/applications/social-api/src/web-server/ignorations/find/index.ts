@@ -1,4 +1,4 @@
-import { IgnorationPermissions } from '../../../mongodb';
+import { IgnorationPermissions } from '@tenlastic/mongoose';
 import { find } from '@tenlastic/web-server';
 
 export const handler = find(IgnorationPermissions);

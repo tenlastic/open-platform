@@ -1,9 +1,9 @@
+import { PasswordReset, User, UserDocument } from '@tenlastic/mongoose';
 import { Context, ContextMock, RequiredFieldError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 
-import { PasswordReset, User, UserDocument } from '../../../mongodb';
 import { handler } from '.';
 
 const chance = new Chance();
@@ -13,7 +13,7 @@ describe('web-server/password-resets/create', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await User.mock();
+    user = await User.mock().save();
   });
 
   context('when email is not provided', function () {

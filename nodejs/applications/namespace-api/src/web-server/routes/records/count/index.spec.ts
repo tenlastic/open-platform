@@ -1,15 +1,15 @@
-import { CollectionPermissions } from '@tenlastic/mongoose';
-import { ContextMock } from '@tenlastic/web-server';
-import { expect } from 'chai';
-
 import {
   Collection,
   CollectionDocument,
+  CollectionModelPermissions,
   Namespace,
   RecordSchema,
   User,
   UserDocument,
-} from '../../../../mongodb';
+} from '@tenlastic/mongoose';
+import { ContextMock } from '@tenlastic/web-server';
+import { expect } from 'chai';
+
 import { handler } from './';
 
 describe('web-server/records/count', function () {
@@ -23,7 +23,7 @@ describe('web-server/records/count', function () {
     collection = await Collection.mock({
       jsonSchema: { type: 'object' },
       namespaceId: namespace._id,
-      permissions: CollectionPermissions.mock({
+      permissions: CollectionModelPermissions.mock({
         create: new Map(Object.entries({ public: ['properties'] })),
         find: new Map(Object.entries({ public: {} })),
         read: new Map(Object.entries({ public: ['_id', 'createdAt', 'properties', 'updatedAt'] })),

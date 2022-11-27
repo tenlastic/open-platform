@@ -1,9 +1,9 @@
 import 'source-map-support/register';
 
 import '@tenlastic/logging';
+import * as mongoose from '@tenlastic/mongoose';
 
 import * as minio from './minio';
-import * as mongodb from './mongodb';
 import * as nats from './nats';
 import * as webServer from './web-server';
 import * as webSocketServer from './web-socket-server';
@@ -21,7 +21,7 @@ const podName = process.env.POD_NAME;
     await minio.setup({ bucket: minioBucket, connectionString: minioConnectionString });
 
     // MongoDB.
-    await mongodb.setup({
+    await mongoose.connect({
       connectionString: mongoConnectionString,
       databaseName: mongoDatabaseName,
     });

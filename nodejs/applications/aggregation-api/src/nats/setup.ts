@@ -1,7 +1,14 @@
+import {
+  Authorization,
+  Group,
+  Namespace,
+  QueueMember,
+  Storefront,
+  User,
+} from '@tenlastic/mongoose';
 import { subscribe } from '@tenlastic/mongoose-change-stream-nats';
 import * as nats from '@tenlastic/nats';
 
-import { Authorization, Group, Namespace, QueueMember, Storefront, User } from '../mongodb';
 import { AuthorizationEvent } from './authorization';
 import { GroupEvent } from './group';
 import { NamespaceEvent } from './namespace';

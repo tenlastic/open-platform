@@ -1,15 +1,15 @@
-import { Context, ContextMock, RequiredFieldError } from '@tenlastic/web-server';
-import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
-
 import {
   PasswordReset,
   PasswordResetDocument,
   RefreshToken,
   User,
   UserDocument,
-} from '../../../mongodb';
+} from '@tenlastic/mongoose';
+import { Context, ContextMock, RequiredFieldError } from '@tenlastic/web-server';
+import { expect, use } from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+import * as Chance from 'chance';
+
 import { handler } from '.';
 
 const chance = new Chance();
@@ -20,8 +20,8 @@ describe('web-server/password-resets/delete', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await User.mock();
-    record = await PasswordReset.mock({ userId: user._id });
+    user = await User.mock().save();
+    record = await PasswordReset.mock({ userId: user._id }).save();
   });
 
   context('when password is not provided', function () {
@@ -81,7 +81,7 @@ describe('web-server/password-resets/delete', function () {
         }) as any;
         previousPassword = user.password;
 
-        await RefreshToken.mock({ userId: user._id });
+        await RefreshToken.mock({ userId: user._id }).save();
 
         await handler(ctx);
       });

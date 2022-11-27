@@ -1,18 +1,18 @@
-import { CollectionPermissions } from '@tenlastic/mongoose';
-import { ContextMock } from '@tenlastic/web-server';
-import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
-
 import {
   Collection,
   CollectionDocument,
+  CollectionModelPermissions,
   Namespace,
   RecordDocument,
   RecordSchema,
   User,
   UserDocument,
-} from '../../../../mongodb';
+} from '@tenlastic/mongoose';
+import { ContextMock } from '@tenlastic/web-server';
+import { expect, use } from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+import * as Chance from 'chance';
+
 import { handler } from './';
 
 const chance = new Chance();
@@ -29,7 +29,7 @@ describe('web-server/records/update', function () {
     const namespace = await Namespace.mock().save();
     collection = await Collection.mock({
       namespaceId: namespace._id,
-      permissions: CollectionPermissions.mock({
+      permissions: CollectionModelPermissions.mock({
         find: new Map(Object.entries({ public: {} })),
         read: new Map(
           Object.entries({

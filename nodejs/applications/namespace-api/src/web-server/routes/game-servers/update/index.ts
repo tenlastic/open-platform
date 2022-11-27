@@ -1,6 +1,5 @@
+import { GameServerPermissions, Namespace } from '@tenlastic/mongoose';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
-
-import { GameServerPermissions, Namespace } from '../../../../mongodb';
 
 export async function handler(ctx: Context) {
   const credentials = { ...ctx.state };

@@ -1,11 +1,11 @@
 import * as minio from '@tenlastic/minio';
+import { Storefront } from '@tenlastic/mongoose';
 import { expect } from 'chai';
 import * as fs from 'fs';
 
-import { Storefront } from '../../mongodb';
 import { MinioStorefront } from './';
 
-describe('mongodb/models/storefront', function () {
+describe('minio/storefront', function () {
   describe('removeObjects()', function () {
     it('removes all Minio objects', async function () {
       const storefront = await Storefront.mock().save();

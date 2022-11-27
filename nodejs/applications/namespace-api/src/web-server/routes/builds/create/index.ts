@@ -1,10 +1,9 @@
 import * as minio from '@tenlastic/minio';
-import { NamespaceLimitError } from '@tenlastic/mongoose';
+import { Build, BuildPermissions, Namespace, NamespaceLimitError } from '@tenlastic/mongoose';
 import { Context } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
 import { MinioBuild } from '../../../../minio';
-import { Build, BuildPermissions, Namespace } from '../../../../mongodb';
 import { NamespaceStorageLimitEvent } from '../../../../nats';
 
 export async function handler(ctx: Context) {

@@ -1,5 +1,3 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
-
-import { IgnorationDocument } from '../mongodb';
+import { EventEmitter, IDatabasePayload, IgnorationDocument } from '@tenlastic/mongoose';
 
 export const IgnorationEvent = new EventEmitter<IDatabasePayload<IgnorationDocument>>();

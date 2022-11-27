@@ -1,8 +1,8 @@
 import { V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
 import { deploymentApiV1 } from '@tenlastic/kubernetes';
+import { BuildDocument } from '@tenlastic/mongoose';
 
 import { version } from '../../package.json';
-import { BuildDocument } from '../mongodb';
 import { KubernetesBuild } from './build';
 import { KubernetesNamespace } from './namespace';
 

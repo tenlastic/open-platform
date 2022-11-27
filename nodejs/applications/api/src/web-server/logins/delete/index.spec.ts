@@ -1,8 +1,8 @@
+import { RefreshToken, RefreshTokenDocument, User } from '@tenlastic/mongoose';
 import { Context, ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
-import { RefreshToken, RefreshTokenDocument, User } from '../../../mongodb';
 import { handler } from '.';
 
 use(chaiAsPromised);
@@ -12,8 +12,8 @@ describe('web-server/logins/delete', function () {
   let refreshToken: RefreshTokenDocument;
 
   beforeEach(async function () {
-    refreshToken = await RefreshToken.mock();
-    await User.mock({ password: 'password' });
+    refreshToken = await RefreshToken.mock().save();
+    await User.mock({ password: 'password' }).save();
 
     ctx = new ContextMock({
       state: {

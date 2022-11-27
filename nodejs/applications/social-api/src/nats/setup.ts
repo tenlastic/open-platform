@@ -1,7 +1,7 @@
+import { Friend, GroupInvitation, Group, Ignoration, Message, User } from '@tenlastic/mongoose';
 import { subscribe } from '@tenlastic/mongoose-change-stream-nats';
 import * as nats from '@tenlastic/nats';
 
-import { Friend, GroupInvitation, Group, Ignoration, Message, User } from '../mongodb';
 import { FriendEvent } from './friend';
 import { GroupEvent } from './group';
 import { GroupInvitationEvent } from './group-invitation';

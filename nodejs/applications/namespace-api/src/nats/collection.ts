@@ -1,6 +1,10 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
+import {
+  Collection,
+  CollectionDocument,
+  EventEmitter,
+  IDatabasePayload,
+} from '@tenlastic/mongoose';
 
-import { Collection, CollectionDocument } from '../mongodb';
 import { NamespaceEvent } from './namespace';
 
 export const CollectionEvent = new EventEmitter<IDatabasePayload<CollectionDocument>>();

@@ -1,6 +1,10 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
+import {
+  EventEmitter,
+  IDatabasePayload,
+  QueueMember,
+  QueueMemberDocument,
+} from '@tenlastic/mongoose';
 
-import { QueueMember, QueueMemberDocument } from '../mongodb';
 import { GroupEvent } from './group';
 import { QueueEvent } from './queue';
 import { WebSocketEvent } from './web-socket';

@@ -1,4 +1,4 @@
-import { Login, User } from '../../../mongodb';
+import { Login, User } from '@tenlastic/mongoose';
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
 import * as jsonwebtoken from 'jsonwebtoken';
 

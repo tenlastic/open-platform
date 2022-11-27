@@ -1,6 +1,5 @@
+import { Group, GroupInvitation, GroupPermissions } from '@tenlastic/mongoose';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
-
-import { Group, GroupInvitation, GroupPermissions } from '../../../mongodb';
 
 export async function handler(ctx: Context) {
   const group = await Group.findOne({ _id: ctx.params._id });

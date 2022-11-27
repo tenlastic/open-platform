@@ -1,8 +1,8 @@
+import { Group, GroupDocument, User, UserDocument } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
-import { Group, GroupDocument, User, UserDocument } from '../../../mongodb';
 import { handler } from './';
 
 use(chaiAsPromised);
@@ -11,18 +11,18 @@ describe('web-server/groups/join', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await User.mock();
+    user = await User.mock().save();
   });
 
   context('when permission is granted', function () {
     let record: GroupDocument;
 
     beforeEach(async function () {
-      record = await Group.mock({ isOpen: true, userIds: [user._id] });
+      record = await Group.mock({ isOpen: true, userIds: [user._id] }).save();
     });
 
     it('returns the record', async function () {
-      const otherUser = await User.mock();
+      const otherUser = await User.mock().save();
       const ctx = new ContextMock({
         params: { _id: record._id },
         state: { user: otherUser.toObject() },
@@ -40,8 +40,8 @@ describe('web-server/groups/join', function () {
     let record: GroupDocument;
 
     beforeEach(async function () {
-      otherUser = await User.mock({});
-      record = await Group.mock({ isOpen: false, userIds: [user._id, otherUser._id] });
+      otherUser = await User.mock({}).save();
+      record = await Group.mock({ isOpen: false, userIds: [user._id, otherUser._id] }).save();
     });
 
     it('throws an error', async function () {

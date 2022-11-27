@@ -1,4 +1,4 @@
-import { QueuePermissions } from '../../../../mongodb';
+import { QueuePermissions } from '@tenlastic/mongoose';
 import { logs } from '@tenlastic/web-server';
 
 export const handler = logs(QueuePermissions);

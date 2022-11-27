@@ -2,22 +2,6 @@ import * as minio from '@tenlastic/minio';
 import * as mongoose from '@tenlastic/mongoose';
 import { URL } from 'url';
 
-import {
-  Article,
-  Authorization,
-  Build,
-  Collection,
-  GameServer,
-  Group,
-  Namespace,
-  Queue,
-  QueueMember,
-  Storefront,
-  User,
-  WebSocket,
-  Workflow,
-} from './mongodb';
-
 before(async function () {
   // Minio.
   const minioConnectionUrl = new URL(process.env.MINIO_CONNECTION_STRING);
@@ -36,37 +20,37 @@ before(async function () {
     databaseName: `namespace-api-test`,
   });
   await Promise.all([
-    Article.syncIndexes(),
-    Authorization.syncIndexes(),
-    Build.syncIndexes(),
-    Collection.syncIndexes(),
-    GameServer.syncIndexes(),
-    Group.syncIndexes(),
-    Namespace.syncIndexes(),
-    Queue.syncIndexes(),
-    QueueMember.syncIndexes(),
-    Storefront.syncIndexes(),
-    User.syncIndexes(),
-    WebSocket.syncIndexes(),
-    Workflow.syncIndexes(),
+    mongoose.Article.syncIndexes(),
+    mongoose.Authorization.syncIndexes(),
+    mongoose.Build.syncIndexes(),
+    mongoose.Collection.syncIndexes(),
+    mongoose.GameServer.syncIndexes(),
+    mongoose.Group.syncIndexes(),
+    mongoose.Namespace.syncIndexes(),
+    mongoose.Queue.syncIndexes(),
+    mongoose.QueueMember.syncIndexes(),
+    mongoose.Storefront.syncIndexes(),
+    mongoose.User.syncIndexes(),
+    mongoose.WebSocket.syncIndexes(),
+    mongoose.Workflow.syncIndexes(),
   ]);
 });
 
 beforeEach(async function () {
   // MongoDB.
   await Promise.all([
-    Article.deleteMany({}),
-    Authorization.deleteMany({}),
-    Build.deleteMany({}),
-    Collection.deleteMany({}),
-    GameServer.deleteMany({}),
-    Group.deleteMany({}),
-    Namespace.deleteMany({}),
-    Queue.deleteMany({}),
-    QueueMember.deleteMany({}),
-    Storefront.deleteMany({}),
-    User.deleteMany({}),
-    WebSocket.deleteMany({}),
-    Workflow.deleteMany({}),
+    mongoose.Article.deleteMany({}),
+    mongoose.Authorization.deleteMany({}),
+    mongoose.Build.deleteMany({}),
+    mongoose.Collection.deleteMany({}),
+    mongoose.GameServer.deleteMany({}),
+    mongoose.Group.deleteMany({}),
+    mongoose.Namespace.deleteMany({}),
+    mongoose.Queue.deleteMany({}),
+    mongoose.QueueMember.deleteMany({}),
+    mongoose.Storefront.deleteMany({}),
+    mongoose.User.deleteMany({}),
+    mongoose.WebSocket.deleteMany({}),
+    mongoose.Workflow.deleteMany({}),
   ]);
 });

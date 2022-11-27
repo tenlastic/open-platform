@@ -1,6 +1,5 @@
+import { Message, MessagePermissions } from '@tenlastic/mongoose';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
-
-import { Message, MessagePermissions } from '../../../mongodb';
 
 export async function handler(ctx: Context) {
   const credentials = { ...ctx.state };

@@ -1,4 +1,4 @@
-import { Collection, RecordPermissions, RecordSchema } from '../../../../mongodb';
+import { Collection, RecordPermissions, RecordSchema } from '@tenlastic/mongoose';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {

@@ -1,5 +1,14 @@
 import * as minio from '@tenlastic/minio';
-import { AuthorizationRole, BuildFile } from '@tenlastic/mongoose';
+import {
+  Authorization,
+  AuthorizationRole,
+  Build,
+  BuildDocument,
+  BuildFile,
+  Namespace,
+  User,
+  UserDocument,
+} from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -7,14 +16,6 @@ import * as fs from 'fs';
 import * as unzipper from 'unzipper';
 
 import { MinioBuild } from '../../../../minio';
-import {
-  Authorization,
-  Build,
-  BuildDocument,
-  Namespace,
-  User,
-  UserDocument,
-} from '../../../../mongodb';
 import { handler } from './';
 
 use(chaiAsPromised);

@@ -1,9 +1,8 @@
 import * as minio from '@tenlastic/minio';
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
+import { Build, BuildDocument, EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
 
 import { KubernetesBuild, KubernetesBuildSidecar } from '../kubernetes';
 import { MinioBuild } from '../minio';
-import { Build, BuildDocument } from '../mongodb';
 import { NamespaceEvent, NamespaceStorageLimitEvent } from './namespace';
 
 export const BuildEvent = new EventEmitter<IDatabasePayload<BuildDocument>>();

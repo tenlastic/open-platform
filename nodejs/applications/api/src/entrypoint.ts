@@ -2,10 +2,10 @@ import 'source-map-support/register';
 
 import '@tenlastic/logging';
 import * as minio from '@tenlastic/minio';
+import * as mongoose from '@tenlastic/mongoose';
 import { URL } from 'url';
 
 import mailgun from './mailgun';
-import * as mongodb from './mongodb';
 import * as nats from './nats';
 import * as webServer from './web-server';
 import * as webSocketServer from './web-socket-server';
@@ -35,10 +35,7 @@ const podName = process.env.POD_NAME;
     await minio.makeBucket(minioBucket);
 
     // MongoDB.
-    await mongodb.setup({
-      connectionString: mongoConnectionString,
-      databaseName: 'api',
-    });
+    await mongoose.connect({ connectionString: mongoConnectionString, databaseName: 'api' });
 
     // NATS.
     await nats.setup({ connectionString: natsConnectionString, database: 'api', durable: 'api' });

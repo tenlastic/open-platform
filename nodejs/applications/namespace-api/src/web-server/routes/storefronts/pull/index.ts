@@ -1,9 +1,9 @@
 import * as minio from '@tenlastic/minio';
+import { Storefront, StorefrontPermissions } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 import { MinioStorefront } from '../../../../minio';
-import { Storefront, StorefrontPermissions } from '../../../../mongodb';
 
 export async function handler(ctx: Context) {
   const { _id, field, storefrontId } = ctx.params;

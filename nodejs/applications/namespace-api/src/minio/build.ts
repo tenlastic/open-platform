@@ -1,7 +1,6 @@
 import * as minio from '@tenlastic/minio';
+import { BuildDocument } from '@tenlastic/mongoose';
 import axios from 'axios';
-
-import { BuildDocument } from '../mongodb';
 
 export const MinioBuild = {
   /**

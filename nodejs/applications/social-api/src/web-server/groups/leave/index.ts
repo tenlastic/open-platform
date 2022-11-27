@@ -1,6 +1,5 @@
+import { Group, GroupPermissions } from '@tenlastic/mongoose';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
-
-import { Group, GroupPermissions } from '../../../mongodb';
 
 export async function handler(ctx: Context) {
   const credentials = { ...ctx.state };

@@ -1,6 +1,4 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
-
-import { NamespaceDocument } from '../mongodb';
+import { EventEmitter, IDatabasePayload, NamespaceDocument } from '@tenlastic/mongoose';
 
 export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocument>>();
 export const GlobalNamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocument>>();

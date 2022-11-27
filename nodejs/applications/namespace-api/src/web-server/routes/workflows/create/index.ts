@@ -1,6 +1,5 @@
+import { Namespace, WorkflowPermissions } from '@tenlastic/mongoose';
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
-
-import { Namespace, WorkflowPermissions } from '../../../../mongodb';
 
 export async function handler(ctx: Context) {
   const { cpu, memory, preemptible } = ctx.request.body;

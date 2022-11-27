@@ -1,7 +1,6 @@
+import { Namespace } from '@tenlastic/mongoose';
 import { Context } from '@tenlastic/web-server';
 import { Next } from 'koa';
-
-import { Namespace } from '../../mongodb';
 
 export async function storageLimitMiddleware(ctx: Context, next: Next) {
   // Allow sidecars to update status even if storage limit is reached.

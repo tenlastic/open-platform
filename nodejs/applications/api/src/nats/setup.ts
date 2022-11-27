@@ -1,6 +1,3 @@
-import { subscribe } from '@tenlastic/mongoose-change-stream-nats';
-import * as nats from '@tenlastic/nats';
-
 import {
   Authorization,
   AuthorizationRequest,
@@ -9,7 +6,10 @@ import {
   PasswordReset,
   User,
   WebSocket,
-} from '../mongodb';
+} from '@tenlastic/mongoose';
+import { subscribe } from '@tenlastic/mongoose-change-stream-nats';
+import * as nats from '@tenlastic/nats';
+
 import { AuthorizationEvent } from './authorization';
 import { AuthorizationRequestEvent } from './authorization-request';
 import { LoginEvent } from './login';

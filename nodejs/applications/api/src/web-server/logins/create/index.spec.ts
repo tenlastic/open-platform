@@ -1,8 +1,8 @@
+import { User, UserDocument } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
-import { User, UserDocument } from '../../../mongodb';
 import { handler } from '.';
 
 use(chaiAsPromised);
@@ -11,7 +11,7 @@ describe('web-server/logins/create', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await User.mock({ password: 'password' });
+    user = await User.mock({ password: 'password' }).save();
   });
 
   context('when credentials are correct', function () {

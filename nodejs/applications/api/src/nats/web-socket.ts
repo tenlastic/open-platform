@@ -1,6 +1,5 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
+import { EventEmitter, IDatabasePayload, WebSocket, WebSocketDocument } from '@tenlastic/mongoose';
 
-import { WebSocket, WebSocketDocument } from '../mongodb';
 import { UserEvent } from './user';
 
 export const WebSocketEvent = new EventEmitter<IDatabasePayload<WebSocketDocument>>();

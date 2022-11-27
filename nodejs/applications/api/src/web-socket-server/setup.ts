@@ -1,7 +1,7 @@
+import { WebSocket } from '@tenlastic/mongoose';
 import { WebSocketServer } from '@tenlastic/web-socket-server';
 import { Server } from 'http';
 
-import { WebSocket } from '../mongodb';
 import { connection } from './connection';
 import { message } from './message';
 

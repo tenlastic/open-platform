@@ -1,6 +1,5 @@
+import { AuthorizationPermissions, AuthorizationRequestPermissions } from '@tenlastic/mongoose';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
-
-import { AuthorizationPermissions, AuthorizationRequestPermissions } from '../../../mongodb';
 
 export async function handler(ctx: Context) {
   const credentials = { ...ctx.state };

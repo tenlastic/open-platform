@@ -1,11 +1,11 @@
 import { networkPolicyApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
 import {
   DatabaseOperationType,
+  WorkflowDocument,
   WorkflowSpecTemplate,
   WorkflowSpecTemplateSchema,
 } from '@tenlastic/mongoose';
 
-import { WorkflowDocument } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 
 export const KubernetesWorkflow = {

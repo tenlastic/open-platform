@@ -22,7 +22,7 @@ import { AuthorizationDocument } from '../authorization';
 import { RecordSchema } from '../record';
 import { SchemaSchema } from '../schema';
 import { CollectionIndexSchema } from './index/index';
-import { CollectionPermissions, CollectionPermissionsSchema } from './permissions';
+import { CollectionModelPermissions, CollectionModelPermissionsSchema } from './permissions';
 
 @index({ name: 1, namespaceId: 1 }, { unique: true })
 @modelOptions({
@@ -82,8 +82,8 @@ export class CollectionSchema {
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({ default: new CollectionPermissions(), type: CollectionPermissionsSchema })
-  public permissions: CollectionPermissionsSchema;
+  @prop({ default: new CollectionModelPermissions(), type: CollectionModelPermissionsSchema })
+  public permissions: CollectionModelPermissionsSchema;
 
   public updatedAt: Date;
 
@@ -149,28 +149,14 @@ export class CollectionSchema {
         additionalProperties: false,
         bsonType: 'object',
         properties: {
-          __v: {
-            bsonType: 'number',
-          },
-          _id: {
-            bsonType: 'objectId',
-          },
-          collectionId: {
-            bsonType: 'objectId',
-          },
-          createdAt: {
-            bsonType: 'date',
-          },
-          namespaceId: {
-            bsonType: 'objectId',
-          },
+          __v: { bsonType: 'number' },
+          _id: { bsonType: 'objectId' },
+          collectionId: { bsonType: 'objectId' },
+          createdAt: { bsonType: 'date' },
+          namespaceId: { bsonType: 'objectId' },
           properties: jsonToMongo(this.jsonSchema),
-          updatedAt: {
-            bsonType: 'date',
-          },
-          userId: {
-            bsonType: ['null', 'objectId', 'undefined'],
-          },
+          updatedAt: { bsonType: 'date' },
+          userId: { bsonType: ['null', 'objectId', 'undefined'] },
         },
       },
     };

@@ -1,6 +1,5 @@
+import { Namespace, QueuePermissions } from '@tenlastic/mongoose';
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
-
-import { Namespace, QueuePermissions } from '../../../../mongodb';
 
 export async function handler(ctx: Context) {
   const { cpu, memory, preemptible, replicas } = ctx.request.body;

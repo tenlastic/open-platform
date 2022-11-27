@@ -1,7 +1,11 @@
+import {
+  Authorization,
+  AuthorizationDocument,
+  WebSocket,
+  WebSocketPermissions,
+} from '@tenlastic/mongoose';
 import { ICredentials } from '@tenlastic/mongoose-permissions';
 import { AuthenticationData, WebSocket as WS } from '@tenlastic/web-socket-server';
-
-import { Authorization, AuthorizationDocument, WebSocket, WebSocketPermissions } from '../mongodb';
 
 const podName = process.env.POD_NAME;
 

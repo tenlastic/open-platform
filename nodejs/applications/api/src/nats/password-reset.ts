@@ -1,7 +1,6 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
+import { EventEmitter, IDatabasePayload, PasswordResetDocument, User } from '@tenlastic/mongoose';
 
 import mailgun from '../mailgun';
-import { PasswordResetDocument, User } from '../mongodb';
 
 export const PasswordResetEvent = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
 

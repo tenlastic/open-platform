@@ -1,6 +1,10 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
+import {
+  AuthorizationRequest,
+  AuthorizationRequestDocument,
+  EventEmitter,
+  IDatabasePayload,
+} from '@tenlastic/mongoose';
 
-import { AuthorizationRequest, AuthorizationRequestDocument } from '../mongodb';
 import { NamespaceEvent } from './namespace';
 import { UserEvent } from './user';
 

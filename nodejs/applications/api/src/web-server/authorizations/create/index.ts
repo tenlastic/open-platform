@@ -1,6 +1,5 @@
+import { AuthorizationPermissions, Namespace } from '@tenlastic/mongoose';
 import { Context } from '@tenlastic/web-server';
-
-import { AuthorizationPermissions, Namespace } from '../../../mongodb';
 
 export async function handler(ctx: Context) {
   const { namespaceId } = ctx.params;

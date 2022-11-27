@@ -1,7 +1,6 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
+import { EventEmitter, IDatabasePayload, Workflow, WorkflowDocument } from '@tenlastic/mongoose';
 
 import { KubernetesWorkflow, KubernetesWorkflowSidecar } from '../kubernetes';
-import { Workflow, WorkflowDocument } from '../mongodb';
 import { NamespaceEvent } from './namespace';
 
 export const WorkflowEvent = new EventEmitter<IDatabasePayload<WorkflowDocument>>();

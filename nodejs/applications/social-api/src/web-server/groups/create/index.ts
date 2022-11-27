@@ -1,4 +1,4 @@
-import { GroupPermissions } from '../../../mongodb';
+import { GroupPermissions } from '@tenlastic/mongoose';
 import { Context } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {

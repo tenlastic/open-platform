@@ -1,6 +1,5 @@
+import { RefreshToken } from '@tenlastic/mongoose';
 import { Context } from '@tenlastic/web-server';
-
-import { RefreshToken } from '../../../mongodb';
 
 export async function handler(ctx: Context) {
   if (ctx.state.jwt) {

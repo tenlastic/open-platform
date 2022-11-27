@@ -1,11 +1,15 @@
 import * as minio from '@tenlastic/minio';
-import { NamespaceLimitError } from '@tenlastic/mongoose';
+import {
+  Namespace,
+  NamespaceLimitError,
+  Storefront,
+  StorefrontPermissions,
+} from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
 import { MinioStorefront } from '../../../../minio';
-import { Namespace, Storefront, StorefrontPermissions } from '../../../../mongodb';
 import { NamespaceStorageLimitEvent } from '../../../../nats';
 
 export async function handler(ctx: Context) {

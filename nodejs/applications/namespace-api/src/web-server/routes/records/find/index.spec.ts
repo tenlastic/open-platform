@@ -1,16 +1,16 @@
-import { CollectionPermissions } from '@tenlastic/mongoose';
-import { ContextMock } from '@tenlastic/web-server';
-import { expect } from 'chai';
-
 import {
   Collection,
   CollectionDocument,
+  CollectionModelPermissions,
   Namespace,
   NamespaceDocument,
   RecordSchema,
   User,
   UserDocument,
-} from '../../../../mongodb';
+} from '@tenlastic/mongoose';
+import { ContextMock } from '@tenlastic/web-server';
+import { expect } from 'chai';
+
 import { handler } from './';
 
 describe('web-server/records/find', function () {
@@ -29,7 +29,7 @@ describe('web-server/records/find', function () {
         type: 'object',
       },
       namespaceId: namespace._id,
-      permissions: CollectionPermissions.mock({
+      permissions: CollectionModelPermissions.mock({
         create: new Map(Object.entries({ public: ['properties'] })),
         find: new Map(Object.entries({ public: {} })),
         read: new Map(Object.entries({ public: ['_id', 'createdAt', 'properties', 'updatedAt'] })),

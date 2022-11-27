@@ -1,9 +1,8 @@
 import { V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
 import { deploymentApiV1 } from '@tenlastic/kubernetes';
-import { QueueStatusComponentName } from '@tenlastic/mongoose';
+import { QueueDocument, QueueStatusComponentName } from '@tenlastic/mongoose';
 
 import { version } from '../../package.json';
-import { QueueDocument } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 import { KubernetesQueue } from './queue';
 
